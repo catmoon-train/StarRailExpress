@@ -44,6 +44,7 @@ import io.wifi.starrailexpress.network.packet.ModVersionPacket;
 import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
 import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
 import io.wifi.starrailexpress.scenery.server.SceneAssetServer;
+import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.util.Scheduler;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
@@ -130,6 +131,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         registerCommandArgumentTypes();
         registerCommands();
         registerServerPlayConnectionEvents();
+        PlayerStatsManager.registerEvents();
         registerPayloadTypes();
         registerGlobalReceivers();
         registerPlayerCopyEvent();
@@ -334,7 +336,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             SceneAssetServer.sendCurrentManifest(handler.player);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            SREPlayerStatsComponent.KEY.get(handler.player).flushDatabaseAsync();
             CustomRoleServerNetwork.onPlayerDisconnect(handler.player.getUUID());
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(handler.player.level());
             var psychocca = SREPlayerPsychoComponent.KEY.get(handler.player);
@@ -407,6 +408,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(ReplayPayload.ID, ReplayPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SecurityCameraModePayload.ID, SecurityCameraModePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowStatsPayload.ID, ShowStatsPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(PlayerStatsSyncPayload.ID, PlayerStatsSyncPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowSelectedMapUIPayload.ID, ShowSelectedMapUIPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(MapVotingResultsPayload.TYPE, MapVotingResultsPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(CloseUiPayload.ID, CloseUiPayload.CODEC);
@@ -476,6 +478,12 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(EntityInteractionBlockPayload.SyncBlockEntity.TYPE, EntityInteractionBlockPayload.SyncBlockEntity.CODEC);
         PayloadTypeRegistry.playC2S().register(EntityInteractionBlockPayload.SaveConfig.TYPE, EntityInteractionBlockPayload.SaveConfig.CODEC);
 
+        // 小游戏任务点数据包
+        PayloadTypeRegistry.playS2C().register(MinigameQuestPayload.OpenConfig.TYPE, MinigameQuestPayload.OpenConfig.CODEC);
+        PayloadTypeRegistry.playS2C().register(MinigameQuestPayload.OpenGame.TYPE, MinigameQuestPayload.OpenGame.CODEC);
+        PayloadTypeRegistry.playC2S().register(MinigameQuestPayload.SaveConfig.TYPE, MinigameQuestPayload.SaveConfig.CODEC);
+        PayloadTypeRegistry.playC2S().register(MinigameQuestPayload.CompleteGame.TYPE, MinigameQuestPayload.CompleteGame.CODEC);
+
         // 职业轮选数据包
         PayloadTypeRegistry.playC2S().register(RoleRotationSelectC2SPacket.TYPE, RoleRotationSelectC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(RoleRotationSyncS2CPacket.TYPE, RoleRotationSyncS2CPacket.CODEC);
@@ -505,6 +513,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
         // 实体交互方块服务端网络处理
         EntityInteractionBlockServerNetwork.register();
+        MinigameQuestServerNetwork.register();
         // 画板服务端网络处理
         DrawingBoardServerNetwork.register();
         ServerPlayNetworking.registerGlobalReceiver(SecurityCameraExitRequestPayload.ID,

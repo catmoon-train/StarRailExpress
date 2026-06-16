@@ -184,7 +184,8 @@ public class MapManagerCommand {
                 .then(setEffect())
                 .then(setTime())
                 .then(setDaylightCycle())
-                .then(setWeatherCycle()))
+                .then(setWeatherCycle())
+                .then(setInitialItems()))
             .then(Commands.literal("get")
                 .requires(source -> source.hasPermission(2))
                 .then(getSpawnPos())
@@ -217,6 +218,7 @@ public class MapManagerCommand {
                 .then(buildGetSimple("time", a -> String.valueOf(a.time)))
                 .then(buildGetSimple("daylightCycle", a -> String.valueOf(a.daylightCycle)))
                 .then(buildGetSimple("weatherCycle", a -> String.valueOf(a.weatherCycle)))
+                .then(buildGetSimple("initialItems", a -> a.initialItems.isEmpty() ? "(none)" : String.join(", ", a.initialItems)))
                 .then(getDisabledTasks()))
             .then(Commands.literal("remove")
                 .requires(source -> source.hasPermission(3))
@@ -578,6 +580,25 @@ public class MapManagerCommand {
     sendSetFeedback(source, "weatherCycle", String.valueOf(value));
   }
 
+  // 16. initialItems
+  private static void setInitialItems(CommandSourceStack source, String value) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.initialItems = new java.util.ArrayList<>();
+    if (!value.isEmpty()) {
+      // 支持逗号分隔，格式如 "minecraft:diamond,2,minecraft:stick,1"
+      String[] parts = value.split(",");
+      for (int i = 0; i < parts.length; i += 2) {
+        if (i + 1 < parts.length) {
+          String itemId = parts[i].trim();
+          String countStr = parts[i + 1].trim();
+          areas.initialItems.add(itemId + ";" + countStr);
+        }
+      }
+    }
+    areas.sync();
+    sendSetFeedback(source, "initialItems", "\"" + value + "\"");
+  }
+
   // ======================== list 子命令实现 ========================
 
   private static int executeList(CommandSourceStack source) {
@@ -614,6 +635,7 @@ public class MapManagerCommand {
     sb.append("time: ").append(areas.time).append("\n");
     sb.append("daylightCycle: ").append(areas.daylightCycle).append("\n");
     sb.append("weatherCycle: ").append(areas.weatherCycle).append("\n");
+    sb.append("initialItems: ").append(areas.initialItems.isEmpty() ? "(none)" : String.join(", ", areas.initialItems)).append("\n");
     sb.append("disabledTasks: ").append(formatDisabledTasks(areas.disabledTasks));
     source.sendSuccess(
         () -> Component.literal(sb.toString()).withStyle(style -> style.withColor(ChatFormatting.AQUA)),
@@ -892,6 +914,15 @@ public class MapManagerCommand {
         .then(Commands.argument("value", BoolArgumentType.bool())
             .executes(ctx -> {
               setWeatherCycle(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
+              return 1;
+            }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setInitialItems() {
+    return Commands.literal("initialItems")
+        .then(Commands.argument("value", StringArgumentType.string())
+            .executes(ctx -> {
+              setInitialItems(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
               return 1;
             }));
   }

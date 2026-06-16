@@ -8,7 +8,6 @@ import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.event.*;
@@ -1105,6 +1104,30 @@ public class ModEventsRegister {
             for (ServerPlayer player : world.players()) {
                 org.agmas.noellesroles.component.ModComponents.MEATBALL.get(player).init();
             }
+            // 重置游玩区域内所有实体交互方块的内置冷却
+            if (io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.getCountForMap(world) == 0) {
+                // 当前地图没有任何实体交互方块，跳过
+            } else {
+            var playArea = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(world).getPlayArea();
+            int minChunkX = ((int) playArea.minX) >> 4;
+            int maxChunkX = ((int) playArea.maxX) >> 4;
+            int minChunkZ = ((int) playArea.minZ) >> 4;
+            int maxChunkZ = ((int) playArea.maxZ) >> 4;
+            var chunkSource = world.getChunkSource();
+            for (int cx = minChunkX; cx <= maxChunkX; cx++) {
+                for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
+                    var chunk = chunkSource.getChunkNow(cx, cz);
+                    if (chunk != null) {
+                        for (var be : chunk.getBlockEntities().values()) {
+                            if (be instanceof io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity entity
+                                    && playArea.contains(entity.getBlockPos().getCenter())) {
+                                entity.resetAllCooldowns();
+                            }
+                        }
+                    }
+                }
+            }
+            }
             // 已经在resetPlayer清除部分cca
             // 重置所有玩家的锁匠灵感
             SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
@@ -2072,8 +2095,6 @@ public class ModEventsRegister {
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             sender.sendPacket(new BloodConfigS2CPacket(NoellesRolesConfig.HANDLER.instance().enableClientBlood));
-            final ServerPlayer p = handler.player;
-            SREPlayerStatsComponent.KEY.get(p).joinLoadFromFile();
         });
     }
 

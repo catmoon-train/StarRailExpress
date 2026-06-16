@@ -1,10 +1,10 @@
 package io.wifi.starrailexpress.cca.network;
 
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.content.mail.MailboxComponent;
+import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -135,10 +135,7 @@ public class SkinsNetworkSyncInitializer {
             try {
                 boolean wroteAny = false;
 
-                SREPlayerStatsComponent statsComponent = SREPlayerStatsComponent.KEY.get(player);
-                if (statsComponent != null) {
-                    wroteAny |= statsComponent.flushDatabaseSyncBlocking();
-                }
+                wroteAny |= PlayerStatsManager.flushDatabaseBlocking(player.getUUID());
 
                 SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
                 if (skinsComponent != null && skinsComponent.isNetworkSyncEnabled()) {

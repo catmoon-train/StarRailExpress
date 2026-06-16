@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "starrailexpress:block/minigame_quest_panel",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "starrailexpress:block/minigame_quest_panel"
+    },
+    "facing=south": {
+      "model": "starrailexpress:block/minigame_quest_panel",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "starrailexpress:block/minigame_quest_panel",
+      "y": 270
+    },
+    "facing=down": {
+      "model": "starrailexpress:block/minigame_quest_panel",
+      "x": 90
+    },
+    "facing=up": {
+      "model": "starrailexpress:block/minigame_quest_panel",
+      "x": 270
+    }
+  }
+}

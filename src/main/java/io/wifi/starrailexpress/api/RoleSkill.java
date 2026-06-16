@@ -87,10 +87,10 @@ public final class RoleSkill {
         private int maxCharges = -1;
         private boolean continuous;
         private int holdIntervalTicks = 1;
-        private boolean announceToSelf = true;
+        private boolean announceToSelf = false;
         private boolean toggleable;
         private boolean shifted;
-        private boolean showOnHud = true;
+        private boolean showOnHud = false;
 
         private Builder(ResourceLocation id, String nameKey, Handler handler) {
             this.id = id;
@@ -135,7 +135,7 @@ public final class RoleSkill {
             return this;
         }
 
-        /** Whether this skill should appear on the HUD. Defaults to true. Set false for passive/internal skills. */
+        /** Whether this skill should appear on the HUD. Defaults to false. Set true for skills that need HUD display. */
         public Builder showOnHud(boolean showOnHud) {
             this.showOnHud = showOnHud;
             return this;
@@ -332,15 +332,18 @@ public final class RoleSkill {
 
         boolean used = definition.handler().use(
                 new RoleSkillContext(player, target, definition.id(), phase, skillReady));
-        if (!used) {
-            return false;
-        }
 
+        // 计数始终 +1（不依赖 handler 返回值），新职业不用特地判断
+        // announceToSelf 默认 false，不会显示播报
         if (skillReady) {
             ability.markSkillUsed(definition);
         } else {
             // Toggleable deactivation: just stop casting if applicable
             ability.stopCasting(definition.id());
+        }
+
+        if (!used) {
+            return false;
         }
         if (definition.announceToSelf()) {
             MutableComponent stateLabel;

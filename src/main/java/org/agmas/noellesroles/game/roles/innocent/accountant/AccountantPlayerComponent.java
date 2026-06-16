@@ -225,24 +225,26 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
 
     /**
      * 使用技能（直接按技能键）
+     * @return 是否成功释放技能
      */
-    public void useAbility() {
+    public boolean useAbility() {
         if (!(player instanceof ServerPlayer serverPlayer))
-            return;
+            return false;
 
         // 根据当前模式执行技能
         if (currentMode == MODE_INCOME) {
-            executeIncomeSkill(serverPlayer);
+            return executeIncomeSkill(serverPlayer);
         } else {
-            executeExpenseSkill(serverPlayer);
+            return executeExpenseSkill(serverPlayer);
         }
     }
 
     /**
      * 执行收入模式技能
      * 查看准星对准的玩家的金币量是否超过300
+     * @return 是否成功释放技能
      */
-    private void executeIncomeSkill(ServerPlayer serverPlayer) {
+    private boolean executeIncomeSkill(ServerPlayer serverPlayer) {
         // 获取准星对准的玩家
         Player target = getTargetPlayer(serverPlayer);
         if (target == null) {
@@ -250,7 +252,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
                     Component.translatable("message.noellesroles.accountant.no_target")
                             .withStyle(ChatFormatting.RED),
                     true);
-            return;
+            return false;
         }
 
         // 检查金币是否足够
@@ -260,7 +262,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
                     Component.translatable("message.noellesroles.accountant.insufficient_funds", SKILL_COST)
                             .withStyle(ChatFormatting.RED),
                     true);
-            return;
+            return false;
         }
 
         // 扣除金币
@@ -292,13 +294,15 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
                             .withStyle(ChatFormatting.YELLOW),
                     true);
         }
+        return true;
     }
 
     /**
      * 执行支出模式技能
      * 标记一名玩家，20秒后对比其金币数变化
+     * @return 是否成功释放技能
      */
-    private void executeExpenseSkill(ServerPlayer serverPlayer) {
+    private boolean executeExpenseSkill(ServerPlayer serverPlayer) {
         // 获取准星对准的玩家
         Player target = getTargetPlayer(serverPlayer);
         if (target == null) {
@@ -306,7 +310,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
                     Component.translatable("message.noellesroles.accountant.no_target")
                             .withStyle(ChatFormatting.RED),
                     true);
-            return;
+            return false;
         }
 
         // 检查金币是否足够
@@ -316,7 +320,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
                     Component.translatable("message.noellesroles.accountant.insufficient_funds", SKILL_COST)
                             .withStyle(ChatFormatting.RED),
                     true);
-            return;
+            return false;
         }
 
         // 扣除金币
@@ -340,6 +344,7 @@ public class AccountantPlayerComponent implements RoleComponent, ServerTickingCo
                 true);
 
         sync();
+        return true;
     }
 
     /**

@@ -286,6 +286,36 @@ public class MapBuildHelperScreen extends Screen {
                 sendOnly("sre:area_manager map name " + quoteCommandArgument(name));
             }
         }).bounds(left, row5, fullWidth, bh).accentBar(AccentSide.BOTTOM).build());
+
+        // 地图初始物品配置
+        int row6 = row5 + bh + gap;
+        AreasWorldComponent areasForII = SREClient.areaComponent;
+        String currentInitialItems = "";
+        if (areasForII != null && !areasForII.initialItems.isEmpty()) {
+            // 将 "itemId;count" 格式转为逗号分隔 "itemId,count,itemId,count"
+            StringBuilder sb = new StringBuilder();
+            for (String item : areasForII.initialItems) {
+                String[] parts = item.split(";");
+                if (parts.length >= 2) {
+                    if (sb.length() > 0) sb.append(",");
+                    sb.append(parts[0]).append(",").append(parts[1]);
+                }
+            }
+            currentInitialItems = sb.toString();
+        }
+        EditBox initialItemsBox = new EditBox(font, left, row6, fullWidth, bh,
+                Component.literal("初始物品(格式: 物品ID,数量,物品ID,数量...) 如 minecraft:diamond,2"));
+        initialItemsBox.setMaxLength(512);
+        initialItemsBox.setValue(currentInitialItems);
+        addTabWidget(tabWidgets6, initialItemsBox);
+
+        int row7 = row6 + bh + gap;
+        addTabWidget(tabWidgets6, ModernButton.builder(Component.literal("设置地图初始物品"), b -> {
+            String value = initialItemsBox.getValue().trim();
+            if (!value.isEmpty()) {
+                sendOnly("sre:area_manager set initialItems " + quoteCommandArgument(value));
+            }
+        }).bounds(left, row7, fullWidth, bh).accentBar(AccentSide.BOTTOM).build());
     }
 
     private void importMapConfig(boolean force) {

@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.game.roles.innocent.builder.BuilderPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
@@ -29,22 +30,27 @@ public class BuilderHud {
 
             Font textRenderer = client.font;
 
+            // 显示切换模式提示（放在最上方）
+            Component toggleText = Component.translatable("hud.builder.toggle_mode",
+                NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage());
+            context.drawString(textRenderer, toggleText, x, y, 0xAAAAAA);
+
             // 显示当前模式
             Component modeText = builderComponent.isBuildMode() ?
                 Component.translatable("hud.noellesroles.builder.mode.build") :
                 Component.translatable("hud.noellesroles.builder.mode.demolish");
             int modeColor = builderComponent.isBuildMode() ? CommonColors.GREEN : 0xFFAA00; // 绿色=建造, 橙色=拆除
-            context.drawString(textRenderer, modeText, x, y, modeColor);
+            context.drawString(textRenderer, modeText, x, y + 12, modeColor);
 
             // 显示冷却时间
             if (builderComponent.isBuildMode() && builderComponent.cooldown > 0) {
                 float cdSeconds = builderComponent.getCooldownSeconds();
                 Component cdText = Component.translatable("hud.noellesroles.builder.cooldown",
                     String.format("%.1f", cdSeconds));
-                context.drawString(textRenderer, cdText, x, y + 12, CommonColors.RED);
+                context.drawString(textRenderer, cdText, x, y + 24, CommonColors.RED);
             } else if (builderComponent.isBuildMode()) {
                 Component readyText = Component.translatable("hud.noellesroles.builder.ready");
-                context.drawString(textRenderer, readyText, x, y + 12, CommonColors.GREEN);
+                context.drawString(textRenderer, readyText, x, y + 24, CommonColors.GREEN);
             }
         });
     }

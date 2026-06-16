@@ -1281,6 +1281,15 @@ public class CommonClientHudRenderer {
           Color.WHITE.getRGB());
       guiGraphics.drawString(font, modeText, xOffset - font.width(modeText), dy, Color.WHITE.getRGB());
 
+      dy -= font.lineHeight + 4;
+
+      // 显示切换模式提示
+      var toggleText = Component
+          .translatable("hud.thief.toggle_mode",
+              NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage())
+          .withStyle(ChatFormatting.GRAY);
+      guiGraphics.drawString(font, toggleText, xOffset - font.width(toggleText), dy, Color.WHITE.getRGB());
+
       dy -= font.lineHeight + 8;
 
       guiGraphics.drawString(font, progress, xOffset - font.width(progress), dy, Color.WHITE.getRGB());
@@ -1441,7 +1450,7 @@ public class CommonClientHudRenderer {
       // 显示切换模式提示
       var toggleText = Component
           .translatable("hud.accountant.toggle_mode",
-              NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+              NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage())
           .withStyle(ChatFormatting.GRAY);
       guiGraphics.drawString(font, toggleText, xOffset - font.width(toggleText), dy, Color.WHITE.getRGB());
     });
@@ -1510,7 +1519,7 @@ public class CommonClientHudRenderer {
       // 显示切换药剂提示
       var toggleText = Component
           .translatable("hud.alchemist.switch_potion",
-              NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+              NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage())
           .withStyle(ChatFormatting.GRAY);
       guiGraphics.drawString(font, toggleText, xOffset - font.width(toggleText), dy, Color.WHITE.getRGB());
     });
@@ -1679,6 +1688,14 @@ public class CommonClientHudRenderer {
         var ct = Component.translatable("hud.noellesroles.mortician_bodymaker.dragging").withStyle(ChatFormatting.GRAY);
         guiGraphics.drawString(font, ct, xOffset - font.width(ct), yOffset, 0xFFFFFF);
       }
+
+      // 显示切换模式提示
+      yOffset -= font.lineHeight + 4;
+      var toggleText = Component
+          .translatable("hud.mortician_bodymaker.toggle_mode",
+              NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage())
+          .withStyle(ChatFormatting.GRAY);
+      guiGraphics.drawString(font, toggleText, xOffset - font.width(toggleText), yOffset, 0xFFFFFF);
     });
 
   }

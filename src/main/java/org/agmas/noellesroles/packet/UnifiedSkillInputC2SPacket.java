@@ -14,11 +14,16 @@ import java.util.UUID;
 public record UnifiedSkillInputC2SPacket(
         int slot,
         RoleSkill.Phase phase,
-        @Nullable UUID target) implements CustomPacketPayload {
+        @Nullable UUID target,
+        boolean forceShifted) implements CustomPacketPayload {
     public static final Type<UnifiedSkillInputC2SPacket> ID =
             new Type<>(ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "unified_skill_input"));
     public static final StreamCodec<RegistryFriendlyByteBuf, UnifiedSkillInputC2SPacket> CODEC =
             StreamCodec.ofMember(UnifiedSkillInputC2SPacket::write, UnifiedSkillInputC2SPacket::read);
+
+    public UnifiedSkillInputC2SPacket(int slot, RoleSkill.Phase phase, @Nullable UUID target) {
+        this(slot, phase, target, false);
+    }
 
     private void write(FriendlyByteBuf buf) {
         buf.writeVarInt(slot);
@@ -27,13 +32,15 @@ public record UnifiedSkillInputC2SPacket(
         if (target != null) {
             buf.writeUUID(target);
         }
+        buf.writeBoolean(forceShifted);
     }
 
     private static UnifiedSkillInputC2SPacket read(FriendlyByteBuf buf) {
         int slot = buf.readVarInt();
         RoleSkill.Phase phase = buf.readEnum(RoleSkill.Phase.class);
         UUID target = buf.readBoolean() ? buf.readUUID() : null;
-        return new UnifiedSkillInputC2SPacket(slot, phase, target);
+        boolean forceShifted = buf.readBoolean();
+        return new UnifiedSkillInputC2SPacket(slot, phase, target, forceShifted);
     }
 
     @Override

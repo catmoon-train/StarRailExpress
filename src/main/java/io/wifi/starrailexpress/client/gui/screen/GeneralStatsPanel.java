@@ -3,7 +3,7 @@ package io.wifi.starrailexpress.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
+import io.wifi.starrailexpress.stats.PlayerStats;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.client.Minecraft;
@@ -17,7 +17,7 @@ import net.minecraft.util.Mth;
 
 public class GeneralStatsPanel extends AbstractWidget {
 
-    private final SREPlayerStatsComponent stats;
+    private final PlayerStats stats;
     private int scrollY = 0;
     private int maxScroll = 0;
     private boolean isDraggingScrollbar = false;
@@ -30,7 +30,7 @@ public class GeneralStatsPanel extends AbstractWidget {
     private static final int CARD_SPACING = 8;
 
     public GeneralStatsPanel(int x, int y, int width, int height,
-            SREPlayerStatsComponent stats, int screenWidth, int screenHeight) {
+            PlayerStats stats, int screenWidth, int screenHeight) {
         super(x, y, width, height, Component.empty());
         this.stats = stats;
     }

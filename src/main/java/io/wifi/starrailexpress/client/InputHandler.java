@@ -12,6 +12,7 @@ import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
 import io.wifi.starrailexpress.content.vote.client.VoteScreen;
 
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.content.item.SniperRifleItem;
 import io.wifi.starrailexpress.network.RequestOpenClueArchivePayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -23,6 +24,8 @@ import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
 public class InputHandler {
+    private static boolean wasRightDown = false;
+
     public static KeyMapping openVotingScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.open_voting_screen",
             GLFW.GLFW_KEY_M,
@@ -42,6 +45,10 @@ public class InputHandler {
     public static KeyMapping openClueArchiveKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.open_clue_archive",
             GLFW.GLFW_KEY_UNKNOWN,
+            "category.starrailexpress.general"));
+    public static KeyMapping sniperReloadKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+            "key.starrailexpress.sniper_reload",
+            GLFW.GLFW_KEY_R,
             "category.starrailexpress.general"));
 
     public static void initialize() {
@@ -74,6 +81,25 @@ public class InputHandler {
             if (!mainHandItem.is(TMMItems.SNIPER_RIFLE)) {
                 ScopeOverlayRenderer.setInScopeView(false);
             }
+        }
+
+        // 狙击枪操作
+        if (client.player != null && client.player.getMainHandItem().is(TMMItems.SNIPER_RIFLE)) {
+            ItemStack mainHandItem = client.player.getMainHandItem();
+            // 右键开镜/关镜（兜底检测，防止 use() 未触发）
+            if (SniperRifleItem.hasScopeAttached(mainHandItem)) {
+                boolean rightDown = org.lwjgl.glfw.GLFW.glfwGetMouseButton(
+                        client.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
+                if (rightDown && !wasRightDown) {
+                    ScopeOverlayRenderer.setInScopeView(!ScopeOverlayRenderer.isInScopeView());
+                }
+                wasRightDown = rightDown;
+            }
+            if (sniperReloadKeybind.consumeClick()) {
+                SniperRifleItem.tryReloadFromKeybind(client.player);
+            }
+        } else {
+            wasRightDown = false;
         }
 
         if (openVotingScreenKeybind.consumeClick()) {

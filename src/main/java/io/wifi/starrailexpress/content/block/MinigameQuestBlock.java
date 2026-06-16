@@ -1,0 +1,167 @@
+package io.wifi.starrailexpress.content.block;
+
+import com.mojang.serialization.MapCodec;
+import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
+import io.wifi.starrailexpress.content.block_entity.MinigameQuestBlockEntity;
+import io.wifi.starrailexpress.index.TMMBlockEntities;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
+
+import java.awt.Color;
+
+/**
+ * 小游戏任务点方块
+ * 透明、可含水、无碰撞体积，类似实体交互方块
+ * 创造模式玩家右键可打开小游戏选择GUI
+ * 冒险模式玩家右键直接打开配置的小游戏
+ */
+public class MinigameQuestBlock extends BaseEntityBlock
+        implements TaskInstinctShowableInterface, SimpleWaterloggedBlock {
+
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final int TASK_INSTINCT_ID = 14;
+
+    public MinigameQuestBlock(Properties settings) {
+        super(settings.noOcclusion().noCollission());
+        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() { return null; }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return Shapes.block();
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return Shapes.empty();
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) { return RenderShape.INVISIBLE; }
+
+    @Override
+    public float getShadeBrightness(BlockState state, BlockGetter world, BlockPos pos) { return 1.0F; }
+
+    @Override
+    public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) { return true; }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player,
+            BlockHitResult hit) {
+        if (world.isClientSide) return InteractionResult.SUCCESS;
+
+        BlockEntity be = world.getBlockEntity(pos);
+        if (be instanceof MinigameQuestBlockEntity questBe) {
+            if (player instanceof ServerPlayer sp && sp.isCreative()) {
+                // 创造模式：打开配置界面
+                questBe.openConfigUI(sp);
+            } else if (player instanceof ServerPlayer sp) {
+                // 冒险/生存模式：打开小游戏
+                String minigameId = questBe.getMinigameId();
+                if (minigameId != null && !minigameId.isEmpty()) {
+                    net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(sp,
+                            new io.wifi.starrailexpress.network.MinigameQuestPayload.OpenGame(pos, minigameId));
+                }
+            }
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new MinigameQuestBlockEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state,
+            BlockEntityType<T> type) {
+        return createTickerHelper(type, TMMBlockEntities.MINIGAME_QUEST,
+                (lvl, pos, s, be) -> { /* 无需tick */ });
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(WATERLOGGED);
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        FluidState fluidState = ctx.getLevel().getFluidState(ctx.getClickedPos());
+        return this.defaultBlockState().setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+            LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    // ══════════════════════════════════════════
+    // 任务路标接口（支持scan同步）
+    // ══════════════════════════════════════════
+
+    @Override
+    public int taskInstinctId() { return TASK_INSTINCT_ID; }
+
+    @Override
+    public boolean shouldRenderTaskInstinct(BlockState state, BlockPos pos, Player player) {
+        Level level = player.level();
+        if (level != null) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof MinigameQuestBlockEntity questBe) {
+                return questBe.isTaskMarker();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Color taskInstinctRenderColor(BlockState state, BlockPos pos, Player player) {
+        Level level = player.level();
+        if (level != null) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof MinigameQuestBlockEntity questBe) {
+                return new Color(questBe.getMarkerColor());
+            }
+        }
+        return Color.GREEN;
+    }
+}

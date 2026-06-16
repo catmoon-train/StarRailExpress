@@ -14,7 +14,6 @@ import org.agmas.noellesroles.client.screen.TelegrapherScreen;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.AbilityC2SPacket;
 import org.agmas.noellesroles.packet.AbilityWithTargetC2SPacket;
-import org.agmas.noellesroles.packet.BuilderAbilityC2SPacket;
 import org.agmas.noellesroles.packet.VultureEatC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -116,13 +115,6 @@ public final class GKeyRoleSkill {
             ClientPlayNetworking.send(new org.agmas.noellesroles.packet.CreeperAbilityC2SPacket());
             return true;
         });
-        register(ModRoles.BUILDER, true, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
-                return true;
-            }
-            ClientPlayNetworking.send(new BuilderAbilityC2SPacket(client.player.isShiftKeyDown()));
-            return true;
-        });
         register(ModRoles.VULTURE, false, (client, gameWorld) -> {
             if (NoellesrolesClient.targetBody == null) {
                 return true;
@@ -191,75 +183,6 @@ public final class GKeyRoleSkill {
             } else {
                 client.player.displayClientMessage(Component.translatable("hud.infected.target_miss"), true);
             }
-            return true;
-        });
-
-        // Imitator: Shift+G = switch slot, G at player = copy/use, G without target = use
-        register(ModRoles.IMITATOR, true, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
-
-            // Shift+G = switch slot/mode
-            if (client.player.isShiftKeyDown()) {
-                ClientPlayNetworking.send(new AbilityC2SPacket());
-                return true;
-            }
-
-            org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent comp =
-                    org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent.KEY.get(client.player);
-
-            // 复制模式：只处理瞄准玩家的情况
-            if (comp.isCopyMode) {
-                var hitResult = client.hitResult;
-                if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
-                    net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
-                    if (entityHit.getEntity() instanceof Player targetPlayer) {
-                        ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(targetPlayer));
-                        return true;
-                    }
-                }
-                // 没有瞄准玩家，提示
-                client.player.displayClientMessage(Component.translatable(
-                        "message.noellesroles.imitator.copy_mode_hint").withStyle(ChatFormatting.YELLOW), true);
-                return true;
-            }
-
-            // 非复制模式：检查当前能力是否是消息技能
-            ResourceLocation currentAbility = comp.getCurrentAbilityRoleId();
-            if (currentAbility != null && org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry.isMessageSkill(currentAbility)) {
-                int cd = comp.getCurrentSkillCooldown();
-                if (cd > 0) {
-                    client.player.displayClientMessage(Component.translatable(
-                            "message.noellesroles.imitator.cooldown", (cd + 19) / 20)
-                            .withStyle(ChatFormatting.RED), true);
-                    return true;
-                }
-                if (currentAbility.equals(ModRoles.TELEGRAPHER_ID)) {
-                    client.execute(() -> client.setScreen(new TelegrapherScreen()));
-                } else if (currentAbility.equals(ModRoles.BROADCASTER_ID)) {
-                    client.execute(() -> client.setScreen(new BroadcasterScreen()));
-                }
-                return true;
-            }
-
-            // 普通使用：无目标直接发包，有目标也当作无目标使用（因为8个技能都不需要目标）
-            ClientPlayNetworking.send(new AbilityC2SPacket());
-            return true;
-        });
-
-        // 葬仪：蹲下按技能键切换模式，按技能键使用当前模式技能
-        register(ModRoles.MORTICIAN_BODYMAKER, true, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
-                return true;
-            }
-
-            // Shift+技能键 = 切换模式
-            if (client.player.isShiftKeyDown()) {
-                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.MorticianToggleModeC2SPacket());
-                return true;
-            }
-
-            // 普通技能键 = 使用当前模式技能
-            ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;
         });
 

@@ -71,48 +71,27 @@ public class MouseHandlerMixin {
             if (isShiftKeyDown) {
                 // Shift + 左键：安装/卸载倍镜
                 if (SniperRifleItem.hasScopeAttached(mainHandStack)) {
-                    // 已安装倍镜，卸载倍镜
                     ClientPlayNetworking.send(new SniperShootPayload(SniperShootPayload.Action.UNINSTALL_SCOPE, player.getId()));
-                    player.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 20); // 1秒冷却
-                    ci.cancel(); // 取消默认的攻击行为
+                    player.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 20);
+                    ci.cancel();
                 } else {
-                    // 未安装倍镜，安装倍镜
-                    // 检查是否有倍镜
                     boolean hasScope = false;
                     for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                        ItemStack invStack = player.getInventory().getItem(i);
-                        if (invStack.is(TMMItems.SCOPE)) {
+                        if (player.getInventory().getItem(i).is(TMMItems.SCOPE)) {
                             hasScope = true;
                             break;
                         }
                     }
                     if (hasScope) {
                         ClientPlayNetworking.send(new SniperShootPayload(SniperShootPayload.Action.INSTALL_SCOPE, player.getId()));
-                        player.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 20); // 1秒冷却
-                        ci.cancel(); // 取消默认的攻击行为
+                        player.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 20);
+                        ci.cancel();
                     }
                 }
             } else {
-                // 左键：装填子弹
-                // 检查子弹数量
-                int currentAmmo = SniperRifleItem.getAmmoCount(mainHandStack);
-                if (currentAmmo < SniperRifleItem.MAX_AMMO) {
-                    // 检查是否有子弹
-                    boolean hasBullet = false;
-                    for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                        ItemStack invStack = player.getInventory().getItem(i);
-                        if (invStack.is(TMMItems.MAGNUM_BULLET)) {
-                            hasBullet = true;
-                            break;
-                        }
-                    }
-                    if (hasBullet) {
-                        // 发送装填请求
-                        ClientPlayNetworking.send(new SniperShootPayload(SniperShootPayload.Action.RELOAD, player.getId()));
-                        player.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 100); // 5秒冷却
-                        ci.cancel(); // 取消默认的攻击行为
-                    }
-                }
+                // 左键：射击
+                SniperRifleItem.tryShootFromKeybind(player);
+                ci.cancel();
             }
         }
     }

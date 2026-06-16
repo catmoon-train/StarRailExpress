@@ -774,7 +774,7 @@ public class EntityInteractionBlockScreen extends Screen {
                 }
                 case HAS_ITEM -> {
                     // 物品ID
-                    addRenderableWidget(new EditBox(this.font, centerX - 150, y, 300, 20,
+                    addRenderableWidget(new EditBox(this.font, centerX - 300, y, 600, 20,
                             Component.translatable("gui.entity_interaction_block.has_item_hint")));
                     stringInput = findAndAttachInput(Component.translatable("gui.entity_interaction_block.has_item_hint"));
                 }

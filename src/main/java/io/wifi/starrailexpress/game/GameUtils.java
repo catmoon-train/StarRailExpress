@@ -17,6 +17,8 @@ import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
+import io.wifi.starrailexpress.stats.PlayerStats;
+import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
@@ -116,7 +118,7 @@ public class GameUtils {
     public static void recordPlayerStats(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
             ArrayList<ServerPlayer> readyPlayerList) {
         for (ServerPlayer player : readyPlayerList) {
-            SREPlayerStatsComponent stats = SREPlayerStatsComponent.KEY.get(player);
+            PlayerStats stats = PlayerStatsManager.get(player);
             stats.incrementTotalGamesPlayed();
             SRERole playerRole = gameComponent.getRole(player);
             if (playerRole != null) {
@@ -385,10 +387,46 @@ public class GameUtils {
 
         gameComponent.getGameMode().gameStarted(serverWorld, gameComponent, readyPlayerList);
 
+        // 发放地图初始物品
+        distributeMapInitialItems(serverWorld, readyPlayerList);
+
         OnGameStarted.EVENT.invoker().onGameStarted(serverWorld);
         // --- 结束新增统计数据更新逻辑 ---
         OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveInited(serverWorld);
         isGameStarted = true;
+    }
+
+    /**
+     * 分发地图初始物品给所有玩家
+     * 格式：initialItems 列表中每个元素为 "itemId;count"
+     */
+    private static void distributeMapInitialItems(ServerLevel serverWorld, List<ServerPlayer> players) {
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
+        if (areas.initialItems.isEmpty()) {
+            return;
+        }
+        for (String entry : areas.initialItems) {
+            String[] parts = entry.split(";");
+            if (parts.length < 2) continue;
+            String itemId = parts[0];
+            int count;
+            try {
+                count = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException e) {
+                continue;
+            }
+            if (count <= 0) continue;
+
+            ResourceLocation itemLocation = ResourceLocation.tryParse(itemId);
+            if (itemLocation == null) continue;
+            Item item = BuiltInRegistries.ITEM.get(itemLocation);
+            if (item == Items.AIR) continue;
+
+            for (ServerPlayer player : players) {
+                player.addItem(new ItemStack(item, count));
+            }
+            SRE.LOGGER.info("Distributed map initial item: " + itemId + " x" + count + " to " + players.size() + " players");
+        }
     }
 
     public static List<Item> cooldownItems = new ArrayList<>();
@@ -883,7 +921,7 @@ public class GameUtils {
                 looseEndWinner = gameComponent.getLooseEndWinner();
             }
             for (ServerPlayer player : world.players()) {
-                SREPlayerStatsComponent stats = SREPlayerStatsComponent.KEY.get(player);
+                PlayerStats stats = PlayerStatsManager.get(player);
                 SRERole playerRole = gameComponent.getRole(player);
                 if (playerRole == null)
                     continue;

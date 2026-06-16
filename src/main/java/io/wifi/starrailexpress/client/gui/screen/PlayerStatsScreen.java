@@ -2,8 +2,9 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.stats.ClientPlayerStatsCache;
+import io.wifi.starrailexpress.stats.PlayerStats;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -14,7 +15,6 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.UUID;
 
 public class PlayerStatsScreen extends Screen {
 
-    private SREPlayerStatsComponent stats;
+    private PlayerStats stats;
     private final UUID targetPlayerUuid;
     private GeneralStatsPanel generalStatsPanel;
     private RoleStatsPanel roleStatsPanel;
@@ -46,10 +46,7 @@ public class PlayerStatsScreen extends Screen {
     public PlayerStatsScreen(UUID targetPlayerUuid) {
         super(Component.translatable("screen." + SRE.MOD_ID + ".player_stats.title"));
         this.targetPlayerUuid = targetPlayerUuid;
-        Player targetPlayer = Minecraft.getInstance().level.getPlayerByUUID(targetPlayerUuid);
-        if (targetPlayer != null) {
-            this.stats = SREPlayerStatsComponent.KEY.get(targetPlayer);
-        }
+        this.stats = ClientPlayerStatsCache.getOrEmpty(targetPlayerUuid);
     }
 
     private void addRenderableWidget2(Renderable r) {

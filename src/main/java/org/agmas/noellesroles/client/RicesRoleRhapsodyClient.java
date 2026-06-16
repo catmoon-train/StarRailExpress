@@ -37,7 +37,6 @@ import org.agmas.noellesroles.game.roles.innocent.super_star.SuperStarPlayerComp
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
@@ -366,29 +365,6 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             return true;
         }
 
-        // ==================== 设陷者：放置陷阱或切换类型 ====================
-        if (gameWorld.isRole(client.player, ModRoles.TRAPPER)) {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
-                return true;
-
-            TrapperPlayerComponent trapperComponent = TrapperPlayerComponent.KEY.get(client.player);
-
-            // 蹲下+技能键 = 切换陷阱类型
-            if (client.player.isShiftKeyDown()) {
-                ClientPlayNetworking.send(new TrapperSwitchC2SPacket());
-                return true;
-            }
-
-            if (trapperComponent.canPlaceTrap()) {
-                ClientPlayNetworking.send(new TrapperC2SPacket());
-            } else {
-                client.player.displayClientMessage(
-                        net.minecraft.network.chat.Component.translatable("message.noellesroles.trapper.no_charges",
-                                String.format("%.1f", trapperComponent.getRechargeSeconds())),
-                        true);
-            }
-            return true;
-        }
         if (gameWorld.isRole(client.player, ModRoles.NINJA)) {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;

@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
@@ -27,16 +28,21 @@ public class TrapperHud {
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
             int x = screenWidth - 150;
-            int y = screenHeight - 62;
+            int y = screenHeight - 74;
 
             Font textRenderer = client.font;
+
+            // 显示切换陷阱类型提示
+            Component toggleText = Component.translatable("hud.trapper.toggle_mode",
+                    NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage());
+            context.drawString(textRenderer, toggleText, x, y, 0xAAAAAA);
 
             // 显示当前陷阱类型
             Component trapTypeText = Component.translatable(trapperComponent.getTrapTypeName());
             int trapTypeColor = trapperComponent.getSelectedTrapType() == TrapperPlayerComponent.TRAP_TYPE_CALAMITY
                     ? 0xBB44CC
                     : 0xFF8C00;
-            context.drawString(textRenderer, trapTypeText, x, y, trapTypeColor);
+            context.drawString(textRenderer, trapTypeText, x, y + 12, trapTypeColor);
 
             // 显示陷阱储存数量
             int charges = trapperComponent.getTrapCharges();
@@ -52,17 +58,17 @@ public class TrapperHud {
             }
 
             Component chargeText = Component.translatable("hud.noellesroles.trapper.charges", charges, maxCharges);
-            context.drawString(textRenderer, chargeText, x, y + 12, chargeColor);
+            context.drawString(textRenderer, chargeText, x, y + 24, chargeColor);
 
             // 如果陷阱未满，显示恢复时间
             if (charges < maxCharges) {
                 float rechargeSeconds = trapperComponent.getRechargeSeconds();
                 Component rechargeText = Component.translatable("hud.noellesroles.trapper.recharge",
                         String.format("%.1f", rechargeSeconds));
-                context.drawString(textRenderer, rechargeText, x, y + 24, 0xAAAAAA);
+                context.drawString(textRenderer, rechargeText, x, y + 36, 0xAAAAAA);
             } else {
                 Component readyText = Component.translatable("hud.noellesroles.trapper.ready");
-                context.drawString(textRenderer, readyText, x, y + 24, CommonColors.GREEN);
+                context.drawString(textRenderer, readyText, x, y + 36, CommonColors.GREEN);
             }
         });
     }

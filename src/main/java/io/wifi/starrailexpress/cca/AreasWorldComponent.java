@@ -204,6 +204,9 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     // 支持的游戏模式列表，为空表示支持所有模式
     public java.util.List<String> gameModes = new java.util.ArrayList<>();
 
+    // 地图初始物品（格式：["itemId;count", ...]，所有玩家进入地图时获得）
+    public java.util.List<String> initialItems = new java.util.ArrayList<>();
+
     public PosWithOrientation getSpawnPos() {
         return spawnPos;
     }
@@ -485,6 +488,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         this.time = tag.contains("time") ? tag.getLong("time") : 18000;
         this.daylightCycle = tag.contains("daylightCycle") ? tag.getBoolean("daylightCycle") : false;
         this.weatherCycle = tag.contains("weatherCycle") ? tag.getBoolean("weatherCycle") : false;
+        this.initialItems = new ArrayList<>();
+        if (tag.contains("initialItems")) {
+            var iiList = tag.getList("initialItems", net.minecraft.nbt.Tag.TAG_STRING);
+            for (int i = 0; i < iiList.size(); i++) {
+                this.initialItems.add(iiList.getString(i));
+            }
+        }
         // this.playAreaOffset = getVec3dFromNbt(tag, "playAreaOffset");
         // this.playArea = getBoxFromNbt(tag, "playArea");
         //
@@ -567,6 +577,12 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         tag.putLong("time", this.time);
         tag.putBoolean("daylightCycle", this.daylightCycle);
         tag.putBoolean("weatherCycle", this.weatherCycle);
+
+        var initialItemsList = new net.minecraft.nbt.ListTag();
+        for (String item : this.initialItems) {
+            initialItemsList.add(net.minecraft.nbt.StringTag.valueOf(item));
+        }
+        tag.put("initialItems", initialItemsList);
 
         // 房间位置需要写入NBT（如果实现此功能）
         // 这里暂时不实现，因为NBT格式可能需要专门处理Map类型

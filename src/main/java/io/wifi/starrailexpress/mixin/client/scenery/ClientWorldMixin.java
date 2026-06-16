@@ -67,6 +67,9 @@ public abstract class ClientWorldMixin extends Level {
         // 手持实体交互方块/镶板时显示屏障粒子
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.ENTITY_INTERACTION_BLOCK.asItem());
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.ENTITY_INTERACTION_PANEL.asItem());
+        // 手持小游戏任务点方块/镶板时显示屏障粒子
+        MARKER_PARTICLE_ITEMS.add(TMMBlocks.MINIGAME_QUEST_BLOCK.asItem());
+        MARKER_PARTICLE_ITEMS.add(TMMBlocks.MINIGAME_QUEST_PANEL.asItem());
     }
 
     @Inject(method = "tick", at = @At("TAIL"))

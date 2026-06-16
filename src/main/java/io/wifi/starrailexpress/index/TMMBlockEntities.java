@@ -81,6 +81,12 @@ public interface TMMBlockEntities {
               TMMBlocks.ENTITY_INTERACTION_BLOCK,
               TMMBlocks.ENTITY_INTERACTION_PANEL));
 
+  BlockEntityType<MinigameQuestBlockEntity> MINIGAME_QUEST = registrar
+      .create("minigame_quest",
+          BlockEntityType.Builder.of(MinigameQuestBlockEntity::new,
+              TMMBlocks.MINIGAME_QUEST_BLOCK,
+              TMMBlocks.MINIGAME_QUEST_PANEL));
+
   BlockEntityType<RemoteRedstoneBlockEntity> REMOTE_REDSTONE = registrar.create("remote_redstone",
       BlockEntityType.Builder.of(RemoteRedstoneBlockEntity::new, SREBlocks.REMOTE_REDSTONE));
 

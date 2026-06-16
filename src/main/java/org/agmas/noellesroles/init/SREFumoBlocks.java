@@ -86,6 +86,12 @@ public interface SREFumoBlocks {
             new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
     Block ALLINTOKYO_PLUSH = registerBlock("allintokyo_plush",
             new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block AQIONG_PLUSH = registerBlock("aqiong_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block HAOZI_PLUSH = registerBlock("haozi_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    Block LIANGJIE_PLUSH = registerBlock("liangjie_plush",
+            new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
     /**
      * Block Entity
      */
@@ -96,7 +102,8 @@ public interface SREFumoBlocks {
                     DIO_PLUSH, FUSHIMI_KONIRO_PLUSH, GUANZHEQWQ_PLUSH, HAIMAN233_PLUSH,
                     LENGXIAOCN_PLUSH, LICRAFTLQ_PLUSH, LUOYERUOSHUI_PLUSH, MIFAN520_PLUSH,
                     NONE_PLUSH, OTITH_PLUSH, THEF0RS4KEN_PLUSH, TOMATO_PLUSH,
-                    XIAO_HEI_HAND_PLUSH, XIAOZHANQWQ_PLUSH, ALLINTOKYO_PLUSH, MILK_DRAGON_PLUSH }));
+                    XIAO_HEI_HAND_PLUSH, XIAOZHANQWQ_PLUSH, ALLINTOKYO_PLUSH, MILK_DRAGON_PLUSH,
+                    AQIONG_PLUSH, HAOZI_PLUSH, LIANGJIE_PLUSH }));
 
     @SuppressWarnings("unchecked")
     public static <T extends Block> T registerBlock(String id, T block) {

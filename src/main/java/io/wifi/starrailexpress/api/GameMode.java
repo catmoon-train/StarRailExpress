@@ -17,7 +17,8 @@ import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
+import io.wifi.starrailexpress.stats.PlayerStats;
+import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
@@ -542,7 +543,7 @@ public abstract class GameMode {
                 return;
             } // --- 新增统计数据更新逻辑 (击杀者) ---
         if (killer instanceof ServerPlayer serverKiller) {
-            SREPlayerStatsComponent killerStats = SREPlayerStatsComponent.KEY.get(serverKiller);
+            PlayerStats killerStats = PlayerStatsManager.get(serverKiller);
             if (shouldRecordPlayerStats()) {
                 killerStats.incrementTotalKills();
             }
@@ -607,7 +608,7 @@ public abstract class GameMode {
             if (victim instanceof ServerPlayer serverVictim) {
                 SRERole victimRole = gameWorldComponent.getRole(serverVictim);
                 victimRole.onDeath(victim, spawnBody, killer, deathReason);
-                SREPlayerStatsComponent victimStats = SREPlayerStatsComponent.KEY.get(serverVictim);
+                PlayerStats victimStats = PlayerStatsManager.get(serverVictim);
                 if (shouldRecordPlayerStats()) {
                     victimStats.incrementTotalDeaths();
                 }

@@ -27,6 +27,7 @@ import io.wifi.starrailexpress.client.render.block_entity.*;
 import io.wifi.starrailexpress.client.render.entity.FirecrackerEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.HornBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.NoteEntityRenderer;
+import io.wifi.starrailexpress.client.stats.ClientPlayerStatsCache;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.MyBackgroundAmbience;
@@ -593,6 +594,7 @@ public class SREClient implements ClientModInitializer {
                     ClientSkincrawlerState.clearAll();
                     net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.clear();
                     SceneAssetClient.clearRuntime();
+                    ClientPlayerStatsCache.clear();
                     // 清理自定义职业客户端缓存
                     io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.clearCache();
                     // 清理 OpenAL 语音特效资源
@@ -655,6 +657,9 @@ public class SREClient implements ClientModInitializer {
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(TaskCompletePayload.ID, new TaskCompletePayload.Receiver());
+        ClientPlayNetworking.registerGlobalReceiver(PlayerStatsSyncPayload.ID, (payload, context) ->
+                context.client().execute(() ->
+                        ClientPlayerStatsCache.update(payload.playerUuid(), payload.json())));
         ClientPlayNetworking.registerGlobalReceiver(ShowStatsPayload.ID, (payload, context) -> {
             UUID targetPlayerUuid = payload.targetPlayerUuid();
             context.client().execute(() -> {
@@ -749,6 +754,8 @@ public class SREClient implements ClientModInitializer {
         });
         // 注册实体交互方块的客户端网络接收器
         io.wifi.starrailexpress.client.network.EntityInteractionBlockClientNetwork.register();
+        // 注册小游戏任务点的客户端网络接收器
+        io.wifi.starrailexpress.client.network.MinigameQuestClientNetwork.register();
 
         // 注册职业轮选网络包
         RoleRotationClientReceiver.register();

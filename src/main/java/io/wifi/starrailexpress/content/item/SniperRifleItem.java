@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.content.item;
 
 import io.wifi.StarRailExpressID;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
 import io.wifi.starrailexpress.client.particle.HandParticle;
@@ -10,6 +9,7 @@ import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.SniperShootPayload;
 import io.wifi.starrailexpress.util.SniperProjectileUtil;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -39,96 +39,54 @@ public class SniperRifleItem extends Item implements HeldLikeRevolver {
 
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, InteractionHand hand) {
-        ItemStack stack = user.getItemInHand(hand);
-
-        if (world.isClientSide) {
-            // 检查冷却
-            if (user.getCooldowns().isOnCooldown(stack.getItem())) {
-                return InteractionResultHolder.fail(stack);
-            }
-
-            final var gameComponent = SREClient.gameComponent;
-            if (gameComponent != null) {
-                final var role = gameComponent.getRole(user);
-                if (role != null) {
-                    if (!role.onUseGun(user)) {
-                        return InteractionResultHolder.fail(stack);
-                    }
-                }
-            }
-
-            // 检查是否蹲下
-            boolean isSneaking = user.isShiftKeyDown();
-
-            if (isSneaking) {
-                // 蹲下右键：同普通右键（射击）
-                if (hasScopeAttached(stack)) {
-                    // 已安装倍镜，右键先切换到瞄准模式，再次右键射击
-                    // 第一次右键：进入瞄准模式
-                    if (!ScopeOverlayRenderer.isInScopeView()) {
-                        ScopeOverlayRenderer.setInScopeView(true);
-                        return InteractionResultHolder.success(stack);
-                    } else {
-                        ScopeOverlayRenderer.setInScopeView(false);
-                        return InteractionResultHolder.success(stack);
-                    }
-                    // // 已在瞄准模式，射击
-                    // int currentAmmo = getAmmoCount(stack);
-                    // if (currentAmmo <= 0) {
-                    // ScopeOverlayRenderer.setInScopeView(false);
-                    // return InteractionResultHolder.fail(stack); // 没有子弹
-                    // }
-                    // shoot(world, user, stack);
-                    // ScopeOverlayRenderer.setInScopeView(false);
-                } else {
-                    // 未安装倍镜，直接射击
-                    int currentAmmo = getAmmoCount(stack);
-                    if (currentAmmo <= 0) {
-                        return InteractionResultHolder.fail(stack); // 没有子弹
-                    }
-                    shoot(world, user, stack);
-                }
-            } else {
-                // 不蹲下：右键射击
-                if (hasScopeAttached(stack)) {
-                    // // 已安装倍镜，右键先切换到瞄准模式，再次右键射击
-                    // // 第一次右键：进入瞄准模式
-                    // if (!ScopeOverlayRenderer.isInScopeView()) {
-                    // ScopeOverlayRenderer.setInScopeView(true);
-                    // return InteractionResultHolder.success(stack);
-                    // }
-                    // 已在瞄准模式，射击
-                    int currentAmmo = getAmmoCount(stack);
-                    if (currentAmmo <= 0) {
-                        ScopeOverlayRenderer.setInScopeView(false);
-                        return InteractionResultHolder.fail(stack); // 没有子弹
-                    }
-                    shoot(world, user, stack);
-                    ScopeOverlayRenderer.setInScopeView(false);
-                } else {
-                    // 未安装倍镜，直接射击
-                    int currentAmmo = getAmmoCount(stack);
-                    if (currentAmmo <= 0) {
-                        return InteractionResultHolder.fail(stack); // 没有子弹
-                    }
-                    shoot(world, user, stack);
-                }
-            }
-        } else {
-            // 服务端逻辑
-            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(world);
-            final var role = gameWorldComponent.getRole(user);
-            if (role != null) {
-                if (!role.onUseGun(user)) {
-                    return InteractionResultHolder.fail(stack);
-                }
-            }
-        }
-
-        return InteractionResultHolder.consume(stack);
+        return InteractionResultHolder.consume(user.getItemInHand(hand));
     }
 
-    private void shoot(Level world, Player user, ItemStack stack) {
+    /** 从按键绑定触发射击（客户端） */
+    public static void tryShootFromKeybind(Player user) {
+        ItemStack stack = user.getMainHandItem();
+        if (!stack.is(TMMItems.SNIPER_RIFLE)) return;
+        if (user.getCooldowns().isOnCooldown(stack.getItem())) return;
+
+        final var gameComponent = SREClient.gameComponent;
+        if (gameComponent != null) {
+            final var role = gameComponent.getRole(user);
+            if (role != null && !role.onUseGun(user)) return;
+        }
+
+        int currentAmmo = getAmmoCount(stack);
+        if (currentAmmo <= 0) {
+            ScopeOverlayRenderer.setInScopeView(false);
+            return;
+        }
+        shoot(user.level(), user, stack);
+        ScopeOverlayRenderer.setInScopeView(false);
+    }
+
+    /** 从按键绑定触发装弹（客户端） */
+    public static void tryReloadFromKeybind(Player user) {
+        ItemStack stack = user.getMainHandItem();
+        if (!stack.is(TMMItems.SNIPER_RIFLE)) return;
+        if (user.getCooldowns().isOnCooldown(stack.getItem())) return;
+
+        int currentAmmo = getAmmoCount(stack);
+        if (currentAmmo >= MAX_AMMO) return;
+
+        boolean hasBullet = false;
+        for (int i = 0; i < user.getInventory().getContainerSize(); i++) {
+            if (user.getInventory().getItem(i).is(TMMItems.MAGNUM_BULLET)) {
+                hasBullet = true;
+                break;
+            }
+        }
+        if (!hasBullet) return;
+
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+                new SniperShootPayload(SniperShootPayload.Action.RELOAD, user.getId()));
+        user.getCooldowns().addCooldown(TMMItems.SNIPER_RIFLE, 100);
+    }
+
+    private static void shoot(Level world, Player user, ItemStack stack) {
         if (world.isClientSide) {
             // 客户端射击逻辑
             HitResult collision = getGunTarget(user);
@@ -168,7 +126,7 @@ public class SniperRifleItem extends Item implements HeldLikeRevolver {
     /**
      * 在子弹路径上生成 SMOKE 粒子轨迹
      */
-    private void spawnSmokeTrail(Level world, Player user, net.minecraft.world.phys.Vec3 hitPos) {
+    private static void spawnSmokeTrail(Level world, Player user, net.minecraft.world.phys.Vec3 hitPos) {
         // 获取玩家眼睛位置（子弹起点）
         net.minecraft.world.phys.Vec3 startPos = user.getEyePosition();
 

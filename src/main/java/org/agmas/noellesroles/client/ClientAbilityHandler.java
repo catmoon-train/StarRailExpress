@@ -41,6 +41,48 @@ public class ClientAbilityHandler {
             return;
 
         var currentRole = gameWorldComponent.getRole(client.player);
+
+        // 模仿者客户端前置逻辑：复制模式无目标→提示，消息技能→打开界面
+        if (currentRole != null && gameWorldComponent.isRole(client.player, org.agmas.noellesroles.role.ModRoles.IMITATOR)) {
+            var comp = org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent.KEY.get(client.player);
+            if (comp.isCopyMode) {
+                var hitResult = client.hitResult;
+                if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
+                    net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
+                    if (entityHit.getEntity() instanceof net.minecraft.world.entity.player.Player) {
+                        // 有目标，继续走统一技能发包（带target）
+                        var ability = io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.KEY.get(client.player);
+                        heldSlot = ability.getSelectedSkill();
+                        unifiedSkillHeld = true;
+                        ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
+                                heldSlot, RoleSkill.Phase.PRESS, entityHit.getEntity().getUUID()));
+                        return;
+                    }
+                }
+                // 复制模式无目标 → 提示
+                client.player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
+                        "message.noellesroles.imitator.copy_mode_hint").withStyle(net.minecraft.ChatFormatting.YELLOW), true);
+                return;
+            }
+            // 非复制模式：检查当前能力是否是消息技能
+            var currentAbility = comp.getCurrentAbilityRoleId();
+            if (currentAbility != null && org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry.isMessageSkill(currentAbility)) {
+                int cd = comp.getCurrentSkillCooldown();
+                if (cd > 0) {
+                    client.player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
+                            "message.noellesroles.imitator.cooldown", (cd + 19) / 20)
+                            .withStyle(net.minecraft.ChatFormatting.RED), true);
+                    return;
+                }
+                if (currentAbility.equals(org.agmas.noellesroles.role.ModRoles.TELEGRAPHER_ID)) {
+                    client.execute(() -> client.setScreen(new org.agmas.noellesroles.client.screen.TelegrapherScreen()));
+                } else if (currentAbility.equals(org.agmas.noellesroles.role.ModRoles.BROADCASTER_ID)) {
+                    client.execute(() -> client.setScreen(new org.agmas.noellesroles.client.screen.BroadcasterScreen()));
+                }
+                return;
+            }
+        }
+
         if (RoleSkill.hasUnifiedSkills(currentRole)) {
             var ability = io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.KEY.get(client.player);
             heldSlot = ability.getSelectedSkill();
@@ -103,12 +145,30 @@ public class ClientAbilityHandler {
         }
         var gameWorld = SREGameWorldComponent.KEY.get(client.level);
         var role = gameWorld.getRole(client.player);
+
+        // 处理统一技能体系中的模式切换角色（会计、小偷、药剂师、建筑师、葬仪、设陷者、模仿者等）
         var definitions = RoleSkill.getDefinitions(role);
+        if (!definitions.isEmpty()) {
+            var shiftedDefs = definitions.stream().filter(RoleSkill.Definition::shifted).toList();
+            if (!shiftedDefs.isEmpty()) {
+                // 存在模式切换技能，Y 键触发模式切换
+                ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
+                        definitions.indexOf(shiftedDefs.getFirst()),
+                        RoleSkill.Phase.PRESS,
+                        findTarget(client),
+                        true));
+                return;
+            }
+        }
         if (definitions.size() < 2) {
             return;
         }
+        var selectableDefs = RoleSkill.getSelectableDefinitions(role);
+        if (selectableDefs.size() < 2) {
+            return;
+        }
         var ability = io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.KEY.get(client.player);
-        int next = (ability.getSelectedSkill() + 1) % definitions.size();
+        int next = (ability.getSelectedSkill() + 1) % selectableDefs.size();
         ClientPlayNetworking.send(new org.agmas.noellesroles.packet.UnifiedSkillSelectC2SPacket(next));
     }
 

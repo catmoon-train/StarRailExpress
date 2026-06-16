@@ -7,7 +7,8 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerStatsComponent;
+import io.wifi.starrailexpress.stats.PlayerStats;
+import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
@@ -258,7 +259,7 @@ public class RoleUtils extends MCItemsUtils {
             ((ModdedRoleRemoved) ModdedRoleRemoved.EVENT.invoker()).removeModdedRole(player, oldRole);
         }
         if (addStats) {
-            SREPlayerStatsComponent stats = SREPlayerStatsComponent.KEY.get(player);
+            PlayerStats stats = PlayerStatsManager.get(player);
             stats.getOrCreateRoleStats(role.identifier()).incrementTimesPlayed();
             // 统计阵营场次
             if (role.isVigilanteTeam()) {

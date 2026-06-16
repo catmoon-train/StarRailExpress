@@ -647,7 +647,7 @@ public class ModPacketsReciever {
       if (context.player().hasEffect(ModEffects.SAFE_TIME)) {
         return;
       }
-      RoleSkill.beginUse(context.player(), payload.target(), payload.slot(), payload.phase());
+      RoleSkill.beginUse(context.player(), payload.target(), payload.slot(), payload.phase(), payload.forceShifted());
     });
     ServerPlayNetworking.registerGlobalReceiver(UnifiedSkillSelectC2SPacket.ID, (payload, context) ->
       RoleSkill.selectSkill(context.player(), payload.slot()));
@@ -1044,6 +1044,26 @@ public class ModPacketsReciever {
         MorticianBodyMakerPlayerComponent morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
         if (morticianComponent != null) {
           morticianComponent.toggleMode();
+        }
+      }
+    });
+
+    // 模仿者切换槽位包处理
+    ServerPlayNetworking.registerGlobalReceiver(ModPackets.IMITATOR_SWITCH_SLOT_PACKET, (payload, context) -> {
+      if (context.player().hasEffect(ModEffects.SAFE_TIME))
+        return;
+      ServerPlayer player = context.player();
+      SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+
+      if (!gameWorldComponent.isSkillAvailable) {
+        return;
+      }
+
+      if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {
+        org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent imitatorComponent =
+            org.agmas.noellesroles.component.ModComponents.IMITATOR.get(player);
+        if (imitatorComponent != null) {
+          imitatorComponent.switchSlot();
         }
       }
     });

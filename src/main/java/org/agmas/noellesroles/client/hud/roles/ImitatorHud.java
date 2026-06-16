@@ -25,10 +25,16 @@ public class ImitatorHud {
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
             int x = screenWidth - 170;
-            int y = screenHeight - 120;
+            int y = screenHeight - 132;
             Font font = client.font;
 
+            // ==================== 切换槽位提示 ====================
+            Component toggleText = Component.translatable("hud.imitator.toggle_slot",
+                    NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage());
+            context.drawString(font, toggleText, x, y, 0xAAAAAA);
+
             // ==================== Title ====================
+            y += 12;
             Component title = Component.translatable("role.noellesroles.imitator")
                     .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
             context.drawString(font, title, x, y, 0xAA0000);

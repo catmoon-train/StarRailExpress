@@ -30,6 +30,8 @@ public class ModPackets {
 
     public static final CustomPacketPayload.Type<MorticianCreateBodyC2SPacket> MORTICIAN_CREATE_BODY_PACKET = MorticianCreateBodyC2SPacket.TYPE;
 
+    public static final CustomPacketPayload.Type<ImitatorSwitchSlotC2SPacket> IMITATOR_SWITCH_SLOT_PACKET = ImitatorSwitchSlotC2SPacket.TYPE;
+
     public static void registerPackets() {
         PayloadTypeRegistry.playS2C().register(ProblemScreenOpenC2SPacket.ID,
                 ProblemScreenOpenC2SPacket.CODEC);
@@ -134,6 +136,9 @@ public class ModPackets {
 
         // 葬仪造尸网络包
         PayloadTypeRegistry.playC2S().register(MorticianCreateBodyC2SPacket.TYPE, MorticianCreateBodyC2SPacket.CODEC);
+
+        // 模仿者切换槽位网络包
+        PayloadTypeRegistry.playC2S().register(ImitatorSwitchSlotC2SPacket.TYPE, ImitatorSwitchSlotC2SPacket.CODEC);
 
         // 派对狂网络包
         PayloadTypeRegistry.playC2S().register(PartyKillerC2SPacket.TYPE, PartyKillerC2SPacket.CODEC);

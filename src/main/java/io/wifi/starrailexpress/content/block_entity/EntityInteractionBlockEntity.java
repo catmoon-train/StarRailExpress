@@ -49,6 +49,54 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     // 运行范围（球形半径）
     public static final double MAX_RANGE = 100.0;
 
+    // 按地图名追踪服务端实体交互方块数量，用于游戏结束时快速跳过无方块的地图
+    private static final java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.atomic.AtomicInteger>
+            mapBlockCount = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private boolean tracked = false;
+
+    private static String getMapKey(net.minecraft.world.level.Level level) {
+        var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(level);
+        return areas != null && areas.mapName != null ? areas.mapName : "";
+    }
+
+    public static int getCountForMap(net.minecraft.world.level.Level level) {
+        String key = getMapKey(level);
+        if (key.isEmpty()) return 0;
+        var counter = mapBlockCount.get(key);
+        return counter != null ? counter.get() : 0;
+    }
+
+    private void tryTrack() {
+        if (!tracked && level != null && !level.isClientSide) {
+            tracked = true;
+            String key = getMapKey(level);
+            if (!key.isEmpty()) {
+                mapBlockCount
+                        .computeIfAbsent(key,
+                                k -> new java.util.concurrent.atomic.AtomicInteger(0))
+                        .incrementAndGet();
+            }
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (tracked) {
+            tracked = false;
+            if (level != null && !level.isClientSide) {
+                String key = getMapKey(level);
+                if (!key.isEmpty()) {
+                    var counter = mapBlockCount.get(key);
+                    if (counter != null) {
+                        counter.decrementAndGet();
+                    }
+                }
+            }
+        }
+    }
+
     // 条件列表
     private List<TriggerCondition> conditions = new ArrayList<>();
     // 触发内容列表
@@ -367,6 +415,19 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         setChanged();
     }
 
+    /**
+     * 重置所有内置冷却状态（玩家触发冷却、方块冷却、点击记录等）
+     * 用于游戏结束时清理所有实体交互方块的状态
+     */
+    public void resetAllCooldowns() {
+        this.lastTriggerTime.clear();
+        this.blockCooldownTicks = 0;
+        this.blockCooldownEndGameTime = 0;
+        this.playerClicks.clear();
+        this.triggeredClicks.clear();
+        setChanged();
+    }
+
     // 红石信号相关 getter/setter
     public void setReceivedRedstoneSignal(boolean received) {
         this.receivedRedstoneSignal = received;
@@ -433,6 +494,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             return;
         if (!(world instanceof ServerLevel serverWorld))
             return;
+
+        entity.tryTrack();
 
         // 获取游戏世界组件
         SREGameTimeComponent timeComponent = SREGameTimeComponent.KEY.get(world);
