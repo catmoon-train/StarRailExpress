@@ -77,6 +77,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.fazeclan.river.stupid_express.StupidExpressConfig;
+import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,13 +112,13 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         ServerPlayNetworking.send(player, new SyncRoomToPlayerPayload(GameUtils.roomToPlayer));
     }
 
-    
     public static boolean canSeeBarrier() {
         if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
             return SREClient.canSeeBarrier();
         }
         return false;
     }
+
     @Override
     public void onInitialize() {
         initConfig();
@@ -274,7 +275,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
 
             SREVoteCommand.register(dispatcher, registryAccess);
-            NarratorCommand.register(dispatcher,registryAccess);
+            NarratorCommand.register(dispatcher, registryAccess);
             GiveRoomKeyCommand.register(dispatcher);
             ListRoleInRoundCommand.register(dispatcher);
             StartCommand.register(dispatcher);
@@ -343,6 +344,12 @@ public class SRE extends StarRailExpressID implements ModInitializer {
                 psychocca.stopPsychoAndRefreshPsychoCount(true);
                 psychocca.sync();
             }
+            var rfcca = RefugeeComponent.KEY.get(handler.player.level());
+            if (rfcca.isAnyRevivals) {
+                if (rfcca.players_stats.containsKey(handler.player.getUUID())) {
+                    rfcca.players_stats.remove(handler.player.getUUID());
+                }
+            }
             if (REPLAY_MANAGER != null) {
                 var role = gameWorldComponent.getRole(handler.player);
                 if (role != null) {
@@ -375,7 +382,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(CustomNarratorPacket.ID, CustomNarratorPacket.CODEC);
-
 
         PayloadTypeRegistry.playS2C().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);
@@ -474,15 +480,21 @@ public class SRE extends StarRailExpressID implements ModInitializer {
                 io.wifi.starrailexpress.content.mail.MailMarkReadC2SPayload.CODEC);
 
         // 实体交互方块数据包
-        PayloadTypeRegistry.playS2C().register(EntityInteractionBlockPayload.OpenUI.TYPE, EntityInteractionBlockPayload.OpenUI.CODEC);
-        PayloadTypeRegistry.playS2C().register(EntityInteractionBlockPayload.SyncBlockEntity.TYPE, EntityInteractionBlockPayload.SyncBlockEntity.CODEC);
-        PayloadTypeRegistry.playC2S().register(EntityInteractionBlockPayload.SaveConfig.TYPE, EntityInteractionBlockPayload.SaveConfig.CODEC);
+        PayloadTypeRegistry.playS2C().register(EntityInteractionBlockPayload.OpenUI.TYPE,
+                EntityInteractionBlockPayload.OpenUI.CODEC);
+        PayloadTypeRegistry.playS2C().register(EntityInteractionBlockPayload.SyncBlockEntity.TYPE,
+                EntityInteractionBlockPayload.SyncBlockEntity.CODEC);
+        PayloadTypeRegistry.playC2S().register(EntityInteractionBlockPayload.SaveConfig.TYPE,
+                EntityInteractionBlockPayload.SaveConfig.CODEC);
 
         // 小游戏任务点数据包
-        PayloadTypeRegistry.playS2C().register(MinigameQuestPayload.OpenConfig.TYPE, MinigameQuestPayload.OpenConfig.CODEC);
+        PayloadTypeRegistry.playS2C().register(MinigameQuestPayload.OpenConfig.TYPE,
+                MinigameQuestPayload.OpenConfig.CODEC);
         PayloadTypeRegistry.playS2C().register(MinigameQuestPayload.OpenGame.TYPE, MinigameQuestPayload.OpenGame.CODEC);
-        PayloadTypeRegistry.playC2S().register(MinigameQuestPayload.SaveConfig.TYPE, MinigameQuestPayload.SaveConfig.CODEC);
-        PayloadTypeRegistry.playC2S().register(MinigameQuestPayload.CompleteGame.TYPE, MinigameQuestPayload.CompleteGame.CODEC);
+        PayloadTypeRegistry.playC2S().register(MinigameQuestPayload.SaveConfig.TYPE,
+                MinigameQuestPayload.SaveConfig.CODEC);
+        PayloadTypeRegistry.playC2S().register(MinigameQuestPayload.CompleteGame.TYPE,
+                MinigameQuestPayload.CompleteGame.CODEC);
 
         // 职业轮选数据包
         PayloadTypeRegistry.playC2S().register(RoleRotationSelectC2SPacket.TYPE, RoleRotationSelectC2SPacket.CODEC);

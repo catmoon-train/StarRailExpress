@@ -11,6 +11,8 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import java.util.UUID;
@@ -36,10 +38,13 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     VoicechatPlugin.super.initialize(api);
   }
 
+  public static boolean isAlive(Player player) {
+    return GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player);
+  }
+
   public static boolean shouldBanVoice(VoicechatConnection senderConnection, VoicechatConnection receiverConnection) {
     if (senderConnection == null || receiverConnection == null)
       return false;
-
     if (!(senderConnection.getPlayer().getPlayer() instanceof Player senderPlayer))
       return false;
     if (!(receiverConnection.getPlayer().getPlayer() instanceof Player receiverPlayer))
@@ -49,7 +54,12 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     if (PelicanManager.shouldCancelVoice(senderPlayer.getUUID(), receiverPlayer.getUUID())) {
       return true;
     }
-
+    // 亡命徒期间活人玩家不可听话
+    if (RefugeeComponent.KEY.get(senderPlayer.level()).isAnyRevivals) {
+      if (isAlive(receiverPlayer)) {
+        return false;
+      }
+    }
     if (senderPlayer.getEffect(ModEffects.TIME_STOP) != null) {
       if (!TimeStopEffect.canMovePlayers.contains(senderPlayer.getUUID())) {
         return true;
