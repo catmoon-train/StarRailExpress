@@ -38,9 +38,6 @@ public class BanditRevolverItem extends SkinableItem {
                     }
                 }
             }
-            user.setXRot(user.getXRot() - 4.0F);
-            spawnHandParticle();
-
             HitResult collision = getGunTarget(user);
             if (collision instanceof EntityHitResult) {
                 EntityHitResult entityHitResult = (EntityHitResult) collision;
@@ -49,6 +46,8 @@ public class BanditRevolverItem extends SkinableItem {
             } else {
                 ClientPlayNetworking.send(new BanditRevolverShootPayload(-1));
             }
+            user.setXRot(user.getXRot() - 4.0F);
+            spawnHandParticle();
         } else {
             final var gameComponent = SREGameWorldComponent.KEY.get(world);
             if (gameComponent != null) {
