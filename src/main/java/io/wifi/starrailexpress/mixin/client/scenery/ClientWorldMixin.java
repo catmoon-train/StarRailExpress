@@ -60,7 +60,7 @@ public abstract class ClientWorldMixin extends Level {
     // 沙尘暴效果性能优化：节流计数器
     private static int sre_sandFrameCount = 0;
     private static final int SRE_SAND_UPDATE_INTERVAL = 3; // 每3tick更新一次
-    private static final int SRE_SAND_PARTICLES_PER_TICK = 100; // 粒子数量（比雪花更密集）
+    private static final int SRE_SAND_PARTICLES_PER_TICK = 500; // 粒子数量（比雪花更密集）
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void tmm$addCustomBlockMarkers(ClientPacketListener networkHandler, ClientLevel.ClientLevelData properties, ResourceKey registryRef, Holder dimensionTypeEntry, int loadDistance, int simulationDistance, Supplier profiler, LevelRenderer worldRenderer, boolean debugWorld, long seed, CallbackInfo ci) {
