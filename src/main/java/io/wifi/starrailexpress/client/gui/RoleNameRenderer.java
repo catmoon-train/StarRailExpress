@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
@@ -26,6 +27,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.EntityHitResult;
 
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
@@ -60,8 +62,16 @@ public class RoleNameRenderer {
     @SuppressWarnings("unused")
     public static void renderHud(Font renderer, @NotNull LocalPlayer player, FakeGuiGraphics context,
             DeltaTracker tickCounter) {
+        // Penalty 直接啥也别看了
+        if (DeathPenaltyComponent.hasPenalty(player))
+            return;
+        // 亡命徒也是
+        if (RoleUtils.isPlayerTheJob(player, TMMRoles.LOOSE_END)) {
+            return;
+        }
         // 鹈鹕肚内玩家不能通过准星查看玩家身份
-        if (PelicanManager.isStashed(player)) return;
+        if (PelicanManager.isStashed(player))
+            return;
         Component nametag = Component.empty();
         final Component[] note = new Component[] { Component.empty(), Component.empty(), Component.empty(),
                 Component.empty() };
@@ -142,34 +152,37 @@ public class RoleNameRenderer {
                         }
                     }
                     // 肉汁：本能提示只对杀手（isKiller）生效
-                    if (targetRole2 == ModRoles.MEATBALL && component.canUseKillerFeatures(player)){
+                    if (targetRole2 == ModRoles.MEATBALL && component.canUseKillerFeatures(player)) {
                         // 显示肉汁提示
                         context.pose().translate(0, 20 + renderer.lineHeight, 0);
                         MutableComponent meatballTip = Component.translatable("game.tip.meatball_role");
                         int meatballTipWidth = renderer.width(meatballTip);
                         context.drawString(renderer, meatballTip, -meatballTipWidth / 2, 0,
                                 Mth.color(1f, 0.5f, 0f) | ((int) (1 * 255) << 24));
-                        
+
                         // 检查附近是否有其他玩家，如果有则显示无法攻击的提示
                         boolean nearbyPlayers = false;
                         for (Player nearbyPlayer : player.level().players()) {
-                            if (nearbyPlayer != null && nearbyPlayer != target && nearbyPlayer.distanceTo(target) <= 4.0D) {
+                            if (nearbyPlayer != null && nearbyPlayer != target
+                                    && nearbyPlayer.distanceTo(target) <= 4.0D) {
                                 nearbyPlayers = true;
                                 break;
                             }
                         }
-                        
+
                         if (nearbyPlayers) {
                             // 无法在人群中攻击的提示
                             context.pose().translate(0, 20 + renderer.lineHeight, 0);
-                            MutableComponent crowdTip = Component.translatable("game.tip.meatball_cannot_attack_in_crowd");
+                            MutableComponent crowdTip = Component
+                                    .translatable("game.tip.meatball_cannot_attack_in_crowd");
                             int crowdTipWidth = renderer.width(crowdTip);
                             context.drawString(renderer, crowdTip, -crowdTipWidth / 2, 0,
                                     Mth.color(1f, 0f, 0f) | ((int) (1 * 255) << 24));
                         }
                     }
                     // 迷失杀手：不显示杀手同伙标签
-                    if (playerRole == TrainRole.KILLER && targetRole == TrainRole.KILLER && !component.isRole(target, ModRoles.LOST_KILLER)) {
+                    if (playerRole == TrainRole.KILLER && targetRole == TrainRole.KILLER
+                            && !component.isRole(target, ModRoles.LOST_KILLER)) {
                         context.pose().translate(0, 20 + renderer.lineHeight, 0);
                         if (component.canSeeKillerTeammate(player)) {
                             MutableComponent roleText = Component.translatable("game.tip.cohort");

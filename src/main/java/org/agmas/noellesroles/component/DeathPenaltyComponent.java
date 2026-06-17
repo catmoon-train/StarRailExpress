@@ -333,4 +333,8 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             }
         }
     }
+
+    public static boolean hasPenalty(Player p) {
+        return KEY.get(p).hasPenalty();
+    }
 }
