@@ -5,6 +5,7 @@ import de.maxhenkel.voicechat.api.VoicechatConnection;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.events.*;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -24,6 +25,7 @@ import org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
   private static VoicechatServerApi SERVER_API;
@@ -53,6 +55,15 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     // 鹈鹕语音隔离：被吞噬的玩家只能与鹈鹕和肚子里的其他玩家语音
     if (PelicanManager.shouldCancelVoice(senderPlayer.getUUID(), receiverPlayer.getUUID())) {
       return true;
+    }
+    // 亡命徒期间活人玩家不可听话
+    if (RefugeeComponent.KEY.get(senderPlayer.level()).isAnyRevivals) {
+      if(RoleUtils.isPlayerTheJob(senderPlayer, TMMRoles.LOOSE_END)) {
+        return false;
+      }
+      if(RoleUtils.isPlayerTheJob(receiverPlayer, TMMRoles.LOOSE_END)) {
+        return false;
+      }
     }
     if (senderPlayer.getEffect(ModEffects.TIME_STOP) != null) {
       if (!TimeStopEffect.canMovePlayers.contains(senderPlayer.getUUID())) {
