@@ -35,6 +35,8 @@ public class NRSounds {
     public static final SoundEvent BAKA_BAKA = registrar.create("plush.baka");
     public static final SoundEvent WO_SHI_NAI_LONG = registrar.create("plush.nai_long");
     public static final SoundEvent LEVEL = registrar.create("noellesroles.level");
+    public static final SoundEvent SNOW_STORM = registrar.create("noellesroles.winter_storm");
+    public static final SoundEvent SAND_STORM = registrar.create("noellesroles.dust_storm");
 
     public static void initialize() {
         registrar.registerEntries();
