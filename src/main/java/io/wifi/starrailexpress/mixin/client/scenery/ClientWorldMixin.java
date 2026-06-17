@@ -55,7 +55,7 @@ public abstract class ClientWorldMixin extends Level {
     // 雪花效果性能优化：节流计数器
     private static int sre_snowFrameCount = 0;
     private static final int SRE_SNOW_UPDATE_INTERVAL = 3; // 每3tick更新一次（约50ms）
-    private static final int SRE_SNOW_PARTICLES_PER_TICK = 50; // 减少粒子数量
+    private static final int SRE_SNOW_PARTICLES_PER_TICK = 150; // 减少粒子数量
 
     // 沙尘暴效果性能优化：节流计数器
     private static int sre_sandFrameCount = 0;
