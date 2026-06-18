@@ -4,6 +4,7 @@ import com.google.gson.JsonSyntaxException;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.game.data.PlayerStatsData;
+import io.wifi.starrailexpress.network.PlayerDataPartSyncPayload;
 import io.wifi.starrailexpress.network.PlayerStatsSyncPayload;
 import io.wifi.starrailexpress.util.PlayerStatsSerializer;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
@@ -232,9 +233,9 @@ public final class PlayerStatsManager {
         if (!SREConfig.instance().isStatsEnabled) {
             return;
         }
-        ServerPlayNetworking.send(player, new PlayerStatsSyncPayload(
-                entry.stats.getPlayerUuid(),
-                PlayerStatsSerializer.toJson(entry.stats, entry.updatedAt)));
+        String json = PlayerStatsSerializer.toJson(entry.stats, entry.updatedAt);
+        ServerPlayNetworking.send(player, new PlayerStatsSyncPayload(entry.stats.getPlayerUuid(), json));
+        ServerPlayNetworking.send(player, new PlayerDataPartSyncPayload(entry.stats.getPlayerUuid(), "stats", json, entry.updatedAt));
         entry.clientDirty = false;
         entry.lastClientSyncTime = System.currentTimeMillis();
     }

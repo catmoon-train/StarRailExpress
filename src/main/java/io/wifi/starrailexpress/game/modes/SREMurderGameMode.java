@@ -5,12 +5,13 @@ import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
+import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
@@ -588,7 +589,7 @@ public class SREMurderGameMode extends GameMode {
                                 roleType);
                         FactionCardType cardType = FactionCardType.fromInt(roleType);
                         if (cardType != FactionCardType.NONE) {
-                            SREPlayerProgressionComponent.KEY.get(selectedPlayer).addFactionCard(cardType, 1);
+                            ProgressionDataManager.addFactionCard((ServerPlayer) selectedPlayer, cardType, 1);
                             BroadcastCommand.BroadcastMessage(selectedPlayer,
                                     Component.translatable("message.sre.pass.faction.assign_failed")
                                             .withStyle(ChatFormatting.RED));
@@ -613,14 +614,14 @@ public class SREMurderGameMode extends GameMode {
                 if (selectedPlayer != null) {
                     unassignedPlayers.remove(selectedPlayer);
                     roleAssignments.put(selectedPlayer, selectedRole);
-                    SREPlayerProgressionComponent.KEY.get(selectedPlayer).onRoleAssigned(selectedRole);
+                    ProgressionDataManager.onRoleAssigned((ServerPlayer) selectedPlayer, selectedRole);
                 }
             }
         }
         for (var up : unassignedPlayers) {
             // 职业不够分配平民
             roleAssignments.put(up, TMMRoles.CIVILIAN);
-            SREPlayerProgressionComponent.KEY.get(up).onRoleAssigned(TMMRoles.CIVILIAN);
+            ProgressionDataManager.onRoleAssigned((ServerPlayer) up, TMMRoles.CIVILIAN);
         }
         return roleAssignments;
     }

@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomTableHud;
 
 import io.wifi.starrailexpress.client.commandmacro.CommandMacroExecutor;
+import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
 import io.wifi.starrailexpress.client.gui.*;
 import io.wifi.starrailexpress.client.gui.screen.*;
 import io.wifi.starrailexpress.client.model.GeneralModelLoadingPlugin;
@@ -660,6 +661,9 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(PlayerStatsSyncPayload.ID, (payload, context) ->
                 context.client().execute(() ->
                         ClientPlayerStatsCache.update(payload.playerUuid(), payload.json())));
+        ClientPlayNetworking.registerGlobalReceiver(PlayerDataPartSyncPayload.ID, (payload, context) ->
+                context.client().execute(() ->
+                        ClientPlayerDataCache.update(payload.playerUuid(), payload.part(), payload.json(), payload.updatedAt())));
         ClientPlayNetworking.registerGlobalReceiver(ShowStatsPayload.ID, (payload, context) -> {
             UUID targetPlayerUuid = payload.targetPlayerUuid();
             context.client().execute(() -> {

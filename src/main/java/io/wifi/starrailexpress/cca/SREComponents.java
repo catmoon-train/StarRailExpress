@@ -67,9 +67,6 @@ public class SREComponents
 
         registry.beginRegistration(PlayerBodyEntity.class, PlayerBodyEntityComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(PlayerBodyEntityComponent::new);
-        registry.beginRegistration(Player.class, SREPlayerProgressionComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)
-                .end(SREPlayerProgressionComponent::new);
         registry.beginRegistration(Player.class, SREPlayerNunchuckComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerNunchuckComponent::new);
         registry.beginRegistration(Player.class, NameTagInventoryComponent.KEY)

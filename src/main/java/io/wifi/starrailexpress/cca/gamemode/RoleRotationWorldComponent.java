@@ -5,8 +5,6 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -14,6 +12,8 @@ import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import io.wifi.starrailexpress.network.CloseUiPayload;
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
+import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -146,10 +146,9 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
                 // 退还卡片
                 ServerPlayer sp = players.stream().filter(p -> p.getUUID().equals(uid)).findFirst().orElse(null);
                 if (sp != null) {
-                    SREPlayerProgressionComponent progComp = SREPlayerProgressionComponent.KEY.get(sp);
                     FactionCardType cardType = FactionCardType.fromInt(type);
                     if (cardType != FactionCardType.NONE) {
-                        progComp.addFactionCard(cardType, 1);
+                        ProgressionDataManager.addFactionCard(sp, cardType, 1);
                         sp.displayClientMessage(Component.translatable("message.sre.role_rotation.card_limit")
                                 .withStyle(ChatFormatting.RED), true);
                     }

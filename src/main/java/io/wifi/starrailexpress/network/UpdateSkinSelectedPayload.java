@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -32,11 +32,10 @@ public record UpdateSkinSelectedPayload(String id, String name) implements Custo
     public static void registerReceiver() {
         ServerPlayNetworking.registerGlobalReceiver(ID, (payload, context) -> {
             context.server().execute(() -> {
-                SREPlayerSkinsComponent playerSkinsComponent = SREPlayerSkinsComponent.KEY.get(context.player());
-                if (!playerSkinsComponent.isSkinUnlockedForItemType(payload.id, payload.name))return;
-                playerSkinsComponent.setEquippedSkinForItemType(payload.id, payload.name);
-                playerSkinsComponent.sync();
-
+                if (!PlayerEconomyManager.isSkinUnlockedForItemType(context.player(), payload.id, payload.name)) {
+                    return;
+                }
+                PlayerEconomyManager.setEquippedSkinForItemType(context.player(), payload.id, payload.name);
             });
         });
     }

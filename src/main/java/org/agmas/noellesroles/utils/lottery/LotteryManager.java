@@ -72,11 +72,6 @@ public class LotteryManager {
                     else
                         SkinManager.addCoinNum(player, (int) (baseLootConsumeCoin * getSkinToCoinPercentage(i)));
                     int resultQuality = i;
-                    LotteryRecordStorage.getInstance().updatePlayerLotteryData(player.getUUID(),
-                            lotteryRecordData -> lotteryRecordData.lotteryItems.add(
-                                    new LotteryRecordData.LotteryItemData(
-                                            this.poolID, resultQuality, curQualityList.get(resultIdx),
-                                            System.currentTimeMillis())));
                     return new Pair<>(resultQuality, resultIdx);
                 }
             }

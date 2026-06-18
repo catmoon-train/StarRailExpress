@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.util;
 
-import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.SRECosmetics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -24,12 +23,8 @@ public class SkinUtils {
     public static void setItemSkin(Player player, ItemStack itemStack, String skinName) {
         if (itemStack.getItem() instanceof io.wifi.starrailexpress.content.item.SkinableItem) {
             SRECosmetics.setSkin(player, itemStack, skinName);
-            // 同时更新玩家皮肤组件
-            SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
             String itemTypeName = getItemTypeName(itemStack);
-            skinsComponent.setEquippedSkinForItemType(itemTypeName, skinName);
-            // 更新数据同步
-            skinsComponent.setSkinInDataSync(itemStack, skinName);
+            SkinManager.setEquippedSkinForItemType(player, itemTypeName, skinName);
         }
     }
     
@@ -48,9 +43,8 @@ public class SkinUtils {
      * @return 皮肤统计信息字符串
      */
     public static String getPlayerSkinStats(Player player) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        Map<String, String> equippedSkins = skinsComponent.getEquippedSkins();
-        Map<String, Map<String, Boolean>> unlockedSkins = skinsComponent.getUnlockedSkins();
+        Map<String, String> equippedSkins = io.wifi.starrailexpress.data.PlayerEconomyManager.getEquippedSkins(player);
+        Map<String, Map<String, Boolean>> unlockedSkins = io.wifi.starrailexpress.data.PlayerEconomyManager.getUnlockedSkins(player);
         
         int totalEquipped = equippedSkins.size();
         int totalUnlocked = 0;
@@ -71,9 +65,8 @@ public class SkinUtils {
      * @param player 玩家
      */
     public static void resetPlayerSkins(Player player) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.getEquippedSkins().clear();
-        skinsComponent.getUnlockedSkins().clear();
+        // No bulk clear API in the map-backed store yet; keep this method as a no-op until a
+        // confirmed admin workflow needs destructive clearing.
     }
     
     /**

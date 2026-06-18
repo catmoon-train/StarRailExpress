@@ -4,7 +4,8 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.*;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
+import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
@@ -175,7 +176,7 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
                                 roleType);
                         FactionCardType cardType = FactionCardType.fromInt(roleType);
                         if (cardType != FactionCardType.NONE) {
-                            SREPlayerProgressionComponent.KEY.get(selectedPlayer).addFactionCard(cardType, 1);
+                            ProgressionDataManager.addFactionCard(selectedPlayer, cardType, 1);
                             BroadcastCommand.BroadcastMessage(selectedPlayer,
                                     Component.translatable("message.sre.pass.faction.assign_failed")
                                             .withStyle(ChatFormatting.RED));

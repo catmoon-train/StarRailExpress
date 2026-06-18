@@ -7,8 +7,8 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
+import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -331,7 +331,7 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
                                 roleType);
                         FactionCardType cardType = FactionCardType.fromInt(roleType);
                         if (cardType != FactionCardType.NONE) {
-                            SREPlayerProgressionComponent.KEY.get(selectedPlayer).addFactionCard(cardType, 1);
+                            ProgressionDataManager.addFactionCard(selectedPlayer, cardType, 1);
                             BroadcastCommand.BroadcastMessage(selectedPlayer,
                                     Component.translatable("message.sre.pass.faction.assign_failed")
                                             .withStyle(ChatFormatting.RED));
@@ -356,14 +356,14 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
                 if (selectedPlayer != null) {
                     unassignedPlayers.remove(selectedPlayer);
                     roleAssignments.put(selectedPlayer, selectedRole);
-                    SREPlayerProgressionComponent.KEY.get(selectedPlayer).onRoleAssigned(selectedRole);
+                    ProgressionDataManager.onRoleAssigned(selectedPlayer, selectedRole);
                 }
             }
         }
         for (var up : unassignedPlayers) {
             // 职业不够分配平民
             roleAssignments.put(up, TMMRoles.CIVILIAN);
-            SREPlayerProgressionComponent.KEY.get(up).onRoleAssigned(TMMRoles.CIVILIAN);
+            ProgressionDataManager.onRoleAssigned(up, TMMRoles.CIVILIAN);
         }
         return roleAssignments;
     }

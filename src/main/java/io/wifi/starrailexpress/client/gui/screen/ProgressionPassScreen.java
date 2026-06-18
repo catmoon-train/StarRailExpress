@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent.FactionCardType;
-import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
+import io.wifi.starrailexpress.progression.ProgressionState;
+import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -39,7 +39,7 @@ public class ProgressionPassScreen extends Screen {
     private static final int BT_H = 70;
 
     // ------- 组件状态 -------
-    private final SREPlayerProgressionComponent progression;
+    private ProgressionState progression;
     private final List<Button> cardButtons = new ArrayList<>();
 
     private int activeTab = 0; // 0 = 每日, 1 = 周常, 2 = 永久
@@ -60,8 +60,7 @@ public class ProgressionPassScreen extends Screen {
     public ProgressionPassScreen() {
         super(Component.translatable("sre.pass.name"));
         this.player = Minecraft.getInstance().player;
-        this.progression = SREPlayerProgressionComponent.KEY.get(player);
-        SREPlayerSkinsComponent.KEY.get(player);
+        this.progression = ClientPlayerDataCache.progression(player.getUUID());
     }
 
     // =========================================================================
@@ -86,6 +85,7 @@ public class ProgressionPassScreen extends Screen {
     protected void init() {
         clearWidgets();
         cardButtons.clear();
+        this.progression = ClientPlayerDataCache.progression(player.getUUID());
         computeLayout();
 
         // openAnimStartMs = System.currentTimeMillis();
@@ -176,7 +176,7 @@ public class ProgressionPassScreen extends Screen {
     }
 
     private Button createCardButton(int x, int y, int width, FactionCardType type, int accentColor) {
-        int count = progression.getFactionCards().getOrDefault(type, 0);
+        int count = progression.factionCards.getOrDefault(type, 0);
         Component label = Component.literal(
                 Component.translatable("sre.pass.faction." + type.questKey).getString() + " x" + count);
         var btn = ModernButton.builder(label, b -> {
@@ -222,9 +222,9 @@ public class ProgressionPassScreen extends Screen {
         // ---- 标题栏 ----
         g.drawString(font, Component.translatable("sre.pass.name"), panelX + 24, panelY + 20,
                 applyAlpha(0xFFF4F7FF, animAlpha), false);
-        g.drawString(font, "Lv." + progression.getLevel()
+        g.drawString(font, "Lv." + progression.level
                 + "  "
-                + Component.translatable("sre.pass.exp_progress", progression.getExperience(),
+                + Component.translatable("sre.pass.exp_progress", progression.experience,
                         progression.getExperienceForNextLevel()).getString(),
                 panelX + 24, panelY + 34, applyAlpha(0xFF92B6E5, animAlpha), false);
 
@@ -232,7 +232,7 @@ public class ProgressionPassScreen extends Screen {
         renderSummaryCards(g, panelX + 24, panelY + HDR_H);
 
         // ---- 任务行 ----
-        List<SREPlayerProgressionComponent.PassQuest> quests = activeTab == 0 ? progression.getActiveDailyQuests()
+        List<ProgressionState.PassQuest> quests = activeTab == 0 ? progression.getActiveDailyQuests()
                 : activeTab == 1 ? progression.getActiveWeeklyQuests()
                         : progression.getActivePermanentQuests();
         int curPage = activeTab == 0 ? dailyPage : activeTab == 1 ? weeklyPage : permanentPage;
@@ -267,9 +267,9 @@ public class ProgressionPassScreen extends Screen {
         // activeCard).getString(), panelX + 24, infoY,
         // applyAlpha(0xFFF7D791, animAlpha), false);
 
-        long dailyRem = Math.max(0L, progression.getLastQuestRefreshTime()
+        long dailyRem = Math.max(0L, progression.lastQuestRefreshTime
                 + 24L * 60L * 60L * 1000L - System.currentTimeMillis());
-        long weeklyRem = Math.max(0L, progression.getLastWeeklyRefreshTime()
+        long weeklyRem = Math.max(0L, progression.lastWeeklyRefreshTime
                 + 7L * 24L * 60L * 60L * 1000L - System.currentTimeMillis());
         g.drawString(font, Component.translatable("sre.pass.daily_refresh", formatDuration(dailyRem)).getString(),
                 panelX + 24, infoY + 14, applyAlpha(0xFF86A3C5, animAlpha), false);
@@ -307,7 +307,7 @@ public class ProgressionPassScreen extends Screen {
 
     private void renderProgressBar(GuiGraphics g, int x, int y, int width, int height, int animAlpha) {
         g.fill(x, y, x + width, y + height, applyAlpha(0x55334955, animAlpha));
-        int filled = (int) (width * (progression.getExperience()
+        int filled = (int) (width * (progression.experience
                 / (float) Math.max(1, progression.getExperienceForNextLevel())));
         g.fill(x, y, x + filled, y + height, applyAlpha(0xFF47C1FF, animAlpha));
         g.fill(x + filled, y, x + Math.min(width, filled + 20), y + height, applyAlpha(0xAA9BE2FF, animAlpha));
@@ -316,12 +316,12 @@ public class ProgressionPassScreen extends Screen {
     private void renderSummaryCards(GuiGraphics g, int startX, int y) {
         int cardW = (panelW - 72) / 3;
         renderSummaryCard(g, startX, y, cardW, Component.translatable("sre.pass.total_exp").getString(),
-                String.valueOf(progression.getTotalExperience()), 0xFF61D0FF);
+                String.valueOf(progression.totalExperience), 0xFF61D0FF);
         renderSummaryCard(g, startX + cardW + 12, y, cardW, Component.translatable("sre.pass.coin_reward").getString(),
-                String.valueOf(progression.getClaimedCoinRewards()), 0xFFFFD166);
+                String.valueOf(progression.claimedCoinRewards), 0xFFFFD166);
         renderSummaryCard(g, startX + cardW * 2 + 24, y, cardW,
                 Component.translatable("sre.pass.loot_count").getString(),
-                String.valueOf(progression.getClaimedLootRewards()), 0xFFCDB4FF);
+                String.valueOf(progression.claimedLootRewards), 0xFFCDB4FF);
     }
 
     private void renderSummaryCard(GuiGraphics g, int x, int y, int w, String label, String value, int accent) {
@@ -332,7 +332,7 @@ public class ProgressionPassScreen extends Screen {
     }
 
     private void renderQuestRow(GuiGraphics g, int questX, int rowY, int questW,
-            SREPlayerProgressionComponent.PassQuest quest, int animAlpha) {
+            ProgressionState.PassQuest quest, int animAlpha) {
         int innerX = questX + 12;
         int innerW = questW - 24;
         g.fill(innerX, rowY, innerX + innerW, rowY + ROW_H, applyAlpha(0x66192135, animAlpha));

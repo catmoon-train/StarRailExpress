@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.mixin.item;
 
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -25,6 +25,6 @@ public class UseItemProgressionMixin {
             return;
         }
         String itemId = BuiltInRegistries.ITEM.getKey(player.getItemInHand(usedHand).getItem()).toString();
-        SREPlayerProgressionComponent.KEY.get(serverPlayer).onItemUsed(itemId);
+        ProgressionDataManager.onItemUsed(serverPlayer, itemId);
     }
 }

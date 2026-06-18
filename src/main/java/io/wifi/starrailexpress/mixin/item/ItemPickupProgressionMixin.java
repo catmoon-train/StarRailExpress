@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.mixin.item;
 
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -23,6 +23,6 @@ public class ItemPickupProgressionMixin {
             return;
         }
         String itemId = BuiltInRegistries.ITEM.getKey(self.getItem().getItem()).toString();
-        SREPlayerProgressionComponent.KEY.get(serverPlayer).onPickupItem(itemId);
+        ProgressionDataManager.onPickupItem(serverPlayer, itemId);
     }
 }

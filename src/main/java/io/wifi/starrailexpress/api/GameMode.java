@@ -14,7 +14,7 @@ import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.stats.PlayerStats;
@@ -551,7 +551,7 @@ public abstract class GameMode {
             // 增加本局击杀数
             gameWorldComponent.addPlayerKill(serverKiller.getUUID());
 
-            SREPlayerProgressionComponent.KEY.get(serverKiller).onPlayerKill();
+            ProgressionDataManager.onPlayerKill(serverKiller);
 
             SRERole killerRole = gameWorldComponent.getRole(serverKiller);
             if (killerRole != null) {
@@ -594,7 +594,7 @@ public abstract class GameMode {
                             }
                         } else {
                             // 非友军击杀 → 触发"击杀不同阵营玩家"进度任务
-                            SREPlayerProgressionComponent.KEY.get(serverKiller).onPlayerKillDifferentTeam();
+                            ProgressionDataManager.onPlayerKillDifferentTeam(serverKiller);
                         }
                     }
                 }

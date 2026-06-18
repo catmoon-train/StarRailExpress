@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.content.item;
 
-import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.SkinManager;
 import net.minecraft.ChatFormatting;
@@ -29,7 +28,6 @@ public abstract class SkinableItem extends Item {
         String itemName = this.getItemSkinType();
         if (itemName == null)
             return;
-        // 从玩家的CCA组件获取皮肤名称
         Player player = null;
         if (tooltipContext instanceof net.minecraft.world.entity.player.Player p) {
             player = p;
@@ -42,8 +40,7 @@ public abstract class SkinableItem extends Item {
         }
 
         String skinName = "default";
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinName = skinsComponent.getSkinFromDataSync(itemStack);
+        skinName = SkinManager.getEquippedSkin(player, itemStack);
         if (skinName == null) {
             skinName = "default";
         }
@@ -77,8 +74,7 @@ public abstract class SkinableItem extends Item {
     public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
         if (entity instanceof Player player) {
             if (itemStack.get(SREDataComponentTypes.SKIN) == null) {
-                itemStack.set(SREDataComponentTypes.SKIN,
-                        SREPlayerSkinsComponent.KEY.get(player).getEquippedSkin(getItemSkinType()));
+                itemStack.set(SREDataComponentTypes.SKIN, SkinManager.getEquippedSkin(player, itemStack));
             }
         }
     }

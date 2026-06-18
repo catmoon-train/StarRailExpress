@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.util;
 
-import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.content.item.Colors;
+import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -211,27 +211,19 @@ public class SkinManager {
     }
 
     public static Integer getLootChance(Player player) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        return skinsComponent.getLootChance();
+        return PlayerEconomyManager.getLootChance(player);
     }
 
     public static void addLootChance(Player player, Integer chance) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.addLootChance(chance);
-        skinsComponent.syncSkinsToClient();
-        skinsComponent.syncSkinsToNetwork();
+        PlayerEconomyManager.addLootChance(player, chance == null ? 0 : chance);
     }
 
     public static Integer getCoinNum(Player player) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        return skinsComponent.getCoinNum();
+        return PlayerEconomyManager.getCoinNum(player);
     }
 
     public static void addCoinNum(Player player, Integer num) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.addCoinNum(num);
-        skinsComponent.syncSkinsToClient();
-        skinsComponent.syncSkinsToNetwork();
+        PlayerEconomyManager.addCoinNum(player, num == null ? 0 : num);
     }
 
     /**
@@ -246,9 +238,7 @@ public class SkinManager {
         if (itemStack.has(SREDataComponentTypes.SKIN)) {
             return itemStack.get(SREDataComponentTypes.SKIN);
         }
-        // 从玩家component获取
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        return skinsComponent.getSkinFromDataSync(itemStack);
+        return PlayerEconomyManager.getEquippedSkin(player, itemStack);
     }
 
     /**
@@ -259,10 +249,7 @@ public class SkinManager {
      * @param skinName  皮肤名称
      */
     public static void setEquippedSkin(Player player, ItemStack itemStack, String skinName) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.setEquippedSkin(itemStack, skinName);
-        skinsComponent.setSkinInDataSync(itemStack, skinName);
-        skinsComponent.syncSkinsToClient();
+        PlayerEconomyManager.setEquippedSkinForItemType(player, getItemTypeName(itemStack), skinName);
     }
 
     /**
@@ -274,8 +261,7 @@ public class SkinManager {
      * @return 是否解锁
      */
     public static boolean isSkinUnlocked(Player player, ItemStack itemStack, String skinName) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        return skinsComponent.isSkinUnlocked(itemStack, skinName);
+        return PlayerEconomyManager.isSkinUnlocked(player, itemStack, skinName);
 
     }
 
@@ -287,9 +273,7 @@ public class SkinManager {
      * @param skinName  皮肤名称
      */
     public static void unlockSkin(Player player, ItemStack itemStack, String skinName) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.unlockSkin(itemStack, skinName);
-        skinsComponent.syncSkinsToClient();
+        PlayerEconomyManager.unlockSkin(player, itemStack, skinName);
     }
 
     /**
@@ -300,9 +284,7 @@ public class SkinManager {
      * @param skinName  皮肤名称
      */
     public static void lockSkin(Player player, ItemStack itemStack, String skinName) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.lockSkin(itemStack, skinName);
-        skinsComponent.syncSkinsToClient();
+        PlayerEconomyManager.lockSkinForItemType(player, getItemTypeName(itemStack), skinName);
     }
 
     /**
@@ -313,21 +295,15 @@ public class SkinManager {
      * @param skinName     皮肤名称
      */
     public static void sync(Player player) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.syncSkinsToNetwork();
+        PlayerEconomyManager.flushBlocking(player.getUUID());
     }
 
     public static void unlockSkinForItemTypeNoSync(Player player, String itemTypeName, String skinName) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.unlockSkinForItemType(itemTypeName, skinName);
-         skinsComponent.syncSkinsToNetwork();
+        PlayerEconomyManager.unlockSkinForItemType(player, itemTypeName, skinName);
     }
 
     public static void unlockSkinForItemType(Player player, String itemTypeName, String skinName) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.unlockSkinForItemType(itemTypeName, skinName);
-        skinsComponent.syncSkinsToClient();
-         skinsComponent.syncSkinsToNetwork();
+        PlayerEconomyManager.unlockSkinForItemType(player, itemTypeName, skinName);
     }
 
     /**
@@ -338,9 +314,7 @@ public class SkinManager {
      * @param skinName     皮肤名称
      */
     public static void setEquippedSkinForItemType(Player player, String itemTypeName, String skinName) {
-        SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-        skinsComponent.setEquippedSkinForItemType(itemTypeName, skinName);
-        skinsComponent.syncSkinsToClient();
+        PlayerEconomyManager.setEquippedSkinForItemType(player, itemTypeName, skinName);
     }
 
     /**

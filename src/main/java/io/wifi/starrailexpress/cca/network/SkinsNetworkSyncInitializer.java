@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.cca.network;
 
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.cca.SREPlayerProgressionComponent;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.content.mail.MailboxComponent;
 import io.wifi.starrailexpress.stats.PlayerStatsManager;
@@ -78,18 +77,11 @@ public class SkinsNetworkSyncInitializer {
     private static void onPlayerJoin(ServerPlayer player) {
         try {
             SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-            SREPlayerProgressionComponent progressionComponent = SREPlayerProgressionComponent.KEY.get(player);
             NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
             if (skinsComponent != null && SREConfig.instance().itemSkinSyncServerEnabled) {
                 skinsComponent.initializeNetworkSync(NETWORK_HOST, NETWORK_PORT, NETWORK_KEY);
                 skinsComponent.pullSkinsFromNetwork();
                 logger.info("玩家 {} 的皮肤 MySQL 同步已初始化", player.getName().getString());
-            }
-            if (progressionComponent != null && SREConfig.instance().progressionSyncServerEnabled) {
-                progressionComponent.initializeNetworkSync(NETWORK_HOST, NETWORK_PORT, NETWORK_KEY);
-                progressionComponent.requestTaskDefinitionSync();
-                progressionComponent.pullProgressionFromNetwork();
-                progressionComponent.syncImmediately();
             }
             if (nameTagInventoryComponent != null && SREConfig.instance().itemSkinSyncServerEnabled) {
                 nameTagInventoryComponent.initializeNetworkSync(NETWORK_HOST, NETWORK_PORT, NETWORK_KEY);
@@ -107,16 +99,11 @@ public class SkinsNetworkSyncInitializer {
     private static void onPlayerDisconnect(ServerPlayer player) {
         try {
             SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
-            SREPlayerProgressionComponent progressionComponent = SREPlayerProgressionComponent.KEY.get(player);
             NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
             if (skinsComponent != null && skinsComponent.isNetworkSyncEnabled()) {
                 skinsComponent.flushNetworkSyncAsyncOnDisconnect();
                 skinsComponent.disableNetworkSync();
                 logger.info("玩家 {} 的皮肤 MySQL 断线同步已提交", player.getName().getString());
-            }
-            if (progressionComponent != null && progressionComponent.isNetworkSyncEnabled()) {
-                progressionComponent.flushNetworkSyncAsyncOnDisconnect();
-                progressionComponent.disableNetworkSync();
             }
             if (nameTagInventoryComponent != null && nameTagInventoryComponent.isNetworkSyncEnabled()) {
                 nameTagInventoryComponent.flushNetworkSyncAsyncOnDisconnect();
@@ -140,11 +127,6 @@ public class SkinsNetworkSyncInitializer {
                 SREPlayerSkinsComponent skinsComponent = SREPlayerSkinsComponent.KEY.get(player);
                 if (skinsComponent != null && skinsComponent.isNetworkSyncEnabled()) {
                     wroteAny |= skinsComponent.flushNetworkSyncBlocking();
-                }
-
-                SREPlayerProgressionComponent progressionComponent = SREPlayerProgressionComponent.KEY.get(player);
-                if (progressionComponent != null && progressionComponent.isNetworkSyncEnabled()) {
-                    wroteAny |= progressionComponent.flushNetworkSyncBlocking();
                 }
 
                 NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);

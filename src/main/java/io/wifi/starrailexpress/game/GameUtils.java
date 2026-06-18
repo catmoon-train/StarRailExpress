@@ -17,6 +17,7 @@ import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.stats.PlayerStats;
 import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import io.wifi.starrailexpress.util.SREItemUtils;
@@ -1059,7 +1060,7 @@ public class GameUtils {
                         stats.getOrCreateRoleStats(playerRole.identifier()).incrementLossesAsRole();
                     }
                 }
-                SREPlayerProgressionComponent.KEY.get(player).onRoundSettled(playerRole, isWinner);
+                ProgressionDataManager.onRoundSettled(player, playerRole, isWinner);
             }
         }
     }
