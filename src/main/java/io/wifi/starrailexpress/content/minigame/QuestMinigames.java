@@ -29,6 +29,57 @@ public class QuestMinigames {
     public static final QuestMinigame COOKING = register(
             QuestMinigame.of("cooking", "minigame.starrailexpress.cooking"));
 
+    public static final QuestMinigame REACTOR_TEMPERATURE = register(
+            QuestMinigame.of("reactor_temperature", "minigame.starrailexpress.reactor_temperature"));
+    public static final QuestMinigame BOX_SORT = register(
+            QuestMinigame.of("box_sort", "minigame.starrailexpress.box_sort"));
+    public static final QuestMinigame WIRE_CONNECT = register(
+            QuestMinigame.of("wire_connect", "minigame.starrailexpress.wire_connect"));
+    public static final QuestMinigame HOLD_BUTTON = register(
+            QuestMinigame.of("hold_button", "minigame.starrailexpress.hold_button"));
+    public static final QuestMinigame CLEAN_DEBRIS = register(
+            QuestMinigame.of("clean_debris", "minigame.starrailexpress.clean_debris"));
+    public static final QuestMinigame SHOOTING = register(
+            QuestMinigame.of("shooting", "minigame.starrailexpress.shooting"));
+    public static final QuestMinigame WIRE_TUNING = register(
+            QuestMinigame.of("wire_tuning", "minigame.starrailexpress.wire_tuning"));
+    public static final QuestMinigame SIGNAL_CALIBRATION = register(
+            QuestMinigame.of("signal_calibration", "minigame.starrailexpress.signal_calibration"));
+    public static final QuestMinigame SHAPE_MATCH = register(
+            QuestMinigame.of("shape_match", "minigame.starrailexpress.shape_match"));
+    public static final QuestMinigame SEQUENCE_BUTTONS = register(
+            QuestMinigame.of("sequence_buttons", "minigame.starrailexpress.sequence_buttons"));
+    public static final QuestMinigame CLEAN_STAINS = register(
+            QuestMinigame.of("clean_stains", "minigame.starrailexpress.clean_stains"));
+    public static final QuestMinigame PULL_LEVER = register(
+            QuestMinigame.of("pull_lever", "minigame.starrailexpress.pull_lever"));
+    public static final QuestMinigame TRASH_RECYCLE = register(
+            QuestMinigame.of("trash_recycle", "minigame.starrailexpress.trash_recycle"));
+    public static final QuestMinigame ITEM_CHECKLIST = register(
+            QuestMinigame.of("item_checklist", "minigame.starrailexpress.item_checklist"));
+    public static final QuestMinigame SWIPE_CARD = register(
+            QuestMinigame.of("swipe_card", "minigame.starrailexpress.swipe_card"));
+    public static final QuestMinigame PLAY_MUSIC = register(
+            QuestMinigame.of("play_music", "minigame.starrailexpress.play_music"));
+    public static final QuestMinigame RHYTHM = register(
+            QuestMinigame.of("rhythm", "minigame.starrailexpress.rhythm"));
+    public static final QuestMinigame LIGHT_CANDLES = register(
+            QuestMinigame.of("light_candles", "minigame.starrailexpress.light_candles"));
+    public static final QuestMinigame WHACK_MOLE = register(
+            QuestMinigame.of("whack_mole", "minigame.starrailexpress.whack_mole"));
+    public static final QuestMinigame PUZZLE = register(
+            QuestMinigame.of("puzzle", "minigame.starrailexpress.puzzle"));
+    public static final QuestMinigame STORAGE = register(
+            QuestMinigame.of("storage", "minigame.starrailexpress.storage"));
+    public static final QuestMinigame SLICE_FOOD = register(
+            QuestMinigame.of("slice_food", "minigame.starrailexpress.slice_food"));
+    public static final QuestMinigame THREE_CARDS = register(
+            QuestMinigame.of("three_cards", "minigame.starrailexpress.three_cards"));
+    public static final QuestMinigame BREAK_JAR = register(
+            QuestMinigame.of("break_jar", "minigame.starrailexpress.break_jar"));
+    public static final QuestMinigame ZONE_CALIBRATION = register(
+            QuestMinigame.of("zone_calibration", "minigame.starrailexpress.zone_calibration"));
+
     // ══════════════════════════════════════════════
     // 注册方法
     // ══════════════════════════════════════════════

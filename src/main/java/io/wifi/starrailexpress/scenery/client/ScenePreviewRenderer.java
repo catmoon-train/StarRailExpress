@@ -26,7 +26,9 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -54,15 +56,21 @@ public final class ScenePreviewRenderer {
         }
         projectionOrigin = new Vec3(sourceArea.minX, sourceArea.minY, sourceArea.minZ);
         Map<RenderType, List<SceneAssetClient.PreviewBlock>> byRenderType = new LinkedHashMap<>();
+        List<SceneAssetClient.PreviewBlock> fluidBlocks = new ArrayList<>();
         for (SceneAssetClient.PreviewBlock block : blocks) {
-            if (block.state().getRenderShape() != RenderShape.MODEL) {
-                continue;
+            if (!block.state().getFluidState().isEmpty()) {
+                fluidBlocks.add(block);
             }
-            RenderType renderType = ItemBlockRenderTypes.getRenderType(block.state(), false);
-            byRenderType.computeIfAbsent(renderType, ignored -> new ArrayList<>()).add(block);
+            if (block.state().getRenderShape() == RenderShape.MODEL) {
+                RenderType renderType = ItemBlockRenderTypes.getRenderType(block.state(), false);
+                byRenderType.computeIfAbsent(renderType, ignored -> new ArrayList<>()).add(block);
+            }
         }
 
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
+        if (!fluidBlocks.isEmpty()) {
+            buildFluidMesh(fluidBlocks);
+        }
         for (Map.Entry<RenderType, List<SceneAssetClient.PreviewBlock>> entry : byRenderType.entrySet()) {
             RenderType renderType = entry.getKey();
             BufferBuilder builder = Tesselator.getInstance().begin(renderType.mode(), renderType.format());
@@ -91,6 +99,62 @@ public final class ScenePreviewRenderer {
                 projectionMeshes.add(new PreviewMesh(renderType, vbo));
             }
         }
+    }
+
+    private static void buildFluidMesh(List<SceneAssetClient.PreviewBlock> blocks) {
+        RenderType renderType = RenderType.translucent();
+        BufferBuilder builder = Tesselator.getInstance().begin(renderType.mode(), renderType.format());
+        for (SceneAssetClient.PreviewBlock block : blocks) {
+            FluidState fluidState = block.state().getFluidState();
+            if (fluidState.isEmpty()) {
+                continue;
+            }
+            float x = (float) (block.pos().getX() - projectionOrigin.x);
+            float y = (float) (block.pos().getY() - projectionOrigin.y);
+            float z = (float) (block.pos().getZ() - projectionOrigin.z);
+            int color = fluidState.is(FluidTags.LAVA) ? 0xE8FF6A00 : 0xB83F76E4;
+            float height = fluidState.isSource() ? 1.0F : 0.875F;
+            addFluidBox(builder, x, y, z, height, color);
+        }
+        try (MeshData mesh = builder.buildOrThrow()) {
+            VertexBuffer vbo = new VertexBuffer(VertexBuffer.Usage.STATIC);
+            vbo.bind();
+            vbo.upload(mesh);
+            VertexBuffer.unbind();
+            projectionMeshes.add(new PreviewMesh(renderType, vbo));
+        }
+    }
+
+    private static void addFluidBox(BufferBuilder builder, float x, float y, float z, float height, int color) {
+        float y1 = y + height;
+        addQuad(builder, x, y1, z, x + 1, y1, z, x + 1, y1, z + 1, x, y1, z + 1, color, 0.0F, 1.0F, 0.0F);
+        addQuad(builder, x, y, z, x, y, z + 1, x + 1, y, z + 1, x + 1, y, z, color, 0.0F, -1.0F, 0.0F);
+        addQuad(builder, x, y, z, x + 1, y, z, x + 1, y1, z, x, y1, z, color, 0.0F, 0.0F, -1.0F);
+        addQuad(builder, x + 1, y, z + 1, x, y, z + 1, x, y1, z + 1, x + 1, y1, z + 1, color, 0.0F, 0.0F, 1.0F);
+        addQuad(builder, x, y, z + 1, x, y, z, x, y1, z, x, y1, z + 1, color, -1.0F, 0.0F, 0.0F);
+        addQuad(builder, x + 1, y, z, x + 1, y, z + 1, x + 1, y1, z + 1, x + 1, y1, z, color, 1.0F, 0.0F, 0.0F);
+    }
+
+    private static void addQuad(BufferBuilder builder,
+            float x1, float y1, float z1,
+            float x2, float y2, float z2,
+            float x3, float y3, float z3,
+            float x4, float y4, float z4,
+            int color, float normalX, float normalY, float normalZ) {
+        addVertex(builder, x1, y1, z1, color, 0.0F, 0.0F, normalX, normalY, normalZ);
+        addVertex(builder, x2, y2, z2, color, 1.0F, 0.0F, normalX, normalY, normalZ);
+        addVertex(builder, x3, y3, z3, color, 1.0F, 1.0F, normalX, normalY, normalZ);
+        addVertex(builder, x4, y4, z4, color, 0.0F, 1.0F, normalX, normalY, normalZ);
+    }
+
+    private static void addVertex(BufferBuilder builder, float x, float y, float z, int color,
+            float u, float v, float normalX, float normalY, float normalZ) {
+        builder.addVertex(x, y, z)
+                .setColor(color)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(0x00F000F0)
+                .setNormal(normalX, normalY, normalZ);
     }
 
     public static void release() {

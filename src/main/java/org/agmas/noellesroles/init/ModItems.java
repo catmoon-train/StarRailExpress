@@ -46,6 +46,9 @@ public class ModItems {
     public static ResourceKey<CreativeModeTab> MISC_CREATIVE_GROUP = ResourceKey.create(
             Registries.CREATIVE_MODE_TAB,
             Noellesroles.id("misc"));
+    public static ResourceKey<CreativeModeTab> SAN_CREATIVE_GROUP = ResourceKey.create(
+            Registries.CREATIVE_MODE_TAB,
+            Noellesroles.id("san"));
 
     public static final Item ANTIDOTE = register(new AntidoteItem((new Item.Properties()).stacksTo(1)), "antidote");
 
@@ -478,6 +481,47 @@ public class ModItems {
     public static final Item MINT_CANDIES = register(
             new MintCandiesItem(new Item.Properties().stacksTo(16)),
             "mint_candies");
+    /**
+     * 花圈
+     * - 穿戴在头部时持续恢复san值
+     * - 提供 MOOD_REGENERATION 效果
+     */
+    public static final Item WREATH = register(
+            new WreathItem(ArmorMaterials.CHAIN, ArmorItem.Type.HELMET,
+                    (new Item.Properties()).stacksTo(1)),
+            "wreath", SAN_CREATIVE_GROUP);
+    /**
+     * 巧克力
+     * - 食用后15秒内san值不会下降
+     * - 提供 MOOD_DRAIN_IMMUNITY 效果
+     */
+    public static final Item CHOCOLATE = register(
+            new ChocolateItem(new Item.Properties().stacksTo(64)),
+            "chocolate", SAN_CREATIVE_GROUP);
+    /**
+     * 安神茶
+     * - 饮用后60秒内san值消耗减缓
+     * - 提供 MOOD_DRAIN_REDUCTION 效果
+     */
+    public static final Item CALMING_TEA = register(
+            new CalmingTeaItem(new Item.Properties().stacksTo(64)),
+            "calming_tea", SAN_CREATIVE_GROUP);
+    /**
+     * 护身符
+     * - 携带在物品栏中即可降低低san视觉干扰并缓慢恢复san值
+     * - 提供 LOW_SAN_SHADER_RESISTANCE + MOOD_REGENERATION 效果
+     */
+    public static final Item TALISMAN = register(
+            new TalismanItem(new Item.Properties().stacksTo(1)),
+            "talisman", SAN_CREATIVE_GROUP);
+    /**
+     * 提神咖啡
+     * - 饮用后30秒内大幅恢复san值并获得速度提升
+     * - 提供 MOOD_REGENERATION Lv.2 + MOVEMENT_SPEED 效果
+     */
+    public static final Item ENERGIZING_COFFEE = register(
+            new EnergizingCoffeeItem(new Item.Properties().stacksTo(64)),
+            "energizing_coffee", SAN_CREATIVE_GROUP);
     /**
      * 记录笔记
      * - 记录员专属物品
@@ -932,15 +976,12 @@ public class ModItems {
     // );
 
     @SuppressWarnings("unchecked")
-    public static Item register(Item item, String id) {
-        // Create the identifier for the item.
-        // Register the item.
-        var registeredItem = registrar.create(id, item, new ResourceKey[] { MISC_CREATIVE_GROUP });
-        // Item registeredItem = Registry.register(BuiltInRegistries.ITEM, itemID,
-        // item);
+    public static Item register(Item item, String id, ResourceKey<CreativeModeTab>... extraGroups) {
+        ResourceKey<CreativeModeTab>[] allGroups = java.util.Arrays.copyOf(extraGroups, extraGroups.length + 1);
+        allGroups[extraGroups.length] = MISC_CREATIVE_GROUP;
+        var registeredItem = registrar.create(id, item, allGroups);
         TMMDescItems.introItems.add(registeredItem);
 
-        // Return the registered item!
         return registeredItem;
     }
 
@@ -949,6 +990,10 @@ public class ModItems {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, MISC_CREATIVE_GROUP, FabricItemGroup.builder()
                 .title(Component.translatable("item_group.noellesroles.misc")).icon(() -> {
                     return new ItemStack(ModItems.WHEELCHAIR);
+                }).build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, SAN_CREATIVE_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("item_group.noellesroles.san")).icon(() -> {
+                    return new ItemStack(ModItems.WREATH);
                 }).build());
         TMMItems.INVISIBLE_ITEMS.add(ModItems.PAN);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.SMOKE_GRENADE);

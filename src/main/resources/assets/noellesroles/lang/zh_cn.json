@@ -2982,5 +2982,11 @@
   "skill.noellesroles.exampler.problem_all": "全面出题",
   "skill.noellesroles.ma_chen_xu.active": "鬼技",
   "skill.noellesroles.super_loose_end.ability": "亡命徒技能",
-  "skill.noellesroles.super_loose_end.shift": "亡命徒特殊模式"
+  "skill.noellesroles.super_loose_end.shift": "亡命徒特殊模式",
+  "item.noellesroles.wreath": "花圈",
+  "item.noellesroles.chocolate": "巧克力",
+  "item.noellesroles.calming_tea": "安神茶",
+  "item.noellesroles.talisman": "护身符",
+  "item.noellesroles.energizing_coffee": "提神咖啡",
+  "item_group.noellesroles.san": "星穹列车：San值物品"
 }

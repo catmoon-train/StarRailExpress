@@ -22,7 +22,7 @@ public class ChunkSerializerMixin {
                 var entry = paletteList.getCompound(i);
                 if (entry.contains("Name")) {
                     var name = entry.getString("Name");
-                    var newName = name.replaceAll("wathe", SRE.TMM_MOD_ID);
+                    var newName = name.replaceFirst("^wathe:", SRE.TMM_MOD_ID + ":");
                     entry.putString("Name", newName);
                 }
             }

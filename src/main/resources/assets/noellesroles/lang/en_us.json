@@ -2970,5 +2970,11 @@
   "hud.sre.skill.charges_remaining": "%s left",
   "hud.sre.skill.cast_count": "  Used %s",
   "hud.sre.passives": "Passives:",
-  "hud.sre.passive_label": "Passive "
+  "hud.sre.passive_label": "Passive ",
+  "item.noellesroles.wreath": "Wreath",
+  "item.noellesroles.chocolate": "Chocolate",
+  "item.noellesroles.calming_tea": "Calming Tea",
+  "item.noellesroles.talisman": "Talisman",
+  "item.noellesroles.energizing_coffee": "Energizing Coffee",
+  "item_group.noellesroles.san": "Star Rail Express: SAN Items"
 }

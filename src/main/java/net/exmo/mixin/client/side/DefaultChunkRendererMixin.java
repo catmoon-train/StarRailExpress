@@ -60,7 +60,8 @@ public abstract class DefaultChunkRendererMixin {
             method = "fillCommandBuffer",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer;addNonIndexedDrawCommands(Lnet/caffeinemc/mods/sodium/client/gl/device/MultiDrawBatch;JI)V"),
+                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer;addNonIndexedDrawCommands(Lnet/caffeinemc/mods/sodium/client/gl/device/MultiDrawBatch;JI)V",
+                    shift = At.Shift.AFTER),
             remap = false)
     private static void sre$writeNonIndexedSceneOffset(
             MultiDrawBatch batch,
@@ -75,14 +76,16 @@ public abstract class DefaultChunkRendererMixin {
             @Local(name = "chunkY") int sectionY,
             @Local(name = "chunkZ") int sectionZ,
             @Local(name = "slices") int slices) {
-        sre$writeSceneOffset(batch, sectionX, sectionY, sectionZ, slices);
+        int firstCommand = batch.size() - Integer.bitCount(slices);
+        sre$writeSceneOffset(batch, sectionX, sectionY, sectionZ, firstCommand);
     }
 
     @Inject(
             method = "fillCommandBuffer",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer;addIndexedDrawCommands(Lnet/caffeinemc/mods/sodium/client/gl/device/MultiDrawBatch;JI)V"),
+                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer;addIndexedDrawCommands(Lnet/caffeinemc/mods/sodium/client/gl/device/MultiDrawBatch;JI)V",
+                    shift = At.Shift.AFTER),
             remap = false)
     private static void sre$writeIndexedSceneOffset(
             MultiDrawBatch batch,
@@ -97,21 +100,20 @@ public abstract class DefaultChunkRendererMixin {
             @Local(name = "chunkY") int sectionY,
             @Local(name = "chunkZ") int sectionZ,
             @Local(name = "slices") int slices) {
-        sre$writeSceneOffset(batch, sectionX, sectionY, sectionZ, slices);
+        int firstCommand = batch.size() - Integer.bitCount(slices);
+        sre$writeSceneOffset(batch, sectionX, sectionY, sectionZ, firstCommand);
     }
 
     @Unique
     private static void sre$writeSceneOffset(MultiDrawBatch batch, int sectionX, int sectionY,
-            int sectionZ, int visibleFaces) {
+            int sectionZ, int firstCommand) {
         if (sre$offsetBuffer == null
                 || !SceneAssetClient.isActiveSection(sectionX, sectionY, sectionZ)) {
             return;
         }
         float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
         Vec3 offset = SceneAssetClient.renderOffset(partialTick);
-        int commandCount = Integer.bitCount(visibleFaces);
-        int firstCommand = batch.size();
-        int lastCommand = Math.min(firstCommand + commandCount, sre$offsetCount);
+        int lastCommand = Math.min(batch.size(), sre$offsetCount);
         for (int command = firstCommand; command < lastCommand; command++) {
             int base = command * 16;
             sre$offsetBuffer.putFloat(base, (float) offset.x);

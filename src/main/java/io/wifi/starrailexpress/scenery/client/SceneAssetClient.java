@@ -33,7 +33,6 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.client.gui.screen.map_dev.MapBuildHelperScreen;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.SceneManagerScreen;
 import io.wifi.starrailexpress.scenery.SceneAsset;
 import io.wifi.starrailexpress.scenery.SceneAssetCodec;
@@ -253,13 +252,20 @@ public final class SceneAssetClient {
                 ScenePreviewRenderer.rebuild(PREVIEW_BLOCKS,
                         SceneGeometry.expandedArea(currentAsset.sourceArea()));
             }
-            client.setScreen(new MapBuildHelperScreen(client.player.blockPosition().below(), 5));
+            client.player.connection.sendCommand("sre:scene manager");
         }
     }
 
     public static void closeEditor() {
         // The projection is a world tool, not a screen overlay. Keep it alive after
         // closing the editor; the explicit preview toggle controls its visibility.
+    }
+
+    public static void refreshPreview() {
+        previewEnabled = true;
+        if (currentAsset != null) {
+            rebuildPreviewBlocks(currentAsset.sourceArea());
+        }
     }
 
     public static void clearRuntime() {

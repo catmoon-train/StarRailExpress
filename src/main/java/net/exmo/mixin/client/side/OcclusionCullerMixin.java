@@ -2,8 +2,8 @@ package net.exmo.mixin.client.side;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.doctor4t.wathe.client.WatheClient;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import net.caffeinemc.mods.sodium.client.render.chunk.occlusion.OcclusionCuller;
 import net.caffeinemc.mods.sodium.client.render.viewport.Viewport;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,6 +26,8 @@ public class OcclusionCullerMixin {
             float sx, float sy, float sz,
             Operation<Boolean> original
     ) {
-        return original.call(viewport, cx, cy, cz, sx, sy, sz) || SREClient.isTrainMoving();
+        return original.call(viewport, cx, cy, cz, sx, sy, sz)
+                || SREClient.isTrainMoving()
+                || SceneAssetClient.hasActiveAsset();
     }
 }

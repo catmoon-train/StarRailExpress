@@ -37,7 +37,6 @@ public class MapBuildHelperScreen extends Screen {
 
     private EditBox dxBox, dyBox, dzBox;
     private EditBox sceneIdBox;
-    private EditBox sceneOffsetXBox, sceneOffsetYBox, sceneOffsetZBox;
     private EditBox mapNameBox, mapImportBox;
 
     private final List<AbstractWidget> tabWidgets0 = new ArrayList<>();
@@ -334,7 +333,7 @@ public class MapBuildHelperScreen extends Screen {
         int right = left + bw + gap;
         AreasWorldComponent areas = SREClient.areaComponent;
 
-        sceneIdBox = new EditBox(font, left, startY, 154, bh, Component.literal("场景 ID"));
+        sceneIdBox = new EditBox(font, left, startY, 190, bh, Component.literal("场景 ID"));
         sceneIdBox.setMaxLength(128);
         sceneIdBox.setValue(areas == null ? "" : areas.getSceneId());
         addTabWidget(tabWidgets5, sceneIdBox);
@@ -343,120 +342,54 @@ public class MapBuildHelperScreen extends Screen {
             if (!id.isEmpty()) {
                 sendOnly("sre:scene library assign " + quoteCommandArgument(id));
             }
-        }).bounds(left + 158, startY, 80, bh).accentBar(AccentSide.BOTTOM).build());
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("场景管理"),
+        }).bounds(left + 196, startY, 64, bh).accentBar(AccentSide.BOTTOM).build());
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("编辑器"),
                 b -> sendOnly("sre:scene manager"))
-                .bounds(left + 242, startY, 86, bh).accentBar(AccentSide.RIGHT).build());
+                .bounds(left + 264, startY, 64, bh).accentBar(AccentSide.RIGHT).build());
 
         int row1 = startY + bh + gap;
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("1. 设置源区域最小角"),
-                b -> sendOnly(String.format("sre:scene select source min %.0f %.0f %.0f",
-                        Math.floor(ax()), Math.floor(ay()), Math.floor(az()))))
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("取消当前地图场景"),
+                b -> sendOnly("sre:scene library detach"))
                 .bounds(left, row1, bw, bh).accentBar(AccentSide.LEFT).build());
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("2. 设置源区域最大角"),
-                b -> sendOnly(String.format("sre:scene select source max %.0f %.0f %.0f",
-                        Math.floor(ax()), Math.floor(ay()), Math.floor(az()))))
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("列出场景库"),
+                b -> sendOnly("sre:scene library list"))
                 .bounds(right, row1, bw, bh).accentBar(AccentSide.RIGHT).build());
 
         int row2 = row1 + bh + gap;
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("静态：复制 playArea"),
-                b -> sendOnly("sre:scene select source from-play-area"))
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("显示/隐藏投影"), b ->
+                SceneAssetClient.setPreviewEnabled(!SceneAssetClient.isPreviewEnabled()))
                 .bounds(left, row2, bw, bh).accentBar(AccentSide.LEFT).build());
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("3. 自动选择滚动轴"),
-                b -> sendOnly("sre:scene axis auto"))
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("暂停/继续滚动"), b ->
+                SceneAssetClient.setPreviewPaused(!SceneAssetClient.isPreviewPaused()))
                 .bounds(right, row2, bw, bh).accentBar(AccentSide.RIGHT).build());
 
         int row3 = row2 + bh + gap;
-        int innerWidth = PANEL_WIDTH - 12;
-        int axisGap = 6;
-        int axisWidth = (innerWidth - axisGap * 3) / 4;
-        String[] axisNames = { "X", "Y", "Z", "NONE" };
-        String[] axisCommands = { "x", "y", "z", "none" };
-        for (int i = 0; i < axisNames.length; i++) {
-            final String axisCommand = axisCommands[i];
-            addTabWidget(tabWidgets5, ModernButton.builder(Component.literal(axisNames[i]),
-                    b -> sendOnly("sre:scene axis " + axisCommand))
-                    .bounds(left + i * (axisWidth + axisGap), row3, axisWidth, bh)
-                    .accentBar(i == 0 ? AccentSide.LEFT : i == axisNames.length - 1
-                            ? AccentSide.RIGHT : AccentSide.BOTTOM)
-                    .build());
-        }
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("投影透明度 -"), b ->
+                SceneAssetClient.setPreviewAlpha(SceneAssetClient.getPreviewAlpha() - 0.05F))
+                .bounds(left, row3, bw, bh).accentBar(AccentSide.LEFT).build());
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("投影透明度 +"), b ->
+                SceneAssetClient.setPreviewAlpha(SceneAssetClient.getPreviewAlpha() + 0.05F))
+                .bounds(right, row3, bw, bh).accentBar(AccentSide.RIGHT).build());
 
         int row4 = row3 + bh + gap;
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("4. 显示/隐藏投影"), b ->
-                SceneAssetClient.setPreviewEnabled(!SceneAssetClient.isPreviewEnabled()))
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("预览速度 -"), b ->
+                SceneAssetClient.setPreviewSpeed(SceneAssetClient.getPreviewSpeed() - 0.25F))
                 .bounds(left, row4, bw, bh).accentBar(AccentSide.LEFT).build());
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("暂停/继续滚动"), b ->
-                SceneAssetClient.setPreviewPaused(!SceneAssetClient.isPreviewPaused()))
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("预览速度 +"), b ->
+                SceneAssetClient.setPreviewSpeed(SceneAssetClient.getPreviewSpeed() + 0.25F))
                 .bounds(right, row4, bw, bh).accentBar(AccentSide.RIGHT).build());
 
         int row5 = row4 + bh + gap;
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("投影透明度 -"), b ->
-                SceneAssetClient.setPreviewAlpha(SceneAssetClient.getPreviewAlpha() - 0.05F))
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("刷新投影"),
+                b -> SceneAssetClient.refreshPreview())
                 .bounds(left, row5, bw, bh).accentBar(AccentSide.LEFT).build());
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("投影透明度 +"), b ->
-                SceneAssetClient.setPreviewAlpha(SceneAssetClient.getPreviewAlpha() + 0.05F))
-                .bounds(right, row5, bw, bh).accentBar(AccentSide.RIGHT).build());
-
-        int row6 = row5 + bh + gap;
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("预览速度 -"), b ->
-                SceneAssetClient.setPreviewSpeed(SceneAssetClient.getPreviewSpeed() - 0.25F))
-                .bounds(left, row6, bw, bh).accentBar(AccentSide.LEFT).build());
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("预览速度 +"), b ->
-                SceneAssetClient.setPreviewSpeed(SceneAssetClient.getPreviewSpeed() + 0.25F))
-                .bounds(right, row6, bw, bh).accentBar(AccentSide.RIGHT).build());
-
-        int row7 = row6 + bh + gap;
-        int offsetFieldWidth = 50;
-        int offsetGap = 4;
-        sceneOffsetXBox = makeField(left, row7, offsetFieldWidth, bh, "0", value -> {});
-        sceneOffsetYBox = makeField(left + offsetFieldWidth + offsetGap, row7, offsetFieldWidth, bh, "0",
-                value -> {});
-        sceneOffsetZBox = makeField(left + (offsetFieldWidth + offsetGap) * 2, row7, offsetFieldWidth, bh, "0",
-                value -> {});
-        if (areas != null) {
-            sceneOffsetXBox.setValue(fmtDouble(areas.getSceneDisplayOffset().x));
-            sceneOffsetYBox.setValue(fmtDouble(areas.getSceneDisplayOffset().y));
-            sceneOffsetZBox.setValue(fmtDouble(areas.getSceneDisplayOffset().z));
-        }
-        addTabWidget(tabWidgets5, sceneOffsetXBox);
-        addTabWidget(tabWidgets5, sceneOffsetYBox);
-        addTabWidget(tabWidgets5, sceneOffsetZBox);
-        int offsetButtonX = left + (offsetFieldWidth + offsetGap) * 3;
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("应用 XYZ"), b -> applySceneOffset())
-                .bounds(offsetButtonX, row7, 78, bh).accentBar(AccentSide.BOTTOM).build());
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("偏移归零"), b -> {
-            sceneOffsetXBox.setValue("0");
-            sceneOffsetYBox.setValue("0");
-            sceneOffsetZBox.setValue("0");
-            sendOnly("sre:scene offset reset");
-        }).bounds(offsetButtonX + 82, row7, 78, bh).accentBar(AccentSide.RIGHT).build());
-
-        int row8 = row7 + bh + gap;
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("5. 刷新投影"),
-                b -> sendOnly("sre:scene preview refresh"))
-                .bounds(left, row8, bw, bh).accentBar(AccentSide.LEFT).build());
-        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("6. 一键发布并保存"),
+        addTabWidget(tabWidgets5, ModernButton.builder(Component.literal("客户端场景 "
+                        + (SceneAssetClient.isMovingSceneEnabled() ? "开" : "关")),
                 b -> {
-                    String id = sceneIdBox.getValue().trim();
-                    if (!id.isEmpty()) {
-                        sendOnly("sre:scene publish-save " + quoteCommandArgument(id) + " force");
-                    } else if (minecraft != null && minecraft.player != null) {
-                        minecraft.player.displayClientMessage(
-                                Component.translatable("sre.scene.publish.missing_id"), false);
-                    }
+                    SceneAssetClient.setMovingSceneEnabled(!SceneAssetClient.isMovingSceneEnabled());
+                    init(minecraft, width, height);
                 })
-                .bounds(right, row8, bw, bh).accentBar(AccentSide.RIGHT).build());
-    }
-
-    private void applySceneOffset() {
-        try {
-            double x = Double.parseDouble(sceneOffsetXBox.getValue().trim());
-            double y = Double.parseDouble(sceneOffsetYBox.getValue().trim());
-            double z = Double.parseDouble(sceneOffsetZBox.getValue().trim());
-            sendOnly(String.format(java.util.Locale.ROOT, "sre:scene offset %.6f %.6f %.6f", x, y, z));
-        } catch (NumberFormatException ignored) {
-        }
+                .bounds(right, row5, bw, bh).accentBar(AccentSide.RIGHT).build());
     }
 
     // ── 房间选项卡 UI ────────────────────────────────────────────────
