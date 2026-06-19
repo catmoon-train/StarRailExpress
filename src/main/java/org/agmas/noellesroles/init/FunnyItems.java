@@ -2,18 +2,10 @@ package org.agmas.noellesroles.init;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.index.TMMDescItems;
-import static io.wifi.starrailexpress.index.TMMItems.MISC_ITEMS_GROUP;
-import static io.wifi.starrailexpress.index.TMMItems.NOELLESROLES_ALL_GROUP;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.Foods;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.BowenBadgeItem;
 import org.agmas.noellesroles.content.item.HotPotatoItem;
@@ -39,7 +31,7 @@ public class FunnyItems {
 
   @SuppressWarnings("unchecked")
   public static Item register(Item item, String id) {
-    var registeredItem = registrar.create(id, item, new ResourceKey[] { FUNNY_ITEMS_GROUP, NOELLESROLES_ALL_GROUP });
+    var registeredItem = registrar.create(id, item, new ResourceKey[] { TMMItems.FUNNY_ITEMS_GROUP, TMMItems.NOELLESROLES_ALL_GROUP });
     TMMDescItems.introItems.add(registeredItem);
     return registeredItem;
   }
