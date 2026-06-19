@@ -2,10 +2,13 @@ package io.wifi.starrailexpress.client.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.level.Level;
-
 import java.util.ArrayList;
 import java.util.List;
+import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import java.util.UUID;
 
 public class SREClientUtils {
@@ -55,5 +58,21 @@ public class SREClientUtils {
             return false;
         // 下面相当于 gamemode == SURVIVAL || gamemode == ADVENTURE;
         return s.getGameMode().isSurvival();
+    }
+
+    public static PlayerInfo getPlayerInfo(AbstractClientPlayer localPlayer) {
+        PlayerInfo playerInfo = localPlayer.getPlayerInfo();
+        return playerInfo;
+    }
+
+    /**
+     * 获取玩家真实皮肤。请注意，此获取到的皮肤信息将不会经过事件处理。建议直接通过 {@code AbstractClientPlayer.getSkin()}
+     * 获取处理后的皮肤。
+     * <br/>
+     * 但如果您在 {@link OnGettingPlayerSkin} 事件中想要获取皮肤，请使用此方法，否则将会出现递归调用从而导致崩溃！
+     */
+    public static PlayerSkin getPlayerOriginalSkin(AbstractClientPlayer localPlayer) {
+        var playerInfo = getPlayerInfo(localPlayer);
+        return playerInfo == null ? DefaultPlayerSkin.get(localPlayer.getUUID()) : playerInfo.getSkin();
     }
 }

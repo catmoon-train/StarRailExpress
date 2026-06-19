@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -88,6 +87,6 @@ public class PuppeteerBodyEntityRenderer extends LivingEntityRenderer<PuppeteerB
             return DefaultPlayerSkin.get(ownerUuid).texture();
         }
         // 最后的回退：使用固定的默认皮肤（Steve）
-        return DefaultPlayerSkin.get(UUID.fromString("7833c811-436e-40c4-868a-ffb1073f48a2")).texture();
+        return DefaultPlayerSkin.getDefaultTexture();
     }
 }
