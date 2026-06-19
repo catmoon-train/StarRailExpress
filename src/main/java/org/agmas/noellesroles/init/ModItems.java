@@ -65,48 +65,48 @@ public class ModItems {
             "repair_medkit", REPAIR_MODE_GROUP);
     public static final Item HUNTER_CHAIN = register(
             new HunterChainItem(new Item.Properties().stacksTo(1).durability(6)),
-            "hunter_chain", TOOLS_GROUP);
+            "hunter_chain", REPAIR_MODE_GROUP);
     public static final Item HUNTER_WEAPON = register(
             new HunterWeaponItem(new Item.Properties().stacksTo(1).durability(96)),
-            "hunter_weapon", WEAPONS_GROUP);
+            "hunter_weapon", REPAIR_MODE_GROUP);
     public static final Item HUNTER_HAMMER = register(
             new HunterWeaponItem("hammer", new Item.Properties().stacksTo(1).durability(84)),
-            "hunter_hammer", WEAPONS_GROUP);
+            "hunter_hammer", REPAIR_MODE_GROUP);
     public static final Item HUNTER_HOOK = register(
             new HunterWeaponItem("hook", new Item.Properties().stacksTo(1).durability(88)),
-            "hunter_hook", WEAPONS_GROUP);
+            "hunter_hook", REPAIR_MODE_GROUP);
     public static final Item HUNTER_PLUGIN_LACERATION = register(
             new HunterAttackPluginItem("laceration", new Item.Properties().stacksTo(4)),
-            "hunter_plugin_laceration", TOOLS_GROUP);
+            "hunter_plugin_laceration", REPAIR_MODE_GROUP);
     public static final Item HUNTER_PLUGIN_CONCUSSION = register(
             new HunterAttackPluginItem("concussion", new Item.Properties().stacksTo(4)),
-            "hunter_plugin_concussion", TOOLS_GROUP);
+            "hunter_plugin_concussion", REPAIR_MODE_GROUP);
     public static final Item HUNTER_PLUGIN_TRACKING = register(
             new HunterAttackPluginItem("tracking", new Item.Properties().stacksTo(4)),
-            "hunter_plugin_tracking", TOOLS_GROUP);
+            "hunter_plugin_tracking", REPAIR_MODE_GROUP);
     public static final Item HUNTER_PLUGIN_SUPPRESSION = register(
             new HunterAttackPluginItem("suppression", new Item.Properties().stacksTo(4)),
-            "hunter_plugin_suppression", TOOLS_GROUP);
+            "hunter_plugin_suppression", REPAIR_MODE_GROUP);
 
     public static final Item HUNTER_PULSE = register(
             new HunterPulseItem(new Item.Properties().stacksTo(1)),
-            "hunter_pulse", TOOLS_GROUP);
+            "hunter_pulse", REPAIR_MODE_GROUP);
     public static final Item HUNTER_BLINK = register(
             new HunterBlinkItem(new Item.Properties().stacksTo(1).durability(4)),
-            "hunter_blink", TOOLS_GROUP);
+            "hunter_blink", REPAIR_MODE_GROUP);
     public static final Item HUNTER_JAMMER = register(
             new HunterJammerItem(new Item.Properties().stacksTo(1).durability(3)),
-            "hunter_jammer", TOOLS_GROUP);
+            "hunter_jammer", REPAIR_MODE_GROUP);
 
     public static final Item SMOKE_PELLET = register(
             new SmokePelletItem(new Item.Properties().stacksTo(8)),
-            "smoke_pellet", TOOLS_GROUP);
+            "smoke_pellet", REPAIR_MODE_GROUP);
     public static final Item DECOY_BEACON = register(
             new DecoyBeaconItem(new Item.Properties().stacksTo(4)),
-            "decoy_beacon", TOOLS_GROUP);
+            "decoy_beacon", REPAIR_MODE_GROUP);
     public static final Item ESCAPE_GRAPPLE = register(
             new EscapeGrappleItem(new Item.Properties().stacksTo(1).durability(3)),
-            "escape_grapple", TOOLS_GROUP);
+            "escape_grapple", REPAIR_MODE_GROUP);
     public static final Item REPAIR_AREA_KEY = register(
             new RepairRouteItem("area_key", new Item.Properties().stacksTo(8)),
             "repair_area_key", REPAIR_MODE_GROUP);
