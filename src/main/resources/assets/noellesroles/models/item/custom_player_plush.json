@@ -7,8 +7,8 @@
 		64
 	],
 	"textures": {
-		"0": "starrailexpress:item/plush/th_lumen",
-		"particle": "starrailexpress:item/plush/th_lumen"
+		"0": "starrailexpress:item/plush/th_sariel",
+		"particle": "starrailexpress:item/plush/th_sariel"
 	},
     "display": {
 		"thirdperson_righthand": {

@@ -248,7 +248,7 @@ public class StupidExpressClient implements ClientModInitializer {
             if (RoleUtils.isPlayerTheJob(player, TMMRoles.LOOSE_END)
                     || RoleUtils.isPlayerTheJob(player, SpecialGameModeRoles.SUPER_LOOSE_END)) {
                 return OnGettingPlayerSkin.PlayerSkinResult
-                        .playerSkin(SRE.id("textures/entity/custom_psycho/th_lumen.png"), Model.SLIM);
+                        .playerSkin(SRE.id("textures/entity/custom_psycho/th_sariel.png"), Model.SLIM);
             }
             if (SREClient.getLooseEndPenalty()) {
                 PlayerSkin.Model model = SREClientUtils.getPlayerOriginalSkin(player).model();

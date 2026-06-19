@@ -97,7 +97,7 @@ public class SREPlushBlockEntityRenderer<T extends BlockEntity> implements Block
     }
 
     public static RenderType getRenderType(@Nullable ResolvableProfile resolvableProfile) {
-        ResourceLocation resourceLocation = SRE.id("textures/entity/custom_psycho/th_lumen.png");
+        ResourceLocation resourceLocation = SRE.id("textures/entity/custom_psycho/th_sariel.png");
         if (resolvableProfile != null && resolvableProfile.gameProfile() != null) {
             SkinManager skinManager = Minecraft.getInstance().getSkinManager();
             return RenderType.entityTranslucent(skinManager.getInsecureSkin(resolvableProfile.gameProfile()).texture());
