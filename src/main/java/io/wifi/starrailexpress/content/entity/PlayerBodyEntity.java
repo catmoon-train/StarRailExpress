@@ -113,8 +113,6 @@ public class PlayerBodyEntity extends LivingEntity {
     @Override
     public ItemStack getItemBySlot(EquipmentSlot slot) {
         SimpleContainer inv = getComponent().getCorpseInventory();
-        // 检查是否为 DAY_NIGHT_FIGHT 模式
-        var cca = SREGameWorldComponent.KEY.get(this.level());
         boolean isDayNightFight = false;
 
         if (isDayNightFight) {
@@ -144,8 +142,6 @@ public class PlayerBodyEntity extends LivingEntity {
     @Override
     public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
         SimpleContainer inv = getComponent().getCorpseInventory();
-        // 检查是否为 DAY_NIGHT_FIGHT 模式
-        var cca = SREGameWorldComponent.KEY.get(this.level());
         boolean isDayNightFight = false;
 
         if (isDayNightFight) {
@@ -207,8 +203,6 @@ public class PlayerBodyEntity extends LivingEntity {
     public void setCorpseInventoryFromPlayerInventory(Inventory inventory, boolean sync) {
         SimpleContainer inv = getComponent().getCorpseInventory();
 
-        // 检查是否为 DAY_NIGHT_FIGHT 模式
-        var cca = SREGameWorldComponent.KEY.get(this.level());
         boolean isDayNightFight = false;
 
         if (isDayNightFight) {
@@ -359,8 +353,6 @@ public class PlayerBodyEntity extends LivingEntity {
 
     private boolean hasCorpseItems() {
         SimpleContainer inv = getComponent().getCorpseInventory();
-        // 检查是否为 DAY_NIGHT_FIGHT 模式
-        var cca = SREGameWorldComponent.KEY.get(this.level());
         boolean isDayNightFight = false;
 
         int checkSlots = isDayNightFight ? 54 : 14;

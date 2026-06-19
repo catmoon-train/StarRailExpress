@@ -35,7 +35,7 @@ import java.awt.Color;
  */
 public class PuppeteerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>>
         extends LivingEntityRenderer<PuppeteerBodyEntity, PlayerModel<PuppeteerBodyEntity>> {
-
+    public ResourceLocation defaultTexture = DefaultPlayerSkin.getDefaultTexture();
     static final int MAX_DISTANCE = 36 * 36;
 
     public PuppeteerBodyEntityRenderer(EntityRendererProvider.Context ctx, boolean slim) {
@@ -167,13 +167,13 @@ public class PuppeteerBodyEntityRenderer<T extends LivingEntity, M extends Entit
         UUID ownerUuid = entity.getOwnerUuid().orElse(null);
         PlayerInfo playerListEntry = ClientSkinCache.getCachedPlayerInfo(ownerUuid);
         if (SREClient.getLooseEndPenalty()) {
-            return DefaultPlayerSkin.getDefaultTexture();
+            return defaultTexture;
         }
         if (playerListEntry != null) {
             return playerListEntry.getSkin().texture();
         }
         // 最后的回退：使用固定的默认皮肤（Steve）
-        return DefaultPlayerSkin.getDefaultTexture();
+        return defaultTexture;
     }
 
     @Override
