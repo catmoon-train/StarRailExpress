@@ -50,9 +50,9 @@ public class SREReceivingLevelScreen extends ReceivingLevelScreen {
     @Override
     protected void init() {
         FrameAnimationRenderer.setInWorld(false);
-        if (!ANIM.hasFrames()) {
-            ANIM.loadFrames();
-        }
+//        if (!ANIM.hasFrames()) {
+//            ANIM.loadFrames();
+//        }
         ANIM.reset();
     }
 

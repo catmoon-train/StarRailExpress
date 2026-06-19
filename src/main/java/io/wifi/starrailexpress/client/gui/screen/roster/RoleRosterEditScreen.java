@@ -142,15 +142,15 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         countBox.setFilter(s -> s.isEmpty() || s.matches("\\d{1,2}"));
         addRenderableWidget(countBox);
 
-        addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.clear"), b -> {
-            working.roleCounts.clear();
-            working.modifierCounts.clear();
-        }).bounds(bx + 116, by, 50, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.enable_all"), b -> enableAll())
+                .bounds(bx + 114, by, 56, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.disable_all"), b -> disableAll())
+                .bounds(bx + 174, by, 56, 20).build());
 
         toggleButton = addRenderableWidget(Button.builder(toggleLabel(), b -> {
             working.enabled = !working.enabled;
             toggleButton.setMessage(toggleLabel());
-        }).bounds(bx + 170, by, 66, 20).build());
+        }).bounds(bx + 234, by, 66, 20).build());
 
         // 右侧：[保存] [关闭]
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.save"), b -> save())
@@ -255,6 +255,22 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
 
     private int countOf(Item item) {
         return item.modifier() ? working.modifierCountFor(item.id()) : working.countFor(item.id());
+    }
+
+    /** 把所有当前未启用（数量为 0）的可选条目设为 1，保留已有的更高数量。 */
+    private void enableAll() {
+        for (CardRect c : cards) {
+            if (countOf(c.item) <= 0) {
+                var counts = c.item.modifier() ? working.modifierCounts : working.roleCounts;
+                counts.put(c.item.id(), 1);
+            }
+        }
+    }
+
+    /** 清空所有职业与修饰符名额。 */
+    private void disableAll() {
+        working.roleCounts.clear();
+        working.modifierCounts.clear();
     }
 
     private void adjust(Item item, int delta) {

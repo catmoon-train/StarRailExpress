@@ -236,15 +236,16 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                         .bounds(0, -8, 20, 20)
                         .build());
 
-        refreshShopLayout();
-        initWaitingMenu();
-
+        // 参与切换按钮：占据等待面板右上角“参与状态”原文字的位置，实际坐标在 layoutWaitingMenu 中设置
         participationButton = this.addRenderableWidget(
                 Button.builder(participationButtonLabel(), b -> {
                     if (minecraft != null && minecraft.player != null) {
                         minecraft.player.connection.sendCommand("tmm:participate");
                     }
-                }).bounds(this.width - PARTICIPATION_BTN_W - 6, 6, PARTICIPATION_BTN_W, PARTICIPATION_BTN_H).build());
+                }).bounds(0, 0, PARTICIPATION_BTN_W, PARTICIPATION_BTN_H).build());
+
+        refreshShopLayout();
+        initWaitingMenu();
     }
 
     /** 创建等待面板中的便捷菜单格子按钮与翻页按钮（复用 GameMenuEntries 的同一组动作）。 */
@@ -299,6 +300,16 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             waitingPrevPageButton.setPosition(navCenterX - textW / 2 - gap - btnW, navY);
             waitingNextPageButton.setPosition(navCenterX + textW / 2 + gap, navY);
         }
+
+        // 参与切换按钮：放在右上角信息格内（原参与状态文字所在位置）
+        if (participationButton != null) {
+            int bw = scaled(PANEL_W - INFO_X - 6);
+            int bh = scaled(16);
+            participationButton.setWidth(bw);
+            participationButton.setHeight(bh);
+            participationButton.setPosition(px + scaled(INFO_X), py + scaled(INFO_STATUS_Y) - scaled(2));
+        }
+
         updateWaitingMenuVisibility();
     }
 
@@ -451,15 +462,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                     px + scaled(HEAD_CX - HEAD_SIZE / 2), py + scaled(HEAD_CY - HEAD_SIZE / 2), scaled(HEAD_SIZE));
         }
 
-        // 顶部右格：玩家名 + 当前参与状态
+        // 顶部右格：玩家名（参与状态由覆盖在下方的切换按钮承担，由原生组件绘制）
         drawPanelString(context, player.getName(), px + scaled(INFO_X), py + scaled(INFO_NAME_Y), 0xFFFFFFFF);
-        boolean participating = isParticipating();
-        Component participationText = Component.translatable(participating
-                ? "screen.limited_inventory.participation.joined"
-                : "screen.limited_inventory.participation.left");
-        int participationColor = participating ? 0xFF00BC16 : 0xFFFFB000;
-        drawPanelString(context, participationText,
-                px + scaled(INFO_X), py + scaled(INFO_STATUS_Y), participationColor);
 
         // 翻页页码：与左右箭头按钮在导航栏上居中、垂直对齐
         if (waitingMenuPages > 1) {
