@@ -89,7 +89,7 @@ public class RoleUtils extends MCItemsUtils {
                 soundSource, x, y, z, volume, pitch, serverPlayer.getRandom().nextLong()));
     }
 
-    public static void RemoveAllPlayerAttributes(ServerPlayer serverPlayer) {
+    public static void removeAllPlayerAttributes(ServerPlayer serverPlayer) {
         var attris = serverPlayer.getAttributes();
         if (attris != null) {
             var allAttris = attris.getSyncableAttributes();
@@ -108,7 +108,7 @@ public class RoleUtils extends MCItemsUtils {
         }
     }
 
-    public static boolean RemoveAllEffects(Player entity) {
+    public static boolean removeAllEffects(Player entity) {
         if (entity.getActiveEffects() != null && !entity.getActiveEffects().isEmpty())
             return entity.removeAllEffects();
         return false;

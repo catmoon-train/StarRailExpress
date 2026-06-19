@@ -1592,7 +1592,7 @@ public class ModEventsRegister {
                     insaneKillerPlayerComponent.init();
                 }
             }
-            RoleUtils.RemoveAllEffects(playerEntity);
+            RoleUtils.removeAllEffects(playerEntity);
             // 葬仪死亡时清除拖动状态
             if (gameWorldComponent.isRole(playerEntity, ModRoles.MORTICIAN_BODYMAKER)) {
                 var morticianComponent = org.agmas.noellesroles.component.ModComponents.MORTICIAN_BODYMAKER

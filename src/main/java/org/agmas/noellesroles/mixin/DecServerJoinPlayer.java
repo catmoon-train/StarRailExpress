@@ -38,9 +38,9 @@ public class DecServerJoinPlayer {
         }
         serverPlayer.getInventory().clearContent();
         if (!serverPlayer.getActiveEffects().isEmpty()) {
-            RoleUtils.RemoveAllEffects(serverPlayer);
+            RoleUtils.removeAllEffects(serverPlayer);
         }
-        RoleUtils.RemoveAllPlayerAttributes(serverPlayer);
+        RoleUtils.removeAllPlayerAttributes(serverPlayer);
         ConfigWorldComponent.KEY.get(serverPlayer.level()).sync();
     }
 

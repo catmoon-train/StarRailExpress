@@ -16,8 +16,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
@@ -206,14 +204,15 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
 
         // ===== 第一步：统计当前场上各阵营存活玩家数量 =====
         // 注意：普通杀手(TMMRoles.KILLER)、猫娘杀手的死亡不算杀手阵营死亡
-        //       除了教父以外的家族成员不算中立阵营死亡（目前以isFamilyRole判断）
+        // 除了教父以外的家族成员不算中立阵营死亡（目前以isFamilyRole判断）
         int aliveKillerCount = 0;
         int aliveVigilanteCount = 0;
         int aliveNeutralCount = 0;
 
         for (ServerPlayer player : transformablePlayers) {
             SRERole role = roleWorldComponent.getRole(player);
-            if (role == null) continue;
+            if (role == null)
+                continue;
 
             int roleType = PlayerRoleWeightManager.getRoleType(role);
             if (isDeathIgnoredKillerRole(role)) {
@@ -260,8 +259,7 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
         // 平民池
         RoleAssignmentPool civilianPool = RoleAssignmentPool.create("ClassChangeCivilian",
                 role -> availableRoles.contains(role)
-                        && PlayerRoleWeightManager.getRoleType(role) == 1
-                        );
+                        && PlayerRoleWeightManager.getRoleType(role) == 1);
 
         // ===== 第三步：为每个可变换玩家分配新职业 =====
         int remainingKillers = aliveKillerCount;
@@ -356,42 +354,16 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
             // --- 移除旧角色，分配新角色 ---
             if (oldRole != null) {
                 ModdedRoleRemoved.EVENT.invoker().removeModdedRole(player, oldRole);
-                            // --- 清除所有药水效果（旧职业残留的效果） ---
-                for (MobEffectInstance effectInstance : new ArrayList<>(player.getActiveEffects())) {
-                    player.removeEffect(effectInstance.getEffect());
-                }
+
+                // --- 清除所有药水效果（旧职业残留的效果） ---
+                RoleUtils.removeAllEffects(player);
 
                 // --- 重置核心属性到默认值 ---
-                player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20.0);
-                player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.10000000149011612);
-                player.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(1.0);
-                player.getAttribute(Attributes.ATTACK_SPEED).setBaseValue(4.0);
-                player.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
-                player.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(0.0);
-                player.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(0.0);
-                player.getAttribute(Attributes.LUCK).setBaseValue(0.0);
-                player.getAttribute(Attributes.SCALE).setBaseValue(1.0);
-                player.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(0.6);
-                player.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(0.41999998688697815);
-                player.getAttribute(Attributes.GRAVITY).setBaseValue(0.08);
-                player.getAttribute(Attributes.SAFE_FALL_DISTANCE).setBaseValue(3.0);
-                player.getAttribute(Attributes.FALL_DAMAGE_MULTIPLIER).setBaseValue(1.0);
-                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).setBaseValue(4.5);
-                player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).setBaseValue(3.0);
-                player.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY).setBaseValue(0.0);
-                player.getAttribute(Attributes.OXYGEN_BONUS).setBaseValue(0.0);
-                player.getAttribute(Attributes.SUBMERGED_MINING_SPEED).setBaseValue(0.2);
-                player.getAttribute(Attributes.SNEAKING_SPEED).setBaseValue(0.3);
-                player.getAttribute(Attributes.SWEEPING_DAMAGE_RATIO).setBaseValue(0.0);
-                player.getAttribute(Attributes.MINING_EFFICIENCY).setBaseValue(0.0);
-                player.getAttribute(Attributes.BURNING_TIME).setBaseValue(1.0);
-                player.getAttribute(Attributes.EXPLOSION_KNOCKBACK_RESISTANCE).setBaseValue(0.0);
+                RoleUtils.removeAllPlayerAttributes(player);
                 // 确保血量不超出最大生命值
                 player.setHealth(player.getMaxHealth());
             }
             gameWorldComponent.addRole(player, newRole, false);
-
-
 
             // --- 计算新金币 ---
             int newGold;
@@ -445,10 +417,9 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
      * 清除背包中除了key和信件以外的所有物品
      */
     private void clearInventoryExceptKeysAndLetters(ServerPlayer player) {
-        SREItemUtils.clearItem(player, (stack) ->
-                !stack.is(TMMItems.KEY)
-                        && !stack.is(TMMItems.LETTER)
-                        && !(stack.getItem() instanceof LetterItem));
+        SREItemUtils.clearItem(player, (stack) -> !stack.is(TMMItems.KEY)
+                && !stack.is(TMMItems.LETTER)
+                && !(stack.getItem() instanceof LetterItem));
     }
 
     /**
@@ -458,10 +429,13 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
      * 3 = 杀手阵营
      */
     private int getFactionType(@Nullable SRERole role) {
-        if (role == null) return 1;
+        if (role == null)
+            return 1;
         int type = PlayerRoleWeightManager.getRoleType(role);
-        if (type == 4) return 3; // 杀手
-        if (type == 2 || type == 3) return 2; // 中立
+        if (type == 4)
+            return 3; // 杀手
+        if (type == 2 || type == 3)
+            return 2; // 中立
         return 1; // 平民/警长
     }
 
@@ -481,7 +455,8 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
      * 判断是否为扒手（Avaricious），扒手基础金币为0
      */
     private boolean isAvariciousRole(SRERole role) {
-        if (role == null) return false;
+        if (role == null)
+            return false;
         String path = role.identifier().getPath();
         return path.contains("avaricious") || path.contains("Avaricious");
     }
@@ -491,11 +466,14 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
      * 这些角色不能在变换中出现
      */
     private boolean isBannedKillerRole(SRERole role) {
-        if (role == null) return false;
+        if (role == null)
+            return false;
         // 普通杀手
-        if (role == TMMRoles.KILLER) return true;
+        if (role == TMMRoles.KILLER)
+            return true;
         // 猫娘杀手
-        if (role == ModRoles.CAT_KILLER) return true;
+        if (role == ModRoles.CAT_KILLER)
+            return true;
         return false;
     }
 
@@ -503,9 +481,11 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
      * 判断是否为除教父以外的家族成员（这些职业也不能在变换中出现）
      */
     private boolean isFamilyRoleExceptGodfather(SRERole role) {
-        if (role == null) return false;
+        if (role == null)
+            return false;
         // 教父(Godfather)允许出现
-        if (role == ModRoles.GODFATHER) return false;
+        if (role == ModRoles.GODFATHER)
+            return false;
         // 其他家族成员禁止（用 isMafiaTeam() 判断）
         return role.isMafiaTeam();
     }
@@ -515,11 +495,14 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
      * （普通杀手、猫娘杀手）
      */
     private boolean isDeathIgnoredKillerRole(SRERole role) {
-        if (role == null) return false;
+        if (role == null)
+            return false;
         // 普通杀手
-        if (role == TMMRoles.KILLER) return true;
+        if (role == TMMRoles.KILLER)
+            return true;
         // 猫娘杀手
-        if (role == ModRoles.CAT_KILLER) return true;
+        if (role == ModRoles.CAT_KILLER)
+            return true;
         return false;
     }
 
@@ -528,9 +511,11 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
      * （除了教父以外的家族成员）
      */
     private boolean isDeathIgnoredNeutralRole(SRERole role) {
-        if (role == null) return false;
+        if (role == null)
+            return false;
         // 教父(Godfather)计入中立死亡
-        if (role == ModRoles.GODFATHER) return false;
+        if (role == ModRoles.GODFATHER)
+            return false;
         // 其他家族成员不计入
         return role.isMafiaTeam();
     }
