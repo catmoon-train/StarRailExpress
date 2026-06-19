@@ -76,9 +76,9 @@ public class StarRailLoadingOverlay extends Overlay {
         this.tipChangedAt = Util.getMillis();
 
         FrameAnimationRenderer.setInWorld(false);
-        if (!ANIM.hasFrames()) {
-            ANIM.loadFrames();
-        }
+//        if (!ANIM.hasFrames()) {
+//            ANIM.loadFrames();
+//        }
         ANIM.reset();
     }
 
