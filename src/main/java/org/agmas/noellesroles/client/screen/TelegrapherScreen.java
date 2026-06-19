@@ -59,7 +59,7 @@ public class TelegrapherScreen extends Screen {
                 fieldHeight,
                 Component.translatable("screen.noellesroles.telegrapher.message"));
         messageField.setValue("");
-        messageField.setMaxLength(200); // 限制最大长度
+        messageField.setMaxLength(15); // 限制最大长度
         messageField.setHint(Component.translatable("screen.noellesroles.telegrapher.placeholder")
                 .withStyle(ChatFormatting.GRAY));
         addWidget(messageField);
