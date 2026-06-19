@@ -71,6 +71,7 @@ public class SREPlushBlockEntityRenderer<T extends BlockEntity> implements Block
 
          Direction facing = state.hasProperty(SREPlushBlock.FACING) ? state.getValue(SREPlushBlock.FACING)
                 : Direction.NORTH;
+                facing = facing.getOpposite();
 
         poseStack.pushPose();
         // 挤压动画（绕方块底面，水平鼓起、竖直压扁）
@@ -79,9 +80,11 @@ public class SREPlushBlockEntityRenderer<T extends BlockEntity> implements Block
         poseStack.scale(1F + squash / 2F, 1, 1F + squash / 2F);
         poseStack.translate(-0.5, 0, -0.5);
         // 实体模型 -> 方块空间：移到方块顶面中心并翻转 Y（ModelPart 内部已 ÷16）
-        // poseStack.translate(0.5, 1.5, 0.5);
-        // poseStack.scale(1, -1, 1);
+        poseStack.translate(0.5, 1.5, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
+        poseStack.translate(-0.5, -1.5, -0.5);
+
+        // poseStack.scale(1, -1, 1);
 
         CustomPlayerPlushModel.render(poseStack, consumer.getBuffer(renderType), light, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();

@@ -76,8 +76,8 @@ public class CustomPlayerPlushBlock extends SREPlushBlock {
         }
     }
 
-    public ResourceLocation  getCustomSound(Level world, BlockPos pos, BlockState state) {
-        if(world.getBlockEntity(pos) instanceof SREPlushBlockEntity sp){
+    public ResourceLocation getCustomSound(Level world, BlockPos pos, BlockState state) {
+        if (world.getBlockEntity(pos) instanceof SREPlushBlockEntity sp) {
             return sp.getClickSound();
         }
         return null;
