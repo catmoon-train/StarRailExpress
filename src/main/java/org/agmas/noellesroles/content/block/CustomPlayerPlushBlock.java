@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.MapCodec;
 
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -66,7 +67,13 @@ public class CustomPlayerPlushBlock extends SREPlushBlock {
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
             TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        if (stack.get(DataComponents.PROFILE) != null) {
+        if (stack.get(SREDataComponentTypes.TEXTURE) != null) {
+            var texture = stack.get(SREDataComponentTypes.TEXTURE);
+            if (texture != null) {
+                tooltip.add(Component.translatable("tooltip.sre.custom_player_plush.texture", texture)
+                        .withStyle(ChatFormatting.GRAY));
+            }
+        } else if (stack.get(DataComponents.PROFILE) != null) {
             ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
             var name = resolvableProfile.name().orElse(null);
             if (name != null && !name.isBlank()) {
