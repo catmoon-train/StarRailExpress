@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.client.render.item;
 import org.agmas.noellesroles.client.renderer.SREPlushBlockEntityRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 
 import io.wifi.starrailexpress.client.model.entity.CustomPlayerPlushModel;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -35,18 +34,8 @@ public class CustomPlayerPlushItemRenderer implements BuiltinItemRendererRegistr
         poseStack.pushPose();
         // 与方块实体渲染器相同：把模型放进 [0,1]^3（脚在 y=0、头顶 y=1，居中），ModelPart 内部已 ÷16
         // 手持时（第一/第三人称）让脸朝向玩家：模型正面默认 +z（背对持有者），转 180° 面向玩家
-        if (isHandContext(mode)) {
-            poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-        }
         VertexConsumer vc = buffers.getBuffer(renderType);
         CustomPlayerPlushModel.render(poseStack, vc, light, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
-    }
-
-    private static boolean isHandContext(ItemDisplayContext mode) {
-        return mode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
-                || mode == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
-                || mode == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
-                || mode == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
     }
 }
