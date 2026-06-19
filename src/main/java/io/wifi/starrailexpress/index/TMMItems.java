@@ -232,8 +232,7 @@ public interface TMMItems {
         SkinableItem.add(TMMItems.REVOLVER);
         // SkinnableItem.add(TMMItems.LOCKPICK);
         SkinableItem.add(TMMItems.GRENADE);
-        SkinableItem.add(TMMItems.STICKY_GRENADE);
-        SkinableItem.add(TMMItems.TIMED_GRENADE);
+
         SkinableItem.add(TMMItems.BAT);
 
         // 注册蓄力物品

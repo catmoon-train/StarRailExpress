@@ -52,8 +52,8 @@ public class RoleRosterViewScreen extends net.minecraft.client.gui.screens.Scree
             new GroupDef("display.type.role", 0xFFC9A84C, t -> true),
     };
 
-    /** 列表条目：职业或修饰符（修饰符 role 为 null，不可点击跳转）。 */
-    private record Item(SRERole role, String id, Component name, int color, boolean modifier) {
+    /** 列表条目：职业或修饰符（职业 mod 为 null，修饰符 role 为 null）。 */
+    private record Item(SRERole role, SREModifier mod, String id, Component name, int color, boolean modifier) {
     }
 
     private static final class Group {
@@ -134,7 +134,7 @@ public class RoleRosterViewScreen extends net.minecraft.client.gui.screens.Scree
             int type = PlayerRoleWeightManager.getRoleType(role);
             for (int i = 0; i < GROUPS.length; i++) {
                 if (GROUPS[i].matches.test(type)) {
-                    buckets[i].items.add(new Item(role, role.identifier().toString(),
+                    buckets[i].items.add(new Item(role, null, role.identifier().toString(),
                             RoleUtils.getRoleName(role), role.color(), false));
                     break;
                 }
@@ -155,7 +155,7 @@ public class RoleRosterViewScreen extends net.minecraft.client.gui.screens.Scree
             if (working.modifierCountFor(modifier.identifier().toString()) <= 0) {
                 continue;
             }
-            modifierGroup.items.add(new Item(null, modifier.identifier().toString(),
+            modifierGroup.items.add(new Item(null, modifier, modifier.identifier().toString(),
                     RoleUtils.getModifierName(modifier), modifier.color(), true));
         }
         if (!modifierGroup.items.isEmpty()) {
@@ -215,9 +215,11 @@ public class RoleRosterViewScreen extends net.minecraft.client.gui.screens.Scree
             for (CardRect c : cards) {
                 int sy = listTop + c.y - off;
                 if (mouseX >= c.x && mouseX <= c.x + c.w && mouseY >= sy && mouseY <= sy + c.h) {
-                    // 仅职业条目可跳转到对应职业的介绍页面；修饰符条目仅展示
+                    // 职业 / 修饰符条目均跳转到对应的介绍页面
                     if (c.item.role() != null) {
                         this.minecraft.setScreen(new RoleIntroduceScreen(this, c.item.role()));
+                    } else if (c.item.mod() != null) {
+                        this.minecraft.setScreen(new RoleIntroduceScreen(this, c.item.mod()));
                     }
                     return true;
                 }

@@ -259,6 +259,12 @@ public class RoleIntroduceScreen extends Screen {
         this.selectedRole = sreRole;
     }
 
+    public RoleIntroduceScreen(Screen parent, SREModifier modifier) {
+        this();
+        this.parent = parent;
+        this.selectedRole = modifier;
+    }
+
     private static SRERole getRole(Player player) {
         SRERole role = null;
         if (SREClient.gameComponent != null) {
