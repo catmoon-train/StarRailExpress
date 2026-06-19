@@ -16,6 +16,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
@@ -354,8 +356,42 @@ public class SREClassChangeGameMode extends SREMurderGameMode {
             // --- 移除旧角色，分配新角色 ---
             if (oldRole != null) {
                 ModdedRoleRemoved.EVENT.invoker().removeModdedRole(player, oldRole);
+                            // --- 清除所有药水效果（旧职业残留的效果） ---
+                for (MobEffectInstance effectInstance : new ArrayList<>(player.getActiveEffects())) {
+                    player.removeEffect(effectInstance.getEffect());
+                }
+
+                // --- 重置核心属性到默认值 ---
+                player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20.0);
+                player.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.10000000149011612);
+                player.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(1.0);
+                player.getAttribute(Attributes.ATTACK_SPEED).setBaseValue(4.0);
+                player.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+                player.getAttribute(Attributes.ARMOR_TOUGHNESS).setBaseValue(0.0);
+                player.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(0.0);
+                player.getAttribute(Attributes.LUCK).setBaseValue(0.0);
+                player.getAttribute(Attributes.SCALE).setBaseValue(1.0);
+                player.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(0.6);
+                player.getAttribute(Attributes.JUMP_STRENGTH).setBaseValue(0.41999998688697815);
+                player.getAttribute(Attributes.GRAVITY).setBaseValue(0.08);
+                player.getAttribute(Attributes.SAFE_FALL_DISTANCE).setBaseValue(3.0);
+                player.getAttribute(Attributes.FALL_DAMAGE_MULTIPLIER).setBaseValue(1.0);
+                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).setBaseValue(4.5);
+                player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).setBaseValue(3.0);
+                player.getAttribute(Attributes.WATER_MOVEMENT_EFFICIENCY).setBaseValue(0.0);
+                player.getAttribute(Attributes.OXYGEN_BONUS).setBaseValue(0.0);
+                player.getAttribute(Attributes.SUBMERGED_MINING_SPEED).setBaseValue(0.2);
+                player.getAttribute(Attributes.SNEAKING_SPEED).setBaseValue(0.3);
+                player.getAttribute(Attributes.SWEEPING_DAMAGE_RATIO).setBaseValue(0.0);
+                player.getAttribute(Attributes.MINING_EFFICIENCY).setBaseValue(0.0);
+                player.getAttribute(Attributes.BURNING_TIME).setBaseValue(1.0);
+                player.getAttribute(Attributes.EXPLOSION_KNOCKBACK_RESISTANCE).setBaseValue(0.0);
+                // 确保血量不超出最大生命值
+                player.setHealth(player.getMaxHealth());
             }
             gameWorldComponent.addRole(player, newRole, false);
+
+
 
             // --- 计算新金币 ---
             int newGold;
