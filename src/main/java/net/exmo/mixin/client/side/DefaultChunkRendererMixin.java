@@ -2,7 +2,6 @@ package net.exmo.mixin.client.side;
 
 import java.nio.ByteBuffer;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import io.wifi.starrailexpress.compat.SodiumShaderInterface;
@@ -14,17 +13,21 @@ import net.caffeinemc.mods.sodium.client.gl.device.MultiDrawBatch;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.chunk.ChunkRenderMatrices;
 import net.caffeinemc.mods.sodium.client.render.chunk.DefaultChunkRenderer;
+import net.caffeinemc.mods.sodium.client.render.chunk.LocalSectionIndex;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataStorage;
+import net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataUnsafe;
 import net.caffeinemc.mods.sodium.client.render.chunk.lists.ChunkRenderList;
 import net.caffeinemc.mods.sodium.client.render.chunk.lists.ChunkRenderListIterable;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
+import net.caffeinemc.mods.sodium.client.util.iterator.ByteIterator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.system.MemoryUtil;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,8 +43,23 @@ public abstract class DefaultChunkRendererMixin {
     @Unique
     private static GlMutableBuffer sre$glBuffer;
 
-    @Inject(method = "fillCommandBuffer", at = @At("HEAD"), remap = false)
-    private static void sre$prepareOffsetBuffer(
+    @Shadow(remap = false)
+    private static int getVisibleFaces(int originX, int originY, int originZ, int chunkX, int chunkY, int chunkZ) {
+        throw new AssertionError();
+    }
+
+    @Shadow(remap = false)
+    private static void addNonIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int slices) {
+        throw new AssertionError();
+    }
+
+    @Shadow(remap = false)
+    private static void addIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int slices) {
+        throw new AssertionError();
+    }
+
+    @Inject(method = "fillCommandBuffer", at = @At("HEAD"), cancellable = true, remap = false)
+    private static void sre$fillCommandBuffer(
             MultiDrawBatch batch,
             RenderRegion region,
             SectionRenderDataStorage renderDataStorage,
@@ -50,58 +68,49 @@ public abstract class DefaultChunkRendererMixin {
             TerrainRenderPass pass,
             boolean useBlockFaceCulling,
             CallbackInfo ci) {
+        batch.clear();
         if (sre$offsetBuffer != null) {
             MemoryUtil.memFree(sre$offsetBuffer);
         }
         sre$offsetBuffer = MemoryUtil.memCalloc(sre$offsetCount * 16);
-    }
 
-    @Inject(
-            method = "fillCommandBuffer",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer;addNonIndexedDrawCommands(Lnet/caffeinemc/mods/sodium/client/gl/device/MultiDrawBatch;JI)V",
-                    shift = At.Shift.AFTER),
-            remap = false)
-    private static void sre$writeNonIndexedSceneOffset(
-            MultiDrawBatch batch,
-            RenderRegion region,
-            SectionRenderDataStorage renderDataStorage,
-            ChunkRenderList renderList,
-            CameraTransform camera,
-            TerrainRenderPass pass,
-            boolean useBlockFaceCulling,
-            CallbackInfo ci,
-            @Local(name = "chunkX") int sectionX,
-            @Local(name = "chunkY") int sectionY,
-            @Local(name = "chunkZ") int sectionZ,
-            @Local(name = "slices") int slices) {
-        int firstCommand = batch.size() - Integer.bitCount(slices);
-        sre$writeSceneOffset(batch, sectionX, sectionY, sectionZ, firstCommand);
-    }
+        boolean translucent = pass.isTranslucent();
+        ByteIterator iterator = renderList.sectionsWithGeometryIterator(translucent);
+        if (iterator == null) {
+            ci.cancel();
+            return;
+        }
 
-    @Inject(
-            method = "fillCommandBuffer",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer;addIndexedDrawCommands(Lnet/caffeinemc/mods/sodium/client/gl/device/MultiDrawBatch;JI)V",
-                    shift = At.Shift.AFTER),
-            remap = false)
-    private static void sre$writeIndexedSceneOffset(
-            MultiDrawBatch batch,
-            RenderRegion region,
-            SectionRenderDataStorage renderDataStorage,
-            ChunkRenderList renderList,
-            CameraTransform camera,
-            TerrainRenderPass pass,
-            boolean useBlockFaceCulling,
-            CallbackInfo ci,
-            @Local(name = "chunkX") int sectionX,
-            @Local(name = "chunkY") int sectionY,
-            @Local(name = "chunkZ") int sectionZ,
-            @Local(name = "slices") int slices) {
-        int firstCommand = batch.size() - Integer.bitCount(slices);
-        sre$writeSceneOffset(batch, sectionX, sectionY, sectionZ, firstCommand);
+        int originX = region.getChunkX();
+        int originY = region.getChunkY();
+        int originZ = region.getChunkZ();
+        while (iterator.hasNext()) {
+            int sectionIndex = iterator.nextByteAsInt();
+            long pMeshData = renderDataStorage.getDataPointer(sectionIndex);
+            int sectionX = originX + LocalSectionIndex.unpackX(sectionIndex);
+            int sectionY = originY + LocalSectionIndex.unpackY(sectionIndex);
+            int sectionZ = originZ + LocalSectionIndex.unpackZ(sectionIndex);
+
+            int slices = useBlockFaceCulling
+                    ? getVisibleFaces(camera.intX, camera.intY, camera.intZ, sectionX, sectionY, sectionZ)
+                    : ModelQuadFacing.ALL;
+            if (SceneAssetClient.isActiveSection(sectionX, sectionY, sectionZ)) {
+                slices = ModelQuadFacing.ALL;
+            }
+            slices &= SectionRenderDataUnsafe.getSliceMask(pMeshData);
+            if (slices == 0) {
+                continue;
+            }
+
+            int firstCommand = batch.size();
+            if (translucent) {
+                addIndexedDrawCommands(batch, pMeshData, slices);
+            } else {
+                addNonIndexedDrawCommands(batch, pMeshData, slices);
+            }
+            sre$writeSceneOffset(batch, sectionX, sectionY, sectionZ, firstCommand);
+        }
+        ci.cancel();
     }
 
     @Unique
@@ -120,22 +129,6 @@ public abstract class DefaultChunkRendererMixin {
             sre$offsetBuffer.putFloat(base + 4, (float) offset.y);
             sre$offsetBuffer.putFloat(base + 8, (float) offset.z);
         }
-    }
-
-    @ModifyExpressionValue(
-            method = "fillCommandBuffer",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer;getVisibleFaces(IIIIII)I"),
-            remap = false)
-    private static int sre$keepSceneFaces(
-            int original,
-            @Local(name = "chunkX") int sectionX,
-            @Local(name = "chunkY") int sectionY,
-            @Local(name = "chunkZ") int sectionZ) {
-        return SceneAssetClient.isActiveSection(sectionX, sectionY, sectionZ)
-                ? ModelQuadFacing.ALL
-                : original;
     }
 
     @Inject(

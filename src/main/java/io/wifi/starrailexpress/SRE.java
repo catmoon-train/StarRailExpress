@@ -137,6 +137,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PlayerStatsManager.registerEvents();
         PlayerEconomyManager.registerEvents();
         ProgressionDataManager.registerEvents();
+        io.wifi.starrailexpress.roster.RoleRosterManager.registerEvents();
         registerPayloadTypes();
         registerGlobalReceivers();
         registerPlayerCopyEvent();
@@ -191,14 +192,33 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
         // 队友击杀违规检测：短期内多次击杀队友则执行 mcfunction
         TeamKillViolationHandler.registerEvent();
+
+        // 游戏开始：通知客户端（驱动 OnGameStartedClient 事件），并向本局玩家播放默认开场镜头
+        io.wifi.starrailexpress.event.OnGameStarted.EVENT.register(serverLevel -> {
+            for (ServerPlayer player : serverLevel.players()) {
+                PacketTracker.sendToClient(player, new OnGameStartedPayload());
+                // 仅向本局参与者（冒险模式）播放"由远及近到玩家位置"的开场镜头
+                if (player.gameMode.getGameModeForPlayer() == net.minecraft.world.level.GameType.ADVENTURE) {
+                    net.exmo.sre.camera.AdvancedCameraCommand.sendIntro(player,
+                            net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_DURATION,
+                            net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_DISTANCE,
+                            net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_HEIGHT);
+                }
+            }
+        });
     }
 
     private void registerServerLifecycleEvents() {
+        // 赞助者 plush 右键打开介绍 GUI 的交互拦截（只需注册一次）
+        io.wifi.starrailexpress.sponsor.SponsorIntroEvents.register();
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             LOGGER.info("[CONFIG] Sync configs to {}", handler.getPlayer().getName().getString());
             SREConfig.HANDLER.syncToClient(handler.getPlayer());
             StupidExpressConfig.HANDLER.syncToClient(handler.getPlayer());
         });
+        // 玩家加入时同步当前赞助者名单
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
+                io.wifi.starrailexpress.sponsor.SponsorManager.syncTo(handler.getPlayer()));
         EntitySleepEvents.ALLOW_SLEEP_TIME.register((player, pos, isNight) -> {
             if (SREGameWorldComponent.KEY.get(player.level()).isRunning())
                 return InteractionResult.SUCCESS;
@@ -224,6 +244,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             } catch (Throwable e) {
                 LOGGER.error("[CustomRole] Failed to load custom roles on server start", e);
             }
+            // 拉取赞助者名单（异步）
+            io.wifi.starrailexpress.sponsor.SponsorManager.fetchAsync(server);
         });
         ServerTickEvents.START_SERVER_TICK.register(serv -> {
             io.wifi.starrailexpress.game.voting.MapVotingManager.getInstance().tick();
@@ -242,7 +264,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             JsonObject obj = new JsonObject();
             obj.addProperty("uuid", player.getUUID().toString());
             obj.addProperty("username", player.getGameProfile().getName());
-            MysqlPlayerDataStore.saveBatchAsync(
+            MysqlPlayerDataStore.saveBatchForceAsync(
                     player.getUUID(),
                     java.util.Map.of("player_identity", obj.toString()),
                     System.currentTimeMillis());
@@ -278,6 +300,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     private void registerCommands() {
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
 
+            SREHelpCommand.register(dispatcher);
             SREVoteCommand.register(dispatcher, registryAccess);
             NarratorCommand.register(dispatcher, registryAccess);
             GiveRoomKeyCommand.register(dispatcher);
@@ -314,6 +337,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             ReloadMapConfigCommand.register(dispatcher);
             SkinsCommand.register(dispatcher);
             ProgressionCommand.register(dispatcher);
+            io.wifi.starrailexpress.content.command.RoleRosterCommand.register(dispatcher);
+            io.wifi.starrailexpress.content.command.PlushCommand.register(dispatcher);
             PlayerInventoryCommand.register(dispatcher);
             ShieldCommand.register(dispatcher);
             StaminaCommand.register(dispatcher);
@@ -323,6 +348,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             // CoinModifier.register(dispatcher, registryAccess);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher, registryAccess);
             net.exmo.sre.subtitle.SubtitleCommand.register(dispatcher, registryAccess);
+            net.exmo.sre.camera.AdvancedCameraCommand.register(dispatcher);
             // io.wifi.starrailexpress.contents.command.UnlockAllRolesCommand.register(dispatcher);
         }));
     }
@@ -400,6 +426,10 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(OnGameStartedPayload.TYPE, OnGameStartedPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OnGameFinishedPayload.TYPE, OnGameFinishedPayload.CODEC);
 
+        // 高级相机轨道
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.camera.AdvancedCameraPayload.ID,
+                net.exmo.sre.camera.AdvancedCameraPayload.CODEC);
+
         PayloadTypeRegistry.playS2C().register(SyncMapConfigPayload.ID, SyncMapConfigPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(TriggerScreenEdgeEffectPayload.ID, TriggerScreenEdgeEffectPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(UpdateSkinSelectedPayload.ID, UpdateSkinSelectedPayload.CODEC);
@@ -421,6 +451,14 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PayloadTypeRegistry.playS2C().register(ShowStatsPayload.ID, ShowStatsPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayerStatsSyncPayload.ID, PlayerStatsSyncPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayerDataPartSyncPayload.ID, PlayerDataPartSyncPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.RoleRosterSyncPayload.ID,
+                io.wifi.starrailexpress.network.RoleRosterSyncPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.sponsor.SponsorListPayload.ID,
+                io.wifi.starrailexpress.sponsor.SponsorListPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.OpenRoleRosterScreenPayload.ID,
+                io.wifi.starrailexpress.network.OpenRoleRosterScreenPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(io.wifi.starrailexpress.network.RoleRosterUpdatePayload.ID,
+                io.wifi.starrailexpress.network.RoleRosterUpdatePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShowSelectedMapUIPayload.ID, ShowSelectedMapUIPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(MapVotingResultsPayload.TYPE, MapVotingResultsPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(CloseUiPayload.ID, CloseUiPayload.CODEC);
@@ -553,6 +591,36 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
         // Role Rotation receivers
         RoleRotationSelectC2SPacket.registerServerReceiver();
+
+        // 职业轮换系统：管理员编辑名单
+        ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.RoleRosterUpdatePayload.ID,
+                (payload, context) -> {
+                    ServerPlayer player = context.player();
+                    context.server().execute(() -> {
+                        if (!player.hasPermissions(2)) {
+                            return;
+                        }
+                        switch (payload.action()) {
+                            case "set" -> io.wifi.starrailexpress.roster.RoleRosterManager.setFromJson(payload.json());
+                            case "enable" -> io.wifi.starrailexpress.roster.RoleRosterManager.setEnabled(true);
+                            case "disable" -> io.wifi.starrailexpress.roster.RoleRosterManager.setEnabled(false);
+                            case "clear" -> io.wifi.starrailexpress.roster.RoleRosterManager.clear();
+                            case "randomize" -> {
+                                int count = context.server().getPlayerCount();
+                                try {
+                                    if (payload.json() != null && !payload.json().isBlank()) {
+                                        count = Integer.parseInt(payload.json().trim());
+                                    }
+                                } catch (NumberFormatException ignored) {
+                                    // 使用在线人数
+                                }
+                                io.wifi.starrailexpress.roster.RoleRosterManager.randomize(Math.max(1, count));
+                            }
+                            default -> {
+                            }
+                        }
+                    });
+                });
 
         // Mailbox receivers
         ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.content.mail.MailClaimC2SPayload.ID,

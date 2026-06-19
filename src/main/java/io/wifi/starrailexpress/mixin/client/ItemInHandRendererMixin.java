@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
+import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -42,10 +43,17 @@ public class ItemInHandRendererMixin {
 
     // ── renderHandsWithItems() ── 读的是字段，用 HEAD/RETURN 覆写字段 ──────
 
-    @Inject(method = "renderHandsWithItems", at = @At("HEAD"))
+    @Inject(method = "renderHandsWithItems", at = @At("HEAD"), cancellable = true)
     private void noellesroles$preRender(float f, PoseStack poseStack,
             MultiBufferSource.BufferSource bufferSource,
             LocalPlayer localPlayer, int i, CallbackInfo ci) {
+
+        // 高级运镜动画期间整只手（含物品）都不渲染，等同原版 F1 的隐藏效果。
+        // 在交换字段前直接取消，避免遗留未还原的手持物状态。
+        if (AdvancedCameraDirector.shouldOverride()) {
+            ci.cancel();
+            return;
+        }
 
         ItemStack resolvedMain = noellesroles$resolveHand(localPlayer, true);
         if (resolvedMain != mainHandItem) {

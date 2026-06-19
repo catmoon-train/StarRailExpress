@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.DevItems;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.index.TMMItems;
+import static io.wifi.starrailexpress.index.TMMItems.*;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.ChatFormatting;
@@ -43,137 +44,140 @@ import static io.wifi.starrailexpress.game.GameConstants.getInTicks;
 
 public class ModItems {
     public static final ItemRegistrar registrar = new ItemRegistrar(Noellesroles.MOD_ID);
-    public static ResourceKey<CreativeModeTab> MISC_CREATIVE_GROUP = ResourceKey.create(
-            Registries.CREATIVE_MODE_TAB,
-            Noellesroles.id("misc"));
-    public static ResourceKey<CreativeModeTab> SAN_CREATIVE_GROUP = ResourceKey.create(
-            Registries.CREATIVE_MODE_TAB,
-            Noellesroles.id("san"));
 
-    public static final Item ANTIDOTE = register(new AntidoteItem((new Item.Properties()).stacksTo(1)), "antidote");
+    public static final Item ANTIDOTE = register(new AntidoteItem((new Item.Properties()).stacksTo(1)), "antidote",
+            CONSUMABLES_GROUP);
 
     public static final Item REPAIR_TOOLBOX = register(
             new RepairBoostItem(15, "item.noellesroles.repair_toolbox.tooltip", new Item.Properties().stacksTo(4)),
-            "repair_toolbox");
+            "repair_toolbox", REPAIR_MODE_GROUP);
     public static final Item SPARE_PARTS = register(
             new RepairBoostItem(8, "item.noellesroles.spare_parts.tooltip", new Item.Properties().stacksTo(16)),
-            "spare_parts");
+            "spare_parts", REPAIR_MODE_GROUP);
     public static final Item RESCUE_FLARE = register(
             new RescueFlareItem(new Item.Properties().stacksTo(4)),
-            "rescue_flare");
+            "rescue_flare", ROLE_ITEMS_GROUP);
     public static final Item FLARE = register(
             new FlareItem(new Item.Properties().stacksTo(8)),
-            "flare");
+            "flare", ROLE_ITEMS_GROUP);
     public static final Item REPAIR_MEDKIT = register(
             new RepairMedkitItem(new Item.Properties().stacksTo(4)),
-            "repair_medkit");
+            "repair_medkit", REPAIR_MODE_GROUP);
     public static final Item HUNTER_CHAIN = register(
             new HunterChainItem(new Item.Properties().stacksTo(1).durability(6)),
-            "hunter_chain");
+            "hunter_chain", TOOLS_GROUP);
     public static final Item HUNTER_WEAPON = register(
             new HunterWeaponItem(new Item.Properties().stacksTo(1).durability(96)),
-            "hunter_weapon");
+            "hunter_weapon", WEAPONS_GROUP);
     public static final Item HUNTER_HAMMER = register(
             new HunterWeaponItem("hammer", new Item.Properties().stacksTo(1).durability(84)),
-            "hunter_hammer");
+            "hunter_hammer", WEAPONS_GROUP);
     public static final Item HUNTER_HOOK = register(
             new HunterWeaponItem("hook", new Item.Properties().stacksTo(1).durability(88)),
-            "hunter_hook");
+            "hunter_hook", WEAPONS_GROUP);
     public static final Item HUNTER_PLUGIN_LACERATION = register(
             new HunterAttackPluginItem("laceration", new Item.Properties().stacksTo(4)),
-            "hunter_plugin_laceration");
+            "hunter_plugin_laceration", TOOLS_GROUP);
     public static final Item HUNTER_PLUGIN_CONCUSSION = register(
             new HunterAttackPluginItem("concussion", new Item.Properties().stacksTo(4)),
-            "hunter_plugin_concussion");
+            "hunter_plugin_concussion", TOOLS_GROUP);
     public static final Item HUNTER_PLUGIN_TRACKING = register(
             new HunterAttackPluginItem("tracking", new Item.Properties().stacksTo(4)),
-            "hunter_plugin_tracking");
+            "hunter_plugin_tracking", TOOLS_GROUP);
     public static final Item HUNTER_PLUGIN_SUPPRESSION = register(
             new HunterAttackPluginItem("suppression", new Item.Properties().stacksTo(4)),
-            "hunter_plugin_suppression");
+            "hunter_plugin_suppression", TOOLS_GROUP);
 
     public static final Item HUNTER_PULSE = register(
             new HunterPulseItem(new Item.Properties().stacksTo(1)),
-            "hunter_pulse");
+            "hunter_pulse", TOOLS_GROUP);
     public static final Item HUNTER_BLINK = register(
             new HunterBlinkItem(new Item.Properties().stacksTo(1).durability(4)),
-            "hunter_blink");
+            "hunter_blink", TOOLS_GROUP);
     public static final Item HUNTER_JAMMER = register(
             new HunterJammerItem(new Item.Properties().stacksTo(1).durability(3)),
-            "hunter_jammer");
+            "hunter_jammer", TOOLS_GROUP);
 
     public static final Item SMOKE_PELLET = register(
             new SmokePelletItem(new Item.Properties().stacksTo(8)),
-            "smoke_pellet");
+            "smoke_pellet", TOOLS_GROUP);
     public static final Item DECOY_BEACON = register(
             new DecoyBeaconItem(new Item.Properties().stacksTo(4)),
-            "decoy_beacon");
+            "decoy_beacon", TOOLS_GROUP);
     public static final Item ESCAPE_GRAPPLE = register(
             new EscapeGrappleItem(new Item.Properties().stacksTo(1).durability(3)),
-            "escape_grapple");
+            "escape_grapple", TOOLS_GROUP);
     public static final Item REPAIR_AREA_KEY = register(
             new RepairRouteItem("area_key", new Item.Properties().stacksTo(8)),
-            "repair_area_key");
+            "repair_area_key", REPAIR_MODE_GROUP);
     public static final Item REPAIR_OLD_KEY = register(
             new RepairRouteItem("old_key", new Item.Properties().stacksTo(4)),
-            "repair_old_key");
+            "repair_old_key", REPAIR_MODE_GROUP);
     public static final Item REPAIR_FUSE = register(
             new RepairRouteItem("fuse", new Item.Properties().stacksTo(4)),
-            "repair_fuse");
+            "repair_fuse", REPAIR_MODE_GROUP);
     public static final Item REPAIR_GEAR_HANDLE = register(
             new RepairRouteItem("gear_handle", new Item.Properties().stacksTo(4)),
-            "repair_gear_handle");
+            "repair_gear_handle", REPAIR_MODE_GROUP);
     public static final Item REPAIR_CROWBAR = register(
             new RepairRouteItem("crowbar", new Item.Properties().stacksTo(1).durability(24)),
-            "repair_crowbar");
+            "repair_crowbar", REPAIR_MODE_GROUP);
     public static final Item REPAIR_LOCKPICK = register(
             new RepairRouteItem("lockpick", new Item.Properties().stacksTo(8)),
-            "repair_lockpick");
+            "repair_lockpick", REPAIR_MODE_GROUP);
     public static final Item REPAIR_BATTERY = register(
             new RepairRouteItem("battery", new Item.Properties().stacksTo(4)),
-            "repair_battery");
+            "repair_battery", REPAIR_MODE_GROUP);
     public static final Item REPAIR_VALVE_HANDLE = register(
             new RepairRouteItem("valve_handle", new Item.Properties().stacksTo(4)),
-            "repair_valve_handle");
+            "repair_valve_handle", REPAIR_MODE_GROUP);
     public static final Item REPAIR_BOLT_CUTTER = register(
             new RepairRouteItem("bolt_cutter", new Item.Properties().stacksTo(1).durability(18)),
-            "repair_bolt_cutter");
+            "repair_bolt_cutter", REPAIR_MODE_GROUP);
     public static final Item REPAIR_PRESET_WAND = register(
             new RepairPresetWandItem(new Item.Properties().stacksTo(1)),
-            "repair_preset_wand");
+            "repair_preset_wand", REPAIR_MODE_GROUP);
     public static final Item PILL = register(
             new PillItem((new Item.Properties()).stacksTo(16)
                     .food((new FoodProperties.Builder()).nutrition(1).saturationModifier(0.1F)
                             .alwaysEdible().build())),
-            "pill");
-    public static final Item TOXIN = register(new ToxinItem((new Item.Properties()).stacksTo(1)), "toxin");
-    public static final Item CATALYST = register(new CatalystItem((new Item.Properties()).stacksTo(1)), "catalyst");
+            "pill", CONSUMABLES_GROUP);
+    public static final Item TOXIN = register(new ToxinItem((new Item.Properties()).stacksTo(1)), "toxin",
+            CONSUMABLES_GROUP);
+    public static final Item CATALYST = register(new CatalystItem((new Item.Properties()).stacksTo(1)), "catalyst",
+            CONSUMABLES_GROUP);
     public static final Item BANDIT_REVOLVER = register(new BanditRevolverItem((new Item.Properties()).stacksTo(1)),
-            "bandit_revolver");
+            "bandit_revolver", WEAPONS_GROUP);
     public static final String PILL_POISONOUS_KEY = "poisonous";
 
     public static final Item COOKED_FOOD = register(
-            new ChefFoodItem(new Item.Properties().stacksTo(1)), "cooked_food");
+            new ChefFoodItem(new Item.Properties().stacksTo(1)), "cooked_food",
+            CONSUMABLES_GROUP);
     public static final Item A_BOTTLE_OF_WATER = register(
             new ChefWaterItem((new Item.Properties()).stacksTo(1).food(Foods.HONEY_BOTTLE)),
-            "a_bottle_of_water");
+            "a_bottle_of_water", CONSUMABLES_GROUP);
     public static final Item LINGSHI = register(
-            new ChefFoodItem((new Item.Properties()).stacksTo(1)), "lingshi");
+            new ChefFoodItem((new Item.Properties()).stacksTo(1)), "lingshi",
+            CONSUMABLES_GROUP);
 
     public static final Item FOOD_STUFF = register(
-            new FoodStuffItem((new Item.Properties()).stacksTo(16)), "foodstuff");
+            new FoodStuffItem((new Item.Properties()).stacksTo(16)), "foodstuff",
+            CONSUMABLES_GROUP);
     public static final Item PAN = register(
-            new PanItem((new Item.Properties()).stacksTo(1)), "pan");
+            new PanItem((new Item.Properties()).stacksTo(1)), "pan",
+            CONSUMABLES_GROUP);
     public static final Item BUCKET_OF_H2SO4 = register(
-            new H2SO4AcidItem((new Item.Properties()).stacksTo(1)), "bucket_of_h2so4");
+            new H2SO4AcidItem((new Item.Properties()).stacksTo(1)), "bucket_of_h2so4",
+            CONSUMABLES_GROUP);
     public static final Item LETTER_ITEM = register(
-            new LetterItem((new Item.Properties()).stacksTo(1)), "letter");
+            new LetterItem((new Item.Properties()).stacksTo(1)), "letter",
+            ROLE_ITEMS_GROUP);
     public static final Item NINJA_KNIFE = register(
             new NinjaKnifeItem(new Item.Properties().stacksTo(1)),
-            "ninja_knife");
+            "ninja_knife", WEAPONS_GROUP);
     public static final Item NINJA_SHURIKEN = register(
             new NinjaShurikenItem(new Item.Properties().stacksTo(1)),
-            "ninja_shuriken");
+            "ninja_shuriken", WEAPONS_GROUP);
 
     /**
      * 仁之剑
@@ -182,30 +186,33 @@ public class ModItems {
      */
     public static final Item BENEVOLENCE_SWORD = register(
             new BenevolenceSwordItem(new Item.Properties().stacksTo(1)),
-            "benevolence_sword");
+            "benevolence_sword", WEAPONS_GROUP);
     public static final Item ONCE_REVOLVER = register(
-            new OnceRevolverItem((new Item.Properties()).stacksTo(1).durability(1)), "once_revolver");
+            new OnceRevolverItem((new Item.Properties()).stacksTo(1).durability(1)), "once_revolver",
+            WEAPONS_GROUP);
     public static final Item HANDCUFFS = register(
-            new HandCuffsItem((new Item.Properties()).stacksTo(1)), "handcuffs");
+            new HandCuffsItem((new Item.Properties()).stacksTo(1)), "handcuffs",
+            TOOLS_GROUP);
     public static final Item PATROLLER_REVOLVER = register(
-            new PatrollerRevolverItem((new Item.Properties()).stacksTo(1)), "patroller_revolver");
+            new PatrollerRevolverItem((new Item.Properties()).stacksTo(1)), "patroller_revolver",
+            WEAPONS_GROUP);
     public static final Item SINGER_MUSIC_DISC = register(
             new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)),
-            "singer_music_disc");
+            "singer_music_disc", MISC_ITEMS_GROUP);
     public static final Item NIGHT_VISION_GLASSES = register(
             new NightGlassesItem(ArmorMaterials.TURTLE, net.minecraft.world.item.ArmorItem.Type.HELMET,
                     (new Item.Properties()).durability(60)),
-            "night_vision_glasses");
+            "night_vision_glasses", EQUIPMENT_GROUP);
 
     public static final Item DIVING_HELMET = register(
             new DivingHelmetItem(ArmorMaterials.DIAMOND, net.minecraft.world.item.ArmorItem.Type.HELMET,
                     (new Item.Properties()).stacksTo(1)),
-            "diving_helmet");
+            "diving_helmet", EQUIPMENT_GROUP);
 
     public static final Item DIVING_BOOTS = register(
             new DivingBootsItem(ArmorMaterials.GOLD, net.minecraft.world.item.ArmorItem.Type.BOOTS,
                     (new Item.Properties()).stacksTo(1)),
-            "diving_boots");
+            "diving_boots", EQUIPMENT_GROUP);
 
     /**
      * 喷气背包
@@ -218,27 +225,27 @@ public class ModItems {
     public static final Item JETPACK = register(
             new JetpackItem(ArmorMaterials.IRON, net.minecraft.world.item.ArmorItem.Type.CHESTPLATE,
                     (new Item.Properties()).stacksTo(1).durability(60)),
-            "jetpack");
+            "jetpack", EQUIPMENT_GROUP);
 
     public static final Item FAKE_KNIFE = register(
             new FakeKnifeItem(new Item.Properties().stacksTo(1)),
-            "fake_knife");
+            "fake_knife", WEAPONS_GROUP);
     public static final Item SP_KNIFE = register(
             new SPKnifeItem(new Item.Properties().stacksTo(1)),
-            "sp_knife");
+            "sp_knife", WEAPONS_GROUP);
     public static final Item STALKER_KNIFE = register(
             new StalkerKnifeItem(new Item.Properties().stacksTo(1)),
-            "stalker_knife");
+            "stalker_knife", WEAPONS_GROUP);
     public static final Item STALKER_KNIFE_OFFHAND = register(
             new StalkerKnifeItem(new Item.Properties().stacksTo(1)),
-            "stalker_knife_offhand");
+            "stalker_knife_offhand", WEAPONS_GROUP);
     public static final Item FAKE_REVOLVER = register(
             new FakeRevolverItem(new Item.Properties().stacksTo(1).durability(4)),
-            "fake_revolver");
+            "fake_revolver", WEAPONS_GROUP);
 
     public static final Item FAKE_BAT = register(
             new FakeBatItem(new Item.Properties().stacksTo(1)),
-            "fake_bat");
+            "fake_bat", WEAPONS_GROUP);
 
     /**
      * 阴阳剑 - 黑白狂暴前奏武器
@@ -248,46 +255,46 @@ public class ModItems {
     public static final Item YINYANG_SWORD = register(
             new org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem(
                     new Item.Properties().stacksTo(1)),
-            "yinyang_sword");
+            "yinyang_sword", WEAPONS_GROUP);
 
     public static final Item FAKE_PSYCHO_MODE = register(
             new Item(new Item.Properties().stacksTo(1)),
-            "fake_psycho_mode");
+            "fake_psycho_mode", WEAPONS_GROUP);
 
     public static final Item FAKE_GRENADE = register(
             new FakeGrenadeItem(new Item.Properties().stacksTo(1)),
-            "fake_grenade");
+            "fake_grenade", WEAPONS_GROUP);
 
     public static final Item FAKE_LOCKPICK = register(
             new FakeLockpickItem(new Item.Properties().stacksTo(1)),
-            "fake_lockpick");
+            "fake_lockpick", TOOLS_GROUP);
 
     public static final Item FAKE_CROWBAR = register(
             new FakeCrowbarItem(new Item.Properties().stacksTo(1)),
-            "fake_crowbar");
+            "fake_crowbar", WEAPONS_GROUP);
 
     public static final Item FAKE_BODY_BAG = register(
             new FakeBodyBagItem(new Item.Properties().stacksTo(1)),
-            "fake_body_bag");
+            "fake_body_bag", TOOLS_GROUP);
 
     public static final Item MASTER_KEY = register(
             new Item(new Item.Properties().stacksTo(1)),
-            "master_key");
+            "master_key", TOOLS_GROUP);
     public static final Item MASTER_KEY_P = register(
             new MasterKeyItem(new Item.Properties().stacksTo(1).durability(5)),
-            "master_key_p");
+            "master_key_p", TOOLS_GROUP);
     public static final Item NOELL_ARTISAN_KEY = register(
             new ArtisanKeyItem(new Item.Properties().stacksTo(1)),
-            "noell_artisan_key");
+            "noell_artisan_key", TOOLS_GROUP);
     public static final Item NOELL_KEY_BLANK = register(
             new KeyBlankItem(new Item.Properties().stacksTo(16)),
-            "noell_key_blank");
+            "noell_key_blank", TOOLS_GROUP);
     public static final Item NOELL_PAPERCLIP = register(
             new PaperclipItem(new Item.Properties().stacksTo(16)),
-            "noell_paperclip");
+            "noell_paperclip", TOOLS_GROUP);
     public static final Item DELUSION_VIAL = register(
             new Item(new Item.Properties().stacksTo(1)),
-            "delusion_vial");
+            "delusion_vial", ROLE_ITEMS_GROUP);
 
     /**
      * 马桶毒药
@@ -297,26 +304,26 @@ public class ModItems {
      */
     public static final Item TOILET_POISON = register(
             new io.wifi.starrailexpress.content.item.ToiletPoisonItem(new Item.Properties().stacksTo(1)),
-            "toilet_poison");
+            "toilet_poison", ROLE_ITEMS_GROUP);
 
     /**
      * 角色地雷
      */
     public static final Item ROLE_MINE = register(
             new Item(new Item.Properties().stacksTo(1)),
-            "role_mine");
+            "role_mine", ROLE_ITEMS_GROUP);
 
     public static final Item DEFIBRILLATOR = register(
             new DefibrillatorItem(new Item.Properties().stacksTo(1)),
-            "defibrillator");
+            "defibrillator", REPAIR_MODE_GROUP);
 
     public static final Item BOXING_GLOVE = register(
             new BoxingGloveItem(new Item.Properties().stacksTo(1)),
-            "boxing_glove");
+            "boxing_glove", WEAPONS_GROUP);
 
     public static final Item ANTIDOTE_REAGENT = register(
             new AntidoteReagentItem(new Item.Properties().stacksTo(16).durability(5)),
-            "antidote_reagent");
+            "antidote_reagent",CONSUMABLES_GROUP);
 
     /**
      * 阴谋之书页
@@ -326,7 +333,7 @@ public class ModItems {
      */
     public static final Item CONSPIRACY_PAGE = register(
             new ConspiracyPageItem(new Item.Properties().stacksTo(1)),
-            "conspiracy_page");
+            "conspiracy_page", ROLE_ITEMS_GROUP);
 
     /**
      * 空包弹
@@ -336,7 +343,7 @@ public class ModItems {
      */
     public static final Item BLANK_CARTRIDGE = register(
             new BlankCartridgeItem(new Item.Properties().stacksTo(16)),
-            "blank_cartridge");
+            "blank_cartridge", ROLE_ITEMS_GROUP);
 
     /**
      * 烟雾弹
@@ -348,7 +355,7 @@ public class ModItems {
      */
     public static final Item SMOKE_GRENADE = register(
             new SmokeGrenadeItem(new Item.Properties().stacksTo(8)),
-            "smoke_grenade");
+            "smoke_grenade", WEAPONS_GROUP);
 
     /**
      * 氯气弹
@@ -358,7 +365,7 @@ public class ModItems {
      */
     public static final Item CHLORINE_BOMB = register(
             new ChlorineBombItem(new Item.Properties().stacksTo(8)),
-            "chlorine_bomb");
+            "chlorine_bomb", WEAPONS_GROUP);
 
     /**
      * 毒气瓶
@@ -369,7 +376,7 @@ public class ModItems {
      */
     public static final Item POISON_GAS_TANK = register(
             new PoisonGasTankItem(new Item.Properties().stacksTo(16)),
-            "poison_gas_tank");
+            "poison_gas_tank", WEAPONS_GROUP);
 
     /**
      * 净化弹
@@ -380,7 +387,7 @@ public class ModItems {
      */
     public static final Item PURIFY_BOMB = register(
             new PurifyBombItem(new Item.Properties().stacksTo(8)),
-            "purify_bomb");
+            "purify_bomb", WEAPONS_GROUP);
 
     /**
      * 血瓶
@@ -389,7 +396,7 @@ public class ModItems {
      */
     public static final Item BLOOD_BOTTLE = register(
             new BloodBottleItem(new Item.Properties().stacksTo(16)),
-            "blood_bottle");
+            "blood_bottle", ROLE_ITEMS_GROUP);
 
     /**
      * 闪光弹
@@ -399,7 +406,7 @@ public class ModItems {
      */
     public static final Item FLASH_GRENADE = register(
             new FlashGrenadeItem(new Item.Properties().stacksTo(8)),
-            "flash_grenade");
+            "flash_grenade", WEAPONS_GROUP);
 
     /**
      * 诱饵弹
@@ -409,15 +416,15 @@ public class ModItems {
      */
     public static final Item DECOY_GRENADE = register(
             new DecoyGrenadeItem(new Item.Properties().stacksTo(8)),
-            "decoy_grenade");
+            "decoy_grenade", WEAPONS_GROUP);
 
     public static final Item SPELLBREAKER_POTION = register(
             new SpellbreakerPotionItem(new Item.Properties().stacksTo(1)),
-            "spellbreaker_potion");
+            "spellbreaker_potion", ROLE_ITEMS_GROUP);
 
     public static final Item SILENCE_TOTEM = register(
             new SilenceTotemItem(new Item.Properties().stacksTo(8)),
-            "silence_totem");
+            "silence_totem", ROLE_ITEMS_GROUP);
 
     /**
      * 加固门道具
@@ -428,11 +435,11 @@ public class ModItems {
      */
     public static final Item REINFORCEMENT = register(
             new ReinforcementItem(new Item.Properties().stacksTo(16)),
-            "reinforcement");
+            "reinforcement", ROLE_ITEMS_GROUP);
 
     public static final Item SCREWDRIVER = register(
             new ScrewdriverItem(new Item.Properties().stacksTo(16)),
-            "screwdriver");
+            "screwdriver", ROLE_ITEMS_GROUP);
 
     /**
      * 警报陷阱
@@ -443,7 +450,7 @@ public class ModItems {
      */
     public static final Item ALARM_TRAP = register(
             new AlarmTrapItem(new Item.Properties().stacksTo(16)),
-            "alarm_trap");
+            "alarm_trap", ROLE_ITEMS_GROUP);
 
     /**
      * 传递盒
@@ -454,7 +461,7 @@ public class ModItems {
      */
     public static final Item DELIVERY_BOX = register(
             new DeliveryBoxItem(new Item.Properties().stacksTo(8)),
-            "delivery_box");
+            "delivery_box", ROLE_ITEMS_GROUP);
 
     /**
      * 迷幻瓶
@@ -469,7 +476,7 @@ public class ModItems {
      */
     public static final Item HALLUCINATION_BOTTLE = register(
             new HallucinationBottleItem(new Item.Properties().stacksTo(1).durability(2)),
-            "hallucination_bottle");
+            "hallucination_bottle", ROLE_ITEMS_GROUP);
 
     /**
      * 薄荷糖
@@ -480,7 +487,7 @@ public class ModItems {
      */
     public static final Item MINT_CANDIES = register(
             new MintCandiesItem(new Item.Properties().stacksTo(16)),
-            "mint_candies");
+            "mint_candies", SANITY_GROUP);
     /**
      * 花圈
      * - 穿戴在头部时持续恢复san值
@@ -489,7 +496,7 @@ public class ModItems {
     public static final Item WREATH = register(
             new WreathItem(ArmorMaterials.CHAIN, ArmorItem.Type.HELMET,
                     (new Item.Properties()).stacksTo(1)),
-            "wreath", SAN_CREATIVE_GROUP);
+            "wreath", EQUIPMENT_GROUP, SANITY_GROUP);
     /**
      * 巧克力
      * - 食用后15秒内san值不会下降
@@ -497,7 +504,7 @@ public class ModItems {
      */
     public static final Item CHOCOLATE = register(
             new ChocolateItem(new Item.Properties().stacksTo(64)),
-            "chocolate", SAN_CREATIVE_GROUP);
+            "chocolate", SANITY_GROUP);
     /**
      * 安神茶
      * - 饮用后60秒内san值消耗减缓
@@ -505,7 +512,7 @@ public class ModItems {
      */
     public static final Item CALMING_TEA = register(
             new CalmingTeaItem(new Item.Properties().stacksTo(64)),
-            "calming_tea", SAN_CREATIVE_GROUP);
+            "calming_tea", SANITY_GROUP);
     /**
      * 护身符
      * - 携带在物品栏中即可降低低san视觉干扰并缓慢恢复san值
@@ -513,7 +520,7 @@ public class ModItems {
      */
     public static final Item TALISMAN = register(
             new TalismanItem(new Item.Properties().stacksTo(1)),
-            "talisman", SAN_CREATIVE_GROUP);
+            "talisman", SANITY_GROUP);
     /**
      * 提神咖啡
      * - 饮用后30秒内大幅恢复san值并获得速度提升
@@ -521,7 +528,7 @@ public class ModItems {
      */
     public static final Item ENERGIZING_COFFEE = register(
             new EnergizingCoffeeItem(new Item.Properties().stacksTo(64)),
-            "energizing_coffee", SAN_CREATIVE_GROUP);
+            "energizing_coffee", SANITY_GROUP);
     /**
      * 记录笔记
      * - 记录员专属物品
@@ -530,7 +537,7 @@ public class ModItems {
      */
     public static final Item WRITTEN_NOTE = register(
             new WrittenNoteItem(new Item.Properties().stacksTo(1)),
-            "written_note");
+            "written_note", ROLE_ITEMS_GROUP);
     /**
      * 巨大便签
      * - 记者专属可购买道具
@@ -538,7 +545,7 @@ public class ModItems {
      */
     public static final Item GIANT_NOTE = register(
             new GiantNoteItem(new Item.Properties().stacksTo(1)),
-            "giant_note");
+            "giant_note", ROLE_ITEMS_GROUP);
     /**
      * 炸弹
      * - 炸弹客专属物品
@@ -547,32 +554,29 @@ public class ModItems {
      */
     public static final Item BOMB = register(
             new BombItem(new Item.Properties().stacksTo(1)),
-            "bomb");
+            "bomb", ROLE_ITEMS_GROUP);
     /**
-     * 炸弹
-     * - 炸弹客专属物品
-     * - 倒计时10秒，前5秒隐形
-     * - 右键传递
+     * 轮椅
      */
     public static final Item WHEELCHAIR = register(
             new WheelchairItem(),
-            "wheelchair");
+            "wheelchair", ROLE_ITEMS_GROUP);
     // 新增物品：短管霰弹枪 / 防暴盾 / 警棍 / 对讲机
     public static final Item SHORT_SHOTGUN = register(
             new org.agmas.noellesroles.content.item.ShortShotgunItem(new Item.Properties().stacksTo(1).durability(1)),
-            "short_shotgun");
+            "short_shotgun", WEAPONS_GROUP);
     public static final Item RIOT_SHIELD = register(
             new org.agmas.noellesroles.content.item.RiotShieldItem(new Item.Properties().stacksTo(1).durability(1)),
-            "riot_shield");
+            "riot_shield", WEAPONS_GROUP);
     public static final Item BATON = register(
             new org.agmas.noellesroles.content.item.BatonItem(new Item.Properties().stacksTo(1).durability(4)),
-            "baton");
+            "baton", WEAPONS_GROUP);
     public static final Item RADIO = register(
             new org.agmas.noellesroles.content.item.RadioItem(new Item.Properties().stacksTo(1)),
-            "radio");
+            "radio", TOOLS_GROUP);
     public static final Item MONITORING_TERMINAL = register(
             new org.agmas.noellesroles.content.item.MonitoringTerminalItem(new Item.Properties().stacksTo(1)),
-            "monitoring_terminal");
+            "monitoring_terminal", TOOLS_GROUP);
     /**
      * 锁
      * - 工程师专属物品
@@ -582,7 +586,7 @@ public class ModItems {
      */
     public static final Item LOCK_ITEM = register(
             new LockItem(6, 0.1f, new Item.Properties().stacksTo(1)),
-            "lock");
+            "lock", ROLE_ITEMS_GROUP);
 
     /**
      * 怀表
@@ -592,7 +596,7 @@ public class ModItems {
      */
     public static final Item POCKET_WATCH = register(
             new PocketWatchItem(new Item.Properties().stacksTo(1)),
-            "pocket_watch");
+            "pocket_watch", TOOLS_GROUP);
 
     /**
      * 肾上腺素
@@ -601,7 +605,7 @@ public class ModItems {
      */
     public static final Item ADRENALINE = register(
             new AdrenalineItem(new Item.Properties().stacksTo(1)),
-            "adrenaline");
+            "adrenaline", CONSUMABLES_GROUP);
 
     /**
      * 抗生素
@@ -610,7 +614,7 @@ public class ModItems {
      */
     public static final Item ANTIBIOTIC = register(
             new AntibioticItem(new Item.Properties().stacksTo(1)),
-            "antibiotic");
+            "antibiotic", CONSUMABLES_GROUP);
 
     /**
      * 鹤顶红
@@ -619,7 +623,7 @@ public class ModItems {
      */
     public static final Item HEDINGHONG = register(
             new HedinghongItem(new Item.Properties().stacksTo(1)),
-            "hedinghong");
+            "hedinghong", CONSUMABLES_GROUP);
 
     /**
      * 狗皮膏药
@@ -628,7 +632,7 @@ public class ModItems {
      */
     public static final Item DOGSKIN_PLASTER = register(
             new DogskinPlasterItem(new Item.Properties().stacksTo(1)),
-            "dogskin_plaster");
+            "dogskin_plaster", SANITY_GROUP);
 
     /**
      * 维生素
@@ -637,7 +641,7 @@ public class ModItems {
      */
     public static final Item ALCHEMIST_BUFF_POTION = register(
             new AlchemistBuffPotionItem(new Item.Properties().stacksTo(1)),
-            "alchemist_buff_potion");
+            "alchemist_buff_potion", CONSUMABLES_GROUP);
 
     /**
      * 消防斧
@@ -648,9 +652,10 @@ public class ModItems {
      */
     public static final Item FIRE_AXE = register(
             new FireAxeItem(new Item.Properties().stacksTo(1).durability(3)),
-            "fire_axe");
+            "fire_axe", WEAPONS_GROUP);
     public static final Item THROWING_KNIFE = register(
-            new ThrowingKnife((new Item.Properties()).stacksTo(1)), "throwing_knife");
+            new ThrowingKnife((new Item.Properties()).stacksTo(1)), "throwing_knife",
+            WEAPONS_GROUP);
     /**
      * 绳索
      * - 2点耐久
@@ -659,10 +664,10 @@ public class ModItems {
      */
     public static final Item ROPE = register(
             new RopeItem(new Item.Properties().stacksTo(1).durability(2)),
-            "rope");
+            "rope", TOOLS_GROUP);
     public static final Item CAMERA_SHEARS = register(
             new CameraShearsItem(new Item.Properties().stacksTo(1).durability(3)),
-            "camera_shears");
+            "camera_shears", TOOLS_GROUP);
     /**
      * 灭火器
      * - 5点耐久
@@ -683,7 +688,7 @@ public class ModItems {
      */
     public static final Item PASSBOOK = register(
             new PassbookItem(new Item.Properties().stacksTo(1)),
-            "passbook");
+            "passbook", TOOLS_GROUP);
 
     /**
      * 药剂素材
@@ -691,35 +696,35 @@ public class ModItems {
      */
     public static final Item ALCHEMY_MATERIAL = register(
             new AlchemyMaterialItem(new Item.Properties().stacksTo(64)),
-            "alchemy_material");
+            "alchemy_material", ROLE_ITEMS_GROUP);
 
     /**
      * 签名纸
      */
     public static final Item SIGNATURE_PAPER = register(
             new SignaturePaperItem(new Item.Properties().stacksTo(1)),
-            "signature_paper");
+            "signature_paper", ROLE_ITEMS_GROUP);
 
     /**
      * 生死状
      */
     public static final Item LIFE_AND_DEATH_SHAPE = register(
             new SignedPaperItem(new Item.Properties().stacksTo(1)),
-            "life_and_death_shape");
+            "life_and_death_shape", ROLE_ITEMS_GROUP);
 
     /**
      * 明星签名
      */
     public static final Item SIGNED_PAPER = register(
             new SignedPaperItem(new Item.Properties().stacksTo(1)),
-            "signed_paper");
+            "signed_paper", ROLE_ITEMS_GROUP);
 
     /**
      * 雇佣契约（未签订/已签订共用物品）
      */
     public static final Item MERCENARY_CONTRACT = register(
             new MercenaryContractItem(new Item.Properties().stacksTo(1)),
-            "mercenary_contract");
+            "mercenary_contract", ROLE_ITEMS_GROUP);
 
     /**
      * 时停钟
@@ -727,7 +732,7 @@ public class ModItems {
     public static final Item TIME_STOP_CLOCK = register(
             new TimeStopClock(new Item.Properties().stacksTo(1).durability(TimeStopClock.MAX_DURABILITY)
                     .component(DataComponents.CUSTOM_DATA, TimeStopClock.getDefaultCustomData())),
-            "time_stop_clock");
+            "time_stop_clock", ROLE_ITEMS_GROUP);
 
     /**
      * 处刑者手枪
@@ -738,7 +743,7 @@ public class ModItems {
     public static final Item EXECUTIONER_GUN = register(
             new org.agmas.noellesroles.game.roles.innocent.fool.ExecutionerGunItem(
                     new Item.Properties().stacksTo(1)),
-            "executioner_gun");
+            "executioner_gun", WEAPONS_GROUP);
 
     /**
      * 零一五 - 双发手枪
@@ -752,7 +757,7 @@ public class ModItems {
     public static final Item ZERO_ONE_FIVE_GUN = register(
             new org.agmas.noellesroles.content.item.ZeroOneFiveGunItem(
                     new Item.Properties().stacksTo(1)),
-            "zero_one_five_gun");
+            "zero_one_five_gun", WEAPONS_GROUP);
 
     /**
      * 尊名纸条
@@ -763,7 +768,7 @@ public class ModItems {
     public static final Item HONORED_NOTE = register(
             new org.agmas.noellesroles.game.roles.innocent.fool.HonoredNoteItem(
                     new Item.Properties().stacksTo(16)),
-            "honored_note");
+            "honored_note", ROLE_ITEMS_GROUP);
 
     /**
      * 灵性斗篷
@@ -774,41 +779,41 @@ public class ModItems {
     public static final Item SPIRIT_CLOAK = register(
             new org.agmas.noellesroles.game.roles.innocent.fool.SpiritCloakItem(
                     new Item.Properties().stacksTo(1)),
-            "spirit_cloak");
+            "spirit_cloak", ROLE_ITEMS_GROUP);
 
     // 封印物：收益与代价并存的稀有神秘物品。
     public static final Item SEALED_COIN_OF_ECHOES = register(
             new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
                     SealedArtifactItem.Tier.FRAGMENT, "sealed_coin_of_echoes"),
-            "sealed_coin_of_echoes");
+            "sealed_coin_of_echoes", SEALED_ARTIFACTS_GROUP);
     public static final Item SEALED_BLIND_LANTERN = register(
             new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
                     SealedArtifactItem.Tier.FRAGMENT, "sealed_blind_lantern"),
-            "sealed_blind_lantern");
+            "sealed_blind_lantern", SEALED_ARTIFACTS_GROUP);
     public static final Item SEALED_RUSTED_ANKLET = register(
             new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
                     SealedArtifactItem.Tier.RELIC, "sealed_rusted_anklet"),
-            "sealed_rusted_anklet");
+            "sealed_rusted_anklet", SEALED_ARTIFACTS_GROUP);
     public static final Item SEALED_MIRROR_SHARD = register(
             new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
                     SealedArtifactItem.Tier.RELIC, "sealed_mirror_shard"),
-            "sealed_mirror_shard");
+            "sealed_mirror_shard", SEALED_ARTIFACTS_GROUP);
     public static final Item SEALED_BREATHLESS_BREAD = register(
             new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
                     SealedArtifactItem.Tier.ANOMALY, "sealed_breathless_bread"),
-            "sealed_breathless_bread");
+            "sealed_breathless_bread", SEALED_ARTIFACTS_GROUP);
     public static final Item SEALED_THUNDERBOLT_NAIL = register(
             new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
                     SealedArtifactItem.Tier.ANOMALY, "sealed_thunderbolt_nail"),
-            "sealed_thunderbolt_nail");
+            "sealed_thunderbolt_nail", SEALED_ARTIFACTS_GROUP);
     public static final Item SEALED_VANISHING_CLOAK = register(
             new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
                     SealedArtifactItem.Tier.CALAMITY, "sealed_vanishing_cloak"),
-            "sealed_vanishing_cloak");
+            "sealed_vanishing_cloak", SEALED_ARTIFACTS_GROUP);
     public static final Item SEALED_DOORLESS_KEY = register(
             new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
                     SealedArtifactItem.Tier.CALAMITY, "sealed_doorless_key"),
-            "sealed_doorless_key");
+            "sealed_doorless_key", SEALED_ARTIFACTS_GROUP);
 
     public static final List<Item> SEALED_ARTIFACTS = List.of(
             SEALED_COIN_OF_ECHOES,
@@ -836,7 +841,7 @@ public class ModItems {
                             .withStyle(ChatFormatting.GRAY));
                 }
             },
-            "magnifying_glass");
+            "magnifying_glass", MISC_ITEMS_GROUP);
     public static final Item CHEWING = register(
             new Item(new Item.Properties().stacksTo(64)) {
                 @Override
@@ -847,7 +852,7 @@ public class ModItems {
                             .withStyle(ChatFormatting.GRAY));
                 }
             },
-            "chewing");
+            "chewing", MISC_ITEMS_GROUP);
     public static final Item CLIP = register(
             new Item(new Item.Properties().stacksTo(64)) {
                 @Override
@@ -858,7 +863,7 @@ public class ModItems {
                             .withStyle(ChatFormatting.GRAY));
                 }
             },
-            "clip");
+            "clip", MISC_ITEMS_GROUP);
     public static final Item STEEL_BALL = register(
             new Item(new Item.Properties().stacksTo(64)) {
                 @Override
@@ -869,7 +874,7 @@ public class ModItems {
                             .withStyle(ChatFormatting.GRAY));
                 }
             },
-            "steel_ball");
+            "steel_ball", MISC_ITEMS_GROUP);
     public static final Item REVERSING_CARD = register(
             new Item(new Item.Properties().stacksTo(64)) {
                 @Override
@@ -880,7 +885,7 @@ public class ModItems {
                             .withStyle(ChatFormatting.GRAY));
                 }
             },
-            "reversing_card");
+            "reversing_card", MISC_ITEMS_GROUP);
     public static final Item TELEPHONE = register(
             new Item(new Item.Properties().stacksTo(64)) {
                 @Override
@@ -891,7 +896,7 @@ public class ModItems {
                             .withStyle(ChatFormatting.GRAY));
                 }
             },
-            "telephone");
+            "telephone", MISC_ITEMS_GROUP);
 
     /**
      * C4炸药
@@ -900,7 +905,7 @@ public class ModItems {
      */
     public static final Item C4 = register(
             new org.agmas.noellesroles.content.item.C4Item(new Item.Properties().stacksTo(16)),
-            "c4");
+            "c4", ROLE_ITEMS_GROUP);
 
     /**
      * C4引爆器
@@ -908,7 +913,7 @@ public class ModItems {
      */
     public static final Item C4_DETONATOR = register(
             new org.agmas.noellesroles.content.item.C4DetonatorItem(new Item.Properties().stacksTo(1)),
-            "c4_detonator");
+            "c4_detonator", ROLE_ITEMS_GROUP);
 
     /**
      * 钳子
@@ -917,7 +922,7 @@ public class ModItems {
      */
     public static final Item PLIERS = register(
             new org.agmas.noellesroles.content.item.PliersItem(new Item.Properties().stacksTo(1).durability(3)),
-            "pliers");
+            "pliers", TOOLS_GROUP);
 
     /**
      * 开灯
@@ -926,7 +931,7 @@ public class ModItems {
      */
     public static final Item LIGHTUP = register(
             new Item(new Item.Properties().stacksTo(1)),
-            "lightup");
+            "lightup", MISC_ITEMS_GROUP);
 
     /**
      * 监控恢复
@@ -935,7 +940,7 @@ public class ModItems {
      */
     public static final Item MONITOR_RECOVERY = register(
             new Item(new Item.Properties().stacksTo(1)),
-            "monitor_recovery");
+            "monitor_recovery", MISC_ITEMS_GROUP);
 
     /**
      * 子弹
@@ -943,7 +948,7 @@ public class ModItems {
      */
     public static final Item BULLET = register(
             new org.agmas.noellesroles.content.item.BulletItem(new Item.Properties().stacksTo(64)),
-            "bullet");
+            "bullet", CONSUMABLES_GROUP);
 
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
     public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
@@ -978,7 +983,7 @@ public class ModItems {
     @SuppressWarnings("unchecked")
     public static Item register(Item item, String id, ResourceKey<CreativeModeTab>... extraGroups) {
         ResourceKey<CreativeModeTab>[] allGroups = java.util.Arrays.copyOf(extraGroups, extraGroups.length + 1);
-        allGroups[extraGroups.length] = MISC_CREATIVE_GROUP;
+        allGroups[extraGroups.length] = NOELLESROLES_ALL_GROUP;
         var registeredItem = registrar.create(id, item, allGroups);
         TMMDescItems.introItems.add(registeredItem);
 
@@ -987,14 +992,7 @@ public class ModItems {
 
     public static void init() {
         registrar.registerEntries();
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, MISC_CREATIVE_GROUP, FabricItemGroup.builder()
-                .title(Component.translatable("item_group.noellesroles.misc")).icon(() -> {
-                    return new ItemStack(ModItems.WHEELCHAIR);
-                }).build());
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, SAN_CREATIVE_GROUP, FabricItemGroup.builder()
-                .title(Component.translatable("item_group.noellesroles.san")).icon(() -> {
-                    return new ItemStack(ModItems.WREATH);
-                }).build());
+        // 不再注册旧的 MISC_CREATIVE_GROUP 和 SAN_CREATIVE_GROUP，所有物品已分配到新分类标签页
         TMMItems.INVISIBLE_ITEMS.add(ModItems.PAN);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.SMOKE_GRENADE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.BLANK_CARTRIDGE);

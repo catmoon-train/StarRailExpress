@@ -51,6 +51,7 @@
   },
   "client": [
     "client.AbstractClientPlayerEntityMixin",
+    "client.AdvancedCameraMixin",
     "client.CameraPositionMixin",
     "client.CustomHeadLayerMixin",
     "client.DisconnectedScreenMixin",

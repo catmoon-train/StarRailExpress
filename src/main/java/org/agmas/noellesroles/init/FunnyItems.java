@@ -2,6 +2,8 @@ package org.agmas.noellesroles.init;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.index.TMMDescItems;
+import static io.wifi.starrailexpress.index.TMMItems.MISC_ITEMS_GROUP;
+import static io.wifi.starrailexpress.index.TMMItems.NOELLESROLES_ALL_GROUP;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,8 +21,6 @@ import org.agmas.noellesroles.content.item.ProblemSetItem;
 import org.agmas.noellesroles.content.item.ShisiyeItem;
 
 public class FunnyItems {
-  public static ResourceKey<CreativeModeTab> MISC_CREATIVE_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
-      Noellesroles.id("funny"));
   public static final ItemRegistrar registrar = new ItemRegistrar(Noellesroles.MOD_ID);
 
   // 波纹勋章
@@ -39,22 +39,13 @@ public class FunnyItems {
 
   @SuppressWarnings("unchecked")
   public static Item register(Item item, String id) {
-    // Create the identifier for the item.
-    // Register the item.
-    var registeredItem = registrar.create(id, item, new ResourceKey[] { MISC_CREATIVE_GROUP });
-    // Item registeredItem = Registry.register(BuiltInRegistries.ITEM, itemID,
-    // item);
+    var registeredItem = registrar.create(id, item, new ResourceKey[] { MISC_ITEMS_GROUP, NOELLESROLES_ALL_GROUP });
     TMMDescItems.introItems.add(registeredItem);
-    // Return the registered item!
     return registeredItem;
   }
 
   public static void init() {
     registrar.registerEntries();
-    Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, MISC_CREATIVE_GROUP, FabricItemGroup.builder()
-        .title(Component.translatable("item_group.noellesroles.funny")).icon(() -> {
-          return new ItemStack(FunnyItems.PROBLEM_SET);
-        }).build());
   }
 
 }

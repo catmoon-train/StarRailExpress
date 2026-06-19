@@ -1,8 +1,10 @@
 package pro.fazeclan.river.stupid_express.constants;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.index.TMMDescItems;
+import static io.wifi.starrailexpress.index.TMMItems.TOOLS_GROUP;
+import static io.wifi.starrailexpress.index.TMMItems.WEAPONS_GROUP;
+import static io.wifi.starrailexpress.index.TMMItems.SRE_ALL_GROUP;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -16,12 +18,10 @@ public class SEItems {
 
     private static ItemRegistrar registrar = new ItemRegistrar(StupidExpress.MOD_ID);
 
-    private static final ResourceKey<CreativeModeTab> EQUIPMENT_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB, SRE.id("equipment"));
-
     @SuppressWarnings("unchecked")
-    public static final Item JERRY_CAN = registrar.create("jerry_can", new Item(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
+    public static final Item JERRY_CAN = registrar.create("jerry_can", new Item(new Item.Properties().stacksTo(1)), TOOLS_GROUP, SRE_ALL_GROUP);
     @SuppressWarnings("unchecked")
-    public static final Item LIGHTER = registrar.create("lighter", new LighterItem(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
+    public static final Item LIGHTER = registrar.create("lighter", new LighterItem(new Item.Properties().stacksTo(1)), WEAPONS_GROUP, SRE_ALL_GROUP);
 
     public static final TagKey<Item> DRINKS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(StupidExpress.MOD_ID, "drinks"));
 

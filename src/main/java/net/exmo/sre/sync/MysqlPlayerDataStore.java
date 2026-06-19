@@ -15,6 +15,8 @@ public final class MysqlPlayerDataStore {
     private static final Logger logger = LoggerFactory.getLogger(MysqlPlayerDataStore.class);
     private static final Pattern TABLE_PREFIX_PATTERN = Pattern.compile("[A-Za-z0-9_]*");
     private static final long FAST_FAIL_BACKOFF_MS = 15_000L;
+    private static final long UNKNOWN_REVISION = -1L;
+    private static final String GAME_SERVER_WRITER = "game_server";
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2, new ThreadFactory() {
         private int index = 1;
 
@@ -30,11 +32,18 @@ public final class MysqlPlayerDataStore {
     private static volatile String tableName = "sre_player_sync_data";
     private static volatile long fastFailUntil = 0L;
     private static volatile boolean shutdownFlushMode = false;
+    private static final Map<RecordKey, Long> KNOWN_REVISIONS = new ConcurrentHashMap<>();
 
     private MysqlPlayerDataStore() {
     }
 
-    public record SyncRecord(String payload, long updatedAt) {
+    public record SyncRecord(String payload, long updatedAt, long recordVersion, String updatedBy) {
+        public SyncRecord(String payload, long updatedAt) {
+            this(payload, updatedAt, 0L, "legacy");
+        }
+    }
+
+    private record RecordKey(UUID playerUuid, String dataKey) {
     }
 
     public static synchronized void initializeFromConfig() {
@@ -109,23 +118,44 @@ public final class MysqlPlayerDataStore {
 
     public static CompletableFuture<Boolean> saveBatchAsync(UUID playerUuid, Map<String, String> payloads,
             long updatedAt) {
+        return saveBatchAsync(playerUuid, payloads, updatedAt, false);
+    }
+
+    public static CompletableFuture<Boolean> saveBatchForceAsync(UUID playerUuid, Map<String, String> payloads,
+            long updatedAt) {
+        return saveBatchAsync(playerUuid, payloads, updatedAt, true);
+    }
+
+    private static CompletableFuture<Boolean> saveBatchAsync(UUID playerUuid, Map<String, String> payloads,
+            long updatedAt, boolean force) {
         Map<String, String> normalizedPayloads = normalizePayloads(payloads);
         if (playerUuid == null || normalizedPayloads.isEmpty() || dataSource == null) {
             return CompletableFuture.completedFuture(false);
         }
         if (shutdownFlushMode) {
-            return CompletableFuture.completedFuture(saveBatch(playerUuid, normalizedPayloads, updatedAt));
+            return CompletableFuture.completedFuture(saveBatch(playerUuid, normalizedPayloads, updatedAt, force));
         }
-        return CompletableFuture.supplyAsync(() -> saveBatch(playerUuid, normalizedPayloads, updatedAt), EXECUTOR);
+        return CompletableFuture.supplyAsync(() -> saveBatch(playerUuid, normalizedPayloads, updatedAt, force),
+                EXECUTOR);
     }
 
     public static boolean saveBatchBlocking(UUID playerUuid, Map<String, String> payloads, long updatedAt,
             long timeoutMs) {
+        return saveBatchBlocking(playerUuid, payloads, updatedAt, timeoutMs, false);
+    }
+
+    public static boolean saveBatchForceBlocking(UUID playerUuid, Map<String, String> payloads, long updatedAt,
+            long timeoutMs) {
+        return saveBatchBlocking(playerUuid, payloads, updatedAt, timeoutMs, true);
+    }
+
+    private static boolean saveBatchBlocking(UUID playerUuid, Map<String, String> payloads, long updatedAt,
+            long timeoutMs, boolean force) {
         if (isFastFailActive()) {
             return false;
         }
         try {
-            return saveBatchAsync(playerUuid, payloads, updatedAt).get(Math.max(1000L, timeoutMs),
+            return saveBatchAsync(playerUuid, payloads, updatedAt, force).get(Math.max(1000L, timeoutMs),
                     TimeUnit.MILLISECONDS);
         } catch (Exception exception) {
             logger.warn("等待 MySQL 数据同步完成时失败，玩家 {}。", playerUuid, exception);
@@ -141,9 +171,10 @@ public final class MysqlPlayerDataStore {
         throwIfFastFailActive();
 
         String placeholders = String.join(",", Collections.nCopies(dataKeys.size(), "?"));
-        String sql = "SELECT data_key, payload_json, updated_at FROM " + tableName
+        String sql = "SELECT data_key, payload_json, updated_at, record_version, updated_by FROM " + tableName
                 + " WHERE player_uuid = ? AND data_key IN (" + placeholders + ")";
         Map<String, SyncRecord> records = new LinkedHashMap<>();
+        Set<String> foundKeys = new HashSet<>();
         try (Connection connection = source.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setQueryTimeout(getStatementTimeoutSeconds());
@@ -153,8 +184,22 @@ public final class MysqlPlayerDataStore {
             }
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    records.put(resultSet.getString("data_key"),
-                            new SyncRecord(resultSet.getString("payload_json"), resultSet.getLong("updated_at")));
+                    String dataKey = resultSet.getString("data_key");
+                    long recordVersion = resultSet.getLong("record_version");
+                    String updatedBy = resultSet.getString("updated_by");
+                    records.put(dataKey,
+                            new SyncRecord(
+                                    resultSet.getString("payload_json"),
+                                    resultSet.getLong("updated_at"),
+                                    recordVersion,
+                                    updatedBy == null ? "" : updatedBy));
+                    foundKeys.add(dataKey);
+                    KNOWN_REVISIONS.put(new RecordKey(playerUuid, dataKey), recordVersion);
+                }
+            }
+            for (String dataKey : dataKeys) {
+                if (!foundKeys.contains(dataKey)) {
+                    KNOWN_REVISIONS.put(new RecordKey(playerUuid, dataKey), 0L);
                 }
             }
             clearFastFail();
@@ -165,16 +210,20 @@ public final class MysqlPlayerDataStore {
         return records;
     }
 
-    private static boolean saveBatch(UUID playerUuid, Map<String, String> payloads, long updatedAt) {
+    private static boolean saveBatch(UUID playerUuid, Map<String, String> payloads, long updatedAt, boolean force) {
         HikariDataSource source = dataSource;
         if (source == null || isFastFailActive()) {
             return false;
         }
 
         String sql = "INSERT INTO " + tableName
-                + " (player_uuid, data_key, payload_json, updated_at) VALUES (?, ?, ?, ?) "
-                + "ON DUPLICATE KEY UPDATE payload_json = IF(VALUES(updated_at) >= updated_at, VALUES(payload_json), payload_json), "
-                + "updated_at = GREATEST(updated_at, VALUES(updated_at))";
+                + " (player_uuid, data_key, payload_json, updated_at, record_version, created_at, updated_by) "
+                + "VALUES (?, ?, ?, ?, 1, ?, ?) "
+                + "ON DUPLICATE KEY UPDATE "
+                + "payload_json = IF(? < 0 OR record_version = ?, VALUES(payload_json), payload_json), "
+                + "updated_at = IF(? < 0 OR record_version = ?, GREATEST(updated_at, VALUES(updated_at)), updated_at), "
+                + "updated_by = IF(? < 0 OR record_version = ?, VALUES(updated_by), updated_by), "
+                + "record_version = IF(? < 0 OR record_version = ?, record_version + 1, record_version)";
 
         Connection connection = null;
         try {
@@ -183,15 +232,33 @@ public final class MysqlPlayerDataStore {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setQueryTimeout(getStatementTimeoutSeconds());
                 for (var entry : payloads.entrySet()) {
+                    long expectedRevision = force
+                            ? UNKNOWN_REVISION
+                            : KNOWN_REVISIONS.getOrDefault(new RecordKey(playerUuid, entry.getKey()), UNKNOWN_REVISION);
                     statement.setString(1, playerUuid.toString());
                     statement.setString(2, entry.getKey());
                     statement.setString(3, entry.getValue());
                     statement.setLong(4, updatedAt);
-                    statement.addBatch();
+                    statement.setLong(5, updatedAt);
+                    statement.setString(6, GAME_SERVER_WRITER);
+                    statement.setLong(7, expectedRevision);
+                    statement.setLong(8, expectedRevision);
+                    statement.setLong(9, expectedRevision);
+                    statement.setLong(10, expectedRevision);
+                    statement.setLong(11, expectedRevision);
+                    statement.setLong(12, expectedRevision);
+                    statement.setLong(13, expectedRevision);
+                    statement.setLong(14, expectedRevision);
+                    int changedRows = statement.executeUpdate();
+                    if (changedRows == 0) {
+                        rollbackQuietly(connection, playerUuid);
+                        logRevisionConflict(connection, playerUuid, entry.getKey(), expectedRevision);
+                        return false;
+                    }
                 }
-                statement.executeBatch();
             }
             connection.commit();
+            refreshKnownRevisions(connection, playerUuid, payloads.keySet());
             clearFastFail();
             return true;
         } catch (SQLException exception) {
@@ -200,6 +267,58 @@ public final class MysqlPlayerDataStore {
             return false;
         } finally {
             closeQuietly(connection);
+        }
+    }
+
+    private static void logRevisionConflict(Connection connection, UUID playerUuid, String dataKey,
+            long expectedRevision) {
+        Long currentRevision = readCurrentRevision(connection, playerUuid, dataKey);
+        logger.warn("拒绝覆盖玩家 {} 的 MySQL 同步数据 {}：本服基线版本={}，数据库当前版本={}。将等待重新拉取后再合并。",
+                playerUuid, dataKey, expectedRevision, currentRevision == null ? "missing" : currentRevision);
+    }
+
+    private static Long readCurrentRevision(Connection connection, UUID playerUuid, String dataKey) {
+        if (connection == null) {
+            return null;
+        }
+        String sql = "SELECT record_version FROM " + tableName + " WHERE player_uuid = ? AND data_key = ? LIMIT 1";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setQueryTimeout(getStatementTimeoutSeconds());
+            statement.setString(1, playerUuid.toString());
+            statement.setString(2, dataKey);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong("record_version");
+                }
+            }
+        } catch (SQLException exception) {
+            logger.debug("读取玩家 {} 的 MySQL 同步版本失败，数据键 {}。", playerUuid, dataKey, exception);
+        }
+        return null;
+    }
+
+    private static void refreshKnownRevisions(Connection connection, UUID playerUuid, Collection<String> dataKeys)
+            throws SQLException {
+        List<String> normalizedKeys = normalizeKeys(dataKeys);
+        if (normalizedKeys.isEmpty()) {
+            return;
+        }
+        String placeholders = String.join(",", Collections.nCopies(normalizedKeys.size(), "?"));
+        String sql = "SELECT data_key, record_version FROM " + tableName
+                + " WHERE player_uuid = ? AND data_key IN (" + placeholders + ")";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setQueryTimeout(getStatementTimeoutSeconds());
+            statement.setString(1, playerUuid.toString());
+            for (int index = 0; index < normalizedKeys.size(); index++) {
+                statement.setString(index + 2, normalizedKeys.get(index));
+            }
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    KNOWN_REVISIONS.put(
+                            new RecordKey(playerUuid, resultSet.getString("data_key")),
+                            resultSet.getLong("record_version"));
+                }
+            }
         }
     }
 
@@ -306,12 +425,75 @@ public final class MysqlPlayerDataStore {
                 + "data_key VARCHAR(64) NOT NULL,"
                 + "payload_json LONGTEXT NOT NULL,"
                 + "updated_at BIGINT NOT NULL,"
+                + "record_version BIGINT NOT NULL DEFAULT 1,"
+                + "created_at BIGINT NOT NULL DEFAULT 0,"
+                + "updated_by VARCHAR(64) NOT NULL DEFAULT 'game_server',"
                 + "PRIMARY KEY (player_uuid, data_key),"
-                + "KEY idx_updated_at (updated_at)"
+                + "KEY idx_updated_at (updated_at),"
+                + "KEY idx_data_key_updated_at (data_key, updated_at),"
+                + "KEY idx_player_uuid_updated_at (player_uuid, updated_at)"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
         try (Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(5);  // 5秒，超过抛出 SQLException
             statement.execute(ddl);
+        }
+        ensureColumn(connection, "record_version", "BIGINT NOT NULL DEFAULT 0");
+        ensureColumn(connection, "created_at", "BIGINT NOT NULL DEFAULT 0");
+        ensureColumn(connection, "updated_by", "VARCHAR(64) NOT NULL DEFAULT 'legacy'");
+        ensureIndex(connection, "idx_data_key_updated_at", "data_key, updated_at");
+        ensureIndex(connection, "idx_player_uuid_updated_at", "player_uuid, updated_at");
+        try (Statement statement = connection.createStatement()) {
+            statement.setQueryTimeout(5);
+            statement.executeUpdate("UPDATE " + tableName
+                    + " SET record_version = 1 WHERE record_version = 0");
+            statement.executeUpdate("UPDATE " + tableName
+                    + " SET created_at = updated_at WHERE created_at = 0");
+        }
+    }
+
+    private static void ensureColumn(Connection connection, String columnName, String definition) throws SQLException {
+        if (columnExists(connection, columnName)) {
+            return;
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.setQueryTimeout(5);
+            statement.execute("ALTER TABLE " + tableName + " ADD COLUMN " + columnName + " " + definition);
+        }
+    }
+
+    private static boolean columnExists(Connection connection, String columnName) throws SQLException {
+        String sql = "SELECT 1 FROM information_schema.COLUMNS "
+                + "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setQueryTimeout(5);
+            statement.setString(1, tableName);
+            statement.setString(2, columnName);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        }
+    }
+
+    private static void ensureIndex(Connection connection, String indexName, String columns) throws SQLException {
+        if (indexExists(connection, indexName)) {
+            return;
+        }
+        try (Statement statement = connection.createStatement()) {
+            statement.setQueryTimeout(5);
+            statement.execute("ALTER TABLE " + tableName + " ADD INDEX " + indexName + " (" + columns + ")");
+        }
+    }
+
+    private static boolean indexExists(Connection connection, String indexName) throws SQLException {
+        String sql = "SELECT 1 FROM information_schema.STATISTICS "
+                + "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ? LIMIT 1";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setQueryTimeout(5);
+            statement.setString(1, tableName);
+            statement.setString(2, indexName);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
         }
     }
 
@@ -320,6 +502,7 @@ public final class MysqlPlayerDataStore {
         dataSource = null;
         shutdownFlushMode = false;
         fastFailUntil = 0L;
+        KNOWN_REVISIONS.clear();
         if (source != null) {
             source.close();
         }

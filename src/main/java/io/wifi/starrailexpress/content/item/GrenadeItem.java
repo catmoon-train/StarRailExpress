@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.GrenadeEntity;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMEntities;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -38,14 +39,14 @@ public class GrenadeItem extends SkinableItem {
 	@Override
 	public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
 		if (!world.isClientSide) {
-			if (user instanceof Player player && player.getCooldowns().isOnCooldown(stack.getItem()))
+			if (user instanceof Player player && isAnyGrenadeOnCooldown(player))
 				return;
 			if (user instanceof Player player) {
 				// 创造模式和超级亡命徒手雷无cd
 				if (!player.isCreative()
 						&& !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
 								SpecialGameModeRoles.SUPER_LOOSE_END)) {
-					player.getCooldowns().addCooldown(stack.getItem(), SREConfig.instance().grenadeCooldown);
+					addGrenadeCooldown(player);
 				}
 			}
 			// 计算蓄力时间
@@ -91,5 +92,22 @@ public class GrenadeItem extends SkinableItem {
 	@Override
 	public String getItemSkinType() {
 		return "grenade";
+	}
+
+	// ─── 共用冷却辅助方法（三个手雷共享CD）───
+
+	/** 检查三个手雷是否有任何一个在冷却中 */
+	public static boolean isAnyGrenadeOnCooldown(Player player) {
+		return player.getCooldowns().isOnCooldown(TMMItems.GRENADE)
+				|| player.getCooldowns().isOnCooldown(TMMItems.STICKY_GRENADE)
+				|| player.getCooldowns().isOnCooldown(TMMItems.TIMED_GRENADE);
+	}
+
+	/** 给三个手雷同时添加冷却 */
+	public static void addGrenadeCooldown(Player player) {
+		int cd = SREConfig.instance().grenadeCooldown;
+		player.getCooldowns().addCooldown(TMMItems.GRENADE, cd);
+		player.getCooldowns().addCooldown(TMMItems.STICKY_GRENADE, cd);
+		player.getCooldowns().addCooldown(TMMItems.TIMED_GRENADE, cd);
 	}
 }

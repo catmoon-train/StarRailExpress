@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
+import org.agmas.noellesroles.Noellesroles;
 
 import java.util.ArrayList;
 
@@ -39,65 +40,107 @@ public interface TMMItems {
     ResourceKey<CreativeModeTab> EQUIPMENT_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
             SRE.id("equipment"));
 
-    Item KEY = registrar.create("key", new KeyItem(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
-    Item IRON_DOOR_KEY = registrar.create("iron_door_key",
-            new IronDoorKeyItem(new Item.Properties().stacksTo(1).durability(3)), EQUIPMENT_GROUP);
-    Item LOCKPICK = registrar.create("lockpick", new LockpickItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item KNIFE = registrar.create("knife", new KnifeItem(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
+    // === 新功能分类标签页 ===
+    ResourceKey<CreativeModeTab> WEAPONS_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            SRE.id("weapons"));
+    ResourceKey<CreativeModeTab> TOOLS_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            SRE.id("tools"));
+    ResourceKey<CreativeModeTab> CONSUMABLES_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            SRE.id("consumables"));
+    ResourceKey<CreativeModeTab> SANITY_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            SRE.id("sanity"));
+    ResourceKey<CreativeModeTab> ROLE_ITEMS_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            SRE.id("role_items"));
+    ResourceKey<CreativeModeTab> MISC_ITEMS_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            SRE.id("misc_items"));
+
+    // === 特殊分类/汇总标签页 ===
+    ResourceKey<CreativeModeTab> REPAIR_MODE_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            SRE.id("repair_mode"));
+    ResourceKey<CreativeModeTab> SEALED_ARTIFACTS_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            SRE.id("sealed_artifacts"));
+    ResourceKey<CreativeModeTab> SRE_ALL_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            SRE.id("all"));
+    ResourceKey<CreativeModeTab> NOELLESROLES_ALL_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+            Noellesroles.id("all"));
+
+    // === 武器 (WEAPONS) ===
+    Item KNIFE = registrar.create("knife", new KnifeItem(new Item.Properties().stacksTo(1)), WEAPONS_GROUP, SRE_ALL_GROUP);
     Item BAT = registrar.create("bat",
             new BatItem(new Item.Properties().stacksTo(1)
                     .attributes(AxeItem.createAttributes(Tiers.WOOD, 0.0F, -3.0F))),
-            EQUIPMENT_GROUP);
-    Item CROWBAR = registrar.create("crowbar", new CrowbarItem(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item CROWBAR = registrar.create("crowbar", new CrowbarItem(new Item.Properties().stacksTo(1)), WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item GRENADE = registrar.create("grenade", new GrenadeItem(new Item.Properties().stacksTo(1)), WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item STICKY_GRENADE = registrar.create("sticky_grenade", new StickyGrenadeItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item TIMED_GRENADE = registrar.create("timed_grenade", new TimedGrenadeItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item FIRECRACKER = registrar.create("firecracker", new FirecrackerItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item REVOLVER = registrar.create("revolver", new RevolverItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item STANDARD_REVOLVER = registrar.create("standard_revolver", new StandardRevolverItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item DERRINGER = registrar.create("derringer", new DerringerItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item SNIPER_RIFLE = registrar.create("sniper_rifle", new SniperRifleItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+    Item NUNCHUCK = registrar.create("nunchuck", new NunchuckItem(new Item.Properties().stacksTo(1)),
+            WEAPONS_GROUP, SRE_ALL_GROUP);
+
+    // === 工具 (TOOLS) ===
+    Item KEY = registrar.create("key", new KeyItem(new Item.Properties().stacksTo(1)), TOOLS_GROUP, SRE_ALL_GROUP);
+    Item IRON_DOOR_KEY = registrar.create("iron_door_key",
+            new IronDoorKeyItem(new Item.Properties().stacksTo(1).durability(3)), TOOLS_GROUP, SRE_ALL_GROUP);
+    Item LOCKPICK = registrar.create("lockpick", new LockpickItem(new Item.Properties().stacksTo(1)),
+            TOOLS_GROUP, SRE_ALL_GROUP);
     Item DEFENSE_VIAL = registrar.create("defense_vial",
             new DefenseItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item GRENADE = registrar.create("grenade", new GrenadeItem(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
-    Item STICKY_GRENADE = registrar.create("sticky_grenade", new StickyGrenadeItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item TIMED_GRENADE = registrar.create("timed_grenade", new TimedGrenadeItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item FIRECRACKER = registrar.create("firecracker", new FirecrackerItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item REVOLVER = registrar.create("revolver", new RevolverItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item STANDARD_REVOLVER = registrar.create("standard_revolver", new StandardRevolverItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item DERRINGER = registrar.create("derringer", new DerringerItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item SNIPER_RIFLE = registrar.create("sniper_rifle", new SniperRifleItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item MAGNUM_BULLET = registrar.create("magnum_bullet", new MagnumBulletItem(new Item.Properties().stacksTo(64)),
-            EQUIPMENT_GROUP);
+            TOOLS_GROUP, SRE_ALL_GROUP);
+    Item DISGUISE_1 = registrar.create("disguise_1",
+            new DisguiseItem(new Item.Properties().stacksTo(16), 0),
+            TOOLS_GROUP, SRE_ALL_GROUP);
+    Item DISGUISE_2 = registrar.create("disguise_2",
+            new DisguiseItem(new Item.Properties().stacksTo(16), 1),
+            TOOLS_GROUP, SRE_ALL_GROUP);
+    Item DISGUISE_3 = registrar.create("disguise_3",
+            new DisguiseItem(new Item.Properties().stacksTo(16), 2),
+            TOOLS_GROUP, SRE_ALL_GROUP);
     Item SCOPE = registrar.create("scope", new ScopeItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
+            TOOLS_GROUP, SRE_ALL_GROUP);
     Item BODY_BAG = registrar.create("body_bag", new BodyBagItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item LETTER = registrar.create("letter", new Item(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
-    Item BLACKOUT = registrar.create("blackout", new Item(new Item.Properties().stacksTo(1)));
-    Item MONITOR_BROKEN = registrar.create("monitor_broken", new Item(new Item.Properties().stacksTo(1)));
-    Item PSYCHO_MODE = registrar.create("psycho_mode", new Item(new Item.Properties().stacksTo(1)));
+            TOOLS_GROUP, SRE_ALL_GROUP);
+    Item LETTER = registrar.create("letter", new Item(new Item.Properties().stacksTo(1)), TOOLS_GROUP, SRE_ALL_GROUP);
+    Item NOTE = registrar.create("note", new NoteItem(new Item.Properties().stacksTo(4)), TOOLS_GROUP, SRE_ALL_GROUP);
+
+    // === 消耗品 (CONSUMABLES) ===
+    Item MAGNUM_BULLET = registrar.create("magnum_bullet", new MagnumBulletItem(new Item.Properties().stacksTo(64)),
+            CONSUMABLES_GROUP, SRE_ALL_GROUP);
     Item POISON_VIAL = registrar.create("poison_vial", new Item(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item SCORPION = registrar.create("scorpion", new Item(new Item.Properties().stacksTo(1)), EQUIPMENT_GROUP);
+            CONSUMABLES_GROUP, SRE_ALL_GROUP);
+    Item SCORPION = registrar.create("scorpion", new Item(new Item.Properties().stacksTo(1)), CONSUMABLES_GROUP, SRE_ALL_GROUP);
     Item OLD_FASHIONED = registrar.create("old_fashioned",
-            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), EQUIPMENT_GROUP);
+            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), CONSUMABLES_GROUP, SRE_ALL_GROUP);
     Item MOJITO = registrar.create("mojito",
-            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), EQUIPMENT_GROUP);
+            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), CONSUMABLES_GROUP, SRE_ALL_GROUP);
     Item MARTINI = registrar.create("martini",
-            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), EQUIPMENT_GROUP);
+            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), CONSUMABLES_GROUP, SRE_ALL_GROUP);
     Item COSMOPOLITAN = registrar.create("cosmopolitan",
-            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), EQUIPMENT_GROUP);
+            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), CONSUMABLES_GROUP, SRE_ALL_GROUP);
     Item CHAMPAGNE = registrar.create("champagne",
-            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), EQUIPMENT_GROUP);
-    Item NOTE = registrar.create("note", new NoteItem(new Item.Properties().stacksTo(4)), EQUIPMENT_GROUP);
-    Item NUNCHUCK = registrar.create("nunchuck", new NunchuckItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
+            new CocktailItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)), CONSUMABLES_GROUP, SRE_ALL_GROUP);
+
+    // === 装备 (EQUIPMENT) ===
     Item EMOJI_HELMET = registrar.create("emoji_helmet", new EmojiHelmetItem(new Item.Properties().stacksTo(1)),
-            EQUIPMENT_GROUP);
-    Item DRAWING_BOARD = sreRegistrar.create("drawing_board", new io.wifi.starrailexpress.content.item.DrawingBoardItem(), EQUIPMENT_GROUP);
+            EQUIPMENT_GROUP, SRE_ALL_GROUP);
+    Item DRAWING_BOARD = sreRegistrar.create("drawing_board", new io.wifi.starrailexpress.content.item.DrawingBoardItem(), EQUIPMENT_GROUP, SRE_ALL_GROUP);
     Item ADMIN_DRAWING_BOARD = sreRegistrar.create("admin_drawing_board", new io.wifi.starrailexpress.content.item.AdminDrawingBoardItem(), new net.minecraft.resources.ResourceKey[]{net.minecraft.world.item.CreativeModeTabs.OP_BLOCKS});
+
+    // === 杂项 (MISC) ===
+    Item BLACKOUT = registrar.create("blackout", new Item(new Item.Properties().stacksTo(1)), SRE_ALL_GROUP);
+    Item MONITOR_BROKEN = registrar.create("monitor_broken", new Item(new Item.Properties().stacksTo(1)), SRE_ALL_GROUP);
+    Item PSYCHO_MODE = registrar.create("psycho_mode", new Item(new Item.Properties().stacksTo(1)), SRE_ALL_GROUP);
 
     public static void initialize() {
         INVISIBLE_ITEMS.add(TMMItems.NOTE);
@@ -110,6 +153,7 @@ public interface TMMItems {
 
         registrar.registerEntries();
 
+        // 注册方块类标签页（保持不变）
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, BUILDING_GROUP, FabricItemGroup.builder()
                 .title(Component.translatable("itemGroup.starrailexpress.building"))
                 .icon(() -> new ItemStack(TMMBlocks.TARNISHED_GOLD_PILLAR))
@@ -118,9 +162,53 @@ public interface TMMItems {
                 .title(Component.translatable("itemGroup.starrailexpress.decoration"))
                 .icon(() -> new ItemStack(TMMBlocks.TARNISHED_GOLD_VENT_SHAFT))
                 .build());
+
+        // 注册功能分类标签页
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, WEAPONS_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.starrailexpress.weapons"))
+                .icon(() -> new ItemStack(REVOLVER))
+                .build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, TOOLS_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.starrailexpress.tools"))
+                .icon(() -> new ItemStack(LOCKPICK))
+                .build());
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, EQUIPMENT_GROUP, FabricItemGroup.builder()
                 .title(Component.translatable("itemGroup.starrailexpress.equipment"))
+                .icon(() -> new ItemStack(EMOJI_HELMET))
+                .build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, CONSUMABLES_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.starrailexpress.consumables"))
+                .icon(() -> new ItemStack(OLD_FASHIONED))
+                .build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, SANITY_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.starrailexpress.sanity"))
+                .icon(() -> new ItemStack(OLD_FASHIONED))  // 临时图标，后续被 ModItems 中的 WREATH 覆盖
+                .build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ROLE_ITEMS_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.starrailexpress.role_items"))
+                .icon(() -> new ItemStack(OLD_FASHIONED))  // 临时图标
+                .build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, MISC_ITEMS_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.starrailexpress.misc_items"))
+                .icon(() -> new ItemStack(BLACKOUT))
+                .build());
+
+        // 注册特殊分类/汇总标签页
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, REPAIR_MODE_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.starrailexpress.repair_mode"))
+                .icon(() -> new ItemStack(TMMItems.IRON_DOOR_KEY))  // 临时图标
+                .build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, SEALED_ARTIFACTS_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.starrailexpress.sealed_artifacts"))
+                .icon(() -> new ItemStack(TMMItems.IRON_DOOR_KEY))  // 临时图标
+                .build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, SRE_ALL_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.starrailexpress.all"))
                 .icon(() -> new ItemStack(KEY))
+                .build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, NOELLESROLES_ALL_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("itemGroup.noellesroles.all"))
+                .icon(() -> new ItemStack(TMMItems.IRON_DOOR_KEY))  // 临时图标
                 .build());
         if (INIT_ITEMS.LETTER == null)
             INIT_ITEMS.LETTER = LETTER;

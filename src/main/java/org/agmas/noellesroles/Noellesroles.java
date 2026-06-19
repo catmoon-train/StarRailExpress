@@ -232,6 +232,7 @@ public class Noellesroles implements ModInitializer {
         RepairRoleCommand.register();
         RepairMapCommand.register();
         RepairPresetCommand.register();
+        MurderTimeCommand.register();
 
         // 注册疫使测试指令
         org.agmas.noellesroles.commands.InfectedCommand.register();

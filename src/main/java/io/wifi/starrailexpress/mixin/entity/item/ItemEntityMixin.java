@@ -4,10 +4,15 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
+import io.wifi.starrailexpress.cca.MurderTimeEventComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.util.SREItemUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -34,6 +39,20 @@ public abstract class ItemEntityMixin {
 
     @WrapMethod(method = "playerTouch")
     public void tmm$preventGunPickup(Player player, Operation<Void> original) {
+        int murderGoldAmount = MurderTimeEventComponent.getMurderGoldAmount(this.getItem());
+        if (murderGoldAmount > 0) {
+            if (!GameUtils.isGameRunning(player)) {
+                original.call(player);
+                return;
+            }
+            if (player instanceof ServerPlayer serverPlayer && GameUtils.isGameRunning(player)) {
+                SREPlayerShopComponent.KEY.get(player).addToBalance(murderGoldAmount);
+                serverPlayer.displayClientMessage(Component.translatable("message.starrailexpress.murder_gold.pickup",
+                        murderGoldAmount).withStyle(ChatFormatting.GOLD), true);
+                ((ItemEntity) (Object) this).discard();
+            }
+            return;
+        }
         if (player.isCreative() || SRE.isLobby) {
             original.call(player);
             return;

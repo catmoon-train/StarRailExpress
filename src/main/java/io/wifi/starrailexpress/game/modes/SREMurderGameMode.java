@@ -62,6 +62,7 @@ public class SREMurderGameMode extends GameMode {
     public void finalizeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         // 执行游戏结束时的函数
         executeFunction(serverWorld.getServer().createCommandSourceStack(), "harpymodloader:end_game");
+        MurderTimeEventComponent.KEY.get(serverWorld).clear();
 
         // 将玩家从队伍中移除
         removePlayersFromTeam(serverWorld.getServer().createCommandSourceStack(), "harpymodloader_game");
@@ -84,6 +85,7 @@ public class SREMurderGameMode extends GameMode {
 
         // 执行游戏开始时的函数
         executeFunction(serverWorld.getServer().createCommandSourceStack(), "harpymodloader:start_game");
+        MurderTimeEventComponent.KEY.get(serverWorld).initializeDefaults();
 
         Harpymodloader.setRoleMaximum(TMMRoles.VIGILANTE.getIdentifier(), 100);
         assignRole(serverWorld, gameWorldComponent, players);

@@ -3,6 +3,10 @@ package io.wifi.starrailexpress.client.gui.screen.ingame;
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.gui.screen.SkinManagementScreen;
+import io.wifi.starrailexpress.client.gui.screen.roster.RoleRosterEditScreen;
+import io.wifi.starrailexpress.client.gui.screen.roster.RoleRosterViewScreen;
+import io.wifi.starrailexpress.content.mail.MailboxScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -76,6 +80,79 @@ public class GameMenuEntries {
                         minecraft.setScreen(new GameManagementScreen(parent));
                         toggleViewMenu.accept(false);
                     }));
+        }
+        return entries;
+    }
+    public static ArrayList<MenuEntry> entries_hub(Minecraft minecraft, Screen parent, Consumer<Boolean> toggleViewMenu) {
+        ArrayList<MenuEntry> entries = new ArrayList<>();
+        // 职业介绍
+        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
+            var role = SREGameWorldComponent.KEY.get(minecraft.level).getRole(minecraft.player);
+            minecraft.setScreen(new RoleIntroduceScreen(parent, role));
+            toggleViewMenu.accept(false);
+        }));
+        // 抽卡页面
+        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.loot_screen"), (btn) -> {
+            if (LotteryManager.getInstance().getLotteryPools().isEmpty())
+                ClientPlayNetworking.send(new LootPoolsInfoCheckC2SPacket());
+            minecraft.setScreen(new LootInfoScreen(0, 0, 0, parent));
+            toggleViewMenu.accept(false);
+        }));
+        // 皮肤管理
+        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.skin_manage"), (btn) -> {
+            minecraft.setScreen(new SkinManagementScreen(parent));
+            toggleViewMenu.accept(false);
+        }));
+        // 邮箱管理
+        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.mail_manage"), (btn) -> {
+            minecraft.setScreen(new MailboxScreen());
+            toggleViewMenu.accept(false);
+        }));
+        if (minecraft.player.hasPermissions(2)) {
+            // mod_settings
+            entries.add(new MenuEntry(
+                    Component.translatable("screen.limited_inventory.menu.mod_settings").withStyle(ChatFormatting.RED),
+                    (btn) -> {
+                        minecraft.setScreen(new SettingMenuScreen(parent));
+                        toggleViewMenu.accept(false);
+                    }));
+        } else {
+            // mod client settings
+            entries.add(new MenuEntry(
+                    Component.translatable("screen.limited_inventory.menu.mod_settings_client")
+                            .withStyle(ChatFormatting.WHITE),
+                    (btn) -> {
+                        minecraft.setScreen(SREClientConfig.HANDLER.generateGui().generateScreen(parent));
+                        toggleViewMenu.accept(false);
+                    }));
+        }
+        if (minecraft.player.hasPermissions(2)) {
+            // game_menu
+            entries.add(new MenuEntry(
+                    Component.translatable("screen.limited_inventory.menu.game_menu").withStyle(ChatFormatting.RED),
+                    (btn) -> {
+                        minecraft.setScreen(new GameManagementScreen(parent));
+                        toggleViewMenu.accept(false);
+                    }));
+
+        }
+        if (minecraft.player.hasPermissions(2)) {
+            //职业轮换
+            entries.add(new MenuEntry(
+                    Component.translatable("screen.limited_inventory.menu.roster").withStyle(ChatFormatting.RED),
+                    (btn) -> {
+                        minecraft.setScreen(new RoleRosterEditScreen());
+                        toggleViewMenu.accept(false);
+                    }));
+
+        }else {
+            entries.add(new MenuEntry(
+                    Component.translatable("screen.limited_inventory.menu.roster").withStyle(ChatFormatting.WHITE),
+                    (btn) -> {
+                        minecraft.setScreen(new RoleRosterViewScreen());
+                        toggleViewMenu.accept(false);
+                    }));
+
         }
         return entries;
     }

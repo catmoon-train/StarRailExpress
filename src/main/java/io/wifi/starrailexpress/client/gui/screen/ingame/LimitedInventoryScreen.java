@@ -223,7 +223,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     private void initWaitingMenu() {
         waitingMenuButtons.clear();
         waitingMenuPage = 0;
-        for (var entry : GameMenuEntries.entries(minecraft, this, this::toggleViewMenu)) {
+        for (var entry : GameMenuEntries.entries_hub(minecraft, this, this::toggleViewMenu)) {
             var btn = new WaitingMenuCellButton(entry.label(), entry.action());
             waitingMenuButtons.add(btn);
             this.addRenderableWidget(btn);

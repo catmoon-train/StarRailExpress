@@ -44,6 +44,9 @@ public class TMMItemTooltips {
             addTooltipForItem(TMMItems.CROWBAR, itemStack, tooltipList);
             addTooltipForItem(TMMItems.BODY_BAG, itemStack, tooltipList);
             addTooltipForItem(TMMItems.BLACKOUT, itemStack, tooltipList);
+            addTooltipForItem(TMMItems.DISGUISE_1, itemStack, tooltipList);
+            addTooltipForItem(TMMItems.DISGUISE_2, itemStack, tooltipList);
+            addTooltipForItem(TMMItems.DISGUISE_3, itemStack, tooltipList);
             addTooltipForItem(TMMItems.NOTE, itemStack, tooltipList);
             addTooltipForItem(TMMItems.MONITOR_BROKEN, itemStack, tooltipList);
             addTooltipForItem(TMMItems.SNIPER_RIFLE, itemStack, tooltipList);

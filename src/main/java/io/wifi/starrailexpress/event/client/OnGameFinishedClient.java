@@ -11,8 +11,9 @@ public interface OnGameFinishedClient {
 
     Event<OnGameFinishedClient> EVENT = createArrayBacked(OnGameFinishedClient.class,
             listeners -> () -> {
-
-
+                for (OnGameFinishedClient listener : listeners) {
+                    listener.gameFinished();
+                }
             });
 
 

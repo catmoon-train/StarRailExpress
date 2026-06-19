@@ -244,6 +244,12 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "sync")
     public int mysqlSyncConnectTimeoutMs = 5000;
 
+    // 赞助者列表：从该云端 URL 拉取赞助者名单（txt，一行一个名字）。留空则禁用该功能。
+    // 名字按命名约定对应 plush（名字 X → noellesroles:X_plush）。
+    @ConfigEntry.Category(value = "sponsor")
+    @Tooltip(count = 2)
+    public String sponsorListUrl = "";
+
     @ConfigEntry.Category(value = "progression")
     public boolean enableProgressionSystem = false;
     @ConfigEntry.Category(value = "progression")

@@ -71,7 +71,7 @@ public final class PlayerStatsManager {
     public static void flushDatabaseAsync(UUID playerUuid) {
         Entry entry = STATS.get(playerUuid);
         if (isOnlineEntry(entry)) {
-            saveDatabaseAsync(entry, true);
+            saveDatabaseAsync(null, entry, true);
         }
     }
 
@@ -142,7 +142,7 @@ public final class PlayerStatsManager {
             }
             if (entry.databaseDirty && !entry.databaseSaveInFlight
                     && now - entry.lastDatabaseSaveTime >= SAVE_INTERVAL_MS) {
-                saveDatabaseAsync(entry, false);
+                saveDatabaseAsync(player, entry, false);
             }
             if (isDatabaseEnabled() && !entry.databaseLoaded && !entry.databaseLoadInFlight
                     && now - entry.lastDatabaseLoadAttempt >= DATABASE_LOAD_RETRY_MS) {
@@ -212,9 +212,11 @@ public final class PlayerStatsManager {
             PlayerStatsData data = PlayerStatsSerializer.fromJson(record.payload());
             long databaseUpdatedAt = Math.max(record.updatedAt(), data == null ? 0L : data.getUpdatedAt());
             entry.databaseLoaded = true;
-            if (databaseUpdatedAt > entry.updatedAt) {
+            boolean forceApplyRemote = entry.databaseConflictPending;
+            entry.databaseConflictPending = false;
+            if (forceApplyRemote || databaseUpdatedAt > entry.updatedAt) {
                 entry.stats.replaceWith(data);
-                entry.updatedAt = databaseUpdatedAt;
+                entry.updatedAt = Math.max(entry.updatedAt, databaseUpdatedAt);
                 entry.localDirty = true;
                 entry.databaseDirty = false;
                 entry.clientDirty = true;
@@ -299,7 +301,7 @@ public final class PlayerStatsManager {
         }
     }
 
-    private static void saveDatabaseAsync(Entry entry, boolean force) {
+    private static void saveDatabaseAsync(ServerPlayer player, Entry entry, boolean force) {
         if (!isOnlineEntry(entry) || !isDatabaseEnabled() || !entry.databaseLoaded
                 || (!force && !entry.databaseDirty)) {
             return;
@@ -320,17 +322,20 @@ public final class PlayerStatsManager {
                 .whenComplete((success, throwable) -> {
                     entry.databaseSaveInFlight = false;
                     if (throwable != null || !Boolean.TRUE.equals(success)) {
-                        entry.databaseDirty = true;
-                        if (throwable != null) {
-                            SRE.LOGGER.warn("Failed to save player stats to MySQL for {}",
-                                    entry.stats.getPlayerUuid(), throwable);
-                        }
+                    entry.databaseDirty = true;
+                    if (throwable != null) {
+                        SRE.LOGGER.warn("Failed to save player stats to MySQL for {}",
+                                entry.stats.getPlayerUuid(), throwable);
+                    } else if (player != null) {
+                        entry.databaseConflictPending = true;
+                        pullDatabase(player, entry);
                     }
-                    if (entry.forceDatabaseFlushPending) {
-                        entry.forceDatabaseFlushPending = false;
-                        saveDatabaseAsync(entry, true);
-                    }
-                });
+                }
+                if (entry.forceDatabaseFlushPending) {
+                    entry.forceDatabaseFlushPending = false;
+                    saveDatabaseAsync(player, entry, true);
+                }
+            });
     }
 
     private static void flushAllLocalBlocking(MinecraftServer server) {
@@ -371,6 +376,7 @@ public final class PlayerStatsManager {
         private volatile boolean localSaveInFlight;
         private volatile boolean databaseSaveInFlight;
         private volatile boolean forceDatabaseFlushPending;
+        private volatile boolean databaseConflictPending;
         private volatile long updatedAt;
         private volatile long lastPersistedUpdatedAt;
         private volatile long lastLocalSaveTime;

@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.content.entity.StickyGrenadeEntity;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.content.item.GrenadeItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -39,13 +40,13 @@ public class StickyGrenadeItem extends SkinableItem {
     @Override
     public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
         if (!world.isClientSide) {
-            if (user instanceof Player player && player.getCooldowns().isOnCooldown(stack.getItem()))
+            if (user instanceof Player player && GrenadeItem.isAnyGrenadeOnCooldown(player))
                 return;
             if (user instanceof Player player) {
                 if (!player.isCreative()
                         && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
                                 SpecialGameModeRoles.SUPER_LOOSE_END)) {
-                    player.getCooldowns().addCooldown(stack.getItem(), SREConfig.instance().grenadeCooldown);
+                    GrenadeItem.addGrenadeCooldown(player);
                 }
             }
 

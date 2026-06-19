@@ -227,6 +227,21 @@ public class StupidExpressClient implements ClientModInitializer {
     }
 
     private static void registerKeyEvents() {
+        // 伪装效果：拥有 DISGUISE 效果的玩家皮肤替换为对应变体的伪装皮肤
+        // 效果等级（amplifier）决定使用 DisguiseVariants 中的哪套皮肤
+        OnGettingPlayerSkin.EVENT.register((player) -> {
+            var instance = player.getEffect(org.agmas.noellesroles.init.ModEffects.DISGUISE);
+            if (instance != null) {
+                var variant = io.wifi.starrailexpress.content.item.DisguiseVariants
+                        .byAmplifier(instance.getAmplifier());
+                if (variant != null) {
+                    return OnGettingPlayerSkin.PlayerSkinResult.playerSkin(
+                            SRE.id(variant.skinPath()),
+                            variant.slim() ? Model.SLIM : Model.WIDE);
+                }
+            }
+            return null;
+        });
         // 难民时旁观看时全员皮肤改为默认的皮肤
         OnGettingPlayerSkin.EVENT.register((player) -> {
             if (RoleUtils.isPlayerTheJob(player, TMMRoles.LOOSE_END)

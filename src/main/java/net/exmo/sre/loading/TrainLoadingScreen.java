@@ -1,120 +1,86 @@
 package net.exmo.sre.loading;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.progress.StoringChunkProgressListener;
 import net.minecraft.util.Mth;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BooleanSupplier;
 
 /**
- * 现代化星穹铁道风格加载界面
- * 纯图形绘制，无纹理依赖，包含动态星空粒子、列车动画、进度提示
+ * 星穹铁道风格 —— 世界生成 / 区块加载界面（替换原版 LevelLoadingScreen）。
+ * <p>
+ * 与资源加载 {@link StarRailLoadingOverlay} 和进入世界 {@link SREReceivingLevelScreen}
+ * 共用同一套视觉语言：全幅列车视频背景 + 暗角 + 星轨进度 + 轮换提示，
+ * 时间线为「黑屏淡入 → 加载 → 收尾走满 → 缓动淡出」，三个界面无缝衔接。
  */
 @Environment(EnvType.CLIENT)
 public class TrainLoadingScreen extends Screen {
-    // ===== 常量 =====
-    private static final long NARRATION_DELAY_MS = 2000L;
-    private static final long TIP_CHANGE_INTERVAL = 5000L;      // 提示切换间隔
-    private static final long ELLIPSIS_UPDATE_INTERVAL = 500L; // “加载世界中”省略号更新间隔
-    private static final int TRAIN_SPEED = 3;                   // 列车移动速度
-    private static final int TRAIN_WIDTH = 240;                 // 列车图形宽度
-    private static final int TRAIN_HEIGHT = 80;                 // 列车图形高度
-    private static final int PROGRESS_BAR_HEIGHT = 8;
-    private static final int PROGRESS_BAR_WIDTH = 500;
-    public static final int STAR_COUNT = 120;                  // 星星数量
 
-    // ===== 状态 =====
+    // ── 时间线（毫秒） ────────────────────────────────────────
+    private static final long ENTER_MS = 650;
+    private static final long END_HOLD_MS = 700;   // 触发关闭后保留（走满星轨）
+    private static final long EXIT_MS = 600;
+    private static final long SAFETY_TIMEOUT_MS = 30_000L; // 卡死兜底
+    private static final long NARRATION_DELAY_MS = 2000L;
+    private static final long TIP_INTERVAL_MS = 4200L;
+    private static final long TIP_FADE_MS = 320L;
+    private static final long ELLIPSIS_INTERVAL_MS = 500L;
+
+    private static final float VIDEO_FPS = 20.0F;
+    private static final FrameAnimationRenderer ANIM = new FrameAnimationRenderer(VIDEO_FPS);
+
+    // ── 依赖 ─────────────────────────────────────────────────
     private final StoringChunkProgressListener progressListener;
     private final boolean hasProgressListener;
-    private boolean done;
-    private long lastNarration = -1L;
     private final BooleanSupplier levelReceived;
     private final long createdAt;
 
-    // 提示系统
+    // ── 状态 ─────────────────────────────────────────────────
+    private boolean done;
+    private long exitStart = -1L;
+    private float displayProgress;
+    private long lastNarration = -1L;
+
     private final List<Component> tips;
-    private int currentTipIndex;
-    private long lastTipChangeTime;
+    private int tipIndex;
+    private int prevTipIndex;
+    private long tipChangedAt;
 
-    // 列车动画
-    private int trainX;          // 当前X坐标（从左侧外开始）
-    private long lastTickTime;
-
-    // 不确定进度动画（加载世界中）
-    private int ellipsisState = 0;           // 0-3 表示省略号个数
-    private long lastEllipsisUpdate;
-
-    // 星空粒子系统
-    private final List<StarParticle> stars = new ArrayList<>();
-    private final Random random = new Random();
-
-    // ===== 内部粒子类 =====
-    public static class StarParticle {
-        double x, y;           // 当前位置
-        double vx, vy;         // 速度（像素/秒）
-        float size;            // 大小
-        float brightness;      // 亮度（0~1）
-        float phase;           // 闪烁相位
-
-        StarParticle(double x, double y, double vx, double vy, float size, float brightness, float phase) {
-            this.x = x; this.y = y;
-            this.vx = vx; this.vy = vy;
-            this.size = size; this.brightness = brightness;
-            this.phase = phase;
-        }
-    }
+    private int ellipsis;
+    private long lastEllipsisAt;
 
     public TrainLoadingScreen(StoringChunkProgressListener progressListener, BooleanSupplier levelReceived) {
         super(Component.translatable("screen.starrailexpress.loading.title"));
-        this.levelReceived = levelReceived;
         this.progressListener = progressListener;
         this.hasProgressListener = progressListener != null;
-        this.tips = buildTips();
-        this.currentTipIndex = random.nextInt(tips.size());
-        this.lastTipChangeTime = Util.getMillis();
-        this.trainX = -TRAIN_WIDTH; // 从左侧外开始
-        this.createdAt = System.currentTimeMillis();
-        // 初始化星空粒子
-        initStars();
-    }
-
-    /**
-     * 初始化星空粒子
-     */
-    private void initStars() {
-        stars.clear();
-        for (int i = 0; i < STAR_COUNT; i++) {
-            double x = random.nextDouble() * 10000; // 使用大范围，在渲染时取模适应屏幕
-            double y = random.nextDouble() * 10000;
-            double vx = (random.nextDouble() - 0.5) * 2;  // 缓慢漂移
-            double vy = (random.nextDouble() - 0.5) * 2;
-            float size = 0.5f + random.nextFloat() * 2.5f;
-            float brightness = 0.3f + random.nextFloat() * 0.7f;
-            float phase = random.nextFloat() * (float)Math.PI * 2;
-            stars.add(new StarParticle(x, y, vx, vy, size, brightness, phase));
-        }
-    }
-
-    /**
-     * 构建随机提示列表
-     */
-    private List<Component> buildTips() {
-        return List.of(
+        this.levelReceived = levelReceived;
+        this.createdAt = Util.getMillis();
+        this.tips = List.of(
                 Component.translatable("loading.tip.starrailexpress.1"),
                 Component.translatable("loading.tip.starrailexpress.2"),
                 Component.translatable("loading.tip.starrailexpress.3"),
                 Component.translatable("loading.tip.starrailexpress.4"),
-                Component.translatable("loading.tip.starrailexpress.5")
-        );
+                Component.translatable("loading.tip.starrailexpress.5"));
+        this.tipChangedAt = Util.getMillis();
+    }
+
+    // ── 生命周期 ──────────────────────────────────────────────
+
+    @Override
+    protected void init() {
+        FrameAnimationRenderer.setInWorld(false);
+        if (!ANIM.hasFrames()) {
+            ANIM.loadFrames();
+        }
+        ANIM.reset();
     }
 
     @Override
@@ -128,22 +94,51 @@ public class TrainLoadingScreen extends Screen {
     }
 
     @Override
+    public boolean isPauseScreen() {
+        return true;
+    }
+
+    @Override
     public void removed() {
         this.done = true;
         this.triggerImmediateNarration(true);
     }
 
     @Override
-    protected void updateNarratedWidget(net.minecraft.client.gui.narration.NarrationElementOutput narrationElementOutput) {
+    public void tick() {
+        long now = Util.getMillis();
+
+        // 触发收尾：收到世界 或 兜底超时
+        if (exitStart < 0L
+                && (this.levelReceived.getAsBoolean() || now - createdAt > SAFETY_TIMEOUT_MS)) {
+            exitStart = now;
+        }
+
+        if (now - tipChangedAt > TIP_INTERVAL_MS) {
+            prevTipIndex = tipIndex;
+            tipIndex = (tipIndex + 1) % tips.size();
+            tipChangedAt = now;
+        }
+        if (now - lastEllipsisAt > ELLIPSIS_INTERVAL_MS) {
+            ellipsis = (ellipsis + 1) % 4;
+            lastEllipsisAt = now;
+        }
+        if (now - lastNarration > NARRATION_DELAY_MS) {
+            lastNarration = now;
+            this.triggerImmediateNarration(true);
+        }
+    }
+
+    // ── 叙述（无障碍） ────────────────────────────────────────
+
+    @Override
+    protected void updateNarratedWidget(NarrationElementOutput out) {
         if (done) {
-            narrationElementOutput.add(net.minecraft.client.gui.narration.NarratedElementType.TITLE,
-                    Component.translatable("narrator.loading.done"));
+            out.add(NarratedElementType.TITLE, Component.translatable("narrator.loading.done"));
         } else if (hasProgressListener) {
-            narrationElementOutput.add(net.minecraft.client.gui.narration.NarratedElementType.TITLE,
-                    getProgressComponent());
+            out.add(NarratedElementType.TITLE, getProgressComponent());
         } else {
-            narrationElementOutput.add(net.minecraft.client.gui.narration.NarratedElementType.TITLE,
-                    Component.translatable("loading.world.generating"));
+            out.add(NarratedElementType.TITLE, Component.translatable("loading.world.generating"));
         }
     }
 
@@ -152,211 +147,93 @@ public class TrainLoadingScreen extends Screen {
         return Component.translatable("loading.progress", percent);
     }
 
+    // ── 渲染 ──────────────────────────────────────────────────
+
     @Override
-    public void tick() {
+    public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        int w = this.width;
+        int h = this.height;
         long now = Util.getMillis();
-        if (this.levelReceived.getAsBoolean() || System.currentTimeMillis() > this.createdAt + 30000L) {
-            this.onClose();
-        }
-        // 更新tip
-        if (now - lastTipChangeTime > TIP_CHANGE_INTERVAL) {
-            currentTipIndex = (currentTipIndex + 1) % tips.size();
-            lastTipChangeTime = now;
-        }
 
-        // 更新列车位置
-        trainX += TRAIN_SPEED;
-        if (trainX > width) {
-            trainX = -TRAIN_WIDTH;
-        }
-
-        // 更新星空粒子（模拟缓慢漂移）
-        float deltaTime = 0.05f; // 每tick约50ms，简化处理
-        for (StarParticle star : stars) {
-            star.x += star.vx * deltaTime;
-            star.y += star.vy * deltaTime;
-
-            // 边界环绕（让星星无限延续）
-            if (star.x < 0) star.x += 10000;
-            if (star.x > 10000) star.x -= 10000;
-            if (star.y < 0) star.y += 10000;
-            if (star.y > 10000) star.y -= 10000;
-
-            // 闪烁：亮度随相位变化
-            star.phase += 0.02f;
-            if (star.phase > Math.PI * 2) star.phase -= Math.PI * 2;
-        }
-
-        // 如果不确定进度，更新省略号动画
-        if (!hasProgressListener) {
-            if (now - lastEllipsisUpdate > ELLIPSIS_UPDATE_INTERVAL) {
-                ellipsisState = (ellipsisState + 1) % 4;
-                lastEllipsisUpdate = now;
+        float enterAlpha = LoadingFx.smoothstep((now - createdAt) / (float) ENTER_MS);
+        float exitAlpha = 1.0F;
+        float resolveT = 0.0F;       // 收尾时把星轨推满
+        boolean resolving = exitStart >= 0L;
+        if (resolving) {
+            long since = now - exitStart;
+            resolveT = LoadingFx.smoothstep(since / (float) END_HOLD_MS);
+            if (since >= END_HOLD_MS) {
+                long ex = since - END_HOLD_MS;
+                exitAlpha = 1.0F - LoadingFx.smoothstep(ex / (float) EXIT_MS);
+                if (ex >= EXIT_MS) {
+                    onClose();
+                    return;
+                }
             }
         }
+        float alpha = enterAlpha * exitAlpha;
 
-        // 辅助功能叙述
-        if (now - lastNarration > NARRATION_DELAY_MS) {
-            lastNarration = now;
-            this.triggerImmediateNarration(true);
+        // 背景：黑底 + 列车视频
+        g.fill(0, 0, w, h, 0xFF000000);
+        if (ANIM.hasFrames()) {
+            ANIM.render(g, w, h, delta, alpha);
         }
-    }
+        LoadingFx.drawVignette(g, w, h, alpha);
 
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // 1. 绘制深邃的太空背景
-        renderBackground(graphics, mouseX, mouseY, partialTick);
-        graphics.fillGradient(0, 0, width, height, 0x420A0A1A, 0x48101020);
+        // 标题
+        String title = this.title.getString();
+        LoadingFx.drawCenteredScaled(g, font, title,
+                w / 2, (int) (h * 0.30F), 2.0F, LoadingFx.withAlpha(0xEAF4FF, alpha));
 
-        // 2. 绘制星空粒子
-        renderStars(graphics, partialTick);
+        // 进度逼近真实值；收尾阶段走满
+        float real = hasProgressListener ? LoadingFx.clamp01(progressListener.getProgress()) : 0.0F;
+        float target = resolving ? Math.max(real, resolveT) : real;
+        displayProgress += (target - displayProgress) * 0.12F;
+        if (Math.abs(target - displayProgress) < 0.002F) displayProgress = target;
 
-//        // 3. 绘制列车（中间偏上）
-//        renderTrain(graphics);
+        int half = Math.min(w / 3, 320);
+        int cx = w / 2;
+        int railY = h - 70;
 
-        // 4. 绘制进度区域（底部）
-        if (hasProgressListener) {
-            renderProgressBar(graphics);
+        if (hasProgressListener || resolving) {
+            // 确定进度：星轨光带 + 居中百分比
+            LoadingFx.drawRail(g, cx - half, cx + half, railY, displayProgress, alpha);
+            String percent = (int) (displayProgress * 100) + "%";
+            g.drawString(font, percent, cx - font.width(percent) / 2, railY - 16,
+                    LoadingFx.withAlpha(0xEAF4FF, alpha), true);
         } else {
-            renderIndeterminateProgress(graphics);
+            // 不确定进度：彗星往复 + “进入世界…”
+            float phase = (now % 2600L) / 2600.0F;
+            LoadingFx.drawComet(g, cx - half, cx + half, railY, phase, alpha);
+            String text = Component.translatable("loading.world.generating").getString()
+                    + ".".repeat(ellipsis);
+            g.drawString(font, text, cx - font.width(text) / 2, railY - 16,
+                    LoadingFx.withAlpha(0xC8D6EA, alpha), true);
         }
 
-        // 5. 绘制随机提示
-        renderTip(graphics);
-
-        super.render(graphics, mouseX, mouseY, partialTick);
+        // 轮换提示（交叉淡入淡出）
+        drawTips(g, cx, railY + 14, alpha, now);
     }
 
-    /**
-     * 绘制星空粒子
-     */
-    private void renderStars(GuiGraphics graphics, float partialTick) {
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        long time = System.currentTimeMillis();
-
-        for (StarParticle star : stars) {
-            // 将粒子坐标映射到当前屏幕（通过取模）
-            int screenX = (int) (star.x % width);
-            int screenY = (int) (star.y % height);
-
-            // 亮度闪烁（利用正弦波）
-            float brightness = star.brightness * (0.6f + 0.4f * Mth.sin((time / 300f) + star.phase));
-
-            // 颜色：白色带淡蓝/淡黄
-            int alpha = (int) (brightness * 255) << 24;
-            int color = alpha | 0xFFFFFF;
-
-            // 绘制像素点（大小可变）
-            int sizeInt = Math.max(1, (int) star.size);
-            graphics.fill(screenX, screenY, screenX + sizeInt, screenY + sizeInt, color);
+    private void drawTips(GuiGraphics g, int cx, int y, float alpha, long now) {
+        float fade = LoadingFx.smoothstep((now - tipChangedAt) / (float) TIP_FADE_MS);
+        if (fade < 1.0F && prevTipIndex != tipIndex) {
+            drawTipLine(g, tips.get(prevTipIndex).getString(), cx, y - (int) (fade * 6.0F),
+                    alpha * (1.0F - fade) * 0.85F);
         }
-        RenderSystem.disableBlend();
+        drawTipLine(g, tips.get(tipIndex).getString(), cx, y + (int) ((1.0F - fade) * 6.0F),
+                alpha * fade * 0.85F);
     }
 
-    /**
-     * 绘制列车（纯图形）
-     */
-    private void renderTrain(GuiGraphics graphics) {
-        int trainY = height / 3; // 垂直位置：屏幕上方1/3处
-
-        // 启用混合以绘制半透明光晕
-        RenderSystem.enableBlend();
-
-        // 车身（深色金属质感）
-        int bodyColor = 0xFF2A2F3F;
-        graphics.fill(trainX, trainY, trainX + TRAIN_WIDTH, trainY + TRAIN_HEIGHT, bodyColor);
-        // 车身轮廓
-        graphics.renderOutline(trainX, trainY, TRAIN_WIDTH, TRAIN_HEIGHT, 0xFF3A4050);
-
-        // 车窗（半透明蓝色）
-        int windowColor = 0xAA88CCFF;
-        graphics.fill(trainX + 40, trainY + 20, trainX + 80, trainY + 40, windowColor);
-        graphics.fill(trainX + 120, trainY + 20, trainX + 160, trainY + 40, windowColor);
-        graphics.fill(trainX + 200, trainY + 25, trainX + 220, trainY + 35, 0xAAFFAA00); // 车灯
-
-        // 车顶装饰（白色线条）
-        graphics.fill(trainX + 10, trainY - 4, trainX + TRAIN_WIDTH - 10, trainY, 0xFF4A5060);
-
-        // 添加发光效果（车身周围的光晕）
-        int glowColor = 0x3366AAFF;
-        graphics.fill(trainX - 5, trainY - 5, trainX + TRAIN_WIDTH + 5, trainY + TRAIN_HEIGHT + 5, glowColor);
-        graphics.fill(trainX - 3, trainY - 3, trainX + TRAIN_WIDTH + 3, trainY + TRAIN_HEIGHT + 3, 0x00); // 擦除中间保留轮廓
-
-        RenderSystem.disableBlend();
-    }
-
-    /**
-     * 绘制进度条（有具体进度）
-     */
-    private void renderProgressBar(GuiGraphics graphics) {
-        int barX = (width - PROGRESS_BAR_WIDTH) / 2;
-        int barY = height - 70;
-
-        // 背景
-        graphics.fill(barX, barY, barX + PROGRESS_BAR_WIDTH, barY + PROGRESS_BAR_HEIGHT, 0xFF1A1F2A);
-        graphics.renderOutline(barX, barY, PROGRESS_BAR_WIDTH, PROGRESS_BAR_HEIGHT, 0xFF2A3040);
-
-        float progress = Mth.clamp(progressListener.getProgress(), 0.0f, 1.0f);
-        int fillWidth = (int) (progress * PROGRESS_BAR_WIDTH);
-        if (fillWidth > 0) {
-            // 霓虹蓝渐变填充
-            graphics.fillGradient(barX, barY, barX + fillWidth, barY + PROGRESS_BAR_HEIGHT,
-                    0xFF44AAFF, 0xFF2266CC);
-            // 顶部高光
-            graphics.fill(barX, barY, barX + fillWidth, barY + 2, 0xAAFFFFFF);
-        }
-
-        // 百分比文字
-        String percentText = (int) (progress * 100) + "%";
-        graphics.drawString(font, percentText,
-                barX + PROGRESS_BAR_WIDTH + 12,
-                barY + (PROGRESS_BAR_HEIGHT - font.lineHeight) / 2,
-                0xFFFFFFFF);
-    }
-
-    /**
-     * 绘制不确定进度（加载世界中）
-     */
-    private void renderIndeterminateProgress(GuiGraphics graphics) {
-        int centerX = width / 2;
-        int baseY = height - 70;
-
-        // 主文本
-        String baseText = Component.translatable("loading.world.generating").getString();
-        String ellipsis = ".".repeat(ellipsisState);
-        String fullText = baseText + ellipsis;
-        int textWidth = font.width(fullText);
-        graphics.drawString(font, fullText, centerX - textWidth / 2, baseY, 0xFFAAAAAA);
-
-        // 下方绘制动态光点（模拟加载指示器）
-        int dotCount = 5;
-        int dotSpacing = 20;
-        int dotY = baseY + font.lineHeight + 10;
-        long time = System.currentTimeMillis();
-        for (int i = 0; i < dotCount; i++) {
-            int alpha = (int) (128 + 127 * Mth.sin((float) ((time / 200.0) + i * 2.0)));
-            int color = (alpha << 24) | 0x88AAFF;
-            int dotX = centerX + (i - dotCount/2) * dotSpacing;
-            graphics.fill(dotX - 3, dotY - 3, dotX + 3, dotY + 3, color);
-        }
-    }
-
-    /**
-     * 绘制随机提示
-     */
-    private void renderTip(GuiGraphics graphics) {
-        Component tip = tips.get(currentTipIndex);
-        int tipWidth = font.width(tip);
-        int tipX = (width - tipWidth) / 2;
-        int tipY = height - 110; // 进度条上方
-        graphics.drawString(font, tip, tipX, tipY, 0xFFAAAAAA);
+    private void drawTipLine(GuiGraphics g, String text, int cx, int y, float a) {
+        if (a <= 0.01F) return;
+        g.drawString(font, text, cx - font.width(text) / 2, y,
+                LoadingFx.withAlpha(0xB8C6DA, a), true);
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.fillGradient(0, 0, width, height, 0xFF000000, 0xFF000000);
-//        PANORAMA.render(graphics, mouseY, mouseX, mouseY, partialTick);
-        // 不绘制默认背景，我们已自己绘制渐变
+    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        // 背景统一在 render() 中绘制。
+        g.fill(0, 0, width, height, 0xFF000000);
     }
 }

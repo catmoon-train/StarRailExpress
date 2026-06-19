@@ -456,6 +456,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                     }
                     if (!Boolean.TRUE.equals(success)) {
                         logger.warn("断线时异步刷新玩家 {} 的皮肤 MySQL 数据未成功写入。", this.player.getName().getString());
+                        queueReloadAfterDatabaseConflict();
                     }
                 });
     }
@@ -513,6 +514,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                     DATABASE_SYNC_FLUSH_TIMEOUT_MS);
             if (!success) {
                 logger.warn("阻塞刷新玩家 {} 的皮肤 MySQL 数据失败。", this.player.getName().getString());
+                queueReloadAfterDatabaseConflict();
             }
             return success;
         }
@@ -532,9 +534,19 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                     }
                     if (!Boolean.TRUE.equals(success)) {
                         logger.warn("异步刷新玩家 {} 的皮肤 MySQL 数据未成功写入。", this.player.getName().getString());
+                        queueReloadAfterDatabaseConflict();
                     }
                 });
         return true;
+    }
+
+    private void queueReloadAfterDatabaseConflict() {
+        if (!this.isNetworkSyncEnabled || this.databaseLoadPending) {
+            return;
+        }
+        this.databaseSyncQueued = true;
+        this.nextDatabaseSyncAt = System.currentTimeMillis() + DATABASE_SYNC_DEBOUNCE_MS;
+        pullSkinsFromNetwork();
     }
 
     private Map<String, Object> buildSkinDataPayload() {

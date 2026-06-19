@@ -92,6 +92,10 @@ public interface SREFumoBlocks {
             new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
     Block LIANGJIE_PLUSH = registerBlock("liangjie_plush",
             new SREPlushBlock(Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
+    // 自定义玩家 plush：单个动态方块，按绑定的玩家名渲染该玩家皮肤
+    Block CUSTOM_PLAYER_PLUSH = registerBlock("custom_player_plush",
+            new org.agmas.noellesroles.content.block.CustomPlayerPlushBlock(
+                    Properties.ofFullCopy(Blocks.LIGHT_BLUE_WOOL).noOcclusion()));
     /**
      * Block Entity
      */
@@ -103,7 +107,7 @@ public interface SREFumoBlocks {
                     LENGXIAOCN_PLUSH, LICRAFTLQ_PLUSH, LUOYERUOSHUI_PLUSH, MIFAN520_PLUSH,
                     NONE_PLUSH, OTITH_PLUSH, THEF0RS4KEN_PLUSH, TOMATO_PLUSH,
                     XIAO_HEI_HAND_PLUSH, XIAOZHANQWQ_PLUSH, ALLINTOKYO_PLUSH, MILK_DRAGON_PLUSH,
-                    AQIONG_PLUSH, HAOZI_PLUSH, LIANGJIE_PLUSH }));
+                    AQIONG_PLUSH, HAOZI_PLUSH, LIANGJIE_PLUSH, CUSTOM_PLAYER_PLUSH }));
 
     @SuppressWarnings("unchecked")
     public static <T extends Block> T registerBlock(String id, T block) {

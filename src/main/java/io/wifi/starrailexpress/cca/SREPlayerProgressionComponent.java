@@ -447,6 +447,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                     }
                     if (!Boolean.TRUE.equals(success)) {
                         logger.warn("断线时异步同步玩家 {} 的进度数据到 MySQL 未成功写入。", this.player.getName().getString());
+                        queueReloadAfterDatabaseConflict();
                     }
                 });
     }
@@ -900,6 +901,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 if (!this.databaseSyncPending) {
                     this.nextDatabaseSyncAt = 0L;
                 }
+            } else {
+                queueReloadAfterDatabaseConflict();
             }
             return success;
         }
@@ -924,6 +927,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                     } else {
                         this.databaseSyncPending = true;
                         logger.warn("异步同步玩家 {} 的进度数据到 MySQL 未成功写入。", this.player.getName().getString());
+                        queueReloadAfterDatabaseConflict();
                     }
                     if (this.databaseDirtyMask != 0) {
                         this.databaseSyncPending = true;
@@ -933,6 +937,15 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                     }
                 });
         return true;
+    }
+
+    private void queueReloadAfterDatabaseConflict() {
+        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled || this.databaseLoadPending) {
+            return;
+        }
+        this.databaseSyncPending = true;
+        this.nextDatabaseSyncAt = System.currentTimeMillis() + DATABASE_SYNC_DEBOUNCE_MS;
+        pullProgressionFromNetwork();
     }
 
     private Map<String, String> buildDatabasePayloads(int dirtyMask) {

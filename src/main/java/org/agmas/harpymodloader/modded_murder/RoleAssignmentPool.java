@@ -2,6 +2,8 @@ package org.agmas.harpymodloader.modded_murder;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.roster.RoleRosterManager;
+import io.wifi.starrailexpress.roster.RoleRosterState;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.WeightedUtil;
@@ -61,13 +63,24 @@ public class RoleAssignmentPool {
      */
     private static RoleAssignmentPool createInternal(String poolName, Predicate<SRERole> filter,
             boolean allowUnlimitedRepeats) {
+        // 职业轮换名单启用时，由名单接管职业的启用/禁用与数量（取代 disabled 列表 / ROLE_MAX）
+        boolean rosterActive = RoleRosterManager.isEnabled();
+        RoleRosterState roster = rosterActive ? RoleRosterManager.getState() : null;
+
         // 获取所有符合条件的角色
         ArrayList<SRERole> availableRoles = new ArrayList<>(TMMRoles.ROLES.values());
-        availableRoles.removeIf(
-                role -> HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(role.identifier().toString())
-                        || role.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())
-                        || role.identifier().equals(TMMRoles.LOOSE_END.identifier()) ||
-                        !filter.test(role));
+        availableRoles.removeIf(role -> {
+            if (role.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())
+                    || role.identifier().equals(TMMRoles.LOOSE_END.identifier())
+                    || !filter.test(role)) {
+                return true;
+            }
+            if (rosterActive) {
+                // 名单接管：仅保留名单内（数量 > 0）的职业，忽略 harpy 的 disabled 列表
+                return roster.countFor(role.identifier().toString()) <= 0;
+            }
+            return HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(role.identifier().toString());
+        });
 
         // 构建权重映射
         HashMap<SRERole, Float> roleWeights = new HashMap<>();
@@ -87,6 +100,9 @@ public class RoleAssignmentPool {
             if (allowUnlimitedRepeats) {
                 // 无限模式：使用大数字表示无限
                 countMap.put(role.identifier(), Integer.MAX_VALUE);
+            } else if (rosterActive) {
+                // 名单接管：使用名单中配置的数量
+                countMap.put(role.identifier(), Math.max(1, roster.countFor(role.identifier().toString())));
             } else {
                 // 正常模式：使用ROLE_MAX配置或默认值1
                 countMap.put(role.identifier(), Harpymodloader.ROLE_MAX.getOrDefault(role.identifier(), 1));

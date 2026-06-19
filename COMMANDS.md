@@ -192,6 +192,16 @@ AFK管理
   - `player`: 指定玩家 (可选)
 - **示例**: `/tmm:giveRoomKey Steve`
 
+### `sre:camera clear|intro|path <targets> ...`
+高级相机轨道（电影化运镜）
+- **权限**: 2
+- **子命令**:
+  - `clear <targets>` — 清除目标玩家的相机轨道并恢复视角
+  - `intro <targets> [durationTicks] [distance] [height]` — 播放"由远及近到玩家位置"的开场镜头（默认 80 tick / 12 格 / 6 格高）
+  - `path <targets> <json>` — 按 JSON 播放自定义轨道（多段关键帧、位置插值、注视目标、FOV、黑边）
+- **示例**: `/sre:camera intro @s 100 16 8`
+- **说明**: 游戏开始时自动给本局玩家播放默认开场镜头；详见 `docs/advanced-camera.md`
+
 ## 注释
 - 权限等级2通常对应OP权限
 - 服务器后台命令只能在服务器控制台执行，不能由玩家执行

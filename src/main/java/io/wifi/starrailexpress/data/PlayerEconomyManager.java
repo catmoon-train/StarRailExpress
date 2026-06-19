@@ -159,6 +159,13 @@ public final class PlayerEconomyManager {
         if (!isDatabaseEnabled()) {
             return;
         }
+        reloadFromDatabase(player, entry);
+    }
+
+    private static void reloadFromDatabase(ServerPlayer player, Entry entry) {
+        if (!isDatabaseEnabled() || entry.loadInFlight) {
+            return;
+        }
         entry.loadInFlight = true;
         MysqlPlayerDataStore.loadBatchAsync(player.getUUID(), List.of(PART))
                 .whenComplete((records, throwable) -> {
@@ -168,6 +175,9 @@ public final class PlayerEconomyManager {
                         return;
                     }
                     server.execute(() -> {
+                        if (ENTRIES.get(player.getUUID()) != entry) {
+                            return;
+                        }
                         if (throwable != null) {
                             SRE.LOGGER.warn("Failed to load economy part for {}", player.getUUID(), throwable);
                             return;
@@ -200,11 +210,11 @@ public final class PlayerEconomyManager {
                     || now - entry.lastFlushAt < FLUSH_INTERVAL_MS) {
                 continue;
             }
-            flushAsync(player.getUUID(), entry);
+            flushAsync(player, entry);
         }
     }
 
-    private static void flushAsync(UUID playerUuid, Entry entry) {
+    private static void flushAsync(ServerPlayer player, Entry entry) {
         if (!isDatabaseEnabled() || entry.loadInFlight) {
             return;
         }
@@ -212,13 +222,15 @@ public final class PlayerEconomyManager {
         entry.dirty = false;
         entry.lastFlushAt = System.currentTimeMillis();
         long updatedAt = Math.max(1L, entry.updatedAt);
-        MysqlPlayerDataStore.saveBatchAsync(playerUuid, Map.of(PART, toJson(entry.state, updatedAt)), updatedAt)
+        MysqlPlayerDataStore.saveBatchAsync(player.getUUID(), Map.of(PART, toJson(entry.state, updatedAt)), updatedAt)
                 .whenComplete((success, throwable) -> {
                     entry.saveInFlight = false;
                     if (throwable != null || !Boolean.TRUE.equals(success)) {
                         entry.dirty = true;
                         if (throwable != null) {
-                            SRE.LOGGER.warn("Failed to save economy part for {}", playerUuid, throwable);
+                            SRE.LOGGER.warn("Failed to save economy part for {}", player.getUUID(), throwable);
+                        } else {
+                            reloadFromDatabase(player, entry);
                         }
                     }
                 });

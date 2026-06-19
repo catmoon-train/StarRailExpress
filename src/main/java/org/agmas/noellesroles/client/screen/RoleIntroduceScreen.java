@@ -126,6 +126,11 @@ public class RoleIntroduceScreen extends Screen {
         CATEGORIES.add(new RoleCategory(
                 "screen.roleintroduce.category.item", 0x55FF22BB,
                 item -> item instanceof Item));
+
+        CATEGORIES.add(new RoleCategory(
+                "screen.roleintroduce.category.sponsor", 0xFFFF66AA,
+                item -> item instanceof Item it
+                        && io.wifi.starrailexpress.client.data.ClientSponsorCache.isSponsorPlush(it)));
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -396,6 +401,17 @@ public class RoleIntroduceScreen extends Screen {
                 continue;
             // 模式过滤
             if (!matchesItemMode(item))
+                continue;
+            String name = item.getDescription().getString();
+            if (searchContent == null
+                    || name.toLowerCase().contains(searchContent.toLowerCase())
+                    || BuiltInRegistries.ITEM.getKey(item).toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, name))
+                filteredItems.add(item);
+        }
+        // 赞助者 plush：不受游戏模式过滤影响，所有模式都展示
+        for (Item item : io.wifi.starrailexpress.client.data.ClientSponsorCache.getPlushItems()) {
+            if (!cat.filter.test(item))
                 continue;
             String name = item.getDescription().getString();
             if (searchContent == null

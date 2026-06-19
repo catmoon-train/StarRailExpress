@@ -75,7 +75,7 @@ public class TimedGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
         // 只有撞向方块时才反弹（不是从方块内部弹出）
         if (dot < 0) {
             Vec3 reflected = vel.subtract(normal.scale(2.0 * dot));
-            double bounceFactor = 0.45; // 反弹系数
+            double bounceFactor = 0.6; // 反弹系数
             this.setDeltaMovement(reflected.scale(bounceFactor));
             this.hasImpulse = true;
         } else {

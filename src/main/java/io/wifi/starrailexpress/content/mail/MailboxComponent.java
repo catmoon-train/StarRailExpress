@@ -319,9 +319,7 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
         if (tickCounter >= SYNC_INTERVAL && dirty) {
             tickCounter = 0;
             sync();
-            if (saveToDatabase()) {
-                dirty = false;
-            }
+            saveToDatabase();
         }
     }
 
@@ -391,11 +389,21 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
         if (!MysqlPlayerDataStore.isAvailable() || this.databaseLoadPending) return false;
         String json = serializeToJson();
         long now = System.currentTimeMillis();
+        dirty = false;
         MysqlPlayerDataStore.saveBatchAsync(player.getUUID(), Map.of(DB_KEY, json), now)
-                .exceptionally(ex -> {
-                    LOGGER.warn("Failed to save mailbox to DB for player {}",
-                            player.getName().getString(), ex);
-                    return false;
+                .whenComplete((success, throwable) -> {
+                    if (throwable != null) {
+                        dirty = true;
+                        LOGGER.warn("Failed to save mailbox to DB for player {}",
+                                player.getName().getString(), throwable);
+                        return;
+                    }
+                    if (!Boolean.TRUE.equals(success)) {
+                        dirty = true;
+                        LOGGER.warn("Mailbox DB save for player {} was rejected by remote revision; reloading first.",
+                                player.getName().getString());
+                        loadFromDatabase();
+                    }
                 });
         return true;
     }
@@ -410,6 +418,9 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
         if (success) {
             dirty = false;
             tickCounter = 0;
+        } else {
+            dirty = true;
+            loadFromDatabase();
         }
         return success;
     }

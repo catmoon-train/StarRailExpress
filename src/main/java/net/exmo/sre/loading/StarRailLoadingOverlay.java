@@ -1,6 +1,5 @@
 package net.exmo.sre.loading;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.SRE;
 import net.exmo.sre.loading.texture.ConfigTexture;
@@ -10,85 +9,63 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Overlay;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.VanillaPackResources;
-import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraft.server.packs.resources.ReloadInstance;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.FastColor;
-import net.minecraft.util.Mth;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Consumer;
 
 /**
- * 星穹铁道风格的加载覆盖层
- * 包含列车动画、细进度条（光点流动）、动态提示和百分比显示
+ * 星穹铁道风格的资源加载覆盖层（替换原版 Mojang Logo / 资源重载界面）。
+ * <p>
+ * 背景播放列车视频（帧序列），叠加暗角、星轨进度条、标题与轮换提示。
+ * 整条时间线为：黑屏淡入 → 加载 → 进度满后停留 → 淡出回黑，
+ * 各阶段全部使用 smoothstep 缓动，衔接平顺且与“进入世界”界面观感一致。
  */
+@Environment(EnvType.CLIENT)
 public class StarRailLoadingOverlay extends Overlay {
+
+    // ── 时间线（毫秒） ────────────────────────────────────────
+    private static final long ENTER_MS = 650;          // 黑屏淡入
+    private static final long COMPLETE_HOLD_MS = 950;   // 进度满后停留（让区块/资源收尾）
+    private static final long EXIT_MS = 700;            // 淡出回黑
+    private static final long TIP_INTERVAL_MS = 4200;   // 提示轮换间隔
+    private static final long TIP_FADE_MS = 320;        // 提示交叉淡入淡出
+
+    private static final float VIDEO_FPS = 20.0F;
+
+    /** 列车视频背景；静态共享，跨重载复用已注册的帧。 */
+    private static final FrameAnimationRenderer ANIM = new FrameAnimationRenderer(VIDEO_FPS);
+
+    /** 无视频帧时回退使用的静态背景图。 */
+    private static final ResourceLocation BG_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "background.png");
+
+    private static final String TITLE = "STAR RAIL EXPRESS";
+
+    // 资源加载阶段语言文件未必就绪，提示固定用拉丁文以保证可渲染。
+    private static final List<String> TIPS = List.of(
+            "Calibrating star rail navigation",
+            "Warming up the warp drive",
+            "Synchronizing galactic coordinates",
+            "All carriages standing by",
+            "Plotting course across the Star Ocean"
+    );
+
     private final Minecraft minecraft;
     private final ReloadInstance reload;
     private final Consumer<Optional<Throwable>> onFinish;
     private final boolean fadeIn;
 
-    private float currentProgress;
-    private long fadeOutStart = -1L;
-    private long fadeInStart = -1L;
-    private float animationTime; // 用于列车晃动和光点流动
+    private long startMillis = -1L;
+    private long completeMillis = -1L;   // reload 完成并已通知 onFinish 的时刻
+    private boolean finished;
+    private float displayProgress;
 
-    // 纹理资源（请将对应图片放入 assets/yourmod/textures/gui/ 下）
-    // private static final ResourceLocation TRAIN_TEXTURE = ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "textures/gui/starrail_train.png");
-    private static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "background.png");
-    // private static final ResourceLocation PROGRESS_BAR_BG = ResourceLocation.fromNamespaceAndPath("yourmod", "textures/gui/progress_bar_bg.png");
-    // private static final ResourceLocation PROGRESS_BAR_FILL = ResourceLocation.fromNamespaceAndPath("yourmod", "textures/gui/progress_bar_fill.png");
-    // private static final ResourceLocation SPOT_TEXTURE = ResourceLocation.fromNamespaceAndPath("yourmod", "textures/gui/spot.png"); // 光点纹理（可选）
-
-    public static void registerTextures(Minecraft minecraft) {
-        minecraft.getTextureManager().register(BG_TEXTURE, new ConfigTexture(BG_TEXTURE));
-        // minecraft.getTextureManager().register(TRAIN_TEXTURE, new SimpleTexture(TRAIN_TEXTURE));
-    }
-    @Environment(EnvType.CLIENT)
-    static class LogoTexture extends SimpleTexture {
-        public LogoTexture(ResourceLocation resourceLocation) {
-            super(resourceLocation);
-        }
-
-        protected SimpleTexture.TextureImage getTextureImage(ResourceManager resourceManager) {
-            VanillaPackResources vanillaPackResources = Minecraft.getInstance().getVanillaPackResources();
-            IoSupplier<InputStream> ioSupplier = vanillaPackResources.getResource(PackType.CLIENT_RESOURCES,location);
-            if (ioSupplier == null) {
-                return new SimpleTexture.TextureImage(new FileNotFoundException(location.toString()));
-            } else {
-                try (InputStream inputStream = (InputStream)ioSupplier.get()) {
-                    return new SimpleTexture.TextureImage(new TextureMetadataSection(true, true), NativeImage.read(inputStream));
-                } catch (IOException iOException) {
-                    return new SimpleTexture.TextureImage(iOException);
-                }
-            }
-        }
-    }
-    // 随机提示列表
-    private static final List<String> TIPS = List.of(
-            "列车正在穿越星穹……",
-            "开拓者，请稍候。",
-            "前方站台：未知世界",
-            "燃料填充中……",
-            "星穹铁道感谢您的等待",
-            "正在同步银河坐标",
-            "列车组全员准备就绪"
-    );
-    private String currentTip;
-    private long tipChangeTime;
-    private static final long TIP_INTERVAL = 5000; // 5秒切换
+    private int tipIndex;
+    private int prevTipIndex;
+    private long tipChangedAt;
 
     public StarRailLoadingOverlay(Minecraft mc, ReloadInstance reloader,
                                   Consumer<Optional<Throwable>> errorConsumer, boolean fadeIn) {
@@ -96,60 +73,73 @@ public class StarRailLoadingOverlay extends Overlay {
         this.reload = reloader;
         this.onFinish = errorConsumer;
         this.fadeIn = fadeIn;
-        this.currentTip = TIPS.get(0);
-        this.tipChangeTime = Util.getMillis();
+        this.tipChangedAt = Util.getMillis();
+
+        FrameAnimationRenderer.setInWorld(false);
+        if (!ANIM.hasFrames()) {
+            ANIM.loadFrames();
+        }
+        ANIM.reset();
+    }
+
+    public static void registerTextures(Minecraft minecraft) {
+        minecraft.getTextureManager().register(BG_TEXTURE, new ConfigTexture(BG_TEXTURE));
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        int screenWidth = guiGraphics.guiWidth();
-        int screenHeight = guiGraphics.guiHeight();
-        long currentTime = Util.getMillis();
+    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        int w = g.guiWidth();
+        int h = g.guiHeight();
+        long now = Util.getMillis();
+        if (startMillis < 0L) startMillis = now;
 
-        // 处理淡入淡出时间
-        if (fadeIn && fadeInStart == -1L) {
-            fadeInStart = currentTime;
+        // ── 阶段透明度 ───────────────────────────────────────
+        float enterAlpha = fadeIn ? LoadingFx.smoothstep((now - startMillis) / (float) ENTER_MS) : 1.0F;
+        float exitAlpha = 1.0F;
+        if (completeMillis >= 0L) {
+            long exitElapsed = now - (completeMillis + COMPLETE_HOLD_MS);
+            if (exitElapsed >= 0L) {
+                exitAlpha = 1.0F - LoadingFx.smoothstep(exitElapsed / (float) EXIT_MS);
+                if (exitElapsed >= EXIT_MS) {
+                    this.minecraft.setOverlay(null);
+                    return;
+                }
+            }
         }
+        float alpha = enterAlpha * exitAlpha;
 
-        float fadeOut = fadeOutStart > -1L ? (float) (currentTime - fadeOutStart) / 1000.0F : -1.0F;
-        float fadeInProgress = fadeInStart > -1L ? (float) (currentTime - fadeInStart) / 500.0F : -1.0F;
-
-        // 计算当前透明度
-        float alpha = 1.0F;
-        if (fadeOut >= 0.0F) {
-            alpha = 1.0F - Mth.clamp(fadeOut - 1.0F, 0.0F, 1.0F); // 淡出
-        } else if (fadeIn) {
-            alpha = Mth.clamp(fadeInProgress, 0.0F, 1.0F); // 淡入
+        // ── 背景：黑底 + 列车视频（无帧则回退静图） ──────────
+        g.fill(0, 0, w, h, 0xFF000000);
+        if (ANIM.hasFrames()) {
+            ANIM.render(g, w, h, partialTick, alpha);
+        } else {
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            g.setColor(1.0F, 1.0F, 1.0F, alpha);
+            g.blit(BG_TEXTURE, 0, 0, 0, 0, w, h, w, h);
+            g.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.disableBlend();
         }
+        LoadingFx.drawVignette(g, w, h, alpha);
 
-        // 如果完全淡出则移除覆盖层
-        if (fadeOut >= 2.0F) {
-            this.minecraft.setOverlay(null);
-            return;
-        }
+        // ── 进度（平滑逼近真实进度；完成阶段强制走满） ──────
+        float target = completeMillis >= 0L ? 1.0F
+                : LoadingFx.clamp01(reload.getActualProgress());
+        displayProgress += (target - displayProgress) * 0.10F;
+        if (target - displayProgress < 0.002F) displayProgress = target;
 
-        // 绘制深色半透明背景
-        drawBackground(guiGraphics, screenWidth, screenHeight, alpha);
+        // ── 文字与进度区 ─────────────────────────────────────
+//        LoadingFx.drawCenteredScaled(g, minecraft.font, TITLE,
+//                w / 2, (int) (h * 0.30F), 2.0F, LoadingFx.withAlpha(0xEAF4FF, alpha));
 
-        // 更新动画时间（用于列车晃动和光点流动）
-        animationTime += partialTick * 0.05F;
+        boolean ready = completeMillis >= 0L && displayProgress > 0.999F;
+        drawProgress(g, w, h, alpha, ready);
+        drawTip(g, w, h, alpha, now, ready);
 
-        // 绘制列车（水平晃动）
-        drawTrain(guiGraphics, screenWidth, screenHeight, alpha, animationTime);
-
-        // 更新进度（平滑过渡）
-        float actualProgress = reload.getActualProgress();
-        currentProgress = Mth.clamp(currentProgress * 0.95F + actualProgress * 0.05F, 0.0F, 1.0F);
-
-        // 绘制进度条、光点动画和百分比文本
-        drawProgressBar(guiGraphics, screenWidth, screenHeight, currentProgress, alpha, animationTime);
-
-        // 绘制提示文本
-        drawTip(guiGraphics, screenWidth, screenHeight, alpha, currentTime);
-
-        // 检查加载是否完成，开始淡出
-        if (fadeOutStart == -1L && reload.isDone()) {
-            fadeOutStart = Util.getMillis();
+        // ── 检测加载完成：通知 onFinish 并切换底层屏幕（仅一次） ──
+        if (!finished && reload.isDone()) {
+            finished = true;
+            completeMillis = now;
             try {
                 reload.checkExceptions();
                 onFinish.accept(Optional.empty());
@@ -157,120 +147,68 @@ public class StarRailLoadingOverlay extends Overlay {
                 onFinish.accept(Optional.of(t));
             }
             if (minecraft.screen != null) {
-                minecraft.screen.init(minecraft, screenWidth, screenHeight);
+                minecraft.screen.init(minecraft, w, h);
             }
         }
     }
 
-    /**
-     * 绘制深色背景（带透明度）
-     */
-    private void drawBackground(GuiGraphics graphics, int width, int height, float alpha) {
+    /** 星轨进度条 + 居中百分比。 */
+    private void drawProgress(GuiGraphics g, int w, int h, float alpha, boolean ready) {
+        int half = Math.min(w / 3, 320);
+        int cx = w / 2;
+        int railY = h - 74;
 
-        RenderSystem.enableBlend();
-        RenderSystem.blendEquation(32774);
-        RenderSystem.defaultBlendFunc();
-        // RenderSystem.setShaderTexture(0, TRAIN_TEXTURE);
-        graphics.blit(BG_TEXTURE, 0, 0, 0, 0, width, height, width, height);
+        LoadingFx.drawRail(g, cx - half, cx + half, railY, displayProgress, alpha);
 
-
-//        int color = FastColor.ARGB32.color((int) (alpha * 255), 10, 10, 20); // 深蓝黑
-//        graphics.fill(0, 0, width, height, color);
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableBlend();
+        String percent = (int) (displayProgress * 100) + "%";
+        int pColor = LoadingFx.withAlpha(ready ? 0xCFF3FF : 0xEAF4FF, alpha);
+        g.drawString(minecraft.font, percent,
+                cx - minecraft.font.width(percent) / 2, railY - 16, pColor, true);
     }
 
-    /**
-     * 绘制列车（使用简单纹理 + 水平晃动）
-     */
-    private void drawTrain(GuiGraphics graphics, int width, int height, float alpha, float time) {
-        // 假设纹理原始尺寸，可根据需要调整
-        int textureWidth = 400;
-        int textureHeight = 200;
-        int targetWidth = textureWidth / 2;   // 缩小至一半
-        int targetHeight = textureHeight / 2;
+    /** 轮换提示（交叉淡入淡出）；完成阶段显示“准备出发”。 */
+    private void drawTip(GuiGraphics g, int w, int h, float alpha, long now, boolean ready) {
+        int cx = w / 2;
+        int y = h - 48;
 
-        int centerX = width / 2;
-        int centerY = height / 2 - 40; // 垂直居中偏上
-
-        // 水平晃动幅度 ±8 像素
-        float offsetX = (float) Math.sin(time * 2.5) * 8;
-
-        int x = centerX - targetWidth / 2 + (int) offsetX;
-        int y = centerY - targetHeight / 2;
-
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-//        RenderSystem.setShaderTexture(0, TRAIN_TEXTURE);
-//        graphics.blit(TRAIN_TEXTURE, x, y, targetWidth, targetHeight,
-//                0.0F, 0.0F, textureWidth, textureHeight, textureWidth, textureHeight);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-    }
-
-    /**
-     * 绘制进度条（细长、带流动光点、百分比）
-     */
-    private void drawProgressBar(GuiGraphics graphics, int width, int height,
-                                 float progress, float alpha, float time) {
-        int barWidth = (int) (width * 0.7); // 占屏幕宽度的70%
-        int barHeight = 6;               // 细条高度
-        int barX = (width - barWidth) / 2;
-        int barY = height - 80;          // 距离底部80像素
-
-        // 背景条（半透明深色）
-        int bgColor = FastColor.ARGB32.color((int) (alpha * 150), 30, 30, 40);
-        graphics.fill(barX, barY, barX + barWidth, barY + barHeight, bgColor);
-
-        // 进度填充（亮蓝色）
-        int fillWidth = (int) (barWidth * progress);
-        int fillColor = FastColor.ARGB32.color((int) (alpha * 255), 100, 200, 255);
-        graphics.fill(barX, barY, barX + fillWidth, barY + barHeight, fillColor);
-
-        // 流动光点效果（在填充区域内移动的白色光条）
-        if (fillWidth > 0) {
-            RenderSystem.enableBlend();
-            // 光点位置：随时间在填充范围内往复移动
-            float t = (float) Math.sin(time * 5) * 0.5F + 0.5F; // 0~1 振荡
-            float spotCenterX = barX + t * fillWidth;
-            int spotWidth = 30;
-            int spotColor = FastColor.ARGB32.color((int) (alpha * 220), 255, 255, 255);
-            graphics.fill((int) (spotCenterX - spotWidth / 2), barY,
-                    (int) (spotCenterX + spotWidth / 2), barY + barHeight, spotColor);
-            RenderSystem.disableBlend();
+        if (ready) {
+            String depart = "Ready to depart";
+            int c = LoadingFx.withAlpha(0xBFE4FF, alpha);
+            g.drawString(minecraft.font, depart,
+                    cx - minecraft.font.width(depart) / 2, y, c, true);
+            return;
         }
 
-        // 绘制百分比文本
-        String percentText = (int) (progress * 100) + "%";
-        int textColor = FastColor.ARGB32.color((int) (alpha * 255), 255, 255, 255);
-        graphics.drawString(minecraft.font, percentText,
-                barX + barWidth + 15, barY - 2, textColor);
-    }
-
-    /**
-     * 绘制提示文本（定时随机切换）
-     */
-    private void drawTip(GuiGraphics graphics, int width, int height, float alpha, long currentTime) {
-        // 定时更换提示
-        if (currentTime - tipChangeTime > TIP_INTERVAL) {
-            tipChangeTime = currentTime;
-            Random rand = new Random();
-            currentTip = TIPS.get(rand.nextInt(TIPS.size()));
+        if (now - tipChangedAt > TIP_INTERVAL_MS) {
+            prevTipIndex = tipIndex;
+            tipIndex = (tipIndex + 1) % TIPS.size();
+            tipChangedAt = now;
         }
 
-        int textColor = FastColor.ARGB32.color((int) (alpha * 200), 200, 200, 200); // 浅灰色
-        int x = width / 2 - minecraft.font.width(currentTip) / 2;
-        int y = height - 40; // 进度条下方
-        graphics.drawString(minecraft.font, currentTip, x, y, textColor);
+        float fade = LoadingFx.smoothstep((now - tipChangedAt) / (float) TIP_FADE_MS);
+        // 旧提示上浮淡出
+        if (fade < 1.0F && prevTipIndex != tipIndex) {
+            drawTipLine(g, TIPS.get(prevTipIndex), cx, y - (int) (fade * 6.0F),
+                    alpha * (1.0F - fade) * 0.85F);
+        }
+        // 新提示下沉淡入
+        drawTipLine(g, TIPS.get(tipIndex), cx, y + (int) ((1.0F - fade) * 6.0F),
+                alpha * fade * 0.85F);
+    }
+
+    private void drawTipLine(GuiGraphics g, String text, int cx, int y, float a) {
+        if (a <= 0.01F) return;
+        g.drawString(minecraft.font, text,
+                cx - minecraft.font.width(text) / 2, y,
+                LoadingFx.withAlpha(0xB8C6DA, a), true);
     }
 
     @Override
     public boolean isPauseScreen() {
-        return true; // 允许暂停游戏
+        return true;
     }
 
-    /**
-     * 工厂方法，用于创建实例（可被Mod加载器调用）
-     */
+    /** 工厂方法，供 Mod 加载器 / Mixin 调用。 */
     public static StarRailLoadingOverlay newInstance(Minecraft mc, ReloadInstance ri,
                                                      Consumer<Optional<Throwable>> handler, boolean fadeIn) {
         return new StarRailLoadingOverlay(mc, ri, handler, fadeIn);

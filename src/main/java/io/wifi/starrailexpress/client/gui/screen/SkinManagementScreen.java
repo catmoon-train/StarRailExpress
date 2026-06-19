@@ -57,6 +57,8 @@ public class SkinManagementScreen extends Screen {
     private Button prevNameTagButton;
     private Button nextNameTagButton;
 
+    public Screen parentScreen = null;
+
     // 分类标签按钮列表
     private final List<CategoryButton> categoryButtons = new ArrayList<>();
     private List<CategoryTabData> categories = new ArrayList<>();
@@ -91,6 +93,14 @@ public class SkinManagementScreen extends Screen {
         this.skinsComponent = SREPlayerSkinsComponent.KEY.get(this.player);
         // 加载当前装备的帽子
         this.selectedHat = skinsComponent.getEquippedSkins().getOrDefault("hat", "default");
+    }
+    public SkinManagementScreen(Screen parentScreen) {
+        super(Component.translatable("screen.sre.skins.title"));
+        this.player = Minecraft.getInstance().player;
+        this.skinsComponent = SREPlayerSkinsComponent.KEY.get(this.player);
+        // 加载当前装备的帽子
+        this.selectedHat = skinsComponent.getEquippedSkins().getOrDefault("hat", "default");
+        this.parentScreen = parentScreen;
     }
 
     @Override
@@ -362,6 +372,11 @@ public class SkinManagementScreen extends Screen {
                 .accentBar()
                 .build();
         addRenderableWidget(backButton);
+    }
+
+    @Override
+    public void onClose() {
+        this.minecraft.setScreen((Screen)parentScreen);
     }
 
     private static String getItemShortName(Item item) {

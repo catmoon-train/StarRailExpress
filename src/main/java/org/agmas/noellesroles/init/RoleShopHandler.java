@@ -1846,6 +1846,11 @@ public class RoleShopHandler {
         TMMItems.GRENADE.getDefaultInstance(),
         275,
         ShopEntry.Type.WEAPON));
+    // 炸弹客商店
+    BOMBER_SHOP.add(new ShopEntry(
+        TMMItems.GRENADE.getDefaultInstance(),
+        275,
+        ShopEntry.Type.WEAPON));
     BOMBER_SHOP.add(new ShopEntry(
         TMMItems.FIRECRACKER.getDefaultInstance(),
         25,

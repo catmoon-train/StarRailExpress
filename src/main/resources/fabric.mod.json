@@ -48,7 +48,6 @@
     "voicechat": [
       "org.agmas.noellesroles.voice.NoellesrolesVoiceChatPlugin",
       "org.agmas.noellesroles.voice.HeliumBuzzVoicechatPlugin",
-      "org.agmas.noellesroles.voice.EmbalmerPitchPlugin",
       "org.agmas.noellesroles.voice.VoiceEffectsOpenALPlugin",
       "pro.fazeclan.river.stupid_express.StupidExpressVoiceChatPlugin",
       "io.wifi.starrailexpress.compat.TrainVoicePlugin"
@@ -184,6 +183,7 @@
       "starrailexpress:body_entity",
       "starrailexpress:mood",
       "starrailexpress:task",
+      "starrailexpress:murder_time_events",
       "starrailexpress:shop",
       "starrailexpress:network_stats",
       "starrailexpress:dynamic_shop",

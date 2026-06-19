@@ -9,6 +9,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.content.item.GrenadeItem;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -114,13 +115,13 @@ public class TimedGrenadeItem extends SkinableItem {
         COOKING_PLAYERS.remove(uuid);
 
         if (!world.isClientSide) {
-            if (user instanceof Player player && player.getCooldowns().isOnCooldown(stack.getItem()))
+            if (user instanceof Player player && GrenadeItem.isAnyGrenadeOnCooldown(player))
                 return;
             if (user instanceof Player player) {
                 if (!player.isCreative()
                         && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
                                 SpecialGameModeRoles.SUPER_LOOSE_END)) {
-                    player.getCooldowns().addCooldown(stack.getItem(), SREConfig.instance().grenadeCooldown);
+                    GrenadeItem.addGrenadeCooldown(player);
                 }
             }
 

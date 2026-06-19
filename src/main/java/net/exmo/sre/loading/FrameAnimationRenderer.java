@@ -95,7 +95,8 @@ public class FrameAnimationRenderer {
     }
 
     public boolean hasFrames() {
-        return loaded && !frames.isEmpty();
+        return false;
+        //return loaded && !frames.isEmpty();
     }
 
     public int getFrameCount() {

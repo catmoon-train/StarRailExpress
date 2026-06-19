@@ -5,7 +5,9 @@ import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.OpenALSoundEvent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.client.ClientEmbalmerState;
 import org.agmas.noellesroles.init.ModEffects;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
@@ -66,24 +68,29 @@ public class VoiceEffectsOpenALPlugin implements VoicechatPlugin {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
 
+        // This plugin is the single authority for the OpenAL source pitch so the
+        // Heavy Metal effect and the Embalmer masquerade pitch never overwrite each
+        // other (both used to set AL_PITCH independently and fought over fire order).
+        //
+        // Embalmer pitch is keyed by the speaker UUID and lives in client state even
+        // for players the client cannot resolve as an entity, so it is read first.
+        float embalmerPitch = ClientEmbalmerState.pitch(speakerId); // 1.0 when inactive
+        float heavyMetalRatio = 1.0F;
+        int echoCount = 0;
+
         Player player = mc.level.getPlayerByUUID(speakerId);
-        if (player == null) return;
-
-        boolean hasHeavyMetal = player.hasEffect(ModEffects.HEAVY_METAL_VOICE);
-        int echoCount = ModEffects.getVoiceEchoCount(player);
-
-        // ---- Heavy Metal Voice: OpenAL pitch ----
-        if (hasHeavyMetal) {
-            float ratio = ModEffects.getHeavyMetalPitchRatio(player);
-            try {
-                AL10.alSourcef(source, AL10.AL_PITCH, ratio);
-            } catch (Throwable ignored) {}
-        } else {
-            // Reset pitch to normal when effect is gone
-            try {
-                AL10.alSourcef(source, AL10.AL_PITCH, 1.0F);
-            } catch (Throwable ignored) {}
+        if (player != null) {
+            if (player.hasEffect(ModEffects.HEAVY_METAL_VOICE)) {
+                heavyMetalRatio = ModEffects.getHeavyMetalPitchRatio(player);
+            }
+            echoCount = ModEffects.getVoiceEchoCount(player);
         }
+
+        // ---- Combined pitch (always written so it resets to 1.0 when nothing applies) ----
+        float pitch = Mth.clamp(embalmerPitch * heavyMetalRatio, 0.4F, 2.0F);
+        try {
+            AL10.alSourcef(source, AL10.AL_PITCH, pitch);
+        } catch (Throwable ignored) {}
 
         // ---- Voice Echo: OpenAL EFX ECHO ----
         applyEchoEFX(source, speakerId, echoCount);

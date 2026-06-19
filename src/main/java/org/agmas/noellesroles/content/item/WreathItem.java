@@ -14,6 +14,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 
 public class WreathItem extends ArmorItem {
+    private int tick = 0;
 
     @Override
     public Holder<SoundEvent> getEquipSound() {
@@ -29,6 +30,12 @@ public class WreathItem extends ArmorItem {
         if (entity instanceof Player pl) {
             ItemStack headItem = pl.getSlot(103).get();
             if (headItem.equals(itemStack) && itemStack.is(ModItems.WREATH)) {
+                // 耐久耗尽后不再提供效果
+                if (itemStack.getDamageValue() >= itemStack.getMaxDamage()) {
+                    pl.removeEffect(ModEffects.MOOD_REGENERATION);
+                    return;
+                }
+                // 持续给予 san值恢复
                 pl.addEffect(new MobEffectInstance(
                         ModEffects.MOOD_REGENERATION,
                         50,
@@ -37,6 +44,14 @@ public class WreathItem extends ArmorItem {
                         false,
                         true
                 ));
+                // 每秒（20 tick）消耗 1 点耐久
+                this.tick++;
+                if (this.tick >= 20) {
+                    this.tick = 0;
+                    if (!pl.isCreative() && !pl.isSpectator()) {
+                        itemStack.setDamageValue(itemStack.getDamageValue() + 1);
+                    }
+                }
             }
         }
     }

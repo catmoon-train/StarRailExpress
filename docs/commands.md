@@ -15,6 +15,7 @@
 - [七、皮肤同步](#七皮肤同步)
 - [八、sre:area_manager 区域管理器](#八srearea_manager-区域管理器)
 - [九、sre:replay_screen 回放屏幕](#九srereplay_screen-回放屏幕)
+- [十、sre:camera 高级相机](#十srecamera-高级相机)
 
 ---
 
@@ -517,6 +518,38 @@
   - `time set <minutes> (int 0~240) <seconds>` (int 0~59) — 设置倒计时
 - **用途**: 管理游戏倒计时
 
+### `tmm:game murder_time` — Murder 时间事件系统 (MurderTimeCommand)
+- **权限**: `2`
+- **结构**:
+  - `murder_time` / `murder_time status` — 查看系统状态和事件列表
+  - `murder_time enabled <value>` (bool) — 启用/禁用事件调度
+  - `murder_time hud <value>` (bool) — 启用/禁用客户端 HUD
+  - `murder_time defaults` — 恢复默认 Murder 时间事件
+  - `murder_time reset_triggered` — 重置事件触发状态，便于测试
+  - `murder_time events list` — 列出事件
+  - `murder_time events clear` — 清空事件
+  - `murder_time events remove <id>` — 删除事件
+  - `murder_time events trigger <id>` — 立即触发事件
+  - `murder_time events add <id> <elapsed_seconds> <action> <amount> <duration_seconds>` — 添加事件；最后一个参数对 `drop_gold` 表示堆数，对其他事件表示秒数
+- **action**:
+  - `blackout` — 触发全图关灯，`duration_seconds` 为关灯秒数
+  - `damage_door_locks` — 随机损坏/卡住门锁，`amount` 为目标门数量
+  - `drop_gold` — 在存活玩家附近生成地上黄金，`amount` 为每堆金币数，最后一个参数为堆数
+  - `announce` — 仅作为无效果标记事件保留，不向全员广播
+- **默认事件池**:
+  - `opening_blackout`：开局 75~240 秒候选，45% 概率，全车关灯 35 秒
+  - `damaged_locks`：开局 180~420 秒候选，35% 概率，随机损坏 8 个门锁
+  - `scattered_gold`：开局 240~540 秒候选，45% 概率，生成 8 堆地上黄金，每堆 15 金币
+  - `second_blackout`：开局 420~720 秒候选，30% 概率，全车关灯 45 秒
+  - `late_gold`：开局 540~900 秒候选，35% 概率，生成 10 堆后期黄金，每堆 20 金币
+  - 每个候选事件独立随机加入本局，因此一整局可能没有任何默认事件。
+- **HUD/可见性**:
+  - 事件 HUD 复用 `StatusBarHUD`，只在事件提前提示窗口或触发后的持续显示窗口出现。
+  - 默认提前 30 秒提示；触发后至少显示 30 秒，关灯类按实际持续时间显示。
+  - 事件和时间信息只对本来可见游戏时间的玩家显示：角色允许看时间、旁观/创造玩家或客户端已缓存 `canSeeTime` 权限的玩家。
+  - 事件触发不会向全员聊天或 actionbar 广播。
+- **用途**: 为 Murder 模式提供随机时间事件、私有 status HUD、事件列表、默认事件池和测试/管理命令。
+
 ### `tmm:game visual` — 视觉效果 (SetVisualCommand)
 - **权限**: `2`
 - **结构**:
@@ -789,3 +822,15 @@
   - `set_default <id>` (word) — 设置默认回放屏幕
   - `show <id>` (word) — 显示指定回放屏幕
 - **用途**: 管理游戏回放的大屏幕显示
+
+---
+
+## 十、sre:camera 高级相机
+
+- **权限**: `2`
+- **结构**:
+  - `clear <targets>` — 清除目标玩家的相机轨道并恢复视角
+  - `intro <targets> [durationTicks] (int 1~12000, 默认 80) [distance] (double 0~256, 默认 12) [height] (double -128~256, 默认 6)` — 播放"由远及近到玩家位置"的开场镜头
+  - `path <targets> <json> (greedy string)` — 按 JSON 播放自定义轨道（服务端先校验 JSON）
+- **用途**: 电影化运镜（多段关键帧、位置插值、注视目标、FOV、黑边、结束恢复视角）。游戏开始时自动给本局玩家播放默认开场镜头。
+- **详细文档**: 见 [`docs/advanced-camera.md`](advanced-camera.md)（含 JSON schema 与示例）

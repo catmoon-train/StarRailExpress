@@ -33,6 +33,12 @@ public class GameRendererMixin {
         if (ScopeOverlayRenderer.isInScopeView()) {
             double original = cir.getReturnValue();
             cir.setReturnValue(original / 3d); // 开镜时将FOV缩小到原来的1/3，实现拉近视角效果
+            return;
+        }
+        // 高级相机轨道的 FOV 覆盖（开镜优先级更高，故放在其后）。
+        float advancedFov = net.exmo.sre.camera.client.AdvancedCameraDirector.getFovOverride(partialTick);
+        if (advancedFov > 0f) {
+            cir.setReturnValue((double) advancedFov);
         }
     }
 }

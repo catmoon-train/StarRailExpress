@@ -57,7 +57,7 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         player.getInventory().clearContent();
         player.getInventory().load(playerStats.inventory());
         StupidRoleUtils.clearAllSatisfiedItems(player, TMMItems.BAT);
-        player.setCamera(null);
+        player.setCamera(player);
 
         SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
         

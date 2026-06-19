@@ -9,8 +9,10 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.SansRenderer;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.StatusBarHUD;
+import io.wifi.starrailexpress.client.StatusEffectRenderer;
 import io.wifi.starrailexpress.client.gui.CrosshairRenderer;
 import io.wifi.starrailexpress.game.GameConstants;
+import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -55,8 +57,43 @@ public class InGameHudMixin {
         SansRenderer.instance.tick(player, trueContext, tickCounter.getGameTimeDeltaPartialTick(true));
     }
 
+    @WrapMethod(method = "renderHotbarAndDecorations")
+    private void tmm$hideHotbarDuringCinematic(GuiGraphics context, DeltaTracker tickCounter,
+            Operation<Void> original) {
+        // 高级运镜动画期间整体跳过物品栏与装饰（含血量 / 经验 / 选中物品名 / 自定义火车 HUD），
+        // 呈现与原版 F1 一致的纯净运镜画面。
+        if (AdvancedCameraDirector.shouldOverride()) {
+            return;
+        }
+        original.call(context, tickCounter);
+    }
+
+    @WrapMethod(method = "renderEffects")
+    private void tmm$renderStatusEffects(GuiGraphics context, DeltaTracker tickCounter, Operation<Void> original) {
+        // 运镜动画期间与原版 F1 一致，完全隐藏状态效果。
+        if (AdvancedCameraDirector.shouldOverride()) {
+            return;
+        }
+        // 原版 HUD 模式下保留原版药水图标显示。
+        if (SREClient.shouldRenderVanillaHud()) {
+            original.call(context, tickCounter);
+            return;
+        }
+        LocalPlayer player = this.minecraft.player;
+        if (player == null) {
+            original.call(context, tickCounter);
+            return;
+        }
+        // 自定义排版：图标 + 剩余时间，Shift 展开显示名称（换行）。
+        StatusEffectRenderer.render(this.minecraft, context, player);
+    }
+
     @WrapMethod(method = "renderCrosshair")
     private void tmm$renderHud(GuiGraphics context, DeltaTracker tickCounter, Operation<Void> original) {
+        // 运镜动画期间不绘制任何准星。
+        if (AdvancedCameraDirector.shouldOverride()) {
+            return;
+        }
         if (SREClient.shouldRenderVanillaHud()) {
             original.call(context, tickCounter);
             return;
