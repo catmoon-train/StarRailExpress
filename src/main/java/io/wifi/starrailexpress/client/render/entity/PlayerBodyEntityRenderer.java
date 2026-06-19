@@ -65,10 +65,6 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
     @Override
     public void render(PlayerBodyEntity playerBodyEntity, float f, float g, PoseStack matrixStack,
             MultiBufferSource vertexConsumerProvider, int light) {
-        // ❌ 删除这两段，已移至 shouldRender()
-        // if (client.player == null) return;
-        // if (playerBodyEntity.distanceToSqr(client.player) >= MAX_DISTANCE) return;
-
         this.setModelPose();
         matrixStack.pushPose();
         float clamp = Mth.clamp(
@@ -99,7 +95,6 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
 
         renderSkeleton(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light,
                 moodComponent.isLowerThanDepressed() ? 0f : 1f);
-        // ... 其余保持不变
     }
 
     public void renderBody(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack,
@@ -185,10 +180,8 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
 
     private void setModelPose() {
         PlayerModel<PlayerBodyEntity> playerEntityModel = this.getModel();
-        playerEntityModel.setAllVisible(false);
-        playerEntityModel.head.visible = true;
-        playerEntityModel.hat.visible = true;
         playerEntityModel.setAllVisible(true);
+        playerEntityModel.head.visible = true;
         playerEntityModel.hat.visible = true;
         playerEntityModel.jacket.visible = true;
         playerEntityModel.leftPants.visible = true;

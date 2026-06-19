@@ -1,5 +1,8 @@
 package org.agmas.noellesroles.client.screen;
 
+import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.packet.BroadcasterC2SPacket;
+
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -8,9 +11,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-
-import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.packet.BroadcasterC2SPacket;
 
 /**
  * 电报员消息编辑屏幕
@@ -26,6 +26,8 @@ public class BroadcasterScreen extends Screen {
     private EditBox messageField;
     // 确认按钮
     private Button confirmButton;
+    // 关闭按钮
+    private Button closeButton;
 
     // 剩余使用次数
     @SuppressWarnings("unused")
@@ -66,19 +68,36 @@ public class BroadcasterScreen extends Screen {
         addWidget(messageField);
         setInitialFocus(messageField);
 
-        // 创建确认按钮
-        int buttonWidth = 100;
-        int buttonHeight = 20;
-        int buttonX = (width - buttonWidth) / 2;
-        int buttonY = fieldY + fieldHeight + 10;
+        {
+            // 创建确认按钮
+            int buttonWidth = 100;
+            int buttonHeight = 20;
+            int buttonX = (width) / 2 + 8;
+            int buttonY = fieldY + fieldHeight + 10;
 
-        confirmButton = Button.builder(
-                Component.translatable("screen.noellesroles.broadcaster.confirm"),
-                button -> onConfirm())
-                .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
-                .build();
+            confirmButton = Button.builder(
+                    Component.translatable("screen.noellesroles.broadcaster.confirm"),
+                    button -> onConfirm())
+                    .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
+                    .build();
 
-        addRenderableWidget(confirmButton);
+            addRenderableWidget(confirmButton);
+        }
+        {// 创建关闭按钮
+            int buttonWidth = 100;
+            int buttonHeight = 20;
+            int buttonX = (width) / 2 - buttonWidth - 8;
+            int buttonY = fieldY + fieldHeight + 10;
+
+            closeButton = Button.builder(
+                    Component.translatable("screen.noellesroles.broadcaster.close"),
+                    button -> onClose())
+                    .bounds(buttonX, buttonY, buttonWidth, buttonHeight)
+                    .build();
+
+            addRenderableWidget(closeButton);
+        }
+
     }
 
     /**

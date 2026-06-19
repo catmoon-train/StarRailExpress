@@ -698,6 +698,7 @@
   "game.psycho_mode.text": "杀光他们！",
   "game.psycho_mode.time": "疯狂模式：%s",
   "game.start_error.game_running": "游戏无法开始：已有游戏正在运行。请从大厅重试",
+  "game.start_error.credit": "错误：您疑似使用了非公开可用的模组，请删除它们，然后重启游戏再试！如果您已获得授权，请确保按照要求正确填写授权信息，然后重启游戏让他们生效！",
   "game.start_error.disabled_gamemode": "游戏无法开始：%s 需要在配置项中启用才能进行游玩！启用方法：\n1. 如果是单机或联机局域网，请主机玩家在模组设置 - StarRailExpress 通用设置 - 游戏模式 - %s；\n2. 管理员输入 /tmm:config config starrailexpress %s set %s",
   "game.start_error.not_enough_players": "游戏无法开始：至少需要6名玩家",
   "game.tip.cohort": "杀手帮凶",

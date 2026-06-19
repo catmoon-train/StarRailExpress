@@ -303,9 +303,6 @@ public class InitModRolesMax {
 
     public static void registerDynamic() {
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
-            if (!Harpymodloader.officialVerify) {
-                return;
-            }
             // 从配置应用角色概率
             applyRoleChanceFromConfig();
             autoRoleMaxCount(serverLevel, gameWorldComponent, players);

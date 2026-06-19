@@ -16,6 +16,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
+
+import org.agmas.noellesroles.client.renderer.PuppeteerBodyEntityRenderer;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,6 +31,14 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRendererDispatchMixin {
+
+    @Unique
+    private static final Map<PlayerSkin.Model, EntityRendererProvider<PuppeteerBodyEntity>> PUPPETEER_BODY_RENDERER_FACTORIES = Map
+            .of(
+                    PlayerSkin.Model.WIDE,
+                    context -> new PuppeteerBodyEntityRenderer<>(context, false),
+                    PlayerSkin.Model.SLIM,
+                    context -> new PuppeteerBodyEntityRenderer<>(context, true));
     @Unique
     private static final Map<PlayerSkin.Model, EntityRendererProvider<PlayerBodyEntity>> PLAYER_BODY_RENDERER_FACTORIES = Map
             .of(
@@ -38,6 +49,8 @@ public class EntityRendererDispatchMixin {
 
     @Unique
     private Map<PlayerSkin.Model, EntityRenderer<? extends PlayerBodyEntity>> bodyModelRenderers = Map.of();
+    @Unique
+    private Map<PlayerSkin.Model, EntityRenderer<? extends PuppeteerBodyEntity>> puppeteerBodyModelRenderers = Map.of();
 
     @Inject(method = "renderHitbox", at = @At("HEAD"), cancellable = true)
     private static void disableF3B(PoseStack poseStack, VertexConsumer vertexConsumer, Entity entity, float f, float g,
@@ -56,6 +69,7 @@ public class EntityRendererDispatchMixin {
     @Inject(method = "onResourceManagerReload", at = @At("TAIL"))
     public void reload(ResourceManager manager, CallbackInfo ci, @Local EntityRendererProvider.Context context) {
         this.bodyModelRenderers = reloadPlayerBodyRenderers(context);
+        this.puppeteerBodyModelRenderers = reloadPuppeteerBodyRenderers(context);
     }
 
     @Inject(method = "getRenderer", at = @At("HEAD"), cancellable = true)
@@ -69,7 +83,25 @@ public class EntityRendererDispatchMixin {
                 PlayerSkin.Model model = playerListEntry.getSkin().model();
                 EntityRenderer<? extends PlayerBodyEntity> entityRenderer = this.bodyModelRenderers.get(model);
                 cir.setReturnValue((EntityRenderer<? super T>) (entityRenderer != null ? entityRenderer
-                        : (EntityRenderer) this.bodyModelRenderers.get(PlayerSkin.Model.WIDE)));
+                        : (EntityRenderer<? super T>) this.bodyModelRenderers.get(PlayerSkin.Model.WIDE)));
+            }
+        }
+    }
+
+    @Inject(method = "getRenderer", at = @At("HEAD"), cancellable = true)
+    public <T extends Entity> void tmm$addPuppeteerBodyRenderer(T entity,
+            CallbackInfoReturnable<EntityRenderer<? super T>> cir) {
+        if (entity instanceof PuppeteerBodyEntity body) {
+            PlayerInfo playerListEntry = ClientSkinCache.getCachedPlayerInfo(body.getOwnerUuid().orElse(null));
+            if (playerListEntry == null) {
+                cir.setReturnValue(
+                        (EntityRenderer<? super T>) this.puppeteerBodyModelRenderers.get(PlayerSkin.Model.WIDE));
+            } else {
+                PlayerSkin.Model model = playerListEntry.getSkin().model();
+                EntityRenderer<? extends PuppeteerBodyEntity> entityRenderer = this.puppeteerBodyModelRenderers
+                        .get(model);
+                cir.setReturnValue((EntityRenderer<? super T>) (entityRenderer != null ? entityRenderer
+                        : (EntityRenderer<? super T>) this.puppeteerBodyModelRenderers.get(PlayerSkin.Model.WIDE)));
             }
         }
     }
@@ -89,4 +121,18 @@ public class EntityRendererDispatchMixin {
         return builder.build();
     }
 
+    @Unique
+    private static Map<PlayerSkin.Model, EntityRenderer<? extends PuppeteerBodyEntity>> reloadPuppeteerBodyRenderers(
+            EntityRendererProvider.Context ctx) {
+        ImmutableMap.Builder<PlayerSkin.Model, EntityRenderer<? extends PuppeteerBodyEntity>> builder = ImmutableMap
+                .builder();
+        PUPPETEER_BODY_RENDERER_FACTORIES.forEach((model, factory) -> {
+            try {
+                builder.put(model, factory.create(ctx));
+            } catch (Exception var5) {
+                throw new IllegalArgumentException("Failed to create player body model for " + model, var5);
+            }
+        });
+        return builder.build();
+    }
 }

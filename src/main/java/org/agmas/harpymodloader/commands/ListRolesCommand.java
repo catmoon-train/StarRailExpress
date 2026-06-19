@@ -40,15 +40,18 @@ public class ListRolesCommand {
                 .then(Commands.literal("role")
                         .then(Commands.argument("role", RoleArgumentType.create())
                                 .executes((ctx) -> showRoleDetails(ctx,
-                                        RoleArgumentType.getRole(ctx, "role")))))
+                                        RoleArgumentType.getRole(ctx,
+                                                "role")))))
                 .then(Commands.literal("modifier")
                         .then(Commands.argument("modifier", ModifierArgumentType.create())
                                 .executes((ctx) -> showModifierDetails(ctx,
-                                        ModifierArgumentType.getModifier(ctx, "modifier"))))));
+                                        ModifierArgumentType.getModifier(ctx,
+                                                "modifier"))))));
         dispatcher.register(Commands.literal("listRoles")
                 .executes(ctx -> ListRolesCommand.showRole(ctx, 1)) // 默认第一页
                 .then(Commands.argument("page", IntegerArgumentType.integer(1))
-                        .executes(ctx -> ListRolesCommand.showRole(ctx, IntegerArgumentType.getInteger(ctx, "page")))));
+                        .executes(ctx -> ListRolesCommand.showRole(ctx,
+                                IntegerArgumentType.getInteger(ctx, "page")))));
     }
 
     private static int showRoleDetails(CommandContext<CommandSourceStack> ctx, SRERole role) {
@@ -97,7 +100,8 @@ public class ListRolesCommand {
         message.append("\n").append(Component.translatable("commands.listroles.detail.spawn_info")
                 .withStyle(ChatFormatting.GOLD).withStyle(st -> {
                     st = st.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                            "/tmm:config spawn_info modifier " + modifier.identifier.toString()));
+                            "/tmm:config spawn_info modifier "
+                                    + modifier.identifier.toString()));
                     return st;
                 }));
         message.append("\n");
@@ -127,13 +131,15 @@ public class ListRolesCommand {
             }
         }
         for (var info : HMLModifiers.MODIFIERS) {
-            if (HarpyModLoaderConfig.HANDLER.instance().disabledModifiers.contains(info.identifier().toString())) {
+            if (HarpyModLoaderConfig.HANDLER.instance().disabledModifiers
+                    .contains(info.identifier().toString())) {
                 modifierInfos.put(info.identifier(), false);
             } else {
                 modifierInfos.put(info.identifier(), true);
             }
         }
-        return new RoleEnableInfoPacket(new RoleManageConfigUI.RoleAndModifierSyncInfo(roleInfos, modifierInfos),
+        return new RoleEnableInfoPacket(
+                new RoleManageConfigUI.RoleAndModifierSyncInfo(roleInfos, modifierInfos),
                 openUI);
     }
 
@@ -147,7 +153,8 @@ public class ListRolesCommand {
         var player = context.getSource().getPlayerOrException();
 
         context.getSource().sendSuccess(
-                () -> Component.translatable("Try to open Role Manage UI for %s", player.getName()), true);
+                () -> Component.translatable("Try to open Role Manage UI for %s", player.getName()),
+                true);
         sendRoleDisableInfoToPlayer(player, true);
         return 1;
     }
@@ -156,6 +163,7 @@ public class ListRolesCommand {
 
     private static int showRole(CommandContext<CommandSourceStack> context, int page) {
         if (!Harpymodloader.officialVerify) {
+            context.getSource().sendFailure(Component.translatable("game.start_error.credit"));
             return 1;
         }
 
@@ -179,7 +187,8 @@ public class ListRolesCommand {
         int totalPages = (int) Math.ceil((double) allEntries.size() / PAGE_SIZE);
         int start = (page - 1) * PAGE_SIZE;
         int end = Math.min(start + PAGE_SIZE, allEntries.size());
-        List<Object> subList = start < allEntries.size() ? allEntries.subList(start, end) : Collections.emptyList();
+        List<Object> subList = start < allEntries.size() ? allEntries.subList(start, end)
+                : Collections.emptyList();
 
         if (!subList.isEmpty()) {
             // 显示总标题 + 页码
@@ -198,15 +207,20 @@ public class ListRolesCommand {
                             .contains(role.identifier().toString());
                     MutableComponent status = createStatus(source, disabled,
                             "/setEnabledRole " + role.identifier() + " " + disabled);
-                    message.append(buildElementText(RoleUtils.getRoleOrModifierNameWithColor(role), role.identifier(),
+                    message.append(buildElementText(RoleUtils.getRoleOrModifierNameWithColor(role),
+                            role.identifier(),
                             status, true));
                 } else if (entry instanceof SREModifier modifier) {
                     boolean disabled = HarpyModLoaderConfig.HANDLER.instance().disabledModifiers
                             .contains(modifier.identifier().toString());
                     MutableComponent status = createStatus(source, disabled,
-                            "/setEnabledModifier " + modifier.identifier() + " " + disabled);
+                            "/setEnabledModifier " + modifier.identifier() + " "
+                                    + disabled);
                     message.append(
-                            buildElementText(RoleUtils.getRoleOrModifierNameWithColor(modifier), modifier.identifier(),
+                            buildElementText(
+                                    RoleUtils.getRoleOrModifierNameWithColor(
+                                            modifier),
+                                    modifier.identifier(),
                                     status,
                                     false));
                 }
@@ -230,9 +244,13 @@ public class ListRolesCommand {
                             .withStyle(ChatFormatting.DARK_GREEN))
                     .append(Component.literal("]"))
                     .withStyle(
-                            style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/listRoles 1"))
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                            Component.translatable("commands.listroles.button.hover", 1)))));
+                            style -> style.withClickEvent(new ClickEvent(
+                                    ClickEvent.Action.RUN_COMMAND, "/listRoles 1"))
+                                    .withHoverEvent(new HoverEvent(
+                                            HoverEvent.Action.SHOW_TEXT,
+                                            Component.translatable(
+                                                    "commands.listroles.button.hover",
+                                                    1)))));
 
             buttons.append(Component.literal(" "));
 
@@ -244,9 +262,14 @@ public class ListRolesCommand {
                         .append(Component.literal("]"))
                         .withStyle(style -> style
                                 .withClickEvent(
-                                        new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/listRoles " + (page - 1)))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        Component.translatable("commands.listroles.button.hover", page - 1)))));
+                                        new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                                "/listRoles " + (page
+                                                        - 1)))
+                                .withHoverEvent(new HoverEvent(
+                                        HoverEvent.Action.SHOW_TEXT,
+                                        Component.translatable(
+                                                "commands.listroles.button.hover",
+                                                page - 1)))));
             } else {
                 buttons.append(Component.literal("[")
                         .append(Component.translatable("commands.listroles.button.prev_page")
@@ -265,9 +288,14 @@ public class ListRolesCommand {
                         .append(Component.literal("]"))
                         .withStyle(style -> style
                                 .withClickEvent(
-                                        new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/listRoles " + (page + 1)))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        Component.translatable("commands.listroles.button.hover", page + 1)))));
+                                        new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                                "/listRoles " + (page
+                                                        + 1)))
+                                .withHoverEvent(new HoverEvent(
+                                        HoverEvent.Action.SHOW_TEXT,
+                                        Component.translatable(
+                                                "commands.listroles.button.hover",
+                                                page + 1)))));
             } else {
                 buttons.append(Component.literal("[")
                         .append(Component.translatable("commands.listroles.button.next_page")
@@ -285,9 +313,12 @@ public class ListRolesCommand {
                     .append(Component.literal("]"))
                     .withStyle(style -> style
                             .withClickEvent(
-                                    new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/listRoles " + maxTotalPages))
+                                    new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                            "/listRoles " + maxTotalPages))
                             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                    Component.translatable("commands.listroles.button.hover", maxTotalPages)))));
+                                    Component.translatable(
+                                            "commands.listroles.button.hover",
+                                            maxTotalPages)))));
             if (source.hasPermission(2)) {
                 buttons.append(Component.literal(" [")
                         .append(Component.translatable("commands.listroles.button.manage_all")
@@ -295,9 +326,12 @@ public class ListRolesCommand {
                         .append(Component.literal("]"))
                         .withStyle(style -> style
                                 .withClickEvent(
-                                        new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/manageRolesUI"))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        Component.translatable("commands.listroles.detail.click_to_show")))));
+                                        new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                                "/manageRolesUI"))
+                                .withHoverEvent(new HoverEvent(
+                                        HoverEvent.Action.SHOW_TEXT,
+                                        Component.translatable(
+                                                "commands.listroles.detail.click_to_show")))));
             }
             message.append(buttons);
         }
@@ -314,10 +348,12 @@ public class ListRolesCommand {
                 .append(" ")
                 .append(status).withStyle(style -> style
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("commands.listroles.detail.click_to_show")
+                                Component.translatable(
+                                        "commands.listroles.detail.click_to_show")
                                         .withStyle(ChatFormatting.AQUA)))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                "/" + roleDetailsCommandRoot + " " + (isRole ? "role" : "modifier") + " "
+                                "/" + roleDetailsCommandRoot + " "
+                                        + (isRole ? "role" : "modifier") + " "
                                         + identifier)));
     }
 
@@ -327,7 +363,8 @@ public class ListRolesCommand {
             if (source.hasPermission(2)) {
                 return style
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("commands.listroles.status." + key + ".hover", cmd)))
+                                Component.translatable("commands.listroles.status."
+                                        + key + ".hover", cmd)))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd));
             } else {
                 return style;

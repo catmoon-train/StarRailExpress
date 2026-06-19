@@ -1848,11 +1848,10 @@ public class RoleShopHandler {
         ShopEntry.Type.WEAPON));
     BOMBER_SHOP.add(new ShopEntry(
         TMMItems.TIMED_GRENADE.getDefaultInstance(),
-            290,ShopEntry.Type.WEAPON));
-
-BOMBER_SHOP.add(new ShopEntry(
+        290, ShopEntry.Type.WEAPON));
+    BOMBER_SHOP.add(new ShopEntry(
         TMMItems.STICKY_GRENADE.getDefaultInstance(),
-            290,
+        290,
         ShopEntry.Type.WEAPON));
     BOMBER_SHOP.add(new ShopEntry(
         TMMItems.FIRECRACKER.getDefaultInstance(),
@@ -2430,7 +2429,8 @@ BOMBER_SHOP.add(new ShopEntry(
       @Override
       public boolean onBuy(@NotNull Player player) {
         SREWorldBlackoutComponent blackCCA = SREWorldBlackoutComponent.KEY.get(player.level());
-        if (blackCCA.blackOutRemainingTicks <= 0) return false;
+        if (blackCCA.blackOutRemainingTicks <= 0)
+          return false;
         blackCCA.reset();
         // 清除全场黑暗与失明药水效果
         for (Player p : player.level().players()) {
@@ -2454,14 +2454,16 @@ BOMBER_SHOP.add(new ShopEntry(
       @Override
       public boolean onBuy(@NotNull Player player) {
         SREMonitorWorldComponent monitorCCA = SREMonitorWorldComponent.KEY.get(player.level());
-        if (monitorCCA.brokenTime <= 0) return false;
+        if (monitorCCA.brokenTime <= 0)
+          return false;
         monitorCCA.reset();
         // 全场播放 ui.loom.take_result 音效
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
             SoundEvents.UI_LOOM_TAKE_RESULT, SoundSource.MASTER, 1.0F, 1.0F);
         // 冷却与监控失灵一致
         player.level().players().forEach(
-            p -> p.getCooldowns().addCooldown(ModItems.MONITOR_RECOVERY, GameConstants.getMonitorBrokenCooldownGlobal()));
+            p -> p.getCooldowns().addCooldown(ModItems.MONITOR_RECOVERY,
+                GameConstants.getMonitorBrokenCooldownGlobal()));
         player.getCooldowns().addCooldown(ModItems.MONITOR_RECOVERY,
             GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.MONITOR_BROKEN, 0));
         return true;
@@ -2517,8 +2519,7 @@ BOMBER_SHOP.add(new ShopEntry(
           2,
           false,
           true,
-          true
-      ));
+          true));
       var speedContent = new PotionContents(Optional.empty(), Optional.of(53503),
           speedList);
       SPEED_SPLASH.set(DataComponents.POTION_CONTENTS, speedContent);
@@ -2533,8 +2534,7 @@ BOMBER_SHOP.add(new ShopEntry(
           0,
           false,
           true,
-          true
-      ));
+          true));
       var immobileContent = new PotionContents(Optional.empty(), Optional.of(0x8B0000),
           immobileList);
       IMMOBILE_SPLASH.set(DataComponents.POTION_CONTENTS, immobileContent);
@@ -2549,8 +2549,7 @@ BOMBER_SHOP.add(new ShopEntry(
           0,
           false,
           true,
-          true
-      ));
+          true));
       var noclipContent = new PotionContents(Optional.empty(), Optional.of(0x00FF7F),
           noclipList);
       NOCLIP_SPLASH.set(DataComponents.POTION_CONTENTS, noclipContent);
@@ -2565,8 +2564,7 @@ BOMBER_SHOP.add(new ShopEntry(
           0,
           false,
           true,
-          true
-      ));
+          true));
       var staminaContent = new PotionContents(Optional.empty(), Optional.of(0x00CED1),
           staminaList);
       STAMINA_SPLASH.set(DataComponents.POTION_CONTENTS, staminaContent);
@@ -2602,7 +2600,7 @@ BOMBER_SHOP.add(new ShopEntry(
 
     // ==================== 嬉命人商店 ====================
     // 开锁器 - 100金币
-      EMBALMER_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+    EMBALMER_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
 
     // ==================== 幻音师商店 ====================
     // 出刀的声音 - 50金币, 冷却30秒
@@ -2610,10 +2608,13 @@ BOMBER_SHOP.add(new ShopEntry(
       ItemStack s = new ItemStack(Items.NOTE_BLOCK);
       s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.knife_sound"));
       PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 50, ShopEntry.Type.TOOL) {
-        @Override public boolean onBuy(@NotNull Player p) {
+        @Override
+        public boolean onBuy(@NotNull Player p) {
           var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
-          if (c.knifeSoundCooldown > 0) return false;
-          c.knifeSoundCooldown = PhantomMusicianPlayerComponent.KNIFE_SOUND_COOLDOWN; c.sync();
+          if (c.knifeSoundCooldown > 0)
+            return false;
+          c.knifeSoundCooldown = PhantomMusicianPlayerComponent.KNIFE_SOUND_COOLDOWN;
+          c.sync();
           p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_KNIFE_STAB, SoundSource.PLAYERS, 1F, 1F);
           return true;
         }
@@ -2624,10 +2625,13 @@ BOMBER_SHOP.add(new ShopEntry(
       ItemStack s = new ItemStack(Items.NOTE_BLOCK);
       s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.revolver_sound"));
       PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 75, ShopEntry.Type.TOOL) {
-        @Override public boolean onBuy(@NotNull Player p) {
+        @Override
+        public boolean onBuy(@NotNull Player p) {
           var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
-          if (c.revolverSoundCooldown > 0) return false;
-          c.revolverSoundCooldown = PhantomMusicianPlayerComponent.REVOLVER_SOUND_COOLDOWN; c.sync();
+          if (c.revolverSoundCooldown > 0)
+            return false;
+          c.revolverSoundCooldown = PhantomMusicianPlayerComponent.REVOLVER_SOUND_COOLDOWN;
+          c.sync();
           p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 1F, 1F);
           return true;
         }
@@ -2638,12 +2642,17 @@ BOMBER_SHOP.add(new ShopEntry(
       ItemStack s = new ItemStack(Items.NOTE_BLOCK);
       s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.stalker_sound"));
       PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 100, ShopEntry.Type.TOOL) {
-        @Override public boolean onBuy(@NotNull Player p) {
+        @Override
+        public boolean onBuy(@NotNull Player p) {
           var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
-          if (c.stalkerSoundCooldown > 0) return false;
-          c.stalkerSoundCooldown = PhantomMusicianPlayerComponent.STALKER_SOUND_COOLDOWN; c.sync();
-          if (p instanceof ServerPlayer sp) for (var pp : sp.serverLevel().players())
-            if (pp != null) pp.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.MASTER, 1F, 1.5F);
+          if (c.stalkerSoundCooldown > 0)
+            return false;
+          c.stalkerSoundCooldown = PhantomMusicianPlayerComponent.STALKER_SOUND_COOLDOWN;
+          c.sync();
+          if (p instanceof ServerPlayer sp)
+            for (var pp : sp.serverLevel().players())
+              if (pp != null)
+                pp.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.MASTER, 1F, 1.5F);
           return true;
         }
       });
@@ -2653,10 +2662,13 @@ BOMBER_SHOP.add(new ShopEntry(
       ItemStack s = new ItemStack(Items.NOTE_BLOCK);
       s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.psycho_sound"));
       PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 350, ShopEntry.Type.TOOL) {
-        @Override public boolean onBuy(@NotNull Player p) {
+        @Override
+        public boolean onBuy(@NotNull Player p) {
           var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
-          if (c.psychoSoundCooldown > 0) return false;
-          c.psychoSoundCooldown = PhantomMusicianPlayerComponent.PSYCHO_SOUND_COOLDOWN; c.sync();
+          if (c.psychoSoundCooldown > 0)
+            return false;
+          c.psychoSoundCooldown = PhantomMusicianPlayerComponent.PSYCHO_SOUND_COOLDOWN;
+          c.sync();
           p.level().playSound(null, p.blockPosition(), TMMSounds.AMBIENT_PSYCHO_DRONE, SoundSource.PLAYERS, 1F, 1F);
           return true;
         }
@@ -2667,10 +2679,13 @@ BOMBER_SHOP.add(new ShopEntry(
       ItemStack s = new ItemStack(Items.NOTE_BLOCK);
       s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.crowbar_sound"));
       PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 25, ShopEntry.Type.TOOL) {
-        @Override public boolean onBuy(@NotNull Player p) {
+        @Override
+        public boolean onBuy(@NotNull Player p) {
           var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
-          if (c.crowbarSoundCooldown > 0) return false;
-          c.crowbarSoundCooldown = PhantomMusicianPlayerComponent.CROWBAR_SOUND_COOLDOWN; c.sync();
+          if (c.crowbarSoundCooldown > 0)
+            return false;
+          c.crowbarSoundCooldown = PhantomMusicianPlayerComponent.CROWBAR_SOUND_COOLDOWN;
+          c.sync();
           p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_CROWBAR_PRY, SoundSource.PLAYERS, 1F, 1F);
           return true;
         }
@@ -2736,18 +2751,21 @@ BOMBER_SHOP.add(new ShopEntry(
             SoundEvents.NOTE_BLOCK_BELL, SoundEvents.NOTE_BLOCK_HARP,
             SoundEvents.NOTE_BLOCK_BASEDRUM, SoundEvents.NOTE_BLOCK_PLING,
             SoundEvents.RESPAWN_ANCHOR_DEPLETE, SoundEvents.GENERIC_DRINK,
-            SoundEvents.IRON_DOOR_OPEN, SoundEvents.PANDA_SNEEZE
-        );
+            SoundEvents.IRON_DOOR_OPEN, SoundEvents.PANDA_SNEEZE);
 
-        @Override public boolean onBuy(@NotNull Player p) {
+        @Override
+        public boolean onBuy(@NotNull Player p) {
           var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
-          if (c.randomSoundCooldown > 0) return false;
-          c.randomSoundCooldown = PhantomMusicianPlayerComponent.RANDOM_SOUND_COOLDOWN; c.sync();
+          if (c.randomSoundCooldown > 0)
+            return false;
+          c.randomSoundCooldown = PhantomMusicianPlayerComponent.RANDOM_SOUND_COOLDOWN;
+          c.sync();
           Object obj = allSounds.get(new java.util.Random().nextInt(allSounds.size()));
           net.minecraft.sounds.SoundEvent sound;
           if (obj instanceof net.minecraft.sounds.SoundEvent se) {
             sound = se;
-          } else if (obj instanceof net.minecraft.core.Holder<?> h && h.value() instanceof net.minecraft.sounds.SoundEvent se2) {
+          } else if (obj instanceof net.minecraft.core.Holder<?> h
+              && h.value() instanceof net.minecraft.sounds.SoundEvent se2) {
             sound = se2;
           } else {
             return false;

@@ -27,8 +27,13 @@ public abstract class AbstractClientPlayerSkinMixin {
             cir.setReturnValue(result.playerSkin);
             return;
         }
-        PlayerSkin.Model model = result.isSlim ? PlayerSkin.Model.SLIM : PlayerSkin.Model.WIDE;
-        PlayerSkin ret = new PlayerSkin(result.texture, null, null, null, model, true);
-        cir.setReturnValue(ret);
+        /**
+         * 此处为了某些兼容性所以删了 (result.type == 1 时)。但是材质还是会变，在 PlayerEntityRendererMixin 中。
+         */
+        // PlayerSkin.Model model = result.isSlim ? PlayerSkin.Model.SLIM :
+        // PlayerSkin.Model.WIDE;
+        // PlayerSkin ret = new PlayerSkin(result.texture, null, null, null, model,
+        // true);
+        // cir.setReturnValue(ret);
     }
 }

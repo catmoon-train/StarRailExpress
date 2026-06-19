@@ -24,8 +24,12 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
+
+import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.init.ModEventsRegister;
 import org.agmas.noellesroles.init.RoleShopHandler;
 import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
@@ -256,6 +260,9 @@ public class ConfigCommand {
       StupidExpressConfig.HANDLER.load();
       StupidExpressConfig.HANDLER.syncToClient(source.getServer());
       RoleShopHandler.shopRegister();
+      if (ModEventsRegister.isMJVerifyEnabled) {
+        Harpymodloader.officialVerify = Noellesroles.checkMJVerify();
+      }
       source.sendSuccess(
           () -> Component.translatable("commands.sre.config.reload")
               .withStyle(style -> style.withColor(0x00FF00)),

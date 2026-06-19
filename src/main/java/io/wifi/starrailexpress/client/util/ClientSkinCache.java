@@ -14,6 +14,8 @@ public class ClientSkinCache {
     public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();
 
     public static PlayerInfo getCachedPlayerInfo(UUID uid) {
+        if (uid == null)
+            return null;
         PlayerInfo pf = PLAYER_ENTRIES_CACHE.getOrDefault(uid, null);
         return pf;
     }

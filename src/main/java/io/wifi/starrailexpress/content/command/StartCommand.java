@@ -99,7 +99,7 @@ public class StartCommand {
     final int resolvedStartMinutes = startMinutes;
     if (gameMode != SREGameModes.MURDER) {
       if (!Harpymodloader.officialVerify) {
-        source.sendFailure(Component.translatable("game.start_error.game_running"));
+        source.sendFailure(Component.translatable("game.start_error.credit"));
         return 0;
       }
     }

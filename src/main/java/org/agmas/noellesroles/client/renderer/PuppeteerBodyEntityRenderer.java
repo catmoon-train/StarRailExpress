@@ -1,93 +1,194 @@
 package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
+
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 
 import java.util.UUID;
+import java.awt.Color;
 
 /**
  * 傀儡本体实体渲染器
  * 
  * 使用玩家皮肤渲染傀儡本体
  */
-public class PuppeteerBodyEntityRenderer extends LivingEntityRenderer<PuppeteerBodyEntity, PlayerModel<PuppeteerBodyEntity>> {
+public class PuppeteerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>>
+        extends LivingEntityRenderer<PuppeteerBodyEntity, PlayerModel<PuppeteerBodyEntity>> {
 
+    static final int MAX_DISTANCE = 36 * 36;
 
-    public PuppeteerBodyEntityRenderer(EntityRendererProvider.Context context) {
-        super(context,new PlayerModel<>(context.bakeLayer(ModelLayers.PLAYER_SLIM ),true), 0.5f);
-        modelNormal = new PlayerModel<>(context.bakeLayer(ModelLayers.PLAYER ),false);
-    }
-    public static PlayerModel<PuppeteerBodyEntity> modelNormal;
-
-    @Override
-    protected void renderNameTag(PuppeteerBodyEntity entity, Component component, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, float f) {
-
+    public PuppeteerBodyEntityRenderer(EntityRendererProvider.Context ctx, boolean slim) {
+        super(ctx, new PlayerModel<>(ctx.bakeLayer(slim ? TMMModelLayers.PLAYER_BODY_SLIM : TMMModelLayers.PLAYER_BODY),
+                slim), 0F);
     }
 
     @Override
-    public void render(PuppeteerBodyEntity entity, float yaw, float tickDelta, PoseStack matrices,
-            MultiBufferSource vertexConsumers, int light) {
+    protected void renderNameTag(PuppeteerBodyEntity entity, Component component, PoseStack poseStack,
+            MultiBufferSource multiBufferSource, int i, float f) {
 
-        super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
-        // matrices.pushPose();
+    }
 
-        // 调整渲染位置和旋转
-        // matrices.translate(0.0, 0.0, 0.0);
+    @Override
+    public boolean shouldRender(PuppeteerBodyEntity entity, Frustum frustum, double camX, double camY, double camZ) {
+        // 1. 距离剔除（原本在 render() 里，提前到此处）
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null)
+            return false;
+        if (entity.distanceToSqr(client.player) >= MAX_DISTANCE)
+            return false;
 
-        // 获取玩家皮肤纹理
-        // ResourceLocation texture = getTextureLocation(entity);
-//        final var instance = Minecraft.getInstance();
-//        UUID ownerUuid = entity.getOwnerUuid().orElse(null);
-//        PlayerInfo entry = ClientSkinCache.PLAYER_ENTRIES_CACHE.get(ownerUuid);
-//        if (entry != null) {
-//            AbstractClientPlayer fakePlayer = new RemotePlayer(instance.level,
-//                    new GameProfile(ownerUuid, entry.getProfile().getName()));
-//            Minecraft.getInstance().getEntityRenderDispatcher().render(fakePlayer, 0.0D, 0.0D, 0, 0, 0, matrices,
-//                    vertexConsumers, light);
-//
-//        } else {
-//            AbstractClientPlayer fakePlayer = new RemotePlayer(instance.level,
-//                    new GameProfile(UUID.randomUUID(), "pupu"));
-//            Minecraft.getInstance().getEntityRenderDispatcher().render(fakePlayer, 0.0D, 0.0D, 0, 0, 0, matrices,
-//                    vertexConsumers, light);
-//
-//        }
+        // 2. 视锥体剔除：实体包围盒不在相机视野内时跳过
+        AABB aabb = entity.getBoundingBoxForCulling();
+        if (!frustum.isVisible(aabb))
+            return false;
 
-        // matrices.popPose();
+        return super.shouldRender(entity, frustum, camX, camY, camZ);
+    }
 
-        // super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
+    private void setModelPose() {
+        PlayerModel<PuppeteerBodyEntity> playerEntityModel = this.getModel();
+        playerEntityModel.setAllVisible(true);
+        playerEntityModel.head.visible = true;
+        playerEntityModel.hat.visible = true;
+        playerEntityModel.jacket.visible = true;
+        playerEntityModel.leftPants.visible = true;
+        playerEntityModel.rightPants.visible = true;
+        playerEntityModel.leftSleeve.visible = true;
+        playerEntityModel.rightSleeve.visible = true;
+    }
+
+    @Override
+    public void render(PuppeteerBodyEntity playerBodyEntity, float f, float g, PoseStack matrixStack,
+            MultiBufferSource vertexConsumerProvider, int light) {
+        this.setModelPose();
+        matrixStack.pushPose();
+        // final var moodComponent = SREClient.moodComponent;
+        float alpha = 1f;
+        this.renderBody(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light, alpha);
+        matrixStack.popPose();
+    }
+
+    public void renderBody(PuppeteerBodyEntity livingEntity, float f, float g, PoseStack matrixStack,
+            MultiBufferSource vertexConsumerProvider, int light, float alpha) {
+        boolean bl = this.isBodyVisible(livingEntity);
+        Minecraft client = Minecraft.getInstance();
+        boolean bl2 = !bl && !livingEntity.isInvisibleTo(client.player);
+        boolean bl3 = client.shouldEntityAppearGlowing(livingEntity);
+        RenderType bodyRenderLayer = this.getRenderType(livingEntity, bl, bl2, bl3);
+
+        doRender(livingEntity, f, g, matrixStack, vertexConsumerProvider, light, this.model, bodyRenderLayer, 1f,
+                alpha);
+    }
+
+    public void doRender(PuppeteerBodyEntity livingEntity, float f, float g, PoseStack matrixStack,
+            MultiBufferSource vertexConsumerProvider, int light, HumanoidModel<PuppeteerBodyEntity> model,
+            RenderType renderLayer, float scale, float alpha) {
+        if (alpha > 0) {
+            matrixStack.pushPose();
+            this.model.attackTime = this.getAttackAnim(livingEntity, g);
+            this.model.riding = livingEntity.isPassenger();
+            this.model.young = livingEntity.isBaby();
+
+            float h = Mth.rotLerp(g, livingEntity.yBodyRotO, livingEntity.yBodyRot);
+            float j = Mth.rotLerp(g, livingEntity.yHeadRotO, livingEntity.yHeadRot);
+            float k = j - h;
+
+            float m = Mth.lerp(g, livingEntity.xRotO, livingEntity.getXRot());
+            if (isEntityUpsideDown(livingEntity)) {
+                m *= -1.0F;
+                k *= -1.0F;
+            }
+
+            float lx = livingEntity.getScale();
+            matrixStack.scale(lx, lx, lx);
+            float n = this.getAttackAnim(livingEntity, g);
+            this.setupRotations(livingEntity, matrixStack, n, h, g, lx);
+            matrixStack.scale(-1.0F, -1.0F, 1.0F);
+            this.scale(livingEntity, matrixStack, g);
+            matrixStack.translate(0.0F, -1.501F, 0.0F);
+            float o = 0.0F;
+            float p = 0.0F;
+            if (!livingEntity.isPassenger() && livingEntity.isAlive()) {
+                o = livingEntity.walkAnimation.speed(g);
+                p = livingEntity.walkAnimation.position(g);
+                if (livingEntity.isBaby()) {
+                    p *= 3.0F;
+                }
+
+                if (o > 1.0F) {
+                    o = 1.0F;
+                }
+            }
+
+            model.prepareMobModel(livingEntity, p, o, g);
+            model.setupAnim(livingEntity, p, o, n, k, m);
+            Minecraft minecraftClient = Minecraft.getInstance();
+            boolean bl = this.isBodyVisible(livingEntity);
+            boolean bl2 = !bl && !livingEntity.isInvisibleTo(minecraftClient.player);
+            if (renderLayer != null) {
+                VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(renderLayer);
+                int q = getOverlayCoords(livingEntity, this.getWhiteOverlayProgress(livingEntity, g));
+                matrixStack.pushPose();
+                matrixStack.scale(scale, scale, scale);
+
+                Color color = new Color(1f, 1f, 1f, alpha);
+                model.renderToBuffer(matrixStack, vertexConsumer, light, q, bl2 ? 654311423 : color.getRGB());
+                matrixStack.popPose();
+            }
+
+            matrixStack.popPose();
+        }
     }
 
     @Override
     public ResourceLocation getTextureLocation(PuppeteerBodyEntity entity) {
         // 首先尝试通过 ownerUuid 从玩家列表获取皮肤
         UUID ownerUuid = entity.getOwnerUuid().orElse(null);
-
-        if (ownerUuid != null) {
-            // 通过 UUID 从玩家列表获取皮肤
-            PlayerInfo entry = ClientSkinCache.getCachedPlayerInfo(ownerUuid);
-            if (entry != null) {
-                if( entry.getSkin().model().equals(PlayerSkin.Model.WIDE)){
-                    model = modelNormal;
-                }
-                return entry.getSkin().texture();
-            }
-            // 如果玩家不在列表中（可能离线），使用基于 UUID 的默认皮肤
-            return DefaultPlayerSkin.get(ownerUuid).texture();
+        PlayerInfo playerListEntry = ClientSkinCache.getCachedPlayerInfo(ownerUuid);
+        if (SREClient.getLooseEndPenalty()) {
+            return DefaultPlayerSkin.getDefaultTexture();
+        }
+        if (playerListEntry != null) {
+            return playerListEntry.getSkin().texture();
         }
         // 最后的回退：使用固定的默认皮肤（Steve）
-        return DefaultPlayerSkin.get(UUID.fromString("7833c811-436e-40c4-868a-ffb1073f48a2")).texture();
+        return DefaultPlayerSkin.getDefaultTexture();
+    }
+
+    @Override
+    protected void scale(PuppeteerBodyEntity entity, PoseStack matrices, float amount) {
+        float g = 0.9375F;
+        matrices.scale(g, g, g);
+    }
+
+    @Override
+    protected float getAttackAnim(PuppeteerBodyEntity livingEntity, float f) {
+        return 0f;
+    }
+
+    @Override
+    protected float getWhiteOverlayProgress(PuppeteerBodyEntity livingEntity, float f) {
+        return 0.1f;
     }
 }
