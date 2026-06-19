@@ -85,7 +85,7 @@
   "sre.field.minigameQuestEnabled": "啟用小遊戲任務",
   "hud.sre.minigame_task": "小遊戲任務",
   "hud.sre.minigame_task_count": "小遊戲任務 ×%s",
-  "hud.sre.game_token": "代幣: %s",
+  "hud.sre.game_token": "%s 代币: ",
   "subtitle.minigame_task.new": "前往任意金色任務點完成小遊戲",
   "subtitle.minigame_task.done": "小遊戲任務完成 +%s 代幣",
   "commands.sre.minigamequest.on": "小遊戲任務系統已開啟",

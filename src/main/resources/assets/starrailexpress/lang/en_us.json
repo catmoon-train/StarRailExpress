@@ -1618,7 +1618,7 @@
   "sre.field.minigameQuestEnabled": "Enable Minigame Quests",
   "hud.sre.minigame_task": "Minigame Quest",
   "hud.sre.minigame_task_count": "Minigame Quest ×%s",
-  "hud.sre.game_token": "Tokens: %s",
+  "hud.sre.game_token": "%s \uE782",
   "subtitle.minigame_task.new": "Go to any gold marker to play",
   "subtitle.minigame_task.done": "Minigame quest done +%s tokens",
   "commands.sre.minigamequest.on": "Minigame quest system enabled",

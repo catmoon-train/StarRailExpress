@@ -8,6 +8,15 @@
       "chars": [
         "\uE781"
       ]
+    },
+    {
+      "type": "bitmap",
+      "file": "starrailexpress:textures/item/minigame_coin.png",
+      "ascent": 8,
+      "height": 8,
+      "chars": [
+        "\uE782"
+      ]
     }
   ]
 }

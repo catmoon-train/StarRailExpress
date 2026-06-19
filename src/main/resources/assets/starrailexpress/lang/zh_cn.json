@@ -1376,7 +1376,7 @@
   "sre.field.minigameQuestEnabled": "启用小游戏任务",
   "hud.sre.minigame_task": "小游戏任务",
   "hud.sre.minigame_task_count": "小游戏任务 ×%s",
-  "hud.sre.game_token": "代币: %s",
+  "hud.sre.game_token": "%s \uE782",
   "subtitle.minigame_task.new": "前往任意金色任务点完成小游戏",
   "subtitle.minigame_task.done": "小游戏任务完成 +%s 代币",
   "commands.sre.minigamequest.on": "小游戏任务系统已开启",

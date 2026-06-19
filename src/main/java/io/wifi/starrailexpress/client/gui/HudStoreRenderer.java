@@ -35,20 +35,33 @@ public class HudStoreRenderer {
             float g = 1f;
             float b = 1f;
             int colour = Mth.color(r, g, b) | 0xFF000000;
+            int coinX = context.guiWidth() - 12;
+            int coinY = 6;
             context.pose().pushPose();
-            context.pose().translate(context.guiWidth() - 12, 6, 0);
+            context.pose().translate(coinX, coinY, 0);
             view.render(renderer, context, 0, 0, colour, delta);
             context.pose().popPose();
             offsetDelta = Mth.lerp(delta / 16, offsetDelta, 0f);
-        }
 
-        // 小游戏代币（货币）：显示在金币旁（下方），==0 时不显示
-        SREPlayerMinigameTaskComponent minigameTask = SREPlayerMinigameTaskComponent.KEY.get(player);
-        if (minigameTask != null && minigameTask.getTokens() > 0) {
-            Component tokenText = Component.translatable("hud.sre.game_token", minigameTask.getTokens());
-            int tokenX = context.guiWidth() - 4 - renderer.width(tokenText);
-            int tokenY = 6 + renderer.lineHeight + 2;
-            context.drawString(renderer, tokenText, tokenX, tokenY, 0xFFFFD700, false);
+            // 小游戏代币（货币）：显示在金币左边同一水平线
+            SREPlayerMinigameTaskComponent minigameTask = SREPlayerMinigameTaskComponent.KEY.get(player);
+            if (minigameTask != null && minigameTask.getTokens() > 0) {
+                Component tokenText = Component.translatable("hud.sre.game_token", minigameTask.getTokens());
+                int spacing = 8;
+                int coinWidth = view.getWidth(renderer);
+                int tokenX = coinX - coinWidth - spacing - renderer.width(tokenText);
+                int tokenY = coinY;
+                context.drawString(renderer, tokenText, tokenX, tokenY, 0xFFFFD700, false);
+            }
+        } else {
+            // 小游戏代币（货币）：无金币时显示在右上角
+            SREPlayerMinigameTaskComponent minigameTask = SREPlayerMinigameTaskComponent.KEY.get(player);
+            if (minigameTask != null && minigameTask.getTokens() > 0) {
+                Component tokenText = Component.translatable("hud.sre.game_token", minigameTask.getTokens());
+                int tokenX = context.guiWidth() - 4 - renderer.width(tokenText);
+                int tokenY = 6;
+                context.drawString(renderer, tokenText, tokenX, tokenY, 0xFFFFD700, false);
+            }
         }
     }
 
@@ -96,6 +109,12 @@ public class HudStoreRenderer {
 
         public float getTarget() {
             return this.target;
+        }
+
+        public int getWidth(Font renderer) {
+            int iconWidth = renderer.width("\uE781");
+            int digitWidth = this.digits.size() * 8;
+            return iconWidth + digitWidth;
         }
     }
 
