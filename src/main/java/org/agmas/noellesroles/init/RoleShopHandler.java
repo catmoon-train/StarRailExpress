@@ -1853,8 +1853,9 @@ public class RoleShopHandler {
         ShopEntry.Type.WEAPON));
     BOMBER_SHOP.add(new ShopEntry(
         TMMItems.TIMED_GRENADE.getDefaultInstance(),
-            290,
-            BOMBER_SHOP.add(new ShopEntry(
+            290,ShopEntry.Type.WEAPON));
+
+BOMBER_SHOP.add(new ShopEntry(
         TMMItems.STICKY_GRENADE.getDefaultInstance(),
             290,
         ShopEntry.Type.WEAPON));
