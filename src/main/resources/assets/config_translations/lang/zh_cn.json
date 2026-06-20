@@ -129,7 +129,7 @@
   "text.autoconfig.starrailexpress.option.hideAndSeekBaseTime": "躲猫猫模式：时长基数（总时长=基数+玩家数*增量）(单位：秒)",
   "text.autoconfig.starrailexpress.option.hideAndSeekTimePerPlayer": "躲猫猫模式：每个玩家的时长增量（总时长=基数+玩家数*增量）(单位：秒)",
   "text.autoconfig.starrailexpress.option.hideAndSeekHiderScale": "躲猫猫模式：躲藏者体型缩放",
-  "text.autoconfig.starrailexpress.option.hideRandomRoleInRoleRotation": "鹅鸭杀轮抽模式(玩家选择随机时不会展示职业)",
+  "text.autoconfig.starrailexpress.option.hideRandomRoleInRoleRotation": "轮抽模式：隐藏玩家选择随机时的职业（玩家选择随机时不会展示职业）",
   "text.autoconfig.starrailexpress.option.hideRandomRoleInRoleRotation.@Tooltip": "启用后，在职业轮选模式中，如果玩家选择了随机，GUI左侧的玩家列表将显示“随机”不是实际分配的职业。",
   "text.autoconfig.starrailexpress.option.enableNoLimitLoversInLoverMode": "恋人模式：不限制单个人的恋人数量（允许多重链子存在）",
   "text.autoconfig.starrailexpress.option.loverModeLoversPercent": "恋人模式：恋人词条占总玩家数数量占比。（最大为1）",
