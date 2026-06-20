@@ -51,11 +51,16 @@ public class ConfigCommand {
                         .requires(source -> source.hasPermission(3))
                         .then(Commands.argument("config", StringArgumentType.string())
                                 .suggests(ConfigCommand::suggestConfigNames)
-                                .then(Commands.argument("entry", StringArgumentType.string())
+                                .then(Commands.argument("entry",
+                                        StringArgumentType.string())
                                         .suggests(ConfigCommand::suggestConfigEntry)
-                                        .then(Commands.literal("get").executes(ConfigCommand::viewConfigEntry))
+                                        .then(Commands.literal("get").executes(
+                                                ConfigCommand::viewConfigEntry))
                                         .then(Commands.literal("set")
-                                                .then(Commands.argument("value", StringArgumentType.greedyString())
+                                                .then(Commands.argument(
+                                                        "value",
+                                                        StringArgumentType
+                                                                .greedyString())
                                                         .executes(ConfigCommand::changeConfigEntry))))))
                 .then(Commands.literal("reload")
                         .executes(ConfigCommand::reloadConfig))
@@ -138,7 +143,8 @@ public class ConfigCommand {
         if (Language.getInstance().has(baseId + ".@Tooltip")) {
             base.withStyle(style -> style
                     .withHoverEvent(
-                            new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(baseId + ".@Tooltip"))));
+                            new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                    Component.translatable(baseId + ".@Tooltip"))));
         } else if (Language.getInstance().has(baseId + ".@Tooltip[0]")) {
             var hover = Component.translatable(baseId + ".@Tooltip[0]");
             int idx = 1;
@@ -172,25 +178,32 @@ public class ConfigCommand {
             field = configClazz.getDeclaredField(entryName);
 
             if (!field.canAccess(target) || Modifier.isStatic(field.getModifiers())) {
-                throw createSimpleSyntaxException(new Exception("Cannot access field " + entryName + "!"));
+                throw createSimpleSyntaxException(
+                        new Exception("Cannot access field " + entryName + "!"));
             }
             var content = field.get(target);
             String str_content = gson.toJson(content);
             context.getSource().sendSuccess(
                     () -> Component
                             .translatable("Value of '%s': %s\n(Desc: %s)", entryName,
-                                    Component.literal(str_content).withStyle(ChatFormatting.WHITE)
+                                    Component.literal(str_content)
+                                            .withStyle(ChatFormatting.WHITE)
                                             .withStyle(style -> style
-                                                    .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                                                    .withClickEvent(new ClickEvent(
+                                                            ClickEvent.Action.COPY_TO_CLIPBOARD,
                                                             str_content))
-                                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                                            Component.literal("Click to copy")
+                                                    .withHoverEvent(new HoverEvent(
+                                                            HoverEvent.Action.SHOW_TEXT,
+                                                            Component.literal(
+                                                                    "Click to copy")
                                                                     .withStyle(ChatFormatting.AQUA)))),
-                                    getConfigDescription(configName, entryName).withStyle(ChatFormatting.GRAY))
+                                    getConfigDescription(configName, entryName)
+                                            .withStyle(ChatFormatting.GRAY))
                             .withStyle(ChatFormatting.GREEN),
                     false);
         } catch (Exception e) {
-            throw createSimpleSyntaxException(e);
+            throw createSimpleSyntaxException("Cannot change config entry! " + e.getClass().getSimpleName()
+                    + e.getMessage());
         }
         return 1;
     }
@@ -218,18 +231,21 @@ public class ConfigCommand {
             field = configClazz.getDeclaredField(entryName);
 
             if (!field.canAccess(target) || Modifier.isStatic(field.getModifiers())) {
-                throw createSimpleSyntaxException(new Exception("Cannot access field " + entryName + "!"));
+                throw createSimpleSyntaxException(
+                        new Exception("Cannot access field " + entryName + "!"));
             }
             Class<?> fieldType = field.getType();
             Object trueValue = gson.fromJson(value, fieldType);
             field.set(target, trueValue);
             context.getSource().sendSuccess(
-                    () -> Component.translatable("Set value of '%s' to: %s\n(Desc: %s)", entryName, value,
+                    () -> Component.translatable("Set value of '%s' to: %s\n(Desc: %s)", entryName,
+                            value,
                             getConfigDescription(configName, entryName)),
                     true);
             handler.save();
         } catch (Exception e) {
-            throw createSimpleSyntaxException(e);
+            throw createSimpleSyntaxException("Cannot change config entry! " + e.getClass().getSimpleName()
+                    + ": " + e.getMessage());
         }
         return 1;
     }
@@ -239,7 +255,9 @@ public class ConfigCommand {
         CommandSourceStack source = context.getSource();
         SREConfig.instance().enableRoundBasedAutoPreset = flag;
         SREConfig.HANDLER.save();
-        source.sendSuccess(() -> Component.literal("Set enableRoundBasedAutoPreset to " + (flag ? "True" : "False")),
+        source.sendSuccess(
+                () -> Component.literal(
+                        "Set enableRoundBasedAutoPreset to " + (flag ? "True" : "False")),
                 true);
         return 1;
     }
@@ -386,22 +404,30 @@ public class ConfigCommand {
                 false);
 
         // 游戏设置
-        source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.header"), false);
+        source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.header"),
+                false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.starting_money",
                 SREConfig.instance().startingMoney), false);
-        source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.passive_money_amount",
+        source.sendSuccess(() -> Component.translatable(
+                "commands.sre.config.show.game_settings.passive_money_amount",
                 SREConfig.instance().passiveMoneyAmount), false);
-        source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.passive_money_interval",
+        source.sendSuccess(() -> Component.translatable(
+                "commands.sre.config.show.game_settings.passive_money_interval",
                 SREConfig.instance().passiveMoneyInterval), false);
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.money_per_kill",
                 SREConfig.instance().moneyPerKill), false);
-        source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.psycho_mode_armor",
-                SREConfig.instance().psychoModeArmor), false);
-        source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.psycho_mode_duration",
+        source.sendSuccess(
+                () -> Component.translatable("commands.sre.config.show.game_settings.psycho_mode_armor",
+                        SREConfig.instance().psychoModeArmor),
+                false);
+        source.sendSuccess(() -> Component.translatable(
+                "commands.sre.config.show.game_settings.psycho_mode_duration",
                 SREConfig.instance().psychoModeDuration), false);
-        source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.firecracker_duration",
+        source.sendSuccess(() -> Component.translatable(
+                "commands.sre.config.show.game_settings.firecracker_duration",
                 SREConfig.instance().firecrackerDuration), false);
-        source.sendSuccess(() -> Component.translatable("commands.sre.config.show.game_settings.blackout_max_duration",
+        source.sendSuccess(() -> Component.translatable(
+                "commands.sre.config.show.game_settings.blackout_max_duration",
                 SREConfig.instance().blackoutMaxDuration), false);
 
         source.sendSuccess(() -> Component.translatable("commands.sre.config.show.footer"), false);
