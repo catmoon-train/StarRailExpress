@@ -31,6 +31,8 @@
   "============ 重置 ===========": "",
   "message.sre.reseting": "重置地图中 %s%%",
   "message.sre.sticky_grenade.stuck": "你被粘性雷粘住了！",
+  "message.sre.sticky_grenade.defused": "粘性雷被成功拆除！",
+  "message.sre.sticky_grenade.defused_self": "你成功拆除了粘性雷！",
   "message.sre.starting": "游戏开始！",
   "message.sre.game_end_prevented": "",
   "============ 投票 ============": "",

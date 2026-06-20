@@ -157,6 +157,23 @@ public class StickyGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProj
         return this.getOwner() != null ? this.getOwner().getUUID() : null;
     }
 
+    /**
+     * 拆除粘在玩家身上的粘性雷，立即移除不读秒。
+     * @return true 如果找到并移除了粘性雷
+     */
+    public static boolean removeFromPlayer(Player player) {
+        if (!(player.level() instanceof ServerLevel serverLevel)) return false;
+        for (Entity entity : serverLevel.getAllEntities()) {
+            if (entity instanceof StickyGrenadeEntity sge && sge.stuck
+                    && sge.stuckToEntity != null
+                    && sge.stuckToEntity.equals(player.getUUID())) {
+                sge.discard();
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void explode() {
         if (!(this.level() instanceof ServerLevel world)) return;
         Vec3 explosionPos = this.position();

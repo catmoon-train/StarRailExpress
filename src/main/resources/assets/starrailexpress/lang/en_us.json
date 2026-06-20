@@ -29,6 +29,8 @@
   "============ 重置 ===========": "",
   "message.sre.reseting": "Resetting map %s%%",
   "message.sre.sticky_grenade.stuck": "You've been stuck by a Sticky Grenade!",
+  "message.sre.sticky_grenade.defused": "Sticky Grenade defused!",
+  "message.sre.sticky_grenade.defused_self": "You defused the Sticky Grenade!",
   "message.sre.starting": "Game starting!",
   "message.sre.game_end_prevented": "",
   "============ 投票 ============": "",
