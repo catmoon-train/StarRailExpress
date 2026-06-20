@@ -2944,7 +2944,7 @@ public class SimpleQuestMinigameScreen extends Screen {
     private int calc24(int x,int op,int y){return switch(op){case 0->x+y;case 1->x-y;case 2->x*y;case 3->y!=0?x/y:0;default->0;};}
     private void clear24Slot(int ei){if(ei%2==0&&game24Expr[ei]>=0){int v=game24Expr[ei];for(int j=0;j<4;j++)if(game24Nums[j]==v&&game24Used[j]){game24Used[j]=false;break;}game24Expr[ei]=-1;}}
     private void renderGame24(GuiGraphics g,int left,int top){
-        int bx=left+10,by=top+75; String[]ops={"+","-","×","/"};
+        int bx=left+10,by=top+75; String[]ops={"+","-","×","÷"};
         // 上方数字选择（已使用的变暗）
         for(int i=0;i<4;i++){int x=bx+i*46;boolean used=game24Used[i];MinigameUI.roundRect(g,x,by-45,x+38,by-8,4,game24Drag==i?YELLOW:used?0xFF222222:0xFF334455);
             g.drawCenteredString(font,Component.literal(""+game24Nums[i]),x+19,by-30,used?MUTED:WHITE);}
