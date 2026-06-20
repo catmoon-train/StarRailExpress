@@ -1117,11 +1117,15 @@ public class SimpleQuestMinigameScreen extends Screen {
         g.pose().scale(10f, 10f, 1f);
         g.renderItem(CARROT, -8, -8);
         g.pose().popPose();
+        // 引导线渲染在胡萝卜上方
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 200);
         for (int i = 1; i <= 4; i++) {
             int x = left + 105 + i * 44;
             int color = i <= progress ? GREEN : 0x66FF6666;
             g.fill(x - 1, top + 90, x + 1, top + 180, color);
         }
+        g.pose().popPose();
         g.drawCenteredString(font, modeText("hint"), width / 2, top + 195, MUTED);
     }
 
@@ -1292,10 +1296,11 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private void clickMole(double mouseX, double mouseY) {
         for (Dot dot : dots) {
-            if (dot.active && inCircle(mouseX, mouseY, dot.x, dot.y, 24)) {
+            if (dot.active && dot.life > 0 && inCircle(mouseX, mouseY, dot.x, dot.y, 24)) {
+                dot.life = 0;
+                dot.active = false;
                 successCount++;
                 if (successCount >= 5) complete();
-                else spawnMole();
                 return;
             }
         }
@@ -1382,7 +1387,7 @@ public class SimpleQuestMinigameScreen extends Screen {
             int pivotY = top + 135;
             int px = pivotX[selectedWire];
             double angle = Math.atan2(pivotY - mouseY, px - mouseX);
-            float v = Mth.clamp((float) (angle / Math.PI), 0f, 1f);
+            float v = Mth.clamp((float) (1.0 - angle / Math.PI), 0f, 1f);
             if (selectedWire == 0) valueA = v;
             else valueB = v;
             return true;
