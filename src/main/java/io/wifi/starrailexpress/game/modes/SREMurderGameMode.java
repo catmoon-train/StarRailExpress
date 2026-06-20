@@ -660,7 +660,7 @@ public class SREMurderGameMode extends GameMode {
         for (ServerPlayer player : serverWorld.players()) {
             // passive money
             if (gameWorldComponent.canAutoAddMoney(player)) {
-                Integer balanceToAdd = GameConstants.PASSIVE_MONEY_TICKER.apply(serverWorld.getGameTime());
+                Integer balanceToAdd = GameConstants.getPassiveMoneyTicker().apply(serverWorld.getGameTime());
                 if (balanceToAdd > 0)
                     SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
             }

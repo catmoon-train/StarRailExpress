@@ -74,12 +74,13 @@ public class GameConstants {
 
     // Task Variables
     public static float MOOD_GAIN = 0.5f;
-    // 完成一个小游戏任务（指定方块）发放的游戏代币数量
-    public static int MINIGAME_TASK_TOKEN_REWARD = 1;
-    public static float MOOD_DRAIN = 1f / getInTicks(4, 0);
+    // 完成一个小游戏任务（指定方块）发放的游戏代币数量（降频后翻倍补偿）
+    public static int MINIGAME_TASK_TOKEN_REWARD = 2;
+    // 理智流失：单个任务从满到空的时间，4分钟→6分钟，减轻任务treadmill
+    public static float MOOD_DRAIN = 1f / getInTicks(6, 0);
     public static int TIME_TO_FIRST_TASK = getInTicks(0, 30);
-    public static int MIN_TASK_COOLDOWN = getInTicks(0, 30);
-    public static int MAX_TASK_COOLDOWN = getInTicks(1, 0);
+    public static int MIN_TASK_COOLDOWN = getInTicks(0, 40);
+    public static int MAX_TASK_COOLDOWN = getInTicks(1, 15);
 
     // 连击奖励系统
     public static int STREAK_BONUS_PER_LEVEL = 5; // 每级连击额外金币
@@ -99,20 +100,20 @@ public class GameConstants {
      */
     public static int getDynamicMinTaskCooldown(long gameElapsedTicks) {
         if (gameElapsedTicks > getInTicks(5, 0)) {
-            return getInTicks(0, 20); // 后期：20秒
+            return getInTicks(0, 30); // 后期：30秒
         } else if (gameElapsedTicks > getInTicks(2, 0)) {
-            return getInTicks(0, 25); // 中期：25秒
+            return getInTicks(0, 35); // 中期：35秒
         }
-        return MIN_TASK_COOLDOWN; // 前期：30秒
+        return MIN_TASK_COOLDOWN; // 前期：40秒
     }
 
     public static int getDynamicMaxTaskCooldown(long gameElapsedTicks) {
         if (gameElapsedTicks > getInTicks(5, 0)) {
-            return getInTicks(0, 40); // 后期：40秒
+            return getInTicks(0, 55); // 后期：55秒
         } else if (gameElapsedTicks > getInTicks(2, 0)) {
-            return getInTicks(0, 50); // 中期：50秒
+            return getInTicks(1, 5); // 中期：65秒
         }
-        return MAX_TASK_COOLDOWN; // 前期：60秒
+        return MAX_TASK_COOLDOWN; // 前期：75秒
     }
 
     public static int SLEEP_TASK_DURATION = getInTicks(0, 8);

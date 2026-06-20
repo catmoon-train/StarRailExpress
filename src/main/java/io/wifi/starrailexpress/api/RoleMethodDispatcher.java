@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.api;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -65,21 +66,23 @@ public class RoleMethodDispatcher {
                     GameConstants.MAX_STREAK_BONUS);
             // 并列任务奖励倍率
             float rewardMultiplier = isParallelTask ? GameConstants.PARALLEL_TASK_REWARD_MULTIPLIER : 1f;
-            if (role.isInnocent()) {
+            // 平民/中立完成任务：本人获得金币，并以此喂养场上所有杀手（任务驱动收入）
+            if (role.isInnocent() || role.isNeutrals()) {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-                shopComponent.addToBalance((int) ((50 + streakBonus) * rewardMultiplier));
-            } else if (role.isNeutrals()) {
-                SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-                shopComponent.addToBalance((int) ((50 + streakBonus) * rewardMultiplier));
-            } else if (role.canUseKiller()) {
-                player.level().players().forEach(
-                        a -> {
-                            if (role.canUseKiller()) {
-                                SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(a);
-                                shopComponent.addToBalance((int) (5 * rewardMultiplier));
-                            }
-                        });
+                shopComponent.addToBalance(
+                        (int) ((SREConfig.instance().civilianTaskReward + streakBonus) * rewardMultiplier));
+                // 任意平民/中立完成一个任务 -> 每个杀手获得 killerTaskIncome
+                int killerGain = (int) (SREConfig.instance().killerTaskIncome * rewardMultiplier);
+                if (killerGain > 0) {
+                    player.level().players().forEach(a -> {
+                        SRERole aRole = getCurrentRole(a);
+                        if (aRole != null && aRole.canUseKiller()) {
+                            SREPlayerShopComponent.KEY.get(a).addToBalance(killerGain);
+                        }
+                    });
+                }
             }
+            // 杀手自己的伪装任务不再产生收入（防止杀手互刷）
             role.onFinishQuest(player, quest);
         }
     }
