@@ -173,7 +173,7 @@ public class SREConfig implements ConfigData {
     // 任意平民/中立完成一个任务时，每个杀手获得的金币（任务驱动收入）
     public int killerTaskIncome = 5;
     // 平民/中立完成一个任务本人获得的金币（不含连击奖励）
-    public int civilianTaskReward = 65;
+    public int civilianTaskReward = 50;
     // 同一小游戏任务点完成后对该玩家的复用冷却（秒）
     public int minigameBlockCooldownSeconds = 90;
     // 小游戏任务独立刷新间隔（秒），与 Mood 任务解耦
