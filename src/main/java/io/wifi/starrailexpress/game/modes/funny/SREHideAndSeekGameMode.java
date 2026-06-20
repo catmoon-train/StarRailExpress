@@ -33,7 +33,7 @@ import net.minecraft.world.level.Level;
 
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.RoleWeightedUtil;
-import org.agmas.harpymodloader.commands.SetRoleCountCommand;
+import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
@@ -189,8 +189,8 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
 
         // 第一步：处理强制分配的角色
         Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
-        int killerCount = SetRoleCountCommand.getKillerCount(players.size());
-        int vigilanteCount = SetRoleCountCommand.getVigilanteCount(players.size());
+        int killerCount = RoleCountManager.getKillerCount(players.size());
+        int vigilanteCount = RoleCountManager.getVigilanteCount(players.size());
         int neutralsCount = 0;
 
         // 处理强制分配的角色，减少对应角色类型的数量需求

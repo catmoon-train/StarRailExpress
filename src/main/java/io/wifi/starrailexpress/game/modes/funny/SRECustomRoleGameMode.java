@@ -26,7 +26,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.commands.SetRoleCountCommand;
+import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
@@ -106,9 +106,9 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
         ArrayList<ServerPlayer> unassignedPlayers = new ArrayList<>(players);
         // 第一步：处理强制分配的角色
 
-        int killerCount = SetRoleCountCommand.getKillerCount(players.size());
-        int vigilanteCount = SetRoleCountCommand.getVigilanteCount(players.size());
-        int neutralsCount = SetRoleCountCommand.getNatureCount(players.size());
+        int killerCount = RoleCountManager.getKillerCount(players.size());
+        int vigilanteCount = RoleCountManager.getVigilanteCount(players.size());
+        int neutralsCount = RoleCountManager.getNeutralCount(players.size());
 
         // 确保数量不为负数
         killerCount = Math.max(0, killerCount);

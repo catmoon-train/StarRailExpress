@@ -317,7 +317,7 @@
 - **结构**:
   - `killer <count>` — 设置杀手数量
   - `detective <count>` — 设置警长数量
-  - `nature <count>` — 设置中立数量
+  - `neutral <count>` — 设置中立数量
   - `reset` — 重置为自动计算
 - **用途**: 覆盖自动计算的职业分配数量
 

@@ -10,40 +10,43 @@ import net.minecraft.network.chat.Component;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 
-public class SetRoleCountCommand {
+public class RoleCountManager {
 
     // 用于存储手动设置的杀手和侦探数量
-    public static int forcedKillerCount = 0; // 0表示使用自动计算
-    public static int forcedVigilanteCount = 0; // 0表示使用自动计算
-    public static int forcedNatureCount = 0; // 0表示使用自动计算
+    public static int forcedKillerCount = -1; // -1表示使用自动计算
+    public static int forcedVigilanteCount = -1; // -1表示使用自动计算
+    public static int forcedNeutralCount = -1; // -1表示使用自动计算
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("setRoleCount")
                 .requires(serverCommandSource -> serverCommandSource.hasPermission(2))
                 .then(Commands.literal("killer")
                         .then(Commands.argument("count", IntegerArgumentType.integer(0))
-                                .executes(SetRoleCountCommand::setKillerCount)))
-                .then(Commands.literal("detective")
+                                .executes(RoleCountManager::setKillerCount)))
+                .then(Commands.literal("vigilante")
                         .then(Commands.argument("count", IntegerArgumentType.integer(0))
-                                .executes(SetRoleCountCommand::setVigilanteCount)))
-                .then(Commands.literal("nature")
+                                .executes(RoleCountManager::setVigilanteCount)))
+                .then(Commands.literal("neutral")
                         .then(Commands.argument("count", IntegerArgumentType.integer(0))
-                                .executes(SetRoleCountCommand::setNatureCount)))
+                                .executes(RoleCountManager::setNeutralCount)))
                 .then(Commands.literal("reset")
-                        .executes(SetRoleCountCommand::resetCounts))
-                .executes(SetRoleCountCommand::resetCounts));
+                        .executes(RoleCountManager::resetCounts))
+                .executes(RoleCountManager::resetCounts));
     }
 
-    private static int setNatureCount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    private static int setNeutralCount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         if (!Harpymodloader.officialVerify) {
             return 1;
         }
         int count = IntegerArgumentType.getInteger(context, "count");
-        forcedNatureCount = count;
-        if (count == 0) {
-            context.getSource().sendSuccess(() -> Component.translatable("commands.setrolecount.nature.auto"), false);
+        forcedNeutralCount = count;
+        if (count == -1) {
+            context.getSource().sendSuccess(() -> Component.translatable("commands.setrolecount.auto",
+                    Component.translatable("display.type.role.neutral_all")), false);
         } else {
-            context.getSource().sendSuccess(() -> Component.translatable("commands.setrolecount.nature.set", count),
+            context.getSource().sendSuccess(
+                    () -> Component.translatable("commands.setrolecount.set",
+                            Component.translatable("display.type.role.neutral_all"), count),
                     false);
         }
         return 1;
@@ -52,10 +55,14 @@ public class SetRoleCountCommand {
     private static int setKillerCount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         int count = IntegerArgumentType.getInteger(context, "count");
         forcedKillerCount = count;
-        if (count == 0) {
-            context.getSource().sendSuccess(() -> Component.translatable("commands.setrolecount.killer.auto"), false);
+        if (count == -1) {
+            context.getSource().sendSuccess(() -> Component.translatable("commands.setrolecount.auto",
+                    Component.translatable("display.type.role.killer")), false);
         } else {
-            context.getSource().sendSuccess(() -> Component.translatable("commands.setrolecount.killer.set", count), false);
+            context.getSource().sendSuccess(
+                    () -> Component.translatable("commands.setrolecount.set",
+                            Component.translatable("display.type.role.killer"), count),
+                    false);
         }
         return 1;
     }
@@ -63,25 +70,29 @@ public class SetRoleCountCommand {
     private static int setVigilanteCount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         int count = IntegerArgumentType.getInteger(context, "count");
         forcedVigilanteCount = count;
-        if (count == 0) {
-            context.getSource().sendSuccess(() -> Component.translatable("commands.setrolecount.detective.auto"), false);
+        if (count == -1) {
+            context.getSource().sendSuccess(() -> Component.translatable("commands.setrolecount.auto",
+                    Component.translatable("display.type.role.vigilante")), false);
         } else {
-            context.getSource().sendSuccess(() -> Component.translatable("commands.setrolecount.detective.set", count),
+            context.getSource().sendSuccess(
+                    () -> Component.translatable("commands.setrolecount.set",
+                            Component.translatable("display.type.role.vigilante"), count),
                     false);
         }
         return 1;
     }
 
     private static int resetCounts(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        forcedKillerCount = 0;
-        forcedVigilanteCount = 0;
-        forcedNatureCount = 0;
+        forcedKillerCount = -1;
+        forcedVigilanteCount = -1;
+        forcedNeutralCount = -1;
+        context.getSource().sendSuccess(() -> Component.translatable(""), false);
         return 1;
     }
 
     // 获取实际使用的杀手数量（考虑强制设置或自动计算）
     public static int getKillerCount(int playerCount) {
-        if (forcedKillerCount > 0) {
+        if (forcedKillerCount >= 0) {
             return Math.min(forcedKillerCount, playerCount); // 确保不超过玩家总数
         } else {
             return playerCount / 6;
@@ -90,7 +101,7 @@ public class SetRoleCountCommand {
 
     // 获取实际使用的侦探数量（考虑强制设置或自动计算）
     public static int getVigilanteCount(int playerCount) {
-        if (forcedVigilanteCount > 0) {
+        if (forcedVigilanteCount >= 0) {
             return Math.min(forcedVigilanteCount, playerCount); // 确保不超过玩家总数
         } else {
             return playerCount / 6;
@@ -98,12 +109,12 @@ public class SetRoleCountCommand {
         }
     }
 
-    public static int getNatureCount(int playerCount) {
+    public static int getNeutralCount(int playerCount) {
         HarpyModLoaderConfig config = HarpyModLoaderConfig.HANDLER.instance();
         int minPlayer = config.neutralMinPlayerCount;
 
-        if (forcedNatureCount > 0) {
-            return Math.min(forcedNatureCount, playerCount);
+        if (forcedNeutralCount >= 0) {
+            return Math.min(forcedNeutralCount, playerCount);
         } else {
             if (playerCount <= minPlayer)
                 return 0;

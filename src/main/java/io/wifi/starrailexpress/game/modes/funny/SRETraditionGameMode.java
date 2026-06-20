@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.commands.SetRoleCountCommand;
+import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 
@@ -69,8 +69,8 @@ public class SRETraditionGameMode extends SREMurderGameMode {
         Harpymodloader.setRoleMaximum(TMMRoles.VIGILANTE.getIdentifier(), 100);
 
         // 计算各阵营人数
-        int killerCount = SetRoleCountCommand.getKillerCount(players.size());
-        int vigilanteCount = SetRoleCountCommand.getVigilanteCount(players.size());
+        int killerCount = RoleCountManager.getKillerCount(players.size());
+        int vigilanteCount = RoleCountManager.getVigilanteCount(players.size());
         // 中立数量设为 0
 
         // 打乱玩家顺序，确保公平分配

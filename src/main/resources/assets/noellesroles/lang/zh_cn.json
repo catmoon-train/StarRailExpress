@@ -1452,6 +1452,7 @@
   "tooltip.sre.custom_player_plush.texture": "材质：%s",
   "display.type.role.killer": "杀手阵营",
   "display.type.role.innocent": "平民阵营",
+  "display.type.role.neutral_all": "中立阵营",
   "display.type.role.neutral": "独立胜利/特殊中立阵营",
   "display.type.role.neutral_special": "特殊中立",
   "display.type.role.neutral_for_killer": "杀手方中立阵营",

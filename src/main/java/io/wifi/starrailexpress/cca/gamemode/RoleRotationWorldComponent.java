@@ -35,7 +35,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.commands.SetRoleCountCommand;
+import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
@@ -218,9 +218,9 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         }
 
         // 计算需要的杀手/警卫/中立数量
-        int killerCount = SetRoleCountCommand.getKillerCount(totalPlayerCount);
-        int vigilanteCount = SetRoleCountCommand.getVigilanteCount(totalPlayerCount);
-        int neutralsCount = SetRoleCountCommand.getNatureCount(totalPlayerCount);
+        int killerCount = RoleCountManager.getKillerCount(totalPlayerCount);
+        int vigilanteCount = RoleCountManager.getVigilanteCount(totalPlayerCount);
+        int neutralsCount = RoleCountManager.getNeutralCount(totalPlayerCount);
         killerCount = Math.max(1, killerCount);
         vigilanteCount = Math.max(0, vigilanteCount);
         neutralsCount = Math.max(0, neutralsCount);
@@ -275,8 +275,8 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         Random random = new Random(serverWorld.getGameTime());
 
         // 获取职业权重信息（基于实际玩家数）
-        int vigilanteCount = SetRoleCountCommand.getVigilanteCount(totalPlayers);
-        int neutralsCount = SetRoleCountCommand.getNatureCount(totalPlayers);
+        int vigilanteCount = RoleCountManager.getVigilanteCount(totalPlayers);
+        int neutralsCount = RoleCountManager.getNeutralCount(totalPlayers);
 
         vigilanteCount = Math.max(0, vigilanteCount);
         neutralsCount = Math.max(0, neutralsCount);
@@ -824,9 +824,9 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         }
 
         // 使用 SetRoleCountCommand 计算各类型目标数量
-        int targetKillers = SetRoleCountCommand.getKillerCount(totalPlayerCount);
-        int targetVigilantes = SetRoleCountCommand.getVigilanteCount(totalPlayerCount);
-        int targetNeutrals = SetRoleCountCommand.getNatureCount(totalPlayerCount);
+        int targetKillers = RoleCountManager.getKillerCount(totalPlayerCount);
+        int targetVigilantes = RoleCountManager.getVigilanteCount(totalPlayerCount);
+        int targetNeutrals = RoleCountManager.getNeutralCount(totalPlayerCount);
         targetKillers = Math.max(1, targetKillers);
         targetVigilantes = Math.max(0, targetVigilantes);
         targetNeutrals = Math.max(0, targetNeutrals);

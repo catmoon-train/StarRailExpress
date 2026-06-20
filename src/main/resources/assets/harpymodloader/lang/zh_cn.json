@@ -18,11 +18,6 @@
   "commands.listroles.status.enabled.hover": "\u00a7c点击切换至禁用状态\n%s",
   "commands.listroles.status.disabled.text": "\u00a7c[已禁用]",
   "commands.listroles.status.disabled.hover": "§a点击切换至启用状态\n%s",
-  "commands.setrolecount.killer.set": "杀手数量已设置为 %s",
-  "commands.setrolecount.killer.auto": "杀手数量已设置为自动计算",
-  "commands.setrolecount.detective.set": "侦探数量已设置为 %s",
-  "commands.setrolecount.detective.auto": "侦探数量已设置为自动计算",
-  "commands.setrolecount.reset": "杀手和侦探数量已重置为自动计算",
   "commands.changerole.success.changed": "已将玩家 %3$s 的角色从 %1$s 更改为 %2$s",
   "commands.changerole.success.assigned": "已将玩家 %2$s 的角色设置为 %1$s",
   "commands.changerole.reset": "已重置玩家 %s 的角色",
@@ -64,5 +59,8 @@
   "commands.listroles.detail.id": "※ ID: %s",
   "commands.listroles.detail.click_to_show": "点击查看详情",
   "commands.listroles.all.title": "所有职业与修饰符",
-  "commands.listroles.no.entries": "没有可用的职业或修饰符！"
+  "commands.listroles.no.entries": "没有可用的职业或修饰符！",
+  "commands.setrolecount.set":"已设置 %s 的强制刷新数量为 %s！",
+  "commands.setrolecount.reset":"已重置！现在刷新将根据玩家数量刷新（自动计算）！",
+  "commands.setrolecount.auto":"已设置 %s 的强制刷新数量为自动计算！"
 }
