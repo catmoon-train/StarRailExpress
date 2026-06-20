@@ -70,7 +70,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "map")
     @Tooltip(count = 2)
     @ConfigSync(shouldSync = true)
-    public boolean shouldOpenDoorHaveCollision = false;
+    public boolean shouldOpenDoorHaveCollision = true;
 
     @ConfigEntry.Category(value = "shop")
     @ConfigSync(shouldSync = true)
