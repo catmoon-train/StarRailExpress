@@ -26,7 +26,7 @@ public class BuilderHud {
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
             int x = screenWidth - 150;
-            int y = screenHeight - 30;
+            int y = screenHeight - 90;
 
             Font textRenderer = client.font;
 

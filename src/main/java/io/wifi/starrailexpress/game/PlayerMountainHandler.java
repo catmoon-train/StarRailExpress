@@ -33,9 +33,9 @@ public class PlayerMountainHandler {
         double dx = a.getX() - b.getX();
         double dz = a.getZ() - b.getZ();
         double dist = Math.sqrt(dx * dx + dz * dz);
-        if (dist < 0.001) {
-            dx = 1.0;
-            dz = 0.0; // 防止零向量
+        if (dist < 0.1) {
+            dx = 0.1;
+            dz = 0.1; // 防止零向量
         } else {
             dx /= dist;
             dz /= dist;
@@ -44,13 +44,18 @@ public class PlayerMountainHandler {
         b.push(-dx * force, 0.0, -dz * force);
     }
 
+    static final double pushForce = 0.05;
+
     public static void register() {
         CanCollideWith.PLAYER.register((player, entity) -> {
             if (GameUtils.isGameRunning(player)) {
                 if (SREConfig.instance().disablePlayerMountain) {
                     if (entity instanceof Player other) {
                         if (isOnOneHead(player, other) || isOnOneHead(other, player)) {
-                            pushApart(player, other, 0.25);
+                            pushApart(player, other, pushForce);
+                            // 追踪伤害
+                            player.setLastHurtByPlayer(other);
+                            other.setLastHurtByPlayer(player);
                             return TrueFalseResult.FALSE;
                         }
                     }
