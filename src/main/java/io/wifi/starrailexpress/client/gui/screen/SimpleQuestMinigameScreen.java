@@ -2944,34 +2944,36 @@ public class SimpleQuestMinigameScreen extends Screen {
     private int calc24(int x,int op,int y){return switch(op){case 0->x+y;case 1->x-y;case 2->x*y;case 3->y!=0?x/y:0;default->0;};}
     private void clear24Slot(int ei){if(ei%2==0&&game24Expr[ei]>=0){int v=game24Expr[ei];for(int j=0;j<4;j++)if(game24Nums[j]==v&&game24Used[j]){game24Used[j]=false;break;}game24Expr[ei]=-1;}}
     private void renderGame24(GuiGraphics g,int left,int top){
-        int bx=left+20,by=top+80; String[]ops={"+","-","×","/"};
+        int bx=left+10,by=top+75; String[]ops={"+","-","×","/"};
         // 上方数字选择（已使用的变暗）
-        for(int i=0;i<4;i++){int x=bx+i*50;boolean used=game24Used[i];MinigameUI.roundRect(g,x,by-50,x+42,by-10,4,game24Drag==i?YELLOW:used?0xFF222222:0xFF334455);
-            g.drawCenteredString(font,Component.literal(""+game24Nums[i]),x+21,by-34,used?MUTED:WHITE);}
-        // 表达式: (N1 OP1 N2) OP2 (N3 OP3 N4)
-        String[]toks={"(","(","",")"," ","(","","",")"};
-        for(int i=0;i<9;i++){int x=bx+i*28;
-            if(i==2||i==7){ int si=i==2?0:i==7?4:0; int val=game24Expr[si];
-                MinigameUI.roundRect(g,x,by+10,x+24,by+42,4,val>=0?0xFF445566:0xFF334455);
-                if(val>=0)g.drawCenteredString(font,Component.literal(""+val),x+12,by+24,WHITE);}
-            else if(i==1||i==6){ int oi=i==1?1:i==6?5:1; int op=game24Expr[oi];g.drawCenteredString(font,Component.literal(ops[Math.abs(op%4)]),x+12,by+24,WHITE);}
-            else if(i==4){int op=game24Expr[3];g.drawCenteredString(font,Component.literal(ops[Math.abs(op%4)]),x+12,by+24,WHITE);}
-            else g.drawString(font,toks[i],x+2,by+15,MUTED);
+        for(int i=0;i<4;i++){int x=bx+i*46;boolean used=game24Used[i];MinigameUI.roundRect(g,x,by-45,x+38,by-8,4,game24Drag==i?YELLOW:used?0xFF222222:0xFF334455);
+            g.drawCenteredString(font,Component.literal(""+game24Nums[i]),x+19,by-30,used?MUTED:WHITE);}
+        // 表达式: ( N1 OP1 N2 ) OP2 ( N3 OP3 N4 )
+        int cw=24; // 每个token宽
+        String[]fixed={"(","","","",")","","(","","","",")"}; // 括号 op2 括号
+        for(int i=0;i<11;i++){int x=bx+i*cw;
+            if(i==1||i==3||i==7||i==9){ // 4个数字槽 → expr[0],[2],[4],[6]
+                int ei=i==1?0:i==3?2:i==7?4:6; int val=game24Expr[ei];
+                MinigameUI.roundRect(g,x,by+10,x+cw-1,by+38,4,val>=0?0xFF445566:0xFF334455);
+                if(val>=0)g.drawCenteredString(font,Component.literal(""+val),x+cw/2,by+22,WHITE);}
+            else if(i==2||i==8){int oi=i==2?1:5;g.drawCenteredString(font,Component.literal(ops[Math.abs(game24Expr[oi]%4)]),x+cw/2,by+22,WHITE);}
+            else if(i==5){g.drawCenteredString(font,Component.literal(ops[Math.abs(game24Expr[3]%4)]),x+cw/2,by+22,WHITE);}
+            else{g.drawString(font,fixed[i],x,by+13,MUTED);}
         }
         g.drawCenteredString(font,tr("game_24.hint"),width/2,top+160,WHITE);
         int v=eval24();if(v==24)complete();
     }
-    private void click24(double mx,double my){int bx=panelLeft()+20,by=panelTop()+80;
+    private void click24(double mx,double my){int bx=panelLeft()+10,by=panelTop()+75; int cw=24;
         // 点击上方数字 → 选中（已使用的不能选）
-        for(int i=0;i<4;i++){int x=bx+i*50;if(inRect(mx,my,x,by-50,42,40)){if(game24Drag>=0){game24Drag=-1;return;}if(!game24Used[i])game24Drag=i;return;}}
-        // 点击表达式数字槽位 → 放置/覆盖/清除
-        int[]sMap={-1,-1,0,-1,-1,-1,-1,4,-1}; // tok index 2→expr[0], tok index 7→expr[4]
-        for(int i=0;i<9;i++){if(sMap[i]<0)continue;int x=bx+i*28;if(inRect(mx,my,x,by+10,24,32)){
-            if(game24Drag>=0){clear24Slot(sMap[i]);game24Expr[sMap[i]]=game24Nums[game24Drag];game24Used[game24Drag]=true;game24Drag=-1;}else{clear24Slot(sMap[i]);}return;}}
-        // 点击运算符 → 切换
-        if(inRect(mx,my,bx+1*28,by+10,24,32)){game24Expr[1]=(game24Expr[1]+1)%4;return;}
-        if(inRect(mx,my,bx+4*28,by+10,24,32)){game24Expr[3]=(game24Expr[3]+1)%4;return;}
-        if(inRect(mx,my,bx+6*28,by+10,24,32)){game24Expr[5]=(game24Expr[5]+1)%4;return;}
+        for(int i=0;i<4;i++){int x=bx+i*46;if(inRect(mx,my,x,by-45,38,37)){if(game24Drag>=0){game24Drag=-1;return;}if(!game24Used[i])game24Drag=i;return;}}
+        // 点击表达式数字槽(位置1,3,7,9) → 放置/覆盖/清除
+        int[]nMap={1,3,7,9};int[]eMap={0,2,4,6}; // nMap:token位置, eMap:expr索引
+        for(int k=0;k<4;k++){int x=bx+nMap[k]*cw;if(inRect(mx,my,x,by+10,cw-1,28)){
+            if(game24Drag>=0){clear24Slot(eMap[k]);game24Expr[eMap[k]]=game24Nums[game24Drag];game24Used[game24Drag]=true;game24Drag=-1;}else{clear24Slot(eMap[k]);}return;}}
+        // 点击运算符(pos 2,5,8) → 切换
+        if(inRect(mx,my,bx+2*cw,by+10,cw-1,28)){game24Expr[1]=(game24Expr[1]+1)%4;return;}
+        if(inRect(mx,my,bx+5*cw,by+10,cw-1,28)){game24Expr[3]=(game24Expr[3]+1)%4;return;}
+        if(inRect(mx,my,bx+8*cw,by+10,cw-1,28)){game24Expr[5]=(game24Expr[5]+1)%4;return;}
         if(game24Drag>=0)game24Drag=-1;
     }
 
