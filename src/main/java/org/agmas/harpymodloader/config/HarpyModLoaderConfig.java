@@ -12,7 +12,6 @@ import java.util.HashMap;
 public class HarpyModLoaderConfig implements ConfigData {
     public static final ConfigClassHandler<HarpyModLoaderConfig> HANDLER = new ConfigClassHandler<>(
             HarpyModLoaderConfig.class);
-
     // Disables roles from being in the role pool. use /listRoles to get role names,
     // use /setEnabledRole to ban/unban them in-game (saves here).
     public ArrayList<String> disabled = new ArrayList<>();

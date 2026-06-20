@@ -240,4 +240,10 @@ public class ConfigClassHandler<T extends ConfigData> {
     public void register() {
         AutoConfig.register(type, GsonConfigSerializer::new);
     }
+
+    /**
+     * 占位符，为了让config自动加载
+     */
+    public void nothing() {
+    }
 }
