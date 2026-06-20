@@ -59,6 +59,11 @@ public class SmallDoorBlock extends DoorPartBlock {
     private static final VoxelShape[] SHAPES = createShapes();
     private final Supplier<BlockEntityType<SmallDoorBlockEntity>> typeSupplier;
 
+    @Override
+    public boolean shouldHaveCollisionShapeWhenOpen(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context){
+        return true;
+    }
+    
     public SmallDoorBlock(Properties settings) {
         super(settings);
         this.registerDefaultState(

@@ -32,6 +32,11 @@ public abstract class DoorPartBlock extends BaseEntityBlock {
     protected static final VoxelShape Z_SHAPE = Block.box(0, 0, 6, 16, 16, 10);
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
+    public boolean shouldHaveCollisionShapeWhenOpen(BlockState state, BlockGetter world, BlockPos pos,
+            CollisionContext context) {
+        return false;
+    }
+
     public DoorPartBlock(Properties settings) {
         super(settings);
         this.registerDefaultState(super.defaultBlockState()
@@ -46,10 +51,10 @@ public abstract class DoorPartBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        if (state.getValue(OPEN)) {
+        if (state.getValue(OPEN) && !shouldHaveCollisionShapeWhenOpen(state, world, pos, context)) {
             return Shapes.empty();
         }
-        return this.getShape(state);
+        return this.getShape(state, world, pos, context);
     }
 
     @Override

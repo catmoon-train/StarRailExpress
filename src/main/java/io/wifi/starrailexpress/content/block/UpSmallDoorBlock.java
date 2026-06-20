@@ -36,6 +36,12 @@ public class UpSmallDoorBlock extends SmallDoorBlock {
     protected static final VoxelShape Z_SHAPE = Block.box(0, 0, 7, 16, 16, 9);
     private final Supplier<BlockEntityType<UpSmallDoorBlockEntity>> typeSupplier;
 
+    @Override
+    public boolean shouldHaveCollisionShapeWhenOpen(BlockState state, BlockGetter world, BlockPos pos,
+            CollisionContext context) {
+        return false;
+    }
+
     public UpSmallDoorBlock(Supplier<BlockEntityType<UpSmallDoorBlockEntity>> typeSupplier, Properties settings) {
         super(settings);
         this.registerDefaultState(
