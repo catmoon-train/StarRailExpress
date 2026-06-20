@@ -12,15 +12,17 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-
 import io.wifi.starrailexpress.api.PlushApi;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +47,7 @@ public final class PlushCommand {
       builder) -> SharedSuggestionProvider.suggest(PlushApi.availableSkinNames(), builder);
 
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+
     dispatcher.register(Commands.literal("sre:plush")
         .requires(source -> source.hasPermission(2))
         .then(Commands.literal("list")
@@ -52,35 +55,50 @@ public final class PlushCommand {
         .then(Commands.literal("get")
             .then(Commands.argument("skin", StringArgumentType.word())
                 .suggests(SKIN_SUGGESTIONS)
-                .executes(ctx -> giveSelf(ctx, StringArgumentType.getString(ctx, "skin")))
-                .then(Commands.argument("target", EntityArgument.players())
-                    .executes(ctx -> giveTargets(ctx, StringArgumentType.getString(ctx, "skin"))))))
+                .executes(ctx -> giveSelf(ctx, StringArgumentType.getString(ctx, "skin")))))
+        .then(Commands.literal("give")
+            .then(Commands.argument("target", EntityArgument.players())
+                .then(Commands.argument("skin", StringArgumentType.word())
+                    .suggests(SKIN_SUGGESTIONS)
+                    .executes(ctx -> giveTargets(ctx, StringArgumentType.getString(ctx, "skin")))
+                    .then(Commands.literal("profile")
+                        .then(Commands.argument("profile", GameProfileArgument.gameProfile())
+                            .executes((ctx) -> givePlayerCustomPlush(ctx,
+                                GameProfileArgument.getGameProfiles(ctx, "profile"), null,
+                                null, "target"))
+                            .then(Commands.argument("click_sound", ResourceLocationArgument.id())
+                                .executes((ctx) -> givePlayerCustomPlush(ctx,
+                                    GameProfileArgument.getGameProfiles(ctx, "profile"), null,
+                                    ResourceLocationArgument.getId(ctx, "click_sound"), "target")))))
+                    .then(Commands.literal("texture")
+                        .then(Commands.argument("texture", ResourceLocationArgument.id())
+                            .executes((ctx) -> givePlayerCustomPlush(ctx,
+                                null, ResourceLocationArgument.getId(ctx, "texture"),
+                                null, "target"))
+                            .then(Commands.argument("click_sound", ResourceLocationArgument.id())
+                                .executes((ctx) -> givePlayerCustomPlush(ctx,
+                                    null, ResourceLocationArgument.getId(ctx, "texture"),
+                                    ResourceLocationArgument.getId(ctx, "click_sound"), "target"))))))))
         .then(Commands.literal("player")
             .then(Commands.literal("self")
                 .then(Commands.argument("target", EntityArgument.players())
-                    .executes(ctx -> givePlayerSelfPlush(ctx, "target"))))
-            .then(Commands.literal("custom")
-                .then(Commands.argument("profile", GameProfileArgument.gameProfile())
-                    .executes(ctx -> givePlayerCustomPlush(ctx,
-                        GameProfileArgument.getGameProfiles(ctx, "profile"), null))
-                    .then(Commands.argument("target", EntityArgument.players())
-                        .executes(ctx -> givePlayerCustomPlush(ctx,
-                            GameProfileArgument.getGameProfiles(ctx, "profile"), "target")))))));
+                    .executes(ctx -> givePlayerSelfPlush(ctx, "target"))))));
   }
 
   private static int givePlayerCustomPlush(CommandContext<CommandSourceStack> ctx,
-      Collection<GameProfile> gameProfiles, String targetArg) throws CommandSyntaxException {
-    if (gameProfiles.size() > 1) {
-      throw ConfigCommand.createSimpleSyntaxException("More than one player.");
+      Collection<GameProfile> gameProfiles, ResourceLocation texture, ResourceLocation sound, String targetArg)
+      throws CommandSyntaxException {
+    GameProfile gameProfile = null;
+    if (gameProfiles != null) {
+      if (gameProfiles.size() > 1) {
+        throw ConfigCommand.createSimpleSyntaxException("More than one player.");
+      }
+      gameProfile = gameProfiles.stream().findFirst().orElse(null);
+      if (gameProfile == null) {
+        throw ConfigCommand.createSimpleSyntaxException("Require at least 1 player.");
+      }
     }
 
-    if (gameProfiles.size() < 1) {
-      throw ConfigCommand.createSimpleSyntaxException("Require at least 1 player.");
-    }
-    GameProfile gameProfile = gameProfiles.stream().findFirst().orElse(null);
-    if (gameProfile == null) {
-      throw ConfigCommand.createSimpleSyntaxException("Require at least 1 player.");
-    }
     Collection<ServerPlayer> targets;
     if (targetArg == null) {
       targets = List.of(ctx.getSource().getPlayerOrException());
@@ -89,9 +107,15 @@ public final class PlushCommand {
     }
 
     Item plushItem = SREFumoBlocks.CUSTOM_PLAYER_PLUSH.asItem();
-    for (ServerPlayer target : targets) {
-      ItemStack stack = new ItemStack(plushItem);
+    ItemStack stack = new ItemStack(plushItem);
+    if (gameProfile != null)
       stack.set(DataComponents.PROFILE, new ResolvableProfile(gameProfile));
+    if (sound != null)
+      stack.set(DataComponents.NOTE_BLOCK_SOUND, sound);
+    if (texture != null)
+      stack.set(SREDataComponentTypes.TEXTURE, texture);
+    for (ServerPlayer target : targets) {
+
       if (!target.addItem(stack) && !stack.isEmpty()) {
         target.drop(stack, false);
       }
@@ -99,13 +123,14 @@ public final class PlushCommand {
     if (targets.size() == 1) {
       ServerPlayer only = targets.iterator().next();
       ctx.getSource().sendSuccess(() -> Component.translatable(
-          "commands.sre.plush.player_given", gameProfile.getName(), only.getDisplayName()), true);
+          "commands.sre.plush.player_given_custom", stack.getDisplayName(), only.getDisplayName()), true);
     } else {
       int count = targets.size();
       ctx.getSource().sendSuccess(() -> Component.translatable(
-          "commands.sre.plush.player_given_custom_multiple", gameProfile.getName(), count), true);
+          "commands.sre.plush.player_given_custom_multiple", stack.getDisplayName(), count), true);
     }
     return targets.size();
+
   }
 
   /** 发放绑定指定玩家名的自定义玩家 plush（按该玩家的皮肤渲染）。 */
