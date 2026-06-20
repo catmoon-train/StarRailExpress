@@ -1608,7 +1608,7 @@ public class SimpleQuestMinigameScreen extends Screen {
         // 华容道鼠标滑动
         if (mode == Mode.KLOTSKI && klotskiSelR >= 0) {
             double dx=mouseX-klotskiStartX,dy=mouseY-klotskiStartY;
-            int cs=52; // cell+gap
+            int cs=44; // cell+gap (42+2)
             if(Math.abs(dx)>=cs/2||Math.abs(dy)>=cs/2){
                 if(Math.abs(dx)>=Math.abs(dy))moveKlotskiBlock(klotskiSelR,klotskiSelC,0,dx>0?1:-1);
                 else moveKlotskiBlock(klotskiSelR,klotskiSelC,dy>0?1:-1,0);
@@ -2937,7 +2937,7 @@ public class SimpleQuestMinigameScreen extends Screen {
     private void setupGame24(){game24Nums=new int[4];
         do{for(int i=0;i<4;i++)game24Nums[i]=1+rng.nextInt(10);}while(!canMake24(game24Nums));
         game24Sel1=-1;game24Sel2=-1;game24Expr=new int[7];for(int i=0;i<7;i++)game24Expr[i]=-1;game24Drag=-1;game24Used=new boolean[4];
-        game24Expr[1]=rng.nextInt(4);game24Expr[3]=rng.nextInt(4);game24Expr[5]=rng.nextInt(4);}
+        game24Expr[1]=0;game24Expr[3]=0;game24Expr[5]=0;} // 全部+，玩家自行切换
     private int[] game24Expr; private int game24Drag; private boolean[] game24Used;
     private int eval24(){int a=game24Expr[0],b=game24Expr[2],c=game24Expr[4],d=game24Expr[6];if(a<0||b<0||c<0||d<0)return-1;int op1=game24Expr[1],op2=game24Expr[3],op3=game24Expr[5];if(op1<0||op2<0||op3<0)return-1;
         return calc24(calc24(a,op1,b),op2,calc24(c,op3,d));}
@@ -2956,8 +2956,7 @@ public class SimpleQuestMinigameScreen extends Screen {
                 int ei=i==1?0:i==3?2:i==7?4:6; int val=game24Expr[ei];
                 MinigameUI.roundRect(g,x,by+10,x+cw-1,by+38,4,val>=0?0xFF445566:0xFF334455);
                 if(val>=0)g.drawCenteredString(font,Component.literal(""+val),x+cw/2,by+22,WHITE);}
-            else if(i==2||i==8){int oi=i==2?1:5;g.drawCenteredString(font,Component.literal(ops[Math.abs(game24Expr[oi]%4)]),x+cw/2,by+22,WHITE);}
-            else if(i==5){g.drawCenteredString(font,Component.literal(ops[Math.abs(game24Expr[3]%4)]),x+cw/2,by+22,WHITE);}
+            else if(i==2||i==5||i==8){int oi=i==2?1:i==5?3:5; MinigameUI.roundRect(g,x,by+10,x+cw-1,by+38,4,0xFF3377AA); MinigameUI.roundBorder(g,x,by+10,x+cw-1,by+38,4,1,0xFF55AAFF); g.drawCenteredString(font,Component.literal(ops[Math.abs(game24Expr[oi]%4)]),x+cw/2,by+22,WHITE);}
             else{g.drawString(font,fixed[i],x,by+13,MUTED);}
         }
         g.drawCenteredString(font,tr("game_24.hint"),width/2,top+160,WHITE);
@@ -3084,7 +3083,7 @@ public class SimpleQuestMinigameScreen extends Screen {
         if(id==1&&nr+h-1==4&&nc==1)complete();
     }
     private void renderKlotski(GuiGraphics g,int left,int top){
-        int cs=50,gap=2,ox=left+(PANEL_W-4*cs-3*gap)/2,oy=top+30;
+        int cs=42,gap=2,ox=left+(PANEL_W-4*cs-3*gap)/2,oy=top+30;
         int[]cols={0,0xFFDD6644,0xFF44AACC,0xFF44CC66,0xFFCC66AA,0xFFDDAA44,0xFF8866CC,0xFFDD8888,0xFF88DD88,0xFF8888DD,0xFFDDAACC};
         String[]names={"","曹操","张飞","赵云","马超","黄忠","关羽","卒","卒","卒","卒"};
         // 选中块整体高亮
@@ -3104,7 +3103,7 @@ public class SimpleQuestMinigameScreen extends Screen {
         g.fill(ex-12,ey-4,ex+12,ey+4,GREEN);
     }
     private void clickKlotski(double mx,double my){
-        int cs=50,gap=2,ox=panelLeft()+(PANEL_W-4*cs-3*gap)/2,oy=panelTop()+30;
+        int cs=42,gap=2,ox=panelLeft()+(PANEL_W-4*cs-3*gap)/2,oy=panelTop()+30;
         int c=(int)((mx-ox)/(cs+gap)),r=(int)((my-oy)/(cs+gap));
         if(r>=0&&r<5&&c>=0&&c<4&&klotskiGrid[r][c]>0){
             int[]tl=klotskiTopLeft(r,c);klotskiSelR=tl[0];klotskiSelC=tl[1];klotskiStartX=mx;klotskiStartY=my;}
