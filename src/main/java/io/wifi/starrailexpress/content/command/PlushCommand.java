@@ -51,7 +51,7 @@ public final class PlushCommand {
     dispatcher.register(Commands.literal("sre:plush")
         .requires(source -> source.hasPermission(2))
         .then(Commands.literal("list")
-            .executes(PlushCommand::list))
+            .executes(PlushCommand::listPlush))
         .then(Commands.literal("get")
             .then(Commands.argument("skin", StringArgumentType.word())
                 .suggests(SKIN_SUGGESTIONS)
@@ -81,6 +81,7 @@ public final class PlushCommand {
                                     ResourceLocationArgument.getId(ctx, "click_sound"), "target"))))))))
         .then(Commands.literal("player")
             .then(Commands.literal("self")
+                .executes(ctx -> givePlayerSelfPlush(ctx, null))
                 .then(Commands.argument("target", EntityArgument.players())
                     .executes(ctx -> givePlayerSelfPlush(ctx, "target"))))));
   }
@@ -137,8 +138,12 @@ public final class PlushCommand {
   private static int givePlayerSelfPlush(CommandContext<CommandSourceStack> ctx,
       String targetArg) throws CommandSyntaxException {
     Collection<ServerPlayer> targets;
+    if (targetArg == null) {
+      targets = List.of(ctx.getSource().getPlayerOrException());
+    } else {
+      targets = EntityArgument.getPlayers(ctx, targetArg);
 
-    targets = EntityArgument.getPlayers(ctx, targetArg);
+    }
 
     Item plushItem = SREFumoBlocks.CUSTOM_PLAYER_PLUSH.asItem();
     for (ServerPlayer target : targets) {
@@ -203,7 +208,7 @@ public final class PlushCommand {
     return targets.size();
   }
 
-  private static int list(CommandContext<CommandSourceStack> ctx) {
+  private static int listPlush(CommandContext<CommandSourceStack> ctx) {
     List<String> names = PlushApi.availableSkinNames();
     ctx.getSource().sendSuccess(() -> Component.translatable(
         "commands.sre.plush.list", names.size(), String.join(", ", names)), false);
