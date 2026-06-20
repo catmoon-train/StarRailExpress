@@ -424,6 +424,7 @@ public class TraitorAndModifiers {
                 sp.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 100, 0, false, false, false)); // 禁止使用物品
                 sp.addEffect(new MobEffectInstance(ModEffects.INVENTORY_BANED, 100, 0, false, false, false)); // 禁止打开背包
                 sp.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 100, 0, false, false, false)); // 黑暗
+                sp.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, 100, 0, false, false, false)); // 黑暗
 
                 // 只发送给玩家自己
                 sp.displayClientMessage(Component.translatable("modifier.noellesroles.last_gasp.trigger"), true);
