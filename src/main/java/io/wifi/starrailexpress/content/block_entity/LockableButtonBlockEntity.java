@@ -1,4 +1,5 @@
 package io.wifi.starrailexpress.content.block_entity;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -18,14 +19,17 @@ public class LockableButtonBlockEntity extends SmallDoorBlockEntity {
     protected void toggleOpen(int ticks) {
     }
 
-
-    public static <T extends LockableButtonBlockEntity> void clientTick(Level world, BlockPos pos, BlockState state, T entity) {
+    public static <T extends LockableButtonBlockEntity> void clientTick(Level world, BlockPos pos, BlockState state,
+            T entity) {
         entity.age++;
     }
 
-    public static <T extends LockableButtonBlockEntity> void serverTick(Level world, BlockPos pos, BlockState state, T entity) {
+    public static <T extends LockableButtonBlockEntity> void serverTick(Level world, BlockPos pos, BlockState state,
+            T entity) {
         if (entity.isJammed()) {
             entity.setJammed(entity.getJammedTime() - 1);
         }
+        if (entity.cooldown > 0)
+            entity.cooldown--;
     }
 }

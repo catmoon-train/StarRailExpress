@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 public class PlaneSmallDoorBlock extends SmallDoorBlock {
-
+    public static final int INTERACTION_COOLDOWN = 10;
     public static final int EXPAND_MAX = 32;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     protected static final VoxelShape X_SHAPE = Block.box(7, 0, 0, 9, 16, 16);
@@ -128,6 +128,7 @@ public class PlaneSmallDoorBlock extends SmallDoorBlock {
     public void toggleDoor(BlockState state, Level world, SmallDoorBlockEntity entity, BlockPos lowerPos, int ticks) {
         // 当前门（作为主控门）
         entity.toggle(false, ticks);
+        entity.setCooldown(INTERACTION_COOLDOWN);
 
         Direction facing = state.getValue(FACING);
         boolean open = state.getValue(OPEN);
@@ -138,6 +139,7 @@ public class PlaneSmallDoorBlock extends SmallDoorBlock {
                 && neighborState.getValue(OPEN) == open
                 && world.getBlockEntity(neighborPos) instanceof SmallDoorBlockEntity neighborEntity) {
             neighborEntity.toggle(true, ticks);
+            neighborEntity.setCooldown(INTERACTION_COOLDOWN);
         }
     }
 

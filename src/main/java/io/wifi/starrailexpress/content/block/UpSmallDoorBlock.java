@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class UpSmallDoorBlock extends SmallDoorBlock {
+    public static final int INTERACTION_COOLDOWN = 10;
 
     public static final int EXPAND_MAX = 32;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
@@ -119,6 +120,7 @@ public class UpSmallDoorBlock extends SmallDoorBlock {
     public void toggleDoor(BlockState state, Level world, SmallDoorBlockEntity entity, BlockPos lowerPos, int ticks) {
         // 先触发当前门（作为主控门）
         entity.toggle(false, ticks);
+        entity.setCooldown(INTERACTION_COOLDOWN);
 
         Direction facing = state.getValue(FACING);
         // 门的侧面方向（垂直于朝向，即门排列的方向）
@@ -145,6 +147,7 @@ public class UpSmallDoorBlock extends SmallDoorBlock {
             if (neighborState.getBlock() instanceof SmallDoorBlock
                     && world.getBlockEntity(pos) instanceof SmallDoorBlockEntity neighborEntity) {
                 neighborEntity.toggle(true, ticks);
+                neighborEntity.setCooldown(INTERACTION_COOLDOWN);
             }
         }
     }

@@ -22,11 +22,12 @@ public abstract class DoorBlockEntity extends SyncingBlockEntity {
     protected boolean open;
     protected int age = 0;
 
-    private String keyName = "";
+    protected String keyName = "";
 
-    private int closeCountdown = 0;
-    private int jammedTime = 0;
-    private boolean blasted = false;
+    protected int closeCountdown = 0;
+    protected int jammedTime = 0;
+    protected boolean blasted = false;
+    protected int cooldown = 0;
 
     public DoorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -40,6 +41,9 @@ public abstract class DoorBlockEntity extends SyncingBlockEntity {
     }
 
     public static <T extends DoorBlockEntity> void serverTick(Level world, BlockPos pos, BlockState state, T entity) {
+        if (entity.cooldown > 0) {
+            entity.cooldown--;
+        }
         if (state.getValue(DoorPartBlock.OPEN) && !entity.isBlasted()) {
             if (entity.getCloseCountdown() >= 0) {
                 entity.setCloseCountdown(entity.getCloseCountdown() - 1);
@@ -201,5 +205,17 @@ public abstract class DoorBlockEntity extends SyncingBlockEntity {
 
     public void setBlasted(boolean blasted) {
         this.blasted = blasted;
+    }
+
+    public void setCooldown(int cooldown) {
+        this.cooldown = cooldown;
+    }
+
+    public int getCooldown() {
+        return this.cooldown;
+    }
+
+    public boolean isInCooldown() {
+        return this.cooldown > 0;
     }
 }

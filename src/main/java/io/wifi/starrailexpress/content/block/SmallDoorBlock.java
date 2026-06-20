@@ -51,6 +51,7 @@ import org.joml.Vector3f;
 import java.util.function.Supplier;
 
 public class SmallDoorBlock extends DoorPartBlock {
+    public static final int INTERACTION_COOLDOWN = 10;
 
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     protected static final VoxelShape X_SHAPE = Block.box(7, 0, 0, 9, 16, 16);
@@ -314,6 +315,9 @@ public class SmallDoorBlock extends DoorPartBlock {
             return InteractionResult.PASS;
         }
         if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
+            if (entity.isInCooldown()) {
+                return InteractionResult.FAIL;
+            }
             if (entity.isBlasted()) {
                 return InteractionResult.FAIL;
             }
@@ -507,6 +511,7 @@ public class SmallDoorBlock extends DoorPartBlock {
     public static void toggleDoorStatic(BlockState state, Level world, SmallDoorBlockEntity entity, BlockPos lowerPos,
             int ticks) {
         entity.toggle(false, ticks);
+        entity.setCooldown(INTERACTION_COOLDOWN);
         Direction facing = state.getValue(FACING);
         boolean open = state.getValue(OPEN);
         BlockPos neighborPos = lowerPos.relative(facing.getCounterClockWise());
@@ -516,6 +521,7 @@ public class SmallDoorBlock extends DoorPartBlock {
                 && neighborState.getValue(OPEN) == open
                 && world.getBlockEntity(neighborPos) instanceof SmallDoorBlockEntity neighborEntity) {
             neighborEntity.toggle(true, ticks);
+            neighborEntity.setCooldown(INTERACTION_COOLDOWN);
         }
     }
 
