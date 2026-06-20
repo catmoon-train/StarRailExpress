@@ -202,7 +202,7 @@ public class ConfigCommand {
                             .withStyle(ChatFormatting.GREEN),
                     false);
         } catch (Exception e) {
-            throw createSimpleSyntaxException("Cannot change config entry! " + e.getClass().getSimpleName()
+            throw createSimpleSyntaxException("Cannot get config entry! " + e.getClass().getSimpleName()
                     + e.getMessage());
         }
         return 1;
