@@ -10,8 +10,9 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
+import io.wifi.starrailexpress.content.item.StandardRevolverItem;
 import io.wifi.starrailexpress.event.*;
-import io.wifi.starrailexpress.event.AllowShootRevolverDrop.ShouldDropResult;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
@@ -738,6 +739,7 @@ public class ModEventsRegister {
 
     public static void registerEvents() {
         // 吝啬 - 商店购买返还20%金币
+        StandardRevolverItem.registerEvents();
         RefugeeComponent.register();
         OnShopPurchase.EVENT.register((player, entry, price) -> {
             org.agmas.noellesroles.role.ModifierEffects
@@ -983,9 +985,9 @@ public class ModEventsRegister {
             ItemStack mainHandStack = player.getMainHandItem();
             if (!mainHandStack.is(TMMItems.DERRINGER) && gameWorldComponent.isRole(target, ModRoles.WATCHER)) {
                 if (WatcherPlayerComponent.KEY.get(target).isInCalmStance())
-                    return ShouldDropResult.TRUE;
+                    return TrueFalseResult.TRUE;
             }
-            return ShouldDropResult.PASS;
+            return TrueFalseResult.PASS;
         });
         // 所有枪械公用冷却
         OnRevolverUsed.EVENT.register((player, target) -> {

@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.event.OnRevolverUsed;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -219,9 +220,9 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     public static void registerGunNoDropEvent() {
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
             if (isInFrenzy(player)) {
-                return AllowShootRevolverDrop.ShouldDropResult.FALSE;
+                return TrueFalseResult.FALSE;
             }
-            return AllowShootRevolverDrop.ShouldDropResult.PASS;
+            return TrueFalseResult.PASS;
         });
     }
 

@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
@@ -241,7 +242,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
     public static void registerBackfireEvent() {
         AllowShootRevolverDrop.EVENT.register((player, target) -> {
             if (ShootingFrenzyPlayerComponent.isInFrenzy(player)) {
-                return AllowShootRevolverDrop.ShouldDropResult.FALSE;
+                return TrueFalseResult.FALSE;
             }
             SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                     .get(player.level());
@@ -249,14 +250,14 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
                 ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(player);
                 if (executionerPlayerComponent.target != null
                         && executionerPlayerComponent.target.equals(target.getUUID())) {
-                    return AllowShootRevolverDrop.ShouldDropResult.TRUE;
+                    return TrueFalseResult.TRUE;
                 }
             }
             if (gameWorldComponent.isRole(target, ModRoles.VOODOO)
                     && NoellesRolesConfig.HANDLER.instance().voodooShotLikeEvil) {
-                return AllowShootRevolverDrop.ShouldDropResult.FALSE;
+                return TrueFalseResult.FALSE;
             }
-            return AllowShootRevolverDrop.ShouldDropResult.PASS;
+            return TrueFalseResult.PASS;
         });
 
     }

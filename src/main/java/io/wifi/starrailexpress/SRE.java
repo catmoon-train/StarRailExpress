@@ -27,11 +27,11 @@ import io.wifi.starrailexpress.content.vote.network.VoteCastC2SPacket;
 import io.wifi.starrailexpress.content.vote.network.VoteSyncS2CPacket;
 import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.event.AFKEventHandler;
-import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.event.EntityInteractionHandler;
 import io.wifi.starrailexpress.event.PlayerInteractionHandler;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.PlayerMountainHandler;
 import io.wifi.starrailexpress.game.TeamKillViolationHandler;
 import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
@@ -181,15 +181,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PlayerInteractionHandler.register();
         EntityInteractionHandler.register();
         AFKEventHandler.register();
-
-        // 制式左轮永不掉落：无论谁持有，命中玩家后枪都不会掉落
-        AllowShootRevolverDrop.EVENT.register((player, target) -> {
-            if (player.getMainHandItem().is(TMMItems.STANDARD_REVOLVER)) {
-                return AllowShootRevolverDrop.ShouldDropResult.FALSE;
-            }
-            return AllowShootRevolverDrop.ShouldDropResult.PASS;
-        });
-
+        PlayerMountainHandler.register();
         // 队友击杀违规检测：短期内多次击杀队友则执行 mcfunction
         TeamKillViolationHandler.registerEvent();
 

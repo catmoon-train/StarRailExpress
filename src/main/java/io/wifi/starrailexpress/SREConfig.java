@@ -20,7 +20,6 @@ public class SREConfig implements ConfigData {
     public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
             SREConfig.class);
 
-
     // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public boolean enableRepairMode = false;
@@ -192,6 +191,9 @@ public class SREConfig implements ConfigData {
     public boolean verboseTrainResetLogs = true;
     public boolean logGameEvent = true;
     public boolean savePlayerBodyItems = true;
+    
+    @ConfigSync(shouldSync = true)
+    public boolean disablePlayerMountain = true;
 
     // // 自动切换预设配置 - 游戏开始前自动应用指定预设，留空则不自动切换
     // @Tooltip(count = 3)

@@ -36,6 +36,7 @@
   "text.autoconfig.starrailexpress.title": "Star Rail Express 通用设置",
   "text.autoconfig.starrailexpress.option.logGameEvent": "在控制台输出游戏事件",
   "text.autoconfig.starrailexpress.option.savePlayerBodyItems": "是否允许玩家尸体保存玩家的物品栏信息",
+  "text.autoconfig.starrailexpress.option.disablePlayerMountain": "禁止玩家叠叠乐（即禁止玩家站在另一个玩家头上叠高度）",
   "text.autoconfig.starrailexpress.option.mapRandomCount": "地图选择显示的随机数量",
   "text.autoconfig.starrailexpress.option.mapRandomCount.@Tooltip": "设置为 -1 禁用",
   "text.autoconfig.starrailexpress.option.isLobby": "是否启用大厅模式",

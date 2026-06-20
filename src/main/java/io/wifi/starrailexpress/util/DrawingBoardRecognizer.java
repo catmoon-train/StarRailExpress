@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.utils.ai;
+package io.wifi.starrailexpress.util;
 
 import io.wifi.utils.ai.SimpleKNN;
 import net.minecraft.resources.ResourceLocation;

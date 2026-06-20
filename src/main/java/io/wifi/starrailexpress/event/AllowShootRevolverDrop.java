@@ -5,6 +5,8 @@ import net.minecraft.world.entity.player.Player;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
+import io.wifi.starrailexpress.util.TrueFalseResult;
+
 /**
  * 事件接口：判断手枪射击击中时是否允许掉落物品（例如目标的物品）。
  * 采用首次非 PASS 结果优先语义：监听器按注册顺序依次被调用，
@@ -17,20 +19,6 @@ import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 public interface AllowShootRevolverDrop {
 
     /**
-     * 掉落决策结果枚举。
-     *
-     * <p>Enum representing the drop decision result.
-     */
-    public static enum ShouldDropResult {
-        /** 强制掉落 / Force the drop to occur. */
-        TRUE,
-        /** 强制不掉落 / Force the drop to be prevented. */
-        FALSE,
-        /** 由后续监听器或默认逻辑决定 / Defer to subsequent listeners or default logic. */
-        PASS
-    }
-
-    /**
      * 判断手枪射击击中时是否允许掉落物品的事件。
      * 采用首次非 PASS 结果优先语义。
      *
@@ -41,11 +29,11 @@ public interface AllowShootRevolverDrop {
             listeners -> (player, target) -> {
                 for (AllowShootRevolverDrop listener : listeners) {
                     var re = listener.allowDrop(player, target);
-                    if (re != null && re != ShouldDropResult.PASS) {
+                    if (re != null && re != TrueFalseResult.PASS) {
                         return re;
                     }
                 }
-                return ShouldDropResult.PASS;
+                return TrueFalseResult.PASS;
             });
 
     /**
@@ -58,5 +46,5 @@ public interface AllowShootRevolverDrop {
      * @return 掉落决策结果 / the drop decision result
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    ShouldDropResult allowDrop(Player player, Player target);
+    TrueFalseResult allowDrop(Player player, Player target);
 }
