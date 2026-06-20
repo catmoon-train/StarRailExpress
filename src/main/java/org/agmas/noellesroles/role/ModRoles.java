@@ -470,7 +470,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 不隐藏计分板
     )).setCanSeeCoin(true).setComponentKey(ModComponents.DIO).setOccupiedRoleCount(2).setCanSeeBodyDeathReason(true)
-            .setCanBeRandomedByOtherRoles(false);
+            .setCanBeRandomedByOtherRoles(false).setDefaultMax(0);
     // JOJO 承太郎
     public static SRERole JOJO = TMMRoles.registerRole(new NormalRole(
             JOJO_ID, // 角色 ID

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Random;
 
 public class InitModRolesMax {
+    public static Random random = new Random();
     public static void autoChangePresent() {
         // 自动切换预设：游戏结束时应用配置的预设，使其在下一局游戏中生效
         io.wifi.starrailexpress.SREConfig sreConfig = io.wifi.starrailexpress.SREConfig.instance();
@@ -320,6 +321,14 @@ public class InitModRolesMax {
             }
             final int players_count = serverLevel.getServer().getPlayerCount();
             initModifiersCount(players_count);
+
+            if (players_count >= NoellesRolesConfig.instance().minPlayerForEggRoles && random.nextInt(0, 100) <= EGGS_CHANCE) {
+                Harpymodloader.setRoleMaximum(ModRoles.DIO, 1);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 1);
+            } else {
+                Harpymodloader.setRoleMaximum(ModRoles.DIO, 0);
+                Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 0);
+            }
 
             // 获取地图是否可跳跃
             boolean canJumpMap = false;

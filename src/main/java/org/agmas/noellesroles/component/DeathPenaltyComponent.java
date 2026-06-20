@@ -220,13 +220,13 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         this.limitCameraUUID = null;
         if (this.player.hasEffect(ModEffects.MOVE_BANED)) {
             int duration = this.player.getEffect(ModEffects.MOVE_BANED).getDuration();
-            if (duration >= 30 * 20 || duration == -1) {
+            if (duration >= 60 * 20 || duration == -1) {
                 this.player.removeEffect(ModEffects.MOVE_BANED);
             }
         }
         if (this.player.hasEffect(ModEffects.USED_BANED)) {
             int duration = this.player.getEffect(ModEffects.USED_BANED).getDuration();
-            if (duration >= 30 * 20 || duration == -1) {
+            if (duration >= 60 * 20 || duration == -1) {
                 this.player.removeEffect(ModEffects.USED_BANED);
             }
         }
