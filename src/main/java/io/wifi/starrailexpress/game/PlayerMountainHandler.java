@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.game;
 
+import java.util.Random;
+
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.event.CanCollideWith;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -29,13 +31,15 @@ public class PlayerMountainHandler {
      * @param a 玩家 A（通常为上方玩家）
      * @param b 玩家 B（通常为下方玩家）
      */
+    public static Random random = new Random();
+
     public static void pushApart(Player a, Player b, double force) {
         double dx = a.getX() - b.getX();
         double dz = a.getZ() - b.getZ();
         double dist = Math.sqrt(dx * dx + dz * dz);
-        if (dist < 0.1) {
-            dx = 0.1;
-            dz = 0.1; // 防止零向量
+        if (dist < 0.05) {
+            dx = 0.72 * (random.nextBoolean() ? 1d : -1d);
+            dz = 0.72 * (random.nextBoolean() ? 1d : -1d); // 防止零向量
         } else {
             dx /= dist;
             dz /= dist;
