@@ -2796,7 +2796,6 @@ public class SimpleQuestMinigameScreen extends Screen {
             for(int l=0;l<4;l++){int c=colorTubes[t][l];if(c>=0){int ly=sy+th-4-(l+1)*lh;g.fill(tx+4,ly,tx+tw-4,ly+lh,cols[c]);}}
             g.fill(tx+3,sy,tx+tw-3,sy+3,0x60FFFFFF); // 管口
         }
-        g.drawCenteredString(font,tr("minigame.starrailexpress.color_sort"),width/2,top+HEADER_H+5,WHITE);
     }
     private void clickColorSort(double mx,double my){
         int T=6,tw=42,th=120,gap=10,total=T*tw+(T-1)*gap,sx=panelLeft()+(PANEL_W-total)/2,sy=panelTop()+HEADER_H+20;
