@@ -73,6 +73,12 @@ public class MinigameScreenFactory {
                 SimpleQuestMinigameScreen.Mode.BREAK_JAR));
         FACTORY.put("zone_calibration", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
                 SimpleQuestMinigameScreen.Mode.ZONE_CALIBRATION));
+        FACTORY.put("water_valve", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.WATER_VALVE));
+        FACTORY.put("typing", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.TYPING));
+        FACTORY.put("pipe_bird", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.PIPE_BIRD));
     }
 
     public static Screen create(String minigameId, BlockPos pos, Runnable onSuccess) {

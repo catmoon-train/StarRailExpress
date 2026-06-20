@@ -2360,5 +2360,15 @@
   "minigame.starrailexpress.slice_food": "切食材",
   "minigame.starrailexpress.three_cards": "三張牌",
   "minigame.starrailexpress.break_jar": "砸碎罐子",
-  "minigame.starrailexpress.zone_calibration": "區間校準"
+  "minigame.starrailexpress.zone_calibration": "區間校準",
+  "minigame.starrailexpress.water_valve": "水閥",
+  "minigame.starrailexpress.water_valve.hint": "按住拖拽轉動水閥",
+  "minigame.starrailexpress.water_valve.clockwise": "↻ 順時針轉動",
+  "minigame.starrailexpress.water_valve.counterclockwise": "↺ 逆時針轉動",
+  "minigame.starrailexpress.typing": "打字",
+  "minigame.starrailexpress.typing.hint": "按上方字母順序輸入",
+  "minigame.starrailexpress.typing.confirm": "確定",
+  "minigame.starrailexpress.pipe_bird": "管道小鳥",
+  "minigame.starrailexpress.pipe_bird.dead": "撞到管道了！",
+  "minigame.starrailexpress.pipe_bird.restart": "點擊重新開始"
 }

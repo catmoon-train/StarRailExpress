@@ -80,6 +80,18 @@ public class QuestMinigames {
     public static final QuestMinigame ZONE_CALIBRATION = register(
             QuestMinigame.of("zone_calibration", "minigame.starrailexpress.zone_calibration"));
 
+    /** 水阀小游戏 */
+    public static final QuestMinigame WATER_VALVE = register(
+            QuestMinigame.of("water_valve", "minigame.starrailexpress.water_valve"));
+
+    /** 打字小游戏 */
+    public static final QuestMinigame TYPING = register(
+            QuestMinigame.of("typing", "minigame.starrailexpress.typing"));
+
+    /** 管道小鸟（Flappy Bird） */
+    public static final QuestMinigame PIPE_BIRD = register(
+            QuestMinigame.of("pipe_bird", "minigame.starrailexpress.pipe_bird"));
+
     // ══════════════════════════════════════════════
     // 注册方法
     // ══════════════════════════════════════════════

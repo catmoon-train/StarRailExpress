@@ -19,6 +19,9 @@ import java.util.Random;
 public class SimpleQuestMinigameScreen extends Screen {
 
     public enum Mode {
+        WATER_VALVE("water_valve"),
+        TYPING("typing"),
+        PIPE_BIRD("pipe_bird"),
         REACTOR_TEMPERATURE("reactor_temperature"),
         BOX_SORT("box_sort"),
         WIRE_CONNECT("wire_connect"),
@@ -115,6 +118,39 @@ public class SimpleQuestMinigameScreen extends Screen {
     private int uiTicks;
     private int introTicks;
 
+    /** 水阀：随机旋转方向 true=顺时针 false=逆时针 */
+    private boolean valveClockwise;
+    /** 水阀：累计旋转进度（弧度） */
+    private double valveTotalRotation;
+    /** 水阀：当前阀轮角度（弧度），用于渲染旋转 */
+    private double valveAngle;
+    /** 水阀：上一次鼠标角度（弧度），用于计算 delta */
+    private double valveLastMouseAngle;
+    /** 水阀：是否正在拖拽阀轮 */
+    private boolean valveDragging;
+    /** 水阀：完成所需的总旋转量（弧度），约 1.5 圈 */
+    private static final double VALVE_REQUIRED = Math.PI * 3.0;
+
+    /** 打字：目标字符串 */
+    private String typingTarget;
+    /** 打字：玩家输入的字符串 */
+    private final StringBuilder typingInput = new StringBuilder();
+    /** 打字：是否输入错误（用于显示红色提示） */
+    private boolean typingError;
+
+    /** 管道小鸟：鸟的 Y 坐标 */
+    private float birdY;
+    /** 管道小鸟：鸟的垂直速度 */
+    private float birdVelocity;
+    /** 管道小鸟：管道列表 */
+    private final List<PipePair> pipePairs = new ArrayList<>();
+    /** 管道小鸟：已通过的管道数 */
+    private int pipesPassed;
+    /** 管道小鸟：需要通过的管道数 */
+    private static final int PIPES_REQUIRED = 3;
+    /** 管道小鸟：游戏是否运行中 */
+    private boolean birdAlive;
+
     /** 成功动画：>=0 表示已完成，正在播放成功反馈，到达时长后关闭。 */
     private int successTicks = -1;
     private static final int SUCCESS_ANIM_TICKS = 16;
@@ -169,6 +205,16 @@ public class SimpleQuestMinigameScreen extends Screen {
         velocity = 0.035f;
         spawnTimer = 20;
         introTicks = 0;
+        valveTotalRotation = 0;
+        valveAngle = 0;
+        valveDragging = false;
+        pipePairs.clear();
+        pipesPassed = 0;
+        birdAlive = true;
+        birdY = panelTop() + 80;
+        birdVelocity = 0;
+        typingInput.setLength(0);
+        typingError = false;
         setupMode();
     }
 
@@ -280,6 +326,26 @@ public class SimpleQuestMinigameScreen extends Screen {
                 progress = 35;
                 targetTemp = 46 + rng.nextInt(12);
             }
+            case WATER_VALVE -> {
+                valveClockwise = rng.nextBoolean();
+                valveTotalRotation = 0;
+                valveAngle = 0;
+            }
+            case TYPING -> {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < 10; i++) {
+                    sb.append((char) ('A' + rng.nextInt(26)));
+                }
+                typingTarget = sb.toString();
+                // EditBox 在 init() 中通过 addRenderableWidget 添加
+            }
+            case PIPE_BIRD -> {
+                birdY = panelTop() + 80;
+                birdVelocity = 0;
+                pipePairs.clear();
+                pipesPassed = 0;
+                birdAlive = true;
+            }
             default -> {
             }
         }
@@ -352,6 +418,8 @@ public class SimpleQuestMinigameScreen extends Screen {
                     clearTicks = 0;
                 }
             }
+            case WATER_VALVE -> tickWaterValve();
+            case PIPE_BIRD -> tickPipeBird();
             default -> {
             }
         }
@@ -462,6 +530,9 @@ public class SimpleQuestMinigameScreen extends Screen {
             case THREE_CARDS -> renderCards(g, left, top);
             case BREAK_JAR -> renderJar(g, left, top);
             case ZONE_CALIBRATION -> renderZone(g, left, top);
+            case WATER_VALVE -> renderWaterValve(g, left, top);
+            case TYPING -> renderTyping(g, left, top);
+            case PIPE_BIRD -> renderPipeBird(g, left, top);
         }
         g.pose().popPose();
 
@@ -777,6 +848,9 @@ public class SimpleQuestMinigameScreen extends Screen {
             case WHACK_MOLE -> clickMole(mouseX, mouseY);
             case SLICE_FOOD -> clickSlice(mouseX, mouseY);
             case THREE_CARDS -> clickCard(mouseX, mouseY);
+            case WATER_VALVE -> clickWaterValve(mouseX, mouseY);
+            case TYPING -> clickTyping(mouseX, mouseY);
+            case PIPE_BIRD -> flapBird();
             default -> {
             }
         }
@@ -937,6 +1011,10 @@ public class SimpleQuestMinigameScreen extends Screen {
             else valueB = normalized;
             return true;
         }
+        if (mode == Mode.WATER_VALVE && valveDragging) {
+            dragWaterValve(mouseX, mouseY);
+            return true;
+        }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
@@ -945,6 +1023,7 @@ public class SimpleQuestMinigameScreen extends Screen {
         mouseHeld = false;
         selectedWire = -1;
         selectedKnob = -1;
+        valveDragging = false;
         if (draggedPiece != null) {
             releaseDrag(mouseX, mouseY);
             draggedPiece = null;
@@ -1022,6 +1101,10 @@ public class SimpleQuestMinigameScreen extends Screen {
             fireBullet();
             return true;
         }
+        if (mode == Mode.PIPE_BIRD && keyCode == GLFW.GLFW_KEY_SPACE) {
+            flapBird();
+            return true;
+        }
         if (mode == Mode.RHYTHM && keyCode == GLFW.GLFW_KEY_SPACE) {
             int lineY = panelTop() + 195;
             for (Note note : notes) {
@@ -1034,7 +1117,28 @@ public class SimpleQuestMinigameScreen extends Screen {
             }
             return true;
         }
+        if (mode == Mode.TYPING && keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+            if (typingInput.length() > 0) {
+                typingInput.setLength(typingInput.length() - 1);
+                typingError = false;
+            }
+            return true;
+        }
+        if (mode == Mode.TYPING && keyCode == GLFW.GLFW_KEY_ENTER) {
+            checkTyping();
+            return true;
+        }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        if (mode == Mode.TYPING && chr >= ' ' && typingInput.length() < 10) {
+            typingInput.append(Character.toUpperCase(chr));
+            typingError = false;
+            return true;
+        }
+        return super.charTyped(chr, modifiers);
     }
 
     @Override
@@ -1177,6 +1281,315 @@ public class SimpleQuestMinigameScreen extends Screen {
         drawShape(g, dot.kind % 4, dot.x, dot.y, dot.radius, color, false);
     }
 
+    // ══════════════════════════════════════════════
+    // 打字小游戏
+    // ══════════════════════════════════════════════
+
+    private void clickTyping(double mouseX, double mouseY) {
+        int top = panelTop();
+        // 点击确认按钮
+        if (inRect(mouseX, mouseY, width / 2 - 30, top + 185, 60, 24)) {
+            checkTyping();
+        }
+    }
+
+    private void checkTyping() {
+        if (typingInput.toString().equals(typingTarget)) {
+            complete();
+        } else {
+            typingError = true;
+        }
+    }
+
+    private void renderTyping(GuiGraphics g, int left, int top) {
+        g.drawCenteredString(font, modeText("hint"), width / 2, top + 36, MUTED);
+
+        // 目标字符串显示
+        for (int i = 0; i < 10; i++) {
+            char c = typingTarget.charAt(i);
+            int cx = left + 45 + i * 36;
+            MinigameUI.roundRect(g, cx, top + 80, cx + 28, top + 108, 4, 0xFF2A3545);
+            g.drawCenteredString(font, Component.literal(String.valueOf(c)), cx + 14, top + 93, YELLOW);
+        }
+
+        // 输入框
+        int inputX = left + 45;
+        int inputY = top + 125;
+        int inputW = 352;
+        int inputH = 28;
+        MinigameUI.roundRect(g, inputX, inputY, inputX + inputW, inputY + inputH, 4,
+                typingError ? 0x88603030 : 0xFF3C5066);
+
+        String displayInput = typingInput.toString();
+        for (int i = 0; i < 10; i++) {
+            int cx = inputX + 12 + i * 34;
+            char dc = i < displayInput.length() ? displayInput.charAt(i) : '_';
+            boolean correct = i < typingTarget.length() && i < displayInput.length()
+                    && displayInput.charAt(i) == typingTarget.charAt(i);
+            int color = !typingError ? WHITE : (correct ? GREEN : RED);
+            g.drawString(font, Component.literal(String.valueOf(dc)), cx, inputY + 9, color);
+        }
+
+        // 确认按钮
+        drawButton(g, width / 2 - 30, top + 185, 60, 24, modeText("confirm"));
+    }
+
+    // ══════════════════════════════════════════════
+    // 管道小鸟（Flappy Bird）
+    // ══════════════════════════════════════════════
+
+    private void flapBird() {
+        if (!birdAlive) {
+            // 死亡后点击重新开始
+            init();
+            return;
+        }
+        birdVelocity = -5.5f;
+    }
+
+    private void tickPipeBird() {
+        if (!birdAlive) return;
+
+        int top = panelTop();
+        float gravity = 0.32f;
+
+        // 重力
+        birdVelocity += gravity;
+        birdY += birdVelocity;
+
+        // 边界检测
+        if (birdY < top + HEADER_H + 4) {
+            birdY = top + HEADER_H + 4;
+            birdVelocity = 0;
+        }
+        if (birdY > top + PANEL_H - 10) {
+            birdY = top + PANEL_H - 10;
+            birdVelocity = 0;
+        }
+
+        // 生成管道
+        if (pipePairs.isEmpty() || pipePairs.get(pipePairs.size() - 1).x < panelLeft() + 280) {
+            spawnPipePair();
+        }
+
+        // 移动管道
+        for (PipePair pp : pipePairs) {
+            pp.x -= 3.5f;
+        }
+
+        // 移除超出屏幕的管道
+        pipePairs.removeIf(pp -> pp.x < panelLeft() - 60);
+
+        // 碰撞检测与通过计数
+        int birdCx = width / 2 - 20;
+        for (PipePair pp : pipePairs) {
+            // 碰撞检测
+            if (birdCx + 18 > pp.x && birdCx < pp.x + 30) {
+                if (birdY - 12 < pp.topHeight || birdY + 12 > pp.bottomY) {
+                    birdAlive = false;
+                    return;
+                }
+            }
+            // 通过管道计数
+            if (!pp.passed && birdCx > pp.x + 30) {
+                pp.passed = true;
+                pipesPassed++;
+                if (pipesPassed >= PIPES_REQUIRED) {
+                    complete();
+                    return;
+                }
+            }
+        }
+    }
+
+    private void spawnPipePair() {
+        int left = panelLeft();
+        int top = panelTop();
+        int gapSize = 88; // 较大间隙以降低难度
+        int minGapY = top + HEADER_H + 30;
+        int maxGapY = top + PANEL_H - 30 - gapSize;
+        int gapY = minGapY + rng.nextInt(maxGapY - minGapY);
+        PipePair pp = new PipePair();
+        pp.x = left + PANEL_W + 10;
+        pp.topHeight = gapY - top;
+        pp.bottomY = gapY + gapSize;
+        pp.passed = false;
+        pipePairs.add(pp);
+    }
+
+    private void renderPipeBird(GuiGraphics g, int left, int top) {
+        int cx = width / 2 - 20;
+
+        if (!birdAlive) {
+            g.drawCenteredString(font, tr("pipe_bird.dead"), width / 2, top + 70, RED);
+            g.drawCenteredString(font, tr("pipe_bird.restart"), width / 2, top + 100, MUTED);
+            // 仍绘制管道
+            for (PipePair pp : pipePairs) {
+                renderPipe(g, left, top, pp);
+            }
+            return;
+        }
+
+        // 提示分数
+        g.drawCenteredString(font, tr("common.hits", pipesPassed, PIPES_REQUIRED), width / 2, top + 34, WHITE);
+
+        // 绘制管道
+        for (PipePair pp : pipePairs) {
+            renderPipe(g, left, top, pp);
+        }
+
+        // 绘制鸟（简单的圆形+翅膀）
+        int birdX = cx + 9;
+        int birdYRound = Math.round(birdY);
+        // 身体
+        drawCircle(g, birdX, birdYRound, 12, 0xFFFFCC00);
+        // 翅膀
+        float wingFlap = (float) Math.sin(uiTicks * 0.5f) * 4f;
+        if (birdVelocity < 0) wingFlap = -3;
+        g.fill(birdX - 8, birdYRound - 8, birdX - 4, birdYRound + (int) wingFlap + 2, 0xFFFFAA00);
+        // 眼睛
+        drawCircle(g, birdX + 5, birdYRound - 4, 3, WHITE);
+        drawCircle(g, birdX + 6, birdYRound - 4, 2, 0xFF111111);
+    }
+
+    private void renderPipe(GuiGraphics g, int left, int top, PipePair pp) {
+        int pipeW = 30;
+        // 上管道
+        if (pp.topHeight > 0) {
+            MinigameUI.roundRect(g, (int) pp.x, top + HEADER_H, (int) pp.x + pipeW, top + HEADER_H + pp.topHeight, 0,
+                    0xFF3D8B37);
+            // 管口
+            g.fill((int) pp.x - 3, top + HEADER_H + pp.topHeight - 4, (int) pp.x + pipeW + 3,
+                    top + HEADER_H + pp.topHeight, 0xFF2E6E28);
+        }
+        // 下管道
+        if (pp.bottomY < top + PANEL_H) {
+            MinigameUI.roundRect(g, (int) pp.x, pp.bottomY, (int) pp.x + pipeW, top + PANEL_H, 0, 0xFF3D8B37);
+            // 管口
+            g.fill((int) pp.x - 3, pp.bottomY, (int) pp.x + pipeW + 3, pp.bottomY + 4, 0xFF2E6E28);
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    // 水阀小游戏
+    // ══════════════════════════════════════════════
+
+    private void clickWaterValve(double mouseX, double mouseY) {
+        int cx = width / 2;
+        int cy = panelTop() + 110;
+        if (inCircle(mouseX, mouseY, cx, cy, 80)) {
+            valveDragging = true;
+            valveLastMouseAngle = Math.atan2(cy - mouseY, mouseX - cx);
+        }
+    }
+
+    private void dragWaterValve(double mouseX, double mouseY) {
+        int cx = width / 2;
+        int cy = panelTop() + 110;
+        double currentAngle = Math.atan2(cy - mouseY, mouseX - cx);
+        double delta = currentAngle - valveLastMouseAngle;
+
+        // 角度差值归一化到 [-PI, PI]
+        if (delta > Math.PI) delta -= 2.0 * Math.PI;
+        if (delta < -Math.PI) delta += 2.0 * Math.PI;
+
+        // 判断方向是否正确
+        boolean correct = valveClockwise ? (delta < 0) : (delta > 0);
+        if (correct) {
+            valveTotalRotation += Math.abs(delta);
+        } else if (Math.abs(delta) > 0.01) {
+            // 反方向有惩罚但不重置所有进度
+            valveTotalRotation = Math.max(0, valveTotalRotation - Math.abs(delta) * 1.5);
+        }
+
+        valveAngle += delta;
+        valveLastMouseAngle = currentAngle;
+
+        if (valveTotalRotation >= VALVE_REQUIRED) {
+            complete();
+        }
+    }
+
+    /** tickWaterValve：没有持续 tick 逻辑，进度由鼠标拖拽驱动 */
+    private void tickWaterValve() {
+        // 进度完全由鼠标拖拽操作驱动，无需持续 tick 逻辑
+    }
+
+    private void renderWaterValve(GuiGraphics g, int left, int top) {
+        int cx = width / 2;
+        int cy = top + 110;
+        int outerR = 70;
+        int innerR = 14;
+        int spokeCount = 4;
+
+        // 方向提示文字
+        Component dirHint = valveClockwise ? modeText("clockwise") : modeText("counterclockwise");
+        g.drawCenteredString(font, dirHint, cx, top + 30, YELLOW);
+
+        // 拖拽提示
+        g.drawCenteredString(font, modeText("hint"), cx, top + 212, MUTED);
+
+        // 外圈
+        MinigameUI.ring(g, cx, cy, outerR, 6, 0xFF8090A0);
+        drawCircle(g, cx, cy, outerR - 10, 0x443C5060);
+
+        // 辐条（随阀轮旋转）
+        for (int i = 0; i < spokeCount; i++) {
+            double spokeAngle = valveAngle + i * Math.PI / 2.0;
+            int sx = cx - (int) (Math.cos(spokeAngle) * innerR);
+            int sy = cy + (int) (Math.sin(spokeAngle) * innerR);
+            int ex = cx - (int) (Math.cos(spokeAngle) * (outerR - 8));
+            int ey = cy + (int) (Math.sin(spokeAngle) * (outerR - 8));
+            g.fill(Math.min(sx, ex), Math.min(sy, ey), Math.max(sx, ex) + 2, Math.max(sy, ey) + 2, 0xFF6B7D90);
+        }
+
+        // 中心轴
+        drawCircle(g, cx, cy, innerR, 0xFF384554);
+        drawCircle(g, cx, cy, innerR - 4, 0xFF4A5E72);
+
+        // 旋转方向箭头（在外圈上绘制弧形箭头）
+        drawValveDirectionArrow(g, cx, cy, outerR + 6, valveClockwise);
+
+        // 手柄抓点（4个方向的抓点）
+        for (int i = 0; i < spokeCount; i++) {
+            double gripAngle = valveAngle + i * Math.PI / 2.0;
+            int gx = cx - (int) (Math.cos(gripAngle) * (outerR - 12));
+            int gy = cy + (int) (Math.sin(gripAngle) * (outerR - 12));
+            drawCircle(g, gx, gy, 6, 0xFF95AABB);
+        }
+    }
+
+    /** 在阀门外圈绘制方向指示箭头 */
+    private void drawValveDirectionArrow(GuiGraphics g, int cx, int cy, int r, boolean clockwise) {
+        if (clockwise) {
+            // 顺时针箭头：在右侧绘制向下弯曲的箭头
+            int x1 = cx + r + 5;
+            int y1 = cy - 12;
+            int x2 = cx + r + 5;
+            int y2 = cy + 12;
+            // 箭头头部
+            g.fill(x2 - 3, y2 - 4, x2 + 3, y2, 0xFFE0C060);
+            g.fill(x2 - 5, y2 - 9, x2 + 5, y2 - 4, 0xFFE0C060);
+            // 箭头杆
+            g.fill(x1 - 1, y1, x1 + 2, y2 - 4, 0xFFE0C060);
+            // 弯曲部分（上方）
+            g.fill(cx + r - 2, cy - r - 15, cx + r + 14, cy - r - 13, 0xFFE0C060);
+        } else {
+            // 逆时针箭头：在右侧绘制向上弯曲的箭头
+            int x1 = cx + r + 5;
+            int y1 = cy + 12;
+            int x2 = cx + r + 5;
+            int y2 = cy - 12;
+            // 箭头头部
+            g.fill(x2 - 3, y2, x2 + 3, y2 + 4, 0xFFE0C060);
+            g.fill(x2 - 5, y2 + 4, x2 + 5, y2 + 9, 0xFFE0C060);
+            // 箭头杆
+            g.fill(x1 - 1, y2 + 4, x1 + 2, y1, 0xFFE0C060);
+            // 弯曲部分（下方）
+            g.fill(cx + r - 2, cy + r + 13, cx + r + 14, cy + r + 15, 0xFFE0C060);
+        }
+    }
+
     private Component shapeLabel(int shape) {
         String id = switch (shape) {
             case 0 -> "circle";
@@ -1214,6 +1627,13 @@ public class SimpleQuestMinigameScreen extends Screen {
         float dx = ax - bx;
         float dy = ay - by;
         return (float) Math.sqrt(dx * dx + dy * dy);
+    }
+
+    private static class PipePair {
+        float x;
+        int topHeight;
+        int bottomY;
+        boolean passed;
     }
 
     private static class Piece {
