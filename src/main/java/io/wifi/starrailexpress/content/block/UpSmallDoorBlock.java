@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 public class UpSmallDoorBlock extends SmallDoorBlock {
-    public static final int INTERACTION_COOLDOWN = 10;
 
     public static final int EXPAND_MAX = 32;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
