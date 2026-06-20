@@ -22,6 +22,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -381,7 +382,7 @@ public class TraitorAndModifiers {
     private static void registerDeathEvents() {
         // 回光返照 - 被击杀时延后3秒死亡（不阻挡列车碾压和挂机死亡）
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
-            if (!(player instanceof ServerPlayer sp))
+            if (!(player instanceof ServerPlayer))
                 return true;
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
             if (gameWorld == null || !gameWorld.isRunning())
@@ -394,7 +395,13 @@ public class TraitorAndModifiers {
             if (deathReasonId.equals(trainDeath) || deathReasonId.equals(afkDeath)) {
                 return true; // 这些死亡原因不触发回光返照
             }
+            return true;
+        });
 
+        // 回光返照避免受到force影响
+        OnPlayerDeathWithKiller.EVENT.register((player, killer, deathReasonId) -> {
+            if (!(player instanceof ServerPlayer sp))
+                return;
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
             if (modifiers.isModifier(player.getUUID(), LAST_GASP) && !LAST_GASP_TRIGGERED.contains(player.getUUID())) {
                 LAST_GASP_TRIGGERED.add(player.getUUID());
@@ -430,10 +437,13 @@ public class TraitorAndModifiers {
                             player.getX(), player.getY() + 1.0, player.getZ(),
                             30, 0.8, 1.0, 0.8, 0.05);
                 }
-
-                return false; // 取消当前死亡
+                var body = GameUtils.findPlayerBodyEntity(sp);
+                if (body != null) {
+                    body.discard();
+                }
+                sp.setGameMode(GameType.ADVENTURE);
+                return;
             }
-            return true;
         });
 
         // 起义军 - 被同阵营误杀时变为叛徒（只能触发一次）
