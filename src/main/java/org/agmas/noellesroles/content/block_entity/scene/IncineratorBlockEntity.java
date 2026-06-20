@@ -13,6 +13,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,8 +26,10 @@ import net.minecraft.world.phys.Vec3;
  */
 public class IncineratorBlockEntity extends BlockEntity {
 
-    /** 判定为“被击退”的最小朝向炉口速度。普通行走约 0.1，击退约 0.35~0.9。 */
+    /** 判定为"被击退"的最小朝向炉口速度。普通行走约 0.1，击退约 0.35~0.9。 */
     private static final double KNOCKBACK_THRESHOLD = 0.22;
+    /** 上一次受到攻击的超时时间（tick），超过此时间则视为无伤害来源。 */
+    private static final long LAST_HURT_TIMEOUT = 60;
 
     public IncineratorBlockEntity(BlockPos pos, BlockState state) {
         super(ModSceneBlocks.INCINERATOR_ENTITY, pos, state);
@@ -51,7 +54,15 @@ public class IncineratorBlockEntity extends BlockEntity {
             p.setRemainingFireTicks(100);
             serverLevel.sendParticles(ParticleTypes.LAVA, p.getX(), p.getY() + 0.5, p.getZ(), 15, 0.3, 0.5, 0.3, 0.05);
             serverLevel.playSound(null, mouth, SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS, 1.2F, 0.7F);
-            GameUtils.killPlayer(p, true, null, GameConstants.DeathReasons.GENERIC);
+
+            // 追溯伤害来源：检测推入焚化炉的凶手
+            Player killer = null;
+            LivingEntity lastHurt = p.getLastHurtByMob();
+            if (lastHurt instanceof Player lastHurtPlayer
+                    && serverLevel.getGameTime() - p.getLastHurtByMobTimestamp() < LAST_HURT_TIMEOUT) {
+                killer = lastHurtPlayer;
+            }
+            GameUtils.forceKillPlayer(p, true, killer, GameConstants.DeathReasons.INCINERATOR_PUSHED);
         }
 
         // 炉口前 2 格内、被击退（朝炉口高速）的玩家：吸入

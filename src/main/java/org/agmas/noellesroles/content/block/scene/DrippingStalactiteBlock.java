@@ -133,7 +133,7 @@ public class DrippingStalactiteBlock extends Block {
         List<Player> victims = level.getEntitiesOfClass(Player.class, column,
                 p -> p.isAlive() && !p.isCreative() && !p.isSpectator());
         for (Player victim : victims) {
-            GameUtils.killPlayer(victim, true, null, GameConstants.DeathReasons.GENERIC);
+            GameUtils.forceKillPlayer(victim, true, null, GameConstants.DeathReasons.STALACTITE_IMPALE);
         }
     }
 }

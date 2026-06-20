@@ -198,6 +198,11 @@ public class GameConstants {
         public static ResourceLocation NUNCHUCK = SRE.id("nunchuck_hit");
         public static ResourceLocation ZERO_ONE_FIVE = SRE.id("zero_one_five_shot");
         public static ResourceLocation SELF_LOST = SRE.id("self_lost");
+        public static ResourceLocation MANHOLE_SUFFOCATION = SRE.id("manhole_suffocation");
+        public static ResourceLocation STALACTITE_IMPALE = SRE.id("stalactite_impale");
+        public static ResourceLocation FLAMETHROWER_BURNED = SRE.id("flamethrower_burned");
+        public static ResourceLocation BOULDER_CRUSH = SRE.id("boulder_crush");
+        public static ResourceLocation INCINERATOR_PUSHED = SRE.id("incinerator_pushed");
     }
 
     public static int getFurandoruSafeLine() {

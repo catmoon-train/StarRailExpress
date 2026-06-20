@@ -91,7 +91,7 @@ public class RollingStoneEntity extends Entity {
         List<Player> hit = level.getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(0.15),
                 p -> p.isAlive() && !p.isCreative() && !p.isSpectator());
         for (Player p : hit) {
-            GameUtils.killPlayer(p, true, null, GameConstants.DeathReasons.GENERIC);
+            GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.BOULDER_CRUSH);
         }
 
         // 滚动尘土 + 轰隆声

@@ -59,7 +59,7 @@ public class ManholeBlockEntity extends BlockEntity {
                 SceneEventManager.resetDwell(serverLevel, player, CHANNEL);
                 SceneParticles.burst(serverLevel, player.position().add(0, 0.5, 0), ParticleTypes.BUBBLE_POP,
                         20, 0.3, 0.02);
-                GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.GENERIC);
+                GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.MANHOLE_SUFFOCATION);
             } else if (dwell >= WARN_TICKS && dwell % 10 == 0) {
                 SceneParticles.burst(serverLevel, Vec3Center(pos), ParticleTypes.BUBBLE_COLUMN_UP, 6, 0.25, 0.05);
             }

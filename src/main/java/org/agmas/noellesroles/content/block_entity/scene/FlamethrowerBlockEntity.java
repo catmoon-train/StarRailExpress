@@ -73,7 +73,7 @@ public class FlamethrowerBlockEntity extends BlockEntity {
                 p -> p.isAlive() && !p.isCreative() && !p.isSpectator());
         for (Player victim : victims) {
             victim.setRemainingFireTicks(80);
-            GameUtils.killPlayer(victim, true, null, GameConstants.DeathReasons.GENERIC);
+            GameUtils.forceKillPlayer(victim, true, null, GameConstants.DeathReasons.FLAMETHROWER_BURNED);
         }
     }
 
