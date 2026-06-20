@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Blocks;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -30,6 +31,24 @@ public class SimpleQuestMinigameScreen extends Screen {
         PIPE_BIRD("pipe_bird"),
         FRUIT_NINJA("fruit_ninja"),
         MOUSE_WHACK("mouse_whack"),
+        BRICK_BREAKER("brick_breaker"),
+        MAKE_CHANGE("make_change"),
+        SNAKE("snake"),
+        MINESWEEPER("minesweeper"),
+        SIMON_SAYS("simon_says"),
+        GAME_2048("game_2048"),
+        CATCH_EGGS("catch_eggs"),
+        COLOR_SORT("color_sort"),
+        GUESS_NUMBER("guess_number"),
+        REACTION_TEST("reaction_test"),
+        LINK_MATCH("link_match"),
+        TETRIS("tetris"),
+        MEMORY_MATCH("memory_match"),
+        PIPE_CONNECT("pipe_connect"),
+        LIGHTS_OUT("lights_out"),
+        GAME_24("game_24"),
+        MAZE("maze"),
+        BALANCE_SCALE("balance_scale"),
         REACTOR_TEMPERATURE("reactor_temperature"),
         BOX_SORT("box_sort"),
         WIRE_CONNECT("wire_connect"),
@@ -54,7 +73,8 @@ public class SimpleQuestMinigameScreen extends Screen {
         SLICE_FOOD("slice_food"),
         THREE_CARDS("three_cards"),
         BREAK_JAR("break_jar"),
-        ZONE_CALIBRATION("zone_calibration");
+        ZONE_CALIBRATION("zone_calibration"),
+        KLOTSKI("klotski");
 
         private final String id;
 
@@ -231,6 +251,65 @@ public class SimpleQuestMinigameScreen extends Screen {
     /** 打老鼠：目标抓到数 */
     private static final int MICE_TARGET = 5;
 
+    /** 打砖块：砖块列表 */
+    private final List<Brick> bricks = new ArrayList<>();
+    /** 打砖块：球位置/速度 */
+    private float ballX, ballY, ballVX, ballVY;
+    /** 打砖块：球是否已发射 */
+    private boolean ballLaunched;
+    /** 打砖块：炮台X */
+    private float paddleX;
+    /** 打砖块：剩余砖块数 */
+    private int bricksRemaining;
+
+    /** 找零钱：目标金额 */
+    private int changeTarget;
+    /** 找零钱：贪心最优解 */
+    private int[] greedyCounts;
+    /** 找零钱：玩家已放入的纸币数 */
+    private int[] playerCounts;
+    /** 找零钱：纸币面额 */
+    private static final int[] BILL_VALUES = {1, 2, 5, 10};
+    /** 找零钱：纸币颜色 */
+    private static final int[] BILL_COLORS = {0xFF88AA66, 0xFF6688CC, 0xFFCC8844, 0xFFCC6644};
+
+    // ══════════════════════════════════════════════ 新18个小游戏字段
+    // 贪吃蛇
+    private final List<int[]> snakeBody = new ArrayList<>(); private int snakeDir, snakeNextDir, snakeFoodX, snakeFoodY, snakeTimer, snakeEaten;
+    private final List<int[]> snakeObs = new ArrayList<>(); // 贪吃蛇障碍
+    // 扫雷
+    private int[][] mineGrid, mineRevealed, mineFlags; private int mineW = 5, mineH = 5, mineCount, minesLeft;
+    // Simon Says
+    private final List<Integer> simonSeq = new ArrayList<>(); private int simonStep, simonPlayerIdx, simonFlash, simonTimer;
+    // 2048
+    private int[][] grid2048; private boolean moved2048;
+    // 接蛋
+    private final List<Egg> eggs = new ArrayList<>(); private float basketX; private int eggsCaught, eggsMissed, eggSpawnT;
+    // 颜色分类
+    private int[][] colorTubes; private int colorSelected;
+    // 猜数字
+    private int guessSecret, guessLow, guessHigh, guessCount; private String guessInput = "";
+    // 反应测试
+    private int reactState, reactTimer, reactSuccess; private long reactStart, reactElapsed; private boolean reactFailed;
+    // 连连看
+    private int[][] linkGrid; private int linkSelX = -1, linkSelY = -1;
+    // 俄罗斯方块
+    private int[][] tetrisBoard; private int tetrisPiece, tetrisRot, tetrisPX, tetrisPY, tetrisTimer, tetrisLines;
+    // 翻牌配对
+    private int[] memCards, memRevealed; private int memSel1 = -1, memSel2 = -1, memFound, memWait;
+    // 接管道
+    private int[][] pipeGrid; private int pipeW = 5, pipeH = 4;
+    // 点灯
+    private boolean[][] lightGrid; private int lightsSize = 5;
+    // 24点
+    private int[] game24Nums; private int game24Sel1 = -1, game24Sel2 = -1;
+    // 迷宫
+    private int[][] mazeGrid; private int mazePX, mazePY, mazeEX, mazeEY;
+    // 天平
+    private int scaleLeft, scaleRight, scaleWeight, scaleTarget;
+    // 华容道 (4列×5行, 0=空 1=曹操2×2 2=竖将 3=横将 4=兵)
+    private int[][] klotskiGrid; private int klotskiSelR=-1,klotskiSelC=-1; private double klotskiStartX,klotskiStartY;
+
     /** 成功动画：>=0 表示已完成，正在播放成功反馈，到达时长后关闭。 */
     private int successTicks = -1;
     private static final int SUCCESS_ANIM_TICKS = 16;
@@ -301,6 +380,22 @@ public class SimpleQuestMinigameScreen extends Screen {
         mice.clear();
         miceCaught = 0;
         mouseSpawnTimer = 30;
+        bricks.clear();
+        ballLaunched = false;
+        paddleX = width / 2f;
+        snakeBody.clear(); snakeObs.clear(); snakeDir = 0; snakeNextDir = 0;
+        simonSeq.clear(); simonStep = 0; simonPlayerIdx = 0; simonFlash = -1; simonClicked = null;
+        grid2048 = null; eggs.clear(); basketX = width / 2f; eggsCaught = 0; eggsMissed = 0;
+        colorTubes = null; colorSelected = -1;
+        guessSecret = 0; guessLow = 1; guessHigh = 100; guessCount = 0; guessInput = "";
+        reactState = 0; reactTimer = 0; reactStart = 0;
+        linkGrid = null; linkSelX = -1; linkSelY = -1;
+        tetrisBoard = null; tetrisTimer = 0; tetrisLines = 0;
+        memCards = null; memRevealed = null; memSel1 = -1; memSel2 = -1; memFound = 0; memWait = 0;
+        pipeGrid = null; lightGrid = null; game24Nums = null; game24Sel1 = -1; game24Sel2 = -1;
+        mazeGrid = null; scaleTarget = 0; scaleWeight = 0; scaleLeft = 0; scaleRight = 0;
+        klotskiGrid = null; klotskiSelR = -1; klotskiSelC = -1;
+        mineGrid = null; mineRevealed = null; mineFlags = null; minesLeft = 0;
         prevMouseX = 0;
         prevMouseY = 0;
         typingInput.setLength(0);
@@ -463,6 +558,40 @@ public class SimpleQuestMinigameScreen extends Screen {
                 pipesPassed = 0;
                 birdAlive = true;
             }
+            case MAKE_CHANGE -> {
+                pieces.clear();
+                changeTarget = 9 + rng.nextInt(32); // 9~40
+                greedyCounts = new int[4];
+                playerCounts = new int[4];
+                int remaining = changeTarget;
+                for (int i = 3; i >= 0; i--) {
+                    greedyCounts[i] = remaining / BILL_VALUES[i];
+                    remaining %= BILL_VALUES[i];
+                }
+                // 4张纸币可拖动，位于面板中央
+                for (int i = 0; i < 4; i++) {
+                    Component label = Component.literal("¥" + BILL_VALUES[i]);
+                    pieces.add(new Piece(label, 1, BILL_COLORS[i],
+                            left + 60 + i * 82, top + 160, i));
+                }
+            }
+            case BRICK_BREAKER -> {
+                bricks.clear();
+                int count = 2 + rng.nextInt(4); // 2~5 (减少10个)
+                bricksRemaining = count;
+                int[] colors = {RED, 0xFF4ACB73, BLUE, YELLOW, 0xFFFF8C42, 0xFFAA66FF};
+                for (int i = 0; i < count; i++) {
+                    int bx = left + 20 + rng.nextInt(PANEL_W - 80);
+                    int by = top + HEADER_H + 15 + rng.nextInt(70);
+                    bricks.add(new Brick(bx, by, 42 + rng.nextInt(16), 14, colors[rng.nextInt(colors.length)]));
+                }
+                ballX = width / 2f;
+                ballY = top + PANEL_H - 30;
+                ballVX = 0;
+                ballVY = 0;
+                ballLaunched = false;
+                paddleX = width / 2f;
+            }
             case MOUSE_WHACK -> {
                 mice.clear();
                 miceCaught = 0;
@@ -480,6 +609,23 @@ public class SimpleQuestMinigameScreen extends Screen {
                     bombItem = new ItemStack(Items.TNT);
                 }
             }
+            case SNAKE -> setupSnake();
+            case MINESWEEPER -> setupMinesweeper();
+            case SIMON_SAYS -> setupSimon();
+            case GAME_2048 -> setup2048();
+            case CATCH_EGGS -> { eggs.clear(); eggsCaught=0; eggsMissed=0; eggSpawnT=30; basketX=width/2f; }
+            case COLOR_SORT -> setupColorSort();
+            case GUESS_NUMBER -> setupGuessNumber();
+            case REACTION_TEST -> { reactState=0; reactTimer=0; reactElapsed=0; reactFailed=false; }
+            case LINK_MATCH -> setupLinkMatch();
+            case TETRIS -> setupTetris();
+            case MEMORY_MATCH -> setupMemMatch();
+            case PIPE_CONNECT -> setupPipeConnect();
+            case LIGHTS_OUT -> setupLightsOut();
+            case GAME_24 -> setupGame24();
+            case MAZE -> setupMaze();
+            case BALANCE_SCALE -> setupBalanceScale();
+            case KLOTSKI -> setupKlotski();
             default -> {
             }
         }
@@ -567,6 +713,14 @@ public class SimpleQuestMinigameScreen extends Screen {
             case PIPE_BIRD -> tickPipeBird();
             case FRUIT_NINJA -> tickFruitNinja();
             case MOUSE_WHACK -> tickMouseWhack();
+            case BRICK_BREAKER -> tickBrickBreaker();
+            case SNAKE -> tickSnake();
+            case SIMON_SAYS -> tickSimon();
+            case CATCH_EGGS -> tickCatchEggs();
+            case COLOR_SORT -> tickColorSort();
+            case REACTION_TEST -> tickReactionTest();
+            case TETRIS -> tickTetris();
+            case MEMORY_MATCH -> tickMemMatch();
             default -> {
             }
         }
@@ -697,6 +851,25 @@ public class SimpleQuestMinigameScreen extends Screen {
             case PIPE_BIRD -> renderPipeBird(g, left, top);
             case FRUIT_NINJA -> renderFruitNinja(g, left, top);
             case MOUSE_WHACK -> renderMouseWhack(g, left, top);
+            case BRICK_BREAKER -> renderBrickBreaker(g, left, top);
+            case MAKE_CHANGE -> renderMakeChange(g, left, top);
+            case SNAKE -> renderSnake(g, left, top);
+            case MINESWEEPER -> renderMinesweeper(g, left, top);
+            case SIMON_SAYS -> renderSimon(g, left, top);
+            case GAME_2048 -> render2048(g, left, top);
+            case CATCH_EGGS -> renderCatchEggs(g, left, top);
+            case COLOR_SORT -> renderColorSort(g, left, top);
+            case GUESS_NUMBER -> { g.drawCenteredString(font,Component.literal(guessLow+" - "+guessHigh),width/2,top+50,WHITE); g.drawCenteredString(font,tr("guess_number.hint"),width/2,top+75,MUTED); int ix=left+120; MinigameUI.roundRect(g,ix,top+95,ix+190,top+120,4,0xFF334455); g.drawString(font,guessInput,ix+6,top+101,WHITE); int bx=left+(PANEL_W-60)/2; MinigameUI.roundRect(g,bx,top+125,bx+60,top+148,4,GREEN); g.drawCenteredString(font,Component.literal("确定"),bx+30,top+129,0xFF101010); g.drawCenteredString(font,tr("guess_number.count",guessCount),width/2,top+155,MUTED); }
+            case REACTION_TEST -> { int col=reactState==0?MUTED:reactState==1?YELLOW:reactFailed?RED:GREEN; String txt=reactState==0?"等待触发...":reactState==1?"现在点击!":reactFailed?"失败! "+reactElapsed+"ms":reactElapsed+"ms"; g.drawCenteredString(font,Component.literal(txt),width/2,top+100,col); if(reactState==1){int bx=width/2-40,by=top+120;MinigameUI.roundRect(g,bx,by,bx+80,by+30,6,GREEN);g.drawCenteredString(font,Component.literal("点我!"),width/2,by+8,0xFF101010);} g.drawCenteredString(font,tr("common.hits",reactSuccess,3),width/2,top+6,WHITE); }
+            case LINK_MATCH -> renderLinkMatch(g, left, top);
+            case TETRIS -> renderTetris(g, left, top);
+            case MEMORY_MATCH -> renderMemMatch(g, left, top);
+            case PIPE_CONNECT -> renderPipeConnect(g, left, top);
+            case LIGHTS_OUT -> renderLightsOut(g, left, top);
+            case GAME_24 -> renderGame24(g, left, top);
+            case MAZE -> renderMaze(g, left, top);
+            case BALANCE_SCALE -> renderBalanceScale(g, left, top);
+            case KLOTSKI -> renderKlotski(g, left, top);
         }
         g.pose().popPose();
 
@@ -1196,6 +1369,8 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // 扫雷右键直接处理，不走拦截
+        if(button==1&&mode==Mode.MINESWEEPER){clickMine((int)mouseX,(int)mouseY,1);return true;}
         if (button != 0) return super.mouseClicked(mouseX, mouseY, button);
         mouseHeld = true;
         lastMouseX = mouseX;
@@ -1219,6 +1394,27 @@ public class SimpleQuestMinigameScreen extends Screen {
             case TYPING -> clickTyping(mouseX, mouseY);
             case PIPE_BIRD -> flapBird();
             case MOUSE_WHACK -> clickMouseWhack(mouseX, mouseY);
+            case BRICK_BREAKER -> {
+                if (!ballLaunched) {
+                    ballLaunched = true;
+                    ballVX = (rng.nextFloat() - 0.5f) * 2f;
+                    ballVY = -4.5f;
+                }
+            }
+            case MAKE_CHANGE -> beginDrag(mouseX, mouseY);
+            case MINESWEEPER -> clickMine((int)mouseX,(int)mouseY,0);
+            case SIMON_SAYS -> { int cx=panelLeft()+PANEL_W/2,cy=panelTop()+PANEL_H/2-20; for(int i=0;i<5;i++){int x=cx-130+i*65; if(inRect(mouseX,mouseY,x,cy,55,55)){clickSimon(i);return true;}} }
+            case GUESS_NUMBER -> { int bx=panelLeft()+(PANEL_W-60)/2; if(inRect(mouseX,mouseY,bx,panelTop()+125,60,23)){try{int g=Integer.parseInt(guessInput);guessCount++;if(g==guessSecret)complete();else if(g<guessSecret)guessLow=g+1;else guessHigh=g-1;}catch(Exception e){}guessInput="";} }
+            case REACTION_TEST -> { if(reactState==1){long ms=System.currentTimeMillis()-reactStart;reactElapsed=ms;if(ms<1500){reactState=2;reactSuccess++;if(reactSuccess>=3)complete();}else{reactFailed=true;reactState=2;}} }
+            case LINK_MATCH -> { int cs=32,ox=panelLeft()+30,oy=panelTop()+40,cy=(int)((mouseY-oy)/cs),cx=(int)((mouseX-ox)/cs); if(cy>=0&&cy<4&&cx>=0&&cx<6){if(linkSelX<0){linkSelX=cx;linkSelY=cy;}else{if(linkGrid[linkSelY][linkSelX]==linkGrid[cy][cx]&&canLink(linkSelX,linkSelY,cx,cy)){linkGrid[cy][cx]=-1;linkGrid[linkSelY][linkSelX]=-1;int left=0;for(int r=0;r<4;r++)for(int c=0;c<6;c++)if(linkGrid[r][c]>=0)left++;if(left==0)complete();}linkSelX=-1;linkSelY=-1;}}}
+            case TETRIS -> { int nr=(tetrisRot+1)%4; if(canPlaceTetris(tetrisPX,tetrisPY,tetrisPiece,nr))tetrisRot=nr; }
+            case MEMORY_MATCH -> { if(memWait>0)return true; int cs=38,ox=panelLeft()+70,oy=panelTop()+30,idx=(int)((mouseY-oy)/cs)*4+(int)((mouseX-ox)/cs); if(idx>=0&&idx<16&&memRevealed[idx]==0&&memCards[idx]>=0){if(memSel1<0){memSel1=idx;memRevealed[idx]=1;}else if(memSel2<0&&idx!=memSel1){memSel2=idx;memRevealed[idx]=1;if(memCards[memSel1]==memCards[memSel2]){memCards[memSel1]=-1;memCards[memSel2]=-1;memFound++;memSel1=-1;memSel2=-1;if(memFound>=8)complete();}else memWait=20;}} }
+            case PIPE_CONNECT -> { int cs=40,ox=panelLeft()+(PANEL_W-pipeW*cs)/2,oy=panelTop()+40; int c=(int)((mouseX-ox)/cs),r=(int)((mouseY-oy)/cs); if(r>=0&&r<pipeH&&c>=0&&c<pipeW)pipeGrid[r][c]=((pipeGrid[r][c]&15)<<1|(pipeGrid[r][c]>>3))&15; }
+            case LIGHTS_OUT -> { int cs=38,ox=panelLeft()+100,oy=panelTop()+40; int cc=(int)((mouseX-ox)/cs),rr=(int)((mouseY-oy)/cs); if(rr>=0&&rr<lightsSize&&cc>=0&&cc<lightsSize){toggleLight(rr,cc);toggleLight(rr,cc+1);toggleLight(rr,cc-1);toggleLight(rr+1,cc);toggleLight(rr-1,cc);} }
+            case GAME_24 -> click24(mouseX, mouseY);
+            case BALANCE_SCALE -> clickScale(mouseX, mouseY);
+            case COLOR_SORT -> clickColorSort(mouseX, mouseY);
+            case KLOTSKI -> clickKlotski(mouseX, mouseY);
             default -> {
             }
         }
@@ -1409,6 +1605,17 @@ public class SimpleQuestMinigameScreen extends Screen {
             dragSlice(mouseY);
             return true;
         }
+        // 华容道鼠标滑动
+        if (mode == Mode.KLOTSKI && klotskiSelR >= 0) {
+            double dx=mouseX-klotskiStartX,dy=mouseY-klotskiStartY;
+            int cs=52; // cell+gap
+            if(Math.abs(dx)>=cs/2||Math.abs(dy)>=cs/2){
+                if(Math.abs(dx)>=Math.abs(dy))moveKlotskiBlock(klotskiSelR,klotskiSelC,0,dx>0?1:-1);
+                else moveKlotskiBlock(klotskiSelR,klotskiSelC,dy>0?1:-1,0);
+                klotskiStartX=mouseX;klotskiStartY=mouseY;
+            }
+            return true;
+        }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
@@ -1470,6 +1677,12 @@ public class SimpleQuestMinigameScreen extends Screen {
                     fallingY = 0;
                 }
             }
+            case MAKE_CHANGE -> {
+                dropChangeBill(p, mouseX, mouseY);
+                // 纸币回到原位
+                p.x = panelLeft() + 60 + p.target * 82;
+                p.y = top + 160;
+            }
             default -> {
             }
         }
@@ -1515,15 +1728,54 @@ public class SimpleQuestMinigameScreen extends Screen {
             }
             return true;
         }
-        if (mode == Mode.TYPING && keyCode == GLFW.GLFW_KEY_BACKSPACE) {
-            if (typingInput.length() > 0) {
-                typingInput.setLength(typingInput.length() - 1);
-                typingError = false;
-            }
+        if ((mode == Mode.TYPING || mode == Mode.GUESS_NUMBER) && keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+            if (mode == Mode.TYPING && typingInput.length() > 0) { typingInput.setLength(typingInput.length() - 1); typingError = false; }
+            else if (mode == Mode.GUESS_NUMBER && guessInput.length() > 0) guessInput = guessInput.substring(0, guessInput.length() - 1);
             return true;
         }
         if (mode == Mode.TYPING && keyCode == GLFW.GLFW_KEY_ENTER) {
             checkTyping();
+            return true;
+        }
+        if (mode == Mode.GUESS_NUMBER && keyCode == GLFW.GLFW_KEY_ENTER) {
+            try{int g=Integer.parseInt(guessInput);guessCount++;if(g==guessSecret)complete();else if(g<guessSecret)guessLow=g+1;else guessHigh=g-1;}catch(Exception e){}
+            guessInput="";
+            return true;
+        }
+        // 贪吃蛇方向键
+        if (mode == Mode.SNAKE) {
+            if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_W) snakeNextDir = 0;
+            else if (keyCode == GLFW.GLFW_KEY_RIGHT || keyCode == GLFW.GLFW_KEY_D) snakeNextDir = 1;
+            else if (keyCode == GLFW.GLFW_KEY_DOWN || keyCode == GLFW.GLFW_KEY_S) snakeNextDir = 2;
+            else if (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_A) snakeNextDir = 3;
+            return true;
+        }
+        // 2048方向键
+        if (mode == Mode.GAME_2048 && grid2048 != null) {
+            int d = -1;
+            if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_W) d = 0;
+            else if (keyCode == GLFW.GLFW_KEY_RIGHT || keyCode == GLFW.GLFW_KEY_D) d = 1;
+            else if (keyCode == GLFW.GLFW_KEY_DOWN || keyCode == GLFW.GLFW_KEY_S) d = 2;
+            else if (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_A) d = 3;
+            if (d >= 0 && slide2048(d)) { spawn2048(); for(int r=0;r<4;r++)for(int c=0;c<4;c++)if(grid2048[r][c]>=32)complete(); }
+            return true;
+        }
+        // 俄罗斯方块方向键
+        if (mode == Mode.TETRIS && tetrisBoard != null) {
+            if (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_A) { if (canPlaceTetris(tetrisPX - 1, tetrisPY, tetrisPiece, tetrisRot)) tetrisPX--; }
+            else if (keyCode == GLFW.GLFW_KEY_RIGHT || keyCode == GLFW.GLFW_KEY_D) { if (canPlaceTetris(tetrisPX + 1, tetrisPY, tetrisPiece, tetrisRot)) tetrisPX++; }
+            else if (keyCode == GLFW.GLFW_KEY_DOWN || keyCode == GLFW.GLFW_KEY_S) { if (canPlaceTetris(tetrisPX, tetrisPY + 1, tetrisPiece, tetrisRot)) tetrisPY++; }
+            else if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_W || keyCode == GLFW.GLFW_KEY_SPACE) { int nr = (tetrisRot + 1) % 4; if (canPlaceTetris(tetrisPX, tetrisPY, tetrisPiece, nr)) tetrisRot = nr; }
+            return true;
+        }
+        // 迷宫方向键
+        if (mode == Mode.MAZE && mazeGrid != null) {
+            int nx = mazePX, ny = mazePY;
+            if (keyCode == GLFW.GLFW_KEY_UP || keyCode == GLFW.GLFW_KEY_W) ny--;
+            else if (keyCode == GLFW.GLFW_KEY_DOWN || keyCode == GLFW.GLFW_KEY_S) ny++;
+            else if (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_A) nx--;
+            else if (keyCode == GLFW.GLFW_KEY_RIGHT || keyCode == GLFW.GLFW_KEY_D) nx++;
+            if (nx >= 0 && ny >= 0 && ny < mazeGrid.length && nx < mazeGrid[0].length && mazeGrid[ny][nx] == 0) { mazePX = nx; mazePY = ny; if (mazePX == mazeEX && mazePY == mazeEY) complete(); }
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -1534,6 +1786,10 @@ public class SimpleQuestMinigameScreen extends Screen {
         if (mode == Mode.TYPING && chr >= ' ' && typingInput.length() < 10) {
             typingInput.append(Character.toUpperCase(chr));
             typingError = false;
+            return true;
+        }
+        if (mode == Mode.GUESS_NUMBER && chr >= '0' && chr <= '9' && guessInput.length() < 3) {
+            guessInput += chr;
             return true;
         }
         return super.charTyped(chr, modifiers);
@@ -1967,6 +2223,151 @@ public class SimpleQuestMinigameScreen extends Screen {
     }
 
     // ══════════════════════════════════════════════
+    // 打砖块
+    // ══════════════════════════════════════════════
+
+    private void tickBrickBreaker() {
+        int left = panelLeft();
+        int top = panelTop();
+        float speed = 4.5f;
+        // 炮台跟随鼠标
+        paddleX = Mth.clamp((float) lastMouseX - 30, left + 5, left + PANEL_W - 65);
+
+        if (!ballLaunched) {
+            ballX = paddleX + 30;
+            ballY = top + PANEL_H - 30;
+            return;
+        }
+        // 移动球
+        ballX += ballVX;
+        ballY += ballVY;
+
+        // 墙壁反弹
+        if (ballX < left + 4 || ballX > left + PANEL_W - 4) ballVX = -ballVX;
+        if (ballY < top + HEADER_H) ballVY = -ballVY;
+
+        // 球掉落 → 重置到炮台
+        if (ballY > top + PANEL_H) {
+            ballLaunched = false;
+            ballVX = 0;
+            ballVY = 0;
+            return;
+        }
+
+        // 炮台反弹（自然弹走，不重置位置和方向）
+        float paddleY = top + PANEL_H - 22;
+        if (ballVY > 0 && ballY + 8 > paddleY && ballY - 8 < paddleY + 12
+                && ballX > paddleX - 4 && ballX < paddleX + 64) {
+            ballVY = -Math.abs(ballVY);
+            ballVX += (ballX - (paddleX + 30)) * 0.12f;
+            ballY = paddleY - 9;
+        }
+
+        // 砖块碰撞
+        for (Brick b : bricks) {
+            if (!b.alive) continue;
+            if (ballX + 8 > b.x && ballX - 8 < b.x + b.w && ballY + 8 > b.y && ballY - 8 < b.y + b.h) {
+                b.alive = false;
+                bricksRemaining--;
+                // 反弹方向
+                float cx = b.x + b.w / 2f;
+                float cy = b.y + b.h / 2f;
+                if (Math.abs(ballX - cx) * b.h > Math.abs(ballY - cy) * b.w) {
+                    ballVX = -ballVX;
+                } else {
+                    ballVY = -ballVY;
+                }
+                if (bricksRemaining <= 0) complete();
+                break;
+            }
+        }
+
+        // 速度钳制
+        float v = (float) Math.sqrt(ballVX * ballVX + ballVY * ballVY);
+        if (v > 0) { ballVX = ballVX / v * speed; ballVY = ballVY / v * speed; }
+    }
+
+    private void renderBrickBreaker(GuiGraphics g, int left, int top) {
+        g.drawCenteredString(font, tr("common.hits", Math.max(0, bricksRemaining), bricks.size()),
+                width / 2, top + 4, WHITE);
+        for (Brick b : bricks) {
+            if (!b.alive) continue;
+            MinigameUI.roundRect(g, b.x, b.y, b.x + b.w, b.y + b.h, 3, b.color);
+            MinigameUI.roundBorder(g, b.x, b.y, b.x + b.w, b.y + b.h, 3, 1, 0x44FFFFFF);
+        }
+        // 炮台
+        float py = top + PANEL_H - 22;
+        MinigameUI.roundRect(g, (int) paddleX, (int) py, (int) paddleX + 60, (int) py + 12, 4, 0xFF8899AA);
+        // 球
+        drawCircle(g, Math.round(ballX), Math.round(ballY), 8, WHITE);
+        if (!ballLaunched) {
+            g.drawCenteredString(font, modeText("hint"), width / 2, (int) py + 16, MUTED);
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    // 找零钱
+    // ══════════════════════════════════════════════
+
+    private void renderMakeChange(GuiGraphics g, int left, int top) {
+        g.drawCenteredString(font, modeText("target", changeTarget), width / 2, top + 14, YELLOW);
+        int currentSum = 0;
+        for (int i = 0; i < 4; i++) currentSum += playerCounts[i] * BILL_VALUES[i];
+        g.drawCenteredString(font, modeText("current", currentSum), width / 2, top + 32, currentSum == changeTarget ? GREEN : WHITE);
+
+        // 收银台区域
+        int regY = top + 195;
+        MinigameUI.roundRect(g, left + 40, regY, left + PANEL_W - 40, regY + 40, 6, 0xFF2A3545);
+        MinigameUI.roundBorder(g, left + 40, regY, left + PANEL_W - 40, regY + 40, 6, 1, 0xFF445566);
+        g.drawCenteredString(font, modeText("register"), width / 2, regY + 12, MUTED);
+
+        // 已放入的纸币
+        int xOff = 0;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < playerCounts[i]; j++) {
+                int bx = left + 50 + xOff * 18;
+                if (bx > left + PANEL_W - 70) break;
+                MinigameUI.roundRect(g, bx, regY + 4, bx + 16, regY + 36, 3, BILL_COLORS[i]);
+                g.drawString(font, String.valueOf(BILL_VALUES[i]), bx + 4, regY + 14, WHITE);
+                xOff++;
+            }
+        }
+
+        // 可拖动纸币
+        for (Piece p : pieces) {
+            if (p == draggedPiece) continue;
+            MinigameUI.roundRect(g, (int) p.x, (int) p.y, (int) p.x + 42, (int) p.y + 32, 5, p.color);
+            g.drawCenteredString(font, p.label, (int) p.x + 21, (int) p.y + 12, WHITE);
+        }
+        // 拖拽中纸币
+        if (draggedPiece != null) {
+            Piece p = draggedPiece;
+            MinigameUI.roundRect(g, (int) p.x + 2, (int) p.y + 2, (int) p.x + 44, (int) p.y + 34, 5, 0x40000000);
+            MinigameUI.roundRect(g, (int) p.x, (int) p.y, (int) p.x + 42, (int) p.y + 32, 5, p.color);
+            g.drawCenteredString(font, p.label, (int) p.x + 21, (int) p.y + 12, WHITE);
+        }
+    }
+
+    private void dropChangeBill(Piece p, double mouseX, double mouseY) {
+        int top = panelTop();
+        int regY = top + 195;
+        if (mouseY >= regY && mouseY <= regY + 40) {
+            int idx = p.target; // bill index 0=¥1,1=¥2,2=¥5,3=¥10
+            playerCounts[idx]++;
+            int currentSum = 0;
+            for (int i = 0; i < 4; i++) currentSum += playerCounts[i] * BILL_VALUES[i];
+            if (currentSum == changeTarget) {
+                // 检查是否是最优解（贪心）
+                boolean optimal = true;
+                for (int i = 0; i < 4; i++) {
+                    if (playerCounts[i] != greedyCounts[i]) { optimal = false; break; }
+                }
+                if (optimal) complete();
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════
     // 水果忍者
     // ══════════════════════════════════════════════
 
@@ -2194,6 +2595,528 @@ public class SimpleQuestMinigameScreen extends Screen {
         float dx = ax - bx;
         float dy = ay - by;
         return (float) Math.sqrt(dx * dx + dy * dy);
+    }
+
+    // ════════════════════════════════════════════════════ 18新游戏实现
+
+    // ── 贪吃蛇 ──
+    private void setupSnake() {
+        int cx = panelLeft() + PANEL_W/2, cy = panelTop() + PANEL_H/2;
+        snakeBody.clear(); snakeBody.add(new int[]{cx, cy}); snakeFoodX = cx+40; snakeFoodY = cy;
+        snakeDir = snakeNextDir = 1; snakeTimer = 0; snakeEaten = 0;
+        // 生成障碍物
+        snakeObs.clear();
+        int left=panelLeft(),top=panelTop();
+        for(int i=0;i<8;i++){
+            int ox=left+60+rng.nextInt(PANEL_W-120),oy=top+HEADER_H+20+rng.nextInt(PANEL_H-HEADER_H-60);
+            snakeObs.add(new int[]{ox,oy});
+        }
+    }
+    private void tickSnake() {
+        if(++snakeTimer<6)return; snakeTimer=0; snakeDir=snakeNextDir;
+        int[]h=snakeBody.get(0); int nx=h[0],ny=h[1];
+        switch(snakeDir){case 0:ny-=12;break;case 1:nx+=12;break;case 2:ny+=12;break;case 3:nx-=12;break;}
+        int left=panelLeft(),top=panelTop(),right=left+PANEL_W,bot=top+PANEL_H-20;
+        if(nx<left+6||nx>right-6||ny<top+HEADER_H+6||ny>bot-6){init();return;}
+        for(int[]s:snakeBody)if(s[0]==nx&&s[1]==ny){init();return;}
+        // 障碍物碰撞
+        for(int[]o:snakeObs)if(Math.abs(nx-o[0])<10&&Math.abs(ny-o[1])<10){init();return;}
+        snakeBody.add(0,new int[]{nx,ny});
+        if(Math.abs(nx-snakeFoodX)<10&&Math.abs(ny-snakeFoodY)<10){
+            snakeFoodX=left+30+rng.nextInt(PANEL_W-60); snakeFoodY=top+HEADER_H+20+rng.nextInt(PANEL_H-HEADER_H-40);
+            snakeEaten++;
+            if(snakeEaten>=5)complete();
+        }else snakeBody.remove(snakeBody.size()-1);
+    }
+    private void renderSnake(GuiGraphics g,int left,int top){
+        for(int[]o:snakeObs)MinigameUI.roundRect(g,o[0]-6,o[1]-6,o[0]+6,o[1]+6,3,0xFF665544); // 墙
+        for(int[]s:snakeBody)drawCircle(g,s[0],s[1],5,0xFF44CC44);
+        drawCircle(g,snakeFoodX,snakeFoodY,6,RED);
+        g.drawCenteredString(font,tr("common.hits",snakeEaten,5),width/2,top+6,WHITE);
+    }
+
+    // ── 扫雷 ──
+    private void setupMinesweeper(){int left=panelLeft(),top=panelTop();
+        mineGrid=new int[mineH][mineW]; mineRevealed=new int[mineH][mineW]; mineFlags=new int[mineH][mineW];
+        mineCount=minesLeft=3+rng.nextInt(4); // 5x5→3~6颗雷
+        for(int i=0;i<mineCount;i++){int x,y;do{x=rng.nextInt(mineW);y=rng.nextInt(mineH);}while(mineGrid[y][x]!=0);mineGrid[y][x]=-1;}
+        for(int y=0;y<mineH;y++)for(int x=0;x<mineW;x++)if(mineGrid[y][x]==0)for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++){int ny=y+dy,nx=x+dx;if(ny>=0&&ny<mineH&&nx>=0&&nx<mineW&&mineGrid[ny][nx]==-1)mineGrid[y][x]++;}
+    }
+    private void renderMinesweeper(GuiGraphics g,int left,int top){
+        int cs=35,ox=left+(PANEL_W-mineW*cs)/2,oy=top+40;
+        for(int y=0;y<mineH;y++)for(int x=0;x<mineW;x++){
+            int rx=ox+x*cs,ry=oy+y*cs,col=mineRevealed[y][x]==1?0xFF667788:0xFF3C4C5E;
+            MinigameUI.roundRect(g,rx,ry,rx+cs-2,ry+cs-2,3,col);
+            if(mineRevealed[y][x]==1){
+                int v=mineGrid[y][x]; int tc=v==-1?RED:switch(v){case 1->BLUE;case 2->GREEN;case 3->RED;case 4->0xFF4444AA;default->WHITE;};
+                g.drawCenteredString(font,Component.literal(v==-1?"*":v==0?"":String.valueOf(v)),rx+cs/2,ry+10,tc);
+            }else if(mineFlags[y][x]==1){g.fill(rx+cs/2-6,ry+3,rx+cs/2+6,ry+cs-6,RED); g.fill(rx+cs/2-1,ry+3,rx+cs/2+1,ry+cs-3,0xFFCC0000);}
+        }
+        g.drawCenteredString(font,Component.literal(""+minesLeft),width/2,top+12,WHITE);
+    }
+    private void clickMine(int mx,int my,int btn){
+        int left=panelLeft(),top=panelTop(),cs=35,ox=left+(PANEL_W-mineW*cs)/2,oy=top+40;
+        int cx=(mx-ox)/cs,cy=(my-oy)/cs;
+        if(cx<0||cx>=mineW||cy<0||cy>=mineH)return;
+        if(btn==1){if(mineRevealed[cy][cx]==0&&mineFlags[cy][cx]==0){mineFlags[cy][cx]=1;minesLeft--;}}
+        else{if(mineFlags[cy][cx]==1||mineRevealed[cy][cx]==1)return;revealMine(cy,cx);}
+    }
+    private void revealMine(int y,int x){
+        if(y<0||y>=mineH||x<0||x>=mineW||mineRevealed[y][x]==1||mineFlags[y][x]==1)return;
+        mineRevealed[y][x]=1; if(mineGrid[y][x]==-1){init();return;}
+        if(mineGrid[y][x]==0)for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++)revealMine(y+dy,x+dx);
+        int unrevealed=0;for(int i=0;i<mineH;i++)for(int j=0;j<mineW;j++)if(mineRevealed[i][j]==0)unrevealed++;
+        if(unrevealed==mineCount)complete();
+    }
+
+    // ── 记忆游戏（5灰块动画→按序点击）──
+    // 5色块按序记忆：亮完5个→玩家按序点→全对通关(一次就行)
+    private boolean[] simonClicked; // 玩家点过的变绿
+    private void setupSimon(){simonSeq.clear();simonStep=0;simonPlayerIdx=0;simonFlash=-1;simonTimer=0;
+        for(int i=0;i<5;i++)simonSeq.add(i);Collections.shuffle(simonSeq,rng); // 0~4各一次,随机顺序
+        simonClicked=new boolean[5];}
+    private void tickSimon(){
+        if(simonStep<5){if(++simonTimer>20){simonTimer=0;simonFlash=simonStep;simonStep++;}} // 每格1秒
+        else simonFlash=-1;}
+    private void renderSimon(GuiGraphics g,int left,int top){
+        int[]cols={RED,GREEN,BLUE,YELLOW,0xFFAA66FF}; int cx=left+PANEL_W/2,cy=top+PANEL_H/2-20;
+        for(int i=0;i<5;i++){int x=cx-130+i*65;
+            boolean flash=simonFlash>=0&&simonSeq.get(simonFlash)==i;
+            int col=simonClicked[i]?GREEN:(flash?cols[i]:0xFF334455);
+            MinigameUI.roundRect(g,x,cy,x+55,cy+55,6,col);}
+        g.drawCenteredString(font,tr("common.hits",simonPlayerIdx,5),width/2,top+8,WHITE);
+        if(simonFlash>=0)g.drawCenteredString(font,Component.literal("记住顺序..."),width/2,top+130,MUTED);
+    }
+    private void clickSimon(int i){
+        if(simonFlash>=0||simonPlayerIdx>=5)return;
+        if(i==simonSeq.get(simonPlayerIdx)){simonClicked[i]=true;simonPlayerIdx++;
+            if(simonPlayerIdx>=5)complete();}
+        else init();
+    }
+
+    // ── 2048 ──
+    private void setup2048(){grid2048=new int[4][4];spawn2048();spawn2048();}
+    private void spawn2048(){List<int[]>e=new ArrayList<>();for(int r=0;r<4;r++)for(int c=0;c<4;c++)if(grid2048[r][c]==0)e.add(new int[]{r,c});if(!e.isEmpty()){int[]p=e.get(rng.nextInt(e.size()));grid2048[p[0]][p[1]]=rng.nextInt(3)==0?4:2;}}
+    private void render2048(GuiGraphics g,int left,int top){
+        int cs=56,gap=4,ox=left+(PANEL_W-4*cs-3*gap)/2,oy=top+40;
+        for(int r=0;r<4;r++)for(int c=0;c<4;c++){
+            int v=grid2048[r][c],x=ox+c*(cs+gap),y=oy+r*(cs+gap);
+            int col=v==0?0xFF334455:v<=8?0xFF4488AA:v<=32?0xFF44AA66:v<=128?0xFFDDAA44:0xFFDD6644;
+            MinigameUI.roundRect(g,x,y,x+cs,y+cs,5,col);
+            if(v>0)g.drawCenteredString(font,Component.literal(""+v),x+cs/2,y+cs/2-5,v>=128?0xFF101010:WHITE);
+        }
+    }
+    // 参考用户提供的标准2048合并算法
+    private int[] mergeArray(int[] arr){
+        int[] result=new int[4];int index=0;
+        // 压缩非零元素
+        for(int i=0;i<4;i++)if(arr[i]!=0)result[index++]=arr[i];
+        // 合并相邻相同元素（每对只合并一次）
+        for(int i=0;i<3;i++)if(result[i]==result[i+1]&&result[i]!=0){result[i]*=2;result[i+1]=0;}
+        // 再次压缩
+        int[] fin=new int[4];int idx=0;
+        for(int i=0;i<4;i++)if(result[i]!=0)fin[idx++]=result[i];
+        return fin;
+    }
+    private boolean slide2048(int d){
+        boolean moved=false;
+        for(int n=0;n<4;n++){
+            int[]vals=new int[4];
+            for(int i=0;i<4;i++){
+                int nr=d<2?n:i,nc=d<2?i:n;
+                int r=d==2?3-nr:d==3?nr:nr,c=d==1?3-nc:d==0?nc:nc;
+                vals[i]=grid2048[r][c];
+            }
+            int[]merged=mergeArray(vals);
+            for(int i=0;i<4;i++){
+                int nr=d<2?n:i,nc=d<2?i:n;
+                int r=d==2?3-nr:d==3?nr:nr,c=d==1?3-nc:d==0?nc:nc;
+                if(grid2048[r][c]!=merged[i]){grid2048[r][c]=merged[i];moved=true;}
+            }
+        }
+        return moved;
+    }
+
+    // ── 接蛋 ──
+    private void tickCatchEggs(){if(--eggSpawnT<=0){eggSpawnT=25+rng.nextInt(20);eggs.add(new Egg(panelLeft()+30+rng.nextInt(PANEL_W-60),-20,rng.nextInt(3)));}
+        for(Egg e:eggs){e.y+=3.5f; if(e.y>panelTop()+PANEL_H)eggsMissed++;} eggs.removeIf(e->e.y>panelTop()+PANEL_H||e.caught);
+        basketX=Mth.clamp((float)lastMouseX-25,panelLeft()+5,panelLeft()+PANEL_W-55);
+        int by=panelTop()+PANEL_H-30;
+        for(Egg e:eggs){if(e.y+16>by&&e.y<by+16&&e.x+16>basketX&&e.x<basketX+50){e.caught=true;eggsCaught++;if(eggsCaught>=5)complete();}}
+    }
+    private void renderCatchEggs(GuiGraphics g,int left,int top){
+        for(Egg e:eggs){int col=e.type==0?0xFFF5DEB3:e.type==1?0xFFCD853F:e.type==2?GREEN:RED;drawCircle(g,Math.round(e.x+16),Math.round(e.y+16),16,col);}
+        MinigameUI.roundRect(g,(int)basketX,top+PANEL_H-30,(int)basketX+50,top+PANEL_H-14,4,0xFF8B6914);
+        g.drawCenteredString(font,tr("common.hits",eggsCaught,5),width/2,top+8,WHITE);
+    }
+
+    // ── 颜色分类 (Water Sort Puzzle) ──
+    private void setupColorSort(){
+        colorSelected=-1;
+        int T=6,L=4;
+        colorTubes=new int[T][L];
+        // 4种颜色各4个，洗牌后分配（保证有解——最多执行10次重试避免死循环）
+        List<Integer> items=new ArrayList<>();
+        for(int c=0;c<4;c++)for(int i=0;i<4;i++)items.add(c);
+        int retry=0;
+        do{
+            Collections.shuffle(items,rng);
+            int idx=0;
+            for(int t=0;t<T;t++)Arrays.fill(colorTubes[t],-1);
+            for(int t=0;t<4;t++)for(int l=0;l<4;l++)colorTubes[t][l]=items.get(idx++);
+            retry++;
+        }while(colorSortDone()&&retry<10);
+    }
+    private boolean emptyTube(int t){for(int l=0;l<4;l++)if(colorTubes[t][l]>=0)return false;return true;}
+    private int tubeTop(int t){for(int l=3;l>=0;l--)if(colorTubes[t][l]>=0)return colorTubes[t][l];return -1;}
+    private int tubeTopIdx(int t){for(int l=3;l>=0;l--)if(colorTubes[t][l]>=0)return l;return -1;}
+    private int tubeTopCount(int t){int top=tubeTop(t);if(top<0)return 0;int cnt=0;for(int l=3;l>=0;l--){if(colorTubes[t][l]==top)cnt++;else break;}return cnt;}
+    private int tubeFree(int t){int cnt=0;for(int l=0;l<4;l++)if(colorTubes[t][l]<0)cnt++;return cnt;}
+    private boolean pour(int from,int to){
+        int tc=tubeTop(from),sc=tubeTop(to);
+        if(tc<0)return false;if(sc>=0&&sc!=tc)return false;
+        if(tubeFree(to)<=0)return false;
+        int fi=tubeTopIdx(from);
+        colorTubes[from][fi]=-1;
+        int ti=tubeTopIdx(to);
+        colorTubes[to][ti+1]=tc;
+        return true;
+    }
+    private boolean colorSortDone(){for(int t=0;t<6;t++){if(emptyTube(t))continue;int prev=-1;for(int l=0;l<4;l++)if(colorTubes[t][l]>=0){if(prev>=0&&colorTubes[t][l]!=prev)return false;prev=colorTubes[t][l];}if(prev>=0&&colorTubes[t][3]<0)return false;}return true;}
+    private void tickColorSort(){if(colorSortDone())complete();}
+    private void renderColorSort(GuiGraphics g,int left,int top){
+        int T=6,tw=42,th=120,gap=10,total=T*tw+(T-1)*gap,sx=left+(PANEL_W-total)/2,sy=top+HEADER_H+20;
+        int[]cols={RED,BLUE,GREEN,YELLOW};
+        for(int t=0;t<T;t++){
+            int tx=sx+t*(tw+gap);
+            MinigameUI.roundRect(g,tx,sy,tx+tw,sy+th,6,0x30FFFFFF);
+            MinigameUI.roundBorder(g,tx,sy,tx+tw,sy+th,6,2,0x80FFFFFF);
+            if(t==colorSelected)MinigameUI.roundBorder(g,tx-3,sy-3,tx+tw+3,sy+th+3,8,2,YELLOW);
+            int lh=(th-8)/4;
+            for(int l=0;l<4;l++){int c=colorTubes[t][l];if(c>=0){int ly=sy+th-4-(l+1)*lh;g.fill(tx+4,ly,tx+tw-4,ly+lh,cols[c]);}}
+            g.fill(tx+3,sy,tx+tw-3,sy+3,0x60FFFFFF); // 管口
+        }
+    }
+    private void clickColorSort(double mx,double my){
+        int T=6,tw=42,th=120,gap=10,total=T*tw+(T-1)*gap,sx=panelLeft()+(PANEL_W-total)/2,sy=panelTop()+HEADER_H+20;
+        for(int t=0;t<T;t++){int tx=sx+t*(tw+gap);if(inRect(mx,my,tx,sy,tw,th)){
+            if(colorSelected<0){if(!emptyTube(t))colorSelected=t;}
+            else if(colorSelected==t)colorSelected=-1;
+            else{if(pour(colorSelected,t))colorSelected=-1;else if(!emptyTube(t))colorSelected=t;}
+            return;
+        }}
+        colorSelected=-1;
+    }
+    // 猜数字 ──
+    private void setupGuessNumber(){guessSecret=1+rng.nextInt(100);guessLow=1;guessHigh=100;guessCount=0;guessInput="";}
+    // 反应测试 ──
+    private void tickReactionTest(){
+        if(reactState==0){reactTimer++;if(reactTimer>30+rng.nextInt(50)){reactState=1;reactStart=System.currentTimeMillis();}}
+        else if(reactState==2){reactTimer++;if(reactTimer>40){reactTimer=0;reactState=0;reactFailed=false;}}
+    }
+    // 连连看 ──
+    private void setupLinkMatch(){linkGrid=new int[4][6];List<Integer>p=new ArrayList<>();for(int i=0;i<12;i++){p.add(i%6);p.add(i%6);}Collections.shuffle(p,rng);
+        int idx=0;for(int r=0;r<4;r++)for(int c=0;c<6;c++)linkGrid[r][c]=p.get(idx++);linkSelX=-1;linkSelY=-1;}
+    private void renderLinkMatch(GuiGraphics g,int left,int top){
+        int cs=32,ox=left+30,oy=top+40; int[]cols={RED,GREEN,BLUE,YELLOW,0xFFAA66FF,0xFFFF8844};
+        for(int r=0;r<4;r++)for(int c=0;c<6;c++){
+            int x=ox+c*cs,y=oy+r*cs,val=linkGrid[r][c];
+            int col=val>=0?cols[val]:0xFF222222;
+            MinigameUI.roundRect(g,x,y,x+cs-2,y+cs-2,4,col);
+            if((r==linkSelY&&c==linkSelX))MinigameUI.roundBorder(g,x,y,x+cs-2,y+cs-2,4,2,WHITE);
+        }
+    }
+    private boolean canLink(int x1,int y1,int x2,int y2){if(x1==x2&&y1==y2)return false;
+        return checkStraight(x1,y1,x2,y2)||check1Bend(x1,y1,x2,y2)||check2Bend(x1,y1,x2,y2);}
+    private boolean isEmptyCell(int x,int y){return x<0||x>=6||y<0||y>=4||linkGrid[y][x]<0;}
+    private boolean checkStraight(int x1,int y1,int x2,int y2){
+        if(x1==x2){for(int y=Math.min(y1,y2)+1;y<Math.max(y1,y2);y++)if(!isEmptyCell(x1,y))return false;return true;}
+        if(y1==y2){for(int x=Math.min(x1,x2)+1;x<Math.max(x1,x2);x++)if(!isEmptyCell(x,y1))return false;return true;}return false;}
+    private boolean check1Bend(int x1,int y1,int x2,int y2){return checkCorner(x1,y1,x2,y2,x1,y2)||checkCorner(x1,y1,x2,y2,x2,y1);}
+    private boolean checkCorner(int x1,int y1,int x2,int y2,int cx,int cy){return isEmptyCell(cx,cy)&&checkStraight(x1,y1,cx,cy)&&checkStraight(cx,cy,x2,y2);}
+    private boolean check2Bend(int x1,int y1,int x2,int y2){for(int r=-1;r<=4;r++)for(int c=-1;c<=6;c++)if((r==y1||r==y2||c==x1||c==x2)&&isEmptyCell(c,r))if(checkCorner(x1,y1,x2,y2,c,r))return true;return false;}
+
+    // ── 俄罗斯方块（8x6面板，消除1行即通关）──
+    private void setupTetris(){tetrisBoard=new int[8][6];spawnTetrisPiece();tetrisTimer=0;tetrisLines=0;}
+    private int[][] getTetrisShape(int p,int r){return switch(p){
+        case 0->new int[][]{{0,0},{1,0},{0,1},{1,1}};case 1->new int[][]{{0,0},{0,1},{0,2},{0,3}};
+        case 2->new int[][]{{0,0},{1,0},{2,0},{2,1}};case 3->new int[][]{{1,0},{0,1},{1,1},{2,1}};
+        case 4->new int[][]{{0,0},{0,1},{1,1},{1,2}};default->new int[][]{{0,0},{1,0},{1,1},{2,1}};};}
+    private void spawnTetrisPiece(){tetrisPiece=rng.nextInt(6);tetrisRot=0;tetrisPX=2;tetrisPY=0;}
+    private void tickTetris(){if(++tetrisTimer<12)return;tetrisTimer=0;
+        if(canPlaceTetris(tetrisPX,tetrisPY+1,tetrisPiece,tetrisRot))tetrisPY++;else{placeTetris();clearTetrisLines();spawnTetrisPiece();if(!canPlaceTetris(tetrisPX,tetrisPY,tetrisPiece,tetrisRot))init();}}
+    private boolean canPlaceTetris(int px,int py,int p,int r){int[][]s=getTetrisShape(p,r);for(int[]c:s){int x=px+c[0],y=py+c[1];if(x<0||x>=6||y>=8||(y>=0&&tetrisBoard[y][x]!=0))return false;}return true;}
+    private void placeTetris(){int[][]s=getTetrisShape(tetrisPiece,tetrisRot);for(int[]c:s){int x=tetrisPX+c[0],y=tetrisPY+c[1];if(y>=0)tetrisBoard[y][x]=1;}}
+    private void clearTetrisLines(){for(int r=7;r>=0;r--){boolean full=true;for(int c=0;c<6;c++)if(tetrisBoard[r][c]==0){full=false;break;}if(full){tetrisLines++;for(int rr=r;rr>0;rr--)System.arraycopy(tetrisBoard[rr-1],0,tetrisBoard[rr],0,6);r++;if(tetrisLines>=1)complete();}}}
+    private void renderTetris(GuiGraphics g,int left,int top){int cs=26,ox=left+(PANEL_W-6*cs)/2,oy=top+30;
+        // 绘制游戏区域边界
+        MinigameUI.roundBorder(g,ox-2,oy-2,ox+6*cs+2,oy+8*cs+2,3,2,0x66FFFFFF);
+        for(int r=0;r<8;r++)for(int c=0;c<6;c++)if(tetrisBoard[r][c]!=0)MinigameUI.roundRect(g,ox+c*cs,oy+r*cs,ox+c*cs+cs-1,oy+r*cs+cs-1,2,0xFF44AACC);
+        int[][]s=getTetrisShape(tetrisPiece,tetrisRot);for(int[]c:s){int x=tetrisPX+c[0],y=tetrisPY+c[1];if(y>=0)MinigameUI.roundRect(g,ox+x*cs,oy+y*cs,ox+x*cs+cs-1,oy+y*cs+cs-1,2,0xFFAA44CC);}
+        g.drawCenteredString(font,tr("common.hits",tetrisLines,1),width/2,top+6,WHITE);}
+
+    // ── 翻牌配对 ──
+    private void setupMemMatch(){memCards=new int[16];memRevealed=new int[16];List<Integer>p=new ArrayList<>();for(int i=0;i<8;i++){p.add(i);p.add(i);}Collections.shuffle(p,rng);for(int i=0;i<16;i++)memCards[i]=p.get(i);memSel1=-1;memSel2=-1;memFound=0;memWait=0;}
+    private void tickMemMatch(){if(memWait>0){memWait--;if(memWait<=0){memRevealed[memSel1]=0;memRevealed[memSel2]=0;memSel1=-1;memSel2=-1;}}}
+    private void renderMemMatch(GuiGraphics g,int left,int top){int cs=38,ox=left+70,oy=top+30;
+        int[]cols={RED,GREEN,BLUE,YELLOW,0xFFAA66FF,0xFFFF8844,0xFF44AACC,0xFFCC66AA};
+        for(int i=0;i<16;i++){int x=ox+(i%4)*cs,y=oy+(i/4)*cs;boolean rev=memRevealed[i]==1||memCards[i]<0;
+            MinigameUI.roundRect(g,x,y,x+cs-2,y+cs-2,4,rev?cols[Math.abs(memCards[i])%8]:0xFF334455);
+            if(rev&&memCards[i]>=0)g.drawCenteredString(font,Component.literal(""+((memCards[i]%8)+1)),x+cs/2,y+10,WHITE);
+            if(i==memSel1||i==memSel2)MinigameUI.roundBorder(g,x,y,x+cs-2,y+cs-2,4,2,WHITE);}
+        g.drawCenteredString(font,tr("common.hits",memFound,8),width/2,top+8,WHITE);}
+
+    // ── 接管道 ──
+    // pipeVal: bit0=上 bit1=右 bit2=下 bit3=左 (连接方向)
+    private void setupPipeConnect(){pipeGrid=new int[pipeH][pipeW];
+        int[][]solution=new int[pipeH][pipeW];
+        boolean[][]onPath=new boolean[pipeH][pipeW];
+        onPath[0][0]=true;
+        int r=0,c=0;
+        // 随机走到终点
+        while(!(r==pipeH-1&&c==pipeW-1)){
+            List<int[]>opts=new ArrayList<>();
+            if(r>0&&!onPath[r-1][c])opts.add(new int[]{r-1,c,0,2}); if(r<pipeH-1&&!onPath[r+1][c])opts.add(new int[]{r+1,c,2,0});
+            if(c>0&&!onPath[r][c-1])opts.add(new int[]{r,c-1,3,1}); if(c<pipeW-1&&!onPath[r][c+1])opts.add(new int[]{r,c+1,1,3});
+            if(opts.isEmpty()){r=0;c=0;for(int i=0;i<pipeH;i++)Arrays.fill(onPath[i],false);onPath[0][0]=true;continue;}
+            int[]n=opts.get(rng.nextInt(opts.size()));
+            solution[r][c]|=(1<<n[2]); solution[n[0]][n[1]]|=(1<<n[3]);
+            r=n[0];c=n[1];onPath[r][c]=true;
+        }
+        // 非路径格：连接到一个相邻格（确保无死局）
+        for(r=0;r<pipeH;r++)for(c=0;c<pipeW;c++)if(!onPath[r][c]){
+            int[][]nb={{r-1,c,0,2},{r+1,c,2,0},{r,c-1,3,1},{r,c+1,1,3}};
+            Collections.shuffle(Arrays.asList(nb),rng);
+            for(int[]n:nb){int nr=n[0],nc=n[1];if(nr>=0&&nr<pipeH&&nc>=0&&nc<pipeW){solution[r][c]|=(1<<n[2]);solution[nr][nc]|=(1<<n[3]);break;}}
+        }
+        for(r=0;r<pipeH;r++)for(c=0;c<pipeW;c++)pipeGrid[r][c]=solution[r][c];
+        // 仅随机旋转非路径上的管道（增加难度，不破坏路径）
+        for(int i=0;i<6;i++){int pr=rng.nextInt(pipeH),pc=rng.nextInt(pipeW);if(!onPath[pr][pc])pipeGrid[pr][pc]=(pipeGrid[pr][pc]<<rng.nextInt(3))&15;}
+    }
+    private void renderPipeConnect(GuiGraphics g,int left,int top){int cs=40,ox=left+(PANEL_W-pipeW*cs)/2,oy=top+40;
+        for(int r=0;r<pipeH;r++)for(int c=0;c<pipeW;c++){int x=ox+c*cs,y=oy+r*cs,v=pipeGrid[r][c];
+            MinigameUI.roundRect(g,x,y,x+cs-2,y+cs-2,3,0xFF334455);
+            if((v&1)!=0)g.fill(x+cs/2-2,y,x+cs/2+2,y+cs/2,0xFF44CCFF); if((v&2)!=0)g.fill(x+cs/2,y+cs/2-2,x+cs,y+cs/2+2,0xFF44CCFF);
+            if((v&4)!=0)g.fill(x+cs/2-2,y+cs/2,x+cs/2+2,y+cs,0xFF44CCFF); if((v&8)!=0)g.fill(x,y+cs/2-2,x+cs/2,y+cs/2+2,0xFF44CCFF);}
+        // 起点(绿色) 终点(红色)
+        drawCircle(g,ox+cs/2,oy+cs/2,6,GREEN); drawCircle(g,ox+(pipeW-1)*cs+cs/2,oy+(pipeH-1)*cs+cs/2,6,RED);
+        if(checkPipeConnected())complete();
+    }
+    private boolean checkPipeConnected(){
+        boolean[][]vis=new boolean[pipeH][pipeW];vis[0][0]=true; int count=1;
+        while(count>0){count=0;
+            for(int r=0;r<pipeH;r++)for(int c=0;c<pipeW;c++)if(vis[r][c]){
+                int v=pipeGrid[r][c];
+                if((v&1)!=0&&r>0&&!vis[r-1][c]&&(pipeGrid[r-1][c]&4)!=0){vis[r-1][c]=true;count++;}
+                if((v&2)!=0&&c<pipeW-1&&!vis[r][c+1]&&(pipeGrid[r][c+1]&8)!=0){vis[r][c+1]=true;count++;}
+                if((v&4)!=0&&r<pipeH-1&&!vis[r+1][c]&&(pipeGrid[r+1][c]&1)!=0){vis[r+1][c]=true;count++;}
+                if((v&8)!=0&&c>0&&!vis[r][c-1]&&(pipeGrid[r][c-1]&2)!=0){vis[r][c-1]=true;count++;}
+            }
+        }
+        return vis[pipeH-1][pipeW-1];
+    }
+
+    // ── 点灯 ──
+    private void setupLightsOut(){lightGrid=new boolean[lightsSize][lightsSize];int onCount=0;
+        while(onCount<3){for(int r=0;r<lightsSize;r++)Arrays.fill(lightGrid[r],false);for(int i=0;i<8;i++)toggleLight(rng.nextInt(lightsSize),rng.nextInt(lightsSize));
+            onCount=0;for(int r=0;r<lightsSize;r++)for(int c=0;c<lightsSize;c++)if(lightGrid[r][c])onCount++;}}
+    private void toggleLight(int r,int c){if(r>=0&&r<lightsSize&&c>=0&&c<lightsSize)lightGrid[r][c]=!lightGrid[r][c];}
+    private void renderLightsOut(GuiGraphics g,int left,int top){int cs=38,ox=left+100,oy=top+40;
+        for(int r=0;r<lightsSize;r++)for(int c=0;c<lightsSize;c++){int x=ox+c*cs,y=oy+r*cs;
+            MinigameUI.roundRect(g,x,y,x+cs-2,y+cs-2,4,lightGrid[r][c]?YELLOW:0xFF334455);}
+        int onCount=0;for(int r=0;r<lightsSize;r++)for(int c=0;c<lightsSize;c++)if(lightGrid[r][c])onCount++;if(onCount<=2)complete();}
+
+    // ── 24点 (运营商+数字，保证有解) ──
+    private boolean canMake24(int[]nums){
+        int[][]perms=permute4(nums);
+        for(int[]p:perms)for(int o1=0;o1<4;o1++)for(int o2=0;o2<4;o2++)for(int o3=0;o3<4;o3++){
+            if(calc24(calc24(p[0],o1,p[1]),o2,calc24(p[2],o3,p[3]))==24)return true;}
+        return false;}
+    private int[][] permute4(int[]n){List<int[]>res=new ArrayList<>();for(int a=0;a<4;a++)for(int b=0;b<4;b++)if(b!=a)for(int c=0;c<4;c++)if(c!=a&&c!=b)for(int d=0;d<4;d++)if(d!=a&&d!=b&&d!=c){res.add(new int[]{n[a],n[b],n[c],n[d]});}
+        return res.toArray(new int[0][]);}
+    private void setupGame24(){game24Nums=new int[4];
+        do{for(int i=0;i<4;i++)game24Nums[i]=1+rng.nextInt(10);}while(!canMake24(game24Nums));
+        game24Sel1=-1;game24Sel2=-1;game24Expr=new int[7];for(int i=0;i<7;i++)game24Expr[i]=-1;game24Drag=-1;game24Used=new boolean[4];
+        game24Expr[1]=rng.nextInt(4);game24Expr[3]=rng.nextInt(4);game24Expr[5]=rng.nextInt(4);}
+    private int[] game24Expr; private int game24Drag; private boolean[] game24Used;
+    private int eval24(){int a=game24Expr[0],b=game24Expr[2],c=game24Expr[4],d=game24Expr[6];if(a<0||b<0||c<0||d<0)return-1;int op1=game24Expr[1],op2=game24Expr[3],op3=game24Expr[5];if(op1<0||op2<0||op3<0)return-1;
+        return calc24(calc24(a,op1,b),op2,calc24(c,op3,d));}
+    private int calc24(int x,int op,int y){return switch(op){case 0->x+y;case 1->x-y;case 2->x*y;case 3->y!=0?x/y:0;default->0;};}
+    private void clear24Slot(int ei){if(ei%2==0&&game24Expr[ei]>=0){int v=game24Expr[ei];for(int j=0;j<4;j++)if(game24Nums[j]==v&&game24Used[j]){game24Used[j]=false;break;}game24Expr[ei]=-1;}}
+    private void renderGame24(GuiGraphics g,int left,int top){
+        int bx=left+20,by=top+80; String[]ops={"+","-","×","/"};
+        // 上方数字选择（已使用的变暗）
+        for(int i=0;i<4;i++){int x=bx+i*50;boolean used=game24Used[i];MinigameUI.roundRect(g,x,by-50,x+42,by-10,4,game24Drag==i?YELLOW:used?0xFF222222:0xFF334455);
+            g.drawCenteredString(font,Component.literal(""+game24Nums[i]),x+21,by-34,used?MUTED:WHITE);}
+        // 表达式: (N1 OP1 N2) OP2 (N3 OP3 N4)
+        String[]toks={"(","(","",")"," ","(","","",")"};
+        for(int i=0;i<9;i++){int x=bx+i*28;
+            if(i==2||i==7){ int si=i==2?0:i==7?4:0; int val=game24Expr[si];
+                MinigameUI.roundRect(g,x,by+10,x+24,by+42,4,val>=0?0xFF445566:0xFF334455);
+                if(val>=0)g.drawCenteredString(font,Component.literal(""+val),x+12,by+24,WHITE);}
+            else if(i==1||i==6){ int oi=i==1?1:i==6?5:1; int op=game24Expr[oi];g.drawCenteredString(font,Component.literal(ops[Math.abs(op%4)]),x+12,by+24,WHITE);}
+            else if(i==4){int op=game24Expr[3];g.drawCenteredString(font,Component.literal(ops[Math.abs(op%4)]),x+12,by+24,WHITE);}
+            else g.drawString(font,toks[i],x+2,by+15,MUTED);
+        }
+        g.drawCenteredString(font,tr("game_24.hint"),width/2,top+160,WHITE);
+        int v=eval24();if(v==24)complete();
+    }
+    private void click24(double mx,double my){int bx=panelLeft()+20,by=panelTop()+80;
+        // 点击上方数字 → 选中（已使用的不能选）
+        for(int i=0;i<4;i++){int x=bx+i*50;if(inRect(mx,my,x,by-50,42,40)){if(game24Drag>=0){game24Drag=-1;return;}if(!game24Used[i])game24Drag=i;return;}}
+        // 点击表达式数字槽位 → 放置/覆盖/清除
+        int[]sMap={-1,-1,0,-1,-1,-1,-1,4,-1}; // tok index 2→expr[0], tok index 7→expr[4]
+        for(int i=0;i<9;i++){if(sMap[i]<0)continue;int x=bx+i*28;if(inRect(mx,my,x,by+10,24,32)){
+            if(game24Drag>=0){clear24Slot(sMap[i]);game24Expr[sMap[i]]=game24Nums[game24Drag];game24Used[game24Drag]=true;game24Drag=-1;}else{clear24Slot(sMap[i]);}return;}}
+        // 点击运算符 → 切换
+        if(inRect(mx,my,bx+1*28,by+10,24,32)){game24Expr[1]=(game24Expr[1]+1)%4;return;}
+        if(inRect(mx,my,bx+4*28,by+10,24,32)){game24Expr[3]=(game24Expr[3]+1)%4;return;}
+        if(inRect(mx,my,bx+6*28,by+10,24,32)){game24Expr[5]=(game24Expr[5]+1)%4;return;}
+        if(game24Drag>=0)game24Drag=-1;
+    }
+
+    // ── 迷宫 ──
+    private void setupMaze(){int w=14,h=10;mazeGrid=new int[h][w];mazePX=1;mazePY=1;mazeEX=w-2;mazeEY=h-2;
+        for(int r=0;r<h;r++)for(int c=0;c<w;c++)mazeGrid[r][c]=(r==0||r==h-1||c==0||c==w-1)?1:-1;carveMaze(1,1);
+        for(int r=0;r<h;r++)for(int c=0;c<w;c++)if(mazeGrid[r][c]==-1)mazeGrid[r][c]=1;mazeGrid[mazeEY][mazeEX]=0;
+        // 确保终点至少有一个相邻通路（四周全是墙则打通一条到最近通路）
+        int[][]nb={{0,1},{0,-1},{1,0},{-1,0}};boolean hasPath=false;
+        for(int[]d:nb){int ny=mazeEY+d[0],nx=mazeEX+d[1];if(ny>=0&&ny<h&&nx>=0&&nx<w&&mazeGrid[ny][nx]==0)hasPath=true;}
+        if(!hasPath)for(int[]d:nb){int ny=mazeEY+d[0],nx=mazeEX+d[1];if(ny>0&&ny<h-1&&nx>0&&nx<w-1){mazeGrid[ny][nx]=0;break;}}}
+    private void carveMaze(int r,int c){mazeGrid[r][c]=0;int[][]dirs={{0,2},{2,0},{0,-2},{-2,0}};Collections.shuffle(Arrays.asList(dirs),rng);
+        for(int[]d:dirs){int nr=r+d[0],nc=c+d[1];if(nr>0&&nr<mazeGrid.length-1&&nc>0&&nc<mazeGrid[0].length-1&&mazeGrid[nr][nc]==-1){mazeGrid[r+d[0]/2][c+d[1]/2]=0;carveMaze(nr,nc);}}}
+    private void renderMaze(GuiGraphics g,int left,int top){int cs=16,ox=left+100,oy=top+30;
+        for(int r=0;r<mazeGrid.length;r++)for(int c=0;c<mazeGrid[0].length;c++)if(mazeGrid[r][c]==1)MinigameUI.roundRect(g,ox+c*cs,oy+r*cs,ox+c*cs+cs,oy+r*cs+cs,1,0xFF334455);
+        drawCircle(g,ox+mazePX*cs+cs/2,oy+mazePY*cs+cs/2,5,RED);drawCircle(g,ox+mazeEX*cs+cs/2,oy+mazeEY*cs+cs/2,5,GREEN);}
+
+    // ── 天平（物品拖拽） ──
+    private int scaleLeftWt, scaleRightWt; private int[] scaleItems={2,3,4,5,7}; private int scaleDragItem=-1; private float scaleDragX,scaleDragY;
+    private int[] scaleSlots={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}; // 0~4左盘,5~9右盘
+    private void setupBalanceScale(){scaleLeftWt=0;scaleRightWt=0;scaleDragItem=-1;
+        for(int i=0;i<10;i++)scaleSlots[i]=-1;}
+    private void renderBalanceScale(GuiGraphics g,int left,int top){
+        int px=width/2,py=top+100; // 支点
+        g.fill(px-2,py,px+2,py+40,0xFF886644); // 支柱
+        g.fill(px-80,py+40,px+80,py+44,0xFF886644); // 横杆
+        g.fill(px-80,py+44,px-70,py+80,0xFF886644); // 左绳
+        g.fill(px+70,py+44,px+80,py+80,0xFF886644); // 右绳
+        MinigameUI.roundRect(g,px-100,py+80,px-50,py+100,3,0xFF66AACC); // 左盘
+        MinigameUI.roundRect(g,px+50,py+80,px+100,py+100,3,0xFF66AACC); // 右盘
+        // 左盘物品
+        for(int i=0;i<5;i++)if(scaleSlots[i]>=0){int si=scaleSlots[i],ix=px-95+i*10; g.renderItem(new ItemStack(scaleItemTex[si]),ix,py+82);}
+        // 右盘物品
+        for(int i=5;i<10;i++)if(scaleSlots[i]>=0){int si=scaleSlots[i],ix=px+55+(i-5)*10; g.renderItem(new ItemStack(scaleItemTex[si]),ix,py+82);}
+        // 底部可拖拽物品
+        for(int i=0;i<5;i++){int ix=left+40+i*80; g.renderItem(new ItemStack(scaleItemTex[i]),ix,top+PANEL_H-40); g.drawString(font,String.valueOf(scaleItems[i]),ix+20,top+PANEL_H-24,WHITE);}
+        g.drawCenteredString(font,Component.literal("左:"+scaleLeftWt+"  右:"+scaleRightWt),width/2,top+HEADER_H+5,WHITE);
+        if(scaleLeftWt>0&&scaleLeftWt==scaleRightWt)complete();
+        // 渲染拖拽中的物品
+        if(scaleDragItem>=0)g.renderItem(new ItemStack(scaleItemTex[scaleDragItem]),(int)lastMouseX-8,(int)lastMouseY-8);
+    }
+    private int findFreeSlot(int base){for(int i=0;i<5;i++)if(scaleSlots[base+i]<0)return base+i;return -1;}
+    private static final net.minecraft.world.item.Item[] scaleItemTex={Items.IRON_INGOT,Items.GOLD_INGOT,Items.DIAMOND,Items.NETHERITE_INGOT,Items.EMERALD};
+    private void clickScale(double mx,double my){int left=panelLeft(),top=panelTop();
+        for(int i=0;i<5;i++){int ix=left+40+i*80;if(inRect(mx,my,ix,top+PANEL_H-40,16,16)){scaleDragItem=i;scaleDragX=(float)mx-8;scaleDragY=(float)my-8;return;}}
+        // 左盘
+        if(inRect(mx,my,width/2-100,top+100+80,50,20)){int si=findFreeSlot(0);if(scaleDragItem>=0&&si>=0){scaleSlots[si]=scaleDragItem;scaleLeftWt+=scaleItems[scaleDragItem];scaleDragItem=-1;}}
+        // 右盘
+        if(inRect(mx,my,width/2+50,top+100+80,50,20)){int si=findFreeSlot(5);if(scaleDragItem>=0&&si>=0){scaleSlots[si]=scaleDragItem;scaleRightWt+=scaleItems[scaleDragItem];scaleDragItem=-1;}}
+        scaleDragItem=-1;
+    }
+
+    // ── 华容道 ──
+    // 4列×5行, 0=空 1=曹操2×2 2~5=竖将1×2 6=横将2×1 7~10=兵1×1
+    private void setupKlotski(){
+        klotskiGrid=new int[5][4];klotskiSelR=-1;klotskiSelC=-1;
+        // 经典横刀立马布局
+        // 张飞 曹操 曹操 马超
+        // 张飞 曹操 曹操 马超
+        // 赵云 关羽 关羽 黄忠
+        // 赵云  卒     卒   黄忠
+        //  卒    空    空    卒
+        int[][] layout={
+            {2, 1, 1, 4},
+            {2, 1, 1, 4},
+            {3, 6, 6, 5},
+            {3, 7, 8, 5},
+            {9, 0, 0,10}
+        };
+        for(int r=0;r<5;r++)for(int c=0;c<4;c++)klotskiGrid[r][c]=layout[r][c];
+    }
+    private int[] klotskiBlockSize(int br,int bc){
+        int id=klotskiGrid[br][bc];if(id<=0)return new int[]{0,0};
+        // 先找到块左上角
+        int topR=br,leftC=bc;
+        while(topR>0&&klotskiGrid[topR-1][bc]==id)topR--;
+        while(leftC>0&&klotskiGrid[br][leftC-1]==id)leftC--;
+        // 再扫描完整宽高
+        int maxR=topR,maxC=leftC;
+        while(maxR+1<5&&klotskiGrid[maxR+1][leftC]==id)maxR++;
+        while(maxC+1<4&&klotskiGrid[topR][maxC+1]==id)maxC++;
+        return new int[]{maxR-topR+1,maxC-leftC+1};
+    }
+    // 获取块左上角坐标
+    private int[] klotskiTopLeft(int br,int bc){
+        int id=klotskiGrid[br][bc];if(id<=0)return new int[]{br,bc};
+        while(br>0&&klotskiGrid[br-1][bc]==id)br--;
+        while(bc>0&&klotskiGrid[br][bc-1]==id)bc--;
+        return new int[]{br,bc};
+    }
+    private boolean canMoveKlotski(int br,int bc,int dr,int dc){
+        int[]sz=klotskiBlockSize(br,bc);int h=sz[0],w=sz[1];
+        for(int r=br;r<br+h;r++)for(int c=bc;c<bc+w;c++){
+            int nr=r+dr,nc=c+dc;
+            if(nr<0||nr>=5||nc<0||nc>=4)return false;
+            if(klotskiGrid[nr][nc]!=0&&klotskiGrid[nr][nc]!=klotskiGrid[br][bc])return false;
+        }return true;}
+    private void moveKlotskiBlock(int br,int bc,int dr,int dc){
+        if(!canMoveKlotski(br,bc,dr,dc))return;
+        int[]sz=klotskiBlockSize(br,bc);int h=sz[0],w=sz[1],id=klotskiGrid[br][bc];
+        // 清除旧位置
+        for(int r=br;r<br+h;r++)for(int c=bc;c<bc+w;c++)klotskiGrid[r][c]=0;
+        // 写入新位置
+        int nr=br+dr,nc=bc+dc;
+        for(int r=nr;r<nr+h;r++)for(int c=nc;c<nc+w;c++)klotskiGrid[r][c]=id;
+        klotskiSelR=nr;klotskiSelC=nc;
+        // 曹操(1)到达底部中央(行4列1-2)即胜利
+        if(id==1&&nr+h-1==4&&nc==1)complete();
+    }
+    private void renderKlotski(GuiGraphics g,int left,int top){
+        int cs=50,gap=2,ox=left+(PANEL_W-4*cs-3*gap)/2,oy=top+30;
+        int[]cols={0,0xFFDD6644,0xFF44AACC,0xFF44CC66,0xFFCC66AA,0xFFDDAA44,0xFF8866CC,0xFFDD8888,0xFF88DD88,0xFF8888DD,0xFFDDAACC};
+        String[]names={"","曹操","张飞","赵云","马超","黄忠","关羽","卒","卒","卒","卒"};
+        // 选中块整体高亮
+        if(klotskiSelR>=0){
+            int[]sz=klotskiBlockSize(klotskiSelR,klotskiSelC);
+            int sx=ox+klotskiSelC*(cs+gap)-2,sy=oy+klotskiSelR*(cs+gap)-2;
+            MinigameUI.roundBorder(g,sx,sy,sx+sz[1]*(cs+gap)-gap+4,sy+sz[0]*(cs+gap)-gap+4,6,2,YELLOW);
+        }
+        for(int r=0;r<5;r++)for(int c=0;c<4;c++){
+            int x=ox+c*(cs+gap),y=oy+r*(cs+gap);int id=klotskiGrid[r][c];
+            MinigameUI.roundRect(g,x,y,x+cs,y+cs,4,id>0?cols[id]:0xFF222233);
+            if(id>0&&(r==0||klotskiGrid[r-1][c]!=id)&&(c==0||klotskiGrid[r][c-1]!=id))
+                g.drawCenteredString(font,Component.literal(names[id]),x+cs/2,y+cs/2-5,WHITE);
+        }
+        // 出口标记(底部中间)
+        int ex=ox+1*(cs+gap)+cs/2,ey=oy+5*(cs+gap);
+        g.fill(ex-12,ey-4,ex+12,ey+4,GREEN);
+    }
+    private void clickKlotski(double mx,double my){
+        int cs=50,gap=2,ox=panelLeft()+(PANEL_W-4*cs-3*gap)/2,oy=panelTop()+30;
+        int c=(int)((mx-ox)/(cs+gap)),r=(int)((my-oy)/(cs+gap));
+        if(r>=0&&r<5&&c>=0&&c<4&&klotskiGrid[r][c]>0){
+            int[]tl=klotskiTopLeft(r,c);klotskiSelR=tl[0];klotskiSelC=tl[1];klotskiStartX=mx;klotskiStartY=my;}
+    }
+
+    // ── 内类 ──
+    private static class Egg {float x,y;int type;boolean caught;Egg(float x,float y,int t){this.x=x;this.y=y;this.type=t;}}
+
+    private static class Brick {
+        int x, y, w, h, color;
+        boolean alive = true;
+        Brick(int x, int y, int w, int h, int color) {
+            this.x = x; this.y = y; this.w = w; this.h = h; this.color = color;
+        }
     }
 
     private static class RunningMouse {
