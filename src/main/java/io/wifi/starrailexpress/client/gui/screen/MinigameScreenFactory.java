@@ -87,6 +87,40 @@ public class MinigameScreenFactory {
                 SimpleQuestMinigameScreen.Mode.BRICK_BREAKER));
         FACTORY.put("make_change", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
                 SimpleQuestMinigameScreen.Mode.MAKE_CHANGE));
+        FACTORY.put("snake", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.SNAKE));
+        FACTORY.put("minesweeper", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.MINESWEEPER));
+        FACTORY.put("simon_says", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.SIMON_SAYS));
+        FACTORY.put("game_2048", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.GAME_2048));
+        FACTORY.put("catch_eggs", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.CATCH_EGGS));
+        FACTORY.put("color_sort", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.COLOR_SORT));
+        FACTORY.put("guess_number", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.GUESS_NUMBER));
+        FACTORY.put("reaction_test", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.REACTION_TEST));
+        FACTORY.put("link_match", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.LINK_MATCH));
+        FACTORY.put("tetris", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.TETRIS));
+        FACTORY.put("memory_match", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.MEMORY_MATCH));
+        FACTORY.put("pipe_connect", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.PIPE_CONNECT));
+        FACTORY.put("lights_out", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.LIGHTS_OUT));
+        FACTORY.put("game_24", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.GAME_24));
+        FACTORY.put("maze", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.MAZE));
+        FACTORY.put("balance_scale", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.BALANCE_SCALE));
+        FACTORY.put("klotski", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.KLOTSKI));
     }
 
     public static Screen create(String minigameId, BlockPos pos, Runnable onSuccess) {
