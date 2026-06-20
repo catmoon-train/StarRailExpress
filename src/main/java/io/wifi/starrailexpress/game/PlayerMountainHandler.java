@@ -39,8 +39,8 @@ public class PlayerMountainHandler {
         double dist = Math.sqrt(dx * dx + dz * dz);
         long time = a.level().getGameTime();
         if (dist < 0.01) {
-            dx = 1d * (time / 5 % 2 == 1 ? 1d : -1d);
-            dz = 1d * (time / 5 % 2 == 0 ? 1d : -1d); // 防止零向量
+            dx = 1d * (time / 10 % 2 == 1 ? 1d : -1d);
+            dz = 1d * (time / 10 % 2 == 0 ? 1d : -1d); // 防止零向量
         } else {
             dx /= dist;
             dz /= dist;
