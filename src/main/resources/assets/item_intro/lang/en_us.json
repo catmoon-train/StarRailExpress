@@ -3,6 +3,7 @@
   "item.trainmurdermystery.defense_vial.desc": "Desperado can drink directly by right-clicking to gain a shield.\nNormal players can right-click a tray to pour the defense vial onto it.\nThe next player who takes the defense vial and eats/drinks the item will gain a shield.\nShields obtained this way max out at 1 layer.",
   "item.noellesroles.bucket_of_h2so4.desc": "Cleaner item.\nRight-click a corpse to remove it.",
   "item.noellesroles.c4.desc": "Right-click to throw. If thrown at a player, attaches to them; otherwise attaches to the block where it lands. When ignited, C4 emits a ticking sound, and if not defused, explodes after several seconds, killing players within 6 blocks. When defused by non-Fitter players using defusal pliers, there is a 20%% chance to directly detonate the C4.",
+  "item.noellesroles.c4_detonator.desc": "Right-click to use. Ignites the last thrown C4 in the scene.",
   "item.noellesroles.camera_shears.desc": "Has 3 durability, 30s cooldown. Right-click a camera to disable it for 90 seconds.",
   "item.noellesroles.cooked_food.desc": "Cooked by the Chef. Comes with various effects after cooking.",
   "item.noellesroles.letter.desc": "When task point instinct is enabled, holding a letter reveals item vending machines.",
