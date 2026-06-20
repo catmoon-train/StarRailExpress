@@ -37,7 +37,7 @@ public class PlayerMountainHandler {
         double dx = a.getX() - b.getX();
         double dz = a.getZ() - b.getZ();
         double dist = Math.sqrt(dx * dx + dz * dz);
-        if (dist < 0.05) {
+        if (dist < 0.01) {
             dx = 0.72 * (random.nextBoolean() ? 1d : -1d);
             dz = 0.72 * (random.nextBoolean() ? 1d : -1d); // 防止零向量
         } else {
