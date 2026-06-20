@@ -42,6 +42,7 @@ public class CookingMinigameScreen extends Screen {
 
     private int targetType;
     private int caughtCount;
+    private int spawnCount;
     private int uiTicks;
 
     public CookingMinigameScreen(BlockPos questPos, Runnable onSuccess) {
@@ -55,6 +56,7 @@ public class CookingMinigameScreen extends Screen {
         panX = (this.width - PAN_WIDTH) / 2f;
         foods.clear();
         caughtCount = 0;
+        spawnCount = 0;
         spawnTimer = 30;
 
         foodTextures = new ResourceLocation[FOOD_BUFF_IDS.length];
@@ -79,11 +81,17 @@ public class CookingMinigameScreen extends Screen {
 
         if (--spawnTimer <= 0) {
             spawnTimer = 18 + rng.nextInt(25);
-            foods.add(new FoodItem(30 + rng.nextFloat() * (this.width - 60), -FOOD_SIZE,
-                    rng.nextInt(foodTextures.length)));
+            spawnCount++;
+            int type;
+            if (spawnCount % 5 == 0) {
+                type = targetType;
+            } else {
+                type = rng.nextInt(foodTextures.length);
+            }
+            foods.add(new FoodItem(30 + rng.nextFloat() * (this.width - 60), -FOOD_SIZE, type));
         }
 
-        for (FoodItem food : foods) food.y += 4.5f;
+        for (FoodItem food : foods) food.y += 6.5f;
 
         List<FoodItem> toRemove = new ArrayList<>();
         for (FoodItem food : foods) {

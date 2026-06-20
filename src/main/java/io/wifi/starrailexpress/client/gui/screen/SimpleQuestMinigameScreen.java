@@ -1,10 +1,16 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -22,6 +28,8 @@ public class SimpleQuestMinigameScreen extends Screen {
         WATER_VALVE("water_valve"),
         TYPING("typing"),
         PIPE_BIRD("pipe_bird"),
+        FRUIT_NINJA("fruit_ninja"),
+        MOUSE_WHACK("mouse_whack"),
         REACTOR_TEMPERATURE("reactor_temperature"),
         BOX_SORT("box_sort"),
         WIRE_CONNECT("wire_connect"),
@@ -70,6 +78,45 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private static final int INTRO_TICKS = 7;
 
+    // 原版材质 ResourceLocation
+    private static final ResourceLocation BG_TEXTURE = ResourceLocation.fromNamespaceAndPath("starrailexpress", "textures/gui/background.png");
+
+    // 原版物品栈缓存
+    private static final ItemStack SPONGE = new ItemStack(Items.SPONGE);
+    private static final ItemStack GLASS_BOTTLE = new ItemStack(Items.GLASS_BOTTLE);
+    private static final ItemStack PAPER = new ItemStack(Items.PAPER);
+    private static final ItemStack IRON_INGOT = new ItemStack(Items.IRON_INGOT);
+    private static final ItemStack APPLE = new ItemStack(Items.APPLE);
+    private static final ItemStack POISONOUS_POTATO = new ItemStack(Items.POISONOUS_POTATO);
+    private static final ItemStack GUNPOWDER = new ItemStack(Items.GUNPOWDER);
+    private static final ItemStack[] MUSIC_DISCS = {
+        new ItemStack(Items.MUSIC_DISC_13),
+        new ItemStack(Items.MUSIC_DISC_CAT),
+        new ItemStack(Items.MUSIC_DISC_BLOCKS),
+        new ItemStack(Items.MUSIC_DISC_CHIRP)
+    };
+    private static final ItemStack FLINT_AND_STEEL = new ItemStack(Items.FLINT_AND_STEEL);
+    private static final ItemStack CANDLE = new ItemStack(Items.CANDLE);
+    private static final ItemStack DECORATED_POT = new ItemStack(Items.DECORATED_POT);
+    private static final ItemStack CARROT = new ItemStack(Items.CARROT);
+    private static final ItemStack STONE = new ItemStack(Blocks.STONE);
+    private static final ItemStack GRASS = new ItemStack(Blocks.GRASS_BLOCK);
+    private static final ItemStack DIRT = new ItemStack(Blocks.DIRT);
+
+    // 水果忍者：水果材质
+    private static final ItemStack[] FRUITS = {
+        new ItemStack(Items.APPLE),        // 苹果
+        new ItemStack(Items.CHORUS_FRUIT), // 紫颂果
+        new ItemStack(Items.BEETROOT),     // 甜菜根
+        new ItemStack(Items.GOLDEN_APPLE), // 金苹果
+        new ItemStack(Items.POTATO),       // 马铃薯
+        new ItemStack(Items.CARROT),       // 胡萝卜
+        new ItemStack(Items.MELON_SLICE),  // 西瓜
+        new ItemStack(Items.PUMPKIN),      // 南瓜
+        new ItemStack(Items.SWEET_BERRIES),// 甜浆果
+        new ItemStack(Items.GLOW_BERRIES), // 发光浆果
+    };
+
     private final Runnable onSuccess;
     private final Mode mode;
     private final Random rng = new Random();
@@ -110,6 +157,12 @@ public class SimpleQuestMinigameScreen extends Screen {
     private int animationTicks;
     private int highlightedCard;
     private int correctRecord;
+    /** 三张牌：当前交换的源位置A */
+    private int swapFromA = -1;
+    /** 三张牌：当前交换的源位置B */
+    private int swapFromB = -1;
+    /** 三张牌：交换开始的 tick */
+    private int swapStartTick;
     private boolean falling;
     private boolean armed;
     private float fallingY;
@@ -150,6 +203,30 @@ public class SimpleQuestMinigameScreen extends Screen {
     private static final int PIPES_REQUIRED = 3;
     /** 管道小鸟：游戏是否运行中 */
     private boolean birdAlive;
+
+    /** 水果忍者：水果列表 */
+    private final List<Fruit> fruitList = new ArrayList<>();
+    /** 水果忍者：切中计数 */
+    private int fruitSliced;
+    /** 水果忍者：生成计时器 */
+    private int fruitSpawnTimer;
+    /** 水果忍者：炸弹 ItemStack */
+    private ItemStack bombItem;
+    /** 水果忍者：鼠标上一点 */
+    private double prevMouseX, prevMouseY;
+    /** 水果忍者：目标切中数 */
+    private static final int FRUIT_TARGET = 8;
+
+    /** 打老鼠：老鼠列表 */
+    private final List<RunningMouse> mice = new ArrayList<>();
+    /** 打老鼠：抓到计数 */
+    private int miceCaught;
+    /** 打老鼠：生成计时器 */
+    private int mouseSpawnTimer;
+    /** 打老鼠：刷子 ItemStack */
+    private static final ItemStack BRUSH = new ItemStack(Items.BRUSH);
+    /** 打老鼠：目标抓到数 */
+    private static final int MICE_TARGET = 5;
 
     /** 成功动画：>=0 表示已完成，正在播放成功反馈，到达时长后关闭。 */
     private int successTicks = -1;
@@ -208,11 +285,21 @@ public class SimpleQuestMinigameScreen extends Screen {
         valveTotalRotation = 0;
         valveAngle = 0;
         valveDragging = false;
+        sliceStartY = -1;
+        sliceStartY = -1;
         pipePairs.clear();
         pipesPassed = 0;
         birdAlive = true;
         birdY = panelTop() + 80;
         birdVelocity = 0;
+        fruitList.clear();
+        fruitSliced = 0;
+        fruitSpawnTimer = 30;
+        mice.clear();
+        miceCaught = 0;
+        mouseSpawnTimer = 30;
+        prevMouseX = 0;
+        prevMouseY = 0;
         typingInput.setLength(0);
         typingError = false;
         setupMode();
@@ -264,33 +351,48 @@ public class SimpleQuestMinigameScreen extends Screen {
                 Collections.shuffle(pieces, rng);
             }
             case CLEAN_STAINS -> {
-                for (int i = 0; i < 16; i++) {
-                    dots.add(new Dot(left + 70 + rng.nextInt(290), top + 55 + rng.nextInt(145), 15, 4));
+                for (int i = 0; i < 8; i++) {
+                    Dot d = new Dot(left + 70 + rng.nextInt(290), top + 55 + rng.nextInt(145), 15, 4);
+                    d.life = 20;
+                    dots.add(d);
                 }
                 pieces.add(new Piece(label("sponge"), 1, 0xFFFFFF88, left + 185, top + 215, -1));
             }
             case TRASH_RECYCLE -> {
-                String[] ids = {"bottle", "can", "paper", "core", "peel", "dust"};
-                for (int i = 0; i < ids.length; i++) {
-                    pieces.add(new Piece(label(ids[i]), i % 3, i < 3 ? BLUE : YELLOW,
-                            left + 45 + i * 60, top + 205, i < 3 ? 0 : 1));
+                // 可回收: 玻璃瓶、纸张、铁锭。 其他垃圾: 苹果、毒马铃薯、火药
+                ItemStack[] items = {GLASS_BOTTLE, IRON_INGOT, PAPER, APPLE, POISONOUS_POTATO, GUNPOWDER};
+                String[] names = {"label.bottle", "label.iron", "label.paper", "label.apple", "label.potato", "label.dust"};
+                for (int i = 0; i < items.length; i++) {
+                    Piece p = new Piece(Component.translatable("minigame.starrailexpress." + names[i]),
+                            i % 3, i < 3 ? BLUE : YELLOW,
+                            left + 45 + i * 60, top + 200, i < 3 ? 0 : 1);
+                    p.item = items[i];
+                    pieces.add(p);
                 }
             }
             case ITEM_CHECKLIST -> {
-                List<String> ids = new ArrayList<>(List.of("key", "wire", "cup", "chip", "tape", "gear", "pen"));
+                List<String> ids = new ArrayList<>(List.of("key", "wire", "cup", "chip", "tape", "gear", "pen", "hammer"));
                 Collections.shuffle(ids, rng);
-                for (int i = 0; i < 3; i++) selectedIndices.add(i);
+                // 随机选取3个为所需物品
+                selectedIndices.clear();
+                List<Integer> pool = new ArrayList<>();
+                for (int i = 0; i < ids.size(); i++) pool.add(i);
+                Collections.shuffle(pool, rng);
+                for (int i = 0; i < 3; i++) selectedIndices.add(pool.get(i));
+                // 所有物品随机打乱，不标注颜色
                 for (int i = 0; i < ids.size(); i++) {
-                    pieces.add(new Piece(label(ids.get(i)), 1, i < 3 ? GREEN : 0xFF6B7890,
-                            left + 240 + (i % 2) * 80, top + 55 + (i / 2) * 42, i < 3 ? 1 : 0));
+                    pieces.add(new Piece(label(ids.get(i)), 1, 0xFF6B7890,
+                            left + 240 + (i % 2) * 80, top + 55 + (i / 2) * 42, selectedIndices.contains(i) ? 1 : 0));
                 }
             }
             case SWIPE_CARD -> pieces.add(new Piece(label("card"), 1, 0xFF66BBFF, left + 65, top + 110, 1));
             case PLAY_MUSIC -> {
                 correctRecord = rng.nextInt(4);
                 for (int i = 0; i < 4; i++) {
-                    pieces.add(new Piece(tr("label.disc", i + 1), 0, i == correctRecord ? GREEN : 0xFF7E6BEF,
-                            left + 80 + i * 70, top + 205, i == correctRecord ? 1 : 0));
+                    Piece p = new Piece(tr("label.disc", i + 1), 0, i == correctRecord ? GREEN : 0xFF7E6BEF,
+                            left + 80 + i * 70, top + 205, i == correctRecord ? 1 : 0);
+                    p.item = MUSIC_DISCS[i];
+                    pieces.add(p);
                 }
             }
             case RHYTHM -> spawnTimer = 20;
@@ -304,17 +406,24 @@ public class SimpleQuestMinigameScreen extends Screen {
             }
             case WHACK_MOLE -> spawnMole();
             case PUZZLE -> {
-                for (int i = 0; i < 8; i++) {
-                    pieces.add(new Piece(Component.literal(String.valueOf(i + 1)), 1, 0xFF6AA6FF,
-                            left + 40 + (i % 4) * 45, top + 190 + (i / 4) * 35, i));
+                // 拼图板在右侧，散落拼图在左侧
+                for (int i = 0; i < 9; i++) {
+                    // 散落拼图：左侧 3x3，带间隙
+                    float sx = left + 30 + (i % 3) * 58 + rng.nextInt(8);
+                    float sy = top + 80 + (i / 3) * 58 + rng.nextInt(8);
+                    pieces.add(new Piece(Component.literal(""), 1, 0xFF6AA6FF, sx, sy, i));
                 }
                 Collections.shuffle(pieces, rng);
             }
             case STORAGE -> {
-                String[] ids = {"book", "cup", "tool", "sock", "map", "box"};
-                for (int i = 0; i < ids.length; i++) {
-                    pieces.add(new Piece(label(ids[i]), i % 4, shapeColor(i % 4),
-                            left + 55 + i * 58, top + 80 + rng.nextInt(80), 1));
+                ItemStack[] items = {new ItemStack(Items.BOOK), new ItemStack(Items.GLASS_BOTTLE),
+                        new ItemStack(Items.IRON_PICKAXE), new ItemStack(Items.LEATHER_BOOTS),
+                        new ItemStack(Items.MAP), new ItemStack(Items.OAK_PLANKS)};
+                for (int i = 0; i < items.length; i++) {
+                    Piece p = new Piece(Component.literal(""), i % 4, shapeColor(i % 4),
+                            left + 55 + i * 58, top + 80 + rng.nextInt(80), 1);
+                    p.item = items[i];
+                    pieces.add(p);
                 }
             }
             case THREE_CARDS -> {
@@ -345,6 +454,23 @@ public class SimpleQuestMinigameScreen extends Screen {
                 pipePairs.clear();
                 pipesPassed = 0;
                 birdAlive = true;
+            }
+            case MOUSE_WHACK -> {
+                mice.clear();
+                miceCaught = 0;
+                mouseSpawnTimer = 30;
+            }
+            case FRUIT_NINJA -> {
+                fruitList.clear();
+                fruitSliced = 0;
+                fruitSpawnTimer = 20;
+                prevMouseX = 0;
+                prevMouseY = 0;
+                try {
+                    bombItem = new ItemStack(org.agmas.noellesroles.init.ModItems.BOMB);
+                } catch (Exception e) {
+                    bombItem = new ItemStack(Items.TNT);
+                }
             }
             default -> {
             }
@@ -382,8 +508,8 @@ public class SimpleQuestMinigameScreen extends Screen {
             case CLEAN_STAINS -> {
                 if (draggedPiece != null) {
                     for (Dot dot : dots) {
-                        if (dot.life > 0 && distance(draggedPiece.x + 18, draggedPiece.y + 18, dot.x, dot.y) < 28) {
-                            dot.life--;
+                        if (dot.life > 0 && distance(draggedPiece.x + 18, draggedPiece.y + 18, dot.x, dot.y) < 32) {
+                            dot.life -= 3;
                         }
                     }
                     if (dots.stream().allMatch(dot -> dot.life <= 0)) complete();
@@ -392,12 +518,23 @@ public class SimpleQuestMinigameScreen extends Screen {
             case RHYTHM -> tickRhythm();
             case LIGHT_CANDLES -> tickCandles();
             case WHACK_MOLE -> {
+                for (Dot d : dots) {
+                    if (d.life > 0) d.life--;
+                    if (d.life <= 0) d.active = false;
+                }
                 if (--spawnTimer <= 0) spawnMole();
             }
             case THREE_CARDS -> {
                 animationTicks++;
                 if (animationTicks > 50 && animationTicks % 22 == 0 && animationTicks < 150) {
-                    Collections.swap(selectedIndices, rng.nextInt(3), rng.nextInt(3));
+                    // 随机选两个不同位置交换
+                    int a = rng.nextInt(3);
+                    int b;
+                    do { b = rng.nextInt(3); } while (b == a);
+                    Collections.swap(selectedIndices, a, b);
+                    swapFromA = a;
+                    swapFromB = b;
+                    swapStartTick = animationTicks;
                 }
             }
             case BREAK_JAR -> {
@@ -420,6 +557,8 @@ public class SimpleQuestMinigameScreen extends Screen {
             }
             case WATER_VALVE -> tickWaterValve();
             case PIPE_BIRD -> tickPipeBird();
+            case FRUIT_NINJA -> tickFruitNinja();
+            case MOUSE_WHACK -> tickMouseWhack();
             default -> {
             }
         }
@@ -471,16 +610,31 @@ public class SimpleQuestMinigameScreen extends Screen {
     }
 
     private void spawnMole() {
-        dots.clear();
         int left = panelLeft();
         int top = panelTop();
-        for (int i = 0; i < 9; i++) {
-            Dot dot = new Dot(left + 115 + (i % 3) * 90, top + 70 + (i / 3) * 50, 0, 0);
-            dot.active = false;
-            dots.add(dot);
+        if (dots.isEmpty()) {
+            for (int i = 0; i < 9; i++) {
+                Dot dot = new Dot(left + 115 + (i % 3) * 90, top + 70 + (i / 3) * 50, 0, 0);
+                dot.active = false;
+                dot.life = 0;
+                dots.add(dot);
+            }
         }
-        dots.get(rng.nextInt(dots.size())).active = true;
-        spawnTimer = 35 + rng.nextInt(25);
+        int count = 1 + rng.nextInt(2);
+        int spawned = 0;
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < 9; i++) indices.add(i);
+        Collections.shuffle(indices, rng);
+        for (int idx : indices) {
+            if (spawned >= count) break;
+            Dot d = dots.get(idx);
+            if (d.life <= 0) {
+                d.active = true;
+                d.life = 40;
+                spawned++;
+            }
+        }
+        spawnTimer = 50 + rng.nextInt(40);
     }
 
     @Override
@@ -533,8 +687,15 @@ public class SimpleQuestMinigameScreen extends Screen {
             case WATER_VALVE -> renderWaterValve(g, left, top);
             case TYPING -> renderTyping(g, left, top);
             case PIPE_BIRD -> renderPipeBird(g, left, top);
+            case FRUIT_NINJA -> renderFruitNinja(g, left, top);
+            case MOUSE_WHACK -> renderMouseWhack(g, left, top);
         }
         g.pose().popPose();
+
+        // 打老鼠：刷子光标
+        if (mode == Mode.MOUSE_WHACK) {
+            g.renderItem(BRUSH, mouseX - 12, mouseY - 12);
+        }
 
         super.render(g, mouseX, mouseY, partialTick);
         if (successTicks >= 0) {
@@ -611,7 +772,16 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private void renderDebris(GuiGraphics g, int left, int top) {
         MinigameUI.roundRect(g, left + 58, top + 42, left + 372, top + 215, 8, 0xFF3C4658);
-        for (Dot dot : dots) drawDebris(g, dot);
+        for (Dot dot : dots) {
+            ItemStack item = switch (dot.kind % 5) {
+                case 0 -> DIRT;
+                case 1 -> STONE;
+                case 2 -> new ItemStack(Items.STICK);
+                case 3 -> new ItemStack(Items.STRING);
+                default -> new ItemStack(Items.BONE);
+            };
+            g.renderItem(item, dot.x, dot.y);
+        }
         g.drawCenteredString(font, modeText("hint"), width / 2, top + 226, MUTED);
     }
 
@@ -628,15 +798,43 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private void renderWireTuning(GuiGraphics g, int left, int top) {
         float clarity = Mth.clamp(1f - (Math.abs(valueA - 0.5f) + Math.abs(valueB - 0.5f)), 0f, 1f);
-        MinigameUI.roundRect(g, left + 120, top + 70, left + 310, top + 175, 6, 0xFF04070C);
-        g.fill(left + 130, top + 80, left + 300, top + 165, ((int) (clarity * 255) << 24) | 0x0055CCFF);
-        g.drawCenteredString(font, modeText("hint"), width / 2, top + 48, MUTED);
+        int tvTop = top + 80;
+        // 电视机壳
+        MinigameUI.roundRect(g, left + 120, tvTop, left + 310, tvTop + 105, 6, 0xFF04070C);
+        // 电视画面：background.png，清晰度控制透明度
+        RenderSystem.enableBlend();
+        RenderSystem.setShaderColor(1f, 1f, 1f, clarity);
+        g.blit(BG_TEXTURE, left + 130, tvTop + 10, 0, 0, 170, 85, 170, 85);
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        RenderSystem.disableBlend();
+        g.drawCenteredString(font, modeText("hint"), width / 2, top + 58, MUTED);
+        // 两个电线枢轴点（电视下方）
+        int[] pivotX = {left + 190, left + 240};
+        int pivotY = top + 215;
+        for (int i = 0; i < 2; i++) {
+            drawCircle(g, pivotX[i], pivotY, 10, i == 0 ? 0xFF553333 : 0xFF333355);
+            drawCircle(g, pivotX[i], pivotY, 5, i == 0 ? RED : BLUE);
+        }
+        int wireLen = 100;
         for (int i = 0; i < 2; i++) {
             float value = i == 0 ? valueA : valueB;
-            int x = left + 170 + i * 85;
-            int endX = x + Math.round((value - 0.5f) * 92);
-            drawSteppedLine(g, x, top + 58, endX, top + 42, i == 0 ? RED : BLUE);
-            drawCircle(g, endX, top + 42, 8, i == 0 ? RED : BLUE);
+            // 弧度：value 0→1 映射到角度 左偏→右偏
+            double angle = (value - 0.5) * Math.PI * 0.7;
+            int px = pivotX[i];
+            int py = pivotY;
+            int ex = px - (int) (Math.cos(angle) * wireLen);
+            int ey = py - (int) (Math.sin(angle) * wireLen);
+            // 直线电线：沿路径步进绘制
+            int c = i == 0 ? RED : BLUE;
+            int steps = Math.max(1, (int) Math.sqrt((ex - px) * (ex - px) + (ey - py) * (ey - py)));
+            for (int s = 0; s <= steps; s++) {
+                float t = (float) s / steps;
+                int lx = px + (int) ((ex - px) * t);
+                int ly = py + (int) ((ey - py) * t);
+                g.fill(lx - 1, ly - 1, lx + 2, ly + 2, c);
+            }
+            // 端点旋钮
+            drawCircle(g, ex, ey, 8, i == 0 ? RED : BLUE);
         }
     }
 
@@ -644,12 +842,25 @@ public class SimpleQuestMinigameScreen extends Screen {
         int cx = width / 2;
         int cy = top + 155;
         drawArcTicks(g, cx, cy, 115);
-        drawRadial(g, cx, cy, 100, 0.30f, 0x88FFFFFF);
-        drawRadial(g, cx, cy, 100, 0.70f, 0x88FFFFFF);
-        drawRadial(g, cx, cy, 100, valueA, RED);
-        drawRadial(g, cx, cy, 100, valueB, RED);
+        drawStraightRadial(g, cx, cy, 100, 0.30f, 0x88FFFFFF);
+        drawStraightRadial(g, cx, cy, 100, 0.70f, 0x88FFFFFF);
+        drawStraightRadial(g, cx, cy, 100, valueA, RED);
+        drawStraightRadial(g, cx, cy, 100, valueB, RED);
         drawKnob(g, left + 160, top + 218, valueA);
         drawKnob(g, left + 270, top + 218, valueB);
+    }
+
+    private void drawStraightRadial(GuiGraphics g, int cx, int cy, int length, float value, int color) {
+        double angle = Math.PI * (1f - value);
+        int ex = cx - (int) (Math.cos(angle) * length);
+        int ey = cy - (int) (Math.sin(angle) * length);
+        int steps = Math.max(1, (int) Math.sqrt((ex - cx) * (ex - cx) + (ey - cy) * (ey - cy)));
+        for (int i = 0; i <= steps; i++) {
+            float t = (float) i / steps;
+            int px = cx + (int) ((ex - cx) * t);
+            int py = cy + (int) ((ey - cy) * t);
+            g.fill(px - 1, py - 1, px + 1, py + 1, color);
+        }
     }
 
     private void renderShapeMatch(GuiGraphics g, int left, int top) {
@@ -663,14 +874,14 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private void renderSequence(GuiGraphics g, int left, int top) {
         g.drawCenteredString(font, modeText("hint"), width / 2, top + 38, MUTED);
-        float glow = MinigameUI.pulse(uiTicks, 0.3f);
         for (int i = 0; i < 6; i++) {
             int x = left + 90 + (i % 3) * 100;
             int y = top + 75 + (i / 3) * 75;
             int color = i < nextIndex ? GREEN
-                    : i == nextIndex ? MinigameUI.lerpColor(YELLOW, 0xFFFFFFFF, glow * 0.5f)
+                    : i == nextIndex ? YELLOW
                     : 0xFF596579;
             MinigameUI.roundRect(g, x, y, x + 56, y + 42, 6, color);
+            MinigameUI.roundBorder(g, x, y, x + 56, y + 42, 6, 2, i == nextIndex ? 0xFFCCAA44 : 0xFF445566);
             g.drawCenteredString(font, Component.literal(String.valueOf(i + 1)), x + 28, y + 17, 0xFF10131A);
         }
     }
@@ -678,60 +889,114 @@ public class SimpleQuestMinigameScreen extends Screen {
     private void renderStains(GuiGraphics g, int left, int top) {
         MinigameUI.roundRect(g, left + 58, top + 42, left + 372, top + 205, 8, 0xFFB8B0A0);
         for (Dot dot : dots) {
-            if (dot.life > 0) drawCircle(g, dot.x, dot.y, 6 + dot.life / 3, 0xAA3A2A20);
+            if (dot.life > 0) drawCircle(g, dot.x, dot.y, 5 + dot.life / 5, 0x663A2A20);
         }
-        pieces.forEach(piece -> drawPiece(g, piece));
+        // 使用原版海绵材质渲染海绵 Piece
+        for (Piece piece : pieces) {
+            if (piece == draggedPiece) {
+                g.pose().pushPose();
+                g.pose().translate((int) piece.x + 16, (int) piece.y + 16, 0);
+                g.pose().scale(2f, 2f, 1f);
+                g.renderItem(SPONGE, -8, -8);
+                g.pose().popPose();
+            } else {
+                g.pose().pushPose();
+                g.pose().translate((int) piece.x + 16, (int) piece.y + 16, 0);
+                g.pose().scale(2f, 2f, 1f);
+                g.renderItem(SPONGE, -8, -8);
+                g.pose().popPose();
+            }
+        }
     }
 
     private void renderLever(GuiGraphics g, int left, int top) {
         int railX = width / 2;
         int minY = top + 68;
         int maxY = top + 205;
-        MinigameUI.roundRect(g, railX - 8, minY, railX + 8, maxY, 6, 0xFF242D3A);
+        MinigameUI.roundRect(g, railX - 12, minY, railX + 12, maxY, 6, 0xFF1E2530);
+        MinigameUI.roundBorder(g, railX - 12, minY, railX + 12, maxY, 6, 2, 0xFF445566);
+        for (int y = minY + 10; y < maxY; y += 15) {
+            g.fill(railX - 4, y, railX + 4, y + 3, 0xFF38485A);
+        }
         int knobY = Math.round(Mth.lerp(valueA, minY, maxY));
-        drawCircle(g, railX, knobY, 24, RED);
+        drawCircle(g, railX, knobY, 22, 0xFF556A80);
+        drawCircle(g, railX, knobY, 18, RED);
+        drawCircle(g, railX, knobY, 8, 0xFF882222);
         g.drawCenteredString(font, modeText("hint"), width / 2, top + 35, MUTED);
     }
 
     private void renderTrash(GuiGraphics g, int left, int top) {
-        MinigameUI.roundRect(g, left + 78, top + 55, left + 188, top + 145, 8, 0xFF2E5C91);
-        MinigameUI.roundRect(g, left + 242, top + 55, left + 352, top + 145, 8, 0xFF5E8F42);
-        g.drawCenteredString(font, modeText("recycle"), left + 133, top + 92, WHITE);
-        g.drawCenteredString(font, modeText("other"), left + 297, top + 92, WHITE);
-        pieces.forEach(piece -> drawPiece(g, piece));
+        // 可回收垃圾桶
+        MinigameUI.roundRect(g, left + 68, top + 55, left + 188, top + 155, 8, 0xFF2E5C91);
+        drawCircle(g, left + 128, top + 105, 28, 0x2266AA66);
+        g.drawString(font, "♻", left + 112, top + 148, GREEN);
+        g.drawCenteredString(font, modeText("recycle"), left + 128, top + 80, 0x88CCCCFF);
+        // 其他垃圾桶
+        MinigameUI.roundRect(g, left + 242, top + 55, left + 362, top + 155, 8, 0xFF5E4242);
+        drawCircle(g, left + 302, top + 105, 28, 0x22CC6666);
+        g.drawString(font, "🗑", left + 286, top + 148, RED);
+        g.drawCenteredString(font, modeText("other"), left + 302, top + 80, 0x88FFCCCC);
+        for (Piece piece : pieces) {
+            g.renderItem(piece.item, (int) piece.x, (int) piece.y);
+            if (piece.placed) continue;
+            String name = piece.label.getString();
+            g.drawString(font, name, (int) piece.x, (int) piece.y + 20, 0xAAFFFFFF);
+        }
     }
 
     private void renderChecklist(GuiGraphics g, int left, int top) {
-        g.drawString(font, modeText("needed"), left + 75, top + 50, YELLOW);
-        for (int i = 0; i < 3; i++) {
-            Piece p = pieces.get(i);
-            g.drawString(font, tr("item_checklist.entry", p.label), left + 75, top + 73 + i * 24, WHITE);
+        g.drawString(font, modeText("needed"), left + 65, top + 50, YELLOW);
+        for (int idx : selectedIndices) {
+            if (idx < pieces.size()) {
+                Piece p = pieces.get(idx);
+                g.drawString(font, tr("item_checklist.entry", p.label), left + 65, top + 73 + selectedIndices.indexOf(idx) * 24, WHITE);
+            }
         }
-        g.drawString(font, modeText("items"), left + 240, top + 50, YELLOW);
+        g.drawString(font, modeText("items"), left + 230, top + 50, MUTED);
         for (int i = 0; i < pieces.size(); i++) {
             Piece p = pieces.get(i);
-            int color = p.placed ? GREEN : p.color;
-            MinigameUI.roundRect(g, Math.round(p.x), Math.round(p.y), Math.round(p.x + 70), Math.round(p.y + 26), 5, color);
-            g.drawCenteredString(font, p.label, Math.round(p.x + 35), Math.round(p.y + 9), 0xFF10131A);
+            int x = left + 230 + (i % 2) * 80;
+            int y = top + 73 + (i / 2) * 34;
+            p.x = x;
+            p.y = y;
+            int color = p.placed ? 0xFF444444 : 0xFF445566;
+            MinigameUI.roundRect(g, x, y, x + 64, y + 28, 5, color);
+            MinigameUI.roundBorder(g, x, y, x + 64, y + 28, 5, 1, p.placed ? GREEN : 0xFF667788);
+            g.drawString(font, p.label, x + 8, y + 10, p.placed ? GREEN : WHITE);
         }
     }
 
     private void renderSwipe(GuiGraphics g, int left, int top) {
-        Piece card = pieces.isEmpty() ? null : pieces.get(0);
-        MinigameUI.roundRect(g, left + 275, top + 62, left + 340, top + 205, 6, 0xFF273142);
-        g.fill(left + 285, top + 82, left + 330, top + 92, armed ? GREEN : 0xFF0D1118);
-        g.drawCenteredString(font, modeText("hint"), left + 307, top + 215, MUTED);
-        drawPiece(g, card);
+        MinigameUI.roundRect(g, left + 260, top + 62, left + 340, top + 205, 6, 0xFF1A2535);
+        MinigameUI.roundBorder(g, left + 260, top + 62, left + 340, top + 205, 6, 2, 0xFF334455);
+        g.fill(left + 270, top + 82, left + 330, top + 92, armed ? GREEN : 0xFF0D1118);
+        g.drawCenteredString(font, modeText("hint"), left + 300, top + 215, MUTED);
+        for (Piece p : pieces) {
+            MinigameUI.roundRect(g, (int) p.x, (int) p.y, (int) p.x + 48, (int) p.y + 28, 5, 0xFF4488CC);
+            g.drawCenteredString(font, p.label, (int) p.x + 24, (int) p.y + 10, WHITE);
+        }
     }
 
     private void renderMusic(GuiGraphics g, int left, int top) {
         float glow = MinigameUI.pulse(uiTicks, 0.12f);
-        drawCircle(g, width / 2, top + 105, 46, MinigameUI.withAlpha(0xFF7E6BEF, 0.2f + 0.2f * glow));
-        drawCircle(g, width / 2, top + 105, 45, 0xFF38445A);
-        drawCircle(g, width / 2, top + 105, 18, 0xFF0F1520);
-        g.fill(width / 2 + 36, top + 72, width / 2 + 95, top + 82, 0xFFB9C2D1);
+        int cx = width / 2;
+        int cy = top + 105;
+        // 留声机外圈发光
+        drawCircle(g, cx, cy, 58, MinigameUI.withAlpha(0xFF7E6BEF, 0.2f + 0.2f * glow));
+        // 唱盘
+        drawCircle(g, cx, cy, 55, 0xFF38445A);
+        // 中心轴
+        drawCircle(g, cx, cy, 18, 0xFF0F1520);
+        // 唱臂
+        g.fill(cx + 36, top + 72, cx + 95, top + 82, 0xFFB9C2D1);
         g.drawCenteredString(font, modeText("hint", correctRecord + 1), width / 2, top + 34, YELLOW);
-        pieces.forEach(piece -> drawPiece(g, piece));
+        for (Piece piece : pieces) {
+            if (piece.placed) {
+                drawCircle(g, (int) piece.x + 20, (int) piece.y + 20, 10, GREEN);
+            }
+            g.renderItem(piece.item != null ? piece.item : MUSIC_DISCS[0], (int) piece.x, (int) piece.y);
+            g.drawString(font, piece.label, (int) piece.x, (int) piece.y + 20, WHITE);
+        }
     }
 
     private void renderRhythm(GuiGraphics g, int left, int top) {
@@ -746,51 +1011,97 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private void renderCandles(GuiGraphics g, int left, int top) {
         for (Dot candle : dots) {
-            g.fill(candle.x - 9, candle.y - 5, candle.x + 9, candle.y + 45, 0xFFFFF1C7);
+            g.pose().pushPose();
+            g.pose().translate(candle.x, candle.y - 16, 0);
+            g.pose().scale(1.8f, 1.8f, 1f);
+            g.renderItem(CANDLE, -8, -8);
+            g.pose().popPose();
             if (candle.life >= 45) {
                 float glow = MinigameUI.pulse(uiTicks + candle.x, 0.4f);
-                drawCircle(g, candle.x, candle.y - 12, 11, MinigameUI.withAlpha(YELLOW, 0.5f + 0.4f * glow));
-                drawCircle(g, candle.x, candle.y - 12, 7, 0xFFFFE08A);
+                drawCircle(g, candle.x, candle.y - 48, 11, MinigameUI.withAlpha(YELLOW, 0.5f + 0.4f * glow));
+                drawCircle(g, candle.x, candle.y - 48, 7, 0xFFFFE08A);
             } else {
-                MinigameUI.progressBar(g, candle.x - 18, candle.y + 52, 36, 4, candle.life / 45f, YELLOW);
+                MinigameUI.progressBar(g, candle.x - 18, candle.y + 16, 36, 4, candle.life / 45f, YELLOW);
             }
         }
-        pieces.forEach(piece -> drawPiece(g, piece));
+        for (Piece piece : pieces) {
+            g.renderItem(FLINT_AND_STEEL, (int) piece.x, (int) piece.y + 4);
+        }
     }
 
     private void renderMole(GuiGraphics g, int left, int top) {
         g.drawCenteredString(font, tr("common.hits", successCount, 5), width / 2, top + 36, WHITE);
         for (Dot dot : dots) {
-            drawCircle(g, dot.x, dot.y, 20, 0xFF3A2B1F);
-            if (dot.active) {
-                drawCircle(g, dot.x, dot.y - 8, 16, 0xFFB77B46);
-                g.drawCenteredString(font, Component.literal("!"), dot.x, dot.y - 13, WHITE);
+            drawCircle(g, dot.x, dot.y, 24, 0xFF3A2B1F);
+            if (dot.active && dot.life > 0) {
+                int rise = Math.min(16, (40 - dot.life) * 2 / 5);
+                drawCircle(g, dot.x, dot.y - rise, 16, 0xFFB77B46);
+                drawCircle(g, dot.x + 5, dot.y - rise - 4, 4, WHITE);
+                drawCircle(g, dot.x + 6, dot.y - rise - 4, 2, 0xFF111111);
             }
         }
     }
 
     private void renderPuzzle(GuiGraphics g, int left, int top) {
-        int startX = left + 155;
-        int startY = top + 52;
+        int boardX = left + 245;
+        int boardY = top + 80;
+        int pieceSize = 36;
+        // 右侧拼图板：3x3 目标格
         for (int i = 0; i < 9; i++) {
-            MinigameUI.roundRect(g, startX + (i % 3) * 42, startY + (i / 3) * 42,
-                    startX + (i % 3) * 42 + 38, startY + (i / 3) * 42 + 38, 4, 0x553F5574);
+            int bx = boardX + (i % 3) * 42;
+            int by = boardY + (i / 3) * 42;
+            MinigameUI.roundRect(g, bx, by, bx + 38, by + 38, 4, 0x553F5574);
         }
-        pieces.forEach(piece -> drawPiece(g, piece));
+        // 渲染已放置的拼图（在正确位置）
+        for (Piece piece : pieces) {
+            if (piece.placed) {
+                int bx = boardX + (piece.target % 3) * 42;
+                int by = boardY + (piece.target / 3) * 42;
+                int srcU = (piece.target % 3) * 40;
+                int srcV = (piece.target / 3) * 40;
+                g.blit(BG_TEXTURE, bx + 1, by + 1, pieceSize, pieceSize, srcU, srcV, 40, 40, 120, 120);
+            }
+        }
+        // 渲染散落拼图（在左侧）
+        for (Piece piece : pieces) {
+            if (piece.placed) continue;
+            int px = Math.round(piece.x);
+            int py = Math.round(piece.y);
+            int srcU = (piece.target % 3) * 40;
+            int srcV = (piece.target / 3) * 40;
+            g.blit(BG_TEXTURE, px, py, pieceSize, pieceSize, srcU, srcV, 40, 40, 120, 120);
+        }
     }
 
     private void renderStorage(GuiGraphics g, int left, int top) {
         MinigameUI.roundRect(g, left + 115, top + 190, left + 315, top + 245, 8, 0xFF5C6F88);
         g.drawCenteredString(font, modeText("bag"), width / 2, top + 211, WHITE);
-        pieces.forEach(piece -> drawPiece(g, piece));
+        for (Piece piece : pieces) {
+            if (piece.item != null) {
+                int px = Math.round(piece.x);
+                int py = Math.round(piece.y);
+                if (piece == draggedPiece) {
+                    g.renderItem(piece.item, px + 4, py + 4);
+                } else {
+                    g.renderItem(piece.item, px, py);
+                }
+            }
+        }
     }
 
     private void renderSlice(GuiGraphics g, int left, int top) {
-        MinigameUI.roundRect(g, left + 105, top + 105, left + 325, top + 165, 6, 0xFFFFB65C);
+        int cx = width / 2;
+        int cy = top + 135;
+        g.pose().pushPose();
+        g.pose().translate(cx, cy, 0);
+        g.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(60f));
+        g.pose().scale(3f, 3f, 1f);
+        g.renderItem(CARROT, -8, -8);
+        g.pose().popPose();
         for (int i = 1; i <= 4; i++) {
             int x = left + 105 + i * 44;
-            int color = i <= progress ? GREEN : 0x66FFFFFF;
-            g.fill(x - 1, top + 98, x + 1, top + 172, color);
+            int color = i <= progress ? GREEN : 0x66FF6666;
+            g.fill(x - 1, top + 90, x + 1, top + 180, color);
         }
         g.drawCenteredString(font, modeText("hint"), width / 2, top + 195, MUTED);
     }
@@ -798,20 +1109,53 @@ public class SimpleQuestMinigameScreen extends Screen {
     private void renderCards(GuiGraphics g, int left, int top) {
         boolean faceDown = animationTicks > 50;
         g.drawCenteredString(font, faceDown ? modeText("pick") : modeText("remember"), width / 2, top + 36, MUTED);
+        // 每个位置独立计算动画偏移
         for (int i = 0; i < 3; i++) {
+            int baseX = left + 108 + i * 90;
+            int baseY = top + 92;
+            int drawX = baseX;
+            int drawY = baseY;
+            // 计算独立交换动画
+            if (swapFromA >= 0 && swapFromB >= 0 && swapStartTick > 0) {
+                int elapsed = animationTicks - swapStartTick;
+                if (elapsed >= 0 && elapsed < 22) {
+                    float t = Mth.clamp(elapsed / 22f, 0f, 1f);
+                    if (i == swapFromA || i == swapFromB) {
+                        int other = (i == swapFromA) ? swapFromB : swapFromA;
+                        int otherX = left + 108 + other * 90;
+                        int fromX = otherX;
+                        int toX = baseX;
+                        // 左→右上弧，右→左下弧
+                        float arcHeight = (float) Math.sin(t * Math.PI) * 40;
+                        if (fromX < toX) {
+                            // 从左到右 → 上弧
+                            drawY = baseY - (int) arcHeight;
+                        } else {
+                            // 从右到左 → 下弧
+                            drawY = baseY + (int) arcHeight;
+                        }
+                        drawX = (int) (fromX + (toX - fromX) * t);
+                    }
+                }
+            }
             int slot = selectedIndices.get(i);
-            int x = left + 108 + i * 90;
-            int y = top + 92;
             int color = !faceDown && slot == highlightedCard ? YELLOW : 0xFFE8EEF8;
-            MinigameUI.roundRect(g, x, y, x + 58, y + 82, 6, faceDown ? 0xFF344667 : color);
-            g.drawCenteredString(font, Component.literal(faceDown ? "?" : String.valueOf(slot + 1)), x + 29, y + 36, 0xFF10131A);
+            MinigameUI.roundRect(g, drawX, drawY, drawX + 58, drawY + 82, 6, faceDown ? 0xFF344667 : color);
+            MinigameUI.roundBorder(g, drawX, drawY, drawX + 58, drawY + 82, 6, 2, 0xFF667788);
+            g.drawCenteredString(font, Component.literal(faceDown ? "?" : String.valueOf(slot + 1)), drawX + 29, drawY + 36, 0xFF10131A);
         }
     }
 
     private void renderJar(GuiGraphics g, int left, int top) {
         MinigameUI.roundRect(g, left + 40, top + 218, left + 390, top + 242, 6, 0xFF485464);
         g.drawCenteredString(font, modeText("hint"), width / 2, top + 35, MUTED);
-        pieces.forEach(piece -> drawPiece(g, piece));
+        for (Piece piece : pieces) {
+            g.pose().pushPose();
+            g.pose().translate((int) piece.x + 16, (int) piece.y + 16, 0);
+            g.pose().scale(4f, 4f, 1f);
+            g.renderItem(DECORATED_POT, -8, -8);
+            g.pose().popPose();
+        }
     }
 
     private void renderZone(GuiGraphics g, int left, int top) {
@@ -846,11 +1190,12 @@ public class SimpleQuestMinigameScreen extends Screen {
             case WIRE_TUNING -> selectedWire = nearestWire(mouseX, mouseY);
             case SIGNAL_CALIBRATION -> selectedKnob = nearestKnob(mouseX, mouseY);
             case WHACK_MOLE -> clickMole(mouseX, mouseY);
-            case SLICE_FOOD -> clickSlice(mouseX, mouseY);
+            case SLICE_FOOD -> { /* handled by mouseDragged */ }
             case THREE_CARDS -> clickCard(mouseX, mouseY);
             case WATER_VALVE -> clickWaterValve(mouseX, mouseY);
             case TYPING -> clickTyping(mouseX, mouseY);
             case PIPE_BIRD -> flapBird();
+            case MOUSE_WHACK -> clickMouseWhack(mouseX, mouseY);
             default -> {
             }
         }
@@ -916,13 +1261,12 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private void clickChecklist(double mouseX, double mouseY) {
         for (Piece p : pieces) {
-            if (!p.placed && inRect(mouseX, mouseY, p.x, p.y, 70, 26)) {
+            if (!p.placed && inRect(mouseX, mouseY, p.x, p.y, 64, 28)) {
                 if (p.target == 1) {
                     p.placed = true;
                     if (pieces.stream().filter(piece -> piece.target == 1).allMatch(piece -> piece.placed)) complete();
-                } else {
-                    selectedIndices.clear();
                 }
+                return;
             }
         }
     }
@@ -938,13 +1282,22 @@ public class SimpleQuestMinigameScreen extends Screen {
         }
     }
 
-    private void clickSlice(double mouseX, double mouseY) {
-        int left = panelLeft();
+    private float sliceStartY = -1;
+
+    private void dragSlice(double mouseY) {
         int top = panelTop();
+        int left = panelLeft();
+        int targetIdx = progress + 1;
         for (int i = 1; i <= 4; i++) {
             int x = left + 105 + i * 44;
-            if (i == progress + 1 && Math.abs(mouseX - x) < 12 && mouseY >= top + 92 && mouseY <= top + 178) {
+            // 仅处理下一条未切的线
+            if (i != targetIdx || Math.abs(lastMouseX - x) > 16) continue;
+            // 从上到下划动
+            if (sliceStartY < 0 && mouseY <= top + 100) {
+                sliceStartY = (float) mouseY; // 开始划
+            } else if (sliceStartY >= 0 && mouseY >= top + 170 && mouseY > sliceStartY + 20) {
                 progress++;
+                sliceStartY = -1;
                 if (progress >= 4) complete();
                 return;
             }
@@ -980,8 +1333,16 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (mode == Mode.FRUIT_NINJA) {
+            prevMouseX = lastMouseX;
+            prevMouseY = lastMouseY;
+        }
         lastMouseX = mouseX;
         lastMouseY = mouseY;
+        if (mode == Mode.FRUIT_NINJA) {
+            checkFruitSlice();
+            return true;
+        }
         if (draggedPiece != null) {
             draggedPiece.x = (float) mouseX - dragOffsetX;
             draggedPiece.y = (float) mouseY - dragOffsetY;
@@ -997,7 +1358,12 @@ public class SimpleQuestMinigameScreen extends Screen {
             return true;
         }
         if (mode == Mode.WIRE_TUNING && selectedWire >= 0) {
-            float v = Mth.clamp(((float) mouseX - (panelLeft() + 170 + selectedWire * 85) + 46) / 92f, 0f, 1f);
+            int top = panelTop();
+            int[] pivotX = {panelLeft() + 190, panelLeft() + 240};
+            int pivotY = top + 215;
+            int px = pivotX[selectedWire];
+            double angle = Math.atan2(px - mouseX, pivotY - mouseY);
+            float v = Mth.clamp((float) ((angle / (Math.PI * 0.7)) + 0.5), 0f, 1f);
             if (selectedWire == 0) valueA = v;
             else valueB = v;
             return true;
@@ -1015,6 +1381,10 @@ public class SimpleQuestMinigameScreen extends Screen {
             dragWaterValve(mouseX, mouseY);
             return true;
         }
+        if (mode == Mode.SLICE_FOOD && mouseHeld) {
+            dragSlice(mouseY);
+            return true;
+        }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
@@ -1024,6 +1394,8 @@ public class SimpleQuestMinigameScreen extends Screen {
         selectedWire = -1;
         selectedKnob = -1;
         valveDragging = false;
+        sliceStartY = -1;
+        sliceStartY = -1;
         if (draggedPiece != null) {
             releaseDrag(mouseX, mouseY);
             draggedPiece = null;
@@ -1059,9 +1431,11 @@ public class SimpleQuestMinigameScreen extends Screen {
                 if (p.target == 1 && inCircle(mouseX, mouseY, width / 2, top + 105, 55)) complete();
             }
             case PUZZLE -> {
-                int sx = left + 155 + (p.target % 3) * 42;
-                int sy = top + 52 + (p.target / 3) * 42;
-                if (distance(p.x, p.y, sx, sy) < 36) placePiece(p, sx, sy);
+                int boardX = left + 245;
+                int boardY = top + 80;
+                int sx = boardX + (p.target % 3) * 42;
+                int sy = boardY + (p.target / 3) * 42;
+                if (distance(p.x, p.y, sx + 19, sy + 19) < 36) placePiece(p, sx, sy);
             }
             case STORAGE -> {
                 if (inRect(mouseX, mouseY, left + 115, top + 190, 200, 55)) placePiece(p, left + 160 + rng.nextInt(85), top + 202);
@@ -1143,8 +1517,15 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     @Override
     public void mouseMoved(double mouseX, double mouseY) {
+        if (mode == Mode.FRUIT_NINJA) {
+            prevMouseX = lastMouseX;
+            prevMouseY = lastMouseY;
+        }
         lastMouseX = mouseX;
         lastMouseY = mouseY;
+        if (mode == Mode.FRUIT_NINJA) {
+            checkFruitSlice();
+        }
         if (mode == Mode.SWIPE_CARD && mouseX >= panelLeft() + 275 && mouseX <= panelLeft() + 340 && mouseY <= panelTop() + 95) {
             armed = true;
         }
@@ -1153,7 +1534,7 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        MinigameUI.dim(g, width, height);
+        // 透明背景，不做全屏暗化
     }
 
     @Override
@@ -1181,9 +1562,16 @@ public class SimpleQuestMinigameScreen extends Screen {
     }
 
     private int nearestWire(double mouseX, double mouseY) {
+        int top = panelTop();
+        int[] pivotX = {panelLeft() + 190, panelLeft() + 240};
+        int pivotY = top + 215;
         for (int i = 0; i < 2; i++) {
-            int x = panelLeft() + 170 + i * 85 + Math.round(((i == 0 ? valueA : valueB) - 0.5f) * 92);
-            if (inCircle(mouseX, mouseY, x, panelTop() + 42, 16)) return i;
+            float value = i == 0 ? valueA : valueB;
+            double angle = (value - 0.5) * Math.PI * 0.7;
+            int ex = pivotX[i] - (int) (Math.cos(angle) * 100);
+            int ey = pivotY - (int) (Math.sin(angle) * 100);
+            if (inCircle(mouseX, mouseY, ex, ey, 16)) return i;
+            if (inCircle(mouseX, mouseY, pivotX[i], pivotY, 14)) return i;
         }
         return -1;
     }
@@ -1471,6 +1859,156 @@ public class SimpleQuestMinigameScreen extends Screen {
     }
 
     // ══════════════════════════════════════════════
+    // 打老鼠
+    // ══════════════════════════════════════════════
+
+    private void tickMouseWhack() {
+        int left = panelLeft();
+        int top = panelTop();
+        // 生成老鼠
+        if (--mouseSpawnTimer <= 0) {
+            mouseSpawnTimer = 35 + rng.nextInt(30);
+            // 随机选方向：0=左→右 1=右→左 2=上→下 3=下→上
+            int dir = rng.nextInt(4);
+            int holeIdx = rng.nextInt(3);
+            float fromX, fromY, toX, toY;
+            switch (dir) {
+                case 0: // 左→右
+                    fromX = left + 10; toX = left + PANEL_W - 30;
+                    fromY = toY = top + HEADER_H + 30 + holeIdx * 60;
+                    break;
+                case 1: // 右→左
+                    fromX = left + PANEL_W - 30; toX = left + 10;
+                    fromY = toY = top + HEADER_H + 30 + holeIdx * 60;
+                    break;
+                case 2: // 上→下
+                    fromX = toX = left + 60 + holeIdx * 160;
+                    fromY = top + HEADER_H + 5; toY = top + PANEL_H - 15;
+                    break;
+                default: // 下→上
+                    fromX = toX = left + 60 + holeIdx * 160;
+                    fromY = top + PANEL_H - 15; toY = top + HEADER_H + 5;
+                    break;
+            }
+            mice.add(new RunningMouse(fromX, fromY, toX, toY));
+        }
+        // 更新老鼠位置
+        for (RunningMouse m : mice) m.progress += 0.012f;
+        mice.removeIf(m -> m.caught || m.progress >= 1f);
+    }
+
+    private void renderMouseWhack(GuiGraphics g, int left, int top) {
+        g.drawCenteredString(font, tr("common.hits", miceCaught, MICE_TARGET), width / 2, top + 15, WHITE);
+        // 绘制老鼠洞
+        for (int i = 0; i < 3; i++) {
+            // 左侧洞
+            drawCircle(g, left + 10, top + HEADER_H + 30 + i * 60, 12, 0xFF2A1A10);
+            // 右侧洞
+            drawCircle(g, left + PANEL_W - 20, top + HEADER_H + 30 + i * 60, 12, 0xFF2A1A10);
+            // 上侧洞
+            drawCircle(g, left + 60 + i * 160, top + HEADER_H + 5, 12, 0xFF2A1A10);
+            // 下侧洞
+            drawCircle(g, left + 60 + i * 160, top + PANEL_H - 15, 12, 0xFF2A1A10);
+        }
+        // 绘制老鼠
+        for (RunningMouse m : mice) {
+            if (m.caught) continue;
+            float mx = m.fromX + (m.toX - m.fromX) * m.progress;
+            float my = m.fromY + (m.toY - m.fromY) * m.progress;
+            g.pose().pushPose();
+            g.pose().translate(mx, my, 0);
+            // 水平移动时朝右，垂直移动时朝下
+            if (Math.abs(m.toX - m.fromX) > Math.abs(m.toY - m.fromY)) {
+                if (m.toX < m.fromX) g.pose().scale(-1f, 1f, 1f);
+            }
+            g.pose().scale(1.5f, 1.5f, 1f);
+            g.renderItem(new ItemStack(Items.RABBIT_HIDE), -8, -8);
+            g.pose().popPose();
+        }
+    }
+
+    private void clickMouseWhack(double mouseX, double mouseY) {
+        for (RunningMouse m : mice) {
+            if (m.caught) continue;
+            float mx = m.fromX + (m.toX - m.fromX) * m.progress;
+            float my = m.fromY + (m.toY - m.fromY) * m.progress;
+            if (inCircle(mouseX, mouseY, mx, my, 16)) {
+                m.caught = true;
+                miceCaught++;
+                if (miceCaught >= MICE_TARGET) complete();
+                return;
+            }
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    // 水果忍者
+    // ══════════════════════════════════════════════
+
+    private void tickFruitNinja() {
+        // 生成水果
+        if (--fruitSpawnTimer <= 0) {
+            fruitSpawnTimer = 18 + rng.nextInt(22);
+            boolean isBomb = rng.nextInt(8) == 0;
+            float spawnX = width * 0.2f + rng.nextFloat() * width * 0.6f;
+            float vx = (rng.nextFloat() - 0.5f) * 5f;
+            float vy = -(8f + rng.nextFloat() * 6f);
+            fruitList.add(new Fruit(spawnX, height - 20, vx, vy, isBomb ? -1 : rng.nextInt(FRUITS.length), isBomb));
+        }
+        // 物理更新
+        for (Fruit f : fruitList) {
+            f.vy += 0.28f;
+            f.x += f.vx;
+            f.y += f.vy;
+            f.rotation += f.vx * 2f;
+        }
+        fruitList.removeIf(f -> f.y > height + 40 || f.x < -40 || f.x > width + 40);
+    }
+
+    private void checkFruitSlice() {
+        double dx = lastMouseX - prevMouseX;
+        double dy = lastMouseY - prevMouseY;
+        double dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 8 || !mouseHeld) return;
+        for (Fruit f : fruitList) {
+            if (f.sliced) continue;
+            if (lineCircleDist(prevMouseX, prevMouseY, lastMouseX, lastMouseY, f.x, f.y) < 22) {
+                f.sliced = true;
+                if (f.isBomb) {
+                    fruitSliced = Math.max(0, fruitSliced - 1);
+                } else {
+                    fruitSliced++;
+                    if (fruitSliced >= FRUIT_TARGET) complete();
+                }
+            }
+        }
+    }
+
+    private double lineCircleDist(double x1, double y1, double x2, double y2, double cx, double cy) {
+        double dx = x2 - x1, dy = y2 - y1;
+        double len2 = dx * dx + dy * dy;
+        if (len2 < 1e-6) return Math.sqrt((cx - x1) * (cx - x1) + (cy - y1) * (cy - y1));
+        double t = Mth.clamp(((cx - x1) * dx + (cy - y1) * dy) / len2, 0, 1);
+        double projX = x1 + t * dx, projY = y1 + t * dy;
+        return Math.sqrt((cx - projX) * (cx - projX) + (cy - projY) * (cy - projY));
+    }
+
+    private void renderFruitNinja(GuiGraphics g, int left, int top) {
+        g.drawCenteredString(font, tr("common.hits", fruitSliced, FRUIT_TARGET), width / 2, top + 15, WHITE);
+        for (Fruit f : fruitList) {
+            int fx = Math.round(f.x) - 12;
+            int fy = Math.round(f.y) - 12;
+            if (f.sliced) continue;
+            g.pose().pushPose();
+            g.pose().translate(f.x, f.y, 0);
+            g.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(f.rotation));
+            ItemStack is = f.isBomb ? bombItem : FRUITS[f.type];
+            if (is != null) g.renderItem(is, -12, -12);
+            g.pose().popPose();
+        }
+    }
+
+    // ══════════════════════════════════════════════
     // 水阀小游戏
     // ══════════════════════════════════════════════
 
@@ -1629,6 +2167,23 @@ public class SimpleQuestMinigameScreen extends Screen {
         return (float) Math.sqrt(dx * dx + dy * dy);
     }
 
+    private static class RunningMouse {
+        float fromX, fromY, toX, toY, progress;
+        boolean caught;
+        RunningMouse(float fromX, float fromY, float toX, float toY) {
+            this.fromX = fromX; this.fromY = fromY; this.toX = toX; this.toY = toY;
+        }
+    }
+
+    private static class Fruit {
+        float x, y, vx, vy, rotation;
+        int type;
+        boolean isBomb, sliced;
+        Fruit(float x, float y, float vx, float vy, int type, boolean isBomb) {
+            this.x = x; this.y = y; this.vx = vx; this.vy = vy; this.type = type; this.isBomb = isBomb;
+        }
+    }
+
     private static class PipePair {
         float x;
         int topHeight;
@@ -1644,6 +2199,7 @@ public class SimpleQuestMinigameScreen extends Screen {
         float x;
         float y;
         boolean placed;
+        ItemStack item;
 
         Piece(Component label, int shape, int color, float x, float y, int target) {
             this.label = label;
@@ -1652,6 +2208,7 @@ public class SimpleQuestMinigameScreen extends Screen {
             this.x = x;
             this.y = y;
             this.target = target;
+            this.item = null;
         }
     }
 

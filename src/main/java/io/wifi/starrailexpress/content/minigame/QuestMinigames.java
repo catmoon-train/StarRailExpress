@@ -17,7 +17,7 @@ public class QuestMinigames {
     public static final QuestMinigame LOCKPICK = register(
             QuestMinigame.of("lockpick", "minigame.starrailexpress.lockpick"));
 
-    /** 配钥匙小游戏 */
+    /** 判定 */
     public static final QuestMinigame KEY_MAKING = register(
             QuestMinigame.of("key_making", "minigame.starrailexpress.key_making"));
 
@@ -91,6 +91,14 @@ public class QuestMinigames {
     /** 管道小鸟（Flappy Bird） */
     public static final QuestMinigame PIPE_BIRD = register(
             QuestMinigame.of("pipe_bird", "minigame.starrailexpress.pipe_bird"));
+
+    /** 水果忍者 */
+    public static final QuestMinigame FRUIT_NINJA = register(
+            QuestMinigame.of("fruit_ninja", "minigame.starrailexpress.fruit_ninja"));
+
+    /** 打老鼠 */
+    public static final QuestMinigame MOUSE_WHACK = register(
+            QuestMinigame.of("mouse_whack", "minigame.starrailexpress.mouse_whack"));
 
     // ══════════════════════════════════════════════
     // 注册方法

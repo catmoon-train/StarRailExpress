@@ -9,7 +9,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.Random;
 
 /**
- * 任务点配钥匙小游戏
+ * 任务点判定
  * 参考锁匠的配钥匙游戏，仅保留游戏内容
  * 判定成功所需次数固定为5，失败后无惩罚
  */
@@ -91,7 +91,7 @@ public class KeyMakingMinigameScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        MinigameUI.dim(guiGraphics, this.width, this.height);
+        // 透明背景
     }
 
     @Override

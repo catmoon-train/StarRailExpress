@@ -79,6 +79,10 @@ public class MinigameScreenFactory {
                 SimpleQuestMinigameScreen.Mode.TYPING));
         FACTORY.put("pipe_bird", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
                 SimpleQuestMinigameScreen.Mode.PIPE_BIRD));
+        FACTORY.put("fruit_ninja", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.FRUIT_NINJA));
+        FACTORY.put("mouse_whack", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
+                SimpleQuestMinigameScreen.Mode.MOUSE_WHACK));
     }
 
     public static Screen create(String minigameId, BlockPos pos, Runnable onSuccess) {
