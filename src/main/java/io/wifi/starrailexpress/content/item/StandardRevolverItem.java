@@ -6,8 +6,11 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
+import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -27,10 +30,21 @@ import org.jetbrains.annotations.NotNull;
  * 冷却和数值与左轮手枪相同。
  */
 public class StandardRevolverItem extends SkinableItem {
-    public static final ResourceLocation ITEM_ID = ResourceLocation.fromNamespaceAndPath("starrailexpress", "standard_revolver");
+    public static final ResourceLocation ITEM_ID = ResourceLocation.fromNamespaceAndPath("starrailexpress",
+            "standard_revolver");
 
     public StandardRevolverItem(Properties settings) {
         super(settings.durability(4));
+    }
+
+    public static void registerEvents() {
+        // 制式左轮永不掉落：无论谁持有，命中玩家后枪都不会掉落
+        AllowShootRevolverDrop.EVENT.register((player, target) -> {
+            if (player.getMainHandItem().is(TMMItems.STANDARD_REVOLVER)) {
+                return TrueFalseResult.FALSE;
+            }
+            return TrueFalseResult.PASS;
+        });
     }
 
     @Override

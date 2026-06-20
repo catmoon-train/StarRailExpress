@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
-import io.wifi.starrailexpress.utils.ai.DrawingBoardRecognizer;
+import io.wifi.starrailexpress.util.DrawingBoardRecognizer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;

@@ -28,7 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 public class PlaneSmallDoorBlock extends SmallDoorBlock {
-    public static final int INTERACTION_COOLDOWN = 10;
     public static final int EXPAND_MAX = 32;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     protected static final VoxelShape X_SHAPE = Block.box(7, 0, 0, 9, 16, 16);

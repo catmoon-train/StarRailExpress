@@ -5,6 +5,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
+import io.wifi.starrailexpress.event.CanCollideWith;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -28,23 +30,6 @@ public class EntityMixin {
 
     @Inject(method = "onExplosionHit", at = @At("HEAD"), cancellable = true)
     public void addHurtTagToPlayerWithExplosion(Entity direct, CallbackInfo ci) {
-        // if (SRE.isLobby)
-        //     return;
-        // Entity e = (Entity) (Object) this;
-
-        // if (!(e instanceof Player self)) {
-        //     return;
-        // }
-        // if (direct instanceof PrimedTnt tnt) {
-        //     if (tnt.getOwner() instanceof Player player) {
-        //         self.setLastHurtByPlayer(player);
-        //     }
-        // } else if (direct instanceof Projectile projectile) {
-        //     if (projectile.getOwner() instanceof Player player) {
-        //         self.setLastHurtByPlayer(player);
-        //         self.hurtMarked = true;
-        //     }
-        // }
     }
 
     @Inject(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;vibrationAndSoundEffectsFromBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;ZZLnet/minecraft/world/phys/Vec3;)Z", ordinal = 0))
@@ -64,14 +49,28 @@ public class EntityMixin {
         final var gameWorldComponent = SREGameWorldComponent.KEY.get(this.level);
         if (gameWorldComponent.isRunning()) {
             Entity self = (Entity) (Object) this;
+            TrueFalseResult result = CanCollideWith.ENTITY.invoker().allowCollideWith(self, other);
+            if (result.equals(TrueFalseResult.FALSE)) {
+                return false;
+            } else if (result.equals(TrueFalseResult.TRUE)) {
+                return true;
+            }
             if (SRE.canCollideEntity.stream().anyMatch(p -> p.test(self) || p.test(other))) {
                 return true;
             }
 
-            if (self instanceof Player && other instanceof Player) {
-                // final var role = gameWorldComponent.getRole((Player) self);
-                // final var role1 = gameWorldComponent.getRole((Player) other);
-                return SRE.canCollide.stream().noneMatch(p -> p.test((Player) self) || p.test((Player) other));
+            if (self instanceof Player sp) {
+                TrueFalseResult result2 = CanCollideWith.PLAYER.invoker().allowCollideWith(sp, other);
+                if (result2.equals(TrueFalseResult.FALSE)) {
+                    return false;
+                } else if (result2.equals(TrueFalseResult.TRUE)) {
+                    return true;
+                }
+                if (other instanceof Player so) {
+                    // final var role = gameWorldComponent.getRole((Player) self);
+                    // final var role1 = gameWorldComponent.getRole((Player) other);
+                    return SRE.canCollide.stream().noneMatch(p -> p.test(sp) || p.test(so));
+                }
             }
         }
         return original.call(other);

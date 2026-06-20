@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.DrawingBoardItem;
-import io.wifi.starrailexpress.utils.ai.DrawingBoardRecognizer;
+import io.wifi.starrailexpress.util.DrawingBoardRecognizer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;

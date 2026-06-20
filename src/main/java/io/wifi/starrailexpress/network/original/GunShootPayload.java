@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.event.IsShootBackFire;
 import io.wifi.starrailexpress.event.OnRevolverUsed;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -92,9 +93,9 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 boolean shouldDropRevolver = game.isInnocent(target) && !player.isCreative()
                         && mainHandStack.is(TMMItemTags.GUNS) && !mainHandStack.is(TMMItems.DERRINGER);
                 var dropresult = AllowShootRevolverDrop.EVENT.invoker().allowDrop(player, target);
-                if (dropresult.equals(AllowShootRevolverDrop.ShouldDropResult.FALSE)) {
+                if (dropresult.equals(TrueFalseResult.FALSE)) {
                     shouldDropRevolver = false;
-                } else if (dropresult.equals(AllowShootRevolverDrop.ShouldDropResult.TRUE)) {
+                } else if (dropresult.equals(TrueFalseResult.TRUE)) {
                     shouldDropRevolver = true;
                 }
                 if (backfire) {

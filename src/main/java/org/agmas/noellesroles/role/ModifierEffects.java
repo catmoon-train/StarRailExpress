@@ -60,7 +60,7 @@ public class ModifierEffects {
                         ServerPlayer killer = killerUuid != null ? server.getPlayerList().getPlayer(killerUuid) : null;
                         var deathReason = TraitorAndModifiers.LAST_GASP_DEATH_REASON.get(player.getUUID());
                         
-                        GameUtils.killPlayer(player, true, killer, deathReason);
+                        GameUtils.forceKillPlayer(player, true, killer, deathReason);
                     }
                     TraitorAndModifiers.LAST_GASP_TRIGGERED.remove(player.getUUID());
                     TraitorAndModifiers.LAST_GASP_TRIGGER_GAME_TIME.remove(player.getUUID());

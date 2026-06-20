@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.content.item.DrawingBoardItem;
 import io.wifi.starrailexpress.network.DrawingBoardPayload;
-import io.wifi.starrailexpress.utils.ai.DrawingBoardRecognizer;
+import io.wifi.starrailexpress.util.DrawingBoardRecognizer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

@@ -18,39 +18,39 @@ public class BuilderHud {
     public static void register() {
         RoleHudRenderCallback.EVENT.register(ModRoles.BUILDER_ID, (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
-            if (client.player == null) return;
+            if (client.player == null)
+                return;
 
             BuilderPlayerComponent builderComponent = BuilderPlayerComponent.KEY.get(client.player);
 
             // 渲染位置 - 右下角
+            Font textRenderer = client.font;
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
-            int x = screenWidth - 150;
-            int y = screenHeight - 30;
-
-            Font textRenderer = client.font;
+            int x = screenWidth - 10;
+            int y = screenHeight - 12 * 4;
 
             // 显示切换模式提示（放在最上方）
             Component toggleText = Component.translatable("hud.builder.toggle_mode",
-                NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage());
-            context.drawString(textRenderer, toggleText, x, y, 0xAAAAAA);
+                    NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage());
+            context.drawString(textRenderer, toggleText, x - textRenderer.width(toggleText), y, 0xAAAAAA);
 
             // 显示当前模式
-            Component modeText = builderComponent.isBuildMode() ?
-                Component.translatable("hud.noellesroles.builder.mode.build") :
-                Component.translatable("hud.noellesroles.builder.mode.demolish");
+            Component modeText = builderComponent.isBuildMode()
+                    ? Component.translatable("hud.noellesroles.builder.mode.build")
+                    : Component.translatable("hud.noellesroles.builder.mode.demolish");
             int modeColor = builderComponent.isBuildMode() ? CommonColors.GREEN : 0xFFAA00; // 绿色=建造, 橙色=拆除
-            context.drawString(textRenderer, modeText, x, y + 12, modeColor);
+            context.drawString(textRenderer, modeText, x - textRenderer.width(modeText), y + 12, modeColor);
 
             // 显示冷却时间
             if (builderComponent.isBuildMode() && builderComponent.cooldown > 0) {
                 float cdSeconds = builderComponent.getCooldownSeconds();
                 Component cdText = Component.translatable("hud.noellesroles.builder.cooldown",
-                    String.format("%.1f", cdSeconds));
-                context.drawString(textRenderer, cdText, x, y + 24, CommonColors.RED);
+                        String.format("%.0f", cdSeconds));
+                context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y + 24, CommonColors.RED);
             } else if (builderComponent.isBuildMode()) {
                 Component readyText = Component.translatable("hud.noellesroles.builder.ready");
-                context.drawString(textRenderer, readyText, x, y + 24, CommonColors.GREEN);
+                context.drawString(textRenderer, readyText, x - textRenderer.width(readyText), y + 24, CommonColors.GREEN);
             }
         });
     }

@@ -16,8 +16,6 @@ public class PlayerWeightResetMixin {
     @Inject(method = "placeNewPlayer", at = @At("TAIL"), cancellable = true)
     public void onPlayerConnect(Connection connection, ServerPlayer player, CommonListenerCookie clientData,
             CallbackInfo ci) {
-        // PlayerRoleWeightManager.resetWeight(player);
-        // 暂时不清
     }
 
     @Inject(method = "remove", at = @At("HEAD"), cancellable = true)

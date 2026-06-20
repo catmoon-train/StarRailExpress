@@ -678,10 +678,10 @@ public abstract class GameMode {
                     && GameUtils.isPlayerAliveAndSurvival(serverPlayerEntity)
                     && canDeath) {
                 serverPlayerEntity.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
-                OnPlayerDeath.EVENT.invoker().onPlayerDeath(victim, deathReason);
+
                 // 关闭任务透视发包
                 ServerPlayNetworking.send(serverPlayerEntity, new PlayerDeathPayload());
-                OnPlayerDeathWithKiller.EVENT.invoker().onPlayerDeath(victim, killer, deathReason);
+
                 SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.maybeGet(serverPlayerEntity)
                         .orElse(null);
                 SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY
@@ -705,6 +705,8 @@ public abstract class GameMode {
                                     .append(deathMessageComponent))
                                     .withStyle(ChatFormatting.DARK_RED));
                 }
+                OnPlayerDeath.EVENT.invoker().onPlayerDeath(victim, deathReason);
+                OnPlayerDeathWithKiller.EVENT.invoker().onPlayerDeath(victim, killer, deathReason);
             } else {
                 return;
             }

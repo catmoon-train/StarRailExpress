@@ -60,15 +60,16 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF) {
                 @Override
                 public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
-                    if (livingEntity.level().getGameTime() % 20 == 0)
-                        livingEntity.addEffect(new MobEffectInstance(
-                                ModEffects.SAFE_TIME,
-                                40, // 持续时间 30s（tick）
-                                5, // 等级（0 = 速度 I）
-                                true, // ambient（环境效果，如信标）
-                                false, // showParticles（显示粒子）
-                                false // showIcon（显示图标）
-                        ));
+                    // 应该单独给而不是打包
+                    // if (livingEntity.level().getGameTime() % 20 == 0)
+                    //     livingEntity.addEffect(new MobEffectInstance(
+                    //             ModEffects.SAFE_TIME,
+                    //             40, // 持续时间 30s（tick）
+                    //             5, // 等级（0 = 速度 I）
+                    //             true, // ambient（环境效果，如信标）
+                    //             false, // showParticles（显示粒子）
+                    //             false // showIcon（显示图标）
+                    //     ));
                     return super.applyEffectTick(livingEntity, amplifier);
                 }
             });
