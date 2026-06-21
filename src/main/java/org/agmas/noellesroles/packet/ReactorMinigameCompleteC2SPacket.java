@@ -34,7 +34,8 @@ public record ReactorMinigameCompleteC2SPacket(BlockPos pos) implements CustomPa
         BlockEntity be = serverLevel.getBlockEntity(payload.pos());
         if (be instanceof ReactorBlockEntity reactor) {
             reactor.close();
-            ReactorBlockEntity.onReactorClosed(serverLevel);
+            // 基于配对关系检查是否所有反应堆都已关闭（直接从 Chunk 读取块状态）
+            reactor.onSelfClosed();
         }
     }
 }
