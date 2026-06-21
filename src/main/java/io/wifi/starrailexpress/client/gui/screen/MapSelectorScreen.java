@@ -576,7 +576,7 @@ public class MapSelectorScreen extends Screen {
 
         float scanY = (backgroundTick * 68.0f + index * 17.0f) % (previewHeight * 2);
         if (scanY > previewHeight) {
-            scanY = previewHeight - scanY;
+            scanY = previewHeight * 2 - scanY;
         }
         int scanAlpha = (int) (alpha * (0.08f + map.hoverTime * 0.10f + map.selectionTime * 0.12f));
         guiGraphics.fill(
