@@ -392,8 +392,8 @@ public class RoleShopHandler {
           ShopEntry.Type.WEAPON));
       SHOP.add(new ShopEntry(ModItems.SPELLBREAKER_POTION.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(ModItems.SILENCE_TOTEM.getDefaultInstance(), 130, ShopEntry.Type.TOOL));
-      // 关灯 - 100金币
-      SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+      // 关灯 - 190金币
+      SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 190, ShopEntry.Type.TOOL) {
         @Override
         public boolean onBuy(@NotNull Player player) {
           return SREPlayerShopComponent.useBlackout(player);
@@ -515,8 +515,8 @@ public class RoleShopHandler {
           return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
         }
       });
-      // 关灯 - 100金币
-      SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+      // 关灯 - 190金币
+      SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 190, ShopEntry.Type.TOOL) {
         public boolean onBuy(@NotNull Player player) {
           return SREPlayerShopComponent.useBlackout(player);
         }
@@ -2027,8 +2027,8 @@ public class RoleShopHandler {
         600,
         ShopEntry.Type.WEAPON));
 
-    // 关灯 - 150金币
-    BANDIT_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 150, ShopEntry.Type.TOOL) {
+    // 关灯 - 255金币
+    BANDIT_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 255, ShopEntry.Type.TOOL) {
       public boolean onBuy(@NotNull Player player) {
         return SREPlayerShopComponent.useBlackout(player);
       }
@@ -2416,8 +2416,8 @@ public class RoleShopHandler {
         80,
         ShopEntry.Type.TOOL));
 
-    // 关灯 - 100金币
-    GANGSTERS_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+    // 关灯 - 190金币
+    GANGSTERS_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 190, ShopEntry.Type.TOOL) {
       public boolean onBuy(@NotNull Player player) {
         return SREPlayerShopComponent.useBlackout(player);
       }
@@ -2593,8 +2593,8 @@ public class RoleShopHandler {
         return SREPlayerShopComponent.usePsychoMode(player);
       }
     });
-    // 关灯 - 100金币
-    WARLOCK_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+    // 关灯 - 190金币
+    WARLOCK_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 190, ShopEntry.Type.TOOL));
     // 监控失灵 - 60金币
     WARLOCK_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
 
