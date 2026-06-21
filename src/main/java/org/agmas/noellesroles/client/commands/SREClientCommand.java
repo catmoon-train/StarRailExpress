@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.commands;
 
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
+import io.wifi.ConfigCompact.ui.TestScreen;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -54,14 +55,23 @@ public class SREClientCommand {
                         }
                         return 1;
                       }))
-                  .then(ClientCommandManager.literal("config")
+                  .then(ClientCommandManager.literal("settings")
                       .executes(context -> {
                         ClientScheduler.schedule(() -> {
                           context.getSource().getClient()
                               .setScreen(new SettingMenuScreen(null));
                         }, 1);
                         return 1;
-                      }))));
+                      }))
+                    .then(ClientCommandManager.literal("test")
+                      .executes(context -> {
+                        ClientScheduler.schedule(() -> {
+                          context.getSource().getClient()
+                              .setScreen(new TestScreen(null));
+                        }, 1);
+                        return 1;
+                      }))
+                    ));
         });
   }
 }

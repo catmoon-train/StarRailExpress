@@ -18,6 +18,7 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.ShareToLanScreen;
@@ -86,7 +87,7 @@ public class WithParentScreenPauseScreen extends PauseScreen {
         }
         ServerLinks serverLinks = new ServerLinks(arr);
         if (serverLinks.isEmpty()) {
-            addOriginalFeedbackButtons(this, rowHelper);
+            addOriginalFeedbackButtons(this, rowHelper, 98);
         } else {
             rowHelper.addChild(this.openScreenButton(FEEDBACK_SUBSCREEN, () -> new FeedbackSubScreen(this)));
             rowHelper.addChild(this.openScreenButton(SERVER_LINKS, () -> new ServerLinksScreen(this, serverLinks)));
@@ -109,19 +110,26 @@ public class WithParentScreenPauseScreen extends PauseScreen {
         gridLayout.visitWidgets(this::addRenderableWidget);
     }
 
-    static void addOriginalFeedbackButtons(Screen screen, GridLayout.RowHelper rowHelper) {
+    public static Button openLinkButton(Screen screen, Component component, URI uRI, int width) {
+        return Button.builder(component, ConfirmLinkScreen.confirmLink(screen, uRI)).width(width).build();
+    }
+
+    static void addOriginalFeedbackButtons(Screen screen, GridLayout.RowHelper rowHelper, int width) {
         try {
             rowHelper
-                    .addChild(openLinkButton(screen, FEEDBACK_TRAIN, new URI(StarRailExpressTitleScreen.FEEDBACK_URL)));
+                    .addChild(openLinkButton(screen, FEEDBACK_TRAIN, new URI(StarRailExpressTitleScreen.FEEDBACK_URL),
+                            width));
         } catch (URISyntaxException e) {
         }
 
         rowHelper.addChild(openLinkButton(screen, SEND_FEEDBACK,
                 SharedConstants.getCurrentVersion().isStable() ? CommonLinks.RELEASE_FEEDBACK
-                        : CommonLinks.SNAPSHOT_FEEDBACK));
+                        : CommonLinks.SNAPSHOT_FEEDBACK,
+                width));
         rowHelper.addChild(
-                openLinkButton(screen, REPORT_BUGS, CommonLinks.SNAPSHOT_BUGS_FEEDBACK)).active = !SharedConstants
-                        .getCurrentVersion().getDataVersion().isSideSeries();
+                openLinkButton(screen, REPORT_BUGS, CommonLinks.SNAPSHOT_BUGS_FEEDBACK,
+                        width)).active = !SharedConstants
+                                .getCurrentVersion().getDataVersion().isSideSeries();
     }
 
     @Environment(EnvType.CLIENT)
@@ -140,7 +148,7 @@ public class WithParentScreenPauseScreen extends PauseScreen {
             GridLayout gridLayout = (GridLayout) this.layout.addToContents(new GridLayout());
             gridLayout.defaultCellSetting().padding(4, 4, 4, 0);
             GridLayout.RowHelper rowHelper = gridLayout.createRowHelper(1);
-            addOriginalFeedbackButtons(this, rowHelper);
+            addOriginalFeedbackButtons(this, rowHelper, 204);
             this.layout.addToFooter(
                     Button.builder(CommonComponents.GUI_BACK, (button) -> this.onClose()).width(200).build());
             this.layout.visitWidgets(this::addRenderableWidget);
