@@ -217,6 +217,7 @@
   "gui.sre.map_selector.wider_train": "加宽列车",
   "gui.sre.map_selector.wider_train.desc": "更好的列车体验",
   "gui.sre.map_selector.selected": "已选择: %s",
+  "gui.sre.map_selector.selected_with_id":"已选择：%s (%s)",
   "gui.sre.map_selector.map_id": "地图ID: %s",
   "gui.sre.map_selector.confirm_prompt": "按 ESC 取消 | 按 Enter 确认",
   "gui.sre.map_selector.vote_count": "投票:%s",

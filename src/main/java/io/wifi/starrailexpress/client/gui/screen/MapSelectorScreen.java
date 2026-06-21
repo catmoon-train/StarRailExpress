@@ -45,8 +45,9 @@ public class MapSelectorScreen extends Screen {
     private static final int ROW_SPACING = 12;
     private static final int SIDE_PADDING = 56;
     private static final int BOTTOM_PANEL_DEFAULT_HEIGHT = 72;
-    private static final int BOTTOM_PANEL_MEDIUM_HEIGHT = 64;
-    private static final int BOTTOM_PANEL_MIN_HEIGHT = 52;
+    private static final int BOTTOM_PANEL_MEDIUM_HEIGHT = 56;
+    private static final int BOTTOM_PANEL_SMALL_UI_THRESHOLD = 52;
+    private static final int BOTTOM_PANEL_MIN_HEIGHT = 40;
     private static final int PARTICLE_COUNT = 68;
 
     private static final int COLOR_BG_TOP = 0xFF060B18;
@@ -752,30 +753,47 @@ public class MapSelectorScreen extends Screen {
                 withAlpha(COLOR_PANEL, alpha),
                 withAlpha(COLOR_PANEL_DARK, Math.min(255, alpha + 18)));
         guiGraphics.fill(0, panelTop, width, panelTop + 1, withAlpha(COLOR_ACCENT, (int) (alpha * 0.85f)));
-
-        int perlineHeight = (bottomPanelHeight - 4) / 3;
+        boolean isSmall = bottomPanelHeight <= BOTTOM_PANEL_SMALL_UI_THRESHOLD;
+        int perlineHeight = (bottomPanelHeight - 8) / (isSmall ? 2 : 3);
         int perlineOffsetY = font.lineHeight / 2;
-        guiGraphics.drawCenteredString(
-                font,
-                Component.translatable("gui.sre.map_selector.selected", selectedMap.displayName)
-                        .withStyle(ChatFormatting.BOLD),
-                width / 2,
-                panelTop + 4 + perlineHeight / 2 - perlineOffsetY,
-                withAlpha(COLOR_TEXT, alpha));
-
-        guiGraphics.drawCenteredString(
-                font,
-                Component.translatable("gui.sre.map_selector.map_id", selectedMap.id),
-                width / 2,
-                panelTop + 4 + perlineHeight * 2 - perlineHeight / 2 - perlineOffsetY,
-                withAlpha(COLOR_TEXT_DIM, (int) (alpha * 0.95f)));
-
-        guiGraphics.drawCenteredString(
-                font,
-                Component.translatable("gui.sre.map_selector.confirm_prompt"),
-                width / 2,
-                panelTop + 4 + perlineHeight * 3 - perlineHeight / 2 - perlineOffsetY,
-                withAlpha(COLOR_TEXT_DIM, (int) (alpha * 0.82f)));
+        int idx = 0;
+        {
+            if (isSmall) {
+                guiGraphics.drawCenteredString(
+                        font,
+                        Component.translatable("gui.sre.map_selector.selected_with_id", selectedMap.displayName,selectedMap.id)
+                                .withStyle(ChatFormatting.BOLD),
+                        width / 2,
+                        panelTop + 4 + perlineHeight / 2 - perlineOffsetY,
+                        withAlpha(COLOR_TEXT, alpha));
+            } else {
+                guiGraphics.drawCenteredString(
+                        font,
+                        Component.translatable("gui.sre.map_selector.selected", selectedMap.displayName)
+                                .withStyle(ChatFormatting.BOLD),
+                        width / 2,
+                        panelTop + 4 + perlineHeight / 2 - perlineOffsetY,
+                        withAlpha(COLOR_TEXT, alpha));
+            }
+        }
+        if (!isSmall) {
+            idx++;
+            guiGraphics.drawCenteredString(
+                    font,
+                    Component.translatable("gui.sre.map_selector.map_id", selectedMap.id),
+                    width / 2,
+                    panelTop + 4 + perlineHeight * idx - perlineHeight / 2 - perlineOffsetY,
+                    withAlpha(COLOR_TEXT_DIM, (int) (alpha * 0.95f)));
+        }
+        {
+            idx++;
+            guiGraphics.drawCenteredString(
+                    font,
+                    Component.translatable("gui.sre.map_selector.confirm_prompt"),
+                    width / 2,
+                    panelTop + 4 + perlineHeight * idx - perlineHeight / 2 - perlineOffsetY,
+                    withAlpha(COLOR_TEXT_DIM, (int) (alpha * 0.82f)));
+        }
     }
 
     private void renderVotingTimer(GuiGraphics guiGraphics) {
@@ -799,7 +817,7 @@ public class MapSelectorScreen extends Screen {
         int panelHeight;
         if (isSmall) {
             panelWidth = font.width(timerText) + 28;
-            panelX = (width - panelWidth - SMALL_SCREEN_PADDING);
+            panelX = (width - panelWidth - SMALL_SCREEN_PADDING + 6);
             panelY = screenPaddingTop - 2 - yOffset;
             panelHeight = 14 + font.lineHeight + 2;
         } else {
