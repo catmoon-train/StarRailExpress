@@ -1,7 +1,9 @@
 package org.agmas.noellesroles.scene;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.agmas.noellesroles.init.NRSounds;
 
@@ -81,6 +83,8 @@ public final class SceneEventManager {
     // ───────────────────────── 破坏任务 / sabotage 状态 ─────────────────────────
 
     private static final Map<ResourceKey<Level>, Long> SABOTAGE_UNTIL = new HashMap<>();
+    /** 记录已在超时后处理过的维度，防止重复扣除心情 */
+    private static final Set<ResourceKey<Level>> SABOTAGE_TIMEOUT_HANDLED = new HashSet<>();
 
     /** 警报音效防重复：记录每个维度上次播放的 tick */
     private static final Map<ResourceKey<Level>, Long> ALARM_LAST_TICK = new HashMap<>();
@@ -95,6 +99,7 @@ public final class SceneEventManager {
 
     public static void stopSabotage(ServerLevel level) {
         SABOTAGE_UNTIL.remove(level.dimension());
+        SABOTAGE_TIMEOUT_HANDLED.remove(level.dimension());  // 手动停止时清除超时标记
         ALARM_LAST_TICK.remove(level.dimension());
     }
 
@@ -110,6 +115,33 @@ public final class SceneEventManager {
             return 0;
         }
         return Math.max(0, until - level.getGameTime());
+    }
+
+    /**
+     * 检查破坏任务是否已自然超时。若超时且尚未处理过，扣除所有玩家心情并返回 true。
+     * 应由破坏任务相关 BlockEntity 的 serverTick 每 tick 调用。
+     */
+    public static boolean checkAndHandleSabotageTimeout(ServerLevel level) {
+        ResourceKey<Level> dim = level.dimension();
+        Long until = SABOTAGE_UNTIL.get(dim);
+        // 无破坏任务、任务仍激活、或已处理过超时 → 跳过
+        if (until == null || level.getGameTime() < until || SABOTAGE_TIMEOUT_HANDLED.contains(dim)) {
+            return false;
+        }
+        // 标记已处理，防止重复
+        SABOTAGE_TIMEOUT_HANDLED.add(dim);
+        SABOTAGE_UNTIL.remove(dim);
+        ALARM_LAST_TICK.remove(dim);
+
+        // 扣除所有在线玩家 0.5 心情值（假心情不受影响，最低降至 0，旁观者除外）
+        for (var player : level.players()) {
+            if (player.isSpectator()) continue;
+            var mood = player.getComponent(io.wifi.starrailexpress.cca.SREPlayerMoodComponent.KEY);
+            if (mood != null) {
+                mood.addMood(-0.5f);
+            }
+        }
+        return true;
     }
 
     /**
@@ -135,6 +167,7 @@ public final class SceneEventManager {
     public static void clear(ServerLevel level) {
         DWELL.remove(level.dimension());
         SABOTAGE_UNTIL.remove(level.dimension());
+        SABOTAGE_TIMEOUT_HANDLED.remove(level.dimension());
         ALARM_LAST_TICK.remove(level.dimension());
     }
 }

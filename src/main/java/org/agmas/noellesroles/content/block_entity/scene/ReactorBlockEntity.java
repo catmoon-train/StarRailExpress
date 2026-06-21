@@ -91,6 +91,9 @@ public class ReactorBlockEntity extends BlockEntity {
         ReactorRegistry.add(serverLevel, pos);
         boolean sabotage = SceneEventManager.isSabotageActive(serverLevel);
 
+        // 检查破坏任务是否已自然超时（提前结束不触发）
+        SceneEventManager.checkAndHandleSabotageTimeout(serverLevel);
+
         // 破坏任务激活时循环播放警报音效
         if (sabotage) {
             SceneEventManager.tickSabotageAlarm(serverLevel);
