@@ -591,7 +591,7 @@ public class ModRoles {
      * - 商店：可花费150金币购买手铐
      */
     public static SRERole SHERIFF = TMMRoles.registerRole(
-            new NormalRole(SHERIFF_ID, new Color(70, 130, 180).getRGB(), true, false, SRERole.MoodType.REAL,
+            new NormalRole(SHERIFF_ID, 0x1B8AE5, true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
                 private final java.util.Map<java.util.UUID, Integer> sheriffTaskCounts = new java.util.HashMap<>();
                 private final java.util.Set<java.util.UUID> sheriffHasReceivedRevolver = new java.util.HashSet<>();
