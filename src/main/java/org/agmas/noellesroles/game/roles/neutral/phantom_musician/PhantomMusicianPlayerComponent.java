@@ -78,6 +78,10 @@ public class PhantomMusicianPlayerComponent implements RoleComponent, ServerTick
     public static final int PSYCHO_SOUND_COOLDOWN = 5 * 60 * 20; // 5分钟
     public static final int PSYCHO_SOUND_COST = 450;
 
+    /** 疯狂模式音效播放计时器 (ticks)，购买后持续播放30秒 */
+    public int psychoSoundPlayTimer = 0;
+    public static final int PSYCHO_SOUND_PLAY_DURATION = 30 * 20; // 30秒
+
     public int crowbarSoundCooldown = 0;
     public static final int CROWBAR_SOUND_COOLDOWN = 60 * 20; // 1分钟
     public static final int CROWBAR_SOUND_COST = 75;
@@ -105,6 +109,7 @@ public class PhantomMusicianPlayerComponent implements RoleComponent, ServerTick
         this.psychoSoundCooldown = 0;
         this.crowbarSoundCooldown = 0;
         this.randomSoundCooldown = 0;
+        this.psychoSoundPlayTimer = 0;
         this.sync();
     }
 
@@ -144,6 +149,11 @@ public class PhantomMusicianPlayerComponent implements RoleComponent, ServerTick
         if (psychoSoundCooldown > 0) psychoSoundCooldown--;
         if (crowbarSoundCooldown > 0) crowbarSoundCooldown--;
         if (randomSoundCooldown > 0) randomSoundCooldown--;
+        // 疯狂模式音效持续播放
+        if (psychoSoundPlayTimer > 0) {
+            player.level().playSound(null, player.blockPosition(), io.wifi.starrailexpress.index.TMMSounds.AMBIENT_PSYCHO_DRONE, SoundSource.PLAYERS, 0.5F, 1F);
+            psychoSoundPlayTimer--;
+        }
     }
 
     @Override
@@ -240,6 +250,7 @@ public class PhantomMusicianPlayerComponent implements RoleComponent, ServerTick
         tag.putInt("revolverSoundCooldown", this.revolverSoundCooldown);
         tag.putInt("stalkerSoundCooldown", this.stalkerSoundCooldown);
         tag.putInt("psychoSoundCooldown", this.psychoSoundCooldown);
+        tag.putInt("psychoSoundPlayTimer", this.psychoSoundPlayTimer);
         tag.putInt("crowbarSoundCooldown", this.crowbarSoundCooldown);
         tag.putInt("randomSoundCooldown", this.randomSoundCooldown);
     }
@@ -252,6 +263,7 @@ public class PhantomMusicianPlayerComponent implements RoleComponent, ServerTick
         this.revolverSoundCooldown = tag.contains("revolverSoundCooldown") ? tag.getInt("revolverSoundCooldown") : 0;
         this.stalkerSoundCooldown = tag.contains("stalkerSoundCooldown") ? tag.getInt("stalkerSoundCooldown") : 0;
         this.psychoSoundCooldown = tag.contains("psychoSoundCooldown") ? tag.getInt("psychoSoundCooldown") : 0;
+        this.psychoSoundPlayTimer = tag.contains("psychoSoundPlayTimer") ? tag.getInt("psychoSoundPlayTimer") : 0;
         this.crowbarSoundCooldown = tag.contains("crowbarSoundCooldown") ? tag.getInt("crowbarSoundCooldown") : 0;
         this.randomSoundCooldown = tag.contains("randomSoundCooldown") ? tag.getInt("randomSoundCooldown") : 0;
     }
