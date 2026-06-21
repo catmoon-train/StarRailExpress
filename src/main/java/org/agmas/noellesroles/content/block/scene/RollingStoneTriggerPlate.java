@@ -75,13 +75,22 @@ public class RollingStoneTriggerPlate extends BaseEntityBlock {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
+        tryTriggerPlate(level, pos, state, entity);
+        super.stepOn(level, pos, state, entity);
+    }
+
+    @Override
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+        tryTriggerPlate(level, pos, state, entity);
+    }
+
+    private void tryTriggerPlate(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (!level.isClientSide && entity instanceof Player && level instanceof ServerLevel serverLevel) {
             BlockEntity be = serverLevel.getBlockEntity(pos);
             if (be instanceof RollingStoneTriggerPlateEntity plate && plate.tryTrigger(serverLevel)) {
                 spawnStone(serverLevel, pos, state.getValue(FACING));
             }
         }
-        super.stepOn(level, pos, state, entity);
     }
 
     /** 在触发板上方朝指定方向召唤一颗滚石。 */

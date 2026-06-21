@@ -6,12 +6,16 @@ import org.agmas.noellesroles.scene.SceneEventManager;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+
+import java.util.List;
 
 /**
- * 滚石触发板方块实体：踩踏触发冷却 + 破坏任务激活时周期性召唤滚石。
+ * 滚石触发板方块实体：踩踏触发冷却 + 玩家检测 + 破坏任务激活时周期性召唤滚石。
  */
 public class RollingStoneTriggerPlateEntity extends BlockEntity {
 
@@ -40,8 +44,19 @@ public class RollingStoneTriggerPlateEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
+        long now = serverLevel.getGameTime();
+        // 仅在冷却可能已结束时才检测玩家，每20tick检测一次
+        if (now - be.lastTrigger >= STEP_COOLDOWN && now % 20 == 0) {
+            List<Player> playersOnPlate = serverLevel.getEntitiesOfClass(Player.class,
+                    new AABB(pos).inflate(0.2),
+                    p -> p.isAlive() && !p.isSpectator());
+            if (!playersOnPlate.isEmpty() && be.tryTrigger(serverLevel)) {
+                RollingStoneTriggerPlate.spawnStone(serverLevel, pos, state.getValue(RollingStoneTriggerPlate.FACING));
+            }
+        }
+        // 破坏任务期间周期性召唤
         if (SceneEventManager.isSabotageActive(serverLevel)
-                && serverLevel.getGameTime() % SABOTAGE_INTERVAL == 0) {
+                && now % SABOTAGE_INTERVAL == 0) {
             RollingStoneTriggerPlate.spawnStone(serverLevel, pos, state.getValue(RollingStoneTriggerPlate.FACING));
         }
     }
