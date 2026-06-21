@@ -21,7 +21,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -431,7 +430,6 @@ public class GameReplayManager implements IGameReplayRecorder {
 
   public Component addEvent(GameReplayData.EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed,
       String message, HolderLookup.Provider provider, boolean hidden) {
-    SREGameWorldComponent sreGameWorldComponent = SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD));
 
     // 对可能为null的字符串参数进行处理
     String safeItemUsed = itemUsed != null ? itemUsed : "minecraft:air";
