@@ -2657,7 +2657,7 @@ public class RoleShopHandler {
         }
       });
     }
-    // 疯狂模式的声音 - 350金币, 冷却5分钟
+    // 疯狂模式的声音 - 350金币, 冷却5分钟, 持续播放30秒
     {
       ItemStack s = new ItemStack(Items.NOTE_BLOCK);
       s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.psycho_sound"));
@@ -2668,8 +2668,8 @@ public class RoleShopHandler {
           if (c.psychoSoundCooldown > 0)
             return false;
           c.psychoSoundCooldown = PhantomMusicianPlayerComponent.PSYCHO_SOUND_COOLDOWN;
+          c.psychoSoundPlayTimer = PhantomMusicianPlayerComponent.PSYCHO_SOUND_PLAY_DURATION;
           c.sync();
-          p.level().playSound(null, p.blockPosition(), TMMSounds.AMBIENT_PSYCHO_DRONE, SoundSource.PLAYERS, 1F, 1F);
           return true;
         }
       });

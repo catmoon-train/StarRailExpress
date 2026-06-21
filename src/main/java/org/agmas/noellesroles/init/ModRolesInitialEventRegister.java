@@ -405,15 +405,6 @@ public class ModRolesInitialEventRegister {
     }
 
     static {
-        RolePassive.register(ModRoles.PHANTOM_MUSICIAN,
-                RolePassive.passive(SRE.id("phantom_musician_income"),
-                        "passive.noellesroles.phantom_musician.income", 30 * 20, player -> {
-                            var gameWorld = SREGameWorldComponent.KEY.get(player.level());
-                            if (gameWorld.isRunning() && GameUtils.isPlayerAliveAndSurvival(player)) {
-                                SREPlayerShopComponent.KEY.get(player).addToBalance(50);
-                            }
-                        }));
-
         // 疫使技能注册：按技能键感染目标玩家
         RoleSkill.register(ModRoles.INFECTED, RoleSkill.skill(
                 SRE.id("infected_infect"),
