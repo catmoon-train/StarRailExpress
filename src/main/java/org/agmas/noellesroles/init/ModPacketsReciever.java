@@ -708,7 +708,6 @@ public class ModPacketsReciever {
     ServerPlayNetworking.registerGlobalReceiver(UnifiedSkillSelectC2SPacket.ID, (payload, context) ->
       RoleSkill.selectSkill(context.player(), payload.slot()));
     ServerPlayNetworking.registerGlobalReceiver(AbilityWithTargetC2SPacket.ID, (payload, context) -> {
-      
       RoleSkill.beginUseShiftedWithTarget(context.player(), payload.target());
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.INSANE_KILLER_ABILITY_PACKET, (payload, context) -> {

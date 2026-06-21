@@ -154,11 +154,6 @@ public class AbilityHandler {
     public static void handlerWithTarget(ServerPlayer player, UUID targetUUID) {
         if (player.isSpectator())
             return;
-        SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
-                .get(player);
-
-        SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY
-                .get(player);
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(player.level());
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
@@ -179,6 +174,5 @@ public class AbilityHandler {
             }
             return;
         }
-        var targetPlayer = player.level().getPlayerByUUID(targetUUID);
     }
 }
