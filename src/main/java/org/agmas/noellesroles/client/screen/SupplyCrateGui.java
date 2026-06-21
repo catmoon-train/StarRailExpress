@@ -313,13 +313,8 @@ public class SupplyCrateGui extends Screen {
         // 渲染滚动条
         renderScrollbar(g, mouseX, mouseY);
 
-        // 使用 Scissor 裁剪列表区域
-        g.enableScissor(listAreaX, listAreaY,
-                listAreaX + listAreaW, listAreaY + listAreaH);
-
+        // 先渲染所有控件（包括左右面板的），不受 scissor 裁剪
         super.render(g, mouseX, mouseY, delta);
-
-        g.disableScissor();
     }
 
     /**
