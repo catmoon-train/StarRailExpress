@@ -17,6 +17,7 @@
   "screen.starrailexpress.settings.introduction": "角色&修饰符&部分物品介绍",
   "=== CLIENT ===": "",
   "text.autoconfig.starrailexpress-client.title": "客户端设置",
+  "text.autoconfig.starrailexpress-client.option.autoSortVotes": "自动根据投票数量排序投票项目",
   "text.autoconfig.starrailexpress-client.option.enableSecurityCameraHUD": "启用安全监视器的HUD",
   "text.autoconfig.starrailexpress-client.option.disableStaminaBarSmoothing": "禁用耐力条平滑动画",
   "text.autoconfig.starrailexpress-client.option.disableScreenShake": "禁用屏幕抖动",

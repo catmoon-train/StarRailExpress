@@ -6,8 +6,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.Nullable;
-
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.vote.VoteOption.ItemOption;
 import io.wifi.starrailexpress.content.vote.VoteOption.PlayerOption;
