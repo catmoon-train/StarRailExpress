@@ -74,12 +74,13 @@ public class RoleMethodDispatcher {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
                 shopComponent.addToBalance(
                         (int) ((SREConfig.instance().civilianTaskReward + streakBonus) * rewardMultiplier));
+            } else if (role.isKiller() && !role.isNeutrals() && !role.isInnocent()) {
                 // 任意平民/中立完成一个任务 -> 每个杀手获得 killerTaskIncome
                 int killerGain = (int) (SREConfig.instance().killerTaskIncome * rewardMultiplier);
                 if (killerGain > 0) {
                     player.level().players().forEach(a -> {
                         SRERole aRole = getCurrentRole(a);
-                        if (aRole != null && aRole.canUseKiller()) {
+                        if (aRole != null && aRole.canUseKiller() && !aRole.isNeutrals() && !aRole.isInnocent()) {
                             SREPlayerShopComponent.KEY.get(a).addToBalance(killerGain);
                         }
                     });
@@ -142,6 +143,7 @@ public class RoleMethodDispatcher {
         }
         return InteractionResult.PASS;
     }
+
     public static InteractionResult callOnDropItem(Player player, ItemStack item) {
         SRERole role = getCurrentRole(player);
         if (role != null) {
