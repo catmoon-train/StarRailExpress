@@ -28,7 +28,7 @@ public class MovingPlatformConfigScreen extends Screen {
     private Button saveButton;
 
     public MovingPlatformConfigScreen(BlockPos blockPos, int distance, double speed, double collisionSize) {
-        super(Component.literal("移动方块配置"));
+        super(Component.translatable("screen.noellesroles.moving_platform.title"));
         this.blockPos = blockPos;
         this.currentDistance = distance;
         this.currentSpeed = speed;
@@ -42,22 +42,22 @@ public class MovingPlatformConfigScreen extends Screen {
         int startY = height / 2 - 60;
 
         // 距离输入
-        distanceInput = new EditBox(font, centerX - 80, startY, 60, 20, Component.literal("距离"));
+        distanceInput = new EditBox(font, centerX - 80, startY, 60, 20, Component.translatable("screen.noellesroles.moving_platform.distance_input"));
         distanceInput.setValue(String.valueOf(currentDistance));
         addRenderableWidget(distanceInput);
 
         // 速度输入
-        speedInput = new EditBox(font, centerX - 80, startY + 30, 60, 20, Component.literal("速度"));
+        speedInput = new EditBox(font, centerX - 80, startY + 30, 60, 20, Component.translatable("screen.noellesroles.moving_platform.speed_input"));
         speedInput.setValue(String.valueOf(currentSpeed));
         addRenderableWidget(speedInput);
 
         // 碰撞箱大小输入
-        collisionInput = new EditBox(font, centerX - 80, startY + 60, 60, 20, Component.literal("碰撞箱"));
+        collisionInput = new EditBox(font, centerX - 80, startY + 60, 60, 20, Component.translatable("screen.noellesroles.moving_platform.collision_input"));
         collisionInput.setValue(String.valueOf(currentCollisionSize));
         addRenderableWidget(collisionInput);
 
         // 保存按钮
-        saveButton = Button.builder(Component.literal("保存"), btn -> saveConfig())
+        saveButton = Button.builder(Component.translatable("screen.noellesroles.moving_platform.save"), btn -> saveConfig())
                 .bounds(centerX - 30, startY + 90, 60, 20).build();
         addRenderableWidget(saveButton);
     }
@@ -90,10 +90,10 @@ public class MovingPlatformConfigScreen extends Screen {
         int startY = height / 2 - 60;
 
         g.drawCenteredString(font, title, centerX, startY - 20, 0xFFFFFF);
-        g.drawString(font, "移动距离 (1-50):", centerX - 80, startY - 12, 0xAAAAAA);
-        g.drawString(font, "格", centerX - 14, startY + 6, 0x888888);
-        g.drawString(font, "移动速度 (0.01-1.0):", centerX - 80, startY + 18, 0xAAAAAA);
-        g.drawString(font, "碰撞箱 (0.5-3.0):", centerX - 80, startY + 48, 0xAAAAAA);
+        g.drawString(font, Component.translatable("screen.noellesroles.moving_platform.distance").getString(), centerX - 80, startY - 12, 0xAAAAAA);
+        g.drawString(font, Component.translatable("screen.noellesroles.moving_platform.unit_block").getString(), centerX - 14, startY + 6, 0x888888);
+        g.drawString(font, Component.translatable("screen.noellesroles.moving_platform.speed").getString(), centerX - 80, startY + 18, 0xAAAAAA);
+        g.drawString(font, Component.translatable("screen.noellesroles.moving_platform.collision").getString(), centerX - 80, startY + 48, 0xAAAAAA);
     }
 
     @Override

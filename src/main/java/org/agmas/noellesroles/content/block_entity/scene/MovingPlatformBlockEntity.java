@@ -10,12 +10,16 @@ import org.agmas.noellesroles.init.ModSceneBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * 移动方块底座方块实体：确保其管理的移动平台实体始终存在（按 UUID 跟踪），底座移除时清除平台。
@@ -66,6 +70,18 @@ public class MovingPlatformBlockEntity extends BlockEntity {
         if (tag.contains("Distance")) distance = tag.getInt("Distance");
         if (tag.contains("Speed")) speed = tag.getDouble("Speed");
         if (tag.contains("CollisionSize")) collisionSize = tag.getDouble("CollisionSize");
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, registries);
+        return tag;
     }
 
     @Override

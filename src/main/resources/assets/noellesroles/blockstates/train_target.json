@@ -1,7 +1,27 @@
 {
   "variants": {
-    "": {
+    "facing=north": {
       "model": "noellesroles:block/train_target"
+    },
+    "facing=east": {
+      "model": "noellesroles:block/train_target",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "noellesroles:block/train_target",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "noellesroles:block/train_target",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "noellesroles:block/train_target",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "noellesroles:block/train_target",
+      "x": 90
     }
   }
 }
