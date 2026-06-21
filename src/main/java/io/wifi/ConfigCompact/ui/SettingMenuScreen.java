@@ -1,6 +1,7 @@
 package io.wifi.ConfigCompact.ui;
 
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -99,7 +100,7 @@ public class SettingMenuScreen extends Screen {
             Button btn = this.openScreenButton(Component.translatable("screen.starrailexpress.settings.tmm"),
                     () -> {
                         if (showSettings)
-                            return (SREClientConfig.HANDLER.generateGui().generateScreen(this));
+                            return (SREConfig.HANDLER.generateGui().generateScreen(this));
                         return null;
                     });
             if (!showSettings) {

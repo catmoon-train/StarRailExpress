@@ -34,6 +34,7 @@ public class MapSelectorScreen extends Screen {
     private static final int ROW_SPACING = 12;
     private static final int SIDE_PADDING = 56;
     private static final int BOTTOM_PANEL_HEIGHT = 86;
+    private static final int TWO_COLUMN_CARD_MIN_HEIGHT = 180;
     private static final int PARTICLE_COUNT = 68;
 
     private static final int COLOR_BG_TOP = 0xFF060B18;
@@ -132,12 +133,15 @@ public class MapSelectorScreen extends Screen {
 
         int availableWidth = width - SIDE_PADDING * 2;
         int perRowFull = Math.max(1, (availableWidth + CARD_SPACING) / (CARD_WIDTH + CARD_SPACING));
+        boolean smallLayout = cardCount <= perRowFull;
+        int availableHeight = height - 84 - BOTTOM_PANEL_HEIGHT - 12 - ROW_SPACING;
+        smallLayout = smallLayout || (availableHeight <= (TWO_COLUMN_CARD_MIN_HEIGHT) * 2);
 
-        if (cardCount <= perRowFull) {
+        if (smallLayout) {
             layoutRows = 1;
             layoutCols = cardCount;
             layoutCW = CARD_WIDTH;
-            layoutCH = CARD_HEIGHT;
+            layoutCH = Math.min(CARD_HEIGHT, Math.max(80, availableHeight));
             layoutCS = CARD_SPACING;
         } else {
             layoutRows = 2;
@@ -145,12 +149,8 @@ public class MapSelectorScreen extends Screen {
             layoutCW = SMALL_CARD_WIDTH;
             // Cap card height so both rows fit between the header (84px top) and the bottom
             // panel
-            int availableHeight = height - 84 - BOTTOM_PANEL_HEIGHT - 12 - ROW_SPACING;
             layoutCH = Math.min(SMALL_CARD_HEIGHT, Math.max(80, availableHeight / 2));
             layoutCS = SMALL_CARD_SPACING;
-        }
-        if (height < 600) {
-            layoutRows = 1;
         }
     }
 

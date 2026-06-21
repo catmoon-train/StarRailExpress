@@ -124,12 +124,12 @@ public class WithParentScreenPauseScreen extends PauseScreen {
 
         rowHelper.addChild(openLinkButton(screen, SEND_FEEDBACK,
                 SharedConstants.getCurrentVersion().isStable() ? CommonLinks.RELEASE_FEEDBACK
-                        : CommonLinks.SNAPSHOT_FEEDBACK),
-                width);
+                        : CommonLinks.SNAPSHOT_FEEDBACK,
+                width));
         rowHelper.addChild(
-                openLinkButton(screen, REPORT_BUGS, CommonLinks.SNAPSHOT_BUGS_FEEDBACK),
-                width).active = !SharedConstants
-                        .getCurrentVersion().getDataVersion().isSideSeries();
+                openLinkButton(screen, REPORT_BUGS, CommonLinks.SNAPSHOT_BUGS_FEEDBACK,
+                        width)).active = !SharedConstants
+                                .getCurrentVersion().getDataVersion().isSideSeries();
     }
 
     @Environment(EnvType.CLIENT)
