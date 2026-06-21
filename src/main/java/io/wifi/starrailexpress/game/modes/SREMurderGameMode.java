@@ -377,7 +377,8 @@ public class SREMurderGameMode extends GameMode {
                         !role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
         RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
-                role -> role.isVigilanteTeam() && !role.isOtherModeRole() && !(role instanceof RepairRole));
+                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        role.isVigilanteTeam() && !role.isOtherModeRole() && !(role instanceof RepairRole));
         // 中立池
         RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
                 role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
