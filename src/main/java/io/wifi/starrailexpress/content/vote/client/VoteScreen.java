@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.content.vote.client;
 
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.content.vote.ClientPlayerOption;
 import io.wifi.starrailexpress.content.vote.VoteOption;
 import io.wifi.starrailexpress.content.vote.network.VoteCastC2SPacket;
@@ -182,7 +183,9 @@ public class VoteScreen extends Screen {
         for (int i = 0; i < options.size(); i++) {
             buttons.add(new WidgetButton(i));
         }
-        sortButtons();
+        if (SREClientConfig.instance().autoSortVotes) {
+            sortButtons();
+        }
 
         int totalContent = buttons.isEmpty() ? 0 : buttons.size() * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING;
         int available = scrollAreaH();
@@ -193,7 +196,8 @@ public class VoteScreen extends Screen {
     private void sortButtons() {
         Map<Integer, Integer> results = ClientVoteCache.getResults();
         boolean showResults = ClientVoteCache.isShowResults();
-
+        if (!showResults)
+            return;
         buttons.sort(Comparator
                 .comparing((WidgetButton btn) -> !selectedIndices.contains(btn.optionIndex))
                 .thenComparing((WidgetButton btn) -> showResults ? -results.getOrDefault(btn.optionIndex, 0) : 0)
@@ -276,10 +280,10 @@ public class VoteScreen extends Screen {
 
     private void drawCornerBolts(GuiGraphics g, int x, int y, int w, int h) {
         int[][] points = {
-                {x + 8, y + 8},
-                {x + w - 11, y + 8},
-                {x + 8, y + h - 11},
-                {x + w - 11, y + h - 11}
+                { x + 8, y + 8 },
+                { x + w - 11, y + 8 },
+                { x + 8, y + h - 11 },
+                { x + w - 11, y + h - 11 }
         };
 
         for (int[] point : points) {
@@ -385,12 +389,14 @@ public class VoteScreen extends Screen {
         int bx = contentX + (BUTTON_WIDTH - CONFIRM_W) / 2;
         int by = contentY + scrollH + 8;
         boolean canConfirm = !selectedIndices.isEmpty();
-        boolean hovered = canConfirm && mouseX >= bx && mouseX < bx + CONFIRM_W && mouseY >= by && mouseY < by + CONFIRM_H;
+        boolean hovered = canConfirm && mouseX >= bx && mouseX < bx + CONFIRM_W && mouseY >= by
+                && mouseY < by + CONFIRM_H;
 
         if (!canConfirm) {
             g.fill(bx, by, bx + CONFIRM_W, by + CONFIRM_H, 0xFF23170B);
             g.renderOutline(bx, by, CONFIRM_W, CONFIRM_H, COL_CONFIRM_OFF);
-            g.drawCenteredString(font, Component.translatable("vote.confirm"), bx + CONFIRM_W / 2, by + 8, COL_TEXT_MUTED);
+            g.drawCenteredString(font, Component.translatable("vote.confirm"), bx + CONFIRM_W / 2, by + 8,
+                    COL_TEXT_MUTED);
             return;
         }
 
@@ -607,12 +613,13 @@ public class VoteScreen extends Screen {
         }
 
         private void drawOptionText(GuiGraphics g, VoteOption option, int x, int y, int w, int h,
-                                    boolean selected, boolean hovered) {
+                boolean selected, boolean hovered) {
             boolean hasIcon = option instanceof VoteOption.ItemOption || option instanceof ClientPlayerOption;
             int voteReserve = ClientVoteCache.isShowResults() ? 38 : 0;
             int checkReserve = selected ? 18 : 0;
             int textColor = selected ? COL_TEXT_SELECTED : (hovered ? COL_TEXT_HOVER : COL_TEXT_NORMAL);
-            String display = clipText(option.display().getString(), w - (hasIcon ? 62 : 34) - voteReserve - checkReserve);
+            String display = clipText(option.display().getString(),
+                    w - (hasIcon ? 62 : 34) - voteReserve - checkReserve);
 
             if (hasIcon) {
                 g.drawString(font, display, x + 36, y + 7, textColor);

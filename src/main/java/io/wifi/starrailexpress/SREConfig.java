@@ -179,7 +179,7 @@ public class SREConfig implements ConfigData {
     public int safeTimeCooldown = 30;
     public int startingMoney = 100;
     // 杀手保底被动（降到 3/15秒，主要收入改由任务驱动，见 killerTaskIncome）
-    public int passiveMoneyAmount = 6;
+    public int passiveMoneyAmount = 5;
     public int passiveMoneyInterval = 15;
     // 任意平民/中立完成一个任务时，每个杀手获得的金币（任务驱动收入）
     public int killerTaskIncome = 5;

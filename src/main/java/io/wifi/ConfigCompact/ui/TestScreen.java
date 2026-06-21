@@ -19,7 +19,7 @@ public class TestScreen extends Screen {
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         context.drawCenteredString(font,
-                Component.translatable("Width: %s, Height: %s", width, height, mouseX, mouseY, delta), this.width / 2,
+                Component.translatable("Width: %s, Height: %s, MouseX: %s, MouseY: %s", width, height, mouseX, mouseY), this.width / 2,
                 20, java.awt.Color.WHITE.getRGB());
 
         context.drawCenteredString(font,
