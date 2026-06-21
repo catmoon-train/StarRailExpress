@@ -35,6 +35,15 @@ public class ReplayEventTypes {
         GRENADE_THROWN,
         CHANGE_ROLE,
         PLAYER_REVIVAL,
+        // ===== 新增的低频关键事件 =====
+        SKILL_RELEASE, // 释放技能（独立于普通物品使用）
+        BOMB_DEFUSE, // 拆除炸弹/C4 成功
+        BOMB_DETONATE, // 炸弹引爆/C4
+        DISGUISE, // 玩家伪装
+        TRAP_TRIGGERED, // 踩中设陷师的陷阱
+        DOOR_PRY, // 撬开门（撬棍）
+        DOOR_SEAL, // 上锁门（锁具）
+        ROPE_PULL, // 绳索命中并拉回目标
         /* 用于自定义事件 */ CUSTOM_EVENT
     }
 

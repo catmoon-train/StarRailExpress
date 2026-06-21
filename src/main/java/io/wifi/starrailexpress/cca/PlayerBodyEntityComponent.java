@@ -32,6 +32,7 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
     public PlayerBodyEntity playerBodyEntity;
 
     private UUID killer;
+    private UUID conspiratorEvidence;
     private String deathReason = "";
     // 容器大小54（6行），支持DAY_NIGHT_FIGHT模式，仅允许0-53槽放置物品
     private final PlayerBodyEntityContainer corpseInventory = new PlayerBodyEntityContainer(54);
@@ -56,6 +57,21 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
 
     public void setKillerUuid(UUID uuid, boolean sync) {
         this.killer = uuid;
+        if (sync && !playerBodyEntity.level().isClientSide) {
+            sync();
+        }
+    }
+
+    public UUID getConspiratorEvidenceUuid() {
+        return conspiratorEvidence;
+    }
+
+    public void setConspiratorEvidenceUuid(UUID uuid) {
+        setConspiratorEvidenceUuid(uuid, true);
+    }
+
+    public void setConspiratorEvidenceUuid(UUID uuid, boolean sync) {
+        this.conspiratorEvidence = uuid;
         if (sync && !playerBodyEntity.level().isClientSide) {
             sync();
         }
@@ -93,6 +109,7 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
         this.vultured = false;
         this.isFakeBody = false;
         this.killer = null;
+        this.conspiratorEvidence = null;
         this.deathReason = "";
         for (int i = 0; i < 54; i++) {
             corpseInventory.setItem(i, ItemStack.EMPTY);
@@ -120,6 +137,9 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
         tag.putBoolean("isFakeBody", isFakeBody);
         if (killer != null) {
             tag.putUUID("Killer", killer);
+        }
+        if (conspiratorEvidence != null) {
+            tag.putUUID("ConspiratorEvidence", conspiratorEvidence);
         }
         tag.putString("DeathReason", deathReason);
 
@@ -161,6 +181,11 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
         } else {
             killer = null;
         }
+        if (tag.hasUUID("ConspiratorEvidence")) {
+            conspiratorEvidence = tag.getUUID("ConspiratorEvidence");
+        } else {
+            conspiratorEvidence = null;
+        }
         deathReason = tag.getString("DeathReason");
 
         // 清空并加载物品
@@ -200,6 +225,9 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
         if (killer != null) {
             tag.putUUID("Killer", killer);
         }
+        if (conspiratorEvidence != null) {
+            tag.putUUID("ConspiratorEvidence", conspiratorEvidence);
+        }
         tag.putString("DeathReason", deathReason);
     }
 
@@ -214,6 +242,11 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
             killer = tag.getUUID("Killer");
         } else {
             killer = null;
+        }
+        if (tag.hasUUID("ConspiratorEvidence")) {
+            conspiratorEvidence = tag.getUUID("ConspiratorEvidence");
+        } else {
+            conspiratorEvidence = null;
         }
         deathReason = tag.getString("DeathReason");
     }

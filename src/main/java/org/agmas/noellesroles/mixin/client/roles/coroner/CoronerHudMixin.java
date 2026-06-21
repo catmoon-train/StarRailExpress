@@ -236,6 +236,20 @@ public abstract class CoronerHudMixin {
                             .withColor(CommonColors.RED);
                     context.drawString(renderer, roleInfo, -renderer.width(roleInfo) / 2, 64, CommonColors.WHITE);
                 }
+                UUID conspiratorEvidenceId = bodyDeathReasonComponent.getConspiratorEvidenceUuid();
+                if (conspiratorEvidenceId != null && !bodyDeathReasonComponent.vultured && !hasPenalty) {
+                    var conspiratorName = Component.translatable("sre.general.unknown");
+                    var playerInfo = ClientSkinCache.getCachedPlayerInfo(conspiratorEvidenceId);
+                    if (playerInfo != null) {
+                        conspiratorName = Component.literal(playerInfo.getProfile().getName());
+                    }
+                    int evidenceY = (SREClient.isPlayerSpectatingOrCreative() || selfrole.canSeeBodyKiller()) ? 80 : 64;
+                    Component evidenceInfo = Component
+                            .translatable("hud.coroner.body.conspirator_evidence", conspiratorName)
+                            .withColor(ModRoles.CONSPIRATOR.color());
+                    context.drawString(renderer, evidenceInfo, -renderer.width(evidenceInfo) / 2, evidenceY,
+                            CommonColors.WHITE);
+                }
                 if (SREClient.isRole(ModRoles.VULTURE)) {
                     if (bodyDeathReasonComponent.vultured) {
                         Component roleInfo = Component.translatable("hud.vulture.already_consumed")

@@ -465,6 +465,9 @@ public final class C4Detonation {
                 && hasExplosionLineOfSight(level, blastCenter, p))
             .toList();
         for (ServerPlayer victim : victims) {
+            // 记录炸弹引爆事件（低频关键事件）
+            io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordBombDetonate(
+                attacker != null ? attacker.getUUID() : null, victim.getUUID());
             GameUtils.killPlayer(victim, true,
                 attacker instanceof Player p ? p : null,
                 Noellesroles.id("c4_explosion"));

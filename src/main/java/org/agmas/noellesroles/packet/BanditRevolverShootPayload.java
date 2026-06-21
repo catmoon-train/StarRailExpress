@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.original.GunDropPayload;
 import io.wifi.starrailexpress.network.original.ShootMuzzleS2CPayload;
+import io.wifi.starrailexpress.util.BrokenGunDropUtils;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -65,9 +66,9 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                         SREGameWorldComponent game = (SREGameWorldComponent) SREGameWorldComponent.KEY
                                 .get(player.level());
                         boolean backfire = false;
+                        boolean shouldDrop = false;
                         if (game.isInnocent(target) && !player.isCreative()) {
                             // \
-                            boolean shouldDrop = false;
                             if (game.isRole(player, ModRoles.BANDIT)) {
                                 shouldDrop = player.getRandom().nextInt(0, 100) <= 80;
                             } else {
@@ -77,19 +78,25 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                                     shouldDrop = player.getRandom().nextFloat() <= 0.2F;
                                 }
                             }
-                            if (shouldDrop) {
-                                {
-                                    if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
-                                        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                                        ItemEntity item = player.drop(TMMItems.REVOLVER.getDefaultInstance(), false,
-                                                false);
-                                        if (item != null) {
+                        }
+                        boolean shouldDropBrokenKillerGun = BrokenGunDropUtils.shouldBreakKillerGunOnGunKill(game,
+                                player, target, mainHandStack);
+                        if (shouldDrop || shouldDropBrokenKillerGun) {
+                            {
+                                if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
+                                    player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                                    ItemEntity item = shouldDropBrokenKillerGun
+                                            ? BrokenGunDropUtils.dropBrokenGun(player, false)
+                                            : player.drop(TMMItems.REVOLVER.getDefaultInstance(), false,
+                                                    false);
+                                    if (item != null) {
+                                        if (!shouldDropBrokenKillerGun) {
                                             item.setPickUpDelay(10);
-                                            item.setThrower(player);
                                         }
-
-                                        ServerPlayNetworking.send(player, new GunDropPayload());
+                                        item.setThrower(player);
                                     }
+
+                                    ServerPlayNetworking.send(player, new GunDropPayload());
                                 }
                             }
                         }

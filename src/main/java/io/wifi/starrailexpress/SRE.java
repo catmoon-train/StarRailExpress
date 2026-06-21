@@ -314,6 +314,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
             MoneyCommand.register(dispatcher);
             CustomReplayEventCommand.register(dispatcher, registryAccess);
             ReplayScreenCommand.register(dispatcher);
+            net.exmo.sre.record.MatchRecordCommand.register(dispatcher);
             SetAutoTrainResetCommand.register(dispatcher);
             SetBoundCommand.register(dispatcher);
             AutoStartCommand.register(dispatcher);
@@ -545,6 +546,16 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         // 职业轮选数据包
         PayloadTypeRegistry.playC2S().register(RoleRotationSelectC2SPacket.TYPE, RoleRotationSelectC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(RoleRotationSyncS2CPacket.TYPE, RoleRotationSyncS2CPacket.CODEC);
+
+        // 全局战绩 / 回放查询数据包
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.record.network.RecordListRequestC2SPayload.ID,
+                net.exmo.sre.record.network.RecordListRequestC2SPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.record.network.RecordListS2CPayload.ID,
+                net.exmo.sre.record.network.RecordListS2CPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.record.network.RecordReplayRequestC2SPayload.ID,
+                net.exmo.sre.record.network.RecordReplayRequestC2SPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.record.network.RecordReplayS2CPayload.ID,
+                net.exmo.sre.record.network.RecordReplayS2CPayload.CODEC);
     }
 
     private void registerGlobalReceivers() {
@@ -558,6 +569,13 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         });
         ServerPlayNetworking.registerGlobalReceiver(KnifeStabPayload.ID, new KnifeStabPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(ModVersionPacket.ID, new ModVersionPacket.Receiver());
+        // 全局战绩 / 回放查询请求
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.record.network.RecordListRequestC2SPayload.ID,
+                (payload, context) -> net.exmo.sre.record.MatchRecordService.openListFor(context.player(),
+                        payload.limit()));
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.record.network.RecordReplayRequestC2SPayload.ID,
+                (payload, context) -> net.exmo.sre.record.MatchRecordService.openReplayFor(context.player(),
+                        payload.matchId()));
         ServerPlayNetworking.registerGlobalReceiver(GunShootPayload.ID, new GunShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(SniperShootPayload.TYPE, new SniperShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(StoreBuyPayload.ID, new StoreBuyPayload.Receiver());

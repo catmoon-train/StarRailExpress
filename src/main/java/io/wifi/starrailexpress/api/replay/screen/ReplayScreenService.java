@@ -26,8 +26,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 public final class ReplayScreenService {
-    private static final int LINE_PAUSE_TICKS = 2;
-    private static final int SCROLL_TICKS = 8;
+    /** 回放屏幕一次最多纳入的内容行数（让视口能滚过完整时间线）。 */
+    private static final int SCREEN_MAX_REPLAY_LINES = 500;
+    /** 开始向下滚动前的停顿 tick 数（先让玩家看到开头）。 */
+    private static final int INITIAL_HOLD_TICKS = 20;
+    /** 滚到底部后保持静止的 tick 数，随后结束动画（最后画面保留在屏幕上）。 */
+    private static final int FINISH_HOLD_TICKS = 60;
+    /** 每 tick 视口向下移动的行数（约每行 1 秒，便于阅读）。 */
+    private static final double SCROLL_SPEED_ROWS_PER_TICK = 0.05D;
     private static final float DISPLAY_VIEW_RANGE = 0.6F;
     private static final double TEXT_OFFSET = 0.58D;
     private static final String NAME_PREFIX = "SRE Replay Screen:";
@@ -77,7 +83,8 @@ public final class ReplayScreenService {
         }
         buildBackground(level, entry);
         clearTextDisplay(level, entry);
-        List<Component> lines = manager.generateScreenReplayLines(Math.max(6, entry.height() - 2));
+        // 取完整时间线（不再按屏高截断），让视口能从头滚到尾
+        List<Component> lines = manager.generateScreenReplayLines(SCREEN_MAX_REPLAY_LINES);
         ScrollAnimation animation = new ScrollAnimation(entry, lines);
         ACTIVE_ANIMATIONS.put(animationKey(level, entry.id()), animation);
         animation.tick(level);
@@ -240,91 +247,81 @@ public final class ReplayScreenService {
         return Math.max(2, entry.height() - 1);
     }
 
+    /**
+     * 回放屏幕滚动动画：视口从顶部开始，随时间向下滚过完整事件时间线，
+     * 直到最后一条内容落到屏幕底部后停止（画面保留，不循环、不移出）。
+     */
     private static final class ScrollAnimation {
         private final ReplayScreenSavedData.ReplayScreenEntry screen;
         private final List<Component> lines;
-        private final List<Display.TextDisplay> displays = new ArrayList<>();
-        private int nextLine;
-        private int idleTicks;
-        private int pauseTicks;
-        private int scrollTicks;
-        private boolean scrolling;
-        private double yOffset;
+        // 行号 -> 当前活动的文本展示实体（仅维护视口内的少量实体）
+        private final Map<Integer, Display.TextDisplay> active = new HashMap<>();
+        private double scroll;
+        private int initialHold = INITIAL_HOLD_TICKS;
+        private int finishHold;
+        private boolean reachedBottom;
 
         private ScrollAnimation(ReplayScreenSavedData.ReplayScreenEntry screen, List<Component> lines) {
             this.screen = screen;
             this.lines = lines;
         }
 
+        private double maxScroll(int visibleRows) {
+            return Math.max(0.0D, lines.size() - (double) visibleRows);
+        }
+
         private void tick(ServerLevel level) {
-            displays.removeIf(display -> display == null || !display.isAlive());
-            int maxRows = visibleRows(screen);
-            if (scrolling) {
-                scrollTicks++;
-                yOffset = Math.min(1.0D, scrollTicks / (double) SCROLL_TICKS);
-                updatePositions(maxRows);
-                if (yOffset >= 1.0D) {
-                    finishScroll();
-                    pauseTicks = LINE_PAUSE_TICKS;
+            int visibleRows = visibleRows(screen);
+            double maxScroll = maxScroll(visibleRows);
+            if (initialHold > 0) {
+                initialHold--;
+            } else if (scroll < maxScroll) {
+                scroll = Math.min(maxScroll, scroll + SCROLL_SPEED_ROWS_PER_TICK);
+                if (scroll >= maxScroll) {
+                    reachedBottom = true;
                 }
-                idleTicks = 0;
-                return;
-            }
-            if (nextLine < lines.size()) {
-                if (pauseTicks > 0) {
-                    pauseTicks--;
-                    return;
-                }
-                if (displays.size() < maxRows) {
-                    addLineInstant(level, lines.get(nextLine++), maxRows);
-                    pauseTicks = LINE_PAUSE_TICKS;
-                } else {
-                    startScroll(level, lines.get(nextLine++), maxRows);
-                }
-                idleTicks = 0;
             } else {
-                idleTicks++;
+                reachedBottom = true;
+                finishHold++;
             }
+            render(level, visibleRows);
         }
 
-        private void addLineInstant(ServerLevel level, Component line, int maxRows) {
-            Display.TextDisplay display = spawnLine(level, screen, line, displays.size(), maxRows);
-            displays.add(display);
-            updatePositions(maxRows);
-            ReplayScreenSavedData.get(level).updateLastTextDisplay(screen.id(), display.getUUID());
-        }
-
-        private void startScroll(ServerLevel level, Component line, int maxRows) {
-            Display.TextDisplay display = spawnLine(level, screen, line, maxRows, maxRows);
-            displays.add(display);
-            yOffset = 0.0D;
-            scrollTicks = 0;
-            scrolling = true;
-            updatePositions(maxRows);
-            ReplayScreenSavedData.get(level).updateLastTextDisplay(screen.id(), display.getUUID());
-        }
-
-        private void finishScroll() {
-            if (displays.size() > visibleRows(screen)) {
-                Display.TextDisplay oldest = displays.remove(0);
-                if (oldest != null) {
-                    oldest.discard();
+        private void render(ServerLevel level, int visibleRows) {
+            int lo = Math.max(0, (int) Math.floor(scroll));
+            int hi = Math.min(lines.size() - 1, lo + visibleRows);
+            // 回收离开视口（或已失效）的展示实体
+            Iterator<Map.Entry<Integer, Display.TextDisplay>> iterator = active.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<Integer, Display.TextDisplay> entry = iterator.next();
+                int index = entry.getKey();
+                Display.TextDisplay display = entry.getValue();
+                if (index < lo || index > hi || display == null || !display.isAlive()) {
+                    if (display != null && display.isAlive()) {
+                        display.discard();
+                    }
+                    iterator.remove();
                 }
             }
-            yOffset = 0.0D;
-            scrollTicks = 0;
-            scrolling = false;
-            updatePositions(visibleRows(screen));
-        }
-
-        private void updatePositions(int maxRows) {
-            for (int i = 0; i < displays.size(); i++) {
-                positionLine(displays.get(i), screen, i - yOffset, maxRows);
+            // 生成 / 更新视口内的展示实体
+            for (int index = lo; index <= hi; index++) {
+                if (index < 0 || index >= lines.size()) {
+                    continue;
+                }
+                double row = index - scroll;
+                Display.TextDisplay display = active.get(index);
+                if (display == null || !display.isAlive()) {
+                    display = spawnLine(level, screen, lines.get(index), row, visibleRows);
+                    active.put(index, display);
+                    ReplayScreenSavedData.get(level).updateLastTextDisplay(screen.id(), display.getUUID());
+                } else {
+                    positionLine(display, screen, row, visibleRows);
+                }
             }
         }
 
         private boolean isDone() {
-            return nextLine >= lines.size() && !scrolling && idleTicks > LINE_PAUSE_TICKS;
+            return reachedBottom && finishHold > FINISH_HOLD_TICKS;
         }
     }
 

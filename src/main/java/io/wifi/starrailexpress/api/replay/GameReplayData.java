@@ -305,6 +305,30 @@ public class GameReplayData {
             case PLAYER_REVIVAL -> {
                 yield Component.translatable("sre.replay.event.player_revival", sourceName, Role_1);
             }
+            // ===== 新增低频关键事件 =====
+            case SKILL_RELEASE -> Component.translatable("sre.replay.event.skill_release", sourceName, itemUsedText);
+            case BOMB_DEFUSE -> {
+                if (targetPlayer != null) {
+                    yield Component.translatable("sre.replay.event.bomb_defuse", sourceName, targetName);
+                }
+                yield Component.translatable("sre.replay.event.bomb_defuse_block", sourceName);
+            }
+            case BOMB_DETONATE -> {
+                if (sourcePlayer != null) {
+                    yield Component.translatable("sre.replay.event.bomb_detonate", sourceName, targetName);
+                }
+                yield Component.translatable("sre.replay.event.bomb_detonate_no_source", targetName);
+            }
+            case DISGUISE -> Component.translatable("sre.replay.event.disguise", sourceName);
+            case TRAP_TRIGGERED -> {
+                if (sourcePlayer != null) {
+                    yield Component.translatable("sre.replay.event.trap_triggered", targetName, sourceName);
+                }
+                yield Component.translatable("sre.replay.event.trap_triggered_no_owner", targetName);
+            }
+            case DOOR_PRY -> Component.translatable("sre.replay.event.door_pry", sourceName);
+            case DOOR_SEAL -> Component.translatable("sre.replay.event.door_seal", sourceName);
+            case ROPE_PULL -> Component.translatable("sre.replay.event.rope_pull", sourceName, targetName);
             // 次要事件
 
             /*
@@ -376,7 +400,16 @@ public class GameReplayData {
         ITEM_USED,
         PSYCHO_STATE_CHANGE,
         BLACKOUT_START,
-        BLACKOUT_END, CHANGE_ROLE, PLAYER_REVIVAL
+        BLACKOUT_END, CHANGE_ROLE, PLAYER_REVIVAL,
+        // ===== 新增低频关键事件 =====
+        SKILL_RELEASE,
+        BOMB_DEFUSE,
+        BOMB_DETONATE,
+        DISGUISE,
+        TRAP_TRIGGERED,
+        DOOR_PRY,
+        DOOR_SEAL,
+        ROPE_PULL
     }
 
     public static class ReplayEvent {

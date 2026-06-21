@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.item.DisguiseEffectSync;
 import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -73,6 +74,9 @@ public class RoleNameRenderer {
         // 鹈鹕肚内玩家不能通过准星查看玩家身份
         if (PelicanManager.isStashed(player))
             return;
+        if (DisguiseEffectSync.HAD_DISGUISE.getOrDefault(player.getUUID(), false)){
+            return;
+        }
         Component nametag = Component.empty();
         final Component[] note = new Component[] { Component.empty(), Component.empty(), Component.empty(),
                 Component.empty() };

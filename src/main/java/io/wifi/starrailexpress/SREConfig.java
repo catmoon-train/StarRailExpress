@@ -110,7 +110,7 @@ public class SREConfig implements ConfigData {
     public int bodyBagPrice = 100;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public int blackoutPrice = 140;
+    public int blackoutPrice = 190;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public int monitorBrokenPrice = 60;
@@ -120,6 +120,12 @@ public class SREConfig implements ConfigData {
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public int notePrice = 10;
+    @ConfigSync(shouldSync = true)
+    @ConfigEntry.Category(value = "shop")
+    public int sheriffBulletPrice = 60;
+    @ConfigSync(shouldSync = true)
+    @ConfigEntry.Category(value = "shop")
+    public int sheriffBulletMaxCarry = 4;
 
     // 物品冷却时间配置（秒）- 服务端只读
 
@@ -149,6 +155,10 @@ public class SREConfig implements ConfigData {
     public int monitorBrokenCooldown = 180;
     @ConfigEntry.Category(value = "cooldowns")
     public int monitorBrokenCooldownGlobal = 40;
+    @ConfigEntry.Category(value = "cooldowns")
+    public int psychoGlobalCooldown = 20;
+    @ConfigEntry.Category(value = "cooldowns")
+    public int sheriffRevolverReloadCooldown = 15;
     // 游戏配置 - 服务端只读
 
     // 双重人格配置
@@ -191,6 +201,15 @@ public class SREConfig implements ConfigData {
     public boolean verboseTrainResetLogs = true;
     public boolean logGameEvent = true;
     public boolean savePlayerBodyItems = true;
+
+    @ConfigEntry.Category(value = "items")
+    public boolean enableBrokenGunDropWhenKillerKillsGunHolder = false;
+    @ConfigEntry.Category(value = "items")
+    public int brokenGunDropChanceWhenKillerKillsGunHolder = 60;
+    @ConfigEntry.Category(value = "items")
+    public boolean enableBrokenGunDropWhenKillerShootsPlayer = true;
+    @ConfigEntry.Category(value = "items")
+    public int brokenGunDropChanceWhenKillerShootsPlayer = 60;
     
     @ConfigSync(shouldSync = true)
     public boolean disablePlayerMountain = true;

@@ -88,10 +88,9 @@ public class RopeItem extends Item implements AdventureUsable {
         }
 
         if (!world.isClientSide) {
-            // 记录物品使用
+            // 记录绳索拉回事件（低频关键事件），替代通用物品使用记录以避免重复刷屏
             if (SRE.REPLAY_MANAGER != null) {
-                SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
-                        BuiltInRegistries.ITEM.getKey(this));
+                SRE.REPLAY_MANAGER.recordRopePull(player.getUUID(), target.getUUID());
             }
 
             // 成功拉取后，非创造模式恢复为原有的5秒冷却并消耗耐久

@@ -40,7 +40,7 @@ public final class DisguiseEffectSync {
     private static final int SYNC_DURATION = 40;
 
     /** 记录上一次已广播伪装效果的玩家，便于在效果消失时下发移除包。 */
-    private static final Map<UUID, Boolean> HAD_DISGUISE = new HashMap<>();
+    public static final Map<UUID, Boolean> HAD_DISGUISE = new HashMap<>();
 
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register(DisguiseEffectSync::onServerTick);

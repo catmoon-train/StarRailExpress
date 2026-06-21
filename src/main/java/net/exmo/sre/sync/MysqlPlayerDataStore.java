@@ -107,6 +107,21 @@ public final class MysqlPlayerDataStore {
         return dataSource != null;
     }
 
+    /**
+     * 暴露共享的 HikariCP 连接池，供同包下的其它远端存储（如全局战绩 {@code MatchRecordStore}）复用，
+     * 避免重复创建连接池与重复读取配置。未初始化时返回 {@code null}。
+     */
+    public static HikariDataSource getDataSource() {
+        return dataSource;
+    }
+
+    /**
+     * 返回经过校验的表前缀（与玩家同步表使用同一前缀），供其它远端表命名复用。
+     */
+    public static String tablePrefix() {
+        return sanitizeTablePrefix(SREConfig.instance().mysqlSyncTablePrefix);
+    }
+
     public static CompletableFuture<Map<String, SyncRecord>> loadBatchAsync(UUID playerUuid,
             Collection<String> dataKeys) {
         List<String> normalizedKeys = normalizeKeys(dataKeys);

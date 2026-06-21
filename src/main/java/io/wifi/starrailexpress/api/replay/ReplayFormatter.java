@@ -35,13 +35,17 @@ public final class ReplayFormatter {
             lines.add(Component.translatable("sre.replay.winning_team", replayData.getWinningTitle())
                     .withStyle(ChatFormatting.WHITE));
         }
-        lines.add(Component.literal("---").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.literal("━━━━━━━━━━━━━━━").withStyle(ChatFormatting.DARK_GRAY));
 
         int limit = maxLines <= 0 ? DEFAULT_SCREEN_MAX_LINES : maxLines;
         int shown = 0;
         int hiddenByLimit = 0;
         for (ReplayTimelineEvent event : events) {
             if (event.hidden()) {
+                continue;
+            }
+            // 回放屏幕不展示商店购买（Store Buy）事件
+            if (event.type() == ReplayEventTypes.EventType.STORE_BUY) {
                 continue;
             }
             if (shown >= limit) {

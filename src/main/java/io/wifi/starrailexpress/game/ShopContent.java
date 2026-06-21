@@ -1,10 +1,12 @@
 package io.wifi.starrailexpress.game;
 
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import org.agmas.noellesroles.init.ModItems;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +34,26 @@ public class ShopContent {
             defaultKnifeEntries.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
                     SREConfig.instance().psychoModePrice, ShopEntry.Type.WEAPON) {
                 @Override
+                public boolean canBuy(@NotNull Player player) {
+                    if (player.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
+                        return false;
+                    }
+                    return super.canBuy(player);
+                }
+
+                @Override
                 public boolean onBuy(@NotNull Player player) {
+                    if (player.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
+                        return false;
+                    }
+                    player.level().players().forEach(
+                            player1 -> {
+                                if (!player1.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
+                                    player1.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE,
+                                            SREConfig.instance().psychoGlobalCooldown);
+                                }
+                            }
+                    );
                     return SREPlayerShopComponent.usePsychoMode(player);
                 }
             });
@@ -72,14 +93,38 @@ public class ShopContent {
     public static Map<ResourceLocation, List<ShopEntry>> customEntries = new HashMap<>();
 
     public static List<ShopEntry> getShopEntries(ResourceLocation role) {
-        final var shopEntries = TMMRoles.ROLES.get(role).getShopEntries();
-        if (shopEntries != null && !shopEntries.isEmpty()) {
-            return shopEntries;
-        }
-        if (customEntries.containsKey(role)) {
-            return customEntries.get(role);
+        SRERole sreRole = TMMRoles.ROLES.get(role);
+        if (sreRole == null) {
+            return List.of();
         }
 
-        return List.of();
+        final var shopEntries = sreRole.getShopEntries();
+        List<ShopEntry> result;
+        if (shopEntries != null && !shopEntries.isEmpty()) {
+            result = shopEntries;
+        } else if (customEntries.containsKey(role)) {
+            result = customEntries.get(role);
+        } else {
+            result = List.of();
+        }
+
+        if (!sreRole.isVigilanteTeam()) {
+            return result;
+        }
+
+        ArrayList<ShopEntry> vigilanteEntries = new ArrayList<>(result);
+        vigilanteEntries.add(createSheriffBulletEntry());
+        return vigilanteEntries;
+    }
+
+    private static ShopEntry createSheriffBulletEntry() {
+        return new ShopEntry(ModItems.BULLET.getDefaultInstance(), SREConfig.instance().sheriffBulletPrice,
+                ShopEntry.Type.WEAPON) {
+            @Override
+            public boolean canBuy(@NotNull Player player) {
+                int maxCarry = Math.max(0, SREConfig.instance().sheriffBulletMaxCarry);
+                return super.canBuy(player) && SREItemUtils.countItem(player, ModItems.BULLET) < maxCarry;
+            }
+        };
     }
 }

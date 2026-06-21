@@ -45,6 +45,14 @@ public class HudMoodRenderer {
     // 预计算的颜色常量
     private static final int KILLER_BAR_COLOR = Mth.hsvToRgb(0F, 1.0F, 0.6F);
     private static final int PSYCHO_COLOR = Mth.hsvToRgb(0F, 1.0F, 0.5F);
+    private static final int MINIGAME_GOLD = 0xFFFFD36A;
+    private static final int MINIGAME_TEXT_SOFT = 0xFFFFE6A3;
+    private static final int MINIGAME_TRACK = 0x66FFD36A;
+    private static final int MINIGAME_NOTICE_DURATION = 70;
+    private static int lastMinigamePending = -1;
+    private static int lastMinigameTokens = -1;
+    private static int minigameNoticeTicks = 0;
+    private static Component minigameNoticeText = Component.empty();
     
     public static Random random = new Random();
     public static float arrowProgress = 1f;
@@ -122,12 +130,12 @@ public class HudMoodRenderer {
         // 小游戏任务计数（金色），渲染在普通任务列表下方。
         // 代币（货币）改到金币显示旁边渲染，见 HudStoreRenderer / StoreRenderer。
         SREPlayerMinigameTaskComponent minigameTask = SREPlayerMinigameTaskComponent.KEY.get(player);
-        if (minigameTask != null && minigameTask.hasPendingTask()) {
-            final int gold = 0xFFFFD700;
-            int lineY = 6 + 10 * renderers.size() + 4;
-            context.drawString(textRenderer,
-                    Component.translatable("hud.sre.minigame_task_count", minigameTask.getPendingMinigameTasks()),
-                    22, lineY, gold, false);
+        if (minigameTask != null) {
+            tickMinigameNotice(minigameTask);
+            if (minigameTask.hasPendingTask() || minigameNoticeTicks > 0) {
+                int lineY = 6 + 10 * renderers.size() + 4;
+                renderMinigameTaskHud(textRenderer, context, minigameTask, lineY);
+            }
         }
 
         SRERole role = gameWorldComponent.getRole(player);
@@ -139,6 +147,62 @@ public class HudMoodRenderer {
             }
         }
         arrowProgress = Mth.lerp(delta / 8, arrowProgress, 0f);
+    }
+
+    private static void tickMinigameNotice(SREPlayerMinigameTaskComponent minigameTask) {
+        int pending = minigameTask.getPendingMinigameTasks();
+        int tokens = minigameTask.getTokens();
+
+        if (lastMinigamePending < 0 || lastMinigameTokens < 0) {
+            lastMinigamePending = pending;
+            lastMinigameTokens = tokens;
+            return;
+        }
+
+        if (pending > lastMinigamePending) {
+            minigameNoticeText = Component.translatable("subtitle.minigame_task.new");
+            minigameNoticeTicks = MINIGAME_NOTICE_DURATION;
+        } else if (tokens > lastMinigameTokens) {
+            minigameNoticeText = Component.translatable("subtitle.minigame_task.done", tokens - lastMinigameTokens);
+            minigameNoticeTicks = MINIGAME_NOTICE_DURATION;
+        }
+
+        lastMinigamePending = pending;
+        lastMinigameTokens = tokens;
+        if (minigameNoticeTicks > 0) {
+            minigameNoticeTicks--;
+        }
+    }
+
+    private static void renderMinigameTaskHud(Font textRenderer, FakeGuiGraphics context,
+            SREPlayerMinigameTaskComponent minigameTask, int lineY) {
+        Component title = minigameTask.hasPendingTask()
+                ? Component.translatable("hud.sre.minigame_task_count", minigameTask.getPendingMinigameTasks())
+                : Component.translatable("hud.sre.minigame_task");
+        boolean hasNotice = minigameNoticeTicks > 0 && minigameNoticeText != null;
+        int titleWidth = textRenderer.width(title);
+        int noticeWidth = hasNotice ? textRenderer.width(minigameNoticeText) : 0;
+        int x = 22;
+        int y = lineY;
+
+        float noticeProgress = hasNotice ? minigameNoticeTicks / (float) MINIGAME_NOTICE_DURATION : 0f;
+        float pulse = hasNotice ? 0.5f + 0.5f * Mth.sin((MINIGAME_NOTICE_DURATION - minigameNoticeTicks) * 0.35f) : 0f;
+
+        int titleAlpha = hasNotice ? 0xFF : 0xDD;
+        context.drawString(textRenderer, title, x, y, (titleAlpha << 24) | (MINIGAME_GOLD & 0x00FFFFFF), false);
+
+        if (hasNotice) {
+            int noticeAlpha = (int) (Mth.clamp(noticeProgress * 1.8f, 0.0f, 1.0f) * (190 + 45 * pulse));
+            int noticeX = x + titleWidth + 8;
+            context.drawString(textRenderer, "·", x + titleWidth + 3, y, noticeAlpha << 24 | 0x00FFF2BF, false);
+            context.drawString(textRenderer, minigameNoticeText, noticeX, y,
+                    noticeAlpha << 24 | (MINIGAME_TEXT_SOFT & 0x00FFFFFF), false);
+        }
+
+        int trackWidth = Math.max(titleWidth, Math.min(titleWidth + 8 + noticeWidth, 174));
+        int trackAlpha = hasNotice ? (int) ((0.35f + 0.25f * pulse) * 255) : 0x33;
+        context.fill(x, y + textRenderer.lineHeight + 1, x + trackWidth, y + textRenderer.lineHeight + 2,
+                (trackAlpha << 24) | (MINIGAME_TRACK & 0x00FFFFFF));
     }
 
     private static void renderCivilian(@NotNull Font textRenderer, @NotNull FakeGuiGraphics context, float prevMood, int color, SRERole role) {

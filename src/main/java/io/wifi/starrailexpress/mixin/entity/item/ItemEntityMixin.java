@@ -9,9 +9,12 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
+import io.wifi.starrailexpress.util.BrokenGunDropUtils;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -21,8 +24,12 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 
@@ -39,6 +46,9 @@ public abstract class ItemEntityMixin {
 
     @WrapMethod(method = "playerTouch")
     public void tmm$preventGunPickup(Player player, Operation<Void> original) {
+        if (BrokenGunDropUtils.isBrokenGun(this.getItem())) {
+            return;
+        }
         int murderGoldAmount = MurderTimeEventComponent.getMurderGoldAmount(this.getItem());
         if (murderGoldAmount > 0) {
             if (!GameUtils.isGameRunning(player)) {
@@ -89,5 +99,33 @@ public abstract class ItemEntityMixin {
             }
             original.call(player);
         }
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void tmm$tickBrokenGunEffects(CallbackInfo ci) {
+        if (!BrokenGunDropUtils.isBrokenGun(this.getItem())) {
+            return;
+        }
+        ItemEntity item = (ItemEntity) (Object) this;
+        if (!(item.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        if (item.tickCount >= BrokenGunDropUtils.DESPAWN_TICKS) {
+            item.discard();
+            return;
+        }
+        if (item.tickCount % 5 == 0) {
+            tmm$spawnBrokenGunParticles(serverLevel, item);
+        }
+    }
+
+    @Unique
+    private void tmm$spawnBrokenGunParticles(ServerLevel level, ItemEntity item) {
+        level.sendParticles(ParticleTypes.SMOKE,
+                item.getX(), item.getY() + 0.15D, item.getZ(),
+                2, 0.08D, 0.05D, 0.08D, 0.01D);
+        level.sendParticles(ParticleTypes.CRIT,
+                item.getX(), item.getY() + 0.1D, item.getZ(),
+                1, 0.05D, 0.03D, 0.05D, 0.02D);
     }
 }

@@ -97,6 +97,15 @@ public class GameReplayManager implements IGameReplayRecorder {
       case PSYCHO_STATE_CHANGE -> ReplayEventTypes.EventType.PSYCHO_STATE_CHANGE;
       case BLACKOUT_START -> ReplayEventTypes.EventType.BLACKOUT_START;
       case BLACKOUT_END -> ReplayEventTypes.EventType.BLACKOUT_END;
+      // 新增低频关键事件
+      case SKILL_RELEASE -> ReplayEventTypes.EventType.SKILL_RELEASE;
+      case BOMB_DEFUSE -> ReplayEventTypes.EventType.BOMB_DEFUSE;
+      case BOMB_DETONATE -> ReplayEventTypes.EventType.BOMB_DETONATE;
+      case DISGUISE -> ReplayEventTypes.EventType.DISGUISE;
+      case TRAP_TRIGGERED -> ReplayEventTypes.EventType.TRAP_TRIGGERED;
+      case DOOR_PRY -> ReplayEventTypes.EventType.DOOR_PRY;
+      case DOOR_SEAL -> ReplayEventTypes.EventType.DOOR_SEAL;
+      case ROPE_PULL -> ReplayEventTypes.EventType.ROPE_PULL;
       // 默认映射
       case CUSTOM_MESSAGE -> ReplayEventTypes.EventType.CUSTOM_EVENT;
     };
@@ -139,12 +148,33 @@ public class GameReplayManager implements IGameReplayRecorder {
         yield new ReplayEventTypes.ItemUsedDetails(dataEvent.getSourcePlayer(),
             ResourceLocation.parse(itemUsed));
       }
-      case ITEM_USED -> {
+      case ITEM_USED, SKILL_RELEASE -> {
         String itemUsed = dataEvent.getItemUsed();
         if (itemUsed == null)
           itemUsed = "minecraft:air";
         yield new ReplayEventTypes.ItemUsedDetails(dataEvent.getSourcePlayer(),
             ResourceLocation.parse(itemUsed));
+      }
+      // 新增低频关键事件：来源 + 目标 + 物品（复用击杀详情承载）
+      case BOMB_DEFUSE, BOMB_DETONATE, TRAP_TRIGGERED, ROPE_PULL -> {
+        String itemUsed = dataEvent.getItemUsed();
+        if (itemUsed == null || itemUsed.isBlank())
+          itemUsed = "minecraft:air";
+        yield new ReplayEventTypes.PlayerKillDetails(dataEvent.getSourcePlayer(), dataEvent.getTargetPlayer(),
+            ResourceLocation.parse(itemUsed));
+      }
+      // 伪装：单个玩家
+      case DISGUISE -> new ReplayEventTypes.ArmorBreakDetails(dataEvent.getSourcePlayer());
+      // 撬门/上锁：玩家 + 门位置（编码于 itemUsed 中的 BlockPos long）
+      case DOOR_PRY, DOOR_SEAL -> {
+        String itemUsed = dataEvent.getItemUsed();
+        long packed = 0L;
+        try {
+          if (itemUsed != null && !itemUsed.isBlank())
+            packed = Long.parseLong(itemUsed);
+        } catch (NumberFormatException ignored) {
+        }
+        yield new ReplayEventTypes.DoorActionDetails(dataEvent.getSourcePlayer(), BlockPos.of(packed), true);
       }
       // 次要事件
       case LOCKPICK_ATTEMPT -> {
@@ -572,7 +602,65 @@ public class GameReplayManager implements IGameReplayRecorder {
 
   public void recordSkillUsed(UUID playerUuid, ResourceLocation skillUsed, boolean hidden) {
     String skillUsedStr = skillUsed != null ? skillUsed.toString() : "unknown";
-    addEvent(GameReplayData.EventType.SKILL_USED, playerUuid, null, skillUsedStr, null, hidden);
+    // 释放技能现为独立事件（SKILL_RELEASE），与普通物品使用区分显示
+    addEvent(GameReplayData.EventType.SKILL_RELEASE, playerUuid, null, skillUsedStr, null, hidden);
+  }
+
+  /** 拆除炸弹/C4 成功：defuser 拆掉了 carrier 身上的炸弹（carrier 可为 null 表示拆除地面/方块电荷）。 */
+  public void recordBombDefuse(UUID defuserUuid, UUID carrierUuid) {
+    recordBombDefuse(defuserUuid, carrierUuid, false);
+  }
+
+  public void recordBombDefuse(UUID defuserUuid, UUID carrierUuid, boolean hidden) {
+    addEvent(GameReplayData.EventType.BOMB_DEFUSE, defuserUuid, carrierUuid, "minecraft:air", null, hidden);
+  }
+
+  /** 炸弹引爆/C4：sourceUuid 引爆（可为 null），victimUuid 被炸飞。 */
+  public void recordBombDetonate(UUID sourceUuid, UUID victimUuid) {
+    recordBombDetonate(sourceUuid, victimUuid, false);
+  }
+
+  public void recordBombDetonate(UUID sourceUuid, UUID victimUuid, boolean hidden) {
+    addEvent(GameReplayData.EventType.BOMB_DETONATE, sourceUuid, victimUuid, "minecraft:air", null, hidden);
+  }
+
+  /** 玩家伪装：playerUuid 乔装改扮。 */
+  public void recordDisguise(UUID playerUuid) {
+    recordDisguise(playerUuid, false);
+  }
+
+  public void recordDisguise(UUID playerUuid, boolean hidden) {
+    addEvent(GameReplayData.EventType.DISGUISE, playerUuid, null, "", null, hidden);
+  }
+
+  /** 触发陷阱：victimUuid 踩中了 trapperUuid（设陷者，可为 null）布下的陷阱。 */
+  public void recordTrapTriggered(UUID trapperUuid, UUID victimUuid) {
+    recordTrapTriggered(trapperUuid, victimUuid, false);
+  }
+
+  public void recordTrapTriggered(UUID trapperUuid, UUID victimUuid, boolean hidden) {
+    addEvent(GameReplayData.EventType.TRAP_TRIGGERED, trapperUuid, victimUuid, "minecraft:air", null, hidden);
+  }
+
+  /** 撬门：playerUuid 用撬棍撬开了 pos 处的门。 */
+  public void recordDoorPry(UUID playerUuid, BlockPos pos) {
+    String packed = pos != null ? String.valueOf(pos.asLong()) : "0";
+    addEvent(GameReplayData.EventType.DOOR_PRY, playerUuid, null, packed, null, false);
+  }
+
+  /** 上锁：playerUuid 用锁具封锁了 pos 处的门。 */
+  public void recordDoorSeal(UUID playerUuid, BlockPos pos) {
+    String packed = pos != null ? String.valueOf(pos.asLong()) : "0";
+    addEvent(GameReplayData.EventType.DOOR_SEAL, playerUuid, null, packed, null, false);
+  }
+
+  /** 绳索拉回：roperUuid 用绳索命中并拽回了 pulledUuid。 */
+  public void recordRopePull(UUID roperUuid, UUID pulledUuid) {
+    recordRopePull(roperUuid, pulledUuid, false);
+  }
+
+  public void recordRopePull(UUID roperUuid, UUID pulledUuid, boolean hidden) {
+    addEvent(GameReplayData.EventType.ROPE_PULL, roperUuid, pulledUuid, "minecraft:air", null, hidden);
   }
 
   public void setPlayerCount(int count) {
@@ -712,6 +800,14 @@ public class GameReplayManager implements IGameReplayRecorder {
       case CHANGE_ROLE -> GameReplayData.EventType.CHANGE_ROLE;
       case PLAYER_REVIVAL -> GameReplayData.EventType.PLAYER_REVIVAL;
       case ARMOR_BREAK -> GameReplayData.EventType.ARMOR_BREAK;
+      case SKILL_RELEASE -> GameReplayData.EventType.SKILL_RELEASE;
+      case BOMB_DEFUSE -> GameReplayData.EventType.BOMB_DEFUSE;
+      case BOMB_DETONATE -> GameReplayData.EventType.BOMB_DETONATE;
+      case DISGUISE -> GameReplayData.EventType.DISGUISE;
+      case TRAP_TRIGGERED -> GameReplayData.EventType.TRAP_TRIGGERED;
+      case DOOR_PRY -> GameReplayData.EventType.DOOR_PRY;
+      case DOOR_SEAL -> GameReplayData.EventType.DOOR_SEAL;
+      case ROPE_PULL -> GameReplayData.EventType.ROPE_PULL;
       case CUSTOM_EVENT -> GameReplayData.EventType.CUSTOM_MESSAGE;
     };
   }
@@ -811,7 +907,7 @@ public class GameReplayManager implements IGameReplayRecorder {
     text.append(Component.translatable("sre.replay.player_count", playerCount != null ? playerCount : 0)
         .withStyle(ChatFormatting.WHITE)).append("\n");
 
-    text.append(Component.literal("---").withStyle(ChatFormatting.GRAY)).append("\n");
+    text.append(Component.literal("━━━━━━━━━━━━━━━").withStyle(ChatFormatting.DARK_GRAY)).append("\n");
 
     Map<UUID, String> playerRoles = replayData.getPlayerRoles();
     if (playerRoles != null && !playerRoles.isEmpty()) {
@@ -864,7 +960,7 @@ public class GameReplayManager implements IGameReplayRecorder {
 
       // 显示平民
       if (!aliveCivilians.isEmpty() || !deadCivilians.isEmpty()) {
-        text.append(Component.literal(" - ").withStyle(ChatFormatting.GRAY)).append(
+        text.append(Component.literal(" ▎").withStyle(ChatFormatting.DARK_GRAY)).append(
             Component.translatable("sre.replay.civilians").withStyle(ChatFormatting.BLUE)).append("\n");
         if (!aliveCivilians.isEmpty()) {
           MutableComponent aliveCivText = ReplayDisplayUtils.buildTeamPlayerRolesWithDeathStatus(this,
@@ -884,7 +980,7 @@ public class GameReplayManager implements IGameReplayRecorder {
 
       // 显示中立
       if (!aliveNeutrals.isEmpty() || !deadNeutrals.isEmpty()) {
-        text.append(Component.literal(" - ").withStyle(ChatFormatting.GRAY)).append(
+        text.append(Component.literal(" ▎").withStyle(ChatFormatting.DARK_GRAY)).append(
             Component.translatable("sre.replay.neutrals").withStyle(ChatFormatting.YELLOW)).append("\n");
         if (!aliveNeutrals.isEmpty()) {
           MutableComponent aliveNeutText = ReplayDisplayUtils.buildTeamPlayerRolesWithDeathStatus(this,
@@ -903,7 +999,7 @@ public class GameReplayManager implements IGameReplayRecorder {
       }
       // 显示杀手
       if (!aliveKillers.isEmpty() || !deadKillers.isEmpty()) {
-        text.append(Component.literal(" - ").withStyle(ChatFormatting.GRAY)).append(
+        text.append(Component.literal(" ▎").withStyle(ChatFormatting.DARK_GRAY)).append(
             Component.translatable("sre.replay.killers").withStyle(ChatFormatting.DARK_RED)).append("\n");
         if (!aliveKillers.isEmpty()) {
           MutableComponent aliveKillText = ReplayDisplayUtils.buildTeamPlayerRolesWithDeathStatus(this,
@@ -921,7 +1017,7 @@ public class GameReplayManager implements IGameReplayRecorder {
         }
       }
     }
-    text.append(Component.literal("---").withStyle(ChatFormatting.GRAY)).append("\n");
+    text.append(Component.literal("━━━━━━━━━━━━━━━").withStyle(ChatFormatting.DARK_GRAY)).append("\n");
 
     // Send winning information
     String winningTeam = replayData.getWinningTeam();
@@ -935,7 +1031,7 @@ public class GameReplayManager implements IGameReplayRecorder {
           .append("\n");
     }
 
-    text.append(Component.literal("---").withStyle(ChatFormatting.GRAY)).append("\n");
+    text.append(Component.literal("━━━━━━━━━━━━━━━").withStyle(ChatFormatting.DARK_GRAY)).append("\n");
 
     // Send timeline
     text.append(
@@ -965,13 +1061,13 @@ public class GameReplayManager implements IGameReplayRecorder {
           SRE.LOGGER.error("Error converting replay event to text: ", e);
         }
         if (eventText != null) {
-          text.append(Component.literal(timePrefix).append(eventText)).append("\n");
+          text.append(Component.literal(timePrefix).withStyle(ChatFormatting.GRAY).append(eventText)).append("\n");
         } else {
         }
       }
     }
 
-    text.append(Component.literal("---").withStyle(ChatFormatting.GRAY)).append("\n");
+    text.append(Component.literal("━━━━━━━━━━━━━━━").withStyle(ChatFormatting.DARK_GRAY)).append("\n");
     text.append(Component.translatable("sre.replay.footer").withStyle(ChatFormatting.GRAY));
     return text;
   }

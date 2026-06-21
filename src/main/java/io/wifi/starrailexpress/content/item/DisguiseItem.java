@@ -46,6 +46,8 @@ public class DisguiseItem extends Item {
                     false, // showParticles
                     true // showIcon
             ));
+            // 记录伪装事件（低频关键事件）
+            io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordDisguise(player.getUUID());
             // 消耗物品（创造模式下不消耗）
             itemStack.consume(1, player);
         }

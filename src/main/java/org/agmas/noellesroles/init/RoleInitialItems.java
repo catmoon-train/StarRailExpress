@@ -2,12 +2,14 @@ package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Unbreakable;
+import org.agmas.noellesroles.content.item.SheriffRevolverItem;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -35,7 +37,7 @@ public class RoleInitialItems {
             for (Supplier<ItemStack> itemSupplier : itemSuppliers) {
                 ItemStack itemStack = itemSupplier.get();
                 if (itemStack != null && !itemStack.isEmpty()) {
-                    result.add(itemStack.copy());
+                    result.add(normalizeInitialItemForRole(role, itemStack));
                 }
             }
         }
@@ -56,7 +58,7 @@ public class RoleInitialItems {
             for (Supplier<ItemStack> itemSupplier : itemSuppliers) {
                 ItemStack itemStack = itemSupplier.get();
                 if (itemStack != null && !itemStack.isEmpty()) {
-                    MCItemsUtils.insertStackInFreeSlot(player, itemStack.copy());
+                    MCItemsUtils.insertStackInFreeSlot(player, normalizeInitialItemForRole(role, itemStack));
                 }
             }
         } else {
@@ -65,11 +67,36 @@ public class RoleInitialItems {
             if (defaultItems != null) {
                 for (ItemStack stack : defaultItems) {
                     if (stack != null && !stack.isEmpty()) {
-                        MCItemsUtils.insertStackInFreeSlot(player, stack.copy());
+                        MCItemsUtils.insertStackInFreeSlot(player, normalizeInitialItemForRole(role, stack));
                     }
                 }
             }
         }
+        replaceSheriffTeamGuns(player, role);
+    }
+
+    public static void replaceSheriffTeamGuns(Player player, SRERole role) {
+        if (role == null || !role.isVigilanteTeam()) {
+            return;
+        }
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (shouldReplaceWithSheriffRevolver(role, stack)) {
+                player.getInventory().setItem(i, SheriffRevolverItem.createUnloadedStack());
+            }
+        }
+    }
+
+    private static ItemStack normalizeInitialItemForRole(SRERole role, ItemStack stack) {
+        if (shouldReplaceWithSheriffRevolver(role, stack)) {
+            return SheriffRevolverItem.createUnloadedStack();
+        }
+        return stack.copy();
+    }
+
+    private static boolean shouldReplaceWithSheriffRevolver(SRERole role, ItemStack stack) {
+        return role != null && role.isVigilanteTeam() && stack != null && !stack.isEmpty()
+                && stack.is(TMMItemTags.GUNS) && !stack.is(ModItems.SHERIFF_REVOLVER);
     }
 
     /**

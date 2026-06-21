@@ -45,6 +45,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SREMurderGameMode extends GameMode {
+    private static final int VIGILANTE_PASSIVE_MONEY_AMOUNT = 5;
+    private static final int VIGILANTE_PASSIVE_MONEY_INTERVAL_TICKS = 15 * 20;
+
     public SREMurderGameMode(ResourceLocation identifier) {
         super(identifier, 10, 6);
     }
@@ -663,6 +666,11 @@ public class SREMurderGameMode extends GameMode {
                 Integer balanceToAdd = GameConstants.getPassiveMoneyTicker().apply(serverWorld.getGameTime());
                 if (balanceToAdd > 0)
                     SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
+            }
+            if (gameWorldComponent.isRole(player, TMMRoles.VIGILANTE)
+                    && !GameUtils.isPlayerEliminated(player)
+                    && serverWorld.getGameTime() % VIGILANTE_PASSIVE_MONEY_INTERVAL_TICKS == 0) {
+                SREPlayerShopComponent.KEY.get(player).addToBalance(VIGILANTE_PASSIVE_MONEY_AMOUNT);
             }
 
             // check if some civilians are still alive

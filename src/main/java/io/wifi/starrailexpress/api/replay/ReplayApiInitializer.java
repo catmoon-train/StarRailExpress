@@ -44,6 +44,28 @@ public class ReplayApiInitializer {
         ReplayEventRegistry.register(EventType.PLAYER_REVIVAL, PlayerRevivalDetails.class,
                 new PlayerRevivalDetailsSerializer(), new PlayerRevivalDetailsSerializer());
 
+        // ===== 新增低频关键事件：复用已有的详情记录与序列化器 =====
+        // 释放技能：玩家 + 技能 ID（复用物品使用详情）
+        ReplayEventRegistry.register(EventType.SKILL_RELEASE, ItemUsedDetails.class, new ItemUsedDetailsSerializer(),
+                new ItemUsedDetailsSerializer());
+        // 拆弹/引爆/陷阱/绳索：来源 + 目标 + 物品（复用击杀详情）
+        ReplayEventRegistry.register(EventType.BOMB_DEFUSE, PlayerKillDetails.class, new PlayerKillDetailsSerializer(),
+                new PlayerKillDetailsSerializer());
+        ReplayEventRegistry.register(EventType.BOMB_DETONATE, PlayerKillDetails.class, new PlayerKillDetailsSerializer(),
+                new PlayerKillDetailsSerializer());
+        ReplayEventRegistry.register(EventType.TRAP_TRIGGERED, PlayerKillDetails.class, new PlayerKillDetailsSerializer(),
+                new PlayerKillDetailsSerializer());
+        ReplayEventRegistry.register(EventType.ROPE_PULL, PlayerKillDetails.class, new PlayerKillDetailsSerializer(),
+                new PlayerKillDetailsSerializer());
+        // 伪装：单个玩家（复用护盾破损详情）
+        ReplayEventRegistry.register(EventType.DISGUISE, ArmorBreakDetails.class, new ArmorBreakDetailsSerializer(),
+                new ArmorBreakDetailsSerializer());
+        // 撬门/上锁：玩家 + 门位置（复用门操作详情）
+        ReplayEventRegistry.register(EventType.DOOR_PRY, DoorActionDetails.class, new DoorActionDetailsSerializer(),
+                new DoorActionDetailsSerializer());
+        ReplayEventRegistry.register(EventType.DOOR_SEAL, DoorActionDetails.class, new DoorActionDetailsSerializer(),
+                new DoorActionDetailsSerializer());
+
         // 注册自定义事件的默认序列化器和反序列化器
         // 注意：CUSTOM_EVENT 本身不直接注册，而是通过 registerCustomEvent 注册具体的自定义事件ID
         // ReplayEventRegistry.register(EventType.CUSTOM_EVENT,

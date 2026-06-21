@@ -164,6 +164,8 @@ public final class PliersDefuseManager {
             SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 1.0F, 1.2F);
         target.displayClientMessage(Component.translatable("c4.defuse_success"), false);
         defuser.displayClientMessage(Component.translatable("c4.defuse_success_self"), false);
+        // 记录拆弹成功事件（低频关键事件）
+        io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordBombDefuse(defuser.getUUID(), target.getUUID());
     }
 
     private static void completeBlockDefuse(ServerLevel level, ServerPlayer defuser,
@@ -173,6 +175,8 @@ public final class PliersDefuseManager {
             C4Detonation.misfireBlockCharge(level, charge, defuser);
         } else {
             C4Detonation.defuseBlockCharge(defuser, charge);
+            // 记录拆弹成功事件（拆除地面/方块电荷，无炸弹携带者）
+            io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordBombDefuse(defuser.getUUID(), null);
         }
     }
 

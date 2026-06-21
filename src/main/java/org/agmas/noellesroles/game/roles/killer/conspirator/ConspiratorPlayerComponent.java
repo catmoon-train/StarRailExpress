@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -13,7 +14,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
@@ -144,6 +148,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
             return false;
 
         String targetName = target.getName().getString();
+        broadcastGuessTrace();
 
         // 检查目标是否已经在目标列表中
         TargetInfo existingTarget = null;
@@ -319,6 +324,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                         // 使用心脏麻痹死因（隐藏真实原因）
                         ResourceLocation deathReason = Noellesroles.id("heart_attack");
                         GameUtils.killPlayer(target, true, player, deathReason);
+                        markConspiratorEvidence(target);
 
                         this.hasKilled = true;
 
@@ -338,6 +344,33 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                     this.sync();
                 }
             }
+        }
+    }
+
+    private void broadcastGuessTrace() {
+        for (Player listener : player.level().players()) {
+            if (listener instanceof ServerPlayer serverListener) {
+                serverListener.playNotifySound(SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.MASTER, 0.8F, 0.55F);
+            }
+        }
+    }
+
+    private void markConspiratorEvidence(Player target) {
+        AABB searchBox = target.getBoundingBox().inflate(4.0D);
+        PlayerBodyEntity closestBody = null;
+        double closestDistance = Double.MAX_VALUE;
+        for (PlayerBodyEntity body : target.level().getEntitiesOfClass(PlayerBodyEntity.class, searchBox)) {
+            if (!target.getUUID().equals(body.getPlayerUuid())) {
+                continue;
+            }
+            double distance = body.distanceToSqr(target);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestBody = body;
+            }
+        }
+        if (closestBody != null) {
+            closestBody.getComponent().setConspiratorEvidenceUuid(player.getUUID());
         }
     }
 

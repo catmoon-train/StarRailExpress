@@ -196,6 +196,9 @@ public class ModItems {
     public static final Item PATROLLER_REVOLVER = register(
             new PatrollerRevolverItem((new Item.Properties()).stacksTo(1)), "patroller_revolver",
             WEAPONS_GROUP);
+    public static final Item SHERIFF_REVOLVER = register(
+            new SheriffRevolverItem((new Item.Properties()).stacksTo(1)), "sheriff_revolver",
+            WEAPONS_GROUP);
     public static final Item SINGER_MUSIC_DISC = register(
             new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE)),
             "singer_music_disc", MISC_ITEMS_GROUP);

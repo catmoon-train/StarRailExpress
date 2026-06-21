@@ -195,6 +195,11 @@ public class TripwireTrapEntity extends Entity {
             return;
         }
 
+        // 记录陷阱触发事件（低频关键事件）：victim 踩中了 owner 布下的陷阱
+        if (!victim.level().isClientSide) {
+            io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordTrapTriggered(owner.getUUID(), victim.getUUID());
+        }
+
         boolean wasSprinting = victim.isSprinting();
 
         if (wasSprinting) {

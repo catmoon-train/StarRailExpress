@@ -45,6 +45,8 @@ public class EXSREClient {
 
         ensureVideoFramesExtracted();
 
+        // 注册全局战绩 / 回放查询的客户端网络接收器
+        net.exmo.sre.record.client.MatchRecordClientNetwork.registerClientReceivers();
     }
 
     private void ensureVideoFramesExtracted() {

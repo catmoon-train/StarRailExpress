@@ -11,6 +11,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -34,6 +35,7 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.content.item.SheriffRevolverItem;
 import org.agmas.noellesroles.game.roles.innocent.accountant.AccountantPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.alchemist.AlchemistPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.attendant.AttendantHandler;
@@ -196,7 +198,10 @@ public class ModRolesInitialEventRegister {
                 return;
             }
             if (role.identifier().equals(TMMRoles.VIGILANTE.identifier())) {
-                player.addItem(TMMItems.REVOLVER.getDefaultInstance().copy());
+                RoleInitialItems.replaceSheriffTeamGuns(player, role);
+                if (!SREItemUtils.hasItem(player, ModItems.SHERIFF_REVOLVER)) {
+                    player.addItem(SheriffRevolverItem.createUnloadedStack());
+                }
                 return;
             }
             if (role.identifier().equals(ModRoles.ATTENDANT.identifier())) {

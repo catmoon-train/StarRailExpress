@@ -39,10 +39,12 @@ public class LockpickItem extends Item implements AdventureUsable {
                     entity.jam();
                     jamNearBy(context);
 
+                    // 记录上锁事件（低频关键事件），替代原先的通用物品使用记录以避免重复刷屏
+                    if (!world.isClientSide && SRE.REPLAY_MANAGER != null) {
+                        SRE.REPLAY_MANAGER.recordDoorSeal(player.getUUID(), lowerPos);
+                    }
+
                     if (!player.isCreative()) {
-                        if (SRE.REPLAY_MANAGER != null) {
-                            SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
-                        }
                         player.getCooldowns().addCooldown(this, GameConstants.ITEM_COOLDOWNS.get(this));
                     }
 

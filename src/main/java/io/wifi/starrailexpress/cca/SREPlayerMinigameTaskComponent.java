@@ -7,7 +7,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -120,9 +119,6 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
             if (this.pendingMinigameTasks < 1) {
                 this.pendingMinigameTasks++;
                 this.sync();
-                net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp,
-                        Component.translatable("hud.sre.minigame_task"),
-                        Component.translatable("subtitle.minigame_task.new"), 60);
             }
             this.minigameTaskTimer = SREConfig.instance().minigameTaskIntervalSeconds * 20;
         }
@@ -149,9 +145,6 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         this.pendingMinigameTasks--;
         addTokens(reward);
         this.sync();
-        net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp,
-                Component.translatable("hud.sre.minigame_task"),
-                Component.translatable("subtitle.minigame_task.done", reward), 60);
         return true;
     }
 
