@@ -17,7 +17,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -82,11 +81,23 @@ public class RollingStoneEntity extends Entity {
             return;
         }
 
-        double vy = this.onGround() ? 0.0 : this.getDeltaMovement().y - 0.08;
-        this.setDeltaMovement(this.dirX * SPEED, vy, this.dirZ * SPEED);
-        this.move(MoverType.SELF, this.getDeltaMovement());
-
         ServerLevel level = (ServerLevel) this.level();
+
+        double stepX = this.dirX * SPEED;
+        double stepZ = this.dirZ * SPEED;
+        double targetX = this.getX() + stepX;
+        double targetZ = this.getZ() + stepZ;
+
+        // 检查目的地是否为完整方块，完整方块 → 碎裂
+        BlockPos targetBlock = BlockPos.containing(targetX, this.getY(), targetZ);
+        if (level.getBlockState(targetBlock).isCollisionShapeFullBlock(level, targetBlock)) {
+            shatter(level);
+            this.discard();
+            return;
+        }
+
+        // 非完整方块或无方块障碍 → 直接前进
+        this.setPos(targetX, this.getY(), targetZ);
 
         // 碾压玩家
         List<Player> hit = level.getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(0.15),
@@ -102,14 +113,6 @@ public class RollingStoneEntity extends Entity {
             level.playSound(null, this.blockPosition(), SoundEvents.STONE_HIT, SoundSource.BLOCKS, 1.6F, 0.5F);
         }
 
-        // 撞到完整方块 → 碎裂；非完整方块（如花草、火把）直接穿过
-        if (this.horizontalCollision) {
-            if (isHittingSolidBlock(level)) {
-                shatter(level);
-                this.discard();
-                return;
-            }
-        }
         // 寿命耗尽 → 碎裂
         if (--this.life <= 0) {
             shatter(level);
@@ -121,26 +124,5 @@ public class RollingStoneEntity extends Entity {
         level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.STONE.defaultBlockState()),
                 this.getX(), this.getY() + 0.5, this.getZ(), 60, 0.8, 0.8, 0.8, 0.2);
         level.playSound(null, this.blockPosition(), SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 1.8F, 0.6F);
-    }
-
-    /** 检查滚石前进方向是否撞到了完整方块。 */
-    private boolean isHittingSolidBlock(ServerLevel level) {
-        // 沿移动方向检查滚石 AABB 前方的方块
-        int stepX = this.dirX > 0 ? 1 : this.dirX < 0 ? -1 : 0;
-        int stepZ = this.dirZ > 0 ? 1 : this.dirZ < 0 ? -1 : 0;
-        var box = this.getBoundingBox();
-        // 检查滚石前方可能碰撞的方块位置（覆盖整个 AABB 高度范围）
-        for (int y = (int) Math.floor(box.minY); y <= (int) Math.ceil(box.maxY); y++) {
-            BlockPos checkPos = new BlockPos(
-                    (int) Math.floor(stepX > 0 ? box.maxX : stepX < 0 ? box.minX - 1 : box.minX),
-                    y,
-                    (int) Math.floor(stepZ > 0 ? box.maxZ : stepZ < 0 ? box.minZ - 1 : box.minZ));
-            // 沿移动方向偏移
-            checkPos = checkPos.offset(stepX, 0, stepZ);
-            if (level.getBlockState(checkPos).isCollisionShapeFullBlock(level, checkPos)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
