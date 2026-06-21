@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -37,6 +38,7 @@ import java.awt.Color;
 public class PuppeteerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>>
         extends LivingEntityRenderer<PuppeteerBodyEntity, PlayerModel<PuppeteerBodyEntity>> {
     static final int MAX_DISTANCE = 36 * 36;
+    static final ResourceLocation DEFAULT_TEXTURE = DefaultPlayerSkin.getDefaultTexture();
 
     public PuppeteerBodyEntityRenderer(EntityRendererProvider.Context ctx, boolean slim) {
         super(ctx, new PlayerModel<>(ctx.bakeLayer(slim ? TMMModelLayers.PLAYER_BODY_SLIM : TMMModelLayers.PLAYER_BODY),
@@ -166,10 +168,10 @@ public class PuppeteerBodyEntityRenderer<T extends LivingEntity, M extends Entit
         // 首先尝试通过 ownerUuid 从玩家列表获取皮肤
         UUID ownerUuid = entity.getOwnerUuid().orElse(null);
         if (ownerUuid == null) {
-            return entity.defaultTexture;
+            return DEFAULT_TEXTURE;
         }
         if (SREClient.getLooseEndPenalty()) {
-            return entity.defaultTexture;
+            return DEFAULT_TEXTURE;
         }
         Player owner = entity.getOwner();
         if (owner != null) {
@@ -182,7 +184,7 @@ public class PuppeteerBodyEntityRenderer<T extends LivingEntity, M extends Entit
             }
         }
 
-        return entity.defaultTexture;
+        return DEFAULT_TEXTURE;
     }
 
     @Override

@@ -185,8 +185,8 @@ public class SREConfig implements ConfigData {
     public int killerTaskIncome = 5;
     // 平民/中立完成一个任务本人获得的金币（不含连击奖励）
     public int civilianTaskReward = 50;
-    // 同一小游戏任务点完成后对该玩家的复用冷却（秒）
-    public int minigameBlockCooldownSeconds = 90;
+    // 同一小游戏任务点被该玩家使用后的复用冷却（秒），各玩家独立；冷却期间不可再次使用且不显示透视
+    public int minigameBlockCooldownSeconds = 120;
     // 小游戏任务独立刷新间隔（秒），与 Mood 任务解耦
     public int minigameTaskIntervalSeconds = 75;
     public int moneyPerKill = 100;

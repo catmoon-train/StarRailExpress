@@ -86,6 +86,8 @@
   "sre.field.canJump": "允許跳躍",
   "sre.field.minigameQuestEnabled": "啟用小遊戲任務",
   "hud.sre.minigame_task": "小遊戲任務",
+  "message.sre.minigame_cooldown": "該任務點冷卻中，稍後再來",
+  "message.sre.minigame_no_task": "目前沒有對應的小遊戲任務",
   "hud.sre.minigame_task_count": "小遊戲任務 ×%s",
   "hud.sre.game_token": " %s\uE782: ",
   "subtitle.minigame_task.new": "前往任意金色任務點完成小遊戲",

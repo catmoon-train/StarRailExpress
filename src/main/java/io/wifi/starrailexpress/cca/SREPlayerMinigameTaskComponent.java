@@ -88,6 +88,16 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         return this.player.level().getGameTime() < until;
     }
 
+    /**
+     * 本玩家使用该任务点后开始复用冷却（{@link SREConfig#minigameBlockCooldownSeconds} 秒）。
+     * 冷却期间该点对本玩家不可再次使用、且不显示金色任务透视（各玩家独立）。
+     */
+    public void startBlockCooldown(BlockPos pos) {
+        long cooldownTicks = (long) SREConfig.instance().minigameBlockCooldownSeconds * 20;
+        this.blockCooldownUntil.put(pos.asLong(), this.player.level().getGameTime() + cooldownTicks);
+        this.sync();
+    }
+
     public void addTokens(int amount) {
         setTokens(this.tokens + amount);
     }
@@ -125,8 +135,8 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
     }
 
     /**
-     * 完成某个小游戏方块时调用：若玩家有待办小游戏任务且该方块本局未被本玩家用过，
-     * 则兑现一个任务、标记该方块已用并发放代币。
+     * 完成某个小游戏方块时调用：若玩家有待办小游戏任务则兑现一个任务并发放代币。
+     * 复用冷却已在打开任务点（{@link #startBlockCooldown}）时开始，此处不再处理。
      *
      * @return 是否发放了奖励
      */
@@ -134,14 +144,6 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         if (this.pendingMinigameTasks <= 0) {
             return false;
         }
-        long key = pos.asLong();
-        if (isBlockUsed(pos)) {
-            // 该任务点对本玩家仍在复用冷却中
-            return false;
-        }
-        // 标记该任务点进入复用冷却
-        long cooldownTicks = (long) SREConfig.instance().minigameBlockCooldownSeconds * 20;
-        this.blockCooldownUntil.put(key, sp.level().getGameTime() + cooldownTicks);
         this.pendingMinigameTasks--;
         addTokens(reward);
         this.sync();

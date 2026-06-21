@@ -62,13 +62,10 @@ public abstract class ForensicCorpseHudMixin {
         if (!SREClient.isPlayerAliveAndInSurvival()) {
             return;
         }
-        // 需蹲下才能查看尸体信息（线索需要"动作"，避免被动全知）
-        if (!player.isShiftKeyDown()) {
-            return;
-        }
         SRERole selfrole = SREClient.getCachedPlayerRole();
-        // 杀手回到原本的看尸体显示，不获得物证线索
-        if (selfrole != null && selfrole.canUseKiller()) {
+        // 杀手沿用原来的显示：无需蹲下即可看到；非杀手需蹲下才能查看（线索需要"动作"，避免被动全知）
+        boolean isKiller = selfrole != null && selfrole.canUseKiller();
+        if (!isKiller && !player.isShiftKeyDown()) {
             return;
         }
         // 验尸官（能看精确死因）走专属 HUD，避免重复渲染

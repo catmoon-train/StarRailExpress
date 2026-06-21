@@ -1656,6 +1656,8 @@
   "screen.starrailexpress.minigame_quest_hint": "Select minigame and configure quest marker color",
   "sre.field.minigameQuestEnabled": "Enable Minigame Quests",
   "hud.sre.minigame_task": "Minigame Quest",
+  "message.sre.minigame_cooldown": "This task point is on cooldown, come back later",
+  "message.sre.minigame_no_task": "You have no matching minigame quest right now",
   "hud.sre.minigame_task_count": "Minigame Quest ×%s",
   "hud.sre.game_token": "%s\uE782",
   "subtitle.minigame_task.new": "Go to any gold marker to play",

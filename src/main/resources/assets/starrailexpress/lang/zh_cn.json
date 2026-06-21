@@ -1419,6 +1419,8 @@
   "screen.starrailexpress.minigame_quest_hint": "选择小游戏类型并配置任务路标颜色",
   "sre.field.minigameQuestEnabled": "启用小游戏任务",
   "hud.sre.minigame_task": "小游戏任务",
+  "message.sre.minigame_cooldown": "该任务点冷却中，稍后再来",
+  "message.sre.minigame_no_task": "当前没有对应的小游戏任务",
   "hud.sre.minigame_task_count": "小游戏任务 ×%s",
   "hud.sre.game_token": "%s\uE782",
   "subtitle.minigame_task.new": "前往任意金色任务点完成小游戏",

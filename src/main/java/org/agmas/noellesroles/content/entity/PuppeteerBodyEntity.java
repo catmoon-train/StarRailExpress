@@ -3,7 +3,6 @@ package org.agmas.noellesroles.content.entity;
 import com.mojang.authlib.GameProfile;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -34,7 +33,6 @@ import java.util.UUID;
  * 如果本体被杀死，傀儡师也会死亡。
  */
 public class PuppeteerBodyEntity extends LivingEntity {
-    public ResourceLocation defaultTexture = DefaultPlayerSkin.getDefaultTexture();
 
     @Override
     public void kill() {

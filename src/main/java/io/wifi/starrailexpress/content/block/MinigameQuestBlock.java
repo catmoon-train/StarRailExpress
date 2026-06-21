@@ -87,6 +87,27 @@ public class MinigameQuestBlock extends BaseEntityBlock
                 // 冒险/生存模式：打开小游戏
                 String minigameId = questBe.getMinigameId();
                 if (minigameId != null && !minigameId.isEmpty()) {
+                    // 游戏进行中：必须有对应的待办小游戏任务，且该点位不在本玩家冷却中；
+                    // 未开始游戏时：可随意打开（无任务 / 冷却限制）。
+                    if (io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(sp.level()).isRunning()) {
+                        var mgComp = io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent.KEY.get(sp);
+                        if (!mgComp.hasPendingTask()) {
+                            // 当前没有对应的小游戏任务：拒绝使用并提示
+                            sp.displayClientMessage(
+                                    net.minecraft.network.chat.Component.translatable("message.sre.minigame_no_task"),
+                                    true);
+                            return InteractionResult.SUCCESS;
+                        }
+                        if (mgComp.isBlockUsed(pos)) {
+                            // 该任务点对本玩家仍在复用冷却中：拒绝使用并提示（各玩家独立）
+                            sp.displayClientMessage(
+                                    net.minecraft.network.chat.Component.translatable("message.sre.minigame_cooldown"),
+                                    true);
+                            return InteractionResult.SUCCESS;
+                        }
+                        // 使用任务点即进入复用冷却（透视也随之隐藏）
+                        mgComp.startBlockCooldown(pos);
+                    }
                     net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(sp,
                             new io.wifi.starrailexpress.network.MinigameQuestPayload.OpenGame(pos, minigameId));
                 }
