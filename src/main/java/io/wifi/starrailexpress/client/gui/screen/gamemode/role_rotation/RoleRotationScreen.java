@@ -10,12 +10,16 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.*;
@@ -28,6 +32,7 @@ import java.util.*;
  * - 右侧：选职业区域（轮到玩家时显示3个候选职业+随机选项，未轮到时显示"等待中"）
  * - 右上角：当前轮到第几个玩家
  */
+@SuppressWarnings({"unused"})
 public class RoleRotationScreen extends Screen {
 
     // ==================== 布局常量 ====================
@@ -410,7 +415,6 @@ public class RoleRotationScreen extends Screen {
 
     @Override
     public boolean shouldCloseOnEsc() {
-
         return false;
     }
 
@@ -574,14 +578,14 @@ public class RoleRotationScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // 按N键重新打开GUI
-        if (keyCode == 78) { // N键
-            // 已经在当前界面，不需要处理
+        // 按ESC打开退出菜单
+        if(keyCode == 256){
+            this.minecraft.setScreen(new WithParentScreenPauseScreen(this));
             return true;
         }
 
         // 按U键查看职业介绍
-        if (keyCode == 85) { // U键
+        if (NoellesrolesClient.roleIntroClientBind.matches(keyCode,scanCode)) { // U键
             Minecraft mc = Minecraft.getInstance();
             if (mc.player != null) {
                 UUID myUuid = mc.player.getUUID();

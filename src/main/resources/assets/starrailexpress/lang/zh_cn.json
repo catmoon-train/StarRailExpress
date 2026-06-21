@@ -1210,6 +1210,7 @@
   "menu.sre.mod_config": "模组设置",
   "menu.sre.train_options": "列车模组设置",
   "menu.sre.role_introduction": "职业介绍",
+  "menu.sre.feedback_train_bug": "反馈列车BUG",
   "menu.sre.feedback": "反馈BUG",
   "menu.sre.quit": "退出游戏",
   "screen.limited_inventory.button.menu.show": "便捷菜单",

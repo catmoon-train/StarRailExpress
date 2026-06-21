@@ -19,6 +19,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.RedHouseRoles;
 
 import java.util.HashMap;
@@ -93,6 +94,9 @@ public class HoanMeirinFistPunchHandler {
             }
         });
         AllowPlayerPunching.EVENT.register((player) -> {
+            if (player.hasEffect(ModEffects.SAFE_TIME)) {
+                return false;
+            }
             if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, RedHouseRoles.HOAN_MEIRIN)) {
                 // 必须空手（主手持空气）
                 ItemStack mainHand = player.getMainHandItem();

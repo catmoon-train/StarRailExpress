@@ -54,3 +54,33 @@ accessible field net/minecraft/world/level/block/entity/SkullBlockEntity profile
 accessible method net/minecraft/world/level/block/entity/SkullBlockEntity fetchProfileByName (Ljava/lang/String;Lnet/minecraft/server/Services;)Ljava/util/concurrent/CompletableFuture;
 
 accessible method net/minecraft/world/level/block/entity/SkullBlockEntity fetchProfileById (Ljava/util/UUID;Lnet/minecraft/server/Services;Ljava/util/function/BooleanSupplier;)Ljava/util/concurrent/CompletableFuture;
+
+# ========== PauseScreen 私有字段 ==========
+accessible field net/minecraft/client/gui/screens/PauseScreen DRAFT_REPORT_SPRITE Lnet/minecraft/resources/ResourceLocation;
+accessible field net/minecraft/client/gui/screens/PauseScreen COLUMNS I
+accessible field net/minecraft/client/gui/screens/PauseScreen MENU_PADDING_TOP I
+accessible field net/minecraft/client/gui/screens/PauseScreen BUTTON_PADDING I
+accessible field net/minecraft/client/gui/screens/PauseScreen BUTTON_WIDTH_FULL I
+accessible field net/minecraft/client/gui/screens/PauseScreen BUTTON_WIDTH_HALF I
+accessible field net/minecraft/client/gui/screens/PauseScreen RETURN_TO_GAME Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen ADVANCEMENTS Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen STATS Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen SEND_FEEDBACK Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen REPORT_BUGS Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen FEEDBACK_SUBSCREEN Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen SERVER_LINKS Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen OPTIONS Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen SHARE_TO_LAN Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen PLAYER_REPORTING Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen RETURN_TO_MENU Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen SAVING_LEVEL Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen GAME Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen PAUSED Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/screens/PauseScreen showPauseMenu Z
+accessible field net/minecraft/client/gui/screens/PauseScreen disconnectButton Lnet/minecraft/client/gui/components/Button;
+
+# ========== PauseScreen 私有方法 ==========
+accessible method net/minecraft/client/gui/screens/PauseScreen createPauseMenu ()V
+accessible method net/minecraft/client/gui/screens/PauseScreen onDisconnect ()V
+accessible method net/minecraft/client/gui/screens/PauseScreen openScreenButton (Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+accessible method net/minecraft/client/gui/screens/PauseScreen openLinkButton (Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/network/chat/Component;Ljava/net/URI;)Lnet/minecraft/client/gui/components/Button;

@@ -63,9 +63,9 @@ public class StarRailExpressTitleScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component TITLE = Component.translatable("narrator.screen.title");
 
-    private static final String QQ_GROUP_URL = "https://qm.qq.com/q/8XXqKRjT7q";
-    private static final String DISCORD_URL = "https://discord.gg/T7R5NkMHt3";
-    private static final String FEEDBACK_URL = "https://github.com/catmoon-train/StarRailExpress/issues";
+    public static final String QQ_GROUP_URL = "https://qm.qq.com/q/8XXqKRjT7q";
+    public static final String DISCORD_URL = "https://discord.gg/T7R5NkMHt3";
+    public static final String FEEDBACK_URL = "https://github.com/catmoon-train/StarRailExpress/issues";
 
     /** 菜单项纵向间距 */
     private static final int MENU_SPACING = 26;

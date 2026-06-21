@@ -209,7 +209,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "items")
     public int brokenGunDropChanceWhenKillerKillsGunHolder = 60;
     @ConfigEntry.Category(value = "items")
-    public boolean enableBrokenGunDropWhenKillerShootsPlayer = true;
+    public boolean enableBrokenGunDropWhenKillerShootsPlayer = false;
     @ConfigEntry.Category(value = "items")
     public int brokenGunDropChanceWhenKillerShootsPlayer = 60;
     

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.WithParentScreenPauseScreen;
 
 @Mixin(Minecraft.class)
 public class LoadingScreenMixin {
@@ -27,6 +28,8 @@ public class LoadingScreenMixin {
         if (!SREClientConfig.instance().disableCustomTitleScreen) {
             if (screen instanceof TitleScreen) {
                 return new StarRailExpressTitleScreen();
+            } else if (screen instanceof PauseScreen ps && !(screen instanceof WithParentScreenPauseScreen)) {
+                return new WithParentScreenPauseScreen(ps.showPauseMenu);
             }
         }
         return screen;
