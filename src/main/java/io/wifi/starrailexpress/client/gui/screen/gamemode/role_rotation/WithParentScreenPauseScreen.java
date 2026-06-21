@@ -66,7 +66,7 @@ public class WithParentScreenPauseScreen extends PauseScreen {
             this.minecraft.setScreen((Screen) parent);
         }).width(204).build(), 2, gridLayout.newCellSettings().paddingTop(50));
         rowHelper.addChild(this.openScreenButton(ROLE_INTRODUCTION,
-                () -> new RoleIntroduceScreen(parent)));
+                () -> new RoleIntroduceScreen(this)));
         rowHelper.addChild(this.openScreenButton(SETTINGS, () -> new SettingMenuScreen(this)));
         ServerLinks serverLink = this.minecraft.player.connection.serverLinks();
         var arr = new ArrayList<>(serverLink.entries());
@@ -105,7 +105,6 @@ public class WithParentScreenPauseScreen extends PauseScreen {
     }
 
     static void addOriginalFeedbackButtons(Screen screen, GridLayout.RowHelper rowHelper) {
-
         try {
             rowHelper
                     .addChild(openLinkButton(screen, FEEDBACK_TRAIN, new URI(StarRailExpressTitleScreen.FEEDBACK_URL)));
