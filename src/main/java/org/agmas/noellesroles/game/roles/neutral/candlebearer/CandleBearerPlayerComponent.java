@@ -276,6 +276,17 @@ public class CandleBearerPlayerComponent implements RoleComponent, ServerTicking
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
+        if (serverPlayer.isSpectator()) {
+            return false;
+        }
+        if (invisibilityTicks > 0) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("gui.noellesroles.candlebearer.invisible",
+                            invisibilityTicks / 20)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
 
         if (invisibilityCharges <= 0) {
             serverPlayer.displayClientMessage(
