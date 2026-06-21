@@ -94,7 +94,7 @@ public class GamblerHandler {
                 }
             }
             if (vigilanteRoles.isEmpty()) {
-                vigilanteRoles.add(TMMRoles.VIGILANTE);
+                vigilanteRoles.add(ModRoles.SHERIFF);
             }
 
             Collections.shuffle(vigilanteRoles);

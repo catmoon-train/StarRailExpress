@@ -258,6 +258,9 @@ public class RoleInitialItems {
         guardItems.add(() -> ModItems.BATON.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.GUARD, guardItems);
 
+        // 警卫初始物品（无开局物品）
+        INITIAL_ITEMS_MAP.put(ModRoles.SHERIFF, new ArrayList<>());
+
         // 广播员初始物品 - 对讲机
         List<Supplier<ItemStack>> broadcasterItems = new ArrayList<>();
         broadcasterItems.add(() -> ModItems.RADIO.getDefaultInstance());

@@ -1282,13 +1282,12 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(
           ModRoles.WIND_YAOSE_ID, entries);
     }
-    // 警长商店
+    // 警卫商店
     {
       List<ShopEntry> entries = new ArrayList<>();
       entries.add(new ShopEntry(ModItems.HANDCUFFS.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
-      entries.add(ShopContent.createSheriffBulletEntry());
       ShopContent.customEntries.put(
-          TMMRoles.VIGILANTE.identifier(), entries);
+          ModRoles.SHERIFF_ID, entries);
     }
     // 巡警商店
     {

@@ -4,21 +4,16 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
-import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
-import org.agmas.noellesroles.init.ModItems;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,14 +27,10 @@ import java.util.List;
  * - 所有警长均为"义警"职业
  * - 所有平民均为"平民"职业
  * - 不会生成任何中立职业
- * - 义警没有商店
  * - 没有修饰符
  * </p>
  */
 public class SRETraditionGameMode extends SREMurderGameMode {
-
-    /** 保存被移除的义警商店条目，用于游戏结束时恢复 */
-    private List<ShopEntry> savedVigilanteShop = null;
 
     public SRETraditionGameMode(ResourceLocation identifier) {
         super(identifier);
@@ -53,9 +44,6 @@ public class SRETraditionGameMode extends SREMurderGameMode {
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
-        // 移除义警的商店条目（传统模式下义警不拥有商店）
-        savedVigilanteShop = ShopContent.customEntries.remove(TMMRoles.VIGILANTE.getIdentifier());
-
         // 重置角色配置
         Harpymodloader.refreshRoles();
 
@@ -119,19 +107,6 @@ public class SRETraditionGameMode extends SREMurderGameMode {
             }
         }
 
-        // 传统模式：义警初始武器改为普通左轮（替换掉 ModdedRoleAssigned 事件给的警长手枪）
-        for (ServerPlayer player : players) {
-            var role = gameWorldComponent.getRole(player);
-            if (role != null && role.identifier().equals(TMMRoles.VIGILANTE.identifier())) {
-                for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                    ItemStack stack = player.getInventory().getItem(i);
-                    if (stack.is(ModItems.SHERIFF_REVOLVER)) {
-                        player.getInventory().setItem(i, TMMItems.REVOLVER.getDefaultInstance().copy());
-                    }
-                }
-            }
-        }
-
         // 清理强制角色/修饰符（传统模式不使用这些）
         Harpymodloader.FORCED_MODDED_ROLE.clear();
         Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
@@ -141,11 +116,6 @@ public class SRETraditionGameMode extends SREMurderGameMode {
 
     @Override
     public void finalizeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
-        // 恢复义警的商店条目
-        if (savedVigilanteShop != null) {
-            ShopContent.customEntries.put(TMMRoles.VIGILANTE.getIdentifier(), savedVigilanteShop);
-            savedVigilanteShop = null;
-        }
         super.finalizeGame(serverWorld, gameWorldComponent);
     }
 }

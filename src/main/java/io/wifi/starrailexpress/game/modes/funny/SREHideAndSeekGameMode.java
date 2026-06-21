@@ -219,7 +219,8 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
         RoleAssignmentPool killerPool = RoleAssignmentPool.createUnlimited("Killer",
                 role -> role.identifier() == SpecialGameModeRoles.SEEKER.identifier());
         RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
-                role -> role.isVigilanteTeam() && !role.isOtherModeRole() && !(role instanceof RepairRole));
+                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        role.isVigilanteTeam() && !role.isOtherModeRole() && !(role instanceof RepairRole));
         // 中立池
         RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
                 role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&

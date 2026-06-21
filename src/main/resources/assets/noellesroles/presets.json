@@ -3,7 +3,7 @@
     "description": "低级场预设 - 仅包含原版职业和部分简单职业(以及原版修饰符)",
     "roles": {
       "enabled": [
-        "starrailexpress:vigilante",
+        "noellesroles:sheriff",
         "starrailexpress:civilian",
         "starrailexpress:discovery_civilian",
         "starrailexpress:killer",
@@ -119,7 +119,7 @@
     "description": "中级场预设 - 添加了更多实用且容易理解的职业与修饰符，包含更多警长阵营的职业",
     "roles": {
       "enabled": [
-        "starrailexpress:vigilante",
+        "noellesroles:sheriff",
         "starrailexpress:civilian",
         "starrailexpress:discovery_civilian",
         "starrailexpress:killer",
@@ -241,7 +241,7 @@
     "description": "高级场预设 - 包含所有职业和修饰符，包括机制复杂的职业",
     "roles": {
       "enabled": [
-        "starrailexpress:vigilante",
+        "noellesroles:sheriff",
         "starrailexpress:civilian",
         "noellesroles:athlete",
         "noellesroles:awesome_binglus",

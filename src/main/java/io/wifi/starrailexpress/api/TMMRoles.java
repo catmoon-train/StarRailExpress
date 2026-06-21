@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.api;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +15,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -36,9 +36,9 @@ public class TMMRoles {
             SRERole.MoodType.REAL, GameConstants.getInTicks(0, 10), false){
         @Override
         public List<ItemStack> getDefaultItems() {
-            return List.of(new ItemStack(ModItems.SHERIFF_REVOLVER).copy());
+            return List.of(new ItemStack(TMMItems.REVOLVER).copy());
         }
-    }.setVigilanteTeam(true));
+    }.setVigilanteTeam(true).setDefaultMax(0).setCanSetSpawnInfoInConfig(false));
     public static final SRERole KILLER = registerRole(
             new NormalRole(SRE.id("killer"), 0xC13838, false, true, SRERole.MoodType.FAKE, -1, true));
     public static final SRERole LOOSE_END = registerRole(

@@ -152,6 +152,7 @@ public class ModRoles {
     public static ResourceLocation ATTENDANT_ID = Noellesroles.id("attendant");
     public static ResourceLocation CORONER_ID = Noellesroles.id("coroner");
     public static ResourceLocation PATROLLER_ID = Noellesroles.id("patroller");
+    public static final ResourceLocation SHERIFF_ID = Noellesroles.id("sheriff");
     public static final ResourceLocation GLITCH_ROBOT_ID = Noellesroles.id("glitch_robot");
     public static final ResourceLocation AVENGER_ID = Noellesroles.id("avenger");
     public static final ResourceLocation SLIPPERY_GHOST_ID = Noellesroles.id("slippery_ghost");
@@ -580,6 +581,49 @@ public class ModRoles {
             }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false)
             .setVigilanteTeam(true)
             .setDefaultMax(1).setCanSetSpawnInfoInConfig(false);
+
+    /**
+     * 警卫角色
+     * - 属于警长阵营 (isInnocent = true, setVigilanteTeam = true)
+     * - 不能使用杀手能力 (canUseKiller = false)
+     * - 真实心情系统
+     * - 技能：完成两个任务后可获得一把左轮手枪（单局仅触发一次）
+     * - 商店：可花费150金币购买手铐
+     */
+    public static SRERole SHERIFF = TMMRoles.registerRole(
+            new NormalRole(SHERIFF_ID, new Color(70, 130, 180).getRGB(), true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
+                private final java.util.Map<java.util.UUID, Integer> sheriffTaskCounts = new java.util.HashMap<>();
+                private final java.util.Set<java.util.UUID> sheriffHasReceivedRevolver = new java.util.HashSet<>();
+
+                @Override
+                public void onFinishQuest(Player player, String quest) {
+                    java.util.UUID playerUuid = player.getUUID();
+                    // 如果已经获得过左轮手枪，不再处理
+                    if (sheriffHasReceivedRevolver.contains(playerUuid)) return;
+
+                    int count = sheriffTaskCounts.getOrDefault(playerUuid, 0) + 1;
+                    sheriffTaskCounts.put(playerUuid, count);
+
+                    if (count >= 2) {
+                        sheriffHasReceivedRevolver.add(playerUuid);
+                        player.addItem(io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance().copy());
+                        player.displayClientMessage(
+                                net.minecraft.network.chat.Component.translatable("message.noellesroles.sheriff.revolver_received")
+                                        .withStyle(net.minecraft.ChatFormatting.GOLD),
+                                true);
+                    }
+                }
+
+                @Override
+                public void onInit(net.minecraft.server.MinecraftServer server, ServerPlayer player) {
+                    // 每局开始时重置任务计数
+                    sheriffTaskCounts.remove(player.getUUID());
+                    sheriffHasReceivedRevolver.remove(player.getUUID());
+                }
+            })
+            .setVigilanteTeam(true).setCanPickUpRevolver(true).setCanAutoAddMoney(true);
+
     public static SRERole WIND_YAOSE = TMMRoles.registerRole(
             new ExtraEffectRole(WIND_YAOSE_ID, new Color(127, 231, 255).getRGB(),
                     false, false, SRERole.MoodType.FAKE,
