@@ -164,7 +164,7 @@ public class AbilityHandler {
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
             return;
         }
-        if (SpellbreakerPlayerComponent.KEY.get(player).consumePendingSkillFail(player)) {
+        if (SpellbreakerPlayerComponent.consumePendingSkillFail(player)) {
             return;
         }
         if (player.hasEffect(ModEffects.SKILL_BANED)) {
