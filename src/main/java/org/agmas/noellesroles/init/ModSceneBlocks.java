@@ -35,6 +35,7 @@ import org.agmas.noellesroles.content.block.scene.TransportPointBlock;
 import org.agmas.noellesroles.content.block_entity.scene.CropBlockEntity;
 import org.agmas.noellesroles.content.block.scene.ReactorBlock;
 import org.agmas.noellesroles.content.block.scene.RollingStoneTriggerPlate;
+import org.agmas.noellesroles.content.block.scene.WaterValveBlock;
 import org.agmas.noellesroles.content.block.scene.SceneGateBlock;
 import org.agmas.noellesroles.content.block.scene.TrainTargetBlock;
 import org.agmas.noellesroles.content.block_entity.scene.FlamethrowerBlockEntity;
@@ -42,6 +43,7 @@ import org.agmas.noellesroles.content.block_entity.scene.IncineratorBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.MovingPlatformBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.ReactorBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.RollingStoneTriggerPlateEntity;
+import org.agmas.noellesroles.content.block_entity.scene.WaterValveBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.FogZoneBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.ManholeBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.PoisonZoneBlockEntity;
@@ -96,6 +98,10 @@ public interface ModSceneBlocks {
     Block REACTOR = registerBlock("reactor",
             new ReactorBlock(Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
                     .lightLevel(state -> state.getValue(ReactorBlock.ACTIVE) ? 12 : 0)));
+    Block WATER_VALVE = registerBlock("water_valve",
+            new WaterValveBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(WaterValveBlock.ACTIVE) ? 8 : 0)));
 
     BlockEntityType<FlamethrowerBlockEntity> FLAMETHROWER_ENTITY = blockEntityRegistrar.create("flamethrower",
             BlockEntityType.Builder.of(FlamethrowerBlockEntity::new, FLAMETHROWER));
@@ -104,6 +110,8 @@ public interface ModSceneBlocks {
 
     BlockEntityType<ReactorBlockEntity> REACTOR_ENTITY = blockEntityRegistrar.create("reactor",
             BlockEntityType.Builder.of(ReactorBlockEntity::new, REACTOR));
+    BlockEntityType<WaterValveBlockEntity> WATER_VALVE_ENTITY = blockEntityRegistrar.create("water_valve",
+            BlockEntityType.Builder.of(WaterValveBlockEntity::new, WATER_VALVE));
     BlockEntityType<RollingStoneTriggerPlateEntity> ROLLING_STONE_TRIGGER_ENTITY = blockEntityRegistrar.create(
             "rolling_stone_trigger",
             BlockEntityType.Builder.of(RollingStoneTriggerPlateEntity::new, ROLLING_STONE_TRIGGER));

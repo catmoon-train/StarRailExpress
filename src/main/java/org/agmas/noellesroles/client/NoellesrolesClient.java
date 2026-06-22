@@ -265,6 +265,9 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 灌木（树叶贴图）使用 cutout 渲染层
         BlockRenderLayerMap.INSTANCE.putBlock(
                 org.agmas.noellesroles.init.ModSceneBlocks.BUSH, RenderType.cutoutMipped());
+        // 水阀（镶板贴图，透明背景）使用 cutout 渲染层
+        BlockRenderLayerMap.INSTANCE.putBlock(
+                org.agmas.noellesroles.init.ModSceneBlocks.WATER_VALVE, RenderType.cutout());
 
         // 注册C4背部渲染
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register(

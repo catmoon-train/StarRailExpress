@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public class BindingToolItem extends Item {
     private BlockPos lastCameraPos = null;
     private BlockPos lastReactorPos = null;
+    private BlockPos lastWaterValvePos = null;
 
     public BindingToolItem(Properties settings) {
         super(settings);
@@ -42,6 +43,27 @@ public class BindingToolItem extends Item {
                 Component.translatable("message.noellesroles.reactor.pair_bound").withStyle(ChatFormatting.GREEN),
                 true);
         lastReactorPos = null;
+        return InteractionResult.SUCCESS;
+    }
+
+    private InteractionResult handleWaterValveBind(net.minecraft.server.level.ServerLevel level,
+            org.agmas.noellesroles.content.block_entity.scene.WaterValveBlockEntity valve, BlockPos pos, Player player) {
+        if (lastWaterValvePos == null || lastWaterValvePos.equals(pos)) {
+            lastWaterValvePos = pos;
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.water_valve.first_selected").withStyle(ChatFormatting.AQUA),
+                    true);
+            return InteractionResult.SUCCESS;
+        }
+        BlockEntity firstBe = level.getBlockEntity(lastWaterValvePos);
+        valve.setPartnerPos(lastWaterValvePos);
+        if (firstBe instanceof org.agmas.noellesroles.content.block_entity.scene.WaterValveBlockEntity first) {
+            first.setPartnerPos(pos);
+        }
+        player.displayClientMessage(
+                Component.translatable("message.noellesroles.water_valve.pair_bound").withStyle(ChatFormatting.GREEN),
+                true);
+        lastWaterValvePos = null;
         return InteractionResult.SUCCESS;
     }
 
@@ -79,6 +101,11 @@ public class BindingToolItem extends Item {
         if (clicked instanceof org.agmas.noellesroles.content.block_entity.scene.ReactorBlockEntity reactor
                 && world instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             return handleReactorBind(serverLevel, reactor, pos, player);
+        }
+        // 水阀绑定
+        if (clicked instanceof org.agmas.noellesroles.content.block_entity.scene.WaterValveBlockEntity valve
+                && world instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            return handleWaterValveBind(serverLevel, valve, pos, player);
         }
 
         if (!player.isCreative()) {
