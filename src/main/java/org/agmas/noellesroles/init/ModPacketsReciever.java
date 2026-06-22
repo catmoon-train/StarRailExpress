@@ -382,7 +382,9 @@ public class ModPacketsReciever {
           mainHandItem.set(DataComponents.WRITTEN_BOOK_CONTENT,
               new WrittenBookContent(Filterable.passThrough(title), player.getScoreboardName(), 1, list, true));
           mainHandItem.set(DataComponents.ITEM_NAME,
-              Component.translatable("item.noellesroles.newspaper.name", shortTitle));
+              Component.translatable("item.noellesroles.newspaper.name",
+                  Component.translatable("item.noellesroles.newspaper.title.warp", shortTitle)
+                      .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)));
 
           if (mainHandItem.has(DataComponents.WRITABLE_BOOK_CONTENT)) {
             mainHandItem.remove(DataComponents.WRITABLE_BOOK_CONTENT);
@@ -393,8 +395,9 @@ public class ModPacketsReciever {
             list.add(Filterable.passThrough(p));
           }
           mainHandItem.set(DataComponents.ITEM_NAME,
-              Component.translatable("item.noellesroles.newspaper.draft").withStyle(
-                  ChatFormatting.ITALIC));
+              Component.translatable("item.noellesroles.newspaper.draft",
+                  Component.translatable("item.noellesroles.newspaper.draft.warp", player.getName()).withStyle(
+                      ChatFormatting.ITALIC, ChatFormatting.GRAY)));
           mainHandItem.set(DataComponents.WRITABLE_BOOK_CONTENT, new WritableBookContent(list));
         }
       }

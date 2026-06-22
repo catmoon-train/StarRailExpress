@@ -621,13 +621,13 @@ public class NewspaperScreen extends Screen {
             // 页码
             this.pageMsg = Component.translatable("book.pageIndicator", currentPage + 1, Math.max(getNumPages(), 1));
             int msgWidth = font.width(pageMsg);
-            float textScale = (4.0f / 9.0f) * scale; // 目标字号6（原始尺寸）下的缩放
+            float textScale = (5f / 9.0f) * scale; // 目标字号5.5（原始尺寸）下的缩放
 
             guiGraphics.pose().pushPose();
             // 移动到报纸上对应原始坐标 (276, 168) 的位置
             guiGraphics.pose().translate(
                     newspaperX + 276 * scale,
-                    newspaperY + 170 * scale,
+                    newspaperY + 169 * scale,
                     0);
             // 应用字号缩放
             guiGraphics.pose().scale(textScale, textScale, 1.0f);
