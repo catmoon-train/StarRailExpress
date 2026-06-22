@@ -3,12 +3,14 @@ package org.agmas.noellesroles.game.roles.innocent.voodoo;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class VoodooDeathHandler {
@@ -19,7 +21,9 @@ public class VoodooDeathHandler {
                             .equals(SREGameModes.TNT_TAG_MODE.identifier)) {
                 SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                         .get(victim.level());
-                if (gameWorldComponent.isRole(victim, ModRoles.VOODOO)) {
+                boolean isLengxiao = gameWorldComponent.isRole(victim, BounsRoles.LENGXIAO);
+                boolean isVoodoo = gameWorldComponent.isRole(victim, ModRoles.VOODOO);
+                if (isLengxiao || isVoodoo) {
                     VoodooPlayerComponent voodooPlayerComponent = (VoodooPlayerComponent) VoodooPlayerComponent.KEY
                             .get(victim);
                     if (voodooPlayerComponent.target != null) {
@@ -28,7 +32,8 @@ public class VoodooDeathHandler {
                             if (GameUtils.isPlayerAliveAndSurvival(voodooed) && voodooed != victim) {
                                 ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) voodooed);
                                 GameUtils.forceKillPlayer(voodooed, true, null,
-                                        Noellesroles.id("voodoo"));
+                                        isLengxiao ? GameConstants.DeathReasons.GOD_COMMAND
+                                                : Noellesroles.id("voodoo"));
                             }
                         }
                     }

@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.content.item;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -20,7 +20,7 @@ import net.minecraft.world.level.Level;
  * 注意：实际的使用逻辑在客户端的 DeliveryBoxItemClient 中通过 Mixin 实现
  */
 public class NewspaperItem extends Item {
-    public Function<ItemStack, Boolean> runner = null;
+    public static BiFunction<ItemStack, InteractionHand, Boolean> runner = null;
 
     public NewspaperItem(Properties settings) {
         super(settings);
@@ -31,7 +31,7 @@ public class NewspaperItem extends Item {
         ItemStack stack = user.getItemInHand(hand);
         if (world.isClientSide) {
             if (runner != null) {
-                return runner.apply(stack) ? InteractionResultHolder.success(stack)
+                return runner.apply(stack, hand) ? InteractionResultHolder.success(stack)
                         : InteractionResultHolder.fail(stack);
             }
         }

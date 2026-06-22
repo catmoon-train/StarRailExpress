@@ -145,5 +145,6 @@ public class RedHouseRoles {
       .setCanSeeCoin(true);
 
   public static void init() {
+    MountainRoles.init();
   }
 }

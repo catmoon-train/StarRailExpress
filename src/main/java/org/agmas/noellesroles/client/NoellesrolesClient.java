@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
+import io.wifi.starrailexpress.client.gui.screen.NewspaperScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
@@ -88,6 +89,7 @@ import org.agmas.noellesroles.content.entity.WheelchairEntityModel;
 import org.agmas.noellesroles.content.entity.WheelchairEntityRenderer;
 import org.agmas.noellesroles.content.entity.WheelchairFieldItemRenderer;
 import org.agmas.noellesroles.content.item.MercenaryContractItem;
+import org.agmas.noellesroles.content.item.NewspaperItem;
 import org.agmas.noellesroles.content.item.PanItem;
 import org.agmas.noellesroles.content.item.ProblemSetItem;
 import org.agmas.noellesroles.game.roles.innocent.magician.MagicianPlayerComponent;
@@ -106,7 +108,6 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-
 
 import static org.agmas.noellesroles.client.RicesRoleRhapsodyClient.*;
 import static org.agmas.noellesroles.content.effects.TimeStopEffect.clientPositions;
@@ -209,6 +210,13 @@ public class NoellesrolesClient implements ClientModInitializer {
     public void onInitializeClient() {
         NoellesrolesClientAmbientSounds.register();
         // 注册游戏结束事件，清除建筑师客户端墙
+        {
+            NewspaperItem.runner = (stack, hand) -> {
+                Minecraft minecraft = Minecraft.getInstance();
+                minecraft.setScreen(new NewspaperScreen(stack, hand));
+                return true;
+            };
+        }
         io.wifi.starrailexpress.event.client.OnGameFinishedClient.EVENT.register(() -> {
             ClientWallManager.clearAll();
         });
@@ -221,7 +229,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         BlockEntityRenderers.register(
                 ModBlocks.HUNTER_CAGE_BLOCK_ENTITY,
                 HunterCageBlockEntityRenderer::new);
-                
+
         BlockEntityRenderers.register(SREFumoBlocks.PLUSH_BLOCK_ENTITY, SREPlushBlockEntityRenderer::new);
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.VENDING_MACHINES_BLOCK, RenderType.translucent());
@@ -237,12 +245,11 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         // 注册C4背部渲染
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
-            (entityType, entityRenderer, registrationHelper, context) -> {
-                if (entityRenderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer pr) {
-                    registrationHelper.register(new C4BackFeatureRenderer(pr));
-                }
-            }
-        );
+                (entityType, entityRenderer, registrationHelper, context) -> {
+                    if (entityRenderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer pr) {
+                        registrationHelper.register(new C4BackFeatureRenderer(pr));
+                    }
+                });
 
         MercenaryContractItem.openGuiRunner = () -> {
             Minecraft client = Minecraft.getInstance();
@@ -303,12 +310,15 @@ public class NoellesrolesClient implements ClientModInitializer {
                     payload.durationTicks());
         });
         // 建筑师墙数据S2C包
-        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID, (payload, context) -> {
-            ClientWallManager.createWall(payload.wallId(), payload.brickPositions(), payload.cobwebPositions(), payload.durationTicks());
-        });
-        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderRemoveWallS2CPacket.ID, (payload, context) -> {
-            ClientWallManager.removeWall(payload.wallId());
-        });
+        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID,
+                (payload, context) -> {
+                    ClientWallManager.createWall(payload.wallId(), payload.brickPositions(), payload.cobwebPositions(),
+                            payload.durationTicks());
+                });
+        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderRemoveWallS2CPacket.ID,
+                (payload, context) -> {
+                    ClientWallManager.removeWall(payload.wallId());
+                });
         ClientPlayNetworking.registerGlobalReceiver(CreateCreeperBombAreaPacket.ID, (payload, context) -> {
             final var p = context.player();
             final var level = context.client().level;
@@ -401,8 +411,10 @@ public class NoellesrolesClient implements ClientModInitializer {
                         NoellesrolesClient.isTaskInstinctEnabled = true;
                         if (client.player != null) {
                             client.player.displayClientMessage(
-                                    net.minecraft.network.chat.Component.translatable("message.tip.taskpoint_instinct_enable")
-                                            .withStyle(net.minecraft.ChatFormatting.GREEN), true);
+                                    net.minecraft.network.chat.Component
+                                            .translatable("message.tip.taskpoint_instinct_enable")
+                                            .withStyle(net.minecraft.ChatFormatting.GREEN),
+                                    true);
                         }
                     }
                 }
@@ -495,7 +507,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                     .info("Blood Particle status: " + (bloodMain.enabled ? "Enabled" : "Disabled"));
         });
         ClientPlayNetworking.registerGlobalReceiver(ClearBloodParticlesS2CPacket.ID, (payload, context) -> {
-            context.client().execute(() -> BloodParticle.clearParticlesInRange(payload.x(), payload.y(), payload.z(), payload.range()));
+            context.client().execute(
+                    () -> BloodParticle.clearParticlesInRange(payload.x(), payload.y(), payload.z(), payload.range()));
         });
         ClientPlayNetworking.registerGlobalReceiver(NameTagSyncPayload.ID, (payload, context) -> {
             RoleNameRenderer.displayTags.putAll(payload.nametags());
@@ -634,7 +647,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenRepairRoleSelectionS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> {
-                if (context.client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen) {
+                if (context
+                        .client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen) {
                     return;
                 }
                 context.client().setScreen(new org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen(
@@ -643,7 +657,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenRepairRoleShopS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> {
-                if (context.client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleShopScreen screen) {
+                if (context
+                        .client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleShopScreen screen) {
                     screen.updateData(payload.skinCoins(), payload.ownedRoles());
                     screen.init(context.client(), context.client().getWindow().getGuiScaledWidth(),
                             context.client().getWindow().getGuiScaledHeight());
@@ -656,7 +671,8 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(OpenRepairStationScreenS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> {
-                context.client().setScreen(new org.agmas.noellesroles.client.screen.repair.RepairStationScreen(payload.blockPos()));
+                context.client().setScreen(
+                        new org.agmas.noellesroles.client.screen.repair.RepairStationScreen(payload.blockPos()));
             });
         });
 
@@ -891,9 +907,9 @@ public class NoellesrolesClient implements ClientModInitializer {
         DetectiveListenStepHandler.registerEvents();
         InvisbleHandItem.register();
         // 注册零一五第二枪客户端处理器
-//        ClientPlayNetworking.registerGlobalReceiver(
-//                org.agmas.noellesroles.content.item.ZeroOneFiveSecondShotPayload.ID,
-//                new ZeroOneFiveSecondShotHandler());
+        // ClientPlayNetworking.registerGlobalReceiver(
+        // org.agmas.noellesroles.content.item.ZeroOneFiveSecondShotPayload.ID,
+        // new ZeroOneFiveSecondShotHandler());
         OnKillerCohortDisplay.EVENT.register((player) -> {
             if (player == null)
                 return null;
@@ -1007,7 +1023,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             var repairInputComponent = org.agmas.noellesroles.component.ModComponents.REPAIR_ROLES.get(client.player);
             boolean repairGameRunning = SREClient.gameComponent != null
                     && SREClient.gameComponent.isRunning()
-                    && SREClient.gameComponent.getGameMode() == io.wifi.starrailexpress.api.SREGameModes.REPAIR_ESCAPE_MODE;
+                    && SREClient.gameComponent
+                            .getGameMode() == io.wifi.starrailexpress.api.SREGameModes.REPAIR_ESCAPE_MODE;
             if (client.screen == null && repairGameRunning && repairInputComponent.carriedBy != null) {
                 if (client.options.keyAttack.consumeClick()) {
                     ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("left"));
@@ -1016,7 +1033,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                     ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("right"));
                 }
             }
-            if (client.screen == null && repairGameRunning && repairInputComponent.downed && repairInputComponent.carriedBy == null
+            if (client.screen == null && repairGameRunning && repairInputComponent.downed
+                    && repairInputComponent.carriedBy == null
                     && client.options.keyShift.consumeClick()) {
                 ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("downed"));
             }

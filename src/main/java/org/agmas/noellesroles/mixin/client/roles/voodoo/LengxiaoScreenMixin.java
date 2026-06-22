@@ -13,7 +13,7 @@ import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.client.PlayerPaginationHelper;
 import org.agmas.noellesroles.client.RoleScreenHelper;
 import org.agmas.noellesroles.client.widget.VoodooPlayerWidget;
-import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.BounsRoles;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,7 +28,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mixin(LimitedInventoryScreen.class)
-public abstract class VoodooScreenMixin extends LimitedHandledScreen<InventoryMenu> implements PlayerPaginationHelper.ScreenWithChildren {
+public abstract class LengxiaoScreenMixin extends LimitedHandledScreen<InventoryMenu> implements PlayerPaginationHelper.ScreenWithChildren {
     @Unique
     private static final PlayerPaginationHelper.PaginationTextProvider TEXT_PROVIDER = new PlayerPaginationHelper.PaginationTextProvider() {
         @Override
@@ -53,16 +53,17 @@ public abstract class VoodooScreenMixin extends LimitedHandledScreen<InventoryMe
     @Unique
     private RoleScreenHelper<UUID> roleScreenHelper;
 
-    public VoodooScreenMixin(InventoryMenu handler, Inventory inventory, Component title) {
+    public LengxiaoScreenMixin(InventoryMenu handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
     }
+
 
     @Unique
     private RoleScreenHelper<UUID> getRoleScreenHelper() {
         if (roleScreenHelper == null) {
             roleScreenHelper = new RoleScreenHelper<>(
                 player,
-                ModRoles.VOODOO,
+                BounsRoles.LENGXIAO,
                 this::createVoodooWidget,
                 TEXT_PROVIDER,
                 this::drawVoodooTip,
@@ -97,7 +98,7 @@ public abstract class VoodooScreenMixin extends LimitedHandledScreen<InventoryMe
         ConfigWorldComponent configComponent = ConfigWorldComponent.KEY.get(player.level());
         if (!configComponent.naturalVoodoosAllowed) {
             Minecraft client = Minecraft.getInstance();
-            Component text = Component.translatable("hud.voodoo.tip");
+            Component text = Component.translatable("hud.lengxiao.tip");
             int textWidth = client.font.width(text);
             context.drawString(client.font, text,
                 point.x - textWidth / 2, point.y + 40, Color.RED.getRGB());

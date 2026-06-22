@@ -383,6 +383,7 @@
   "hud.swapper.first_player_selection": "选择第一个要交换的玩家",
   "hud.swapper.second_player_selection": "选择第二个要交换的玩家",
   "hud.voodoo.tip": "巫毒死亡必须由其他玩家触发！",
+  "hud.lengxiao.tip": "神权死亡必须由其他玩家触发！",
   "hud.vulture.already_consumed": "这具尸体已经被吃掉了。",
   "hud.vulture.eat": "按 %s 吃掉尸体！",
   "item.noellesroles.defense_vial.tooltip": "右键点击饮料托盘使用\n清除托盘上所有的毒药\n使饮用受保护饮料的玩家额外获得一次免死机会。",

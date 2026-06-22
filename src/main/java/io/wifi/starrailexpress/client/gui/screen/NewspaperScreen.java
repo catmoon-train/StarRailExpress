@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.client.gui.screen; // 替换为你的实际包名
+package io.wifi.starrailexpress.client.gui.screen;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.ChatFormatting;
@@ -35,38 +35,43 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
 
-/**
- * 报纸 UI —— 支持编辑模式（List<String>）和只读模式（List<Component>）
- * <p>
- * 背景材质：noellesroles:textures/gui/newspaper.png
- * 宽高比 3:2，内边距 10，屏幕外边距 20。
- */
 public class NewspaperScreen extends Screen {
 
-    private static final ResourceLocation NEWSPAPER_TEXTURE =
-            ResourceLocation.parse("noellesroles:textures/gui/newspaper.png");
-    private static final int PADDING = 10;
+    // ---------- 纹理与布局常量 ----------
+    private static final ResourceLocation NEWSPAPER_TEXTURE = ResourceLocation
+            .parse("noellesroles:textures/gui/newspaper.png");
+    private static final int ORIG_IMG_WIDTH = 300;
+    private static final int ORIG_IMG_HEIGHT = 200;
+    private static final int TEXT_REL_X = 25;
+    private static final int TEXT_REL_Y = 50;
+    private static final int TEXT_REL_WIDTH = 250;
+    private static final int TEXT_REL_HEIGHT = 120;
     private static final int SCREEN_MARGIN = 20;
     private static final int MAX_PAGES = 100;
 
+    // ---------- 界面文本 ----------
     private static final Component EDIT_TITLE_LABEL = Component.translatable("book.editTitle");
     private static final Component FINALIZE_WARNING_LABEL = Component.translatable("book.finalizeWarning");
-    private static final FormattedCharSequence BLACK_CURSOR =
-            FormattedCharSequence.forward("_", Style.EMPTY.withColor(ChatFormatting.BLACK));
-    private static final FormattedCharSequence GRAY_CURSOR =
-            FormattedCharSequence.forward("_", Style.EMPTY.withColor(ChatFormatting.GRAY));
+    private static final FormattedCharSequence BLACK_CURSOR = FormattedCharSequence.forward("_",
+            Style.EMPTY.withColor(ChatFormatting.BLACK));
+    private static final FormattedCharSequence GRAY_CURSOR = FormattedCharSequence.forward("_",
+            Style.EMPTY.withColor(ChatFormatting.GRAY));
 
     // ---------- 核心数据 ----------
-    private final boolean editable;                    // true = 可编辑，false = 只读
-    private final List<String> stringPages;            // 编辑模式使用
-    private final List<Component> componentPages;      // 只读模式使用
-    private String title = "";                         // 编辑模式下的标题
+    private final boolean editable;
+    private final List<String> stringPages;
+    private final List<Component> componentPages;
+    private String title = "";
+    @Nullable
+    private final Component titleComponent;
+    @Nullable
+    private final Component authorComponent;
+
     private int currentPage = 0;
     private boolean isModified = false;
-    private boolean isSigning = false;                 // 仅编辑模式有效
+    private boolean isSigning = false;
     private int frameTick = 0;
 
-    // 物品相关（仅当从物品构造时使用）
     @Nullable
     private final Player player;
     @Nullable
@@ -74,34 +79,29 @@ public class NewspaperScreen extends Screen {
     @Nullable
     private final InteractionHand hand;
 
-    // 输入辅助（仅编辑模式）
     @Nullable
     private TextFieldHelper pageEdit;
     private final TextFieldHelper titleEdit;
 
-    // 缓存
     @Nullable
-    private DisplayCache displayCache;                 // 编辑模式用
+    private DisplayCache displayCache;
     @Nullable
-    private List<FormattedCharSequence> cachedPageLines; // 只读模式用
+    private List<FormattedCharSequence> cachedPageLines;
     private int cachedPage = -1;
-    // 控件
+    private Component pageMsg = CommonComponents.EMPTY;
+
     private PageButton forwardButton;
     private PageButton backButton;
-    private Button doneButton;       // 保存为草稿 / 关闭
-    private Button signButton;       // 进入签名模式（仅编辑）
-    private Button finalizeButton;   // 确定发布（仅编辑）
-    private Button cancelButton;     // 退出签名（仅编辑）
+    private Button doneButton;
+    private Button signButton;
+    private Button finalizeButton;
+    private Button cancelButton;
 
-    // 报纸矩形
     private int newspaperX, newspaperY, newspaperWidth, newspaperHeight;
     private int textX, textY, textWidth, textHeight;
 
     // ==================== 构造函数 ====================
 
-    /**
-     * 从物品堆栈自动识别：WRITTEN_BOOK → 只读，WRITABLE_BOOK → 编辑
-     */
     public NewspaperScreen(ItemStack book, InteractionHand hand) {
         super(GameNarrator.NO_TITLE);
         this.player = Minecraft.getInstance().player;
@@ -112,23 +112,26 @@ public class NewspaperScreen extends Screen {
                 s -> this.title = s,
                 this::getClipboard,
                 this::setClipboard,
-                s -> s.length() < 16
-        );
+                s -> s.length() < 16);
 
         WrittenBookContent written = book.get(DataComponents.WRITTEN_BOOK_CONTENT);
         if (written != null) {
-            // 只读模式
             this.editable = false;
             this.stringPages = null;
             this.componentPages = new ArrayList<>();
             for (Filterable<Component> filtered : written.pages()) {
                 this.componentPages.add(filtered.raw());
             }
-            Component.literal(written.title().filtered().orElse("Unknown"));
-            Component.literal(written.author()).withStyle(ChatFormatting.DARK_GRAY);
+            String titleText = written.title().raw();
+            String authorText = written.author();
+            if (titleText.isBlank())
+                titleText = Component.translatable("gui.sre.newspaper.unnamed").getString();
+            if (authorText.isBlank())
+                authorText = Component.translatable("gui.sre.newspaper.unauthored").getString();
+            this.titleComponent = Component.literal(titleText);
+            this.authorComponent = Component.literal(authorText).withStyle(ChatFormatting.DARK_GRAY);
             this.pageEdit = null;
         } else {
-            // 编辑模式（或空书）
             this.editable = true;
             this.componentPages = null;
             this.stringPages = new ArrayList<>();
@@ -138,59 +141,57 @@ public class NewspaperScreen extends Screen {
                     this.stringPages.add(filtered.raw());
                 }
             }
-            if (this.stringPages.isEmpty()) {
+            if (this.stringPages.isEmpty())
                 this.stringPages.add("");
-            }
+            this.titleComponent = null;
+            this.authorComponent = null;
             this.pageEdit = new TextFieldHelper(
                     this::getCurrentPageText,
                     this::setCurrentPageText,
                     this::getClipboard,
                     this::setClipboard,
-                    this::isTextValid
-            );
+                    this::isTextValid);
         }
     }
 
-    /**
-     * 纯编辑模式：直接传入 String 列表
-     */
     public NewspaperScreen(List<String> editablePages) {
         super(GameNarrator.NO_TITLE);
         this.editable = true;
         this.stringPages = new ArrayList<>(editablePages);
-        if (this.stringPages.isEmpty()) this.stringPages.add("");
+        if (this.stringPages.isEmpty())
+            this.stringPages.add("");
         this.componentPages = null;
         this.player = null;
         this.book = null;
         this.hand = null;
+        this.titleComponent = null;
+        this.authorComponent = null;
         this.titleEdit = new TextFieldHelper(
                 () -> this.title,
                 s -> this.title = s,
                 this::getClipboard,
                 this::setClipboard,
-                s -> s.length() < 16
-        );
+                s -> s.length() < 16);
         this.pageEdit = new TextFieldHelper(
                 this::getCurrentPageText,
                 this::setCurrentPageText,
                 this::getClipboard,
                 this::setClipboard,
-                this::isTextValid
-        );
+                this::isTextValid);
     }
 
-    /**
-     * 纯只读模式：传入 Component 列表，以及可选的标题和作者
-     */
     public NewspaperScreen(List<Component> readOnlyPages, Component title, Component author) {
         super(GameNarrator.NO_TITLE);
         this.editable = false;
         this.componentPages = new ArrayList<>(readOnlyPages);
-        if (this.componentPages.isEmpty()) this.componentPages.add(CommonComponents.EMPTY);
+        if (this.componentPages.isEmpty())
+            this.componentPages.add(CommonComponents.EMPTY);
         this.stringPages = null;
         this.player = null;
         this.book = null;
         this.hand = null;
+        this.titleComponent = title != null ? title : CommonComponents.EMPTY;
+        this.authorComponent = author != null ? author : CommonComponents.EMPTY;
         this.pageEdit = null;
         this.titleEdit = null;
     }
@@ -198,12 +199,14 @@ public class NewspaperScreen extends Screen {
     // ==================== 页面数据访问（仅编辑模式） ====================
 
     private String getCurrentPageText() {
-        if (!editable || stringPages == null) return "";
+        if (!editable || stringPages == null)
+            return "";
         return currentPage >= 0 && currentPage < stringPages.size() ? stringPages.get(currentPage) : "";
     }
 
     private void setCurrentPageText(String text) {
-        if (!editable || stringPages == null) return;
+        if (!editable || stringPages == null)
+            return;
         if (currentPage >= 0 && currentPage < stringPages.size()) {
             stringPages.set(currentPage, text);
             isModified = true;
@@ -212,7 +215,7 @@ public class NewspaperScreen extends Screen {
     }
 
     private boolean isTextValid(String text) {
-        return text.length() < 1024 && font.wordWrapHeight(text, textWidth) <= textHeight;
+        return text.length() < 10240 && font.wordWrapHeight(text, textWidth) <= textHeight;
     }
 
     private String getClipboard() {
@@ -220,7 +223,8 @@ public class NewspaperScreen extends Screen {
     }
 
     private void setClipboard(String text) {
-        if (minecraft != null) TextFieldHelper.setClipboardContents(minecraft, text);
+        if (minecraft != null)
+            TextFieldHelper.setClipboardContents(minecraft, text);
     }
 
     private int getNumPages() {
@@ -245,7 +249,8 @@ public class NewspaperScreen extends Screen {
         createButtons();
         clearDisplayCache();
         updateButtonVisibility();
-        if (editable && pageEdit != null) pageEdit.setCursorToEnd();
+        if (editable && pageEdit != null)
+            pageEdit.setCursorToEnd();
     }
 
     @Override
@@ -275,61 +280,75 @@ public class NewspaperScreen extends Screen {
         newspaperHeight = h;
         newspaperX = (width - w) / 2;
         newspaperY = (height - h) / 2;
-        textX = newspaperX + PADDING;
-        textY = newspaperY + PADDING;
-        textWidth = newspaperWidth - 2 * PADDING;
-        textHeight = newspaperHeight - 2 * PADDING;
+
+        float scale = (float) newspaperWidth / ORIG_IMG_WIDTH;
+        textX = (int) (newspaperX + TEXT_REL_X * scale);
+        textY = (int) (newspaperY + TEXT_REL_Y * scale);
+        textWidth = (int) (TEXT_REL_WIDTH * scale);
+        textHeight = (int) (TEXT_REL_HEIGHT * scale);
     }
 
     private void createButtons() {
-        int btnW = 23, btnH = 13;
-        int btnY = newspaperY + newspaperHeight - PADDING - btnH - 2;
+        float scale = (float) newspaperWidth / ORIG_IMG_WIDTH;
 
-        // 翻页按钮
-        this.forwardButton = this.addRenderableWidget(
-                new PageButton(newspaperX + newspaperWidth - PADDING - btnW, btnY, true,
-                        b -> pageForward(), true));
+        // ----- 翻页按钮：固定位于报纸右下角，基于原始尺寸 (240,178) 宽38高8 -----
+        int btnWidth = 23; // PageButton 固定宽度
+        int baseX = (int) (240 * scale);
+        int baseY = (int) (178 * scale);
+        // 左侧按钮（上一页）
+        int leftX = newspaperX + baseX;
+        // 右侧按钮（下一页），区域宽度38，所以右对齐
+        int rightX = newspaperX + (int) ((240 + 38) * scale) - btnWidth;
+        int y = newspaperY + baseY;
+
         this.backButton = this.addRenderableWidget(
-                new PageButton(newspaperX + PADDING, btnY, false,
-                        b -> pageBack(), true));
+                new PageButton(leftX, y, false, b -> pageBack(), true));
+        this.forwardButton = this.addRenderableWidget(
+                new PageButton(rightX, y, true, b -> pageForward(), true));
 
+        // ----- 底部操作按钮 -----
         int bottomY = Math.min(newspaperY + newspaperHeight + 10, height - 30);
-        int btnWidth = 98, spacing = 4;
-        int totalWidth = btnWidth * 2 + spacing;
+        int actionBtnWidth = 98, spacing = 4;
+        int totalWidth = actionBtnWidth * 2 + spacing;
         int startX = (width - totalWidth) / 2;
 
         if (editable) {
-            // 完成（保存为草稿）
             this.doneButton = this.addRenderableWidget(
                     Button.builder(CommonComponents.GUI_DONE,
-                            b -> { saveChanges(false); onClose(); })
-                            .bounds(startX, bottomY, btnWidth, 20).build()
-            );
-            // 签名
+                            b -> {
+                                saveChanges(false);
+                                onClose();
+                            })
+                            .bounds(startX, bottomY, actionBtnWidth, 20).build());
             this.signButton = this.addRenderableWidget(
                     Button.builder(Component.translatable("book.signButton"),
-                            b -> { isSigning = true; updateButtonVisibility(); })
-                            .bounds(startX + btnWidth + spacing, bottomY, btnWidth, 20).build()
-            );
-            // 最终确定（发布）
+                            b -> {
+                                isSigning = true;
+                                updateButtonVisibility();
+                            })
+                            .bounds(startX + actionBtnWidth + spacing, bottomY, actionBtnWidth, 20).build());
             this.finalizeButton = this.addRenderableWidget(
                     Button.builder(Component.translatable("book.finalizeButton"),
-                            b -> { if (isSigning) { saveChanges(true); onClose(); } })
-                            .bounds(startX, bottomY, btnWidth, 20).build()
-            );
-            // 取消签名
+                            b -> {
+                                if (isSigning) {
+                                    saveChanges(true);
+                                    onClose();
+                                }
+                            })
+                            .bounds(startX, bottomY, actionBtnWidth, 20).build());
             this.cancelButton = this.addRenderableWidget(
                     Button.builder(CommonComponents.GUI_CANCEL,
-                            b -> { isSigning = false; updateButtonVisibility(); clearDisplayCache(); })
-                            .bounds(startX + btnWidth + spacing, bottomY, btnWidth, 20).build()
-            );
+                            b -> {
+                                isSigning = false;
+                                updateButtonVisibility();
+                                clearDisplayCache();
+                            })
+                            .bounds(startX + actionBtnWidth + spacing, bottomY, actionBtnWidth, 20).build());
         } else {
-            // 只读模式：仅关闭按钮
             this.doneButton = this.addRenderableWidget(
                     Button.builder(CommonComponents.GUI_OK,
                             b -> onClose())
-                            .bounds(startX + (totalWidth - btnWidth) / 2, bottomY, btnWidth, 20).build()
-            );
+                            .bounds(startX + (totalWidth - actionBtnWidth) / 2, bottomY, actionBtnWidth, 20).build());
             this.signButton = null;
             this.finalizeButton = null;
             this.cancelButton = null;
@@ -346,11 +365,11 @@ public class NewspaperScreen extends Screen {
         }
 
         if (!editable) {
-            if (doneButton != null) doneButton.visible = true;
+            if (doneButton != null)
+                doneButton.visible = true;
             return;
         }
 
-        // 编辑模式按钮切换
         doneButton.visible = !isSigning;
         signButton.visible = !isSigning;
         cancelButton.visible = isSigning;
@@ -387,14 +406,16 @@ public class NewspaperScreen extends Screen {
     }
 
     private void clearDisplayCacheAfterPageChange() {
-        if (editable && pageEdit != null) pageEdit.setCursorToEnd();
+        if (editable && pageEdit != null)
+            pageEdit.setCursorToEnd();
         clearDisplayCache();
     }
 
     // ==================== 保存 ====================
 
     private void eraseEmptyTrailingPages() {
-        if (!editable) return;
+        if (!editable)
+            return;
         ListIterator<String> it = stringPages.listIterator(stringPages.size());
         while (it.hasPrevious() && it.previous().isEmpty()) {
             it.remove();
@@ -402,12 +423,13 @@ public class NewspaperScreen extends Screen {
     }
 
     private void saveChanges(boolean sign) {
-        if (!editable) return;
-        if (!isModified && !sign) return;
+        if (!editable)
+            return;
+        if (!isModified && !sign)
+            return;
 
         eraseEmptyTrailingPages();
 
-        // 发送网络包（如果有物品和玩家）
         if (book != null && player != null && hand != null) {
             int slot = hand == InteractionHand.MAIN_HAND ? player.getInventory().selected : 40;
             Optional<String> titleOpt = sign ? Optional.of(title.trim()) : Optional.empty();
@@ -426,11 +448,6 @@ public class NewspaperScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-
-        guiGraphics.blit(NEWSPAPER_TEXTURE,
-                newspaperX, newspaperY, newspaperWidth, newspaperHeight,
-                0, 0, 192, 192, 192, 192);
 
         if (editable && isSigning) {
             renderSigning(guiGraphics);
@@ -441,40 +458,115 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderTransparentBackground(guiGraphics);
+        guiGraphics.blit(NEWSPAPER_TEXTURE,
+                newspaperX, newspaperY, newspaperWidth, newspaperHeight,
+                0, 0, ORIG_IMG_WIDTH, ORIG_IMG_HEIGHT,
+                ORIG_IMG_WIDTH, ORIG_IMG_HEIGHT);
     }
 
     private void renderSigning(GuiGraphics guiGraphics) {
         boolean blink = (frameTick / 6) % 2 == 0;
         FormattedCharSequence titleSeq = FormattedCharSequence.composite(
                 FormattedCharSequence.forward(this.title, Style.EMPTY),
-                blink ? BLACK_CURSOR : GRAY_CURSOR
-        );
-        int centerX = newspaperX + newspaperWidth / 2;
+                blink ? BLACK_CURSOR : GRAY_CURSOR);
+        int centerX = newspaperX + newspaperWidth / 2; // 水平居中
 
+        // 计算签名内容的总高度（垂直方向）
+        int labelHeight = 9; // 每行文字高度近似为9
+        int titleInputHeight = 9;
+        int authorHeight = 9;
+        // 警告文字高度（考虑换行）
+        int warningMaxWidth = newspaperWidth - 60; // 与当前 drawWordWrap 的宽度一致
+        int warningHeight = font.wordWrapHeight(FINALIZE_WARNING_LABEL, warningMaxWidth);
+        int totalContentHeight = labelHeight + titleInputHeight + authorHeight + warningHeight;
+        // 各元素之间的间距（原代码中Y间隔为16,12,18，可调整）
+        int spacing = 4; // 自定义间距，或沿用原间距比例
+        totalContentHeight += spacing * 3; // 四行之间三个间隔
+
+        // 垂直居中起始Y
+        int startY = newspaperY + (newspaperHeight - totalContentHeight) / 2;
+
+        int currentY = startY;
+        // 绘制标签
         guiGraphics.drawString(font, EDIT_TITLE_LABEL,
-                centerX - font.width(EDIT_TITLE_LABEL) / 2, newspaperY + 30, 0, false);
+                centerX - font.width(EDIT_TITLE_LABEL) / 2, currentY, 0, false);
+        currentY += labelHeight + spacing;
+
+        // 绘制标题输入（带光标）
         guiGraphics.drawString(font, titleSeq,
-                centerX - font.width(titleSeq) / 2, newspaperY + 46, 0, false);
-        Component authorText = (player != null) ?
-                Component.translatable("book.byAuthor", player.getName()).withStyle(ChatFormatting.DARK_GRAY) :
-                CommonComponents.EMPTY;
+                centerX - font.width(titleSeq) / 2, currentY, 0, false);
+        currentY += titleInputHeight + spacing;
+
+        // 绘制作者
+        Component authorText = (player != null)
+                ? Component.translatable("book.byAuthor", player.getName()).withStyle(ChatFormatting.DARK_GRAY)
+                : CommonComponents.EMPTY;
         guiGraphics.drawString(font, authorText,
-                centerX - font.width(authorText) / 2, newspaperY + 58, 0, false);
+                centerX - font.width(authorText) / 2, currentY, 0, false);
+        currentY += authorHeight + spacing;
+
+        // 绘制警告文字（支持换行）
         guiGraphics.drawWordWrap(font, FINALIZE_WARNING_LABEL,
-                newspaperX + PADDING, newspaperY + 76, textWidth, 0);
+                centerX - warningMaxWidth / 2, currentY, warningMaxWidth, 0);
+        // 注意：drawWordWrap 不返回高度，但上面已计算过，无需再次绘制。
     }
 
     private void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         // 页码
-        String pageIndicator = (currentPage + 1) + "/" + Math.max(getNumPages(), 1);
-        Component msg = Component.literal(pageIndicator);
-        guiGraphics.drawString(font, msg,
-                newspaperX + newspaperWidth - PADDING - font.width(msg),
-                newspaperY + PADDING - 10, 0, false);
+        this.pageMsg = Component.translatable("book.pageIndicator", currentPage + 1, Math.max(getNumPages(), 1));
+        int msgWidth = font.width(pageMsg);
+        guiGraphics.drawString(font, pageMsg,
+                newspaperX + newspaperWidth - 30 - msgWidth,
+                newspaperY + 20, 0, false);
 
+        // ----- 只读模式：绘制标题和作者（使用缩放矩阵） -----
+        if (!editable) {
+            float scale = (float) newspaperWidth / ORIG_IMG_WIDTH;
+
+            // ---- 标题：字号10 ----
+            if (titleComponent != null) {
+                String rawTitle = titleComponent.getString();
+                if (!rawTitle.isEmpty()) {
+
+                    guiGraphics.pose().pushPose();
+                    guiGraphics.pose().scale(scale * 10.0f / 9.0f, scale * 10.0f / 9.0f, 1.0f);
+                    guiGraphics.pose().translate(
+                            (newspaperX + 48) / (10.0f / 9.0f),
+                            (newspaperY + 18) / (10.0f / 9.0f),
+                            0);
+
+                    // 截断处理（基于原始尺寸宽度204）
+                    int maxWidth = 204;
+                    int titleWidth = font.width(rawTitle);
+                    String displayTitle = rawTitle;
+                    if (titleWidth > maxWidth) {
+                        int cut = font.plainSubstrByWidth(rawTitle, maxWidth - font.width("..."), true).length();
+                        displayTitle = rawTitle.substring(0, cut) + "...";
+                    }
+                    guiGraphics.drawString(font, displayTitle, 0, 0, 0x000000, false);
+                    guiGraphics.pose().popPose();
+                }
+            }
+
+            // ---- 作者：字号5，灰色 ----
+            if (authorComponent != null) {
+                {
+                    // 标题高度10，间距2，所以y=18+10+2=30
+                    int authorY = 18 + 10 + 2;
+                    guiGraphics.pose().pushPose();
+                    guiGraphics.pose().scale(scale * 5.0f / 9.0f, scale * 5.0f / 9.0f, 1.0f);
+                    guiGraphics.pose().translate(
+                            (newspaperX + 48) / (5.0f / 9.0f),
+                            (newspaperY + authorY) / (5.0f / 9.0f),
+                            0);
+                    guiGraphics.drawString(font, authorComponent, 0, 0, ChatFormatting.GRAY.getColor(), false);
+                    guiGraphics.pose().popPose();
+                }
+            }
+        }
+
+        // ----- 正文内容（编辑/只读共用） -----
         if (editable) {
-            // ---- 编辑模式渲染 ----
             DisplayCache cache = getDisplayCache();
             if (cache != null) {
                 for (LineInfo line : cache.lines) {
@@ -484,13 +576,11 @@ public class NewspaperScreen extends Screen {
                 renderCursor(guiGraphics, cache.cursor, cache.cursorAtEnd);
             }
         } else {
-            // ---- 只读模式渲染 ----
             List<FormattedCharSequence> lines = getCachedPageLines();
             for (int i = 0; i < lines.size(); i++) {
                 FormattedCharSequence seq = lines.get(i);
                 guiGraphics.drawString(font, seq, textX, textY + i * 9, 0x000000, false);
             }
-            // 悬停效果
             Style hoverStyle = getClickedComponentStyleAt(mouseX, mouseY);
             if (hoverStyle != null) {
                 guiGraphics.renderComponentHoverEffect(font, hoverStyle, mouseX, mouseY);
@@ -531,7 +621,8 @@ public class NewspaperScreen extends Screen {
 
     private DisplayCache rebuildDisplayCache() {
         String text = getCurrentPageText();
-        if (text.isEmpty()) return DisplayCache.EMPTY;
+        if (text.isEmpty())
+            return DisplayCache.EMPTY;
 
         int cursorPos = 0, selectionPos = 0;
         if (pageEdit != null) {
@@ -599,7 +690,7 @@ public class NewspaperScreen extends Screen {
     }
 
     private Rect2i createPartialLineSelection(String text, StringSplitter splitter,
-                                              int from, int to, int yOffset, int lineStart) {
+            int from, int to, int yOffset, int lineStart) {
         String before = text.substring(lineStart, from);
         String between = text.substring(lineStart, to);
         int xStart = (int) splitter.stringWidth(before);
@@ -643,23 +734,26 @@ public class NewspaperScreen extends Screen {
 
     @Nullable
     private Style getClickedComponentStyleAt(int mouseX, int mouseY) {
-        if (editable) return null;
+        if (editable)
+            return null;
         List<FormattedCharSequence> lines = getCachedPageLines();
-        if (lines.isEmpty()) return null;
+        if (lines.isEmpty())
+            return null;
 
         int x = mouseX - textX;
         int y = mouseY - textY;
-        if (x < 0 || y < 0) return null;
+        if (x < 0 || y < 0)
+            return null;
 
         int lineIndex = y / 9;
-        if (lineIndex >= lines.size()) return null;
+        if (lineIndex >= lines.size())
+            return null;
         FormattedCharSequence line = lines.get(lineIndex);
 
-        // 检查点击位置是否在行内
         int lineWidth = font.width(line);
-        if (x > lineWidth) return null;
+        if (x > lineWidth)
+            return null;
 
-        // 获取该位置样式
         return font.getSplitter().componentStyleAtWidth(line, x);
     }
 
@@ -667,42 +761,102 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) return true;
+        if (super.keyPressed(keyCode, scanCode, modifiers))
+            return true;
 
-        if (keyCode == 266) { backButton.onPress(); return true; }
-        if (keyCode == 267) { forwardButton.onPress(); return true; }
+        if (keyCode == 266) {
+            backButton.onPress();
+            return true;
+        }
+        if (keyCode == 267) {
+            forwardButton.onPress();
+            return true;
+        }
 
-        if (!editable) return false;
+        if (!editable)
+            return false;
 
         if (isSigning) {
             return titleKeyPressed(keyCode);
         }
 
-        if (pageEdit == null) return false;
+        if (pageEdit == null)
+            return false;
 
-        if (Screen.isSelectAll(keyCode)) { pageEdit.selectAll(); return true; }
-        if (Screen.isCopy(keyCode))     { pageEdit.copy(); return true; }
-        if (Screen.isPaste(keyCode))    { pageEdit.paste(); return true; }
-        if (Screen.isCut(keyCode))      { pageEdit.cut(); return true; }
+        if (Screen.isSelectAll(keyCode)) {
+            pageEdit.selectAll();
+            return true;
+        }
+        if (Screen.isCopy(keyCode)) {
+            pageEdit.copy();
+            return true;
+        }
+        if (Screen.isPaste(keyCode)) {
+            pageEdit.paste();
+            return true;
+        }
+        if (Screen.isCut(keyCode)) {
+            pageEdit.cut();
+            return true;
+        }
 
-        TextFieldHelper.CursorStep step = Screen.hasControlDown() ?
-                TextFieldHelper.CursorStep.WORD : TextFieldHelper.CursorStep.CHARACTER;
+        TextFieldHelper.CursorStep step = Screen.hasControlDown() ? TextFieldHelper.CursorStep.WORD
+                : TextFieldHelper.CursorStep.CHARACTER;
         switch (keyCode) {
-            case 257, 335 -> { pageEdit.insertText("\n"); clearDisplayCache(); return true; }
-            case 259     -> { pageEdit.removeFromCursor(-1, step); clearDisplayCache(); return true; }
-            case 261     -> { pageEdit.removeFromCursor(1, step); clearDisplayCache(); return true; }
-            case 262     -> { pageEdit.moveBy(1, Screen.hasShiftDown(), step); clearDisplayCache(); return true; }
-            case 263     -> { pageEdit.moveBy(-1, Screen.hasShiftDown(), step); clearDisplayCache(); return true; }
-            case 264     -> { keyDown(); return true; }
-            case 265     -> { keyUp(); return true; }
-            case 268     -> { keyHome(); return true; }
-            case 269     -> { keyEnd(); return true; }
-            default -> { return false; }
+            case 257, 335 -> {
+                pageEdit.insertText("\n");
+                clearDisplayCache();
+                return true;
+            }
+            case 259 -> {
+                pageEdit.removeFromCursor(-1, step);
+                clearDisplayCache();
+                return true;
+            }
+            case 261 -> {
+                pageEdit.removeFromCursor(1, step);
+                clearDisplayCache();
+                return true;
+            }
+            case 262 -> {
+                pageEdit.moveBy(1, Screen.hasShiftDown(), step);
+                clearDisplayCache();
+                return true;
+            }
+            case 263 -> {
+                pageEdit.moveBy(-1, Screen.hasShiftDown(), step);
+                clearDisplayCache();
+                return true;
+            }
+            case 264 -> {
+                keyDown();
+                return true;
+            }
+            case 265 -> {
+                keyUp();
+                return true;
+            }
+            case 268 -> {
+                keyHome();
+                return true;
+            }
+            case 269 -> {
+                keyEnd();
+                return true;
+            }
+            default -> {
+                return false;
+            }
         }
     }
 
-    private void keyUp()   { changeLine(-1); }
-    private void keyDown() { changeLine(1); }
+    private void keyUp() {
+        changeLine(-1);
+    }
+
+    private void keyDown() {
+        changeLine(1);
+    }
 
     private void changeLine(int delta) {
         int pos = pageEdit.getCursorPos();
@@ -712,7 +866,8 @@ public class NewspaperScreen extends Screen {
     }
 
     private void keyHome() {
-        if (Screen.hasControlDown()) pageEdit.setCursorToStart(Screen.hasShiftDown());
+        if (Screen.hasControlDown())
+            pageEdit.setCursorToStart(Screen.hasShiftDown());
         else {
             int pos = pageEdit.getCursorPos();
             int lineStart = getDisplayCache().findLineStart(pos);
@@ -722,7 +877,8 @@ public class NewspaperScreen extends Screen {
     }
 
     private void keyEnd() {
-        if (Screen.hasControlDown()) pageEdit.setCursorToEnd(Screen.hasShiftDown());
+        if (Screen.hasControlDown())
+            pageEdit.setCursorToEnd(Screen.hasShiftDown());
         else {
             int pos = pageEdit.getCursorPos();
             int lineEnd = getDisplayCache().findLineEnd(pos);
@@ -749,8 +905,10 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
-        if (super.charTyped(codePoint, modifiers)) return true;
-        if (!editable) return false;
+        if (super.charTyped(codePoint, modifiers))
+            return true;
+        if (!editable)
+            return false;
 
         if (isSigning) {
             if (titleEdit.charTyped(codePoint)) {
@@ -761,7 +919,8 @@ public class NewspaperScreen extends Screen {
             return false;
         }
 
-        if (pageEdit == null) return false;
+        if (pageEdit == null)
+            return false;
         if (StringUtil.isAllowedChatCharacter(codePoint)) {
             pageEdit.insertText(Character.toString(codePoint));
             clearDisplayCache();
@@ -774,9 +933,9 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) return true;
+        if (super.mouseClicked(mouseX, mouseY, button))
+            return true;
 
-        // 只读模式处理组件点击
         if (!editable) {
             if (button == 0) {
                 Style style = getClickedComponentStyleAt((int) mouseX, (int) mouseY);
@@ -787,7 +946,6 @@ public class NewspaperScreen extends Screen {
             return false;
         }
 
-        // 编辑模式：点击文字区域移动光标
         if (button == 0 && !isSigning && pageEdit != null) {
             Pos2i screen = new Pos2i((int) mouseX, (int) mouseY);
             Pos2i local = convertScreenToLocal(screen);
@@ -805,8 +963,10 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        if (super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) return true;
-        if (!editable || isSigning || pageEdit == null) return false;
+        if (super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
+            return true;
+        if (!editable || isSigning || pageEdit == null)
+            return false;
         if (button == 0) {
             Pos2i screen = new Pos2i((int) mouseX, (int) mouseY);
             Pos2i local = convertScreenToLocal(screen);
@@ -824,7 +984,8 @@ public class NewspaperScreen extends Screen {
 
     public boolean handleComponentClicked(Style style) {
         ClickEvent clickEvent = style.getClickEvent();
-        if (clickEvent == null) return false;
+        if (clickEvent == null)
+            return false;
         if (clickEvent.getAction() == ClickEvent.Action.CHANGE_PAGE) {
             try {
                 int page = Integer.parseInt(clickEvent.getValue()) - 1;
@@ -834,7 +995,8 @@ public class NewspaperScreen extends Screen {
                     clearDisplayCache();
                     return true;
                 }
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
+            }
             return false;
         }
         return super.handleComponentClicked(style);
@@ -849,7 +1011,11 @@ public class NewspaperScreen extends Screen {
 
     static class Pos2i {
         public final int x, y;
-        Pos2i(int x, int y) { this.x = x; this.y = y; }
+
+        Pos2i(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     static class LineInfo {
@@ -857,6 +1023,7 @@ public class NewspaperScreen extends Screen {
         final String contents;
         final Component asComponent;
         final int x, y;
+
         LineInfo(Style style, String contents, int x, int y) {
             this.style = style;
             this.contents = contents;
@@ -869,8 +1036,8 @@ public class NewspaperScreen extends Screen {
     static class DisplayCache {
         static final DisplayCache EMPTY = new DisplayCache("",
                 new Pos2i(0, 0), true,
-                new int[]{0},
-                new LineInfo[]{new LineInfo(Style.EMPTY, "", 0, 0)},
+                new int[] { 0 },
+                new LineInfo[] { new LineInfo(Style.EMPTY, "", 0, 0) },
                 new Rect2i[0]);
 
         private final String fullText;
@@ -881,7 +1048,7 @@ public class NewspaperScreen extends Screen {
         final Rect2i[] selection;
 
         DisplayCache(String fullText, Pos2i cursor, boolean cursorAtEnd,
-                     int[] lineStarts, LineInfo[] lines, Rect2i[] selection) {
+                int[] lineStarts, LineInfo[] lines, Rect2i[] selection) {
             this.fullText = fullText;
             this.cursor = cursor;
             this.cursorAtEnd = cursorAtEnd;
@@ -892,8 +1059,10 @@ public class NewspaperScreen extends Screen {
 
         public int getIndexAtPosition(Font font, Pos2i local) {
             int lineIdx = local.y / 9;
-            if (lineIdx < 0) return 0;
-            if (lineIdx >= lines.length) return fullText.length();
+            if (lineIdx < 0)
+                return 0;
+            if (lineIdx >= lines.length)
+                return fullText.length();
             LineInfo line = lines[lineIdx];
             int start = lineStarts[lineIdx];
             int x = local.x;
@@ -905,7 +1074,8 @@ public class NewspaperScreen extends Screen {
         public int changeLine(int pos, int delta) {
             int lineIdx = findLineFromPos(lineStarts, pos);
             int newLineIdx = lineIdx + delta;
-            if (newLineIdx < 0 || newLineIdx >= lines.length) return pos;
+            if (newLineIdx < 0 || newLineIdx >= lines.length)
+                return pos;
             int newLineStart = lineStarts[newLineIdx];
             int offset = pos - lineStarts[lineIdx];
             int newOffset = Math.min(offset, lines[newLineIdx].contents.length());

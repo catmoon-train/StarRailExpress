@@ -110,6 +110,7 @@
     "client.roles.swapper.KeyBindingMixin",
     "client.roles.swapper.SwapperScreenMixin",
     "client.roles.voodoo.VoodooScreenMixin",
+    "client.roles.voodoo.LengxiaoScreenMixin",
     "client.roles.vulture.VultureEatenBodyMixin",
     "client.roles.wayfarer.TargetEntityHudmixin",
     "client.time_stop.CantControlMixin",

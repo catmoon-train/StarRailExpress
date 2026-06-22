@@ -1,9 +1,12 @@
 package org.agmas.noellesroles.role;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+
 import java.awt.Color;
 
 /**
@@ -24,7 +27,13 @@ public class BounsRoles {
     public static SRERole LENGXIAO = TMMRoles.registerRole(
             new NormalRole(LENGXIAO_ID, new Color(230, 178, 130).getRGB(),
                     false, true, SRERole.MoodType.FAKE,
-                    Integer.MAX_VALUE, true))
+                    Integer.MAX_VALUE, true) {
+                @Override
+                public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
+                    ResourceLocation texture = SRE.id("block/plush/lengxiaocn.png");
+                    return texture;
+                }
+            })
             .setDefaultEnableChance(10);
 
     public static void init() {

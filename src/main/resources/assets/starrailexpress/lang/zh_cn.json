@@ -1,4 +1,6 @@
 {
+  "gui.sre.newspaper.unnamed": "(未命名标题)",
+  "gui.sre.newspaper.unauthored": "(未知作者)",
   "gui.sre.role_roster.view.title": "职业轮换名单",
   "gui.sre.role_roster.edit.title": "职业轮换名单（管理员）",
   "gui.sre.role_roster.status.on": "正在接管分配",

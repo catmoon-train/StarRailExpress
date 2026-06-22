@@ -61,4 +61,7 @@ public class MountainRoles {
         }
 
     }.setComponentKey(AyayayaPlayerComponent.KEY));
+
+    public static void init() {
+    }
 }
