@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.cca.gamemode;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -31,8 +32,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
+
+import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.RoleCountManager;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.RedHouseRoles;
@@ -216,10 +221,55 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         vigilanteCount = Math.max(0, vigilanteCount);
         neutralsCount = Math.max(0, neutralsCount);
 
+        HarpyModLoaderConfig config = HarpyModLoaderConfig.HANDLER.instance();
+        boolean enableCivilianInPool = config.enableCivilianInPool;
+
+        RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
+                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        !role.isOtherModeRole() &&
+                        !(role instanceof RepairRole) &&
+                        role.canUseKiller() &&
+                        !role.isInnocent() &&
+                        !RoleUtils.compareRole(role, ModRoles.PUPPETEER) &&
+                        // 添加筛选逻辑
+                        role != TMMRoles.CIVILIAN);
+        RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
+                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        role.isVigilanteTeam() &&
+                        // 添加筛选逻辑
+                        !role.isOtherModeRole() && !(role instanceof RepairRole));
+        // 中立池
+        RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
+                role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        !role.isOtherModeRole() &&
+                        // 添加筛选逻辑
+                        !(role instanceof RepairRole) &&
+                        ((!role.canUseKiller() &&
+                                !role.isInnocent()) || role.isNeutrals())
+                        &&
+                        role != TMMRoles.CIVILIAN));
+        // 平民池（只包含真正的"平民"角色，例如医生等）
+        // 当 enableCivilianInPool 开启时，允许 sre:civilian 进入池中
+        RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
+                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        !role.isOtherModeRole() &&
+                        !(role instanceof RepairRole) &&
+                        !role.isVigilanteTeam() &&
+                        !role.canUseKiller() &&
+                        // 添加筛选逻辑
+                        !role.isNeutrals() &&
+                        role.isInnocent() &&
+                        (enableCivilianInPool || role != TMMRoles.CIVILIAN));
+        // 如果开启 civilian 进池，设置最大数量为 1
+        if (enableCivilianInPool) {
+            Harpymodloader.setRoleMaximum(TMMRoles.CIVILIAN.getIdentifier(), 1);
+        }
+
         // 使用阳光自选模式的RoleAssignmentPool方法来抽取职业池
         // getAllRoles会正确处理地图限制、解锁状态和角色占用数量
         List<RoleInstance> baseRoles = SREMurderGameMode.getAllRoles(killerCount, vigilanteCount, neutralsCount,
-                totalPlayerCount + 5, 0);
+                totalPlayerCount + 5, 0, killerPool,
+                neutralsPool, vigilantePool, civilianPool, true);
 
         // 将基础角色添加到职业池
         for (RoleInstance inst : baseRoles) {
