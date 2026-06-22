@@ -1,9 +1,9 @@
-package org.agmas.noellesroles.role;
+package org.agmas.noellesroles.role.touhou;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -15,7 +15,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.THEventHandler;
@@ -24,16 +23,22 @@ import java.awt.*;
 import java.util.List;
 
 public class RedHouseRoles {
-  public static final ResourceLocation FURANDORU_ID = Noellesroles.id("furandoru");
-  public static final ResourceLocation REMILIA_ID = Noellesroles.id("remilia");
-  public static ResourceLocation BAKA_ID = Noellesroles.id("baka");
-  public static ResourceLocation PACHURI_ID = Noellesroles.id("pachuri");
-  public static ResourceLocation MAID_SAKUYA_ID = Noellesroles.id("maid_sakuya");
-  public static ResourceLocation HOAN_MEIRIN_ID = Noellesroles.id("hoan_meirin");
+  public static final String NAMESPACE = "th_redhouse";
+
+  public static ResourceLocation id(String path) {
+    return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
+  }
+
+  public static final ResourceLocation FURANDORU_ID = id("furandoru");
+  public static final ResourceLocation REMILIA_ID = id("remilia");
+  public static final ResourceLocation BAKA_ID = id("baka");
+  public static final ResourceLocation PACHURI_ID = id("pachuri");
+  public static final ResourceLocation MAID_SAKUYA_ID = id("maid_sakuya");
+  public static final ResourceLocation HOAN_MEIRIN_ID = id("hoan_meirin");
 
   // 杀手：蕾米莉亚
   public static SRERole REMILIA = TMMRoles.registerRole(
-      new NormalRole(REMILIA_ID, new Color(113, 98, 121).getRGB(),
+      new TouhouRole(REMILIA_ID, new Color(113, 98, 121).getRGB(),
           false, true, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true) {
         @Override
@@ -57,7 +62,7 @@ public class RedHouseRoles {
       .setCanSeeCoin(true).setCanSeeBodyDeathReason(true).setCanSeeBodyRoleInfo(true).setCanSeeBodyKiller(true);
   // 独立中立：芙兰朵露
   public static SRERole FURANDORU = TMMRoles.registerRole(
-      new NormalRole(FURANDORU_ID, new Color(177, 153, 130).getRGB(),
+      new TouhouRole(FURANDORU_ID, new Color(177, 153, 130).getRGB(),
           false, false, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true) {
         @Override
@@ -70,7 +75,7 @@ public class RedHouseRoles {
       })
       .setCanSeeCoin(true).setNeutrals(true).setCanUseInstinct(true).setCanIgnoreBlackout(true);
   // 好人：MAID_SAKUYA 十六夜咲夜
-  public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new NormalRole(
+  public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new TouhouRole(
       MAID_SAKUYA_ID, // 角色 ID
       new Color(164, 173, 193).getRGB(), // 蓝灰色
       true, // isInnocent = 非乘客阵营（杀手）
@@ -81,19 +86,19 @@ public class RedHouseRoles {
   )).setCanSeeCoin(true).setCanSeeTime(true).setDefaultMax(0);
   // 好人：大妖精baka
   public static SRERole BAKA = TMMRoles.registerRole(
-      new NormalRole(BAKA_ID, new Color(185, 240, 243).getRGB(),
+      new TouhouRole(BAKA_ID, new Color(185, 240, 243).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
       .setCanSeeCoin(true);
   // 好人：红美铃
   public static SRERole HOAN_MEIRIN = TMMRoles.registerRole(
-      new NormalRole(HOAN_MEIRIN_ID, new Color(243, 140, 132).getRGB(),
+      new TouhouRole(HOAN_MEIRIN_ID, new Color(243, 140, 132).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false))
       .setVigilanteTeam(true).setCanSeeCoin(true);
   // 好人：帕秋莉 Patchouli Knowledge
   public static SRERole PACHURI = TMMRoles.registerRole(
-      new NormalRole(PACHURI_ID, new Color(184, 144, 182).getRGB(),
+      new TouhouRole(PACHURI_ID, new Color(184, 144, 182).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
         @Override

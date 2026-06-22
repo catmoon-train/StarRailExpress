@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.SREConfig.AutoPresetInfo;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
@@ -19,8 +20,9 @@ import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.RedHouseRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
+import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
@@ -31,6 +33,7 @@ import java.util.Random;
 
 public class InitModRolesMax {
     public static Random random = new Random();
+
     public static void autoChangePresent() {
         // 自动切换预设：游戏结束时应用配置的预设，使其在下一局游戏中生效
         io.wifi.starrailexpress.SREConfig sreConfig = io.wifi.starrailexpress.SREConfig.instance();
@@ -322,7 +325,8 @@ public class InitModRolesMax {
             final int players_count = serverLevel.getServer().getPlayerCount();
             initModifiersCount(players_count);
 
-            if (players_count >= NoellesRolesConfig.instance().minPlayerForEggRoles && random.nextInt(0, 100) <= EGGS_CHANCE) {
+            if (players_count >= NoellesRolesConfig.instance().minPlayerForEggRoles
+                    && random.nextInt(0, 100) <= EGGS_CHANCE) {
                 Harpymodloader.setRoleMaximum(ModRoles.DIO, 1);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 1);
             } else {
@@ -368,6 +372,14 @@ public class InitModRolesMax {
             NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
 
             if (players_count >= config.minPlayerForTouhouRoles && random.nextInt(0, 100) < TOUHOU_CHANCE) {
+                for (var a : TMMRoles.ROLES.values()) {
+                    if (a instanceof TouhouRole && a.canSetSpawnInfoInConfig()) {
+                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap);
+                        if (max >= 0) {
+                            Harpymodloader.setRoleMaximum(a, max);
+                        }
+                    }
+                }
                 Harpymodloader.setRoleMaximum(RedHouseRoles.BAKA_ID, 1);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 1);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 1);
@@ -378,11 +390,11 @@ public class InitModRolesMax {
                     Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 0);
                 }
             } else {
-                Harpymodloader.setRoleMaximum(RedHouseRoles.BAKA_ID, 0);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 0);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 0);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 0);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.FURANDORU, 0);
+                for (var a : TMMRoles.ROLES.values()) {
+                    if (a instanceof TouhouRole) {
+                        Harpymodloader.setRoleMaximum(a, 0);
+                    }
+                }
             }
             // 茴铭玲依赖可跳跃地图，非跳跃地图属于地图限制，名单接管时也不应带入。
             if (!canJumpMap) {
