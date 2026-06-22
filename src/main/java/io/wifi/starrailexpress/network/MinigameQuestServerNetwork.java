@@ -44,8 +44,18 @@ public class MinigameQuestServerNetwork {
             BlockPos pos = payload.pos();
             BlockEntity be = player.level().getBlockEntity(pos);
             if (be instanceof MinigameQuestBlockEntity questBe) {
-                // 破坏任务触发点：启动破坏任务
+                // 破坏任务触发点：启动破坏任务（含冷却检查）
                 if (questBe.isSabotageTrigger() && player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+                    long now = level.getGameTime();
+                    long cooldownTicks = (long) questBe.getSabotageCooldown() * 20;
+                    if (cooldownTicks > 0 && questBe.getLastSabotageTime() > 0
+                            && now - questBe.getLastSabotageTime() < cooldownTicks) {
+                        player.displayClientMessage(
+                                net.minecraft.network.chat.Component.translatable("message.sre.sabotage_cooldown"),
+                                true);
+                        return;
+                    }
+                    questBe.setLastSabotageTime(now);
                     org.agmas.noellesroles.scene.SceneEventManager.startSabotage(level,
                             questBe.getSabotageDuration() * 20);
                     level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ELDER_GUARDIAN_CURSE,
@@ -88,6 +98,7 @@ public class MinigameQuestServerNetwork {
         data.putBoolean("IsTaskMarker", entity.isTaskMarker());
         data.putBoolean("IsSabotageTrigger", entity.isSabotageTrigger());
         data.putInt("SabotageDuration", entity.getSabotageDuration());
+        data.putInt("SabotageCooldown", entity.getSabotageCooldown());
         ServerPlayNetworking.send(player, new MinigameQuestPayload.OpenConfig(pos, data));
     }
 }

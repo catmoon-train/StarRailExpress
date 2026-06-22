@@ -52,7 +52,9 @@ public class ManholeBlockEntity extends BlockEntity {
         AABB top = new AABB(pos.above());
         List<Player> players = serverLevel.getEntitiesOfClass(Player.class, top,
                 p -> p.isAlive() && !p.isCreative() && !p.isSpectator()
-                        && SceneRoleAccess.canEnterRestricted(p, null));
+                        && (SceneRoleAccess.canEnterRestricted(p, null)
+                            || (SceneRoleAccess.roleOf(p) != null
+                                && SceneRoleAccess.roleOf(p).canJumpManhole())));
         for (Player player : players) {
             int dwell = SceneEventManager.reportDwell(serverLevel, player, CHANNEL);
             if (dwell >= DEATH_TICKS) {

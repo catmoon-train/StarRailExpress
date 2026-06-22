@@ -1671,6 +1671,8 @@
   "screen.starrailexpress.sabotage_trigger_on": "Sabotage Trigger: ON",
   "screen.starrailexpress.sabotage_trigger_off": "Sabotage Trigger: OFF",
   "screen.starrailexpress.sabotage_duration": "Duration (sec):",
+  "screen.starrailexpress.sabotage_cooldown": "Cooldown (sec):",
+  "message.sre.sabotage_cooldown": "Sabotage on cooldown, come back later",
   "screen.starrailexpress.lockpick_minigame": "Lockpicking",
   "screen.starrailexpress.lockpick_hint": "W=Try A/D=Move",
   "screen.starrailexpress.key_making_minigame": "Key Making",

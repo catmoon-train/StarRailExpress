@@ -1439,6 +1439,8 @@
   "screen.starrailexpress.sabotage_trigger_on": "破坏任务触发: 是",
   "screen.starrailexpress.sabotage_trigger_off": "破坏任务触发: 否",
   "screen.starrailexpress.sabotage_duration": "持续时间(秒):",
+  "screen.starrailexpress.sabotage_cooldown": "冷却(秒):",
+  "message.sre.sabotage_cooldown": "破坏任务冷却中，稍后再来",
   "screen.starrailexpress.lockpick_minigame": "撬锁小游戏",
   "screen.starrailexpress.lockpick_hint": "W=尝试 A/D=移动",
   "screen.starrailexpress.key_making_minigame": "判定",

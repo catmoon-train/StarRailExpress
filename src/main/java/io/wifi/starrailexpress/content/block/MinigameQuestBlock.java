@@ -84,11 +84,11 @@ public class MinigameQuestBlock extends BaseEntityBlock
                 // 创造模式：打开配置界面
                 questBe.openConfigUI(sp);
             } else if (player instanceof ServerPlayer sp) {
-                // 破坏任务触发点：仅杀手可右键
+                // 破坏任务触发点：杀手 + canUseSabotage 角色可右键
                 if (questBe.isSabotageTrigger()) {
                     var role = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(sp.level())
                             .getRole(sp);
-                    if (role == null || !role.isKiller()) {
+                    if (role == null || (!role.isKiller() && !role.canUseSabotage())) {
                         return InteractionResult.SUCCESS;
                     }
                 }
@@ -176,11 +176,11 @@ public class MinigameQuestBlock extends BaseEntityBlock
         if (level != null) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof MinigameQuestBlockEntity questBe) {
-                // 破坏任务触发点：仅杀手可见
+                // 破坏任务触发点：杀手 + canUseSabotage 角色可见
                 if (questBe.isSabotageTrigger()) {
                     var role = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(level)
                             .getRole(player);
-                    return role != null && role.isKiller();
+                    return role != null && (role.isKiller() || role.canUseSabotage());
                 }
                 return questBe.isTaskMarker();
             }

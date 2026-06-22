@@ -88,7 +88,9 @@ public class FogZoneBlockEntity extends BlockEntity {
             }
             UUID uuid = player.getUUID();
 
-            if (SceneRoleAccess.canEnterRestricted(player, null)) {
+            var role = SceneRoleAccess.roleOf(player);
+            if (SceneRoleAccess.canEnterRestricted(player, null)
+                    || (role != null && role.canAcrossFog())) {
                 // 检查冷却时间
                 Long cooldownUntil = playerFogCooldownUntil.get(uuid);
                 if (cooldownUntil != null && currentTick < cooldownUntil) {

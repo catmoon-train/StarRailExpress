@@ -91,7 +91,9 @@ public class ManholeBlock extends BaseEntityBlock implements TaskInstinctShowabl
         if (!(player instanceof ServerPlayer sp) || !(level instanceof ServerLevel serverLevel)) {
             return InteractionResult.CONSUME;
         }
-        if (!SceneRoleAccess.canEnterRestricted(player, null)) {
+        var role = SceneRoleAccess.roleOf(player);
+        if (!SceneRoleAccess.canEnterRestricted(player, null)
+                && (role == null || !role.canJumpManhole())) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.manhole.denied"), true);
             serverLevel.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, 0.6F, 0.7F);
             return InteractionResult.CONSUME;
