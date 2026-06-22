@@ -1,15 +1,20 @@
 package org.agmas.noellesroles.content.block.scene;
 
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.scene.SceneTaskManager;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,7 +23,10 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * 运输点（场景任务「运输点任务」）：在起点右键取货，在终点（end=true）右键交货完成。原版木桶贴图。
+ * 运输点（场景任务「运输点任务」）：
+ * 起点（end=false）：右键取货，获得运输物品。
+ * 终点（end=true）：手持运输物品右键交货完成任务。
+ * 起点使用绿色箭头木箱贴图，终点使用原版木桶贴图。
  */
 public class TransportPointBlock extends Block {
 
@@ -34,22 +42,62 @@ public class TransportPointBlock extends Block {
         builder.add(END);
     }
 
+    /** 终点：手持运输物品右键完成交货。 */
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!state.getValue(END)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (level.isClientSide) {
+            return ItemInteractionResult.SUCCESS;
+        }
+        if (player instanceof ServerPlayer sp && stack.is(ModItems.TRANSPORT_PACKAGE)) {
+            if (SceneTaskManager.hasTransportTask(sp)) {
+                // 消耗一个运输物品
+                stack.shrink(1);
+                SceneTaskManager.reportTransportDeliver(sp);
+                if (level instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5, pos.getY() + 1.0,
+                            pos.getZ() + 0.5, 8, 0.3, 0.3, 0.3, 0.0);
+                    serverLevel.playSound(null, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 0.8F, 1.0F);
+                }
+            } else {
+                sp.displayClientMessage(Component.translatable("message.noellesroles.scene_task.transport_no_task"), true);
+            }
+        }
+        return ItemInteractionResult.SUCCESS;
+    }
+
+    /** 起点：空手右键取货，获得运输物品。 */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hit) {
+        if (state.getValue(END)) {
+            return InteractionResult.PASS;
+        }
+        // 确保玩家主手为空
+        if (!player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
+            return InteractionResult.PASS;
+        }
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         if (player instanceof ServerPlayer sp) {
-            if (state.getValue(END)) {
-                SceneTaskManager.reportTransportDeliver(sp);
-            } else {
+            if (SceneTaskManager.hasTransportTask(sp)) {
                 SceneTaskManager.reportTransportPickup(sp);
-            }
-            if (level instanceof ServerLevel serverLevel) {
-                serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5, pos.getY() + 1.0,
-                        pos.getZ() + 0.5, 6, 0.3, 0.3, 0.3, 0.0);
-                serverLevel.playSound(null, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 0.8F, 1.0F);
+                // 给予运输物品
+                ItemStack pkg = new ItemStack(ModItems.TRANSPORT_PACKAGE);
+                if (!sp.getInventory().add(pkg)) {
+                    sp.drop(pkg, false);
+                }
+                if (level instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5, pos.getY() + 1.0,
+                            pos.getZ() + 0.5, 6, 0.3, 0.3, 0.3, 0.0);
+                    serverLevel.playSound(null, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 0.8F, 1.0F);
+                }
+            } else {
+                sp.displayClientMessage(Component.translatable("message.noellesroles.scene_task.transport_no_task"), true);
             }
         }
         return InteractionResult.CONSUME;

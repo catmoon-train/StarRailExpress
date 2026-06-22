@@ -984,6 +984,15 @@ public class ModItems {
             new MagnetItem(new Item.Properties().stacksTo(1)),
             "magnet", TOOLS_GROUP);
 
+    /**
+     * 运输物品（场景任务「运输点任务」）
+     * - 在运输点起点右键获得此物品
+     * - 手持此物品右键运输点终点即可完成运输任务
+     */
+    public static final Item TRANSPORT_PACKAGE = register(
+            new Item(new Item.Properties().stacksTo(1)),
+            "transport_package", MISC_ITEMS_GROUP);
+
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
     public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
     public static List<ShopEntry> POISONER_SHOP_ENTRIES = new ArrayList<>();

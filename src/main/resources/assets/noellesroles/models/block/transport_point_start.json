@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "noellesroles:block/transport_point_start_top",
+    "bottom": "noellesroles:block/transport_point_bottom",
+    "side": "noellesroles:block/transport_point_start_side"
+  }
+}

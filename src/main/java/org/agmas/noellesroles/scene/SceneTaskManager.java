@@ -96,6 +96,10 @@ public final class SceneTaskManager {
         return s == null ? null : s.type;
     }
 
+    public static boolean hasTransportTask(Player player) {
+        return getType(player) == Type.TRANSPORT;
+    }
+
     private static boolean has(Player player, Type type) {
         State s = ACTIVE.get(player.getUUID());
         return s != null && s.type == type;

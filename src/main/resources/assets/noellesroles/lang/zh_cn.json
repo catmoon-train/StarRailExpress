@@ -1546,6 +1546,8 @@
   "message.noellesroles.scene_task.assigned": "新场景任务：%s",
   "message.noellesroles.scene_task.complete": "场景任务完成！",
   "message.noellesroles.scene_task.transport_pickup": "已拿起货物，运往终点",
+  "message.noellesroles.scene_task.transport_no_task": "你没有运输任务",
+  "item.noellesroles.transport_package": "运输物品",
   "item_group.noellesroles.hsritems": "HSRItems",
   "entity.noellesroles.wheelchair": "轮椅",
   "entity.noellesroles.puppeteer_body": "玩家傀儡",
