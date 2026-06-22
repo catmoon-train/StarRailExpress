@@ -28,8 +28,8 @@ public class SignaturePaperItem extends Item {
             if (player.isShiftKeyDown()) {
                 // 生死状
                 var abpc = SREAbilityPlayerComponent.KEY.get(player);
-                if (abpc.charges == -1) {
-                    abpc.setCharges(0);
+                if (abpc.status == -1) {
+                    abpc.status = 0;
                     itemStack = ModItems.LIFE_AND_DEATH_SHAPE.getDefaultInstance();
                     var itemName = Component.translatable("item.noellesroles.life_and_death_shape.rename",
                             player.getDisplayName());
