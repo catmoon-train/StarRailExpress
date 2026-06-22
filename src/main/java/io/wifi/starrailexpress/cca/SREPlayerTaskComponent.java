@@ -388,12 +388,12 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             case CHAIR -> new ChairTask(GameConstants.CHAIR_TASK_DURATION);
             case BREATHE -> new BreatheTask(GameConstants.BREATHE_TASK_DURATION);
             case BE_ALONE -> new BeAloneTask(GameConstants.BE_ALONE_TASK_DURATION);
-            case LIGHT_STOVE -> new SceneTriggeredTask(Task.LIGHT_STOVE, "light_stove");
-            case CLEAN_DUST -> new SceneTriggeredTask(Task.CLEAN_DUST, "clean_dust");
-            case TRANSPORT -> new SceneTriggeredTask(Task.TRANSPORT, "transport");
-            case PRAY -> new SceneTriggeredTask(Task.PRAY, "pray");
-            case PRUNE_BUSH -> new SceneTriggeredTask(Task.PRUNE_BUSH, "prune_bush");
-            case HARVEST_CROP -> new SceneTriggeredTask(Task.HARVEST_CROP, "harvest_crop");
+            case LIGHT_STOVE -> new SceneTriggeredTask("light_stove");
+            case CLEAN_DUST -> new SceneTriggeredTask("clean_dust");
+            case TRANSPORT -> new SceneTriggeredTask("transport");
+            case PRAY -> new SceneTriggeredTask("pray");
+            case PRUNE_BUSH -> new SceneTriggeredTask("prune_bush");
+            case HARVEST_CROP -> new SceneTriggeredTask("harvest_crop");
             case MANIC -> new ManicTask();
             default -> null;
         };
@@ -465,12 +465,12 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
 
         // ───────── 场景任务 ─────────
         BREATHE(nbt -> new BreatheTask(nbt.getInt("timer")), TaskCategory.ACTIVE), // 呼吸新鲜空气
-        LIGHT_STOVE(nbt -> new SceneTriggeredTask(Task.LIGHT_STOVE, "light_stove"), TaskCategory.SOOTHING), // 取暖
-        CLEAN_DUST(nbt -> new SceneTriggeredTask(Task.CLEAN_DUST, "clean_dust"), TaskCategory.ACTIVE), // 清扫灰尘
-        TRANSPORT(nbt -> new SceneTriggeredTask(Task.TRANSPORT, "transport"), TaskCategory.ACTIVE), // 运送物资
-        PRAY(nbt -> new SceneTriggeredTask(Task.PRAY, "pray"), TaskCategory.SOOTHING), // 祷告
-        PRUNE_BUSH(nbt -> new SceneTriggeredTask(Task.PRUNE_BUSH, "prune_bush"), TaskCategory.ACTIVE), // 修剪灌木
-        HARVEST_CROP(nbt -> new SceneTriggeredTask(Task.HARVEST_CROP, "harvest_crop"), TaskCategory.ACTIVE), // 活动筋骨
+        LIGHT_STOVE(nbt -> new SceneTriggeredTask("light_stove"), TaskCategory.SOOTHING), // 取暖
+        CLEAN_DUST(nbt -> new SceneTriggeredTask("clean_dust"), TaskCategory.ACTIVE), // 清扫灰尘
+        TRANSPORT(nbt -> new SceneTriggeredTask("transport"), TaskCategory.ACTIVE), // 运送物资
+        PRAY(nbt -> new SceneTriggeredTask("pray"), TaskCategory.SOOTHING), // 祷告
+        PRUNE_BUSH(nbt -> new SceneTriggeredTask("prune_bush"), TaskCategory.ACTIVE), // 修剪灌木
+        HARVEST_CROP(nbt -> new SceneTriggeredTask("harvest_crop"), TaskCategory.ACTIVE), // 活动筋骨
 
         // ───────── 不可刷新任务 ─────────
         CUSTOM(nbt -> new CustomTask(nbt.getString("customName"), nbt.getString("customId")), TaskCategory.NON_REFRESHABLE),
@@ -505,6 +505,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         }
 
         /** 获取任务种类。 */
+        public final @NotNull Function<CompoundTag, TrainTask> setFunction;
         public final TaskCategory category;
 
         Task(@NotNull Function<CompoundTag, TrainTask> function, TaskCategory category) {
@@ -1078,14 +1079,14 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
     /**
      * 场景触发任务：通过 SceneTaskManager 回调触发完成。
      * 任务本身不自行检测完成条件，而是等待外部调用 setFulfilled()。
+     * 为避免枚举自引用，Task 类型通过名称字符串在运行时解析。
      */
     public static class SceneTriggeredTask implements TrainTask {
-        private final Task taskType;
         private final String name;
         private boolean fulfilled;
 
-        public SceneTriggeredTask(Task taskType, String name) {
-            this.taskType = taskType;
+        /** @param name 任务名称（与 Task 枚举名小写对应，如 "light_stove"） */
+        public SceneTriggeredTask(String name) {
             this.name = name;
             this.fulfilled = false;
         }
@@ -1106,13 +1107,13 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
 
         @Override
         public Task getType() {
-            return taskType;
+            return Task.valueOf(name.toUpperCase());
         }
 
         @Override
         public CompoundTag toNbt() {
             CompoundTag nbt = new CompoundTag();
-            nbt.putInt("type", taskType.ordinal());
+            nbt.putInt("type", Task.valueOf(name.toUpperCase()).ordinal());
             nbt.putString("name", name);
             nbt.putBoolean("fulfilled", fulfilled);
             return nbt;
