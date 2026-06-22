@@ -52,6 +52,10 @@ public record CourierMailSendC2SPacket(boolean mainHand, UUID targetUuid, byte[]
         ServerLevel level = player.serverLevel();
         ServerPlayer target = level.getServer().getPlayerList().getPlayer(p.targetUuid);
         if (target == null) return;
+        if (target.getUUID().equals(player.getUUID())) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.courier.self_send"), true);
+            return;
+        }
         if (target.isSpectator() || target.isCreative()) {
             player.displayClientMessage(Component.translatable("message.noellesroles.courier.target_dead"), true);
             return;

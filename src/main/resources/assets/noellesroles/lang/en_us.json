@@ -2976,6 +2976,7 @@
   "message.noellesroles.courier.target_full": "That player's inventory is full",
   "message.noellesroles.courier.insufficient_coins": "Not enough coins, need %s more",
   "message.noellesroles.courier.reply_fail": "Cannot reply",
+  "message.noellesroles.courier.self_send": "§cYou can't send mail to yourself!",
   "message.noellesroles.pigeon.failed": "§cYour pigeon failed to deliver the mail!",
   "entity.noellesroles.pigeon": "Pigeon",
   "announcement.star.role.courier": "Courier",

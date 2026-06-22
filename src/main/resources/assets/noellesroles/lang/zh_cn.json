@@ -2962,6 +2962,7 @@
   "message.noellesroles.courier.target_full": "该玩家快捷栏已满",
   "message.noellesroles.courier.insufficient_coins": "金币不足，还需 %s 金币",
   "message.noellesroles.courier.reply_fail": "无法回信",
+  "message.noellesroles.courier.self_send": "§c不能给自己送信！",
   "message.noellesroles.pigeon.failed": "§c你的信鸽未能送达信物！",
   "entity.noellesroles.pigeon": "信鸽",
   "announcement.star.role.courier": "信使",
