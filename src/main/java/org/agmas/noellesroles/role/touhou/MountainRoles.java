@@ -68,7 +68,7 @@ public class MountainRoles {
     }.setComponentKey(AyayayaPlayerComponent.KEY));
 
     public static SRERole HATATE = TMMRoles.registerRole(new TouhouRole(
-            AYA_ID, // 角色 ID
+            HATATE_ID, // 角色 ID
             new Color(123, 63, 158).getRGB(), // 黑色 - 代表乌鸦
             true, // isInnocent = 乘客阵营
             false, // canUseKiller = 无杀手能力
