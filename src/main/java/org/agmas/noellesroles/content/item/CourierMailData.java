@@ -15,6 +15,7 @@ public final class CourierMailData {
     private static final String TAG_MESSAGE = "CourierMessage";
     private static final String TAG_EFFECT = "CourierEffect";
     private static final String TAG_ATTACHED = "CourierAttached";
+    private static final String TAG_ATTACH_NAME = "CourierAttachName";
     private static final String TAG_SENDER = "CourierSender";
     private static final String TAG_REPLY = "CourierIsReply";
 
@@ -65,6 +66,16 @@ public final class CourierMailData {
     public static void setSender(ItemStack stack, String name) {
         CompoundTag tag = getOrCreateTag(stack);
         tag.putString(TAG_SENDER, name);
+        saveTag(stack, tag);
+    }
+
+    public static String getAttachmentName(ItemStack stack) {
+        return getOrCreateTag(stack).getString(TAG_ATTACH_NAME);
+    }
+
+    public static void setAttachmentName(ItemStack stack, String name) {
+        CompoundTag tag = getOrCreateTag(stack);
+        tag.putString(TAG_ATTACH_NAME, name);
         saveTag(stack, tag);
     }
 

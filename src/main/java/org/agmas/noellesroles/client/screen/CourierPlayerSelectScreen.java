@@ -55,11 +55,6 @@ public class CourierPlayerSelectScreen extends Screen {
     private void sendTo(UUID target) {
         byte[] msgBytes = message.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         ClientPlayNetworking.send(new CourierMailSendC2SPacket(hand == InteractionHand.MAIN_HAND, target, msgBytes, effect, itemSlot));
-        // 客户端立即设置120秒冷却
-        if (minecraft != null && minecraft.player != null) {
-            ItemStack held = minecraft.player.getItemInHand(hand);
-            CourierMailItem.setCooldownEnd(held, System.currentTimeMillis() / 50 + 120 * 20);
-        }
         onClose();
     }
 

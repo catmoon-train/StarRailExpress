@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.content.entity.PigeonEntity;
 
-/** 信鸽渲染器：灰色鹦鹉，正立飞行姿态 */
+/** 信鸽渲染器：灰色鹦鹉 */
 public class PigeonRenderer extends EntityRenderer<PigeonEntity> {
     private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/parrot/parrot_grey.png");
     private final ParrotModel model;
@@ -29,14 +29,8 @@ public class PigeonRenderer extends EntityRenderer<PigeonEntity> {
     @Override
     public void render(PigeonEntity entity, float yaw, float partialTicks, PoseStack stack, MultiBufferSource buffers, int light) {
         stack.pushPose();
-        // 面对移动方向
         stack.mulPose(Axis.YP.rotationDegrees(180.0F - entity.getYRot()));
-        // 正立
-        stack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-        // 飞行动态：轻微俯仰 + 翅膀拍动
-        float flyAnim = (entity.tickCount + partialTicks) * 0.2F;
-        stack.mulPose(Axis.XP.rotationDegrees(-15.0F)); // 前倾飞行
-        stack.translate(0.0F, -1.5F, 0.0F);
+        stack.translate(0.0F, -1.2F, 0.0F);
         stack.scale(1.4F, 1.4F, 1.4F);
 
         this.model.young = false;

@@ -192,15 +192,17 @@ public class MultiLineEditBox extends AbstractWidget {
     @Override
     public boolean mouseClicked(double mx, double my, int btn) {
         if (!this.visible) return false;
-        focused = this.isMouseOver(mx, my);
-        if (focused) {
-            // 根据 Y 坐标计算光标行
+        boolean clicked = this.isMouseOver(mx, my);
+        if (clicked) {
+            this.setFocused(true);
             int relY = (int) (my - this.getY());
             int line = Mth.clamp(relY / 14, 0, lines.size() - 1);
             cursorLine = line;
             cursorPos = currentLineLength();
+        } else {
+            this.setFocused(false);
         }
-        return focused;
+        return clicked;
     }
 
     @Override

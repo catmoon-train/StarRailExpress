@@ -49,8 +49,6 @@
     "roles.puppeteer.PuppeteerBodyGunPayloadMixin",
     "roles.puppeteer.PuppeteerBodyKnifePayloadMixin",
     "roles.courier.PigeonGunPayloadMixin",
-    "roles.courier.PigeonKnifePayloadMixin",
-    "roles.courier.PigeonKnifeTargetMixin",
     "roles.stalker.StalkerLeftClickKillMixin",
     "roles.stalker.StalkerOffItemMixin",
     "roles.traitor.DesperateFaithKnifeCooldownMixin",

@@ -28,6 +28,8 @@ public class CourierMailReceiveScreen extends Screen {
     private final String message;
     private final int effect;
     private final boolean hasItem;
+    private final String attachName;
+    private final boolean isReplyItem;
     private boolean claimed;
     private boolean showingReply;
     private MultiLineEditBox replyBox;
@@ -43,10 +45,14 @@ public class CourierMailReceiveScreen extends Screen {
             this.message = CourierMailData.getMessage(stack);
             this.effect = CourierMailData.getEffect(stack);
             this.hasItem = CourierMailData.hasAttached(stack);
+            this.attachName = CourierMailData.getAttachmentName(stack);
+            this.isReplyItem = CourierMailData.isReply(stack);
         } else {
             this.message = "";
             this.effect = 0;
             this.hasItem = false;
+            this.attachName = "";
+            this.isReplyItem = false;
         }
     }
 
@@ -69,25 +75,34 @@ public class CourierMailReceiveScreen extends Screen {
         if (!claimed) {
             addRenderableWidget(buildBlackTextBtn(cx + GUI_W / 2 - 40, cy + GUI_H - 35, 80, 20,
                     Component.translatable("screen.noellesroles.courier.claim"), b -> claim()));
-        } else {
+        } else if (!isReplyItem) {
             addRenderableWidget(buildBlackTextBtn(cx + GUI_W / 2 - 40, cy + GUI_H - 35, 80, 20,
                     Component.translatable("screen.noellesroles.courier.reply"), b -> startReply()));
         }
     }
 
-    private Button buildBlackTextBtn(int x, int y, int w, int h, Component msg, Button.OnPress onPress) {
-        return new Button(x, y, w, h, msg, onPress, DEFAULT_NARRATION) {
-            @Override
-            public void renderString(GuiGraphics g, net.minecraft.client.gui.Font font, int color) {
-                g.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2,
-                        this.getY() + (this.height - 8) / 2, 0x000000);
-            }
-        };
+    private static Button buildBlackTextBtn(int x, int y, int w, int h, Component msg, Button.OnPress onPress) {
+        return new BlackTextButton(x, y, w, h, msg, onPress);
+    }
+
+    private static class BlackTextButton extends Button {
+        BlackTextButton(int x, int y, int w, int h, Component msg, OnPress onPress) {
+            super(x, y, w, h, msg, onPress, DEFAULT_NARRATION);
+        }
+        @Override
+        public void renderString(GuiGraphics g, net.minecraft.client.gui.Font font, int color) {
+            g.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2,
+                    this.getY() + (this.height - 8) / 2, 0x000000);
+        }
     }
 
     private void claim() {
         ClientPlayNetworking.send(new CourierMailReceiveC2SPacket(hand == InteractionHand.MAIN_HAND));
         claimed = true;
+        // 回信物品领取后直接消失
+        if (isReplyItem && minecraft != null && minecraft.player != null) {
+            minecraft.player.getItemInHand(hand).shrink(1);
+        }
         clearWidgets();
         init();
     }
@@ -158,17 +173,21 @@ public class CourierMailReceiveScreen extends Screen {
             // 底部横线
             g.fill(cx + 20, cy + GUI_H - 60, cx + GUI_W - 20, cy + GUI_H - 59, 0xFFC4A882);
 
-            // 效果文字
-            if (effect != 0) {
-                String fx = switch (effect) {
-                    case 1 -> "✦ +0.2 San";
-                    case 2 -> "✦ Speed I 15s";
-                    case 3 -> "✦ Disguise 10s";
-                    default -> "";
-                };
-                if (!fx.isEmpty()) g.drawString(font, fx, cx + 30, cy + GUI_H - 52, 0xFF5B8A3E);
+            // 效果文字 — 使用翻译键
+            String effKey = switch (effect) {
+                case 1 -> "item.noellesroles.courier_mail.effect.san";
+                case 2 -> "item.noellesroles.courier_mail.effect.speed";
+                case 3 -> "item.noellesroles.courier_mail.effect.disguise";
+                default -> null;
+            };
+            if (effKey != null) {
+                g.drawString(font, "✦ " + Component.translatable(effKey).getString(), cx + 30, cy + GUI_H - 52, 0xFF5B8A3E);
             }
-            if (hasItem) g.drawString(font, "◆ " + Component.translatable("screen.noellesroles.courier.has_attached").getString(), cx + 30, cy + GUI_H - 38, 0xFF886644);
+            // 附件 — 显示物品名
+            if (hasItem) {
+                String name = attachName.isEmpty() ? Component.translatable("screen.noellesroles.courier.has_attached").getString() : attachName;
+                g.drawString(font, "◆ " + name, cx + 30, cy + GUI_H - 38, 0xFF886644);
+            }
         }
     }
 

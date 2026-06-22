@@ -42,6 +42,6 @@ public record CourierMailReceiveC2SPacket(boolean mainHand) implements CustomPac
             case 3 -> player.addEffect(new MobEffectInstance(
                     ModEffects.DISGUISE, 10 * 20, 2)); // 三级伪装的amplifier是2
         }
-        player.getItemInHand(hand).shrink(1);
+        // 不删除信封——收信人还需要用它来回信；回信发包时由 CourierMailReplyC2SPacket 删除
     }
 }

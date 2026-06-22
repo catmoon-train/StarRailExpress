@@ -50,11 +50,11 @@ public record CourierMailSendC2SPacket(boolean mainHand, UUID targetUuid, byte[]
         ServerPlayer target = level.getServer().getPlayerList().getPlayer(p.targetUuid);
         if (target == null) return;
         if (target.isSpectator() || target.isCreative()) {
-            player.displayClientMessage(Component.translatable("message.noellesroles.courier.target_dead"), false);
+            player.displayClientMessage(Component.translatable("message.noellesroles.courier.target_dead"), true);
             return;
         }
         if (target.getInventory().getFreeSlot() < 0) {
-            player.displayClientMessage(Component.translatable("message.noellesroles.courier.target_full"), false);
+            player.displayClientMessage(Component.translatable("message.noellesroles.courier.target_full"), true);
             return;
         }
 
@@ -65,17 +65,15 @@ public record CourierMailSendC2SPacket(boolean mainHand, UUID targetUuid, byte[]
         if (p.itemSlot >= 0) cost += 75;
         var shop = player.getComponent(SREPlayerShopComponent.KEY);
         if (shop != null && shop.balance < cost) {
-            player.displayClientMessage(Component.translatable("message.noellesroles.courier.insufficient_coins", cost - shop.balance), false);
+            player.displayClientMessage(Component.translatable("message.noellesroles.courier.insufficient_coins", cost - shop.balance), true);
             return;
         }
 
         // 扣除金币
         if (shop != null) shop.addToBalance(-cost);
 
-        // 设置冷却
-        InteractionHand hand = p.mainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-        ItemStack mailStack = player.getItemInHand(hand);
-        CourierMailItem.setCooldownEnd(mailStack, level.getGameTime() + 120 * 20);
+        // MC 原版冷却 120 秒
+        player.getCooldowns().addCooldown(ModItems.COURIER_MAIL, 120 * 20);
 
         // 生成信鸽
         PigeonEntity pigeon = new PigeonEntity(ModEntities.PIGEON, level);

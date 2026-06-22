@@ -41,7 +41,7 @@ public record CourierMailReplyC2SPacket(boolean mainHand, byte[] message, int it
         catch (Exception ignored) {}
 
         if (courier == null || courier.getInventory().getFreeSlot() < 0) {
-            player.displayClientMessage(Component.translatable("message.noellesroles.courier.reply_fail"), false);
+            player.displayClientMessage(Component.translatable("message.noellesroles.courier.reply_fail"), true);
             return;
         }
 

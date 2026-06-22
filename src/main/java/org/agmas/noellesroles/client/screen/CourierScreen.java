@@ -51,14 +51,19 @@ public class CourierScreen extends Screen {
     }
 
     /** 创建黑色文字的按钮 */
-    private Button buildBlackTextBtn(int x, int y, int w, int h, Component msg, Button.OnPress onPress) {
-        return new Button(x, y, w, h, msg, onPress, DEFAULT_NARRATION) {
-            @Override
-            public void renderString(GuiGraphics g, net.minecraft.client.gui.Font font, int color) {
-                g.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2,
-                        this.getY() + (this.height - 8) / 2, 0x000000);
-            }
-        };
+    private static Button buildBlackTextBtn(int x, int y, int w, int h, Component msg, Button.OnPress onPress) {
+        return new BlackTextButton(x, y, w, h, msg, onPress);
+    }
+
+    private static class BlackTextButton extends Button {
+        BlackTextButton(int x, int y, int w, int h, Component msg, OnPress onPress) {
+            super(x, y, w, h, msg, onPress, DEFAULT_NARRATION);
+        }
+        @Override
+        public void renderString(GuiGraphics g, net.minecraft.client.gui.Font font, int color) {
+            g.drawCenteredString(font, this.getMessage(), this.getX() + this.width / 2,
+                    this.getY() + (this.height - 8) / 2, 0x000000);
+        }
     }
 
     private Component getEffectLabel() {

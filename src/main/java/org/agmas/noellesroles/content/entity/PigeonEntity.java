@@ -13,6 +13,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -103,17 +104,21 @@ public class PigeonEntity extends LivingEntity {
         if (level() instanceof ServerLevel sl) {
             sl.playSound(null, target.blockPosition(), SoundEvents.PARROT_AMBIENT, SoundSource.MASTER, 1.0F, 1.2F);
         }
-        ItemStack mailStack = new ItemStack(ModItems.COURIER_MAIL);
+        // 回信用 RECEIVED_MAIL，送达后直接消失；普通信用 COURIER_MAIL
+        Item itemType = isReply ? ModItems.RECEIVED_MAIL : ModItems.COURIER_MAIL;
+        ItemStack mailStack = new ItemStack(itemType);
         CourierMailData.setMessage(mailStack, mailMessage != null ? new String(mailMessage, java.nio.charset.StandardCharsets.UTF_8) : "");
         CourierMailData.setEffect(mailStack, mailEffect);
         CourierMailData.setAttached(mailStack, mailItemSlot >= 0);
-        CourierMailData.setSender(mailStack, isReply ? "Reply" : (ownerUuid != null ? ownerUuid.toString() : ""));
+        CourierMailData.setSender(mailStack, isReply ? "" : (ownerUuid != null ? ownerUuid.toString() : ""));
         CourierMailData.setReply(mailStack, isReply);
 
+        // 存储附件物品名
         if (mailItemSlot >= 0 && ownerUuid != null && level() instanceof ServerLevel sl) {
             Player owner = sl.getPlayerByUUID(ownerUuid);
             if (owner != null) {
                 ItemStack attached = owner.getInventory().getItem(mailItemSlot).copy();
+                CourierMailData.setAttachmentName(mailStack, attached.getHoverName().getString());
                 attached.setCount(1);
                 owner.getInventory().getItem(mailItemSlot).shrink(1);
                 if (target.getInventory().getFreeSlot() >= 0) {
@@ -135,15 +140,27 @@ public class PigeonEntity extends LivingEntity {
         if (ownerUuid != null && level() instanceof ServerLevel sl) {
             Player owner = sl.getPlayerByUUID(ownerUuid);
             if (owner != null) {
-                owner.displayClientMessage(Component.translatable("message.noellesroles.pigeon.failed"), false);
+                owner.displayClientMessage(Component.translatable("message.noellesroles.pigeon.failed"), true);
             }
         }
         this.discard();
     }
 
     @Override
+    public boolean isInvulnerableTo(DamageSource source) {
+        // 不受窒息、溺水等环境伤害
+        if (source.is(net.minecraft.tags.DamageTypeTags.IS_DROWNING)
+                || source.is(net.minecraft.tags.DamageTypeTags.IS_FALL)
+                || source.is(net.minecraft.tags.DamageTypeTags.IS_FREEZING)) {
+            return true;
+        }
+        return source.equals(this.damageSources().inWall());
+    }
+
+    @Override
     public boolean hurt(DamageSource source, float amount) {
         if (level().isClientSide) return false;
+        if (this.isInvulnerableTo(source)) return false;
         boolean damaged = super.hurt(source, amount);
         if (this.getHealth() <= 0 || this.isDeadOrDying()) {
             level().playSound(null, this.blockPosition(), SoundEvents.PARROT_DEATH, SoundSource.NEUTRAL, 1.0F, 1.0F);
