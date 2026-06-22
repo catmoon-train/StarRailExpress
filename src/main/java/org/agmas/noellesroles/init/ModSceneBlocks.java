@@ -136,7 +136,7 @@ public interface ModSceneBlocks {
             new StoveBlock(Properties.ofFullCopy(Blocks.FURNACE)
                     .lightLevel(state -> state.getValue(StoveBlock.LIT) ? 13 : 0)));
     Block DUST = registerBlock("scene_dust",
-            new DustBlock(Properties.ofFullCopy(Blocks.GRAVEL)));
+            new DustBlock(Properties.ofFullCopy(Blocks.GRAVEL).noOcclusion()));
     Block TRANSPORT_POINT = registerBlock("transport_point",
             new TransportPointBlock(Properties.ofFullCopy(Blocks.BARREL)));
     Block STATUE = registerBlock("scene_statue",
