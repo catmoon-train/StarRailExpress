@@ -4,13 +4,13 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.roles.innocent.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
+import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -23,8 +23,8 @@ public class MountainRoles {
         return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
     }
 
-    public static final ResourceLocation AYA_ID = Noellesroles.id("ayayaya");
-    public static final ResourceLocation HATATE_ID = Noellesroles.id("hatate");
+    public static final ResourceLocation AYA_ID = id("ayayaya");
+    public static final ResourceLocation HATATE_ID = id("hatate");
 
     public static SRERole AYA = TMMRoles.registerRole(new TouhouRole(
             AYA_ID, // 角色 ID
@@ -51,6 +51,7 @@ public class MountainRoles {
                     ModItems.NEWSPAPER.getDefaultInstance(),
                     50,
                     ShopEntry.Type.TOOL));
+            SHOP.addAll(ShopContent.defaultKnifeEntries);
         }
 
         @Override
