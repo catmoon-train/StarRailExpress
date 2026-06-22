@@ -28,6 +28,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
 import io.wifi.starrailexpress.network.packet.EnableTaskHighlightPacket;
+import io.wifi.starrailexpress.network.packet.ShowCustomNewspaperPacket;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -213,6 +214,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         {
             NewspaperItem.runner = (stack, hand) -> {
                 Minecraft minecraft = Minecraft.getInstance();
+                if (!hand.equals(InteractionHand.MAIN_HAND))
+                    return false;
                 minecraft.setScreen(new NewspaperScreen(stack, hand));
                 return true;
             };
@@ -305,6 +308,11 @@ public class NoellesrolesClient implements ClientModInitializer {
             TaskBlockOverlayRenderer.render(renderContext);
         });
         InstinctRenderer.registerInstinctEvents();
+
+        ClientPlayNetworking.registerGlobalReceiver(ShowCustomNewspaperPacket.ID, (payload, context) -> {
+            context.client().setScreen(new NewspaperScreen(payload.pages(),
+                    (payload.title().orElse(Component.literal(""))), (payload.author().orElse(Component.literal("")))));
+        });
         ClientPlayNetworking.registerGlobalReceiver(CreateClientSmokeAreaPacket.ID, (payload, context) -> {
             ClientSmokeAreaManager.createSmokeArea(context.client().level, payload.position(), payload.radius(),
                     payload.durationTicks());

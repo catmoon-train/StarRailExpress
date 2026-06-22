@@ -14,6 +14,7 @@ import io.wifi.starrailexpress.content.item.CocktailItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.network.packet.EditNewspaperPacket;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -25,6 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.Filterable;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -34,6 +36,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.WritableBookContent;
+import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -52,7 +56,6 @@ import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
-import org.agmas.noellesroles.packet.ShortShotgunEquipPayload;
 import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.pilot.PilotPlayerComponent;
@@ -360,7 +363,42 @@ public class ModPacketsReciever {
         morphlingPlayerComponent.startMorph(payload.player());
       }
     });
+    // newspaperHandler
+    ServerPlayNetworking.registerGlobalReceiver(EditNewspaperPacket.ID, (payload, context) -> {
+      var player = context.player();
+      var mainHandItem = player.getMainHandItem();
+      if (mainHandItem.is(ModItems.NEWSPAPER)) {
+        var titOpt = payload.title();
+        if (titOpt.isPresent()) {
+          var list = new ArrayList<Filterable<Component>>();
+          for (var p : payload.pages()) {
+            list.add(Filterable.passThrough(Component.literal(p)));
+          }
+          String title = titOpt.get();
+          String shortTitle = title;
+          if (shortTitle.length() >= 10) {
+            shortTitle = shortTitle.substring(0, 8) + "...";
+          }
+          mainHandItem.set(DataComponents.WRITTEN_BOOK_CONTENT,
+              new WrittenBookContent(Filterable.passThrough(title), player.getScoreboardName(), 1, list, true));
+          mainHandItem.set(DataComponents.ITEM_NAME,
+              Component.translatable("item.noellesroles.newspaper.name", shortTitle));
 
+          if (mainHandItem.has(DataComponents.WRITABLE_BOOK_CONTENT)) {
+            mainHandItem.remove(DataComponents.WRITABLE_BOOK_CONTENT);
+          }
+        } else {
+          var list = new ArrayList<Filterable<String>>();
+          for (var p : payload.pages()) {
+            list.add(Filterable.passThrough(p));
+          }
+          mainHandItem.set(DataComponents.ITEM_NAME,
+              Component.translatable("item.noellesroles.newspaper.draft").withStyle(
+                  ChatFormatting.ITALIC));
+          mainHandItem.set(DataComponents.WRITABLE_BOOK_CONTENT, new WritableBookContent(list));
+        }
+      }
+    });
     // 静语者技能数据包处理
     ServerPlayNetworking.registerGlobalReceiver(SilencerC2SPacket.ID, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))

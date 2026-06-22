@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.init;
 
+import io.wifi.starrailexpress.network.packet.EditNewspaperPacket;
 import io.wifi.starrailexpress.network.packet.EnableTaskHighlightPacket;
+import io.wifi.starrailexpress.network.packet.ShowCustomNewspaperPacket;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -60,6 +62,10 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(CanMoveInTimeStopS2CPacket.ID, CanMoveInTimeStopS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ScanAllTaskPointsPayload.ID, ScanAllTaskPointsPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ScanAllTaskPointsPayload.ID, ScanAllTaskPointsPayload.CODEC);
+
+        
+        PayloadTypeRegistry.playS2C().register(ShowCustomNewspaperPacket.ID, ShowCustomNewspaperPacket.STREAM_CODEC);
+        PayloadTypeRegistry.playC2S().register(EditNewspaperPacket.ID, EditNewspaperPacket.STREAM_CODEC);
 
         PayloadTypeRegistry.playC2S().register(PlayerResetS2CPacket.ID, PlayerResetS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ChefCookC2SPacket.ID, ChefCookC2SPacket.CODEC);

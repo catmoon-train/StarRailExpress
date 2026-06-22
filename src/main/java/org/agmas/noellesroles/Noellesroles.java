@@ -216,6 +216,7 @@ public class Noellesroles implements ModInitializer {
 
         // 注册命令
         BroadcastCommand.register();
+        NewspaperCommand.register();
         AdminFreeCamCommand.register();
         SetRoleMaxCommand.register();
         NoellesrolesConfigCommand.register();
