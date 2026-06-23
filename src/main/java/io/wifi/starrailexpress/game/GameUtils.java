@@ -741,6 +741,7 @@ public class GameUtils {
 
         gameComponent.setJumpAvailable(areas.canJump);
         gameComponent.setOutsideSoundsAvailable(areas.haveOutsideSound);
+        gameComponent.setSceneOutsideSoundType(areas.sceneOutsideSound);
 
         // 应用地图重力配置
         for (ServerPlayer player : players) {

@@ -128,6 +128,7 @@ public class MapManagerCommand {
                   areas.canSwim = false;
                   areas.disabledTasks = new HashSet<>();
                   areas.haveOutsideSound = false;
+                  areas.sceneOutsideSound = "train";
                   areas.mapName = "new_area";
                   areas.mustCopy = false;
                   areas.noReset = false;
@@ -170,6 +171,7 @@ public class MapManagerCommand {
                 .then(setCanSwim())
                 .then(setNoReset())
                 .then(setHaveOutsideSound())
+                .then(setSceneOutsideSound())
                 .then(setSceneOffsetEnabled())
                 .then(setSnowEnabled())
                 .then(setSandEnabled())
@@ -206,6 +208,7 @@ public class MapManagerCommand {
                 .then(buildGetSimple("canSwim", a -> String.valueOf(a.canSwim)))
                 .then(buildGetSimple("noReset", a -> String.valueOf(a.noReset)))
                 .then(buildGetSimple("haveOutsideSound", a -> String.valueOf(a.haveOutsideSound)))
+                .then(buildGetSimple("sceneOutsideSound", a -> a.sceneOutsideSound))
                 .then(buildGetSimple("sceneOffsetEnabled", a -> String.valueOf(a.sceneOffsetEnabled)))
                 .then(buildGetSimple("snowEnabled", a -> String.valueOf(a.snowEnabled)))
                 .then(buildGetSimple("sandEnabled", a -> String.valueOf(a.sandEnabled)))
@@ -640,6 +643,7 @@ public class MapManagerCommand {
     sb.append("canSwim: ").append(areas.canSwim).append("\n");
     sb.append("noReset: ").append(areas.noReset).append("\n");
     sb.append("haveOutsideSound: ").append(areas.haveOutsideSound).append("\n");
+    sb.append("sceneOutsideSound: \"").append(areas.sceneOutsideSound).append("\"\n");
     sb.append("sceneOffsetEnabled: ").append(areas.sceneOffsetEnabled).append("\n");
     sb.append("snowEnabled: ").append(areas.snowEnabled).append("\n");
     sb.append("sandEnabled: ").append(areas.sandEnabled).append("\n");
@@ -1061,6 +1065,28 @@ public class MapManagerCommand {
               setHaveOutsideSound(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
               return 1;
             }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setSceneOutsideSound() {
+    return Commands.literal("sceneOutsideSound")
+        .then(Commands.argument("value", StringArgumentType.word())
+            .suggests((ctx, builder) -> {
+              for (String s : new String[] { "train", "wind", "sand_storm", "snow_storm", "circus" }) {
+                if (s.startsWith(builder.getRemainingLowerCase()))
+                  builder.suggest(s);
+              }
+              return builder.buildFuture();
+            })
+            .executes(ctx -> {
+              setSceneOutsideSound(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
+              return 1;
+            }));
+  }
+
+  private static void setSceneOutsideSound(CommandSourceStack source, String value) {
+    var areas = AreasWorldComponent.KEY.get(source.getLevel());
+    areas.sceneOutsideSound = value;
+    sendSetFeedback(source, "sceneOutsideSound", value);
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setSceneOffsetEnabled() {

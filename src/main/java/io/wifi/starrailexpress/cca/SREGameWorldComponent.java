@@ -47,6 +47,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     public SRERoleWorldComponent roleWorldComponent = null;
     private boolean canJump = false;
     private boolean haveOutsideSounds = false;
+    /** 背景音效类型，默认 train。 */
+    private String sceneOutsideSoundType = "train";
     private boolean lockedToSupporters = false;
     private boolean enableWeights = false;
 
@@ -257,6 +259,14 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     public void setOutsideSoundsAvailable(boolean bl) {
         haveOutsideSounds = bl;
+    }
+
+    public String getSceneOutsideSoundType() {
+        return sceneOutsideSoundType;
+    }
+
+    public void setSceneOutsideSoundType(String type) {
+        sceneOutsideSoundType = (type != null && !type.isBlank()) ? type : "train";
     }
 
     /**
@@ -592,6 +602,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         this.canJump = nbtCompound.contains("canJump") ? nbtCompound.getBoolean("canJump") : false;
         this.haveOutsideSounds = nbtCompound.contains("haveOutsideSounds") ? nbtCompound.getBoolean("haveOutsideSounds")
                 : false;
+        this.sceneOutsideSoundType = nbtCompound.contains("sceneOutsideSoundType")
+                && !nbtCompound.getString("sceneOutsideSoundType").isBlank()
+                ? nbtCompound.getString("sceneOutsideSoundType") : "train";
         // this.syncRole = nbtCompound.getBoolean("SyncRole");
         // if (!syncRole) {
         if (nbtCompound.contains("StartingPlayerCount")) {
@@ -668,6 +681,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         // nbtCompound.putBoolean("SyncRole", syncRole);
         if (haveOutsideSounds)
             nbtCompound.putBoolean("haveOutsideSounds", haveOutsideSounds);
+        if (!sceneOutsideSoundType.equals("train"))
+            nbtCompound.putString("sceneOutsideSoundType", sceneOutsideSoundType);
         if (canJump)
             nbtCompound.putBoolean("canJump", canJump);
         if (isSkillAvailable)

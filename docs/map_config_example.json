@@ -28,6 +28,7 @@
   "noReset": false,
   "mustCopy": false,
   "haveOutsideSound": false,
+  "sceneOutsideSound": "train",
   "snowEnabled": false,
   "sandEnabled": false,
   "weather": "clear",

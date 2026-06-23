@@ -373,6 +373,10 @@ public class SwitchMapCommand {
                         .withStyle(style -> style.withColor(0x00FFFF)),
                 false);
         source.sendSuccess(
+                () -> Component.literal("Scene Outside Sound: " + areas.sceneOutsideSound)
+                        .withStyle(style -> style.withColor(0x00FFFF)),
+                false);
+        source.sendSuccess(
                 () -> Component.literal("Reset must copy: " + (areas.mustCopy ? "Yes" : "No"))
                         .withStyle(style -> style.withColor(0x00FFFF)),
                 false);

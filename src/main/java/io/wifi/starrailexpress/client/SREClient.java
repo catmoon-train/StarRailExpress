@@ -353,17 +353,59 @@ public class SREClient implements ClientModInitializer {
         AmbienceUtil.registerBackgroundAmbience(
                 new BackgroundAmbience(TMMSounds.AMBIENT_PSYCHO_DRONE, player -> gameComponent.isPsychoActive(), 20));
 
+        // ───── 场景背景音效系统 ─────
+        // 列车内部（看不到天空时，仅 train 类型生效）
         AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(TMMSounds.AMBIENT_TRAIN_INSIDE,
                 SoundSource.AMBIENT,
                 (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                         && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && !SRE.isSkyVisible(player),
+                        && !SRE.isSkyVisible(player)
+                        && gameComponent.getSceneOutsideSoundType().equals("train"),
                 0.25f, 20, 10));
+        // 列车外部（能看到天空时，仅 train 类型生效）
         AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(TMMSounds.AMBIENT_TRAIN_OUTSIDE,
                 SoundSource.AMBIENT,
                 (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                         && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && SRE.isSkyVisible(player),
+                        && SRE.isSkyVisible(player)
+                        && gameComponent.getSceneOutsideSoundType().equals("train"),
+                0.6f, 20, 10));
+
+        // 风声（仅室外，列车移动时）
+        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
+                org.agmas.noellesroles.init.NRSounds.WIND,
+                SoundSource.AMBIENT,
+                (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
+                        && SRE.isSkyVisible(player)
+                        && gameComponent.getSceneOutsideSoundType().equals("wind"),
+                0.6f, 20, 10));
+        // 沙尘暴（仅室外，列车移动时）
+        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
+                org.agmas.noellesroles.init.NRSounds.SAND_STORM,
+                SoundSource.AMBIENT,
+                (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
+                        && SRE.isSkyVisible(player)
+                        && gameComponent.getSceneOutsideSoundType().equals("sand_storm"),
+                0.6f, 20, 10));
+        // 暴风雪（仅室外，列车移动时）
+        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
+                org.agmas.noellesroles.init.NRSounds.SNOW_STORM,
+                SoundSource.AMBIENT,
+                (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
+                        && SRE.isSkyVisible(player)
+                        && gameComponent.getSceneOutsideSoundType().equals("snow_storm"),
+                0.6f, 20, 10));
+        // 马戏团背景音（仅室外，列车移动时）
+        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
+                org.agmas.noellesroles.init.NRSounds.CIRCUS_BACKGROUND,
+                SoundSource.AMBIENT,
+                (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
+                        && SRE.isSkyVisible(player)
+                        && gameComponent.getSceneOutsideSoundType().equals("circus"),
                 0.6f, 20, 10));
 
         // Caching components

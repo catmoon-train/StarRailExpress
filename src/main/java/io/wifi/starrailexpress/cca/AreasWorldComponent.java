@@ -162,6 +162,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public boolean noReset = false;
     public String mapName = null;
     public boolean haveOutsideSound = false;
+    /** 背景音效类型：train/wind/sand_storm/snow_storm/circus。空字符串或未设置时默认 train。 */
+    public String sceneOutsideSound = "train";
 
     // 场景偏移配置 - 将sceneArea内的区块渲染到偏移位置（默认关闭）
     public boolean sceneOffsetEnabled = false;
@@ -474,6 +476,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         this.canJump = tag.contains("canJump") ? tag.getBoolean("canJump") : false;
         this.canSwim = tag.contains("canSwim") ? tag.getBoolean("canSwim") : false;
         this.haveOutsideSound = tag.contains("haveOutsideSound") ? tag.getBoolean("haveOutsideSound") : false;
+        this.sceneOutsideSound = tag.contains("sceneOutsideSound") && !tag.getString("sceneOutsideSound").isBlank()
+                ? tag.getString("sceneOutsideSound") : "train";
         this.snowEnabled = tag.contains("snowEnabled") ? tag.getBoolean("snowEnabled") : false;
         this.sandEnabled = tag.contains("sandEnabled") ? tag.getBoolean("sandEnabled") : false;
         this.fogEnabled = tag.contains("fogEnabled") ? tag.getBoolean("fogEnabled") : true;
@@ -567,6 +571,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         tag.putBoolean("canJump", this.canJump);
         tag.putBoolean("canSwim", this.canSwim);
         tag.putBoolean("haveOutsideSound", this.haveOutsideSound);
+        tag.putString("sceneOutsideSound", this.sceneOutsideSound);
         tag.putBoolean("snowEnabled", this.snowEnabled);
         tag.putBoolean("sandEnabled", this.sandEnabled);
         tag.putBoolean("fogEnabled", this.fogEnabled);

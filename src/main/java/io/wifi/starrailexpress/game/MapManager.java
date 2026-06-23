@@ -245,6 +245,7 @@ public class MapManager {
         jsonObject.addProperty("canSwim", areas.canSwim);
         jsonObject.add("disabledTasks", gson.toJsonTree(areas.disabledTasks));
         jsonObject.addProperty("haveOutsideSound", areas.haveOutsideSound);
+        jsonObject.addProperty("sceneOutsideSound", areas.sceneOutsideSound);
         jsonObject.addProperty("noReset", areas.noReset);
         jsonObject.addProperty("mustCopy", areas.mustCopy);
 
@@ -354,6 +355,11 @@ public class MapManager {
                 areas.haveOutsideSound = jsonObject.get("haveOutsideSound").getAsBoolean();
             } else {
                 areas.haveOutsideSound = false;
+            }
+            if (jsonObject.has("sceneOutsideSound")) {
+                areas.sceneOutsideSound = jsonObject.get("sceneOutsideSound").getAsString();
+            } else {
+                areas.sceneOutsideSound = "train";
             }
             if (jsonObject.has("canJump")) {
                 areas.canJump = jsonObject.get("canJump").getAsBoolean();
