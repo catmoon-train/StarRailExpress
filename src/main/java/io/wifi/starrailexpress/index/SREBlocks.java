@@ -2,7 +2,8 @@ package io.wifi.starrailexpress.index;
 
 import java.util.function.Function;
 
-import org.agmas.noellesroles.init.SREFumoBlocks;
+import org.agmas.noellesroles.init.ModBlocks;
+import org.agmas.noellesroles.init.ModSceneBlocks;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
@@ -14,16 +15,9 @@ import io.wifi.starrailexpress.content.block.RemoteRedstoneBlock;
 import io.wifi.starrailexpress.content.block.TrainLightBlock;
 import io.wifi.starrailexpress.content.block.UpSmallDoorBlock;
 import io.wifi.starrailexpress.content.block.UpTrainDoorBlock;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -33,17 +27,18 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.MapColor;
 
 public interface SREBlocks {
-    public static ResourceKey<CreativeModeTab> BLOCK_CREATIVE_GROUP = ResourceKey.create(
-            Registries.CREATIVE_MODE_TAB,
-            SRE.id("misc_block"));
+    /** 该常量已废弃：SRE 方块现已合并到 ModBlocks.BLOCK_CREATIVE_GROUP（SRE 方块）。 */
+    @Deprecated
+    public static net.minecraft.resources.ResourceKey<CreativeModeTab> BLOCK_CREATIVE_GROUP =
+            org.agmas.noellesroles.init.ModBlocks.BLOCK_CREATIVE_GROUP;
     public static final BlockRegistrar blockRegistrar = new BlockRegistrar(SRE.MOD_ID);
 
-    Block TRAIN_LIGHT = registerOpBlock("train_light", new TrainLightBlock(
+    Block TRAIN_LIGHT = registerSceneOpBlock("train_light", new TrainLightBlock(
             (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
                     .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion()
                     .lightLevel(TrainLightBlock.LIGHT_EMISSION))),
             new Item.Properties().rarity(Rarity.EPIC));
-    Block REMOTE_REDSTONE = registerOpBlock("remote_redstone", new RemoteRedstoneBlock(
+    Block REMOTE_REDSTONE = registerSceneOpBlock("remote_redstone", new RemoteRedstoneBlock(
             (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
                     .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion())),
             new Item.Properties().rarity(Rarity.EPIC));
@@ -82,25 +77,22 @@ public interface SREBlocks {
 
     @SuppressWarnings("unchecked")
     public static <T extends Block> T registerBlock(String id, T block) {
-        return blockRegistrar.createWithItem(id, block, BLOCK_CREATIVE_GROUP);
+        return blockRegistrar.createWithItem(id, block, ModBlocks.BLOCK_CREATIVE_GROUP);
     }
 
     @SuppressWarnings("unchecked")
     public static <T extends Block> T registerBlock(String id, T block, Item.Properties settings) {
-        return blockRegistrar.createWithItem(id, block, settings, BLOCK_CREATIVE_GROUP);
+        return blockRegistrar.createWithItem(id, block, settings, ModBlocks.BLOCK_CREATIVE_GROUP);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Block> T registerOpBlock(String id, T block, Item.Properties settings) {
-        return blockRegistrar.createWithItem(id, block, settings, CreativeModeTabs.OP_BLOCKS);
+    public static <T extends Block> T registerSceneOpBlock(String id, T block, Item.Properties settings) {
+        return blockRegistrar.createWithItem(id, block, settings,
+                CreativeModeTabs.OP_BLOCKS, ModSceneBlocks.SCENE_CREATIVE_GROUP);
     }
 
     static void initialize() {
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, BLOCK_CREATIVE_GROUP, FabricItemGroup.builder()
-                .title(Component.translatable("item_group.starrailexpress.misc_blocks")).icon(() -> {
-                    return new ItemStack(SREFumoBlocks.BAMBOO_PLUSH.asItem());
-                })
-                .build());
+        // SRE 方块现已合并到 ModBlocks.BLOCK_CREATIVE_GROUP，不再单独注册 starrailexpress:misc_block 标签
         blockRegistrar.registerEntries();
     }
 

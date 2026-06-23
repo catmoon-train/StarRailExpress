@@ -2,7 +2,6 @@ package org.agmas.noellesroles.init;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar;
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
-import io.wifi.starrailexpress.SRE;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,21 +32,24 @@ public interface ModBlocks {
     public static final BlockEntityTypeRegistrar blockEntityRegistrar = new BlockEntityTypeRegistrar(
             Noellesroles.MOD_ID);
 
-    Block VENDING_MACHINES_BLOCK = registerBlock("vending_machines",
-            new VendingMachinesBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()));
+    Block VENDING_MACHINES_BLOCK = registerBlockMultiTab("vending_machines",
+            new VendingMachinesBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()),
+            BLOCK_CREATIVE_GROUP, ModSceneBlocks.SCENE_CREATIVE_GROUP);
     BlockEntityType<VendingMachinesBlockEntity> VENDING_MACHINES_BLOCK_ENTITY = blockEntityRegistrar.create(
             "vending_machines",
             BlockEntityType.Builder.of(VendingMachinesBlockEntity::new,
                     ModBlocks.VENDING_MACHINES_BLOCK));
-    Block LOTTERY_MACHINE_BLOCK = registerBlock("lottery_machine",
-            new LotteryMachineBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()));
+    Block LOTTERY_MACHINE_BLOCK = registerBlockMultiTab("lottery_machine",
+            new LotteryMachineBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()),
+            BLOCK_CREATIVE_GROUP, ModSceneBlocks.SCENE_CREATIVE_GROUP);
     BlockEntityType<LotteryMachineBlockEntity> LOTTERY_MACHINE_BLOCK_ENTITY = blockEntityRegistrar.create(
             "lottery_machine",
             BlockEntityType.Builder.of(LotteryMachineBlockEntity::new,
                     ModBlocks.LOTTERY_MACHINE_BLOCK));
     // 创建轮盘赌桌方块
-    Block DEVIL_ROULETTE_TABLE = registerBlock("devil_roulette_table",
-            new DevilRouletteTable());
+    Block DEVIL_ROULETTE_TABLE = registerBlockMultiTab("devil_roulette_table",
+            new DevilRouletteTable(),
+            BLOCK_CREATIVE_GROUP, ModSceneBlocks.SCENE_CREATIVE_GROUP);
     Block REPAIR_STATION = registerBlock("repair_station",
             new RepairStationBlock(
                     BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).lightLevel(state -> 3)));
@@ -67,12 +69,14 @@ public interface ModBlocks {
                     BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(0.6F).noOcclusion()));
     Block FLARE_BLOCK = registerBlock("flare_block",
             new FlareBlock());
-    Block HOTBAR_STORAGE = registerBlock("dnf_hotbar_storage",
+    Block HOTBAR_STORAGE = registerBlockMultiTab("dnf_hotbar_storage",
             new HotbarStorageBlock(Block.Properties.ofFullCopy(Blocks.CHEST)
                     .strength(2.5F)
-                    .sound(SoundType.WOOD)));
-    Block SUPPLY_CRATE_BLOCK = registerBlock("supply_crate",
-            new SupplyCrateBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()));
+                    .sound(SoundType.WOOD)),
+            BLOCK_CREATIVE_GROUP, ModSceneBlocks.SCENE_CREATIVE_GROUP);
+    Block SUPPLY_CRATE_BLOCK = registerBlockMultiTab("supply_crate",
+            new SupplyCrateBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()),
+            BLOCK_CREATIVE_GROUP, ModSceneBlocks.SCENE_CREATIVE_GROUP);
     BlockEntityType<SupplyCrateBlockEntity> SUPPLY_CRATE_BLOCK_ENTITY = blockEntityRegistrar.create(
             "supply_crate",
             BlockEntityType.Builder.of(SupplyCrateBlockEntity::new,
@@ -92,15 +96,17 @@ public interface ModBlocks {
     public static final BlockEntityType<HotbarStorageBlockEntity> HOTBAR_STORAGE_BLOCK_ENTITY_BLOCK_ENTITY_TYPE = Registry
             .register(
                     BuiltInRegistries.BLOCK_ENTITY_TYPE,
-                    SRE.id("dnf_hotbar_storage"),
+                    Noellesroles.id("dnf_hotbar_storage"),
                     BlockEntityType.Builder.of(HotbarStorageBlockEntity::new, HOTBAR_STORAGE)
                             .build(null));
 
     // Kill blocks (OP utilities)
-    Block KILL_BLOCK = registerOpBlock("kill_block",
-            new KillBlock(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f).noOcclusion()));
-    Block KILL_BLOCK_PANEL = registerOpBlock("kill_block_panel",
-            new KillBlockPanel(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f).noOcclusion()));
+    Block KILL_BLOCK = blockRegistrar.createWithItem("kill_block",
+            new KillBlock(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f).noOcclusion()),
+            CreativeModeTabs.OP_BLOCKS, ModSceneBlocks.SCENE_CREATIVE_GROUP);
+    Block KILL_BLOCK_PANEL = blockRegistrar.createWithItem("kill_block_panel",
+            new KillBlockPanel(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f).noOcclusion()),
+            CreativeModeTabs.OP_BLOCKS, ModSceneBlocks.SCENE_CREATIVE_GROUP);
 
     static void initialize() {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, BLOCK_CREATIVE_GROUP, FabricItemGroup.builder()
@@ -120,6 +126,19 @@ public interface ModBlocks {
     @SuppressWarnings("unchecked")
     public static <T extends Block> T registerBlock(String id, T block, Item.Properties settings) {
         return blockRegistrar.createWithItem(id, block, settings, BLOCK_CREATIVE_GROUP);
+    }
+
+    @SafeVarargs
+    @SuppressWarnings("unchecked")
+    public static <T extends Block> T registerBlockMultiTab(String id, T block,
+            ResourceKey<CreativeModeTab> tab, ResourceKey<CreativeModeTab>... extraTabs) {
+        if (extraTabs.length == 0) {
+            return blockRegistrar.createWithItem(id, block, tab);
+        }
+        ResourceKey<CreativeModeTab>[] allTabs = new ResourceKey[extraTabs.length + 1];
+        allTabs[0] = tab;
+        System.arraycopy(extraTabs, 0, allTabs, 1, extraTabs.length);
+        return blockRegistrar.createWithItem(id, block, allTabs);
     }
 
     @SuppressWarnings("unchecked")

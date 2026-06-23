@@ -3,6 +3,7 @@ package org.agmas.noellesroles.init;
 import dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar;
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -11,6 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -50,12 +52,16 @@ import org.agmas.noellesroles.content.block_entity.scene.PoisonZoneBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.SceneGateBlockEntity;
 
 /**
- * 场景方块注册与“SRE场景方块”创造标签栏。
+ * 场景方块注册与" SRE 场景方块"创造标签栏。
  */
 public interface ModSceneBlocks {
 
     ResourceKey<CreativeModeTab> SCENE_CREATIVE_GROUP = ResourceKey.create(
             Registries.CREATIVE_MODE_TAB, Noellesroles.id("scene"));
+
+    /** SRE 任务点方块创造标签栏。 */
+    ResourceKey<CreativeModeTab> QUEST_CREATIVE_GROUP = ResourceKey.create(
+            Registries.CREATIVE_MODE_TAB, Noellesroles.id("quest"));
 
     BlockRegistrar blockRegistrar = new BlockRegistrar(Noellesroles.MOD_ID);
     BlockEntityTypeRegistrar blockEntityRegistrar = new BlockEntityTypeRegistrar(Noellesroles.MOD_ID);
@@ -95,10 +101,10 @@ public interface ModSceneBlocks {
 
     BlockEntityType<SceneGateBlockEntity> SCENE_GATE_ENTITY = blockEntityRegistrar.create("scene_gate",
             BlockEntityType.Builder.of(SceneGateBlockEntity::new, SCENE_GATE));
-    Block REACTOR = registerBlock("reactor",
+    Block REACTOR = registerQuestBlock("reactor",
             new ReactorBlock(Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
                     .lightLevel(state -> state.getValue(ReactorBlock.ACTIVE) ? 12 : 0)));
-    Block WATER_VALVE = registerBlock("water_valve",
+    Block WATER_VALVE = registerQuestBlock("water_valve",
             new WaterValveBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK)
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(WaterValveBlock.ACTIVE) ? 8 : 0)));
@@ -130,20 +136,20 @@ public interface ModSceneBlocks {
     BlockEntityType<MovingPlatformBlockEntity> MOVING_PLATFORM_ENTITY = blockEntityRegistrar.create("moving_platform",
             BlockEntityType.Builder.of(MovingPlatformBlockEntity::new, MOVING_PLATFORM));
 
-    // ───────────────────────── 场景任务点方块 ─────────────────────────
+    // ───────────────────────── 场景任务点方块 → SRE 任务点方块 ─────────────────────────
 
-    Block STOVE = registerBlock("scene_stove",
+    Block STOVE = registerQuestBlock("scene_stove",
             new StoveBlock(Properties.ofFullCopy(Blocks.FURNACE)
                     .lightLevel(state -> state.getValue(StoveBlock.LIT) ? 13 : 0)));
-    Block DUST = registerBlock("scene_dust",
+    Block DUST = registerQuestBlock("scene_dust",
             new DustBlock(Properties.ofFullCopy(Blocks.GRAVEL).noOcclusion()));
-    Block TRANSPORT_POINT = registerBlock("transport_point",
+    Block TRANSPORT_POINT = registerQuestBlock("transport_point",
             new TransportPointBlock(Properties.ofFullCopy(Blocks.BARREL)));
-    Block STATUE = registerBlock("scene_statue",
+    Block STATUE = registerQuestBlock("scene_statue",
             new StatueBlock(Properties.ofFullCopy(Blocks.CHISELED_QUARTZ_BLOCK)));
-    Block BUSH = registerBlock("scene_bush",
+    Block BUSH = registerQuestBlock("scene_bush",
             new BushBlock(Properties.ofFullCopy(Blocks.OAK_LEAVES).noOcclusion()));
-    Block CROP = registerBlock("scene_crop",
+    Block CROP = registerQuestBlock("scene_crop",
             new CropBlock(Properties.ofFullCopy(Blocks.HAY_BLOCK)));
 
     BlockEntityType<CropBlockEntity> CROP_ENTITY = blockEntityRegistrar.create("scene_crop",
@@ -161,11 +167,28 @@ public interface ModSceneBlocks {
         return blockRegistrar.createWithItem(id, block, settings, SCENE_CREATIVE_GROUP);
     }
 
+    @SuppressWarnings("unchecked")
+    static <T extends Block> T registerQuestBlock(String id, T block) {
+        return blockRegistrar.createWithItem(id, block, QUEST_CREATIVE_GROUP);
+    }
+
     static void initialize() {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, SCENE_CREATIVE_GROUP, FabricItemGroup.builder()
                 .title(Component.translatable("item_group.noellesroles.scene"))
                 .icon(() -> new ItemStack(DRIPPING_STALACTITE.asItem()))
                 .build());
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, QUEST_CREATIVE_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("item_group.noellesroles.quest"))
+                .icon(() -> new ItemStack(REACTOR.asItem()))
+                .build());
+
+        // 将原版黑色混凝土加入 SRE 任务点方块分类
+        ItemGroupEvents.modifyEntriesEvent(QUEST_CREATIVE_GROUP).register(entries -> {
+            entries.accept(Items.BLACK_CONCRETE, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            entries.accept(Items.NOTE_BLOCK, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            entries.accept(Items.LECTERN, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        });
+
         blockRegistrar.registerEntries();
         blockEntityRegistrar.registerEntries();
     }

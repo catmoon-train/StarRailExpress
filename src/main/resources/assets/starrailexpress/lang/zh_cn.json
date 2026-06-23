@@ -846,7 +846,8 @@
   "itemGroup.starrailexpress.equipment": "哈比快车谋杀案：装备",
   "itemGroup.starrailexpress.compact": "Wathe 兼容：所有（请尽量不要使用这些物品，它们会导致崩溃）",
   "item_group.starrailexpress.fumo_blocks": "SRE装饰：Fumo",
-  "item_group.starrailexpress.misc_blocks": "SRE方块：杂项",
+
+
   "itemGroup.starrailexpress.weapons": "武器",
   "itemGroup.starrailexpress.tools": "工具",
   "itemGroup.starrailexpress.consumables": "消耗品",

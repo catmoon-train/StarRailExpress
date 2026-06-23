@@ -561,11 +561,11 @@ public interface TMMBlocks {
     Block LIGHT_TOILET = registrar.createWithItem("light_toilet",
             new ToiletBlock(
                     BlockBehaviour.Properties.of().forceSolidOn().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
     Block DARK_TOILET = registrar.createWithItem("dark_toilet",
             new ToiletBlock(
                     BlockBehaviour.Properties.of().forceSolidOn().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
     Block TOILET_CHAIR = registrar.createWithItem("toilet_chair",
             new ToiletBlock(
                     BlockBehaviour.Properties.of().forceSolidOn().noOcclusion().strength(0.5f).sound(SoundType.METAL)),
@@ -589,9 +589,11 @@ public interface TMMBlocks {
     Block BAR_STOOL = registrar.createWithItem("bar_stool",
             new BarStoolBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)), TMMItems.DECORATION_GROUP);
     Block WHITE_TRIMMED_BED = registrar.createWithItem("white_trimmed_bed",
-            new TrimmedBedBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)), TMMItems.DECORATION_GROUP);
+            new TrimmedBedBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)),
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
     Block RED_TRIMMED_BED = registrar.createWithItem("red_trimmed_bed",
-            new TrimmedBedBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)), TMMItems.DECORATION_GROUP);
+            new TrimmedBedBlock(BlockBehaviour.Properties.ofFullCopy(WHITE_LOUNGE_COUCH)),
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
     Block HORN = registrar.createWithItem("horn",
             new HornBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CHAIN).noOcclusion().noCollission()),
             TMMItems.DECORATION_GROUP);
@@ -600,19 +602,19 @@ public interface TMMBlocks {
     Block TRIMMED_LANTERN = registrar.createWithItem("trimmed_lantern",
             new TrimmedLanternBlock(BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().forceSolidOn()
                     .lightLevel(createLightLevelFromLitPoweredBlockState(15)).sound(SoundType.LANTERN)),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.SCENE_CREATIVE_GROUP);
     Block WALL_LAMP = registrar.createWithItem("wall_lamp", new WallLampBlock(BlockBehaviour.Properties
             .ofFullCopy(TRIMMED_LANTERN).forceSolidOn().lightLevel(createLightLevelFromLitPoweredBlockState(15))),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.SCENE_CREATIVE_GROUP);
     Block NEON_PILLAR = registrar.createWithItem(
             "neon_pillar", new NeonPillarBlock(BlockBehaviour.Properties.of().strength(1.5f)
                     .sound(SoundType.COPPER_BULB).lightLevel(createLightLevelFromLitPoweredBlockState(15))),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.SCENE_CREATIVE_GROUP);
     Block NEON_TUBE = registrar
             .createWithItem(
                     "neon_tube", new NeonTubeBlock(BlockBehaviour.Properties.of().strength(1.5f)
                             .sound(SoundType.COPPER_BULB).lightLevel(createLightLevelFromLitPoweredBlockState(15))),
-                    TMMItems.DECORATION_GROUP);
+                    TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.SCENE_CREATIVE_GROUP);
 
     Block SMALL_BUTTON = registrar.createWithItem("small_button", new SmallButtonBlock(BlockBehaviour.Properties.of()
             .sound(SoundType.CHERRY_WOOD).noOcclusion().forceSolidOn().noCollission().strength(-1.0f, 3600000.0f)),
@@ -623,10 +625,10 @@ public interface TMMBlocks {
             new SprinklerBlock(
                     BlockBehaviour.Properties.of().forceSolidOn().strength(0.5f).noOcclusion()
                             .sound(SoundType.LANTERN)),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
     Block GOLD_SPRINKLER = registrar.createWithItem("gold_sprinkler",
             new SprinklerBlock(BlockBehaviour.Properties.ofFullCopy(STAINLESS_STEEL_SPRINKLER)),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
     Block GOLD_ORNAMENT = registrar.createWithItem("gold_ornament", new OrnamentBlock(
             BlockBehaviour.Properties.of().noOcclusion().forceSolidOn().noCollission().strength(0.25f)
                     .sound(SoundType.COPPER)),
@@ -647,13 +649,13 @@ public interface TMMBlocks {
                     .sound(SoundType.COPPER)
                     .instabreak()
                     .noCollission()),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
     Block DRINK_TRAY = registrar.createWithItem("drink_tray", new DrinkTrayBlock(
             BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_GLAZED_TERRACOTTA)
                     .noOcclusion()
                     .sound(SoundType.CHERRY_WOOD)
                     .instabreak()),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
     Block CHIMNEY = registrar.createWithItem("chimney",
             new ChimneyBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK).noCollission()),
             TMMItems.DECORATION_GROUP);
@@ -668,10 +670,11 @@ public interface TMMBlocks {
             ((BlockSettingsAdditions) BlockBehaviour.Properties.ofFullCopy(Blocks.BARRIER)).SRE$setCol(false)),
             new Item.Properties().rarity(Rarity.EPIC), CreativeModeTabs.OP_BLOCKS);
     Block CAMERA = registrar.createWithItem("camera",
-            new CameraBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()), TMMItems.DECORATION_GROUP);
+            new CameraBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()),
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
     Block SECURITY_MONITOR = registrar.createWithItem("security_monitor",
             new SecurityMonitorBlock(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion()),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP);
 
     // 邮箱方块
     Block MAILBOX = registrar.createWithItem("mailbox",
@@ -696,7 +699,8 @@ public interface TMMBlocks {
                     .sound(SoundType.STONE)));
     Item ENTITY_INTERACTION_BLOCK_ITEM = sreItemRegistrar.create("entity_interaction_block",
             new BlockItem(ENTITY_INTERACTION_BLOCK, new Item.Properties().rarity(Rarity.EPIC)),
-            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS });
+            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS,
+                    org.agmas.noellesroles.init.ModSceneBlocks.SCENE_CREATIVE_GROUP });
 
     // 实体交互方块 - 镶板版本
     Block ENTITY_INTERACTION_PANEL = sreBlockRegistrar.create("entity_interaction_panel",
@@ -707,7 +711,8 @@ public interface TMMBlocks {
                     .sound(SoundType.STONE)));
     Item ENTITY_INTERACTION_PANEL_ITEM = sreItemRegistrar.create("entity_interaction_panel",
             new BlockItem(ENTITY_INTERACTION_PANEL, new Item.Properties().rarity(Rarity.EPIC)),
-            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS });
+            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS,
+                    org.agmas.noellesroles.init.ModSceneBlocks.SCENE_CREATIVE_GROUP });
 
     // 小游戏任务点方块
     Block MINIGAME_QUEST_BLOCK = sreBlockRegistrar.create("minigame_quest_block",
@@ -718,7 +723,8 @@ public interface TMMBlocks {
                     .sound(SoundType.STONE)));
     Item MINIGAME_QUEST_BLOCK_ITEM = sreItemRegistrar.create("minigame_quest_block",
             new BlockItem(MINIGAME_QUEST_BLOCK, new Item.Properties().rarity(Rarity.EPIC)),
-            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS });
+            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS,
+                    org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP });
 
     // 小游戏任务点镶板
     Block MINIGAME_QUEST_PANEL = sreBlockRegistrar.create("minigame_quest_panel",
@@ -729,7 +735,8 @@ public interface TMMBlocks {
                     .sound(SoundType.STONE)));
     Item MINIGAME_QUEST_PANEL_ITEM = sreItemRegistrar.create("minigame_quest_panel",
             new BlockItem(MINIGAME_QUEST_PANEL, new Item.Properties().rarity(Rarity.EPIC)),
-            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS });
+            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS,
+                    org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP });
 
     private static Block createBranch(String name, Block wood, BlockRegistrar registrar) {
         return registrar.createWithItem(name,
