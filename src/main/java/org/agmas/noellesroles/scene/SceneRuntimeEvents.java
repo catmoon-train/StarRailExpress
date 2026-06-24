@@ -8,6 +8,7 @@ import org.agmas.noellesroles.content.entity.HurricaneEntity;
 import org.agmas.noellesroles.init.ModEntities;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -42,8 +43,8 @@ public final class SceneRuntimeEvents {
     }
 
     private static void tickOxygenDrowning(ServerLevel level) {
-        if (!GameUtils.isGameStarted || !isOxygenDrowningEnabled(level)) {
-            ZERO_AIR_TICKS.clear();
+        if (!SREGameWorldComponent.KEY.get(level).isRunning() || !isOxygenDrowningEnabled(level)) {
+            clearOxygenDrowning(level);
             return;
         }
         for (ServerPlayer player : level.players()) {
@@ -66,5 +67,11 @@ public final class SceneRuntimeEvents {
 
     private static boolean isOxygenDrowningEnabled(ServerLevel level) {
         return AreasWorldComponent.KEY.get(level).enableOxygenDrowning;
+    }
+
+    private static void clearOxygenDrowning(ServerLevel level) {
+        for (ServerPlayer player : level.players()) {
+            ZERO_AIR_TICKS.remove(player.getUUID());
+        }
     }
 }

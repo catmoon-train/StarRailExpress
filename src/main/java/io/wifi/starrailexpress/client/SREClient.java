@@ -907,6 +907,7 @@ public class SREClient implements ClientModInitializer {
 
             // 滞时雷引爆倒计时 HUD
             io.wifi.starrailexpress.client.hud.TimedGrenadeHUD.render(guiGraphics, deltaTick.getRealtimeDeltaTicks());
+            org.agmas.noellesroles.client.hud.MapStatusBarHudRenderer.render(guiGraphics);
 
             // RoleUnlockHudRenderer.render(guiGraphics);
 

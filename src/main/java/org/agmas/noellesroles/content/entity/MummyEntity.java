@@ -27,6 +27,11 @@ public class MummyEntity extends Husk {
         super(entityType, level);
     }
 
+    @Override
+    public boolean shouldDespawnInPeaceful() {
+        return false;
+    }
+
     public void setHome(BlockPos home) {
         this.home = home.immutable();
     }

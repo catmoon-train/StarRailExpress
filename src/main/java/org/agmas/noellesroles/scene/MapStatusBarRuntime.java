@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.scene;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.CocktailItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -48,7 +49,7 @@ public final class MapStatusBarRuntime {
 
     public static void tick(ServerLevel level) {
         MapStatusBarType type = currentStatusBar(level);
-        if (!GameUtils.isGameStarted || type == MapStatusBarType.NONE) {
+        if (!isGameRunning(level) || type == MapStatusBarType.NONE) {
             clear(level);
             return;
         }
@@ -80,9 +81,10 @@ public final class MapStatusBarRuntime {
             return;
         }
         for (ServerPlayer player : level.players()) {
-            ServerPlayNetworking.send(player, new MapStatusBarSyncS2CPacket(MapStatusBarType.NONE, MAX_VALUE, MAX_VALUE));
+            if (STATES.remove(player.getUUID()) != null) {
+                ServerPlayNetworking.send(player, new MapStatusBarSyncS2CPacket(MapStatusBarType.NONE, MAX_VALUE, MAX_VALUE));
+            }
         }
-        STATES.clear();
     }
 
     public static void addWarmth(ServerPlayer player, int delta) {
@@ -104,7 +106,8 @@ public final class MapStatusBarRuntime {
     }
 
     private static void add(ServerPlayer player, MapStatusBarType type, int delta) {
-        if (!GameUtils.isGameStarted || currentStatusBar((ServerLevel) player.level()) != type || !shouldTrack(player)) {
+        ServerLevel level = (ServerLevel) player.level();
+        if (!isGameRunning(level) || currentStatusBar(level) != type || !shouldTrack(player)) {
             return;
         }
         State state = STATES.computeIfAbsent(player.getUUID(), id -> new State(type));
@@ -240,6 +243,10 @@ public final class MapStatusBarRuntime {
     private static MapStatusBarType currentStatusBar(ServerLevel level) {
         MapStatusBarType type = AreasWorldComponent.KEY.get(level).mapStatusBar;
         return type == null ? MapStatusBarType.NONE : type;
+    }
+
+    private static boolean isGameRunning(ServerLevel level) {
+        return SREGameWorldComponent.KEY.get(level).isRunning();
     }
 
     private static boolean isColdGround(BlockState state) {

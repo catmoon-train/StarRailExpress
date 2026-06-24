@@ -7,6 +7,7 @@ import org.agmas.noellesroles.content.entity.MummyEntity;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModSceneBlocks;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -35,7 +36,7 @@ public class CoffinBlockEntity extends BlockEntity {
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CoffinBlockEntity be) {
-        if (!(level instanceof ServerLevel serverLevel) || !GameUtils.isGameStarted) {
+        if (!(level instanceof ServerLevel serverLevel) || !SREGameWorldComponent.KEY.get(serverLevel).isRunning()) {
             be.nearbyTicks = 0;
             return;
         }

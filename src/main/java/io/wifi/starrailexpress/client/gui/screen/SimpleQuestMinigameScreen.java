@@ -330,6 +330,8 @@ public class SimpleQuestMinigameScreen extends Screen {
     private final List<ClawPrize> clawPrizes = new ArrayList<>();
     private float clawX, clawY;
     private int clawState, clawCarry = -1;
+    private int clawReleaseTicks;
+    private float clawDropX, clawDropY, clawDropVY;
     private static final ItemStack[] CLAW_REQUIRED_PLUSH = {
             new ItemStack(SREFumoBlocks.CANYUESAMA_PLUSH),
             new ItemStack(SREFumoBlocks.BAMBOO_PLUSH),
@@ -346,6 +348,8 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private final List<BalloonTarget> balloons = new ArrayList<>();
     private int balloonsHit;
+    private boolean sniperBulletActive;
+    private float sniperBulletX, sniperBulletY, sniperBulletVX, sniperBulletVY;
 
     /** 成功动画：>=0 表示已完成，正在播放成功反馈，到达时长后关闭。 */
     private int successTicks = -1;
@@ -1770,11 +1774,9 @@ public class SimpleQuestMinigameScreen extends Screen {
         }
         if (mode == Mode.CLAW_MACHINE) {
             if (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_A) {
-                moveClaw(-18);
                 return true;
             }
             if (keyCode == GLFW.GLFW_KEY_RIGHT || keyCode == GLFW.GLFW_KEY_D) {
-                moveClaw(18);
                 return true;
             }
             if (keyCode == GLFW.GLFW_KEY_SPACE || keyCode == GLFW.GLFW_KEY_ENTER) {
@@ -3257,12 +3259,65 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private void setupOneStroke() {
         int left = panelLeft(), top = panelTop();
-        oneNodeX = new int[] {left + 105, left + 215, left + 325, left + 270, left + 160};
-        oneNodeY = new int[] {top + 85, top + 45, top + 85, top + 185, top + 185};
-        oneEdges = new int[][] {{0,1},{1,2},{2,3},{3,4},{4,0},{0,2}};
+        int[][] points = {
+                {left + 104, top + 78},
+                {left + 202, top + 44},
+                {left + 316, top + 78},
+                {left + 330, top + 172},
+                {left + 230, top + 202},
+                {left + 104, top + 174},
+                {left + 214, top + 122}
+        };
+        List<Integer> order = new ArrayList<>();
+        for (int i = 0; i < points.length; i++) order.add(i);
+        Collections.shuffle(order, rng);
+        int nodeCount = 5 + rng.nextInt(3);
+        oneNodeX = new int[nodeCount];
+        oneNodeY = new int[nodeCount];
+        for (int i = 0; i < nodeCount; i++) {
+            int[] point = points[order.get(i)];
+            oneNodeX[i] = point[0];
+            oneNodeY[i] = point[1];
+        }
+        oneEdges = generateOneStrokeEdges(nodeCount);
         oneUsed = new boolean[oneEdges.length];
         oneCurrent = -1;
         oneUsedCount = 0;
+    }
+
+    private int[][] generateOneStrokeEdges(int nodeCount) {
+        for (int attempt = 0; attempt < 30; attempt++) {
+            boolean[][] used = new boolean[nodeCount][nodeCount];
+            boolean[] touched = new boolean[nodeCount];
+            List<int[]> edges = new ArrayList<>();
+            int current = rng.nextInt(nodeCount);
+            touched[current] = true;
+            int targetEdges = nodeCount + 1 + rng.nextInt(3);
+            while (edges.size() < targetEdges) {
+                List<Integer> candidates = new ArrayList<>();
+                for (int next = 0; next < nodeCount; next++) {
+                    if (next != current && !used[current][next]) candidates.add(next);
+                }
+                if (candidates.isEmpty()) break;
+                int next = candidates.get(rng.nextInt(candidates.size()));
+                used[current][next] = true;
+                used[next][current] = true;
+                edges.add(new int[] {current, next});
+                current = next;
+                touched[current] = true;
+            }
+            boolean allTouched = true;
+            for (boolean nodeTouched : touched) {
+                if (!nodeTouched) {
+                    allTouched = false;
+                    break;
+                }
+            }
+            if (allTouched && edges.size() >= nodeCount) return edges.toArray(new int[0][]);
+        }
+        int[][] fallback = new int[nodeCount - 1][2];
+        for (int i = 0; i < fallback.length; i++) fallback[i] = new int[] {i, i + 1};
+        return fallback;
     }
 
     private void renderOneStroke(GuiGraphics g, int left, int top) {
@@ -3313,23 +3368,31 @@ public class SimpleQuestMinigameScreen extends Screen {
         clawY = panelTop() + 62;
         clawState = 0;
         clawCarry = -1;
+        clawReleaseTicks = 0;
+        clawDropVY = 0.0f;
         int left = panelLeft(), top = panelTop();
         List<ItemStack> plush = new ArrayList<>();
         plush.addAll(Arrays.asList(CLAW_REQUIRED_PLUSH));
         for (int i = 0; i < 3; i++) plush.add(CLAW_EXTRA_PLUSH[rng.nextInt(CLAW_EXTRA_PLUSH.length)]);
         Collections.shuffle(plush, rng);
         for (int i = 0; i < plush.size(); i++) {
-            clawPrizes.add(new ClawPrize(left + 95 + (i % 3) * 75, top + 174 + (i / 3) * 32, plush.get(i)));
+            float x = left + 92 + (i % 3) * 82 + rng.nextInt(17) - 8;
+            float y = top + 134 + (i / 3) * 34 + rng.nextInt(13) - 6;
+            float scale = 0.82f + rng.nextFloat() * 0.48f;
+            float rotation = -24.0f + rng.nextFloat() * 48.0f;
+            clawPrizes.add(new ClawPrize(x, y, plush.get(i), scale, rotation));
         }
     }
 
     private void tickClawMachine() {
-        if (clawState == 1) {
+        if (clawState == 0) {
+            tickClawInput();
+        } else if (clawState == 1) {
             clawY += 4.0f;
-            if (clawY >= panelTop() + 174) {
+            if (clawY >= panelTop() + 170) {
                 for (int i = 0; i < clawPrizes.size(); i++) {
                     ClawPrize prize = clawPrizes.get(i);
-                    if (!prize.taken && Math.abs(clawX - prize.x) < 22) {
+                    if (!prize.taken && Math.abs(clawX - prize.x) < 24 && Math.abs(clawY - prize.y) < 46) {
                         prize.taken = true;
                         clawCarry = i;
                         break;
@@ -3343,7 +3406,32 @@ public class SimpleQuestMinigameScreen extends Screen {
                 clawY = panelTop() + 62;
                 clawState = 0;
             }
+        } else if (clawState == 3) {
+            clawReleaseTicks++;
+            if (clawReleaseTicks >= 10) {
+                clawState = 4;
+                clawDropVY = 0.0f;
+            }
+        } else if (clawState == 4) {
+            clawDropVY += 0.55f;
+            clawDropY += clawDropVY;
+            if (clawDropY >= panelTop() + 219) {
+                complete();
+            }
         }
+    }
+
+    private void tickClawInput() {
+        int left = panelLeft(), top = panelTop();
+        int dir = 0;
+        if (mouseHeld && inRect(lastMouseX, lastMouseY, left + 358, top + 82, 28, 24)) dir--;
+        if (mouseHeld && inRect(lastMouseX, lastMouseY, left + 392, top + 82, 28, 24)) dir++;
+        long window = minecraft == null ? 0L : minecraft.getWindow().getWindow();
+        if (window != 0L) {
+            if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(window, GLFW.GLFW_KEY_A) == GLFW.GLFW_PRESS) dir--;
+            if (GLFW.glfwGetKey(window, GLFW.GLFW_KEY_RIGHT) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(window, GLFW.GLFW_KEY_D) == GLFW.GLFW_PRESS) dir++;
+        }
+        if (dir != 0) moveClaw(dir * 3.0f);
     }
 
     private void renderClawMachine(GuiGraphics g, int left, int top) {
@@ -3354,24 +3442,39 @@ public class SimpleQuestMinigameScreen extends Screen {
         for (int i = 0; i < clawPrizes.size(); i++) {
             ClawPrize prize = clawPrizes.get(i);
             if (prize.taken && i != clawCarry) continue;
-            int x = i == clawCarry ? Math.round(clawX - 8) : Math.round(prize.x - 8);
-            int y = i == clawCarry ? Math.round(clawY + 18) : Math.round(prize.y - 8);
-            g.renderItem(prize.stack, x, y);
+            float x = i == clawCarry ? carriedClawPrizeX() : prize.x;
+            float y = i == clawCarry ? carriedClawPrizeY() : prize.y;
+            renderClawPrize(g, prize, x, y);
         }
         int railY = top + 58;
         g.fill(left + 70, railY, left + 318, railY + 3, 0xFF9FB2C8);
         drawLine(g, Math.round(clawX), railY + 2, Math.round(clawX), Math.round(clawY), 0xFFBCC7D6);
-        drawClaw(g, Math.round(clawX), Math.round(clawY));
+        drawClaw(g, Math.round(clawX), Math.round(clawY), clawState == 3 || clawState == 4);
         drawButton(g, left + 358, top + 82, 28, 24, Component.literal("<"));
         drawButton(g, left + 392, top + 82, 28, 24, Component.literal(">"));
         drawButton(g, left + 358, top + 122, 62, 28, tr("claw_machine.drop"));
     }
 
+    private float carriedClawPrizeX() {
+        return clawState == 4 ? clawDropX : clawX;
+    }
+
+    private float carriedClawPrizeY() {
+        return clawState == 4 ? clawDropY : clawY + 26.0f;
+    }
+
+    private void renderClawPrize(GuiGraphics g, ClawPrize prize, float x, float y) {
+        g.pose().pushPose();
+        g.pose().translate(x, y, 0.0f);
+        g.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(prize.rotation));
+        g.pose().scale(prize.scale, prize.scale, 1.0f);
+        g.renderItem(prize.stack, -8, -8);
+        g.pose().popPose();
+    }
+
     private void clickClawMachine(double mouseX, double mouseY) {
         int left = panelLeft(), top = panelTop();
-        if (inRect(mouseX, mouseY, left + 358, top + 82, 28, 24)) moveClaw(-18);
-        else if (inRect(mouseX, mouseY, left + 392, top + 82, 28, 24)) moveClaw(18);
-        else if (inRect(mouseX, mouseY, left + 358, top + 122, 62, 28)) pressClawButton();
+        if (inRect(mouseX, mouseY, left + 358, top + 122, 62, 28)) pressClawButton();
     }
 
     private void moveClaw(float delta) {
@@ -3381,27 +3484,34 @@ public class SimpleQuestMinigameScreen extends Screen {
     private void pressClawButton() {
         if (clawState != 0) return;
         if (clawCarry >= 0 && clawX <= panelLeft() + 96) {
-            complete();
+            clawState = 3;
+            clawReleaseTicks = 0;
+            clawDropX = clawX;
+            clawDropY = clawY + 26.0f;
+            clawDropVY = 0.0f;
         } else if (clawCarry >= 0) {
             ClawPrize prize = clawPrizes.get(clawCarry);
             prize.taken = false;
             prize.x = clawX;
-            prize.y = panelTop() + 190;
+            prize.y = panelTop() + 166;
+            prize.rotation = -24.0f + rng.nextFloat() * 48.0f;
             clawCarry = -1;
         } else {
             clawState = 1;
         }
     }
 
-    private void drawClaw(GuiGraphics g, int x, int y) {
+    private void drawClaw(GuiGraphics g, int x, int y, boolean open) {
         g.fill(x - 5, y - 4, x + 5, y + 4, 0xFFD8DDE8);
-        drawLine(g, x - 2, y + 3, x - 12, y + 15, 0xFFD8DDE8);
-        drawLine(g, x + 2, y + 3, x + 12, y + 15, 0xFFD8DDE8);
+        int spread = open ? 18 : 12;
+        drawLine(g, x - 2, y + 3, x - spread, y + 15, 0xFFD8DDE8);
+        drawLine(g, x + 2, y + 3, x + spread, y + 15, 0xFFD8DDE8);
     }
 
     private void setupBalloonSniper() {
         balloons.clear();
         balloonsHit = 0;
+        sniperBulletActive = false;
         int left = panelLeft(), top = panelTop();
         int[] colors = {RED, YELLOW, BLUE, GREEN, 0xFFFF88CC, 0xFFFF8844};
         for (int i = 0; i < 6; i++) {
@@ -3411,11 +3521,31 @@ public class SimpleQuestMinigameScreen extends Screen {
     }
 
     private void tickBalloonSniper() {
-        int left = panelLeft();
+        int left = panelLeft(), top = panelTop();
         for (BalloonTarget balloon : balloons) {
             balloon.x += balloon.speed;
             if (balloon.x < left + 38 || balloon.x > left + PANEL_W - 38) {
                 balloon.speed *= -1;
+            }
+        }
+        if (sniperBulletActive) {
+            float prevX = sniperBulletX;
+            float prevY = sniperBulletY;
+            sniperBulletX += sniperBulletVX;
+            sniperBulletY += sniperBulletVY;
+            for (int i = 0; i < balloons.size(); i++) {
+                BalloonTarget balloon = balloons.get(i);
+                if (distanceToSegment(balloon.x, balloon.y, prevX, prevY, sniperBulletX, sniperBulletY) <= 15.0f) {
+                    balloons.remove(i);
+                    balloonsHit++;
+                    sniperBulletActive = false;
+                    if (balloonsHit >= 6) complete();
+                    return;
+                }
+            }
+            if (sniperBulletX < left + 20 || sniperBulletX > left + PANEL_W - 20
+                    || sniperBulletY < top + 34 || sniperBulletY > top + PANEL_H - 18) {
+                sniperBulletActive = false;
             }
         }
     }
@@ -3423,11 +3553,25 @@ public class SimpleQuestMinigameScreen extends Screen {
     private void renderBalloonSniper(GuiGraphics g, int left, int top, int mouseX, int mouseY) {
         g.drawCenteredString(font, tr("common.hits", balloonsHit, 6), width / 2, top + 32, WHITE);
         int gx = width / 2, gy = top + 220;
-        drawLine(g, gx, gy, mouseX, mouseY, 0x66FFFFFF);
+        float dx = mouseX - gx;
+        float dy = mouseY - gy;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        if (len < 1.0f) {
+            dx = 1.0f;
+            dy = -0.25f;
+            len = (float) Math.sqrt(dx * dx + dy * dy);
+        }
+        float aimLen = 118.0f;
+        int aimX = Math.round(gx + dx / len * aimLen);
+        int aimY = Math.round(gy + dy / len * aimLen);
+        drawDashedLine(g, gx, gy, aimX, aimY, 0x77FFFFFF, 7, 5);
         for (BalloonTarget balloon : balloons) {
             drawLine(g, Math.round(balloon.x), Math.round(balloon.y + 16), Math.round(balloon.x), Math.round(balloon.y + 32), 0xFFCCCCCC);
             drawCircle(g, Math.round(balloon.x), Math.round(balloon.y), 14, balloon.color);
             drawCircle(g, Math.round(balloon.x - 4), Math.round(balloon.y - 5), 4, 0x88FFFFFF);
+        }
+        if (sniperBulletActive) {
+            drawCircle(g, Math.round(sniperBulletX), Math.round(sniperBulletY), 3, 0xFFFFF2A8);
         }
         g.fill(gx - 30, gy + 10, gx + 30, gy + 22, 0xFF5A6170);
         g.fill(gx - 6, gy - 14, gx + 6, gy + 12, 0xFFB9C2D1);
@@ -3435,16 +3579,20 @@ public class SimpleQuestMinigameScreen extends Screen {
     }
 
     private void shootBalloon(double mouseX, double mouseY) {
+        if (sniperBulletActive) return;
         float gx = width / 2f, gy = panelTop() + 220;
-        for (int i = 0; i < balloons.size(); i++) {
-            BalloonTarget balloon = balloons.get(i);
-            if (distanceToSegment(balloon.x, balloon.y, gx, gy, (float) mouseX, (float) mouseY) <= 15) {
-                balloons.remove(i);
-                balloonsHit++;
-                if (balloonsHit >= 6) complete();
-                return;
-            }
-        }
+        float dx = (float) mouseX - gx;
+        float dy = (float) mouseY - gy;
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
+        if (len < 4.0f) return;
+        float speed = 8.5f;
+        dx /= len;
+        dy /= len;
+        sniperBulletX = gx + dx * 34.0f;
+        sniperBulletY = gy + dy * 34.0f;
+        sniperBulletVX = dx * speed;
+        sniperBulletVY = dy * speed;
+        sniperBulletActive = true;
     }
 
     private void drawLine(GuiGraphics g, int x1, int y1, int x2, int y2, int color) {
@@ -3454,6 +3602,19 @@ public class SimpleQuestMinigameScreen extends Screen {
             return;
         }
         for (int i = 0; i <= steps; i++) {
+            float t = i / (float) steps;
+            int x = Math.round(Mth.lerp(t, x1, x2));
+            int y = Math.round(Mth.lerp(t, y1, y2));
+            g.fill(x, y, x + 2, y + 2, color);
+        }
+    }
+
+    private void drawDashedLine(GuiGraphics g, int x1, int y1, int x2, int y2, int color, int dash, int gap) {
+        int steps = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
+        if (steps <= 0) return;
+        int period = dash + gap;
+        for (int i = 0; i <= steps; i++) {
+            if (i % period >= dash) continue;
             float t = i / (float) steps;
             int x = Math.round(Mth.lerp(t, x1, x2));
             int y = Math.round(Mth.lerp(t, y1, y2));
@@ -3554,13 +3715,16 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private static class ClawPrize {
         float x, y;
+        float scale, rotation;
         final ItemStack stack;
         boolean taken;
 
-        ClawPrize(float x, float y, ItemStack stack) {
+        ClawPrize(float x, float y, ItemStack stack, float scale, float rotation) {
             this.x = x;
             this.y = y;
             this.stack = stack;
+            this.scale = scale;
+            this.rotation = rotation;
         }
     }
 
