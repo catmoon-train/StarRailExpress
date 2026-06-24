@@ -107,7 +107,7 @@ public class ModEntities {
     public static final EntityType<MummyEntity> MUMMY = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("mummy"),
-            FabricEntityTypeBuilder.<MummyEntity>create(MobCategory.MONSTER, MummyEntity::new)
+            FabricEntityTypeBuilder.<MummyEntity>create(MobCategory.CREATURE, MummyEntity::new)
                     .dimensions(EntityDimensions.fixed(0.6F, 1.95F))
                     .trackRangeBlocks(64)
                     .trackedUpdateRate(2)

@@ -2991,5 +2991,21 @@
   "announcement.star.role.courier": "信使",
   "announcement.star.role.noellesroles.courier": "信使",
   "announcement.star.goals.courier": "用信件为乘客们传递希望与物资！",
-  "announcement.star.win.courier": "乘客胜利！"
+  "announcement.star.win.courier": "乘客胜利！",
+  "block.noellesroles.hurricane_device": "飓风装置",
+  "block.noellesroles.coffin": "棺材",
+  "block.noellesroles.water_pump": "打水装置",
+  "entity.noellesroles.mummy": "木乃伊",
+  "entity.noellesroles.hurricane": "飓风",
+  "deathreason.starrailexpress.ancient_bite": "被远古之物咬死",
+  "deathreason.starrailexpress.drowned": "淹死",
+  "death_reason.starrailexpress.ancient_bite": "被远古之物咬死",
+  "death_reason.starrailexpress.drowned": "淹死",
+  "screen.noellesroles.hurricane_device.title": "飓风装置",
+  "screen.noellesroles.hurricane_device.radius": "生成半径",
+  "screen.noellesroles.hurricane_device.persistent.yes": "常驻：是",
+  "screen.noellesroles.hurricane_device.persistent.no": "常驻：否",
+  "screen.noellesroles.hurricane_device.interval": "生成间隔（秒）",
+  "screen.noellesroles.hurricane_device.duration": "持续时间（秒）",
+  "screen.noellesroles.hurricane_device.save": "保存"
 }

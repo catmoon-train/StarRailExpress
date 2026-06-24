@@ -2950,5 +2950,21 @@
   "hud.noellesroles.task_instinct.render.transport_end": "運輸終點",
   "hud.noellesroles.task_instinct.render.pray": "雕像",
   "hud.noellesroles.task_instinct.render.prune_bush": "灌木",
-  "hud.noellesroles.task_instinct.render.harvest_crop": "草墊"
+  "hud.noellesroles.task_instinct.render.harvest_crop": "草墊",
+  "block.noellesroles.hurricane_device": "颶風裝置",
+  "block.noellesroles.coffin": "棺材",
+  "block.noellesroles.water_pump": "打水裝置",
+  "entity.noellesroles.mummy": "木乃伊",
+  "entity.noellesroles.hurricane": "颶風",
+  "deathreason.starrailexpress.ancient_bite": "被遠古之物咬死",
+  "deathreason.starrailexpress.drowned": "淹死",
+  "death_reason.starrailexpress.ancient_bite": "被遠古之物咬死",
+  "death_reason.starrailexpress.drowned": "淹死",
+  "screen.noellesroles.hurricane_device.title": "颶風裝置",
+  "screen.noellesroles.hurricane_device.radius": "生成半徑",
+  "screen.noellesroles.hurricane_device.persistent.yes": "常駐：是",
+  "screen.noellesroles.hurricane_device.persistent.no": "常駐：否",
+  "screen.noellesroles.hurricane_device.interval": "生成間隔（秒）",
+  "screen.noellesroles.hurricane_device.duration": "持續時間（秒）",
+  "screen.noellesroles.hurricane_device.save": "保存"
 }

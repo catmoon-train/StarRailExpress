@@ -23,7 +23,7 @@ import org.joml.Vector3f;
 public class HurricaneEntity extends Entity {
     private static final int DEFAULT_MAX_AGE = 20 * 20;
     private static final double BASE_RADIUS = 1.2D;
-    private static final double HEIGHT = 6.0D;
+    private static final double HEIGHT = 8.0D;
     private static final DustParticleOptions PARTICLE =
             new DustParticleOptions(new Vector3f(0.72F, 0.86F, 0.95F), 1.35F);
 
@@ -133,7 +133,7 @@ public class HurricaneEntity extends Entity {
     }
 
     private void spawnParticles(ServerLevel level) {
-        for (int i = 0; i < 90; i++) {
+        for (int i = 0; i < 120; i++) {
             double h = level.random.nextDouble() * HEIGHT;
             double radius = 0.25D + h * 0.28D;
             double angle = age * 0.34D + h * 1.4D + i * 0.42D;
