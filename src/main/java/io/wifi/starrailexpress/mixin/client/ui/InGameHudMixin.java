@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.agmas.noellesroles.client.hud.MapStatusBarHudRenderer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -53,6 +54,7 @@ public class InGameHudMixin {
         // Font renderer = Minecraft.getInstance().font;
         
         StatusBarHUD.getInstance().render(trueContext, tickCounter.getRealtimeDeltaTicks());
+        MapStatusBarHudRenderer.render(trueContext);
         StaminaRenderer.renderHud(player, trueContext, tickCounter.getGameTimeDeltaPartialTick(true));
         SansRenderer.instance.tick(player, trueContext, tickCounter.getGameTimeDeltaPartialTick(true));
     }

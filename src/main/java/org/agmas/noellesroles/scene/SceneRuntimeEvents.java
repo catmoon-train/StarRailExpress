@@ -28,10 +28,12 @@ public final class SceneRuntimeEvents {
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             clearHurricanes(world);
             ZERO_AIR_TICKS.clear();
+            MapStatusBarRuntime.clear(world);
         });
         ServerTickEvents.END_WORLD_TICK.register(level -> {
             if (level instanceof ServerLevel serverLevel) {
                 tickOxygenDrowning(serverLevel);
+                MapStatusBarRuntime.tick(serverLevel);
             }
         });
     }

@@ -102,6 +102,7 @@ public class ModPackets {
                 RepairCoinRewardS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(RepairCombatFeedbackS2CPacket.ID,
                 RepairCombatFeedbackS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(MapStatusBarSyncS2CPacket.ID, MapStatusBarSyncS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairStationActionC2SPacket.ID,
                 RepairStationActionC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(RepairStationActionC2SPacket.ID, RepairStationActionC2SPacket::handle);

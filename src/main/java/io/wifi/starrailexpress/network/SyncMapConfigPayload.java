@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.game.data.MapConfig;
+import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -32,6 +33,7 @@ public record SyncMapConfigPayload(List<MapConfig.MapEntry> maps) implements Cus
             boolean canSelect = buf.readBoolean();
             String color = buf.readUtf();
             boolean enableOxygenDrowning = buf.readBoolean();
+            MapStatusBarType mapStatusBar = MapStatusBarType.byName(buf.readUtf());
             
             MapConfig.MapEntry entry = new MapConfig.MapEntry();
             entry.id = id;
@@ -40,6 +42,7 @@ public record SyncMapConfigPayload(List<MapConfig.MapEntry> maps) implements Cus
             entry.canSelect = canSelect;
             entry.color = color;
             entry.enableOxygenDrowning = enableOxygenDrowning;
+            entry.mapStatusBar = mapStatusBar;
             
             maps.add(entry);
         }
@@ -57,6 +60,7 @@ public record SyncMapConfigPayload(List<MapConfig.MapEntry> maps) implements Cus
             buf.writeBoolean(map.canSelect);
             buf.writeUtf(map.getColorStr());
             buf.writeBoolean(map.enableOxygenDrowning);
+            buf.writeUtf((map.mapStatusBar == null ? MapStatusBarType.NONE : map.mapStatusBar).name());
         }
     }
 

@@ -20,6 +20,7 @@
     "ShitExposureMixin",
     "ShitExposurePatreonMixin",
     "SpawnMixin",
+    "scene.SnowballWarmthMixin",
     "TridentMixin",
     "client.general.GhostStatePlayerRenderer",
     "item.ThrowingKnifeCooldownMixin",

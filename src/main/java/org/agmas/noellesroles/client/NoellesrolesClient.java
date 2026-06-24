@@ -557,6 +557,10 @@ public class NoellesrolesClient implements ClientModInitializer {
             context.client().execute(() -> RepairEscapeHud.pushCombatCue(payload.kind(), payload.entityId(),
                     payload.x(), payload.y(), payload.z(), payload.weaponId()));
         });
+        ClientPlayNetworking.registerGlobalReceiver(MapStatusBarSyncS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> org.agmas.noellesroles.client.hud.MapStatusBarClientState
+                    .set(payload.barType(), payload.value(), payload.maxValue()));
+        });
         ClientPlayNetworking.registerGlobalReceiver(OpenLockGuiS2CPacket.ID, (payload, context) -> {
             final var client = context.client();
             client.execute(() -> {

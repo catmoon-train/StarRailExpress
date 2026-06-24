@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.scene.MapStatusBarRuntime;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,6 +25,7 @@ public class FoodItemMixin {
     public void bartenderVision(ItemStack stack, Level world, LivingEntity user,
             CallbackInfoReturnable<ItemStack> cir) {
         if (user instanceof ServerPlayer p) {
+            MapStatusBarRuntime.onFinishUsingItem(stack, world, user);
             if (stack.getItem() instanceof CocktailItem) {
                 return;
             }
