@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class WaterPumpBlockEntity extends BlockEntity {
-    private static final int COOLDOWN_TICKS = 10 * 20;
+    private static final int COOLDOWN_TICKS = 30 * 20;
     private int clicks;
     private int cooldownTicks;
 
