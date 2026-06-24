@@ -12,17 +12,24 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
 
 public class StaminaRenderer {
 	public static StaminaBarRenderer view = new StaminaBarRenderer();
 	public static float offsetDelta = 0f;
+
+	private static final ResourceLocation STAMINA_ICON = Noellesroles.id("stamina/stamina_icon");
+	private static final int BAR_WIDTH = 120;
+	private static final int ICON_SIZE = 9;
+	private static final int ICON_GAP = 4;
 
 	// 添加刀蓄满力的视觉效果相关变量
 	private static boolean knifeFullyCharged = false;
@@ -155,11 +162,10 @@ public class StaminaRenderer {
 
 		view.setTarget(staminaPercent);
 
-		// 计算颜色 - 绿色满体力，红色低体力
-		float r = Mth.lerp(1f - staminaPercent, 0.2f, 1f);
-		float g = Mth.lerp(staminaPercent, 0.2f, 1f);
-		float b = 0.2f;
-		int colour = Mth.color(r, g, b) | 0xFF000000;
+		// 体力条颜色 - 黄色，低于1/5时变红
+		int colour = staminaPercent < 0.2f
+				? Mth.color(1f, 0.2f, 0.2f) | 0xFF000000   // 红色
+				: Mth.color(1f, 0.85f, 0.1f) | 0xFF000000;  // 黄色
 
 		// 渲染主手物品冷却提示
 		renderMainHandCooldown(context, player, delta);
@@ -183,6 +189,12 @@ public class StaminaRenderer {
 		}
 
 		context.pose().popPose();
+
+		// 绘制体力图标
+		int barCenterY = context.guiHeight() - 35;
+		int iconX = context.guiWidth() / 2 - BAR_WIDTH / 2 - ICON_SIZE - ICON_GAP;
+		int iconY = barCenterY - ICON_SIZE / 2;
+		context.blitSprite(STAMINA_ICON, iconX, iconY, ICON_SIZE, ICON_SIZE);
 
 		// 渲染屏幕边缘红色效果
 		renderScreenRedEffect(context, delta);
@@ -462,18 +474,13 @@ public class StaminaRenderer {
 			int backgroundColor = 0x66000000; // 更透明的背景
 			context.fill(-halfWidth, -barHeight/2, halfWidth, barHeight/2, backgroundColor);
 
-			// 计算当前体力条宽度
+			// 计算当前体力条宽度 - 从左锚定，向右延伸
 			int currentWidth = Math.round(barWidth * value);
-			int currentHalfWidth = currentWidth / 2;
 
 			if (currentWidth > 0) {
-				// 绘制体力条（从中间向两边延伸）
-				context.fill(-currentHalfWidth, -barHeight/2, currentHalfWidth, barHeight/2, colour);
+				// 绘制体力条（左侧固定，右侧随体力伸缩）
+				context.fill(-halfWidth, -barHeight/2, -halfWidth + currentWidth, barHeight/2, colour);
 			}
-
-			// 绘制中心分隔线（更窄）
-			int centerLineColor = 0x80FFFFFF;
-			context.fill(-1, -barHeight/2 + 1, 1, barHeight/2 - 1, centerLineColor); // 更窄的线条
 		}
 
 		public void renderWithoutSmoothing(@NotNull GuiGraphics context, int colour, float value) {
@@ -486,18 +493,13 @@ public class StaminaRenderer {
 			int backgroundColor = 0x66000000; // 更透明的背景
 			context.fill(-halfWidth, -barHeight/2, halfWidth, barHeight/2, backgroundColor);
 
-			// 计算当前体力条宽度
+			// 计算当前体力条宽度 - 从左锚定，向右延伸
 			int currentWidth = Math.round(barWidth * value);
-			int currentHalfWidth = currentWidth / 2;
 
 			if (currentWidth > 0) {
-				// 绘制体力条（从中间向两边延伸）
-				context.fill(-currentHalfWidth, -barHeight/2, currentHalfWidth, barHeight/2, colour);
+				// 绘制体力条（左侧固定，右侧随体力伸缩）
+				context.fill(-halfWidth, -barHeight/2, -halfWidth + currentWidth, barHeight/2, colour);
 			}
-
-			// 绘制中心分隔线（更窄）
-			int centerLineColor = 0x80FFFFFF;
-			context.fill(-1, -barHeight/2 + 1, 1, barHeight/2 - 1, centerLineColor); // 更窄的线条
 		}
 
 		public float getTarget() {
