@@ -211,7 +211,7 @@ public class TaskBlockOverlayRenderer {
         if (!SREClient.gameComponent.isRunning())
             return;
 
-        boolean shouldDisplay[] = new boolean[32];
+        boolean shouldDisplay[] = new boolean[64];
         for (int i = 0; i < shouldDisplay.length; i++) {
             shouldDisplay[i] = false;
         }
@@ -450,7 +450,8 @@ public class TaskBlockOverlayRenderer {
                     if (block.getBlock() instanceof TaskInstinctShowableInterface it) {
                         // 小游戏任务点(14/15)：仅在玩家有待办小游戏任务、该点本局未被使用、
                         // 且该点的 minigameId 与玩家指派的目标类型匹配（或无指定目标）时才金色透视
-                        boolean isMinigamePoint = type == 14 || type == 15;
+                        boolean isMinigamePoint = (type == 14 || type == 15)
+                                && renderContext.world().getBlockEntity(pos) instanceof MinigameQuestBlockEntity;
                         if (isMinigamePoint) {
                             var mgComp = SREPlayerMinigameTaskComponent.KEY.get(player);
                             if (mgComp != null && mgComp.hasPendingTask() && !mgComp.isBlockUsed(pos)) {

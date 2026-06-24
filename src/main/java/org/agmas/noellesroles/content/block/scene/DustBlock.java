@@ -72,10 +72,11 @@ public class DustBlock extends Block {
                     pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 10, 0.3, 0.3, 0.3, 0.05);
             serverLevel.playSound(null, pos, SoundEvents.BRUSH_GENERIC, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
-        if (player instanceof ServerPlayer sp) {
-            SceneTaskManager.reportDustStroke(sp);
-        }
         int dust = state.getValue(DUST);
+        boolean cleaned = dust <= 1;
+        if (player instanceof ServerPlayer sp) {
+            SceneTaskManager.reportDustStroke(sp, cleaned);
+        }
         if (dust > 0) {
             level.setBlock(pos, state.setValue(DUST, dust - 1), Block.UPDATE_ALL);
         }

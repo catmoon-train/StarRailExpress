@@ -1,6 +1,5 @@
 {
   "textures": {
-    "top": "noellesroles:block/coffin_top",
     "side": "noellesroles:block/coffin_side",
     "particle": "noellesroles:block/coffin_side"
   },
@@ -13,7 +12,7 @@
         "south": { "uv": [0, 8, 16, 16], "texture": "#side" },
         "east": { "uv": [0, 8, 16, 16], "texture": "#side" },
         "west": { "uv": [0, 8, 16, 16], "texture": "#side" },
-        "up": { "uv": [0, 0, 16, 16], "texture": "#top" },
+        "up": { "uv": [0, 0, 16, 16], "texture": "#side" },
         "down": { "uv": [0, 0, 16, 16], "texture": "#side" }
       }
     }

@@ -319,6 +319,8 @@ public class SimpleQuestMinigameScreen extends Screen {
     private float minerAngle, minerHookLen;
     private int minerState, minerScore;
     private MinerRock minerCarry;
+    private static final int MINER_TARGET_GOLD = 5;
+    private static final ItemStack RAW_GOLD_ICON = new ItemStack(Items.RAW_GOLD);
 
     private int[] oneNodeX, oneNodeY;
     private int[][] oneEdges;
@@ -3191,12 +3193,10 @@ public class SimpleQuestMinigameScreen extends Screen {
         minerHookLen = 34;
         minerCarry = null;
         int left = panelLeft(), top = panelTop();
-        int[] values = {10, 20, 35, 50, 20, 35};
-        int[] colors = {0xFFB98648, 0xFFFFCC42, 0xFF8E6D48, 0xFFFFE066, 0xFFFFC14A, 0xFF917258};
-        for (int i = 0; i < values.length; i++) {
+        for (int i = 0; i < MINER_TARGET_GOLD; i++) {
             minerRocks.add(new MinerRock(left + 56 + (i % 3) * 118 + rng.nextInt(18),
                     top + 130 + (i / 3) * 52 + rng.nextInt(12),
-                    10 + rng.nextInt(7), values[i], colors[i]));
+                    10 + rng.nextInt(7)));
         }
     }
 
@@ -3225,9 +3225,9 @@ public class SimpleQuestMinigameScreen extends Screen {
             if (minerHookLen <= 34) {
                 minerHookLen = 34;
                 if (minerCarry != null) {
-                    minerScore += minerCarry.value;
+                    minerScore++;
                     minerCarry = null;
-                    if (minerScore >= 100) complete();
+                    if (minerScore >= MINER_TARGET_GOLD) complete();
                 }
                 minerState = 0;
             }
@@ -3235,7 +3235,7 @@ public class SimpleQuestMinigameScreen extends Screen {
     }
 
     private void renderGoldMiner(GuiGraphics g, int left, int top) {
-        g.drawCenteredString(font, tr("gold_miner.score", minerScore, 100), width / 2, top + 32, WHITE);
+        g.drawCenteredString(font, tr("gold_miner.score", minerScore, MINER_TARGET_GOLD), width / 2, top + 32, WHITE);
         MinigameUI.roundRect(g, left + 28, top + 82, left + PANEL_W - 28, top + 230, 8, 0xFF3D2B1E);
         int px = width / 2, py = top + 42;
         float hx = px + (float) Math.sin(minerAngle) * minerHookLen;
@@ -3247,8 +3247,7 @@ public class SimpleQuestMinigameScreen extends Screen {
             if (rock.taken && rock != minerCarry) continue;
             int rx = rock == minerCarry ? Math.round(hx) : Math.round(rock.x);
             int ry = rock == minerCarry ? Math.round(hy + rock.r + 2) : Math.round(rock.y);
-            drawCircle(g, rx, ry, rock.r, rock.color);
-            g.drawCenteredString(font, Component.literal(String.valueOf(rock.value)), rx, ry - 4, 0xFF23190B);
+            g.renderItem(RAW_GOLD_ICON, rx - 8, ry - 8);
         }
     }
 
@@ -3543,15 +3542,13 @@ public class SimpleQuestMinigameScreen extends Screen {
 
     private static class MinerRock {
         float x, y;
-        int r, value, color;
+        int r;
         boolean taken;
 
-        MinerRock(float x, float y, int r, int value, int color) {
+        MinerRock(float x, float y, int r) {
             this.x = x;
             this.y = y;
             this.r = r;
-            this.value = value;
-            this.color = color;
         }
     }
 

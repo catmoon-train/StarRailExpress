@@ -2443,7 +2443,7 @@
   "minigame.starrailexpress.maze": "走迷宮",
   "minigame.starrailexpress.klotski": "華容道",
   "minigame.starrailexpress.gold_miner": "黃金礦工",
-  "minigame.starrailexpress.gold_miner.score": "分數: %s / %s",
+  "minigame.starrailexpress.gold_miner.score": "金子: %s / %s",
   "minigame.starrailexpress.one_stroke": "一筆畫",
   "minigame.starrailexpress.one_stroke.hint": "每條線只能畫一次",
   "minigame.starrailexpress.claw_machine": "抓娃娃機",

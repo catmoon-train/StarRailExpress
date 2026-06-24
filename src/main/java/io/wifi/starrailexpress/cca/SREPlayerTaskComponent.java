@@ -87,6 +87,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         this.parallelTaskGenerated = false;
         this.parallelTaskTypes.clear();
         this.nextTaskTimer = GameConstants.TIME_TO_FIRST_TASK;
+        SceneTaskManager.clear(this.player);
         this.sync();
 
         // 注册场景任务完成回调（全局仅注册一次）
@@ -107,6 +108,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                     SREPlayerTaskComponent comp = KEY.get(sp);
                     if (comp != null && comp.tasks.get(taskType) instanceof SceneTriggeredTask stt) {
                         stt.setFulfilled(true);
+                        comp.sync();
                     }
                 }
             });
@@ -255,6 +257,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         for (TrainTask task : dismissed) {
             this.tasks.remove(task.getType());
             this.parallelTaskTypes.remove(task.getType());
+            clearSceneTask(task.getType());
             shouldSync = true;
         }
         // 所有任务完成后重置并列任务追踪
@@ -420,15 +423,37 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             case CHAIR -> new ChairTask(GameConstants.CHAIR_TASK_DURATION);
             case BREATHE -> new BreatheTask(GameConstants.BREATHE_TASK_DURATION);
             case BE_ALONE -> new BeAloneTask(GameConstants.BE_ALONE_TASK_DURATION);
-            case LIGHT_STOVE -> new SceneTriggeredTask("light_stove");
-            case CLEAN_DUST -> new SceneTriggeredTask("clean_dust");
-            case TRANSPORT -> new SceneTriggeredTask("transport");
-            case PRAY -> new SceneTriggeredTask("pray");
-            case PRUNE_BUSH -> new SceneTriggeredTask("prune_bush");
-            case HARVEST_CROP -> new SceneTriggeredTask("harvest_crop");
+            case LIGHT_STOVE -> createSceneTriggeredTask(SceneTaskManager.Type.LIGHT_STOVE, "light_stove");
+            case CLEAN_DUST -> createSceneTriggeredTask(SceneTaskManager.Type.CLEAN_DUST, "clean_dust");
+            case TRANSPORT -> createSceneTriggeredTask(SceneTaskManager.Type.TRANSPORT, "transport");
+            case PRAY -> createSceneTriggeredTask(SceneTaskManager.Type.PRAY, "pray");
+            case PRUNE_BUSH -> createSceneTriggeredTask(SceneTaskManager.Type.PRUNE_BUSH, "prune_bush");
+            case HARVEST_CROP -> createSceneTriggeredTask(SceneTaskManager.Type.HARVEST_CROP, "harvest_crop");
             case MANIC -> new ManicTask();
             default -> null;
         };
+    }
+
+    private TrainTask createSceneTriggeredTask(SceneTaskManager.Type sceneType, String name) {
+        if (this.player instanceof ServerPlayer sp) {
+            SceneTaskManager.assign(sp, sceneType);
+        }
+        return new SceneTriggeredTask(name);
+    }
+
+    private void clearSceneTask(Task taskType) {
+        SceneTaskManager.Type sceneType = switch (taskType) {
+            case LIGHT_STOVE -> SceneTaskManager.Type.LIGHT_STOVE;
+            case CLEAN_DUST -> SceneTaskManager.Type.CLEAN_DUST;
+            case TRANSPORT -> SceneTaskManager.Type.TRANSPORT;
+            case PRAY -> SceneTaskManager.Type.PRAY;
+            case PRUNE_BUSH -> SceneTaskManager.Type.PRUNE_BUSH;
+            case HARVEST_CROP -> SceneTaskManager.Type.HARVEST_CROP;
+            default -> null;
+        };
+        if (sceneType != null) {
+            SceneTaskManager.clear(this.player, sceneType);
+        }
     }
 
     public void eatFood() {

@@ -49,7 +49,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ManholeBlock extends BaseEntityBlock implements TaskInstinctShowableInterface {
 
-    public static final int TASK_INSTINCT_ID = 15;
+    public static final int TASK_INSTINCT_ID = 23;
     /** 传送的最大水平距离。 */
     public static final double TRAVEL_RANGE = 48.0;
     /** 离开井盖后的冷却时间（1分钟） */
@@ -168,7 +168,8 @@ public class ManholeBlock extends BaseEntityBlock implements TaskInstinctShowabl
     @Override
     public boolean shouldRenderTaskInstinct(BlockState state, BlockPos pos, Player player) {
         SRERole role = SRERoleWorldComponent.KEY.get(player.level()).getRole(player);
-        return role != null && role.canUseInstinct();
+        return SceneRoleAccess.canEnterRestricted(player, null)
+                || (role != null && role.canJumpManhole());
     }
 
     @Override

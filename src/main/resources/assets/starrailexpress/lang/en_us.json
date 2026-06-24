@@ -2529,7 +2529,7 @@
   "minigame.starrailexpress.maze": "Maze",
   "minigame.starrailexpress.klotski": "Klotski",
   "minigame.starrailexpress.gold_miner": "Gold Miner",
-  "minigame.starrailexpress.gold_miner.score": "Score: %s / %s",
+  "minigame.starrailexpress.gold_miner.score": "Gold: %s / %s",
   "minigame.starrailexpress.one_stroke": "One Stroke",
   "minigame.starrailexpress.one_stroke.hint": "Draw every line once",
   "minigame.starrailexpress.claw_machine": "Claw Machine",

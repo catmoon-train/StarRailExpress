@@ -53,6 +53,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.scene.SceneTaskManager;
 import org.agmas.noellesroles.utils.MapScannerManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
@@ -297,7 +298,12 @@ public class GameUtilsCommand {
                               return Component.literal("Cleared all asyn tasks list!");
                             }, true);
                             return 1;
-                          })))
+                          }))
+                          .then(Commands.argument("player", EntityArgument.player())
+                              .executes((context) -> {
+                                ServerPlayer target = EntityArgument.getPlayer(context, "player");
+                                return clearTasksForPlayer(context.getSource(), target);
+                              })))
                       .then(Commands.literal("cancel")
                           .then(Commands.literal("task_queue")
                               .then(Commands.argument("tid", IntegerArgumentType.integer(0)).executes((context) -> {
@@ -988,6 +994,7 @@ public class GameUtilsCommand {
       }
       var taskInstance = taskType.setFunction.apply(new net.minecraft.nbt.CompoundTag());
       comp.tasks.put(taskType, taskInstance);
+      activateSceneTask(target, taskType);
       comp.sync();
       source.sendSuccess(() -> Component.translatable("Added task %s to player %s.", taskId,
           target.getDisplayName()).withStyle(ChatFormatting.GREEN), true);
@@ -1012,8 +1019,10 @@ public class GameUtilsCommand {
       comp.currentTaskAge = 0;
       comp.parallelTaskGenerated = false;
       comp.parallelTaskTypes.clear();
+      SceneTaskManager.clear(target);
       var taskInstance = taskType.setFunction.apply(new net.minecraft.nbt.CompoundTag());
       comp.tasks.put(taskType, taskInstance);
+      activateSceneTask(target, taskType);
       comp.sync();
       source.sendSuccess(() -> Component.translatable("Set task %s for player %s (previous tasks cleared).", taskId,
           target.getDisplayName()).withStyle(ChatFormatting.GREEN), true);
@@ -1035,6 +1044,7 @@ public class GameUtilsCommand {
       }
       if (comp.tasks.containsKey(taskType)) {
         comp.tasks.remove(taskType);
+        clearSceneTask(target, taskType);
         comp.sync();
         source.sendSuccess(() -> Component.translatable("Removed task %s from player %s.", taskId,
             target.getDisplayName()).withStyle(ChatFormatting.GREEN), true);
@@ -1050,6 +1060,62 @@ public class GameUtilsCommand {
   }
 
   /** 任务 ID Tab 补全建议（返回所有 Task 枚举名小写）。 */
+  private static int clearTasksForPlayer(CommandSourceStack source, ServerPlayer target) {
+    var comp = io.wifi.starrailexpress.cca.SREPlayerTaskComponent.KEY.get(target);
+    if (comp == null) {
+      source.sendFailure(Component.literal("Player task component not found.").withStyle(ChatFormatting.RED));
+      return 0;
+    }
+    comp.tasks.clear();
+    comp.taskStreak = 0;
+    comp.currentTaskAge = 0;
+    comp.parallelTaskGenerated = false;
+    comp.parallelTaskTypes.clear();
+    SceneTaskManager.clear(target);
+    comp.sync();
+
+    var minigameComp = io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent.KEY.get(target);
+    if (minigameComp != null) {
+      minigameComp.pendingMinigameTasks = 0;
+      minigameComp.targetMinigameId = null;
+      minigameComp.sync();
+    }
+
+    source.sendSuccess(() -> Component.translatable("Cleared all tasks for player %s.", target.getDisplayName())
+        .withStyle(ChatFormatting.GREEN), true);
+    return 1;
+  }
+
+  private static void activateSceneTask(ServerPlayer target,
+      io.wifi.starrailexpress.cca.SREPlayerTaskComponent.Task taskType) {
+    SceneTaskManager.Type sceneType = toSceneTaskType(taskType);
+    if (sceneType != null) {
+      SceneTaskManager.assign(target, sceneType);
+    }
+  }
+
+  private static void clearSceneTask(ServerPlayer target,
+      io.wifi.starrailexpress.cca.SREPlayerTaskComponent.Task taskType) {
+    SceneTaskManager.Type sceneType = toSceneTaskType(taskType);
+    if (sceneType != null) {
+      SceneTaskManager.clear(target, sceneType);
+    }
+  }
+
+  private static @Nullable SceneTaskManager.Type toSceneTaskType(
+      io.wifi.starrailexpress.cca.SREPlayerTaskComponent.Task taskType) {
+    return switch (taskType) {
+      case LIGHT_STOVE -> SceneTaskManager.Type.LIGHT_STOVE;
+      case CLEAN_DUST -> SceneTaskManager.Type.CLEAN_DUST;
+      case TRANSPORT -> SceneTaskManager.Type.TRANSPORT;
+      case PRAY -> SceneTaskManager.Type.PRAY;
+      case PRUNE_BUSH -> SceneTaskManager.Type.PRUNE_BUSH;
+      case HARVEST_CROP -> SceneTaskManager.Type.HARVEST_CROP;
+      case BE_ALONE -> SceneTaskManager.Type.BE_ALONE;
+      default -> null;
+    };
+  }
+
   private static final class TaskIdSuggestions {
     static java.util.concurrent.CompletableFuture<Suggestions> suggest(
         CommandContext<CommandSourceStack> ctx, SuggestionsBuilder builder) {
