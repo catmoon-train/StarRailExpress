@@ -183,6 +183,7 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 8. 注册事件监听
         registerEvents();
+        org.agmas.noellesroles.scene.SceneRuntimeEvents.register();
 
         // 9. 注册模仿者技能映射
         org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry.registerAll();

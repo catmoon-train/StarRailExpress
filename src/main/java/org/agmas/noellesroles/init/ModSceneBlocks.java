@@ -21,9 +21,11 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.block.scene.BreakingBridgeBlock;
 import org.agmas.noellesroles.content.block.scene.CellarBlock;
+import org.agmas.noellesroles.content.block.scene.CoffinBlock;
 import org.agmas.noellesroles.content.block.scene.DrippingStalactiteBlock;
 import org.agmas.noellesroles.content.block.scene.FlamethrowerBlock;
 import org.agmas.noellesroles.content.block.scene.FogZoneBlock;
+import org.agmas.noellesroles.content.block.scene.HurricaneDeviceBlock;
 import org.agmas.noellesroles.content.block.scene.ManholeBlock;
 import org.agmas.noellesroles.content.block.scene.PoisonZoneBlock;
 import org.agmas.noellesroles.content.block.scene.BushBlock;
@@ -38,14 +40,18 @@ import org.agmas.noellesroles.content.block_entity.scene.CropBlockEntity;
 import org.agmas.noellesroles.content.block.scene.ReactorBlock;
 import org.agmas.noellesroles.content.block.scene.RollingStoneTriggerPlate;
 import org.agmas.noellesroles.content.block.scene.WaterValveBlock;
+import org.agmas.noellesroles.content.block.scene.WaterPumpBlock;
 import org.agmas.noellesroles.content.block.scene.SceneGateBlock;
 import org.agmas.noellesroles.content.block.scene.TrainTargetBlock;
+import org.agmas.noellesroles.content.block_entity.scene.CoffinBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.FlamethrowerBlockEntity;
+import org.agmas.noellesroles.content.block_entity.scene.HurricaneDeviceBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.IncineratorBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.MovingPlatformBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.ReactorBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.RollingStoneTriggerPlateEntity;
 import org.agmas.noellesroles.content.block_entity.scene.WaterValveBlockEntity;
+import org.agmas.noellesroles.content.block_entity.scene.WaterPumpBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.FogZoneBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.ManholeBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.PoisonZoneBlockEntity;
@@ -130,11 +136,23 @@ public interface ModSceneBlocks {
             new IncineratorBlock(Properties.ofFullCopy(Blocks.FURNACE).lightLevel(s -> 13)));
     Block MOVING_PLATFORM = registerBlock("moving_platform",
             new MovingPlatformBlock(Properties.ofFullCopy(Blocks.SMOOTH_STONE)));
+    Block HURRICANE_DEVICE = registerBlock("hurricane_device",
+            new HurricaneDeviceBlock(Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()));
+    Block COFFIN = registerBlock("coffin",
+            new CoffinBlock(Properties.ofFullCopy(Blocks.DARK_OAK_PLANKS).noOcclusion()));
+    Block WATER_PUMP = registerBlock("water_pump",
+            new WaterPumpBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion()));
 
     BlockEntityType<IncineratorBlockEntity> INCINERATOR_ENTITY = blockEntityRegistrar.create("incinerator",
             BlockEntityType.Builder.of(IncineratorBlockEntity::new, INCINERATOR));
     BlockEntityType<MovingPlatformBlockEntity> MOVING_PLATFORM_ENTITY = blockEntityRegistrar.create("moving_platform",
             BlockEntityType.Builder.of(MovingPlatformBlockEntity::new, MOVING_PLATFORM));
+    BlockEntityType<HurricaneDeviceBlockEntity> HURRICANE_DEVICE_ENTITY = blockEntityRegistrar.create("hurricane_device",
+            BlockEntityType.Builder.of(HurricaneDeviceBlockEntity::new, HURRICANE_DEVICE));
+    BlockEntityType<CoffinBlockEntity> COFFIN_ENTITY = blockEntityRegistrar.create("coffin",
+            BlockEntityType.Builder.of(CoffinBlockEntity::new, COFFIN));
+    BlockEntityType<WaterPumpBlockEntity> WATER_PUMP_ENTITY = blockEntityRegistrar.create("water_pump",
+            BlockEntityType.Builder.of(WaterPumpBlockEntity::new, WATER_PUMP));
 
     // ───────────────────────── 场景任务点方块 → SRE 任务点方块 ─────────────────────────
 

@@ -31,6 +31,7 @@ public record SyncMapConfigPayload(List<MapConfig.MapEntry> maps) implements Cus
             String description = buf.readUtf();
             boolean canSelect = buf.readBoolean();
             String color = buf.readUtf();
+            boolean enableOxygenDrowning = buf.readBoolean();
             
             MapConfig.MapEntry entry = new MapConfig.MapEntry();
             entry.id = id;
@@ -38,6 +39,7 @@ public record SyncMapConfigPayload(List<MapConfig.MapEntry> maps) implements Cus
             entry.description = description;
             entry.canSelect = canSelect;
             entry.color = color;
+            entry.enableOxygenDrowning = enableOxygenDrowning;
             
             maps.add(entry);
         }
@@ -54,6 +56,7 @@ public record SyncMapConfigPayload(List<MapConfig.MapEntry> maps) implements Cus
             buf.writeUtf(map.getDescription());
             buf.writeBoolean(map.canSelect);
             buf.writeUtf(map.getColorStr());
+            buf.writeBoolean(map.enableOxygenDrowning);
         }
     }
 

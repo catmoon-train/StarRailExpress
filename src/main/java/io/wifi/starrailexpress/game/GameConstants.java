@@ -209,6 +209,8 @@ public class GameConstants {
         public static ResourceLocation FLAMETHROWER_BURNED = SRE.id("flamethrower_burned");
         public static ResourceLocation BOULDER_CRUSH = SRE.id("boulder_crush");
         public static ResourceLocation INCINERATOR_PUSHED = SRE.id("incinerator_pushed");
+        public static ResourceLocation ANCIENT_BITE = SRE.id("ancient_bite");
+        public static ResourceLocation DROWNED = SRE.id("drowned");
         public static ResourceLocation GOD_COMMAND = Noellesroles.id("god_command");
     }
 

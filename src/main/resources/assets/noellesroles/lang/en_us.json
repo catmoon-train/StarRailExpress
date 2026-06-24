@@ -3000,5 +3000,21 @@
   "announcement.star.role.courier": "Courier",
   "announcement.star.role.noellesroles.courier": "Courier",
   "announcement.star.goals.courier": "Deliver hope and supplies with your letters!",
-  "announcement.star.win.courier": "Civilians win!"
+  "announcement.star.win.courier": "Civilians win!",
+  "block.noellesroles.hurricane_device": "Hurricane Device",
+  "block.noellesroles.coffin": "Coffin",
+  "block.noellesroles.water_pump": "Water Pump",
+  "entity.noellesroles.mummy": "Mummy",
+  "entity.noellesroles.hurricane": "Hurricane",
+  "deathreason.starrailexpress.ancient_bite": "Bitten by ancient things",
+  "deathreason.starrailexpress.drowned": "Drowned",
+  "death_reason.starrailexpress.ancient_bite": "Bitten by ancient things",
+  "death_reason.starrailexpress.drowned": "Drowned",
+  "screen.noellesroles.hurricane_device.title": "Hurricane Device",
+  "screen.noellesroles.hurricane_device.radius": "Spawn radius",
+  "screen.noellesroles.hurricane_device.persistent.yes": "Persistent: Yes",
+  "screen.noellesroles.hurricane_device.persistent.no": "Persistent: No",
+  "screen.noellesroles.hurricane_device.interval": "Spawn interval (seconds)",
+  "screen.noellesroles.hurricane_device.duration": "Duration (seconds)",
+  "screen.noellesroles.hurricane_device.save": "Save"
 }

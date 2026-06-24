@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,part=foot": { "model": "noellesroles:block/coffin_foot" },
+    "facing=east,part=foot": { "model": "noellesroles:block/coffin_foot", "y": 90 },
+    "facing=south,part=foot": { "model": "noellesroles:block/coffin_foot", "y": 180 },
+    "facing=west,part=foot": { "model": "noellesroles:block/coffin_foot", "y": 270 },
+    "facing=north,part=head": { "model": "noellesroles:block/coffin_head" },
+    "facing=east,part=head": { "model": "noellesroles:block/coffin_head", "y": 90 },
+    "facing=south,part=head": { "model": "noellesroles:block/coffin_head", "y": 180 },
+    "facing=west,part=head": { "model": "noellesroles:block/coffin_head", "y": 270 }
+  }
+}

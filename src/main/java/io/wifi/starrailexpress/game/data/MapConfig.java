@@ -50,6 +50,9 @@ public class MapConfig {
         @SerializedName("repair")
         public RepairConfig repair;
 
+        @SerializedName("enableOxygenDrowning")
+        public boolean enableOxygenDrowning = false;
+
         // 用于运行时转换颜色值
         public transient int parsedColor;
 

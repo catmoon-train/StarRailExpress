@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "half=lower": { "model": "noellesroles:block/water_pump_lower" },
+    "half=upper": { "model": "noellesroles:block/water_pump_upper" }
+  }
+}

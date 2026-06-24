@@ -233,6 +233,8 @@ public class ModPackets {
         // 注册移动平台配置网络包
         PayloadTypeRegistry.playC2S().register(MovingPlatformConfigC2SPacket.TYPE, MovingPlatformConfigC2SPacket.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(MovingPlatformConfigC2SPacket.TYPE, MovingPlatformConfigC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(HurricaneDeviceConfigC2SPacket.TYPE, HurricaneDeviceConfigC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(HurricaneDeviceConfigC2SPacket.TYPE, HurricaneDeviceConfigC2SPacket::handle);
 
         // 注册反应堆小游戏完成网络包
         PayloadTypeRegistry.playC2S().register(ReactorMinigameCompleteC2SPacket.TYPE, ReactorMinigameCompleteC2SPacket.STREAM_CODEC);
