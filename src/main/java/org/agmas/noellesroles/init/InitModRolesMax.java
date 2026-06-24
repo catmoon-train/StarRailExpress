@@ -106,8 +106,6 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.ENGINEER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.BASEBALL_PLAYER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.LOCKSMITH_ID, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.GUEST_GHOST, 0);
         // 斗士每局只能有 1 个
         Harpymodloader.setRoleMaximum(ModRoles.FIGHTER_ID, 1);
 
@@ -186,16 +184,12 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.NIAN_SHOU_ID, 1);
 
         // 游侠
-        Harpymodloader.setRoleMaximum(ModRoles.ELF_ID, 1);
 
         // 巡警
-        Harpymodloader.setRoleMaximum(ModRoles.PATROLLER_ID, 1);
 
         // 特警（默认为0，在动态设置中根据地图判断）
-        Harpymodloader.setRoleMaximum(ModRoles.SWAST_ID, 0);
 
         // 武术教官（默认为0，在动态设置中根据警卫数量判断）
-        Harpymodloader.setRoleMaximum(ModRoles.MARTIAL_ARTS_INSTRUCTOR_ID, 0);
 
         // 魔术师
         Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 1);
@@ -218,7 +212,6 @@ public class InitModRolesMax {
         // 注意：具体限制在 InitModRolesMax 中设置
 
         // 更好的义警 - 仅在12人及以上对局生成，0.5%概率
-        Harpymodloader.setRoleMaximum(ModRoles.BEST_VIGILANTE_ID, 0); // 默认为0，在 InitModRolesMax 中动态设置
 
         // 红海军 - 设置为0（不会自然生成，只能通过远征队修饰符获得）
         Harpymodloader.setRoleMaximum(ModRoles.BETTER_VIGILANTE_ID, 0);
@@ -288,16 +281,11 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.RESCUER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.FIREFIGHTER_ID, 1);
 
-        Harpymodloader.setRoleMaximum(ModRoles.DIVER_ID, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.WATER_GHOST_ID, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.SEA_KING_ID, 0);
 
         // 叛徒设置为0
         Harpymodloader.setRoleMaximum(TraitorAndModifiers.TRAITOR_ID, 0);
 
         // 飞行员和影隼初始为0
-        Harpymodloader.setRoleMaximum(ModRoles.PILOT_ID, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.SHADOW_FALCON_ID, 0);
 
         // 设置飞行员和影隼绑定生成
         RoleAssignmentManager.addOccupationRole(ModRoles.SHADOW_FALCON, ModRoles.PILOT);
@@ -413,194 +401,92 @@ public class InitModRolesMax {
                 io.wifi.starrailexpress.roster.MapRestrictionGate.markRole(RedHouseRoles.HOAN_MEIRIN.identifier());
             }
 
-            // machenxu
-            {
-                boolean isMachenxuMap = false;
-                var machenxuMap = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().maChenXuMaps);
-                if (machenxuMap != null && machenxuMap.size() > 0) {
-                    isMachenxuMap = machenxuMap.contains(currentMap);
-                }
-                if (isMachenxuMap) {
-                    Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 1);
-                } else {
-                    Harpymodloader.setRoleMaximum(ModRoles.MA_CHEN_XU, 0);
-                    // 马陈旭仅在专属地图刷新，其余地图属于地图限制。
-                    io.wifi.starrailexpress.roster.MapRestrictionGate.markRole(ModRoles.MA_CHEN_XU.identifier());
-                }
-            }
-            // 特殊警卫刷新逻辑 - 从配置读取最小玩家数
-            {
-                int allSpecialPoliceCount = 0;
-
-                if (players_count >= config.minPlayerForSpecialPolice5) {
-                    allSpecialPoliceCount = 5;
-                } else if (players_count >= config.minPlayerForSpecialPolice4) {
-                    allSpecialPoliceCount = 4;
-                } else if (players_count >= config.minPlayerForSpecialPolice3) {
-                    allSpecialPoliceCount = 3;
-                } else if (players_count >= config.minPlayerForSpecialPolice2) {
-                    allSpecialPoliceCount = 2;
-                } else if (players_count >= config.minPlayerForSpecialPolice1) {
-                    allSpecialPoliceCount = 1;
-                } else {
-                    allSpecialPoliceCount = 0;
-                }
-
-                // 基础角色：巡警、武术教官、游侠各有概率生成（从配置读取）
-                int PATROLLER_COUNT = 0;
-                int MARTIAL_ARTS_INSTRUCTOR_COUNT = 0;
-                int ELF_COUNT = 0;
-
-                // 巡警：从配置读取概率，其中一定概率生成两个
-                if (random.nextInt(0, 100) < config.chanceOfPatroller) {
-                    PATROLLER_COUNT = 1;
-                    if (random.nextInt(0, 100) < config.chanceOfDoublePatroller) {
-                        PATROLLER_COUNT = 2;
-                    }
-                }
-
-                // 武术教官：从配置读取概率
-                if (random.nextInt(0, 100) < config.chanceOfMartialArtsInstructor) {
-                    MARTIAL_ARTS_INSTRUCTOR_COUNT = 1;
-                }
-
-                // 游侠：从配置读取概率，其中一定概率生成两个
-                if (random.nextInt(0, 100) < config.chanceOfElf) {
-                    ELF_COUNT = 1;
-                    if (random.nextInt(0, 100) < config.chanceOfDoubleElf) {
-                        ELF_COUNT = 2;
-                    }
-                }
-
-                // 根据allSpecialPoliceCount限制总数
-                int currentTotal = PATROLLER_COUNT + MARTIAL_ARTS_INSTRUCTOR_COUNT + ELF_COUNT;
-                while (currentTotal > allSpecialPoliceCount) {
-                    // 随机减少一个角色
-                    int reduceTarget = random.nextInt(3);
-                    if (reduceTarget == 0 && PATROLLER_COUNT > 0) {
-                        PATROLLER_COUNT--;
-                    } else if (reduceTarget == 1 && MARTIAL_ARTS_INSTRUCTOR_COUNT > 0) {
-                        MARTIAL_ARTS_INSTRUCTOR_COUNT--;
-                    } else if (reduceTarget == 2 && ELF_COUNT > 0) {
-                        ELF_COUNT--;
-                    }
-                    currentTotal = PATROLLER_COUNT + MARTIAL_ARTS_INSTRUCTOR_COUNT + ELF_COUNT;
-                }
-
-                // 特警和更好的义警初始为0
-                int SWAST_COUNT = 0;
-                int BEST_VIGILANTE_COUNT = 0;
-
-                // 判断是否为特警可用地图 (areas1, areas3, areas4, areas7, areas10)
-                boolean isSwastMap = false;
-                var swastMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().swastMaps);
-                if (swastMaps != null && swastMaps.size() > 0) {
-                    isSwastMap = swastMaps.contains(currentMap);
-                }
-                // 特警仅在专属地图刷新，其余地图属于地图限制。
-                if (!isSwastMap) {
-                    io.wifi.starrailexpress.roster.MapRestrictionGate.markRole(ModRoles.SWAST_ID);
-                }
-
-                // 如果是特警可用地图且有可用警卫位置，从配置读取概率随机替换一个为特警
-                if (isSwastMap && currentTotal > 0 && currentTotal >= allSpecialPoliceCount - 1
-                        && random.nextInt(0, 100) < config.chanceOfSwast) {
-                    SWAST_COUNT = 1;
-                    // 随机选择替换的角色
-                    int replaceTarget = random.nextInt(3);
-                    if (replaceTarget == 0 && PATROLLER_COUNT > 0) {
-                        PATROLLER_COUNT--;
-                    } else if (replaceTarget == 1 && MARTIAL_ARTS_INSTRUCTOR_COUNT > 0) {
-                        MARTIAL_ARTS_INSTRUCTOR_COUNT--;
-                    } else if (replaceTarget == 2 && ELF_COUNT > 0) {
-                        ELF_COUNT--;
-                    } else if (PATROLLER_COUNT > 0) {
-                        PATROLLER_COUNT--;
-                    } else if (MARTIAL_ARTS_INSTRUCTOR_COUNT > 0) {
-                        MARTIAL_ARTS_INSTRUCTOR_COUNT--;
-                    } else if (ELF_COUNT > 0) {
-                        ELF_COUNT--;
-                    }
-                }
-
-                // 更好的义警符合条件时，从配置读取概率（基于10000），随机替换一个为更好的义警
-                int totalRoles = PATROLLER_COUNT + MARTIAL_ARTS_INSTRUCTOR_COUNT + ELF_COUNT + SWAST_COUNT;
-                if (random.nextInt(0, 10000) < config.chanceOfBestVigilante && totalRoles > 0) {
-                    BEST_VIGILANTE_COUNT = 1;
-                    // 随机选择替换的角色
-                    int replaceTarget = random.nextInt(4);
-                    if (replaceTarget == 0 && PATROLLER_COUNT > 0) {
-                        PATROLLER_COUNT--;
-                    } else if (replaceTarget == 1 && MARTIAL_ARTS_INSTRUCTOR_COUNT > 0) {
-                        MARTIAL_ARTS_INSTRUCTOR_COUNT--;
-                    } else if (replaceTarget == 2 && ELF_COUNT > 0) {
-                        ELF_COUNT--;
-                    } else if (replaceTarget == 3 && SWAST_COUNT > 0) {
-                        SWAST_COUNT--;
-                    } else if (PATROLLER_COUNT > 0) {
-                        PATROLLER_COUNT--;
-                    } else if (MARTIAL_ARTS_INSTRUCTOR_COUNT > 0) {
-                        MARTIAL_ARTS_INSTRUCTOR_COUNT--;
-                    } else if (ELF_COUNT > 0) {
-                        ELF_COUNT--;
-                    } else if (SWAST_COUNT > 0) {
-                        SWAST_COUNT--;
-                    }
-                }
-
-                Harpymodloader.setRoleMaximum(ModRoles.PATROLLER, PATROLLER_COUNT);
-                Harpymodloader.setRoleMaximum(ModRoles.ELF, ELF_COUNT);
-                Harpymodloader.setRoleMaximum(ModRoles.SWAST_ID, SWAST_COUNT);
-                Harpymodloader.setRoleMaximum(ModRoles.MARTIAL_ARTS_INSTRUCTOR_ID, MARTIAL_ARTS_INSTRUCTOR_COUNT);
-                Harpymodloader.setRoleMaximum(ModRoles.BEST_VIGILANTE_ID, BEST_VIGILANTE_COUNT);
-
-                if (allSpecialPoliceCount == 0) {
-                    Harpymodloader.setRoleMaximum(ModRoles.PATROLLER, 0);
-                    Harpymodloader.setRoleMaximum(ModRoles.ELF, 0);
-                    Harpymodloader.setRoleMaximum(ModRoles.SWAST_ID, 0);
-                    Harpymodloader.setRoleMaximum(ModRoles.MARTIAL_ARTS_INSTRUCTOR_ID, 0);
-                    Harpymodloader.setRoleMaximum(ModRoles.BEST_VIGILANTE_ID, 0);
-                }
-            }
-
-            // 水下角色（海王、潜水员、水鬼）- 仅在水下地图必定生成
-            {
-                boolean isUnderwaterMap = false;
-                var underwaterMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().underwaterRolesMaps);
-                if (underwaterMaps != null && underwaterMaps.size() > 0) {
-                    isUnderwaterMap = underwaterMaps.contains(currentMap);
-                }
-                if (isUnderwaterMap) {
-                    Harpymodloader.setRoleMaximum(ModRoles.WATER_GHOST_ID, 1);
-                    Harpymodloader.setRoleMaximum(ModRoles.SEA_KING_ID, 1);
-                } else {
-                    Harpymodloader.setRoleMaximum(ModRoles.SEA_KING_ID, 0);
-                    Harpymodloader.setRoleMaximum(ModRoles.WATER_GHOST_ID, 0);
-                    // 水下角色仅在水下地图刷新，其余地图属于地图限制。
-                    io.wifi.starrailexpress.roster.MapRestrictionGate.markRole(ModRoles.SEA_KING_ID);
-                    io.wifi.starrailexpress.roster.MapRestrictionGate.markRole(ModRoles.WATER_GHOST_ID);
-                }
-            }
-
-            // 飞行员和影隼（空港角色）- 仅在空港地图必定生成
-            {
-                boolean isKonggangMap = false;
-                var konggangMaps = new ArrayList<>(NoellesRolesConfig.HANDLER.instance().airRolesMaps);
-                if (konggangMaps != null && konggangMaps.size() > 0) {
-                    isKonggangMap = konggangMaps.contains(currentMap);
-                }
-                if (isKonggangMap) {
-                    Harpymodloader.setRoleMaximum(ModRoles.PILOT_ID, 0);
-                    Harpymodloader.setRoleMaximum(ModRoles.SHADOW_FALCON_ID, 1);
-                } else {
-                    Harpymodloader.setRoleMaximum(ModRoles.PILOT_ID, 0);
-                    Harpymodloader.setRoleMaximum(ModRoles.SHADOW_FALCON_ID, 0);
-                    // 空港角色仅在空港地图刷新，其余地图属于地图限制。
-                    io.wifi.starrailexpress.roster.MapRestrictionGate.markRole(ModRoles.PILOT_ID);
-                    io.wifi.starrailexpress.roster.MapRestrictionGate.markRole(ModRoles.SHADOW_FALCON_ID);
-                }
-            }
+            applySpecialMapRoles(currentMap, config);
+            applySpecialVigilanteRoles(players_count, config, random, currentMap);
         });
+    }
+
+    private static void applySpecialMapRoles(String currentMap, NoellesRolesConfig config) {
+        for (var role : TMMRoles.ROLES.values()) {
+            if (!role.isSpecialMapRole()) {
+                continue;
+            }
+            if (isSpecialMapRoleEnabled(role, currentMap, config)) {
+                Harpymodloader.setRoleMaximum(role, Math.max(0, role.spawnInfo.maxSpawn));
+            } else {
+                Harpymodloader.setRoleMaximum(role, 0);
+                io.wifi.starrailexpress.roster.MapRestrictionGate.markRole(role.identifier());
+            }
+        }
+    }
+
+    private static void applySpecialVigilanteRoles(int playersCount, NoellesRolesConfig config, Random random,
+            String currentMap) {
+        int limit = getSpecialVigilanteLimit(playersCount, config);
+        ArrayList<SRERole> specialVigilantes = new ArrayList<>();
+        for (var role : TMMRoles.ROLES.values()) {
+            if (role.isSpecialVigilante()) {
+                specialVigilantes.add(role);
+                Harpymodloader.setRoleMaximum(role, 0);
+            }
+        }
+        if (limit <= 0) {
+            return;
+        }
+
+        ArrayList<SRERole> selected = new ArrayList<>();
+        for (var role : specialVigilantes) {
+            if (!isSpecialMapRoleEnabled(role, currentMap, config)) {
+                io.wifi.starrailexpress.roster.MapRestrictionGate.markRole(role.identifier());
+                continue;
+            }
+            int chance = role.spawnInfo.enableChance >= 0 ? role.spawnInfo.enableChance : role.defaultEnableChance;
+            if (chance >= 0 && random.nextInt(0, 10000) < chance) {
+                selected.add(role);
+                if (role.canRefreshableSpecialVigilante()) {
+                    int secondChance = role.getRefreshableSpecialVigilanteChance();
+                    if (secondChance >= 0 && random.nextInt(0, 10000) < secondChance) {
+                        selected.add(role);
+                    }
+                }
+            }
+        }
+
+        while (selected.size() > limit) {
+            selected.remove(random.nextInt(selected.size()));
+        }
+        for (var role : selected) {
+            Harpymodloader.setRoleMaximum(role, Harpymodloader.ROLE_MAX.getOrDefault(role.identifier(), 0) + 1);
+        }
+    }
+
+    private static int getSpecialVigilanteLimit(int playersCount, NoellesRolesConfig config) {
+        if (playersCount >= config.minPlayerForSpecialPolice5) {
+            return 5;
+        }
+        if (playersCount >= config.minPlayerForSpecialPolice4) {
+            return 4;
+        }
+        if (playersCount >= config.minPlayerForSpecialPolice3) {
+            return 3;
+        }
+        if (playersCount >= config.minPlayerForSpecialPolice2) {
+            return 2;
+        }
+        if (playersCount >= config.minPlayerForSpecialPolice1) {
+            return 1;
+        }
+        return 0;
+    }
+
+    private static boolean isSpecialMapRoleEnabled(SRERole role, String currentMap, NoellesRolesConfig config) {
+        return switch (role.getSpecialMapRole()) {
+            case all -> true;
+            case qiyucun -> config.maChenXuMaps.contains(currentMap);
+            case bigmap -> config.swastMaps.contains(currentMap);
+            case underwater -> config.underwaterRolesMaps.contains(currentMap);
+            case fly -> config.airRolesMaps.contains(currentMap);
+        };
     }
 
     private static void autoRoleMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
@@ -686,7 +572,6 @@ public class InitModRolesMax {
             // .setEnableNeededPlayerCount(config.minPlayerForCatNecromancer);
 
             // // 更好的义警 - 小概率（基于10000）
-            // ModRoles.BEST_VIGILANTE.setEnableRareChance(config.chanceOfBestVigilante);
 
             // // 静语者 - 从配置读取概率和最大数量
             // ModRoles.SILENCER.setEnableChance(config.chanceOfSilencer).setMax(config.silencerMax);

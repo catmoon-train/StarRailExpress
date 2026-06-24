@@ -185,13 +185,13 @@ public class NoellesRolesConfig implements ConfigData {
     public boolean insanePlayersSeeMorphs = true;
 
     /**
-     * Areas that will spawn Swast. Use | to split maps
+     * Areas that will spawn Ma Chen Xu and Guest Ghost. Use | to split maps
      */
 
     public ArrayList<String> maChenXuMaps = new ArrayList<>(List.of("areas_qiyucun"));
 
     /**
-     * Areas that will spawn Swast. Use | to split maps
+     * Areas that will spawn big-map roles (for example Swast). Use | to split maps
      */
 
     public ArrayList<String> swastMaps = new ArrayList<>(
@@ -230,21 +230,6 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * 特殊警卫配置
      */
-    @ConfigEntry.Category(value = "detail")
-    public int chanceOfPatroller = 80;
-    @ConfigEntry.Category(value = "detail")
-    public int chanceOfMartialArtsInstructor = 60;
-    @ConfigEntry.Category(value = "detail")
-    public int chanceOfElf = 70;
-    @ConfigEntry.Category(value = "detail")
-    public int chanceOfSwast = 70;
-    @ConfigEntry.Category(value = "detail")
-    public int chanceOfDoublePatroller = 20;
-    @ConfigEntry.Category(value = "detail")
-    public int chanceOfDoubleElf = 10;
-    @ConfigEntry.Category(value = "detail")
-    public int chanceOfBestVigilante = 10;
-
     /**
      * 特殊警卫刷新最小玩家数
      */

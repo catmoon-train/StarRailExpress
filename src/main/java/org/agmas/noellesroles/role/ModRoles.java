@@ -307,6 +307,7 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 显示计分板
     )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
+            .setSpecialMapRole(SRERole.SpecialMapRole.fly).setDefaultMax(0)
             .setComponentKey(org.agmas.noellesroles.component.ModComponents.PILOT);
 
     /**
@@ -334,6 +335,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限体力
             true // 隐藏计分板
     )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
+            .setSpecialMapRole(SRERole.SpecialMapRole.fly).setDefaultMax(1)
             .setComponentKey(org.agmas.noellesroles.component.ModComponents.SHADOW_FALCON);
 
     /**
@@ -450,7 +452,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 假心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 无限冲刺时间
             true // 隐藏计分板
-    )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true).setDefaultMax(0);
+    )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true)
+            .setSpecialMapRole(SRERole.SpecialMapRole.qiyucun).setDefaultMax(0);
     public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
             MA_CHEN_XU_ID, // 角色 ID
             new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
@@ -460,7 +463,8 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
     )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2)
-            .setCanBeRandomedByOtherRoles(false);
+            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRole.qiyucun)
+            .setDefaultMax(1);
 
     // DIO 迪奥
     public static SRERole DIO = TMMRoles.registerRole(new NormalRole(
@@ -549,7 +553,8 @@ public class ModRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setVigilanteTeam(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanAutoAddMoney(true)
-            .setCanSetSpawnInfoInConfig(false);
+            .setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(7000)
+            .setRefreshableSpecialVigilante(1000, true);
     public static final ResourceLocation GUARD_ID = Noellesroles.id("guard");
     public static SRERole GUARD = TMMRoles.registerRole(
             new NormalRole(GUARD_ID, new Color(170, 170, 170).getRGB(), true, false, SRERole.MoodType.REAL,
@@ -753,7 +758,8 @@ public class ModRoles {
             .registerRole(new NormalRole(PATROLLER_ID, 0x2F6BFF, true, false, SRERole.MoodType.REAL,
                     io.wifi.starrailexpress.game.GameConstants.getInTicks(0, 10), false)
                     .setVigilanteTeam(true).setComponentKey(PatrollerPlayerComponent.KEY))
-            .setCanPickUpRevolver(true).setCanSetSpawnInfoInConfig(false);
+            .setCanPickUpRevolver(true).setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(8000)
+            .setRefreshableSpecialVigilante(2000, true);
 
     /**
      * 更好的义警角色
@@ -773,7 +779,7 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 显示计分板
     )).setVigilanteTeam(true).setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false)
-            .setCanSetSpawnInfoInConfig(false);
+            .setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(10);
 
     /**
      * 棒球员角色
@@ -983,7 +989,8 @@ public class ModRoles {
                     false, // showParticles（显示粒子）
                     true // showIcon（显示图标）
             )))
-            .setCanSeeCoin(true).setComponentKey(DiverPlayerComponent.KEY).setDefaultMax(0);
+            .setCanSeeCoin(true).setComponentKey(DiverPlayerComponent.KEY)
+            .setSpecialMapRole(SRERole.SpecialMapRole.underwater).setDefaultMax(0);
 
     /**
      * 特警角色
@@ -1010,7 +1017,8 @@ public class ModRoles {
             .setServerGameTickEvent((player, gameComponent) -> {
                 org.agmas.noellesroles.game.roles.vigilante.swast.SwastTickHandler.serverTick(player,
                         gameComponent);
-            }).setCanSetSpawnInfoInConfig(false);
+            }).setSpecialVigilante(true).setSpecialMapRole(SRERole.SpecialMapRole.bigmap)
+            .setDefaultMax(1).setDefaultEnableChance(7000);
 
     /**
      * 武术教官角色
@@ -1031,7 +1039,8 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             (int) (TMMRoles.CIVILIAN.getMaxSprintTime() * 2.5), // 2.5倍平民体力
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false).setCanSetSpawnInfoInConfig(false);
+    )).setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
+            .setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(6000);
 
     /**
      * 海王角色
@@ -1064,7 +1073,7 @@ public class ModRoles {
                     true // showIcon（显示图标）
             )))
             .setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
-            .setCanSetSpawnInfoInConfig(false);
+            .setSpecialMapRole(SRERole.SpecialMapRole.underwater).setDefaultMax(1);
 
     /**
      * 水鬼角色
@@ -1097,7 +1106,8 @@ public class ModRoles {
                     true // showIcon（显示图标）
             )))
             .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true)
-            .setCanBeRandomedByOtherRoles(false);
+            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRole.underwater)
+            .setDefaultMax(1);
 
     // 杀手阵营角色
     public static SRERole CLEANER = TMMRoles

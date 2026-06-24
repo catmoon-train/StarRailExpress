@@ -70,6 +70,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public int defaultEnableChance = -1;
     public int defaultEnableNeedPlayerCount = -1;
     public int defaultEnableMaxPlayerCount = -1;
+    private SpecialMapRole specialMapRole = SpecialMapRole.all;
+    private boolean specialVigilante = false;
+    private boolean refreshableSpecialVigilante = false;
+    private int refreshableSpecialVigilanteChance = -1;
     private int occupiedRoleCount = 1;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
@@ -210,6 +214,50 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public int getOccupiedRoleCount() {
         return this.occupiedRoleCount;
+    }
+
+    public enum SpecialMapRole {
+        all, qiyucun, bigmap, underwater, fly
+    }
+
+    public SpecialMapRole getSpecialMapRole() {
+        return this.specialMapRole;
+    }
+
+    public SRERole setSpecialMapRole(SpecialMapRole specialMapRole) {
+        this.specialMapRole = specialMapRole == null ? SpecialMapRole.all : specialMapRole;
+        return this;
+    }
+
+    public boolean isSpecialMapRole() {
+        return this.specialMapRole != SpecialMapRole.all;
+    }
+
+    public boolean isSpecialVigilante() {
+        return this.specialVigilante && this.isVigilanteTeam();
+    }
+
+    public SRERole setSpecialVigilante(boolean specialVigilante) {
+        this.specialVigilante = specialVigilante;
+        return this;
+    }
+
+    public SRERole setSpecialPolice(boolean specialVigilante) {
+        return setSpecialVigilante(specialVigilante);
+    }
+
+    public boolean canRefreshableSpecialVigilante() {
+        return this.isSpecialVigilante() && this.refreshableSpecialVigilante;
+    }
+
+    public int getRefreshableSpecialVigilanteChance() {
+        return this.refreshableSpecialVigilanteChance;
+    }
+
+    public SRERole setRefreshableSpecialVigilante(int chance, boolean refreshable) {
+        this.refreshableSpecialVigilanteChance = chance;
+        this.refreshableSpecialVigilante = refreshable;
+        return this;
     }
 
     /**
