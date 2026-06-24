@@ -28,7 +28,7 @@ import java.util.UUID;
 
 /** 信鸽实体：手动飞行递送信件，可被击杀。 */
 public class PigeonEntity extends LivingEntity {
-    private static final double FLY_SPEED = 0.25;
+    private static final double FLY_SPEED = 0.4;
     private static final EntityDataAccessor<Boolean> HAS_DELIVERED = SynchedEntityData.defineId(PigeonEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Nullable private UUID targetUuid;
