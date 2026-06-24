@@ -3242,9 +3242,10 @@ public class SimpleQuestMinigameScreen extends Screen {
         int px = width / 2, py = top + 42;
         float hx = px + (float) Math.sin(minerAngle) * minerHookLen;
         float hy = py + (float) Math.cos(minerAngle) * minerHookLen;
-        drawLine(g, px, py, Math.round(hx), Math.round(hy), 0xFFE2C37A);
+        int rxi = Math.round(hx), ryi = Math.round(hy);
+        drawLine(g, px, py, rxi, ryi, 0xFFE2C37A);
         drawCircle(g, px, py, 8, 0xFFE2C37A);
-        drawCircle(g, Math.round(hx), Math.round(hy), 6, 0xFFD8DDE8);
+        drawClaw(g, rxi, ryi);
         for (MinerRock rock : minerRocks) {
             if (rock.taken && rock != minerCarry) continue;
             int rx = rock == minerCarry ? Math.round(hx) : Math.round(rock.x);
@@ -3660,6 +3661,28 @@ public class SimpleQuestMinigameScreen extends Screen {
         sniperBulletVX = dx * speed;
         sniperBulletVY = dy * speed;
         sniperBulletActive = true;
+    }
+
+    private void drawClaw(GuiGraphics g, int cx, int cy) {
+        int clawColor = 0xFFA0A8B8;
+        int clawDark = 0xFF788290;
+
+        // 顶部连接横杆
+        g.fill(cx - 4, cy - 7, cx + 5, cy - 4, clawColor);
+
+        // 左爪臂：斜出，末端向内勾
+        drawLine(g, cx - 3, cy - 4, cx - 8, cy + 3, clawColor);
+        drawLine(g, cx - 8, cy + 3, cx - 5, cy + 5, clawDark);
+
+        // 右爪臂：斜出，末端向内勾
+        drawLine(g, cx + 3, cy - 4, cx + 8, cy + 3, clawColor);
+        drawLine(g, cx + 8, cy + 3, cx + 5, cy + 5, clawDark);
+
+        // 中间爪臂：直下
+        drawLine(g, cx, cy - 4, cx, cy + 5, clawColor);
+
+        // 中间勾尖
+        g.fill(cx - 2, cy + 4, cx + 3, cy + 6, clawDark);
     }
 
     private void drawLine(GuiGraphics g, int x1, int y1, int x2, int y2, int color) {
