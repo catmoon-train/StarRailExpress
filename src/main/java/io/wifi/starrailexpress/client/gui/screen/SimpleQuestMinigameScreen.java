@@ -3296,7 +3296,9 @@ public class SimpleQuestMinigameScreen extends Screen {
             while (edges.size() < targetEdges) {
                 List<Integer> candidates = new ArrayList<>();
                 for (int next = 0; next < nodeCount; next++) {
-                    if (next != current && !used[current][next]) candidates.add(next);
+                    if (next != current && !used[current][next] && !overlapsExistingOneStrokeEdge(current, next, edges)) {
+                        candidates.add(next);
+                    }
                 }
                 if (candidates.isEmpty()) break;
                 int next = candidates.get(rng.nextInt(candidates.size()));
@@ -3318,6 +3320,33 @@ public class SimpleQuestMinigameScreen extends Screen {
         int[][] fallback = new int[nodeCount - 1][2];
         for (int i = 0; i < fallback.length; i++) fallback[i] = new int[] {i, i + 1};
         return fallback;
+    }
+
+    private boolean overlapsExistingOneStrokeEdge(int a, int b, List<int[]> edges) {
+        for (int[] edge : edges) {
+            if (oneStrokeSegmentsOverlap(a, b, edge[0], edge[1])) return true;
+        }
+        return false;
+    }
+
+    private boolean oneStrokeSegmentsOverlap(int a, int b, int c, int d) {
+        long cross1 = cross(oneNodeX[a], oneNodeY[a], oneNodeX[b], oneNodeY[b], oneNodeX[c], oneNodeY[c]);
+        long cross2 = cross(oneNodeX[a], oneNodeY[a], oneNodeX[b], oneNodeY[b], oneNodeX[d], oneNodeY[d]);
+        if (cross1 != 0L || cross2 != 0L) return false;
+        if (Math.abs(oneNodeX[b] - oneNodeX[a]) >= Math.abs(oneNodeY[b] - oneNodeY[a])) {
+            return rangesOverlapMoreThanPoint(oneNodeX[a], oneNodeX[b], oneNodeX[c], oneNodeX[d]);
+        }
+        return rangesOverlapMoreThanPoint(oneNodeY[a], oneNodeY[b], oneNodeY[c], oneNodeY[d]);
+    }
+
+    private long cross(int ax, int ay, int bx, int by, int px, int py) {
+        return (long) (bx - ax) * (py - ay) - (long) (by - ay) * (px - ax);
+    }
+
+    private boolean rangesOverlapMoreThanPoint(int a1, int a2, int b1, int b2) {
+        int start = Math.max(Math.min(a1, a2), Math.min(b1, b2));
+        int end = Math.min(Math.max(a1, a2), Math.max(b1, b2));
+        return end > start;
     }
 
     private void renderOneStroke(GuiGraphics g, int left, int top) {
@@ -3376,12 +3405,20 @@ public class SimpleQuestMinigameScreen extends Screen {
         for (int i = 0; i < 3; i++) plush.add(CLAW_EXTRA_PLUSH[rng.nextInt(CLAW_EXTRA_PLUSH.length)]);
         Collections.shuffle(plush, rng);
         for (int i = 0; i < plush.size(); i++) {
-            float x = left + 92 + (i % 3) * 82 + rng.nextInt(17) - 8;
-            float y = top + 134 + (i / 3) * 34 + rng.nextInt(13) - 6;
+            float x = randomClawPrizeX(left);
+            float y = randomClawPrizeY(top);
             float scale = 0.82f + rng.nextFloat() * 0.48f;
             float rotation = -24.0f + rng.nextFloat() * 48.0f;
             clawPrizes.add(new ClawPrize(x, y, plush.get(i), scale, rotation));
         }
+    }
+
+    private float randomClawPrizeX(int left) {
+        return left + 78 + rng.nextFloat() * 238.0f;
+    }
+
+    private float randomClawPrizeY(int top) {
+        return top + 126 + rng.nextFloat() * 58.0f;
     }
 
     private void tickClawMachine() {
@@ -3398,7 +3435,11 @@ public class SimpleQuestMinigameScreen extends Screen {
                         break;
                     }
                 }
-                clawState = 2;
+                if (clawCarry >= 0 && rng.nextFloat() < 0.4f) {
+                    startClawSlipDrop();
+                } else {
+                    clawState = 2;
+                }
             }
         } else if (clawState == 2) {
             clawY -= 4.0f;
@@ -3418,7 +3459,33 @@ public class SimpleQuestMinigameScreen extends Screen {
             if (clawDropY >= panelTop() + 219) {
                 complete();
             }
+        } else if (clawState == 5) {
+            clawY = Math.max(panelTop() + 62, clawY - 4.0f);
+            clawDropVY += 0.55f;
+            clawDropY += clawDropVY;
+            if (clawDropY >= panelTop() + 184) {
+                settleSlippedClawPrize();
+                clawState = 2;
+            }
         }
+    }
+
+    private void startClawSlipDrop() {
+        clawState = 5;
+        clawDropX = clawX;
+        clawDropY = clawY + 26.0f;
+        clawDropVY = 0.0f;
+    }
+
+    private void settleSlippedClawPrize() {
+        if (clawCarry < 0 || clawCarry >= clawPrizes.size()) return;
+        ClawPrize prize = clawPrizes.get(clawCarry);
+        int left = panelLeft(), top = panelTop();
+        prize.taken = false;
+        prize.x = Mth.clamp(clawDropX + rng.nextFloat() * 20.0f - 10.0f, left + 72.0f, left + 320.0f);
+        prize.y = Mth.clamp(panelTop() + 176.0f + rng.nextFloat() * 10.0f, top + 126.0f, top + 188.0f);
+        prize.rotation = -28.0f + rng.nextFloat() * 56.0f;
+        clawCarry = -1;
     }
 
     private void tickClawInput() {
@@ -3449,18 +3516,18 @@ public class SimpleQuestMinigameScreen extends Screen {
         int railY = top + 58;
         g.fill(left + 70, railY, left + 318, railY + 3, 0xFF9FB2C8);
         drawLine(g, Math.round(clawX), railY + 2, Math.round(clawX), Math.round(clawY), 0xFFBCC7D6);
-        drawClaw(g, Math.round(clawX), Math.round(clawY), clawState == 3 || clawState == 4);
+        drawClaw(g, Math.round(clawX), Math.round(clawY), clawState == 3 || clawState == 4 || clawState == 5);
         drawButton(g, left + 358, top + 82, 28, 24, Component.literal("<"));
         drawButton(g, left + 392, top + 82, 28, 24, Component.literal(">"));
         drawButton(g, left + 358, top + 122, 62, 28, tr("claw_machine.drop"));
     }
 
     private float carriedClawPrizeX() {
-        return clawState == 4 ? clawDropX : clawX;
+        return clawState == 4 || clawState == 5 ? clawDropX : clawX;
     }
 
     private float carriedClawPrizeY() {
-        return clawState == 4 ? clawDropY : clawY + 26.0f;
+        return clawState == 4 || clawState == 5 ? clawDropY : clawY + 26.0f;
     }
 
     private void renderClawPrize(GuiGraphics g, ClawPrize prize, float x, float y) {
