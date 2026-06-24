@@ -6,7 +6,7 @@ import org.agmas.noellesroles.game.c4.C4PlacementPreset;
 import org.joml.Quaternionf;
 
 public final class C4ModelTransforms {
-    private static final float SURFACE_CENTER_OFFSET = 0.09F;
+    private static final float SURFACE_CENTER_OFFSET = -0.09F;
     private static final float CHEST_CENTER_Z = -0.22F;
 
     private C4ModelTransforms() {}
@@ -18,18 +18,18 @@ public final class C4ModelTransforms {
 
     public static void rotateFrontToSurface(PoseStack matrices, float yaw, float pitch) {
         switch (surfaceFromStoredAngles(yaw, pitch)) {
-            case UP -> rotateIfNeeded(matrices, com.mojang.math.Axis.ZP, 90.0F);
-            case DOWN -> rotateIfNeeded(matrices, com.mojang.math.Axis.ZP, -90.0F);
-            case NORTH -> rotateIfNeeded(matrices, com.mojang.math.Axis.YP, 90.0F);
-            case SOUTH -> rotateIfNeeded(matrices, com.mojang.math.Axis.YP, -90.0F);
-            case WEST -> rotateIfNeeded(matrices, com.mojang.math.Axis.YP, 180.0F);
+            case UP -> rotateIfNeeded(matrices, com.mojang.math.Axis.ZP, -90.0F);
+            case DOWN -> rotateIfNeeded(matrices, com.mojang.math.Axis.ZP, 90.0F);
+            case NORTH -> rotateIfNeeded(matrices, com.mojang.math.Axis.YP, -90.0F);
+            case SOUTH -> rotateIfNeeded(matrices, com.mojang.math.Axis.YP, 90.0F);
+            case EAST -> rotateIfNeeded(matrices, com.mojang.math.Axis.YP, 180.0F);
             default -> {
             }
         }
     }
 
     public static void rotateFrontToPlayerChest(PoseStack matrices) {
-        rotateIfNeeded(matrices, com.mojang.math.Axis.YP, 90.0F);
+        rotateIfNeeded(matrices, com.mojang.math.Axis.YP, -90.0F);
     }
 
     public static void applyPlacement(PoseStack matrices, C4PlacementPreset preset) {
