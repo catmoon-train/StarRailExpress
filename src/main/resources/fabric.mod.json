@@ -219,7 +219,8 @@
       "noellesroles:pilot",
       "noellesroles:jade_general",
       "noellesroles:wizard",
-      "noellesroles:silencer"
+      "noellesroles:silencer",
+      "noellesroles:diviner"
     ],
     "loom:injected_interfaces": {
       "net/minecraft/class_5483/class_5496": [
