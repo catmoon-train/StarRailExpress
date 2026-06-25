@@ -819,6 +819,8 @@ public class SREClient implements ClientModInitializer {
         io.wifi.starrailexpress.client.network.EntityInteractionBlockClientNetwork.register();
         // 注册小游戏任务点的客户端网络接收器
         io.wifi.starrailexpress.client.network.MinigameQuestClientNetwork.register();
+        io.wifi.starrailexpress.client.network.TicketOfficeClientNetwork.register();
+        io.wifi.starrailexpress.client.network.EffectGeneratorClientNetwork.register();
 
         // 注册职业轮选网络包
         RoleRotationClientReceiver.register();

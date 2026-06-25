@@ -1,4 +1,4 @@
-{
+﻿{
   "unknown": "未知",
   "sre.general.unknown": "未知",
   "commands.loot.error.execute_fail": "执行失败, 原因:\n %s",
@@ -3049,5 +3049,12 @@
   "screen.noellesroles.hurricane_device.persistent.no": "常驻：否",
   "screen.noellesroles.hurricane_device.interval": "生成间隔（秒）",
   "screen.noellesroles.hurricane_device.duration": "持续时间（秒）",
-  "screen.noellesroles.hurricane_device.save": "保存"
+  "screen.noellesroles.hurricane_device.save": "保存",
+  "block.noellesroles.debris_pile": "杂物堆",
+  "block.noellesroles.sabotage_bridge": "破坏任务触发桥",
+  "message.noellesroles.debris_pile.first_selected": "已选择第一个杂物堆，继续点击其它杂物堆加入同一组",
+  "message.noellesroles.debris_pile.selection_cleared": "已清除杂物堆绑定选择",
+  "message.noellesroles.debris_pile.group_bound": "已将杂物堆加入同一关联组",
+  "message.noellesroles.debris_pile.all_extinguished": "杂物堆火焰已全部扑灭，破坏任务结束！",
+  "message.starrailexpress.key.bound_to_door": "已将钥匙绑定到门：%s"
 }

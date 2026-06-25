@@ -87,6 +87,15 @@ public interface TMMBlockEntities {
               TMMBlocks.MINIGAME_QUEST_BLOCK,
               TMMBlocks.MINIGAME_QUEST_PANEL));
 
+  BlockEntityType<TicketOfficeBlockEntity> TICKET_OFFICE = registrar.create("ticket_office",
+      BlockEntityType.Builder.of(TicketOfficeBlockEntity::new, TMMBlocks.TICKET_OFFICE));
+
+  BlockEntityType<TicketGateBlockEntity> TICKET_GATE = registrar.create("ticket_gate",
+      BlockEntityType.Builder.of(TicketGateBlockEntity::new, TMMBlocks.TICKET_GATE));
+
+  BlockEntityType<EffectGeneratorBlockEntity> EFFECT_GENERATOR = registrar.create("effect_generator",
+      BlockEntityType.Builder.of(EffectGeneratorBlockEntity::new, TMMBlocks.EFFECT_GENERATOR));
+
   BlockEntityType<RemoteRedstoneBlockEntity> REMOTE_REDSTONE = registrar.create("remote_redstone",
       BlockEntityType.Builder.of(RemoteRedstoneBlockEntity::new, SREBlocks.REMOTE_REDSTONE));
 

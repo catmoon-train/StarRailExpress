@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "active=false,closed=false": { "model": "noellesroles:block/debris_pile" },
+    "active=true,closed=false": { "model": "noellesroles:block/debris_pile" },
+    "active=false,closed=true": { "model": "noellesroles:block/debris_pile" },
+    "active=true,closed=true": { "model": "noellesroles:block/debris_pile" }
+  }
+}

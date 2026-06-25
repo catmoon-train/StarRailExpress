@@ -19,6 +19,7 @@ public class BindingToolItem extends Item {
     private BlockPos lastCameraPos = null;
     private BlockPos lastReactorPos = null;
     private BlockPos lastWaterValvePos = null;
+    private BlockPos lastDebrisPilePos = null;
 
     public BindingToolItem(Properties settings) {
         super(settings);
@@ -67,6 +68,45 @@ public class BindingToolItem extends Item {
         return InteractionResult.SUCCESS;
     }
 
+    private InteractionResult handleDebrisPileBind(net.minecraft.server.level.ServerLevel level,
+            org.agmas.noellesroles.content.block_entity.scene.DebrisPileBlockEntity pile, BlockPos pos, Player player) {
+        if (player.isShiftKeyDown() && lastDebrisPilePos != null && lastDebrisPilePos.equals(pos)) {
+            lastDebrisPilePos = null;
+            player.displayClientMessage(Component.translatable("message.noellesroles.debris_pile.selection_cleared")
+                    .withStyle(ChatFormatting.GREEN), true);
+            return InteractionResult.SUCCESS;
+        }
+        if (lastDebrisPilePos == null || lastDebrisPilePos.equals(pos)) {
+            lastDebrisPilePos = pos;
+            player.displayClientMessage(Component.translatable("message.noellesroles.debris_pile.first_selected")
+                    .withStyle(ChatFormatting.AQUA), true);
+            return InteractionResult.SUCCESS;
+        }
+        BlockEntity firstBe = level.getBlockEntity(lastDebrisPilePos);
+        if (firstBe instanceof org.agmas.noellesroles.content.block_entity.scene.DebrisPileBlockEntity first) {
+            java.util.Set<BlockPos> group = new java.util.HashSet<>();
+            group.add(lastDebrisPilePos.immutable());
+            group.add(pos.immutable());
+            group.addAll(first.linked());
+            group.addAll(pile.linked());
+            for (BlockPos groupPos : group) {
+                BlockEntity be = level.getBlockEntity(groupPos);
+                if (be instanceof org.agmas.noellesroles.content.block_entity.scene.DebrisPileBlockEntity linkedPile) {
+                    for (BlockPos target : group) {
+                        linkedPile.addLinked(target);
+                    }
+                }
+            }
+            player.displayClientMessage(Component.translatable("message.noellesroles.debris_pile.group_bound")
+                    .withStyle(ChatFormatting.GREEN), true);
+            return InteractionResult.SUCCESS;
+        }
+        lastDebrisPilePos = pos;
+        player.displayClientMessage(Component.translatable("message.noellesroles.debris_pile.first_selected")
+                .withStyle(ChatFormatting.AQUA), true);
+        return InteractionResult.SUCCESS;
+    }
+
     public static BlockPos CalcRelativePosition(BlockPos from, BlockPos to) {
         var x1 = from.getX();
         var x2 = to.getX();
@@ -106,6 +146,10 @@ public class BindingToolItem extends Item {
         if (clicked instanceof org.agmas.noellesroles.content.block_entity.scene.WaterValveBlockEntity valve
                 && world instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             return handleWaterValveBind(serverLevel, valve, pos, player);
+        }
+        if (clicked instanceof org.agmas.noellesroles.content.block_entity.scene.DebrisPileBlockEntity pile
+                && world instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            return handleDebrisPileBind(serverLevel, pile, pos, player);
         }
 
         if (!player.isCreative()) {

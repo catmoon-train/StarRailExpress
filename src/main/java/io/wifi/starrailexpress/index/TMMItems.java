@@ -122,6 +122,8 @@ public interface TMMItems {
             TOOLS_GROUP, SRE_ALL_GROUP);
     Item LETTER = registrar.create("letter", new Item(new Item.Properties().stacksTo(1)), TOOLS_GROUP, SRE_ALL_GROUP);
     Item NOTE = registrar.create("note", new NoteItem(new Item.Properties().stacksTo(4)), TOOLS_GROUP, SRE_ALL_GROUP);
+    Item ADMISSION_TICKET = sreRegistrar.create("admission_ticket",
+            new AdmissionTicketItem(new Item.Properties().stacksTo(16)), TOOLS_GROUP, SRE_ALL_GROUP);
 
     // === 消耗品 (CONSUMABLES) ===
     Item MAGNUM_BULLET = registrar.create("magnum_bullet", new MagnumBulletItem(new Item.Properties().stacksTo(64)),

@@ -248,6 +248,8 @@ public class ModPackets {
         // 注册水阀小游戏完成网络包
         PayloadTypeRegistry.playC2S().register(WaterValveMinigameCompleteC2SPacket.TYPE, WaterValveMinigameCompleteC2SPacket.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(WaterValveMinigameCompleteC2SPacket.TYPE, WaterValveMinigameCompleteC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(DebrisPileMinigameCompleteC2SPacket.TYPE, DebrisPileMinigameCompleteC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(DebrisPileMinigameCompleteC2SPacket.TYPE, DebrisPileMinigameCompleteC2SPacket::handle);
 
         // 信使邮件包
         PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.CourierMailSendC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailSendC2SPacket.STREAM_CODEC);

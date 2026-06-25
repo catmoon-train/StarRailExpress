@@ -140,8 +140,29 @@ public final class SceneEventManager {
             if (mood != null) {
                 mood.addMood(-0.5f);
             }
+            var gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(level);
+            var role = gameWorld.getRole(player);
+            boolean shouldCooldown = !gameWorld.isKillerTeam(player)
+                    || gameWorld.isRole(player, org.agmas.noellesroles.role.ModRoles.MAGICIAN);
+            if (shouldCooldown && role != null) {
+                applyHotbarCooldown(player, 15 * 20);
+            }
         }
         return true;
+    }
+
+    private static void applyHotbarCooldown(net.minecraft.server.level.ServerPlayer player, int ticks) {
+        var cooldowns = player.getCooldowns();
+        for (int slot = 0; slot < 9; slot++) {
+            var stack = player.getInventory().getItem(slot);
+            if (stack.isEmpty()) continue;
+            var item = stack.getItem();
+            var current = cooldowns.cooldowns.get(item);
+            if (current != null && current.endTime - cooldowns.tickCount > ticks) {
+                continue;
+            }
+            cooldowns.addCooldown(item, ticks);
+        }
     }
 
     /**

@@ -50,6 +50,8 @@ public class SREReceiverRegister {
         // 实体交互方块服务端网络处理
         EntityInteractionBlockServerNetwork.register();
         MinigameQuestServerNetwork.register();
+        TicketOfficeServerNetwork.register();
+        EffectGeneratorServerNetwork.register();
         // 画板服务端网络处理
         DrawingBoardServerNetwork.register();
         ServerPlayNetworking.registerGlobalReceiver(SecurityCameraExitRequestPayload.ID,

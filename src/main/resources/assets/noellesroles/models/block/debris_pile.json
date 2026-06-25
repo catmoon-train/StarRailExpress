@@ -1,0 +1,32 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "pile": "noellesroles:block/debris_pile",
+    "particle": "noellesroles:block/debris_pile"
+  },
+  "elements": [
+    {
+      "from": [1, 0, 1],
+      "to": [15, 8, 15],
+      "faces": {
+        "down": { "uv": [1, 1, 15, 15], "texture": "#pile", "cullface": "down" },
+        "up": { "uv": [1, 1, 15, 15], "texture": "#pile" },
+        "north": { "uv": [1, 8, 15, 16], "texture": "#pile" },
+        "south": { "uv": [1, 8, 15, 16], "texture": "#pile" },
+        "west": { "uv": [1, 8, 15, 16], "texture": "#pile" },
+        "east": { "uv": [1, 8, 15, 16], "texture": "#pile" }
+      }
+    },
+    {
+      "from": [4, 8, 4],
+      "to": [12, 12, 12],
+      "faces": {
+        "up": { "uv": [4, 4, 12, 12], "texture": "#pile" },
+        "north": { "uv": [4, 4, 12, 8], "texture": "#pile" },
+        "south": { "uv": [4, 4, 12, 8], "texture": "#pile" },
+        "west": { "uv": [4, 4, 12, 8], "texture": "#pile" },
+        "east": { "uv": [4, 4, 12, 8], "texture": "#pile" }
+      }
+    }
+  ]
+}

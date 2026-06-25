@@ -129,6 +129,16 @@ public class MinigameScreenFactory {
                 SimpleQuestMinigameScreen.Mode.CLAW_MACHINE));
         FACTORY.put("balloon_sniper", (pos, onSuccess) -> new SimpleQuestMinigameScreen(pos, onSuccess,
                 SimpleQuestMinigameScreen.Mode.BALLOON_SNIPER));
+        FACTORY.put("extinguish_fire", (pos, onSuccess) -> new PhysicalQuestMinigameScreen(pos, onSuccess,
+                PhysicalQuestMinigameScreen.Kind.EXTINGUISH));
+        FACTORY.put("pachinko", (pos, onSuccess) -> new PhysicalQuestMinigameScreen(pos, onSuccess,
+                PhysicalQuestMinigameScreen.Kind.PACHINKO));
+        FACTORY.put("mix_drink", (pos, onSuccess) -> new PhysicalQuestMinigameScreen(pos, onSuccess,
+                PhysicalQuestMinigameScreen.Kind.MIX_DRINK));
+        FACTORY.put("balloon_pump", (pos, onSuccess) -> new PhysicalQuestMinigameScreen(pos, onSuccess,
+                PhysicalQuestMinigameScreen.Kind.BALLOON_PUMP));
+        FACTORY.put("throw_ball", (pos, onSuccess) -> new PhysicalQuestMinigameScreen(pos, onSuccess,
+                PhysicalQuestMinigameScreen.Kind.THROW_BALL));
     }
 
     public static Screen create(String minigameId, BlockPos pos, Runnable onSuccess) {

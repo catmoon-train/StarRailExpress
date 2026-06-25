@@ -738,6 +738,33 @@ public interface TMMBlocks {
             new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS,
                     org.agmas.noellesroles.init.ModSceneBlocks.QUEST_CREATIVE_GROUP });
 
+    Block TICKET_OFFICE = sreBlockRegistrar.create("ticket_office",
+            new TicketOfficeBlock(BlockBehaviour.Properties.of()
+                    .strength(-1.0F, 3600000.8F)
+                    .noOcclusion()
+                    .sound(SoundType.WOOD)));
+    Item TICKET_OFFICE_ITEM = sreItemRegistrar.create("ticket_office",
+            new BlockItem(TICKET_OFFICE, new Item.Properties().rarity(Rarity.EPIC)),
+            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS,
+                    org.agmas.noellesroles.init.ModSceneBlocks.SCENE_CREATIVE_GROUP });
+
+    Block TICKET_GATE = sreBlockRegistrar.create("ticket_gate",
+            new TicketGateBlock(BlockSetType.COPPER, BlockBehaviour.Properties.ofFullCopy(SMALL_GLASS_DOOR).sound(SoundType.COPPER)));
+    Item TICKET_GATE_ITEM = sreItemRegistrar.create("ticket_gate",
+            new BlockItem(TICKET_GATE, new Item.Properties().rarity(Rarity.EPIC)),
+            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS,
+                    org.agmas.noellesroles.init.ModSceneBlocks.SCENE_CREATIVE_GROUP });
+
+    Block EFFECT_GENERATOR = sreBlockRegistrar.create("effect_generator",
+            new EffectGeneratorBlock(BlockBehaviour.Properties.of()
+                    .strength(-1.0F, 3600000.8F)
+                    .noOcclusion()
+                    .sound(SoundType.GLASS)));
+    Item EFFECT_GENERATOR_ITEM = sreItemRegistrar.create("effect_generator",
+            new BlockItem(EFFECT_GENERATOR, new Item.Properties().rarity(Rarity.EPIC)),
+            new net.minecraft.resources.ResourceKey[] { CreativeModeTabs.OP_BLOCKS,
+                    org.agmas.noellesroles.init.ModSceneBlocks.SCENE_CREATIVE_GROUP });
+
     private static Block createBranch(String name, Block wood, BlockRegistrar registrar) {
         return registrar.createWithItem(name,
                 new BranchBlock(

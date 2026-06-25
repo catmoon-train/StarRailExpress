@@ -1,4 +1,4 @@
-{
+﻿{
   "unknown": "Unknown",
   "sre.general.unknown": "Unknown",
   "commands.loot.error.execute_fail": "Execution failed, reason:\n %s",
@@ -3061,5 +3061,12 @@
   "screen.noellesroles.hurricane_device.persistent.no": "Persistent: No",
   "screen.noellesroles.hurricane_device.interval": "Spawn interval (seconds)",
   "screen.noellesroles.hurricane_device.duration": "Duration (seconds)",
-  "screen.noellesroles.hurricane_device.save": "Save"
+  "screen.noellesroles.hurricane_device.save": "Save",
+  "block.noellesroles.debris_pile": "Debris Pile",
+  "block.noellesroles.sabotage_bridge": "Sabotage Bridge",
+  "message.noellesroles.debris_pile.first_selected": "First debris pile selected. Click more debris piles to add them to the group",
+  "message.noellesroles.debris_pile.selection_cleared": "Debris pile binding selection cleared",
+  "message.noellesroles.debris_pile.group_bound": "Debris pile added to the linked group",
+  "message.noellesroles.debris_pile.all_extinguished": "All debris pile fires extinguished. Sabotage ended!",
+  "message.starrailexpress.key.bound_to_door": "Key bound to door: %s"
 }

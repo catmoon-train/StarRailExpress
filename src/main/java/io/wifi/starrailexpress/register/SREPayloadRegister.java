@@ -168,6 +168,17 @@ public class SREPayloadRegister {
                 MinigameQuestPayload.SaveConfig.CODEC);
         PayloadTypeRegistry.playC2S().register(MinigameQuestPayload.CompleteGame.TYPE,
                 MinigameQuestPayload.CompleteGame.CODEC);
+        PayloadTypeRegistry.playS2C().register(TicketPayload.OpenOfficeConfig.TYPE,
+                TicketPayload.OpenOfficeConfig.CODEC);
+        PayloadTypeRegistry.playS2C().register(TicketPayload.OpenOfficeShop.TYPE,
+                TicketPayload.OpenOfficeShop.CODEC);
+        PayloadTypeRegistry.playC2S().register(TicketPayload.SaveOfficeConfig.TYPE,
+                TicketPayload.SaveOfficeConfig.CODEC);
+        PayloadTypeRegistry.playC2S().register(TicketPayload.BuyTicket.TYPE, TicketPayload.BuyTicket.CODEC);
+        PayloadTypeRegistry.playS2C().register(EffectGeneratorPayload.OpenConfig.TYPE,
+                EffectGeneratorPayload.OpenConfig.CODEC);
+        PayloadTypeRegistry.playC2S().register(EffectGeneratorPayload.SaveConfig.TYPE,
+                EffectGeneratorPayload.SaveConfig.CODEC);
 
         // 职业轮选数据包
         PayloadTypeRegistry.playC2S().register(RoleRotationSelectC2SPacket.TYPE, RoleRotationSelectC2SPacket.CODEC);

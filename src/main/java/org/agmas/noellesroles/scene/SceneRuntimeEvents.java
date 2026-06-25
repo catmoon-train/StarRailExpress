@@ -27,6 +27,7 @@ public final class SceneRuntimeEvents {
             clearHurricanes(world);
             ZERO_AIR_TICKS.clear();
             MapStatusBarRuntime.clear(world);
+            SceneEventManager.clear(world);
         });
         ServerTickEvents.END_WORLD_TICK.register(level -> {
             if (level instanceof ServerLevel serverLevel) {

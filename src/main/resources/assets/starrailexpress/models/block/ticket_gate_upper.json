@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "door": "starrailexpress:block/ticket_gate"
+  },
+  "elements": [
+    {
+      "from": [0, -16, 6],
+      "to": [16, 0, 10],
+      "faces": {
+        "north": { "texture": "#door", "uv": [0, 0, 16, 16] },
+        "south": { "texture": "#door", "uv": [0, 0, 16, 16] },
+        "east":  { "texture": "#door", "uv": [0, 0, 4, 16] },
+        "west":  { "texture": "#door", "uv": [0, 0, 4, 16] },
+        "up":    { "texture": "#door", "uv": [0, 0, 16, 4] },
+        "down":  { "texture": "#door", "uv": [0, 0, 16, 4] }
+      }
+    }
+  ]
+}

@@ -23,6 +23,7 @@ import org.agmas.noellesroles.content.block.scene.BreakingBridgeBlock;
 import org.agmas.noellesroles.content.block.scene.CellarBlock;
 import org.agmas.noellesroles.content.block.scene.CoffinBlock;
 import org.agmas.noellesroles.content.block.scene.DrippingStalactiteBlock;
+import org.agmas.noellesroles.content.block.scene.DebrisPileBlock;
 import org.agmas.noellesroles.content.block.scene.FlamethrowerBlock;
 import org.agmas.noellesroles.content.block.scene.FogZoneBlock;
 import org.agmas.noellesroles.content.block.scene.HurricaneDeviceBlock;
@@ -39,17 +40,20 @@ import org.agmas.noellesroles.content.block.scene.TransportPointBlock;
 import org.agmas.noellesroles.content.block_entity.scene.CropBlockEntity;
 import org.agmas.noellesroles.content.block.scene.ReactorBlock;
 import org.agmas.noellesroles.content.block.scene.RollingStoneTriggerPlate;
+import org.agmas.noellesroles.content.block.scene.SabotageBridgeBlock;
 import org.agmas.noellesroles.content.block.scene.WaterValveBlock;
 import org.agmas.noellesroles.content.block.scene.WaterPumpBlock;
 import org.agmas.noellesroles.content.block.scene.SceneGateBlock;
 import org.agmas.noellesroles.content.block.scene.TrainTargetBlock;
 import org.agmas.noellesroles.content.block_entity.scene.CoffinBlockEntity;
+import org.agmas.noellesroles.content.block_entity.scene.DebrisPileBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.FlamethrowerBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.HurricaneDeviceBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.IncineratorBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.MovingPlatformBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.ReactorBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.RollingStoneTriggerPlateEntity;
+import org.agmas.noellesroles.content.block_entity.scene.SabotageBridgeBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.WaterValveBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.WaterPumpBlockEntity;
 import org.agmas.noellesroles.content.block_entity.scene.FogZoneBlockEntity;
@@ -78,11 +82,15 @@ public interface ModSceneBlocks {
             new PoisonZoneBlock(Properties.ofFullCopy(Blocks.SLIME_BLOCK).noOcclusion().strength(-1.0F, 3600000.0F)));
     Block BREAKING_BRIDGE = registerBlock("breaking_bridge",
             new BreakingBridgeBlock(Properties.ofFullCopy(Blocks.OAK_PLANKS)));
+    Block SABOTAGE_BRIDGE = registerBlock("sabotage_bridge",
+            new SabotageBridgeBlock(Properties.ofFullCopy(Blocks.OAK_PLANKS).noOcclusion()));
     Block DRIPPING_STALACTITE = registerBlock("dripping_stalactite",
             new DrippingStalactiteBlock(Properties.ofFullCopy(Blocks.DRIPSTONE_BLOCK).randomTicks()));
 
     BlockEntityType<PoisonZoneBlockEntity> POISON_ZONE_ENTITY = blockEntityRegistrar.create("poison_zone",
             BlockEntityType.Builder.of(PoisonZoneBlockEntity::new, POISON_ZONE));
+    BlockEntityType<SabotageBridgeBlockEntity> SABOTAGE_BRIDGE_ENTITY = blockEntityRegistrar.create("sabotage_bridge",
+            BlockEntityType.Builder.of(SabotageBridgeBlockEntity::new, SABOTAGE_BRIDGE));
 
     // ───────────────────────── 批次B：区域/通道类 ─────────────────────────
 
@@ -114,6 +122,10 @@ public interface ModSceneBlocks {
             new WaterValveBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK)
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(WaterValveBlock.ACTIVE) ? 8 : 0)));
+    Block DEBRIS_PILE = registerQuestBlock("debris_pile",
+            new DebrisPileBlock(Properties.ofFullCopy(Blocks.HAY_BLOCK)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(DebrisPileBlock.ACTIVE) ? 10 : 0)));
 
     BlockEntityType<FlamethrowerBlockEntity> FLAMETHROWER_ENTITY = blockEntityRegistrar.create("flamethrower",
             BlockEntityType.Builder.of(FlamethrowerBlockEntity::new, FLAMETHROWER));
@@ -124,6 +136,8 @@ public interface ModSceneBlocks {
             BlockEntityType.Builder.of(ReactorBlockEntity::new, REACTOR));
     BlockEntityType<WaterValveBlockEntity> WATER_VALVE_ENTITY = blockEntityRegistrar.create("water_valve",
             BlockEntityType.Builder.of(WaterValveBlockEntity::new, WATER_VALVE));
+    BlockEntityType<DebrisPileBlockEntity> DEBRIS_PILE_ENTITY = blockEntityRegistrar.create("debris_pile",
+            BlockEntityType.Builder.of(DebrisPileBlockEntity::new, DEBRIS_PILE));
     BlockEntityType<RollingStoneTriggerPlateEntity> ROLLING_STONE_TRIGGER_ENTITY = blockEntityRegistrar.create(
             "rolling_stone_trigger",
             BlockEntityType.Builder.of(RollingStoneTriggerPlateEntity::new, ROLLING_STONE_TRIGGER));

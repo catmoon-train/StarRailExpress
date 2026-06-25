@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "broken=false": { "model": "noellesroles:block/sabotage_bridge" },
+    "broken=true": { "model": "noellesroles:block/sabotage_bridge" }
+  }
+}
