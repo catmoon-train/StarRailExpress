@@ -14,6 +14,8 @@ import org.agmas.noellesroles.game.roles.innocent.ayayaya.AyayayaPlayerComponent
 import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.builder.BuilderPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.jade_general.JadeGeneralPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.clock_maker.ClockmakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.detective.DetectivePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.driver.DiverPlayerComponent;
@@ -374,6 +376,16 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<BuilderPlayerComponent> BUILDER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "builder"),
       BuilderPlayerComponent.class);
+
+  // 玉将军组件 - 平民阵营，飞踢位移技能（击退/眩晕/变老人）
+  public static final ComponentKey<JadeGeneralPlayerComponent> JADE_GENERAL = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "jade_general"),
+      JadeGeneralPlayerComponent.class);
+
+  // 巫师组件 - 杀手阵营，魔素/法杖/魔药/法术池
+  public static final ComponentKey<WizardPlayerComponent> WIZARD = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "wizard"),
+      WizardPlayerComponent.class);
 
   // 超级亡命徒组件
   public static final ComponentKey<SuperLooseEndPlayerComponent> SUPER_LOOSE_END = ComponentRegistry.getOrCreate(
@@ -759,6 +771,16 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, BUILDER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(BuilderPlayerComponent::new);
+
+    // 注册玉将军组件 - 飞踢冷却外的位移/命中状态
+    registry.beginRegistration(Player.class, JADE_GENERAL)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(JadeGeneralPlayerComponent::new);
+
+    // 注册巫师组件 - 魔素/法术状态
+    registry.beginRegistration(Player.class, WIZARD)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(WizardPlayerComponent::new);
 
     // 注册超级亡命徒组件
     registry.beginRegistration(Player.class, SUPER_LOOSE_END)

@@ -88,6 +88,8 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(SwapperC2SPacket.ID, SwapperC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(VultureEatC2SPacket.ID, VultureEatC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(TryThrowItemPacket.ID, TryThrowItemPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.WizardShieldC2SPacket.ID,
+                org.agmas.noellesroles.packet.WizardShieldC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorC2SPacket.ID, ManipulatorC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorControlInputC2SPacket.ID, ManipulatorControlInputC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorAbilityC2SPacket.ID, ManipulatorAbilityC2SPacket.CODEC);

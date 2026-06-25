@@ -131,6 +131,14 @@ public class ModRoles {
     public static final AttachmentType<String> ENTITY_NOTE_MAKER = AttachmentRegistry.<String>builder()
             .persistent(Codec.STRING)
             .buildAndRegister(Noellesroles.id("entity_note_maker"));
+
+    /**
+     * 被玉将军飞踢“变老人”的玩家标记：为 true 时无法购买轮椅。
+     * 非持久化（不写入存档），并在每局结束时统一清除。
+     */
+    @SuppressWarnings("deprecation")
+    public static final AttachmentType<Boolean> KICKED_INTO_OLDMAN = AttachmentRegistry.<Boolean>builder()
+            .buildAndRegister(Noellesroles.id("kicked_into_oldman"));
     // ==================== 角色 ID 定义 ====================
     // 建议格式：MOD_ID:role_name
 
@@ -195,6 +203,10 @@ public class ModRoles {
     public static final ResourceLocation MORTICIAN_ID = Noellesroles.id("mortician");
     // 建筑师角色 ID
     public static final ResourceLocation BUILDER_ID = Noellesroles.id("builder");
+    // 玉将军角色 ID
+    public static final ResourceLocation JADE_GENERAL_ID = Noellesroles.id("jade_general");
+    // 巫师角色 ID
+    public static final ResourceLocation WIZARD_ID = Noellesroles.id("wizard");
     public static final ResourceLocation REPAIR_SURVIVOR_ID = Noellesroles.id("repair_survivor");
     public static final ResourceLocation REPAIR_HUNTER_ID = Noellesroles.id("repair_hunter");
     public static final ResourceLocation REPAIR_NEUTRAL_ID = Noellesroles.id("repair_neutral");
@@ -443,6 +455,39 @@ public class ModRoles {
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setComponentKey(ModComponents.BUILDER).setDefaultMax(1)
             .setDefaultEnableChance(7000).setDefaultEnableNeededPlayerCount(12);
+
+    /**
+     * 玉将军（平民阵营）。
+     * 飞踢（X 技能）：向视线方向位移约五格，可踹开沿途任意房门；踢中目标将其击退两格，
+     * 击退撞墙眩晕 4 秒、否则 2 秒，并附加减速 5 秒；命中有概率使目标变老人（无法购买轮椅），
+     * 踢得越多概率越高（1%→2%→4%→8% 封顶）。释放后清空自身体力条。冷却 90 秒。
+     */
+    public static SRERole JADE_GENERAL = TMMRoles.registerRole(new NormalRole(
+            JADE_GENERAL_ID, // 角色 ID
+            new Color(0, 168, 107).getRGB(), // 玉绿色
+            true, // isInnocent = 平民阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+            false // 不隐藏计分板
+    )).setCanSeeCoin(true).setComponentKey(ModComponents.JADE_GENERAL).setDefaultMax(1)
+            .setDefaultEnableChance(7000).setDefaultEnableNeededPlayerCount(8);
+
+    /**
+     * 巫师（杀手阵营）。开局携带法杖与魔药；所有金币收入转化为魔素（bossbar）。
+     * 法杖：右键蓄力火焰箭（穿透、3 秒延迟死亡），左键击退；魔药：大量魔素 + 60 秒一次攻击免疫。
+     * 法术池（潜行+技能键切换，技能键释放）：盔甲护身 / 冰霜震慑 / 笼罩暗影 / Explosion!。
+     */
+    public static SRERole WIZARD = TMMRoles.registerRole(new NormalRole(
+            WIZARD_ID, // 角色 ID
+            new Color(123, 104, 238).getRGB(), // 紫罗兰 - 魔法
+            false, // isInnocent = 杀手阵营
+            true, // canUseKiller = 杀手能力
+            SRERole.MoodType.FAKE, // 假心情
+            Integer.MAX_VALUE, // 无限冲刺
+            true // 隐藏计分板
+    )).setCanSeeCoin(true).setComponentKey(ModComponents.WIZARD).setCanBeRandomedByOtherRoles(false)
+            .setDefaultMax(1).setDefaultEnableChance(2500);
 
     public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
             GUEST_GHOST_ID, // 角色 ID

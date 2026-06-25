@@ -458,6 +458,25 @@ public class ModPacketsReciever {
       if (comp != null)
         comp.useAbility();
     });
+    // 巫师“盔甲护身”：在背包选择玩家后赋予护盾
+    ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.WizardShieldC2SPacket.ID,
+        (payload, context) -> {
+          if (context.player().hasEffect(ModEffects.SAFE_TIME))
+            return;
+          SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(context.player().level());
+          if (payload.player() == null)
+            return;
+          if (!gameWorldComponent.isRole(context.player(), ModRoles.WIZARD))
+            return;
+          var wizard = org.agmas.noellesroles.component.ModComponents.WIZARD.get(context.player());
+          if (wizard.selectedSpell != org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent.Spell.ARMOR)
+            return;
+          var target = context.player().level().getPlayerByUUID(payload.player());
+          if (target instanceof ServerPlayer stp) {
+            wizard.grantShieldTo((ServerPlayer) context.player(), stp);
+          }
+        });
+
     // 操纵师数据包处理
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MANIPULATOR_PACKET, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间

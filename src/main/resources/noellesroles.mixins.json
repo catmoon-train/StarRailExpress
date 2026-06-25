@@ -98,6 +98,7 @@
     "client.roles.manipulator.KeyBindingMixin",
     "client.roles.manipulator.ManipulatorControllerInputMixin",
     "client.roles.manipulator.ManipulatorScreenMixin",
+    "client.roles.wizard.WizardShieldScreenMixin",
     "client.roles.monokuma.MonokumaInkShaderMixin",
     "client.roles.morphling.MorphlingCapeRendererMixin",
     "client.roles.morphling.MorphlingRendererMixin",

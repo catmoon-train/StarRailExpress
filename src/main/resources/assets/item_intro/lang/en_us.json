@@ -1,4 +1,6 @@
 {
+  "item.noellesroles.wizard_staff.desc": "Wizard only. Right-click to charge a magic fire arrow that pierces multiple players; those hit die after 3 seconds. Left-click to knock back. When Explosion! is armed, the next cast is a wall-piercing nine-ring fireball.",
+  "item.noellesroles.wizard_potion.desc": "Wizard only. On use, goes on cooldown, grants a large amount of mana, and grants immunity to one lethal attack for the next 60 seconds.",
   "item.trainmurdermystery.bat.desc": "Vanilla attack logic, left click to hit.",
   "item.trainmurdermystery.defense_vial.desc": "Desperado can drink directly by right-clicking to gain a shield.\nNormal players can right-click a tray to pour the defense vial onto it.\nThe next player who takes the defense vial and eats/drinks the item will gain a shield.\nShields obtained this way max out at 1 layer.",
   "item.noellesroles.bucket_of_h2so4.desc": "Cleaner item.\nRight-click a corpse to remove it.",

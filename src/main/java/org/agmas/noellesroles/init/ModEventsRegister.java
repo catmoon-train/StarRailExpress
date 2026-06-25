@@ -117,6 +117,7 @@ import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComp
 import org.agmas.noellesroles.packet.BloodConfigS2CPacket;
 import org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
@@ -783,6 +784,18 @@ public class ModEventsRegister {
         });
 
         // 肉汁独处保护机制 - 杀手/中立只能在单独相处时击杀肉汁
+        // 巫师魔药：60 秒内免疫一次致命攻击
+        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorld.isRole(victim, ModRoles.WIZARD)) {
+                WizardPlayerComponent wizard = org.agmas.noellesroles.component.ModComponents.WIZARD.get(victim);
+                if (wizard.consumeAttackImmunity()) {
+                    return false; // 取消本次死亡
+                }
+            }
+            return true;
+        });
+
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
 
@@ -1121,6 +1134,13 @@ public class ModEventsRegister {
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
             org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.timeBoostTriggered = false;
+            // 清除所有玩家被玉将军“变老人”的标记与长期减速
+            for (ServerPlayer player : world.players()) {
+                if (player.getAttachedOrElse(ModRoles.KICKED_INTO_OLDMAN, false)) {
+                    player.removeAttached(ModRoles.KICKED_INTO_OLDMAN);
+                    player.removeEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN);
+                }
+            }
             // 清除所有玩家的感染状态
             for (ServerPlayer player : world.players()) {
                 InfectedPlayerComponent infectedComponent = org.agmas.noellesroles.component.ModComponents.INFECTED
@@ -1203,6 +1223,16 @@ public class ModEventsRegister {
         });
         OnVendingMachinesBuyItems.EVENT.register((player, itemStack) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+            // 被玉将军飞踢“变老人”的玩家无法购买轮椅
+            if (itemStack.stack().is(ModItems.WHEELCHAIR)
+                    && player.getAttachedOrElse(ModRoles.KICKED_INTO_OLDMAN, false)) {
+                player.displayClientMessage(
+                        net.minecraft.network.chat.Component
+                                .translatable("message.noellesroles.jade_general.cannot_buy_wheelchair")
+                                .withStyle(net.minecraft.ChatFormatting.RED),
+                        true);
+                return false;
+            }
             if (itemStack.stack().is(ModItems.ONCE_REVOLVER)) {
                 var role = gameWorldComponent.getRole(player);
                 if (role != null) {

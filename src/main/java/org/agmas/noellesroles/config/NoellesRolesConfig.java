@@ -313,6 +313,78 @@ public class NoellesRolesConfig implements ConfigData {
     public int recallerTeleportCooldown = 30;
 
     /**
+     * Jade General (玉将军) - Flying kick cooldown in seconds
+     */
+    public int jadeGeneralKickCooldown = 90;
+
+    /**
+     * Jade General - Flying kick displacement distance in blocks
+     */
+    public int jadeGeneralDashBlocks = 5;
+
+    /**
+     * Jade General - Knockback distance applied to a kicked target in blocks
+     */
+    public int jadeGeneralKnockbackBlocks = 2;
+
+    /**
+     * Jade General - Stun seconds when the knocked-back target hits a wall
+     */
+    public int jadeGeneralStunCollideSeconds = 4;
+
+    /**
+     * Jade General - Stun seconds when the knocked-back target does not hit a wall
+     */
+    public int jadeGeneralStunSeconds = 2;
+
+    /**
+     * Jade General - Slowness seconds applied to a kicked target
+     */
+    public int jadeGeneralSlowSeconds = 5;
+
+    // ==================== Wizard (巫师) ====================
+    /** Wizard - Max mana (魔素) capacity */
+    public int wizardMaxMana = 100;
+    /** Wizard - Mana gained per coin of income (all coins convert to mana) */
+    public int wizardManaPerCoin = 1;
+    /** Wizard - Passive mana regen per second */
+    public int wizardPassiveManaPerSecond = 1;
+    /** Wizard - Staff left-click knockback strength */
+    public double wizardStaffKnockback = 1.2;
+    /** Wizard - Fire arrow max range in blocks */
+    public double wizardFireArrowRange = 30.0;
+    /** Wizard - Seconds before a fire-arrow-hit player dies */
+    public int wizardFireArrowDeathSeconds = 3;
+    /** Wizard - Armor (shield) spell mana cost */
+    public int wizardArmorCost = 20;
+    /** Wizard - Frost spell mana cost */
+    public int wizardFrostCost = 30;
+    /** Wizard - Frost spell freeze duration in seconds */
+    public int wizardFrostSeconds = 4;
+    /** Wizard - Frost spell effect range in blocks */
+    public double wizardFrostRange = 8.0;
+    /** Wizard - Shadow (blindness) spell mana cost */
+    public int wizardShadowCost = 25;
+    /** Wizard - Shadow spell blindness duration in seconds */
+    public int wizardShadowSeconds = 6;
+    /** Wizard - Extra mana drained per second to sustain shadow during a blackout */
+    public int wizardShadowBlackoutDrainPerSecond = 5;
+    /** Wizard - Explosion! spell mana cost */
+    public int wizardExplosionCost = 40;
+    /** Wizard - Nine-ring fireball max travel range in blocks */
+    public double wizardFireballRange = 25.0;
+    /** Wizard - Nine-ring fireball explosion radius in blocks */
+    public double wizardFireballRadius = 4.0;
+    /** Wizard - Max players killed by one nine-ring fireball */
+    public int wizardFireballMaxKills = 8;
+    /** Wizard - Potion cooldown in seconds */
+    public int wizardPotionCooldown = 30;
+    /** Wizard - Mana gained from drinking a potion */
+    public int wizardPotionManaGain = 50;
+    /** Wizard - Potion attack-immunity window in seconds */
+    public int wizardPotionImmuneSeconds = 60;
+
+    /**
      * Phantom - Invisibility duration in seconds
      */
 
