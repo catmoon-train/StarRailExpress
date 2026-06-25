@@ -9,6 +9,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,12 +18,17 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModBlocks;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class VendingMachinesBlockEntity extends BlockEntity implements GoodsContainer {
 
    private final List<ShopEntry> items = new ArrayList<>();
+   /** 已绑定的文件名（不含扩展名），null 表示未绑定。 */
+   private String boundFile = null;
+   /** 已加载的绑定文件最后修改时间，用于判断是否需要重新读取。 */
+   private long boundFileMtime = -1L;
 
    public VendingMachinesBlockEntity(BlockPos pos, BlockState state) {
       super(ModBlocks.VENDING_MACHINES_BLOCK_ENTITY, pos, state);
@@ -30,6 +36,7 @@ public class VendingMachinesBlockEntity extends BlockEntity implements GoodsCont
 
    @Override
    public List<ShopEntry> getShops() {
+      this.refreshBindingIfNeeded();
       return new ArrayList<ShopEntry>(items);
    }
 
@@ -37,8 +44,79 @@ public class VendingMachinesBlockEntity extends BlockEntity implements GoodsCont
       if (!this.items.isEmpty()) {
          this.items.clear();
          this.setChanged();
+         this.persistBindingIfNeeded();
       }
 
+   }
+
+   @Override
+   public String getBoundFile() {
+      return this.boundFile;
+   }
+
+   @Override
+   public void setBoundFile(String sanitizedName) {
+      this.boundFile = sanitizedName;
+      this.boundFileMtime = -1L;
+      this.setChanged();
+      if (this.level != null) {
+         this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(),
+               Block.UPDATE_CLIENTS);
+      }
+      // 绑定后立刻从文件加载商品（文件为准）。
+      if (sanitizedName != null) {
+         this.refreshBindingIfNeeded();
+      }
+   }
+
+   @Override
+   public CompoundTag toBindingTag(HolderLookup.Provider provider) {
+      CompoundTag tag = new CompoundTag();
+      tag.put("shop", GoodsBindingStorage.saveEntries(this.items, provider));
+      return tag;
+   }
+
+   /** 若已绑定且绑定文件发生变动，则从文件重新加载商品（仅服务端）。 */
+   private void refreshBindingIfNeeded() {
+      if (this.boundFile == null || this.level == null || this.level.isClientSide()) {
+         return;
+      }
+      MinecraftServer server = this.level.getServer();
+      if (server == null) {
+         return;
+      }
+      long mtime = GoodsBindingStorage.lastModified(server, this.boundFile);
+      if (mtime == -1L || mtime == this.boundFileMtime) {
+         return;
+      }
+      this.boundFileMtime = mtime;
+      CompoundTag tag = GoodsBindingStorage.read(server, this.boundFile);
+      if (tag == null) {
+         return;
+      }
+      this.items.clear();
+      this.items.addAll(GoodsBindingStorage.loadEntries(tag, this.level.registryAccess()));
+      this.setChanged();
+      this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(),
+            Block.UPDATE_CLIENTS);
+   }
+
+   /** 若已绑定，则把当前商品回写到绑定文件（仅服务端）。 */
+   private void persistBindingIfNeeded() {
+      if (this.boundFile == null || this.level == null || this.level.isClientSide()) {
+         return;
+      }
+      MinecraftServer server = this.level.getServer();
+      if (server == null) {
+         return;
+      }
+      try {
+         GoodsBindingStorage.write(server, this.boundFile, this.toBindingTag(this.level.registryAccess()));
+         // 记录我们自己写入后的修改时间，避免随后把自己的写入当作外部改动再次加载。
+         this.boundFileMtime = GoodsBindingStorage.lastModified(server, this.boundFile);
+      } catch (IOException e) {
+         Noellesroles.LOGGER.error("[VendingMachine] 回写绑定文件失败 {}: {}", this.boundFile, String.valueOf(e));
+      }
    }
 
    @Override
@@ -47,6 +125,7 @@ public class VendingMachinesBlockEntity extends BlockEntity implements GoodsCont
       this.setChanged();
       this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(),
             Block.UPDATE_CLIENTS);
+      this.persistBindingIfNeeded();
       // 调试输出
       if (this.level != null && !this.level.isClientSide()) {
          Noellesroles.LOGGER.debug("[VendingMachine] 添加商品: " + shopEntry.stack().getDisplayName().getString() +
@@ -63,6 +142,7 @@ public class VendingMachinesBlockEntity extends BlockEntity implements GoodsCont
       this.setChanged();
       this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(),
             Block.UPDATE_CLIENTS);
+      this.persistBindingIfNeeded();
    }
 
    @Override
@@ -75,6 +155,7 @@ public class VendingMachinesBlockEntity extends BlockEntity implements GoodsCont
       this.setChanged();
       this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(),
             Block.UPDATE_CLIENTS);
+      this.persistBindingIfNeeded();
       return true;
    }
 
@@ -101,6 +182,9 @@ public class VendingMachinesBlockEntity extends BlockEntity implements GoodsCont
          list.add(entryTag);
       }
       compoundTag.put("shop", list);
+      if (this.boundFile != null) {
+         compoundTag.putString("boundFile", this.boundFile);
+      }
    }
 
    @Override
@@ -117,6 +201,9 @@ public class VendingMachinesBlockEntity extends BlockEntity implements GoodsCont
    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
       super.loadAdditional(tag, provider);
       items.clear();
+      this.boundFile = tag.contains("boundFile", Tag.TAG_STRING) ? tag.getString("boundFile") : null;
+      // 重置修改时间标记，使下一次读取商品时从绑定文件重新加载。
+      this.boundFileMtime = -1L;
       if (tag.contains("shop", Tag.TAG_LIST)) {
          ListTag shoptags = tag.getList("shop", Tag.TAG_COMPOUND);
          for (var s : shoptags) {

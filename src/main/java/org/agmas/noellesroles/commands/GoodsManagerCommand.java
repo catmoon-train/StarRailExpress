@@ -19,9 +19,11 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.HoverEvent.ItemStackInfo;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.agmas.noellesroles.content.block_entity.GoodsBindingStorage;
 import org.agmas.noellesroles.content.block_entity.GoodsContainer;
 import org.agmas.noellesroles.content.block_entity.LotteryMachineBlockEntity;
 import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
@@ -29,6 +31,9 @@ import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
 public class GoodsManagerCommand {
   private static final SuggestionProvider<CommandSourceStack> CURRENCY_SUGGESTIONS =
       (context, builder) -> SharedSuggestionProvider.suggest(ShopEntry.Currency.serializedNames(), builder);
+  private static final SuggestionProvider<CommandSourceStack> BINDING_FILE_SUGGESTIONS =
+      (context, builder) -> SharedSuggestionProvider.suggest(
+          GoodsBindingStorage.listNames(context.getSource().getServer()), builder);
 
   public static void register() {
     CommandRegistrationCallback.EVENT.register(
@@ -96,6 +101,31 @@ public class GoodsManagerCommand {
                               .then(Commands.argument("count", IntegerArgumentType.integer(1))
                                   .then(Commands.argument("weight", IntegerArgumentType.integer(1))
                                       .executes(GoodsManagerCommand::executeLotteryAddItem))))))));
+        });
+    CommandRegistrationCallback.EVENT.register(
+        (dispatcher, registryAccess, environment) -> {
+          dispatcher.register(Commands.literal("goods:export")
+              .requires(source -> source.hasPermission(2))
+              .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                  .then(Commands.argument("name", StringArgumentType.string())
+                      .suggests(BINDING_FILE_SUGGESTIONS)
+                      .executes(GoodsManagerCommand::executeExport))));
+        });
+    CommandRegistrationCallback.EVENT.register(
+        (dispatcher, registryAccess, environment) -> {
+          dispatcher.register(Commands.literal("goods:import")
+              .requires(source -> source.hasPermission(2))
+              .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                  .then(Commands.argument("name", StringArgumentType.string())
+                      .suggests(BINDING_FILE_SUGGESTIONS)
+                      .executes(GoodsManagerCommand::executeImport))));
+        });
+    CommandRegistrationCallback.EVENT.register(
+        (dispatcher, registryAccess, environment) -> {
+          dispatcher.register(Commands.literal("goods:unbind")
+              .requires(source -> source.hasPermission(2))
+              .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                  .executes(GoodsManagerCommand::executeUnbind)));
         });
 
   }
@@ -262,6 +292,10 @@ private static int executesAddItem(CommandContext<CommandSourceStack> context) {
       var items = goodsContainer.getShops();
       MutableComponent result = Component.translatable("The Shop List of [%s]", pos.toShortString())
           .withStyle(ChatFormatting.GOLD);
+      if (goodsContainer.getBoundFile() != null) {
+        result.append(Component.literal("\n已绑定文件: " + goodsContainer.getBoundFile() + GoodsBindingStorage.EXTENSION)
+            .withStyle(ChatFormatting.LIGHT_PURPLE));
+      }
       if (blockEntity instanceof LotteryMachineBlockEntity lotteryMachine) {
         result.append(Component.literal("\n抽奖费用: " + lotteryMachine.getDrawCost() + " "
             + lotteryMachine.getDrawCurrency().serializedName()).withStyle(ChatFormatting.YELLOW));
@@ -432,6 +466,94 @@ private static int executesAddItem(CommandContext<CommandSourceStack> context) {
     } catch (Exception e) {
       e.printStackTrace();
       context.getSource().sendFailure(Component.literal("设置抽奖费用时发生错误: " + e.getMessage()));
+      return 0;
+    }
+  }
+
+  private static int executeExport(CommandContext<CommandSourceStack> context) {
+    try {
+      BlockPos pos = BlockPosArgument.getLoadedBlockPos(context, "pos");
+      String name = GoodsBindingStorage.sanitize(StringArgumentType.getString(context, "name"));
+      if (name == null) {
+        context.getSource().sendFailure(Component.literal("无效的文件名（仅允许字母、数字、下划线、连字符）"));
+        return 0;
+      }
+      BlockEntity blockEntity = context.getSource().getLevel().getBlockEntity(pos);
+      GoodsContainer goodsContainer = asGoodsContainer(blockEntity);
+      if (goodsContainer == null) {
+        context.getSource().sendFailure(Component.literal("指定位置不是售货机或抽奖机方块"));
+        return 0;
+      }
+      MinecraftServer server = context.getSource().getServer();
+      int count = goodsContainer.getShops().size();
+      GoodsBindingStorage.write(server, name, goodsContainer.toBindingTag(context.getSource().registryAccess()));
+      context.getSource().sendSuccess(() -> Component.literal("已导出 " + count + " 件商品到 ")
+          .append(Component.literal(GoodsBindingStorage.DIR_NAME + "/" + name + GoodsBindingStorage.EXTENSION)
+              .withStyle(ChatFormatting.GOLD)), true);
+      return 1;
+    } catch (Exception e) {
+      e.printStackTrace();
+      context.getSource().sendFailure(Component.literal("导出商品时发生错误: " + e.getMessage()));
+      return 0;
+    }
+  }
+
+  private static int executeImport(CommandContext<CommandSourceStack> context) {
+    try {
+      BlockPos pos = BlockPosArgument.getLoadedBlockPos(context, "pos");
+      String name = GoodsBindingStorage.sanitize(StringArgumentType.getString(context, "name"));
+      if (name == null) {
+        context.getSource().sendFailure(Component.literal("无效的文件名（仅允许字母、数字、下划线、连字符）"));
+        return 0;
+      }
+      BlockEntity blockEntity = context.getSource().getLevel().getBlockEntity(pos);
+      GoodsContainer goodsContainer = asGoodsContainer(blockEntity);
+      if (goodsContainer == null) {
+        context.getSource().sendFailure(Component.literal("指定位置不是售货机或抽奖机方块"));
+        return 0;
+      }
+      MinecraftServer server = context.getSource().getServer();
+      if (!GoodsBindingStorage.exists(server, name)) {
+        context.getSource().sendFailure(Component.literal("绑定文件不存在: "
+            + GoodsBindingStorage.DIR_NAME + "/" + name + GoodsBindingStorage.EXTENSION));
+        return 0;
+      }
+      goodsContainer.setBoundFile(name);
+      int count = goodsContainer.getShops().size();
+      context.getSource().sendSuccess(() -> Component.literal("已绑定到文件 ")
+          .append(Component.literal(GoodsBindingStorage.DIR_NAME + "/" + name + GoodsBindingStorage.EXTENSION)
+              .withStyle(ChatFormatting.GOLD))
+          .append(Component.literal("，当前 " + count + " 件商品（编辑该文件后将自动同步）")), true);
+      return 1;
+    } catch (Exception e) {
+      e.printStackTrace();
+      context.getSource().sendFailure(Component.literal("绑定文件时发生错误: " + e.getMessage()));
+      return 0;
+    }
+  }
+
+  private static int executeUnbind(CommandContext<CommandSourceStack> context) {
+    try {
+      BlockPos pos = BlockPosArgument.getLoadedBlockPos(context, "pos");
+      BlockEntity blockEntity = context.getSource().getLevel().getBlockEntity(pos);
+      GoodsContainer goodsContainer = asGoodsContainer(blockEntity);
+      if (goodsContainer == null) {
+        context.getSource().sendFailure(Component.literal("指定位置不是售货机或抽奖机方块"));
+        return 0;
+      }
+      String previous = goodsContainer.getBoundFile();
+      if (previous == null) {
+        context.getSource().sendFailure(Component.literal("该机器未绑定任何文件"));
+        return 0;
+      }
+      goodsContainer.setBoundFile(null);
+      context.getSource().sendSuccess(() -> Component.literal("已解绑文件 ")
+          .append(Component.literal(previous + GoodsBindingStorage.EXTENSION).withStyle(ChatFormatting.GOLD))
+          .append(Component.literal("，当前商品保留为本地副本")), true);
+      return 1;
+    } catch (Exception e) {
+      e.printStackTrace();
+      context.getSource().sendFailure(Component.literal("解绑文件时发生错误: " + e.getMessage()));
       return 0;
     }
   }

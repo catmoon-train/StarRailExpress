@@ -202,6 +202,31 @@ AFK管理
 - **示例**: `/sre:camera intro @s 100 16 8`
 - **说明**: 游戏开始时自动给本局玩家播放默认开场镜头；详见 `docs/advanced-camera.md`
 
+## 售货机 / 抽奖机 商品管理命令
+
+> 售货机与抽奖机均实现 `GoodsContainer`，以下命令对两者通用（抽奖机额外包含抽奖费用）。
+> `<pos>` 为机器方块坐标。所有命令权限均为 2。
+
+### `goods:export <pos> <name>`
+将机器当前商品导出为绑定文件
+- **说明**: 导出到世界存档目录下的 `goods_bindings/<name>.snbt`（SNBT 文本，可手动编辑）。抽奖机会一并导出抽奖费用与货币。
+- **示例**: `/goods:export 100 64 200 spring_shop`
+
+### `goods:import <pos> <name>`
+将机器**绑定**到一个绑定文件（导入即绑定）
+- **说明**: 把机器绑定到 `goods_bindings/<name>.snbt`，绑定后机器商品**以该文件为准**：
+  - 编辑该文件后，所有绑定它的机器会在下次读取时自动同步更新；
+  - 通过 `goods:add/remove/cost` 等指令修改已绑定机器，会**回写**到该文件。
+- 文件不存在时会报错（请先用 `goods:export` 生成，或手动放置文件）。
+- **示例**: `/goods:import 100 64 200 spring_shop`
+
+### `goods:unbind <pos>`
+解除机器与绑定文件的关联
+- **说明**: 解绑后当前商品保留为机器本地副本，不再与文件同步。
+- **示例**: `/goods:unbind 100 64 200`
+
+> 其它商品指令：`goods:add` / `goods:remove` / `goods:list` / `goods:cost` / `goods:lottery add`（`goods:list` 会显示当前绑定的文件）。
+
 ## 注释
 - 权限等级2通常对应OP权限
 - 服务器后台命令只能在服务器控制台执行，不能由玩家执行
