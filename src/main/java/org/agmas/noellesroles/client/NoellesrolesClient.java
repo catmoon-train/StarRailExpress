@@ -128,7 +128,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_U, "category.starrailexpress.keybinds"));
     public static KeyMapping mapIntroClientBind = KeyBindingHelper
             .registerKeyBinding(new KeyMapping("key." + Noellesroles.MOD_ID + ".map_intro",
-                    InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "category.starrailexpress.keybinds"));
+                    InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_MINUS, "category.starrailexpress.keybinds"));
     public static KeyMapping roleGuessNoteClientBind = KeyBindingHelper
             .registerKeyBinding(new KeyMapping("key." + Noellesroles.MOD_ID + ".guess_role_note",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_I, "category.starrailexpress.keybinds"));

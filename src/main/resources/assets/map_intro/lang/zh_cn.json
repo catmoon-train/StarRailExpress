@@ -64,7 +64,7 @@
   "map_intro.effect.entry": "%s %s级",
   "map_intro.item.entry": "%s x%s",
   "map_intro.block.noellesroles.poison_zone.desc": "有毒区域会使进入区域的玩家中毒，适合制作危险地带或机关区域。",
-  "map_intro.block.noellesroles.breaking_bridge.desc": "断桥方块可作为会断裂或塌落的桥面机关，用于制造移动风险。",
+  "map_intro.block.noellesroles.breaking_bridge.desc": "断桥方块可作为会断裂或塌落的桥面机关，用于制造移动风险，断桥方块过一段时间会恢复。",
   "map_intro.block.noellesroles.sabotage_bridge.desc": "可被破坏任务触发，在破坏任务启动后触发桥梁机关。",
   "map_intro.block.noellesroles.dripping_stalactite.desc": "每隔随机时间会朝下降落滴水石锥并砸死站在下方的玩家。",
   "map_intro.block.noellesroles.fog_zone.desc": "迷雾区域用于局部制造雾气遮挡，影响玩家视野，仅杀手/中立/特定职业可以进入。",
