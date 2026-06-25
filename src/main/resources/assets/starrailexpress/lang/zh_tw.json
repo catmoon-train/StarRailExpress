@@ -2462,7 +2462,7 @@
     "minigame.starrailexpress.balloon.hint":  "向下拖拽打氣筒把手充氣",
     "minigame.starrailexpress.throw_ball.basket":  "球籃",
     "item.starrailexpress.admission_ticket":  "入場券",
-    "tooltip.starrailexpress.admission_ticket.uses":  "剩餘次數: %s",
+    "tooltip.starrailexpress.admission_ticket.uses":  "可使用次數: %s",
     "tooltip.starrailexpress.admission_ticket.infinite":  "無限使用",
     "block.starrailexpress.ticket_office":  "售票處",
     "block.starrailexpress.ticket_gate":  "檢票門",

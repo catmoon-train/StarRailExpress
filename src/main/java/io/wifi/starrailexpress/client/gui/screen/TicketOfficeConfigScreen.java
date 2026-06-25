@@ -72,7 +72,7 @@ public class TicketOfficeConfigScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics, mouseX, mouseY, partialTick);
+        super.render(graphics, mouseX, mouseY, partialTick);
         int panelX = this.width / 2 - 120;
         int y = this.height / 2 - 72;
         graphics.fill(panelX, y - 30, panelX + 240, y + 136, 0xEE1D2328);
@@ -83,6 +83,5 @@ public class TicketOfficeConfigScreen extends Screen {
                 0xFFC8D4D8, false);
         graphics.drawString(font, Component.translatable("screen.starrailexpress.ticket_office.uses"), panelX + 12, y + 66,
                 0xFFC8D4D8, false);
-        super.render(graphics, mouseX, mouseY, partialTick);
     }
 }

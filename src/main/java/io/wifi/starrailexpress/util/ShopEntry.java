@@ -85,7 +85,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
             @Override
             public ItemStack iconStack() {
-                return Items.GOLD_NUGGET.getDefaultInstance();
+                return Items.GOLD_INGOT.getDefaultInstance();
             }
         },
         MINIGAME_TOKEN("minigame_token", "gui.vendingmachine.minigame_token_display", 0xFF7CFCA0) {
@@ -101,7 +101,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
             @Override
             public ItemStack iconStack() {
-                return Items.AMETHYST_SHARD.getDefaultInstance();
+                return Items.EMERALD.getDefaultInstance();
             }
         };
 

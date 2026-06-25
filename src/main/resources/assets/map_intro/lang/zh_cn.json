@@ -96,7 +96,7 @@
   "map_intro.block.starrailexpress.entity_interaction_block.desc": "实体交互方块是可配置触发条件和触发内容的多功能方块，用于制作复杂的地图机关、指令、传送、奖励或状态变化。",
   "map_intro.block.starrailexpress.entity_interaction_panel.desc": "实体交互镶板作用同实体交互方块。",
   "map_intro.block.starrailexpress.ticket_office.desc": "售票处用于票务相关场景交互，玩家可在售票处购买入场券(有的入场券有使用次数)。",
-  "map_intro.block.starrailexpress.ticket_gate.desc": "检票门受入场券控制，玩家手持对应的入场券时可打开检票门，红石信号可使检票门强制打开，可作为特殊区域入口、门禁或机关门。",
+  "map_intro.block.starrailexpress.ticket_gate.desc": "检票门受入场券控制，玩家手持对应的入场券时可打开检票门，红石信号可使检票门强制打开，可作为特殊区域入口、门禁或机关门。(创造模式手持入场券右键检票门绑定)",
   "map_intro.block.starrailexpress.effect_generator.desc": "药水效果发生器可配置并给予区域内玩家指定的药水效果，用于区域增益、惩罚或特殊机制。",
   "map_intro.block.noellesroles.reactor.desc": "反应堆装置是解除破坏任务的任务点之一，地图中可能存在 1~2 处。",
   "map_intro.block.noellesroles.water_valve.desc": "水阀是解除破坏任务的任务点之一，地图中可能存在 1~2 处。",
