@@ -480,7 +480,7 @@ public class ModRoles {
 
     /**
      * 巫师（杀手阵营）。开局携带法杖与魔药；所有金币收入转化为魔素（bossbar）。
-     * 法杖：右键蓄力火焰箭（穿透、3 秒延迟死亡），左键击退；魔药：大量魔素 + 60 秒一次攻击免疫。
+     * 法杖：右键蓄力火焰箭（最多贯穿 2 名、命中即死），左键击退；魔药：大量魔素 + 60 秒一次攻击免疫。
      * 法术池（潜行+技能键切换，技能键释放）：盔甲护身 / 冰霜震慑 / 笼罩暗影 / Explosion!。
      */
     public static SRERole WIZARD = TMMRoles.registerRole(new NormalRole(

@@ -44,7 +44,7 @@ import java.util.UUID;
  * <p>核心机制：
  * <ul>
  *   <li><b>魔素</b>：以 bossbar 显示的特殊充能。巫师所有金币收入（击杀 + 自然恢复）都转化为魔素，巫师本身不使用金币。</li>
- *   <li><b>法杖</b>（{@link WizardStaffItem}）：右键蓄力释放魔法火焰箭（穿透、命中后 3 秒死亡），左键击退。</li>
+ *   <li><b>法杖</b>（{@link WizardStaffItem}）：右键蓄力释放魔法火焰箭（最多贯穿数名玩家、命中即死），左键击退。</li>
  *   <li><b>魔药</b>（{@link WizardPotionItem}）：使用后进入冷却，获得大量魔素，并在 60 秒内免疫一次致命攻击。</li>
  *   <li><b>魔法池</b>：潜行 + 技能键在四个法术间切换；技能键释放当前法术。</li>
  *   <li>法术：盔甲护身 / 冰霜震慑 / 笼罩暗影 / Explosion! —— 详见各 cast 方法。</li>
@@ -81,8 +81,8 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     /** 是否已发放开局道具。 */
     private boolean gaveStartingItems = false;
 
-    /** 火焰箭命中后延迟死亡队列。 */
-    private final List<PendingDeath> pendingDeaths = new ArrayList<>();
+    /** 已发放护盾的到期队列（到期后移除一层护盾）。 */
+    private final List<ShieldExpiry> shieldExpiries = new ArrayList<>();
 
     /** 魔素 bossbar（非序列化）。 */
     private transient ServerBossEvent manaBar = null;
@@ -110,7 +110,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.attackImmuneTicks = 0;
         this.shadowSustaining = false;
         this.gaveStartingItems = false;
-        this.pendingDeaths.clear();
+        this.shieldExpiries.clear();
         sync();
     }
 
@@ -121,7 +121,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.explosionArmed = false;
         this.attackImmuneTicks = 0;
         this.shadowSustaining = false;
-        this.pendingDeaths.clear();
+        this.shieldExpiries.clear();
         sync();
     }
 
@@ -179,8 +179,8 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         // 笼罩暗影：关灯期间持续施放
         tickShadowSustain(sp);
 
-        // 火焰箭延迟死亡
-        tickPendingDeaths(sp);
+        // 护盾到期移除
+        tickShieldExpiries(sp);
 
         // 魔素 bossbar
         updateManaBar(sp);
@@ -206,25 +206,27 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         }
     }
 
-    private void tickPendingDeaths(ServerPlayer sp) {
-        if (pendingDeaths.isEmpty()) {
+    private void tickShieldExpiries(ServerPlayer sp) {
+        if (shieldExpiries.isEmpty()) {
             return;
         }
-        Iterator<PendingDeath> it = pendingDeaths.iterator();
+        Iterator<ShieldExpiry> it = shieldExpiries.iterator();
         while (it.hasNext()) {
-            PendingDeath pd = it.next();
-            pd.ticksLeft--;
-            Player target = sp.level().getPlayerByUUID(pd.targetUuid);
+            ShieldExpiry se = it.next();
+            se.ticksLeft--;
+            Player target = sp.level().getPlayerByUUID(se.targetUuid);
             if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
                 it.remove();
                 continue;
             }
-            if (target.level() instanceof ServerLevel sl) {
-                sl.sendParticles(ParticleTypes.FLAME, target.getX(), target.getY() + 1.0, target.getZ(),
-                        6, 0.3, 0.5, 0.3, 0.02);
-            }
-            if (pd.ticksLeft <= 0) {
-                GameUtils.killPlayer(target, true, sp, Noellesroles.id("wizard_fire_arrow"));
+            if (se.ticksLeft <= 0) {
+                // 护盾到期：若目标仍持有护盾则移除一层
+                io.wifi.starrailexpress.cca.SREArmorPlayerComponent armorComp =
+                        io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(target);
+                if (armorComp.getArmor() > 0) {
+                    armorComp.removeArmor();
+                    spawnAura(target, ParticleTypes.SMOKE);
+                }
                 it.remove();
             }
         }
@@ -313,6 +315,10 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         }
         spendMana(config().wizardArmorCost);
         io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(target).giveArmor();
+        // 护盾仅存在固定时长，到期自动移除
+        shieldExpiries.removeIf(se -> se.targetUuid.equals(target.getUUID()));
+        shieldExpiries.add(new ShieldExpiry(target.getUUID(),
+                GameConstants.getInTicks(0, config().wizardShieldDurationSeconds)));
         spawnAura(target, ParticleTypes.ENCHANT);
         target.level().playSound(null, target.blockPosition(), SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 0.6f, 1.6f);
         caster.displayClientMessage(Component.translatable("message.noellesroles.wizard.armor_done",
@@ -411,19 +417,6 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         }
     }
 
-    /** 注册一个火焰箭命中：3 秒后死亡。 */
-    public void markFireArrowHit(ServerPlayer target) {
-        for (PendingDeath pd : pendingDeaths) {
-            if (pd.targetUuid.equals(target.getUUID())) {
-                return; // 已标记
-            }
-        }
-        pendingDeaths.add(new PendingDeath(target.getUUID(),
-                GameConstants.getInTicks(0, config().wizardFireArrowDeathSeconds)));
-        target.displayClientMessage(Component.translatable("message.noellesroles.wizard.fire_arrow_hit")
-                .withStyle(ChatFormatting.RED), true);
-    }
-
     // ==================== 魔药 ====================
 
     /** 由魔药物品调用：进入冷却、获得大量魔素、60s 内免疫一次攻击。 */
@@ -514,11 +507,11 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 
-    private static final class PendingDeath {
+    private static final class ShieldExpiry {
         final UUID targetUuid;
         int ticksLeft;
 
-        PendingDeath(UUID targetUuid, int ticksLeft) {
+        ShieldExpiry(UUID targetUuid, int ticksLeft) {
             this.targetUuid = targetUuid;
             this.ticksLeft = ticksLeft;
         }

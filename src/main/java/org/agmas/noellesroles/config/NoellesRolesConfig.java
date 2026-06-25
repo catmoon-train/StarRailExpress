@@ -381,10 +381,12 @@ public class NoellesRolesConfig implements ConfigData {
     public double wizardStaffKnockback = 1.2;
     /** Wizard - Fire arrow max range in blocks */
     public double wizardFireArrowRange = 30.0;
-    /** Wizard - Seconds before a fire-arrow-hit player dies */
-    public int wizardFireArrowDeathSeconds = 3;
+    /** Wizard - Max players a single fire arrow can pierce (instant kill on hit) */
+    public int wizardFireArrowMaxPierce = 2;
     /** Wizard - Armor (shield) spell mana cost */
     public int wizardArmorCost = 20;
+    /** Wizard - Granted shield (armor) lifetime in seconds before it expires */
+    public int wizardShieldDurationSeconds = 30;
     /** Wizard - Frost spell mana cost */
     public int wizardFrostCost = 30;
     /** Wizard - Frost spell freeze duration in seconds */

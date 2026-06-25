@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * 巫师法杖的两种施法：魔法火焰箭（穿透命中、3 秒延迟死亡）与 Explosion! 九环火球术（穿墙 AoE）。
+ * 巫师法杖的两种施法：魔法火焰箭（最多贯穿数名玩家、命中即死）与 Explosion! 九环火球术（穿墙 AoE）。
  * 全部为服务端逻辑，配合粒子与音效呈现“华丽”的释放表现。
  */
 public final class WizardSpells {
@@ -31,8 +31,8 @@ public final class WizardSpells {
     }
 
     /**
-     * 魔法火焰箭：从视线方向射出一道火焰，遇墙停止，但可穿透沿途所有玩家；
-     * 每个被命中的玩家会在 3 秒后死亡。
+     * 魔法火焰箭：从视线方向射出一道火焰，遇墙停止，最多贯穿
+     * {@link NoellesRolesConfig#wizardFireArrowMaxPierce} 名玩家；命中即直接造成死亡。
      */
     public static void castFireArrow(WizardPlayerComponent comp, ServerPlayer sp) {
         if (!(sp.level() instanceof ServerLevel level)) {
@@ -41,6 +41,7 @@ public final class WizardSpells {
         Vec3 start = sp.getEyePosition();
         Vec3 dir = sp.getViewVector(1.0f).normalize();
         double range = config().wizardFireArrowRange;
+        int maxPierce = config().wizardFireArrowMaxPierce;
         double hitRadius = 1.0;
         double step = 0.25;
 
@@ -53,7 +54,7 @@ public final class WizardSpells {
                 level.sendParticles(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 2, 0.05, 0.05, 0.05, 0.0);
                 level.sendParticles(ParticleTypes.SMALL_FLAME, pos.x, pos.y, pos.z, 1, 0.0, 0.0, 0.0, 0.0);
             }
-            // 命中玩家（穿透）
+            // 命中玩家（贯穿，命中即死）
             for (Player p : level.players()) {
                 if (p == sp || hit.contains(p.getUUID()) || !GameUtils.isPlayerAliveAndSurvival(p)) {
                     continue;
@@ -61,12 +62,16 @@ public final class WizardSpells {
                 if (p.getBoundingBox().inflate(hitRadius - 0.5).contains(pos)
                         || p.position().add(0, p.getBbHeight() / 2, 0).distanceToSqr(pos) <= hitRadius * hitRadius) {
                     if (p instanceof ServerPlayer target) {
-                        comp.markFireArrowHit(target);
                         hit.add(p.getUUID());
                         level.sendParticles(ParticleTypes.LAVA, p.getX(), p.getY() + 1.0, p.getZ(),
                                 12, 0.3, 0.5, 0.3, 0.05);
+                        GameUtils.killPlayer(target, true, sp, Noellesroles.id("wizard_fire_arrow"));
                     }
                 }
+            }
+            // 已达到最大贯穿人数则停止
+            if (hit.size() >= maxPierce) {
+                break;
             }
             // 遇到实心方块则停止
             BlockPos bp = BlockPos.containing(pos);
