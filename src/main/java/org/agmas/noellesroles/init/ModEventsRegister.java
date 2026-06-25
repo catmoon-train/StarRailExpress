@@ -1344,6 +1344,7 @@ public class ModEventsRegister {
         // 注册疫使胜利检测和加速检测
         InfectedWinChecker.registerEvent();
         EntityClearUtils.registerResetEvent();
+        org.agmas.noellesroles.game.roles.innocent.photographer.PhotographerFrameEvents.register();
         ReplayRules.cantSendReplay.add(player -> {
             DeathPenaltyComponent component = ModComponents.DEATH_PENALTY.get(player);
             if (component != null) {

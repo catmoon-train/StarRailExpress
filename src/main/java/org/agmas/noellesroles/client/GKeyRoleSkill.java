@@ -123,6 +123,14 @@ public final class GKeyRoleSkill {
             ClientPlayNetworking.send(new VeteranDashC2SPacket());
             return true;
         });
+        // 交换者：按技能键与正前方目标瞬移交换位置
+        register(ModRoles.SWAPPER, true, (client, gameWorld) -> {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
+                return true;
+            }
+            ClientPlayNetworking.send(new org.agmas.noellesroles.packet.SwapperFrontSwapC2SPacket());
+            return true;
+        });
         register(ModRoles.VULTURE, false, (client, gameWorld) -> {
             if (NoellesrolesClient.targetBody == null) {
                 return true;

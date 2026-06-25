@@ -61,6 +61,8 @@ public class RicePacketTypeRegister {
 
         // 注册苦力怕技能包
         PayloadTypeRegistry.playC2S().register(CreeperAbilityC2SPacket.ID, CreeperAbilityC2SPacket.CODEC);
+        // 交换者 G 键瞬移交换包
+        PayloadTypeRegistry.playC2S().register(SwapperFrontSwapC2SPacket.ID, SwapperFrontSwapC2SPacket.CODEC);
 
         // 注册影隼技能包
         PayloadTypeRegistry.playC2S().register(ShadowFalconAbilityC2SPacket.ID, ShadowFalconAbilityC2SPacket.CODEC);

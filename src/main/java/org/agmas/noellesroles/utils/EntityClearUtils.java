@@ -87,6 +87,11 @@ public class EntityClearUtils {
                         entity instanceof DevilRouletteTableEntity.TableTextDisplay ||
                         entity instanceof DevilRouletteTableEntity.TableItemDisplay) {
                     entitiesToRemove.add(entity);
+                } else if (entity instanceof io.github.mortuusars.exposure.world.entity.PhotographFrameEntity
+                        && entity instanceof org.agmas.noellesroles.game.roles.innocent.photographer.SrePhotographerFrame frame
+                        && frame.sre$isPhotographerPlaced()) {
+                    // 仅清理摄影师放置的照片框
+                    entitiesToRemove.add(entity);
                 }
             });
             // 安全地删除收集到的实体

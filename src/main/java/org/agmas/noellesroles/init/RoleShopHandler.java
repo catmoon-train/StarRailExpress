@@ -954,6 +954,28 @@ public class RoleShopHandler {
           });
         }
       }
+      // 画框（照片框） - 默认200金币，一局最多购买两次
+      {
+        var frameItem = BuiltInRegistries.ITEM
+            .get(ResourceLocation.fromNamespaceAndPath("exposure", "photograph_frame"));
+        if (frameItem != null && frameItem != Items.AIR) {
+          final var frameStack = frameItem.getDefaultInstance();
+          int price = org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().photographerFramePrice;
+          entries.add(new ShopEntry(frameStack, price, ShopEntry.Type.TOOL) {
+            @Override
+            public boolean onBuy(@NotNull Player player) {
+              var comp = org.agmas.noellesroles.game.roles.innocent.photographer.PhotographerPlayerComponent.KEY
+                  .get(player);
+              if (comp == null || !comp.canBuyFrame()) {
+                return false;
+              }
+              player.addItem(frameStack.copy());
+              comp.recordFrameBought();
+              return true;
+            }
+          });
+        }
+      }
 
       ShopContent.customEntries.put(
           ModRoles.PHOTOGRAPHER_ID, entries);

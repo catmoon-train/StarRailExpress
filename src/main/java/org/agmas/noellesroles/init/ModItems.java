@@ -582,6 +582,13 @@ public class ModItems {
     public static final Item WIZARD_POTION = register(
             new org.agmas.noellesroles.content.item.WizardPotionItem(new Item.Properties().stacksTo(16)),
             "wizard_potion", ROLE_ITEMS_GROUP);
+
+    /**
+     * 占卜家晶球
+     */
+    public static final Item CRYSTAL_BALL = register(
+            new org.agmas.noellesroles.content.item.CrystalBallItem(new Item.Properties().stacksTo(1)),
+            "crystal_ball", ROLE_ITEMS_GROUP);
     // 新增物品：短管霰弹枪 / 防暴盾 / 警棍 / 对讲机
     public static final Item SHORT_SHOTGUN = register(
             new org.agmas.noellesroles.content.item.ShortShotgunItem(

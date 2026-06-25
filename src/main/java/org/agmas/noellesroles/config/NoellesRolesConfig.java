@@ -342,6 +342,24 @@ public class NoellesRolesConfig implements ConfigData {
      */
     public int jadeGeneralSlowSeconds = 5;
 
+    // ==================== Diviner (占卜家) ====================
+    /** Diviner - Divination cooldown in seconds */
+    public int divinerCooldown = 60;
+    /** Diviner - Crystal ball targeting range in blocks */
+    public double divinerRange = 4.0;
+
+    // ==================== Photographer (摄影师) 画框传送 ====================
+    /** Photographer - 画框单价（金币） */
+    public int photographerFramePrice = 200;
+    /** Photographer - 每局最多购买画框次数 */
+    public int photographerFrameMaxBuy = 2;
+    /** Photographer - 穿越画框赋予的失明秒数 */
+    public int photographerFrameBlindSeconds = 3;
+    /** Photographer - 穿越画框后的冷却秒数 */
+    public int photographerFrameCooldownSeconds = 3;
+    /** Photographer - 触发穿越的画框碰撞箱外扩距离（方块） */
+    public double photographerFrameTriggerInflate = 0.25;
+
     // ==================== Delayer (滞时鬼) ====================
     /** Delayer - Rewind skill: seconds between anchoring and the automatic rewind */
     public int delayerRewindDelaySeconds = 8;
@@ -423,6 +441,19 @@ public class NoellesRolesConfig implements ConfigData {
      */
 
     public int swapperSwapCooldown = 60;
+
+    /** Swapper - G 键瞬移交换：与正前方目标交换位置的冷却（秒） */
+    public int swapperFrontSwapCooldown = 120;
+    /** Swapper - G 键瞬移交换：可作用的最大距离（格） */
+    public double swapperFrontSwapRange = 10.0;
+
+    // ==================== Noisemaker (大嗓门) 冲击波 ====================
+    /** 大嗓门 - 冲击波击退前方玩家的作用距离（格） */
+    public double noisemakerShockwaveRange = 8.0;
+    /** 大嗓门 - 冲击波水平击退强度 */
+    public double noisemakerShockwaveKnockback = 1.4;
+    /** 大嗓门 - 冲击波眩晕（定身）秒数 */
+    public int noisemakerStunSeconds = 2;
 
     /**
      * Manipulator - Control target cooldown in seconds

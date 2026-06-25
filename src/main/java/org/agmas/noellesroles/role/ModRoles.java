@@ -48,6 +48,7 @@ import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent
 import org.agmas.noellesroles.game.roles.innocent.mortician.MorticianRole;
 import org.agmas.noellesroles.game.roles.innocent.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.photographer.PhotographerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.super_star.SuperStarPlayerComponent;
@@ -280,6 +281,8 @@ public class ModRoles {
     public static final ResourceLocation SKINCRAWLER_ID = Noellesroles.id("skincrawler");
     public static final ResourceLocation CANDLE_BEARER_ID = Noellesroles.id("candlebearer");
     public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
+    // 占卜家角色 ID
+    public static final ResourceLocation DIVINER_ID = Noellesroles.id("diviner");
     // 疫使 ID - 杀手方中立
     public static final ResourceLocation INFECTED_ID = Noellesroles.id("infected");
 
@@ -570,6 +573,17 @@ public class ModRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true).setCanSeeTime(false);
+
+    /**
+     * 占卜家（乘客阵营）。开局携带【晶球】，右键对准尸体占卜得知死者职业与名字（60 秒冷却，每具尸体一次）。
+     * 若占卜对象为亡语杀手伪装的尸体，视为亡语杀手用刀刺死了自己。
+     */
+    public static SRERole DIVINER = TMMRoles.registerRole(
+            new NormalRole(DIVINER_ID, new Color(148, 0, 211).getRGB(), // 紫水晶色
+                    true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setCanSeeCoin(true).setComponentKey(ModComponents.DIVINER)
+            .setDefaultMax(1).setDefaultEnableChance(7000);
     // 忍者
     public static final SRERole NINJA = TMMRoles.registerRole(
             new NinjaRole(
@@ -1584,7 +1598,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ));
+    ).setComponentKey(PhotographerPlayerComponent.KEY));
 
     /**
      * 画家角色

@@ -975,6 +975,26 @@ public class ModPacketsReciever {
           }
         });
 
+    // 交换者 G 键瞬移交换技能：与正前方目标交换位置
+    ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.SwapperFrontSwapC2SPacket.ID,
+        (payload, context) -> {
+          if (context.player().hasEffect(ModEffects.SAFE_TIME))
+            return;
+          if (RoleSkill.blockForSpectator(context.player()))
+            return;
+          ServerPlayer player = context.player();
+          SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+              .get(player.level());
+          if (!gameWorldComponent.isSkillAvailable) {
+            player.displayClientMessage(
+                Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
+            return;
+          }
+          if (gameWorldComponent.isRole(player, ModRoles.SWAPPER)) {
+            ModComponents.SWAPPER.get(player).frontSwap(player);
+          }
+        });
+
     // 影隼技能包处理
     ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.RicesRoleRhapsody.SHADOW_FALCON_ABILITY_PACKET,
         (payload, context) -> {

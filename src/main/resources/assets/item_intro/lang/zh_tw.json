@@ -1,4 +1,6 @@
 ﻿{
+  "item.noellesroles.crystal_ball.desc": "占卜家專用。右鍵對準一具屍體占卜，得知死者的職業與名字（60 秒冷卻，已占卜的屍體不可再次占卜）。若占卜對象為亡語殺手偽裝的屍體，視為其用刀刺死了自己。",
+  "item.exposure.photograph_frame.desc": "攝影師專用道具。售價 200 金幣，一局最多購買兩次。在冒險模式下也可放置。將攝影師拍攝的照片放入畫框後，任何玩家穿過畫框即可傳送到照片的拍攝地點；每次穿越會被致盲 3 秒，且需冷卻 3 秒才能再次穿越。局內開始時僅清除攝影師放置的畫框。",
   "item.noellesroles.wizard_staff.desc": "巫師專用。右鍵蓄力釋放魔法火焰箭，可穿透多名玩家，被命中者 3 秒後死亡；左鍵擊退目標。Explosion! 就緒時，下一次施放為可穿牆的九環火球術。",
   "item.noellesroles.wizard_potion.desc": "巫師專用。使用後進入冷卻，獲得大量魔素，並在接下來 60 秒內免疫一次致命攻擊。",
   "item.trainmurdermystery.bat.desc": "原版攻擊邏輯，左鍵打人。坐在輪椅上無法攻擊。",
