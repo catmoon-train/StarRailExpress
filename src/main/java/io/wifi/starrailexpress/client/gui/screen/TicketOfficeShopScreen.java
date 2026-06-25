@@ -57,15 +57,13 @@ public class TicketOfficeShopScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
         int l = left(), t = top();
 
-        // 面板
         MinigameUI.panel(g, l, t, l + PANEL_W, t + PANEL_H, HEADER_H);
         g.drawCenteredString(font, title, width / 2, t + 8, MinigameUI.WHITE);
 
-        // 分隔线
         int sepY = t + HEADER_H + 6;
         g.fill(l + 20, sepY, l + PANEL_W - 20, sepY + 1, 0xFF3A4A60);
 
-        // 入场券图标区域（居中放大）
+        // 入场券图标（居中放大）
         int ticketX = l + PANEL_W / 2 - 12;
         int ticketY = t + 36;
         g.pose().pushPose();
@@ -73,19 +71,16 @@ public class TicketOfficeShopScreen extends Screen {
         g.pose().scale(2.5f, 2.5f, 1f);
         g.renderItem(ticket, -8, -8);
         g.pose().popPose();
-        // 票名
         String ticketName = data.getString("TicketName");
         g.drawCenteredString(font,
                 ticketName.isBlank() ? Component.translatable("item.starrailexpress.admission_ticket")
                         : Component.literal(ticketName),
                 width / 2, ticketY + 40, 0xFFFFFFFF);
 
-        // 价格行（货币图标 + 价格文字）
+        // 价格行：用翻译键渲染（含自定义字体货币图标）
         int priceY = t + 84;
-        ItemStack currencyIcon = currency.iconStack();
-        g.renderItem(currencyIcon, l + 28, priceY - 4);
-        Component priceText = Component.literal(String.valueOf(data.getInt("Price")));
-        g.drawString(font, priceText, l + 50, priceY + 1, currency.color(), false);
+        Component priceText = Component.translatable(currency.priceTranslationKey(), data.getInt("Price"));
+        g.drawString(font, priceText, l + 28, priceY + 1, currency.color(), false);
 
         // 使用次数
         int uses = data.getInt("Uses");
@@ -94,7 +89,6 @@ public class TicketOfficeShopScreen extends Screen {
                 : Component.translatable("tooltip.starrailexpress.admission_ticket.uses", uses);
         g.drawString(font, useText, l + 28, t + 104, 0xFFA0B0C0, false);
 
-        // 底部装饰线
         g.fill(l + 20, t + 116, l + PANEL_W - 20, t + 117, 0xFF3A4A60);
     }
 }

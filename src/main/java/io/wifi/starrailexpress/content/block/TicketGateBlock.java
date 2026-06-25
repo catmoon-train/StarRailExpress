@@ -55,7 +55,6 @@ public class TicketGateBlock extends DoorBlock implements EntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hit) {
-        // 先检查创意模式绑定
         if (canBind(state, level, pos, player)) {
             return InteractionResult.CONSUME;
         }
@@ -65,18 +64,16 @@ public class TicketGateBlock extends DoorBlock implements EntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
-        // 创意模式蹲下 + 入场券 → 绑定
         if (canBind(state, level, pos, player)) {
             return ItemInteractionResult.CONSUME;
         }
-        // 普通检票开门
         InteractionResult result = handleGateOpen(state, level, pos, player);
         return result.consumesAction()
                 ? ItemInteractionResult.CONSUME
                 : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    /** 创意模式右键用入场券绑定检票门，服务端执行绑定逻辑 */
+    /** 创意模式右键用入场券绑定检票门，同时记录票名 */
     private boolean canBind(BlockState state, Level level, BlockPos pos, Player player) {
         if (!player.isCreative()) {
             return false;
@@ -86,7 +83,7 @@ public class TicketGateBlock extends DoorBlock implements EntityBlock {
             return false;
         }
         if (level.isClientSide) {
-            return true; // 客户端直接标记为已处理，由服务端实际绑定
+            return true;
         }
         BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
         if (!(level.getBlockEntity(lowerPos) instanceof TicketGateBlockEntity gate)) {
@@ -98,12 +95,13 @@ public class TicketGateBlock extends DoorBlock implements EntityBlock {
                     Component.translatable("message.starrailexpress.ticket_gate.invalid_ticket"), true);
             return true;
         }
-        gate.setTicketId(ticketId);
+        String ticketName = stack.getHoverName().getString();
+        gate.setTicketInfo(ticketId, ticketName);
         player.displayClientMessage(Component.translatable("message.starrailexpress.ticket_gate.bound"), true);
         return true;
     }
 
-    /** 普通检票开门逻辑 */
+    /** 普通检票开门逻辑：校验票ID + 票名 */
     private InteractionResult handleGateOpen(BlockState state, Level level, BlockPos pos, Player player) {
         BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
         if (!(level.getBlockEntity(lowerPos) instanceof TicketGateBlockEntity gate)) {
@@ -117,7 +115,18 @@ public class TicketGateBlock extends DoorBlock implements EntityBlock {
             return InteractionResult.FAIL;
         }
         ItemStack stack = player.getMainHandItem();
+        // 校验票ID
         if (!AdmissionTicketItem.matches(stack, gate.getTicketId())) {
+            if (!level.isClientSide) {
+                level.playSound(null, lowerPos, TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
+                player.displayClientMessage(
+                        Component.translatable("message.starrailexpress.ticket_gate.requires_ticket"), true);
+            }
+            return InteractionResult.FAIL;
+        }
+        // 校验票名
+        String heldName = stack.getHoverName().getString();
+        if (!heldName.equals(gate.getTicketName())) {
             if (!level.isClientSide) {
                 level.playSound(null, lowerPos, TMMSounds.BLOCK_DOOR_LOCKED, SoundSource.BLOCKS, 1f, 1f);
                 player.displayClientMessage(
