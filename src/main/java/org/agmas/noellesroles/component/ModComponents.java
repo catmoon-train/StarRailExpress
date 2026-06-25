@@ -54,6 +54,7 @@ import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.swapper.SwapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
@@ -278,6 +279,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "ninja"),
       NinjaPlayerComponent.class);
 
+  public static final ComponentKey<NostalgistPlayerComponent> NOSTALGIST = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "nostalgist"),
+      NostalgistPlayerComponent.class);
+
   public static final ComponentKey<BloodFeudistPlayerComponent> BLOOD_FEUDIST = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "blood_feudist"),
       BloodFeudistPlayerComponent.class);
@@ -454,6 +459,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, NINJA)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(NinjaPlayerComponent::new);
+
+    // 注册怀旧者组件 - 里世界状态机
+    registry.beginRegistration(Player.class, NOSTALGIST)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(NostalgistPlayerComponent::new);
 
     // 注册算命大师组件 - 存储目标和死亡倒计时
     registry.beginRegistration(Player.class, FORTUNETELLER)

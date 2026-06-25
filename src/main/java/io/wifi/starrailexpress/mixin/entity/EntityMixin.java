@@ -84,7 +84,8 @@ public class EntityMixin {
         Entity self = (Entity) (Object) this;
         // 只针对玩家，且该玩家对本客户端不可见（隐身效果）
         if (self instanceof Player player && player.isInvisible()) {
-            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.WIND_YAOSE)) {
+            SREGameWorldComponent gwc = SREGameWorldComponent.KEY.get(player.level());
+            if (gwc.isRole(player, ModRoles.WIND_YAOSE) || gwc.isRole(player, ModRoles.NOSTALGIST)) {
                 ci.setReturnValue(false);
                 ci.cancel();
             }
@@ -97,7 +98,8 @@ public class EntityMixin {
         if (SRE.isLobby)
             return;
         if ((Entity) (Object) this instanceof Player player && player.isInvisible()) {
-            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.WIND_YAOSE)) {
+            SREGameWorldComponent gwc = SREGameWorldComponent.KEY.get(player.level());
+            if (gwc.isRole(player, ModRoles.WIND_YAOSE) || gwc.isRole(player, ModRoles.NOSTALGIST)) {
                 ci.cancel();
             }
         }

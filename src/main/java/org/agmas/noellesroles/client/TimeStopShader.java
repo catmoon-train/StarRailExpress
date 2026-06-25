@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
+import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -31,6 +32,9 @@ public class TimeStopShader {
 
     // 时间回溯恍惚滤镜强度 (0~1)
     private float rewindStrength = 0.0f;
+
+    // 怀旧者里世界灰白滤镜强度 (0~1)
+    private float nostalgistGray = 0.0f;
 
     // 上一次的状态（用于检测效果开始或刷新）
     private boolean lastHasTimeStop = false;
@@ -281,6 +285,43 @@ public class TimeStopShader {
             }
             return true;
         }));
+
+        // 怀旧者里世界灰白滤镜（复用 timestop 着色器，仅取其灰白分量）
+        m_post.addSinglePassEntry("timestop", pass -> processPlayer(mc.player, () -> {
+            boolean active = false;
+            if (SREClient.gameComponent != null
+                    && SREClient.gameComponent.isRole(mc.player, ModRoles.NOSTALGIST)) {
+                NostalgistPlayerComponent comp = NostalgistPlayerComponent.KEY.get(mc.player);
+                active = comp != null && comp.inBackWorld && !comp.converted;
+            }
+
+            if (active) {
+                nostalgistGray = Math.min(1.0f, nostalgistGray + 0.05f);
+            } else {
+                nostalgistGray = Math.max(0.0f, nostalgistGray - 0.08f);
+            }
+            if (nostalgistGray <= 0.01f)
+                return false;
+
+            var effect = pass.getEffect();
+            if (effect == null)
+                return false;
+
+            // TimeProgress=0 关闭时停扭曲动画，仅保留 StopAmount 控制的灰白
+            var timeProgressUniform = effect.safeGetUniform("TimeProgress");
+            if (timeProgressUniform != null) {
+                timeProgressUniform.set(0.0f);
+            }
+            var stopAmountUniform = effect.safeGetUniform("StopAmount");
+            if (stopAmountUniform != null) {
+                stopAmountUniform.set(nostalgistGray);
+            }
+            var timeTotalUniform = effect.safeGetUniform("TimeTotal");
+            if (timeTotalUniform != null) {
+                timeTotalUniform.set(totalTime);
+            }
+            return true;
+        }));
     }
 
     public void renderPostProcess(float partialTicks) {
@@ -301,6 +342,7 @@ public class TimeStopShader {
         lastHasBlackMonitor = false;
         inkStrength = 0.0f;
         rewindStrength = 0.0f;
+        nostalgistGray = 0.0f;
     }
 
     public void forceStart() {
