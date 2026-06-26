@@ -126,6 +126,8 @@
   "item.noellesroles.riot_shield.desc": "保安職業專屬物品。裝備在主手/副手舉盾時可以抵擋一次正面的攻擊並提供保護。",
   "item.noellesroles.baton.desc": "保安職業專屬物品。近戰武器，擁有4點耐久。左鍵攻擊，可以使目標眩暈，若目標在4秒內受到兩次棍擊則造成一次擊殺。",
   "item.noellesroles.bone_staff.desc": "亡靈之主職業專屬物品。近戰武器，擁有5點耐久。左鍵攻擊玩家可為目標注入20%感染值，每次攻擊消耗1點耐久。目標感染值滿後會被轉化為亡靈。",
+  "item.noellesroles.leon_blue_herb.desc": "里昂專屬物品。右鍵立即使用，刷新格鬥體術的冷卻。場上僅剩 6 位玩家時獲得；里昂死亡後不會隨手槍一起掉落。",
+  "item.noellesroles.leon_red_herb.desc": "里昂專屬物品。長按右鍵使用，為自己套上一層護盾（不可疊加）。場上僅剩 3 位玩家時獲得；里昂死亡後不會隨手槍一起掉落。",
   "item.noellesroles.radio.desc": "右鍵使用，可以與其他玩家進行遠程通訊。",
   "item.noellesroles.short_shotgun.desc": "一次性用品，可以擊殺2格扇形範圍內的所有人。",
   "item.noellesroles.executioner_gun.desc": "愚者專屬武器，只能對擁有“異端”效果的玩家造成傷害（一擊必殺）。初始子彈數1，只能通過塔羅會補充子彈。",

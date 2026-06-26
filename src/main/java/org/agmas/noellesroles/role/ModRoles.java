@@ -165,6 +165,7 @@ public class ModRoles {
     public static ResourceLocation CORONER_ID = Noellesroles.id("coroner");
     public static ResourceLocation PATROLLER_ID = Noellesroles.id("patroller");
     public static final ResourceLocation SHERIFF_ID = Noellesroles.id("sheriff");
+    public static final ResourceLocation LEON_ID = Noellesroles.id("leon");
     public static final ResourceLocation GLITCH_ROBOT_ID = Noellesroles.id("glitch_robot");
     public static final ResourceLocation AVENGER_ID = Noellesroles.id("avenger");
     public static final ResourceLocation PRANKSTER_ID = Noellesroles.id("prankster");
@@ -861,6 +862,23 @@ public class ModRoles {
                     .setVigilanteTeam(true).setComponentKey(PatrollerPlayerComponent.KEY))
             .setCanPickUpRevolver(true).setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(8000)
             .setRefreshableSpecialVigilante(2000, true);
+
+    /**
+     * 里昂（警长阵营）。
+     * - 警长阵营（isInnocent = true, setVigilanteTeam = true），不能使用杀手能力。
+     * - 开局拥有一把左轮手枪（{@link io.wifi.starrailexpress.index.TMMItems#REVOLVER}，死亡时掉落）。
+     * - 格斗体术（按 G 触发，见 {@link org.agmas.noellesroles.AbilityHandler}）：向面前玩家猛踹一脚，
+     *   造成较远击退与减速。
+     * - 被动「幸存之人」（见 {@link org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent}）：
+     *   场上剩 6 人时获得蓝色草药（刷新格斗体术），剩 3 人时获得红色草药（套盾，不可叠加）。
+     * - 不与远征队等任何修饰符共存（见 {@link org.agmas.noellesroles.game.modifier.NRModifiers}）。
+     */
+    public static SRERole LEON = TMMRoles
+            .registerRole(new NormalRole(LEON_ID, 0x2E6FB0, true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false)
+                    .setVigilanteTeam(true)
+                    .setComponentKey(org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent.KEY))
+            .setCanPickUpRevolver(true).setDefaultMax(1).setDefaultEnableChance(2000);
 
     /**
      * 更好的义警角色

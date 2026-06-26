@@ -606,6 +606,14 @@ public class ModItems {
             new org.agmas.noellesroles.content.item.BoneStaffItem(
                     new Item.Properties().stacksTo(1).durability(5)),
             "bone_staff", WEAPONS_GROUP);
+    public static final Item LEON_BLUE_HERB = register(
+            new org.agmas.noellesroles.content.item.LeonBlueHerbItem(
+                    new Item.Properties().stacksTo(1)),
+            "leon_blue_herb", ROLE_ITEMS_GROUP);
+    public static final Item LEON_RED_HERB = register(
+            new org.agmas.noellesroles.content.item.LeonRedHerbItem(
+                    new Item.Properties().stacksTo(1)),
+            "leon_red_herb", ROLE_ITEMS_GROUP);
     public static final Item RADIO = register(
             new org.agmas.noellesroles.content.item.RadioItem(new Item.Properties().stacksTo(1)),
             "radio", TOOLS_GROUP);

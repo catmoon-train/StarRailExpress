@@ -63,8 +63,27 @@ public class NRModifiers {
         EXPEDITION.civilianOnly = true;
         EXPEDITION.cannotBeAppliedTo = new HashSet<>(List.of(ModRoles.GHOST));
         INTROVERTED.civilianOnly = true;
+        excludeLeonFromAllModifiers();
         assignModifierComponents();
         TaxedModifier.init();
+    }
+
+    /**
+     * 里昂不与远征队等任何修饰符共存于一人身上。
+     *
+     * <p>由于本模组（Noellesroles）入口先于其它模组（如 stupid_express）的修饰符注册执行，
+     * 此处在服务器启动时（所有模组修饰符均已注册到 {@link HMLModifiers#MODIFIERS}）统一把里昂
+     * 加入每个修饰符的 {@code cannotBeAppliedTo} 排除名单。
+     */
+    private static void excludeLeonFromAllModifiers() {
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            for (SREModifier modifier : HMLModifiers.MODIFIERS) {
+                if (modifier.cannotBeAppliedTo == null) {
+                    modifier.cannotBeAppliedTo = new HashSet<>();
+                }
+                modifier.cannotBeAppliedTo.add(ModRoles.LEON);
+            }
+        });
     }
 
     /**

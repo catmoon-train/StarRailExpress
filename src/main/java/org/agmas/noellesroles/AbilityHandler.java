@@ -118,6 +118,42 @@ public class AbilityHandler {
             return;
         }
 
+        if (gameWorldComponent.isRole(player, ModRoles.LEON)
+                && abilityPlayerComponent.cooldown <= 0) {
+            // 格斗体术：向面前玩家猛踹一脚，造成较远击退与减速
+            NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
+            net.minecraft.world.phys.HitResult hit = net.minecraft.world.entity.projectile.ProjectileUtil
+                    .getHitResultOnViewVector(player,
+                            e -> e instanceof ServerPlayer p
+                                    && io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(p),
+                            cfg.leonKickRange);
+            if (hit instanceof net.minecraft.world.phys.EntityHitResult ehr
+                    && ehr.getEntity() instanceof ServerPlayer victim) {
+                victim.knockback(cfg.leonKickKnockback,
+                        player.getX() - victim.getX(), player.getZ() - victim.getZ());
+                victim.hurtMarked = true;
+                // 玩家受服务端击退需主动同步速度
+                victim.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(victim));
+                int slowTicks = (int) (cfg.leonKickSlowSeconds * 20);
+                victim.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                        MobEffects.MOVEMENT_SLOWDOWN, slowTicks, 2));
+                player.level().playSound(null, victim.blockPosition(),
+                        net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_KNOCKBACK,
+                        net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
+                abilityPlayerComponent.cooldown = GameConstants.getInTicks(0, cfg.leonKickCooldown);
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.leon.kick_hit")
+                                .withStyle(ChatFormatting.AQUA),
+                        true);
+            } else {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.leon.kick_miss")
+                                .withStyle(ChatFormatting.GRAY),
+                        true);
+            }
+            return;
+        }
+
         if (gameWorldComponent.isRole(player, ModRoles.RECALLER)
                 && abilityPlayerComponent.cooldown <= 0) {
             RecallerPlayerComponent recallerPlayerComponent = RecallerPlayerComponent.KEY.get(player);
