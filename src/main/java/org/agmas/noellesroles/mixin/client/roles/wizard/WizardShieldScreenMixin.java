@@ -89,6 +89,11 @@ public abstract class WizardShieldScreenMixin extends LimitedHandledScreen<Inven
     @Unique
     private void drawWizardSelectionHint(GuiGraphics context, Point point) {
         Minecraft client = Minecraft.getInstance();
+        WizardPlayerComponent comp = WizardPlayerComponent.KEY.get(client.player);
+        // 仅当选中"盔甲护身"时才显示提示
+        if (comp.selectedSpell != WizardPlayerComponent.Spell.ARMOR) {
+            return;
+        }
         Component text = Component.translatable("hud.wizard.player_selection");
         int textWidth = client.font.width(text);
         context.drawString(client.font, text, point.x - textWidth / 2, point.y + 40, Color.CYAN.getRGB());

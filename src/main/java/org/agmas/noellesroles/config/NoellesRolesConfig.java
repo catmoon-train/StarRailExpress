@@ -410,16 +410,22 @@ public class NoellesRolesConfig implements ConfigData {
     public int wizardFrostMinMana = 200;
     /** Wizard - Frost spell freeze duration in seconds */
     public int wizardFrostSeconds = 4;
+    /** Wizard - Frost spell cooldown in seconds */
+    public int wizardFrostCooldownSeconds = 90;
     /** Wizard - Frost spell effect range in blocks */
     public double wizardFrostRange = 8.0;
     /** Wizard - Shadow spell mana cost */
     public int wizardShadowCost = 150;
     /** Wizard - Shadow spell blindness duration in seconds */
     public int wizardShadowSeconds = 6;
+    /** Wizard - Shadow spell cooldown in seconds */
+    public int wizardShadowCooldownSeconds = 90;
     /** Wizard - Explosion! spell minimum mana to cast */
     public int wizardExplosionMinMana = 350;
     /** Wizard - Percent of current mana spent by Explosion! */
     public int wizardExplosionManaPercentCost = 80;
+    /** Wizard - Explosion! spell cooldown in seconds */
+    public int wizardExplosionCooldownSeconds = 150;
     /** Wizard - Nine-ring fireball max travel range in blocks */
     public double wizardFireballRange = 25.0;
     /** Wizard - Nine-ring fireball explosion radius in blocks */

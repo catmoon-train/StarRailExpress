@@ -10,7 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class WizardHud {
@@ -60,9 +62,54 @@ public class WizardHud {
 
             Component spell = Component.translatable(
                     "hud.noellesroles.wizard.spell." + comp.selectedSpell.name().toLowerCase());
-            Component text = Component.translatable("hud.noellesroles.wizard.mana",
-                    Math.round(comp.mana), Math.round(maxMana), spell);
+            Component cdText = getSpellCooldownText(comp, client);
+            Component text;
+            if (cdText != null) {
+                text = Component.translatable("hud.noellesroles.wizard.mana_cd",
+                        Math.round(comp.mana), Math.round(maxMana), spell, cdText);
+            } else {
+                text = Component.translatable("hud.noellesroles.wizard.mana",
+                        Math.round(comp.mana), Math.round(maxMana), spell);
+            }
             context.drawString(font, text, screenWidth - font.width(text) - 8, context.guiHeight() - 24, 0xFFE6D7FF);
         });
+    }
+
+    private static Component getSpellCooldownText(WizardPlayerComponent comp, Minecraft client) {
+        NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
+        return switch (comp.selectedSpell) {
+            case FROST -> {
+                if (comp.frostCooldownTicks > 0) {
+                    yield Component.literal((comp.frostCooldownTicks + 19) / 20 + "s");
+                }
+                yield null;
+            }
+            case SHADOW -> {
+                if (comp.shadowCooldownTicks > 0) {
+                    yield Component.literal((comp.shadowCooldownTicks + 19) / 20 + "s");
+                }
+                yield null;
+            }
+            case EXPLOSION -> {
+                if (comp.explosionCooldownTicks > 0) {
+                    yield Component.literal((comp.explosionCooldownTicks + 19) / 20 + "s");
+                }
+                yield null;
+            }
+            case ARMOR -> {
+                if (comp.armorUsed) {
+                    yield Component.translatable("hud.wizard.armor_used");
+                }
+                if (comp.mana < config.wizardArmorMinMana) {
+                    yield Component.translatable("hud.wizard.armor_no_mana");
+                }
+                if (client.player.getCooldowns().isOnCooldown(ModItems.WIZARD_STAFF)) {
+                    float pct = client.player.getCooldowns().getCooldownPercent(ModItems.WIZARD_STAFF, 0f);
+                    int sec = Math.max(1, Math.round(pct * 30));
+                    yield Component.translatable("hud.wizard.armor_staff_cd", sec);
+                }
+                yield null;
+            }
+        };
     }
 }

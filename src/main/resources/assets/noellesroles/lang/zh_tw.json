@@ -2518,6 +2518,8 @@
   "message.noellesroles.wizard.potion_cd": "魔藥冷卻中（%s 秒）",
   "message.noellesroles.wizard.potion_used": "魔藥生效：獲得大量魔素，60 秒內免疫一次攻擊",
   "message.noellesroles.wizard.immune_triggered": "魔藥護盾抵消了一次致命攻擊！",
+  "death_reason.noellesroles.wizard_fire_arrow": "魔法火焰箭",
+  "death_reason.noellesroles.wizard_fireball": "九環火球術",
   "hud.noellesroles.builder.mode.build": "建造模式",
   "hud.noellesroles.builder.mode.demolish": "拆除模式",
   "hud.noellesroles.builder.mode_switched": "已切換為%s",

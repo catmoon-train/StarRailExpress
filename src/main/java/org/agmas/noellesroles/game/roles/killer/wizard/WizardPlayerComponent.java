@@ -56,6 +56,9 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     public boolean explosionArmed = false;
     public int potionShieldTicks = 0;
     public boolean armorUsed = false;
+    public int frostCooldownTicks = 0;
+    public int shadowCooldownTicks = 0;
+    public int explosionCooldownTicks = 0;
 
     private boolean gaveStartingItems = false;
     private final List<ShieldExpiry> shieldExpiries = new ArrayList<>();
@@ -82,6 +85,9 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.explosionArmed = false;
         this.potionShieldTicks = 0;
         this.armorUsed = false;
+        this.frostCooldownTicks = 0;
+        this.shadowCooldownTicks = 0;
+        this.explosionCooldownTicks = 0;
         this.gaveStartingItems = false;
         this.shieldExpiries.clear();
         this.fireArrowMarks.clear();
@@ -94,6 +100,9 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.explosionArmed = false;
         this.potionShieldTicks = 0;
         this.armorUsed = false;
+        this.frostCooldownTicks = 0;
+        this.shadowCooldownTicks = 0;
+        this.explosionCooldownTicks = 0;
         this.gaveStartingItems = false;
         this.shieldExpiries.clear();
         this.fireArrowMarks.clear();
@@ -135,6 +144,15 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
             if (potionShieldTicks == 0) {
                 expirePotionShield(sp);
             }
+        }
+
+        boolean anyCooldownActive = frostCooldownTicks > 0 || shadowCooldownTicks > 0 || explosionCooldownTicks > 0;
+        if (frostCooldownTicks > 0) frostCooldownTicks--;
+        if (shadowCooldownTicks > 0) shadowCooldownTicks--;
+        if (explosionCooldownTicks > 0) explosionCooldownTicks--;
+        // sync once per second while any cooldown is counting down
+        if (anyCooldownActive && sp.serverTickCount % 20 == 0) {
+            sync();
         }
 
         SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);
@@ -255,11 +273,18 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     }
 
     private void castFrost(ServerPlayer sp) {
+        if (frostCooldownTicks > 0) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.spell_cooldown",
+                    Math.max(1, (frostCooldownTicks + 19) / 20)).withStyle(ChatFormatting.RED), true);
+            return;
+        }
         if (!hasMana(config().wizardFrostMinMana)) {
             notEnoughMana(sp);
             return;
         }
         spendMana(mana / 2f);
+        frostCooldownTicks = GameConstants.getInTicks(0, config().wizardFrostCooldownSeconds);
+        sync();
         int duration = GameConstants.getInTicks(0, config().wizardFrostSeconds);
         double range = config().wizardFrostRange;
         int affected = 0;
@@ -287,11 +312,18 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
                     .withStyle(ChatFormatting.RED), true);
             return;
         }
+        if (shadowCooldownTicks > 0) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.spell_cooldown",
+                    Math.max(1, (shadowCooldownTicks + 19) / 20)).withStyle(ChatFormatting.RED), true);
+            return;
+        }
         if (!hasMana(config().wizardShadowCost)) {
             notEnoughMana(sp);
             return;
         }
         spendMana(config().wizardShadowCost);
+        shadowCooldownTicks = GameConstants.getInTicks(0, config().wizardShadowCooldownSeconds);
+        sync();
         extendShadowDarkness(sp, GameConstants.getInTicks(0, config().wizardShadowSeconds));
         castFx(sp, SoundEvents.WITHER_AMBIENT, ParticleTypes.SMOKE);
         sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.shadow_cast")
@@ -321,12 +353,18 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
                     .withStyle(ChatFormatting.GOLD), true);
             return;
         }
+        if (explosionCooldownTicks > 0) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.spell_cooldown",
+                    Math.max(1, (explosionCooldownTicks + 19) / 20)).withStyle(ChatFormatting.RED), true);
+            return;
+        }
         if (!hasMana(config().wizardExplosionMinMana)) {
             notEnoughMana(sp);
             return;
         }
         spendMana(mana * Math.max(0, Math.min(100, config().wizardExplosionManaPercentCost)) / 100f);
         explosionArmed = true;
+        explosionCooldownTicks = GameConstants.getInTicks(0, config().wizardExplosionCooldownSeconds);
         sync();
         castFx(sp, SoundEvents.FIRECHARGE_USE, ParticleTypes.LAVA);
         sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.explosion_armed")
@@ -460,6 +498,9 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         tag.putBoolean("explosionArmed", this.explosionArmed);
         tag.putInt("potionShieldTicks", this.potionShieldTicks);
         tag.putBoolean("armorUsed", this.armorUsed);
+        tag.putInt("frostCooldownTicks", this.frostCooldownTicks);
+        tag.putInt("shadowCooldownTicks", this.shadowCooldownTicks);
+        tag.putInt("explosionCooldownTicks", this.explosionCooldownTicks);
     }
 
     @Override
@@ -469,6 +510,9 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.explosionArmed = tag.getBoolean("explosionArmed");
         this.potionShieldTicks = tag.getInt("potionShieldTicks");
         this.armorUsed = tag.getBoolean("armorUsed");
+        this.frostCooldownTicks = tag.getInt("frostCooldownTicks");
+        this.shadowCooldownTicks = tag.getInt("shadowCooldownTicks");
+        this.explosionCooldownTicks = tag.getInt("explosionCooldownTicks");
     }
 
     @Override

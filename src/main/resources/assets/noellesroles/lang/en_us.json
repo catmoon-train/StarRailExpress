@@ -2526,6 +2526,8 @@
   "message.noellesroles.wizard.potion_cd": "Potion on cooldown (%ss)",
   "message.noellesroles.wizard.potion_used": "Potion active: large mana gained, immune to one attack for 60s",
   "message.noellesroles.wizard.immune_triggered": "The potion shield negated a lethal attack!",
+  "death_reason.noellesroles.wizard_fire_arrow": "Magic Fire Arrow",
+  "death_reason.noellesroles.wizard_fireball": "Nine-Ring Fireball",
   "hud.noellesroles.builder.mode.build": "Build Mode",
   "hud.noellesroles.builder.mode.demolish": "Demolish Mode",
   "hud.noellesroles.builder.mode_switched": "Switched to %s",
