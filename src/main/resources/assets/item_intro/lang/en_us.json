@@ -126,6 +126,8 @@
   "item.noellesroles.riot_shield.desc": "Exclusive item for Guard. When equipped in main/off-hand and blocking, can block one frontal attack and provide protection.",
   "item.noellesroles.baton.desc": "Exclusive item for Guard. Melee weapon with 4 durability. Left-click to attack, stunning the target. If the target is hit twice by the baton within 4 seconds, the second hit kills.",
   "item.noellesroles.bone_staff.desc": "Exclusive item for the Undead Lord. Melee weapon with 5 durability. Left-click a player to inject 20% infection into the target, consuming 1 durability per hit. When a target's infection reaches full, they are converted into an undead.",
+  "item.noellesroles.leon_blue_herb.desc": "Exclusive item for Leon. Right-click to use instantly and refresh the Combat Skill cooldown. Obtained when only 6 players remain; it does not drop together with the revolver when Leon dies.",
+  "item.noellesroles.leon_red_herb.desc": "Exclusive item for Leon. Hold right-click to use, applying a shield to yourself (does not stack). Obtained when only 3 players remain; it does not drop together with the revolver when Leon dies.",
   "item.noellesroles.radio.desc": "Right-click to use, allows voice communication with other players remotely.",
   "item.noellesroles.short_shotgun.desc": "Single-use item. Kills all players within a 2-block cone.",
   "item.noellesroles.executioner_gun.desc": "Exclusive weapon for The Fool. Only damages players with the 'Heretic' effect (one-shot kill). Starts with 1 bullet, can only be reloaded via Tarot Club meetings.",

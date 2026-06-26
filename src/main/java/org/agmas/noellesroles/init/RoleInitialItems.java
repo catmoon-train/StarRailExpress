@@ -115,6 +115,13 @@ public class RoleInitialItems {
             items.add(() -> FunnyItems.BOWEN_BADGE.getDefaultInstance());
             INITIAL_ITEMS_MAP.put(ModRoles.JOJO, items);
         }
+
+        {
+            // 里昂 - 左轮手枪（死亡时掉落；草药为自定义物品，不随手枪一起掉落）
+            List<Supplier<ItemStack>> items = new ArrayList<>();
+            items.add(() -> TMMItems.REVOLVER.getDefaultInstance());
+            INITIAL_ITEMS_MAP.put(ModRoles.LEON, items);
+        }
         // 故障机器人初始物品（无开局物品）
         INITIAL_ITEMS_MAP.put(ModRoles.GLITCH_ROBOT, new ArrayList<>());
 

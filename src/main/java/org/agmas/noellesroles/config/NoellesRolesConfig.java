@@ -459,6 +459,19 @@ public class NoellesRolesConfig implements ConfigData {
     /** Undead Lord - Bone Staff shop price */
     public int undeadLordBoneStaffPrice = 130;
 
+    /** Leon (里昂) - Combat skill (kick) cooldown in seconds */
+    public int leonKickCooldown = 12;
+    /** Leon (里昂) - Combat skill (kick) knockback strength (larger = farther) */
+    public double leonKickKnockback = 1.5;
+    /** Leon (里昂) - Combat skill (kick) slowdown duration in seconds */
+    public double leonKickSlowSeconds = 2.5;
+    /** Leon (里昂) - Combat skill (kick) reach in blocks */
+    public double leonKickRange = 3.5;
+    /** Leon (里昂) - Alive player count threshold to grant the blue herb */
+    public int leonBlueHerbAtPlayers = 6;
+    /** Leon (里昂) - Alive player count threshold to grant the red herb */
+    public int leonRedHerbAtPlayers = 3;
+
     /**
      * Phantom - Invisibility duration in seconds
      */
