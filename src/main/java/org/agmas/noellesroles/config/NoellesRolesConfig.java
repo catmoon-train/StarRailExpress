@@ -383,7 +383,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** Delayer - Rewind skill coin cost */
     public int delayerRewindCost = 75;
     /** Delayer - Duration (seconds) of the daze/shader filter applied to everyone on rewind */
-    public int delayerDazeSeconds = 3;
+    public int delayerDazeSeconds = 1;
 
     // ==================== Wizard (巫师) ====================
     /** Wizard - Max mana (魔素) capacity */

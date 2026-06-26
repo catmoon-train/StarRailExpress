@@ -93,7 +93,8 @@ public class RevolverItem extends SkinableItem implements HeldLikeRevolver {
                 entity -> {
                     return entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             || entity instanceof PuppeteerBodyEntity
-                            || entity instanceof org.agmas.noellesroles.content.entity.PigeonEntity;
+                            || entity instanceof org.agmas.noellesroles.content.entity.PigeonEntity
+                            || entity instanceof org.agmas.noellesroles.content.entity.MorphlingKnifeDummyEntity;
                 }, 20f);
     }
 

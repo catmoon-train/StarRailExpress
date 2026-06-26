@@ -52,6 +52,7 @@
     "roles.puppeteer.PuppeteerBodyGunPayloadMixin",
     "roles.puppeteer.PuppeteerBodyKnifePayloadMixin",
     "roles.courier.PigeonGunPayloadMixin",
+    "roles.morphling.MorphlingDummyGunPayloadMixin",
     "roles.stalker.StalkerLeftClickKillMixin",
     "roles.stalker.StalkerOffItemMixin",
     "roles.raven.RavenKnifeLeftClickMixin",

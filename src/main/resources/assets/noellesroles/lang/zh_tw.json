@@ -396,6 +396,8 @@
   "morphling.cooldown": "變形冷卻中，剩餘 %s 秒",
   "morphling.tip": "變形剩餘 %s 秒",
   "morphling.ready": "變形已就緒",
+  "morphling.dummy.cooldown": "舉刀假人冷卻中，剩餘 %s 秒",
+  "morphling.dummy.ready": "舉刀假人已就緒",
   "hud.morphling.player_selection": "選擇要變形的玩家",
   "message.swapper.failed.died": "無法交換 %s，它已經似了。",
   "hud.swapper.first_player_selection": "選擇第一個要交換的玩家",

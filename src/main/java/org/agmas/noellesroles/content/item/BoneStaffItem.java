@@ -2,6 +2,7 @@ package org.agmas.noellesroles.content.item;
 
 import java.util.List;
 
+import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -21,7 +22,7 @@ import org.agmas.noellesroles.config.NoellesRolesConfig;
  * </p>
  * 主要逻辑在服务端攻击回调 {@link BoneStaffHandler} 中实现，本类仅负责物品定义与提示。
  */
-public class BoneStaffItem extends Item {
+public class BoneStaffItem extends Item implements SREItemProperties.LeftClickHurtable {
     public BoneStaffItem(Properties settings) {
         super(settings);
     }

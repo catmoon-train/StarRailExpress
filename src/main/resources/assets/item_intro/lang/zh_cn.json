@@ -146,5 +146,11 @@
   "item.noellesroles.energizing_coffee.desc": "提神咖啡，饮用后大幅恢复san值并获得速度提升。（持续30秒）",
   "item.noellesroles.cake_ingredients.desc": "右键拆开，获得烹饪蛋糕所需的材料。",
   "item.noellesroles.cake_egg.desc": "蛋糕烹饪材料。",
-  "item.noellesroles.cake_milk_bucket.desc": "蛋糕烹饪材料，可堆叠至 16 个。"
+  "item.noellesroles.cake_milk_bucket.desc": "蛋糕烹饪材料，可堆叠至 16 个。",
+  "shop.noellesroles.undead_lord.life_elixir.desc": "所有现存亡灵持续时间 +30 秒。",
+  "shop.noellesroles.undead_lord.plague_fog.desc": "在脚下释放毒雾，范围内每秒 +5% 感染，持续 10 秒。",
+  "shop.noellesroles.undead_lord.summon_charm.desc": "立即在身边召唤 2 个临时亡灵，持续 45 秒。",
+  "shop.noellesroles.undead_lord.infection_amp.desc": "接下来 60 秒内亡灵攻击的感染值翻倍。",
+  "shop.noellesroles.undead_lord.soul_chain.desc": "绑定最近的一个亡灵跟随你 20 秒。",
+  "shop.noellesroles.undead_lord.hourglass.desc": "重置所有现存亡灵持续时间为满值。"
 }

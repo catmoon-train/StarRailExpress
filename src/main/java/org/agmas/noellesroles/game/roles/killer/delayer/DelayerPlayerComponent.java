@@ -176,6 +176,10 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (anchored) {
             if (rewindTicksLeft > 0) {
                 rewindTicksLeft--;
+                if (rewindTicksLeft % 20 == 0){
+                    player.displayClientMessage(Component.translatable("message.noellesroles.delayer.rewind_countdown",
+                            rewindTicksLeft / 20).withStyle(ChatFormatting.LIGHT_PURPLE), true);
+                }
             }
             if (rewindTicksLeft <= 0) {
                 doRewind();

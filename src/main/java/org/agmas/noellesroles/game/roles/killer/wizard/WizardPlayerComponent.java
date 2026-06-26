@@ -376,6 +376,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
             explosionArmed = false;
             sync();
             WizardSpells.castNineRingFireball(this, sp);
+            sp.getCooldowns().addCooldown(ModItems.WIZARD_STAFF, 60);
         } else {
             WizardSpells.castFireArrow(this, sp);
         }
