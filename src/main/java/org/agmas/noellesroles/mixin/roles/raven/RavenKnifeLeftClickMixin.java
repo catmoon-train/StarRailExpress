@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 渡鸦猎杀期间持刀时，防止对非目标任务造成左键击退/近战伤害。
- * 仅允许通过刀刺系统击杀正确目标。
+ * 渡鸦猎杀期间持刀时，完全禁止左键近战攻击。
+ * 击杀只能通过刀刺系统完成。
  */
 @Mixin(ServerPlayer.class)
 public abstract class RavenKnifeLeftClickMixin {
@@ -24,10 +24,6 @@ public abstract class RavenKnifeLeftClickMixin {
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void noellesroles$cancelRavenKnifeAttack(Entity target, CallbackInfo ci) {
         ServerPlayer attacker = (ServerPlayer) (Object) this;
-
-        if (!(target instanceof Player targetPlayer)) {
-            return;
-        }
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(attacker.level());
         if (!gameWorld.isRole(attacker, ModRoles.RAVEN)) {
@@ -38,14 +34,11 @@ public abstract class RavenKnifeLeftClickMixin {
             return;
         }
 
-        RavenPlayerComponent raven = ModComponents.RAVEN.get(attacker);
-        if (!raven.isHunting()) {
+        if (!ModComponents.RAVEN.get(attacker).isHunting()) {
             return;
         }
 
-        // Only allow melee attack on a valid kill target
-        if (!raven.canKill(targetPlayer)) {
-            ci.cancel();
-        }
+        // Hunting + holding knife → cancel any left-click melee
+        ci.cancel();
     }
 }
