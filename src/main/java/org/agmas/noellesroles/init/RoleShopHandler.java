@@ -810,6 +810,23 @@ public class RoleShopHandler {
           ModRoles.ELF_ID, shopEntries);
     }
     {
+      var shopEntries = new ArrayList<ShopEntry>();
+      final var RegenerationArrow = Items.TIPPED_ARROW.getDefaultInstance();
+      RegenerationArrow.set(DataComponents.ITEM_NAME, Component.translatable("item.regeneration_arrow.name"));
+      RegenerationArrow.set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.REGENERATION));
+      RegenerationArrow.set(DataComponents.MAX_STACK_SIZE, 1);
+      shopEntries.add(new ShopEntry(RegenerationArrow, 100, ShopEntry.Type.WEAPON) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          int itemCount = SREItemUtils.countItem(player, Items.TIPPED_ARROW);
+          if (itemCount >= 2)
+            return false;
+          return RoleUtils.insertStackInFreeSlot(player, RegenerationArrow.copy());
+        }
+      });
+      ShopContent.customEntries.put(ModRoles.CUPID_ID, shopEntries);
+    }
+    {
       ShopContent.customEntries.put(
           ModRoles.MANIPULATOR_ID, ShopContent.defaultKnifeEntries);
     }

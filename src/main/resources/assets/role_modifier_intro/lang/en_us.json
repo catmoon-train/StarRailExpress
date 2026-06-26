@@ -192,6 +192,7 @@
   "info.screen.roleid.repair_saboteur": "Neutral solo role\nGain 10 sabotage records from repair calibrations to win independently.",
   "info.screen.roleid.repair_collector": "Neutral solo role\nUse 4 repair items or supply crates to win independently.",
   "info.screen.roleid.repair_survivor": "Survivor team\nRepair 5 stations, then open an escape gate. Use toolboxes/parts to repair faster and rescue caged allies.",
-  "info.screen.roleid.repair_hunter": "Hunter team\nStop repairs and gate escapes. Use hunter chains to cage survivors and slow their rescue tempo."
+  "info.screen.roleid.repair_hunter": "Hunter team\nStop repairs and gate escapes. Use hunter chains to cage survivors and slow their rescue tempo.",
+  "info.screen.roleid.cupid": "Killer-aligned Neutral Faction\nStarts with an unbreakable Bow.\nShop: Regeneration Arrow (100 coins).\nWhen Cupid hits one player with a Regeneration Arrow, that player receives Cupid's mark. When Cupid hits a second eligible player with a Regeneration Arrow, both players gain the Lovers modifier and become each other's lover.\nPlayers who already have the Lovers modifier cannot be linked again and cannot receive Cupid's mark. Cupid's mark is cleared when its target becomes a Lover or dies.\nCupid has instinct vision: all players appear in Cupid's color, and players with the Lovers modifier appear orange."
 
 }

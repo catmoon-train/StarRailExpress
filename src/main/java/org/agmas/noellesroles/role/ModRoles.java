@@ -295,6 +295,7 @@ public class ModRoles {
 
     // 幻音师 ID - 杀手方中立
     public static final ResourceLocation PHANTOM_MUSICIAN_ID = Noellesroles.id("phantom_musician");
+    public static final ResourceLocation CUPID_ID = Noellesroles.id("cupid");
 
     public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");
     public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
@@ -1318,6 +1319,16 @@ public class ModRoles {
             .setCanUseInstinct(true)
             .setCanSeeCoin(true)
             .setDefaultMax(1);
+
+    public static SRERole CUPID = TMMRoles
+            .registerRole(new NormalRole(CUPID_ID, new Color(255, 105, 180).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setComponentKey(ModComponents.CUPID)
+            .setNeutralForKiller(true)
+            .setCanUseInstinct(true)
+            .setCanSeeCoin(true)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(8);
 
     public static SRERole SPELLBREAKER = TMMRoles
             .registerRole(new NormalRole(SPELLBREAKER_ID, (new Color(132, 46, 170)).getRGB(), false,

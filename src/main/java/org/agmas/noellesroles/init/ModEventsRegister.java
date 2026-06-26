@@ -105,6 +105,7 @@ import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
+import org.agmas.noellesroles.game.roles.neutral.cupid.CupidPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerHandler;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggHandler;
 import org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker;
@@ -1006,6 +1007,7 @@ public class ModEventsRegister {
         GamblerHandler.register();
         StalkerPlayerComponent.registerEvents();
         org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.registerEvents();
+        CupidPlayerComponent.registerEvents();
         ChatHudRules.cantUseChatHud.add((p) -> {
             /**
              * 这只会发生在客户端

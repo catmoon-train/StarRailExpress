@@ -3062,5 +3062,12 @@
   "message.noellesroles.debris_pile.selection_cleared": "已清除杂物堆绑定选择",
   "message.noellesroles.debris_pile.group_bound": "已将杂物堆加入同一关联组",
   "message.noellesroles.debris_pile.all_extinguished": "杂物堆火焰已全部扑灭，破坏任务结束！",
-  "message.starrailexpress.key.bound_to_door": "已将钥匙绑定到门：%s"
+  "message.starrailexpress.key.bound_to_door": "已将钥匙绑定到门：%s",
+  "announcement.role.noellesroles.cupid": "丘比特",
+  "announcement.star.role.cupid": "丘比特",
+  "announcement.star.role.noellesroles.cupid": "丘比特",
+  "announcement.star.goals.cupid": "用再生藥水箭連接兩名戀人，協助殺手方獲勝。",
+  "item.regeneration_arrow.name": "再生藥水箭",
+  "message.noellesroles.cupid.marked": "你被丘比特標記了。",
+  "message.noellesroles.cupid.linked": "已將 %s 與 %s 連接為戀人"
 }

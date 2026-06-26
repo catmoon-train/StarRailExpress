@@ -132,6 +132,14 @@ public class RoleInitialItems {
         });
         INITIAL_ITEMS_MAP.put(ModRoles.ELF, elfItems);
 
+        List<Supplier<ItemStack>> cupidItems = new ArrayList<>();
+        cupidItems.add(() -> {
+            var item = Items.BOW.getDefaultInstance();
+            item.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+            return item;
+        });
+        INITIAL_ITEMS_MAP.put(ModRoles.CUPID, cupidItems);
+
         // //黑白
         // List<Supplier<ItemStack>> monokuma_items = new ArrayList<>();
         // elfItems.add(TMMItems.REVOLVER::getDefaultInstance);

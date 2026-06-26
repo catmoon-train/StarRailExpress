@@ -16,6 +16,7 @@ import net.minecraft.world.entity.projectile.SpectralArrow;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import org.agmas.noellesroles.game.roles.neutral.cupid.CupidPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,6 +43,10 @@ public class ArrowMixin {
             }
             if (arrow instanceof Arrow) {
                 if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
+                    if (CupidPlayerComponent.handleArrowHit((Arrow) arrow, serverPlayer, player)) {
+                        ci.cancel();
+                        return;
+                    }
                     if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.ELF)) {
                         isHit = true;
                         GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));

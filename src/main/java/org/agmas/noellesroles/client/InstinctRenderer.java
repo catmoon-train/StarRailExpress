@@ -245,6 +245,21 @@ public class InstinctRenderer {
             var self = Minecraft.getInstance().player;
             if (self == null)
                 return -1;
+            if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(self, ModRoles.CUPID)) {
+                if (!GameUtils.isPlayerAliveAndSurvival(self))
+                    return -1;
+                if (!hasInstinct)
+                    return -1;
+                if (!(target instanceof Player targetPlayer))
+                    return -1;
+                if (targetPlayer.isSpectator())
+                    return -2;
+                if (WorldModifierComponent.KEY.get(targetPlayer.level()).isModifier(targetPlayer, SEModifiers.LOVERS)
+                        || LoversComponent.KEY.get(targetPlayer).isLover()) {
+                    return Color.ORANGE.getRGB();
+                }
+                return ModRoles.CUPID.color();
+            }
             if (!(self.isSpectator()))
                 return -1;
             if (hasInstinct) {

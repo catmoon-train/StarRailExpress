@@ -3112,5 +3112,12 @@
   "message.noellesroles.debris_pile.selection_cleared": "Debris pile binding selection cleared",
   "message.noellesroles.debris_pile.group_bound": "Debris pile added to the linked group",
   "message.noellesroles.debris_pile.all_extinguished": "All debris pile fires extinguished. Sabotage ended!",
-  "message.starrailexpress.key.bound_to_door": "Key bound to door: %s"
+  "message.starrailexpress.key.bound_to_door": "Key bound to door: %s",
+  "announcement.role.noellesroles.cupid": "Cupid",
+  "announcement.star.role.cupid": "Cupid",
+  "announcement.star.role.noellesroles.cupid": "Cupid",
+  "announcement.star.goals.cupid": "Link two Lovers with regeneration arrows and help the Killer faction win.",
+  "item.regeneration_arrow.name": "Regeneration Arrow",
+  "message.noellesroles.cupid.marked": "Cupid has marked you.",
+  "message.noellesroles.cupid.linked": "Linked %s and %s as Lovers"
 }
