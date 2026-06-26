@@ -125,7 +125,7 @@ public final class AdventurerPlayerComponent implements RoleComponent, ServerTic
         }
 
         waypointCooldown = WAYPOINT_COOLDOWN_TICKS;
-        boolean currentlyVisible = WaypointVisibilityManager.get(sp.server())
+        boolean currentlyVisible = WaypointVisibilityManager.get(sp.serverLevel())
                 .getWaypointsVisibility();
 
         if (!currentlyVisible) {
@@ -156,8 +156,8 @@ public final class AdventurerPlayerComponent implements RoleComponent, ServerTic
     }
 
     private static void setWaypointVisibility(ServerPlayer sp, boolean visible) {
-        WaypointVisibilityManager.get(sp.server()).setWaypointsVisibility(visible);
-        for (ServerPlayer target : sp.server().getPlayerList().getPlayers()) {
+        WaypointVisibilityManager.get(sp.serverLevel()).setWaypointsVisibility(visible);
+        for (ServerPlayer target : sp.serverLevel().players()) {
             PacketTracker.sendToClient(target, new SyncWaypointVisibilityPacket(visible));
         }
     }
