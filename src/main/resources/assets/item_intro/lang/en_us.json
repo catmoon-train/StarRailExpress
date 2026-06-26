@@ -1,5 +1,6 @@
 {
   "item.noellesroles.crystal_ball.desc": "Diviner only. Right-click aiming at a corpse to divine it, revealing the dead player's role and name (60s cooldown, each corpse only once). If the target is the InsaneKiller disguised as a corpse, it counts as them stabbing themselves to death.",
+  "item.noellesroles.deduction_book.desc": "Great Detective only. Right-click to open the Book of Deduction and review gathered clues; right-click a body to deduce one trait of its killer. Each page is one killer; once a killer has 3+ clues, click \"Target Status\" to reveal their location.",
   "item.exposure.photograph_frame.desc": "Photographer tool. Costs 200 coins, up to 2 purchases per game. Can be placed even in adventure mode. After putting a photo taken by the photographer into the frame, any player who walks through it teleports to where the photo was taken; each pass blinds you for 3s and has a 3s cooldown. At game start, only photographer-placed frames are cleared.",
   "item.noellesroles.wizard_staff.desc": "Wizard only. Right-click to charge a magic fire arrow that pierces multiple players; those hit die after 3 seconds. Left-click to knock back. When Explosion! is armed, the next cast is a wall-piercing nine-ring fireball.",
   "item.noellesroles.wizard_potion.desc": "Wizard only. On use, goes on cooldown, grants a large amount of mana, and grants immunity to one lethal attack for the next 60 seconds.",
@@ -20,6 +21,8 @@
   "item.trainmurdermystery.iron_door_key.desc": "Can open iron doors. Has limited uses.",
   "item.trainmurdermystery.key.desc": "Key, used to open your own room.\nWhen task point instinct is enabled, holding the key reveals your own room door.",
   "item.starrailexpress.knife.desc": "Melee weapon, left click to knock back, right click to raise the knife and after a while strike down to stab the player to death.",
+  "item.starrailexpress.knife.durability_hint": "Limited durability mode: this knife has only %s durability; when depleted it stays in your inventory but cannot be used — re-buy from the shop to replace it.",
+  "item.starrailexpress.knife.durability_remaining": "Durability left: %s / %s",
   "item.starrailexpress.bat.desc": "Melee weapon, left click to attack, has attack cooldown, spamming clicks won't deal damage.",
   "item.starrailexpress.crowbar.desc": "Right-click to permanently break open a door, can be repaired by Locksmith with a screwdriver.",
   "item.starrailexpress.grenade.desc": "Throwing weapon, right-click to throw, kills players within a certain radius of the landing point. Hold right-click to charge for a longer throw. Grenades are blocked by player entities.",

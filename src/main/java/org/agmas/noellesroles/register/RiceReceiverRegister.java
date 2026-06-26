@@ -35,6 +35,7 @@ import org.agmas.noellesroles.game.roles.innocent.athlete.AthletePlayerComponent
 import org.agmas.noellesroles.game.roles.innocent.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.detective.DetectivePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.great_detective.GreatDetectivePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.innocent.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.singer.SingerPlayerComponent;
@@ -514,6 +515,42 @@ public class RiceReceiverRegister {
                             }
                         });
             }
+        });
+
+        // 处理大侦探"目标情况"包：记录某凶手与侦探当前的距离快照
+        ServerPlayNetworking.registerGlobalReceiver(GreatDetectiveRevealC2SPacket.ID, (payload, context) -> {
+            ServerPlayer player = context.player();
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+
+            // 验证玩家是大侦探且存活
+            if (!gameWorld.isRole(player, ModRoles.GREAT_DETECTIVE))
+                return;
+            if (!GameUtils.isPlayerAliveAndSurvival(player))
+                return;
+            if (payload.killer() == null)
+                return;
+
+            GreatDetectivePlayerComponent comp = GreatDetectivePlayerComponent.KEY.get(player);
+
+            // 至少 3 条线索才能查明目标情况
+            if (comp.clueCount(payload.killer()) < 3)
+                return;
+            // 已揭示则冻结，不再刷新（只显示触发时的距离）
+            if (comp.hasRevealedDistance(payload.killer()))
+                return;
+
+            int distance = -1;
+            Player killer = player.level().getPlayerByUUID(payload.killer());
+            if (killer != null && killer.level() == player.level()
+                    && GameUtils.isPlayerAliveAndSurvival(killer)) {
+                distance = (int) Math.round(player.distanceTo(killer));
+            }
+            comp.setRevealedDistance(payload.killer(), distance);
+
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.great_detective.target_locked")
+                            .withStyle(ChatFormatting.AQUA),
+                    true);
         });
 
         // 处理斗士技能包

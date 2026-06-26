@@ -46,6 +46,8 @@ import org.agmas.noellesroles.game.roles.innocent.glitch_robot.GlitchRobotPlayer
 import org.agmas.noellesroles.game.roles.innocent.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.mortician.MorticianRole;
+import org.agmas.noellesroles.game.roles.innocent.great_detective.GreatDetectiveRole;
+import org.agmas.noellesroles.game.roles.innocent.great_detective.GreatDetectivePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.photographer.PhotographerPlayerComponent;
@@ -206,6 +208,8 @@ public class ModRoles {
     public static final ResourceLocation MEATBALL_ID = Noellesroles.id("meatball");
     // 殡仪员角色 ID
     public static final ResourceLocation MORTICIAN_ID = Noellesroles.id("mortician");
+    // 大侦探角色 ID
+    public static final ResourceLocation GREAT_DETECTIVE_ID = Noellesroles.id("great_detective");
     // 建筑师角色 ID
     public static final ResourceLocation BUILDER_ID = Noellesroles.id("builder");
     // 玉将军角色 ID
@@ -441,6 +445,25 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setComponentKey(ModComponents.MORTICIAN).setDefaultMax(1);
+
+    /**
+     * 大侦探角色 - 平民阵营
+     * - 属于乘客阵营 (isInnocent = true)
+     * - 不能使用杀手能力 (canUseKiller = false)
+     * - 开局自带"推理之书"，右键打开界面
+     * - 技能"推理"：对着尸体右键，获取该尸体凶手的一条线索（无凶手则无法推敲）
+     * - 一具尸体只能使用一次技能
+     * - 某凶手线索 >= 3 条时，可在书上点击"目标情况"查明其与自己的距离（快照）
+     */
+    public static SRERole GREAT_DETECTIVE = TMMRoles.registerRole(new GreatDetectiveRole(
+            GREAT_DETECTIVE_ID, // 角色 ID
+            new Color(72, 61, 139).getRGB(), // 暗紫蓝 - 名侦探
+            true, // isInnocent = 平民阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+            false // 不隐藏计分板
+    )).setComponentKey(GreatDetectivePlayerComponent.KEY).setDefaultMax(1);
 
     /**
      * 建筑师角色 - 平民阵营

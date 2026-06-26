@@ -217,6 +217,8 @@
     "message.tip.cant_use_skill":  "你當前無法使用技能",
     "message.tip.purchase_failed":  "購買失敗",
     "message.tip.purchase_cooldown":  "該物品購買冷卻中，剩餘 %s 秒",
+    "message.sre.knife.depleted":  "刀已耗盡耐久，無法使用，請重新購買替換",
+    "message.sre.knife.broken":  "你的刀耐久已耗盡，請重新購買替換",
     "gui.sre.map_selector.zeppelin":  "飛艇",
     "gui.sre.map_selector.zeppelin.desc":  "空中戰鬥平臺",
     "gui.sre.map_selector.sky_village":  "天空村莊",

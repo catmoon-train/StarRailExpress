@@ -1,6 +1,8 @@
 package io.wifi.starrailexpress.client.util;
 
 import dev.doctor4t.ratatouille.util.TextUtils;
+import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.game.KillerKnifeDurability;
 import io.wifi.starrailexpress.index.DevItems;
 import io.wifi.starrailexpress.index.SREBlocks;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -33,6 +35,7 @@ public class TMMItemTooltips {
             addCooldownText(TMMItems.BLACKOUT, tooltipList, itemStack);
 
             addTooltipForItem(TMMItems.KNIFE, itemStack, tooltipList);
+            addKnifeDurabilityHint(itemStack, tooltipList);
             addTooltipForItem(TMMItems.REVOLVER, itemStack, tooltipList);
             addTooltipForItem(TMMItems.DERRINGER, itemStack, tooltipList);
             addTooltipForItem(TMMItems.GRENADE, itemStack, tooltipList);
@@ -57,6 +60,25 @@ public class TMMItemTooltips {
             addTooltipForItem(SREBlocks.REMOTE_REDSTONE.asItem(), itemStack, tooltipList);
             addTooltipForItem(DevItems.BINDING_TOOL, itemStack, tooltipList);
         });
+    }
+
+    /**
+     * 当「有限耐久」模式开启时，为刀追加耐久提醒说明；若该刀已被标记耐久，则同时显示剩余耐久。
+     * When limited-durability mode is on, append a durability reminder to the knife; if the stack is a
+     * durability-stamped knife, also show the remaining points.
+     */
+    private static void addKnifeDurabilityHint(@NotNull ItemStack itemStack, List<Component> tooltipList) {
+        if (!itemStack.is(TMMItems.KNIFE) || !SREConfig.instance().knifeDurabilityMode) {
+            return;
+        }
+        tooltipList.add(Component.translatable("item.starrailexpress.knife.durability_hint",
+                KillerKnifeDurability.MAX_DURABILITY).withStyle(Style.EMPTY.withColor(REGULAR_TOOLTIP_COLOR)));
+        if (KillerKnifeDurability.isMarkedKnife(itemStack)) {
+            int remaining = Math.max(0, itemStack.getMaxDamage() - itemStack.getDamageValue());
+            tooltipList.add(Component.translatable("item.starrailexpress.knife.durability_remaining",
+                    remaining, itemStack.getMaxDamage())
+                    .withStyle(Style.EMPTY.withColor(remaining > 0 ? REGULAR_TOOLTIP_COLOR : COOLDOWN_COLOR)));
+        }
     }
 
     private static void addTooltipForItem(Item item, @NotNull ItemStack itemStack, List<Component> tooltipList) {

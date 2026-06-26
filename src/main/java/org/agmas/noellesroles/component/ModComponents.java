@@ -30,6 +30,7 @@ import org.agmas.noellesroles.game.roles.innocent.magician.MagicianPlayerCompone
 import org.agmas.noellesroles.game.roles.innocent.meatball.MeatballPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.mortician.MorticianPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocent.great_detective.GreatDetectivePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.pilot.PilotPlayerComponent;
@@ -805,6 +806,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, MORTICIAN)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(MorticianPlayerComponent::new);
+
+    // 注册大侦探组件 - 存储已检查尸体、各凶手线索与目标距离快照
+    registry.beginRegistration(Player.class, GreatDetectivePlayerComponent.KEY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(GreatDetectivePlayerComponent::new);
 
     registry.beginRegistration(Player.class, REPAIR_ROLES)
         .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)

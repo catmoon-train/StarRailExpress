@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.Scheduler;
+import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -21,6 +22,9 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.utils.RoleUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static io.wifi.starrailexpress.game.GameUtils.getSpawnPos;
 import static io.wifi.starrailexpress.game.GameUtils.roomToPlayer;
 
@@ -29,6 +33,26 @@ public class GamblerRole extends SRERole {
     public GamblerRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
+    }
+
+    /**
+     * 每完成一个任务，向职业库中追加一个随机职业。
+     */
+    @Override
+    public void onFinishQuest(Player player, String quest) {
+        if (player.level().isClientSide())
+            return;
+        GamblerPlayerComponent.KEY.get(player).drawNewRole();
+    }
+
+    /**
+     * 赌徒职业商店：500 金币购买一把一次性手枪。
+     */
+    @Override
+    public List<ShopEntry> getShopEntries() {
+        List<ShopEntry> entries = new ArrayList<>();
+        entries.add(new ShopEntry(ModItems.ONCE_REVOLVER.getDefaultInstance(), 500, ShopEntry.Type.WEAPON));
+        return entries;
     }
 
     @Override

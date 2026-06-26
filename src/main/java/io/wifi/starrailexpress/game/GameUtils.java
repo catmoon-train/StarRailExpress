@@ -644,6 +644,7 @@ public class GameUtils {
             SREPlayerPsychoComponent.KEY.get(serverPlayerEntity).init();
             SREPlayerNoteComponent.KEY.get(serverPlayerEntity).init();
             SREPlayerShopComponent.KEY.get(serverPlayerEntity).init();
+            io.wifi.starrailexpress.cca.DynamicShopComponent.KEY.get(serverPlayerEntity).init();
             io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent.KEY.get(serverPlayerEntity).init();
             if (!TrainVoicePlugin.isVoiceChatMissing()) {
                 TrainVoicePlugin.resetPlayer(serverPlayerEntity.getUUID());
@@ -1080,6 +1081,7 @@ public class GameUtils {
         SREItemUtils.clearItem(player, (item) -> true, -1);
         SREPlayerMoodComponent.KEY.get(player).clear();
         SREPlayerShopComponent.KEY.get(player).clear();
+        io.wifi.starrailexpress.cca.DynamicShopComponent.KEY.get(player).clear();
         SREPlayerPoisonComponent.KEY.get(player).clear();
         SREPlayerPsychoComponent.KEY.get(player).clear();
         SREPlayerNoteComponent.KEY.get(player).clear();

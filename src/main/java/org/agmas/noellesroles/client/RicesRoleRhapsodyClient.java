@@ -28,6 +28,7 @@ import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.client.renderer.*;
 import org.agmas.noellesroles.client.screen.*;
 import org.agmas.noellesroles.content.item.ConspiracyPageItem;
+import org.agmas.noellesroles.content.item.DeductionBookItem;
 import org.agmas.noellesroles.content.item.WrittenNoteItem;
 import org.agmas.noellesroles.game.roles.innocent.athlete.AthletePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
@@ -149,6 +150,12 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (client.player == null)
                 return;
             client.setScreen(new ConspiratorScreen());
+        };
+        DeductionBookItem.openScreenCallback = () -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return;
+            client.setScreen(new DeductionBookScreen());
         };
         WrittenNoteItem.openScreenCallback = () -> {
             Minecraft client = Minecraft.getInstance();

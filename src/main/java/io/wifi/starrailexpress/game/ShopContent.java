@@ -23,8 +23,10 @@ public class ShopContent {
 
     public static void register() {
         {
-            defaultKnifeEntries.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice,
-                    ShopEntry.Type.WEAPON));
+            // 杀手刀使用动态商店条目：murder 模式下带 3 点耐久、可替换耗尽的刀、首购后 -50%。
+            // Killer knife uses the dynamic entry: 3 durability in murder modes, replaces depleted
+            // knives, and -50% after the first purchase. See KillerKnifeShopEntry / DynamicShopComponent.
+            defaultKnifeEntries.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice));
             defaultKnifeEntries.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
                     SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
                 defaultKnifeEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),

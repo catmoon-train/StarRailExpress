@@ -21,6 +21,7 @@ public class NRCommandRegister {
         StuckCommand.register();
         DisplayItemCommand.register();
         GoodsManagerCommand.register();
+        DynamicShopCommand.register();
         WheelchairFieldItemCommand.register();
         GamblerMiracleCommand.register();
         EggClearCommand.register();

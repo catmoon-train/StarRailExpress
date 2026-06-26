@@ -37,7 +37,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
     public List<ResourceLocation> availableRoles = new ArrayList<>();
     public ResourceLocation selectedRole = null;
     public int roleDrawTimer = 0;
-    public int drawInterval = 30 * 20; // 30秒 //debug
+    public int drawInterval = 120 * 20; // 2分钟
 
     @Override
     public Player getPlayer() {
@@ -50,7 +50,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
         this.availableRoles.clear();
         this.selectedRole = null;
         this.roleDrawTimer = 0;
-        this.drawInterval = 30 * 20;
+        this.drawInterval = 120 * 20;
         this.sync();
     }
 
@@ -174,7 +174,7 @@ public class GamblerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (tag.contains("di")) {
             this.drawInterval = tag.getInt("di");
         } else {
-            this.drawInterval = 30 * 20;
+            this.drawInterval = 120 * 20;
         }
         availableRoles.clear();
         if (tag.contains("availableRoles")) {

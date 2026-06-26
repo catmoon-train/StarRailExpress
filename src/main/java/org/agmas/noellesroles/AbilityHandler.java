@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,6 +27,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
+import java.util.List;
 import java.util.UUID;
 
 public class AbilityHandler {
@@ -166,9 +168,19 @@ public class AbilityHandler {
             net.minecraft.server.level.ServerLevel level = player.serverLevel();
             org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent morphComp =
                     org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent.KEY.get(player);
-            UUID skin = (morphComp.morphTicks > 0 && morphComp.disguise != null)
-                    ? morphComp.disguise
-                    : player.getUUID();
+            // 从所有存活玩家中随机选择一个作为皮肤（排除召唤者自身）
+            List<ServerPlayer> aliveOthers = level.players().stream()
+                    .filter(p -> GameUtils.isPlayerAliveAndSurvival(p) && !p.getUUID().equals(player.getUUID()))
+                    .toList();
+            UUID skin;
+            if (!aliveOthers.isEmpty()) {
+                skin = aliveOthers.get(level.random.nextInt(aliveOthers.size())).getUUID();
+            } else {
+                // 无人可选时 fallback 到伪装对象或自身
+                skin = (morphComp.morphTicks > 0 && morphComp.disguise != null)
+                        ? morphComp.disguise
+                        : player.getUUID();
+            }
             float yaw = player.getYRot();
             double rad = Math.toRadians(yaw);
             double dx = -Math.sin(rad);

@@ -75,6 +75,12 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "shop")
     @ConfigSync(shouldSync = true)
     public int knifePrice = 130;
+    // 杀手刀「有限耐久」模式：开启后 murder（及继承 murder）模式下，商店购买的刀仅 3 点耐久，
+    // 耗尽后不消失但无法使用，需重新购买替换。关闭则恢复为无耐久的普通刀。
+    @ConfigEntry.Category(value = "shop")
+    @ConfigSync(shouldSync = true)
+    @Tooltip(count = 2)
+    public boolean knifeDurabilityMode = true;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public int revolverPrice = 285;

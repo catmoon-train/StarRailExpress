@@ -23,6 +23,9 @@ public class RicePacketTypeRegister {
         // 注册探员审查包
         PayloadTypeRegistry.playC2S().register(DetectiveC2SPacket.ID, DetectiveC2SPacket.CODEC);
 
+        // 注册大侦探"目标情况"包
+        PayloadTypeRegistry.playC2S().register(GreatDetectiveRevealC2SPacket.ID, GreatDetectiveRevealC2SPacket.CODEC);
+
         // 注册斗士技能包
         PayloadTypeRegistry.playC2S().register(BoxerAbilityC2SPacket.ID, BoxerAbilityC2SPacket.CODEC);
 

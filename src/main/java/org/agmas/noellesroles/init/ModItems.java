@@ -55,6 +55,10 @@ public class ModItems {
     public static final Item RESCUE_FLARE = register(
             new RescueFlareItem(new Item.Properties().stacksTo(4)),
             "rescue_flare", ROLE_ITEMS_GROUP);
+    // 推理之书 - 大侦探专属
+    public static final Item DEDUCTION_BOOK = register(
+            new DeductionBookItem(new Item.Properties().stacksTo(1)),
+            "deduction_book", ROLE_ITEMS_GROUP);
     public static final Item FLARE = register(
             new FlareItem(new Item.Properties().stacksTo(8)),
             "flare", ROLE_ITEMS_GROUP);

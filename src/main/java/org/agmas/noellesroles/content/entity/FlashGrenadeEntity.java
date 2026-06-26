@@ -29,8 +29,8 @@ public class FlashGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
 
     // 闪光半径：8格
     private static final double FLASH_RADIUS = 8.0;
-    // 效果持续时间：3秒（60 ticks）
-    private static final int EFFECT_DURATION = 60;
+    // 效果持续时间：4秒（80 ticks）
+    private static final int EFFECT_DURATION = 80;
 
     public FlashGrenadeEntity(EntityType<? extends NoHeavyWaterInfluencedThrowableItemProjectile> entityType, Level world) {
         super(entityType, world);

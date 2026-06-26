@@ -203,6 +203,8 @@
     "message.tip.cant_use_skill":  "You cannot use skills right now",
     "message.tip.purchase_failed":  "Purchase failed",
     "message.tip.purchase_cooldown":  "Item purchase on cooldown, %s seconds remaining",
+    "message.sre.knife.depleted":  "This knife is out of durability and cannot be used. Re-buy to replace it.",
+    "message.sre.knife.broken":  "Your knife is out of durability. Re-buy to replace it.",
     "gui.sre.map_selector.zeppelin":  "Zeppelin",
     "gui.sre.map_selector.zeppelin.desc":  "Aerial combat platform",
     "gui.sre.map_selector.sky_village":  "Sky Village",

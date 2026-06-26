@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.client.gui.screen.ingame;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.DynamicShopComponent;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.StoreRenderer;
@@ -651,7 +652,18 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 this.screen.renderLimitedInventoryTooltip(context, this.entry.stack());
                 drawShopSlotHighlight(context, this.getX(), this.getY(), 0);
             }
-            MutableComponent price = Component.literal(this.entry.price() + "\uE781");
+            // \u663E\u793A\u52A8\u6001\u4EF7\u683C\uFF1A\u82E5\u88AB DynamicShopComponent \u6253\u6298\uFF0C\u5219\u7528\u7EFF\u8272\u5C55\u793A\u6298\u540E\u4EF7\u3002
+            // Show the dynamic price: if discounted by DynamicShopComponent, render the reduced price in green.
+            int basePrice = this.entry.price();
+            int effectivePrice = basePrice;
+            final var clientPlayer = Minecraft.getInstance().player;
+            if (clientPlayer != null) {
+                effectivePrice = DynamicShopComponent.KEY.get(clientPlayer).effectivePrice(this.entry);
+            }
+            MutableComponent price = Component.literal(effectivePrice + "\uE781");
+            if (effectivePrice < basePrice) {
+                price.withStyle(net.minecraft.ChatFormatting.GREEN);
+            }
             context.renderTooltip(this.screen.font, price, this.getX() - 4 - this.screen.font.width(price) / 2,
                     this.getY() - 9);
         }

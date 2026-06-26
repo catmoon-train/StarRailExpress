@@ -26,6 +26,9 @@
 6. [商店系统 / Shop System](#商店系统--shop-system)
    - [ShopEntry — 商店条目](#shopentry--商店条目)
    - [ShopContent — 商店内容管理](#shopcontent--商店内容管理)
+   - [DynamicShopComponent — 动态价格组件](#dynamicshopcomponent--动态价格组件)
+   - [/dynamicshop 指令](#dynamicshop-指令)
+   - [示例：杀手刀有限耐久 + 首购折扣](#示例杀手刀有限耐久--首购折扣)
 7. [蓄力物品系统 / Chargeable Item System](#蓄力物品系统--chargeable-item-system)
    - [ChargeableItem — 蓄力物品接口](#chargeableitem--蓄力物品接口)
    - [ChargeableItemRegistry — 蓄力物品注册表](#chargeableitemregistry--蓄力物品注册表)
@@ -574,6 +577,108 @@ ShopContent.customEntries.put(ModRoles.MY_ROLE.getIdentifier(), shop);
 
 商店购买前会触发 `OnVendingMachinesBuyItems.EVENT` 事件（见[事件系统](#事件系统--event-system)）。  
 Before purchase, `OnVendingMachinesBuyItems.EVENT` fires (see [Event System](#事件系统--event-system)).
+
+### DynamicShopComponent — 动态价格组件
+
+**包 / Package:** `io.wifi.starrailexpress.cca`
+
+按玩家维度存储「商品价格修正」与「购买次数」，让**局内商店**（杀手 / 职业商店）的商品拥有动态价格：
+百分比折扣、固定减价、价格乘数（`<1` 打折、`>1` 溢价）。修正以**物品 ID**（`ResourceLocation`）为键，
+因此同一件商品在不同玩家身上可以有不同的实时价格。组件会自动同步给所有者客户端，因此商店 UI 显示的价格
+与服务端实际扣费一致。  
+Stores per-player price modifiers and purchase counts (keyed by item id) so **in-game shop** items can have
+dynamic prices: percentage discounts, flat reductions, or multipliers. Auto-syncs to the owner so the shop UI
+shows exactly what the server will charge.
+
+价格公式 / Price formula：`effective = max(0, round(basePrice * multiplier) - flatReduction)`。
+
+```java
+DynamicShopComponent dyn = DynamicShopComponent.KEY.get(player);
+
+// 价格修正 / price modifiers（以物品 ID 为键）
+dyn.setPercentDiscount(itemId, 50);      // 降价 50% / -50%
+dyn.setFlatReduction(itemId, 100);       // 固定减 100 / -100 flat
+dyn.setMultiplier(itemId, 1.5);          // 溢价 1.5 倍 / surge x1.5
+dyn.setModifier(itemId, 0.5, 20);        // 先 x0.5 再 -20 / multiply then subtract
+dyn.clearModifier(itemId);               // 移除单件修正
+dyn.clearAllModifiers();                 // 清空全部修正（保留购买次数）
+
+boolean has = dyn.hasModifier(itemId);
+int price  = dyn.effectivePrice(itemId, basePrice);  // 计算实际价格
+int price2 = dyn.effectivePrice(shopEntry);           // 便捷重载：用条目物品+基础价
+
+// 购买次数 / purchase counts（可用于「首购触发」等逻辑）
+int count = dyn.getPurchaseCount(itemId);
+dyn.recordPurchase(itemId);              // 记录一次购买并返回新次数
+```
+
+> **接入点 / Integration:** `SREPlayerShopComponent.tryBuy` 在校验余额与扣费时统一改用
+> `DynamicShopComponent.effectivePrice(entry)`；无任何修正时实际价格 == 基础价格，因此对未使用本系统的
+> 商品零影响。组件在游戏开始（`GameUtils` 初始化）与 `resetPlayer` 时随其它玩家组件一并 `init()` / `clear()`，
+> 仅同步、不写入磁盘（局内状态）。  
+> `tryBuy` resolves the charged price through `effectivePrice`; with no modifier the effective price equals the
+> base price, so unmodified items are unaffected. The component is reset alongside the other player components on
+> game start and `resetPlayer`; it is sync-only (not persisted to disk).
+
+### /dynamicshop 指令
+
+运行时为玩家设置局内商店商品的动态价格（权限等级 2）。  
+Configure dynamic shop prices per player at runtime (permission level 2).
+
+```
+/dynamicshop discount   <players> <item> <percent 0-100>   # 设置百分比折扣
+/dynamicshop flat       <players> <item> <amount>          # 设置固定减价
+/dynamicshop multiplier <players> <item> <multiplier>      # 设置价格乘数
+/dynamicshop clear      <players> <item>                   # 清除单件修正
+/dynamicshop clearall   <players>                          # 清除全部修正
+/dynamicshop query      <players> <item>                   # 查询修正/购买次数
+```
+
+示例 / Example：`/dynamicshop discount @a sre:knife 50` 让所有玩家的刀降价 50%。
+
+### 示例：杀手刀有限耐久 + 首购折扣
+
+`DynamicShopComponent` 的一个完整落地示例，**仅在 `murder` 或继承 `SREMurderGameMode` 的模式下生效**，
+并且耐久部分可由配置项 `SREConfig.knifeDurabilityMode`（商店分类，默认开启，已同步到客户端）一键开关：  
+A full example built on `DynamicShopComponent`, active **only in `murder` (or modes extending
+`SREMurderGameMode`)**, with the durability part toggled by `SREConfig.knifeDurabilityMode`
+(shop category, on by default, synced to clients):
+
+- 杀手通过商店购买的刀只有 **3 点耐久**（`KillerKnifeDurability.MAX_DURABILITY`），每次成功捅人消耗 1 点；
+- 耐久耗尽后刀**不会消失**，但无法继续使用；
+- 再次购买刀时：若背包内已有「耗尽」的刀则**原地刷新为满耐久**（替换），否则按原逻辑发放一把新刀；
+- **首次购买刀后**，后续购买价格 **-50%**（首购全价，从第二把起半价；该折扣只受 murder 模式约束，不随耐久开关关闭）；
+- 当配置 `knifeDurabilityMode` 开启时，刀的物品说明（item desc）会追加耐久提醒，并显示「剩余耐久 X/3」；关闭后恢复普通无耐久刀。
+
+涉及类 / Classes:
+
+| 类 | 包 | 职责 |
+|---|---|---|
+| `KillerKnifeShopEntry` | `io.wifi.starrailexpress.game` | 自定义 `ShopEntry`：替换耗尽刀 / 发放带耐久新刀 / 首购挂折扣 |
+| `KillerKnifeDurability` | `io.wifi.starrailexpress.game` | 耐久工具：标记、消耗、查找耗尽刀、模式判定 |
+
+```java
+// KillerKnifeShopEntry.onBuy 核心逻辑（murder 模式）
+ItemStack depleted = KillerKnifeDurability.findDepletedKnife(player);
+if (depleted != null) {
+    KillerKnifeDurability.applyFreshDurability(depleted);   // 替换：原地刷满耐久
+} else {
+    ItemStack fresh = this.stack().copy();
+    KillerKnifeDurability.applyFreshDurability(fresh);       // 新刀：带 3 点耐久
+    RoleUtils.insertStackInFreeSlot(player, fresh);
+}
+// 首购后挂 -50% 折扣
+DynamicShopComponent dyn = DynamicShopComponent.KEY.get(player);
+if (dyn.getPurchaseCount(knifeId) == 0) dyn.setPercentDiscount(knifeId, 50);
+dyn.recordPurchase(knifeId);
+```
+
+耐久通过逐栈的 `MAX_DAMAGE` / `DAMAGE` 数据组件实现（**不修改物品注册**），因此只影响被标记过的刀；
+消耗与「耗尽不可用」的判定在 `KnifeStabPayload` 服务端接收处理，且以模式 + 标记双重门控，确保其它来源的刀
+（初始物品、其它模式、亡命徒等）不受影响。  
+Durability uses per-stack `MAX_DAMAGE`/`DAMAGE` data components (no item-registration change); consumption and the
+"depleted = unusable" check live in the server-side `KnifeStabPayload` handler, gated by both game mode and the
+stamp so knives from other sources/modes are untouched.
 
 ---
 
