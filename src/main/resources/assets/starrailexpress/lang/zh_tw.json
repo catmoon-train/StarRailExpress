@@ -895,6 +895,7 @@
     "death_reason.starrailexpress.shot_innocent":  "誤殺平民而亡",
     "death_reason.starrailexpress.backfire":  "槍走火",
     "death_reason.starrailexpress.black_white":  "黑白試煉失敗",
+    "death_reason.starrailexpress.amon_usurp":  "被未知之物奪舍",
     "death_reason.starrailexpress.self_explosion":  "自爆而亡",
     "replay.event.game.failed_kill":  "%s 在 %s 的攻擊中存活了下來。",
     "replay.event.game.gamemode.tnttag.transform":  "%s 把燙手的山芋傳給了 %s。",

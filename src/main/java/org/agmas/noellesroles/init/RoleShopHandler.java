@@ -968,12 +968,12 @@ public class RoleShopHandler {
           });
         }
       }
-      // 拍立得相纸 - 75金币
+      // 拍立得相纸 - 50
       {
         var item = ExposurePolaroid.Items.INSTANT_COLOR_SLIDE.get();
         if (item != null) {
           final var defaultInstance = item.getDefaultInstance();
-          entries.add(new ShopEntry(defaultInstance, 75, ShopEntry.Type.TOOL) {
+          entries.add(new ShopEntry(defaultInstance, 50, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(@NotNull Player player) {
               player.addItem(defaultInstance.copy());

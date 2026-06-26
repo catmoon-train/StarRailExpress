@@ -7,6 +7,8 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -388,15 +390,33 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
             return;
         }
         mark.hits++;
-        if (mark.hits >= config().wizardFireArrowHitsToKill) {
+        int needed = config().wizardFireArrowHitsToKill;
+        if (mark.hits >= needed) {
             mark.deathTicks = GameConstants.getInTicks(0, config().wizardFireArrowDeathDelaySeconds);
             target.displayClientMessage(Component.translatable("message.noellesroles.wizard.fire_arrow_hit")
                     .withStyle(ChatFormatting.RED), true);
+            // 致命标记：受害者屏幕边缘泛起浓重暗红，强化“被暗杀”的临场感
+            sendScreenEdge(target, 0.85f);
+            // 施法者获得明确的击杀反馈（含目标名字）
+            caster.displayClientMessage(Component.translatable("message.noellesroles.wizard.fire_arrow_kill_caster",
+                    target.getDisplayName(),
+                    Math.max(1, config().wizardFireArrowDeathDelaySeconds)).withStyle(ChatFormatting.DARK_RED), true);
         } else {
             target.displayClientMessage(Component.translatable("message.noellesroles.wizard.fire_arrow_stack",
-                    mark.hits, config().wizardFireArrowHitsToKill).withStyle(ChatFormatting.GOLD), true);
+                    mark.hits, needed).withStyle(ChatFormatting.GOLD), true);
+            // 非致命命中：较淡的暗红警示
+            sendScreenEdge(target, 0.45f);
+            // 施法者获得命中反馈（含目标名字与当前层数）
+            caster.displayClientMessage(Component.translatable("message.noellesroles.wizard.fire_arrow_hit_caster",
+                    target.getDisplayName(), mark.hits, needed).withStyle(ChatFormatting.GOLD), true);
         }
         sync();
+    }
+
+    /** 向受害者发送屏幕边缘暗红效果，渲染“被暗杀”的临场压迫感。 */
+    private void sendScreenEdge(ServerPlayer target, float intensity) {
+        ServerPlayNetworking.send(target,
+                new TriggerScreenEdgeEffectPayload(0x780000, 700L, intensity));
     }
 
     private void tickFireArrowMarks(ServerPlayer caster) {

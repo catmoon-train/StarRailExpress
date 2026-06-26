@@ -107,14 +107,14 @@ public abstract class ManipulatorScreenMixin extends LimitedHandledScreen<Invent
             return List.of();
         }
 
-        // 只显示已标记的目标（需先潜行盯人 6 秒完成标记）
+        // 只显示已标记的目标（需先潜行盯人 4 秒完成标记，可保存多个）
         ManipulatorPlayerComponent comp = ManipulatorPlayerComponent.KEY.get(player);
-        java.util.UUID marked = comp.markedTarget;
-        if (marked == null) {
+        java.util.Set<java.util.UUID> marked = comp.markedTargets;
+        if (marked.isEmpty()) {
             return List.of();
         }
         return client.getConnection().getOnlinePlayers().stream()
-                .filter(a -> a.getProfile().getId().equals(marked)
+                .filter(a -> marked.contains(a.getProfile().getId())
                         && a.getProfile().getId() != player.getUUID()
                         && a.getGameMode() == GameType.ADVENTURE)
                 .collect(Collectors.toList());

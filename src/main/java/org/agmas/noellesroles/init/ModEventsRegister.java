@@ -1141,8 +1141,8 @@ public class ModEventsRegister {
         org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent.registerEvents();
         // 注册警棍与防暴盾处理器
         BatonHandler.register();
-        // 注册亡灵之主骨杖处理器
-        org.agmas.noellesroles.content.item.BoneStaffHandler.register();
+
+
         RiotShieldHandler.register();
         // 注册仁之剑处理器
         BenevolenceSwordHandler.register();
@@ -1150,6 +1150,8 @@ public class ModEventsRegister {
         CuckooEggHandler.register();
         // 注册保安技能
         GuardPlayerHandler.register();
+        // 格罗赛尔游记：放逐管理器（tick + 击杀改判 + 一局结束清理）
+        org.agmas.noellesroles.content.item.GroselleJourneyManager.register();
         VoodooDeathHandler.registerEvents();
         PlayerStatsBeforeRefugee.beforeLoadFunc = (player) -> {
             ModComponents.DEATH_PENALTY.get(player).init();

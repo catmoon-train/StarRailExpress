@@ -29,6 +29,7 @@
   "death_reason.stupid_express.failed_ignite": "Failed ignition",
   "death_reason.starrailexpress.failed_ignite": "Failed ignition",
   "death_reason.stupid_express.ignited": "Burned to death",
+  "effect.stupid_express.arsonist_burning": "Burning",
   "death_reason.stupid_express.loose_end": "Outlaw failure",
   "death_reason.starrailexpress.ignited": "Burned to death",
   "announcement.star.goals.stupid_express.necromancer": "Revive the dead, make them serve you",

@@ -50,10 +50,10 @@ public final class WizardSpells {
         Vec3 pos = start;
         for (double traveled = 0; traveled <= range; traveled += step) {
             pos = start.add(dir.scale(traveled));
-            // 火焰轨迹粒子
-            if (traveled % 0.5 < step) {
-                level.sendParticles(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 2, 0.05, 0.05, 0.05, 0.0);
-                level.sendParticles(ParticleTypes.SMALL_FLAME, pos.x, pos.y, pos.z, 1, 0.0, 0.0, 0.0, 0.0);
+            // 暗影轨迹：稀疏的灵魂火与黑烟，低调而非张扬——谋杀应当悄无声息
+            if (traveled % 1.0 < step) {
+                level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, pos.x, pos.y, pos.z, 1, 0.0, 0.0, 0.0, 0.0);
+                level.sendParticles(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 1, 0.02, 0.02, 0.02, 0.0);
             }
             // 命中玩家（贯穿，命中即死）
             for (Player p : level.players()) {
@@ -64,8 +64,11 @@ public final class WizardSpells {
                         || p.position().add(0, p.getBbHeight() / 2, 0).distanceToSqr(pos) <= hitRadius * hitRadius) {
                     if (p instanceof ServerPlayer target) {
                         hit.add(p.getUUID());
-                        level.sendParticles(ParticleTypes.LAVA, p.getX(), p.getY() + 1.0, p.getZ(),
-                                12, 0.3, 0.5, 0.3, 0.05);
+                        // 命中：低调的灵魂火与黑烟，而非张扬的岩浆迸溅
+                        level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, p.getX(), p.getY() + 1.0, p.getZ(),
+                                6, 0.2, 0.4, 0.2, 0.01);
+                        level.sendParticles(ParticleTypes.SMOKE, p.getX(), p.getY() + 1.0, p.getZ(),
+                                4, 0.2, 0.4, 0.2, 0.0);
                         comp.onFireArrowHit(sp, target);
                     }
                 }
@@ -82,8 +85,9 @@ public final class WizardSpells {
             }
         }
 
-        level.playSound(null, sp.blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 1.4f, 1.1f);
-        level.sendParticles(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 30, 0.3, 0.3, 0.3, 0.05);
+        // 用低沉的灵魂气音取代张扬的烈焰咆哮，并压低音量——不再向全场宣告杀手位置
+        level.playSound(null, sp.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.PLAYERS, 0.5f, 0.7f);
+        level.sendParticles(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 8, 0.2, 0.2, 0.2, 0.02);
     }
 
     /**

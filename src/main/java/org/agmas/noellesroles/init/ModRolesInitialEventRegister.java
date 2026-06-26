@@ -314,6 +314,9 @@ public class ModRolesInitialEventRegister {
             if (role.equals(ModRoles.RAVEN)) {
                 ModComponents.RAVEN.get(player).init();
             }
+            if (role.equals(ModRoles.AMON)) {
+                ModComponents.AMON.get(player).init();
+            }
             if (role.equals(ModRoles.ADVENTURER)) {
                 ModComponents.ADVENTURER.get(player).init();
             }
@@ -477,6 +480,22 @@ public class ModRolesInitialEventRegister {
                     PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(context.player());
                     return comp != null && comp.releaseLast();
                 }).announceToSelf(false).build());
+
+        // 阿蒙技能：G 键对准星玩家静默种下时之虫；Shift+G 主动夺舍最近的成熟宿主。
+        RoleSkill.register(ModRoles.AMON,
+                RoleSkill.skill(SRE.id("amon_plant_seed"), "skill.noellesroles.amon.plant_seed", context -> {
+                    ServerPlayer player = context.player();
+                    if (player.isSpectator()) return false;
+                    var comp = org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent.KEY.get(player);
+                    if (comp == null) return false;
+                    ServerPlayer target = context.target() == null ? null
+                            : (player.level().getPlayerByUUID(context.target()) instanceof ServerPlayer sp ? sp : null);
+                    return comp.plantSeed(target);
+                }).cooldownSeconds(20).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("amon_usurp"), "skill.noellesroles.amon.usurp", context -> {
+                    var comp = org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent.KEY.get(context.player());
+                    return comp != null && comp.usurpNearestMatured();
+                }).shifted(true).cooldownSeconds(45).announceToSelf(false).build());
 
         // 葬仪技能注册：使用当前模式的技能
         RoleSkill.register(ModRoles.MORTICIAN_BODYMAKER, context -> {

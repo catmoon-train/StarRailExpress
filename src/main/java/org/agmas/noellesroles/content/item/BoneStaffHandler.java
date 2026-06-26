@@ -27,58 +27,5 @@ import org.agmas.noellesroles.role.ModRoles;
  */
 public class BoneStaffHandler {
 
-    public static void register() {
-        AttackEntityCallback.EVENT.register(BoneStaffHandler::onEntityAttacked);
-    }
 
-    private static InteractionResult onEntityAttacked(Player attacker, Level level, InteractionHand hand,
-            Entity entity, EntityHitResult hitResult) {
-        if (level.isClientSide()) {
-            return InteractionResult.PASS;
-        }
-        if (!(attacker instanceof ServerPlayer serverAttacker)) {
-            return InteractionResult.PASS;
-        }
-        if (!(entity instanceof ServerPlayer victim)) {
-            return InteractionResult.PASS;
-        }
-        ItemStack stack = attacker.getItemInHand(hand);
-        if (!stack.is(ModItems.BONE_STAFF)) {
-            return InteractionResult.PASS;
-        }
-        if (!GameUtils.isPlayerAliveAndSurvival(serverAttacker) || !GameUtils.isPlayerAliveAndSurvival(victim)) {
-            return InteractionResult.PASS;
-        }
-        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
-        if (gameWorldComponent == null || !gameWorldComponent.isRole(serverAttacker, ModRoles.UNDEAD_LORD)) {
-            return InteractionResult.PASS;
-        }
-        if (victim.getUUID().equals(serverAttacker.getUUID())) {
-            return InteractionResult.PASS;
-        }
-
-        UndeadLordPlayerComponent comp = UndeadLordPlayerComponent.KEY.maybeGet(serverAttacker).orElse(null);
-        if (comp == null) {
-            return InteractionResult.PASS;
-        }
-
-        NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
-        comp.addInfection(victim, (float) config.undeadLordBoneStaffInfection);
-
-        // 消耗 1 点耐久
-        if (!attacker.isCreative()) {
-            stack.hurtAndBreak(1, attacker,
-                    hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-        }
-
-        level.playSound(null, attacker.blockPosition(), SoundEvents.SOUL_ESCAPE.value(),
-                SoundSource.PLAYERS, 0.7f, 0.9f);
-        serverAttacker.displayClientMessage(
-                Component.translatable("message.noellesroles.undead_lord.bone_staff_hit",
-                        (int) config.undeadLordBoneStaffInfection).withStyle(ChatFormatting.DARK_PURPLE),
-                true);
-
-        // 不触发普通攻击/击杀，仅注入感染
-        return InteractionResult.CONSUME;
-    }
 }

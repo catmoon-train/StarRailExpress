@@ -71,6 +71,7 @@ public class StupidExpress implements ModInitializer {
 
         // mod stuff
         SEItems.init();
+        pro.fazeclan.river.stupid_express.constants.SEEffects.init();
         SEModifiers.init();
         InitiateUtils.InitiateChange();
 

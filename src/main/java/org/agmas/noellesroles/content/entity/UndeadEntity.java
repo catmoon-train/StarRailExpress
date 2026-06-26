@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.content.entity;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +19,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -28,7 +28,6 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
@@ -40,10 +39,10 @@ import org.agmas.noellesroles.role.ModRoles;
  * <p>特性：
  * <ul>
  *   <li>使用死者生前的皮肤外观，周身环绕淡紫色雾气。</li>
- *   <li>未发现目标时在召唤点附近随机徘徊；发现 15 格内活人后直线追击。</li>
+ *   <li>未发现目标时在召唤点附近随机徘徊；发现 15 格内活人后无视墙壁直线穿墙追击（幽灵）。</li>
  *   <li>攻击不造成伤害，而是每 1.5 秒为目标增加感染值（由亡灵之主组件统一结算）。</li>
  *   <li>持续 90 秒后化为紫色烟雾消散；剩余 30 秒减速、剩余 10 秒闪烁示警。</li>
- *   <li>无法开门、无法使用道具，可走楼梯（寻路自动处理）。</li>
+ *   <li>无实体碰撞（穿墙、无重力悬浮），无法开门、无法使用道具。</li>
  * </ul>
  */
 public class UndeadEntity extends PathfinderMob {
@@ -63,12 +62,10 @@ public class UndeadEntity extends PathfinderMob {
     private static final double TOUCH_RANGE = 1.6D;
     private static final float INFECTION_PER_HIT = 15.0f;
     private static final double BASE_SPEED = 0.25D;
-    /** 重新选择目标的间隔（计算可抵达性较重，节流处理）。 */
+    /** 幽灵直线穿墙时的移动速度系数（相对 MOVEMENT_SPEED，避免无视墙壁后追击过强）。 */
+    private static final double GHOST_SPEED_FACTOR = 0.7D;
+    /** 重新选择目标的间隔（节流处理）。 */
     private static final int RETARGET_INTERVAL = 10;
-    /** 重新寻路的间隔（追击过程中周期性刷新路径）。 */
-    private static final int REPATH_INTERVAL = 10;
-    /** 单次重新选择时最多对几个最近目标做寻路可抵达性判定。 */
-    private static final int MAX_REACH_CHECKS = 4;
 
     /** 召唤者（亡灵之主）UUID，用于结算感染与统计存活数量。 */
     private UUID ownerUuid = null;
@@ -76,8 +73,6 @@ public class UndeadEntity extends PathfinderMob {
 
     private int remainingLifetime = DEFAULT_LIFETIME;
     private int attackCooldown = 0;
-    /** 灵魂锁链：> 0 时强制跟随召唤者移动。 */
-    private int followOwnerTicks = 0;
     private boolean slowedNearEnd = false;
     /** 当前追踪目标 UUID；周期性重新评估（优先可抵达目标）。 */
     private UUID currentTargetUuid = null;
@@ -154,17 +149,16 @@ public class UndeadEntity extends PathfinderMob {
         return remainingLifetime;
     }
 
-    /** 灵魂锁链：使亡灵跟随召唤者一段时间。 */
-    public void leashToOwner(int ticks) {
-        this.followOwnerTicks = ticks;
-    }
-
     @Override
     public void tick() {
         super.tick();
         if (!(level() instanceof ServerLevel serverLevel)) {
             return;
         }
+
+        // 幽灵特性：无实体碰撞（穿墙）+ 无重力悬浮，移动完全由下方逻辑手动驱动。
+        this.noPhysics = true;
+        this.setNoGravity(true);
 
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level());
         if (gameWorldComponent == null || !gameWorldComponent.isRunning()) {
@@ -209,19 +203,11 @@ public class UndeadEntity extends PathfinderMob {
             attackCooldown--;
         }
 
-        // 灵魂锁链：跟随召唤者
-        if (followOwnerTicks > 0) {
-            followOwnerTicks--;
-            getNavigation().moveTo(owner, 1.0D);
-            setTarget(null);
-            return;
-        }
-
         if (retargetCooldown > 0) {
             retargetCooldown--;
         }
 
-        // 当前目标若仍有效（存活、在感知范围内、可抵达）则保持，否则重新选择。
+        // 当前目标若仍有效（存活、在感知范围内）则保持，否则重新选择。穿墙后无需可抵达性判定。
         ServerPlayer victim = resolveCurrentTarget(serverLevel, gameWorldComponent);
         if (victim == null || retargetCooldown <= 0) {
             retargetCooldown = RETARGET_INTERVAL;
@@ -237,10 +223,8 @@ public class UndeadEntity extends PathfinderMob {
         if (victim != null) {
             setTarget(victim);
             getLookControl().setLookAt(victim);
-            // 周期性刷新寻路，避免目标移动后停滞。
-            if (getNavigation().isDone() || tickCount % REPATH_INTERVAL == 0) {
-                getNavigation().moveTo(victim, 1.0D);
-            }
+            // 幽灵穿墙：无视寻路，直线朝目标飞行。
+            ghostChase(victim);
 
             if (attackCooldown <= 0 && this.distanceToSqr(victim) <= TOUCH_RANGE * TOUCH_RANGE) {
                 performAttack(serverLevel, owner, victim);
@@ -250,7 +234,24 @@ public class UndeadEntity extends PathfinderMob {
         }
     }
 
-    /** 校验当前目标是否仍可作为攻击对象（存活、感知范围内、可抵达）。 */
+    /** 幽灵穿墙移动：朝目标中心直线推进，无视方块碰撞（noPhysics）。 */
+    private void ghostChase(ServerPlayer victim) {
+        getNavigation().stop();
+        Vec3 selfCenter = this.position().add(0, this.getBbHeight() * 0.5, 0);
+        Vec3 targetCenter = victim.position().add(0, victim.getBbHeight() * 0.5, 0);
+        Vec3 dir = targetCenter.subtract(selfCenter);
+        double dist = dir.length();
+        if (dist > 0.05) {
+            var attr = this.getAttribute(Attributes.MOVEMENT_SPEED);
+            double speed = (attr != null ? attr.getValue() : BASE_SPEED) * GHOST_SPEED_FACTOR;
+            Vec3 step = dir.scale(Math.min(speed, dist) / dist);
+            this.move(MoverType.SELF, step);
+        }
+        // 清空速度，避免 travel() 在无重力下叠加漂移。
+        this.setDeltaMovement(Vec3.ZERO);
+    }
+
+    /** 校验当前目标是否仍可作为攻击对象（存活、感知范围内）。 */
     private ServerPlayer resolveCurrentTarget(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent) {
         if (currentTargetUuid == null) {
             return null;
@@ -264,33 +265,16 @@ public class UndeadEntity extends PathfinderMob {
         if (this.distanceToSqr(victim) > PERCEPTION_RANGE * PERCEPTION_RANGE) {
             return null;
         }
-        // 当前目标已变得不可抵达：放弃，交由 selectBestTarget 切换到其它可抵达目标。
-        if (!isReachable(victim)) {
-            return null;
-        }
         return victim;
     }
 
-    /**
-     * 选择最佳目标：在感知范围内的候选目标中，优先返回最近的「可寻路抵达」目标；
-     * 若全部不可抵达，则退而追踪最近者（路径可能稍后打开）。
-     */
+    /** 选择最佳目标：感知范围内最近的有效目标（穿墙后所有目标皆可抵达）。 */
     private ServerPlayer selectBestTarget(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent) {
-        List<ServerPlayer> candidates = serverLevel.players().stream()
+        return serverLevel.players().stream()
                 .filter(p -> isValidVictim(p, gameWorldComponent))
                 .filter(p -> this.distanceToSqr(p) <= PERCEPTION_RANGE * PERCEPTION_RANGE)
-                .sorted(Comparator.comparingDouble(this::distanceToSqr))
-                .toList();
-        if (candidates.isEmpty()) {
-            return null;
-        }
-        int checks = Math.min(MAX_REACH_CHECKS, candidates.size());
-        for (int i = 0; i < checks; i++) {
-            if (isReachable(candidates.get(i))) {
-                return candidates.get(i);
-            }
-        }
-        return candidates.get(0);
+                .min(Comparator.comparingDouble(this::distanceToSqr))
+                .orElse(null);
     }
 
     /** 目标筛选条件：存活、冒险模式、非杀手阵营、非召唤者。 */
@@ -299,12 +283,6 @@ public class UndeadEntity extends PathfinderMob {
                 && GameUtils.isPlayerAliveAndSurvival(p)
                 && !p.getUUID().equals(ownerUuid)
                 && !gameWorldComponent.isKillerTeam(p);
-    }
-
-    /** 是否能寻路抵达目标。 */
-    private boolean isReachable(ServerPlayer victim) {
-        Path path = getNavigation().createPath(victim, 0);
-        return path != null && path.canReach();
     }
 
     /** 执行一次攻击：挥手、注入感染并造成真实伤害（归属于亡灵之主）。 */
@@ -347,9 +325,21 @@ public class UndeadEntity extends PathfinderMob {
         discard();
     }
 
+    /**
+     * 被左轮等枪械命中：直接摧毁该亡灵（任意持枪玩家均可击杀）。
+     * 由 {@code UndeadGunPayloadMixin} 在收到开枪数据包时调用，绕过常规伤害免疫。
+     */
+    public void shotByGun(ServerPlayer shooter) {
+        if (level() instanceof ServerLevel serverLevel) {
+            serverLevel.playSound(null, blockPosition(), SoundEvents.ZOMBIE_DEATH,
+                    SoundSource.HOSTILE, 1.0f, 0.7f);
+            disappear(serverLevel, false);
+        }
+    }
+
     @Override
     public boolean hurt(DamageSource damageSource, float amount) {
-        // 亡灵免疫常规伤害（仅随时间消散），但虚空伤害正常致死。
+        // 亡灵免疫常规伤害（仅随时间消散 / 被枪摧毁），但虚空伤害正常致死。
         if (damageSource.is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD)) {
             if (level() instanceof ServerLevel serverLevel) {
                 disappear(serverLevel, false);
@@ -390,7 +380,6 @@ public class UndeadEntity extends PathfinderMob {
             tag.putUUID("SkinUUID", skin);
         }
         tag.putInt("RemainingLifetime", remainingLifetime);
-        tag.putInt("FollowOwnerTicks", followOwnerTicks);
     }
 
     @Override
@@ -403,6 +392,5 @@ public class UndeadEntity extends PathfinderMob {
             this.entityData.set(SKIN_UUID, Optional.of(tag.getUUID("SkinUUID")));
         }
         remainingLifetime = tag.contains("RemainingLifetime") ? tag.getInt("RemainingLifetime") : DEFAULT_LIFETIME;
-        followOwnerTicks = tag.getInt("FollowOwnerTicks");
     }
 }

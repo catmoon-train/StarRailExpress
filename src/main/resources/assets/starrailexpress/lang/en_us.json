@@ -874,6 +874,7 @@
     "death_reason.starrailexpress.shot_innocent":  "Killed an innocent",
     "death_reason.starrailexpress.backfire":  "Gun backfire",
     "death_reason.starrailexpress.black_white":  "Monokuma trial failed",
+    "death_reason.starrailexpress.amon_usurp":  "Usurped by an unknown force",
     "death_reason.starrailexpress.self_explosion":  "Self-explosion",
     "replay.event.game.failed_kill":  "%s survived %s\u0027s attack.",
     "replay.event.game.gamemode.tnttag.transform":  "%s passed the Hot Potato to %s.",

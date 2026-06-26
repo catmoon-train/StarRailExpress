@@ -7,6 +7,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import pro.fazeclan.river.stupid_express.StupidExpress;
+import pro.fazeclan.river.stupid_express.constants.SEEffects;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
@@ -48,12 +51,22 @@ public class LighterItem extends Item {
         var dousedCountComponent = DousedPlayerComponent.KEY.get(player);
         var dousedCount = dousedCountComponent.dousedCount;
         if (dousedCount >= (int) (alivePlayers.size() * 0.3)) {
-            // 杀死所有存活且被泼油的玩家
+            // 点燃所有存活且被泼油的玩家：施加燃烧效果，期间持续着火，效果结束后才死亡
+            int burnTicks = Math.max(20,
+                    StupidExpress.CONFIG.rolesSection.arsonistSection.burnDurationSeconds * 20);
             for (ServerPlayer target : alivePlayers) {
-                if (DousedPlayerComponent.KEY.get(target).getDoused()) {
-                    GameUtils.killPlayer(target, true, player, StupidExpress.id("ignited"));
+                DousedPlayerComponent targetDoused = DousedPlayerComponent.KEY.get(target);
+                boolean wasDoused = targetDoused.getDoused();
+                targetDoused.reset();
+                if (wasDoused) {
+                    // 记录点燃者，燃烧结束时把击杀归属给纵火犯
+                    targetDoused.setBurningKiller(player.getUUID());
+                    target.addEffect(new MobEffectInstance(SEEffects.BURNING, burnTicks, 0, false, true, true));
+                    // 隐藏的防火效果：燃烧期间只着火不掉血，死亡时机交给燃烧效果掌控
+                    target.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, burnTicks + 20, 0, false, false,
+                            false));
+                    target.setRemainingFireTicks(40);
                 }
-                DousedPlayerComponent.KEY.get(target).reset();
             }
             // 重置计数器
             player.playNotifySound(SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0f, 1.0f);

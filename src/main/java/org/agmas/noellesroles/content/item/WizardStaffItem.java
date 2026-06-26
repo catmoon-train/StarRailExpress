@@ -2,7 +2,9 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.api.ChargeableItem;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -12,6 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 
@@ -43,6 +46,24 @@ public class WizardStaffItem extends Item implements ChargeableItem, SREItemProp
             return; // 蓄力不足
         }
         WizardPlayerComponent.KEY.get(sp).castStaff(sp);
+    }
+
+    @Override
+    public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseTicks) {
+        if (!(level instanceof ServerLevel sl) || !(entity instanceof ServerPlayer sp)) {
+            return;
+        }
+        int chargeTime = getUseDuration(stack, entity) - remainingUseTicks;
+        if (chargeTime < MAX_CHARGE_TICKS / 2) {
+            return; // 蓄力不足时不显形，保持隐蔽
+        }
+        // 杖端凝聚稀疏的灵魂火与黑烟：低调、阴冷，暗示一击毙命而非招摇
+        Vec3 look = sp.getViewVector(1.0f).normalize();
+        Vec3 tip = sp.getEyePosition().add(look.scale(0.8)).add(0, -0.2, 0);
+        sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, tip.x, tip.y, tip.z, 1, 0.05, 0.05, 0.05, 0.0);
+        if (chargeTime % 2 == 0) {
+            sl.sendParticles(ParticleTypes.SMOKE, tip.x, tip.y, tip.z, 1, 0.04, 0.04, 0.04, 0.0);
+        }
     }
 
     @Override

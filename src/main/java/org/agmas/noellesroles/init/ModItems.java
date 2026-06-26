@@ -613,6 +613,17 @@ public class ModItems {
             new org.agmas.noellesroles.content.item.BoneStaffItem(
                     new Item.Properties().stacksTo(1).durability(5)),
             "bone_staff", WEAPONS_GROUP);
+    /**
+     * 格罗赛尔游记
+     * - 右键蓄力1秒将瞄准的目标玩家放逐进游记（配置坐标）
+     * - 游记内无法攻击/受伤、无法使用技能/物品，死亡改判为持有者击杀
+     * - 站上信标即可回归被放逐前的位置
+     * - 使用后进入75秒冷却
+     */
+    public static final Item GROSELL_TRAVELOG = register(
+            new org.agmas.noellesroles.content.item.GrosellTravelogItem(
+                    new Item.Properties().stacksTo(1)),
+            "grosell_travelog", ROLE_ITEMS_GROUP);
     public static final Item LEON_BLUE_HERB = register(
             new org.agmas.noellesroles.content.item.LeonBlueHerbItem(
                     new Item.Properties().stacksTo(1)),

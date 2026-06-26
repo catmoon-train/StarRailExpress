@@ -186,6 +186,7 @@ public class GameConstants {
     public static class DeathReasons {
         public static ResourceLocation DISCONNECT = SRE.id("disconnected");
         public static ResourceLocation BLACK_WHITE_TIMEOUT = SRE.id("black_white");
+        public static ResourceLocation AMON_USURP = SRE.id("amon_usurp");
         public static ResourceLocation BACKFIRE = SRE.id("backfire");
         public static ResourceLocation EXECUTE = SRE.id("execute");
         public static ResourceLocation GENERIC = SRE.id("generic");

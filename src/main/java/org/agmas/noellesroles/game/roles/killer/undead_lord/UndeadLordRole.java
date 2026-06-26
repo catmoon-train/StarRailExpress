@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * 亡灵之主（杀手阵营，控场 / 滚雪球）。
- * 专属商店出售骨杖、亡灵延命药剂、瘟疫之雾、亡者召唤符、感染增幅器、灵魂锁链、时之沙漏。
+ * 专属商店精简为四件核心道具：骨杖、瘟疫之雾、亡者召唤符、感染增幅器（外加通用撬棍）。
  */
 public class UndeadLordRole extends NormalRole {
 
@@ -46,11 +46,6 @@ public class UndeadLordRole extends NormalRole {
         entries.add(new ShopEntry(org.agmas.noellesroles.init.ModItems.BONE_STAFF.getDefaultInstance(),
                 config().undeadLordBoneStaffPrice, ShopEntry.Type.WEAPON));
 
-        // 亡灵延命药剂：所有现存亡灵 +30 秒
-        entries.add(effectEntry(Items.GLISTERING_MELON_SLICE, 80, "life_elixir", comp -> {
-            comp.extendAllUndead(30 * 20);
-        }));
-
         // 瘟疫之雾：在所在位置释放毒雾
         entries.add(effectEntry(Items.FERMENTED_SPIDER_EYE, 120, "plague_fog", comp -> {
             comp.releasePlagueFog(config().undeadLordFogSeconds * 20);
@@ -66,15 +61,6 @@ public class UndeadLordRole extends NormalRole {
             comp.startInfectionAmp(config().undeadLordAmpSeconds * 20);
         }));
 
-        // 灵魂锁链：绑定一个亡灵跟随自己 20 秒
-        entries.add(effectEntry(Items.CHAIN, 60, "soul_chain", comp -> {
-            comp.soulChainNearest(config().undeadLordSoulChainSeconds * 20);
-        }));
-
-        // 时之沙漏：重置所有现存亡灵持续时间为满值
-        entries.add(effectEntry(Items.CLOCK, 200, "hourglass", comp -> {
-            comp.resetAllUndeadLifetime();
-        }));
         entries.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 100, dev.doctor4t.wathe.util.ShopEntry.Type.TOOL));
 
         return entries;

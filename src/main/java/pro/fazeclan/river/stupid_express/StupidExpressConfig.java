@@ -25,6 +25,8 @@ public class StupidExpressConfig implements ConfigData {
 
         public static class ArsonistSection {
             public boolean arsonistKeepsGameGoing = true;
+            // 点燃后，目标在死亡前持续燃烧的时间（秒）。期间目标身上着火，时间结束才死亡。
+            public int burnDurationSeconds = 5;
         }
 
         @CollapsibleObject

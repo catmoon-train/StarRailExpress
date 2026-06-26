@@ -9,12 +9,20 @@ import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class InvisbleHandItem {
 
     public static void register() {
+        // 怀旧者里世界：隐藏手持物品（主手 + 副手）
+        AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
+            if (player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD)) {
+                return ItemStack.EMPTY;
+            }
+            return null; // 不修改
+        });
         // 显示手铐
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
             if (mainHand)

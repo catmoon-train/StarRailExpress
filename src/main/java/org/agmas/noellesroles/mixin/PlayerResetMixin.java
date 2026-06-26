@@ -178,6 +178,9 @@ public abstract class PlayerResetMixin {
         }
         skincrawlerComp.clear();
 
+        // 清除阿蒙组件状态并通知客户端还原伪装皮肤
+        ModComponents.AMON.get(player).clear();
+
         // 清除傀儡师组件状态
         PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(player);
         puppeteerComp.clear();

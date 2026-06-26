@@ -390,6 +390,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientEmbalmerState.register();
         ClientSkincrawlerState.register();
+        org.agmas.noellesroles.client.ClientAmonState.register();
         CommonClientHudRenderer.registerRenderersEvent();
         MenuScreens.register(ModMenus.HOTBAR_STORAGE, HotbarStorageScreen::new);
         WorldRenderEvents.AFTER_TRANSLUCENT.register((renderContext) -> {
@@ -1120,6 +1121,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                         bits |= org.agmas.noellesroles.packet.ManipulatorControlInputC2SPacket.BIT_JUMP;
                     if (client.options.keySprint.isDown())
                         bits |= org.agmas.noellesroles.packet.ManipulatorControlInputC2SPacket.BIT_SPRINT;
+                    if (client.options.keyUse.isDown())
+                        bits |= org.agmas.noellesroles.packet.ManipulatorControlInputC2SPacket.BIT_USE;
                     ClientPlayNetworking.send(new org.agmas.noellesroles.packet.ManipulatorControlInputC2SPacket(
                             bits, client.player.getYRot(), client.player.getXRot(), false));
                 }

@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -166,14 +167,23 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
 
     // ==================== 感染 ====================
 
-    /** 亡灵攻击命中：为目标增加感染值（受感染增幅影响）。 */
+    /** 亡灵攻击命中：为目标增加感染值（受感染增幅影响），每次成功注入感染奖励亡灵之主金币。 */
     public void addInfection(ServerPlayer victim, float amount) {
         if (infectionAmpTicks > 0) {
             amount *= 2.0f;
         }
         float current = infection.getOrDefault(victim.getUUID(), 0f);
         float next = Math.min(100f, current + amount);
+        if (next <= current) {
+            // 目标感染已满，未实际注入，不奖励金币
+            return;
+        }
         infection.put(victim.getUUID(), next);
+
+        int reward = config().undeadLordInfectionCoinReward;
+        if (reward != 0 && player instanceof ServerPlayer lord) {
+            PlayerEconomyManager.addCoinNum(lord, reward);
+        }
     }
 
     /** 瘟疫之雾区域感染（不受增幅器影响，固定值）。 */
@@ -183,16 +193,6 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     // ==================== 商店效果 ====================
-
-    /** 亡灵延命药剂：所有现存亡灵 +30 秒。 */
-    public void extendAllUndead(int ticks) {
-        forEachUndead(u -> u.addLifetime(ticks));
-    }
-
-    /** 时之沙漏：所有现存亡灵持续时间重置为满值。 */
-    public void resetAllUndeadLifetime() {
-        forEachUndead(u -> u.setLifetime(UndeadEntity.DEFAULT_LIFETIME));
-    }
 
     /** 亡者召唤符：在自身周围召唤临时亡灵（无需尸体）。 */
     public void summonTemporaryUndead(int count, int lifetimeTicks) {
@@ -213,43 +213,9 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
         sync();
     }
 
-    /** 灵魂锁链：将最近的一个亡灵绑定到自己身边一段时间。 */
-    public boolean soulChainNearest(int ticks) {
-        if (!(player.level() instanceof ServerLevel serverLevel)) {
-            return false;
-        }
-        UndeadEntity nearest = null;
-        double best = Double.MAX_VALUE;
-        for (UUID id : ownedUndead) {
-            if (serverLevel.getEntity(id) instanceof UndeadEntity u) {
-                double d = u.distanceToSqr(player);
-                if (d < best) {
-                    best = d;
-                    nearest = u;
-                }
-            }
-        }
-        if (nearest != null) {
-            nearest.leashToOwner(ticks);
-            return true;
-        }
-        return false;
-    }
-
     /** 瘟疫之雾：在自身位置释放毒雾。 */
     public void releasePlagueFog(int ticks) {
         fogZones.add(new FogZone(player.position(), ticks));
-    }
-
-    private void forEachUndead(java.util.function.Consumer<UndeadEntity> action) {
-        if (!(player.level() instanceof ServerLevel serverLevel)) {
-            return;
-        }
-        for (UUID id : ownedUndead) {
-            if (serverLevel.getEntity(id) instanceof UndeadEntity u) {
-                action.accept(u);
-            }
-        }
     }
 
     // ==================== 每 tick ====================

@@ -149,6 +149,28 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x4B0082));
 
     /**
+     * 怀旧者·里世界状态标记
+     * - 中性效果，灰白色
+     * - 由 {@code NostalgistPlayerComponent} 在里世界期间每 tick 维持，驱动客户端独立的灰白滤镜
+     *   shader（{@code TimeStopShader} 的 {@code nostalgist_gray} pass）并隐藏手持物品
+     *   （{@code InvisbleHandItem}）。禁止说话/使用物品则由 {@link #CHAT_BAN} / {@link #VOICE_SILENCE}
+     *   / {@link #USED_BANED} 一并施加。
+     */
+    public static final Holder<MobEffect> NOSTALGIST_BACKWORLD = register("nostalgist_backworld",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xBFBFBF));
+
+    /**
+     * 脚步消失
+     * - 中性效果，灰色
+     * - 拥有者的脚步声不会被任何人听到、疾跑粒子不显示（行为见
+     *   {@code org.agmas.noellesroles.mixin.FootstepVanishMixin} 对 {@code playStepSound} /
+     *   {@code canSpawnSprintParticle} 的拦截）。由 {@code FootstepVanishEffectSync} 广播给所有客户端，
+     *   使其它玩家侧运行的拦截也能查到该效果，从而真正做到“别人听不到脚步”。
+     */
+    public static final Holder<MobEffect> FOOTSTEP_VANISH = register("footstep_vanish",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x9E9E9E));
+
+    /**
      * san值消耗减缓
      * - 有益效果
      * - 降低 mood 的自然消耗速度
@@ -379,6 +401,8 @@ public class ModEffects {
         // 把伪装效果同步给所有客户端，否则观察者客户端查不到其他玩家的伪装，
         // 导致“伪装只有自己能看到”。
         io.wifi.starrailexpress.content.item.DisguiseEffectSync.init();
+        // 把“脚步消失”效果同步给所有客户端，否则其它玩家侧的脚步声/疾跑粒子拦截查不到该效果。
+        org.agmas.noellesroles.init.FootstepVanishEffectSync.init();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (pierceDeath) {
                 pierceDeath = false;

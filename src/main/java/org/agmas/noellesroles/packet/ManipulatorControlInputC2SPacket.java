@@ -15,7 +15,7 @@ import org.agmas.noellesroles.Noellesroles;
  * <p>{@code stop=true} 表示请求立即结束操控（例如打开背包时）。
  *
  * <p>movementBits 位定义：
- * 1=前进, 2=后退, 4=左, 8=右, 16=跳跃, 32=潜行/疾跑。
+ * 1=前进, 2=后退, 4=左, 8=右, 16=跳跃, 32=潜行/疾跑, 64=使用/交互（开门等）。
  */
 public record ManipulatorControlInputC2SPacket(int movementBits, float yaw, float pitch, boolean stop)
         implements CustomPacketPayload {
@@ -26,6 +26,7 @@ public record ManipulatorControlInputC2SPacket(int movementBits, float yaw, floa
     public static final int BIT_RIGHT = 8;
     public static final int BIT_JUMP = 16;
     public static final int BIT_SPRINT = 32;
+    public static final int BIT_USE = 64;
 
     public static final ResourceLocation PAYLOAD_ID =
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "manipulator_control_input");

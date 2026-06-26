@@ -5,6 +5,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
@@ -24,6 +27,10 @@ public class DousedPlayerComponent implements ServerTickingComponent, ClientTick
 
     public int dousedCount = 0;
 
+    // 点燃此玩家的纵火犯 UUID。被点燃后进入燃烧状态，燃烧结束时据此把击杀归属给纵火犯。
+    @Nullable
+    private UUID burningKiller = null;
+
     public boolean getDoused() {
         return this.doused;
     }
@@ -31,6 +38,15 @@ public class DousedPlayerComponent implements ServerTickingComponent, ClientTick
     public void setDoused(boolean douse) {
         this.doused = douse;
         this.sync();
+    }
+
+    @Nullable
+    public UUID getBurningKiller() {
+        return this.burningKiller;
+    }
+
+    public void setBurningKiller(@Nullable UUID killer) {
+        this.burningKiller = killer;
     }
 
     public DousedPlayerComponent(Player player) {
@@ -74,12 +90,16 @@ public class DousedPlayerComponent implements ServerTickingComponent, ClientTick
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.doused = tag.contains("doused") && tag.getBoolean("doused");
         this.dousedCount = tag.contains("dousedCount") ? tag.getInt("dousedCount") : 0;
+        this.burningKiller = tag.hasUUID("burningKiller") ? tag.getUUID("burningKiller") : null;
     }
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("doused", this.doused);
         tag.putInt("dousedCount", this.dousedCount);
+        if (this.burningKiller != null) {
+            tag.putUUID("burningKiller", this.burningKiller);
+        }
     }
 
 }

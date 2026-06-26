@@ -3,6 +3,7 @@ package org.agmas.noellesroles.game.roles.killer.manipulator;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.event.AllowPlayerControlled;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -10,6 +11,8 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,18 +27,21 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * 操纵师组件（操控者侧）。
  *
- * <p>玩法：潜行盯着目标背后 6 秒进行标记（标记后目标短暂反胃、操纵师 +15 金币）；
- * 之后在 100 格内，于背包点击已标记目标头像即可附身操控——相机绑定到目标、远程驱动其移动、
+ * <p>玩法：潜行盯着目标 4 秒进行标记（标记后目标短暂反胃、操纵师 +15 金币），可标记保存多个目标；
+ * 之后在 100 格内，于背包点击任一已标记目标头像即可附身操控——相机绑定到目标、远程驱动其移动、
  * 可以目标身份释放目标技能（冷却记在目标身上）。附身期间操纵师本体被冻结并获得无敌保护。
  *
  * @see InControlCCA 被操控者侧
@@ -58,8 +64,8 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     /** 当前正在操控的目标（附身中） */
     public UUID target;
 
-    /** 已标记、可被点击操控的目标（一次只能标记一人） */
-    public UUID markedTarget;
+    /** 已标记、可被点击操控的目标（可保存多个，按标记顺序排列） */
+    public final Set<UUID> markedTargets = new LinkedHashSet<>();
 
     public boolean isControlling;
 
@@ -80,7 +86,6 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     public ManipulatorPlayerComponent(Player player) {
         this.player = player;
         this.target = null;
-        this.markedTarget = null;
         this.isControlling = false;
         this.cooldown = 0;
     }
@@ -95,7 +100,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             sp.setInvulnerable(false);
         }
         this.target = null;
-        this.markedTarget = null;
+        this.markedTargets.clear();
         this.isControlling = false;
         this.cooldown = 0;
         this.staringAt = null;
@@ -113,7 +118,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             sp.setInvulnerable(false);
         }
         this.target = null;
-        this.markedTarget = null;
+        this.markedTargets.clear();
         this.isControlling = false;
         this.cooldown = 0;
         this.staringAt = null;
@@ -141,7 +146,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             return;
 
         // 必须是已标记目标
-        if (!targetUuid.equals(markedTarget)) {
+        if (!markedTargets.contains(targetUuid)) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.manipulator.not_marked")
                     .withStyle(ChatFormatting.RED), true);
             return;
@@ -298,11 +303,22 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             return;
         }
 
-        // 未附身：处理潜行盯人标记
-        tickMarking(sp);
+        // 未附身：处理潜行盯人标记（仅对操纵师本人生效，避免其他职业也能凝视标记）
+        if (isActiveManipulator()) {
+            tickMarking(sp);
+        } else {
+            resetStare();
+        }
     }
 
     // ==================== 标记逻辑 ====================
+
+    /** 当前玩家是否为存活的操纵师（服务端判定） */
+    private boolean isActiveManipulator() {
+        if (player == null || player.level().isClientSide())
+            return false;
+        return SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.MANIPULATOR);
+    }
 
     private void resetStare() {
         staringAt = null;
@@ -335,9 +351,8 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
         }
 
         if (markProgressTicks >= need) {
-            // 避免对同一目标反复刷取
-            if (!candidate.getUUID().equals(markedTarget)) {
-                markedTarget = candidate.getUUID();
+            // 避免对同一目标反复刷取（可保存多个目标）
+            if (markedTargets.add(candidate.getUUID())) {
                 candidate.addEffect(new MobEffectInstance(MobEffects.CONFUSION,
                         GameConstants.getInTicks(0, config().manipulatorMarkNauseaSeconds), 0));
                 PlayerEconomyManager.addCoinNum(sp, config().manipulatorMarkReward);
@@ -352,7 +367,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     /**
-     * 在潜行状态下，寻找操纵师正盯着、且操纵师位于其身后、在标记范围内、视线无遮挡的目标。
+     * 在潜行状态下，寻找操纵师正盯着、在标记范围内、视线无遮挡的目标。
      */
     private ServerPlayer findStareCandidate(ServerPlayer sp) {
         double maxRange = config().manipulatorMarkRange;
@@ -385,12 +400,6 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             if (dot <= bestDot)
                 continue;
 
-            // 是否位于目标背后：目标朝向与"目标→操纵师"方向同向时，说明面朝操纵师（不算背后）
-            Vec3 targetLook = other.getViewVector(1.0f);
-            Vec3 targetToController = eye.subtract(targetEye).normalize();
-            if (targetLook.dot(targetToController) > -0.1)
-                continue;
-
             // 视线遮挡判定
             HitResult clip = sp.level().clip(new ClipContext(eye, targetEye,
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, sp));
@@ -408,16 +417,22 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
         if (this.target != null) {
             tag.putUUID("target", this.target);
         }
-        if (this.markedTarget != null) {
-            tag.putUUID("markedTarget", this.markedTarget);
+        ListTag markedList = new ListTag();
+        for (UUID marked : this.markedTargets) {
+            markedList.add(NbtUtils.createUUID(marked));
         }
+        tag.put("markedTargets", markedList);
         tag.putBoolean("isControlling", this.isControlling);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.target = tag.hasUUID("target") ? tag.getUUID("target") : null;
-        this.markedTarget = tag.hasUUID("markedTarget") ? tag.getUUID("markedTarget") : null;
+        this.markedTargets.clear();
+        ListTag markedList = tag.getList("markedTargets", net.minecraft.nbt.Tag.TAG_INT_ARRAY);
+        for (int i = 0; i < markedList.size(); i++) {
+            this.markedTargets.add(NbtUtils.loadUUID(markedList.get(i)));
+        }
         this.isControlling = tag.contains("isControlling") && tag.getBoolean("isControlling");
     }
 

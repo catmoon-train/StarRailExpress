@@ -29,6 +29,7 @@
   "death_reason.stupid_express.failed_ignite": "点火失败",
   "death_reason.starrailexpress.failed_ignite": "点火失败",
   "death_reason.stupid_express.ignited": "欲火焚身",
+  "effect.stupid_express.arsonist_burning": "燃烧",
   "death_reason.stupid_express.loose_end": "亡命徒失败",
   "death_reason.starrailexpress.ignited": "欲火焚身",
   "announcement.star.goals.stupid_express.necromancer": "复活死者，让他们为你效力",

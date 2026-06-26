@@ -204,6 +204,11 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
     public void initializeRolePool(ServerLevel serverWorld, List<ServerPlayer> players) {
         rolePool.clear();
         totalPlayerCount = players.size();
+        // 职业轮选是“轮抽/选秀”模式：玩家应能抽到所有满足人数/地图条件的职业，不应受每局随机刷新概率
+        // (enableChance)的影响。GameInitializeEvent 中的 autoRoleMaxCount 会先按概率把这些职业的 ROLE_MAX
+        // 掷成 0（例如亡灵之主只有 25% 概率），导致它们在轮抽池里永远抽不到。这里在建池前，按“忽略随机概率”
+        // 的方式恢复这些职业的可选名额。
+        applyDraftRoleMaximums(serverWorld, players);
         // 人数<=12时固定6, 12<人数<24时ceil(人数/2), 人数>=24时floor(人数/2+人数/7)
         if (totalPlayerCount <= 12) {
             finalPhaseThreshold = 6;
@@ -283,6 +288,64 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
 
         // 随机分配轮选序号（按卡片类型分段）
         assignRotationOrder(players);
+    }
+
+    /**
+     * 轮抽建池前调用：恢复“仅因每局随机刷新概率而被掷为 0”的职业名额，使其能进入轮抽池供玩家选择。
+     * <p>
+     * 只处理本身声明了刷新概率（{@code spawnInfo.enableChance >= 0}）的普通概率职业；其余仍然生效的限制：
+     * <ul>
+     * <li>{@code defaultMaxCount == -1}（声明“不调整刷新数量”）的职业保持现状，不动；</li>
+     * <li>被本局地图限制（{@link io.wifi.starrailexpress.roster.MapRestrictionGate}）挡住的职业排除；</li>
+     * <li>人数门槛、地图专属列表仍然生效；</li>
+     * <li>{@code enableChance < 0} 的职业（彩蛋/东方/特警等由专门类别逻辑控制的职业）不受影响。</li>
+     * </ul>
+     * 仅在建池阶段抬高 ROLE_MAX，不会降低任何已配置值；轮抽模式的实际分配走选秀流程而非 ROLE_MAX，
+     * 且下一局 GameInitializeEvent 会重新计算 ROLE_MAX，故此处修改是安全的。
+     */
+    private void applyDraftRoleMaximums(ServerLevel serverWorld, List<ServerPlayer> players) {
+        String mapName = "unknown";
+        var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverWorld);
+        if (areas != null && areas.mapName != null) {
+            mapName = areas.mapName;
+        }
+        int playerCount = players.size();
+        for (SRERole role : TMMRoles.ROLES.values()) {
+            // 声明“不调整刷新数量”的职业，保持现状。
+            if (role.defaultMaxCount == -1) {
+                continue;
+            }
+            // 只恢复本可随机刷新的职业；enableChance < 0 的职业由专门类别逻辑（彩蛋/东方/特警等）控制，不动。
+            if (role.spawnInfo.enableChance < 0) {
+                continue;
+            }
+            // 地图限制仍然生效：被本局地图限制挡住的职业不应进入轮抽池。
+            if (io.wifi.starrailexpress.roster.MapRestrictionGate.isRoleForbidden(role.identifier())) {
+                continue;
+            }
+            // 人数门槛仍然生效。
+            int minPlayer = role.spawnInfo.minEnabledPlayer;
+            if (minPlayer >= 0 && playerCount < minPlayer) {
+                continue;
+            }
+            int maxPlayer = role.spawnInfo.maxEnabledPlayer;
+            if (maxPlayer >= 0 && playerCount > maxPlayer) {
+                continue;
+            }
+            // 地图专属列表仍然生效。
+            if (!role.spawnInfo.map.isEmpty() && !role.spawnInfo.map.contains(mapName)) {
+                continue;
+            }
+            // 与 getRoundMaxCount 命中时一致：使用 maxSpawn 作为该职业本局的可选名额。
+            int draftMax = role.spawnInfo.maxSpawn;
+            if (draftMax <= 0) {
+                continue;
+            }
+            int current = Harpymodloader.ROLE_MAX.getOrDefault(role.identifier(), 0);
+            if (current < draftMax) {
+                Harpymodloader.setRoleMaximum(role.identifier(), draftMax);
+            }
+        }
     }
 
     private void assignRotationOrder(List<ServerPlayer> players) {

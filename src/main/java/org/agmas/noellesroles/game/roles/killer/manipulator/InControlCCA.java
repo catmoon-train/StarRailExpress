@@ -8,10 +8,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
@@ -45,6 +50,8 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
     private float inputPitch;
     private int inputFreshTicks = 0;
     private double verticalVelocity = 0;
+    // 使用/交互键边沿检测（避免一次按键反复触发，如反复开关门）
+    private boolean useHeldLast = false;
 
     // ==================== 防虚空：最近安全落点 ====================
     private boolean hasSafePos = false;
@@ -76,6 +83,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
         inputBits = 0;
         inputFreshTicks = 0;
         verticalVelocity = 0;
+        useHeldLast = false;
         hasSafePos = false;
     }
 
@@ -193,6 +201,13 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
             sp.setXRot(inputPitch);
         }
 
+        // 使用/交互（开门等）：仅在按键的上升沿触发一次
+        boolean useHeld = fresh && (inputBits & ManipulatorControlInputC2SPacket.BIT_USE) != 0;
+        if (useHeld && !useHeldLast) {
+            tryUseInteraction(sp);
+        }
+        useHeldLast = useHeld;
+
         // 水平方向（基于操纵师朝向）
         double f = 0, l = 0;
         if (fresh) {
@@ -244,6 +259,30 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
         sp.hasImpulse = true;
 
         if (inputFreshTicks > 0) inputFreshTicks--;
+    }
+
+    /**
+     * 以被操控者身份对其准星方向的方块进行一次"使用"交互（开门、按按钮、拉拉杆等）。
+     *
+     * <p>仅触发方块自身的交互（{@link net.minecraft.world.level.block.state.BlockState#useWithoutItem}），
+     * 不会使用目标手中的物品（避免操纵师借此开枪/消耗目标道具）；同时由于直接走服务端逻辑，
+     * 不受目标身上 USED_BANED（仅在客户端拦截按键）的影响。
+     */
+    private void tryUseInteraction(ServerPlayer sp) {
+        double reach = 4.5;
+        Vec3 eye = sp.getEyePosition();
+        Vec3 look = sp.getViewVector(1.0f);
+        Vec3 end = eye.add(look.scale(reach));
+        BlockHitResult hit = sp.level().clip(new ClipContext(eye, end,
+                ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, sp));
+        if (hit.getType() != HitResult.Type.BLOCK)
+            return;
+
+        InteractionResult result = sp.level().getBlockState(hit.getBlockPos())
+                .useWithoutItem(sp.level(), sp, hit);
+        if (result.consumesAction()) {
+            sp.swing(InteractionHand.MAIN_HAND, true);
+        }
     }
 
     @Override

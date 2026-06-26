@@ -114,6 +114,14 @@ public class CustomWinnerClass {
                 }
             }
 
+            // 阿蒙「终幕·寻找阿蒙」：存在持有寄宿体的存活阿蒙时进入终幕并阻止常规结算；
+            // 终幕结束（撑过 2 分钟或杀光众人）由组件自身宣布 CUSTOM 胜利。
+            WinStatus amonResult = org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent
+                    .handleGameEnd(serverLevel, winStatus);
+            if (amonResult != WinStatus.NOT_MODIFY) {
+                return amonResult;
+            }
+
             // 鹈鹕存活时检查独立胜利
             if (PelicanPlayerComponent.checkPelicanVictory(serverLevel)) {
                 return WinStatus.CUSTOM;

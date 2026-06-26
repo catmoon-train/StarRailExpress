@@ -295,6 +295,7 @@ public class ModRoles {
     public static final ResourceLocation SKINCRAWLER_ID = Noellesroles.id("skincrawler");
     public static final ResourceLocation CANDLE_BEARER_ID = Noellesroles.id("candlebearer");
     public static final ResourceLocation RAVEN_ID = Noellesroles.id("raven");
+    public static final ResourceLocation AMON_ID = Noellesroles.id("amon");
     public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
     // 占卜家角色 ID
     public static final ResourceLocation DIVINER_ID = Noellesroles.id("diviner");
@@ -2092,6 +2093,28 @@ public class ModRoles {
             Integer.MAX_VALUE,
             true)).setComponentKey(RavenPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setDefaultEnableNeededPlayerCount(10);
+
+    /**
+     * 阿蒙（诡秘之主）—— 中立独立胜利角色，核心机制「寄生」。
+     * - 中立独立胜利 (setNeutrals(true)，setNeutralForKiller(false) 杀手视角为好人)
+     * - 无武器、不开杀手商店、不能捡枪、无杀手直觉
+     * - 隐秘种下时之虫同化他人，可主动夺舍 / 致命伤时自动夺舍续命
+     * - 胜利条件「夺舍并幸存」在 CustomWinnerClass 判定
+     */
+    public static SRERole AMON = TMMRoles.registerRole(new NormalRole(
+            AMON_ID,
+            new Color(120, 110, 140).getRGB(),
+            false,
+            false,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true))
+            .setComponentKey(org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent.KEY)
+            .setNeutrals(true).setNeutralForKiller(false)
+            .setCanSeeTeammateKiller(false).setCanPickUpRevolver(false)
+            .setCanUseInstinct(false).setCanSeeCoin(true)
+            .setCanBeRandomedByOtherRoles(false).setDefaultMax(0)
             .setDefaultEnableNeededPlayerCount(10);
 
     /**

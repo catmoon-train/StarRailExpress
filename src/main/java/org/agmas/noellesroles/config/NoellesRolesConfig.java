@@ -325,12 +325,17 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Nostalgist (怀旧者) - Coins granted each passive payout while in the back world
      */
-    public int nostalgistBackWorldIncomeAmount = 50;
+    public int nostalgistBackWorldIncomeAmount = 35;
 
     /**
      * Nostalgist (怀旧者) - Coins granted when leaving the back world (manual or forced collapse)
      */
     public int nostalgistCollapseReward = 100;
+
+    /**
+     * Nostalgist (怀旧者) - Wind-up time in ticks before manually leaving the back world (20 ticks = 1s, default 1.5s)
+     */
+    public int nostalgistCollapseWindupTicks = 30;
 
     /**
      * Jade General (玉将军) - Flying kick cooldown in seconds
@@ -367,7 +372,7 @@ public class NoellesRolesConfig implements ConfigData {
 
     // ==================== Photographer (摄影师) 画框传送 ====================
     /** Photographer - 画框单价（金币） */
-    public int photographerFramePrice = 200;
+    public int photographerFramePrice = 150;
     /** Photographer - 每局最多购买画框次数 */
     public int photographerFrameMaxBuy = 2;
     /** Photographer - 穿越画框赋予的失明秒数 */
@@ -462,8 +467,8 @@ public class NoellesRolesConfig implements ConfigData {
     public int undeadLordCharmLifetimeSeconds = 45;
     /** Undead Lord - Infection Amplifier duration in seconds (undead infection doubled) */
     public int undeadLordAmpSeconds = 60;
-    /** Undead Lord - Soul Chain follow duration in seconds */
-    public int undeadLordSoulChainSeconds = 20;
+    /** Undead Lord - Coins awarded each time infection is successfully injected (bone staff / undead attack); 0 disables */
+    public int undeadLordInfectionCoinReward = 100;
     /** Undead Lord - Bone Staff durability (number of hits) */
     public int undeadLordBoneStaffDurability = 5;
     /** Undead Lord - Bone Staff infection added per hit (0~100) */
@@ -472,6 +477,19 @@ public class NoellesRolesConfig implements ConfigData {
     public int undeadLordBoneStaffPrice = 130;
     /** Undead Lord - Real damage each undead deals to a player per attack (HP, 0=disabled) */
     public double undeadLordUndeadAttackDamage = 1.0;
+
+    /** 格罗赛尔游记 (Groselle Travelog) - 放逐目标坐标 X */
+    public int grosellTravelogBanishX = -100;
+    /** 格罗赛尔游记 (Groselle Travelog) - 放逐目标坐标 Y */
+    public int grosellTravelogBanishY = 50;
+    /** 格罗赛尔游记 (Groselle Travelog) - 放逐目标坐标 Z */
+    public int grosellTravelogBanishZ = 21000;
+    /** 格罗赛尔游记 - 蓄力时间（秒），蓄满后才会放逐目标 */
+    public double grosellTravelogChargeSeconds = 1.0;
+    /** 格罗赛尔游记 - 使用冷却（秒） */
+    public int grosellTravelogCooldownSeconds = 75;
+    /** 格罗赛尔游记 - 瞄准放逐目标的最大距离（格） */
+    public double grosellTravelogRange = 6;
 
     /** Leon (里昂) - Combat skill (kick) cooldown in seconds */
     public int leonKickCooldown = 12;
@@ -553,7 +571,7 @@ public class NoellesRolesConfig implements ConfigData {
     /**
      * Manipulator - Seconds of uninterrupted staring required to mark a target
      */
-    public int manipulatorMarkSeconds = 6;
+    public int manipulatorMarkSeconds = 4;
 
     /**
      * Manipulator - Max distance (blocks) to stare-mark a target
