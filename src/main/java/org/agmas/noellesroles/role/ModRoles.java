@@ -878,7 +878,7 @@ public class ModRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setVigilanteTeam(true)
                     .setComponentKey(org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent.KEY))
-            .setCanPickUpRevolver(true).setDefaultMax(1).setDefaultEnableChance(2000);
+            .setCanPickUpRevolver(true).setDefaultMax(1).setDefaultEnableChance(2000).setSpecialVigilante(true);
 
     /**
      * 更好的义警角色
