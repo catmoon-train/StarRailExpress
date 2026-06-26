@@ -53,7 +53,7 @@ public class EXSREClient {
         try {
             Files.createDirectories(GAME_VIDEO_DIR);
 
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(GAME_VIDEO_DIR, "*.png")) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(GAME_VIDEO_DIR, "*.{png,jpg,jpeg}")) {
                 if (stream.iterator().hasNext()) {
                     return;
                 }

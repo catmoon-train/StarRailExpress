@@ -22,11 +22,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * 帧序列动画渲染器 —— 从资源包加载 PNG 帧序列，以指定帧率播放，
+ * 帧序列动画渲染器 —— 从资源包加载 PNG / JPG 帧序列，以指定帧率播放，
  * 并在相邻帧之间做 Alpha 交叉淡入淡出（动态补帧），用作背景。
  * <p>
  * 帧文件在首次启动时解压到游戏根目录 {@code video/} 下，
- * 并由 ConfigTexture 从磁盘加载（如 frame_0000.png, frame_0001.png ...）。
+ * 并由 ConfigTexture 从磁盘加载（如 frame_0000.png, frame_0001.jpg ...）。
+ * 支持 .png / .jpg / .jpeg —— JPG 内存占用更小、画质更高，推荐使用。
  */
 @Environment(EnvType.CLIENT)
 public class FrameAnimationRenderer {
@@ -68,14 +69,17 @@ public class FrameAnimationRenderer {
         Path videoDir = EXSREClient.GAME_VIDEO_DIR;
 
         try (Stream<Path> stream = Files.list(videoDir)) {
-            List<Path> pngFiles = stream
+            List<Path> frameFiles = stream
                     .filter(Files::isRegularFile)
-                    .filter(path -> path.getFileName().toString().toLowerCase().endsWith(".png"))
+                    .filter(path -> {
+                        String name = path.getFileName().toString().toLowerCase();
+                        return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg");
+                    })
                     .sorted(Comparator.comparing(path -> path.getFileName().toString()))
                     .toList();
 
-            for (Path png : pngFiles) {
-                String fileName = png.getFileName().toString();
+            for (Path frame : frameFiles) {
+                String fileName = frame.getFileName().toString();
                 ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "video/" + fileName);
                 mc.getTextureManager().register(loc, new ConfigTexture(loc));
                 frames.add(loc);
