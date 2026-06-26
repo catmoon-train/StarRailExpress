@@ -74,6 +74,10 @@ public final class PhotographerFrameEvents {
      * 由画框实体 tick mixin 调用：尝试把穿过画框的玩家传送到照片拍摄地点。
      */
     public static void tryTeleport(PhotographFrameEntity frame, ServerPlayer player) {
+        // 仅在游戏开始时（STARTING 阶段）允许传送
+        if (!GameUtils.isStartingGame) {
+            return;
+        }
         if (!(player.level() instanceof ServerLevel) || !GameUtils.isPlayerAliveAndSurvival(player)) {
             return;
         }
