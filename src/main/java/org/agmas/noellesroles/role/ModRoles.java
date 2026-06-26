@@ -70,7 +70,7 @@ import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherRole;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.cake_maker.CakeMakerRole;
+import org.agmas.noellesroles.game.roles.innocent.cake_maker.CakeMakerRole;
 import org.agmas.noellesroles.game.roles.neutral.chef.ChefRole;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;

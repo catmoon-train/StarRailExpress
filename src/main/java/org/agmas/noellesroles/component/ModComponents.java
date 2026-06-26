@@ -71,7 +71,7 @@ import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.cake_maker.CakeMakerComponent;
+import org.agmas.noellesroles.game.roles.innocent.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;

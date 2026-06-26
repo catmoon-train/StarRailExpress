@@ -1,7 +1,9 @@
-package org.agmas.noellesroles.game.roles.Innocent.cake_maker;
+package org.agmas.noellesroles.game.roles.innocent.cake_maker;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -10,75 +12,375 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.packet.CakeMakerBlockS2CPacket;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.scene.MapStatusBarRuntime;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-import java.util.UUID;
+
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.effect.MobEffectInstance;
+import java.util.UUID;
 
+/**
+ * Cake Maker role component — manages the smoker, cake-baking process, and placed cakes.
+ * <p>
+ * Baking stages:
+ * <ol>
+ *   <li>Stage 0 — add up to 3 wheat, then wait 3s</li>
+ *   <li>Stage 2 — add 1 egg, then add up to 2 sugar, then wait 3s</li>
+ *   <li>Stage 4 — add up to 3 milk buckets, then wait 5s</li>
+ *   <li>Stage 5 — cake complete (handled in server tick)</li>
+ * </ol>
+ */
 public final class CakeMakerComponent implements RoleComponent, ServerTickingComponent {
-    public static final ComponentKey<CakeMakerComponent> KEY = ComponentRegistry.getOrCreate(Noellesroles.id("cake_maker"), CakeMakerComponent.class);
+
+    // ── Constants ──────────────────────────────────────────────
+    public static final ComponentKey<CakeMakerComponent> KEY =
+            ComponentRegistry.getOrCreate(Noellesroles.id("cake_maker"), CakeMakerComponent.class);
+
+    private static final int SMOKER_DURATION_TICKS  = 40 * 20;
+    private static final int SMOKER_COOLDOWN_TICKS  = 60 * 20;
+
+    /** 3-second lock between ingredient batches */
+    private static final int WAIT_SHORT_TICKS = 60;
+    /** 5-second lock after final ingredients */
+    private static final int WAIT_LONG_TICKS  = 100;
+
+    private static final int CAKE_PLACEMENT_TICKS = 600 * 20;
+    private static final int EAT_COOLDOWN_TICKS   = 100;
+    private static final int SPEED_DURATION_TICKS = 20 * 20;
+    private static final int MAX_CAKE_BITES       = 6;
+    private static final int MOOD_RESTORE_PCT     = 30;
+    private static final int STATUS_BAR_MAX       = 20;
+    private static final double INTERACT_DISTANCE_SQ = 16.0;
+
+    private static final int WHEAT_NEEDED  = 3;
+    private static final int SUGAR_NEEDED  = 2;
+    private static final int MILK_NEEDED   = 3;
+
+    // ── State ──────────────────────────────────────────────────
     private final Player player;
-    public int cooldown, smokerTicks, lockedTicks, stage, wheat, sugar, milk;
+    public int cooldown;
+    public int smokerTicks;
+    public int lockedTicks;
+    public int stage;
+    public int wheat;
+    public int sugar;
+    public int milk;
     public BlockPos smokerPos;
     public UUID smokerId;
     public final Map<UUID, Cake> cakes = new HashMap<>();
     public final Map<UUID, Integer> eatCooldowns = new HashMap<>();
-    public CakeMakerComponent(Player player) { this.player = player; }
-    @Override public Player getPlayer() { return player; }
+
+    // ── Construction ───────────────────────────────────────────
+    public CakeMakerComponent(Player player) {
+        this.player = player;
+    }
+
+    @Override
+    public Player getPlayer() {
+        return player;
+    }
+
+    // ── CCA lifecycle ─────────────────────────────────────────
+
+    @Override
+    public void init() {
+        cooldown    = 0;
+        smokerTicks = 0;
+        lockedTicks = 0;
+        stage       = 0;
+        wheat       = 0;
+        sugar       = 0;
+        milk        = 0;
+        smokerPos   = null;
+    }
+
+    @Override
+    public void clear() {
+        init();
+    }
+
+    // ── NBT serialisation ─────────────────────────────────────
+
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        tag.putInt("cooldown", cooldown);
+        tag.putInt("smoker", smokerTicks);
+    }
+
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
+        cooldown    = tag.getInt("cooldown");
+        smokerTicks = tag.getInt("smoker");
+    }
+
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider provider) { }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider provider) { }
+
+    // ── Server tick ────────────────────────────────────────────
+
+    @Override
+    public void serverTick() {
+        if (!SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.CAKE_MAKER)) {
+            return;
+        }
+
+        // Tick cooldowns
+        if (cooldown > 0) {
+            cooldown--;
+        }
+        if (smokerTicks > 0) {
+            smokerTicks--;
+        }
+        eatCooldowns.replaceAll((id, t) -> Math.max(0, t - 1));
+
+        // Locked period elapsed → advance baking stage
+        if (lockedTicks > 0 && --lockedTicks == 0) {
+            onLockedPeriodEnd();
+        }
+
+        // Smoker expired
+        if (smokerTicks == 0 && smokerId != null) {
+            removeSmoker();
+        }
+    }
+
+    /** Fired when the ingredient-input lock expires. Advances the baking sequence. */
+    private void onLockedPeriodEnd() {
+        player.level().playSound(null, player.blockPosition(),
+                SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0F, 1.0F);
+
+        if (stage == 1) {
+            stage = 2;
+            sendMessage("message.noellesroles.cake_maker.add_egg_sugar");
+        } else if (stage == 3) {
+            stage = 4;
+            sendMessage("message.noellesroles.cake_maker.add_milk");
+        } else if (stage == 5) {
+            giveCakeAndCleanUp();
+        }
+    }
+
+    private void giveCakeAndCleanUp() {
+        player.getInventory().add(Items.CAKE.getDefaultInstance());
+        smokerTicks = 0;
+        removeSmoker();
+        stage = 0;
+        sendMessage("message.noellesroles.cake_maker.complete");
+    }
+
+    // ── Skill key — deploy smoker / place cake ────────────────
+
+    /**
+     * Called when the player presses the skill key.
+     * <ul>
+     *   <li>If holding a cake → place it on the ground.</li>
+     *   <li>If holding a smoker and off cooldown → deploy client-side smoker.</li>
+     * </ul>
+     */
     public boolean useSmoker() {
-        if (player.getMainHandItem().is(Items.CAKE)) return placeCake();
-        if (!(player instanceof ServerPlayer sp) || cooldown > 0 || smokerTicks > 0 || !sp.getMainHandItem().is(Items.SMOKER)) return false;
-        smokerPos = sp.blockPosition(); smokerId = UUID.randomUUID(); smokerTicks = 40 * 20; cooldown = 60 * 20; stage = wheat = sugar = milk = lockedTicks = 0;
+        if (player.getMainHandItem().is(Items.CAKE)) {
+            return placeCake();
+        }
+        if (!(player instanceof ServerPlayer sp)
+                || cooldown > 0
+                || smokerTicks > 0
+                || !sp.getMainHandItem().is(Items.SMOKER)) {
+            return false;
+        }
+
+        smokerPos   = sp.blockPosition();
+        smokerId    = UUID.randomUUID();
+        smokerTicks = SMOKER_DURATION_TICKS;
+        cooldown    = SMOKER_COOLDOWN_TICKS;
+        stage       = 0;
+        wheat       = 0;
+        sugar       = 0;
+        milk        = 0;
+        lockedTicks = 0;
+
         broadcast(new CakeMakerBlockS2CPacket(smokerId, smokerPos, false, 0, smokerTicks, false));
-        sp.displayClientMessage(Component.translatable("message.noellesroles.cake_maker.smoker_ready").withStyle(ChatFormatting.GOLD), true);
+        sp.displayClientMessage(
+                Component.translatable("message.noellesroles.cake_maker.smoker_ready")
+                        .withStyle(ChatFormatting.GOLD),
+                true);
         return true;
     }
-    private boolean placeCake() { if (!(player instanceof ServerPlayer sp)) return false; BlockPos pos=sp.blockPosition(); if (!sp.serverLevel().getBlockState(pos.below()).isSolidRender(sp.serverLevel(),pos.below()) || !sp.serverLevel().getBlockState(pos).isAir()) return false; UUID id=UUID.randomUUID(); cakes.put(id,new Cake(pos)); sp.getMainHandItem().shrink(1); broadcast(new CakeMakerBlockS2CPacket(id,pos,true,0,12000,false)); return true; }
-    public boolean eat(UUID id, ServerPlayer eater) { Cake c=cakes.get(id); if(c==null||eater.distanceToSqr(c.pos.getCenter())>16||eatCooldowns.getOrDefault(eater.getUUID(),0)>0)return false; eatCooldowns.put(eater.getUUID(),100); eater.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED,20*20,0)); var mood=io.wifi.starrailexpress.cca.SREPlayerMoodComponent.KEY.get(eater); mood.setMood(Math.min(1,mood.getMood()+.3f)); eater.getFoodData().eat(20,20); if(++c.bites>6){cakes.remove(id);broadcast(new CakeMakerBlockS2CPacket(id,c.pos,true,c.bites,0,true));}else broadcast(new CakeMakerBlockS2CPacket(id,c.pos,true,c.bites,12000,false)); return true; }
+
+    /** Places a client-side cake block at the player's feet. Requires a solid block below. */
+    private boolean placeCake() {
+        if (!(player instanceof ServerPlayer sp)) {
+            return false;
+        }
+        BlockPos pos = sp.blockPosition();
+
+        // Must have a solid block underneath, and the position must be air
+        if (!sp.serverLevel().getBlockState(pos.below()).isSolidRender(sp.serverLevel(), pos.below())
+                || !sp.serverLevel().getBlockState(pos).isAir()) {
+            return false;
+        }
+
+        UUID id = UUID.randomUUID();
+        cakes.put(id, new Cake(pos));
+        sp.getMainHandItem().shrink(1);
+        broadcast(new CakeMakerBlockS2CPacket(id, pos, true, 0, CAKE_PLACEMENT_TICKS, false));
+        return true;
+    }
+
+    // ── Eating a placed cake ──────────────────────────────────
+
+    /**
+     * Attempt to let {@code eater} take a bite from the cake identified by {@code id}.
+     * Restores stamina, mood, status bars, and grants Speed I. Cooldown: 5 s per player.
+     */
+    public boolean eat(UUID id, ServerPlayer eater) {
+        Cake cake = cakes.get(id);
+        if (cake == null
+                || eater.distanceToSqr(cake.pos.getCenter()) > INTERACT_DISTANCE_SQ
+                || eatCooldowns.getOrDefault(eater.getUUID(), 0) > 0) {
+            return false;
+        }
+
+        eatCooldowns.put(eater.getUUID(), EAT_COOLDOWN_TICKS);
+
+        // Speed I for 20 seconds
+        eater.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, SPEED_DURATION_TICKS, 0));
+
+        // Restore 30 % mood
+        var mood = SREPlayerMoodComponent.KEY.get(eater);
+        mood.setMood(Math.min(1.0F, mood.getMood() + MOOD_RESTORE_PCT / 100.0F));
+
+        // Restore vanilla hunger / saturation
+        eater.getFoodData().eat(20, 20);
+
+        // Fill whichever MapStatusBar is active for the current scene
+        MapStatusBarRuntime.addWarmth(eater, STATUS_BAR_MAX);
+        MapStatusBarRuntime.addThirst(eater, STATUS_BAR_MAX);
+        MapStatusBarRuntime.addHunger(eater, STATUS_BAR_MAX);
+
+        // Advance bites; remove cake once fully eaten
+        if (++cake.bites > MAX_CAKE_BITES) {
+            cakes.remove(id);
+            broadcast(new CakeMakerBlockS2CPacket(id, cake.pos, true, cake.bites, 0, true));
+        } else {
+            broadcast(new CakeMakerBlockS2CPacket(id, cake.pos, true, cake.bites, CAKE_PLACEMENT_TICKS, false));
+        }
+        return true;
+    }
+
+    // ── Ingredient input ──────────────────────────────────────
+
+    /**
+     * Try to add the player's held item as an ingredient into the active smoker.
+     * Only accepts items in the correct order for the current baking stage.
+     */
     public boolean addIngredient(Player p) {
-        if (smokerTicks <= 0 || smokerPos == null || p.distanceToSqr(smokerPos.getCenter()) > 16 || lockedTicks > 0) return false;
+        if (smokerTicks <= 0
+                || smokerPos == null
+                || p.distanceToSqr(smokerPos.getCenter()) > INTERACT_DISTANCE_SQ
+                || lockedTicks > 0) {
+            return false;
+        }
+
         var held = p.getMainHandItem();
         boolean accepted = false;
-        if (stage == 0 && held.is(Items.WHEAT) && wheat < 3) { wheat++; accepted = true; if (wheat == 3) waitFor(1, 60); }
-        else if (stage == 2 && held.is(ModItems.CAKE_EGG) && sugar == 0) { stage = 21; accepted = true; }
-        else if (stage == 21 && held.is(Items.SUGAR) && sugar < 2) { sugar++; accepted = true; if (sugar == 2) waitFor(3, 60); }
-        else if (stage == 4 && held.is(ModItems.CAKE_MILK_BUCKET) && milk < 3) { milk++; accepted = true; if (milk == 3) waitFor(5, 100); }
-        if (!accepted) { p.displayClientMessage(Component.translatable("message.noellesroles.cake_maker.wrong_ingredient").withStyle(ChatFormatting.RED), true); return true; }
-        held.shrink(1); return true;
-    }
-    private void waitFor(int nextStage, int ticks) { stage = nextStage; lockedTicks = ticks; }
-    @Override public void serverTick() {
-        if (!SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.CAKE_MAKER)) return;
-        if (cooldown > 0) cooldown--; if (smokerTicks > 0) smokerTicks--;
-        eatCooldowns.replaceAll((id,t)->Math.max(0,t-1));
-        if (lockedTicks > 0 && --lockedTicks == 0) {
-            player.level().playSound(null, player.blockPosition(), SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1, 1);
-            if (stage == 1) { stage = 2; message("message.noellesroles.cake_maker.add_egg_sugar"); }
-            else if (stage == 3) { stage = 4; message("message.noellesroles.cake_maker.add_milk"); }
-            else if (stage == 5) { player.getInventory().add(Items.CAKE.getDefaultInstance()); smokerTicks = 0; removeSmoker(); stage = 0; message("message.noellesroles.cake_maker.complete"); }
+
+        // Stage 0 — wheat (×3)
+        if (stage == 0 && held.is(Items.WHEAT) && wheat < WHEAT_NEEDED) {
+            wheat++;
+            accepted = true;
+            if (wheat == WHEAT_NEEDED) {
+                waitFor(1, WAIT_SHORT_TICKS);
+            }
         }
-        if (smokerTicks == 0 && smokerId != null) removeSmoker();
+        // Stage 2 — egg (×1, must come before sugar)
+        else if (stage == 2 && held.is(ModItems.CAKE_EGG) && sugar == 0) {
+            stage = 21; // sub-stage: waiting for sugar
+            accepted = true;
+        }
+        // Stage 21 — sugar (×2)
+        else if (stage == 21 && held.is(Items.SUGAR) && sugar < SUGAR_NEEDED) {
+            sugar++;
+            accepted = true;
+            if (sugar == SUGAR_NEEDED) {
+                waitFor(3, WAIT_SHORT_TICKS);
+            }
+        }
+        // Stage 4 — milk buckets (×3)
+        else if (stage == 4 && held.is(ModItems.CAKE_MILK_BUCKET) && milk < MILK_NEEDED) {
+            milk++;
+            accepted = true;
+            if (milk == MILK_NEEDED) {
+                waitFor(5, WAIT_LONG_TICKS);
+            }
+        }
+
+        if (!accepted) {
+            p.displayClientMessage(
+                    Component.translatable("message.noellesroles.cake_maker.wrong_ingredient")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return true;
+        }
+
+        held.shrink(1);
+        return true;
     }
-    private void message(String key) { if (player instanceof ServerPlayer sp) sp.displayClientMessage(Component.translatable(key).withStyle(ChatFormatting.GREEN), true); }
-    private void removeSmoker() { if (smokerId != null) broadcast(new CakeMakerBlockS2CPacket(smokerId, smokerPos, false, 0, 0, true)); smokerId = null; smokerPos = null; }
-    private void broadcast(CakeMakerBlockS2CPacket packet) { if (player instanceof ServerPlayer sp) for (ServerPlayer target : sp.serverLevel().players()) ServerPlayNetworking.send(target, packet); }
-    public static final class Cake { final BlockPos pos; int bites; Cake(BlockPos pos){this.pos=pos;} }
-    @Override public void init() { cooldown=smokerTicks=lockedTicks=stage=wheat=sugar=milk=0; smokerPos=null; }
-    @Override public void clear() { init(); }
-    @Override public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) { tag.putInt("cooldown", cooldown); tag.putInt("smoker", smokerTicks); }
-    @Override public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) { cooldown=tag.getInt("cooldown"); smokerTicks=tag.getInt("smoker"); }
-    @Override public void writeToNbt(CompoundTag tag, HolderLookup.Provider p) { }
-    @Override public void readFromNbt(CompoundTag tag, HolderLookup.Provider p) { }
+
+    /** Lock ingredient input for {@code ticks} ticks, then advance to {@code nextStage}. */
+    private void waitFor(int nextStage, int ticks) {
+        stage       = nextStage;
+        lockedTicks = ticks;
+    }
+
+    // ── Network helpers ───────────────────────────────────────
+
+    private void sendMessage(String key) {
+        if (player instanceof ServerPlayer sp) {
+            sp.displayClientMessage(
+                    Component.translatable(key).withStyle(ChatFormatting.GREEN),
+                    true);
+        }
+    }
+
+    private void removeSmoker() {
+        if (smokerId != null) {
+            broadcast(new CakeMakerBlockS2CPacket(smokerId, smokerPos, false, 0, 0, true));
+        }
+        smokerId  = null;
+        smokerPos = null;
+    }
+
+    private void broadcast(CakeMakerBlockS2CPacket packet) {
+        if (player instanceof ServerPlayer sp) {
+            for (ServerPlayer target : sp.serverLevel().players()) {
+                ServerPlayNetworking.send(target, packet);
+            }
+        }
+    }
+
+    // ── Inner type — placed cake record ───────────────────────
+
+    /** Tracks a single placed cake: its position and how many bites have been taken. */
+    public static final class Cake {
+        final BlockPos pos;
+        int bites;
+
+        Cake(BlockPos pos) {
+            this.pos = pos;
+        }
+    }
 }

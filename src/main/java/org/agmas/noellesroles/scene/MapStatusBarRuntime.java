@@ -91,6 +91,14 @@ public final class MapStatusBarRuntime {
         add(player, MapStatusBarType.WARMTH, delta);
     }
 
+    public static void addThirst(ServerPlayer player, int delta) {
+        add(player, MapStatusBarType.THIRST, delta);
+    }
+
+    public static void addHunger(ServerPlayer player, int delta) {
+        add(player, MapStatusBarType.HUNGER, delta);
+    }
+
     public static void onFinishUsingItem(ItemStack stack, Level level, LivingEntity user) {
         if (level.isClientSide || !(user instanceof ServerPlayer player)) {
             return;

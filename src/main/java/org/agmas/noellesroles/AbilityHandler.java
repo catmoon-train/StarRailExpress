@@ -18,7 +18,7 @@ import org.agmas.noellesroles.game.roles.innocent.recaller.RecallerPlayerCompone
 import org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
-import org.agmas.noellesroles.game.roles.Innocent.cake_maker.CakeMakerComponent;
+import org.agmas.noellesroles.game.roles.innocent.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;

@@ -1,4 +1,4 @@
-package org.agmas.noellesroles.game.roles.Innocent.cake_maker;
+package org.agmas.noellesroles.game.roles.innocent.cake_maker;
 
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
