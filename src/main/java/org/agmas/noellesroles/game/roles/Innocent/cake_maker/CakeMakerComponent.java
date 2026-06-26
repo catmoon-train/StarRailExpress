@@ -61,7 +61,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
     private static final int WAIT_LONG_TICKS  = 100;
 
     private static final int CAKE_PLACEMENT_TICKS = 600 * 20;
-    private static final int EAT_COOLDOWN_TICKS   = 100;
+    private static final int EAT_COOLDOWN_TICKS   = 600; // 30 s
     private static final int SPEED_DURATION_TICKS = 20 * 20;
     private static final int MAX_CAKE_BITES       = 6;
     private static final int MOOD_RESTORE_PCT     = 30;
