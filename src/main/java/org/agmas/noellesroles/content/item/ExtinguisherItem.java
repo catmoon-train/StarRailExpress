@@ -19,6 +19,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.init.ModEffects;
+import pro.fazeclan.river.stupid_express.constants.SEEffects;
 
 import java.util.List;
 
@@ -186,6 +188,7 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
         target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
                 net.minecraft.world.effect.MobEffects.BLINDNESS,
                 EFFECT_DURATION, 0, false, false));
+        target.removeEffect(SEEffects.BURNING);
 
         // 如果目标被纵火犯浇湿，清除浇湿状态
         try {
