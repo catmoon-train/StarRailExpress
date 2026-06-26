@@ -139,5 +139,11 @@
   "item.noellesroles.zero_one_five_gun.desc": "專屬手槍。右鍵射擊。第一槍命中給予3秒緩慢II，1.2秒後自動發射第二槍，第二槍命中直接擊殺。兩槍後進入15秒冷卻。射程30格。",
   "item.noellesroles.cake_ingredients.desc": "右鍵拆開，獲得烹飪蛋糕所需的材料。",
   "item.noellesroles.cake_egg.desc": "蛋糕烹飪材料。",
-  "item.noellesroles.cake_milk_bucket.desc": "蛋糕烹飪材料，可堆疊至 16 個。"
+  "item.noellesroles.cake_milk_bucket.desc": "蛋糕烹飪材料，可堆疊至 16 個。",
+  "shop.noellesroles.undead_lord.life_elixir.desc": "所有現存亡靈持續時間 +30 秒。",
+  "shop.noellesroles.undead_lord.plague_fog.desc": "在腳下釋放毒霧，範圍內每秒 +5% 感染，持續 10 秒。",
+  "shop.noellesroles.undead_lord.summon_charm.desc": "立即在身邊召喚 2 個臨時亡靈，持續 45 秒。",
+  "shop.noellesroles.undead_lord.infection_amp.desc": "接下來 60 秒內亡靈攻擊的感染值翻倍。",
+  "shop.noellesroles.undead_lord.soul_chain.desc": "綁定最近的一個亡靈跟隨你 20 秒。",
+  "shop.noellesroles.undead_lord.hourglass.desc": "重置所有現存亡靈持續時間為滿值。"
 }

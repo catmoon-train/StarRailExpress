@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -37,6 +38,18 @@ public class MorphlingHud {
             context.drawString(client.font, content,
                     context.guiWidth() - client.font.width(content) - 12,
                     context.guiHeight() - 20, ModRoles.MORPHLING.color());
+
+            // 举刀假人技能冷却（与变形冷却分开，存在 SREAbilityPlayerComponent.cooldown 中）
+            final var abilityComp = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY.get(client.player);
+            MutableComponent dummyLine;
+            if (abilityComp.cooldown > 0) {
+                dummyLine = Component.translatable("morphling.dummy.cooldown", abilityComp.cooldown / 20);
+            } else {
+                dummyLine = Component.translatable("morphling.dummy.ready");
+            }
+            context.drawString(client.font, dummyLine,
+                    context.guiWidth() - client.font.width(dummyLine) - 12,
+                    context.guiHeight() - 32, ModRoles.MORPHLING.color());
         });
     }
 }

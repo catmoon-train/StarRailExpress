@@ -149,5 +149,11 @@
   "item.noellesroles.zero_one_five_gun.desc": "Exclusive pistol. Right-click to shoot. First hit applies Slowness II for 3 seconds, second shot auto-fires after 1.2 seconds. Second hit kills instantly. 15-second cooldown after both shots. Range 30 blocks.",
   "item.noellesroles.cake_ingredients.desc": "Right-click to unpack ingredients for baking a cake.",
   "item.noellesroles.cake_egg.desc": "An ingredient for baking cake.",
-  "item.noellesroles.cake_milk_bucket.desc": "An ingredient for baking cake. Stacks to 16."
+  "item.noellesroles.cake_milk_bucket.desc": "An ingredient for baking cake. Stacks to 16.",
+  "shop.noellesroles.undead_lord.life_elixir.desc": "Extends all existing undead lifetimes by +30s.",
+  "shop.noellesroles.undead_lord.plague_fog.desc": "Releases fog at your feet: +5%% infection/s for 10s within the area.",
+  "shop.noellesroles.undead_lord.summon_charm.desc": "Instantly summons 2 temporary undead nearby for 45s.",
+  "shop.noellesroles.undead_lord.infection_amp.desc": "Undead attack infection is doubled for the next 60s.",
+  "shop.noellesroles.undead_lord.soul_chain.desc": "Binds the nearest undead to follow you for 20s.",
+  "shop.noellesroles.undead_lord.hourglass.desc": "Resets all existing undead lifetimes to full."
 }

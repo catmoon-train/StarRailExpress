@@ -47,6 +47,10 @@ public class MorphlingKnifeDummyRenderer extends EntityRenderer<MorphlingKnifeDu
             fakePlayer.yHeadRotO = entity.yHeadRotO;
             fakePlayer.setXRot(entity.getXRot());
             fakePlayer.xRotO = entity.xRotO;
+            // 同步行走动画状态：复制假人实体自身的 limbSwing，使其迈腿而非平滑滑行
+            fakePlayer.walkAnimation.speed = entity.walkAnimation.speed;
+            fakePlayer.walkAnimation.speedOld = entity.walkAnimation.speedOld;
+            fakePlayer.walkAnimation.position = entity.walkAnimation.position;
             // 举刀：主手持匕首并摆出举刀姿态
             fakePlayer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(TMMItems.KNIFE));
             fakePlayer.startUsingItem(InteractionHand.MAIN_HAND);

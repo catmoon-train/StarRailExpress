@@ -386,6 +386,8 @@
   "morphling.cooldown": "Morphling cooldown, %s seconds remaining",
   "morphling.tip": "Morphling remaining %s seconds",
   "morphling.ready": "Morphling ready",
+  "morphling.dummy.cooldown": "Knife dummy cooldown, %s seconds remaining",
+  "morphling.dummy.ready": "Knife dummy ready",
   "hud.morphling.player_selection": "Select player to morph into",
   "message.swapper.failed.died": "Cannot swap %s, they are already dead.",
   "hud.swapper.first_player_selection": "Select first player to swap",

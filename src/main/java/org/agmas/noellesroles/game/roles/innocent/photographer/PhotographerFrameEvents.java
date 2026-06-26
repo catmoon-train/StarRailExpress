@@ -63,9 +63,11 @@ public final class PhotographerFrameEvents {
     }
 
     public static boolean isPhotographer(Player player) {
-        if (!(player instanceof ServerPlayer)) {
+        if (player == null) {
             return false;
         }
+        // 注意：放置画框走 useOn，两端都会执行，需在客户端也能判定身份，
+        // 否则冒险模式下客户端预测放置失败、体验上像“放不下去”。
         SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(player.level());
         return gw != null && gw.isRole(player, ModRoles.PHOTOGRAPHER);
     }
@@ -74,8 +76,11 @@ public final class PhotographerFrameEvents {
      * 由画框实体 tick mixin 调用：尝试把穿过画框的玩家传送到照片拍摄地点。
      */
     public static void tryTeleport(PhotographFrameEntity frame, ServerPlayer player) {
-        // 仅在游戏开始时（STARTING 阶段）允许传送
-        if (!GameUtils.isStartingGame) {
+        // 仅在游戏进行中允许传送（开局加载阶段 isStartingGame=true、大厅均不允许）。
+        // 旧实现误用 !isStartingGame：该标记只在开局加载窗口为 true，正式对局中恒为 false，
+        // 导致对局中穿过画框永远不触发传送。
+        SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(player.level());
+        if (gw == null || !gw.isRunning()) {
             return;
         }
         if (!(player.level() instanceof ServerLevel) || !GameUtils.isPlayerAliveAndSurvival(player)) {

@@ -6,8 +6,10 @@ import java.util.List;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +18,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -71,6 +75,9 @@ public class UndeadLordRole extends NormalRole {
         entries.add(effectEntry(Items.CLOCK, 200, "hourglass", comp -> {
             comp.resetAllUndeadLifetime();
         }));
+        entries.add(effectEntry(TMMItems.CROWBAR, 100, "crowbar", comp -> {
+            comp.resetAllUndeadLifetime();
+        }));
 
         return entries;
     }
@@ -81,8 +88,12 @@ public class UndeadLordRole extends NormalRole {
     private ShopEntry effectEntry(net.minecraft.world.item.Item icon, int price, String nameKey,
             java.util.function.Consumer<UndeadLordPlayerComponent> effect) {
         ItemStack stack = new ItemStack(icon);
-        stack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,
+        stack.set(DataComponents.CUSTOM_NAME,
                 Component.translatable("shop.noellesroles.undead_lord." + nameKey));
+        // 添加商店物品描述（由 item_intro/lang 语言文件提供）
+        stack.set(DataComponents.LORE, new ItemLore(
+                List.of(Component.translatable("shop.noellesroles.undead_lord." + nameKey + ".desc")
+                        .withStyle(ChatFormatting.GRAY))));
         return new ShopEntry(stack, price, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(@NotNull Player player) {

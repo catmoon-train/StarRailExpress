@@ -40,7 +40,8 @@ public class MorphlingKnifeDummyEntity extends PathfinderMob {
     private static final EntityDataAccessor<Optional<UUID>> SKIN_UUID = SynchedEntityData.defineId(
             MorphlingKnifeDummyEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
-    private static final double BASE_SPEED = 0.42D;
+    /** 移动速度属性：寻路时约等于玩家步行速度（与僵尸相近）。 */
+    private static final double BASE_SPEED = 0.23D;
 
     /** 召唤者（变形者）UUID。 */
     private UUID ownerUuid = null;
