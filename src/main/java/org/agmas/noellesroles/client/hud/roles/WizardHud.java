@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client.hud.roles;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -22,18 +23,25 @@ public class WizardHud {
     public static void register() {
         RoleHudRenderCallback.EVENT.register(ModRoles.WIZARD_ID, (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
-            if (client.player == null || SREClient.isPlayerSpectator()) {
+            if (client.player == null || client.options.hideGui || SREClient.isPlayerSpectator()
+                    || AdvancedCameraDirector.shouldOverride()) {
+                return;
+            }
+            if (!SREClient.shouldUseTrainHud()) {
                 return;
             }
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.player.level());
+            if (gameWorld == null || !gameWorld.isRunning()) {
+                return;
+            }
             if (!gameWorld.isRole(client.player, ModRoles.WIZARD)) {
                 return;
             }
 
             WizardPlayerComponent comp = WizardPlayerComponent.KEY.get(client.player);
             Font font = client.font;
-            int centerX = context.guiWidth() / 2;
-            int barX = centerX - BAR_WIDTH / 2;
+            int screenWidth = context.guiWidth();
+            int barX = screenWidth / 2 - BAR_WIDTH / 2;
             int barY = context.guiHeight() - 47;
             int iconX = barX - ICON_SIZE - ICON_GAP;
             int iconY = barY - ICON_SIZE / 2 + BAR_HEIGHT / 2;
@@ -54,7 +62,7 @@ public class WizardHud {
                     "hud.noellesroles.wizard.spell." + comp.selectedSpell.name().toLowerCase());
             Component text = Component.translatable("hud.noellesroles.wizard.mana",
                     Math.round(comp.mana), Math.round(maxMana), spell);
-            context.drawCenteredString(font, text, centerX, barY - 12, 0xFFE6D7FF);
+            context.drawString(font, text, screenWidth - font.width(text) - 8, context.guiHeight() - 24, 0xFFE6D7FF);
         });
     }
 }

@@ -388,10 +388,10 @@ public class NoellesRolesConfig implements ConfigData {
     // ==================== Wizard (巫师) ====================
     /** Wizard - Max mana (魔素) capacity */
     public int wizardMaxMana = 500;
+    public int wizardStartingMana = 120;
     /** Wizard - Mana gained per coin of income (all coins convert to mana) */
     public int wizardManaPerCoin = 1;
     /** Wizard - Passive mana regen per second */
-    public int wizardPassiveManaPerSecond = 1;
     /** Wizard - Staff left-click knockback strength */
     public double wizardStaffKnockback = 1.2;
     /** Wizard - Fire arrow max range in blocks */
@@ -399,7 +399,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** Wizard - Max players a single fire arrow can pierce */
     public int wizardFireArrowMaxPierce = 2;
     /** Wizard - Fire arrow hits required on one target before delayed death */
-    public int wizardFireArrowHitsToKill = 3;
+    public int wizardFireArrowHitsToKill = 2;
     /** Wizard - Fire arrow delayed death seconds after enough hits */
     public int wizardFireArrowDeathDelaySeconds = 3;
     /** Wizard - Armor spell minimum mana to cast */
@@ -427,7 +427,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** Wizard - Max players killed by one nine-ring fireball */
     public int wizardFireballMaxKills = 8;
     /** Wizard - Potion cooldown in seconds */
-    public int wizardPotionCooldown = 30;
+    public int wizardPotionCooldown = 120;
     /** Wizard - Mana gained from drinking a potion */
     public int wizardPotionManaGain = 150;
     /** Wizard - Potion attack-immunity window in seconds */

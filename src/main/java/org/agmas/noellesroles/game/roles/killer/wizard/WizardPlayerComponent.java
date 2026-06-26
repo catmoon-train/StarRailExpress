@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -53,7 +54,6 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     public float mana = 0f;
     public Spell selectedSpell = Spell.ARMOR;
     public boolean explosionArmed = false;
-    public int potionCooldown = 0;
     public int potionShieldTicks = 0;
     public boolean armorUsed = false;
 
@@ -80,7 +80,6 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.mana = 0f;
         this.selectedSpell = Spell.ARMOR;
         this.explosionArmed = false;
-        this.potionCooldown = 0;
         this.potionShieldTicks = 0;
         this.armorUsed = false;
         this.gaveStartingItems = false;
@@ -95,6 +94,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.explosionArmed = false;
         this.potionShieldTicks = 0;
         this.armorUsed = false;
+        this.gaveStartingItems = false;
         this.shieldExpiries.clear();
         this.fireArrowMarks.clear();
         sync();
@@ -109,7 +109,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     }
 
     public float maxMana() {
-        return Math.min(500, config().wizardMaxMana);
+        return 500f;
     }
 
     @Override
@@ -124,12 +124,12 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
 
         if (!gaveStartingItems && GameUtils.isPlayerAliveAndSurvival(sp)) {
             grantStartingItems(sp);
+            this.mana = Math.min(maxMana(), config().wizardStartingMana);
+            clearCoins(sp);
             gaveStartingItems = true;
+            sync();
         }
 
-        if (potionCooldown > 0) {
-            potionCooldown--;
-        }
         if (potionShieldTicks > 0) {
             potionShieldTicks--;
             if (potionShieldTicks == 0) {
@@ -142,11 +142,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
             if (shop.balance > 0) {
                 addMana(shop.balance * config().wizardManaPerCoin);
             }
-            shop.balance = 0;
-            shop.sync();
-        }
-        if (sp.level().getGameTime() % 20 == 0) {
-            addMana(config().wizardPassiveManaPerSecond);
+            clearCoins(sp);
         }
 
         tickShieldExpiries(sp);
@@ -179,7 +175,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     }
 
     public void addMana(float amount) {
-        this.mana = Math.min(maxMana(), this.mana + amount);
+        this.mana = Mth.clamp(this.mana + amount, 0f, maxMana());
         sync();
     }
 
@@ -190,6 +186,14 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     public void spendMana(float amount) {
         this.mana = Math.max(0f, this.mana - amount);
         sync();
+    }
+
+    private void clearCoins(ServerPlayer sp) {
+        SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);
+        if (shop.balance != 0) {
+            shop.balance = 0;
+            shop.sync();
+        }
     }
 
     public void cycleSpell() {
@@ -244,6 +248,9 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         target.level().playSound(null, target.blockPosition(), SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 0.6f, 1.6f);
         caster.displayClientMessage(Component.translatable("message.noellesroles.wizard.armor_done",
                 target.getDisplayName()).withStyle(ChatFormatting.AQUA), true);
+        caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
+                io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(
+                        io.wifi.starrailexpress.index.TMMItems.KNIFE));
         return true;
     }
 
@@ -381,12 +388,13 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     }
 
     public boolean usePotion(ServerPlayer sp) {
-        if (potionCooldown > 0) {
+        if (sp.getCooldowns().isOnCooldown(ModItems.WIZARD_POTION)) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_cd",
-                    potionCooldown / 20).withStyle(ChatFormatting.RED), true);
+                    Math.max(1, Math.round(sp.getCooldowns().getCooldownPercent(ModItems.WIZARD_POTION, 0f)
+                            * config().wizardPotionCooldown))).withStyle(ChatFormatting.RED), true);
             return false;
         }
-        potionCooldown = GameConstants.getInTicks(0, config().wizardPotionCooldown);
+        sp.getCooldowns().addCooldown(ModItems.WIZARD_POTION, GameConstants.getInTicks(0, config().wizardPotionCooldown));
         addMana(config().wizardPotionManaGain);
         io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(sp).addArmor();
         potionShieldTicks = GameConstants.getInTicks(0, config().wizardPotionImmuneSeconds);
@@ -450,7 +458,6 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         tag.putFloat("mana", this.mana);
         tag.putInt("selectedSpell", this.selectedSpell.ordinal());
         tag.putBoolean("explosionArmed", this.explosionArmed);
-        tag.putInt("potionCooldown", this.potionCooldown);
         tag.putInt("potionShieldTicks", this.potionShieldTicks);
         tag.putBoolean("armorUsed", this.armorUsed);
     }
@@ -460,7 +467,6 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.mana = tag.getFloat("mana");
         this.selectedSpell = Spell.values()[Math.floorMod(tag.getInt("selectedSpell"), Spell.values().length)];
         this.explosionArmed = tag.getBoolean("explosionArmed");
-        this.potionCooldown = tag.getInt("potionCooldown");
         this.potionShieldTicks = tag.getInt("potionShieldTicks");
         this.armorUsed = tag.getBoolean("armorUsed");
     }

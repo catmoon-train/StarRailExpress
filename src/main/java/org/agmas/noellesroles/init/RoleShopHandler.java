@@ -1609,6 +1609,22 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(TraitorAndModifiers.TRAITOR.identifier(), TRAITOR_SHOP);
     }
 
+    {
+      var WIZARD_SHOP = new ArrayList<ShopEntry>();
+      WIZARD_SHOP.add(new ShopEntry(Items.BARRIER.getDefaultInstance(), Integer.MAX_VALUE, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean canDisplay(@NotNull Player player) {
+          return false;
+        }
+
+        @Override
+        public boolean canBuy(@NotNull Player player) {
+          return false;
+        }
+      });
+      ShopContent.customEntries.put(ModRoles.WIZARD_ID, WIZARD_SHOP);
+    }
+
     // 疫使商店
     {
       var INFECTED_SHOP_LIST = new ArrayList<ShopEntry>();

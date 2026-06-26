@@ -106,7 +106,7 @@ public abstract class WizardShieldScreenMixin extends LimitedHandledScreen<Inven
             return List.of();
         }
         return client.getConnection().getOnlinePlayers().stream()
-                .filter(a -> a.getProfile().getId() != player.getUUID()
+                .filter(a -> !a.getProfile().getId().equals(player.getUUID())
                         && a.getGameMode() == GameType.ADVENTURE)
                 .collect(Collectors.toList());
     }
@@ -116,7 +116,7 @@ public abstract class WizardShieldScreenMixin extends LimitedHandledScreen<Inven
         getWizardScreenHelper().onRender(context, this);
     }
 
-    @Inject(method = "init", at = @At("HEAD"))
+    @Inject(method = "init", at = @At("TAIL"))
     private void noellesroles$onWizardInit(CallbackInfo ci) {
         if (wizardScreenHelper != null) {
             wizardScreenHelper.getPaginationHelper().clearManagedWidgets(this);
