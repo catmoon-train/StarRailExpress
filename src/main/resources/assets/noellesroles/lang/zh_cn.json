@@ -3142,5 +3142,14 @@
   "announcement.star.goals.cupid": "愿你们永成眷属。",
   "item.regeneration_arrow.name": "爱神之箭",
   "message.noellesroles.cupid.marked": "你被丘比特标记了。",
-  "message.noellesroles.cupid.linked": "已将 %s 与 %s 链接为恋人"
+  "message.noellesroles.cupid.linked": "已将 %s 与 %s 链接为恋人",
+  "announcement.star.role.raven": "渡鸦",
+  "announcement.star.goals.raven": "以黑翼狩猎指定职业，完成独立胜利。",
+  "announcement.star.win.raven": "渡鸦胜利！",
+  "hud.noellesroles.raven.charges": "狩猎充能：%s/%s",
+  "hud.noellesroles.raven.kills": "猎杀进度：%s/%s",
+  "hud.noellesroles.raven.target": "你需要击杀：%s",
+  "message.noellesroles.raven.charge": "狩猎充能：%s/%s",
+  "message.noellesroles.raven.no_target": "场上没有可供狩猎的职业。",
+  "message.noellesroles.raven.entry": "渡鸦在树枝上嘶吼"
 }

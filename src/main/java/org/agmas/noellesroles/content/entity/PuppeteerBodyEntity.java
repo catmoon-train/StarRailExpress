@@ -17,7 +17,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jspecify.annotations.Nullable;
@@ -198,6 +200,8 @@ public class PuppeteerBodyEntity extends LivingEntity {
             if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
                 PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(owner);
                 puppeteerComp.onBodyDeath(player, deathReason);
+            } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
+                ModComponents.RAVEN.get(owner).onBodyDeath(player, deathReason);
             } else {
                 owner.teleportTo(owner.getX(), owner.getY(), owner.getZ());
                 ModEffects.pierceDeath = true;
@@ -226,8 +230,12 @@ public class PuppeteerBodyEntity extends LivingEntity {
             Player owner = getOwner();
             if (owner != null) {
                 // 通知傀儡师组件本体死亡
-                PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(owner);
-                puppeteerComp.onBodyDeath();
+                SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
+                if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
+                    ModComponents.PUPPETEER.get(owner).onBodyDeath();
+                } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
+                    ModComponents.RAVEN.get(owner).onBodyDeath(null, Noellesroles.id("raven_body_death"));
+                }
             }
         }
 
@@ -241,8 +249,12 @@ public class PuppeteerBodyEntity extends LivingEntity {
         // 确保通知傀儡师
         Player owner = getOwner();
         if (owner != null) {
-            PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(owner);
-            puppeteerComp.onBodyDeath();
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
+            if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
+                ModComponents.PUPPETEER.get(owner).onBodyDeath();
+            } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
+                ModComponents.RAVEN.get(owner).onBodyDeath(null, Noellesroles.id("raven_body_death"));
+            }
         }
     }
 

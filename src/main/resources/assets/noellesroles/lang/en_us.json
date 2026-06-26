@@ -3139,5 +3139,14 @@
   "announcement.star.goals.cupid": "Link two Lovers with regeneration arrows and help the Killer faction win.",
   "item.regeneration_arrow.name": "Regeneration Arrow",
   "message.noellesroles.cupid.marked": "Cupid has marked you.",
-  "message.noellesroles.cupid.linked": "Linked %s and %s as Lovers"
+  "message.noellesroles.cupid.linked": "Linked %s and %s as Lovers",
+  "announcement.star.role.raven": "Raven",
+  "announcement.star.goals.raven": "Hunt the designated role to claim an independent victory.",
+  "announcement.star.win.raven": "Raven wins!",
+  "hud.noellesroles.raven.charges": "Hunt charges: %s/%s",
+  "hud.noellesroles.raven.kills": "Hunt progress: %s/%s",
+  "hud.noellesroles.raven.target": "You must kill: %s",
+  "message.noellesroles.raven.charge": "Hunt charges: %s/%s",
+  "message.noellesroles.raven.no_target": "No eligible role remains on the field.",
+  "message.noellesroles.raven.entry": "A raven cries from a branch"
 }

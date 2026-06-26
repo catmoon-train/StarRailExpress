@@ -17,6 +17,7 @@ import org.agmas.noellesroles.game.roles.innocent.jade_general.JadeGeneralPlayer
 import org.agmas.noellesroles.game.roles.innocent.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
@@ -239,6 +240,10 @@ public class AbilityHandler {
         if (gameWorldComponent.isRole(player, ModRoles.WIZARD)) {
             WizardPlayerComponent wizard = ModComponents.WIZARD.get(player);
             wizard.castSelectedSpell();
+            return;
+        }
+        if (gameWorldComponent.isRole(player, ModRoles.RAVEN)) {
+            ModComponents.RAVEN.get(player).useAbility();
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.OLDMAN)) {

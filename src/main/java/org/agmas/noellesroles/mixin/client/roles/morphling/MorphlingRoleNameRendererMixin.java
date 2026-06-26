@@ -17,6 +17,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.client.ClientEmbalmerState;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -55,6 +56,11 @@ public abstract class MorphlingRoleNameRendererMixin {
     private static Component renderRoleHud(Player instance, Operation<Component> original) {
         if (instance == null)
             return original.call(instance);
+        if (ModComponents.RAVEN.get(instance).isHunting()
+                && Minecraft.getInstance().player != null
+                && !instance.getUUID().equals(Minecraft.getInstance().player.getUUID())) {
+            return Component.literal("????????").withStyle(ChatFormatting.OBFUSCATED);
+        }
         if (getShuffledTarget(instance) != null) {
             return Component.literal("??!?!").withStyle(ChatFormatting.OBFUSCATED);
         }

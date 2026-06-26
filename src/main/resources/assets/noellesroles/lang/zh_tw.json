@@ -3089,5 +3089,14 @@
   "announcement.star.goals.cupid": "用再生藥水箭連接兩名戀人，協助殺手方獲勝。",
   "item.regeneration_arrow.name": "再生藥水箭",
   "message.noellesroles.cupid.marked": "你被丘比特標記了。",
-  "message.noellesroles.cupid.linked": "已將 %s 與 %s 連接為戀人"
+  "message.noellesroles.cupid.linked": "已將 %s 與 %s 連接為戀人",
+  "announcement.star.role.raven": "渡鴉",
+  "announcement.star.goals.raven": "以黑翼狩獵指定職業，完成獨立勝利。",
+  "announcement.star.win.raven": "渡鴉勝利！",
+  "hud.noellesroles.raven.charges": "狩獵充能：%s/%s",
+  "hud.noellesroles.raven.kills": "獵殺進度：%s/%s",
+  "hud.noellesroles.raven.target": "你需要擊殺：%s",
+  "message.noellesroles.raven.charge": "狩獵充能：%s/%s",
+  "message.noellesroles.raven.no_target": "場上沒有可供狩獵的職業。",
+  "message.noellesroles.raven.entry": "渡鴉在樹枝上嘶吼"
 }

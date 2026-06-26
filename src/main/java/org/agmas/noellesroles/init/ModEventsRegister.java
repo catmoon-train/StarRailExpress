@@ -111,6 +111,7 @@ import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggHandler;
 import org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
@@ -749,6 +750,30 @@ public class ModEventsRegister {
     public static void registerEvents() {
         // 吝啬 - 商店购买返还20%金币
         StandardRevolverItem.registerEvents();
+        AllowPlayerPunching.EVENT.register(player -> {
+            RavenPlayerComponent raven = ModComponents.RAVEN.get(player);
+            return SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.RAVEN) && raven.isHunting();
+        });
+        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
+            if (killer == null || !SREGameWorldComponent.KEY.get(killer.level()).isRole(killer, ModRoles.RAVEN)) return true;
+            RavenPlayerComponent raven = ModComponents.RAVEN.get(killer);
+            if (!raven.isHunting()) return true;
+            if (!raven.canKill(victim)) {
+                raven.endHunt(true);
+                return false;
+            }
+            return true;
+        });
+        OnPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
+            if (killer == null || !SREGameWorldComponent.KEY.get(killer.level()).isRole(killer, ModRoles.RAVEN)) return;
+            RavenPlayerComponent raven = ModComponents.RAVEN.get(killer);
+            if (raven.canKill(victim)) raven.onTargetKilled(victim);
+        });
+        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
+            if (!SREGameWorldComponent.KEY.get(victim.level()).isRole(victim, ModRoles.RAVEN)) return true;
+            RavenPlayerComponent raven = ModComponents.RAVEN.get(victim);
+            return !raven.isHunting();
+        });
         RefugeeComponent.register();
         OnShopPurchase.EVENT.register((player, entry, price) -> {
             org.agmas.noellesroles.role.ModifierEffects
@@ -1994,6 +2019,7 @@ public class ModEventsRegister {
             boolean hasDio = false;
             boolean hasRecorder = false;
             boolean hasCandlebearer = false;
+            boolean hasRaven = false;
             // 年兽除岁效果：给所有玩家分发4个鞭炮
             boolean hasNianShou = false;
             boolean hasArsonist = false;
@@ -2020,6 +2046,8 @@ public class ModEventsRegister {
                     hasRecorder = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.CANDLE_BEARER)) {
                     hasCandlebearer = true;
+                } else if (gameWorldComponent.isRole(p, ModRoles.RAVEN)) {
+                    hasRaven = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.NIAN_SHOU)) {
                     hasNianShou = true;
                 } else if (gameWorldComponent.isRole(p, SERoles.ARSONIST)) {
@@ -2054,6 +2082,15 @@ public class ModEventsRegister {
                     if (p != null) {
                         BroadcastCommand.BroadcastMessage(p, Component
                                 .translatable("message.noellesroles.candlebearer.entry")
+                                .withStyle(ChatFormatting.YELLOW));
+                    }
+                });
+            }
+            if (hasRaven) {
+                all_players.forEach((p) -> {
+                    if (p != null) {
+                        BroadcastCommand.BroadcastMessage(p, Component
+                                .translatable("message.noellesroles.raven.entry")
                                 .withStyle(ChatFormatting.YELLOW));
                     }
                 });

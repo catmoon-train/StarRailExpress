@@ -58,6 +58,7 @@ import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerCompone
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
@@ -306,6 +307,9 @@ public class ModRolesInitialEventRegister {
                 candleBearer.init();
                 RoleUtils.insertStackInFreeSlot(player, Items.CANDLE.getDefaultInstance());
                 candleBearer.sync();
+            }
+            if (role.equals(ModRoles.RAVEN)) {
+                ModComponents.RAVEN.get(player).init();
             }
             // 操纵师角色初始化
             if (role.equals(ModRoles.MANIPULATOR)) {

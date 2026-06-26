@@ -10,12 +10,16 @@ import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
+
+import java.util.OptionalInt;
 
 public class CustomWinnerClass {
 
@@ -98,6 +102,15 @@ public class CustomWinnerClass {
 
             if (CandleBearerPlayerComponent.checkCandleBearerVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
+            }
+
+            for (ServerPlayer player : serverLevel.players()) {
+                if (!GameUtils.isPlayerAliveAndSurvival(player) || !gameComponent.isRole(player, ModRoles.RAVEN)) continue;
+                RavenPlayerComponent raven = ModComponents.RAVEN.get(player);
+                if (raven.kills >= raven.requiredKills && raven.requiredKills > 0) {
+                    RoleUtils.customWinnerWin(serverLevel, WinStatus.CUSTOM, ModRoles.RAVEN_ID.getPath(), OptionalInt.of(ModRoles.RAVEN.color()));
+                    return WinStatus.CUSTOM;
+                }
             }
 
             // 鹈鹕存活时检查独立胜利
