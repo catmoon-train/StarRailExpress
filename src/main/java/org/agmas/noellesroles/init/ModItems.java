@@ -1079,6 +1079,9 @@ public class ModItems {
         TMMItems.INVISIBLE_ITEMS.add(ModItems.REINFORCEMENT);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.SCREWDRIVER);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.CONSPIRACY_PAGE);
+        TMMItems.INVISIBLE_ITEMS.add(Items.BUNDLE);
+        TMMItems.INVISIBLE_ITEMS.add(ModItems.DEDUCTION_BOOK);
+        TMMItems.INVISIBLE_ITEMS.add(ModItems.CRYSTAL_BALL);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.LETTER_ITEM);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.DEFIBRILLATOR);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.BOMB);

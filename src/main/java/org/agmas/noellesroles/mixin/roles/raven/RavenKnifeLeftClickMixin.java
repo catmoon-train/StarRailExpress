@@ -34,8 +34,6 @@ public abstract class RavenKnifeLeftClickMixin {
         if (!attacker.getItemInHand(InteractionHand.MAIN_HAND).is(TMMItems.KNIFE)) {
             return;
 
-        }        if (!attacker.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.BONE_STAFF)) {
-            return;
         }
 
         if (!ModComponents.RAVEN.get(attacker).isHunting()) {

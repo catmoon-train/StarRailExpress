@@ -79,6 +79,6 @@ public class BoneStaffHandler {
                 true);
 
         // 不触发普通攻击/击杀，仅注入感染
-        return InteractionResult.SUCCESS;
+        return InteractionResult.CONSUME;
     }
 }
