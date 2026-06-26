@@ -151,7 +151,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         if (shadowCooldownTicks > 0) shadowCooldownTicks--;
         if (explosionCooldownTicks > 0) explosionCooldownTicks--;
         // sync once per second while any cooldown is counting down
-        if (anyCooldownActive && sp.serverTickCount % 20 == 0) {
+        if (anyCooldownActive && sp.level().getGameTime() % 20 == 0) {
             sync();
         }
 
