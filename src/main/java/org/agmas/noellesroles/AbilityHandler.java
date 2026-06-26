@@ -204,11 +204,7 @@ public class AbilityHandler {
         }
         if (gameWorldComponent.isRole(player, ModRoles.WIZARD)) {
             WizardPlayerComponent wizard = ModComponents.WIZARD.get(player);
-            if (player.isShiftKeyDown()) {
-                wizard.cycleSpell();
-            } else {
-                wizard.castSelectedSpell();
-            }
+            wizard.castSelectedSpell();
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.OLDMAN)) {

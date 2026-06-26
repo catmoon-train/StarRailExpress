@@ -66,10 +66,16 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
     }
 
     public void addToBalance(int amount) {
+        if (tryConvertWizardBalance(amount)) {
+            return;
+        }
         this.setBalance(this.balance + amount);
     }
 
     public void setBalance(int amount) {
+        if (tryConvertWizardBalance(amount)) {
+            return;
+        }
         if (this.balance != amount) {
             this.balance = amount;
             // try{
@@ -79,6 +85,25 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
             // }
             this.sync();
         }
+    }
+
+    private boolean tryConvertWizardBalance(int amount) {
+        if (this.player.level().isClientSide) {
+            return false;
+        }
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(this.player.level());
+        if (gameWorld == null || !gameWorld.isRole(this.player, org.agmas.noellesroles.role.ModRoles.WIZARD)) {
+            return false;
+        }
+        if (amount > 0) {
+            org.agmas.noellesroles.component.ModComponents.WIZARD.get(this.player).addMana(
+                    amount * org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().wizardManaPerCoin);
+        }
+        if (this.balance != 0) {
+            this.balance = 0;
+            this.sync();
+        }
+        return true;
     }
 
     public void tryBuy(int index) {

@@ -55,6 +55,7 @@ public class OtherRolesRegister {
         PelicanHud.register();
         GodfatherHud.register();
         WarlockHud.register();
+        WizardHud.register();
         EmbalmerHud.register();
         SkincrawlerHud.register();
         PhantomMusicianHud.register();

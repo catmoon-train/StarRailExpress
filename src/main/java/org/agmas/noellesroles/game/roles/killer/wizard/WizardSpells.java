@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.init.ModItems;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -65,7 +66,7 @@ public final class WizardSpells {
                         hit.add(p.getUUID());
                         level.sendParticles(ParticleTypes.LAVA, p.getX(), p.getY() + 1.0, p.getZ(),
                                 12, 0.3, 0.5, 0.3, 0.05);
-                        GameUtils.killPlayer(target, true, sp, Noellesroles.id("wizard_fire_arrow"));
+                        comp.onFireArrowHit(sp, target);
                     }
                 }
             }
@@ -153,6 +154,11 @@ public final class WizardSpells {
                     break;
                 }
             }
+        }
+        if (killed > 0) {
+            caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
+                    io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(
+                            io.wifi.starrailexpress.index.TMMItems.KNIFE));
         }
     }
 }

@@ -12,13 +12,11 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.BossEvent;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -34,58 +32,34 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-/**
- * 巫师组件（杀手阵营）。
- *
- * <p>核心机制：
- * <ul>
- *   <li><b>魔素</b>：以 bossbar 显示的特殊充能。巫师所有金币收入（击杀 + 自然恢复）都转化为魔素，巫师本身不使用金币。</li>
- *   <li><b>法杖</b>（{@link WizardStaffItem}）：右键蓄力释放魔法火焰箭（最多贯穿数名玩家、命中即死），左键击退。</li>
- *   <li><b>魔药</b>（{@link WizardPotionItem}）：使用后进入冷却，获得大量魔素，并在 60 秒内免疫一次致命攻击。</li>
- *   <li><b>魔法池</b>：潜行 + 技能键在四个法术间切换；技能键释放当前法术。</li>
- *   <li>法术：盔甲护身 / 冰霜震慑 / 笼罩暗影 / Explosion! —— 详见各 cast 方法。</li>
- * </ul>
- */
 public class WizardPlayerComponent implements RoleComponent, ServerTickingComponent {
 
     public static final ComponentKey<WizardPlayerComponent> KEY = ModComponents.WIZARD;
 
     public enum Spell {
-        ARMOR,      // 盔甲护身
-        FROST,      // 冰霜震慑
-        SHADOW,     // 笼罩暗影
-        EXPLOSION   // Explosion!
+        ARMOR,
+        FROST,
+        SHADOW,
+        EXPLOSION
     }
 
     private final Player player;
 
-    /** 魔素（特殊充能）。 */
     public float mana = 0f;
-    /** 当前选中的法术。 */
     public Spell selectedSpell = Spell.ARMOR;
-    /** Explosion! 是否已就绪（下一次法杖施放释放九环火球术）。 */
     public boolean explosionArmed = false;
+    public int potionShieldTicks = 0;
+    public boolean armorUsed = false;
 
-    /** 魔药冷却（tick）。 */
-    public int potionCooldown = 0;
-    /** 魔药提供的“免疫一次攻击”剩余 tick；> 0 表示可免疫一次致命攻击。 */
-    public int attackImmuneTicks = 0;
-
-    /** 笼罩暗影：是否在关灯期间持续施放（持续到关灯结束）。 */
-    private boolean shadowSustaining = false;
-
-    /** 是否已发放开局道具。 */
     private boolean gaveStartingItems = false;
-
-    /** 已发放护盾的到期队列（到期后移除一层护盾）。 */
     private final List<ShieldExpiry> shieldExpiries = new ArrayList<>();
-
-    /** 魔素 bossbar（非序列化）。 */
-    private transient ServerBossEvent manaBar = null;
+    private final Map<UUID, FireArrowMark> fireArrowMarks = new HashMap<>();
 
     public WizardPlayerComponent(Player player) {
         this.player = player;
@@ -106,22 +80,23 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.mana = 0f;
         this.selectedSpell = Spell.ARMOR;
         this.explosionArmed = false;
-        this.potionCooldown = 0;
-        this.attackImmuneTicks = 0;
-        this.shadowSustaining = false;
+        this.potionShieldTicks = 0;
+        this.armorUsed = false;
         this.gaveStartingItems = false;
         this.shieldExpiries.clear();
+        this.fireArrowMarks.clear();
         sync();
     }
 
     @Override
     public void clear() {
-        removeManaBar();
         this.mana = 0f;
         this.explosionArmed = false;
-        this.attackImmuneTicks = 0;
-        this.shadowSustaining = false;
+        this.potionShieldTicks = 0;
+        this.armorUsed = false;
+        this.gaveStartingItems = false;
         this.shieldExpiries.clear();
+        this.fireArrowMarks.clear();
         sync();
     }
 
@@ -134,10 +109,8 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     }
 
     public float maxMana() {
-        return config().wizardMaxMana;
+        return 500f;
     }
-
-    // ==================== 每 tick ====================
 
     @Override
     public void serverTick() {
@@ -145,65 +118,35 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
             return;
         }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(sp.level());
-        boolean isWizard = gameWorld.isRole(sp, ModRoles.WIZARD);
-        if (!isWizard) {
-            removeManaBar();
+        if (!gameWorld.isRole(sp, ModRoles.WIZARD)) {
             return;
         }
 
-        // 开局发放法杖与魔药
         if (!gaveStartingItems && GameUtils.isPlayerAliveAndSurvival(sp)) {
             grantStartingItems(sp);
+            this.mana = Math.min(maxMana(), config().wizardStartingMana);
+            clearCoins(sp);
             gaveStartingItems = true;
+            sync();
         }
 
-        if (potionCooldown > 0) {
-            potionCooldown--;
-        }
-        if (attackImmuneTicks > 0) {
-            attackImmuneTicks--;
-        }
-
-        // 金币 -> 魔素：清空商店余额并转化
-        SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);
-        if (shop.balance > 0) {
-            addMana(shop.balance * config().wizardManaPerCoin);
-            shop.balance = 0;
-            shop.sync();
-        }
-        // 自然恢复（被动魔素）
-        if (sp.level().getGameTime() % 20 == 0) {
-            addMana(config().wizardPassiveManaPerSecond);
-        }
-
-        // 笼罩暗影：关灯期间持续施放
-        tickShadowSustain(sp);
-
-        // 护盾到期移除
-        tickShieldExpiries(sp);
-
-        // 魔素 bossbar
-        updateManaBar(sp);
-    }
-
-    private void tickShadowSustain(ServerPlayer sp) {
-        if (!shadowSustaining) {
-            return;
-        }
-        SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(sp.level());
-        if (!blackout.isBlackoutActive()) {
-            shadowSustaining = false;
-            return;
-        }
-        // 每秒额外消耗魔素维持失明
-        if (sp.level().getGameTime() % 20 == 0) {
-            if (mana < config().wizardShadowBlackoutDrainPerSecond) {
-                shadowSustaining = false;
-                return;
+        if (potionShieldTicks > 0) {
+            potionShieldTicks--;
+            if (potionShieldTicks == 0) {
+                expirePotionShield(sp);
             }
-            spendMana(config().wizardShadowBlackoutDrainPerSecond);
-            applyShadowBlindness(sp, GameConstants.getInTicks(0, 2));
         }
+
+        SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);
+        if (shop.balance != 0) {
+            if (shop.balance > 0) {
+                addMana(shop.balance * config().wizardManaPerCoin);
+            }
+            clearCoins(sp);
+        }
+
+        tickShieldExpiries(sp);
+        tickFireArrowMarks(sp);
     }
 
     private void tickShieldExpiries(ServerPlayer sp) {
@@ -220,7 +163,6 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
                 continue;
             }
             if (se.ticksLeft <= 0) {
-                // 护盾到期：若目标仍持有护盾则移除一层
                 io.wifi.starrailexpress.cca.SREArmorPlayerComponent armorComp =
                         io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(target);
                 if (armorComp.getArmor() > 0) {
@@ -232,10 +174,8 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         }
     }
 
-    // ==================== 魔素 ====================
-
     public void addMana(float amount) {
-        this.mana = Math.min(maxMana(), this.mana + amount);
+        this.mana = Mth.clamp(this.mana + amount, 0f, maxMana());
         sync();
     }
 
@@ -248,31 +188,13 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         sync();
     }
 
-    private void updateManaBar(ServerPlayer sp) {
-        if (manaBar == null) {
-            manaBar = new ServerBossEvent(manaBarTitle(), BossEvent.BossBarColor.PURPLE,
-                    BossEvent.BossBarOverlay.PROGRESS);
-        }
-        // 确保（重生后 ServerPlayer 实例会变）当前实例可见；addPlayer 对已存在者是幂等的
-        manaBar.addPlayer(sp);
-        manaBar.setName(manaBarTitle());
-        manaBar.setProgress(Math.max(0f, Math.min(1f, mana / maxMana())));
-    }
-
-    private Component manaBarTitle() {
-        return Component.translatable("hud.noellesroles.wizard.mana",
-                (int) mana, (int) maxMana(),
-                Component.translatable("hud.noellesroles.wizard.spell." + selectedSpell.name().toLowerCase()));
-    }
-
-    private void removeManaBar() {
-        if (manaBar != null) {
-            manaBar.removeAllPlayers();
-            manaBar = null;
+    private void clearCoins(ServerPlayer sp) {
+        SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);
+        if (shop.balance != 0) {
+            shop.balance = 0;
+            shop.sync();
         }
     }
-
-    // ==================== 法术切换/释放 ====================
 
     public void cycleSpell() {
         Spell[] all = Spell.values();
@@ -297,9 +219,13 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         }
     }
 
-    /** 盔甲护身：提示玩家在背包中选择目标，实际护盾发放由 {@link WizardShieldC2SPacket} 处理。 */
     private void castArmorPrompt(ServerPlayer sp) {
-        if (!hasMana(config().wizardArmorCost)) {
+        if (armorUsed) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.armor_used")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+        if (!hasMana(config().wizardArmorMinMana)) {
             notEnoughMana(sp);
             return;
         }
@@ -307,15 +233,14 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
                 .withStyle(ChatFormatting.AQUA), true);
     }
 
-    /** 由网络包调用：给目标一次护盾，消耗魔素。 */
     public boolean grantShieldTo(ServerPlayer caster, ServerPlayer target) {
-        if (!hasMana(config().wizardArmorCost) || target == null
+        if (armorUsed || !hasMana(config().wizardArmorMinMana) || target == null || target == caster
                 || !GameUtils.isPlayerAliveAndSurvival(target)) {
             return false;
         }
-        spendMana(config().wizardArmorCost);
+        spendMana(mana);
+        armorUsed = true;
         io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(target).giveArmor();
-        // 护盾仅存在固定时长，到期自动移除
         shieldExpiries.removeIf(se -> se.targetUuid.equals(target.getUUID()));
         shieldExpiries.add(new ShieldExpiry(target.getUUID(),
                 GameConstants.getInTicks(0, config().wizardShieldDurationSeconds)));
@@ -323,16 +248,18 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         target.level().playSound(null, target.blockPosition(), SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 0.6f, 1.6f);
         caster.displayClientMessage(Component.translatable("message.noellesroles.wizard.armor_done",
                 target.getDisplayName()).withStyle(ChatFormatting.AQUA), true);
+        caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
+                io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(
+                        io.wifi.starrailexpress.index.TMMItems.KNIFE));
         return true;
     }
 
-    /** 冰霜震慑：消耗魔素，使附近除巫师外的所有玩家无法移动/转视角。 */
     private void castFrost(ServerPlayer sp) {
-        if (!hasMana(config().wizardFrostCost)) {
+        if (!hasMana(config().wizardFrostMinMana)) {
             notEnoughMana(sp);
             return;
         }
-        spendMana(config().wizardFrostCost);
+        spendMana(mana / 2f);
         int duration = GameConstants.getInTicks(0, config().wizardFrostSeconds);
         double range = config().wizardFrostRange;
         int affected = 0;
@@ -353,50 +280,52 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
                 .withStyle(ChatFormatting.AQUA), true);
     }
 
-    /** 笼罩暗影：使除杀手外的玩家失明 6 秒；关灯状态下额外消耗魔素持续至关灯结束。 */
     private void castShadow(ServerPlayer sp) {
+        SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(sp.level());
+        if (!blackout.isBlackoutActive()) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.shadow_blackout_only")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
         if (!hasMana(config().wizardShadowCost)) {
             notEnoughMana(sp);
             return;
         }
         spendMana(config().wizardShadowCost);
-        applyShadowBlindness(sp, GameConstants.getInTicks(0, config().wizardShadowSeconds));
-        SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(sp.level());
-        if (blackout.isBlackoutActive()) {
-            shadowSustaining = true;
-        }
+        extendShadowDarkness(sp, GameConstants.getInTicks(0, config().wizardShadowSeconds));
         castFx(sp, SoundEvents.WITHER_AMBIENT, ParticleTypes.SMOKE);
         sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.shadow_cast")
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
     }
 
-    private void applyShadowBlindness(ServerPlayer sp, int duration) {
+    private void extendShadowDarkness(ServerPlayer sp, int extension) {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(sp.level());
         for (Player p : sp.level().players()) {
-            if (p == sp || !GameUtils.isPlayerAliveAndSurvival(p)) {
+            if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue;
             }
             SRERole role = gameWorld.getRole(p);
             if (role != null && role.canUseKiller()) {
-                continue; // 除杀手外
+                continue;
             }
-            p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, duration, 0, false, false, false));
-            p.addEffect(new MobEffectInstance(MobEffects.DARKNESS, duration, 0, false, false, false));
+            int blindness = p.hasEffect(MobEffects.BLINDNESS) ? p.getEffect(MobEffects.BLINDNESS).getDuration() : 0;
+            int darkness = p.hasEffect(MobEffects.DARKNESS) ? p.getEffect(MobEffects.DARKNESS).getDuration() : 0;
+            p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, blindness + extension, 0, false, false, false));
+            p.addEffect(new MobEffectInstance(MobEffects.DARKNESS, darkness + extension, 0, false, false, false));
         }
     }
 
-    /** Explosion!：消耗魔素就绪，下一次法杖施放释放九环火球术。 */
     private void castExplosion(ServerPlayer sp) {
         if (explosionArmed) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.explosion_already")
                     .withStyle(ChatFormatting.GOLD), true);
             return;
         }
-        if (!hasMana(config().wizardExplosionCost)) {
+        if (!hasMana(config().wizardExplosionMinMana)) {
             notEnoughMana(sp);
             return;
         }
-        spendMana(config().wizardExplosionCost);
+        spendMana(mana * Math.max(0, Math.min(100, config().wizardExplosionManaPercentCost)) / 100f);
         explosionArmed = true;
         sync();
         castFx(sp, SoundEvents.FIRECHARGE_USE, ParticleTypes.LAVA);
@@ -404,9 +333,6 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
                 .withStyle(ChatFormatting.RED), true);
     }
 
-    // ==================== 法杖施放（由物品调用） ====================
-
-    /** 法杖蓄力释放：被 {@link WizardStaffItem#releaseUsing} 调用。 */
     public void castStaff(ServerPlayer sp) {
         if (explosionArmed) {
             explosionArmed = false;
@@ -417,18 +343,61 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         }
     }
 
-    // ==================== 魔药 ====================
+    public void onFireArrowHit(ServerPlayer caster, ServerPlayer target) {
+        FireArrowMark mark = fireArrowMarks.computeIfAbsent(target.getUUID(), ignored -> new FireArrowMark());
+        if (mark.deathTicks > 0) {
+            return;
+        }
+        mark.hits++;
+        if (mark.hits >= config().wizardFireArrowHitsToKill) {
+            mark.deathTicks = GameConstants.getInTicks(0, config().wizardFireArrowDeathDelaySeconds);
+            target.displayClientMessage(Component.translatable("message.noellesroles.wizard.fire_arrow_hit")
+                    .withStyle(ChatFormatting.RED), true);
+        } else {
+            target.displayClientMessage(Component.translatable("message.noellesroles.wizard.fire_arrow_stack",
+                    mark.hits, config().wizardFireArrowHitsToKill).withStyle(ChatFormatting.GOLD), true);
+        }
+        sync();
+    }
 
-    /** 由魔药物品调用：进入冷却、获得大量魔素、60s 内免疫一次攻击。 */
+    private void tickFireArrowMarks(ServerPlayer caster) {
+        if (fireArrowMarks.isEmpty()) {
+            return;
+        }
+        Iterator<Map.Entry<UUID, FireArrowMark>> it = fireArrowMarks.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, FireArrowMark> entry = it.next();
+            Player target = caster.level().getPlayerByUUID(entry.getKey());
+            if (!(target instanceof ServerPlayer serverTarget) || !GameUtils.isPlayerAliveAndSurvival(target)) {
+                it.remove();
+                continue;
+            }
+            FireArrowMark mark = entry.getValue();
+            if (mark.deathTicks <= 0) {
+                continue;
+            }
+            mark.deathTicks--;
+            if (mark.deathTicks <= 0) {
+                GameUtils.killPlayer(serverTarget, true, caster, Noellesroles.id("wizard_fire_arrow"));
+                caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
+                        io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(
+                                io.wifi.starrailexpress.index.TMMItems.KNIFE));
+                it.remove();
+            }
+        }
+    }
+
     public boolean usePotion(ServerPlayer sp) {
-        if (potionCooldown > 0) {
+        if (sp.getCooldowns().isOnCooldown(ModItems.WIZARD_POTION)) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_cd",
-                    potionCooldown / 20).withStyle(ChatFormatting.RED), true);
+                    Math.max(1, Math.round(sp.getCooldowns().getCooldownPercent(ModItems.WIZARD_POTION, 0f)
+                            * config().wizardPotionCooldown))).withStyle(ChatFormatting.RED), true);
             return false;
         }
-        potionCooldown = GameConstants.getInTicks(0, config().wizardPotionCooldown);
+        sp.getCooldowns().addCooldown(ModItems.WIZARD_POTION, GameConstants.getInTicks(0, config().wizardPotionCooldown));
         addMana(config().wizardPotionManaGain);
-        attackImmuneTicks = GameConstants.getInTicks(0, config().wizardPotionImmuneSeconds);
+        io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(sp).addArmor();
+        potionShieldTicks = GameConstants.getInTicks(0, config().wizardPotionImmuneSeconds);
         sync();
         castFx(sp, SoundEvents.BREWING_STAND_BREW, ParticleTypes.WITCH);
         sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_used")
@@ -436,22 +405,27 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         return true;
     }
 
-    /** 消耗一次攻击免疫（由死亡拦截事件调用）。 */
-    public boolean consumeAttackImmunity() {
-        if (attackImmuneTicks > 0) {
-            attackImmuneTicks = 0;
-            sync();
-            if (player instanceof ServerPlayer sp) {
-                castFx(sp, SoundEvents.TOTEM_USE, ParticleTypes.TOTEM_OF_UNDYING);
-                sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.immune_triggered")
-                        .withStyle(ChatFormatting.GOLD), true);
-            }
-            return true;
+    public void onPotionShieldBroken() {
+        if (potionShieldTicks <= 0) {
+            return;
         }
-        return false;
+        potionShieldTicks = 0;
+        spendMana(config().wizardPotionManaGain);
+        if (player instanceof ServerPlayer sp) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_shield_broken")
+                    .withStyle(ChatFormatting.RED), true);
+        }
+        sync();
     }
 
-    // ==================== 工具 ====================
+    private void expirePotionShield(ServerPlayer sp) {
+        io.wifi.starrailexpress.cca.SREArmorPlayerComponent armor =
+                io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(sp);
+        if (armor.getArmor() > 0) {
+            armor.removeArmor();
+        }
+        sync();
+    }
 
     private void grantStartingItems(ServerPlayer sp) {
         sp.addItem(ModItems.WIZARD_STAFF.getDefaultInstance().copy());
@@ -479,15 +453,13 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         }
     }
 
-    // ==================== NBT ====================
-
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putFloat("mana", this.mana);
         tag.putInt("selectedSpell", this.selectedSpell.ordinal());
         tag.putBoolean("explosionArmed", this.explosionArmed);
-        tag.putInt("potionCooldown", this.potionCooldown);
-        tag.putInt("attackImmuneTicks", this.attackImmuneTicks);
+        tag.putInt("potionShieldTicks", this.potionShieldTicks);
+        tag.putBoolean("armorUsed", this.armorUsed);
     }
 
     @Override
@@ -495,8 +467,8 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.mana = tag.getFloat("mana");
         this.selectedSpell = Spell.values()[Math.floorMod(tag.getInt("selectedSpell"), Spell.values().length)];
         this.explosionArmed = tag.getBoolean("explosionArmed");
-        this.potionCooldown = tag.getInt("potionCooldown");
-        this.attackImmuneTicks = tag.getInt("attackImmuneTicks");
+        this.potionShieldTicks = tag.getInt("potionShieldTicks");
+        this.armorUsed = tag.getBoolean("armorUsed");
     }
 
     @Override
@@ -515,5 +487,10 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
             this.targetUuid = targetUuid;
             this.ticksLeft = ticksLeft;
         }
+    }
+
+    private static final class FireArrowMark {
+        int hits;
+        int deathTicks;
     }
 }

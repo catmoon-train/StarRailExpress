@@ -478,6 +478,20 @@ public class ModPacketsReciever {
         });
 
     // 操纵师数据包处理
+    ServerPlayNetworking.registerGlobalReceiver(WizardSwitchSpellC2SPacket.ID, (payload, context) -> {
+      ServerPlayer player = context.player();
+      if (player.hasEffect(ModEffects.SAFE_TIME))
+        return;
+      if (RoleSkill.blockForSpectator(player))
+        return;
+      SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+      if (!gameWorldComponent.isSkillAvailable)
+        return;
+      if (!gameWorldComponent.isRole(player, ModRoles.WIZARD))
+        return;
+      ModComponents.WIZARD.get(player).cycleSpell();
+    });
+
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MANIPULATOR_PACKET, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
         return;

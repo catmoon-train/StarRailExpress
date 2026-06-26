@@ -15,6 +15,8 @@ import org.agmas.noellesroles.packet.AbilityC2SPacket;
 import org.agmas.noellesroles.packet.ManipulatorAbilityC2SPacket;
 import org.agmas.noellesroles.packet.RepairPrimarySkillC2SPacket;
 import org.agmas.noellesroles.packet.UnifiedSkillInputC2SPacket;
+import org.agmas.noellesroles.packet.WizardSwitchSpellC2SPacket;
+import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.UUID;
 
@@ -131,6 +133,7 @@ public class ClientAbilityHandler {
         }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
         var role = gameWorld.getRole(client.player);
+
         if (!RoleSkill.hasUnifiedSkills(role)) {
             unifiedSkillHeld = false;
             heldSlot = -1;
@@ -156,6 +159,11 @@ public class ClientAbilityHandler {
         var role = gameWorld.getRole(client.player);
 
         // 处理统一技能体系中的模式切换角色（会计、小偷、药剂师、建筑师、葬仪、设陷者、模仿者等）
+        if (gameWorld.isRole(client.player, ModRoles.WIZARD)) {
+            ClientPlayNetworking.send(new WizardSwitchSpellC2SPacket());
+            return;
+        }
+
         var definitions = RoleSkill.getDefinitions(role);
         if (!definitions.isEmpty()) {
             var shiftedDefs = definitions.stream().filter(RoleSkill.Definition::shifted).toList();

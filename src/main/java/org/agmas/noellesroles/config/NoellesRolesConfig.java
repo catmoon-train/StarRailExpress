@@ -387,35 +387,39 @@ public class NoellesRolesConfig implements ConfigData {
 
     // ==================== Wizard (巫师) ====================
     /** Wizard - Max mana (魔素) capacity */
-    public int wizardMaxMana = 100;
+    public int wizardMaxMana = 500;
+    public int wizardStartingMana = 120;
     /** Wizard - Mana gained per coin of income (all coins convert to mana) */
     public int wizardManaPerCoin = 1;
     /** Wizard - Passive mana regen per second */
-    public int wizardPassiveManaPerSecond = 1;
     /** Wizard - Staff left-click knockback strength */
     public double wizardStaffKnockback = 1.2;
     /** Wizard - Fire arrow max range in blocks */
     public double wizardFireArrowRange = 30.0;
-    /** Wizard - Max players a single fire arrow can pierce (instant kill on hit) */
+    /** Wizard - Max players a single fire arrow can pierce */
     public int wizardFireArrowMaxPierce = 2;
-    /** Wizard - Armor (shield) spell mana cost */
-    public int wizardArmorCost = 20;
+    /** Wizard - Fire arrow hits required on one target before delayed death */
+    public int wizardFireArrowHitsToKill = 2;
+    /** Wizard - Fire arrow delayed death seconds after enough hits */
+    public int wizardFireArrowDeathDelaySeconds = 3;
+    /** Wizard - Armor spell minimum mana to cast */
+    public int wizardArmorMinMana = 200;
     /** Wizard - Granted shield (armor) lifetime in seconds before it expires */
-    public int wizardShieldDurationSeconds = 30;
-    /** Wizard - Frost spell mana cost */
-    public int wizardFrostCost = 30;
+    public int wizardShieldDurationSeconds = 120;
+    /** Wizard - Frost spell minimum mana to cast */
+    public int wizardFrostMinMana = 200;
     /** Wizard - Frost spell freeze duration in seconds */
     public int wizardFrostSeconds = 4;
     /** Wizard - Frost spell effect range in blocks */
     public double wizardFrostRange = 8.0;
-    /** Wizard - Shadow (blindness) spell mana cost */
-    public int wizardShadowCost = 25;
+    /** Wizard - Shadow spell mana cost */
+    public int wizardShadowCost = 150;
     /** Wizard - Shadow spell blindness duration in seconds */
     public int wizardShadowSeconds = 6;
-    /** Wizard - Extra mana drained per second to sustain shadow during a blackout */
-    public int wizardShadowBlackoutDrainPerSecond = 5;
-    /** Wizard - Explosion! spell mana cost */
-    public int wizardExplosionCost = 40;
+    /** Wizard - Explosion! spell minimum mana to cast */
+    public int wizardExplosionMinMana = 350;
+    /** Wizard - Percent of current mana spent by Explosion! */
+    public int wizardExplosionManaPercentCost = 80;
     /** Wizard - Nine-ring fireball max travel range in blocks */
     public double wizardFireballRange = 25.0;
     /** Wizard - Nine-ring fireball explosion radius in blocks */
@@ -423,9 +427,9 @@ public class NoellesRolesConfig implements ConfigData {
     /** Wizard - Max players killed by one nine-ring fireball */
     public int wizardFireballMaxKills = 8;
     /** Wizard - Potion cooldown in seconds */
-    public int wizardPotionCooldown = 30;
+    public int wizardPotionCooldown = 120;
     /** Wizard - Mana gained from drinking a potion */
-    public int wizardPotionManaGain = 50;
+    public int wizardPotionManaGain = 150;
     /** Wizard - Potion attack-immunity window in seconds */
     public int wizardPotionImmuneSeconds = 60;
 

@@ -118,7 +118,6 @@ import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComp
 import org.agmas.noellesroles.packet.BloodConfigS2CPacket;
 import org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
@@ -786,16 +785,6 @@ public class ModEventsRegister {
 
         // 肉汁独处保护机制 - 杀手/中立只能在单独相处时击杀肉汁
         // 巫师魔药：60 秒内免疫一次致命攻击
-        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
-            if (gameWorld.isRole(victim, ModRoles.WIZARD)) {
-                WizardPlayerComponent wizard = org.agmas.noellesroles.component.ModComponents.WIZARD.get(victim);
-                if (wizard.consumeAttackImmunity()) {
-                    return false; // 取消本次死亡
-                }
-            }
-            return true;
-        });
 
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
@@ -1642,6 +1631,9 @@ public class ModEventsRegister {
 
         OnShieldBroken.EVENT.register((victim, killer) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorldComponent.isRole(victim, ModRoles.WIZARD)) {
+                ModComponents.WIZARD.get(victim).onPotionShieldBroken();
+            }
             if (gameWorldComponent.isRole(victim, ModRoles.WATCHER)) {
                 WatcherPlayerComponent.KEY.get(victim).markShieldConsumed();
             }
