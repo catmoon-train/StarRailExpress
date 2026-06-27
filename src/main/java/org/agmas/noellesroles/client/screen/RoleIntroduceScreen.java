@@ -65,7 +65,7 @@ public class RoleIntroduceScreen extends Screen {
         }
     }
 
-    private IntroductionGameMode currentMode = IntroductionGameMode.MURDER;
+    private IntroductionGameMode currentMode = IntroductionGameMode.FILTER;
     // FILTER 选项
     public static HashSet<String> filterFlags = new HashSet<>();
 
@@ -308,12 +308,17 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private void computeLayout() {
+        boolean isSmall = this.height <= 300;
         usableWidth = Math.min((int) (width * USABLE_RATIO), MAX_USABLE_WIDTH);
         leftW = (int) (usableWidth * LEFT_RATIO);
         rightW = usableWidth - leftW;
         panelX = (width - usableWidth) / 2;
         panelY = 48;
-        panelH = height - panelY - 42;
+        if (isSmall) {
+            panelH = height - panelY - 20;
+        } else {
+            panelH = height - panelY - 42;
+        }
         leftX = panelX;
         rightX = panelX + leftW;
         // 顶部行紧贴 panelY 上方
@@ -788,6 +793,7 @@ public class RoleIntroduceScreen extends Screen {
         // 其余代码
         renderLeftPanel(g, mouseX, mouseY);
         renderRightPanel(g, mouseX, mouseY);
+        boolean isSmall = this.height <= 300;
 
         // ── 分类标签：紧接搜索框右侧，与搜索框同高同 Y ────────────
         int catBarX = rightX + TOP_BAR_GAP;
@@ -797,8 +803,15 @@ public class RoleIntroduceScreen extends Screen {
         g.fillGradient(0, 0, width, topBarY - 4, 0xBB000000, 0x00000000);
         g.drawCenteredString(font, this.title, width / 2, 8, 0xF5E8C8);
         // 底部提示上移，为模式按钮留空间
-        g.drawCenteredString(font, Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY),
-                width / 2, height - 24, 0x9E8B6E);
+        if (isSmall) {
+            g.drawCenteredString(font,
+                    Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY),
+                    width / 2, height - 15, 0x9E8B6E);
+        } else {
+            g.drawCenteredString(font,
+                    Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY),
+                    width / 2, height - 24, 0x9E8B6E);
+        }
 
         // ── 左下角模式切换按钮 ──────────────────────────────────
         renderModeButtons(g, mouseX, mouseY, leftW - PANEL_PAD * 4);
