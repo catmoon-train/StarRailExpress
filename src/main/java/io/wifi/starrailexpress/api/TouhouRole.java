@@ -16,5 +16,6 @@ public class TouhouRole extends NormalRole {
     public TouhouRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
+        this.addFlag("touhou", "bouns");
     }
 }

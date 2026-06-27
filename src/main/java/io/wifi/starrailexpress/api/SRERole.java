@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -78,6 +79,56 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
     public HashSet<SRERole> opposingJobs = new HashSet<>();
+    /**
+     * 显示FLAG。用于RoleIntroduceScreen的filter
+     */
+    public HashSet<String> flags = new HashSet<>();
+
+    /**
+     * 添加显示FLAG
+     */
+    public SRERole addFlag(String... flag) {
+        this.flags.addAll(flags);
+        return this;
+    }
+
+    /**
+     * 获取显示FLAG
+     */
+    public HashSet<String> getFlags() {
+        return this.flags;
+    }
+
+    /**
+     * 是否为指定flag
+     * @param flags
+     * @return
+     */
+    public boolean isFlag(String... flags) {
+        for (var f : flags) {
+            if (!this.flags.contains(f))
+                return false;
+        }
+        return true;
+
+    }
+
+    /**
+     * 是否为指定flag
+     * @param flags
+     * @return
+     */
+    public boolean isFlag(Set<String> flags) {
+        return this.flags.containsAll(flags);
+    }
+
+    /**
+     * 删除显示FLAG
+     */
+    public SRERole removeFlag(String... flag) {
+        this.flags.removeAll(flags);
+        return this;
+    }
 
     public Random getRandom() {
         return random;

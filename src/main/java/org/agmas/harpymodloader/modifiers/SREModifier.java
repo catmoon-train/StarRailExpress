@@ -38,6 +38,58 @@ public class SREModifier extends SREAbstractInfoClass {
     public int defaultMaxPlayerCount = -1;
     public boolean isOtherModeRole = false;
     public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
+    /**
+     * 显示FLAG。用于RoleIntroduceScreen的filter
+     */
+    public HashSet<String> flags = new HashSet<>();
+
+    /**
+     * 添加显示FLAG
+     */
+    public SREModifier addFlag(String... flag) {
+        this.flags.addAll(flags);
+        return this;
+    }
+
+    /**
+     * 是否为指定flag
+     * 
+     * @param flags
+     * @return
+     */
+    public boolean isFlag(String... flags) {
+        for (var f : flags) {
+            if (!this.flags.contains(f))
+                return false;
+        }
+        return true;
+
+    }
+
+    /**
+     * 是否为指定flag
+     * 
+     * @param flags
+     * @return
+     */
+    public boolean isFlag(HashSet<String> flags) {
+        return this.flags.containsAll(flags);
+    }
+
+    /**
+     * 获取显示FLAG
+     */
+    public HashSet<String> getFlags() {
+        return this.flags;
+    }
+
+    /**
+     * 删除显示FLAG
+     */
+    public SREModifier removeFlag(String... flag) {
+        this.flags.removeAll(flags);
+        return this;
+    }
 
     public SREModifier setCanSetSpawnInfoInConfig(boolean flag) {
         this.canSetSpawnInfoInConfig = flag;

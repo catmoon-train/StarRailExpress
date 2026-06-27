@@ -9,6 +9,10 @@ import net.minecraft.world.entity.player.Player;
 
 import java.awt.Color;
 
+import org.agmas.noellesroles.role.touhou.ForestRoles;
+import org.agmas.noellesroles.role.touhou.MountainRoles;
+import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+
 /**
  * 彩蛋角色类，受到彩蛋刷新概率影响
  */
@@ -37,6 +41,9 @@ public class BounsRoles {
             .setDefaultEnableChance(10);
 
     public static void init() {
+        RedHouseRoles.init();
+        MountainRoles.init();
+        ForestRoles.init();
     }
 
 }

@@ -142,10 +142,9 @@ public class RedHouseRoles {
             }
           }
         }
-      })
+      }, "redhouse")
       .setCanSeeCoin(true);
 
   public static void init() {
-    MountainRoles.init();
   }
 }

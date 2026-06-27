@@ -4,6 +4,7 @@ import io.wifi.ConfigCompact.ui.RoleManageConfigUI;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
@@ -11,7 +12,6 @@ import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -31,10 +31,13 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.client.screen.RoleIntroduceScreen.IntroductionGameMode;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -47,7 +50,8 @@ public class RoleIntroduceScreen extends Screen {
     public enum IntroductionGameMode {
         MURDER("screen.roleintroduce.mode.murder", 0xFFCC2233),
         REPAIR("screen.roleintroduce.mode.repair", 0xFF44AACC),
-        OTHER("screen.roleintroduce.mode.other", 0xFFAA88CC);
+        OTHER("screen.roleintroduce.mode.other", 0xFFAA88CC),
+        FILTER("screen.roleintroduce.mode.flag", 0xFF11AA33);
 
         public final String labelKey;
         public final int color;
@@ -59,6 +63,8 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private IntroductionGameMode currentMode = IntroductionGameMode.MURDER;
+    // FILTER 选项
+    public static HashSet<String> filterFlags = new HashSet<>();
 
     // 模式按钮布局缓存
     private int modeButtonX = 0;
@@ -91,7 +97,7 @@ public class RoleIntroduceScreen extends Screen {
 
     static {
         CATEGORIES.add(new RoleCategory(
-                "screen.roleintroduce.category.all", 0xFF5577CC, item -> true));
+                "screen.roleintroduce.category.all", 0xFFEEEEEE, item -> true));
 
         CATEGORIES.add(new RoleCategory(
                 "display.type.role.innocent", 0xFF44BB66,
@@ -200,8 +206,8 @@ public class RoleIntroduceScreen extends Screen {
     private final int[] tabW = new int[64];
 
     // 模式按钮预计算坐标与宽度（仿照分类标签）
-    private final int[] modeBtnX = new int[IntroductionGameMode.values().length + 1];
-    private final int[] modeBtnW = new int[IntroductionGameMode.values().length + 1];
+    private final int[] modeBtnX = new int[IntroductionGameMode.values().length + 2];
+    private final int[] modeBtnW = new int[IntroductionGameMode.values().length + 2];
 
     // 左侧列表滚动
     private int listScrollOffset = 0;
@@ -445,6 +451,8 @@ public class RoleIntroduceScreen extends Screen {
             case OTHER:
                 // 其它模式：只显示标记为isOtherModeRole()的职业
                 return role.isOtherModeRole();
+            case FILTER:
+                return role.isFlag(filterFlags);
             default:
                 return true;
         }
@@ -472,6 +480,8 @@ public class RoleIntroduceScreen extends Screen {
             case OTHER:
                 // 其它模式：只显示标记为isOtherModeRole()的修饰符
                 return mod.isOtherModeRole();
+            case FILTER:
+                return mod.isFlag(filterFlags);
             default:
                 return true;
         }
@@ -567,7 +577,8 @@ public class RoleIntroduceScreen extends Screen {
                 if (cd != null && !cd.goals.isEmpty()) {
                     detailLines.addAll(font.split(Component.literal(cd.goals), textW));
                 } else {
-                    detailLines.addAll(font.split(Component.translatable("announcement.star.goals." + rid.getPath()), textW));
+                    detailLines.addAll(
+                            font.split(Component.translatable("announcement.star.goals." + rid.getPath()), textW));
                 }
             } else {
                 detailLines.addAll(font.split(
@@ -1293,16 +1304,10 @@ public class RoleIntroduceScreen extends Screen {
                     if (btnW > 0 && isInRect((int) mx, (int) my,
                             btnX, modeButtonY, btnW, modeButtonH)) {
                         IntroductionGameMode clickedMode = IntroductionGameMode.values()[i];
-                        if (currentMode != clickedMode) {
-                            currentMode = clickedMode;
-                            listScrollOffset = 0;
-                            this.minecraft.getSoundManager()
-                                    .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
-                            refreshFilter();
-                            if (selectedRole != null && !filteredItems.contains(selectedRole)) {
-                                selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
-                                rebuildDetailLines();
-                            }
+                        if (currentMode == IntroductionGameMode.FILTER) {
+                            openFilterScreen();
+                        } else if (currentMode != clickedMode) {
+                            refreshFilter(clickedMode);
                         }
                         return true;
                     }
@@ -1372,6 +1377,42 @@ public class RoleIntroduceScreen extends Screen {
             }
         }
         return super.mouseClicked(mx, my, button);
+    }
+
+    private void openFilterScreen() {
+        LinkedHashMap<String, Component> optionMap = new LinkedHashMap<>();
+        HashSet<String> flags = TMMRoles.getAllFlags();
+        for (var it : flags) {
+            if (it != null) {
+                optionMap.put(it, Component.translatableWithFallback("screen.roleintroduce.flag." + it,
+                        it.toUpperCase().replaceAll("_", " ")));
+            }
+        }
+        filterFlags.clear();
+        FilterSelectionScreen screen = FilterSelectionScreen.builder(this).title(Component.translatable("选择物品"))
+                .subtitle(Component.translatable("gui.filter.tip"))
+                .options(optionMap)
+                .multiSelect(true)
+                .callback(selected -> {
+                    // 处理选择结果
+                    filterFlags.clear();
+                    filterFlags.addAll(selected);
+                    refreshFilter(IntroductionGameMode.FILTER);
+                })
+                .build();
+        screen.show(this.minecraft);
+    }
+
+    public void refreshFilter(IntroductionGameMode clickedMode) {
+        currentMode = clickedMode;
+        listScrollOffset = 0;
+        this.minecraft.getSoundManager()
+                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+        refreshFilter();
+        if (selectedRole != null && !filteredItems.contains(selectedRole)) {
+            selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
+            rebuildDetailLines();
+        }
     }
 
     @Override

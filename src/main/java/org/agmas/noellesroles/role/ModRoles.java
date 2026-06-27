@@ -29,7 +29,6 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerPlayerComponent;
@@ -2525,7 +2524,6 @@ public class ModRoles {
      * 在模组初始化时调用
      */
     public static void init() {
-        RedHouseRoles.init();
         BounsRoles.init();
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
