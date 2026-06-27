@@ -59,7 +59,7 @@ public class RedHouseRoles {
         public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
           return SRE.id("textures/entity/custom_psycho/remilia.png");
         }
-      })
+      }, "th_redhouse")
       .setCanSeeCoin(true).setCanSeeBodyDeathReason(true).setCanSeeBodyRoleInfo(true).setCanSeeBodyKiller(true);
   // 独立中立：芙兰朵露
   public static SRERole FURANDORU = TMMRoles.registerRole(
@@ -73,7 +73,7 @@ public class RedHouseRoles {
           // 复用cca
           GhostPlayerComponent.KEY.get(player).checkFuranLastStand(SREGameWorldComponent.KEY.get(player.level()));
         }
-      })
+      }, "th_redhouse")
       .setCanSeeCoin(true).setNeutrals(true).setCanUseInstinct(true).setCanIgnoreBlackout(true);
   // 好人：MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new TouhouRole(
@@ -84,18 +84,20 @@ public class RedHouseRoles {
       SRERole.MoodType.REAL, // 真实心情
       TMMRoles.CIVILIAN.getMaxSprintTime() * 2, // 2 倍冲刺时间
       false // 不隐藏计分板
-  )).setCanSeeCoin(true).setCanSeeTime(true).setDefaultMax(0);
+  ), "th_redhouse").setCanSeeCoin(true).setCanSeeTime(true).setDefaultMax(0);
   // 好人：大妖精baka
   public static SRERole BAKA = TMMRoles.registerRole(
       new TouhouRole(BAKA_ID, new Color(185, 240, 243).getRGB(),
           true, false, SRERole.MoodType.REAL,
-          TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+          TMMRoles.CIVILIAN.getMaxSprintTime(), false),
+      "th_redhouse")
       .setCanSeeCoin(true);
   // 好人：红美铃
   public static SRERole HOAN_MEIRIN = TMMRoles.registerRole(
       new TouhouRole(HOAN_MEIRIN_ID, new Color(243, 140, 132).getRGB(),
           true, false, SRERole.MoodType.REAL,
-          TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+          TMMRoles.CIVILIAN.getMaxSprintTime(), false),
+      "th_redhouse")
       .setVigilanteTeam(true).setCanSeeCoin(true);
   // 好人：帕秋莉 Patchouli Knowledge
   public static SRERole PACHURI = TMMRoles.registerRole(
@@ -142,7 +144,7 @@ public class RedHouseRoles {
             }
           }
         }
-      }, "redhouse")
+      }, "th_redhouse")
       .setCanSeeCoin(true);
 
   public static void init() {

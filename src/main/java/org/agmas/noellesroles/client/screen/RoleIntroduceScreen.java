@@ -1406,9 +1406,10 @@ public class RoleIntroduceScreen extends Screen {
         filterFlags.clear();
         FilterSelectionScreen screen = FilterSelectionScreen.builder(this)
                 .title(Component.translatable("screen.filter_selection.title"))
-                .subtitle(Component.translatable("gui.filter.tip"))
+                .subtitle(Component.translatable("screen.filter_selection.tip"))
                 .options(optionMap)
                 .multiSelect(true)
+                .defaultSelections(filterFlags)
                 .callback(selected -> {
                     // 处理选择结果
                     filterFlags.clear();

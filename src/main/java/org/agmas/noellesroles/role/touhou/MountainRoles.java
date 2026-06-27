@@ -73,7 +73,7 @@ public class MountainRoles {
                 return InteractionResult.SUCCESS;
             return InteractionResult.PASS;
         }
-    }.setComponentKey(AyayayaPlayerComponent.KEY), "mountain");
+    }.setComponentKey(AyayayaPlayerComponent.KEY), "th_mountain");
 
     public static SRERole HATATE = TMMRoles.registerRole(new TouhouRole(
             HATATE_ID, // 角色 ID
@@ -121,7 +121,7 @@ public class MountainRoles {
             return InteractionResult.PASS;
         }
 
-    }.setComponentKey(AyayayaPlayerComponent.KEY), "mountain");
+    }.setComponentKey(AyayayaPlayerComponent.KEY), "th_mountain");
 
     public static void init() {
     }
