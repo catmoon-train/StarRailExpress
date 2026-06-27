@@ -83,16 +83,17 @@ import org.agmas.noellesroles.events.OnShopPurchase;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent;
-import org.agmas.noellesroles.game.roles.innocent.avenger.AvengerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.awesome_binglus.AwesomePlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager;
-import org.agmas.noellesroles.game.roles.innocent.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.glitch_robot.GlitchRobotPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinFistPunchHandler;
-import org.agmas.noellesroles.game.roles.innocent.veteran.VeteranKnifeHandler;
-import org.agmas.noellesroles.game.roles.innocent.voodoo.VoodooDeathHandler;
+import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
+import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
+import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.glitch_robot.GlitchRobotPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
+import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooDeathHandler;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.game.roles.vigilante.guard.GuardPlayerHandler;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
@@ -112,7 +113,6 @@ import org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
@@ -1122,14 +1122,14 @@ public class ModEventsRegister {
         });
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             if (victim.level() instanceof ServerLevel serverLevel) {
-                org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
+                org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
                         victim.getUUID());
             }
             return true;
         });
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             if (victim.level() instanceof ServerLevel serverLevel) {
-                org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
+                org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager.clearTrackedTarget(serverLevel,
                         victim.getUUID());
             }
             return true;
@@ -1175,12 +1175,12 @@ public class ModEventsRegister {
             org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.resetAcceleratedState();
             // 清除所有建筑师的客户端墙
             for (ServerPlayer player : world.players()) {
-                org.agmas.noellesroles.game.roles.innocent.builder.BuilderPlayerComponent builderComp = org.agmas.noellesroles.component.ModComponents.BUILDER
+                org.agmas.noellesroles.game.roles.innocence.builder.BuilderPlayerComponent builderComp = org.agmas.noellesroles.component.ModComponents.BUILDER
                         .get(player);
                 builderComp.clearAllWalls();
             }
             // 清除全局墙位置注册表
-            org.agmas.noellesroles.game.roles.innocent.builder.BuilderWallPositions.clearAll();
+            org.agmas.noellesroles.game.roles.innocence.builder.BuilderWallPositions.clearAll();
             // 清除冒险家开启的路径点
             io.wifi.starrailexpress.game.data.WaypointVisibilityManager.get(world.getServer())
                     .setWaypointsVisibility(false);
@@ -1360,7 +1360,7 @@ public class ModEventsRegister {
         // 注册疫使胜利检测和加速检测
         InfectedWinChecker.registerEvent();
         EntityClearUtils.registerResetEvent();
-        org.agmas.noellesroles.game.roles.innocent.photographer.PhotographerFrameEvents.register();
+        org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerFrameEvents.register();
         ReplayRules.cantSendReplay.add(player -> {
             DeathPenaltyComponent component = ModComponents.DEATH_PENALTY.get(player);
             if (component != null) {
@@ -1876,7 +1876,7 @@ public class ModEventsRegister {
             HallucinationAreaManager.tick();
             ServerLevel level = server.overworld();
             {
-                org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.serverLevelTick(level);
+                org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager.serverLevelTick(level);
             }
             {
                 if (server.getTickCount() % 10 == 0) {

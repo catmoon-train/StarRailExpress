@@ -34,14 +34,14 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
-import org.agmas.noellesroles.game.roles.innocent.accountant.AccountantPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.alchemist.AlchemistPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.attendant.AttendantHandler;
-import org.agmas.noellesroles.game.roles.innocent.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.hoan_meirin.HoanMeirinPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.painter.PainterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
+import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
@@ -291,13 +291,13 @@ public class ModRolesInitialEventRegister {
             }
 
             if (role.equals(ModRoles.NOISEMAKER)) {
-                org.agmas.noellesroles.game.roles.innocent.noise_maker.NoiseMakerPlayerComponent noiseMakerPlayerComponent = org.agmas.noellesroles.game.roles.innocent.noise_maker.NoiseMakerPlayerComponent.KEY
+                org.agmas.noellesroles.game.roles.innocence.noise_maker.NoiseMakerPlayerComponent noiseMakerPlayerComponent = org.agmas.noellesroles.game.roles.innocence.noise_maker.NoiseMakerPlayerComponent.KEY
                         .get(player);
                 noiseMakerPlayerComponent.init();
                 noiseMakerPlayerComponent.sync();
             }
             if (role.equals(ModRoles.GHOST)) {
-                org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent.KEY
+                org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent.KEY
                         .get(player);
                 ghostPlayerComponent.init();
                 ghostPlayerComponent.sync();
@@ -665,7 +665,7 @@ public class ModRolesInitialEventRegister {
                 "skill.noellesroles.ghost.invisibility",
                 context -> {
                     ServerPlayer player = context.player();
-                    var comp = org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent.KEY.get(player);
+                    var comp = org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent.KEY.get(player);
                     if (comp == null)
                         return false;
                     if (!comp.abilityUnlocked) {

@@ -5,7 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocent.adventurer.AdventurerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public final class AdventurerHud {

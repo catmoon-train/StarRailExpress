@@ -8,8 +8,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.agmas.noellesroles.game.roles.innocent.great_detective.DetectiveClue;
-import org.agmas.noellesroles.game.roles.innocent.great_detective.GreatDetectivePlayerComponent;
+
+import org.agmas.noellesroles.game.roles.innocence.great_detective.DetectiveClue;
+import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectivePlayerComponent;
 import org.agmas.noellesroles.packet.GreatDetectiveRevealC2SPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 

@@ -56,10 +56,10 @@ import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
-import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.pilot.PilotPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocent.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.pilot.PilotPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.creeper.CreeperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
@@ -1179,7 +1179,7 @@ public class ModPacketsReciever {
 
     // V键祷告/加入会议
     ServerPlayNetworking.registerGlobalReceiver(
-        org.agmas.noellesroles.game.roles.innocent.fool.FoolPrayerC2SPacket.ID,
+        org.agmas.noellesroles.game.roles.innocence.fool.FoolPrayerC2SPacket.ID,
         (payload, context) -> {
           if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
             return;
@@ -1190,23 +1190,23 @@ public class ModPacketsReciever {
           if (!gameWorldComponent.isSkillAvailable)
             return;
 
-          org.agmas.noellesroles.game.roles.innocent.fool.PrayerHandler.startPrayer(player);
+          org.agmas.noellesroles.game.roles.innocence.fool.PrayerHandler.startPrayer(player);
         });
 
     // 退出塔罗会
     ServerPlayNetworking.registerGlobalReceiver(
-        org.agmas.noellesroles.game.roles.innocent.fool.FoolLeaveMeetingC2SPacket.ID,
+        org.agmas.noellesroles.game.roles.innocence.fool.FoolLeaveMeetingC2SPacket.ID,
         (payload, context) -> {
           ServerPlayer player = context.player();
-          org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.memberLeaveMeeting(player);
+          org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager.memberLeaveMeeting(player);
         });
 
     // 塔罗会投票
     ServerPlayNetworking.registerGlobalReceiver(
-        org.agmas.noellesroles.game.roles.innocent.fool.FoolTarotVoteC2SPacket.ID,
+        org.agmas.noellesroles.game.roles.innocence.fool.FoolTarotVoteC2SPacket.ID,
         (payload, context) -> {
           ServerPlayer player = context.player();
-          org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager.submitVote(player, payload.votedFor());
+          org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager.submitVote(player, payload.votedFor());
         });
 
     // 短管霰弹枪装备音效包处理
@@ -1238,7 +1238,7 @@ public class ModPacketsReciever {
           }
 
           if (gameWorldComponent.isRole(player, ModRoles.BUILDER)) {
-            org.agmas.noellesroles.game.roles.innocent.builder.BuilderPlayerComponent builderComponent = org.agmas.noellesroles.component.ModComponents.BUILDER
+            org.agmas.noellesroles.game.roles.innocence.builder.BuilderPlayerComponent builderComponent = org.agmas.noellesroles.component.ModComponents.BUILDER
                 .get(player);
 
             // 蹲下按技能键切换模式（不受冷却影响）

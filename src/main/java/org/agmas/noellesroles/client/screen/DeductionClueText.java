@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
-import org.agmas.noellesroles.game.roles.innocent.great_detective.DetectiveClue;
+import org.agmas.noellesroles.game.roles.innocence.great_detective.DetectiveClue;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 /**

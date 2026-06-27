@@ -23,8 +23,9 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.game.roles.innocent.builder.BuilderWallPositions;
+
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.game.roles.innocence.builder.BuilderWallPositions;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.BuilderRemoveWallS2CPacket;

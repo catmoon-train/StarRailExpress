@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.agmas.noellesroles.game.roles.innocent.ayayaya.AyayayaPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 
 import io.wifi.starrailexpress.api.SRERole;

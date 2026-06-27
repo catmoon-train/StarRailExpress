@@ -90,7 +90,7 @@ public class EntityClearUtils {
                         entity instanceof DevilRouletteTableEntity.TableItemDisplay) {
                     entitiesToRemove.add(entity);
                 } else if (entity instanceof io.github.mortuusars.exposure.world.entity.PhotographFrameEntity
-                        && entity instanceof org.agmas.noellesroles.game.roles.innocent.photographer.SrePhotographerFrame frame
+                        && entity instanceof org.agmas.noellesroles.game.roles.innocence.photographer.SrePhotographerFrame frame
                         && frame.sre$isPhotographerPlaced()) {
                     // 仅清理摄影师放置的照片框
                     entitiesToRemove.add(entity);
