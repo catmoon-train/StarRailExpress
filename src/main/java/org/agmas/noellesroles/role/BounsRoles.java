@@ -74,7 +74,7 @@ public class BounsRoles {
             true, // canUseKiller = 有杀手能力
             SRERole.MoodType.FAKE, // 假心情
             -1, // 无限冲刺时间
-            false // 显示计分板
+            true // 显示计分板
     ) {
         @Override
         public int getMoodColor() {
