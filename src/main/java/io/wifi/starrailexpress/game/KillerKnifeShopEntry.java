@@ -40,10 +40,8 @@ public class KillerKnifeShopEntry extends ShopEntry {
 
         boolean success;
         if (durabilityMode) {
-            ItemStack depleted = KillerKnifeDurability.findDepletedKnife(player);
-            if (depleted != null) {
-                // 已有耗尽的刀 -> 原地刷新为满耐久 / refresh the depleted knife in place
-                KillerKnifeDurability.applyFreshDurability(depleted);
+            if (KillerKnifeDurability.refreshDepletedKnives(player)) {
+                // 已有耗尽的刀 -> 原地刷新一把为满耐久，并清除其余多余的耗尽刀 / refresh one in place, clear the rest
                 success = true;
             } else {
                 // 没有耗尽的刀 -> 与原逻辑一致，发放一把新刀（带耐久）/ no depleted knife: give a fresh one

@@ -1157,6 +1157,8 @@
     "screen.sre.skins.back_button":  "Back",
     "screen.sre.skins.no_skinnable_items":  "No equippable skins in inventory",
     "key.starrailexpress.skins":  "Open Skin Menu",
+    "key.starrailexpress.manage_waypoints":  "Open Waypoint Manager",
+    "key.starrailexpress.delete_looked_waypoint":  "Delete Looked-at Waypoint",
     "screen.sre.skins.empty_state":  "No skins to display",
     "screen.sre.skins.empty_hint":  "Collect skinnable items to start using",
     "screen.sre.skins.refresh":  "Refresh",

@@ -66,12 +66,49 @@ public class WaypointHUD {
                 waypoints.add(marker);
         }
 
-        public static void removeWaypoint(String name) {
-                waypoints.removeIf(marker -> marker.name.equals(name));
+        // 按 path+name 精确移除（用于删除后乐观本地移除；服务端重广播会最终对账）
+        public static void removeWaypoint(String path, String name) {
+                waypoints.removeIf(marker -> marker.path.equals(path) && marker.name.equals(name));
+        }
+
+        // 移除整条路径下的所有点
+        public static void removePath(String path) {
+                waypoints.removeIf(marker -> marker.path.equals(path));
         }
 
         public static void clearAllWaypoints() {
                 waypoints.clear();
+        }
+
+        /**
+         * 返回当前准星大致指向的路径点（用于"看向删除"）。
+         * 取 look 向量与"玩家→标记"方向夹角最小、且 dot &gt; 0.99、距离 &lt; 128 的可见标记；无命中返回 null。
+         */
+        public static WaypointMarker getLookedAtWaypoint() {
+                if (mc.player == null || mc.level == null) {
+                        return null;
+                }
+                Vec3 eye = mc.player.getEyePosition(1.0f);
+                Vec3 look = mc.player.getLookAngle().normalize();
+
+                WaypointMarker best = null;
+                double bestDot = 0.99; // 夹角阈值
+                for (WaypointMarker marker : waypoints) {
+                        if (!marker.visible) {
+                                continue;
+                        }
+                        Vec3 toMarker = Vec3.atCenterOf(marker.pos).subtract(eye);
+                        double distance = toMarker.length();
+                        if (distance < 1.0e-4 || distance > 128.0) {
+                                continue;
+                        }
+                        double dot = toMarker.normalize().dot(look);
+                        if (dot > bestDot) {
+                                bestDot = dot;
+                                best = marker;
+                        }
+                }
+                return best;
         }
 
         public static List<WaypointMarker> getWaypoints() {

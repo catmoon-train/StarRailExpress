@@ -60,6 +60,7 @@ public class SRECommandRegister {
             MoodChangeCommand.register(dispatcher);
             io.wifi.starrailexpress.content.command.MapVoteCommand.register(dispatcher);
             io.wifi.starrailexpress.content.command.CreateWaypointCommand.register(dispatcher);
+            io.wifi.starrailexpress.content.command.DeleteWaypointCommand.register(dispatcher);
             io.wifi.starrailexpress.content.command.ToggleWaypointsCommand.register(dispatcher);
             AFKCommand.register(dispatcher);
             ShowStatsCommand.register(dispatcher);

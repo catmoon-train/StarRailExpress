@@ -51,9 +51,8 @@ public class CreateWaypointCommand {
             // 向玩家发送成功消息
             source.sendSuccess(() -> Component.literal("成功创建路径点: " + path + "/" + name + " 在位置 " + pos), false);
 
-            // 同步到所有玩家
-            SRE.NETWORKING.sendToAllPlayers(
-                    new io.wifi.starrailexpress.network.packet.SyncWaypointsPacket(manager.getAllWaypointsMap()));
+            // 同步到所有玩家（统一走 WaypointSync 全量重广播）
+            io.wifi.starrailexpress.util.WaypointSync.syncToAll(source.getServer());
 
             return 1;
         } catch (Exception e) {

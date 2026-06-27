@@ -33,6 +33,9 @@ public class SREReceiverRegister {
         ServerPlayNetworking.registerGlobalReceiver(VoteCastC2SPacket.TYPE, (packet, context) -> {
             VoteManager.handleVoteCast(context.player(), packet.optionIndices());
         });
+        ServerPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.network.packet.WaypointDeleteC2SPayload.ID,
+                new io.wifi.starrailexpress.network.packet.WaypointDeleteC2SPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(KnifeStabPayload.ID, new KnifeStabPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(ModVersionPacket.ID, new ModVersionPacket.Receiver());
         // 全局战绩 / 回放查询请求

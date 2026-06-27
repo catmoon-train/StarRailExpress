@@ -134,6 +134,8 @@ public class SREEventRegister {
             // 同步自定义职业配置给新加入的玩家
             CustomRoleServerNetwork.syncToPlayer(server, handler.player);
             SceneAssetServer.sendCurrentManifest(handler.player);
+            // 同步当前路径点给新加入的玩家
+            io.wifi.starrailexpress.util.WaypointSync.syncTo(handler.player);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             CustomRoleServerNetwork.onPlayerDisconnect(handler.player.getUUID());
