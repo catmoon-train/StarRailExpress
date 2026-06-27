@@ -8,8 +8,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.game.roles.innocent.photographer.PhotographerFrameEvents;
-import org.agmas.noellesroles.game.roles.innocent.photographer.SrePhotographerFrame;
+
+import org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerFrameEvents;
+import org.agmas.noellesroles.game.roles.innocence.photographer.SrePhotographerFrame;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

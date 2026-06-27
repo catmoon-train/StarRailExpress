@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocent.meatball.MeatballPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.meatball.MeatballPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class MeatballHud {

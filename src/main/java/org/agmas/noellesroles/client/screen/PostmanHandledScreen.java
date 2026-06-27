@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import org.agmas.noellesroles.game.roles.innocent.ayayaya.AyayayaPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.packet.PostmanC2SPacket;
 
 /**

@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
-import org.agmas.noellesroles.game.roles.innocent.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
 import org.agmas.noellesroles.packet.BroadcasterC2SPacket;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

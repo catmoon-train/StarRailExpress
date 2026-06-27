@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.agmas.noellesroles.game.roles.innocent.ayayaya.AyayayaPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 
 import io.wifi.starrailexpress.api.SRERole;
@@ -13,6 +13,8 @@ import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -65,6 +67,12 @@ public class MountainRoles {
             return SHOP;
         }
 
+        @Override
+        public InteractionResult onDropItem(Player player, ItemStack item) {
+            if (item.is(Items.BUNDLE))
+                return InteractionResult.SUCCESS;
+            return InteractionResult.PASS;
+        }
     }.setComponentKey(AyayayaPlayerComponent.KEY));
 
     public static SRERole HATATE = TMMRoles.registerRole(new TouhouRole(
@@ -104,6 +112,13 @@ public class MountainRoles {
         @Override
         public List<ShopEntry> getShopEntries() {
             return SHOP;
+        }
+
+        @Override
+        public InteractionResult onDropItem(Player player, ItemStack item) {
+            if (item.is(Items.BUNDLE))
+                return InteractionResult.SUCCESS;
+            return InteractionResult.PASS;
         }
 
     }.setComponentKey(AyayayaPlayerComponent.KEY));

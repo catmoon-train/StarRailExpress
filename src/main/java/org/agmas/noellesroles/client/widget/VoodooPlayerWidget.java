@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 
-import org.agmas.noellesroles.game.roles.innocent.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.MorphC2SPacket;
 

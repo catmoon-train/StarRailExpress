@@ -4,7 +4,6 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.ReplayPayload;
 import io.wifi.starrailexpress.content.vote.network.VoteCastC2SPacket;
 import io.wifi.starrailexpress.content.vote.network.VoteSyncS2CPacket;
-import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
 import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;

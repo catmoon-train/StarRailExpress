@@ -5,7 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.game.roles.innocent.photographer.PhotographerFrameEvents;
+
+import org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerFrameEvents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

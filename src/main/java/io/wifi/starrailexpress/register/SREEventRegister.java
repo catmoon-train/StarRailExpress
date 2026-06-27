@@ -17,7 +17,6 @@ import io.wifi.starrailexpress.game.TeamKillViolationHandler;
 import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.network.*;
-import io.wifi.starrailexpress.network.original.*;
 import io.wifi.starrailexpress.scenery.server.SceneAssetServer;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.fabric.api.entity.event.v1.EntitySleepEvents;

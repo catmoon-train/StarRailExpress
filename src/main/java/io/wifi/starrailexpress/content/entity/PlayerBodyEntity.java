@@ -33,7 +33,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.agmas.noellesroles.game.roles.innocent.fool.TarotAssemblyManager;
+import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.init.ModItems;
 
 /**

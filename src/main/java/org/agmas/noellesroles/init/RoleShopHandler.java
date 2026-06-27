@@ -36,7 +36,7 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
-import org.agmas.noellesroles.game.roles.innocent.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
@@ -992,7 +992,7 @@ public class RoleShopHandler {
           entries.add(new ShopEntry(frameStack, price, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(@NotNull Player player) {
-              var comp = org.agmas.noellesroles.game.roles.innocent.photographer.PhotographerPlayerComponent.KEY
+              var comp = org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerPlayerComponent.KEY
                   .get(player);
               if (comp == null || !comp.canBuyFrame()) {
                 return false;

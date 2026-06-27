@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocent.ayayaya.AyayayaPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 

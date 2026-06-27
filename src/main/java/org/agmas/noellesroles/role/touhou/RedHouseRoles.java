@@ -15,7 +15,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.game.roles.innocent.ghost.GhostPlayerComponent;
+
+import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.THEventHandler;
 

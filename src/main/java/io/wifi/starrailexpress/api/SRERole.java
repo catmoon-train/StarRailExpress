@@ -1063,7 +1063,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * <ul>
      * <li><b>{@link InteractionResult#PASS}</b> — 使用默认逻辑，正常执行物品丢弃。</li>
      * <li><b>{@link InteractionResult#CONSUME}</b> — 取消本次丢弃行为</li>
-     * <li><b>{@link InteractionResult#SUCCESS}</b> — 取消本次丢弃行为</li>
+     * <li><b>{@link InteractionResult#SUCCESS}</b> — 正常物品丢弃行为</li>
      * <li><b>{@link InteractionResult#FAIL}</b> — 取消本次丢弃行为</li>
      * </ul>
      *

@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocent.adventurer.AdventurerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
