@@ -19,6 +19,7 @@ import org.agmas.noellesroles.content.entity.FlashGrenadeEntity;
 import org.agmas.noellesroles.content.entity.KuiXiPuppetEntity;
 import org.agmas.noellesroles.content.entity.LockEntity;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
+import org.agmas.noellesroles.content.entity.MummyEntity;
 import org.agmas.noellesroles.content.entity.PoisonGasCloudEntity;
 import org.agmas.noellesroles.content.entity.PoisonGasTankEntity;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
@@ -63,6 +64,7 @@ public class EntityClearUtils {
             world.getAllEntities().forEach((entity) -> {
                 if (entity instanceof LockEntity ||
                         entity instanceof Pig ||
+                        entity instanceof MummyEntity ||
                         entity instanceof GrenadeEntity ||
                         entity instanceof SmokeGrenadeEntity ||
                         entity instanceof ThrowingKnifeEntity ||
