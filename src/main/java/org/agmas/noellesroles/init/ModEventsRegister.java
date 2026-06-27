@@ -373,6 +373,21 @@ public class ModEventsRegister {
 
     }
 
+    /**
+     * 蛋糕师死亡 - 取消进行中的烘焙并移除已部署的烟熏炉，
+     * 防止烟熏炉残留在世界上（并遗留到下一局）。
+     */
+    private static void handleCakeMakerDeath(Player victim) {
+        if (victim == null || victim.level().isClientSide())
+            return;
+
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+        if (!gameWorldComponent.isRole(victim, ModRoles.CAKE_MAKER))
+            return;
+
+        CakeMakerComponent.KEY.get(victim).onDeath();
+    }
+
     public static void handleDeathPenalty(Player victim) {
         handleDeathPenalty(victim.level(), List.of(victim), false, false);
     }
@@ -2199,6 +2214,9 @@ public class ModEventsRegister {
 
             // 检查故障机器人 - 死亡时生成缓慢效果云
             handleGlitchRobotDeath(victim);
+
+            // 检查蛋糕师 - 死亡时移除烟熏炉，防止残留到下一局
+            handleCakeMakerDeath(victim);
         });
 
         // 服务器Tick事件 - 老人的猪的处理

@@ -113,7 +113,31 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void clear() {
+        // Remove the deployed smoker and any placed cakes from all clients so they
+        // don't linger in the world (and into the next round).
+        removeSmoker();
+        for (Map.Entry<UUID, Cake> entry : cakes.entrySet()) {
+            Cake cake = entry.getValue();
+            broadcast(new CakeMakerBlockS2CPacket(entry.getKey(), cake.pos, true, cake.bites, 0, true));
+        }
+        cakes.clear();
+        eatCooldowns.clear();
         init();
+    }
+
+    /**
+     * Called when the cake maker dies. Cancels any in-progress baking and removes the
+     * deployed smoker so it doesn't linger in the world (and into the next round).
+     * Placed cakes are left for others to eat.
+     */
+    public void onDeath() {
+        smokerTicks = 0;
+        lockedTicks = 0;
+        stage       = 0;
+        wheat       = 0;
+        sugar       = 0;
+        milk        = 0;
+        removeSmoker();
     }
 
     // ── NBT serialisation ─────────────────────────────────────

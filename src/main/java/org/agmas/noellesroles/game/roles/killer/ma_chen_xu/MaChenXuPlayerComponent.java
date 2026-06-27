@@ -367,11 +367,14 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
     // ==================== 阶段进阶 ====================
 
+    /** 进阶提速倍率：所有恐惧值累计来源都汇入 accrueSanLoss，统一对进阶 +40% 提速 */
+    public static final double ADVANCE_SPEED_MULT = 1.4;
+
     /** 累计恐惧值并检查进阶，不触发同步（高频侵蚀使用） */
     private void accrueSanLoss(int amount) {
         if (amount <= 0)
             return;
-        this.totalSanLoss += amount;
+        this.totalSanLoss += (int) Math.round(amount * ADVANCE_SPEED_MULT);
         checkStageAdvance();
     }
 

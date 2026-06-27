@@ -8,4 +8,9 @@ public interface SrePhotographerFrame {
     boolean sre$isPhotographerPlaced();
 
     void sre$setPhotographerPlaced(boolean placed);
+
+    /** 该画框已传送玩家的次数。 */
+    int sre$getTeleportCount();
+
+    void sre$setTeleportCount(int count);
 }

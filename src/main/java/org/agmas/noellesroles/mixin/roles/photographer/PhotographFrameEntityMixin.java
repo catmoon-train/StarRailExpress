@@ -27,6 +27,9 @@ public class PhotographFrameEntityMixin implements SrePhotographerFrame {
     @Unique
     private boolean sre$photographerPlaced = false;
 
+    @Unique
+    private int sre$teleportCount = 0;
+
     @Override
     public boolean sre$isPhotographerPlaced() {
         return this.sre$photographerPlaced;
@@ -37,14 +40,26 @@ public class PhotographFrameEntityMixin implements SrePhotographerFrame {
         this.sre$photographerPlaced = placed;
     }
 
+    @Override
+    public int sre$getTeleportCount() {
+        return this.sre$teleportCount;
+    }
+
+    @Override
+    public void sre$setTeleportCount(int count) {
+        this.sre$teleportCount = count;
+    }
+
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
     private void sre$save(CompoundTag tag, CallbackInfo ci) {
         tag.putBoolean("SrePhotographerPlaced", this.sre$photographerPlaced);
+        tag.putInt("SrePhotographerTeleportCount", this.sre$teleportCount);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     private void sre$load(CompoundTag tag, CallbackInfo ci) {
         this.sre$photographerPlaced = tag.getBoolean("SrePhotographerPlaced");
+        this.sre$teleportCount = tag.getInt("SrePhotographerTeleportCount");
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
