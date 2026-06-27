@@ -52,7 +52,11 @@ public class CourierMailReceiveScreen extends Screen {
             this.hasItem = CourierMailData.hasAttached(stack);
             this.attachName = CourierMailData.getAttachmentName(stack);
             this.isReplyItem = CourierMailData.isReply(stack);
-            // 如果之前已点击"领取并回信"但未发送，重开时直接进入回信页
+            this.claimed = CourierMailData.isClaimed(stack);
+            // 非回信且已领取过效果 → 直接进入回信页
+            if (!isReplyItem && this.claimed) {
+                this.showingReply = true;
+            }
             if (!isReplyItem && CourierMailData.isReplyMode(stack)) {
                 this.claimed = true;
                 this.showingReply = true;

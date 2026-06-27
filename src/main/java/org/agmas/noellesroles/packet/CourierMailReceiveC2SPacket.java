@@ -62,6 +62,11 @@ public record CourierMailReceiveC2SPacket(boolean mainHand) implements CustomPac
             // 清除标记，防止重复领取
             CourierMailData.setAttached(stack, false);
         }
-        // 不删除信封——收信人还需要用它来回信；回信发包时由 CourierMailReplyC2SPacket 删除
+        // 标记已领取，防止重复领取效果
+        CourierMailData.setClaimed(stack, true);
+        // 回信在领取后应直接删除（无法也不需要再回复）
+        if (CourierMailData.isReply(stack)) {
+            stack.shrink(1);
+        }
     }
 }

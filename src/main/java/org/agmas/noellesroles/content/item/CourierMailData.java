@@ -20,6 +20,7 @@ public final class CourierMailData {
     private static final String TAG_REPLY = "CourierIsReply";
     private static final String TAG_REPLY_MODE = "CourierReplyMode";
     private static final String TAG_ATTACHMENT_ITEM = "CourierAttachmentItem";
+    private static final String TAG_CLAIMED = "CourierClaimed";
 
     private static CompoundTag getOrCreateTag(ItemStack stack) {
         CustomData cd = stack.get(DataComponents.CUSTOM_DATA);
@@ -98,6 +99,16 @@ public final class CourierMailData {
     public static void setReplyMode(ItemStack stack, boolean v) {
         CompoundTag tag = getOrCreateTag(stack);
         tag.putBoolean(TAG_REPLY_MODE, v);
+        saveTag(stack, tag);
+    }
+
+    public static boolean isClaimed(ItemStack stack) {
+        return getOrCreateTag(stack).getBoolean(TAG_CLAIMED);
+    }
+
+    public static void setClaimed(ItemStack stack, boolean v) {
+        CompoundTag tag = getOrCreateTag(stack);
+        tag.putBoolean(TAG_CLAIMED, v);
         saveTag(stack, tag);
     }
 
