@@ -654,7 +654,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.NOSTALGIST).setCanSeeCoin(true)
+    ).addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 99999,0,false,false,false))).setComponentKey(ModComponents.NOSTALGIST).setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(2500);
 
     public static SRERole DELAYER = TMMRoles.registerRole(new NormalRole(
