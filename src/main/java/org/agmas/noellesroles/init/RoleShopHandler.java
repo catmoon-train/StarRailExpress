@@ -266,6 +266,8 @@ public class RoleShopHandler {
   // ==================== 嬉命人商店 ====================
   public static ArrayList<ShopEntry> EMBALMER_SHOP = new ArrayList<>();
   public static ArrayList<ShopEntry> PHANTOM_MUSICIAN_SHOP = new ArrayList<>();
+  // ==================== 推理师商店 ====================
+  public static ArrayList<ShopEntry> REASONER_SHOP = new ArrayList<>();
 
   /**
    * 初始化框架角色商店
@@ -1288,6 +1290,11 @@ public class RoleShopHandler {
     {
       ShopContent.customEntries.put(
           ModRoles.PHANTOM_MUSICIAN_ID, PHANTOM_MUSICIAN_SHOP);
+    }
+    // 推理师商店
+    {
+      ShopContent.customEntries.put(
+          ModRoles.REASONER_ID, REASONER_SHOP);
     }
     // 小偷商店
     {
@@ -2671,6 +2678,27 @@ public class RoleShopHandler {
     // ==================== 嬉命人商店 ====================
     // 开锁器 - 100金币
     EMBALMER_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+
+    // ==================== 推理师商店 ====================
+    // 罗盘 - 100金币（游戏时间>=2分钟且没有罗盘时才能购买）
+    REASONER_SHOP.add(new ShopEntry(ModItems.REASONER_COMPASS.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+      @Override
+      public boolean onBuy(@NotNull Player player) {
+        var timeComp = io.wifi.starrailexpress.cca.SREGameTimeComponent.KEY.get(player.level());
+        int elapsed = timeComp.getResetTime() - timeComp.getTime();
+        if (elapsed < 2 * 60 * 20) {
+          player.displayClientMessage(Component.translatable("message.noellesroles.reasoner.shop.time_not_ready").withStyle(ChatFormatting.YELLOW), true);
+          return false;
+        }
+        for (ItemStack stack : player.getInventory().items) {
+          if (stack.is(ModItems.REASONER_COMPASS)) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.reasoner.shop.already_has_compass").withStyle(ChatFormatting.YELLOW), true);
+            return false;
+          }
+        }
+        return true;
+      }
+    });
 
     // ==================== 幻音师商店 ====================
     // 出刀的声音 - 50金币, 冷却30秒

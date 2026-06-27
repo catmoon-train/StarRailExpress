@@ -3305,5 +3305,7 @@
   "message.noellesroles.reasoner.correct": "推理正确。进度：%s/%s",
   "message.noellesroles.reasoner.incorrect": "罗盘摇摆不定：这个答案不正确。",
   "message.noellesroles.reasoner.unavailable": "现在无法使用罗盘。",
-  "message.noellesroles.reasoner.already_solved": "这个问题已经被你解开了。"
+  "message.noellesroles.reasoner.already_solved": "这个问题已经被你解开了。",
+  "message.noellesroles.reasoner.shop.time_not_ready": "游戏尚未经过2分钟，罗盘尚未显现。",
+  "message.noellesroles.reasoner.shop.already_has_compass": "你已经拥有罗盘了。"
 }
