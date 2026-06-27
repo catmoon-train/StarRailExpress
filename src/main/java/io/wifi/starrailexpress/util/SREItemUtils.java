@@ -166,6 +166,16 @@ public class SREItemUtils {
         return false;
     }
 
+    public static int getHotbarFreeSlot(@NotNull Player player) {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.isEmpty()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public static boolean hasHotbarFreeSlot(@NotNull Player player) {
         for (int i = 0; i < 9; ++i) {
             ItemStack stack = player.getInventory().getItem(i);

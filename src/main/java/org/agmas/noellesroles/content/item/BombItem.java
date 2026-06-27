@@ -96,9 +96,31 @@ public class BombItem extends Item {
             // Show timer in action bar
             // player.displayClientMessage(Component.literal("Bomb: " + (timer / 20) + "s"),
             // true);
+
+            if (slotId >= 0 && slotId < 9) {
+                return;
+            }
+            findAVoidPlaceToPut(stack, level, player, slotId, isSelected);
         } else {
             // Explode
             explode(player, stack, tag);
+        }
+    }
+
+    private void findAVoidPlaceToPut(ItemStack stack, Level level, ServerPlayer player, int slotId,
+            boolean isSelected) {
+        if (slotId >= 0 && slotId < 9) {
+            return;
+        }
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
+            return;
+        }
+        int freeSlot = MCItemsUtils.getHotbarFreeSlot(player);
+        if (freeSlot != -1) {
+            player.getInventory().setItem(freeSlot, stack);
+            player.getInventory().setItem(slotId, ItemStack.EMPTY);
+            player.containerMenu.broadcastChanges();
+            player.inventoryMenu.slotsChanged(player.getInventory());
         }
     }
 
