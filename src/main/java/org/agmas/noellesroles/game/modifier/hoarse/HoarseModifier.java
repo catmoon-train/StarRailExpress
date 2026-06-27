@@ -18,8 +18,8 @@ public final class HoarseModifier {
     private HoarseModifier() {
     }
 
-    /** 重金属语音等级。3 级对应被钳制到的最低音调（0.4×），听感最为低沉沙哑。 */
-    private static final int VOICE_AMPLIFIER = 3;
+    /** 重金属语音等级。0 级对应 1 级重金属药水效果，音调轻微压低（0.85×）。 */
+    private static final int VOICE_AMPLIFIER = 0;
 
     /** 每次续期下发的效果时长（tick）。 */
     private static final int EFFECT_DURATION = 200;
