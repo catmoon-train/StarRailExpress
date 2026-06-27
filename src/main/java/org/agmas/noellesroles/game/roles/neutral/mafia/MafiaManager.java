@@ -140,7 +140,9 @@ public final class MafiaManager {
         for (UUID memberId : new ArrayList<>(godfatherByMember.keySet())) {
             if (gfId.equals(godfatherByMember.get(memberId))) {
                 ServerPlayer member = godfather.server.getPlayerList().getPlayer(memberId);
-                if (member != null && previousRoleByMember.containsKey(memberId)) {
+                // 只有当前仍然是家族成员，才变回原来的职业
+                if (member != null && isMafiaMember(member)
+                        && previousRoleByMember.containsKey(memberId)) {
                     RoleUtils.changeRole(member, previousRoleByMember.get(memberId));
                     // 清除从家族商店购买的标记物品
                     clearMafiaShopItems(member);
