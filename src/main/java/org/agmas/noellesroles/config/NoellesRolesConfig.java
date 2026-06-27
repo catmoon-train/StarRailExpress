@@ -381,6 +381,8 @@ public class NoellesRolesConfig implements ConfigData {
     public int photographerFrameCooldownSeconds = 3;
     /** Photographer - 触发穿越的画框碰撞箱外扩距离（方块） */
     public double photographerFrameTriggerInflate = 0.25;
+    /** Photographer - 单个画框最多可传送玩家的次数（用尽后画框失效） */
+    public int photographerFrameMaxTeleports = 8;
 
     // ==================== Delayer (滞时鬼) ====================
     /** Delayer - Rewind skill: seconds between anchoring and the automatic rewind */

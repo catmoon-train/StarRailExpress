@@ -262,9 +262,9 @@ public class CustomRoleLoader {
             role.setCanUseInstinct(false);
         }
         if (data.ableToPickUpRevolver != null) role.setAbleToPickUpRevolver(data.ableToPickUpRevolver);
-        if (data.setNeutrals != null && data.setNeutrals) role.setNeutrals(true);
-        if (data.setNeutralForKiller != null && data.setNeutralForKiller) role.setNeutralForKiller(true);
-        if (data.setVigilanteTeam != null && data.setVigilanteTeam) role.setVigilanteTeam(true);
+        if (data.setNeutrals != null) role.setNeutrals(data.setNeutrals);
+        if (data.setNeutralForKiller != null) role.setNeutralForKiller(data.setNeutralForKiller);
+        if (data.setVigilanteTeam != null) role.setVigilanteTeam(data.setVigilanteTeam);
         if (data.canSeeTeammateKiller != null) role.setCanSeeTeammateKiller(data.canSeeTeammateKiller);
         role.setOccupiedRoleCount(data.occupiedRoleCount);
         role.setDefaultMax(data.maxCount);

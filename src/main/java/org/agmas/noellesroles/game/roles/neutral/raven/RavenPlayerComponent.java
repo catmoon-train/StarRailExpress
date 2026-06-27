@@ -100,6 +100,10 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
             return;
         }
         if (!game.isRunning() || !GameUtils.isPlayerAliveAndSurvival(player)) {
+            // 渡鸦死亡时清除傀儡本体
+            if (!GameUtils.isPlayerAliveAndSurvival(player) && (isHunting() || bodyUuid != null)) {
+                endHunt(false);
+            }
             return;
         }
 

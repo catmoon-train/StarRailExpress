@@ -3,6 +3,7 @@ package org.agmas.noellesroles.game.roles.neutral.infected;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -297,7 +298,7 @@ public class InfectedWinChecker {
                         }
                     }
                 }
-                InfectedAbilityHandler.checkAndTriggerLastInfected(level);
+                checkAndTriggerLastInfected(level);
             } else {
                 // 取消加速传播
                 if (wasAccelerated) {
@@ -306,6 +307,36 @@ public class InfectedWinChecker {
                 }
             }
         });
+    }
+
+    /**
+     * 检查场上所有非疫使玩家是否都被感染，如果是则触发全部致死并刷新疫使冷却至3秒。
+     */
+    static void checkAndTriggerLastInfected(ServerLevel serverWorld) {
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(serverWorld);
+        var players = serverWorld.getPlayers(GameUtils::isPlayerAliveAndSurvival);
+        ServerPlayer infectedPlayer = null;
+        int totalNonInfected = 0;
+        for (ServerPlayer player : players) {
+            if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
+                infectedPlayer = player;
+                continue;
+            }
+            InfectedPlayerComponent ic = ModComponents.INFECTED.get(player);
+            if (ic.infectedTicks <= 0) totalNonInfected++;
+        }
+        if (infectedPlayer == null || totalNonInfected > 0) return;
+        SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(infectedPlayer);
+        abilityComponent.cooldown = GameConstants.getInTicks(0, 3);
+        abilityComponent.sync();
+        for (ServerPlayer player : players) {
+            if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) continue;
+            InfectedPlayerComponent ic = ModComponents.INFECTED.get(player);
+            if (ic.infectedTicks > 0 && InfectedPlayerComponent.canDieFromInfection(player)) {
+                GameUtils.killPlayer(player, true, infectedPlayer,
+                        InfectedPlayerComponent.INFECTION_DEATH_REASON, true);
+            }
+        }
     }
 
     /**
@@ -382,7 +413,7 @@ public class InfectedWinChecker {
                     }
                 }
             }
-            InfectedAbilityHandler.checkAndTriggerLastInfected(level);
+            checkAndTriggerLastInfected(level);
         } else {
             if (wasAccelerated) {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);

@@ -668,6 +668,14 @@ public class CommonClientHudRenderer {
       }
       context.drawString(font, infectedTimeText, x - font.width(infectedTimeText), y - font.lineHeight - 2, infectedTimeColor);
 
+      // 剩余感染次数
+      if (abilityComponent.maxCharges > 0) {
+        Component chargesText = Component.translatable("gui.noellesroles.infected.charges",
+                abilityComponent.charges, abilityComponent.maxCharges)
+            .withStyle(ChatFormatting.AQUA);
+        context.drawString(font, chargesText, x - font.width(chargesText), y - font.lineHeight * 2 - 4, 0x55FFFF);
+      }
+
       // 技能冷却显示
       Component cooldownText;
       int cooldownColor;

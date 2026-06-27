@@ -87,6 +87,12 @@ public final class PhotographerFrameEvents {
             return;
         }
         NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
+        // 画框传送次数上限：用尽后该画框不再触发传送。
+        SrePhotographerFrame frameState = (SrePhotographerFrame) frame;
+        if (cfg.photographerFrameMaxTeleports > 0
+                && frameState.sre$getTeleportCount() >= cfg.photographerFrameMaxTeleports) {
+            return;
+        }
         long now = player.level().getGameTime();
         Long last = LAST_TELEPORT_TICK.get(player.getUUID());
         if (last != null && now - last < (long) cfg.photographerFrameCooldownSeconds * 20L) {
@@ -121,6 +127,7 @@ public final class PhotographerFrameEvents {
         float pitch = data.get(Frame.PITCH).orElse(player.getXRot());
 
         LAST_TELEPORT_TICK.put(player.getUUID(), now);
+        frameState.sre$setTeleportCount(frameState.sre$getTeleportCount() + 1);
         player.teleportTo(targetLevel, pos.x, pos.y, pos.z, yaw, pitch);
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,
                 cfg.photographerFrameBlindSeconds * 20, 0, false, false, true));

@@ -35,12 +35,20 @@ public final class RavenHud {
                         x, y + 22, 0xAAAAAA);
             }
 
+            // Hunt time remaining during hunt
+            if (raven.isHunting()) {
+                int seconds = (raven.huntTicks + 19) / 20;
+                context.drawString(Minecraft.getInstance().font,
+                        Component.translatable("hud.noellesroles.raven.hunt_time", seconds),
+                        x, y - 11, 0xCC8844);
+            }
+
             // Target role during hunt
             if (raven.isHunting() && raven.targetRoleId != null) {
                 context.drawString(Minecraft.getInstance().font,
                         Component.translatable("hud.noellesroles.raven.target",
                                 Component.translatable("announcement.star.role." + raven.targetRoleId.getPath())),
-                        x, y - 11, 0xFF5555);
+                        x, y - 22, 0xFF5555);
             }
         });
     }
