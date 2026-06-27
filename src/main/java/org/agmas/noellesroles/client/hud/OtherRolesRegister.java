@@ -64,6 +64,7 @@ public class OtherRolesRegister {
         SkincrawlerHud.register();
         PhantomMusicianHud.register();
         UndeadLordHud.register();
+        VeteranHud.register();
         // 自定义职业HUD
         CustomRoleHud.register();
     }

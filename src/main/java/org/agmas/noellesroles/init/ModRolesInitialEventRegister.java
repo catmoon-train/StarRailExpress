@@ -452,7 +452,7 @@ public class ModRolesInitialEventRegister {
                                 NRSounds.SYRINGE_STAB, SoundSource.MASTER, 0.5f, 0.5f);
                     }
                     return true;
-                }).cooldownSeconds(80).charges(3).build());
+                }).cooldownSeconds(80).charges(5).build());
 
         // 鹈鹕技能注册：按技能键吞噬鼠标准星对准的玩家，蹲下按技能键释放最后吞噬的玩家
         RoleSkill.register(ModRoles.PELICAN,
