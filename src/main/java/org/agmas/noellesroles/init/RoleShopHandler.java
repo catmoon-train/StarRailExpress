@@ -1053,7 +1053,7 @@ public class RoleShopHandler {
           int count = 1;
           var contents = new ArrayList<Filterable<Component>>();
           // {
-          var fstct = Component.translatable("%s\n%s\n", Component.translatable("item.written_book.role_title"),
+          var fstct = Component.translatable("%s\n%s\n\n", Component.translatable("item.written_book.role_title"),
               Component.translatable("item.written_book.role_intro"));
           // var fstcontent = new Filterable<Component>(fstct, Optional.of(fstct));
           // contents.add(fstcontent);
