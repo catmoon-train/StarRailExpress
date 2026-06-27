@@ -82,7 +82,8 @@ public class BackpackScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        renderBackground(g, mouseX, mouseY, partialTick);
+        super.render(g, mouseX, mouseY, partialTick);
+        
         computeLayout();
 
         drawPanelBg(g, panelX, panelY, panelW, panelH);
@@ -107,7 +108,6 @@ public class BackpackScreen extends Screen {
         g.drawCenteredString(font, Component.translatable("sre.backpack.hint").withStyle(ChatFormatting.GRAY),
                 panelX + panelW / 2, panelY + panelH - FOOTER_H + 6, MUTED);
 
-        super.render(g, mouseX, mouseY, partialTick);
     }
 
     private void renderCardRow(GuiGraphics g, int index, int mouseX, int mouseY) {
