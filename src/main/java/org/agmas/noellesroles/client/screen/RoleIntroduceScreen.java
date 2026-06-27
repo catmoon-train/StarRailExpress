@@ -1304,7 +1304,10 @@ public class RoleIntroduceScreen extends Screen {
                     if (btnW > 0 && isInRect((int) mx, (int) my,
                             btnX, modeButtonY, btnW, modeButtonH)) {
                         IntroductionGameMode clickedMode = IntroductionGameMode.values()[i];
-                        if (currentMode == IntroductionGameMode.FILTER) {
+
+                        this.minecraft.getSoundManager()
+                                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                        if (clickedMode == IntroductionGameMode.FILTER) {
                             openFilterScreen();
                         } else if (currentMode != clickedMode) {
                             refreshFilter(clickedMode);
@@ -1406,8 +1409,6 @@ public class RoleIntroduceScreen extends Screen {
     public void refreshFilter(IntroductionGameMode clickedMode) {
         currentMode = clickedMode;
         listScrollOffset = 0;
-        this.minecraft.getSoundManager()
-                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
         refreshFilter();
         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
