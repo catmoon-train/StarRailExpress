@@ -938,29 +938,55 @@ public class ModRolesInitialEventRegister {
                         context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("seize"))
                         .announceToSelf(false).build());
 
-        // 出题人技能注册，不能注册，注册会出BUG。
-        // ：给所有人出题，冷却240秒，消耗300金币
-        RoleSkill.register(ModRoles.EXAMPLER, RoleSkill.skill(
-                SRE.id("exampler_problem_all"),
-                "skill.noellesroles.exampler.problem_all",
-                context -> {
-                    ServerPlayer player = context.player();
-                    SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-                    if (shop.balance < 300) {
-                        player.displayClientMessage(
-                                Component.translatable("message.noellesroles.insufficient_funds_money", 300)
-                                        .withStyle(ChatFormatting.RED),
-                                true);
-                        return false;
-                    }
-                    shop.addToBalance(-300);
-                    player.serverLevel().players().forEach(sp -> {
-                        if (GameUtils.isPlayerAliveAndSurvival(sp)) {
-                            ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 3));
-                        }
-                    });
-                    return true;
-                }).cooldownSeconds(240).build());
+        // 出题人技能注册：两个技能共用一个冷却
+        // 技能1：全员内卷 — 给所有人出题，冷却240秒，消耗300金币
+        // 技能2：强制考试 — 给目标和自己出题，冷却90秒，消耗100金币
+        RoleSkill.register(ModRoles.EXAMPLER,
+                RoleSkill.skill(
+                        SRE.id("exampler_problem_all"),
+                        "skill.noellesroles.exampler.problem_all",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
+                            if (shop.balance < 300) {
+                                player.displayClientMessage(
+                                        Component.translatable("message.noellesroles.insufficient_funds_money", 300)
+                                                .withStyle(ChatFormatting.RED),
+                                        true);
+                                return false;
+                            }
+                            shop.addToBalance(-300);
+                            player.serverLevel().players().forEach(sp -> {
+                                if (GameUtils.isPlayerAliveAndSurvival(sp)) {
+                                    ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 3));
+                                }
+                            });
+                            return true;
+                        }).cooldownSeconds(240).showOnHud(true).build(),
+                RoleSkill.skill(
+                        SRE.id("exampler_problem_target"),
+                        "skill.noellesroles.exampler.problem_target",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            UUID targetUuid = context.target();
+                            if (targetUuid == null)
+                                return false;
+                            Player target = player.level().getPlayerByUUID(targetUuid);
+                            if (!(target instanceof ServerPlayer sp))
+                                return false;
+                            SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
+                            if (shop.balance < 100) {
+                                player.displayClientMessage(
+                                        Component.translatable("message.noellesroles.insufficient_funds")
+                                                .withStyle(ChatFormatting.RED),
+                                        true);
+                                return false;
+                            }
+                            shop.addToBalance(-100);
+                            ServerPlayNetworking.send(player, new ProblemScreenOpenC2SPacket(true, 2));
+                            ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 2));
+                            return true;
+                        }).cooldownSeconds(90).showOnHud(true).build());
 
         // 年兽技能注册：发送红包给目标玩家（客户端选目标）
         RoleSkill.register(ModRoles.NIAN_SHOU, RoleSkill.skill(
@@ -996,32 +1022,6 @@ public class ModRolesInitialEventRegister {
                             true);
                     return true;
                 }).build());
-
-        // 出题人技能注册（有目标）：给目标和自己出题，冷却90秒，消耗100金币
-        RoleSkill.register(ModRoles.EXAMPLER, RoleSkill.skill(
-                SRE.id("exampler_problem_target"),
-                "skill.noellesroles.exampler.problem_target",
-                context -> {
-                    ServerPlayer player = context.player();
-                    UUID targetUuid = context.target();
-                    if (targetUuid == null)
-                        return false;
-                    Player target = player.level().getPlayerByUUID(targetUuid);
-                    if (!(target instanceof ServerPlayer sp))
-                        return false;
-                    SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-                    if (shop.balance < 100) {
-                        player.displayClientMessage(
-                                Component.translatable("message.noellesroles.insufficient_funds")
-                                        .withStyle(ChatFormatting.RED),
-                                true);
-                        return false;
-                    }
-                    shop.addToBalance(-100);
-                    ServerPlayNetworking.send(player, new ProblemScreenOpenC2SPacket(true, 2));
-                    ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 2));
-                    return true;
-                }).cooldownSeconds(90).build());
 
         // 幸运使者技能注册：保护目标玩家，冷却120秒，消耗200金币
         RoleSkill.register(ModRoles.FORTUNETELLER, RoleSkill.skill(

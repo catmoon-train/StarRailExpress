@@ -1074,6 +1074,27 @@ public class CommonClientHudRenderer {
       }
       return;
     });
+    RoleHudRenderCallback.EVENT.register(ModRoles.JADE_GENERAL_ID, (guiGraphics, deltaTracker) -> {
+      // 渲染玉将军的飞踢技能状态
+      var client = Minecraft.getInstance();
+      if (client.player == null) return;
+      var ability = SREAbilityPlayerComponent.KEY.get(client.player);
+      int screenWidth = guiGraphics.guiWidth();
+      int screenHeight = guiGraphics.guiHeight();
+      var font = client.font;
+      int x = screenWidth - 10;
+      int y = screenHeight - 10 - font.lineHeight;
+      if (ability.cooldown > 0) {
+        double seconds = ability.cooldown / 20.0;
+        var text = Component.translatable("hud.jade_general.cooldown", String.format("%.1f", seconds))
+            .withStyle(ChatFormatting.RED);
+        guiGraphics.drawString(font, text, x - font.width(text), y, Color.WHITE.getRGB());
+      } else {
+        var text = Component.translatable("hud.jade_general.ready")
+            .withStyle(ChatFormatting.GREEN);
+        guiGraphics.drawString(font, text, x - font.width(text), y, Color.WHITE.getRGB());
+      }
+    });
     RoleHudRenderCallback.EVENT.register(ModRoles.EXAMPLER_ID, (guiGraphics, deltaTracker) -> {
       // 渲染小镇做题家的提示
       var client = Minecraft.getInstance();

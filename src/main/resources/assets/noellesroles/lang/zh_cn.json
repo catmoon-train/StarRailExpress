@@ -2526,6 +2526,8 @@
   "message.noellesroles.jade_general.slow_1": "你被飞踢命中，动作慢了下来……",
   "message.noellesroles.jade_general.slow_2": "你的腿脚愈发沉重……",
   "message.noellesroles.jade_general.slow_3": "你几乎无法动弹……",
+  "hud.jade_general.ready": "飞踢已就绪",
+  "hud.jade_general.cooldown": "飞踢冷却中，剩余 %ss",
   "=============== 亡灵之主 Undead Lord ===============": "",
   "announcement.star.role.undead_lord": "亡灵之主",
   "announcement.star.goals.undead_lord": "复苏亡者，让感染吞噬整列火车",

@@ -2533,6 +2533,8 @@
   "message.noellesroles.jade_general.slow_1": "A flying kick hit you — you feel slowed down...",
   "message.noellesroles.jade_general.slow_2": "Your legs are getting heavier...",
   "message.noellesroles.jade_general.slow_3": "You can barely move...",
+  "hud.jade_general.ready": "Flying Kick Ready",
+  "hud.jade_general.cooldown": "Flying Kick CD: %ss",
   "=============== Undead Lord 亡灵之主 ===============": "",
   "announcement.star.role.undead_lord": "Necromancer",
   "announcement.star.goals.undead_lord": "Raise the dead and let infection consume the entire train",

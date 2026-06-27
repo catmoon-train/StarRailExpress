@@ -236,7 +236,11 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
                     stack -> stack.is(TMMItems.KNIFE) || stack.is(TMMItems.LOCKPICK));
 
             removeBody(serverPlayer.serverLevel());
-            serverPlayer.teleportTo(serverPlayer.serverLevel(), bodyPosition.x, bodyPosition.y, bodyPosition.z, bodyYaw, bodyPitch);
+            // 如果游戏已结束，不要传送到本体傀儡位置——正常游戏结束流程会统一传送到大厅
+            SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
+            if (game.isRunning()) {
+                serverPlayer.teleportTo(serverPlayer.serverLevel(), bodyPosition.x, bodyPosition.y, bodyPosition.z, bodyYaw, bodyPitch);
+            }
         }
         if (applyCooldown) cooldownTicks = COOLDOWN_TICKS;
         huntTicks = 0;
