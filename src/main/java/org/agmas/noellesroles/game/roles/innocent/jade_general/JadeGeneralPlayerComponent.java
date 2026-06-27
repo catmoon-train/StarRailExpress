@@ -82,6 +82,8 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
         this.hitThisDash = false;
         applyDashVelocity(sp);
 
+        // 清空体力条：先让客户端停止冲刺，再重置服务端体力值
+        sp.setSprinting(false);
         if (player instanceof PlayerStaminaGetter stamina) {
             stamina.starrailexpress$setStamina(0f);
         }
