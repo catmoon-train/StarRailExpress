@@ -205,8 +205,8 @@ public class SREMurderGameMode extends GameMode {
         Collections.shuffle(allModifiers);
 
         // 修饰符轮换名单接管：仅当名单启用且管理员已在名单中配置了至少一个修饰符时，
-        // 才由名单决定修饰符的启用/禁用与数量（取代 disabledModifiers / MODIFIER_MAX），
-        // 但地图限制仍然生效。未配置任何修饰符时保持原有行为，避免老名单升级后修饰符全部消失。
+        // 才由名单决定修饰符的启用/禁用（取代 disabledModifiers），但数量仍沿用 MODIFIER_MAX，
+        // 地图限制也仍然生效。未配置任何修饰符时保持原有行为，避免老名单升级后修饰符全部消失。
         io.wifi.starrailexpress.roster.RoleRosterState roster =
                 io.wifi.starrailexpress.roster.RoleRosterManager.isEnabled()
                         ? io.wifi.starrailexpress.roster.RoleRosterManager.getState() : null;
@@ -251,9 +251,8 @@ public class SREMurderGameMode extends GameMode {
                 continue;
             }
 
-            int m_max = rosterActive
-                    ? roster.modifierCountFor(mod.identifier.toString())
-                    : Harpymodloader.MODIFIER_MAX.getOrDefault(mod.identifier, 1);
+            // 名单只决定修饰符是否启用（上面的过滤），数量始终沿用 MODIFIER_MAX，名单不再接管数量。
+            int m_max = Harpymodloader.MODIFIER_MAX.getOrDefault(mod.identifier, 1);
             int targetAssignments = specificDesiredRoleCount;
             if (m_max != -1) {
                 targetAssignments = Math.min(targetAssignments, m_max);

@@ -4,9 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.api.RepairRole;
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.network.RoleRosterSyncPayload;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -15,14 +12,12 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import org.agmas.noellesroles.Noellesroles;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -30,7 +25,7 @@ import java.util.UUID;
  * <ul>
  *     <li>从本地文件 / MySQL 数据库加载与持久化；</li>
  *     <li>把名单广播给所有客户端（含新加入的玩家）；</li>
- *     <li>名单启用时，由 {@code RoleAssignmentPool} 在建池时读取本配置，接管职业的启用/禁用与数量。</li>
+ *     <li>名单启用时，由 {@code RoleAssignmentPool} 在建池时读取本配置，仅接管职业的启用/禁用（不接管数量、无概率）。</li>
  * </ul>
  * 数据库按玩家 UUID 分键存储，这里使用一个固定的“配置 UUID”表示服务器全局配置。
  */
@@ -144,36 +139,6 @@ public final class RoleRosterManager {
         afterMutated();
     }
 
-    /** 随机抽选生成一份名单。targetPlayers 用于决定基础平民数量。 */
-    public static void randomize(int targetPlayers) {
-        Random random = new Random();
-        state.roleCounts.clear();
-        boolean hasKiller = false;
-        for (SRERole role : Noellesroles.getAllRolesSorted()) {
-            if (!isRosterEligible(role)) {
-                continue;
-            }
-            String id = role.identifier().toString();
-            if (role == TMMRoles.CIVILIAN) {
-                state.roleCounts.put(id, Math.max(2, targetPlayers));
-                continue;
-            }
-            float chance = role.canUseKiller() ? 0.5f : (role.isInnocent() ? 0.4f : 0.5f);
-            if (random.nextFloat() < chance) {
-                state.roleCounts.put(id, 1);
-                if (role.canUseKiller()) {
-                    hasKiller = true;
-                }
-            }
-        }
-        // 至少保证存在一个杀手职业
-        if (!hasKiller) {
-            state.roleCounts.put(TMMRoles.KILLER.identifier().toString(), 1);
-        }
-        state.roleCounts.putIfAbsent(TMMRoles.CIVILIAN.identifier().toString(), Math.max(2, targetPlayers));
-        afterMutated();
-    }
-
     private static void afterMutated() {
         state.version = Math.max(System.currentTimeMillis(), state.version + 1L);
         state.normalized();
@@ -183,21 +148,9 @@ public final class RoleRosterManager {
     }
 
     // ------------------------------------------------------------------
-    // 职业分配接入：名单的启用/禁用与数量由 RoleAssignmentPool 在建池时直接读取
-    // （见 RoleAssignmentPool#createInternal），此处不再改动全局状态。
+    // 职业分配接入：名单的启用/禁用由 RoleAssignmentPool 在建池时直接读取
+    // （见 RoleAssignmentPool#createInternal），名单只决定职业是否参与，不接管数量，也没有概率。
     // ------------------------------------------------------------------
-
-    private static boolean isRosterEligible(SRERole role) {
-        try {
-            // 与 AbstractRoleRosterScreen.isRosterEligible 保持一致：不要用 role.canBeRandomed() 过滤，
-            // 该字段由 setCanBeRandomedByOtherRoles 设置，含义是“能否进入其他职业的随机池”，与名单无关，
-            // 否则阿蒙、亡灵之主等调用了 setCanBeRandomedByOtherRoles(false) 的职业会被错误排除。
-            // 同时排除其它模式职业与修理逃脱模式的 RepairRole（如蛮徒），与谋杀模式建池口径一致。
-            return !role.isOtherModeRole() && !(role instanceof RepairRole) && role.getOccupiedRoleCount() <= 1;
-        } catch (Throwable ignored) {
-            return false;
-        }
-    }
 
     // ------------------------------------------------------------------
     // 网络同步

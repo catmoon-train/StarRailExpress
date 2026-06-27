@@ -96,17 +96,6 @@ public class SREReceiverRegister {
                             case "enable" -> io.wifi.starrailexpress.roster.RoleRosterManager.setEnabled(true);
                             case "disable" -> io.wifi.starrailexpress.roster.RoleRosterManager.setEnabled(false);
                             case "clear" -> io.wifi.starrailexpress.roster.RoleRosterManager.clear();
-                            case "randomize" -> {
-                                int count = context.server().getPlayerCount();
-                                try {
-                                    if (payload.json() != null && !payload.json().isBlank()) {
-                                        count = Integer.parseInt(payload.json().trim());
-                                    }
-                                } catch (NumberFormatException ignored) {
-                                    // 使用在线人数
-                                }
-                                io.wifi.starrailexpress.roster.RoleRosterManager.randomize(Math.max(1, count));
-                            }
                             default -> {
                             }
                         }

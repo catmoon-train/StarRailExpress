@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import io.wifi.starrailexpress.network.OpenRoleRosterScreenPayload;
 import io.wifi.starrailexpress.roster.RoleRosterManager;
@@ -16,8 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
  * <ul>
  *     <li>{@code /sre:roster} —— 打开玩家查看界面（任意玩家）。</li>
  *     <li>{@code /sre:roster edit} —— 打开管理员编辑界面（OP）。</li>
- *     <li>{@code /sre:roster enable|disable} —— 开关名单是否接管职业分配（OP）。</li>
- *     <li>{@code /sre:roster randomize [players]} —— 随机抽选生成名单（OP）。</li>
+ *     <li>{@code /sre:roster enable|disable} —— 开关名单是否接管职业的启用/禁用（OP）。</li>
  *     <li>{@code /sre:roster status} —— 查看当前状态（OP）。</li>
  * </ul>
  */
@@ -37,11 +35,6 @@ public final class RoleRosterCommand {
                 .then(Commands.literal("disable")
                         .requires(source -> source.hasPermission(2))
                         .executes(ctx -> setEnabled(ctx, false)))
-                .then(Commands.literal("randomize")
-                        .requires(source -> source.hasPermission(2))
-                        .executes(ctx -> randomize(ctx, ctx.getSource().getServer().getPlayerCount()))
-                        .then(Commands.argument("players", IntegerArgumentType.integer(1, 200))
-                                .executes(ctx -> randomize(ctx, IntegerArgumentType.getInteger(ctx, "players")))))
                 .then(Commands.literal("status")
                         .requires(source -> source.hasPermission(2))
                         .executes(RoleRosterCommand::status)));
@@ -63,13 +56,6 @@ public final class RoleRosterCommand {
         RoleRosterManager.setEnabled(enabled);
         ctx.getSource().sendSuccess(() -> Component.translatable(
                 enabled ? "commands.sre.role_roster.enabled" : "commands.sre.role_roster.disabled"), true);
-        return 1;
-    }
-
-    private static int randomize(CommandContext<CommandSourceStack> ctx, int players) {
-        RoleRosterManager.randomize(Math.max(1, players));
-        int size = RoleRosterManager.getState().roleCounts.size();
-        ctx.getSource().sendSuccess(() -> Component.translatable("commands.sre.role_roster.randomized", size), true);
         return 1;
     }
 

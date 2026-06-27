@@ -11,6 +11,8 @@
     "gui.sre.role_roster.save":  "儲存",
     "gui.sre.role_roster.toggle.on":  "已啟用",
     "gui.sre.role_roster.toggle.off":  "已停用",
+    "gui.sre.role_roster.card.on":  "開",
+    "gui.sre.role_roster.card.off":  "關",
     "gui.sre.role_roster.tab.roles":  "職業",
     "gui.sre.role_roster.tab.modifiers":  "修飾符",
     "commands.sre.role_roster.not_player":  "只有玩家才能打開職業輪換介面。",

@@ -9,8 +9,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
  * 客户端 -> 服务端：管理员对职业轮换名单的操作请求。服务端会校验权限（OP 等级 >= 2）。
  * <ul>
  *     <li>{@code action = "set"}：用 {@code json} 中的完整名单覆盖当前配置。</li>
- *     <li>{@code action = "randomize"}：服务端随机抽选生成一份名单，{@code json} 可为整数字符串表示目标人数。</li>
- *     <li>{@code action = "enable"} / {@code "disable"}：开关名单是否接管职业分配。</li>
+ *     <li>{@code action = "enable"} / {@code "disable"}：开关名单是否接管职业的启用/禁用。</li>
  *     <li>{@code action = "clear"}：清空名单。</li>
  * </ul>
  */
