@@ -1265,7 +1265,7 @@ public class ModEventsRegister {
             if (player.isSpectator())
                 return InteractionResult.PASS;
             var gameC = SREGameWorldComponent.KEY.get(level);
-            if (!gameC.isRole(player, TMMRoles.VIGILANTE))
+            if (!gameC.isRole(player, ModRoles.SHERIFF))
                 return InteractionResult.PASS;
             if (HandCuffsItem.hasHandCuff(player)) {
                 return InteractionResult.PASS;
