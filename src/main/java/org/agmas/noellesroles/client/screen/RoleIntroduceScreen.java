@@ -255,6 +255,7 @@ public class RoleIntroduceScreen extends Screen {
     public RoleIntroduceScreen() {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
         availableRoles.addAll(Noellesroles.getAllRolesSorted(true));
+        filterFlags.clear();
     }
 
     public RoleIntroduceScreen(Screen parent) {

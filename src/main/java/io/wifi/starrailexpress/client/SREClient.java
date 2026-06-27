@@ -119,7 +119,6 @@ import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomStatePaylo
 import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomTableEffectsPayload;
 import org.agmas.noellesroles.game.modes.fourthroom.network.OpenFourthRoomPeekDeckPayload;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem;
-import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.SREFumoBlocks;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
