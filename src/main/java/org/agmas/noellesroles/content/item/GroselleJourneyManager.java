@@ -18,9 +18,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModEffects;
@@ -39,24 +37,28 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>无法使用技能 / 物品 / 背包（{@link ModEffects#SKILL_BANED}/{@link ModEffects#USED_BANED}/{@link ModEffects#INVENTORY_BANED}），
  *       因而也无法对其他玩家发动攻击；原版规则下玩家本就不能徒手造成伤害，故游记中玩家之间无法互相伤害。</li>
  *   <li>在游记中的任何死亡都会通过 {@link EarlyKillPlayer} 改判为「将其放入游记的持有者」击杀。</li>
- *   <li>需要站到信标（{@link Blocks#BEACON}）方块上才能回归被放逐前的位置。</li>
+ *   <li>60 秒后自动回归被放逐前的位置；或持有者再次蓄力游记 1 秒可主动将其召回。</li>
  * </ul>
  *
- * <p>采用与 {@code PelicanManager} 一致的静态管理器 + 服务端 tick 思路，避免新增 CCA。
+ * <p>采用静态管理器 + 服务端 tick 思路，避免新增 CCA。
  */
 public final class GroselleJourneyManager {
 
     /** 游记内死亡的死因（用于击杀改判与死亡信息）。 */
     public static final ResourceLocation DEATH_REASON = Noellesroles.id("grosell_travelog");
 
-    /** 放逐记录：被放逐玩家 UUID -> 放逐信息（持有者 + 放逐前位置）。 */
+    /** 放逐记录：被放逐玩家 UUID -> 放逐信息（持有者 + 放逐前位置 + 放逐时间）。 */
     private static final Map<UUID, Banishment> banished = new ConcurrentHashMap<>();
+
+    /** 反向索引：持有者 UUID -> 被其放逐的玩家 UUID（每个持有者同时只能放逐一人）。 */
+    private static final Map<UUID, UUID> banisherToBanished = new ConcurrentHashMap<>();
 
     private GroselleJourneyManager() {
     }
 
     private record Banishment(UUID banisher, ResourceKey<Level> dimension,
-                             double x, double y, double z, float yaw, float pitch) {
+                             double x, double y, double z, float yaw, float pitch,
+                             long banishedAtMillis) {
     }
 
     public static void register() {
@@ -84,6 +86,16 @@ public final class GroselleJourneyManager {
     }
 
     /**
+     * 获取被指定持有者放逐的玩家 UUID。
+     *
+     * @param banisherId 持有者 UUID
+     * @return 被放逐的玩家 UUID，若该持有者当前没有放逐任何人则返回 null
+     */
+    public static UUID getBanishedByBanisher(UUID banisherId) {
+        return banisherToBanished.get(banisherId);
+    }
+
+    /**
      * 将目标放逐到游记坐标。
      *
      * @return 是否成功放逐
@@ -98,6 +110,10 @@ public final class GroselleJourneyManager {
         if (banished.containsKey(target.getUUID())) {
             return false;
         }
+        // 每个持有者同时只能放逐一人
+        if (banisherToBanished.containsKey(banisher.getUUID())) {
+            return false;
+        }
         if (!GameUtils.isPlayerAliveAndSurvival(target) || !GameUtils.isPlayerAliveAndSurvival(banisher)) {
             return false;
         }
@@ -105,9 +121,12 @@ public final class GroselleJourneyManager {
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
         ServerLevel originLevel = target.serverLevel();
 
-        // 记录放逐前位置。
+        long now = System.currentTimeMillis();
+
+        // 记录放逐前位置与放逐时间。
         banished.put(target.getUUID(), new Banishment(banisher.getUUID(), originLevel.dimension(),
-                target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot()));
+                target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot(), now));
+        banisherToBanished.put(banisher.getUUID(), target.getUUID());
 
         // 放逐处（原位置）粒子与声音。
         spawnBanishFx(originLevel, target.getX(), target.getY() + 1.0, target.getZ());
@@ -135,7 +154,36 @@ public final class GroselleJourneyManager {
         if (b == null) {
             return;
         }
-        ServerLevel dim = player.server.getLevel(b.dimension);
+        banisherToBanished.remove(b.banisher);
+        doReturn(player, b);
+    }
+
+    /**
+     * 由持有者主动将放逐的玩家召回。
+     *
+     * @param banisher 持有者
+     * @return 是否成功召回
+     */
+    public static boolean returnPlayerByBanisher(ServerPlayer banisher) {
+        UUID banishedId = banisherToBanished.remove(banisher.getUUID());
+        if (banishedId == null) {
+            return false;
+        }
+        Banishment b = banished.remove(banishedId);
+        if (b == null) {
+            return false;
+        }
+        ServerLevel world = banisher.serverLevel();
+        ServerPlayer target = world.getServer().getPlayerList().getPlayer(banishedId);
+        if (target != null) {
+            doReturn(target, b);
+        }
+        return true;
+    }
+
+    private static void doReturn(ServerPlayer player, Banishment b) {
+        MinecraftServer server = player.server;
+        ServerLevel dim = server.getLevel(b.dimension);
         if (dim == null) {
             dim = player.serverLevel();
         }
@@ -154,22 +202,47 @@ public final class GroselleJourneyManager {
         if (banished.isEmpty()) {
             return;
         }
+        NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
+        long autoReturnMillis = config.grosellTravelogAutoReturnSeconds * 1000L;
+        long now = System.currentTimeMillis();
+
         for (UUID id : List.copyOf(banished.keySet())) {
             ServerPlayer player = server.getPlayerList().getPlayer(id);
             if (player == null) {
-                // 离线：保留记录，等其回归或一局结束清理。
+                // 离线：检查是否超时，若超时则清理记录（等其重连时再处理）
+                Banishment b = banished.get(id);
+                if (b != null && (now - b.banishedAtMillis) >= autoReturnMillis) {
+                    // 玩家离线且已超时，直接清理（重连时会出现在正常位置）
+                    banished.remove(id);
+                    banisherToBanished.remove(b.banisher);
+                }
                 continue;
             }
             if (!GameUtils.isPlayerAliveAndSurvival(player)) {
                 // 在游记中死亡 / 变为旁观：仅清理状态，不再送回。
-                banished.remove(id);
+                Banishment b = banished.remove(id);
+                if (b != null) {
+                    banisherToBanished.remove(b.banisher);
+                }
                 continue;
             }
             // 持续封禁技能 / 物品 / 背包。
             applyRestrictions(player);
-            // 站上信标即回归。
-            if (player.level().getBlockState(player.blockPosition().below()).is(Blocks.BEACON)) {
-                returnPlayer(player);
+
+            // 60 秒后自动回归被放逐前的位置。
+            Banishment b = banished.get(id);
+            if (b != null && (now - b.banishedAtMillis) >= autoReturnMillis) {
+                banished.remove(id);
+                banisherToBanished.remove(b.banisher);
+                doReturn(player, b);
+                // 通知持有者
+                ServerPlayer holder = server.getPlayerList().getPlayer(b.banisher);
+                if (holder != null) {
+                    holder.displayClientMessage(Component
+                            .translatable("item.noellesroles.grosell_travelog.auto_return",
+                                    player.getName())
+                            .withStyle(ChatFormatting.DARK_PURPLE), true);
+                }
             }
         }
     }
@@ -183,9 +256,13 @@ public final class GroselleJourneyManager {
             if (player != null) {
                 returnPlayer(player);
             } else {
-                banished.remove(id);
+                Banishment b = banished.remove(id);
+                if (b != null) {
+                    banisherToBanished.remove(b.banisher);
+                }
             }
         }
+        banisherToBanished.clear();
         banished.clear();
     }
 

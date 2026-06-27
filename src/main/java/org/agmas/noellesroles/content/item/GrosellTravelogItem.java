@@ -25,15 +25,18 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 格罗赛尔游记。
  * <p>
  * - 右键蓄力 1 秒（可配置），蓄满后将瞄准的目标玩家放逐进游记（配置坐标，默认 -100/50/21000）。
- * - 放逐成功后进入 75 秒冷却（可配置）。
- * - 放逐瞬间在双方位置播放粒子与声音。
+ * - 放逐成功后不进入冷却。
+ * - 放逐期间，持有者可再次蓄力 1 秒将放逐对象主动召回其被放逐前的位置。
+ * - 60 秒后（可配置），被放逐者自动回归被放逐前的位置。
+ * - 只有当被放逐者释放后，物品才进入 75 秒冷却（可配置）。
  * </p>
- * 游记内规则（无法攻击 / 受伤、无法使用技能 / 物品、死亡改判、信标回归）由
+ * 游记内规则（无法攻击 / 受伤、无法使用技能 / 物品、死亡改判、自动/主动回归）由
  * {@link GroselleJourneyManager} 统一处理。
  */
 public class GrosellTravelogItem extends Item {
@@ -54,7 +57,11 @@ public class GrosellTravelogItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        if (player.getCooldowns().isOnCooldown(this)) {
+        // 如果当前有被放逐者，允许蓄力以召回（不受冷却限制）。
+        UUID banishedId = GroselleJourneyManager.getBanishedByBanisher(player.getUUID());
+        boolean hasBanished = banishedId != null;
+
+        if (!hasBanished && player.getCooldowns().isOnCooldown(this)) {
             if (!world.isClientSide) {
                 player.displayClientMessage(Component
                         .translatable("item.noellesroles.grosell_travelog.on_cooldown")
@@ -100,13 +107,39 @@ public class GrosellTravelogItem extends Item {
         }
         int elapsed = getUseDuration(stack, user) - remainingUseTicks;
         if (elapsed < chargeTicks()) {
-            // 蓄力不足，取消放逐。
+            // 蓄力不足，取消。
             player.displayClientMessage(Component
                     .translatable("item.noellesroles.grosell_travelog.not_charged")
                     .withStyle(ChatFormatting.YELLOW), true);
             return;
         }
 
+        // 检查持有者是否已有被放逐者（→ 召回模式）。
+        UUID banishedId = GroselleJourneyManager.getBanishedByBanisher(player.getUUID());
+        if (banishedId != null) {
+            // 召回被放逐者。
+            ServerPlayer target = player.server.getPlayerList().getPlayer(banishedId);
+            boolean returned = GroselleJourneyManager.returnPlayerByBanisher(player);
+            if (!returned) {
+                player.displayClientMessage(Component
+                        .translatable("item.noellesroles.grosell_travelog.no_target")
+                        .withStyle(ChatFormatting.YELLOW), true);
+                return;
+            }
+            player.displayClientMessage(Component
+                    .translatable("item.noellesroles.grosell_travelog.recall_success",
+                            target != null ? target.getName() : Component.literal("?"))
+                    .withStyle(ChatFormatting.DARK_PURPLE), true);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.EVOKER_CAST_SPELL,
+                    SoundSource.PLAYERS, 1.0f, 0.8f);
+
+            // 释放后才进冷却。
+            int cooldown = NoellesRolesConfig.HANDLER.instance().grosellTravelogCooldownSeconds * 20;
+            player.getCooldowns().addCooldown(this, cooldown);
+            return;
+        }
+
+        // 无被放逐者 → 放逐模式。
         ServerPlayer target = raycastTarget(player);
         if (target == null) {
             player.displayClientMessage(Component
@@ -122,15 +155,12 @@ public class GrosellTravelogItem extends Item {
             return;
         }
 
-        // 放逐成功：本人提示 + 冷却。
+        // 放逐成功：提示，但不进冷却（冷却等到释放时再进）。
         player.displayClientMessage(Component
                 .translatable("item.noellesroles.grosell_travelog.banish_success", target.getName())
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
         player.level().playSound(null, player.blockPosition(), SoundEvents.EVOKER_CAST_SPELL,
                 SoundSource.PLAYERS, 1.0f, 0.8f);
-
-        int cooldown = NoellesRolesConfig.HANDLER.instance().grosellTravelogCooldownSeconds * 20;
-        player.getCooldowns().addCooldown(this, cooldown);
     }
 
     /** 沿视线投射，返回瞄准的存活幸存玩家（被方块遮挡或超出距离则为 null）。 */
@@ -155,8 +185,10 @@ public class GrosellTravelogItem extends Item {
                 .withStyle(ChatFormatting.AQUA));
         tooltip.add(Component.translatable("item.noellesroles.grosell_travelog.tooltip.rules")
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("item.noellesroles.grosell_travelog.tooltip.return")
+        tooltip.add(Component.translatable("item.noellesroles.grosell_travelog.tooltip.recall")
                 .withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("item.noellesroles.grosell_travelog.tooltip.auto_return",
+                config.grosellTravelogAutoReturnSeconds).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("item.noellesroles.grosell_travelog.tooltip.cooldown",
                 config.grosellTravelogCooldownSeconds).withStyle(ChatFormatting.DARK_GRAY));
         super.appendHoverText(stack, context, tooltip, type);

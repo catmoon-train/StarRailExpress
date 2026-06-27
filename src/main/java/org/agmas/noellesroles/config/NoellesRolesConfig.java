@@ -484,9 +484,11 @@ public class NoellesRolesConfig implements ConfigData {
     public int grosellTravelogBanishY = 50;
     /** 格罗赛尔游记 (Groselle Travelog) - 放逐目标坐标 Z */
     public int grosellTravelogBanishZ = 21000;
-    /** 格罗赛尔游记 - 蓄力时间（秒），蓄满后才会放逐目标 */
+    /** 格罗赛尔游记 - 蓄力时间（秒），蓄满后才会放逐/召回目标 */
     public double grosellTravelogChargeSeconds = 1.0;
-    /** 格罗赛尔游记 - 使用冷却（秒） */
+    /** 格罗赛尔游记 - 自动回归时间（秒），放逐后多久被放逐者自动回归 */
+    public int grosellTravelogAutoReturnSeconds = 60;
+    /** 格罗赛尔游记 - 冷却（秒），被放逐者释放后进入冷却 */
     public int grosellTravelogCooldownSeconds = 75;
     /** 格罗赛尔游记 - 瞄准放逐目标的最大距离（格） */
     public double grosellTravelogRange = 6;

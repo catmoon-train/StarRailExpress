@@ -153,10 +153,12 @@ public class RoleInitialItems {
         cakeMakerItems.add(Items.BUNDLE::getDefaultInstance);
         INITIAL_ITEMS_MAP.put(ModRoles.CAKE_MAKER, cakeMakerItems);
 
-        // TODO: 冒险家初始物品 — 一本游记
-        // List<Supplier<ItemStack>> adventurerItems = new ArrayList<>();
-        // adventurerItems.add(ModItems.TRAVEL_JOURNAL::getDefaultInstance);
-        // INITIAL_ITEMS_MAP.put(ModRoles.ADVENTURER, adventurerItems);
+        // 冒险家初始物品 — 格罗赛尔游记
+        {
+            List<Supplier<ItemStack>> adventurerItems = new ArrayList<>();
+            adventurerItems.add(ModItems.GROSELL_TRAVELOG::getDefaultInstance);
+            INITIAL_ITEMS_MAP.put(ModRoles.ADVENTURER, adventurerItems);
+        }
 
         // //黑白
         // List<Supplier<ItemStack>> monokuma_items = new ArrayList<>();
