@@ -80,7 +80,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "shop")
     @ConfigSync(shouldSync = true)
     @Tooltip(count = 2)
-    public boolean knifeDurabilityMode = false;
+    public boolean knifeDurabilityMode = true;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public int revolverPrice = 285;
