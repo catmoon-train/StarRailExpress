@@ -1,4 +1,4 @@
-﻿{
+{
   "unknown": "未知",
   "sre.general.unknown": "未知",
   "commands.loot.error.execute_fail": "執行失敗, 原因:\n %s",

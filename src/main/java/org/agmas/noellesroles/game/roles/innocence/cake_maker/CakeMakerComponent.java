@@ -76,6 +76,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
     private final Player player;
     public int cooldown;
     public int smokerTicks;
+    public int smokerIdle;
     public int lockedTicks;
     public int stage;
     public int wheat;
@@ -102,6 +103,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
     public void init() {
         cooldown    = 0;
         smokerTicks = 0;
+        smokerIdle  = 0;
         lockedTicks = 0;
         stage       = 0;
         wheat       = 0;
@@ -174,6 +176,20 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
             if (cooldown % 20 == 0 || cooldown == 0) sync();
         }
 
+        // Idle timeout: 6 seconds without ingredients → smoker disappears
+        if (smokerId != null && smokerTicks == 0 && smokerIdle > 0) {
+            smokerIdle--;
+            if (smokerIdle == 0) {
+                if (player instanceof ServerPlayer sp) {
+                    sp.displayClientMessage(
+                            Component.translatable("message.noellesroles.cake_maker.smoker_idle")
+                                    .withStyle(ChatFormatting.RED),
+                            true);
+                }
+                removeSmoker();
+            }
+        }
+
         // Cooking timer: only ticks after the first ingredient has been inserted
         if (smokerTicks > 0) {
             smokerTicks--;
@@ -238,6 +254,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         smokerPos   = sp.blockPosition();
         smokerId    = UUID.randomUUID();
         cooldown    = SMOKER_COOLDOWN_TICKS;
+        smokerIdle  = 6 * 20;
         stage       = 0;
         wheat       = 0;
         sugar       = 0;
@@ -374,6 +391,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         }
 
         held.shrink(1);
+        smokerIdle = 6 * 20; // 投入食材重置6秒空闲计时
         return true;
     }
 
@@ -410,8 +428,10 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         if (smokerId != null) {
             broadcast(new CakeMakerBlockS2CPacket(smokerId, smokerPos, false, 0, 0, true));
         }
-        smokerId  = null;
-        smokerPos = null;
+        smokerId    = null;
+        smokerPos   = null;
+        smokerIdle  = 0;
+        smokerTicks = 0;
     }
 
     private void broadcast(CakeMakerBlockS2CPacket packet) {

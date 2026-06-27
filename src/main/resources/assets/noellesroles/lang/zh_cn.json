@@ -1,4 +1,4 @@
-﻿{
+{
   "unknown": "未知",
   "sre.general.unknown": "未知",
   "commands.loot.error.execute_fail": "执行失败, 原因:\n %s",
@@ -3262,6 +3262,7 @@
   "message.noellesroles.adventurer.waypoint_off": "地图标点已关闭",
   "message.noellesroles.adventurer.waypoint_cooldown": "标点冷却中：%ss",
   "message.noellesroles.cake_maker.wrong_ingredient": "现在不能放入这个材料。",
+  "message.noellesroles.cake_maker.smoker_idle": "烟熏炉因长时间未投入食材而熄灭了。",
   "message.noellesroles.cake_maker.add_egg_sugar": "请依次放入 1 个鸡蛋和 2 个糖。",
   "message.noellesroles.cake_maker.add_milk": "请放入 3 桶牛奶。",
   "message.noellesroles.cake_maker.complete": "蛋糕烹饪完成！",
