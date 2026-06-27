@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
 import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.MinigameQuestBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
@@ -209,6 +210,10 @@ public class TaskBlockOverlayRenderer {
         if (SREClient.gameComponent == null)
             return;
         if (!SREClient.gameComponent.isRunning())
+            return;
+
+        // 监控模式下，非杀手不能看到任务点透视
+        if (SecurityMonitorBlock.isInSecurityMode() && !SREClient.isKiller())
             return;
 
         boolean shouldDisplay[] = new boolean[64];

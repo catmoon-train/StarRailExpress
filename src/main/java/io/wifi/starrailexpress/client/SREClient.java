@@ -87,6 +87,7 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -780,6 +781,9 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(OpenProgressionScreenPayload.ID, (payload, context) -> {
             context.client().execute(() -> context.client().setScreen(new ProgressionPassScreen()));
         });
+        ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.OpenBackpackScreenPayload.ID,
+                (payload, context) -> context.client().execute(() -> context.client()
+                        .setScreen(new io.wifi.starrailexpress.client.gui.screen.BackpackScreen((Screen) null))));
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.RoleRosterSyncPayload.ID,
                 (payload, context) -> io.wifi.starrailexpress.client.data.ClientRoleRosterCache.update(payload.json()));
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.sponsor.SponsorListPayload.ID,

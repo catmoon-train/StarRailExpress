@@ -3,7 +3,9 @@ package org.agmas.noellesroles.game.roles.neutral.amon;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeathWithKiller;
+import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +24,15 @@ public final class AmonEventHandler {
     public static void register() {
         AfterShieldAllowPlayerDeath.EVENT.register((player, deathReason) -> allowDeath(player, deathReason));
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> allowDeath(player, deathReason));
+        // 阿蒙开枪击中时不让枪掉落（其枪为窃取的复制品，保留在手）。
+        AllowShootRevolverDrop.EVENT.register((shooter, target) -> {
+            if (!(shooter instanceof ServerPlayer amon)) return TrueFalseResult.PASS;
+            SREGameWorldComponent game = SREGameWorldComponent.KEY.get(amon.level());
+            if (game.isRunning() && game.isRole(amon, ModRoles.AMON)) {
+                return TrueFalseResult.FALSE;
+            }
+            return TrueFalseResult.PASS;
+        });
     }
 
     /** @return true 允许死亡；false 取消死亡（已夺舍续命）。 */
@@ -38,7 +49,12 @@ public final class AmonEventHandler {
         AmonPlayerComponent comp = AmonPlayerComponent.KEY.get(amon);
         // 终幕：消耗备用能力逃脱续命；否则中途夺舍续命。两者均无可用资源时真正死亡。
         if (comp.finalePhase) {
-            return !comp.tryFinaleEscape();
+            if (comp.tryFinaleEscape()) {
+                return false;
+            }
+            // 无备用能力，阿蒙真正死亡：关闭全服终幕表现（状态栏/音乐/滤镜）。
+            comp.endFinaleOnDeath();
+            return true;
         }
         return !comp.tryDeathTransfer();
     }

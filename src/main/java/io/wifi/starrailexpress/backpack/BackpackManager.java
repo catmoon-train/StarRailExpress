@@ -1,118 +1,95 @@
-package io.wifi.starrailexpress.progression;
+package io.wifi.starrailexpress.backpack;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.backpack.BackpackManager;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.network.PlayerDataPartSyncPayload;
+import io.wifi.starrailexpress.progression.ProgressionDataManager;
+import io.wifi.starrailexpress.progression.ProgressionState;
+import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
+import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class ProgressionDataManager {
-    public static final String PART = "progression";
+/**
+ * 场外背包数据管理器（MySQL 分区 {@code data_key="backpack"}）。
+ * 结构镜像 {@link ProgressionDataManager}：内存缓存 + 入服异步加载 + 脏标记周期 flush + 断线/关服阻塞 flush。
+ * 是阵营卡牌迁移后的唯一来源；{@code ProgressionDataManager.addFactionCard/activateFactionCard} 委托至此。
+ */
+public final class BackpackManager {
+    public static final String PART = "backpack";
     private static final Gson GSON = new GsonBuilder().create();
     private static final long FLUSH_INTERVAL_MS = 5_000L;
     private static final long FLUSH_TIMEOUT_MS = 4_000L;
     private static final Map<UUID, Entry> ENTRIES = new ConcurrentHashMap<>();
 
-    private ProgressionDataManager() {
+    private BackpackManager() {
     }
 
     public static void registerEvents() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onJoin(handler.getPlayer()));
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onDisconnect(handler.getPlayer()));
-        ServerTickEvents.END_SERVER_TICK.register(ProgressionDataManager::tick);
-        ServerLifecycleEvents.SERVER_STOPPING.register(ProgressionDataManager::flushAllBlocking);
+        ServerTickEvents.END_SERVER_TICK.register(BackpackManager::tick);
+        ServerLifecycleEvents.SERVER_STOPPING.register(BackpackManager::flushAllBlocking);
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> ENTRIES.clear());
     }
 
-    public static ProgressionState get(ServerPlayer player) {
-        return getEntry(player.getUUID()).state;
+    // ====================== 公开服务端 API ======================
+
+    public static Map<FactionCardType, Integer> getCards(ServerPlayer player) {
+        return new HashMap<>(getEntry(player.getUUID()).state.cards);
     }
 
-    public static void onRoleAssigned(ServerPlayer player, SRERole role) {
-        ProgressionState.FactionCardType matchedCard = ProgressionState.FactionCardType.fromRole(role);
-        if (matchedCard != ProgressionState.FactionCardType.NONE) {
-            grantExperience(player, 5);
+    public static int getCardCount(ServerPlayer player, FactionCardType type) {
+        return getEntry(player.getUUID()).state.cards.getOrDefault(type, 0);
+    }
+
+    public static void addCard(ServerPlayer player, FactionCardType type, int count) {
+        if (type == FactionCardType.NONE || count == 0) {
+            return;
         }
+        Entry entry = getEntry(player.getUUID());
+        int current = entry.state.cards.getOrDefault(type, 0);
+        entry.state.cards.put(type, Math.max(0, current + count));
+        markDirty(player, entry);
     }
 
-    public static void onRoleAssigned(Player player, SRERole role) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            onRoleAssigned(serverPlayer, role);
+    /** 逐字复刻 {@code ProgressionDataManager.activateFactionCard}：卡库写改为背包。 */
+    public static boolean activateCard(ServerPlayer player, FactionCardType type) {
+        Entry entry = getEntry(player.getUUID());
+        int current = entry.state.cards.getOrDefault(type, 0);
+        if (type == FactionCardType.NONE || current < 1
+                || PlayerRoleWeightManager.ForcePlayerTeam.containsKey(player.getUUID())) {
+            return false;
         }
+        PlayerRoleWeightManager.ForcePlayerTeam.put(player.getUUID(), type.getTypeId());
+        entry.state.cards.put(type, current - 1);
+        markDirty(player, entry);
+        Component message = Component.translatable("message.sre.progression.faction_card_activated",
+                Component.translatable(type.displayName));
+        player.sendSystemMessage(message);
+        player.displayClientMessage(message, true);
+        return true;
     }
 
-    public static void onRoundQuestFinished(ServerPlayer player, String questName) {
-        grantExperience(player, 20);
+    /** 命令开屏前可调用以保证客户端数据新鲜。 */
+    public static void resend(ServerPlayer player) {
+        send(player, getEntry(player.getUUID()));
     }
 
-    public static void onRoundQuestFinished(Player player, String questName) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            onRoundQuestFinished(serverPlayer, questName);
-        }
-    }
-
-    public static void onPlayerKill(ServerPlayer player) {
-        grantExperience(player, 15);
-    }
-
-    public static void onPlayerKillDifferentTeam(ServerPlayer player) {
-        grantExperience(player, 50);
-    }
-
-    public static void onRoundSettled(ServerPlayer player, SRERole role, boolean isWinner) {
-        grantExperience(player, isWinner ? 85 : 25);
-        if (isWinner) {
-            PlayerEconomyManager.addCoinNum(player, 20);
-            getEntry(player.getUUID()).state.claimedCoinRewards += 20;
-        }
-        onRoleAssigned(player, role);
-    }
-
-    public static void onItemUsed(ServerPlayer player, String itemId) {
-        grantExperience(player, 1);
-    }
-
-    public static void onPickupItem(ServerPlayer player, String itemId) {
-        grantExperience(player, 1);
-    }
-
-    // 阵营卡牌已迁移至场外背包系统（BackpackManager）；以下方法保留签名并委托，调用方无需改动。
-    public static void addFactionCard(ServerPlayer player, ProgressionState.FactionCardType type, int count) {
-        BackpackManager.addCard(player, type, count);
-    }
-
-    public static void addFactionCard(Player player, ProgressionState.FactionCardType type, int count) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            addFactionCard(serverPlayer, type, count);
-        }
-    }
-
-    public static boolean activateFactionCard(ServerPlayer player, ProgressionState.FactionCardType type) {
-        return BackpackManager.activateCard(player, type);
-    }
-
-    /** 迁移后由 {@link BackpackManager#migrateIfNeeded} 调用，标记通行证卡牌已清零、需要同步与持久化。 */
-    public static void markFactionCardsCleared(ServerPlayer player) {
-        markDirty(player, getEntry(player.getUUID()));
-    }
-
-    /** 供迁移协调：本玩家的通行证数据是否已从 DB 加载完成。 */
     public static boolean isLoaded(UUID playerUuid) {
         Entry entry = ENTRIES.get(playerUuid);
         return entry != null && entry.loaded;
@@ -134,26 +111,64 @@ public final class ProgressionDataManager {
         return success;
     }
 
-    private static void grantExperience(ServerPlayer player, int amount) {
-        if (!SREConfig.instance().enableProgressionSystem || amount <= 0) {
+    // ====================== 迁移（移动，一次性） ======================
+
+    /**
+     * 把通行证的 {@code factionCards} 计数搬入背包并清零通行证侧。须在背包与通行证两侧 DB 记录都加载完成后调用，
+     * 在 {@link ProgressionDataManager#reloadFromDatabase} 与本类 {@link #reloadFromDatabase} 完成时各触发一次。
+     * 严格顺序：先落背包并置 migrated，再清/落通行证 —— 任一步失败都不会丢卡或重复计数。
+     */
+    public static void migrateIfNeeded(ServerPlayer player) {
+        UUID uuid = player.getUUID();
+        Entry entry = ENTRIES.get(uuid);
+        if (entry == null || !entry.loaded || !ProgressionDataManager.isLoaded(uuid)) {
+            return; // 等两侧都加载完，由后完成者再触发
+        }
+        BackpackState bp = entry.state;
+        ProgressionState pg = ProgressionDataManager.get(player);
+
+        if (bp.migrated) {
+            // 已迁移：清理可能残留的陈旧通行证卡牌（崩溃于清源持久化前的情形）
+            boolean stale = false;
+            for (FactionCardType type : FactionCardType.values()) {
+                if (type != FactionCardType.NONE && pg.factionCards.getOrDefault(type, 0) > 0) {
+                    pg.factionCards.put(type, 0);
+                    stale = true;
+                }
+            }
+            if (stale) {
+                ProgressionDataManager.markFactionCardsCleared(player);
+                ProgressionDataManager.flushBlocking(uuid);
+            }
             return;
         }
-        Entry entry = getEntry(player.getUUID());
-        entry.state.experience += amount;
-        entry.state.totalExperience += amount;
-        while (entry.state.experience >= entry.state.getExperienceForNextLevel()) {
-            entry.state.experience -= entry.state.getExperienceForNextLevel();
-            entry.state.level++;
-            int coinReward = 20 + entry.state.level * 2;
-            PlayerEconomyManager.addCoinNum(player, coinReward);
-            entry.state.claimedCoinRewards += coinReward;
-            if (entry.state.level % 5 == 0) {
-                PlayerEconomyManager.addLootChance(player, 1);
-                entry.state.claimedLootRewards++;
+
+        // 1) 加法合并通行证卡牌进背包
+        for (FactionCardType type : FactionCardType.values()) {
+            if (type == FactionCardType.NONE) {
+                continue;
+            }
+            int c = pg.factionCards.getOrDefault(type, 0);
+            if (c > 0) {
+                bp.cards.merge(type, c, Integer::sum);
             }
         }
+        // 2) 置 migrated 并先落背包（卡牌绝不会丢）
+        bp.migrated = true;
         markDirty(player, entry);
+        flushBlocking(uuid);
+        // 3) 清空通行证侧并持久化
+        for (FactionCardType type : FactionCardType.values()) {
+            if (type != FactionCardType.NONE) {
+                pg.factionCards.put(type, 0);
+            }
+        }
+        ProgressionDataManager.markFactionCardsCleared(player);
+        ProgressionDataManager.flushBlocking(uuid);
+        SRE.LOGGER.info("Migrated faction cards from progression to backpack for {}", uuid);
     }
+
+    // ====================== 生命周期 ======================
 
     private static void onJoin(ServerPlayer player) {
         Entry entry = getEntry(player.getUUID());
@@ -161,7 +176,7 @@ public final class ProgressionDataManager {
         send(player, entry);
         if (!isDatabaseEnabled()) {
             entry.loaded = true;
-            BackpackManager.migrateIfNeeded(player);
+            migrateIfNeeded(player);
             return;
         }
         reloadFromDatabase(player, entry);
@@ -184,7 +199,7 @@ public final class ProgressionDataManager {
                             return;
                         }
                         if (throwable != null) {
-                            SRE.LOGGER.warn("Failed to load progression part for {}", player.getUUID(), throwable);
+                            SRE.LOGGER.warn("Failed to load backpack part for {}", player.getUUID(), throwable);
                             return;
                         }
                         MysqlPlayerDataStore.SyncRecord record = records.get(PART);
@@ -195,7 +210,7 @@ public final class ProgressionDataManager {
                         }
                         entry.loaded = true;
                         send(player, entry);
-                        BackpackManager.migrateIfNeeded(player);
+                        migrateIfNeeded(player);
                     });
                 });
     }
@@ -234,7 +249,7 @@ public final class ProgressionDataManager {
                     if (throwable != null || !Boolean.TRUE.equals(success)) {
                         entry.dirty = true;
                         if (throwable != null) {
-                            SRE.LOGGER.warn("Failed to save progression part for {}", player.getUUID(), throwable);
+                            SRE.LOGGER.warn("Failed to save backpack part for {}", player.getUUID(), throwable);
                         } else {
                             reloadFromDatabase(player, entry);
                         }
@@ -261,29 +276,30 @@ public final class ProgressionDataManager {
 
     private static void send(ServerPlayer player, Entry entry) {
         ServerPlayNetworking.send(player,
-                new PlayerDataPartSyncPayload(player.getUUID(), PART, toJson(entry.state, entry.updatedAt), entry.updatedAt));
+                new PlayerDataPartSyncPayload(player.getUUID(), PART, toJson(entry.state, entry.updatedAt),
+                        entry.updatedAt));
     }
 
     private static boolean isDatabaseEnabled() {
         return SREConfig.instance().mysqlPlayerSyncEnabled && MysqlPlayerDataStore.isAvailable();
     }
 
-    private static ProgressionState fromJson(String json) {
+    private static BackpackState fromJson(String json) {
         try {
-            ProgressionState state = GSON.fromJson(json, ProgressionState.class);
-            return state == null ? ProgressionState.createDefault() : state.normalized();
+            BackpackState state = GSON.fromJson(json, BackpackState.class);
+            return state == null ? BackpackState.createDefault() : state.normalized();
         } catch (RuntimeException exception) {
-            return ProgressionState.createDefault();
+            return BackpackState.createDefault();
         }
     }
 
-    private static String toJson(ProgressionState state, long updatedAt) {
+    private static String toJson(BackpackState state, long updatedAt) {
         state.version = updatedAt;
         return GSON.toJson(state.normalized());
     }
 
     private static final class Entry {
-        private ProgressionState state = ProgressionState.createDefault();
+        private BackpackState state = BackpackState.createDefault();
         private volatile boolean online;
         private volatile boolean dirty;
         private volatile boolean loaded;

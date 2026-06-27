@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.client.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.wifi.starrailexpress.backpack.BackpackState;
 import io.wifi.starrailexpress.progression.ProgressionState;
 
 import java.util.Map;
@@ -34,6 +35,10 @@ public final class ClientPlayerDataCache {
 
     public static ProgressionState progression(UUID playerUuid) {
         return read(playerUuid, "progression", ProgressionState.class, ProgressionState.createDefault());
+    }
+
+    public static BackpackState backpack(UUID playerUuid) {
+        return read(playerUuid, "backpack", BackpackState.class, BackpackState.createDefault());
     }
 
     public static void clear() {

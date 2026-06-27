@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.backpack.BackpackState;
 import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
 import io.wifi.starrailexpress.progression.ProgressionState;
 import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
@@ -40,6 +41,8 @@ public class ProgressionPassScreen extends Screen {
 
     // ------- 组件状态 -------
     private ProgressionState progression;
+    // 阵营卡牌已迁移至场外背包；卡按钮计数改读背包分区
+    private BackpackState backpack;
     private final List<Button> cardButtons = new ArrayList<>();
 
     private int activeTab = 0; // 0 = 每日, 1 = 周常, 2 = 永久
@@ -61,6 +64,7 @@ public class ProgressionPassScreen extends Screen {
         super(Component.translatable("sre.pass.name"));
         this.player = Minecraft.getInstance().player;
         this.progression = ClientPlayerDataCache.progression(player.getUUID());
+        this.backpack = ClientPlayerDataCache.backpack(player.getUUID());
     }
 
     // =========================================================================
@@ -86,6 +90,7 @@ public class ProgressionPassScreen extends Screen {
         clearWidgets();
         cardButtons.clear();
         this.progression = ClientPlayerDataCache.progression(player.getUUID());
+        this.backpack = ClientPlayerDataCache.backpack(player.getUUID());
         computeLayout();
 
         // openAnimStartMs = System.currentTimeMillis();
@@ -176,7 +181,7 @@ public class ProgressionPassScreen extends Screen {
     }
 
     private Button createCardButton(int x, int y, int width, FactionCardType type, int accentColor) {
-        int count = progression.factionCards.getOrDefault(type, 0);
+        int count = backpack.cards.getOrDefault(type, 0);
         Component label = Component.literal(
                 Component.translatable("sre.pass.faction." + type.questKey).getString() + " x" + count);
         var btn = ModernButton.builder(label, b -> {

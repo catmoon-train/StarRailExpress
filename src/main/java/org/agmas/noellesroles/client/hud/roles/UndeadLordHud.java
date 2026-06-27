@@ -36,7 +36,7 @@ public class UndeadLordHud {
 
             // 现存亡灵数量
             Component countText = Component.translatable("hud.noellesroles.undead_lord.count",
-                    comp.syncedUndeadCount, 3);
+                    comp.syncedUndeadCount, Math.max(1, comp.syncedMaxUndead));
             context.drawString(font, countText, x - font.width(countText), y - font.lineHeight - 2, 0x9457FF);
 
             // 复苏冷却 / 就绪

@@ -60,7 +60,8 @@ public class UndeadEntity extends PathfinderMob {
     private static final double PERCEPTION_RANGE = 15.0D;
     private static final int ATTACK_INTERVAL = 30; // 1.5 秒
     private static final double TOUCH_RANGE = 1.6D;
-    private static final float INFECTION_PER_HIT = 15.0f;
+    /** 亡灵每次攻击注入的感染值（已减半）。 */
+    private static final float INFECTION_PER_HIT = 7.5f;
     private static final double BASE_SPEED = 0.25D;
     /** 幽灵直线穿墙时的移动速度系数（相对 MOVEMENT_SPEED，避免无视墙壁后追击过强）。 */
     private static final double GHOST_SPEED_FACTOR = 0.7D;

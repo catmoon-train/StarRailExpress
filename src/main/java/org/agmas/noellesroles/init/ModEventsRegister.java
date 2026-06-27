@@ -1141,7 +1141,8 @@ public class ModEventsRegister {
         org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent.registerEvents();
         // 注册警棍与防暴盾处理器
         BatonHandler.register();
-
+        // 注册亡灵之主骨杖处理器
+        org.agmas.noellesroles.content.item.BoneStaffHandler.register();
 
         RiotShieldHandler.register();
         // 注册仁之剑处理器
@@ -1265,7 +1266,8 @@ public class ModEventsRegister {
             if (player.isSpectator())
                 return InteractionResult.PASS;
             var gameC = SREGameWorldComponent.KEY.get(level);
-            if (!gameC.isRole(player, ModRoles.SHERIFF))
+            var playerRole = gameC.getRole(player);
+            if (playerRole == null || !playerRole.isVigilanteTeam())
                 return InteractionResult.PASS;
             if (HandCuffsItem.hasHandCuff(player)) {
                 return InteractionResult.PASS;

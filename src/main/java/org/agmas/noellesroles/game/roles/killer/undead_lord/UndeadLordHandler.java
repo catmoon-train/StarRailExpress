@@ -65,11 +65,11 @@ public class UndeadLordHandler {
                 return InteractionResult.PASS;
             }
 
-            // 数量上限
+            // 数量上限（基于开局人数动态计算，最多 4 个）
             if (!comp.canRaiseFromCorpse()) {
                 serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.undead_lord.max_reached")
-                                .withStyle(ChatFormatting.RED),
+                        Component.translatable("message.noellesroles.undead_lord.max_reached",
+                                comp.maxActiveUndead()).withStyle(ChatFormatting.RED),
                         true);
                 return InteractionResult.PASS;
             }

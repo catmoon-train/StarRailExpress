@@ -64,6 +64,7 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
 
     // ===== 同步给客户端用于 HUD =====
     public int syncedUndeadCount = 0;
+    public int syncedMaxUndead = 1;
     public boolean syncedAmpActive = false;
 
     private static final class FogZone {
@@ -130,6 +131,7 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
         fogZones.clear();
         infectionAmpTicks = 0;
         syncedUndeadCount = 0;
+        syncedMaxUndead = maxActiveUndead();
         syncedAmpActive = false;
     }
 
@@ -139,8 +141,20 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
         return ownedUndead.size();
     }
 
+    /**
+     * 当前可同时存在的亡灵上限：基于开局人数动态计算 {@code 人数/6 + 1}，最多 4 个。
+     * 超出该上限时，被感染致死的玩家不再转化为亡灵，而是直接留下尸体。
+     */
+    public int maxActiveUndead() {
+        SREGameWorldComponent gwc = SREGameWorldComponent.KEY.get(player.level());
+        int basePlayers = (gwc != null && gwc.getStartingPlayerCount() > 0)
+                ? gwc.getStartingPlayerCount()
+                : player.level().players().size();
+        return Math.min(4, basePlayers / 6 + 1);
+    }
+
     public boolean canRaiseFromCorpse() {
-        return ownedUndead.size() < config().undeadLordMaxActive;
+        return ownedUndead.size() < maxActiveUndead();
     }
 
     /** 在指定位置召唤亡灵，返回是否成功（受硬上限保护）。 */
@@ -194,7 +208,7 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
 
     // ==================== 商店效果 ====================
 
-    /** 亡者召唤符：在自身周围召唤临时亡灵（无需尸体）。 */
+    /** 亡者召唤符：在自身周围召唤临时亡灵（无需尸体），每只随机选取一名其他玩家的皮肤外观。 */
     public void summonTemporaryUndead(int count, int lifetimeTicks) {
         if (!(player.level() instanceof ServerLevel serverLevel)) {
             return;
@@ -202,8 +216,19 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
         for (int i = 0; i < count; i++) {
             double angle = (Math.PI * 2 / Math.max(1, count)) * i;
             Vec3 pos = player.position().add(Math.cos(angle) * 1.5, 0, Math.sin(angle) * 1.5);
-            spawnUndeadAt(serverLevel, pos, player.getUUID(), lifetimeTicks);
+            spawnUndeadAt(serverLevel, pos, randomSkinUuid(serverLevel), lifetimeTicks);
         }
+    }
+
+    /** 从存活玩家中随机选取一名作为亡灵皮肤来源（排除召唤者自身）；无人可选时回退为召唤者自身。 */
+    private UUID randomSkinUuid(ServerLevel serverLevel) {
+        List<ServerPlayer> candidates = serverLevel.players().stream()
+                .filter(p -> GameUtils.isPlayerAliveAndSurvival(p) && !p.getUUID().equals(player.getUUID()))
+                .toList();
+        if (candidates.isEmpty()) {
+            return player.getUUID();
+        }
+        return candidates.get(serverLevel.random.nextInt(candidates.size())).getUUID();
     }
 
     /** 感染增幅器：接下来一段时间亡灵攻击感染翻倍。 */
@@ -256,6 +281,13 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
         ownedUndead.removeIf(id -> !(serverLevel.getEntity(id) instanceof UndeadEntity));
         if (ownedUndead.size() != before) {
             syncedUndeadCount = ownedUndead.size();
+            dirty = true;
+        }
+
+        // 动态亡灵上限（基于开局人数）同步给客户端 HUD
+        int max = maxActiveUndead();
+        if (max != syncedMaxUndead) {
+            syncedMaxUndead = max;
             dirty = true;
         }
 
@@ -368,10 +400,17 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
     private void convertToUndead(ServerLevel serverLevel, ServerPlayer victim) {
         Vec3 pos = victim.position();
         UUID skin = victim.getUUID();
+        boolean canRaise = ownedUndead.size() < maxActiveUndead();
         serverLevel.players().forEach(a -> a.playNotifySound(SoundEvents.WITHER_SPAWN,
                 SoundSource.HOSTILE, 0.6f, 1.4f));
-        GameUtils.forceKillPlayer(victim, false, player, INFECTION_DEATH_REASON);
-        spawnUndeadAt(serverLevel, pos, skin, UndeadEntity.DEFAULT_LIFETIME);
+        if (canRaise) {
+            // 未达上限：转化为亡灵（不留尸体）。
+            GameUtils.forceKillPlayer(victim, false, player, INFECTION_DEATH_REASON);
+            spawnUndeadAt(serverLevel, pos, skin, UndeadEntity.DEFAULT_LIFETIME);
+        } else {
+            // 已达亡灵上限：直接死亡并留下尸体，不再转化为亡灵。
+            GameUtils.forceKillPlayer(victim, true, player, INFECTION_DEATH_REASON);
+        }
     }
 
     private void updateBossBar(ServerPlayer victim, float value) {
@@ -413,12 +452,14 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("undeadCount", syncedUndeadCount);
+        tag.putInt("maxUndead", syncedMaxUndead);
         tag.putBoolean("ampActive", syncedAmpActive);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         syncedUndeadCount = tag.getInt("undeadCount");
+        syncedMaxUndead = tag.getInt("maxUndead");
         syncedAmpActive = tag.getBoolean("ampActive");
     }
 

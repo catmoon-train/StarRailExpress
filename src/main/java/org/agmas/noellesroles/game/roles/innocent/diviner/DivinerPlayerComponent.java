@@ -1,15 +1,19 @@
 package org.agmas.noellesroles.game.roles.innocent.diviner;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,6 +29,7 @@ import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -116,6 +121,10 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
                 castFx(sp);
                 sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.insane_killer")
                         .withStyle(ChatFormatting.DARK_RED), false);
+                SRENetworkMessageUtils.sendTitleTime(sp, 8, 60, 20);
+                SRENetworkMessageUtils.sendTitle(sp,
+                        Component.translatable("message.noellesroles.diviner.insane_killer.title")
+                                .withStyle(ChatFormatting.DARK_RED));
                 return;
             }
             // 活人不是占卜对象
@@ -135,12 +144,45 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
             setCooldown(cfg);
 
             ResourceLocation roleId = body.getComponent().playerRole;
-            Component roleName = Component.translatable("announcement.star.role." + roleId.getPath());
+            FactionInfo faction = factionOf(roleId);
+            MutableComponent roleColored = RoleUtils.getRoleName(roleId).withStyle(faction.color());
             Component deadName = resolveName(sp, body);
             castFx(sp);
-            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.result", deadName, roleName)
-                    .withStyle(ChatFormatting.LIGHT_PURPLE), false);
+            // 聊天框：留存的占卜记录，含职业与阵营
+            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.result",
+                    deadName, roleColored, faction.label()), false);
+            // 标题：醒目展示，避免在聊天框一闪而过
+            SRENetworkMessageUtils.sendTitleTime(sp, 8, 70, 20);
+            SRENetworkMessageUtils.sendTitle(sp, deadName);
+            SRENetworkMessageUtils.sendSubtitle(sp, Component.translatable("message.noellesroles.diviner.subtitle",
+                    roleColored, faction.label()));
         }
+    }
+
+    /** 阵营标签（已含颜色）与职业名应使用的颜色。 */
+    private record FactionInfo(Component label, ChatFormatting color) {
+    }
+
+    /** 根据职业 ID 判断其阵营，用于占卜结果着色与标注。 */
+    private FactionInfo factionOf(ResourceLocation roleId) {
+        SRERole role = TMMRoles.ROLES.get(roleId);
+        int type = role == null ? -1 : role.getRoleType();
+        return switch (type) {
+            // 4=杀手, 3=杀手阵营中立
+            case 3, 4 -> new FactionInfo(
+                    Component.translatable("message.noellesroles.diviner.faction.killer"), ChatFormatting.RED);
+            // 5=治安阵营（警长等）
+            case 5 -> new FactionInfo(
+                    Component.translatable("message.noellesroles.diviner.faction.vigilante"), ChatFormatting.AQUA);
+            // 2=普通中立
+            case 2 -> new FactionInfo(
+                    Component.translatable("message.noellesroles.diviner.faction.neutral"), ChatFormatting.GOLD);
+            // 1=乘客（无辜）
+            case 1 -> new FactionInfo(
+                    Component.translatable("message.noellesroles.diviner.faction.passenger"), ChatFormatting.GREEN);
+            default -> new FactionInfo(
+                    Component.translatable("message.noellesroles.diviner.faction.unknown"), ChatFormatting.GRAY);
+        };
     }
 
     private Component resolveName(ServerPlayer sp, PlayerBodyEntity body) {
@@ -190,6 +232,9 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (!gaveItem && GameUtils.isPlayerAliveAndSurvival(sp)) {
             sp.addItem(ModItems.CRYSTAL_BALL.getDefaultInstance().copy());
             gaveItem = true;
+            // 开局用法说明：告诉玩家如何使用晶球及冷却时长
+            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.intro",
+                    NoellesRolesConfig.HANDLER.instance().divinerCooldown), false);
         }
     }
 

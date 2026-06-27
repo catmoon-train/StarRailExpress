@@ -130,7 +130,10 @@ abstract class AbstractRoleRosterScreen extends Screen {
 
     protected static boolean isRosterEligible(SRERole role) {
         try {
-            return role.canBeRandomed() && !role.isOtherModeRole() && role.getOccupiedRoleCount() <= 1;
+            // 注意：不要用 role.canBeRandomed() 过滤。该字段实际由 setCanBeRandomedByOtherRoles 设置，
+            // 含义是“能否进入其他职业（如赌徒）的随机池”，与名单可选性无关。阿蒙、亡灵之主等 ~40 个职业
+            // 都调用了 setCanBeRandomedByOtherRoles(false)，若以此过滤会被错误地排除在名单之外。
+            return !role.isOtherModeRole() && role.getOccupiedRoleCount() <= 1;
         } catch (Throwable ignored) {
             return false;
         }

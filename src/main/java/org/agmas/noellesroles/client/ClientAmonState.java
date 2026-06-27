@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import org.agmas.noellesroles.packet.AmonFinaleS2CPacket;
 import org.agmas.noellesroles.packet.AmonSkinS2CPacket;
 
+import io.wifi.starrailexpress.client.StatusBarHUD;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin.PlayerSkinResult;
@@ -25,8 +26,8 @@ public class ClientAmonState {
     /** 终幕「阿蒙时刻」全局表现：偏灰滤镜、小丑音乐与状态栏倒计时是否激活。 */
     public static volatile boolean finaleActive = false;
     private static long finaleStartMs = 0L;
-    /** 终幕总时长（毫秒），与服务端 FINALE_TICKS(2 分钟) 对应。 */
-    private static final long FINALE_DURATION_MS = 120_000L;
+    /** 终幕总时长（毫秒），与服务端 FINALE_TICKS(80 秒) 对应。 */
+    private static final long FINALE_DURATION_MS = 80_000L;
 
     public static void register() {
         OnGettingPlayerSkin.EVENT.register((player) -> {
@@ -58,6 +59,10 @@ public class ClientAmonState {
                 (payload, ctx) -> ctx.client().execute(() -> {
                     finaleActive = payload.active();
                     finaleStartMs = System.currentTimeMillis();
+                    // 终幕结束：仅把进度归零不会移除状态条（HUD 默认保留 500s），需显式移除。
+                    if (!payload.active()) {
+                        StatusBarHUD.getInstance().removeStatusBar("AmonFinale");
+                    }
                 }));
     }
 
@@ -76,5 +81,6 @@ public class ClientAmonState {
     public static void clearAll() {
         skins.clear();
         finaleActive = false;
+        StatusBarHUD.getInstance().removeStatusBar("AmonFinale");
     }
 }

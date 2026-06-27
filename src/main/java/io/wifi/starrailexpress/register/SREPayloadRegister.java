@@ -101,6 +101,8 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playS2C().register(OpenFourthRoomPeekDeckPayload.ID, OpenFourthRoomPeekDeckPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenSkinScreenPaylod.ID, OpenSkinScreenPaylod.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenProgressionScreenPayload.ID, OpenProgressionScreenPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.OpenBackpackScreenPayload.ID,
+                io.wifi.starrailexpress.network.OpenBackpackScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenClueArchivePayload.ID, OpenClueArchivePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.ID,
                 io.wifi.starrailexpress.network.OpenRoleUnlockScreenPayload.CODEC);

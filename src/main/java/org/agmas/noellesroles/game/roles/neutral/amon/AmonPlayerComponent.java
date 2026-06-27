@@ -8,14 +8,22 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.HoneyBottleItem;
+import net.minecraft.world.item.PotionItem;
+import io.wifi.starrailexpress.content.item.CocktailItem;
+import pro.fazeclan.river.stupid_express.constants.SEItems;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -68,10 +76,13 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
 
     /** 时之虫潜伏成熟时间：90 秒。 */
     public static final int INCUBATION_TICKS = 90 * 20;
-    /** 终幕「寻找阿蒙」持续时间：2 分钟。 */
-    public static final int FINALE_TICKS = 120 * 20;
+    /** 终幕「寻找阿蒙」持续时间：80 秒。 */
+    public static final int FINALE_TICKS = 80 * 20;
     /** 种植半径：4 格。 */
     private static final double PLANT_RADIUS_SQR = 4.0 * 4.0;
+    /** 食物/饮料标签（noellesroles:food_drink），用于窃取豁免。 */
+    private static final TagKey<net.minecraft.world.item.Item> FOOD_DRINK_TAG = TagKey.create(
+            Registries.ITEM, ResourceLocation.fromNamespaceAndPath("noellesroles", "food_drink"));
 
     private final Player player;
 
@@ -303,9 +314,6 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             return false;
         }
 
-        Vec3 hostPos = host.position();
-        float hostYRot = host.getYRot();
-        float hostXRot = host.getXRot();
         // 阿蒙抛下的旧躯壳位置（用于生成阿蒙自己的尸体）。
         Vec3 amonOldPos = amon.position();
         float amonOldYRot = amon.getYHeadRot();
@@ -315,8 +323,8 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         // 阿蒙抛下原来的躯壳：在旧位置生成阿蒙自己的尸体。
         spawnOwnBody(amon, level, amonOldPos, amonOldYRot);
 
-        // 阿蒙占据宿主位置并顶替其外观。
-        amon.teleportTo(level, hostPos.x, hostPos.y, hostPos.z, hostYRot, hostXRot);
+        // 阿蒙夺舍后回到自己的房间（而非传送到宿主旁边），只顶替宿主外观。
+        GameUtils.teleportBackToRoom(amon);
         setDisguise(hostUuid);
 
         usurpCount++;
@@ -380,7 +388,9 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             AmonPlayerComponent comp = KEY.get(p);
             if (comp.finalePhase) {
                 block = true;
-            } else if (comp.maturedHosts.size() >= 1) {
+            } else if (pendingStatus != GameUtils.WinStatus.NONE && comp.maturedHosts.size() >= 1) {
+                // 仅在常规游戏「本应结束」时（杀手/乘客/超时等结算）才进入终幕；
+                // 若 pendingStatus 为 NONE（场上平民与杀手都还活着），不可提前触发阿蒙时刻。
                 comp.startFinale();
                 block = true;
             }
@@ -455,6 +465,20 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
                 ModRoles.AMON_ID.getPath(), OptionalInt.of(ModRoles.AMON.color()));
     }
 
+    /**
+     * 阿蒙在终幕中真正死亡（无备用能力可逃脱）：关闭全服终幕表现，
+     * 否则「杀死阿蒙」状态栏/音乐/滤镜会残留。
+     */
+    public void endFinaleOnDeath() {
+        if (!finalePhase) return;
+        finalePhase = false;
+        finaleTicks = 0;
+        if (player instanceof ServerPlayer amon && amon.level() instanceof ServerLevel level) {
+            broadcastFinale(level, false);
+        }
+        sync();
+    }
+
     /** 终幕续命/逃脱：消耗一个备用能力，瞬移逃脱并短暂无敌。无备用能力则真正死亡。 */
     public boolean tryFinaleEscape() {
         if (!(player instanceof ServerPlayer amon) || reserveLives <= 0) return false;
@@ -501,7 +525,18 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
 
     private boolean isProtectedItem(ItemStack s) {
         return s.is(TMMItems.KEY) || s.is(TMMItems.IRON_DOOR_KEY) || s.is(TMMItems.LETTER)
-                || s.is(ModItems.LETTER_ITEM) || s.is(ModItems.COURIER_MAIL) || s.is(ModItems.RECEIVED_MAIL);
+                || s.is(ModItems.LETTER_ITEM) || s.is(ModItems.COURIER_MAIL) || s.is(ModItems.RECEIVED_MAIL)
+                || isFoodOrDrink(s);
+    }
+
+    /** 食物与饮料不予窃取（与 MapStatusBarRuntime 的判定保持一致）。 */
+    private boolean isFoodOrDrink(ItemStack s) {
+        return s.get(DataComponents.FOOD) != null
+                || s.getItem() instanceof CocktailItem
+                || s.getItem() instanceof PotionItem
+                || s.getItem() instanceof HoneyBottleItem
+                || s.is(FOOD_DRINK_TAG)
+                || s.is(SEItems.DRINKS);
     }
 
     @Override
