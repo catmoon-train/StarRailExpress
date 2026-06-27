@@ -171,6 +171,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         // Tick cooldowns
         if (cooldown > 0) {
             cooldown--;
+            if (cooldown % 20 == 0 || cooldown == 0) sync();
         }
 
         // Cooking timer: only ticks after the first ingredient has been inserted
@@ -245,6 +246,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
 
         // Smoker is placed but cooking hasn't started — send a long-lived client block
         broadcast(new CakeMakerBlockS2CPacket(smokerId, smokerPos, false, 0, Integer.MAX_VALUE, false));
+        sync(); // 立即同步冷却到客户端
         sp.displayClientMessage(
                 Component.translatable("message.noellesroles.cake_maker.smoker_ready")
                         .withStyle(ChatFormatting.GOLD),

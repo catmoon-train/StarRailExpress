@@ -91,6 +91,7 @@
     "client.roles.builder.BuilderBlockUpdateMixin",
     "client.roles.bodymaker.BodymakerScreenMixin",
     "client.roles.cake_maker.CakeMakerBlockUpdateMixin",
+    "client.roles.cake_maker.CakeMakerNoCollisionMixin",
     "client.forensic.ForensicCorpseHudMixin",
     "client.forensic.ForensicDoorHudMixin",
     "client.roles.coroner.CoronerHudMixin",

@@ -971,6 +971,8 @@
   "message.noellesroles.veteran_dash.cooldown": "军刀冲刺冷却中：%s秒。",
   "hud.veteran.ready": "冲刺已就绪",
   "hud.veteran.cooldown": "冲刺冷却中：%ss",
+  "hud.cake_maker.ready": "烟熏炉已就绪",
+  "hud.cake_maker.cooldown": "烟熏炉冷却中：%ss",
   "item.noellesroles.sp_knife": "军刀",
   "item.noellesroles.sp_knife.tooltip": "使用一次后消失。",
   "==================== 歌手角色 ====================": "",
