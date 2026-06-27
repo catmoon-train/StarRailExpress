@@ -196,7 +196,7 @@ public class SREConfig implements ConfigData {
     // 小游戏任务独立刷新间隔（秒），与 Mood 任务解耦
     public int minigameTaskIntervalSeconds = 75;
     public int moneyPerKill = 100;
-    public int grenadeMoneyPerKill = 75;
+    public int grenadeMoneyPerKill = 80;
     public int grenadeMaxMoneyReward = 375;
     public int grenadeMaxHurtPlayers = 8;
     public int psychoModeArmor = 1;
