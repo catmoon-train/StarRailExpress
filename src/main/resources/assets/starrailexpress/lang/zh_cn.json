@@ -1235,6 +1235,7 @@
     "screen.limited_inventory.button.menu.show":  "便捷菜单",
     "screen.limited_inventory.button.menu.hide":  "隐藏菜单",
     "screen.limited_inventory.menu.introduction":  "职业介绍",
+    "screen.limited_inventory.menu.map_introduction":  "地图介绍",
     "screen.limited_inventory.menu.loot_screen":  "打开抽卡",
     "screen.limited_inventory.menu.role_guess":  "职业猜测记事本",
     "screen.limited_inventory.menu.modmenu_settings":  "模组设置",

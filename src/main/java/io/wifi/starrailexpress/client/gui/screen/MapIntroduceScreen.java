@@ -58,6 +58,7 @@ public class MapIntroduceScreen extends Screen {
             new TabInfo(Tab.QUEST_BLOCKS, "map_intro.tab.quest_blocks", 0xFFE0AD5B),
             new TabInfo(Tab.MECHANICS, "map_intro.tab.mechanics", 0xFFB18AE6));
 
+    private Screen parent;
     private EditBox search;
     private Tab tab = Tab.MAP_PROPERTIES;
     private Entry selected;
@@ -70,7 +71,14 @@ public class MapIntroduceScreen extends Screen {
     private int leftW;
     private int rightW;
 
-    public MapIntroduceScreen() {
+    @Override
+    public void onClose() {
+        if (minecraft != null) {
+            minecraft.setScreen((Screen) parent);
+        }
+    }
+
+    public MapIntroduceScreen(Screen parent) {
         super(Component.translatable("map_intro.title"));
     }
 

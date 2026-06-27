@@ -45,6 +45,7 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -102,7 +103,6 @@ import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayer
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.packet.Loot.*;
-import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.utils.lottery.LotteryManager;
 import org.joml.Vector3f;
@@ -1198,7 +1198,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (mapIntroClientBind.consumeClick()) {
                 client.execute(() -> {
                     io.wifi.starrailexpress.client.gui.screen.MapIntroduceScreen screen =
-                            new io.wifi.starrailexpress.client.gui.screen.MapIntroduceScreen();
+                            new io.wifi.starrailexpress.client.gui.screen.MapIntroduceScreen((Screen) null);
                     client.setScreen(screen);
                     ClientPlayNetworking.send(new io.wifi.starrailexpress.network.MapIntroRequestPayload());
                 });
