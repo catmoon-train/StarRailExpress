@@ -220,7 +220,8 @@ public class InstinctRenderer {
             if (!WorldModifierComponent.KEY.get(self.level()).isModifier(self, SEModifiers.LOVERS))
                 return -1;
             var lc = LoversComponent.KEY.get(self);
-            if (lc.getLover().equals(target.getUUID())) {
+            var loverUuid = lc.getLover();
+            if (loverUuid != null && loverUuid.equals(target.getUUID())) {
                 return SEModifiers.LOVERS.color();
             }
             return -1;
