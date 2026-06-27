@@ -47,7 +47,9 @@ public class SREModifier extends SREAbstractInfoClass {
      * 添加显示FLAG
      */
     public SREModifier addFlag(String... flag) {
-        this.flags.addAll(flags);
+        for (var i : flag) {
+            this.flags.add(i);
+        }
         return this;
     }
 
@@ -87,7 +89,9 @@ public class SREModifier extends SREAbstractInfoClass {
      * 删除显示FLAG
      */
     public SREModifier removeFlag(String... flag) {
-        this.flags.removeAll(flags);
+        for (var i : flag) {
+            this.flags.remove(i);
+        }
         return this;
     }
 

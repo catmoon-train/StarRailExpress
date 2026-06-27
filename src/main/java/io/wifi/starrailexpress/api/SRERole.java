@@ -88,7 +88,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * 添加显示FLAG
      */
     public SRERole addFlag(String... flag) {
-        this.flags.addAll(flags);
+        for (var i : flag) {
+            this.flags.add(i);
+        }
         return this;
     }
 
@@ -101,6 +103,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     /**
      * 是否为指定flag
+     * 
      * @param flags
      * @return
      */
@@ -115,6 +118,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     /**
      * 是否为指定flag
+     * 
      * @param flags
      * @return
      */
@@ -126,7 +130,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * 删除显示FLAG
      */
     public SRERole removeFlag(String... flag) {
-        this.flags.removeAll(flags);
+        for (var i : flag) {
+            this.flags.remove(i);
+        }
         return this;
     }
 

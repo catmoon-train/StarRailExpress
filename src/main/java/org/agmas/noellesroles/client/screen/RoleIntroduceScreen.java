@@ -1384,15 +1384,27 @@ public class RoleIntroduceScreen extends Screen {
 
     private void openFilterScreen() {
         LinkedHashMap<String, Component> optionMap = new LinkedHashMap<>();
-        HashSet<String> flags = TMMRoles.getAllFlags();
-        for (var it : flags) {
-            if (it != null) {
-                optionMap.put(it, Component.translatableWithFallback("screen.roleintroduce.flag." + it,
-                        it.toUpperCase().replaceAll("_", " ")));
+        {
+            HashSet<String> flags = TMMRoles.getAllFlags();
+            for (var it : flags) {
+                if (it != null) {
+                    optionMap.put(it, Component.translatableWithFallback("screen.roleintroduce.flag." + it,
+                            it.toUpperCase().replaceAll("_", " ")));
+                }
+            }
+        }
+        {
+            HashSet<String> flags = HMLModifiers.getAllFlags();
+            for (var it : flags) {
+                if (it != null) {
+                    optionMap.put(it, Component.translatableWithFallback("screen.roleintroduce.flag." + it,
+                            it.toUpperCase().replaceAll("_", " ")));
+                }
             }
         }
         filterFlags.clear();
-        FilterSelectionScreen screen = FilterSelectionScreen.builder(this).title(Component.translatable("选择物品"))
+        FilterSelectionScreen screen = FilterSelectionScreen.builder(this)
+                .title(Component.translatable("screen.filter_selection.title"))
                 .subtitle(Component.translatable("gui.filter.tip"))
                 .options(optionMap)
                 .multiSelect(true)

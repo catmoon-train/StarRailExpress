@@ -1401,6 +1401,7 @@
   "screen.roleintroduce.mode.other": "其它模式",
   "screen.roleintroduce.mode.flag": "🏷",
   "screen.filter_selection.title": "请选择标签",
+  "screen.filter_selection.tip": "选择一个标签来筛选信息",
   "====== filter flag 显示区域开始 ======": "",
   "screen.roleintroduce.flag.default": "默认",
   "screen.roleintroduce.flag.touhou": "东方同人",

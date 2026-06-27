@@ -6,8 +6,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
@@ -22,18 +24,19 @@ import com.mojang.blaze3d.vertex.BufferUploader;
  * <p>
  * 主要特性：
  * <ul>
- *   <li>居中标题与支持自动换行的副标题（通过 {@code font.split}）</li>
- *   <li>搜索框：支持拼音搜索（通过 {@link PinYinUtils}）和普通文本匹配</li>
- *   <li>支持单选/多选模式，由构造参数控制</li>
- *   <li>列表项宽度统一，长文本自动截断并显示省略号（{@code font.plainSubstrByWidth}）</li>
- *   <li>右侧滚动条支持鼠标拖拽和滚轮滚动</li>
- *   <li>底部提供“取消”和“确认”按钮，点击后均返回上级页面</li>
- *   <li>按 ESC 键同样返回上级页面</li>
+ * <li>居中标题与支持自动换行的副标题（通过 {@code font.split}）</li>
+ * <li>搜索框：支持拼音搜索（通过 {@link PinYinUtils}）和普通文本匹配</li>
+ * <li>支持单选/多选模式，由构造参数控制</li>
+ * <li>列表项宽度统一，长文本自动截断并显示省略号（{@code font.plainSubstrByWidth}）</li>
+ * <li>右侧滚动条支持鼠标拖拽和滚轮滚动</li>
+ * <li>底部提供“取消”和“确认”按钮，点击后均返回上级页面</li>
+ * <li>按 ESC 键同样返回上级页面</li>
  * </ul>
  * 视觉风格参考了 {@code RoleIntroduceScreen} 的深色渐变与金属质感配色。
  * </p>
  * <p>
  * 推荐使用 {@link Builder} 以流式 API 构造实例：
+ * 
  * <pre>{@code
  * FilterSelectionScreen screen = FilterSelectionScreen.builder(parent)
  *         .title(Component.translatable("gui.filter.title"))
@@ -64,7 +67,7 @@ public class FilterSelectionScreen extends Screen {
 
     // ── 状态 ──────────────────────────────────────────────
     private final Set<String> selectedIds = new LinkedHashSet<>();
-    private List<String> filteredIds = new ArrayList<>();   // 当前显示条目的 ID 列表
+    private List<String> filteredIds = new ArrayList<>(); // 当前显示条目的 ID 列表
 
     // 搜索
     private EditBox searchWidget;
@@ -78,20 +81,20 @@ public class FilterSelectionScreen extends Screen {
     private int dragStartOffset = 0;
 
     // 布局常量
-    private static final int ROW_HEIGHT = 22;           // 每个选项的高度
-    private static final int ROW_SPACING = 2;           // 间距
+    private static final int ROW_HEIGHT = 22; // 每个选项的高度
+    private static final int ROW_SPACING = 2; // 间距
     private static final int SCROLL_W = 7;
     private static final int SCROLL_MIN_THUMB = 20;
     private static final int PANEL_PAD = 6;
-    private static final int TOP_BAR_H = 20;            // 搜索框高度
-    private static final int TITLE_HEIGHT = 16;         // 标题行高（估计）
-    private static final int SUBTITLE_TOP_OFFSET = 2;   // 副标题距标题距离
-    private static final int SEARCH_TOP_OFFSET = 6;     // 搜索框距副标题区域距离
+    private static final int TOP_BAR_H = 20; // 搜索框高度
+    private static final int TITLE_HEIGHT = 16; // 标题行高（估计）
+    private static final int SUBTITLE_TOP_OFFSET = 2; // 副标题距标题距离
+    private static final int SEARCH_TOP_OFFSET = 6; // 搜索框距副标题区域距离
     private static final int BUTTON_HEIGHT = 20;
 
     // 动态计算的坐标
-    private int listX, listY, listW, listH;             // 列表区域
-    private int cancelX, cancelW, confirmX, confirmW;   // 按钮区域
+    private int listX, listY, listW, listH; // 列表区域
+    private int cancelX, cancelW, confirmX, confirmW; // 按钮区域
     private int panelWidth, panelHeight;
     private int usableWidth;
 
@@ -101,14 +104,15 @@ public class FilterSelectionScreen extends Screen {
      * @param title       界面的主标题 {@link Component}，不可为 {@code null}
      * @param subtitle    副标题/提示文本 {@link Component}，不可为 {@code null}
      * @param parent      父级屏幕，用于 ESC 或按钮点击后返回，不可为 {@code null}
-     * @param options     选项映射（ID -> 显示名称），顺序由传入的 {@link LinkedHashMap} 保证，不可为 {@code null}
+     * @param options     选项映射（ID -> 显示名称），顺序由传入的 {@link LinkedHashMap} 保证，不可为
+     *                    {@code null}
      * @param multiSelect 是否允许多选；{@code true} 为多选，{@code false} 为单选
      * @param callback    确认后的回调函数，参数为选中 ID 的集合（单选时集合只包含一个元素），不可为 {@code null}
      */
     private FilterSelectionScreen(Component title, Component subtitle, Screen parent,
-                                  LinkedHashMap<String, Component> options,
-                                  boolean multiSelect,
-                                  Consumer<Set<String>> callback) {
+            LinkedHashMap<String, Component> options,
+            boolean multiSelect,
+            Consumer<Set<String>> callback) {
         super(title);
         this.titleComp = Objects.requireNonNull(title, "title cannot be null");
         this.subtitleComp = Objects.requireNonNull(subtitle, "subtitle cannot be null");
@@ -202,8 +206,8 @@ public class FilterSelectionScreen extends Screen {
      * <p>
      * 过滤逻辑：
      * <ul>
-     *   <li>若搜索框为空，则显示全部选项；</li>
-     *   <li>否则，分别匹配选项显示文本、选项 ID 和拼音（通过 {@link PinYinUtils#contains}）。</li>
+     * <li>若搜索框为空，则显示全部选项；</li>
+     * <li>否则，分别匹配选项显示文本、选项 ID 和拼音（通过 {@link PinYinUtils#contains}）。</li>
      * </ul>
      * </p>
      */
@@ -213,9 +217,9 @@ public class FilterSelectionScreen extends Screen {
             Component nameComp = options.get(id);
             String name = nameComp.getString();
             if (searchContent == null ||
-                name.toLowerCase().contains(searchContent.toLowerCase()) ||
-                id.toLowerCase().contains(searchContent.toLowerCase()) ||
-                PinYinUtils.contains(searchContent, name)) {
+                    name.toLowerCase().contains(searchContent.toLowerCase()) ||
+                    id.toLowerCase().contains(searchContent.toLowerCase()) ||
+                    PinYinUtils.contains(searchContent, name)) {
                 filteredIds.add(id);
             }
         }
@@ -242,7 +246,8 @@ public class FilterSelectionScreen extends Screen {
      */
     @Override
     public void onClose() {
-        if (this.minecraft == null) return;
+        if (this.minecraft == null)
+            return;
         this.minecraft.screen = parent;
         this.removed();
         if (this.minecraft.screen != null) {
@@ -335,7 +340,8 @@ public class FilterSelectionScreen extends Screen {
         for (int i = 0; i < filteredIds.size(); i++) {
             String id = filteredIds.get(i);
             int rowY = listY + i * (ROW_HEIGHT + ROW_SPACING) - scrollOffset;
-            if (rowY + ROW_HEIGHT < listY || rowY > listY + listH) continue;
+            if (rowY + ROW_HEIGHT < listY || rowY > listY + listH)
+                continue;
 
             boolean hovered = isInRect(mouseX, mouseY, listX, rowY, listW, ROW_HEIGHT);
             boolean selected = selectedIds.contains(id);
@@ -453,6 +459,9 @@ public class FilterSelectionScreen extends Screen {
                 for (int i = 0; i < filteredIds.size(); i++) {
                     int rowY = listY + i * (ROW_HEIGHT + ROW_SPACING) - scrollOffset;
                     if (isInRect((int) mx, (int) my, listX, rowY, listW, ROW_HEIGHT)) {
+
+                        this.minecraft.getSoundManager()
+                                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                         String id = filteredIds.get(i);
                         if (multiSelect) {
                             if (selectedIds.contains(id))
@@ -479,11 +488,17 @@ public class FilterSelectionScreen extends Screen {
 
             // 取消按钮
             if (isInRect((int) mx, (int) my, cancelX, listY + listH + 4, cancelW, BUTTON_HEIGHT)) {
+
+                this.minecraft.getSoundManager()
+                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                 onClose();
                 return true;
             }
             // 确认按钮
             if (isInRect((int) mx, (int) my, confirmX, listY + listH + 4, confirmW, BUTTON_HEIGHT)) {
+
+                this.minecraft.getSoundManager()
+                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                 if (callback != null) {
                     callback.accept(new LinkedHashSet<>(selectedIds));
                 }
@@ -511,7 +526,8 @@ public class FilterSelectionScreen extends Screen {
             int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (listH * Math.min(1f, (float) listH / totalH)));
             double trackH = listH - thumbH;
             if (trackH > 0)
-                scrollOffset = Mth.clamp((int) (dragStartOffset + (my - dragStartY) / trackH * maxScroll), 0, maxScroll);
+                scrollOffset = Mth.clamp((int) (dragStartOffset + (my - dragStartY) / trackH * maxScroll), 0,
+                        maxScroll);
             return true;
         }
         return super.mouseDragged(mx, my, button, dx, dy);
@@ -598,11 +614,12 @@ public class FilterSelectionScreen extends Screen {
      * @param dragging      是否正在拖拽
      */
     private void renderVScrollbar(GuiGraphics g, int x, int y, int h,
-                                  int scroll, int maxScroll, int totalContentH,
-                                  int mouseX, int mouseY, boolean dragging) {
+            int scroll, int maxScroll, int totalContentH,
+            int mouseX, int mouseY, boolean dragging) {
         g.fill(x, y, x + SCROLL_W, y + h, 0xFF1A1008);
         g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x558B6914);
-        if (maxScroll <= 0) return;
+        if (maxScroll <= 0)
+            return;
 
         float ratio = Math.min(1f, (float) h / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (h * ratio));
@@ -633,6 +650,7 @@ public class FilterSelectionScreen extends Screen {
      * <p>
      * 所有参数都有默认值，至少需要调用 {@link #build()} 才能构造实例。
      * 使用示例：
+     * 
      * <pre>{@code
      * FilterSelectionScreen screen = FilterSelectionScreen.builder(parent)
      *         .title(Component.literal("选择物品"))
@@ -653,7 +671,8 @@ public class FilterSelectionScreen extends Screen {
         private Component subtitle = Component.empty();
         private LinkedHashMap<String, Component> options = new LinkedHashMap<>();
         private boolean multiSelect = false;
-        private Consumer<Set<String>> callback = ids -> {};
+        private Consumer<Set<String>> callback = ids -> {
+        };
 
         /**
          * 创建建造者，必须指定父级屏幕。

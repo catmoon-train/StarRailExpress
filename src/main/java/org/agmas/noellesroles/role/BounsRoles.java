@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.role;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.minecraft.resources.ResourceLocation;
@@ -29,7 +29,7 @@ public class BounsRoles {
      * 巫毒对立职业
      */
     public static SRERole LENGXIAO = TMMRoles.registerRole(
-            new NormalRole(LENGXIAO_ID, new Color(230, 178, 130).getRGB(),
+            new EggRole(LENGXIAO_ID, new Color(230, 178, 130).getRGB(),
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true) {
                 @Override
