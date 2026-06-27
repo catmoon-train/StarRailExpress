@@ -116,9 +116,9 @@ public class BuilderPlayerComponent implements RoleComponent, ServerTickingCompo
             currentMode = BuildMode.BUILD;
         }
         if (player instanceof ServerPlayer serverPlayer) {
-            String modeName = currentMode == BuildMode.BUILD
-                    ? Component.translatable("hud.noellesroles.builder.mode.build").getString()
-                    : Component.translatable("hud.noellesroles.builder.mode.demolish").getString();
+            Component modeName = currentMode == BuildMode.BUILD
+                    ? Component.translatable("hud.noellesroles.builder.mode.build")
+                    : Component.translatable("hud.noellesroles.builder.mode.demolish");
             serverPlayer.displayClientMessage(
                     Component.translatable("hud.noellesroles.builder.mode_switched", modeName)
                             .withStyle(ChatFormatting.YELLOW),
