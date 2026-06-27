@@ -1331,7 +1331,7 @@ public class ModRoles {
             .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
             .setCanSeeCoin(true).setOccupiedRoleCount(3).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
-            .setMafiaTeam(true).setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(1800);
+            .setMafiaTeam(true).setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(2500);
     public static SRERole MAFIOSO = TMMRoles
             .registerRole(new NormalRole(MAFIOSO_ID, new Color(218, 112, 214).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
