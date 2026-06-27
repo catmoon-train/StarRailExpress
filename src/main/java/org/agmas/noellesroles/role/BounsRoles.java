@@ -80,7 +80,7 @@ public class BounsRoles {
         public int getMoodColor() {
             return ModRoles.PUPPETEER_COLOR.getOrRandomColor();
         }
-    }).setComponentKey(ModComponents.CREEPER).setCanBeRandomedByOtherRoles(false).setDefaultMax(1)
+    }, "creator_team").setComponentKey(ModComponents.CREEPER).setCanBeRandomedByOtherRoles(false).setDefaultMax(1)
             .setDefaultEnableChance(5000);
     /**
      * 作家角色
@@ -192,7 +192,7 @@ public class BounsRoles {
                     ResourceLocation texture = SRE.id("block/plush/lengxiaocn.png");
                     return texture;
                 }
-            })
+            }, "creator_team")
             .setDefaultEnableChance(10);
 
     public static void init() {

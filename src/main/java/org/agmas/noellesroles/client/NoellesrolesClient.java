@@ -3,6 +3,7 @@ package org.agmas.noellesroles.client;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.doctor4t.ratatouille.util.TextUtils;
+import io.wifi.ConfigCompact.ui.RoleManageConfigUI;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
@@ -91,8 +92,6 @@ import org.agmas.noellesroles.content.entity.WheelchairEntityModel;
 import org.agmas.noellesroles.content.entity.WheelchairEntityRenderer;
 import org.agmas.noellesroles.content.entity.WheelchairFieldItemRenderer;
 import org.agmas.noellesroles.content.item.MercenaryContractItem;
-import org.agmas.noellesroles.client.screen.CourierScreen;
-import org.agmas.noellesroles.client.screen.CourierMailReceiveScreen;
 import org.agmas.noellesroles.content.item.CourierMailItem;
 import org.agmas.noellesroles.content.item.NewspaperItem;
 import org.agmas.noellesroles.role.ModRoles;
@@ -1071,6 +1070,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             // 加入游戏清空信息
             currentBroadcastMessage.clear();
             ClientVoteCache.clear();
+            RoleManageConfigUI.RoleEnableStatus.clear();
+            RoleManageConfigUI.ModifierEnableStatus.clear();
         });
         // 监听客户端断开连接：清空卡池配置信息
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {

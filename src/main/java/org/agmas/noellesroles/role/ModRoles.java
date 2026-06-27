@@ -324,7 +324,7 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 显示计分板
     )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
-            .setSpecialMapRole(SRERole.SpecialMapRole.fly).setDefaultMax(0)
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.fly).setDefaultMax(0)
             .setComponentKey(org.agmas.noellesroles.component.ModComponents.PILOT);
 
     /**
@@ -352,7 +352,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限体力
             true // 隐藏计分板
     )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
-            .setSpecialMapRole(SRERole.SpecialMapRole.fly).setDefaultMax(1)
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.fly).setDefaultMax(1)
             .setComponentKey(org.agmas.noellesroles.component.ModComponents.SHADOW_FALCON);
 
     /**
@@ -541,7 +541,7 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 无限冲刺时间
             true // 隐藏计分板
     )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true)
-            .setSpecialMapRole(SRERole.SpecialMapRole.qiyucun).setDefaultMax(0);
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.qiyucun).setDefaultMax(0);
     public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
             MA_CHEN_XU_ID, // 角色 ID
             new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
@@ -551,7 +551,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
     )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2)
-            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRole.qiyucun)
+            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRoleMap.qiyucun)
             .setDefaultMax(1);
 
     // DIO 迪奥
@@ -781,7 +781,7 @@ public class ModRoles {
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false))
             .setCanSeeCoin(true).setCanPickUpRevolver(true).setCanJumpManhole(true).setCanAcrossFog(true)
             .setComponentKey(AdventurerPlayerComponent.KEY).setDefaultEnableNeededPlayerCount(6)
-            .setSpecialMapRole(SRERole.SpecialMapRole.trap).setDefaultMax(0);
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.trap).setDefaultMax(0);
     // 红尘客
     public static SRERole WAYFARER = TMMRoles.registerRole(
             new NormalRole(WAYFARER_ID, new Color(255, 54, 105).getRGB(),
@@ -1038,7 +1038,7 @@ public class ModRoles {
                     true // showIcon（显示图标）
             )))
             .setCanSeeCoin(true).setComponentKey(DiverPlayerComponent.KEY)
-            .setSpecialMapRole(SRERole.SpecialMapRole.underwater).setDefaultMax(0);
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.underwater).setDefaultMax(0);
 
     /**
      * 特警角色
@@ -1065,7 +1065,7 @@ public class ModRoles {
             .setServerGameTickEvent((player, gameComponent) -> {
                 org.agmas.noellesroles.game.roles.vigilante.swast.SwastTickHandler.serverTick(player,
                         gameComponent);
-            }).setSpecialVigilante(true).setSpecialMapRole(SRERole.SpecialMapRole.bigmap)
+            }).setSpecialVigilante(true).setSpecialMapRole(SRERole.SpecialMapRoleMap.bigmap)
             .setDefaultMax(1).setDefaultEnableChance(7000);
 
     /**
@@ -1121,7 +1121,7 @@ public class ModRoles {
                     true // showIcon（显示图标）
             )))
             .setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
-            .setSpecialMapRole(SRERole.SpecialMapRole.underwater).setDefaultMax(1);
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.underwater).setDefaultMax(1);
 
     /**
      * 水鬼角色
@@ -1154,7 +1154,7 @@ public class ModRoles {
                     true // showIcon（显示图标）
             )))
             .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true)
-            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRole.underwater)
+            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRoleMap.underwater)
             .setDefaultMax(1);
 
     // 杀手阵营角色
