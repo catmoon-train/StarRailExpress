@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
@@ -19,47 +20,26 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * 一个通用的筛选选择界面，用于从给定选项列表中选择一个或多个条目。
+ * 一个通用的筛选选择界面，支持键盘导航、多选/单选、拼音搜索等。
  * <p>
  * 主要特性：
  * <ul>
- * <li>居中标题与支持自动换行的副标题（通过 {@code font.split}）</li>
- * <li>搜索框：支持拼音搜索（通过 {@link PinYinUtils}）和普通文本匹配</li>
- * <li>支持单选/多选模式，通过构造参数或建造者控制</li>
- * <li>列表项宽度统一，长文本自动截断并显示省略号（{@code font.plainSubstrByWidth}）</li>
- * <li>右侧滚动条支持鼠标拖拽和滚轮滚动</li>
- * <li>底部提供“取消”和“确认”按钮，点击后均返回上级页面</li>
- * <li>按 ESC 键同样返回上级页面</li>
- * <li>支持通过建造者设置默认选中的条目（{@link Builder#defaultSelections(Set)} /
- * {@link Builder#addDefaultSelection(String)}）</li>
- * <li>在多选模式下提供“全选”和“取消全选”按钮（基于当前过滤结果）</li>
+ *   <li>居中标题与支持自动换行的副标题</li>
+ *   <li>搜索框：拼音搜索 + 普通文本匹配</li>
+ *   <li>单选/多选模式，建造者配置默认选中</li>
+ *   <li>列表项宽度统一，文本截断，右侧滚动条</li>
+ *   <li>底部按钮：全选、取消全选、取消、确认，样式统一，支持键盘导航</li>
+ *   <li>ESC 返回上级</li>
+ *   <li>键盘支持：TAB 在搜索框/列表/按钮间循环切换焦点，方向键在列表中导航（输入框内正常编辑），
+ *       回车切换列表项选中或触发按钮，空格键也可触发按钮</li>
  * </ul>
- * 视觉风格参考了 {@code RoleIntroduceScreen} 的深色渐变与金属质感配色。
- * </p>
- * <p>
- * 推荐使用 {@link Builder} 以流式 API 构造实例：
- * 
- * <pre>{@code
- * FilterSelectionScreen screen = FilterSelectionScreen.builder(parent)
- *         .title(Component.translatable("screen.filter_selection.title"))
- *         .subtitle(Component.literal("请选择要筛选的项目").withStyle(ChatFormatting.GRAY))
- *         .options(optionMap)
- *         .multiSelect(true)
- *         .defaultSelections(Set.of("id1", "id2"))
- *         .callback(selected -> {
- *             // 处理结果
- *         })
- *         .build();
- * }</pre>
  * </p>
  *
  * @see Screen
  * @see PinYinUtils
- * @see Builder
  */
 public class FilterSelectionScreen extends Screen {
 
-    // ── 参数 ──────────────────────────────────────────────
     private final Component titleComp;
     private final Component subtitleComp;
     private final Screen parent;
@@ -67,24 +47,20 @@ public class FilterSelectionScreen extends Screen {
     private final boolean multiSelect;
     private final Consumer<Set<String>> callback;
 
-    // ── 状态 ──────────────────────────────────────────────
     private final Set<String> selectedIds = new LinkedHashSet<>();
     private List<String> filteredIds = new ArrayList<>();
 
-    // 搜索
+    // 列表键盘导航高亮索引（不同于选中状态）
+    private int highlightedIndex = 0;
+
     private EditBox searchWidget;
     private String searchContent = null;
 
-    // 滚动
     private int scrollOffset = 0;
     private int maxScroll = 0;
     private boolean isDraggingScroll = false;
     private double dragStartY = 0;
     private int dragStartOffset = 0;
-
-    // 全选/取消全选按钮
-    private Button selectAllButton;
-    private Button deselectAllButton;
 
     // 布局常量
     private static final int ROW_HEIGHT = 22;
@@ -97,24 +73,30 @@ public class FilterSelectionScreen extends Screen {
     private static final int SUBTITLE_TOP_OFFSET = 2;
     private static final int SEARCH_TOP_OFFSET = 6;
     private static final int BUTTON_HEIGHT = 20;
-    private static final int ALL_BUTTON_HEIGHT = 16; // 全选按钮高度
-    private static final int ALL_BUTTON_GAP = 4; // 全选按钮与列表的间距
+    private static final int BUTTON_GAP = 4;
+    private static final int MAX_BUTTON_WIDTH = 100;
 
-    // 动态计算的坐标
+    // 动态坐标
     private int listX, listY, listW, listH;
-    private int cancelX, cancelW, confirmX, confirmW;
-    private int selectAllX, selectAllW, deselectAllX, deselectAllW, allButtonsY;
+    private int selectAllX, selectAllW;
+    private int deselectAllX, deselectAllW;
+    private int cancelX, cancelW;
+    private int confirmX, confirmW;
+    private int buttonsY;
     private int panelWidth, panelHeight;
     private int usableWidth;
 
-    /**
-     * 私有构造函数，由建造者调用。
-     */
+    @Override
+    public void resize(Minecraft minecraft, int i, int j) {
+        super.resize(minecraft, i, j);
+        this.parent.resize(minecraft, i, j);
+    }
+
     private FilterSelectionScreen(Component title, Component subtitle, Screen parent,
-            LinkedHashMap<String, Component> options,
-            boolean multiSelect,
-            Consumer<Set<String>> callback,
-            Set<String> defaultSelections) {
+                                  LinkedHashMap<String, Component> options,
+                                  boolean multiSelect,
+                                  Consumer<Set<String>> callback,
+                                  Set<String> defaultSelections) {
         super(title);
         this.titleComp = Objects.requireNonNull(title, "title cannot be null");
         this.subtitleComp = Objects.requireNonNull(subtitle, "subtitle cannot be null");
@@ -143,8 +125,10 @@ public class FilterSelectionScreen extends Screen {
         super.init();
         computeLayout();
         initSearchBox();
-        initAllButtons();
+        initButtons();
         refreshFilteredList();
+        // 初始高亮第一个条目（如果有）
+        if (!filteredIds.isEmpty()) highlightedIndex = 0;
     }
 
     private void computeLayout() {
@@ -157,30 +141,42 @@ public class FilterSelectionScreen extends Screen {
         int panelY = top;
 
         int searchY = panelY + SUBTITLE_TOP_OFFSET + TITLE_HEIGHT + getSubtitleHeight() + SEARCH_TOP_OFFSET;
-        // 为全选按钮预留空间，调整列表底部位置
         int listAreaTop = searchY + TOP_BAR_H + 6;
-        int listAreaBottom = panelY + panelHeight - PANEL_PAD - BUTTON_HEIGHT - 10 - ALL_BUTTON_HEIGHT - ALL_BUTTON_GAP;
+        int listAreaBottom = panelY + panelHeight - PANEL_PAD - BUTTON_HEIGHT - 10;
         listX = panelX + PANEL_PAD;
         listY = listAreaTop;
         listW = panelWidth - PANEL_PAD * 2 - SCROLL_W - 2;
         listH = listAreaBottom - listAreaTop;
 
-        // 全选按钮位置：列表下方，确认按钮上方
-        allButtonsY = listAreaBottom + ALL_BUTTON_GAP;
-        int halfW = (listW) / 2 - 4;
-        selectAllX = listX;
-        selectAllW = halfW;
-        deselectAllX = listX + halfW + 8;
-        deselectAllW = halfW;
+        buttonsY = listAreaBottom + 8;
 
-        // 确认取消按钮整体下移
-        int buttonY = allButtonsY + ALL_BUTTON_HEIGHT + ALL_BUTTON_GAP;
-        int buttonSpacing = 10;
-        int buttonWidth = 80;
-        confirmX = panelX + panelWidth - PANEL_PAD - buttonWidth;
-        confirmW = buttonWidth;
-        cancelX = confirmX - buttonWidth - buttonSpacing;
-        cancelW = buttonWidth;
+        int buttonCount = 4;
+        int totalGap = BUTTON_GAP * (buttonCount - 1);
+        int totalNaturalWidth = buttonCount * MAX_BUTTON_WIDTH + totalGap;
+
+        int btnW;
+        if (totalNaturalWidth <= listW) {
+            btnW = MAX_BUTTON_WIDTH;
+            int totalButtonsW = buttonCount * btnW + totalGap;
+            int startX = listX + listW - totalButtonsW;
+            selectAllX = startX;
+            deselectAllX = selectAllX + btnW + BUTTON_GAP;
+            cancelX = deselectAllX + btnW + BUTTON_GAP;
+            confirmX = cancelX + btnW + BUTTON_GAP;
+        } else {
+            int usableButtonArea = listW - totalGap;
+            btnW = Math.max(1, usableButtonArea / buttonCount);
+            int totalButtonsW = buttonCount * btnW + totalGap;
+            int startX = listX;
+            selectAllX = startX;
+            deselectAllX = selectAllX + btnW + BUTTON_GAP;
+            cancelX = deselectAllX + btnW + BUTTON_GAP;
+            confirmX = cancelX + btnW + BUTTON_GAP;
+        }
+        selectAllW = btnW;
+        deselectAllW = btnW;
+        cancelW = btnW;
+        confirmW = btnW;
     }
 
     private int getSubtitleHeight() {
@@ -207,44 +203,54 @@ public class FilterSelectionScreen extends Screen {
             searchWidget.setWidth(sw);
         }
         addRenderableWidget(searchWidget);
+        // 初始焦点给搜索框
+        setFocused(searchWidget);
     }
 
-    private void initAllButtons() {
+    private void initButtons() {
         // 移除旧按钮（如果存在）
-        if (selectAllButton != null)
-            removeWidget(selectAllButton);
-        if (deselectAllButton != null)
-            removeWidget(deselectAllButton);
+        clearWidgets();
 
-        selectAllButton = Button.builder(
+        // 全选
+        addRenderableWidget(new StyledButton(selectAllX, buttonsY, selectAllW, BUTTON_HEIGHT,
                 Component.translatable("screen.filter_selection.select_all"),
                 btn -> {
                     if (multiSelect) {
                         playClickSound();
                         selectedIds.addAll(filteredIds);
                     }
-                })
-                .bounds(selectAllX, allButtonsY, selectAllW, ALL_BUTTON_HEIGHT)
-                .build();
-        deselectAllButton = Button.builder(
+                },
+                multiSelect));
+
+        // 取消全选
+        addRenderableWidget(new StyledButton(deselectAllX, buttonsY, deselectAllW, BUTTON_HEIGHT,
                 Component.translatable("screen.filter_selection.deselect_all"),
                 btn -> {
                     if (multiSelect) {
                         playClickSound();
                         selectedIds.clear();
                     }
-                })
-                .bounds(deselectAllX, allButtonsY, deselectAllW, ALL_BUTTON_HEIGHT)
-                .build();
+                },
+                multiSelect));
 
-        // 单选模式下禁用全选按钮
-        if (!multiSelect) {
-            selectAllButton.active = false;
-            deselectAllButton.active = false;
-        }
+        // 取消
+        addRenderableWidget(new StyledButton(cancelX, buttonsY, cancelW, BUTTON_HEIGHT,
+                CommonComponents.GUI_CANCEL,
+                btn -> {
+                    playClickSound();
+                    onClose();
+                },
+                true));
 
-        addRenderableWidget(selectAllButton);
-        addRenderableWidget(deselectAllButton);
+        // 确认
+        addRenderableWidget(new StyledButton(confirmX, buttonsY, confirmW, BUTTON_HEIGHT,
+                Component.translatable("gui.done"),
+                btn -> {
+                    playClickSound();
+                    callback.accept(new LinkedHashSet<>(selectedIds));
+                    onClose();
+                },
+                true));
     }
 
     private void playClickSound() {
@@ -260,9 +266,9 @@ public class FilterSelectionScreen extends Screen {
             Component nameComp = options.get(id);
             String name = nameComp.getString();
             if (searchContent == null ||
-                    name.toLowerCase().contains(searchContent.toLowerCase()) ||
-                    id.toLowerCase().contains(searchContent.toLowerCase()) ||
-                    PinYinUtils.contains(searchContent, name)) {
+                name.toLowerCase().contains(searchContent.toLowerCase()) ||
+                id.toLowerCase().contains(searchContent.toLowerCase()) ||
+                PinYinUtils.contains(searchContent, name)) {
                 filteredIds.add(id);
             }
         }
@@ -271,6 +277,8 @@ public class FilterSelectionScreen extends Screen {
             selectedIds.clear();
             selectedIds.add(keep);
         }
+        // 重置高亮索引
+        highlightedIndex = filteredIds.isEmpty() ? 0 : Math.min(highlightedIndex, filteredIds.size() - 1);
         updateScrollParams();
     }
 
@@ -282,8 +290,7 @@ public class FilterSelectionScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (this.minecraft == null)
-            return;
+        if (this.minecraft == null) return;
         this.minecraft.screen = parent;
         this.removed();
         if (this.minecraft.screen != null) {
@@ -303,21 +310,53 @@ public class FilterSelectionScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // ESC 返回上级
         if (keyCode == 256 && parent != null) {
             onClose();
             return true;
         }
+
+        // 列表键盘导航：仅当焦点不在搜索框（避免干扰文本编辑）且不在任何按钮上时
+        if (getFocused() != searchWidget && !isFocusedOnButton()) {
+            if (keyCode == 265 || keyCode == 264) { // ↑ ↓
+                if (!filteredIds.isEmpty()) {
+                    highlightedIndex = keyCode == 265 ? Math.max(0, highlightedIndex - 1) :
+                            Math.min(filteredIds.size() - 1, highlightedIndex + 1);
+                    // 自动滚动以保证高亮可见
+                    int rowY = highlightedIndex * (ROW_HEIGHT + ROW_SPACING);
+                    if (rowY < scrollOffset) scrollOffset = rowY;
+                    else if (rowY + ROW_HEIGHT > scrollOffset + listH) scrollOffset = rowY + ROW_HEIGHT - listH;
+                    scrollOffset = Mth.clamp(scrollOffset, 0, maxScroll);
+                    return true;
+                }
+            } else if (keyCode == 257 || keyCode == 335) { // Enter 或 小键盘 Enter
+                if (!filteredIds.isEmpty() && highlightedIndex < filteredIds.size()) {
+                    playClickSound();
+                    String id = filteredIds.get(highlightedIndex);
+                    if (multiSelect) {
+                        if (selectedIds.contains(id)) selectedIds.remove(id);
+                        else selectedIds.add(id);
+                    } else {
+                        selectedIds.clear();
+                        selectedIds.add(id);
+                    }
+                    return true;
+                }
+            }
+        }
+
+        // 默认处理（包括按钮和搜索框自己的键）
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    // ═══════════════════════════════════════════════════
-    // 渲染
-    // ═══════════════════════════════════════════════════
+    private boolean isFocusedOnButton() {
+        return getFocused() instanceof StyledButton;
+    }
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         this.parent.render(g, mouseX, mouseY, partialTick);
-        super.render(g, mouseX, mouseY, partialTick);
+        super.render(g, mouseX, mouseY, partialTick); // 渲染所有 widget（搜索框、按钮）
 
         int panelX = (width - panelWidth) / 2;
         int panelY = 30;
@@ -325,20 +364,18 @@ public class FilterSelectionScreen extends Screen {
         drawPanelBg(g, panelX, panelY, panelWidth, panelHeight);
 
         int titleY = panelY + 4;
-        Component safeTitle = titleComp != null ? titleComp : Component.empty();
-        g.drawCenteredString(font, safeTitle, width / 2, titleY, 0xF5E8C8);
+        g.drawCenteredString(font, titleComp, width / 2, titleY, 0xF5E8C8);
 
         int subX = panelX + PANEL_PAD + 4;
         int subY = titleY + TITLE_HEIGHT + SUBTITLE_TOP_OFFSET;
         int subMaxW = usableWidth - PANEL_PAD * 2 - 8;
-        Component safeSubtitle = subtitleComp != null ? subtitleComp : Component.empty();
-        for (FormattedCharSequence line : font.split(safeSubtitle, subMaxW)) {
+        for (FormattedCharSequence line : font.split(subtitleComp, subMaxW)) {
             g.drawString(font, line, subX, subY, 0x9E8B6E);
             subY += font.lineHeight + 2;
         }
 
         renderList(g, mouseX, mouseY);
-        renderButtons(g, mouseX, mouseY);
+        // 按钮已作为 widget 自动渲染，无需额外绘制
     }
 
     private void renderList(GuiGraphics g, int mouseX, int mouseY) {
@@ -346,12 +383,12 @@ public class FilterSelectionScreen extends Screen {
         for (int i = 0; i < filteredIds.size(); i++) {
             String id = filteredIds.get(i);
             int rowY = listY + i * (ROW_HEIGHT + ROW_SPACING) - scrollOffset;
-            if (rowY + ROW_HEIGHT < listY || rowY > listY + listH)
-                continue;
+            if (rowY + ROW_HEIGHT < listY || rowY > listY + listH) continue;
 
             boolean hovered = isInRect(mouseX, mouseY, listX, rowY, listW, ROW_HEIGHT);
             boolean selected = selectedIds.contains(id);
-            drawRow(g, id, rowY, selected, hovered);
+            boolean highlighted = (i == highlightedIndex && !isFocusedOnButton() && getFocused() != searchWidget);
+            drawRow(g, id, rowY, selected, hovered, highlighted);
         }
         g.disableScissor();
 
@@ -360,10 +397,20 @@ public class FilterSelectionScreen extends Screen {
         renderVScrollbar(g, sbX, listY, listH, scrollOffset, maxScroll, totalH, mouseX, mouseY, isDraggingScroll);
     }
 
-    private void drawRow(GuiGraphics g, String id, int y, boolean selected, boolean hovered) {
-        int bgColor = selected ? 0xFF5A4520 : (hovered ? 0xFF2A2A15 : 0xFF1A1008);
+    private void drawRow(GuiGraphics g, String id, int y, boolean selected, boolean hovered, boolean highlighted) {
+        int bgColor;
+        if (selected) bgColor = 0xFF5A4520;
+        else if (highlighted) bgColor = 0xFF4A3A20; // 键盘高亮颜色
+        else if (hovered) bgColor = 0xFF2A2A15;
+        else bgColor = 0xFF1A1008;
+
         g.fill(listX, y, listX + listW, y + ROW_HEIGHT, bgColor);
         g.fill(listX, y + ROW_HEIGHT - 1, listX + listW, y + ROW_HEIGHT, 0x228B6914);
+
+        // 键盘高亮时绘制焦点边框
+        if (highlighted) {
+            g.renderOutline(listX, y, listW, ROW_HEIGHT, 0xCCD4AF37);
+        }
 
         int checkX = listX + 4;
         int checkY = y + (ROW_HEIGHT - 9) / 2;
@@ -372,8 +419,8 @@ public class FilterSelectionScreen extends Screen {
         Component nameComp = options.get(id);
         int textX = checkX + 12 + 4;
         int maxTextW = listW - (textX - listX) - 4;
-        String display = nameComp != null ? font.plainSubstrByWidth(nameComp.getString(), maxTextW) : "";
-        int textColor = selected ? 0xFFF5E8C8 : (hovered ? 0xFFFFF4DC : 0xFFC8B78A);
+        String display = font.plainSubstrByWidth(nameComp.getString(), maxTextW);
+        int textColor = selected ? 0xFFF5E8C8 : (highlighted ? 0xFFFFF4DC : (hovered ? 0xFFFFF4DC : 0xFFC8B78A));
         g.drawString(font, display, textX, y + (ROW_HEIGHT - font.lineHeight) / 2, textColor);
     }
 
@@ -381,27 +428,12 @@ public class FilterSelectionScreen extends Screen {
         int size = 10;
         if (checked) {
             g.fill(x, y, x + size, y + size, 0xFF2A1A0A);
-            g.drawCenteredString(font, Component.literal("√"), x + size / 2, y + size / 2 - font.lineHeight / 2,
-                    0xFFB8960C);
+            g.drawCenteredString(font, Component.literal("√"), x + size / 2, y + size / 2 - font.lineHeight / 2, 0xFFB8960C);
             g.renderOutline(x, y, size, size, 0xFFB8960C);
         } else {
             g.fill(x, y, x + size, y + size, 0xFF2A1A0A);
             g.renderOutline(x, y, size, size, 0xFF8B6914);
         }
-    }
-
-    private void renderButtons(GuiGraphics g, int mouseX, int mouseY) {
-        int cy = allButtonsY + ALL_BUTTON_HEIGHT + ALL_BUTTON_GAP;
-        drawButton(g, cancelX, cy, cancelW, BUTTON_HEIGHT, CommonComponents.GUI_CANCEL, mouseX, mouseY);
-        drawButton(g, confirmX, cy, confirmW, BUTTON_HEIGHT, Component.translatable("gui.done"), mouseX, mouseY);
-    }
-
-    private void drawButton(GuiGraphics g, int x, int y, int w, int h, Component text, int mouseX, int mouseY) {
-        boolean hovered = isInRect(mouseX, mouseY, x, y, w, h);
-        int bg = hovered ? 0xFF5A4520 : 0xFF3A2A10;
-        g.fill(x, y, x + w, y + h, bg);
-        g.renderOutline(x, y, w, h, 0xFF8B6914);
-        g.drawCenteredString(font, text, x + w / 2, y + (h - font.lineHeight) / 2, 0xFFFFFFFF);
     }
 
     // ═══════════════════════════════════════════════════
@@ -417,22 +449,23 @@ public class FilterSelectionScreen extends Screen {
                     int rowY = listY + i * (ROW_HEIGHT + ROW_SPACING) - scrollOffset;
                     if (isInRect((int) mx, (int) my, listX, rowY, listW, ROW_HEIGHT)) {
                         playClickSound();
+                        highlightedIndex = i;
                         String id = filteredIds.get(i);
                         if (multiSelect) {
-                            if (selectedIds.contains(id))
-                                selectedIds.remove(id);
-                            else
-                                selectedIds.add(id);
+                            if (selectedIds.contains(id)) selectedIds.remove(id);
+                            else selectedIds.add(id);
                         } else {
                             selectedIds.clear();
                             selectedIds.add(id);
                         }
+                        // 清除焦点，使列表获得键盘输入
+                        setFocused(null);
                         return true;
                     }
                 }
             }
 
-            // 滚动条
+            // 滚动条按下
             int sbX = listX + listW + 2;
             if (isInRect((int) mx, (int) my, sbX, listY, SCROLL_W, listH) && maxScroll > 0) {
                 isDraggingScroll = true;
@@ -440,8 +473,6 @@ public class FilterSelectionScreen extends Screen {
                 dragStartOffset = scrollOffset;
                 return true;
             }
-
-            // 确认/取消按钮由 super 处理，这里我们不用重复，直接交给 super.mouseClicked
         }
         return super.mouseClicked(mx, my, button);
     }
@@ -453,8 +484,7 @@ public class FilterSelectionScreen extends Screen {
             int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (listH * Math.min(1f, (float) listH / totalH)));
             double trackH = listH - thumbH;
             if (trackH > 0)
-                scrollOffset = Mth.clamp((int) (dragStartOffset + (my - dragStartY) / trackH * maxScroll), 0,
-                        maxScroll);
+                scrollOffset = Mth.clamp((int) (dragStartOffset + (my - dragStartY) / trackH * maxScroll), 0, maxScroll);
             return true;
         }
         return super.mouseDragged(mx, my, button, dx, dy);
@@ -475,10 +505,7 @@ public class FilterSelectionScreen extends Screen {
         return super.mouseScrolled(mx, my, scrollX, scrollY);
     }
 
-    // ═══════════════════════════════════════════════════
-    // 工具
-    // ═══════════════════════════════════════════════════
-
+    // 工具方法
     private static boolean isInRect(int px, int py, int x, int y, int w, int h) {
         return px >= x && px < x + w && py >= y && py < y + h;
     }
@@ -490,12 +517,11 @@ public class FilterSelectionScreen extends Screen {
     }
 
     private void renderVScrollbar(GuiGraphics g, int x, int y, int h,
-            int scroll, int maxScroll, int totalContentH,
-            int mouseX, int mouseY, boolean dragging) {
+                                  int scroll, int maxScroll, int totalContentH,
+                                  int mouseX, int mouseY, boolean dragging) {
         g.fill(x, y, x + SCROLL_W, y + h, 0xFF1A1008);
         g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x558B6914);
-        if (maxScroll <= 0)
-            return;
+        if (maxScroll <= 0) return;
 
         float ratio = Math.min(1f, (float) h / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (h * ratio));
@@ -508,24 +534,51 @@ public class FilterSelectionScreen extends Screen {
     }
 
     // ═══════════════════════════════════════════════════
-    // 建造者
+    // 自定义按钮（继承原版 Button，重写渲染）
     // ═══════════════════════════════════════════════════
+    private class StyledButton extends Button {
+        private final boolean active;
 
+        StyledButton(int x, int y, int width, int height, Component message,
+                     OnPress onPress, boolean active) {
+            super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
+            this.active = active;
+        }
+
+        @Override
+        public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+            boolean hovered = active && isMouseOver(mouseX, mouseY);
+            boolean focused = isFocused();
+            int bg = active ? (hovered ? 0xFF5A4520 : (focused ? 0xFF4A3A20 : 0xFF3A2A10)) : 0xFF1A1008;
+            int textColor = active ? (hovered ? 0xFFFFF4DC : (focused ? 0xFFFFF4DC : 0xFFC8B78A)) : 0x666666;
+            g.fill(getX(), getY(), getX() + width, getY() + height, bg);
+            // 焦点边框
+            if (focused) {
+                g.renderOutline(getX(), getY(), width, height, 0xCCD4AF37);
+            } else {
+                g.renderOutline(getX(), getY(), width, height, active ? 0xFF8B6914 : 0xFF5A4530);
+            }
+            g.drawCenteredString(font, getMessage(), getX() + width / 2, getY() + (height - font.lineHeight) / 2, textColor);
+        }
+
+        @Override
+        public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+            // 无叙述
+        }
+    }
+
+    // 建造者
     public static Builder builder(Screen parent) {
         return new Builder(parent);
     }
 
-    /**
-     * 用于逐步配置 {@link FilterSelectionScreen} 的建造者。
-     */
     public static class Builder {
         private final Screen parent;
         private Component title = Component.empty();
         private Component subtitle = Component.empty();
         private LinkedHashMap<String, Component> options = new LinkedHashMap<>();
         private boolean multiSelect = false;
-        private Consumer<Set<String>> callback = ids -> {
-        };
+        private Consumer<Set<String>> callback = ids -> {};
         private Set<String> defaultSelections = new LinkedHashSet<>();
 
         public Builder(Screen parent) {
@@ -573,14 +626,10 @@ public class FilterSelectionScreen extends Screen {
         }
 
         public FilterSelectionScreen build() {
-            return new FilterSelectionScreen(title, subtitle, parent, options, multiSelect, callback,
-                    defaultSelections);
+            return new FilterSelectionScreen(title, subtitle, parent, options, multiSelect, callback, defaultSelections);
         }
     }
 
-    /**
-     * 安全地显示此屏幕，不会误删除父窗口。
-     */
     public void show(Minecraft minecraft) {
         Objects.requireNonNull(minecraft, "minecraft cannot be null");
         minecraft.screen = this;

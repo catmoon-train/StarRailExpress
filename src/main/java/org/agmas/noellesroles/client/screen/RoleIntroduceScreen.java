@@ -451,7 +451,7 @@ public class RoleIntroduceScreen extends Screen {
                 // 其它模式：只显示标记为isOtherModeRole()的职业
                 return role.isOtherModeRole();
             case FILTER:
-                return role.isFlag(filterFlags);
+                return role.isFlagWithInner(filterFlags);
             default:
                 return true;
         }
@@ -480,7 +480,7 @@ public class RoleIntroduceScreen extends Screen {
                 // 其它模式：只显示标记为isOtherModeRole()的修饰符
                 return mod.isOtherModeRole();
             case FILTER:
-                return mod.isFlag(filterFlags);
+                return mod.isFlagWithInner(filterFlags);
             default:
                 return true;
         }
@@ -1385,6 +1385,8 @@ public class RoleIntroduceScreen extends Screen {
 
     private void openFilterScreen() {
         LinkedHashMap<String, Component> optionMap = new LinkedHashMap<>();
+        optionMap.put("inner.enable", Component.translatable("screen.roleintroduce.flag.inner.enable"));
+        optionMap.put("inner.disable", Component.translatable("screen.roleintroduce.flag.inner.disable"));
         {
             HashSet<String> flags = TMMRoles.getAllFlags();
             for (var it : flags) {
@@ -1403,7 +1405,6 @@ public class RoleIntroduceScreen extends Screen {
                 }
             }
         }
-        filterFlags.clear();
         FilterSelectionScreen screen = FilterSelectionScreen.builder(this)
                 .title(Component.translatable("screen.filter_selection.title"))
                 .subtitle(Component.translatable("screen.filter_selection.tip"))
@@ -1418,6 +1419,7 @@ public class RoleIntroduceScreen extends Screen {
                 })
                 .build();
         screen.show(this.minecraft);
+        filterFlags.clear();
     }
 
     public void refreshFilter(IntroductionGameMode clickedMode) {

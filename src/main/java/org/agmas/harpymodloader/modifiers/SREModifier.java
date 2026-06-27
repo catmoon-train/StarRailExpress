@@ -1,8 +1,11 @@
 package org.agmas.harpymodloader.modifiers;
 
+import io.wifi.ConfigCompact.ui.RoleManageConfigUI;
 import io.wifi.starrailexpress.api.SREAbstractInfoClass;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -15,8 +18,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Consumer;
 
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
 
 public class SREModifier extends SREAbstractInfoClass {
@@ -67,7 +72,42 @@ public class SREModifier extends SREAbstractInfoClass {
         return true;
 
     }
-
+/**
+     * 是否为指定flag，带inner.的标签。
+     * 
+     * @param flags
+     * @return
+     */
+    public boolean isFlagWithInner(Set<String> flags) {
+        var test = new HashSet<>(flags);
+        if (test.contains("inner.enable")) {
+            test.remove("inner.enable");
+            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+                if (!RoleManageConfigUI.ModifierEnableStatus.getOrDefault(this.identifier().toString(), false)) {
+                    return false;
+                }
+            } else {
+                var config = HarpyModLoaderConfig.HANDLER.instance();
+                if (config.getDisabledModifiers().contains(this.identifier().toString())) {
+                    return false;
+                }
+            }
+        }
+        if (test.contains("inner.disable")) {
+            test.remove("inner.disable");
+            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+                if (RoleManageConfigUI.ModifierEnableStatus.getOrDefault(this.identifier().toString(), false)) {
+                    return false;
+                }
+            } else {
+                var config = HarpyModLoaderConfig.HANDLER.instance();
+                if (!config.getDisabled().contains(this.identifier().toString())) {
+                    return false;
+                }
+            }
+        }
+        return this.flags.containsAll(test);
+    }
     /**
      * 是否为指定flag
      * 
