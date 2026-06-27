@@ -104,7 +104,7 @@ public class SREModifier extends SREAbstractInfoClass {
                 }
             } else {
                 var config = HarpyModLoaderConfig.HANDLER.instance();
-                if (!config.getDisabled().contains(this.identifier().toString())) {
+                if (!config.getDisabledModifiers().contains(this.identifier().toString())) {
                     return false;
                 }
             }

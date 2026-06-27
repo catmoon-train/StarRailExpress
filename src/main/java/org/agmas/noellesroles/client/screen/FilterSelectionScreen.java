@@ -335,15 +335,20 @@ public class FilterSelectionScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f) {
+        this.renderBlurredBackground(f);
+        this.renderMenuBackground(guiGraphics);
+    }
+
+    @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         this.parent.render(g, mouseX, mouseY, partialTick);
 
         int panelX = (width - panelWidth) / 2;
         int panelY = 30;
+        super.render(g, mouseX, mouseY, partialTick);
 
         drawPanelBg(g, panelX, panelY, panelWidth, panelHeight);
-
-        super.render(g, mouseX, mouseY, partialTick);
 
         int titleY = panelY + 4;
         g.drawCenteredString(font, titleComp, width / 2, titleY, 0xF5E8C8);

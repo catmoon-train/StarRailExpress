@@ -155,7 +155,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
             test.remove("inner.disable");
             if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)
                     && !RoleManageConfigUI.RoleEnableStatus.isEmpty()) {
-                if (RoleManageConfigUI.ModifierEnableStatus.getOrDefault(this.identifier().toString(), false)) {
+                if (RoleManageConfigUI.RoleEnableStatus.getOrDefault(this.identifier().toString(), false)) {
                     return false;
                 }
             } else {
