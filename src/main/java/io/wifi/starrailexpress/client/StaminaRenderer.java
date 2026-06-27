@@ -51,6 +51,8 @@ public class StaminaRenderer {
 	private static boolean playedCooldownSound = false;
 	private static ItemStack lastMainHandStack = ItemStack.EMPTY; // 用于跟踪上一次的主手物品
 
+	private static float chargeDisplayValue = 0f; // 蓄力状态条平滑显示值（逐帧过渡用）
+
 	public interface StaminaProvider {
 		float getCurrentStamina(Player clientPlayerEntity);
 		float getMaxStamina(Player clientPlayerEntity);
@@ -174,15 +176,30 @@ public class StaminaRenderer {
 		context.pose().pushPose();
 		context.pose().translate(context.guiWidth() / 2f, context.guiHeight() - 35, 0); // 在物品栏上方显示
 
-		// 检查是否应该禁用平滑动画（特别是对于武器蓄力）
-		if ((SREClientConfig.instance().disableStaminaBarSmoothing && isChargingWeapon) || isChargingWeapon) {
+		// 蓄力武器：应用"前慢后快"缓动曲线，并做逐帧平滑过渡
+		if (isChargingWeapon) {
+			float easedPercent = easeInCharge(staminaPercent);
+			float displayValue;
+			if (SREClientConfig.instance().disableStaminaBarSmoothing) {
+				// 配置禁用平滑：直接显示缓动后的值
+				displayValue = easedPercent;
+				chargeDisplayValue = easedPercent;
+			} else {
+				// 逐帧向缓动目标平滑靠拢，消除按tick取值带来的阶梯跳变
+				float lerpFactor = Mth.clamp(delta * 0.5f, 0f, 1f);
+				chargeDisplayValue = Mth.lerp(lerpFactor, chargeDisplayValue, easedPercent);
+				if (Math.abs(chargeDisplayValue - easedPercent) < 0.005f) {
+					chargeDisplayValue = easedPercent;
+				}
+				displayValue = chargeDisplayValue;
+			}
 			// 如果是刀且完全蓄力，则添加特殊效果
 			if (mainHandStack.getItem() == TMMItems.KNIFE && knifeFullyCharged && isFlashActive()) {
 				// 创建闪烁效果
 				int flashColour = getFlashColor(); // 红白交替闪烁
-				view.renderWithoutSmoothing(context, flashColour, staminaPercent);
+				view.renderWithoutSmoothing(context, flashColour, displayValue);
 			} else {
-				view.renderWithoutSmoothing(context, colour, staminaPercent);
+				view.renderWithoutSmoothing(context, colour, displayValue);
 			}
 		} else {
 			view.render(context, colour, delta);
@@ -190,11 +207,13 @@ public class StaminaRenderer {
 
 		context.pose().popPose();
 
-		// 绘制体力图标
-		int barCenterY = context.guiHeight() - 35;
-		int iconX = context.guiWidth() / 2 - BAR_WIDTH / 2 - ICON_SIZE - ICON_GAP;
-		int iconY = barCenterY - ICON_SIZE / 2;
-		context.blitSprite(STAMINA_ICON, iconX, iconY, ICON_SIZE, ICON_SIZE);
+		// 绘制体力图标（仅在按住 Shift 时显示）
+		if (Minecraft.getInstance().options.keyShift.isDown()) {
+			int barCenterY = context.guiHeight() - 35;
+			int iconX = context.guiWidth() / 2 - BAR_WIDTH / 2 - ICON_SIZE - ICON_GAP;
+			int iconY = barCenterY - ICON_SIZE / 2;
+			context.blitSprite(STAMINA_ICON, iconX, iconY, ICON_SIZE, ICON_SIZE);
+		}
 
 		// 渲染屏幕边缘红色效果
 		renderScreenRedEffect(context, delta);
@@ -414,8 +433,18 @@ public class StaminaRenderer {
 				knifeFullyCharged = false;
 				flashStartTime = 0L;
 				screenRedEffectStartTime = 0L;
+				chargeDisplayValue = 0f; // 重置蓄力状态条平滑值，下次蓄力从 0 开始
 			}
 		}
+	}
+
+	/**
+	 * 蓄力状态条缓动曲线：前慢后快（二次缓入 ease-in）。
+	 * 输入为线性蓄力进度 0~1，输出为显示进度——前段增长慢、临近满蓄时加速冲满。
+	 */
+	private static float easeInCharge(float t) {
+		t = Mth.clamp(t, 0f, 1f);
+		return t * t;
 	}
 
 	/**
