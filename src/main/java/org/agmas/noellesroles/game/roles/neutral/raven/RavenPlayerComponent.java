@@ -122,7 +122,7 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
 
     private boolean observeNearbyMood(int totalPlayers) {
         boolean changed = false;
-        float threshold = Math.max(1f, totalPlayers / 6f - 1.5f);
+        float threshold = Math.max(1f, totalPlayers / 6f - 2.3f);
         for (Player nearby : player.level().players()) {
             if (nearby == player || nearby.distanceToSqr(player) > MOOD_RADIUS_SQR || !GameUtils.isPlayerAliveAndSurvival(nearby)) continue;
             float now = SREPlayerMoodComponent.KEY.get(nearby).getMood();
