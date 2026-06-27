@@ -2088,7 +2088,7 @@ public class ModRoles {
 
     public static SRERole RAVEN = TMMRoles.registerRole(new NormalRole(
             RAVEN_ID,
-            new Color(42, 30, 54).getRGB(),
+            new Color(130, 100, 160).getRGB(),
             false,
             false,
             SRERole.MoodType.FAKE,

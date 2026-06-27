@@ -3041,6 +3041,7 @@
   "message.sre.skill.cooldown": "Skill on cooldown: %ss",
   "message.sre.skill.ready": "Ready",
   "message.sre.skill.empty": "Charges depleted",
+  "message.sre.skill.no_charges": "No charges available",
 
   "skill.noellesroles.sea_king.aoe": "Aquatic Bind",
   "skill.noellesroles.cleaner.cleanup": "Clean Up",

@@ -3033,6 +3033,7 @@
   "message.sre.skill.cooldown": "技能冷卻中：%s 秒",
   "message.sre.skill.ready": "就緒",
   "message.sre.skill.empty": "次數已用完",
+  "message.sre.skill.no_charges": "沒有可用次數",
   "skill.noellesroles.sea_king.aoe": "水下禁錮",
   "skill.noellesroles.cleaner.cleanup": "清除掉落物",
   "skill.noellesroles.cuckoo.place_egg": "放置蛋",
