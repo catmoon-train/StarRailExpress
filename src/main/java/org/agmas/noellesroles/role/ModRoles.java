@@ -2103,7 +2103,7 @@ public class ModRoles {
             false,
             false,
             SRERole.MoodType.FAKE,
-            TMMRoles.CIVILIAN.getMaxSprintTime(),
+            Integer.MAX_VALUE,
             true)).setComponentKey(ReasonerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKiller(false).setCanUseInstinct(true)
             .setDefaultMax(1).setDefaultEnableNeededPlayerCount(10).setDefaultEnableChance(2500);
