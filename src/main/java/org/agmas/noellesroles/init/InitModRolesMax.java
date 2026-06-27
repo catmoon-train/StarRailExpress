@@ -283,7 +283,6 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.RESCUER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.FIREFIGHTER_ID, 1);
 
-
         // 叛徒设置为0
         Harpymodloader.setRoleMaximum(TraitorAndModifiers.TRAITOR_ID, 0);
 
@@ -317,7 +316,7 @@ public class InitModRolesMax {
                     && random.nextInt(0, 100) <= EGGS_CHANCE) {
                 Harpymodloader.setRoleMaximum(ModRoles.DIO, 1);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 1);
-                 for (var a : TMMRoles.ROLES.values()) {
+                for (var a : TMMRoles.ROLES.values()) {
                     if (a instanceof EggRole && a.canSetSpawnInfoInConfig()) {
                         int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap);
                         if (max >= 0) {
@@ -328,7 +327,7 @@ public class InitModRolesMax {
             } else {
                 Harpymodloader.setRoleMaximum(ModRoles.DIO, 0);
                 Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 0);
-                
+
                 for (var a : TMMRoles.ROLES.values()) {
                     if (a instanceof EggRole) {
                         Harpymodloader.setRoleMaximum(a, 0);
@@ -540,6 +539,10 @@ public class InitModRolesMax {
                 entry.setSpawnInfo(spinfo);
         }
         for (var entry : TMMRoles.ROLES.entrySet()) {
+            if (entry.getValue() instanceof TouhouRole)
+                return;
+            if (entry.getValue() instanceof EggRole)
+                return;
             SpawnInfo spinfo = config.roleDetails.getSpawnInfo(entry.getValue());
             if (spinfo != null && entry.getValue().canSetSpawnInfoInConfig())
                 entry.getValue().setSpawnInfo(spinfo);
