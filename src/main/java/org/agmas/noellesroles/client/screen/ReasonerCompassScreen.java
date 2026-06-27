@@ -96,8 +96,8 @@ public class ReasonerCompassScreen extends Screen {
         if (!payload.solvedRole()) {
             addRenderableWidget(Button.builder(
                     selectionLabel(selectedRole, "screen.noellesroles.reasoner.choose_role"),
-                    button -> openSelection(2)).bounds(btnWideX, y + 2, 158, 20).build());
-            addRenderableWidget(submitBtn(submitX + 70, y + 2, () -> submitChoice(2, selectedRole)));
+                    button -> openSelection(2)).bounds(btnWideX, y + 2, 148, 20).build());
+            addRenderableWidget(submitBtn(submitX, y + 2, () -> submitChoice(2, selectedRole)));
             y += ROW_HEIGHT;
         }
 
@@ -106,8 +106,8 @@ public class ReasonerCompassScreen extends Screen {
             if (payload.deathReasonQuestionAvailable()) {
                 addRenderableWidget(Button.builder(
                         selectionLabel(selectedDeathReason, "screen.noellesroles.reasoner.choose_reason"),
-                        button -> openSelection(3)).bounds(btnWideX, y + 2, 158, 20).build());
-                addRenderableWidget(submitBtn(submitX + 70, y + 2, () -> submitChoice(3, selectedDeathReason)));
+                        button -> openSelection(3)).bounds(btnWideX, y + 2, 148, 20).build());
+                addRenderableWidget(submitBtn(submitX, y + 2, () -> submitChoice(3, selectedDeathReason)));
             }
             y += ROW_HEIGHT;
         }
@@ -116,8 +116,8 @@ public class ReasonerCompassScreen extends Screen {
         if (!payload.solvedTask()) {
             addRenderableWidget(Button.builder(
                     selectionLabel(selectedTask, "screen.noellesroles.reasoner.choose_task"),
-                    button -> openSelection(4)).bounds(btnWideX, y + 2, 158, 20).build());
-            addRenderableWidget(submitBtn(submitX + 70, y + 2, () -> submitChoice(4, selectedTask)));
+                    button -> openSelection(4)).bounds(btnWideX, y + 2, 148, 20).build());
+            addRenderableWidget(submitBtn(submitX, y + 2, () -> submitChoice(4, selectedTask)));
             y += ROW_HEIGHT;
         }
 
@@ -322,13 +322,10 @@ public class ReasonerCompassScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        // 1. 半透明暗色背景
-        renderBackground(g, mouseX, mouseY, partialTick);
-
-        // 2. 罗盘面板图案
+        // 1. 罗盘面板图案（自带深色背景，无需全屏半透明层）
         drawPanel(g);
 
-        // 3. 问题文字标签（在面板图案之上、按钮之下）
+        // 2. 问题文字标签（在面板图案之上、按钮之下）
         if (selectionQuestion == 0) {
             drawQuestionLabels(g);
         } else if (selectionQuestion == 2) {
@@ -337,7 +334,7 @@ public class ReasonerCompassScreen extends Screen {
             drawSelectionTitle(g);
         }
 
-        // 4. 按钮 / 输入框在最上层
+        // 3. 按钮 / 输入框在最上层
         super.render(g, mouseX, mouseY, partialTick);
     }
 
