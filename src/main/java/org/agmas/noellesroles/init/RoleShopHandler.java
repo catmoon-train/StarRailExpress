@@ -1028,7 +1028,7 @@ public class RoleShopHandler {
     }
     {
       // PACHURI 商店
-      var displayStack = Items.WRITTEN_BOOK.getDefaultInstance();
+      var displayStack = ModItems.NEWSPAPER.getDefaultInstance();
       String title = "\u00a7d\u00a7lPachuri Knowledge Book";
       displayStack.set(DataComponents.WRITTEN_BOOK_CONTENT,
           new WrittenBookContent(new Filterable<String>(title, Optional.of(title)), "Pachuri Knowledge", 1, List.of(),
