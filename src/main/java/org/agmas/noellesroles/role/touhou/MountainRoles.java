@@ -54,7 +54,6 @@ public class MountainRoles {
                     ModItems.NEWSPAPER.getDefaultInstance(),
                     50,
                     ShopEntry.Type.TOOL));
-            SHOP.addAll(ShopContent.defaultKnifeEntries);
         }
 
         @Override
@@ -65,7 +64,9 @@ public class MountainRoles {
 
         @Override
         public List<ShopEntry> getShopEntries() {
-            return SHOP;
+            var roleSpecShop = new ArrayList<>(SHOP);
+            roleSpecShop.addAll(ShopContent.defaultKnifeEntries);
+            return roleSpecShop;
         }
 
         @Override
