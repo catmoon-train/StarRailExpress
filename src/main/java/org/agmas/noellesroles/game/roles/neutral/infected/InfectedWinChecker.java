@@ -413,7 +413,7 @@ public class InfectedWinChecker {
                     }
                 }
             }
-            InfectedAbilityHandler.checkAndTriggerLastInfected(level);
+            checkAndTriggerLastInfected(level);
         } else {
             if (wasAccelerated) {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
