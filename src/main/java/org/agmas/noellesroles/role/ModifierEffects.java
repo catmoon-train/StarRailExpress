@@ -57,17 +57,22 @@ public class ModifierEffects {
                         player.displayClientMessage(
                                 net.minecraft.network.chat.Component.translatable("modifier.noellesroles.last_gasp.death"), true);
                         
-                        // 获取击杀者和死亡原因
-                        UUID killerUuid = TraitorAndModifiers.LAST_GASP_KILLER.get(player.getUUID());
-                        ServerPlayer killer = killerUuid != null ? server.getPlayerList().getPlayer(killerUuid) : null;
+                        // 获取死亡原因（保留死亡原因显示，但不传 killer 避免重复计算击杀/金币）
                         var deathReason = TraitorAndModifiers.LAST_GASP_DEATH_REASON.get(player.getUUID());
                         player.removeEffect(ModEffects.INVINCIBLE);
-                        GameUtils.forceKillPlayer(player, true, killer, deathReason);
+                        // 提前清理，确保 forceKillPlayer 不会再次触发回光返照
+                        TraitorAndModifiers.LAST_GASP_TRIGGERED.remove(player.getUUID());
+                        TraitorAndModifiers.LAST_GASP_TRIGGER_GAME_TIME.remove(player.getUUID());
+                        TraitorAndModifiers.LAST_GASP_KILLER.remove(player.getUUID());
+                        TraitorAndModifiers.LAST_GASP_DEATH_REASON.remove(player.getUUID());
+                        // killer 传 null，避免第二次 OnPlayerKilledPlayer.EVENT 重复计杀和发金币
+                        GameUtils.forceKillPlayer(player, true, null, deathReason);
+                    } else {
+                        TraitorAndModifiers.LAST_GASP_TRIGGERED.remove(player.getUUID());
+                        TraitorAndModifiers.LAST_GASP_TRIGGER_GAME_TIME.remove(player.getUUID());
+                        TraitorAndModifiers.LAST_GASP_KILLER.remove(player.getUUID());
+                        TraitorAndModifiers.LAST_GASP_DEATH_REASON.remove(player.getUUID());
                     }
-                    TraitorAndModifiers.LAST_GASP_TRIGGERED.remove(player.getUUID());
-                    TraitorAndModifiers.LAST_GASP_TRIGGER_GAME_TIME.remove(player.getUUID());
-                    TraitorAndModifiers.LAST_GASP_KILLER.remove(player.getUUID());
-                    TraitorAndModifiers.LAST_GASP_DEATH_REASON.remove(player.getUUID());
                 }
                 continue; // 回光返照中的玩家跳过其他效果检查
             }
