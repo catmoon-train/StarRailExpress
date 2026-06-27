@@ -652,8 +652,10 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 this.screen.renderLimitedInventoryTooltip(context, this.entry.stack());
                 drawShopSlotHighlight(context, this.getX(), this.getY(), 0);
             }
-            // \u663E\u793A\u52A8\u6001\u4EF7\u683C\uFF1A\u82E5\u88AB DynamicShopComponent \u6253\u6298\uFF0C\u5219\u7528\u7EFF\u8272\u5C55\u793A\u6298\u540E\u4EF7\u3002
-            // Show the dynamic price: if discounted by DynamicShopComponent, render the reduced price in green.
+            // \u663E\u793A\u52A8\u6001\u4EF7\u683C\uFF1A\u82E5\u88AB DynamicShopComponent
+            // \u6253\u6298\uFF0C\u5219\u7528\u7EFF\u8272\u5C55\u793A\u6298\u540E\u4EF7\u3002
+            // Show the dynamic price: if discounted by DynamicShopComponent, render the
+            // reduced price in green.
             int basePrice = this.entry.price();
             int effectivePrice = basePrice;
             final var clientPlayer = Minecraft.getInstance().player;
@@ -661,11 +663,19 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 effectivePrice = DynamicShopComponent.KEY.get(clientPlayer).effectivePrice(this.entry);
             }
             MutableComponent price = Component.literal(effectivePrice + "\uE781");
+            int displayX = this.getX() - 4 - this.screen.font.width(price) / 2;
+            int displayY = this.getY() - 9;
             if (effectivePrice < basePrice) {
-                price.withStyle(net.minecraft.ChatFormatting.GREEN);
+                price = Component
+                        .translatable("gui.starrailexpress.shop.discount",
+                                (int) ((double) effectivePrice / (double) basePrice * 100.0))
+                        .withStyle(net.minecraft.ChatFormatting.GREEN)
+                        .append(price.withStyle(net.minecraft.ChatFormatting.WHITE));
+                displayY -= 9;
+                // price.withStyle(net.minecraft.ChatFormatting.GREEN);
             }
-            context.renderTooltip(this.screen.font, price, this.getX() - 4 - this.screen.font.width(price) / 2,
-                    this.getY() - 9);
+            context.renderTooltip(this.screen.font, price, displayX,
+                    displayY);
         }
 
         private void drawShopSlotHighlight(GuiGraphics context, int x, int y, int z) {

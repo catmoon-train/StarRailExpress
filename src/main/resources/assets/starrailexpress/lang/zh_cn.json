@@ -2273,5 +2273,6 @@
     "screen.starrailexpress.effect_generator.radius": "生效半径",
     "screen.starrailexpress.effect_generator.effect_id": "药水效果 ID",
     "screen.starrailexpress.effect_generator.level": "等级",
-    "message.starrailexpress.effect_generator.saved": "药水效果发生器配置已保存"
+    "message.starrailexpress.effect_generator.saved": "药水效果发生器配置已保存",
+    "gui.starrailexpress.shop.discount": "-%s%%"
 }

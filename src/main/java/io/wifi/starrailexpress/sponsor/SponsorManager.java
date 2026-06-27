@@ -94,6 +94,9 @@ public final class SponsorManager {
             }
         }
         sponsorPlushNames = List.copyOf(withPlush);
+        if(rawNames.isEmpty()){
+            return;
+        }
         SRE.LOGGER.info("[Sponsor] 赞助者名单已更新：{} 个原始条目，{} 个有对应 plush。",
                 rawNames.size(), withPlush.size());
         if (server != null) {
