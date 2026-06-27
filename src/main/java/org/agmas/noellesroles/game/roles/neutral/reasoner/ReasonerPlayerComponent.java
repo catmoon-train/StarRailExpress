@@ -406,6 +406,10 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         };
     }
 
+    public int getSolvedCount() {
+        return solvedCount();
+    }
+
     private int solvedCount() {
         int count = 0;
         if (solvedAliveCount) count++;

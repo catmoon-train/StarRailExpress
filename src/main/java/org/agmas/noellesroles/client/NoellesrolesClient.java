@@ -254,6 +254,11 @@ public class NoellesrolesClient implements ClientModInitializer {
         io.wifi.starrailexpress.event.client.OnGameFinishedClient.EVENT.register(() -> {
             ClientWallManager.clearAll();
             ClientCakeMakerBlocks.clearAll();
+            // 关闭推理师罗盘界面
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.screen instanceof ReasonerCompassScreen) {
+                minecraft.screen.onClose();
+            }
         });
         // 注册HUD渲染
         LimitedInventoryScreen.NotAllowItemTakePredicates.add(stack -> stack.is(ModItems.BOMB));
