@@ -3238,6 +3238,7 @@
   "hud.noellesroles.raven.charges": "狩猎充能：%s/%s",
   "hud.noellesroles.raven.kills": "猎杀进度：%s/%s",
   "hud.noellesroles.raven.cooldown": "冷却：%s秒",
+  "hud.noellesroles.raven.hunt_time": "猎杀剩余：%s秒",
   "hud.noellesroles.raven.target": "你需要击杀：%s",
   "message.noellesroles.raven.charge": "狩猎充能：%s/%s",
   "message.noellesroles.raven.no_target": "场上没有可供狩猎的职业。",

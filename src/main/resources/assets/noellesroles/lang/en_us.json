@@ -3234,6 +3234,7 @@
   "hud.noellesroles.raven.charges": "Hunt charges: %s/%s",
   "hud.noellesroles.raven.kills": "Hunt progress: %s/%s",
   "hud.noellesroles.raven.cooldown": "Cooldown: %ss",
+  "hud.noellesroles.raven.hunt_time": "Hunt: %ss left",
   "hud.noellesroles.raven.target": "You must kill: %s",
   "message.noellesroles.raven.charge": "Hunt charges: %s/%s",
   "message.noellesroles.raven.no_target": "No eligible role remains on the field.",
