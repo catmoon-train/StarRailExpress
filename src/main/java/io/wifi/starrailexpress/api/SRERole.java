@@ -139,7 +139,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
         var test = new HashSet<>(flags);
         if (test.contains("inner.enable")) {
             test.remove("inner.enable");
-            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)
+                    && !RoleManageConfigUI.RoleEnableStatus.isEmpty()) {
                 if (!RoleManageConfigUI.RoleEnableStatus.getOrDefault(this.identifier().toString(), false)) {
                     return false;
                 }
@@ -152,7 +153,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
         }
         if (test.contains("inner.disable")) {
             test.remove("inner.disable");
-            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)
+                    && !RoleManageConfigUI.RoleEnableStatus.isEmpty()) {
                 if (RoleManageConfigUI.ModifierEnableStatus.getOrDefault(this.identifier().toString(), false)) {
                     return false;
                 }
@@ -235,6 +237,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public SRERole setMafiaTeam(boolean flag) {
         this.mafiaTeam = flag;
+        this.flags.add("mafia_team");
         return this;
     }
 

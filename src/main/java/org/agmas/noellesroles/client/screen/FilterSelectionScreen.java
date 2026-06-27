@@ -21,22 +21,7 @@ import java.util.function.Consumer;
 
 /**
  * 一个通用的筛选选择界面，支持键盘导航、多选/单选、拼音搜索等。
- * <p>
- * 主要特性：
- * <ul>
- *   <li>居中标题与支持自动换行的副标题</li>
- *   <li>搜索框：拼音搜索 + 普通文本匹配</li>
- *   <li>单选/多选模式，建造者配置默认选中</li>
- *   <li>列表项宽度统一，文本截断，右侧滚动条</li>
- *   <li>底部按钮：全选、取消全选、取消、确认，样式统一，支持键盘导航</li>
- *   <li>ESC 返回上级</li>
- *   <li>键盘支持：TAB 在搜索框/列表/按钮间循环切换焦点，方向键在列表中导航（输入框内正常编辑），
- *       回车切换列表项选中或触发按钮，空格键也可触发按钮</li>
- * </ul>
- * </p>
- *
- * @see Screen
- * @see PinYinUtils
+ * 视觉风格参考了 RoleIntroduceScreen 的深色渐变与金属质感配色。
  */
 public class FilterSelectionScreen extends Screen {
 
@@ -49,8 +34,6 @@ public class FilterSelectionScreen extends Screen {
 
     private final Set<String> selectedIds = new LinkedHashSet<>();
     private List<String> filteredIds = new ArrayList<>();
-
-    // 列表键盘导航高亮索引（不同于选中状态）
     private int highlightedIndex = 0;
 
     private EditBox searchWidget;
@@ -93,10 +76,10 @@ public class FilterSelectionScreen extends Screen {
     }
 
     private FilterSelectionScreen(Component title, Component subtitle, Screen parent,
-                                  LinkedHashMap<String, Component> options,
-                                  boolean multiSelect,
-                                  Consumer<Set<String>> callback,
-                                  Set<String> defaultSelections) {
+            LinkedHashMap<String, Component> options,
+            boolean multiSelect,
+            Consumer<Set<String>> callback,
+            Set<String> defaultSelections) {
         super(title);
         this.titleComp = Objects.requireNonNull(title, "title cannot be null");
         this.subtitleComp = Objects.requireNonNull(subtitle, "subtitle cannot be null");
@@ -122,13 +105,14 @@ public class FilterSelectionScreen extends Screen {
 
     @Override
     protected void init() {
-        super.init();
+        // 清空旧组件，防止重复添加或残留
+        clearWidgets();
         computeLayout();
         initSearchBox();
         initButtons();
         refreshFilteredList();
-        // 初始高亮第一个条目（如果有）
-        if (!filteredIds.isEmpty()) highlightedIndex = 0;
+        if (!filteredIds.isEmpty())
+            highlightedIndex = 0;
     }
 
     private void computeLayout() {
@@ -203,14 +187,10 @@ public class FilterSelectionScreen extends Screen {
             searchWidget.setWidth(sw);
         }
         addRenderableWidget(searchWidget);
-        // 初始焦点给搜索框
         setFocused(searchWidget);
     }
 
     private void initButtons() {
-        // 移除旧按钮（如果存在）
-        clearWidgets();
-
         // 全选
         addRenderableWidget(new StyledButton(selectAllX, buttonsY, selectAllW, BUTTON_HEIGHT,
                 Component.translatable("screen.filter_selection.select_all"),
@@ -266,9 +246,9 @@ public class FilterSelectionScreen extends Screen {
             Component nameComp = options.get(id);
             String name = nameComp.getString();
             if (searchContent == null ||
-                name.toLowerCase().contains(searchContent.toLowerCase()) ||
-                id.toLowerCase().contains(searchContent.toLowerCase()) ||
-                PinYinUtils.contains(searchContent, name)) {
+                    name.toLowerCase().contains(searchContent.toLowerCase()) ||
+                    id.toLowerCase().contains(searchContent.toLowerCase()) ||
+                    PinYinUtils.contains(searchContent, name)) {
                 filteredIds.add(id);
             }
         }
@@ -277,7 +257,6 @@ public class FilterSelectionScreen extends Screen {
             selectedIds.clear();
             selectedIds.add(keep);
         }
-        // 重置高亮索引
         highlightedIndex = filteredIds.isEmpty() ? 0 : Math.min(highlightedIndex, filteredIds.size() - 1);
         updateScrollParams();
     }
@@ -290,7 +269,8 @@ public class FilterSelectionScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (this.minecraft == null) return;
+        if (this.minecraft == null)
+            return;
         this.minecraft.screen = parent;
         this.removed();
         if (this.minecraft.screen != null) {
@@ -310,32 +290,34 @@ public class FilterSelectionScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // ESC 返回上级
         if (keyCode == 256 && parent != null) {
             onClose();
             return true;
         }
 
-        // 列表键盘导航：仅当焦点不在搜索框（避免干扰文本编辑）且不在任何按钮上时
+        // 列表键盘导航：仅当焦点不在搜索框且不在任何按钮上时
         if (getFocused() != searchWidget && !isFocusedOnButton()) {
             if (keyCode == 265 || keyCode == 264) { // ↑ ↓
                 if (!filteredIds.isEmpty()) {
-                    highlightedIndex = keyCode == 265 ? Math.max(0, highlightedIndex - 1) :
-                            Math.min(filteredIds.size() - 1, highlightedIndex + 1);
-                    // 自动滚动以保证高亮可见
+                    highlightedIndex = keyCode == 265 ? Math.max(0, highlightedIndex - 1)
+                            : Math.min(filteredIds.size() - 1, highlightedIndex + 1);
                     int rowY = highlightedIndex * (ROW_HEIGHT + ROW_SPACING);
-                    if (rowY < scrollOffset) scrollOffset = rowY;
-                    else if (rowY + ROW_HEIGHT > scrollOffset + listH) scrollOffset = rowY + ROW_HEIGHT - listH;
+                    if (rowY < scrollOffset)
+                        scrollOffset = rowY;
+                    else if (rowY + ROW_HEIGHT > scrollOffset + listH)
+                        scrollOffset = rowY + ROW_HEIGHT - listH;
                     scrollOffset = Mth.clamp(scrollOffset, 0, maxScroll);
                     return true;
                 }
-            } else if (keyCode == 257 || keyCode == 335) { // Enter 或 小键盘 Enter
+            } else if (keyCode == 257 || keyCode == 335) { // Enter
                 if (!filteredIds.isEmpty() && highlightedIndex < filteredIds.size()) {
                     playClickSound();
                     String id = filteredIds.get(highlightedIndex);
                     if (multiSelect) {
-                        if (selectedIds.contains(id)) selectedIds.remove(id);
-                        else selectedIds.add(id);
+                        if (selectedIds.contains(id))
+                            selectedIds.remove(id);
+                        else
+                            selectedIds.add(id);
                     } else {
                         selectedIds.clear();
                         selectedIds.add(id);
@@ -345,7 +327,6 @@ public class FilterSelectionScreen extends Screen {
             }
         }
 
-        // 默认处理（包括按钮和搜索框自己的键）
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
@@ -356,12 +337,13 @@ public class FilterSelectionScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         this.parent.render(g, mouseX, mouseY, partialTick);
-        super.render(g, mouseX, mouseY, partialTick); // 渲染所有 widget（搜索框、按钮）
 
         int panelX = (width - panelWidth) / 2;
         int panelY = 30;
 
         drawPanelBg(g, panelX, panelY, panelWidth, panelHeight);
+
+        super.render(g, mouseX, mouseY, partialTick);
 
         int titleY = panelY + 4;
         g.drawCenteredString(font, titleComp, width / 2, titleY, 0xF5E8C8);
@@ -375,7 +357,6 @@ public class FilterSelectionScreen extends Screen {
         }
 
         renderList(g, mouseX, mouseY);
-        // 按钮已作为 widget 自动渲染，无需额外绘制
     }
 
     private void renderList(GuiGraphics g, int mouseX, int mouseY) {
@@ -383,7 +364,8 @@ public class FilterSelectionScreen extends Screen {
         for (int i = 0; i < filteredIds.size(); i++) {
             String id = filteredIds.get(i);
             int rowY = listY + i * (ROW_HEIGHT + ROW_SPACING) - scrollOffset;
-            if (rowY + ROW_HEIGHT < listY || rowY > listY + listH) continue;
+            if (rowY + ROW_HEIGHT < listY || rowY > listY + listH)
+                continue;
 
             boolean hovered = isInRect(mouseX, mouseY, listX, rowY, listW, ROW_HEIGHT);
             boolean selected = selectedIds.contains(id);
@@ -399,15 +381,18 @@ public class FilterSelectionScreen extends Screen {
 
     private void drawRow(GuiGraphics g, String id, int y, boolean selected, boolean hovered, boolean highlighted) {
         int bgColor;
-        if (selected) bgColor = 0xFF5A4520;
-        else if (highlighted) bgColor = 0xFF4A3A20; // 键盘高亮颜色
-        else if (hovered) bgColor = 0xFF2A2A15;
-        else bgColor = 0xFF1A1008;
+        if (selected)
+            bgColor = 0xFF5A4520;
+        else if (highlighted)
+            bgColor = 0xFF4A3A20;
+        else if (hovered)
+            bgColor = 0xFF2A2A15;
+        else
+            bgColor = 0xFF1A1008;
 
         g.fill(listX, y, listX + listW, y + ROW_HEIGHT, bgColor);
         g.fill(listX, y + ROW_HEIGHT - 1, listX + listW, y + ROW_HEIGHT, 0x228B6914);
 
-        // 键盘高亮时绘制焦点边框
         if (highlighted) {
             g.renderOutline(listX, y, listW, ROW_HEIGHT, 0xCCD4AF37);
         }
@@ -428,7 +413,8 @@ public class FilterSelectionScreen extends Screen {
         int size = 10;
         if (checked) {
             g.fill(x, y, x + size, y + size, 0xFF2A1A0A);
-            g.drawCenteredString(font, Component.literal("√"), x + size / 2, y + size / 2 - font.lineHeight / 2, 0xFFB8960C);
+            g.drawCenteredString(font, Component.literal("√"), x + size / 2, y + size / 2 - font.lineHeight / 2,
+                    0xFFB8960C);
             g.renderOutline(x, y, size, size, 0xFFB8960C);
         } else {
             g.fill(x, y, x + size, y + size, 0xFF2A1A0A);
@@ -436,14 +422,9 @@ public class FilterSelectionScreen extends Screen {
         }
     }
 
-    // ═══════════════════════════════════════════════════
-    // 鼠标交互
-    // ═══════════════════════════════════════════════════
-
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
         if (button == 0) {
-            // 列表项点击
             if (isInRect((int) mx, (int) my, listX, listY, listW, listH)) {
                 for (int i = 0; i < filteredIds.size(); i++) {
                     int rowY = listY + i * (ROW_HEIGHT + ROW_SPACING) - scrollOffset;
@@ -452,20 +433,20 @@ public class FilterSelectionScreen extends Screen {
                         highlightedIndex = i;
                         String id = filteredIds.get(i);
                         if (multiSelect) {
-                            if (selectedIds.contains(id)) selectedIds.remove(id);
-                            else selectedIds.add(id);
+                            if (selectedIds.contains(id))
+                                selectedIds.remove(id);
+                            else
+                                selectedIds.add(id);
                         } else {
                             selectedIds.clear();
                             selectedIds.add(id);
                         }
-                        // 清除焦点，使列表获得键盘输入
                         setFocused(null);
                         return true;
                     }
                 }
             }
 
-            // 滚动条按下
             int sbX = listX + listW + 2;
             if (isInRect((int) mx, (int) my, sbX, listY, SCROLL_W, listH) && maxScroll > 0) {
                 isDraggingScroll = true;
@@ -484,7 +465,8 @@ public class FilterSelectionScreen extends Screen {
             int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (listH * Math.min(1f, (float) listH / totalH)));
             double trackH = listH - thumbH;
             if (trackH > 0)
-                scrollOffset = Mth.clamp((int) (dragStartOffset + (my - dragStartY) / trackH * maxScroll), 0, maxScroll);
+                scrollOffset = Mth.clamp((int) (dragStartOffset + (my - dragStartY) / trackH * maxScroll), 0,
+                        maxScroll);
             return true;
         }
         return super.mouseDragged(mx, my, button, dx, dy);
@@ -505,7 +487,6 @@ public class FilterSelectionScreen extends Screen {
         return super.mouseScrolled(mx, my, scrollX, scrollY);
     }
 
-    // 工具方法
     private static boolean isInRect(int px, int py, int x, int y, int w, int h) {
         return px >= x && px < x + w && py >= y && py < y + h;
     }
@@ -517,11 +498,12 @@ public class FilterSelectionScreen extends Screen {
     }
 
     private void renderVScrollbar(GuiGraphics g, int x, int y, int h,
-                                  int scroll, int maxScroll, int totalContentH,
-                                  int mouseX, int mouseY, boolean dragging) {
+            int scroll, int maxScroll, int totalContentH,
+            int mouseX, int mouseY, boolean dragging) {
         g.fill(x, y, x + SCROLL_W, y + h, 0xFF1A1008);
         g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x558B6914);
-        if (maxScroll <= 0) return;
+        if (maxScroll <= 0)
+            return;
 
         float ratio = Math.min(1f, (float) h / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (h * ratio));
@@ -533,14 +515,12 @@ public class FilterSelectionScreen extends Screen {
         g.fill(x + 1, thumbY + 1, x + SCROLL_W - 1, thumbY + 3, 0x44FFFFFF);
     }
 
-    // ═══════════════════════════════════════════════════
-    // 自定义按钮（继承原版 Button，重写渲染）
-    // ═══════════════════════════════════════════════════
+    // 自定义按钮
     private class StyledButton extends Button {
         private final boolean active;
 
         StyledButton(int x, int y, int width, int height, Component message,
-                     OnPress onPress, boolean active) {
+                OnPress onPress, boolean active) {
             super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
             this.active = active;
         }
@@ -552,18 +532,17 @@ public class FilterSelectionScreen extends Screen {
             int bg = active ? (hovered ? 0xFF5A4520 : (focused ? 0xFF4A3A20 : 0xFF3A2A10)) : 0xFF1A1008;
             int textColor = active ? (hovered ? 0xFFFFF4DC : (focused ? 0xFFFFF4DC : 0xFFC8B78A)) : 0x666666;
             g.fill(getX(), getY(), getX() + width, getY() + height, bg);
-            // 焦点边框
             if (focused) {
                 g.renderOutline(getX(), getY(), width, height, 0xCCD4AF37);
             } else {
                 g.renderOutline(getX(), getY(), width, height, active ? 0xFF8B6914 : 0xFF5A4530);
             }
-            g.drawCenteredString(font, getMessage(), getX() + width / 2, getY() + (height - font.lineHeight) / 2, textColor);
+            g.drawCenteredString(font, getMessage(), getX() + width / 2, getY() + (height - font.lineHeight) / 2,
+                    textColor);
         }
 
         @Override
         public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-            // 无叙述
         }
     }
 
@@ -578,7 +557,8 @@ public class FilterSelectionScreen extends Screen {
         private Component subtitle = Component.empty();
         private LinkedHashMap<String, Component> options = new LinkedHashMap<>();
         private boolean multiSelect = false;
-        private Consumer<Set<String>> callback = ids -> {};
+        private Consumer<Set<String>> callback = ids -> {
+        };
         private Set<String> defaultSelections = new LinkedHashSet<>();
 
         public Builder(Screen parent) {
@@ -626,7 +606,8 @@ public class FilterSelectionScreen extends Screen {
         }
 
         public FilterSelectionScreen build() {
-            return new FilterSelectionScreen(title, subtitle, parent, options, multiSelect, callback, defaultSelections);
+            return new FilterSelectionScreen(title, subtitle, parent, options, multiSelect, callback,
+                    defaultSelections);
         }
     }
 

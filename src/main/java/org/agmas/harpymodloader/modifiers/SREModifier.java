@@ -72,7 +72,8 @@ public class SREModifier extends SREAbstractInfoClass {
         return true;
 
     }
-/**
+
+    /**
      * 是否为指定flag，带inner.的标签。
      * 
      * @param flags
@@ -82,7 +83,8 @@ public class SREModifier extends SREAbstractInfoClass {
         var test = new HashSet<>(flags);
         if (test.contains("inner.enable")) {
             test.remove("inner.enable");
-            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)
+                    && !RoleManageConfigUI.ModifierEnableStatus.isEmpty()) {
                 if (!RoleManageConfigUI.ModifierEnableStatus.getOrDefault(this.identifier().toString(), false)) {
                     return false;
                 }
@@ -95,7 +97,8 @@ public class SREModifier extends SREAbstractInfoClass {
         }
         if (test.contains("inner.disable")) {
             test.remove("inner.disable");
-            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)
+                    && !RoleManageConfigUI.ModifierEnableStatus.isEmpty()) {
                 if (RoleManageConfigUI.ModifierEnableStatus.getOrDefault(this.identifier().toString(), false)) {
                     return false;
                 }
@@ -108,6 +111,7 @@ public class SREModifier extends SREAbstractInfoClass {
         }
         return this.flags.containsAll(test);
     }
+
     /**
      * 是否为指定flag
      * 
