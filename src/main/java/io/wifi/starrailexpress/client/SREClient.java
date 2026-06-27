@@ -83,6 +83,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.KeyMapping;
@@ -469,7 +470,7 @@ public class SREClient implements ClientModInitializer {
                         list.add(Component.translatable("starrailexpress.tip.can_thrown"));
                     }
                     if (TMMItems.INVISIBLE_ITEMS.contains(itemStack.getItem())){
-                        list.add(Component.translatable("starrailexpress.tip.invisible"));
+                        list.add(Component.translatable("starrailexpress.tip.invisible").withStyle(ChatFormatting.GRAY));
                     }
                 });
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
