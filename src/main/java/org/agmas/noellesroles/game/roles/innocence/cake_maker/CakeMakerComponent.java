@@ -389,6 +389,13 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         broadcast(new CakeMakerBlockS2CPacket(smokerId, smokerPos, false, 0, smokerTicks, false));
     }
 
+    // ── Sync ───────────────────────────────────────────────────
+
+    public void sync() { KEY.sync(player); }
+
+    @Override
+    public boolean shouldSyncWith(ServerPlayer target) { return target == this.player; }
+
     // ── Network helpers ───────────────────────────────────────
 
     private void sendMessage(String key) {
