@@ -1459,7 +1459,6 @@ public class RoleIntroduceScreen extends Screen {
                 })
                 .build();
         screen.show(this.minecraft);
-        filterFlags.clear();
     }
 
     public void refreshFilter(IntroductionGameMode clickedMode) {
