@@ -3206,6 +3206,7 @@
   "message.noellesroles.cake_maker.add_egg_sugar": "請依次放入 1 個雞蛋和 2 個糖。",
   "message.noellesroles.cake_maker.add_milk": "請放入 3 桶牛奶。",
   "message.noellesroles.cake_maker.complete": "蛋糕烹飪完成！",
+  "message.noellesroles.cake_maker.cake_disappeared": "蛋糕已消失。",
   "announcement.star.role.reasoner": "推理師",
   "announcement.star.goals.reasoner": "在最合適的時機回答羅盤顯現的問題，全部推理正確即可獨立勝利。",
   "announcement.star.win.reasoner": "推理師勝利！",

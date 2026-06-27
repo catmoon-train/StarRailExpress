@@ -60,7 +60,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
     /** 5-second lock after final ingredients */
     private static final int WAIT_LONG_TICKS  = 100;
 
-    private static final int CAKE_PLACEMENT_TICKS = 600 * 20;
+    private static final int CAKE_PLACEMENT_TICKS = 6 * 20;
     private static final int EAT_COOLDOWN_TICKS   = 600; // 30 s
     private static final int SPEED_DURATION_TICKS = 20 * 20;
     private static final int MAX_CAKE_BITES       = 6;
@@ -202,6 +202,19 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
 
         eatCooldowns.replaceAll((id, t) -> Math.max(0, t - 1));
 
+        // Expire cakes whose placement lifetime has ended
+        long now = player.level().getGameTime();
+        boolean cakeRemoved = cakes.entrySet().removeIf(entry -> {
+            if (now - entry.getValue().placedGameTime >= CAKE_PLACEMENT_TICKS) {
+                broadcast(new CakeMakerBlockS2CPacket(entry.getKey(), entry.getValue().pos, true, entry.getValue().bites, 0, true));
+                return true;
+            }
+            return false;
+        });
+        if (cakeRemoved) {
+            sendMessage("message.noellesroles.cake_maker.cake_disappeared");
+        }
+
         // Locked period elapsed → advance baking stage
         if (lockedTicks > 0 && --lockedTicks == 0) {
             onLockedPeriodEnd();
@@ -286,7 +299,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         }
 
         UUID id = UUID.randomUUID();
-        cakes.put(id, new Cake(pos));
+        cakes.put(id, new Cake(pos, sp.level().getGameTime()));
         sp.getMainHandItem().shrink(1);
         broadcast(new CakeMakerBlockS2CPacket(id, pos, true, 0, CAKE_PLACEMENT_TICKS, false));
         return true;
@@ -449,9 +462,11 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
     public static final class Cake {
         final BlockPos pos;
         int bites;
+        long placedGameTime;
 
-        Cake(BlockPos pos) {
+        Cake(BlockPos pos, long gameTime) {
             this.pos = pos;
+            this.placedGameTime = gameTime;
         }
     }
 }
