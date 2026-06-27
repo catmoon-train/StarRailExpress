@@ -166,6 +166,10 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             this.nextTaskTimer = (int) (this.player.getRandom().nextFloat()
                     * (maxCooldown - minCooldown)
                     + minCooldown);
+            // 小游戏任务未启用时，正常任务刷新加快 30%
+            if (!AreasWorldComponent.KEY.get(this.player.level()).minigameQuestEnabled) {
+                this.nextTaskTimer = (int) (this.nextTaskTimer * 0.7f);
+            }
             this.nextTaskTimer = Math.max(this.nextTaskTimer, 2);
             shouldSync = true;
         }
