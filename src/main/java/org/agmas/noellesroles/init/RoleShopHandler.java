@@ -2512,8 +2512,8 @@ public class RoleShopHandler {
     });
 
     // ==================== 钳工商店 ====================
-    // 开灯 - 175金币（购买后立即结束关灯时间并清除全场黑暗与失明药水效果，未处于关灯时间无法购买）
-    FITTER_SHOP.add(new ShopEntry(ModItems.LIGHTUP.getDefaultInstance(), 175, ShopEntry.Type.TOOL) {
+    // 开灯 - 225金币（购买后立即结束关灯时间并清除全场黑暗与失明药水效果，未处于关灯时间无法购买）
+    FITTER_SHOP.add(new ShopEntry(ModItems.LIGHTUP.getDefaultInstance(), 225, ShopEntry.Type.TOOL) {
       @Override
       public boolean onBuy(@NotNull Player player) {
         SREWorldBlackoutComponent blackCCA = SREWorldBlackoutComponent.KEY.get(player.level());
