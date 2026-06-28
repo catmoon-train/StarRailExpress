@@ -30,6 +30,11 @@ public class SREMixinPlugin implements IMixinConfigPlugin {
                 && mixinClassName.contains("net.exmo.mixin.client.side")) {
             return false;
         }
+        
+        if (!FabricLoader.getInstance().isModLoaded("carpet")
+                && mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.carpet")) {
+            return false;
+        }
         return true;
     }
 

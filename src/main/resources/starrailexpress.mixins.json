@@ -96,6 +96,7 @@
     "client.ui.TooltipBackgroundRendererMixin",
     "compat.sodium_extra.SodiumExtraDisableOptionMixin",
     "compat.sodium_extra.SodiumExtraLoadedMixin",
+    "compat.carpet.FixClientReturnCrash",
     "entity.player.LocalPlayerMixin",
     "gui.ScreenDrawableGetMixin",
     "input.KeyboardHandlerMixin",
