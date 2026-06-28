@@ -39,6 +39,8 @@ public class NRSounds {
     public static final SoundEvent SAND_STORM = registrar.create("noellesroles.dust_storm");
     public static final SoundEvent BROKEN_ALARM = registrar.create("noellesroles.broken_alarm");
     public static final SoundEvent CIRCUS_BACKGROUND = registrar.create("noellesroles.circus_background");
+    public static final SoundEvent A_MENG = registrar.create("noellesroles.a_meng");
+    public static final SoundEvent CIRCUS_INDOOR = registrar.create("noellesroles.dasiy_bell");
 
     public static void initialize() {
         registrar.registerEntries();
