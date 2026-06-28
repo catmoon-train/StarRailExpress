@@ -62,17 +62,17 @@ public abstract class TMMButtonBlock extends ButtonBlock {
     @Override
     public void press(BlockState state, Level world, BlockPos pos, @Nullable Player player) {
         if (state.getValue(ACTIVE)) {
-            // if (!world.isClientSide) {
-            // Iterable<BlockPos> iterable = BlockPos.withinManhattan(pos, 1, 1, 1);
-            // for (BlockPos blockPos : iterable) {
-            // if (blockPos.equals(pos)) {
-            // continue;
-            // }
-            // if (this.tryOpenDoors(world, blockPos)) {
-            // break;
-            // }
-            // }
-            // }
+            if (!world.isClientSide) {
+                Iterable<BlockPos> iterable = BlockPos.withinManhattan(pos, 1, 1, 1);
+                for (BlockPos blockPos : iterable) {
+                    if (blockPos.equals(pos)) {
+                        continue;
+                    }
+                    if (this.tryOpenDoors(world, blockPos)) {
+                        break;
+                    }
+                }
+            }
         } else {
             world.playSound(player, pos, TMMSounds.BLOCK_BUTTON_TOGGLE_NO_POWER, SoundSource.BLOCKS, 0.1f, 1f);
         }
