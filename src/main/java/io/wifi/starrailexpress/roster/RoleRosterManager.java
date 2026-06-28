@@ -65,13 +65,13 @@ public final class RoleRosterManager {
 
     public static boolean isRoleEnabled(SRERole role) {
         if (!SREConfig.instance().enableRoster || !state.enabled)
-            return true;
+            return false;
         return state.roleCounts.getOrDefault(role.identifier().toString(), 1) > 0;
     }
 
     public static boolean isModifierEnabled(SREModifier modifier) {
         if (!SREConfig.instance().enableRoster || !state.enabled)
-            return true;
+            return false;
         return state.modifierCounts.getOrDefault(modifier.identifier().toString(), 1) > 0;
     }
 
