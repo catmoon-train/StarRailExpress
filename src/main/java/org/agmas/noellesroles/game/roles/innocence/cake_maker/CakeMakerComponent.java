@@ -84,9 +84,9 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
     /** Tag applied to cake maker smoker block-display and interaction entities */
     public static final String SMOKER_ENTITY_TAG = "cake_maker_smoker";
 
-    /** Interaction entity is slightly larger than the smoker block (1.0×1.0) to be easy to click. */
-    private static final double INTERACTION_WIDTH  = 1.2;
-    private static final double INTERACTION_HEIGHT = 1.2;
+    /** Interaction entity is larger than the smoker block (1.0×1.0) to be easy to click. */
+    private static final double INTERACTION_WIDTH  = 1.3;
+    private static final double INTERACTION_HEIGHT = 1.3;
 
     /**
      * Server-side smoker entity registry — maps interaction entity UUID to owner info.
