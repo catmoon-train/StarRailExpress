@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.event.OnTeammateKilledTeammate;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.TeamKillViolationHandler;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
@@ -19,6 +20,7 @@ import org.agmas.noellesroles.role.ModRoles;
 public class XiaoNaoHandler {
 
     public static void registerEvent() {
+        TeamKillViolationHandler.registerEvent();
         OnTeammateKilledTeammate.EVENT.register((victim, killer, isInnocent, deathReason) -> {
             if (GameUtils.isPlayerAliveAndSurvival(killer)) {
                 if (isInnocent) {
@@ -28,7 +30,8 @@ public class XiaoNaoHandler {
                         return;
                     }
                     // 跳过家族成员（教父、教徒、侍卫）的惩罚——好人不应该因为打家族成员而受小脑惩罚
-                    if (gameWorldComponent.getRole(victim) != null && gameWorldComponent.getRole(victim).isMafiaTeam()) {
+                    if (gameWorldComponent.getRole(victim) != null
+                            && gameWorldComponent.getRole(victim).isMafiaTeam()) {
                         return;
                     }
                     // 检查是否是疯狂模式下的魔术师，如果是则不算误杀
@@ -83,7 +86,7 @@ public class XiaoNaoHandler {
                                 || deathReason.getPath().equals("flamethrower_burned")
                                 || deathReason.getPath().equals("boulder_crush")) {
                             GameUtils.killPlayer(killer, true, null, Noellesroles.id("shot_innocent"));
-
+                            TeamKillViolationHandler.handle(victim, killer, isInnocent, deathReason);
                             // 仇杀客事件：误杀发生时强化仇杀客
                             for (ServerPlayer player : victim.serverLevel().players()) {
                                 if (gameWorldComponent.isRole(player, ModRoles.BLOOD_FEUDIST)) {

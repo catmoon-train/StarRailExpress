@@ -40,8 +40,6 @@ public class SREEventRegister {
         EntityInteractionHandler.register();
         AFKEventHandler.register();
         PlayerMountainHandler.register();
-        // 队友击杀违规检测：短期内多次击杀队友则执行 mcfunction
-        TeamKillViolationHandler.registerEvent();
 
         // 游戏开始：通知客户端（驱动 OnGameStartedClient 事件），并向本局玩家播放默认开场镜头
         io.wifi.starrailexpress.event.OnGameStarted.EVENT.register(serverLevel -> {

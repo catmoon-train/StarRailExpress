@@ -81,7 +81,7 @@ public class BounsRoles {
             return ModRoles.PUPPETEER_COLOR.getOrRandomColor();
         }
     }, "creator_team").setComponentKey(ModComponents.CREEPER).setCanBeRandomedByOtherRoles(false).setDefaultMax(1)
-            .setDefaultEnableChance(5000);
+            .setDefaultEnableChance(5000).setCanSeeTime(true);
     /**
      * 作家角色
      * - 属于乘客阵营 (isInnocent = true)
