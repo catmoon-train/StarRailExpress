@@ -252,7 +252,6 @@ public class NoellesrolesClient implements ClientModInitializer {
         }
         io.wifi.starrailexpress.event.client.OnGameFinishedClient.EVENT.register(() -> {
             ClientWallManager.clearAll();
-            ClientCakeMakerBlocks.clearAll();
             // 关闭推理师罗盘界面
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.screen instanceof ReasonerCompassScreen) {
@@ -420,18 +419,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientSmokeAreaManager.createSmokeArea(context.client().level, payload.position(), payload.radius(),
                     payload.durationTicks());
         });
-        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.CakeMakerBlockS2CPacket.ID,
-                (payload, context) -> context.client().execute(() -> {
-                    if (payload.remove()) ClientCakeMakerBlocks.remove(payload.id());
-                    else ClientCakeMakerBlocks.put(payload.id(), payload.pos(), payload.cake(), payload.bites(), payload.ticks());
-                }));
-        net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
-            if (!world.isClientSide) return net.minecraft.world.InteractionResult.PASS;
-            java.util.UUID cake = ClientCakeMakerBlocks.cakeId(hit.getBlockPos());
-            if (cake == null) return net.minecraft.world.InteractionResult.PASS;
-            ClientPlayNetworking.send(new org.agmas.noellesroles.packet.CakeMakerEatC2SPacket(cake));
-            return net.minecraft.world.InteractionResult.SUCCESS;
-        });
+
         // 建筑师墙数据S2C包
         ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID,
                 (payload, context) -> {
@@ -501,7 +489,6 @@ public class NoellesrolesClient implements ClientModInitializer {
                 return;
             ClientSmokeAreaManager.tick();
             ClientWallManager.tick();
-            ClientCakeMakerBlocks.tick();
         });
         ClientPlayNetworking.registerGlobalReceiver(ProblemScreenOpenC2SPacket.ID, (payload, context) -> {
             var client = context.client();

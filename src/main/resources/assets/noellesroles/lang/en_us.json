@@ -3259,6 +3259,7 @@
   "message.noellesroles.cake_maker.add_egg_sugar": "Add 1 egg, then 2 sugar.",
   "message.noellesroles.cake_maker.add_milk": "Add 3 milk buckets.",
   "message.noellesroles.cake_maker.complete": "The cake is ready!",
+  "message.noellesroles.cake_maker.cake_disappeared": "The cake has disappeared.",
   "announcement.star.role.reasoner": "Reasoner",
   "announcement.star.goals.reasoner": "Answer the compass questions at the right moment. Solve them all to win alone.",
   "announcement.star.win.reasoner": "Reasoner wins!",

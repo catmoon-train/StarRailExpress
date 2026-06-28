@@ -96,4 +96,31 @@ public final class KillerKnifeDurability {
         }
         return null;
     }
+
+    /**
+     * 把背包内所有「耐久耗尽」的杀手刀整理为最多一把满耐久：原地刷新第一把，清除其余多余的耗尽刀，
+     * 避免玩家重复购买后背包残留没耐久的刀。
+     * Refresh the first depleted killer knife to full durability in place and remove every other depleted
+     * knife, so re-buying never leaves a leftover unusable knife in the inventory.
+     *
+     * @return 是否找到并刷新了至少一把耗尽的刀 / whether at least one depleted knife was found and refreshed
+     */
+    public static boolean refreshDepletedKnives(@NotNull Player player) {
+        var inventory = player.getInventory();
+        ItemStack refreshed = null;
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (stack.isEmpty() || !isDepleted(stack)) {
+                continue;
+            }
+            if (refreshed == null) {
+                applyFreshDurability(stack);
+                refreshed = stack;
+            } else {
+                // 清除多余的耗尽刀，确保背包内只保留一把刀。 / clear extra depleted knives, keeping only one.
+                inventory.setItem(i, ItemStack.EMPTY);
+            }
+        }
+        return refreshed != null;
+    }
 }

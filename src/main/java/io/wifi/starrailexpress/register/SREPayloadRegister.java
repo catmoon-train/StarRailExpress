@@ -115,6 +115,9 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playS2C().register(
                 io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket.ID,
                 io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                io.wifi.starrailexpress.network.packet.WaypointDeleteC2SPayload.ID,
+                io.wifi.starrailexpress.network.packet.WaypointDeleteC2SPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(KnifeStabPayload.ID, KnifeStabPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(GunShootPayload.ID, GunShootPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SniperShootPayload.TYPE, SniperShootPayload.STREAM_CODEC);

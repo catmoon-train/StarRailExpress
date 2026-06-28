@@ -92,10 +92,11 @@ public class SyncWaypointsPacket implements CustomPacketPayload {
             // 清除现有的路径点
             WaypointHUD.clearAllWaypoints();
             
-            // 添加新的路径点
+            // 添加新的路径点（携带真实 path，供按 path+name 删除）
             for (Map.Entry<String, List<WaypointData>> entry : packet.waypoints.entrySet()) {
+                String path = entry.getKey();
                 for (WaypointData wp : entry.getValue()) {
-                    WaypointHUD.addWaypoint(wp.getPos(), wp.getName(), new Color(wp.getColor()));
+                    WaypointHUD.addWaypoint(wp.getPos(), wp.getName(), path, new Color(wp.getColor()));
                 }
             }
         });

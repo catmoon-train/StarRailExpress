@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.roles.killer.nostalgist;
 
+import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -18,7 +19,7 @@ import java.util.List;
  *
  * <p>商店为通用杀手商店（{@link ShopContent#defaultKnifeEntries}）。
  */
-public class NostalgistRole extends NormalRole {
+public class NostalgistRole extends ExtraEffectRole {
 
     public NostalgistRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {

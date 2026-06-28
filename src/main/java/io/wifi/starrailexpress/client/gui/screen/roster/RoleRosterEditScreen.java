@@ -2,14 +2,12 @@ package io.wifi.starrailexpress.client.gui.screen.roster;
 
 import com.google.gson.Gson;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.data.ClientRoleRosterCache;
 import io.wifi.starrailexpress.network.RoleRosterUpdatePayload;
 import io.wifi.starrailexpress.roster.RoleRosterState;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
@@ -19,16 +17,14 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.function.IntPredicate;
 
 /**
- * 管理员编辑界面：横向长方形面板，按阵营分组以网格铺开所有可选职业 / 修饰符，
- * 每个条目都可用 [-] [+] 增减名额；底部可输入随机抽选数量、随机抽选、清空、开关名单并保存。
+ * 管理员编辑界面：横向长方形面板，按阵营分组以网格铺开所有可选职业 / 修饰符。
  * <p>
- * 布局参照 {@link RoleRosterViewScreen}，但条目均可编辑且展示全部可选项（数量为 0 表示未在名单内）。
+ * 名单只表达<strong>启用/禁用</strong>：点击任意条目即可在启用/禁用之间切换（不再有数量与随机概率）。
+ * 底部可一键全部启用 / 全部禁用、开关名单是否生效并保存。布局参照 {@link RoleRosterViewScreen}。
  */
 public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Screen {
     private static final Gson GSON = new Gson();
@@ -42,8 +38,9 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
     private static final int HEADER_H = 18;
     private static final int SECTION_GAP = 10;
 
-    /** 卡片内 [-] / [+] 步进按钮边长。 */
-    private static final int STEP = 11;
+    /** 卡片右侧启用/禁用状态指示牌的宽度。 */
+    private static final int PILL_W = 34;
+    private static final int PILL_H = 12;
 
     /** 修饰符栏目使用的统一颜色（紫色系）。 */
     private static final int MODIFIER_COLOR = 0xFFB084E0;
@@ -101,7 +98,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
     private int contentHeight;
     private float scroll;
 
-    private EditBox countBox;
     private Button toggleButton;
 
     public RoleRosterEditScreen() {
@@ -132,25 +128,16 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         int by = panelY + panelH - 28;
         int bx = panelX + PAD;
 
-        // 左侧：[随机抽选] [数量输入框] [清空] [开关名单]
-        addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.randomize"), b -> randomizeLocal())
-                .bounds(bx, by, 70, 20).build());
-
-        countBox = new EditBox(this.font, bx + 74, by, 36, 20, Component.translatable("gui.sre.role_roster.randomize"));
-        countBox.setMaxLength(2);
-        countBox.setValue("5");
-        countBox.setFilter(s -> s.isEmpty() || s.matches("\\d{1,2}"));
-        addRenderableWidget(countBox);
-
+        // 左侧：[全部启用] [全部禁用] [开关名单]
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.enable_all"), b -> enableAll())
-                .bounds(bx + 114, by, 56, 20).build());
+                .bounds(bx, by, 70, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.disable_all"), b -> disableAll())
-                .bounds(bx + 174, by, 56, 20).build());
+                .bounds(bx + 74, by, 70, 20).build());
 
         toggleButton = addRenderableWidget(Button.builder(toggleLabel(), b -> {
             working.enabled = !working.enabled;
             toggleButton.setMessage(toggleLabel());
-        }).bounds(bx + 234, by, 66, 20).build());
+        }).bounds(bx + 148, by, 80, 20).build());
 
         // 右侧：[保存] [关闭]
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.save"), b -> save())
@@ -165,7 +152,7 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
                 : Component.translatable("gui.sre.role_roster.toggle.off");
     }
 
-    /** 按阵营把所有可选职业分到各栏目，并在末尾追加修饰符栏目（编辑界面展示全部可选项，含数量为 0 的）。 */
+    /** 按阵营把所有可选职业分到各栏目，并在末尾追加修饰符栏目（编辑界面展示全部可选项，含未启用的）。 */
     private void rebuildGroups() {
         groups.clear();
         Group[] buckets = new Group[GROUPS.length];
@@ -242,45 +229,46 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         scroll = Mth.clamp(scroll, 0, max);
     }
 
-    /** 名单内（数量 > 0）的条目数量，用于顶部提示。 */
+    /** 名单内（已启用）的条目数量，用于顶部提示。 */
     private int enabledCount() {
         int n = 0;
         for (CardRect c : cards) {
-            if (countOf(c.item) > 0) {
+            if (isEnabled(c.item)) {
                 n++;
             }
         }
         return n;
     }
 
-    private int countOf(Item item) {
-        return item.modifier() ? working.modifierCountFor(item.id()) : working.countFor(item.id());
+    private boolean isEnabled(Item item) {
+        return item.modifier() ? working.modifierCountFor(item.id()) > 0 : working.countFor(item.id()) > 0;
     }
 
-    /** 把所有当前未启用（数量为 0）的可选条目设为 1，保留已有的更高数量。 */
+    /** 把所有当前未启用的可选条目设为启用。 */
     private void enableAll() {
         for (CardRect c : cards) {
-            if (countOf(c.item) <= 0) {
-                var counts = c.item.modifier() ? working.modifierCounts : working.roleCounts;
-                counts.put(c.item.id(), 1);
-            }
+            counts(c.item).put(c.item.id(), 1);
         }
     }
 
-    /** 清空所有职业与修饰符名额。 */
+    /** 清空所有职业与修饰符（全部禁用）。 */
     private void disableAll() {
         working.roleCounts.clear();
         working.modifierCounts.clear();
     }
 
-    private void adjust(Item item, int delta) {
-        var counts = item.modifier() ? working.modifierCounts : working.roleCounts;
-        int next = Math.max(0, countOf(item) + delta);
-        if (next <= 0) {
+    /** 切换某条目的启用/禁用。 */
+    private void toggle(Item item) {
+        var counts = counts(item);
+        if (isEnabled(item)) {
             counts.remove(item.id());
         } else {
-            counts.put(item.id(), next);
+            counts.put(item.id(), 1);
         }
+    }
+
+    private java.util.Map<String, Integer> counts(Item item) {
+        return item.modifier() ? working.modifierCounts : working.roleCounts;
     }
 
     @Override
@@ -299,18 +287,10 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
                 if (sy + c.h < listTop || sy > listBottom) {
                     continue;
                 }
-                int stepY = sy + (c.h - STEP) / 2;
-                if (mouseY >= stepY && mouseY <= stepY + STEP) {
-                    int plusX = c.x + c.w - 5 - STEP;
-                    int minusX = plusX - 20 - STEP;
-                    if (mouseX >= plusX && mouseX <= plusX + STEP) {
-                        adjust(c.item, 1);
-                        return true;
-                    }
-                    if (mouseX >= minusX && mouseX <= minusX + STEP) {
-                        adjust(c.item, -1);
-                        return true;
-                    }
+                // 点击整张卡片即切换启用/禁用
+                if (mouseX >= c.x && mouseX <= c.x + c.w && mouseY >= sy && mouseY <= sy + c.h) {
+                    toggle(c.item);
+                    return true;
                 }
             }
         }
@@ -390,41 +370,32 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         RoleRosterStyle.drawPanel(g, x, y, w, h,
                 hovered ? RoleRosterStyle.ROW_BG_HOVER : RoleRosterStyle.ROW_BG, RoleRosterStyle.ROW_BORDER);
 
-        int count = countOf(item);
+        boolean on = isEnabled(item);
 
         // 左侧颜色条（未启用时变暗）
         int barColor = (item.color() == 0 ? RoleRosterStyle.ACCENT : item.color()) | 0xFF000000;
-        g.fill(x + 1, y + 1, x + 4, y + h - 1, count > 0 ? barColor : 0xFF4A4038);
+        g.fill(x + 1, y + 1, x + 4, y + h - 1, on ? barColor : 0xFF4A4038);
 
-        // 名称（截断以给右侧步进控件留位）
+        // 名称（截断以给右侧状态牌留位）
         int textX = x + 9;
-        int plusX = x + w - 5 - STEP;
-        int minusX = plusX - 20 - STEP;
-        int nameColor = count > 0
+        int pillX = x + w - 5 - PILL_W;
+        int nameColor = on
                 ? (hovered ? RoleRosterStyle.TEXT_HOVER : (item.color() == 0 ? RoleRosterStyle.TEXT : item.color()))
                 : 0x807060;
-        String name = this.font.plainSubstrByWidth(item.name().getString(), minusX - textX - 4);
+        String name = this.font.plainSubstrByWidth(item.name().getString(), pillX - textX - 4);
         g.drawString(this.font, name, textX, y + (h - this.font.lineHeight) / 2, nameColor, false);
 
-        // 右侧 [-] N [+]
-        int stepY = y + (h - STEP) / 2;
-        drawStepper(g, "-", minusX, stepY, mouseX, mouseY);
-        drawStepper(g, "+", plusX, stepY, mouseX, mouseY);
-        String countText = String.valueOf(count);
-        int cw = this.font.width(countText);
-        int countCenter = (minusX + STEP + plusX) / 2;
-        g.drawString(this.font, countText, countCenter - cw / 2, y + (h - this.font.lineHeight) / 2,
-                count > 0 ? RoleRosterStyle.ACCENT_HOVER : RoleRosterStyle.MUTED, false);
-    }
-
-    private void drawStepper(GuiGraphics g, String label, int x, int y, int mouseX, int mouseY) {
-        boolean hovered = mouseX >= x && mouseX <= x + STEP && mouseY >= y && mouseY <= y + STEP
-                && mouseY >= listTop && mouseY <= listBottom;
-        RoleRosterStyle.drawPanel(g, x, y, STEP, STEP,
-                hovered ? RoleRosterStyle.ROW_BG_HOVER : RoleRosterStyle.ROW_BG, RoleRosterStyle.PANEL_BORDER);
-        int tw = this.font.width(label);
-        g.drawString(this.font, label, x + (STEP - tw) / 2 + 1, y + 2,
-                hovered ? RoleRosterStyle.TEXT_HOVER : RoleRosterStyle.TEXT, false);
+        // 右侧启用/禁用状态牌
+        int pillY = y + (h - PILL_H) / 2;
+        int pillBg = on ? 0x3344BB66 : 0x33CC2233;
+        int pillBorder = on ? 0xFF44BB66 : 0xFF8A5050;
+        RoleRosterStyle.drawPanel(g, pillX, pillY, PILL_W, PILL_H, pillBg, pillBorder);
+        Component pillText = on
+                ? Component.translatable("gui.sre.role_roster.card.on")
+                : Component.translatable("gui.sre.role_roster.card.off");
+        int ptw = this.font.width(pillText);
+        g.drawString(this.font, pillText, pillX + (PILL_W - ptw) / 2, pillY + 2,
+                on ? RoleRosterStyle.ENABLED_GREEN : RoleRosterStyle.DISABLED_RED, false);
     }
 
     private void renderScrollbar(GuiGraphics g) {
@@ -438,89 +409,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         int maxScroll = contentHeight - viewport;
         int thumbY = listTop + (int) ((scroll / maxScroll) * (viewport - thumbH));
         g.fill(barX, thumbY, barX + SCROLLBAR_W - 1, thumbY + thumbH, 0x88C9A84C);
-    }
-
-    /** 读取输入框中的随机抽选数量，限制在 1..99。 */
-    private int randomCount() {
-        int n = 5;
-        try {
-            String v = countBox.getValue().trim();
-            if (!v.isEmpty()) {
-                n = Integer.parseInt(v);
-            }
-        } catch (NumberFormatException ignored) {
-            // 使用默认值
-        }
-        n = Mth.clamp(n, 1, 99);
-        countBox.setValue(String.valueOf(n));
-        return n;
-    }
-
-    /**
-     * 随机抽选若干个非平民职业，每个职业分配 1 个名额。
-     * 平民始终保留（数量 = max(2, 在线人数)），且确保至少包含一个杀手职业。
-     */
-    private void randomizeLocal() {
-        int randomCount = randomCount();
-        Random random = new Random();
-        int targetPlayers = onlinePlayerCount();
-        working.roleCounts.clear();
-
-        // 收集可选的非平民职业
-        List<SRERole> pool = new ArrayList<>();
-        boolean hasKillerInPool = false;
-        for (SRERole role : Noellesroles.getAllRolesSorted()) {
-            if (!AbstractRoleRosterScreen.isRosterEligible(role)) continue;
-            if (role == TMMRoles.CIVILIAN) continue;
-            pool.add(role);
-            if (role.canUseKiller()) hasKillerInPool = true;
-        }
-
-        // 随机抽选 randomCount 个
-        Collections.shuffle(pool, random);
-        int toPick = Math.min(randomCount, pool.size());
-        boolean hasKiller = false;
-        for (int i = 0; i < toPick; i++) {
-            SRERole role = pool.get(i);
-            working.roleCounts.put(role.identifier().toString(), 1);
-            if (role.canUseKiller()) hasKiller = true;
-        }
-
-        // 确保至少有一个杀手职业
-        if (!hasKiller && hasKillerInPool) {
-            for (SRERole role : pool) {
-                if (role.canUseKiller() && !working.roleCounts.containsKey(role.identifier().toString())) {
-                    working.roleCounts.put(role.identifier().toString(), 1);
-                    break;
-                }
-            }
-            // 如果池子里的杀手已被抽完，就替换一个非杀手职业
-            if (!hasKiller) {
-                for (SRERole role : pool) {
-                    if (role.canUseKiller()) {
-                        working.roleCounts.put(role.identifier().toString(), 1);
-                        break;
-                    }
-                }
-            }
-        }
-
-        // 平民始终包含
-        working.roleCounts.put(TMMRoles.CIVILIAN.identifier().toString(), Math.max(2, targetPlayers));
-    }
-
-    private int onlinePlayerCount() {
-        try {
-            if (this.minecraft != null && this.minecraft.getConnection() != null) {
-                int size = this.minecraft.getConnection().getListedOnlinePlayers().size();
-                if (size > 0) {
-                    return size;
-                }
-            }
-        } catch (Throwable ignored) {
-            // 使用默认值
-        }
-        return 8;
     }
 
     private void save() {

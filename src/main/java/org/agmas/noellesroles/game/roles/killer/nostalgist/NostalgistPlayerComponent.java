@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.roles.killer.nostalgist;
 
+import io.github.mortuusars.exposure.integration.Mods;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -232,6 +233,7 @@ public class NostalgistPlayerComponent implements RoleComponent, ServerTickingCo
                 serverPlayer.getX(), serverPlayer.getY() + 1.0, serverPlayer.getZ(),
                 40, 0.5, 1.0, 0.5, 0.4);
 
+        player.removeEffect(ModEffects.NO_COLLIDE);
         // 离开里世界奖励金币
         int reward = NoellesRolesConfig.HANDLER.instance().nostalgistCollapseReward;
         if (reward > 0) {

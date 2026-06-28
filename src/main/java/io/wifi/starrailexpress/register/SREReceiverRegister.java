@@ -33,6 +33,9 @@ public class SREReceiverRegister {
         ServerPlayNetworking.registerGlobalReceiver(VoteCastC2SPacket.TYPE, (packet, context) -> {
             VoteManager.handleVoteCast(context.player(), packet.optionIndices());
         });
+        ServerPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.network.packet.WaypointDeleteC2SPayload.ID,
+                new io.wifi.starrailexpress.network.packet.WaypointDeleteC2SPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(KnifeStabPayload.ID, new KnifeStabPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(ModVersionPacket.ID, new ModVersionPacket.Receiver());
         // 全局战绩 / 回放查询请求
@@ -93,17 +96,6 @@ public class SREReceiverRegister {
                             case "enable" -> io.wifi.starrailexpress.roster.RoleRosterManager.setEnabled(true);
                             case "disable" -> io.wifi.starrailexpress.roster.RoleRosterManager.setEnabled(false);
                             case "clear" -> io.wifi.starrailexpress.roster.RoleRosterManager.clear();
-                            case "randomize" -> {
-                                int count = context.server().getPlayerCount();
-                                try {
-                                    if (payload.json() != null && !payload.json().isBlank()) {
-                                        count = Integer.parseInt(payload.json().trim());
-                                    }
-                                } catch (NumberFormatException ignored) {
-                                    // 使用在线人数
-                                }
-                                io.wifi.starrailexpress.roster.RoleRosterManager.randomize(Math.max(1, count));
-                            }
                             default -> {
                             }
                         }

@@ -84,10 +84,7 @@ import java.util.*;
 
 public class ModPacketsReciever {
   public static void registerPackets() {
-    ServerPlayNetworking.registerGlobalReceiver(CakeMakerEatC2SPacket.ID, (payload, context) -> context.server().execute(() -> {
-      ServerPlayer eater=context.player();
-      for (ServerPlayer owner:eater.serverLevel().players()) if (SREGameWorldComponent.KEY.get(owner.level()).isRole(owner, ModRoles.CAKE_MAKER) && ModComponents.CAKE_MAKER.get(owner).eat(payload.cakeId(), eater)) break;
-    }));
+
     ServerPlayNetworking.registerGlobalReceiver(VendingMachinesBuyC2SPacket.TYPE, (payload, context) -> {
       context.server().execute(() -> {
         try {

@@ -29,6 +29,7 @@ import org.agmas.noellesroles.content.entity.SmokeGrenadeEntity;
 import org.agmas.noellesroles.content.entity.ThrowingKnifeEntity;
 import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
+import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 
@@ -46,6 +47,9 @@ public class EntityClearUtils {
             // 先清除蛋实体，再重置蛋数据（顺序很重要！）
             clearCuckooEggs(world);
             CuckooEggData.reset();
+            // 清除蛋糕师烟熏炉实体和蛋糕实体
+            CakeMakerComponent.removeAllSmokerEntities(world);
+            CakeMakerComponent.removeAllCakeEntities(world);
         });
     }
 
@@ -87,7 +91,13 @@ public class EntityClearUtils {
                         entity instanceof KuiXiPuppetEntity ||
                         entity instanceof NoteEntity ||
                         entity instanceof DevilRouletteTableEntity.TableTextDisplay ||
-                        entity instanceof DevilRouletteTableEntity.TableItemDisplay) {
+                        entity instanceof DevilRouletteTableEntity.TableItemDisplay ||
+                        (entity instanceof net.minecraft.world.entity.Display.BlockDisplay bd
+                                && (bd.getTags().contains(CakeMakerComponent.SMOKER_ENTITY_TAG)
+                                    || bd.getTags().contains(CakeMakerComponent.CAKE_ENTITY_TAG))) ||
+                        (entity instanceof net.minecraft.world.entity.Interaction inter
+                                && (inter.getTags().contains(CakeMakerComponent.SMOKER_ENTITY_TAG)
+                                    || inter.getTags().contains(CakeMakerComponent.CAKE_ENTITY_TAG)))) {
                     entitiesToRemove.add(entity);
                 } else if (entity instanceof io.github.mortuusars.exposure.world.entity.PhotographFrameEntity
                         && entity instanceof org.agmas.noellesroles.game.roles.innocence.photographer.SrePhotographerFrame frame
