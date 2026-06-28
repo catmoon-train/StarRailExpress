@@ -8,10 +8,13 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
+import io.wifi.starrailexpress.roster.RoleRosterManager;
 import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
 import org.agmas.noellesroles.game.modes.fourthroom.network.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.nio.charset.StandardCharsets;
@@ -89,6 +92,11 @@ public class SREReceiverRegister {
                     ServerPlayer player = context.player();
                     context.server().execute(() -> {
                         if (!player.hasPermissions(2)) {
+                            player.displayClientMessage(Component.translatable("sre.command.permission_denied").withStyle(ChatFormatting.RED), false);
+                            return;
+                        }
+                        if(!RoleRosterManager.isEnabled()){
+                            player.displayClientMessage(Component.translatable("sre.command.not_enabled").withStyle(ChatFormatting.RED), false);
                             return;
                         }
                         switch (payload.action()) {

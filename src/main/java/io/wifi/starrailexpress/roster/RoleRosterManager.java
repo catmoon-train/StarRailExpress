@@ -123,7 +123,7 @@ public final class RoleRosterManager {
     }
 
     public static void setEnabled(boolean enabled) {
-        
+
         if (!SREConfig.instance().enableRoster) {
             return;
         }

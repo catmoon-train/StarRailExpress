@@ -303,9 +303,11 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        this.renderBackground(g, mouseX, mouseY, delta);
+        super.render(g, mouseX, mouseY, delta);
+
         RoleRosterStyle.renderBackdrop(g, this.width, this.height);
-        RoleRosterStyle.drawPanel(g, panelX, panelY, panelW, panelH, RoleRosterStyle.PANEL_BG, RoleRosterStyle.PANEL_BORDER);
+        RoleRosterStyle.drawPanel(g, panelX, panelY, panelW, panelH, RoleRosterStyle.PANEL_BG,
+                RoleRosterStyle.PANEL_BORDER);
 
         // 标题 + 状态 + 提示
         g.drawString(this.font, this.title, panelX + 16, panelY + 14, RoleRosterStyle.TITLE, false);
@@ -327,7 +329,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         }
 
         renderScrollbar(g);
-        super.render(g, mouseX, mouseY, delta);
     }
 
     private void enableScissor(GuiGraphics g) {

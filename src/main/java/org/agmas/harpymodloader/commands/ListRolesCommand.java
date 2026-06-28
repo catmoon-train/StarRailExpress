@@ -72,12 +72,14 @@ public class ListRolesCommand {
         RoleUtils.getRoleOrModifierOrItemDescription(role)
             .copy().withStyle(ChatFormatting.WHITE))
         .withStyle(ChatFormatting.GREEN));
-    message.append("\n").append(Component.translatable("commands.listroles.detail.spawn_info")
-        .withStyle(ChatFormatting.GOLD).withStyle(st -> {
-          st = st.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-              "/tmm:config spawn_info role " + role.identifier().toString()));
-          return st;
-        }));
+    if (ctx.getSource().hasPermission(1)) {
+      message.append("\n").append(Component.translatable("commands.listroles.detail.spawn_info")
+          .withStyle(ChatFormatting.GOLD).withStyle(st -> {
+            st = st.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                "/tmm:config spawn_info role " + role.identifier().toString()));
+            return st;
+          }));
+    }
     message.append("\n");
     ctx.getSource().sendSystemMessage(message);
     return 1;
@@ -97,13 +99,15 @@ public class ListRolesCommand {
         RoleUtils.getRoleOrModifierOrItemDescription(modifier)
             .copy().withStyle(ChatFormatting.WHITE))
         .withStyle(ChatFormatting.GREEN));
-    message.append("\n").append(Component.translatable("commands.listroles.detail.spawn_info")
-        .withStyle(ChatFormatting.GOLD).withStyle(st -> {
-          st = st.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-              "/tmm:config spawn_info modifier "
-                  + modifier.identifier.toString()));
-          return st;
-        }));
+    if (ctx.getSource().hasPermission(1)) {
+      message.append("\n").append(Component.translatable("commands.listroles.detail.spawn_info")
+          .withStyle(ChatFormatting.GOLD).withStyle(st -> {
+            st = st.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                "/tmm:config spawn_info modifier "
+                    + modifier.identifier.toString()));
+            return st;
+          }));
+    }
     message.append("\n");
     ctx.getSource().sendSystemMessage(message);
 

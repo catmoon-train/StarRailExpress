@@ -24,7 +24,7 @@ public class NoellesrolesConfigCommand {
   public static void register() {
     CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
       dispatcher.register(Commands.literal("tmm:config")
-          .requires(source -> source.hasPermission(2))
+          .requires(c -> c.hasPermission(1))
           .then(Commands.literal("spawn_info")
               .then(Commands.literal("role")
                   .then(Commands.argument("id", RoleArgumentType.create())
@@ -32,401 +32,710 @@ public class NoellesrolesConfigCommand {
                         SRERole role = RoleArgumentType.getRole(ctx, "id");
                         if (!role.canSetSpawnInfoInConfig()) {
                           ctx.getSource()
-                              .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
+                              .sendFailure(Component.translatable(
+                                  "cmd.config.noellesroles.spawn.disabled",
                                   RoleUtils.getRoleOrModifierTypeName(role),
                                   RoleUtils.getRoleOrModifierNameWithColor(role)));
                           return 0;
                         }
-                        // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                        SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails.getSpawnInfo(role);
+                        // %s
+                        // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                        SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails
+                            .getSpawnInfo(role);
                         Component msg = Component
                             .translatable("cmd.config.noellesroles.spawn.info",
                                 RoleUtils.getRoleOrModifierTypeName(role),
                                 RoleUtils.getRoleOrModifierNameWithColor(role),
-                                Component.literal(spinfo.minEnabledPlayer + "").withStyle(ChatFormatting.WHITE),
-                                Component.literal(spinfo.maxEnabledPlayer + "").withStyle(ChatFormatting.WHITE),
-                                Component.literal(spinfo.enableChance + "").withStyle(ChatFormatting.WHITE),
-                                Component.literal(spinfo.maxSpawn + "").withStyle(ChatFormatting.WHITE),
-                                Component.literal(spinfo.map.stream().collect(Collectors.joining(", ")))
+                                Component.literal(spinfo.minEnabledPlayer + "")
+                                    .withStyle(ChatFormatting.WHITE),
+                                Component.literal(spinfo.maxEnabledPlayer + "")
+                                    .withStyle(ChatFormatting.WHITE),
+                                Component.literal(spinfo.enableChance + "")
+                                    .withStyle(ChatFormatting.WHITE),
+                                Component.literal(spinfo.maxSpawn + "")
+                                    .withStyle(ChatFormatting.WHITE),
+                                Component
+                                    .literal(spinfo.map.stream()
+                                        .collect(Collectors.joining(", ")))
                                     .withStyle(ChatFormatting.YELLOW))
                             .withStyle(ChatFormatting.AQUA);
                         ctx.getSource().sendSystemMessage(msg);
                         return 1;
                       })
-                      .then(Commands.literal("reset").executes(ctx -> {
-                        SRERole role = RoleArgumentType.getRole(ctx, "id");
-                        if (!role.canSetSpawnInfoInConfig()) {
-                          ctx.getSource()
-                              .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                  RoleUtils.getRoleOrModifierTypeName(role),
-                                  RoleUtils.getRoleOrModifierNameWithColor(role)));
-                          return 0;
-                        }
-                        // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                        SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails.getSpawnInfo(role);
-                        spinfo.setEnableChance(role.defaultEnableChance).setMaps(new ArrayList<>(role.defaultSpawnMaps))
-                            .setMax(role.defaultMaxCount).setMaxEnabledPlayer(role.defaultEnableMaxPlayerCount)
-                            .setMinEnabledPlayer(role.defaultEnableNeedPlayerCount);
-                        ctx.getSource()
-                            .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.reseted",
-                                RoleUtils.getRoleOrModifierTypeName(role),
-                                RoleUtils.getRoleOrModifierNameWithColor(role)), true);
-                        return 1;
-                      }))
+                      .then(Commands.literal("reset")
+                          .requires(source -> source.hasPermission(2)).executes(ctx -> {
+                            SRERole role = RoleArgumentType.getRole(ctx, "id");
+                            if (!role.canSetSpawnInfoInConfig()) {
+                              ctx.getSource()
+                                  .sendFailure(Component.translatable(
+                                      "cmd.config.noellesroles.spawn.disabled",
+                                      RoleUtils.getRoleOrModifierTypeName(role),
+                                      RoleUtils.getRoleOrModifierNameWithColor(
+                                          role)));
+                              return 0;
+                            }
+                            // %s
+                            // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                            SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails
+                                .getSpawnInfo(role);
+                            spinfo.setEnableChance(role.defaultEnableChance)
+                                .setMaps(new ArrayList<>(role.defaultSpawnMaps))
+                                .setMax(role.defaultMaxCount)
+                                .setMaxEnabledPlayer(role.defaultEnableMaxPlayerCount)
+                                .setMinEnabledPlayer(role.defaultEnableNeedPlayerCount);
+                            ctx.getSource()
+                                .sendSuccess(() -> Component.translatable(
+                                    "cmd.config.noellesroles.spawn.reseted",
+                                    RoleUtils.getRoleOrModifierTypeName(role),
+                                    RoleUtils.getRoleOrModifierNameWithColor(role)),
+                                    true);
+                            return 1;
+                          }))
                       .then(Commands.literal("set")
+                          .requires(source -> source.hasPermission(2))
                           .then(Commands.literal("chance")
-                              .then(Commands.argument("num", IntegerArgumentType.integer()).executes(ctx -> {
-                                SRERole role = RoleArgumentType.getRole(ctx, "id");
-                                int num = IntegerArgumentType.getInteger(ctx, "num");
-                                if (!role.canSetSpawnInfoInConfig()) {
-                                  ctx.getSource()
-                                      .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                          RoleUtils.getRoleOrModifierTypeName(role),
-                                          RoleUtils.getRoleOrModifierNameWithColor(role)));
-                                  return 0;
-                                }
-                                // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails.getSpawnInfo(role);
-                                spinfo.setEnableChance(num);
-                                ctx.getSource()
-                                    .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                        RoleUtils.getRoleOrModifierTypeName(role),
-                                        RoleUtils.getRoleOrModifierNameWithColor(role), "chance", num), true);
-                                return 1;
-                              })))
+                              .then(Commands
+                                  .argument("num", IntegerArgumentType.integer())
+                                  .executes(ctx -> {
+                                    SRERole role = RoleArgumentType.getRole(ctx,
+                                        "id");
+                                    int num = IntegerArgumentType.getInteger(ctx,
+                                        "num");
+                                    if (!role.canSetSpawnInfoInConfig()) {
+                                      ctx.getSource()
+                                          .sendFailure(Component.translatable(
+                                              "cmd.config.noellesroles.spawn.disabled",
+                                              RoleUtils
+                                                  .getRoleOrModifierTypeName(
+                                                      role),
+                                              RoleUtils
+                                                  .getRoleOrModifierNameWithColor(
+                                                      role)));
+                                      return 0;
+                                    }
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().roleDetails
+                                        .getSpawnInfo(role);
+                                    spinfo.setEnableChance(num);
+                                    ctx.getSource()
+                                        .sendSuccess(
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "chance", num),
+                                            true);
+                                    return 1;
+                                  })))
                           .then(Commands.literal("max_count")
-                              .then(Commands.argument("num", IntegerArgumentType.integer()).executes(ctx -> {
-                                SRERole role = RoleArgumentType.getRole(ctx, "id");
-                                int num = IntegerArgumentType.getInteger(ctx, "num");
-                                if (!role.canSetSpawnInfoInConfig()) {
-                                  ctx.getSource()
-                                      .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                          RoleUtils.getRoleOrModifierTypeName(role),
-                                          RoleUtils.getRoleOrModifierNameWithColor(role)));
-                                  return 0;
-                                }
-                                // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails.getSpawnInfo(role);
-                                spinfo.setMax(num);
-                                ctx.getSource()
-                                    .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                        RoleUtils.getRoleOrModifierTypeName(role),
-                                        RoleUtils.getRoleOrModifierNameWithColor(role), "max_count", num), true);
-                                return 1;
-                              })))
+                              .then(Commands
+                                  .argument("num", IntegerArgumentType.integer())
+                                  .executes(ctx -> {
+                                    SRERole role = RoleArgumentType.getRole(ctx,
+                                        "id");
+                                    int num = IntegerArgumentType.getInteger(ctx,
+                                        "num");
+                                    if (!role.canSetSpawnInfoInConfig()) {
+                                      ctx.getSource()
+                                          .sendFailure(Component.translatable(
+                                              "cmd.config.noellesroles.spawn.disabled",
+                                              RoleUtils
+                                                  .getRoleOrModifierTypeName(
+                                                      role),
+                                              RoleUtils
+                                                  .getRoleOrModifierNameWithColor(
+                                                      role)));
+                                      return 0;
+                                    }
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().roleDetails
+                                        .getSpawnInfo(role);
+                                    spinfo.setMax(num);
+                                    ctx.getSource()
+                                        .sendSuccess(
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "max_count", num),
+                                            true);
+                                    return 1;
+                                  })))
                           .then(Commands.literal("min_player")
-                              .then(Commands.argument("num", IntegerArgumentType.integer()).executes(ctx -> {
-                                SRERole role = RoleArgumentType.getRole(ctx, "id");
-                                int num = IntegerArgumentType.getInteger(ctx, "num");
-                                if (!role.canSetSpawnInfoInConfig()) {
-                                  ctx.getSource()
-                                      .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                          RoleUtils.getRoleOrModifierTypeName(role),
-                                          RoleUtils.getRoleOrModifierNameWithColor(role)));
-                                  return 0;
-                                }
-                                // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails.getSpawnInfo(role);
-                                spinfo.setMinEnabledPlayer(num);
-                                ctx.getSource()
-                                    .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                        RoleUtils.getRoleOrModifierTypeName(role),
-                                        RoleUtils.getRoleOrModifierNameWithColor(role), "min_player", num), true);
-                                return 1;
-                              })))
+                              .then(Commands
+                                  .argument("num", IntegerArgumentType.integer())
+                                  .executes(ctx -> {
+                                    SRERole role = RoleArgumentType.getRole(ctx,
+                                        "id");
+                                    int num = IntegerArgumentType.getInteger(ctx,
+                                        "num");
+                                    if (!role.canSetSpawnInfoInConfig()) {
+                                      ctx.getSource()
+                                          .sendFailure(Component.translatable(
+                                              "cmd.config.noellesroles.spawn.disabled",
+                                              RoleUtils
+                                                  .getRoleOrModifierTypeName(
+                                                      role),
+                                              RoleUtils
+                                                  .getRoleOrModifierNameWithColor(
+                                                      role)));
+                                      return 0;
+                                    }
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().roleDetails
+                                        .getSpawnInfo(role);
+                                    spinfo.setMinEnabledPlayer(num);
+                                    ctx.getSource()
+                                        .sendSuccess(
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "min_player", num),
+                                            true);
+                                    return 1;
+                                  })))
                           .then(Commands.literal("max_player")
-                              .then(Commands.argument("num", IntegerArgumentType.integer()).executes(ctx -> {
-                                SRERole role = RoleArgumentType.getRole(ctx, "id");
-                                int num = IntegerArgumentType.getInteger(ctx, "num");
-                                if (!role.canSetSpawnInfoInConfig()) {
-                                  ctx.getSource()
-                                      .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                          RoleUtils.getRoleOrModifierTypeName(role),
-                                          RoleUtils.getRoleOrModifierNameWithColor(role)));
-                                  return 0;
-                                }
-                                // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails.getSpawnInfo(role);
-                                spinfo.setMaxEnabledPlayer(num);
-                                ctx.getSource()
-                                    .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                        RoleUtils.getRoleOrModifierTypeName(role),
-                                        RoleUtils.getRoleOrModifierNameWithColor(role), "max_player", num), true);
-                                return 1;
-                              })))
+                              .then(Commands
+                                  .argument("num", IntegerArgumentType.integer())
+                                  .executes(ctx -> {
+                                    SRERole role = RoleArgumentType.getRole(ctx,
+                                        "id");
+                                    int num = IntegerArgumentType.getInteger(ctx,
+                                        "num");
+                                    if (!role.canSetSpawnInfoInConfig()) {
+                                      ctx.getSource()
+                                          .sendFailure(Component.translatable(
+                                              "cmd.config.noellesroles.spawn.disabled",
+                                              RoleUtils
+                                                  .getRoleOrModifierTypeName(
+                                                      role),
+                                              RoleUtils
+                                                  .getRoleOrModifierNameWithColor(
+                                                      role)));
+                                      return 0;
+                                    }
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().roleDetails
+                                        .getSpawnInfo(role);
+                                    spinfo.setMaxEnabledPlayer(num);
+                                    ctx.getSource()
+                                        .sendSuccess(
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "max_player", num),
+                                            true);
+                                    return 1;
+                                  })))
                           .then(Commands.literal("maps")
                               .then(Commands.literal("clear")
                                   .executes(ctx -> {
-                                    SRERole role = RoleArgumentType.getRole(ctx, "id");
+                                    SRERole role = RoleArgumentType.getRole(ctx,
+                                        "id");
                                     if (!role.canSetSpawnInfoInConfig()) {
                                       ctx.getSource()
                                           .sendFailure(
-                                              Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                                  RoleUtils.getRoleOrModifierTypeName(role),
-                                                  RoleUtils.getRoleOrModifierNameWithColor(role)));
+                                              Component.translatable(
+                                                  "cmd.config.noellesroles.spawn.disabled",
+                                                  RoleUtils
+                                                      .getRoleOrModifierTypeName(
+                                                          role),
+                                                  RoleUtils
+                                                      .getRoleOrModifierNameWithColor(
+                                                          role)));
                                       return 0;
                                     }
-                                    // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                    SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails.getSpawnInfo(role);
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().roleDetails
+                                        .getSpawnInfo(role);
                                     spinfo.map.clear();
                                     ctx.getSource()
                                         .sendSuccess(
-                                            () -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                                RoleUtils.getRoleOrModifierTypeName(role),
-                                                RoleUtils.getRoleOrModifierNameWithColor(role), "map", "[EMPTY]"),
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "map", "[EMPTY]"),
                                             true);
                                     return 1;
                                   }))
                               .then(Commands.argument("map", StringArgumentType.string())
                                   .then(Commands.literal("add")
                                       .executes(ctx -> {
-                                        SRERole role = RoleArgumentType.getRole(ctx, "id");
-                                        String num = StringArgumentType.getString(ctx, "map");
+                                        SRERole role = RoleArgumentType
+                                            .getRole(ctx, "id");
+                                        String num = StringArgumentType
+                                            .getString(ctx, "map");
                                         if (!role.canSetSpawnInfoInConfig()) {
                                           ctx.getSource()
                                               .sendFailure(
-                                                  Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                                      RoleUtils.getRoleOrModifierTypeName(role),
-                                                      RoleUtils.getRoleOrModifierNameWithColor(role)));
+                                                  Component
+                                                      .translatable(
+                                                          "cmd.config.noellesroles.spawn.disabled",
+                                                          RoleUtils
+                                                              .getRoleOrModifierTypeName(
+                                                                  role),
+                                                          RoleUtils
+                                                              .getRoleOrModifierNameWithColor(
+                                                                  role)));
                                           return 0;
                                         }
-                                        // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                        SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails.getSpawnInfo(role);
+                                        // %s
+                                        // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                        SpawnInfo spinfo = NoellesRolesConfig
+                                            .instance().roleDetails
+                                            .getSpawnInfo(role);
                                         spinfo.map.add(num);
                                         ctx.getSource()
                                             .sendSuccess(
-                                                () -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                                    RoleUtils.getRoleOrModifierTypeName(role),
-                                                    RoleUtils.getRoleOrModifierNameWithColor(role), "map", "+=" + num),
+                                                () -> Component
+                                                    .translatable(
+                                                        "cmd.config.noellesroles.spawn.modified",
+                                                        RoleUtils
+                                                            .getRoleOrModifierTypeName(
+                                                                role),
+                                                        RoleUtils
+                                                            .getRoleOrModifierNameWithColor(
+                                                                role),
+                                                        "map",
+                                                        "+=" + num),
                                                 true);
                                         return 1;
                                       }))
                                   .then(Commands.literal("remove")
                                       .executes(ctx -> {
-                                        SRERole role = RoleArgumentType.getRole(ctx, "id");
-                                        String num = StringArgumentType.getString(ctx, "map");
+                                        SRERole role = RoleArgumentType
+                                            .getRole(ctx, "id");
+                                        String num = StringArgumentType
+                                            .getString(ctx, "map");
                                         if (!role.canSetSpawnInfoInConfig()) {
                                           ctx.getSource()
                                               .sendFailure(
-                                                  Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                                      RoleUtils.getRoleOrModifierTypeName(role),
-                                                      RoleUtils.getRoleOrModifierNameWithColor(role)));
+                                                  Component
+                                                      .translatable(
+                                                          "cmd.config.noellesroles.spawn.disabled",
+                                                          RoleUtils
+                                                              .getRoleOrModifierTypeName(
+                                                                  role),
+                                                          RoleUtils
+                                                              .getRoleOrModifierNameWithColor(
+                                                                  role)));
                                           return 0;
                                         }
-                                        // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                        SpawnInfo spinfo = NoellesRolesConfig.instance().roleDetails.getSpawnInfo(role);
+                                        // %s
+                                        // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                        SpawnInfo spinfo = NoellesRolesConfig
+                                            .instance().roleDetails
+                                            .getSpawnInfo(role);
                                         spinfo.map.remove(num);
                                         ctx.getSource()
                                             .sendSuccess(
-                                                () -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                                    RoleUtils.getRoleOrModifierTypeName(role),
-                                                    RoleUtils.getRoleOrModifierNameWithColor(role), "map", "-=" + num),
+                                                () -> Component
+                                                    .translatable(
+                                                        "cmd.config.noellesroles.spawn.modified",
+                                                        RoleUtils
+                                                            .getRoleOrModifierTypeName(
+                                                                role),
+                                                        RoleUtils
+                                                            .getRoleOrModifierNameWithColor(
+                                                                role),
+                                                        "map",
+                                                        "-=" + num),
                                                 true);
                                         return 1;
                                       }))))
 
       // 啊
       )))
-              .then(Commands.literal("modifier").then(Commands.argument("id", ModifierArgumentType.create())
-                  .executes((ctx) -> {
-                    SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
-                    if (!role.canSetSpawnInfoInConfig()) {
-                      ctx.getSource()
-                          .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                              RoleUtils.getRoleOrModifierTypeName(role),
-                              RoleUtils.getRoleOrModifierNameWithColor(role)));
-                      return 0;
-                    }
-                    // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                    SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails.getSpawnInfo(role);
-                    Component msg = Component
-                        .translatable("cmd.config.noellesroles.spawn.info",
-                            RoleUtils.getRoleOrModifierTypeName(role),
-                            RoleUtils.getRoleOrModifierNameWithColor(role),
-                            Component.literal(spinfo.minEnabledPlayer + "").withStyle(ChatFormatting.WHITE),
-                            Component.literal(spinfo.maxEnabledPlayer + "").withStyle(ChatFormatting.WHITE),
-                            Component.literal(spinfo.enableChance + "").withStyle(ChatFormatting.WHITE),
-                            Component.literal(spinfo.maxSpawn + "").withStyle(ChatFormatting.WHITE),
-                            Component.literal(spinfo.map.stream().collect(Collectors.joining(", ")))
-                                .withStyle(ChatFormatting.YELLOW))
-                        .withStyle(ChatFormatting.AQUA);
-                    ctx.getSource().sendSystemMessage(msg);
-                    return 1;
-                  })
-                  .then(Commands.literal("reset").executes(ctx -> {
-                    SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
-                    if (!role.canSetSpawnInfoInConfig()) {
-                      ctx.getSource()
-                          .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                              RoleUtils.getRoleOrModifierTypeName(role),
-                              RoleUtils.getRoleOrModifierNameWithColor(role)));
-                      return 0;
-                    }
-                    // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                    SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails.getSpawnInfo(role);
-                    spinfo.setEnableChance(role.defaultEnableChance).setMaps(new ArrayList<>(role.defaultSpawnMaps))
-                        .setMax(role.defaultMaxCount).setMaxEnabledPlayer(role.defaultMaxPlayerCount)
-                        .setMinEnabledPlayer(role.defaultNeedPlayerCount);
-                    ctx.getSource()
-                        .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.reseted",
-                            RoleUtils.getRoleOrModifierTypeName(role),
-                            RoleUtils.getRoleOrModifierNameWithColor(role)), true);
-                    return 1;
-                  }))
-                  .then(Commands.literal("set")
-                      .then(Commands.literal("chance")
-                          .then(Commands.argument("num", IntegerArgumentType.integer()).executes(ctx -> {
+              .then(Commands.literal("modifier")
+                  .then(Commands.argument("id", ModifierArgumentType.create())
+                      .executes((ctx) -> {
+                        SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
+                        if (!role.canSetSpawnInfoInConfig()) {
+                          ctx.getSource()
+                              .sendFailure(Component.translatable(
+                                  "cmd.config.noellesroles.spawn.disabled",
+                                  RoleUtils.getRoleOrModifierTypeName(role),
+                                  RoleUtils.getRoleOrModifierNameWithColor(role)));
+                          return 0;
+                        }
+                        // %s
+                        // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                        SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails
+                            .getSpawnInfo(role);
+                        Component msg = Component
+                            .translatable("cmd.config.noellesroles.spawn.info",
+                                RoleUtils.getRoleOrModifierTypeName(role),
+                                RoleUtils.getRoleOrModifierNameWithColor(role),
+                                Component.literal(spinfo.minEnabledPlayer + "")
+                                    .withStyle(ChatFormatting.WHITE),
+                                Component.literal(spinfo.maxEnabledPlayer + "")
+                                    .withStyle(ChatFormatting.WHITE),
+                                Component.literal(spinfo.enableChance + "")
+                                    .withStyle(ChatFormatting.WHITE),
+                                Component.literal(spinfo.maxSpawn + "")
+                                    .withStyle(ChatFormatting.WHITE),
+                                Component
+                                    .literal(spinfo.map.stream()
+                                        .collect(Collectors.joining(", ")))
+                                    .withStyle(ChatFormatting.YELLOW))
+                            .withStyle(ChatFormatting.AQUA);
+                        ctx.getSource().sendSystemMessage(msg);
+                        return 1;
+                      })
+                      .then(Commands.literal("reset").requires(source -> source.hasPermission(2))
+                          .executes(ctx -> {
                             SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
-                            int num = IntegerArgumentType.getInteger(ctx, "num");
                             if (!role.canSetSpawnInfoInConfig()) {
                               ctx.getSource()
-                                  .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
+                                  .sendFailure(Component.translatable(
+                                      "cmd.config.noellesroles.spawn.disabled",
                                       RoleUtils.getRoleOrModifierTypeName(role),
-                                      RoleUtils.getRoleOrModifierNameWithColor(role)));
+                                      RoleUtils.getRoleOrModifierNameWithColor(
+                                          role)));
                               return 0;
                             }
-                            // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                            SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails.getSpawnInfo(role);
-                            spinfo.setEnableChance(num);
+                            // %s
+                            // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                            SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails
+                                .getSpawnInfo(role);
+                            spinfo.setEnableChance(role.defaultEnableChance)
+                                .setMaps(new ArrayList<>(role.defaultSpawnMaps))
+                                .setMax(role.defaultMaxCount)
+                                .setMaxEnabledPlayer(role.defaultMaxPlayerCount)
+                                .setMinEnabledPlayer(role.defaultNeedPlayerCount);
                             ctx.getSource()
-                                .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                    RoleUtils.getRoleOrModifierTypeName(role),
-                                    RoleUtils.getRoleOrModifierNameWithColor(role), "chance", num), true);
+                                .sendSuccess(
+                                    () -> Component.translatable(
+                                        "cmd.config.noellesroles.spawn.reseted",
+                                        RoleUtils.getRoleOrModifierTypeName(
+                                            role),
+                                        RoleUtils
+                                            .getRoleOrModifierNameWithColor(
+                                                role)),
+                                    true);
                             return 1;
-                          })))
-                      .then(Commands.literal("max_count")
-                          .then(Commands.argument("num", IntegerArgumentType.integer()).executes(ctx -> {
-                            SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
-                            int num = IntegerArgumentType.getInteger(ctx, "num");
-                            if (!role.canSetSpawnInfoInConfig()) {
-                              ctx.getSource()
-                                  .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                      RoleUtils.getRoleOrModifierTypeName(role),
-                                      RoleUtils.getRoleOrModifierNameWithColor(role)));
-                              return 0;
-                            }
-                            // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                            SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails.getSpawnInfo(role);
-                            spinfo.setMax(num);
-                            ctx.getSource()
-                                .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                    RoleUtils.getRoleOrModifierTypeName(role),
-                                    RoleUtils.getRoleOrModifierNameWithColor(role), "max_count", num), true);
-                            return 1;
-                          })))
-                      .then(Commands.literal("min_player")
-                          .then(Commands.argument("num", IntegerArgumentType.integer()).executes(ctx -> {
-                            SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
-                            int num = IntegerArgumentType.getInteger(ctx, "num");
-                            if (!role.canSetSpawnInfoInConfig()) {
-                              ctx.getSource()
-                                  .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                      RoleUtils.getRoleOrModifierTypeName(role),
-                                      RoleUtils.getRoleOrModifierNameWithColor(role)));
-                              return 0;
-                            }
-                            // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                            SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails.getSpawnInfo(role);
-                            spinfo.setMinEnabledPlayer(num);
-                            ctx.getSource()
-                                .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                    RoleUtils.getRoleOrModifierTypeName(role),
-                                    RoleUtils.getRoleOrModifierNameWithColor(role), "min_player", num), true);
-                            return 1;
-                          })))
-                      .then(Commands.literal("max_player")
-                          .then(Commands.argument("num", IntegerArgumentType.integer()).executes(ctx -> {
-                            SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
-                            int num = IntegerArgumentType.getInteger(ctx, "num");
-                            if (!role.canSetSpawnInfoInConfig()) {
-                              ctx.getSource()
-                                  .sendFailure(Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                      RoleUtils.getRoleOrModifierTypeName(role),
-                                      RoleUtils.getRoleOrModifierNameWithColor(role)));
-                              return 0;
-                            }
-                            // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                            SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails.getSpawnInfo(role);
-                            spinfo.setMaxEnabledPlayer(num);
-                            ctx.getSource()
-                                .sendSuccess(() -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                    RoleUtils.getRoleOrModifierTypeName(role),
-                                    RoleUtils.getRoleOrModifierNameWithColor(role), "max_player", num), true);
-                            return 1;
-                          })))
-                      .then(Commands.literal("maps")
-                          .then(Commands.literal("clear")
-                              .executes(ctx -> {
-                                SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
-                                if (!role.canSetSpawnInfoInConfig()) {
-                                  ctx.getSource()
-                                      .sendFailure(
-                                          Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                              RoleUtils.getRoleOrModifierTypeName(role),
-                                              RoleUtils.getRoleOrModifierNameWithColor(role)));
-                                  return 0;
-                                }
-                                // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails.getSpawnInfo(role);
-                                spinfo.map.clear();
-                                ctx.getSource()
-                                    .sendSuccess(
-                                        () -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                            RoleUtils.getRoleOrModifierTypeName(role),
-                                            RoleUtils.getRoleOrModifierNameWithColor(role), "map", "[EMPTY]"),
-                                        true);
-                                return 1;
-                              }))
-                          .then(Commands.argument("map", StringArgumentType.string())
-                              .then(Commands.literal("add")
+                          }))
+                      .then(Commands.literal("set").requires(source -> source.hasPermission(2))
+                          .then(Commands.literal("chance")
+                              .then(Commands
+                                  .argument("num", IntegerArgumentType.integer())
                                   .executes(ctx -> {
-                                    SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
-                                    String num = StringArgumentType.getString(ctx, "map");
+                                    SREModifier role = ModifierArgumentType
+                                        .getModifier(ctx, "id");
+                                    int num = IntegerArgumentType.getInteger(ctx,
+                                        "num");
+                                    if (!role.canSetSpawnInfoInConfig()) {
+                                      ctx.getSource()
+                                          .sendFailure(Component.translatable(
+                                              "cmd.config.noellesroles.spawn.disabled",
+                                              RoleUtils
+                                                  .getRoleOrModifierTypeName(
+                                                      role),
+                                              RoleUtils
+                                                  .getRoleOrModifierNameWithColor(
+                                                      role)));
+                                      return 0;
+                                    }
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().modifierDetails
+                                        .getSpawnInfo(role);
+                                    spinfo.setEnableChance(num);
+                                    ctx.getSource()
+                                        .sendSuccess(
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "chance", num),
+                                            true);
+                                    return 1;
+                                  })))
+                          .then(Commands.literal("max_count")
+                              .then(Commands
+                                  .argument("num", IntegerArgumentType.integer())
+                                  .executes(ctx -> {
+                                    SREModifier role = ModifierArgumentType
+                                        .getModifier(ctx, "id");
+                                    int num = IntegerArgumentType.getInteger(ctx,
+                                        "num");
+                                    if (!role.canSetSpawnInfoInConfig()) {
+                                      ctx.getSource()
+                                          .sendFailure(Component.translatable(
+                                              "cmd.config.noellesroles.spawn.disabled",
+                                              RoleUtils
+                                                  .getRoleOrModifierTypeName(
+                                                      role),
+                                              RoleUtils
+                                                  .getRoleOrModifierNameWithColor(
+                                                      role)));
+                                      return 0;
+                                    }
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().modifierDetails
+                                        .getSpawnInfo(role);
+                                    spinfo.setMax(num);
+                                    ctx.getSource()
+                                        .sendSuccess(
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "max_count", num),
+                                            true);
+                                    return 1;
+                                  })))
+                          .then(Commands.literal("min_player")
+                              .then(Commands
+                                  .argument("num", IntegerArgumentType.integer())
+                                  .executes(ctx -> {
+                                    SREModifier role = ModifierArgumentType
+                                        .getModifier(ctx, "id");
+                                    int num = IntegerArgumentType.getInteger(ctx,
+                                        "num");
+                                    if (!role.canSetSpawnInfoInConfig()) {
+                                      ctx.getSource()
+                                          .sendFailure(Component.translatable(
+                                              "cmd.config.noellesroles.spawn.disabled",
+                                              RoleUtils
+                                                  .getRoleOrModifierTypeName(
+                                                      role),
+                                              RoleUtils
+                                                  .getRoleOrModifierNameWithColor(
+                                                      role)));
+                                      return 0;
+                                    }
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().modifierDetails
+                                        .getSpawnInfo(role);
+                                    spinfo.setMinEnabledPlayer(num);
+                                    ctx.getSource()
+                                        .sendSuccess(
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "min_player", num),
+                                            true);
+                                    return 1;
+                                  })))
+                          .then(Commands.literal("max_player")
+                              .then(Commands
+                                  .argument("num", IntegerArgumentType.integer())
+                                  .executes(ctx -> {
+                                    SREModifier role = ModifierArgumentType
+                                        .getModifier(ctx, "id");
+                                    int num = IntegerArgumentType.getInteger(ctx,
+                                        "num");
+                                    if (!role.canSetSpawnInfoInConfig()) {
+                                      ctx.getSource()
+                                          .sendFailure(Component.translatable(
+                                              "cmd.config.noellesroles.spawn.disabled",
+                                              RoleUtils
+                                                  .getRoleOrModifierTypeName(
+                                                      role),
+                                              RoleUtils
+                                                  .getRoleOrModifierNameWithColor(
+                                                      role)));
+                                      return 0;
+                                    }
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().modifierDetails
+                                        .getSpawnInfo(role);
+                                    spinfo.setMaxEnabledPlayer(num);
+                                    ctx.getSource()
+                                        .sendSuccess(
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "max_player", num),
+                                            true);
+                                    return 1;
+                                  })))
+                          .then(Commands.literal("maps")
+                              .then(Commands.literal("clear")
+                                  .executes(ctx -> {
+                                    SREModifier role = ModifierArgumentType
+                                        .getModifier(ctx, "id");
                                     if (!role.canSetSpawnInfoInConfig()) {
                                       ctx.getSource()
                                           .sendFailure(
-                                              Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                                  RoleUtils.getRoleOrModifierTypeName(role),
-                                                  RoleUtils.getRoleOrModifierNameWithColor(role)));
+                                              Component.translatable(
+                                                  "cmd.config.noellesroles.spawn.disabled",
+                                                  RoleUtils
+                                                      .getRoleOrModifierTypeName(
+                                                          role),
+                                                  RoleUtils
+                                                      .getRoleOrModifierNameWithColor(
+                                                          role)));
                                       return 0;
                                     }
-                                    // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                    SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails.getSpawnInfo(role);
-                                    spinfo.map.add(num);
+                                    // %s
+                                    // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                    SpawnInfo spinfo = NoellesRolesConfig
+                                        .instance().modifierDetails
+                                        .getSpawnInfo(role);
+                                    spinfo.map.clear();
                                     ctx.getSource()
                                         .sendSuccess(
-                                            () -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                                RoleUtils.getRoleOrModifierTypeName(role),
-                                                RoleUtils.getRoleOrModifierNameWithColor(role), "map", "+=" + num),
+                                            () -> Component.translatable(
+                                                "cmd.config.noellesroles.spawn.modified",
+                                                RoleUtils
+                                                    .getRoleOrModifierTypeName(
+                                                        role),
+                                                RoleUtils
+                                                    .getRoleOrModifierNameWithColor(
+                                                        role),
+                                                "map", "[EMPTY]"),
                                             true);
                                     return 1;
                                   }))
-                              .then(Commands.literal("remove")
-                                  .executes(ctx -> {
-                                    SREModifier role = ModifierArgumentType.getModifier(ctx, "id");
-                                    String num = StringArgumentType.getString(ctx, "map");
-                                    if (!role.canSetSpawnInfoInConfig()) {
-                                      ctx.getSource()
-                                          .sendFailure(
-                                              Component.translatable("cmd.config.noellesroles.spawn.disabled",
-                                                  RoleUtils.getRoleOrModifierTypeName(role),
-                                                  RoleUtils.getRoleOrModifierNameWithColor(role)));
-                                      return 0;
-                                    }
-                                    // %s 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
-                                    SpawnInfo spinfo = NoellesRolesConfig.instance().modifierDetails.getSpawnInfo(role);
-                                    spinfo.map.remove(num);
-                                    ctx.getSource()
-                                        .sendSuccess(
-                                            () -> Component.translatable("cmd.config.noellesroles.spawn.modified",
-                                                RoleUtils.getRoleOrModifierTypeName(role),
-                                                RoleUtils.getRoleOrModifierNameWithColor(role), "map", "-=" + num),
-                                            true);
-                                    return 1;
-                                  }))))
+                              .then(Commands.argument("map", StringArgumentType.string())
+                                  .then(Commands.literal("add")
+                                      .executes(ctx -> {
+                                        SREModifier role = ModifierArgumentType
+                                            .getModifier(ctx, "id");
+                                        String num = StringArgumentType
+                                            .getString(ctx, "map");
+                                        if (!role.canSetSpawnInfoInConfig()) {
+                                          ctx.getSource()
+                                              .sendFailure(
+                                                  Component
+                                                      .translatable(
+                                                          "cmd.config.noellesroles.spawn.disabled",
+                                                          RoleUtils
+                                                              .getRoleOrModifierTypeName(
+                                                                  role),
+                                                          RoleUtils
+                                                              .getRoleOrModifierNameWithColor(
+                                                                  role)));
+                                          return 0;
+                                        }
+                                        // %s
+                                        // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                        SpawnInfo spinfo = NoellesRolesConfig
+                                            .instance().modifierDetails
+                                            .getSpawnInfo(role);
+                                        spinfo.map.add(num);
+                                        ctx.getSource()
+                                            .sendSuccess(
+                                                () -> Component
+                                                    .translatable(
+                                                        "cmd.config.noellesroles.spawn.modified",
+                                                        RoleUtils
+                                                            .getRoleOrModifierTypeName(
+                                                                role),
+                                                        RoleUtils
+                                                            .getRoleOrModifierNameWithColor(
+                                                                role),
+                                                        "map",
+                                                        "+=" + num),
+                                                true);
+                                        return 1;
+                                      }))
+                                  .then(Commands.literal("remove")
+                                      .executes(ctx -> {
+                                        SREModifier role = ModifierArgumentType
+                                            .getModifier(ctx, "id");
+                                        String num = StringArgumentType
+                                            .getString(ctx, "map");
+                                        if (!role.canSetSpawnInfoInConfig()) {
+                                          ctx.getSource()
+                                              .sendFailure(
+                                                  Component
+                                                      .translatable(
+                                                          "cmd.config.noellesroles.spawn.disabled",
+                                                          RoleUtils
+                                                              .getRoleOrModifierTypeName(
+                                                                  role),
+                                                          RoleUtils
+                                                              .getRoleOrModifierNameWithColor(
+                                                                  role)));
+                                          return 0;
+                                        }
+                                        // %s
+                                        // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
+                                        SpawnInfo spinfo = NoellesRolesConfig
+                                            .instance().modifierDetails
+                                            .getSpawnInfo(role);
+                                        spinfo.map.remove(num);
+                                        ctx.getSource()
+                                            .sendSuccess(
+                                                () -> Component
+                                                    .translatable(
+                                                        "cmd.config.noellesroles.spawn.modified",
+                                                        RoleUtils
+                                                            .getRoleOrModifierTypeName(
+                                                                role),
+                                                        RoleUtils
+                                                            .getRoleOrModifierNameWithColor(
+                                                                role),
+                                                        "map",
+                                                        "-=" + num),
+                                                true);
+                                        return 1;
+                                      }))))
 
       // 啊
       )))));
+
       var configCommand = Commands.literal("tmm:config")
           .requires(source -> source.hasPermission(2)) // 需要OP权限
           .then(Commands.literal("noellesroles")
