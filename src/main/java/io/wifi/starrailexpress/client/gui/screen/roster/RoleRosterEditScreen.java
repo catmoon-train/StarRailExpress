@@ -20,16 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntPredicate;
 
-/**
- * 管理员编辑界面：横向长方形面板，按阵营分组以网格铺开所有可选职业 / 修饰符。
- * <p>
- * 名单只表达<strong>启用/禁用</strong>：点击任意条目即可在启用/禁用之间切换（不再有数量与随机概率）。
- * 底部可一键全部启用 / 全部禁用、开关名单是否生效并保存。布局参照 {@link RoleRosterViewScreen}。
- */
 public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Screen {
     private static final Gson GSON = new Gson();
 
-    // ── 布局常量（与 RoleRosterViewScreen 对齐）────────────────────
+    // ── 布局常量 ────────────────────
     private static final int PAD = 14;
     private static final int SCROLLBAR_W = 4;
     private static final int CARD_H = 22;
@@ -37,61 +31,41 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
     private static final int CARD_MIN_W = 158;
     private static final int HEADER_H = 18;
     private static final int SECTION_GAP = 10;
-
-    /** 卡片右侧启用/禁用状态指示牌的宽度。 */
     private static final int PILL_W = 34;
     private static final int PILL_H = 12;
-
-    /** 修饰符栏目使用的统一颜色（紫色系）。 */
     private static final int MODIFIER_COLOR = 0xFFB084E0;
 
-    /** 阵营栏目定义：标签、颜色、对应的 roleType 判定。按数组顺序自上而下排列。 */
-    private record GroupDef(String labelKey, int color, IntPredicate matches) {
-    }
-
+    private record GroupDef(String labelKey, int color, IntPredicate matches) {}
     private static final GroupDef[] GROUPS = {
             new GroupDef("display.type.role.innocent", 0xFF44BB66, t -> t == 0 || t == 1),
             new GroupDef("display.type.role.vigilante", 0xFF22BBCC, t -> t == 5),
             new GroupDef("display.type.role.neutral", 0xFFCCAA22, t -> t == 2),
             new GroupDef("display.type.role.neutral_for_killer", 0xFFAA44CC, t -> t == 3),
             new GroupDef("display.type.role.killer", 0xFFCC2233, t -> t == 4),
-            // 兜底：未归类的职业
             new GroupDef("display.type.role", 0xFFC9A84C, t -> true),
     };
 
-    /** 列表条目：职业或修饰符（修饰符 role 为 null）。 */
-    private record Item(SRERole role, String id, Component name, int color, boolean modifier) {
-    }
+    private record Item(SRERole role, String id, Component name, int color, boolean modifier) {}
 
     private static final class Group {
         final String labelKey;
         final int color;
         final List<Item> items = new ArrayList<>();
-
-        Group(String labelKey, int color) {
-            this.labelKey = labelKey;
-            this.color = color;
-        }
+        Group(String labelKey, int color) { this.labelKey = labelKey; this.color = color; }
     }
 
-    /** 渲染 / 点击共用的条目矩形，y 为相对内容顶部的逻辑坐标（未含滚动偏移）。 */
     private static final class CardRect {
         final Item item;
         final int x, y, w, h;
-
         CardRect(Item item, int x, int y, int w, int h) {
-            this.item = item;
-            this.x = x;
-            this.y = y;
-            this.w = w;
-            this.h = h;
+            this.item = item; this.x = x; this.y = y; this.w = w; this.h = h;
         }
     }
 
     private RoleRosterState working;
     private final List<Group> groups = new ArrayList<>();
     private final List<CardRect> cards = new ArrayList<>();
-    private final List<int[]> dividers = new ArrayList<>(); // {x0, y, x1}（y 为逻辑坐标）
+    private final List<int[]> dividers = new ArrayList<>();
 
     private int panelX, panelY, panelW, panelH;
     private int contentX, contentW, listTop, listBottom;
@@ -99,6 +73,10 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
     private float scroll;
 
     private Button toggleButton;
+
+    // ── 滚动条拖拽支持 ──
+    private boolean draggingScrollbar;
+    private double scrollbarDragOffset;
 
     public RoleRosterEditScreen() {
         super(Component.translatable("gui.sre.role_roster.edit.title"));
@@ -109,7 +87,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         super.init();
         this.working = ClientRoleRosterCache.snapshot();
 
-        // 横向长方形面板
         this.panelW = Math.min(this.width - 40, 640);
         this.panelH = Math.min(this.height - 40, 420);
         this.panelX = (this.width - panelW) / 2;
@@ -128,7 +105,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         int by = panelY + panelH - 28;
         int bx = panelX + PAD;
 
-        // 左侧：[全部启用] [全部禁用] [开关名单]
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.enable_all"), b -> enableAll())
                 .bounds(bx, by, 70, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.disable_all"), b -> disableAll())
@@ -139,7 +115,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
             toggleButton.setMessage(toggleLabel());
         }).bounds(bx + 148, by, 80, 20).build());
 
-        // 右侧：[保存] [关闭]
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.save"), b -> save())
                 .bounds(panelX + panelW - PAD - 124, by, 60, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.close"), b -> this.onClose())
@@ -152,7 +127,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
                 : Component.translatable("gui.sre.role_roster.toggle.off");
     }
 
-    /** 按阵营把所有可选职业分到各栏目，并在末尾追加修饰符栏目（编辑界面展示全部可选项，含未启用的）。 */
     private void rebuildGroups() {
         groups.clear();
         Group[] buckets = new Group[GROUPS.length];
@@ -160,9 +134,7 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
             buckets[i] = new Group(GROUPS[i].labelKey, GROUPS[i].color);
         }
         for (SRERole role : Noellesroles.getAllRolesSorted()) {
-            if (!AbstractRoleRosterScreen.isRosterEligible(role)) {
-                continue;
-            }
+            if (!AbstractRoleRosterScreen.isRosterEligible(role)) continue;
             int type = PlayerRoleWeightManager.getRoleType(role);
             for (int i = 0; i < GROUPS.length; i++) {
                 if (GROUPS[i].matches.test(type)) {
@@ -173,26 +145,18 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
             }
         }
         for (Group g : buckets) {
-            if (!g.items.isEmpty()) {
-                groups.add(g);
-            }
+            if (!g.items.isEmpty()) groups.add(g);
         }
 
-        // 修饰符栏目
         Group modifierGroup = new Group("display.type.modifier", MODIFIER_COLOR);
         for (SREModifier modifier : HMLModifiers.MODIFIERS) {
-            if (!AbstractRoleRosterScreen.isModifierEligible(modifier)) {
-                continue;
-            }
+            if (!AbstractRoleRosterScreen.isModifierEligible(modifier)) continue;
             modifierGroup.items.add(new Item(null, modifier.identifier().toString(),
                     RoleUtils.getModifierName(modifier), modifier.color(), true));
         }
-        if (!modifierGroup.items.isEmpty()) {
-            groups.add(modifierGroup);
-        }
+        if (!modifierGroup.items.isEmpty()) groups.add(modifierGroup);
     }
 
-    /** 计算每个栏目标题、切割线与职业条目的逻辑坐标。 */
     private void layout() {
         cards.clear();
         dividers.clear();
@@ -203,9 +167,7 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         int y = 0;
         for (int gi = 0; gi < groups.size(); gi++) {
             Group g = groups.get(gi);
-            if (gi > 0) {
-                y += SECTION_GAP;
-            }
+            if (gi > 0) y += SECTION_GAP;
             dividers.add(new int[] { contentX, y + HEADER_H - 4, contentX + contentW });
             int gridTop = y + HEADER_H;
 
@@ -229,13 +191,10 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         scroll = Mth.clamp(scroll, 0, max);
     }
 
-    /** 名单内（已启用）的条目数量，用于顶部提示。 */
     private int enabledCount() {
         int n = 0;
         for (CardRect c : cards) {
-            if (isEnabled(c.item)) {
-                n++;
-            }
+            if (isEnabled(c.item)) n++;
         }
         return n;
     }
@@ -244,32 +203,26 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         return item.modifier() ? working.modifierCountFor(item.id()) > 0 : working.countFor(item.id()) > 0;
     }
 
-    /** 把所有当前未启用的可选条目设为启用。 */
     private void enableAll() {
-        for (CardRect c : cards) {
-            counts(c.item).put(c.item.id(), 1);
-        }
+        for (CardRect c : cards) counts(c.item).put(c.item.id(), 1);
     }
 
-    /** 清空所有职业与修饰符（全部禁用）。 */
     private void disableAll() {
         working.roleCounts.clear();
         working.modifierCounts.clear();
     }
 
-    /** 切换某条目的启用/禁用。 */
     private void toggle(Item item) {
         var counts = counts(item);
-        if (isEnabled(item)) {
-            counts.remove(item.id());
-        } else {
-            counts.put(item.id(), 1);
-        }
+        if (isEnabled(item)) counts.remove(item.id());
+        else counts.put(item.id(), 1);
     }
 
     private java.util.Map<String, Integer> counts(Item item) {
         return item.modifier() ? working.modifierCounts : working.roleCounts;
     }
+
+    // ── 滚动与拖拽 ──
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
@@ -280,14 +233,27 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // 优先处理滚动条拖拽
+        int viewport = listBottom - listTop;
+        if (button == 0 && contentHeight > viewport) {
+            int barX = panelX + panelW - 1 - SCROLLBAR_W;
+            int thumbH = Math.max(20, (int) ((float) viewport / contentHeight * viewport));
+            int maxScroll = contentHeight - viewport;
+            int thumbY = listTop + (int) ((scroll / maxScroll) * (viewport - thumbH));
+            if (mouseX >= barX && mouseX <= barX + SCROLLBAR_W - 1
+                    && mouseY >= thumbY && mouseY <= thumbY + thumbH) {
+                draggingScrollbar = true;
+                scrollbarDragOffset = mouseY - thumbY;
+                return true;
+            }
+        }
+
+        // 原有卡片点击切换
         if (button == 0 && mouseY >= listTop && mouseY <= listBottom) {
             int off = (int) scroll;
             for (CardRect c : cards) {
                 int sy = listTop + c.y - off;
-                if (sy + c.h < listTop || sy > listBottom) {
-                    continue;
-                }
-                // 点击整张卡片即切换启用/禁用
+                if (sy + c.h < listTop || sy > listBottom) continue;
                 if (mouseX >= c.x && mouseX <= c.x + c.w && mouseY >= sy && mouseY <= sy + c.h) {
                     toggle(c.item);
                     return true;
@@ -298,8 +264,32 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
     }
 
     @Override
-    public void renderBackground(GuiGraphics g, int i, int j, float f) {
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (draggingScrollbar) {
+            int viewport = listBottom - listTop;
+            int thumbH = Math.max(20, (int) ((float) viewport / contentHeight * viewport));
+            int maxScroll = contentHeight - viewport;
+            double newThumbY = mouseY - scrollbarDragOffset - listTop;
+            scroll = (float) (newThumbY / (viewport - thumbH) * maxScroll);
+            clampScroll();
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && draggingScrollbar) {
+            draggingScrollbar = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    // ── 渲染 ──
+
+    @Override
+    public void renderBackground(GuiGraphics g, int i, int j, float f) {}
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
@@ -309,7 +299,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         RoleRosterStyle.drawPanel(g, panelX, panelY, panelW, panelH, RoleRosterStyle.PANEL_BG,
                 RoleRosterStyle.PANEL_BORDER);
 
-        // 标题 + 状态 + 提示
         g.drawString(this.font, this.title, panelX + 16, panelY + 14, RoleRosterStyle.TITLE, false);
         Component status = working.enabled
                 ? Component.translatable("gui.sre.role_roster.status.on")
@@ -336,7 +325,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
     }
 
     private void renderGroups(GuiGraphics g, int mouseX, int mouseY, int off) {
-        // 栏目标题 + 切割线
         for (int gi = 0; gi < groups.size(); gi++) {
             Group group = groups.get(gi);
             int[] div = dividers.get(gi);
@@ -355,12 +343,9 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
             }
         }
 
-        // 条目
         for (CardRect c : cards) {
             int sy = listTop + c.y - off;
-            if (sy + c.h < listTop || sy > listBottom) {
-                continue;
-            }
+            if (sy + c.h < listTop || sy > listBottom) continue;
             renderCard(g, c.item, c.x, sy, c.w, c.h, mouseX, mouseY);
         }
     }
@@ -372,12 +357,9 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
                 hovered ? RoleRosterStyle.ROW_BG_HOVER : RoleRosterStyle.ROW_BG, RoleRosterStyle.ROW_BORDER);
 
         boolean on = isEnabled(item);
-
-        // 左侧颜色条（未启用时变暗）
         int barColor = (item.color() == 0 ? RoleRosterStyle.ACCENT : item.color()) | 0xFF000000;
         g.fill(x + 1, y + 1, x + 4, y + h - 1, on ? barColor : 0xFF4A4038);
 
-        // 名称（截断以给右侧状态牌留位）
         int textX = x + 9;
         int pillX = x + w - 5 - PILL_W;
         int nameColor = on
@@ -386,7 +368,6 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         String name = this.font.plainSubstrByWidth(item.name().getString(), pillX - textX - 4);
         g.drawString(this.font, name, textX, y + (h - this.font.lineHeight) / 2, nameColor, false);
 
-        // 右侧启用/禁用状态牌
         int pillY = y + (h - PILL_H) / 2;
         int pillBg = on ? 0x3344BB66 : 0x33CC2233;
         int pillBorder = on ? 0xFF44BB66 : 0xFF8A5050;
@@ -401,9 +382,7 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
 
     private void renderScrollbar(GuiGraphics g) {
         int viewport = listBottom - listTop;
-        if (contentHeight <= viewport) {
-            return;
-        }
+        if (contentHeight <= viewport) return;
         int barX = panelX + panelW - 1 - SCROLLBAR_W;
         g.fill(barX, listTop, barX + SCROLLBAR_W - 1, listBottom, 0x40FFE8C0);
         int thumbH = Math.max(20, (int) ((float) viewport / contentHeight * viewport));
