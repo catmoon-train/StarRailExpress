@@ -233,7 +233,12 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
             roleQuestionTarget = pickRandomUuid(alive);
         }
 
-        List<PlayerBodyEntity> bodies = getBodyTargets(level);
+        // 死因问题：仅选取已死亡但仍在线玩家的尸体
+        List<PlayerBodyEntity> bodies = getBodyTargets(level).stream()
+                .filter(b -> b.getPlayerUuid() != null
+                        && level.getServer().getPlayerList().getPlayer(b.getPlayerUuid()) != null
+                        && !GameUtils.isPlayerAliveAndSurvival(level.getServer().getPlayerList().getPlayer(b.getPlayerUuid())))
+                .toList();
         if (bodyQuestionTarget == null || bodies.stream().noneMatch(b -> b.getPlayerUuid() != null && b.getPlayerUuid().equals(bodyQuestionTarget))) {
             bodyQuestionTarget = pickRandomBodyOwner(bodies);
         }
@@ -355,14 +360,14 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
 
     private String getBodyQuestionTargetName(ServerLevel level) {
         PlayerBodyEntity body = bodyQuestionTarget == null ? null : findBody(level, bodyQuestionTarget);
-        if (body == null) {
+        if (body == null || body.getPlayerUuid() == null) {
             return "?";
         }
         ServerPlayer target = level.getServer().getPlayerList().getPlayer(body.getPlayerUuid());
         if (target != null) {
             return target.getGameProfile().getName();
         }
-        return body.getDisplayName().getString();
+        return "?";
     }
 
     private String getTaskQuestionTargetName(ServerLevel level) {
