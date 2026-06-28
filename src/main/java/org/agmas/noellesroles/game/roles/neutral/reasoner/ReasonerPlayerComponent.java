@@ -131,19 +131,28 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
 
     private ReasonerOpenScreenS2CPacket buildOpenScreenPacket(ServerLevel level) {
         refreshQuestionTargets(level);
+        String roleTargetName = getRoleQuestionTargetName(level);
+        String bodyTargetName = getBodyQuestionTargetName(level);
+        String taskTargetName = getTaskQuestionTargetName(level);
+        boolean deathAvailable = deadPlayerCount(level) >= 3
+                && bodyQuestionTarget != null
+                && !"?".equals(bodyTargetName);
+        // 目标为 "?" 时当作已解答隐藏该问题，避免死局（组件实际 solved 状态不变）
+        boolean hideRole = solvedRole || "?".equals(roleTargetName);
+        boolean hideTask = solvedTask || "?".equals(taskTargetName);
         return new ReasonerOpenScreenS2CPacket(
-                getRoleQuestionTargetName(level),
-                getBodyQuestionTargetName(level),
-                getTaskQuestionTargetName(level),
-                deadPlayerCount(level) > 3 && bodyQuestionTarget != null,
+                roleTargetName,
+                bodyTargetName,
+                taskTargetName,
+                deathAvailable,
                 getElapsedTicks() >= KILLER_QUESTION_TICKS,
                 allRoleIds(),
                 allDeathReasonIds(),
                 allTaskIds(),
                 solvedAliveCount,
-                solvedRole,
+                hideRole,
                 solvedDeathReason,
-                solvedTask,
+                hideTask,
                 solvedKillerCount,
                 cooldownTicks);
     }
@@ -248,6 +257,19 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
                 .filter(p -> !SREPlayerTaskComponent.KEY.get(p).tasks.isEmpty())
                 .toList();
         if (taskQuestionTarget == null || taskTargets.stream().noneMatch(p -> p.getUUID().equals(taskQuestionTarget))) {
+            taskQuestionTarget = pickRandomUuid(taskTargets);
+        }
+
+        // 二次校验：目标离线时尝试重新选择，无符合条件则隐藏问题
+        if (roleQuestionTarget != null
+                && level.getServer().getPlayerList().getPlayer(roleQuestionTarget) == null) {
+            roleQuestionTarget = pickRandomUuid(alive);
+        }
+        if (bodyQuestionTarget != null && "?".equals(getBodyQuestionTargetName(level))) {
+            bodyQuestionTarget = pickRandomBodyOwner(bodies);
+        }
+        if (taskQuestionTarget != null
+                && level.getServer().getPlayerList().getPlayer(taskQuestionTarget) == null) {
             taskQuestionTarget = pickRandomUuid(taskTargets);
         }
     }
