@@ -66,4 +66,63 @@ public class SREDisableManager {
             return true;
         return false;
     }
+
+    public static boolean isRoleRosterDisabled(SRERole role) {
+        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            if (!ClientRoleRosterCache.snapshot().enabled)
+                return false;
+
+            if (ClientRoleRosterCache.snapshot().roleCounts.getOrDefault(role.identifier().toString(), 1) <= 0) {
+                return true;
+            }
+            return false;
+        }
+        if (!RoleRosterManager.isRoleEnabled(role))
+            return true;
+        return false;
+    }
+
+    public static boolean isModifierRosterDisabled(SREModifier modifier) {
+        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            if (!ClientRoleRosterCache.snapshot().enabled)
+                return false;
+
+            if (ClientRoleRosterCache.snapshot().modifierCounts.getOrDefault(modifier.identifier().toString(),
+                    1) <= 0) {
+                return true;
+            }
+            return false;
+        }
+        if (!RoleRosterManager.isModifierEnabled(modifier))
+            return true;
+        return false;
+    }
+
+    public static boolean isRoleConfigDisabled(SRERole role) {
+        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            if (!RoleManageConfigUI.RoleEnableStatus.isEmpty()) {
+                if (RoleManageConfigUI.RoleEnableStatus.getOrDefault(role, true))
+                    return true;
+                return false;
+            }
+        }
+        // 优先采用本地 config
+        if (config.disabled != null && config.disabled.contains(role.identifier().toString()))
+            return true;
+        return false;
+    }
+
+    public static boolean isModifierConfigDisabled(SREModifier modifier) {
+        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            if (!RoleManageConfigUI.ModifierEnableStatus.isEmpty()) {
+                if (RoleManageConfigUI.ModifierEnableStatus.getOrDefault(modifier, true))
+                    return true;
+                return false;
+            }
+        }
+        // 优先采用本地 config
+        if (config.disabledModifiers != null && config.disabledModifiers.contains(modifier.identifier().toString()))
+            return true;
+        return false;
+    }
 }

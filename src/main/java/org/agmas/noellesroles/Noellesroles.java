@@ -2,7 +2,6 @@ package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
@@ -11,11 +10,10 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.client.blood.BloodMain;
-import org.agmas.noellesroles.client.utils.RoleDisabledUtilsForClient;
 import org.agmas.noellesroles.commands.*;
 import org.agmas.noellesroles.register.NRCommandRegister;
 import org.agmas.noellesroles.register.NREventRegister;
@@ -94,19 +92,11 @@ public class Noellesroles implements ModInitializer {
     }
 
     public static boolean isModifierDisabled(SREModifier modifier) {
-        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
-            return RoleDisabledUtilsForClient.isModifierDisabled(modifier);
-        }
-        var hpconfig = HarpyModLoaderConfig.HANDLER.instance();
-        return hpconfig.getDisabledModifiers().contains(modifier.identifier().toString());
+        return SREDisableManager.isModifierDisabled(modifier);
     }
 
     public static boolean isRoleDisabled(SRERole role) {
-        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
-            return RoleDisabledUtilsForClient.isRoleDisabled(role);
-        }
-        var hpconfig = HarpyModLoaderConfig.HANDLER.instance();
-        return hpconfig.getDisabled().contains(role.identifier().toString());
+        return SREDisableManager.isRoleDisabled(role);
     }
 
     public static void sortRoles(ArrayList<SRERole> clone, boolean killerFirst) {
