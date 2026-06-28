@@ -898,7 +898,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
      */
     public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players, String mapName) {
-        if (defaultMaxCount == -1)
+        if (spawnInfo.maxSpawn == -1)
             return -1;
         // 优先使用 spawnInfo（来自用户配置），若未设置则跳过
         int minPlayer = this.spawnInfo.minEnabledPlayer;

@@ -127,7 +127,6 @@ public class Harpymodloader implements ModInitializer {
         if (!FORCED_MODDED_ROLE.containsKey(role))
             FORCED_MODDED_ROLE.put(role, new ArrayList<>());
         FORCED_MODDED_ROLE.get(role).add(player.getUUID());
-
         FORCED_MODDED_ROLE_FLIP.put(player.getUUID(), role);
     }
 
