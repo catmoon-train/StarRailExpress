@@ -18,7 +18,7 @@ public class SREDisableManager {
             boolean onewayflag = false;
 
             if (!RoleManageConfigUI.RoleEnableStatus.isEmpty()) {
-                if (RoleManageConfigUI.RoleEnableStatus.getOrDefault(role, true))
+                if (!RoleManageConfigUI.RoleEnableStatus.getOrDefault(role, true))
                     return true;
                 onewayflag = true;
             }
@@ -44,7 +44,7 @@ public class SREDisableManager {
         if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
             boolean onewayflag = false;
             if (!RoleManageConfigUI.ModifierEnableStatus.isEmpty()) {
-                if (RoleManageConfigUI.ModifierEnableStatus.getOrDefault(modifier, true))
+                if (!RoleManageConfigUI.ModifierEnableStatus.getOrDefault(modifier, true))
                     return true;
                 onewayflag = true;
             }
@@ -101,7 +101,7 @@ public class SREDisableManager {
     public static boolean isRoleConfigDisabled(SRERole role) {
         if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
             if (!RoleManageConfigUI.RoleEnableStatus.isEmpty()) {
-                if (RoleManageConfigUI.RoleEnableStatus.getOrDefault(role, true))
+                if (!RoleManageConfigUI.RoleEnableStatus.getOrDefault(role, true))
                     return true;
                 return false;
             }
@@ -115,7 +115,7 @@ public class SREDisableManager {
     public static boolean isModifierConfigDisabled(SREModifier modifier) {
         if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
             if (!RoleManageConfigUI.ModifierEnableStatus.isEmpty()) {
-                if (RoleManageConfigUI.ModifierEnableStatus.getOrDefault(modifier, true))
+                if (!RoleManageConfigUI.ModifierEnableStatus.getOrDefault(modifier, true))
                     return true;
                 return false;
             }

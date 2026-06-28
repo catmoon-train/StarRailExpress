@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.register;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.vote.VoteManager;
 import io.wifi.starrailexpress.content.vote.network.VoteCastC2SPacket;
@@ -8,7 +9,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
-import io.wifi.starrailexpress.roster.RoleRosterManager;
 import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
 import org.agmas.noellesroles.game.modes.fourthroom.network.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -95,7 +95,7 @@ public class SREReceiverRegister {
                             player.displayClientMessage(Component.translatable("sre.command.permission_denied").withStyle(ChatFormatting.RED), false);
                             return;
                         }
-                        if(!RoleRosterManager.isEnabled()){
+                        if(!SREConfig.instance().enableRoster){
                             player.displayClientMessage(Component.translatable("sre.command.not_enabled").withStyle(ChatFormatting.RED), false);
                             return;
                         }
