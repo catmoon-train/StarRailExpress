@@ -112,6 +112,16 @@ public final class MafiaManager {
             RoleUtils.changeRole(tgt, newRole);
             comp.recruitCooldownUntil = now + comp.recruitCooldownSeconds * 20L;
             comp.sync();
+
+            // 被招募者：发送欢迎报幕
+            RoleUtils.sendWelcomeAnnouncement(tgt, newRole);
+            // 教父：确认提示
+            player.displayClientMessage(
+                    net.minecraft.network.chat.Component.translatable("message.noellesroles.godfather.recruit_success",
+                            tgt.getDisplayName(),
+                            net.minecraft.network.chat.Component.translatable("announcement.star.role.noellesroles." + newRole.getIdentifier().getPath()))
+                            .withStyle(net.minecraft.ChatFormatting.GREEN),
+                    true);
         }
     }
 

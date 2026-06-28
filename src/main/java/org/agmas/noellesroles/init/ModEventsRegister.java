@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.item.StandardRevolverItem;
 import io.wifi.starrailexpress.event.*;
@@ -32,6 +33,7 @@ import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.ParticleTypes;
@@ -892,6 +894,32 @@ public class ModEventsRegister {
             // 检查击杀者是否存在且是否为非乘客阵营
             if (killer == null || gameWorld.isInnocent(killer)) {
                 return true;
+            }
+
+            // 门框检测：肉汁1.5格范围内存在模组门方块时，保护失效
+            double doorCheckRange = 1.5;
+            BlockPos meatballPos = victim.blockPosition();
+            for (int dx = -2; dx <= 2; dx++) {
+                for (int dy = -2; dy <= 2; dy++) {
+                    for (int dz = -2; dz <= 2; dz++) {
+                        BlockPos checkPos = meatballPos.offset(dx, dy, dz);
+                        double dist = Math.sqrt(
+                                (checkPos.getX() + 0.5 - victim.getX()) * (checkPos.getX() + 0.5 - victim.getX()) +
+                                (checkPos.getY() + 0.5 - victim.getY()) * (checkPos.getY() + 0.5 - victim.getY()) +
+                                (checkPos.getZ() + 0.5 - victim.getZ()) * (checkPos.getZ() + 0.5 - victim.getZ()));
+                        if (dist <= doorCheckRange) {
+                            if (victim.level().getBlockState(checkPos).getBlock() instanceof SmallDoorBlock) {
+                                if (victim instanceof ServerPlayer sp) {
+                                    sp.displayClientMessage(
+                                            Component.translatable("message.noellesroles.meatball.near_door")
+                                                    .withStyle(ChatFormatting.RED),
+                                            true);
+                                }
+                                return true;
+                            }
+                        }
+                    }
+                }
             }
 
             // 肉汁独处判定：
