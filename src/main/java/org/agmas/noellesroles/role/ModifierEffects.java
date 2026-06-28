@@ -26,21 +26,21 @@ import java.util.*;
  * 修饰符效果处理器 - 处理需要每tick检查的效果
  */
 public class ModifierEffects {
-    
+
     public static void init() {
         registerTickEvents();
         registerEatEvents();
         registerInsaneSeeDeathEvents();
     }
-    
+
     private static void registerTickEvents() {
         // 使用 ServerTickEvents.END_SERVER_TICK
         ServerTickEvents.END_SERVER_TICK.register(ModifierEffects::onServerTick);
     }
-    
+
     private static void onServerTick(MinecraftServer server) {
         long gameTime = server.overworld().getGameTime();
-        
+
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             // === 回光返照 - 游戏时间3秒后真正死亡 ===
             if (TraitorAndModifiers.LAST_GASP_TRIGGERED.contains(player.getUUID())) {
@@ -55,18 +55,20 @@ public class ModifierEffects {
                                     20, 0.5, 0.8, 0.5, 0.02);
                         }
                         player.displayClientMessage(
-                                net.minecraft.network.chat.Component.translatable("modifier.noellesroles.last_gasp.death"), true);
-                        
+                                net.minecraft.network.chat.Component
+                                        .translatable("modifier.noellesroles.last_gasp.death"),
+                                true);
+
                         // 获取死亡原因（保留死亡原因显示，但不传 killer 避免重复计算击杀/金币）
                         var deathReason = TraitorAndModifiers.LAST_GASP_DEATH_REASON.get(player.getUUID());
                         player.removeEffect(ModEffects.INVINCIBLE);
-                        // 提前清理，确保 forceKillPlayer 不会再次触发回光返照
+                        // killer 传 null，避免第二次 OnPlayerKilledPlayer.EVENT 重复计杀和发金币
+                        GameUtils.forceKillPlayer(player, true, null, deathReason);
+                        // 延后清理，确保 forceKillPlayer 不会再次触发回光返照
                         TraitorAndModifiers.LAST_GASP_TRIGGERED.remove(player.getUUID());
                         TraitorAndModifiers.LAST_GASP_TRIGGER_GAME_TIME.remove(player.getUUID());
                         TraitorAndModifiers.LAST_GASP_KILLER.remove(player.getUUID());
                         TraitorAndModifiers.LAST_GASP_DEATH_REASON.remove(player.getUUID());
-                        // killer 传 null，避免第二次 OnPlayerKilledPlayer.EVENT 重复计杀和发金币
-                        GameUtils.forceKillPlayer(player, true, null, deathReason);
                     } else {
                         TraitorAndModifiers.LAST_GASP_TRIGGERED.remove(player.getUUID());
                         TraitorAndModifiers.LAST_GASP_TRIGGER_GAME_TIME.remove(player.getUUID());
@@ -76,15 +78,17 @@ public class ModifierEffects {
                 }
                 continue; // 回光返照中的玩家跳过其他效果检查
             }
-            
-            if (!GameUtils.isPlayerAliveAndSurvival(player)) continue;
-            
+
+            if (!GameUtils.isPlayerAliveAndSurvival(player))
+                continue;
+
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.serverLevel());
-            if (gameWorld == null || !gameWorld.isRunning()) continue;
-            
+            if (gameWorld == null || !gameWorld.isRunning())
+                continue;
+
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.serverLevel());
             UUID uuid = player.getUUID();
-            
+
             // === 慷慨 - 每1.5分钟给予最近玩家25金币 ===
             if (modifiers.isModifier(uuid, TraitorAndModifiers.GENEROUS)) {
                 Long lastTime = TraitorAndModifiers.LAST_GIVE_COIN_TIME.get(uuid);
@@ -100,7 +104,7 @@ public class ModifierEffects {
                     TraitorAndModifiers.LAST_GIVE_COIN_TIME.put(uuid, System.currentTimeMillis());
                 }
             }
-            
+
             // === 大胃王 - 每1.5分钟获得一个苹果 ===
             if (modifiers.isModifier(uuid, TraitorAndModifiers.BIG_EATER)) {
                 Long lastTime = TraitorAndModifiers.LAST_APPLE_TIME.get(uuid);
@@ -111,7 +115,7 @@ public class ModifierEffects {
                     TraitorAndModifiers.LAST_APPLE_TIME.put(uuid, System.currentTimeMillis());
                 }
             }
-            
+
             // === 勇敢 - 关灯时恢复0.5心情值 ===
             if (modifiers.isModifier(uuid, TraitorAndModifiers.BRAVE)) {
                 SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(player.serverLevel());
@@ -123,7 +127,7 @@ public class ModifierEffects {
                     }
                 }
             }
-            
+
             // === 绝境信徒 - 检查唯一杀手 ===
             if (modifiers.isModifier(uuid, TraitorAndModifiers.DESPERATE_FAITH)) {
                 if (!TraitorAndModifiers.DESPERATE_FAITH_ACTIVATED.contains(uuid)) {
@@ -131,33 +135,38 @@ public class ModifierEffects {
                     for (ServerPlayer p : server.getPlayerList().getPlayers()) {
                         if (p != player && GameUtils.isPlayerAliveAndSurvival(p)) {
                             SREGameWorldComponent pw = SREGameWorldComponent.KEY.get(p.serverLevel());
-                            if (pw != null && pw.getRole(p) != null && pw.getRole(p).canUseKiller() && !pw.getRole(p).isInnocent()) {
+                            if (pw != null && pw.getRole(p) != null && pw.getRole(p).canUseKiller()
+                                    && !pw.getRole(p).isInnocent()) {
                                 if (!pw.getRole(p).identifier().getPath().equals("traitor")) {
                                     otherKillerCount++;
                                 }
                             }
                         }
                     }
-                    
+
                     if (otherKillerCount == 0) {
                         TraitorAndModifiers.DESPERATE_FAITH_ACTIVATED.add(uuid);
-                        
+
                         SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
                         shop.setBalance(shop.balance + 100);
                         shop.sync();
-                        
-                        player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, Integer.MAX_VALUE, 4, false, false, false));
-                        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, Integer.MAX_VALUE, 1, false, false, false));
-                        
+
+                        player.addEffect(
+                                new MobEffectInstance(MobEffects.DIG_SPEED, Integer.MAX_VALUE, 4, false, false, false));
+                        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, Integer.MAX_VALUE, 1, false,
+                                false, false));
+
                         player.playSound(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
-                        
+
                         // 只发送给玩家自己
                         player.displayClientMessage(
-                                net.minecraft.network.chat.Component.translatable("modifier.noellesroles.desperate_faith.activated"), true);
+                                net.minecraft.network.chat.Component
+                                        .translatable("modifier.noellesroles.desperate_faith.activated"),
+                                true);
                     }
                 }
             }
-            
+
             // === 夜猫子 - 免疫黑暗和失明效果 ===
             if (modifiers.isModifier(uuid, TraitorAndModifiers.NIGHT_OWL)) {
                 if (player.hasEffect(MobEffects.DARKNESS)) {
@@ -169,104 +178,113 @@ public class ModifierEffects {
             }
         }
     }
-    
+
     private static void registerEatEvents() {
         // 食物消耗效果在别处处理（通过物品使用拦截）
     }
-    
+
     private static void registerInsaneSeeDeathEvents() {
         // 晕血症 - 监听玩家死亡
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            if (victim.level().isClientSide) return;
-            
+            if (victim.level().isClientSide)
+                return;
+
             for (Player player : victim.level().players()) {
-                if (!(player instanceof ServerPlayer sp)) continue;
-                if (!GameUtils.isPlayerAliveAndSurvival(sp)) continue;
-                if (sp == victim) continue;
-                
+                if (!(player instanceof ServerPlayer sp))
+                    continue;
+                if (!GameUtils.isPlayerAliveAndSurvival(sp))
+                    continue;
+                if (sp == victim)
+                    continue;
+
                 WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
                 UUID uuid = player.getUUID();
-                
+
                 // 晕血症 - 仅当尸体在7格扇形视野内时触发
                 if (modifiers.isModifier(uuid, TraitorAndModifiers.HEMOPHOBIA)) {
                     if (isInFieldOfView(sp, victim, 7.0, 0.707)) {
                         sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 2, false, false, false));
                         sp.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 2, false, false, false));
                         sp.displayClientMessage(
-                                net.minecraft.network.chat.Component.translatable("modifier.noellesroles.hemophobia.trigger"), 
+                                net.minecraft.network.chat.Component
+                                        .translatable("modifier.noellesroles.hemophobia.trigger"),
                                 true);
                     }
                 }
             }
         });
     }
-    
+
     // ==================== 工具方法 ====================
-    
+
     /**
      * 判断目标实体是否在玩家的扇形视野内
-     * @param player 玩家
-     * @param target 目标实体
+     * 
+     * @param player      玩家
+     * @param target      目标实体
      * @param maxDistance 最大距离（格）
-     * @param minDot 最小点积（0~1），越大越窄，cos(45°)=0.707 表示90°锥角
+     * @param minDot      最小点积（0~1），越大越窄，cos(45°)=0.707 表示90°锥角
      * @return 是否在视野内
      */
     private static boolean isInFieldOfView(ServerPlayer player, Player target, double maxDistance, double minDot) {
         Vec3 lookDir = player.getLookAngle();
         Vec3 toTarget = target.getEyePosition().subtract(player.getEyePosition());
         double dist = toTarget.length();
-        if (dist > maxDistance) return false;
+        if (dist > maxDistance)
+            return false;
         double dot = lookDir.dot(toTarget.normalize());
         return dot >= minDot;
     }
-    
+
     private static ServerPlayer findNearestPlayer(ServerPlayer player, double maxDistance) {
         ServerPlayer nearest = null;
         double nearestDist = maxDistance;
         var playerPos = player.position();
-        
+
         for (Player p : player.level().players()) {
-            if (p == player) continue;
-            if (!GameUtils.isPlayerAliveAndSurvival(p)) continue;
-            
+            if (p == player)
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
+                continue;
+
             double dist = playerPos.distanceTo(p.position());
             if (dist < nearestDist) {
                 nearestDist = dist;
                 nearest = (ServerPlayer) p;
             }
         }
-        
+
         return nearest;
     }
-    
+
     /**
      * 狂躁症触发 - 附近有玩家完成任务，每1秒最多触发一次
      */
     public static void onNearbyTaskComplete(ServerPlayer manicPlayer) {
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(manicPlayer.level());
         UUID uuid = manicPlayer.getUUID();
-        
+
         if (modifiers.isModifier(uuid, TraitorAndModifiers.MANIC)) {
             // 检查是否在1秒冷却期内
             Long lastTime = TraitorAndModifiers.LAST_MANIC_TRIGGER_TIME.get(uuid);
             if (lastTime != null && System.currentTimeMillis() - lastTime < 1000) {
                 return; // 还在冷却中
             }
-            
+
             TraitorAndModifiers.LAST_MANIC_TRIGGER_TIME.put(uuid, System.currentTimeMillis());
-            
+
             SREPlayerMoodComponent mood = SREPlayerMoodComponent.KEY.get(manicPlayer);
             if (mood != null) {
                 mood.setMood(mood.getMood() + 0.1f);
                 mood.sync();
             }
-            
+
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(manicPlayer);
             shop.setBalance(shop.balance + 10);
             shop.sync();
         }
     }
-    
+
     /**
      * 大胃王触发 - 完成任务时恢复理智和金币
      * 平民/中立阵营额外获得25金币，杀手阵营额外获得5金币
@@ -274,14 +292,14 @@ public class ModifierEffects {
     public static void onBigEaterTaskComplete(ServerPlayer player) {
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
         UUID uuid = player.getUUID();
-        
+
         if (modifiers.isModifier(uuid, TraitorAndModifiers.BIG_EATER)) {
             SREPlayerMoodComponent mood = SREPlayerMoodComponent.KEY.get(player);
             if (mood != null) {
                 mood.setMood(mood.getMood() + 0.25f);
                 mood.sync();
             }
-            
+
             // 根据阵营判断金币奖励
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
             int coinReward;
@@ -292,37 +310,38 @@ public class ModifierEffects {
                 // 杀手阵营：5金币
                 coinReward = 5;
             }
-            
+
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
             shop.setBalance(shop.balance + coinReward);
             shop.sync();
             // 大胃王不发送粒子效果
         }
     }
-    
+
     /**
      * 计算吝啬返还的金币
      */
     public static int calculateStingyRefund(int originalPrice) {
         return TraitorAndModifiers.calculateStingyRefund(originalPrice);
     }
-    
+
     /**
      * 检查并处理吝啬返还
      */
     public static void onStingyPurchase(ServerPlayer player, int originalPrice) {
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
         UUID uuid = player.getUUID();
-        
+
         if (modifiers.isModifier(uuid, TraitorAndModifiers.STINGY)) {
             int refund = calculateStingyRefund(originalPrice);
             if (refund > 0) {
                 SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
                 shop.setBalance(shop.balance + refund);
                 shop.sync();
-                
+
                 player.displayClientMessage(
-                        net.minecraft.network.chat.Component.translatable("modifier.noellesroles.stingy.refund", refund), 
+                        net.minecraft.network.chat.Component.translatable("modifier.noellesroles.stingy.refund",
+                                refund),
                         true);
             }
         }
