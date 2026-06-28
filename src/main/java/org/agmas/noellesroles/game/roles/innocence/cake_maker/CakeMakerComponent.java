@@ -5,7 +5,6 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -23,10 +22,10 @@ import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CakeBlock;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.packet.CakeMakerBlockS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.scene.MapStatusBarRuntime;
 import org.jetbrains.annotations.NotNull;
@@ -70,7 +69,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
     /** 5-second lock after final ingredients */
     private static final int WAIT_LONG_TICKS  = 100;
 
-    private static final int CAKE_PLACEMENT_TICKS = 6 * 20;
+    private static final int CAKE_PLACEMENT_TICKS = 60 * 20;  // 1 minute
     private static final int EAT_COOLDOWN_TICKS   = 600; // 30 s
     private static final int SPEED_DURATION_TICKS = 20 * 20;
     private static final int MAX_CAKE_BITES       = 6;
@@ -105,6 +104,33 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
 
     /** interactionEntity UUID → SmokerEntityInfo */
     private static final Map<UUID, SmokerEntityInfo> SMOKER_ENTITIES = new ConcurrentHashMap<>();
+
+    // ── Cake entity constants ──────────────────────────────────
+
+    /** Tag applied to cake maker cake block-display and interaction entities */
+    public static final String CAKE_ENTITY_TAG = "cake_maker_cake";
+
+    /** Cake block is 0.5 blocks tall, interaction slightly larger */
+    private static final double CAKE_INTERACTION_WIDTH  = 1.1;
+    private static final double CAKE_INTERACTION_HEIGHT = 0.7;
+
+    /**
+     * Server-side cake entity registry — maps interaction entity UUID to cake info.
+     */
+    public static final class CakeEntityInfo {
+        public final UUID cakeId;
+        public final UUID ownerUuid;
+        public Display.BlockDisplay displayEntity;
+        public Interaction interactionEntity;
+
+        public CakeEntityInfo(UUID cakeId, UUID ownerUuid) {
+            this.cakeId = cakeId;
+            this.ownerUuid = ownerUuid;
+        }
+    }
+
+    /** interactionEntity UUID → CakeEntityInfo */
+    private static final Map<UUID, CakeEntityInfo> CAKE_ENTITIES = new ConcurrentHashMap<>();
 
     // ── State ──────────────────────────────────────────────────
     private final Player player;
@@ -152,12 +178,11 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void clear() {
-        // Remove the deployed smoker entities and any placed cakes from all clients
+        // Remove the deployed smoker entities and all placed cake entities
         // so they don't linger in the world (and into the next round).
         removeSmoker();
         for (Map.Entry<UUID, Cake> entry : cakes.entrySet()) {
-            Cake cake = entry.getValue();
-            broadcast(new CakeMakerBlockS2CPacket(entry.getKey(), cake.pos, true, cake.bites, 0, true));
+            removeCakeEntities(entry.getKey(), entry.getValue());
         }
         cakes.clear();
         eatCooldowns.clear();
@@ -242,8 +267,9 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         // Expire cakes whose placement lifetime has ended
         long now = player.level().getGameTime();
         boolean cakeRemoved = cakes.entrySet().removeIf(entry -> {
-            if (now - entry.getValue().placedGameTime >= CAKE_PLACEMENT_TICKS) {
-                broadcast(new CakeMakerBlockS2CPacket(entry.getKey(), entry.getValue().pos, true, entry.getValue().bites, 0, true));
+            Cake cake = entry.getValue();
+            if (now - cake.placedGameTime >= CAKE_PLACEMENT_TICKS) {
+                removeCakeEntities(entry.getKey(), cake);
                 return true;
             }
             return false;
@@ -358,7 +384,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         return true;
     }
 
-    /** Places a client-side cake block at the player's feet. Requires a solid block below. */
+    /** Places a cake as server-side entities at the player's feet. Requires a solid block below. */
     private boolean placeCake() {
         if (!(player instanceof ServerPlayer sp)) {
             return false;
@@ -372,25 +398,67 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         }
 
         UUID id = UUID.randomUUID();
-        cakes.put(id, new Cake(pos, sp.level().getGameTime()));
+        var level = sp.serverLevel();
+        double x = pos.getX() + 0.5;
+        double y = pos.getY();
+        double z = pos.getZ() + 0.5;
+
+        // 1. Create block display entity (cake model, 0 bites)
+        var displayEntity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
+        displayEntity.setBlockState(Blocks.CAKE.defaultBlockState().setValue(CakeBlock.BITES, 0));
+        displayEntity.setPos(x, y, z);
+        displayEntity.setTransformation(new Transformation(
+                new Vector3f(0, 0, 0),
+                new Quaternionf(),
+                new Vector3f(1.0f, 1.0f, 1.0f),
+                new Quaternionf()
+        ));
+        displayEntity.addTag(CAKE_ENTITY_TAG);
+        level.addFreshEntity(displayEntity);
+
+        // 2. Create interaction entity (slightly larger than half-block cake)
+        var interactionEntity = new Interaction(EntityType.INTERACTION, level);
+        interactionEntity.setPos(x, y + CAKE_INTERACTION_HEIGHT / 2.0, z);
+        interactionEntity.setBoundingBox(new AABB(
+                x - CAKE_INTERACTION_WIDTH / 2.0, y,
+                z - CAKE_INTERACTION_WIDTH / 2.0,
+                x + CAKE_INTERACTION_WIDTH / 2.0, y + CAKE_INTERACTION_HEIGHT,
+                z + CAKE_INTERACTION_WIDTH / 2.0
+        ));
+        interactionEntity.addTag(CAKE_ENTITY_TAG);
+        level.addFreshEntity(interactionEntity);
+
+        // 3. Register in the server-side map
+        CakeEntityInfo info = new CakeEntityInfo(id, sp.getUUID());
+        info.displayEntity = displayEntity;
+        info.interactionEntity = interactionEntity;
+        CAKE_ENTITIES.put(interactionEntity.getUUID(), info);
+
+        // 4. Track in the instance-level cakes map
+        Cake cake = new Cake(pos, sp.level().getGameTime());
+        cake.displayEntity = displayEntity;
+        cake.interactionEntityId = interactionEntity.getUUID();
+        cakes.put(id, cake);
+
         sp.getMainHandItem().shrink(1);
-        broadcast(new CakeMakerBlockS2CPacket(id, pos, true, 0, CAKE_PLACEMENT_TICKS, false));
         return true;
     }
 
     // ── Eating a placed cake ──────────────────────────────────
 
     /**
-     * Attempt to let {@code eater} take a bite from the cake identified by {@code id}.
-     * Restores stamina, mood, status bars, and grants Speed I. Cooldown: 5 s per player.
+     * Attempt to let {@code eater} take a bite from the cake identified by the clicked interaction entity.
+     * Restores stamina, mood, status bars, and grants Speed I. Cooldown: 30 s per player.
      */
-    public boolean eat(UUID id, ServerPlayer eater) {
-        Cake cake = cakes.get(id);
-        if (cake == null
-                || eater.distanceToSqr(cake.pos.getCenter()) > INTERACT_DISTANCE_SQ
-                || eatCooldowns.getOrDefault(eater.getUUID(), 0) > 0) {
+    public boolean eat(Entity clickedEntity, ServerPlayer eater) {
+        if (eatCooldowns.getOrDefault(eater.getUUID(), 0) > 0) {
             return false;
         }
+        // Look up the cake by the interaction entity
+        CakeEntityInfo info = CAKE_ENTITIES.get(clickedEntity.getUUID());
+        if (info == null) return false;
+        Cake cake = cakes.get(info.cakeId);
+        if (cake == null) return false;
 
         eatCooldowns.put(eater.getUUID(), EAT_COOLDOWN_TICKS);
 
@@ -410,12 +478,16 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         MapStatusBarRuntime.addThirst(eater, STATUS_BAR_MAX);
         MapStatusBarRuntime.addHunger(eater, STATUS_BAR_MAX);
 
-        // Advance bites; remove cake once fully eaten
-        if (++cake.bites > MAX_CAKE_BITES) {
-            cakes.remove(id);
-            broadcast(new CakeMakerBlockS2CPacket(id, cake.pos, true, cake.bites, 0, true));
-        } else {
-            broadcast(new CakeMakerBlockS2CPacket(id, cake.pos, true, cake.bites, CAKE_PLACEMENT_TICKS, false));
+        // Advance bites; update display entity block state
+        cake.bites++;
+        if (cake.bites > MAX_CAKE_BITES) {
+            // Cake fully eaten — remove entities
+            removeCakeEntities(info.cakeId, cake);
+            cakes.remove(info.cakeId);
+        } else if (cake.displayEntity != null && !cake.displayEntity.isRemoved()) {
+            // Update the display entity to show new bite count
+            cake.displayEntity.setBlockState(
+                    Blocks.CAKE.defaultBlockState().setValue(CakeBlock.BITES, Math.min(cake.bites, MAX_CAKE_BITES)));
         }
         return true;
     }
@@ -596,25 +668,98 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         return cleared;
     }
 
-    private void broadcast(CakeMakerBlockS2CPacket packet) {
-        if (player instanceof ServerPlayer sp) {
-            for (ServerPlayer target : sp.serverLevel().players()) {
-                ServerPlayNetworking.send(target, packet);
-            }
-        }
-    }
-
     // ── Inner type — placed cake record ───────────────────────
 
-    /** Tracks a single placed cake: its position and how many bites have been taken. */
+    /** Tracks a single placed cake: its position, bites, and entity references. */
     public static final class Cake {
         final BlockPos pos;
         int bites;
         long placedGameTime;
+        Display.BlockDisplay displayEntity;
+        UUID interactionEntityId;
 
         Cake(BlockPos pos, long gameTime) {
             this.pos = pos;
             this.placedGameTime = gameTime;
         }
+    }
+
+    // ── Cake entity helpers (static) ──────────────────────────
+
+    /** Remove a specific cake's entities from the world and the registry. */
+    private static void removeCakeEntities(UUID cakeId, Cake cake) {
+        if (cake.interactionEntityId != null) {
+            CakeEntityInfo info = CAKE_ENTITIES.remove(cake.interactionEntityId);
+            if (info != null) {
+                if (info.displayEntity != null && !info.displayEntity.isRemoved()) {
+                    info.displayEntity.remove(Entity.RemovalReason.DISCARDED);
+                }
+                if (info.interactionEntity != null && !info.interactionEntity.isRemoved()) {
+                    info.interactionEntity.remove(Entity.RemovalReason.DISCARDED);
+                }
+            }
+        }
+    }
+
+    /** Check if an interaction entity belongs to a cake maker cake. */
+    public static boolean isCakeInteractionEntity(Entity entity) {
+        return entity instanceof Interaction
+                && CAKE_ENTITIES.containsKey(entity.getUUID());
+    }
+
+    /** Get the owner UUID for a cake interaction entity. */
+    public static UUID getCakeOwner(Entity entity) {
+        CakeEntityInfo info = CAKE_ENTITIES.get(entity.getUUID());
+        return info != null ? info.ownerUuid : null;
+    }
+
+    /** Get the cake ID for a cake interaction entity. */
+    public static UUID getCakeId(Entity entity) {
+        CakeEntityInfo info = CAKE_ENTITIES.get(entity.getUUID());
+        return info != null ? info.cakeId : null;
+    }
+
+    /** Remove all cake maker cake entities in the world (for game end / eggclear). */
+    public static void removeAllCakeEntities(net.minecraft.server.level.ServerLevel level) {
+        for (var entry : CAKE_ENTITIES.entrySet()) {
+            CakeEntityInfo info = entry.getValue();
+            if (info.displayEntity != null && !info.displayEntity.isRemoved()) {
+                info.displayEntity.remove(Entity.RemovalReason.DISCARDED);
+            }
+            if (info.interactionEntity != null && !info.interactionEntity.isRemoved()) {
+                info.interactionEntity.remove(Entity.RemovalReason.DISCARDED);
+            }
+        }
+        CAKE_ENTITIES.clear();
+    }
+
+    /** Remove cake entities within a range around a position. */
+    public static int removeCakeEntitiesInRange(net.minecraft.server.level.ServerLevel level, BlockPos origin, float range) {
+        int cleared = 0;
+        double rangeSq = range * range;
+        var iter = CAKE_ENTITIES.entrySet().iterator();
+        while (iter.hasNext()) {
+            var entry = iter.next();
+            CakeEntityInfo info = entry.getValue();
+            if (info.displayEntity != null && !info.displayEntity.isRemoved()) {
+                double dx = info.displayEntity.getX() - origin.getX();
+                double dy = info.displayEntity.getY() - origin.getY();
+                double dz = info.displayEntity.getZ() - origin.getZ();
+                if (dx * dx + dy * dy + dz * dz <= rangeSq) {
+                    info.displayEntity.remove(Entity.RemovalReason.DISCARDED);
+                    if (info.interactionEntity != null && !info.interactionEntity.isRemoved()) {
+                        info.interactionEntity.remove(Entity.RemovalReason.DISCARDED);
+                    }
+                    iter.remove();
+                    cleared++;
+                }
+            } else {
+                if (info.interactionEntity != null && !info.interactionEntity.isRemoved()) {
+                    info.interactionEntity.remove(Entity.RemovalReason.DISCARDED);
+                }
+                iter.remove();
+            }
+        }
+        return cleared;
     }
 }

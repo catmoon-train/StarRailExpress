@@ -778,6 +778,18 @@ public class ModEventsRegister {
                     }
                 }
             }
+            // Cake eating via right-click on cake interaction entity (any player)
+            if (CakeMakerComponent.isCakeInteractionEntity(entity)) {
+                UUID ownerId = CakeMakerComponent.getCakeOwner(entity);
+                if (ownerId != null) {
+                    ServerPlayer cakeOwner = world.getServer().getPlayerList().getPlayer(ownerId);
+                    if (cakeOwner != null) {
+                        if (ModComponents.CAKE_MAKER.get(cakeOwner).eat(entity, (ServerPlayer) player)) {
+                            return InteractionResult.SUCCESS;
+                        }
+                    }
+                }
+            }
             return InteractionResult.PASS;
         });
         // 吝啬 - 商店购买返还20%金币
