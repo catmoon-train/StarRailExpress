@@ -131,7 +131,7 @@ public class ReasonerCompassScreen extends Screen {
             y += ROW_HEIGHT;
         }
 
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
+        addRenderableWidget(Button.builder(Component.translatable("screen.noellesroles.reasoner.exit"), button -> onClose())
                 .bounds(left + PANEL_WIDTH - 80, top + PANEL_HEIGHT - 28, 62, 20).build());
     }
 

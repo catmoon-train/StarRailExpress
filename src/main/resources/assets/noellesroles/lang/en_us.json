@@ -3285,6 +3285,7 @@
   "screen.noellesroles.reasoner.select_reason": "Choose the deduced death reason",
   "screen.noellesroles.reasoner.select_task": "Choose the deduced task",
   "screen.noellesroles.reasoner.submit": "Confirm",
+  "screen.noellesroles.reasoner.exit": "Exit",
   "screen.noellesroles.reasoner.solved": "Solved",
   "hud.noellesroles.reasoner.progress": "Deduction %s/%s",
   "message.noellesroles.reasoner.compass_given": "A compass manifests in your hand.",

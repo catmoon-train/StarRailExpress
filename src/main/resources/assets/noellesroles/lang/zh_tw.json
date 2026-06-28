@@ -3232,6 +3232,7 @@
   "screen.noellesroles.reasoner.select_reason": "選擇你推理出的死因",
   "screen.noellesroles.reasoner.select_task": "選擇你推理出的任務",
   "screen.noellesroles.reasoner.submit": "確認",
+  "screen.noellesroles.reasoner.exit": "退出頁面",
   "screen.noellesroles.reasoner.solved": "已解",
   "hud.noellesroles.reasoner.progress": "推理進度 %s/%s",
   "message.noellesroles.reasoner.compass_given": "羅盤在你的掌心顯現。",
