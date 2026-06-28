@@ -38,6 +38,8 @@ public class GrenadeItem extends SkinableItem {
 
 	@Override
 	public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
+		if (user.isSpectator())
+			return;
 		if (!world.isClientSide) {
 			if (user instanceof Player player && isAnyGrenadeOnCooldown(player))
 				return;
