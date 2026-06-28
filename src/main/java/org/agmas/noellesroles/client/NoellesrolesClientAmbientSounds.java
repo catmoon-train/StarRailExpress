@@ -15,9 +15,9 @@ import org.agmas.noellesroles.role.ModRoles;
 public class NoellesrolesClientAmbientSounds {
 
   public static void register() {
-    // 阿蒙终幕「阿蒙时刻」：复用小丑音乐，于终幕全程循环播放。
+    // 阿蒙终幕「阿蒙时刻」：使用 A_MENG 音乐，于终幕全程循环播放。
     AmbienceUtil.registerBackgroundAmbience(
-        new BackgroundAmbience(NRSounds.JESTER_AMBIENT,
+        new BackgroundAmbience(NRSounds.A_MENG,
             player -> org.agmas.noellesroles.client.ClientAmonState.finaleActive,
             1));
     AmbienceUtil.registerBackgroundAmbience(

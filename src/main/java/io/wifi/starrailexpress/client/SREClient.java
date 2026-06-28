@@ -403,7 +403,16 @@ public class SREClient implements ClientModInitializer {
                         && SRE.isSkyVisible(player)
                         && gameComponent.getSceneOutsideSoundType().equals("snow_storm"),
                 0.6f, 20, 10));
-        // 马戏团背景音（仅室外，列车移动时）
+        // 马戏团内部（看不到天空时，仅 circus 类型生效）
+        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
+                org.agmas.noellesroles.init.NRSounds.CIRCUS_INDOOR,
+                SoundSource.AMBIENT,
+                (player) -> GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
+                        && !SRE.isSkyVisible(player)
+                        && gameComponent.getSceneOutsideSoundType().equals("circus"),
+                0.25f, 20, 10));
+        // 马戏团外部（能看到天空时，仅 circus 类型生效）
         AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
                 org.agmas.noellesroles.init.NRSounds.CIRCUS_BACKGROUND,
                 SoundSource.AMBIENT,
