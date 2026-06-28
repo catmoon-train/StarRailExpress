@@ -41,6 +41,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -767,7 +768,7 @@ public class ModEventsRegister {
     public static void registerEvents() {
         // Cake Maker: ingredient input via right-click on smoker interaction entity
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (world.isClientSide) return InteractionResult.PASS;
+            if (world.isClientSide || hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
             if (CakeMakerComponent.isSmokerInteractionEntity(entity)) {
                 UUID ownerId = CakeMakerComponent.getSmokerOwner(entity);
                 // Only the cake maker who owns the smoker can add ingredients
