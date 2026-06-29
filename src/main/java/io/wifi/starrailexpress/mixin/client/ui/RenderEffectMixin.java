@@ -55,11 +55,12 @@ public class RenderEffectMixin {
     @Redirect(method = "renderEffects", at = @At(value = "INVOKE", target = "Ljava/util/Collection;isEmpty()Z"))
     private boolean tmm$hideEffect(Collection<MobEffectInstance> collection) {
         // 原版 HUD 模式下保留原版药水图标显示。
-        if (SREClient.shouldRenderVanillaHud() || !SREClient.gameComponent.isRunning()) {
-            return collection.isEmpty();
-        }
+
         LocalPlayer player = this.minecraft.player;
         if (player == null) {
+            return collection.isEmpty();
+        }
+        if (SREClient.shouldRenderVanillaHud() || !SREClient.gameComponent.isRunning()) {
             return collection.isEmpty();
         }
         return true;
@@ -67,11 +68,12 @@ public class RenderEffectMixin {
 
     private void customRenderEffect(GuiGraphics context, DeltaTracker tickCounter) {
         // 原版 HUD 模式下保留原版药水图标显示。
-        if (SREClient.shouldRenderVanillaHud() || !SREClient.gameComponent.isRunning()) {
-            return;
-        }
+
         LocalPlayer player = this.minecraft.player;
         if (player == null) {
+            return;
+        }
+        if (SREClient.shouldRenderVanillaHud() || !SREClient.gameComponent.isRunning()) {
             return;
         }
         Screen var5 = this.minecraft.screen;
