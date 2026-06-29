@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.client;
 
-import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import io.wifi.utils.client.betterrender.OptimizedTextRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -24,7 +23,7 @@ import java.util.List;
  * 火车 HUD 的药水效果渲染：纵向卡片排版，常态仅显示图标 + 剩余时间（紧凑、不占空间），
  * 按住 Shift 时展开显示效果名称（含等级、自动换行）。
  *
- * <p>所有绘制走 {@link FakeGuiGraphics} → {@link OptimizedTextRenderer} 的批处理通道，
+ * <p>所有绘制走 {@link GuiGraphics} → {@link OptimizedTextRenderer} 的批处理通道，
  * 并以 tick 脏标记为门控，仅在 tick 变化时重建批次，其余帧复用缓存，避免每帧重复构建文本。
  */
 public final class StatusEffectRenderer {
@@ -66,11 +65,6 @@ public final class StatusEffectRenderer {
             return true;
         }
 
-        // tick 门控：仅在 tick 变化时重建批次，其余帧由 OptimizedTextRenderer 复用缓存
-        if (!OptimizedTextRenderer.INSTANCE.isTickDirty()) {
-            return true;
-        }
-
         List<MobEffectInstance> effects = new ArrayList<>(active.size());
         for (MobEffectInstance e : active) {
             if (e.showIcon()) {
@@ -88,7 +82,7 @@ public final class StatusEffectRenderer {
                         .comparingLong(StatusEffectRenderer::remainingTicks)
                         .reversed()));
 
-        final FakeGuiGraphics g = new FakeGuiGraphics(realGraphics);
+        final GuiGraphics g = realGraphics;
         final Font font = mc.font;
         final boolean expanded = Screen.hasShiftDown();
         final int screenW = realGraphics.guiWidth();
@@ -106,7 +100,7 @@ public final class StatusEffectRenderer {
     }
 
     // ── 紧凑态：图标 + 剩余时间 ───────────────────────────────────────────────────
-    private static int drawCompact(FakeGuiGraphics g, Font font, Minecraft mc, int screenW, int y,
+    private static int drawCompact(GuiGraphics g, Font font, Minecraft mc, int screenW, int y,
             MobEffectInstance effect) {
         String time = formatDuration(effect);
         int timeW = font.width(time);
@@ -130,7 +124,7 @@ public final class StatusEffectRenderer {
     }
 
     // ── 展开态（Shift）：图标 + 名称（换行）+ 剩余时间 ──────────────────────────────
-    private static int drawExpanded(FakeGuiGraphics g, Font font, Minecraft mc, int screenW, int y,
+    private static int drawExpanded(GuiGraphics g, Font font, Minecraft mc, int screenW, int y,
             MobEffectInstance effect) {
         List<FormattedCharSequence> nameLines = font.split(displayName(effect), NAME_MAX_W);
         String time = formatDuration(effect);
@@ -166,12 +160,12 @@ public final class StatusEffectRenderer {
     }
 
     // ── 绘制辅助 ──────────────────────────────────────────────────────────────────
-    private static void drawFrame(FakeGuiGraphics g, int x, int y, int w, int h, int accent) {
+    private static void drawFrame(GuiGraphics g, int x, int y, int w, int h, int accent) {
         g.fill(x, y, x + w, y + h, BG);
         g.fill(x, y, x + ACCENT_W, y + h, accent);
     }
 
-    private static void drawIcon(FakeGuiGraphics g, Minecraft mc, MobEffectInstance effect, int x, int y) {
+    private static void drawIcon(GuiGraphics g, Minecraft mc, MobEffectInstance effect, int x, int y) {
         TextureAtlasSprite sprite = mc.getMobEffectTextures().get(effect.getEffect());
         g.blit(x, y, 0, ICON, ICON, sprite);
     }

@@ -9,7 +9,6 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.SansRenderer;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.StatusBarHUD;
-import io.wifi.starrailexpress.client.StatusEffectRenderer;
 import io.wifi.starrailexpress.client.gui.CrosshairRenderer;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.exmo.sre.camera.client.AdvancedCameraDirector;
@@ -17,14 +16,10 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectInstance;
-
 import org.jetbrains.annotations.NotNull;
 import org.agmas.noellesroles.client.hud.MapStatusBarHudRenderer;
 import org.spongepowered.asm.mixin.Final;
@@ -33,11 +28,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
-import java.util.Collection;
 
 @Mixin(Gui.class)
 public class InGameHudMixin {
@@ -74,49 +67,6 @@ public class InGameHudMixin {
             return;
         }
         original.call(context, tickCounter);
-    }
-
-    @Inject(method = "renderEffects", at = @At("HEAD"), cancellable = true)
-    private void tmm$hideStatusEffectWhenCameraEvent(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        // 运镜动画期间与原版 F1 一致，完全隐藏状态效果。
-        if (AdvancedCameraDirector.shouldOverride()) {
-            ci.cancel();
-            return;
-        }
-    }
-
-    @Redirect(method = "renderEffects", at = @At(value = "INVOKE", target = "Ljava/util/Collection;isEmpty()Z"))
-    private boolean tmm$hideEffect(Collection<MobEffectInstance> collection) {
-        // 原版 HUD 模式下保留原版药水图标显示。
-        if (SREClient.shouldRenderVanillaHud()) {
-            return collection.isEmpty();
-        }
-        LocalPlayer player = this.minecraft.player;
-        if (player == null) {
-            return collection.isEmpty();
-        }
-        // 始终返回 true，用于渲染Effect的同时保持对VoiceChat的兼容性。
-        return true;
-    }
-
-    @Inject(method = "renderEffects", at = @At("TAIL"), cancellable = true)
-    private void tmm$renderEffect(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
-        // 原版 HUD 模式下保留原版药水图标显示。
-        if (SREClient.shouldRenderVanillaHud()) {
-            return;
-        }
-        LocalPlayer player = this.minecraft.player;
-        if (player == null) {
-            return;
-        }
-        Screen var5 = this.minecraft.screen;
-        if (var5 instanceof EffectRenderingInventoryScreen effectRenderingInventoryScreen) {
-            if (effectRenderingInventoryScreen.canSeeEffects()) {
-                return;
-            }
-        }
-        // 自定义排版：图标 + 剩余时间，Shift 展开显示名称（换行）。
-        StatusEffectRenderer.render(this.minecraft, context, player);
     }
 
     @WrapMethod(method = "renderCrosshair")
