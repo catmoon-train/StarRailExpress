@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
@@ -74,7 +75,11 @@ public class WithParentScreenPauseScreen extends PauseScreen {
         rowHelper.addChild(this.openScreenButton(ROLE_INTRODUCTION,
                 () -> new RoleIntroduceScreen(this)));
         rowHelper.addChild(this.openScreenButton(SETTINGS, () -> new SettingMenuScreen(this, this.parent == null)));
-        ServerLinks serverLink = this.minecraft.player.connection.serverLinks();
+        ServerLinks serverLink = new ServerLinks(List.of());
+        if (this.minecraft.player.connection != null) {
+
+            this.minecraft.player.connection.serverLinks();
+        }
         var arr = new ArrayList<>(serverLink.entries());
         try {
             arr.add(ServerLinks.Entry.custom(JOIN_QQ,
