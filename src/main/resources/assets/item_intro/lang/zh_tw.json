@@ -3,7 +3,7 @@
   "item.noellesroles.deduction_book.desc": "大偵探專用。右鍵打開推理之書查看已掌握的線索；對著屍體右鍵可推斷出兇手的一條特徵。每頁對應一名兇手，線索≥3條時可點擊「目標情況」查明其方位。",
   "item.exposure.photograph_frame.desc": "攝影師專用道具。售價 200 金幣，一局最多購買兩次。在冒險模式下也可放置。將攝影師拍攝的照片放入畫框後，任何玩家穿過畫框即可傳送到照片的拍攝地點；每次穿越會被致盲 3 秒，且需冷卻 3 秒才能再次穿越。局內開始時僅清除攝影師放置的畫框。",
   "item.noellesroles.wizard_staff.desc": "巫師專用。右鍵蓄力釋放魔法火焰箭，可穿透多名玩家，被命中者 3 秒後死亡；左鍵擊退目標。Explosion! 就緒時，下一次施放為可穿牆的九環火球術。",
-  "item.noellesroles.wizard_potion.desc": "巫師專用。使用後進入冷卻，獲得大量魔素，並在接下來 60 秒內免疫一次致命攻擊。",
+  "item.noellesroles.wizard_potion.desc": "巫師專用。使用後進入 160 秒冷卻，獲得大量魔素，並在接下來 60 秒內免疫一次致命攻擊。",
   "item.trainmurdermystery.bat.desc": "原版攻擊邏輯，左鍵打人。坐在輪椅上無法攻擊。",
   "item.trainmurdermystery.defense_vial.desc": "亡命徒可直接右鍵飲用獲得護盾。\n普通玩家可以右鍵託盤，將防禦藥劑倒在託盤上。\n下一個拿取防禦藥劑的玩家食用/飲用物品後即可獲得護盾。\n此方法獲得的護盾最多獲得1層。",
   "item.noellesroles.bucket_of_h2so4.desc": "清道夫道具。\n右鍵屍體可以清除。",

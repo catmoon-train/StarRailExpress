@@ -396,7 +396,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
             return;
         }
         mark.hits++;
-        int needed = config().wizardFireArrowHitsToKill;
+        int needed = 3;
         if (mark.hits >= needed) {
             mark.deathTicks = GameConstants.getInTicks(0, config().wizardFireArrowDeathDelaySeconds);
             target.displayClientMessage(Component.translatable("message.noellesroles.wizard.fire_arrow_hit")
@@ -456,10 +456,10 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         if (sp.getCooldowns().isOnCooldown(ModItems.WIZARD_POTION)) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_cd",
                     Math.max(1, Math.round(sp.getCooldowns().getCooldownPercent(ModItems.WIZARD_POTION, 0f)
-                            * config().wizardPotionCooldown))).withStyle(ChatFormatting.RED), true);
+                            * 160))).withStyle(ChatFormatting.RED), true);
             return false;
         }
-        sp.getCooldowns().addCooldown(ModItems.WIZARD_POTION, GameConstants.getInTicks(0, config().wizardPotionCooldown));
+        sp.getCooldowns().addCooldown(ModItems.WIZARD_POTION, GameConstants.getInTicks(0, 160));
         addMana(config().wizardPotionManaGain);
         io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(sp).addArmor();
         potionShieldTicks = GameConstants.getInTicks(0, config().wizardPotionImmuneSeconds);

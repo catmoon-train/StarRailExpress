@@ -407,8 +407,6 @@ public class NoellesRolesConfig implements ConfigData {
     public double wizardFireArrowRange = 30.0;
     /** Wizard - Max players a single fire arrow can pierce */
     public int wizardFireArrowMaxPierce = 2;
-    /** Wizard - Fire arrow hits required on one target before delayed death */
-    public int wizardFireArrowHitsToKill = 3;
     /** Wizard - Fire arrow delayed death seconds after enough hits */
     public int wizardFireArrowDeathDelaySeconds = 3;
     /** Wizard - Fire arrow (staff projectile) cooldown in seconds between shots */
@@ -443,8 +441,6 @@ public class NoellesRolesConfig implements ConfigData {
     public double wizardFireballRadius = 4.0;
     /** Wizard - Max players killed by one nine-ring fireball */
     public int wizardFireballMaxKills = 8;
-    /** Wizard - Potion cooldown in seconds */
-    public int wizardPotionCooldown = 120;
     /** Wizard - Mana gained from drinking a potion */
     public int wizardPotionManaGain = 150;
     /** Wizard - Potion attack-immunity window in seconds */
