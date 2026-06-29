@@ -121,8 +121,7 @@ public class EntityClearUtils {
         try {
             java.util.List<net.minecraft.world.entity.Entity> eggsToRemove = new java.util.ArrayList<>();
             world.getAllEntities().forEach((entity) -> {
-                if (entity instanceof net.minecraft.world.entity.Display.BlockDisplay
-                        && CuckooEggData.isCuckooEgg(entity)) {
+                if (isCuckooEggDisplayEntity(entity)) {
                     eggsToRemove.add(entity);
                 }
             });
@@ -133,5 +132,13 @@ public class EntityClearUtils {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    private static boolean isCuckooEggDisplayEntity(net.minecraft.world.entity.Entity entity) {
+        if (!(entity instanceof net.minecraft.world.entity.Display.BlockDisplay blockDisplay)) {
+            return false;
+        }
+        return CuckooEggData.isCuckooEgg(entity)
+                || blockDisplay.getBlockState().is(net.minecraft.world.level.block.Blocks.SNIFFER_EGG);
     }
 }
