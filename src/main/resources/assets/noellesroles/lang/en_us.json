@@ -2611,6 +2611,8 @@
   "message.noellesroles.wizard.fire_arrow_kill_caster": "%s is marked for death and will perish in %ss",
   "message.noellesroles.wizard.potion_cd": "Potion on cooldown (%ss)",
   "message.noellesroles.wizard.potion_used": "Potion active: large mana gained, immune to one attack for 60s",
+  "message.noellesroles.wizard.potion_shield_broken": "Potion shield broken, lost 150 mana!",
+  "message.noellesroles.wizard.potion_no_kill_penalty": "No kill while shielded, lost an additional %s mana!",
   "message.noellesroles.wizard.immune_triggered": "The potion shield negated a lethal attack!",
   "death_reason.noellesroles.wizard_fire_arrow": "Magic Fire Arrow",
   "death_reason.noellesroles.wizard_fireball": "Nine-Ring Fireball",

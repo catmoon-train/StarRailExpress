@@ -2628,6 +2628,7 @@
   "message.noellesroles.wizard.potion_cd": "魔药冷却中（%s 秒）",
   "message.noellesroles.wizard.potion_used": "魔药生效：获得 150 魔素与 1 层限时护盾",
   "message.noellesroles.wizard.potion_shield_broken": "魔药护盾被打破，倒扣 150 魔素！",
+  "message.noellesroles.wizard.potion_no_kill_penalty": "护盾期间未击杀玩家，额外扣除 %s 魔素！",
   "death_reason.noellesroles.wizard_fire_arrow": "魔法火焰箭",
   "death_reason.noellesroles.wizard_fireball": "九环火球术",
   "hud.noellesroles.builder.mode.build": "建造模式",

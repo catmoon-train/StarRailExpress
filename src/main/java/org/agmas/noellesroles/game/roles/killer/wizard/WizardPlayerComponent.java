@@ -63,6 +63,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     public int explosionCooldownTicks = 0;
 
     private boolean gaveStartingItems = false;
+    private boolean potionKilledPlayer = false;
     private final List<ShieldExpiry> shieldExpiries = new ArrayList<>();
     private final Map<UUID, FireArrowMark> fireArrowMarks = new HashMap<>();
 
@@ -444,6 +445,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
             mark.deathTicks--;
             if (mark.deathTicks <= 0) {
                 GameUtils.killPlayer(serverTarget, true, caster, Noellesroles.id("wizard_fire_arrow"));
+                onKillWhileShielded();
                 caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
                         io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(
                                 io.wifi.starrailexpress.index.TMMItems.KNIFE));
@@ -463,6 +465,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         addMana(config().wizardPotionManaGain);
         io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(sp).addArmor();
         potionShieldTicks = GameConstants.getInTicks(0, config().wizardPotionImmuneSeconds);
+        potionKilledPlayer = false;
         sync();
         castFx(sp, SoundEvents.BREWING_STAND_BREW, ParticleTypes.WITCH);
         sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_used")
@@ -476,10 +479,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         }
         potionShieldTicks = 0;
         spendMana(config().wizardPotionManaGain);
-        if (player instanceof ServerPlayer sp) {
-            sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_shield_broken")
-                    .withStyle(ChatFormatting.RED), true);
-        }
+        applyPotionKillPenalty();
         sync();
     }
 
@@ -489,7 +489,27 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         if (armor.getArmor() > 0) {
             armor.removeArmor();
         }
+        applyPotionKillPenalty();
         sync();
+    }
+
+    private void applyPotionKillPenalty() {
+        if (potionKilledPlayer) return;
+        float penalty = this.mana / 2f;
+        if (penalty > 0) {
+            spendMana(penalty);
+            if (player instanceof ServerPlayer sp) {
+                sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_no_kill_penalty",
+                                Math.round(penalty))
+                        .withStyle(ChatFormatting.RED), true);
+            }
+        }
+    }
+
+    public void onKillWhileShielded() {
+        if (potionShieldTicks > 0) {
+            potionKilledPlayer = true;
+        }
     }
 
     private void grantStartingItems(ServerPlayer sp) {
