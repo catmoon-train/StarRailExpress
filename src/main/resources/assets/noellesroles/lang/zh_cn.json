@@ -1,7 +1,7 @@
 {
   "unknown": "未知",
   "sre.command.permission_denied": "你没有权限做这件事！",
-  "sre.command.not_enabled":"未启用Roster功能。请在配置文件中启用后重启服务器！",
+  "sre.command.not_enabled": "未启用Roster功能。请在配置文件中启用后重启服务器！",
   "sre.general.unknown": "未知",
   "commands.loot.error.execute_fail": "执行失败, 原因:\n %s",
   "commands.loot.success.add_or_degree_chance": "成功为玩家 %s 添加 %s 次抽奖次数. 当前总次数: %s",
@@ -1393,6 +1393,8 @@
   "screen.roleintroduce.view_detail": "查看详情",
   "screen.roleintroduce.shop.price": "物品价格: %s",
   "screen.roleintroduce.detail.shop": "商店",
+  "screen.roleintroduce.detail.initial_item": "初始物品",
+  "screen.roleintroduce.detail.initial_item.tip": "因为代码实现不统一，初始物品显示可能与实际游玩时的初始物品不一致。",
   "screen.noellesroles.search.empty": "没有匹配的项目",
   "screen.roleintroduce.error": "发生了一些错误，导致我们无法获取物品提示。\n你可能需要进入游戏后才能查看物品的提示。\n错误信息：%s",
   "display.type.item": "物品",

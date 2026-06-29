@@ -35,6 +35,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.RoleInitialItems;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
@@ -466,6 +467,136 @@ public class RoleIntroduceScreen extends Screen {
         protected abstract void prepareLines();
     }
 
+    private class InitialItemTab implements DetailTab {
+        private int scrollOffset = 0;
+        private int maxScroll = 0;
+        private final List<ItemStack> entries = new ArrayList<>();
+        private List<FormattedCharSequence> headerLines = new ArrayList<>(); // 顶部描述文本
+        private static final int ITEM_H = 32;
+        private static final int TEXT_GAP = 2;
+        private static final int LINE_H = 9 + 2; // 描述行高
+
+        @Override
+        public Component getTitle() {
+            return Component.translatable("screen.roleintroduce.detail.initial_item");
+        }
+
+        @Override
+        public boolean isVisible() {
+            if (!(selectedRole instanceof SRERole role))
+                return false;
+            entries.clear();
+            entries.addAll(getInitialItems(role));
+            return !entries.isEmpty();
+        }
+
+        private ArrayList<ItemStack> getInitialItems(SRERole role) {
+            return RoleInitialItems.getInitialItemsForRole(role);
+        }
+
+        @Override
+        public void render(GuiGraphics g, int x, int y, int w, int h, int mouseX, int mouseY, float partialTick) {
+            g.enableScissor(x, y, x + w, y + h);
+            int currentY = y - scrollOffset;
+
+            // 绘制顶部描述文本（支持多行自动换行）
+            if (!headerLines.isEmpty()) {
+                for (FormattedCharSequence line : headerLines) {
+                    if (currentY + LINE_H > y && currentY < y + h) {
+                        g.drawString(font, line, x + 4, currentY, 0xFFAAAAAA);
+                    }
+                    currentY += LINE_H;
+                }
+                currentY += 2; // 与物品列表的间隔
+            }
+
+            // 绘制物品列表
+            int itemY = currentY;
+            for (int i = 0; i < entries.size(); i++) {
+                ItemStack stack = entries.get(i);
+                if (stack != null && itemY + ITEM_H > y && itemY < y + h) {
+                    g.renderItem(stack, x + 4, itemY + (ITEM_H - 16) / 2);
+                    Component nameText = stack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
+                    Component idText = Component.literal(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())
+                            .withStyle(ChatFormatting.DARK_GRAY);
+                    int textX = x + 24;
+                    int lineH = font.lineHeight;
+                    int blockHeight = lineH * 2 + TEXT_GAP;
+                    int blockTop = itemY + (ITEM_H - blockHeight) / 2;
+                    g.drawString(font, nameText, textX, blockTop, 0xFFFFFF);
+                    g.drawString(font, idText, textX, blockTop + lineH + TEXT_GAP, 0xFFFFFFFF);
+                    if (i < entries.size() - 1) {
+                        g.fill(x + 4, itemY + ITEM_H - 1, x + w - 4, itemY + ITEM_H, 0x20FFFFFF);
+                    }
+                }
+                itemY += ITEM_H;
+            }
+            g.disableScissor();
+
+            // 更新最大滚动
+            int totalH = getContentHeight();
+            maxScroll = Math.max(0, totalH - h);
+
+            // 物品悬停提示（不含描述区域）
+            if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
+                int headerOffset = headerLines.isEmpty() ? 0 : headerLines.size() * LINE_H + 2;
+                int relY = mouseY - y + scrollOffset - headerOffset;
+                if (relY >= 0) {
+                    int idx = relY / ITEM_H;
+                    if (idx >= 0 && idx < entries.size()) {
+                        ItemStack stack = entries.get(idx);
+                        if (stack != null && !stack.isEmpty()) {
+                            List<Component> tooltipLines;
+                            try {
+                                tooltipLines = stack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player,
+                                        TooltipFlag.NORMAL);
+                            } catch (Exception e) {
+                                tooltipLines = List
+                                        .of(Component.translatable("screen.roleintroduce.error", e.getMessage()));
+                            }
+                            g.renderTooltip(font, tooltipLines, stack.getTooltipImage(), mouseX, mouseY);
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public int getScrollOffset() {
+            return scrollOffset;
+        }
+
+        @Override
+        public int getMaxScroll() {
+            return maxScroll;
+        }
+
+        @Override
+        public void setScrollOffset(int offset) {
+            this.scrollOffset = Mth.clamp(offset, 0, maxScroll);
+        }
+
+        @Override
+        public int getContentHeight() {
+            int headerH = headerLines.isEmpty() ? 0 : headerLines.size() * LINE_H + 2;
+            return headerH + entries.size() * ITEM_H;
+        }
+
+        @Override
+        public void onSwitchTo() {
+            scrollOffset = 0;
+            entries.clear();
+            headerLines.clear();
+            if (selectedRole instanceof SRERole role) {
+                entries.addAll(getInitialItems(role));
+                // 准备顶部描述文本（从语言文件读取，支持自动换行）
+                Component desc = Component.translatable("screen.roleintroduce.detail.initial_item.tip");
+                int textW = rightW - PANEL_PAD * 2 - SCROLL_W - 4; // 使用内容区宽度
+                headerLines = font.split(desc, textW);
+            }
+        }
+    }
+
     private class ShopTab implements DetailTab {
         private int scrollOffset = 0;
         private int maxScroll = 0;
@@ -499,7 +630,7 @@ public class RoleIntroduceScreen extends Screen {
                     Component nameText = stack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
                     Component priceText = Component.translatable("screen.roleintroduce.shop.price", entry.price())
                             .withStyle(ChatFormatting.GOLD);
-                    int textX = x + 24;
+                    int textX = x + 32;
                     int lineH = font.lineHeight;
                     int blockHeight = lineH * 2 + TEXT_GAP;
                     int blockTop = itemY + (ITEM_H - blockHeight) / 2;
@@ -658,6 +789,8 @@ public class RoleIntroduceScreen extends Screen {
         // 商店
         tabs.add(new ShopTab());
 
+        // 可能的初始物品
+        tabs.add(new InitialItemTab());
         // 小故事
         tabs.add(new AbstractTextTab() {
             @Override

@@ -2,15 +2,12 @@ package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Unbreakable;
-import org.agmas.noellesroles.content.item.SheriffRevolverItem;
-import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -74,17 +71,33 @@ public class RoleInitialItems {
                 }
             }
         }
-
     }
 
-
+    public static ArrayList<ItemStack> getInitialItemsForRole(SRERole role) {
+        ArrayList<ItemStack> result = new ArrayList<>();
+        List<Supplier<ItemStack>> itemSuppliers = RoleInitialItems.INITIAL_ITEMS_MAP.get(role);
+        if (itemSuppliers != null) {
+            for (Supplier<ItemStack> itemSupplier : itemSuppliers) {
+                ItemStack itemStack = itemSupplier.get();
+                if (itemStack != null && !itemStack.isEmpty()) {
+                    result.add(itemStack.copy());
+                }
+            }
+        } else {
+            // 静态 Map 中没有此角色 → 回退到 getDefaultItems()（自定义职业走这条路）
+            List<ItemStack> defaultItems = role.getDefaultItems();
+            for (var i : defaultItems) {
+                if (i != null && !i.isEmpty()) {
+                    result.add(i.copy());
+                }
+            }
+        }
+        return result;
+    }
 
     private static ItemStack normalizeInitialItemForRole(SRERole role, ItemStack stack) {
-
         return stack.copy();
     }
-
-
 
     /**
      * 初始化初始物品映射，职业的初始物品加在这里。
