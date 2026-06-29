@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -34,7 +35,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -822,6 +823,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return identifier;
     }
 
+    @Override
     public int color() {
         return color;
     }
@@ -1138,5 +1140,22 @@ public abstract class SRERole extends SREAbstractInfoClass {
      */
     public InteractionResult onDropItem(Player player, ItemStack item) {
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public Component getName() {
+        String translationKey = "announcement.star.role." + this.identifier().getPath();
+        return Component.translatable(translationKey);
+    }
+
+    @Override
+    public Component getDescription() {
+        var id = this.identifier();
+        return Component.translatable("info.screen.roleid." + id.getPath());
+    }
+
+    public Component getSimpleDescription() {
+        var id = this.identifier();
+        return Component.translatable("info.screen.roleid." + id.getPath() + ".simple");
     }
 }

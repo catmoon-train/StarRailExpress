@@ -226,13 +226,14 @@ public class SREModifier extends SREAbstractInfoClass {
         this.killerOnly = killerOnly;
         this.civilianOnly = civilianOnly;
     }
-    
+
     @Override
     public ResourceLocation identifier() {
         return this.identifier;
     }
 
-    public MutableComponent getName() {
+    @Override
+    public Component getName() {
         return getName(false);
     }
 
@@ -252,6 +253,7 @@ public class SREModifier extends SREAbstractInfoClass {
         return text;
     }
 
+    @Override
     public int color() {
         return this.color;
     }
@@ -338,5 +340,17 @@ public class SREModifier extends SREAbstractInfoClass {
         if (isOtherModeRole)
             this.canSetSpawnInfoInConfig = false;
         return this;
+    }
+
+    @Override
+    public Component getDescription() {
+        return Component
+                .translatable("info.screen.modifier." + this.identifier().getPath());
+    }
+
+    @Override
+    public Component getSimpleDescription() {
+        return Component
+                .translatable("info.screen.modifier." + this.identifier().getPath() + ".simple");
     }
 }

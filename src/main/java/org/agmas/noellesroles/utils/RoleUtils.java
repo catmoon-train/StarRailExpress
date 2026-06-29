@@ -3,6 +3,7 @@ package org.agmas.noellesroles.utils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SREAbstractInfoClass;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
@@ -37,6 +38,7 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -275,7 +277,7 @@ public class RoleUtils extends MCItemsUtils {
         // 给新职业
         gameWorldComponent.addRole(player, role);
         // 触发事件
-        if (player instanceof ServerPlayer sp){
+        if (player instanceof ServerPlayer sp) {
             (ModdedRoleAssigned.EVENT.invoker()).assignModdedRole(sp, role);
         }
     }
@@ -283,22 +285,11 @@ public class RoleUtils extends MCItemsUtils {
     public static MutableComponent getRoleName(ResourceLocation roleIdentifier) {
         if (roleIdentifier == null)
             return null;
-        // 检查自定义职业的显示名称
-        if (roleIdentifier.getNamespace().equals("customrole")) {
-            var customData = io.wifi.starrailexpress.customrole.CustomRoleLoader
-                    .getCustomRoleData(roleIdentifier.getPath());
-            if (customData != null && !customData.displayName.isEmpty()) {
-                return Component.literal(customData.displayName);
-            }
-            // 服务端不可用时，回退到客户端网络同步的数据
-            customData = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork
-                    .getSyncedRole(roleIdentifier.getPath());
-            if (customData != null && !customData.displayName.isEmpty()) {
-                return Component.literal(customData.displayName);
-            }
+        SRERole role = TMMRoles.ROLES.getOrDefault(roleIdentifier, null);
+        if (role == null) {
+            return Component.translatable("announcement.star.role." + roleIdentifier.getPath());
         }
-        String translationKey = "announcement.star.role." + roleIdentifier.getPath();
-        return Component.translatable(translationKey);
+        return role.getName().copy();
     }
 
     /**
@@ -306,7 +297,7 @@ public class RoleUtils extends MCItemsUtils {
      */
     public static MutableComponent getRoleName(SRERole role) {
         // 尝试获取翻译后的角色名称
-        return getRoleName(role.identifier());
+        return role.getName().copy();
     }
 
     /**
@@ -343,83 +334,57 @@ public class RoleUtils extends MCItemsUtils {
         if (res == null) {
             return Component.translatable("info.screen.modifier." + modifierName);
         }
-        return Component.translatable("info.screen.roleid." + res.getPath());
-    }
-
-    private static String fixNewlines(String text) {
-        return text.replace("\\n", "\n");
+        var m = HMLModifiers.getModifier(res);
+        if (m == null)
+            return Component.translatable("info.screen.modifier." + res.getPath());
+        return m.getDescription().copy();
     }
 
     public static MutableComponent getRoleDescription(String roleName) {
         var res = ResourceLocation.tryParse(roleName);
-        if (res == null) {
-            if (roleName.startsWith("customrole:")) {
-                var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader
-                        .getCustomRoleData(roleName.substring("customrole:".length()));
-                if (cd != null && !cd.description.isEmpty())
-                    return Component.literal(fixNewlines(cd.description));
-                cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork
-                        .getSyncedRole(roleName.substring("customrole:".length()));
-                if (cd != null && !cd.description.isEmpty())
-                    return Component.literal(fixNewlines(cd.description));
-            }
-            return Component.translatable("info.screen.roleid." + roleName);
+        if (res == null)
+            return Component.literal(roleName);
+        var role = TMMRoles.ROLES.getOrDefault(res, null);
+        if (role == null) {
+            return Component.translatable("info.screen.roleid." + res.getPath());
         }
-        if ("customrole".equals(res.getNamespace())) {
-            var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(res.getPath());
-            if (cd != null && !cd.description.isEmpty())
-                return Component.literal(fixNewlines(cd.description));
-            cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(res.getPath());
-            if (cd != null && !cd.description.isEmpty())
-                return Component.literal(fixNewlines(cd.description));
-        }
-        return Component.translatable("info.screen.roleid." + res.getPath());
+        return role.getDescription().copy();
     }
 
-    public static MutableComponent getRoleDescription(SRERole selectedRole) {
-        if (selectedRole == null)
-            return null;
-        var id = selectedRole.getIdentifier();
-        if ("customrole".equals(id.getNamespace())) {
-            var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(id.getPath());
-            if (cd != null && !cd.description.isEmpty()) {
-                return Component.literal(fixNewlines(cd.description));
-            }
-            cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(id.getPath());
-            if (cd != null && !cd.description.isEmpty()) {
-                return Component.literal(fixNewlines(cd.description));
-            }
-        }
-        return Component.translatable("info.screen.roleid." + selectedRole.getIdentifier().getPath());
+    public static MutableComponent getRoleDescription(SRERole role) {
+        if (role == null)
+            return Component.literal("");
+        return role.getDescription().copy();
     }
 
     public static MutableComponent getModifierName(ResourceLocation modifier) {
-        if (!Language.getInstance().has("announcement.star.modifier." + modifier.toLanguageKey())
-                && Language.getInstance().has("announcement.star.modifier." + modifier.getPath())) {
-            return Component.translatable("announcement.star.modifier." + modifier.getPath());
-        }
-        final MutableComponent text = Component.translatable("announcement.star.modifier." + modifier.toLanguageKey());
-        return text;
+        var m = HMLModifiers.getModifier(modifier);
+        if (m != null)
+            return m.getName(false);
+        return null;
     }
 
     public static MutableComponent getModifierName(SREModifier modifier) {
-        return modifier.getName();
+        if (modifier == null)
+            return null;
+        return modifier.getName(false);
     }
 
     public static MutableComponent getModifierNameWithColor(SREModifier modifier) {
+        if (modifier == null)
+            return null;
         return modifier.getName(true);
     }
 
     public static MutableComponent getModifierDescription(SREModifier modifier) {
-        return Component
-                .translatable("info.screen.modifier." + modifier.identifier().getPath());
+        return modifier.getDescription().copy();
     }
 
     public static Component getRoleOrModifierName(Object role) {
         if (role instanceof SRERole r) {
             return getRoleName(r);
         } else if (role instanceof SREModifier m) {
-            return m.getName(false);
+            return getModifierName(m);
         } else {
             return Component.literal("Unknown");
         }
@@ -435,6 +400,40 @@ public class RoleUtils extends MCItemsUtils {
         } else {
             return Component.translatable("Unknown");
         }
+    }
+
+    public static MutableComponent getRoleOrModifierSimpleDescription(Object role) {
+        if (role instanceof SRERole r) {
+            return getRoleSimpleDescription(r);
+        } else if (role instanceof SREModifier m) {
+            return getModifierSimpleDescription(m);
+        } else {
+            return Component.literal("Unknown");
+        }
+    }
+
+    public static MutableComponent getAbstactInfoObjectName(SREAbstractInfoClass obj) {
+        return getAbstactInfoObjectName(obj, false);
+    }
+
+    public static MutableComponent getAbstactInfoObjectName(SREAbstractInfoClass obj, boolean color) {
+        return obj.getDescription().copy();
+    }
+
+    public static MutableComponent getAbstactInfoObjectDescription(SREAbstractInfoClass obj) {
+        return obj.getDescription().copy();
+    }
+
+    public static MutableComponent getAbstactInfoObjectSimpleDescription(SREAbstractInfoClass obj) {
+        return obj.getSimpleDescription().copy();
+    }
+
+    public static MutableComponent getRoleSimpleDescription(SRERole role) {
+        return role.getSimpleDescription().copy();
+    }
+
+    public static MutableComponent getModifierSimpleDescription(SREModifier modifier) {
+        return modifier.getSimpleDescription().copy();
     }
 
     public static MutableComponent getRoleOrModifierDescription(Object role) {
@@ -507,6 +506,23 @@ public class RoleUtils extends MCItemsUtils {
             return Component.translatable("display.type.item");
         } else {
             return getRoleOrModifierTypeName(role);
+        }
+    }
+
+    public static MutableComponent getRoleOrModifierOrItemSimpleDescription(Object selectedRole) {
+        if (selectedRole instanceof Item it) {
+            String key = it.getDescriptionId() + ".desc.simple";
+            if (Language.getInstance().has(key))
+                return Component.translatable(key);
+            else {
+                String key2 = it.getDescriptionId() + ".tooltip";
+                if (Language.getInstance().has(key2))
+                    return Component.translatable(key2);
+                else
+                    return it.getDescription().copy();
+            }
+        } else {
+            return getRoleOrModifierSimpleDescription(selectedRole);
         }
     }
 
