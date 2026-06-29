@@ -298,7 +298,7 @@ public class ModPacketsReciever {
                       ChatFormatting.BOLD),
                   true);
             } else {
-              GameUtils.killPlayer(player, true, firstKiller, Noellesroles.id("fail_exam"));
+              GameUtils.killPlayer(player, true, firstKiller, Noellesroles.deathReason("fail_exam"));
             }
           }
         } else {
@@ -307,7 +307,7 @@ public class ModPacketsReciever {
               true);
           // 如果是baka给的则杀死玩家
           if (GameUtils.isPlayerAliveAndSurvival(player)) {
-            GameUtils.killPlayer(player, true, null, Noellesroles.id("baka"));
+            GameUtils.killPlayer(player, true, null, Noellesroles.deathReason("baka"));
           }
         }
         // player.displayClientMessage(Component.literal("Failed"), true);

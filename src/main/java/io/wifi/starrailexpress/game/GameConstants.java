@@ -9,6 +9,7 @@ import net.minecraft.world.item.Items;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.util.DeathReasonRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -184,39 +185,39 @@ public class GameConstants {
     }
 
     public static class DeathReasons {
-        public static ResourceLocation DISCONNECT = SRE.id("disconnected");
-        public static ResourceLocation BLACK_WHITE_TIMEOUT = SRE.id("black_white");
-        public static ResourceLocation AMON_USURP = SRE.id("amon_usurp");
-        public static ResourceLocation BACKFIRE = SRE.id("backfire");
-        public static ResourceLocation EXECUTE = SRE.id("execute");
-        public static ResourceLocation GENERIC = SRE.id("generic");
-        public static ResourceLocation KNIFE = SRE.id("knife_stab");
-        public static ResourceLocation REVOLVER = SRE.id("revolver_shot");
-        public static ResourceLocation DERRINGER = SRE.id("derringer_shot");
-        public static ResourceLocation BAT = SRE.id("bat_hit");
-        public static ResourceLocation GRENADE = SRE.id("grenade");
-        public static ResourceLocation POISON = SRE.id("poison");
-        public static ResourceLocation SELF_EXPLOSION = SRE.id("self_explosion");
-        public static ResourceLocation FELL_OUT_OF_TRAIN = SRE.id("fell_out_of_train");
-        public static ResourceLocation ARROW = SRE.id("arrow");
-        public static ResourceLocation TRIDENT = SRE.id("trident");
-        public static ResourceLocation SNIPER_RIFLE = SRE.id("sniper_rifle");
-        public static ResourceLocation SNIPER_RIFLE_BACKFIRE = SRE.id("sniper_rifle_backfire");
-        public static ResourceLocation NUNCHUCK = SRE.id("nunchuck_hit");
-        public static ResourceLocation ZERO_ONE_FIVE = SRE.id("zero_one_five_shot");
-        public static ResourceLocation SELF_LOST = SRE.id("self_lost");
-        public static ResourceLocation MANHOLE_SUFFOCATION = SRE.id("manhole_suffocation");
-        public static ResourceLocation STALACTITE_IMPALE = SRE.id("stalactite_impale");
-        public static ResourceLocation FLAMETHROWER_BURNED = SRE.id("flamethrower_burned");
-        public static ResourceLocation BOULDER_CRUSH = SRE.id("boulder_crush");
-        public static ResourceLocation INCINERATOR_PUSHED = SRE.id("incinerator_pushed");
-        public static ResourceLocation ANCIENT_BITE = SRE.id("ancient_bite");
-        public static ResourceLocation DROWNED = SRE.id("drowned");
-        public static ResourceLocation FROZEN = SRE.id("frozen");
-        public static ResourceLocation THIRST = SRE.id("thirst");
-        public static ResourceLocation STARVED = SRE.id("starved");
-        public static ResourceLocation GOD_COMMAND = Noellesroles.id("god_command");
-        public static ResourceLocation GENERAL_ATTACK = SRE.id("general_attack");
+        public static ResourceLocation DISCONNECT = DeathReasonRegistry.gameConstant(SRE.id("disconnected"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation BLACK_WHITE_TIMEOUT = DeathReasonRegistry.gameConstant(SRE.id("black_white"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation AMON_USURP = DeathReasonRegistry.gameConstant(SRE.id("amon_usurp"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation BACKFIRE = DeathReasonRegistry.gameConstant(SRE.id("backfire"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation EXECUTE = DeathReasonRegistry.gameConstant(SRE.id("execute"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation GENERIC = DeathReasonRegistry.gameConstant(SRE.id("generic"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation KNIFE = DeathReasonRegistry.gameConstant(SRE.id("knife_stab"), DeathReasonRegistry.KillUsage.NORMAL, DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation REVOLVER = DeathReasonRegistry.gameConstant(SRE.id("revolver_shot"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation DERRINGER = DeathReasonRegistry.gameConstant(SRE.id("derringer_shot"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation BAT = DeathReasonRegistry.gameConstant(SRE.id("bat_hit"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation GRENADE = DeathReasonRegistry.gameConstant(SRE.id("grenade"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation POISON = DeathReasonRegistry.gameConstant(SRE.id("poison"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation SELF_EXPLOSION = DeathReasonRegistry.gameConstant(SRE.id("self_explosion"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation FELL_OUT_OF_TRAIN = DeathReasonRegistry.gameConstant(SRE.id("fell_out_of_train"), DeathReasonRegistry.KillUsage.NORMAL, DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation ARROW = DeathReasonRegistry.gameConstant(SRE.id("arrow"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation TRIDENT = DeathReasonRegistry.gameConstant(SRE.id("trident"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation SNIPER_RIFLE = DeathReasonRegistry.gameConstant(SRE.id("sniper_rifle"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation SNIPER_RIFLE_BACKFIRE = DeathReasonRegistry.gameConstant(SRE.id("sniper_rifle_backfire"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation NUNCHUCK = DeathReasonRegistry.gameConstant(SRE.id("nunchuck_hit"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation ZERO_ONE_FIVE = DeathReasonRegistry.gameConstant(SRE.id("zero_one_five_shot"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation SELF_LOST = DeathReasonRegistry.gameConstant(SRE.id("self_lost"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation MANHOLE_SUFFOCATION = DeathReasonRegistry.gameConstant(SRE.id("manhole_suffocation"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation STALACTITE_IMPALE = DeathReasonRegistry.gameConstant(SRE.id("stalactite_impale"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation FLAMETHROWER_BURNED = DeathReasonRegistry.gameConstant(SRE.id("flamethrower_burned"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation BOULDER_CRUSH = DeathReasonRegistry.gameConstant(SRE.id("boulder_crush"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation INCINERATOR_PUSHED = DeathReasonRegistry.gameConstant(SRE.id("incinerator_pushed"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation ANCIENT_BITE = DeathReasonRegistry.gameConstant(SRE.id("ancient_bite"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation DROWNED = DeathReasonRegistry.gameConstant(SRE.id("drowned"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation FROZEN = DeathReasonRegistry.gameConstant(SRE.id("frozen"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation THIRST = DeathReasonRegistry.gameConstant(SRE.id("thirst"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation STARVED = DeathReasonRegistry.gameConstant(SRE.id("starved"), DeathReasonRegistry.KillUsage.FORCE);
+        public static ResourceLocation GOD_COMMAND = DeathReasonRegistry.gameConstant(Noellesroles.id("god_command"), DeathReasonRegistry.KillUsage.NORMAL);
+        public static ResourceLocation GENERAL_ATTACK = DeathReasonRegistry.gameConstant(SRE.id("general_attack"), DeathReasonRegistry.KillUsage.NORMAL);
     }
 
     public static int getFurandoruSafeLine() {

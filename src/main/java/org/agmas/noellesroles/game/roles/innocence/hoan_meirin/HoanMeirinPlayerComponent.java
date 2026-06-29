@@ -145,7 +145,7 @@ public class HoanMeirinPlayerComponent
 
     public void killPlayerBecauseLonely() {
         this.loneyTime = 0;
-        GameUtils.killPlayer(player, true, null, Noellesroles.id("hoan_meirin_lonely"));
+        GameUtils.killPlayer(player, true, null, Noellesroles.deathReason("hoan_meirin_lonely"));
         this.sync();
     }
 

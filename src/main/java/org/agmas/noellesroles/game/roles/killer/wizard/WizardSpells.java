@@ -125,10 +125,11 @@ public final class WizardSpells {
             }
         }
 
-        explode(level, detonation, radius, sp);
+        explode(level, detonation, radius, sp, comp);
     }
 
-    private static void explode(ServerLevel level, Vec3 center, double radius, ServerPlayer caster) {
+    private static void explode(ServerLevel level, Vec3 center, double radius, ServerPlayer caster,
+                                WizardPlayerComponent comp) {
         // “九环”火焰环 + 大爆炸粒子
         for (int ring = 1; ring <= 9; ring++) {
             double r = radius * ring / 9.0;
@@ -152,7 +153,7 @@ public final class WizardSpells {
                 continue;
             }
             if (p.position().add(0, p.getBbHeight() / 2, 0).distanceToSqr(center) <= r2) {
-                GameUtils.killPlayer(p, true, caster, Noellesroles.id("wizard_fireball"));
+                GameUtils.killPlayer(p, true, caster, Noellesroles.deathReason("wizard_fireball"));
                 killed++;
                 if (killed >= config().wizardFireballMaxKills) {
                     break;

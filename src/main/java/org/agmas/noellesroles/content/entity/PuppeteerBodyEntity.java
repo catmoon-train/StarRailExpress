@@ -231,7 +231,7 @@ public class PuppeteerBodyEntity extends LivingEntity {
                 if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
                     ModComponents.PUPPETEER.get(owner).onBodyDeath();
                 } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
-                    ModComponents.RAVEN.get(owner).onBodyDeath(null, Noellesroles.id("raven_body_death"));
+                    ModComponents.RAVEN.get(owner).onBodyDeath(null, Noellesroles.deathReason("raven_body_death"));
                 } else {
                     owner.teleportTo(owner.getX(), owner.getY(), owner.getZ());
                     // ModEffects.pierceDeath = true;
@@ -262,7 +262,7 @@ public class PuppeteerBodyEntity extends LivingEntity {
             if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
                 ModComponents.PUPPETEER.get(owner).onBodyDeath();
             } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
-                ModComponents.RAVEN.get(owner).onBodyDeath(null, Noellesroles.id("raven_body_death"));
+                ModComponents.RAVEN.get(owner).onBodyDeath(null, Noellesroles.deathReason("raven_body_death"));
             }
         }
     }

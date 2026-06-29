@@ -2,6 +2,7 @@ package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -167,7 +168,7 @@ public class RiptideTridentMixin {
                 double distance = player.position().distanceTo(target.position());
                 double riptideRange = isWaterGhost ? 2.0 : 2.5;
                 if (distance < riptideRange && GameUtils.isPlayerAliveAndSurvival(target) && player.hasLineOfSight(target)) { // 激流撞击范围
-                    GameUtils.killPlayer(target, true, serverPlayer, SRE.id("trident"));
+                    GameUtils.killPlayer(target, true, serverPlayer, GameConstants.DeathReasons.TRIDENT);
                     if (isWaterGhost) {
                         // 水鬼：激流三叉戟击杀后进入30秒冷却
                         player.getCooldowns().addCooldown(Items.TRIDENT, 20 * 30);

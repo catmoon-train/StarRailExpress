@@ -36,7 +36,7 @@ public class TridentMixin {
                 lastHitPlayer = player;
                 if (trident.getOwner() instanceof ServerPlayer killer) {
                     if (!killer.isSpectator()) {
-                        GameUtils.killPlayer(player, true, serverPlayer, SRE.id("trident"));
+                        GameUtils.killPlayer(player, true, serverPlayer, GameConstants.DeathReasons.TRIDENT);
                     }
                     killer.getCooldowns().addCooldown(Items.TRIDENT,
                             GameConstants.ITEM_COOLDOWNS.getOrDefault(Items.TRIDENT,

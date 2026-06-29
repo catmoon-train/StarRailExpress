@@ -442,7 +442,7 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
                     true);
         }
         this.clear();
-        GameUtils.killPlayer(player, true, null, Noellesroles.id("dio_final_carnival_cancel"));
+        GameUtils.killPlayer(player, true, null, Noellesroles.deathReason("dio_final_carnival_cancel"));
     }
 
     /**

@@ -108,7 +108,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 for (var player : level.players()) {
                     if (player.getUUID().equals(data.uuid)) {
                         if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                            GameUtils.killPlayer(player, true, null, StupidExpress.id("loose_end"), true);
+                            GameUtils.killPlayer(player, true, null, StupidExpress.forceDeathReason("loose_end"), true);
                             break;
                         }
                     }

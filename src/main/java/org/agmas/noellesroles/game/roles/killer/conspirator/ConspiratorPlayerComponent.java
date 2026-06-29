@@ -220,7 +220,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                         true);
 
                 // 使用自杀死因
-                ResourceLocation deathReason = Noellesroles.id("conspiracy_backfire");
+                ResourceLocation deathReason = Noellesroles.deathReason("conspiracy_backfire");
                 GameUtils.killPlayer(player, true, null, deathReason);
 
                 // 重置状态
@@ -322,7 +322,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                     Player target = player.level().getPlayerByUUID(targetInfo.targetPlayer);
                     if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
                         // 使用心脏麻痹死因（隐藏真实原因）
-                        ResourceLocation deathReason = Noellesroles.id("heart_attack");
+                        ResourceLocation deathReason = Noellesroles.bothDeathReason("heart_attack");
                         GameUtils.killPlayer(target, true, player, deathReason);
                         markConspiratorEvidence(target);
 

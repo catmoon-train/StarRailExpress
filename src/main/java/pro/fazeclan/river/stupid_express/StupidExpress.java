@@ -17,6 +17,7 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
+import org.agmas.noellesroles.util.DeathReasonRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
@@ -86,6 +87,18 @@ public class StupidExpress implements ModInitializer {
 
     public static ResourceLocation id(String key) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, key);
+    }
+
+    public static ResourceLocation deathReason(String key, DeathReasonRegistry.KillUsage... usages) {
+        return DeathReasonRegistry.register(id(key), usages);
+    }
+
+    public static ResourceLocation forceDeathReason(String key) {
+        return DeathReasonRegistry.force(id(key));
+    }
+
+    public static ResourceLocation bothDeathReason(String key) {
+        return DeathReasonRegistry.both(id(key));
     }
 
 }

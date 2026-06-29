@@ -82,7 +82,7 @@ public class SplitPersonalityHandler {
                 p_sb.setGameMode(GameType.ADVENTURE);
                 nComp.init();
                 resetSplitComponent(p_sb);
-                GameUtils.killPlayer(p_sb, false, null, StupidExpress.id("split_personality"));
+                GameUtils.killPlayer(p_sb, false, null, StupidExpress.deathReason("split_personality"));
             } else {
                 p_sb.teleportTo(player.getX(), player.getY(), player.getZ());
                 p_sb.setGameMode(GameType.ADVENTURE);
@@ -98,7 +98,7 @@ public class SplitPersonalityHandler {
                 nComp.init();
                 resetSplitComponent(p_sa);
 
-                GameUtils.killPlayer(p_sa, false, null, StupidExpress.id("split_personality"));
+                GameUtils.killPlayer(p_sa, false, null, StupidExpress.deathReason("split_personality"));
             } else {
                 p_sa.teleportTo(player.getX(), player.getY(), player.getZ());
                 p_sa.setGameMode(GameType.ADVENTURE);
