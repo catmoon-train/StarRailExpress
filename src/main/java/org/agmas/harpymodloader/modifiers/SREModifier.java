@@ -239,9 +239,9 @@ public class SREModifier extends SREAbstractInfoClass {
 
     public MutableComponent getName(boolean color) {
         String key = "announcement.star.modifier." + identifier().toLanguageKey();
-        if (!Language.getInstance().has(key)) {
-            return Component.translatable("info.screen.role.name.error", key);
-        }
+        // if (!Language.getInstance().has(key)) {
+        //     return Component.translatable("info.screen.role.name.error", key);
+        // }
         final MutableComponent text = Component
                 .translatable(key);
         if (color) {

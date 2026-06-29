@@ -1147,9 +1147,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
     @Override
     public Component getName() {
         String translationKey = "announcement.star.role." + this.identifier().getPath();
-        if (!Language.getInstance().has(translationKey)) {
-            return Component.translatable("info.screen.role.name.error", translationKey);
-        }
+        // if (!Language.getInstance().has(translationKey)) {
+        //     return Component.translatable("info.screen.role.name.error", translationKey);
+        // }
         return Component.translatable(translationKey);
     }
 

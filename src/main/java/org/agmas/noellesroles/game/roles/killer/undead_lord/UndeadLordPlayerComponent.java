@@ -33,15 +33,17 @@ import org.agmas.noellesroles.content.entity.UndeadEntity;
 import org.agmas.noellesroles.init.ModEntities;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 /**
  * 亡灵之主组件（杀手阵营，控场 / 滚雪球）。
  *
- * <p>统一管理：现存亡灵列表、所有玩家的感染值（衰减 / 满值死亡转化）、感染血条、
+ * <p>
+ * 统一管理：现存亡灵列表、所有玩家的感染值（衰减 / 满值死亡转化）、感染血条、
  * 瘟疫之雾区域、感染增幅计时，以及专属商店物品的效果结算。
  */
-public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingComponent {
+public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
     public static final ComponentKey<UndeadLordPlayerComponent> KEY = ModComponents.UNDEAD_LORD;
 
@@ -213,7 +215,8 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
 
     /**
      * 亡者召唤符购买入口：受 60 秒冷却与亡灵上限限制。
-     * <p>冷却中或已达上限时拒绝（返回 false，不扣金币）；否则按剩余容量召唤并进入冷却。
+     * <p>
+     * 冷却中或已达上限时拒绝（返回 false，不扣金币）；否则按剩余容量召唤并进入冷却。
      *
      * @return 是否成功召唤（true 时商店应扣费）。
      */
@@ -274,6 +277,17 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     // ==================== 每 tick ====================
+    @Override
+    public void clientTick() {
+
+        // 亡者召唤符冷却计时
+        if (summonCharmCooldown > 0) {
+            summonCharmCooldown--;
+        }
+        if (infectionAmpTicks > 0) {
+            infectionAmpTicks--;
+        }
+    }
 
     @Override
     public void serverTick() {
@@ -333,7 +347,7 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
         tickInfection(serverLevel, gameWorldComponent);
 
         // 周期性同步（每秒）
-        if (dirty || serverLevel.getGameTime() % 20 == 0) {
+        if (dirty || serverLevel.getGameTime() % 200 == 0) {
             sync();
         }
     }

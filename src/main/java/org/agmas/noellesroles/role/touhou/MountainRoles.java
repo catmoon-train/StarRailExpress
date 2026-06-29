@@ -34,8 +34,8 @@ public class MountainRoles {
             new Color(26, 42, 58).getRGB(), // 黑色 - 代表乌鸦
             false, // isInnocent = 乘客阵营
             true, // canUseKiller = 无杀手能力
-            SRERole.MoodType.REAL, // 真实心情
-            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+            SRERole.MoodType.FAKE, // 真实心情
+            Integer.MAX_VALUE, // 标准冲刺时间
             true) {
         static ArrayList<ShopEntry> SHOP = new ArrayList<>();
         static {
