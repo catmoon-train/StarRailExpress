@@ -28,6 +28,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ import java.util.UUID;
 /**
  * Independent neutral role: gains hunting charges from nearby mood recovery.
  */
-public final class RavenPlayerComponent implements RoleComponent, ServerTickingComponent {
+public final class RavenPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<RavenPlayerComponent> KEY = ComponentRegistry.getOrCreate(
             Noellesroles.id("raven"), RavenPlayerComponent.class);
 
@@ -103,6 +104,15 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
 
     public boolean isHunting() {
         return huntTicks > 0;
+    }
+
+    @Override
+    public void clientTick() {
+        if (cooldownTicks > 0)
+            cooldownTicks--;
+        if (huntTicks > 0) {
+            huntTicks--;
+        }
     }
 
     @Override
