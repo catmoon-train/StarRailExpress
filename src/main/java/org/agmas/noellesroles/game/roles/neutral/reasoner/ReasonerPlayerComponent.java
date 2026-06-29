@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -19,7 +20,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.commands.GameUtilsCommand;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ReasonerOpenScreenS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -413,9 +413,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     private List<String> allDeathReasonIds() {
-        List<String> reasons = GameUtilsCommand.DeathReasonSuggestions.getAllSuggestedDeathReasons().stream()
-                .map(ResourceLocation::toString)
-                .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+        List<String> reasons = new ArrayList<>(GameConstants.DeathReasons.getAllDeathReasonIds());
         reasons.sort(Comparator.naturalOrder());
         return reasons;
     }

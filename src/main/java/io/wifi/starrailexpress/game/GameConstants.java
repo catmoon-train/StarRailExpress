@@ -3,15 +3,24 @@ package io.wifi.starrailexpress.game;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.index.TMMItems;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
+import pro.fazeclan.river.stupid_express.StupidExpress;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public class GameConstants {
@@ -185,11 +194,13 @@ public class GameConstants {
 
     public static class DeathReasons {
         public static ResourceLocation DISCONNECT = SRE.id("disconnected");
+        public static ResourceLocation DEATH_AFK = SRE.id("death_afk");
         public static ResourceLocation BLACK_WHITE_TIMEOUT = SRE.id("black_white");
         public static ResourceLocation AMON_USURP = SRE.id("amon_usurp");
         public static ResourceLocation BACKFIRE = SRE.id("backfire");
         public static ResourceLocation EXECUTE = SRE.id("execute");
         public static ResourceLocation GENERIC = SRE.id("generic");
+        public static ResourceLocation GUN_SHOT = SRE.id("gun_shot");
         public static ResourceLocation KNIFE = SRE.id("knife_stab");
         public static ResourceLocation REVOLVER = SRE.id("revolver_shot");
         public static ResourceLocation DERRINGER = SRE.id("derringer_shot");
@@ -217,6 +228,119 @@ public class GameConstants {
         public static ResourceLocation STARVED = SRE.id("starved");
         public static ResourceLocation GOD_COMMAND = Noellesroles.id("god_command");
         public static ResourceLocation GENERAL_ATTACK = SRE.id("general_attack");
+        public static ResourceLocation HOT_POTATO = SRE.id("hot_potato");
+        public static ResourceLocation CAT_KILLER = SRE.wifiId("cat_killer");
+
+        public static ResourceLocation VOODOO = Noellesroles.id("voodoo");
+        public static ResourceLocation SHOT_INNOCENT = Noellesroles.id("shot_innocent");
+        public static ResourceLocation INSANE_KILLER_DEATH = Noellesroles.id("insane_killer_death");
+        public static ResourceLocation NOELLES_ARROW = Noellesroles.id("arrow");
+        public static ResourceLocation HEART_ATTACK = Noellesroles.id("heart_attack");
+        public static ResourceLocation CONSPIRACY_BACKFIRE = Noellesroles.id("conspiracy_backfire");
+        public static ResourceLocation STALKER_EXECUTION = Noellesroles.id("stalker_execution");
+        public static ResourceLocation BOMB_DEATH = Noellesroles.id("bomb_death");
+        public static ResourceLocation PUPPETEER_PUPPET = Noellesroles.id("puppeteer_puppet");
+        public static ResourceLocation RECORDER_MISTAKE = Noellesroles.id("recorder_mistake");
+        public static ResourceLocation GAMBLE_SELF_KILL = Noellesroles.id("gamble_self_kill");
+        public static ResourceLocation WAYFARER_ERROR = Noellesroles.id("wayfarer_error");
+        public static ResourceLocation NIANSHOU_FIRECRACKERS = Noellesroles.id("nianshou_firecrackers");
+        public static ResourceLocation BATON_KILL = Noellesroles.id("baton_kill");
+        public static ResourceLocation BOWEN = Noellesroles.id("bowen");
+        public static ResourceLocation C4_EXPLOSION = Noellesroles.id("c4_explosion");
+        public static ResourceLocation FIRE_AXE = Noellesroles.id("fire_axe");
+        public static ResourceLocation NINJA_KNIFE_KILL = Noellesroles.id("ninja_knife_kill");
+        public static ResourceLocation NINJA_SHURIKEN_KILL = Noellesroles.id("ninja_shuriken_kill");
+        public static ResourceLocation SHORT_SHOTGUN = Noellesroles.id("short_shotgun");
+        public static ResourceLocation THROWING_KNIFE_HIT = Noellesroles.id("throwing_knife_hit");
+        public static ResourceLocation YINYANG_SWORD_AOE = Noellesroles.id("yinyang_sword_aoe");
+        public static ResourceLocation FAIL_EXAM = Noellesroles.id("fail_exam");
+        public static ResourceLocation BAKA = Noellesroles.id("baka");
+        public static ResourceLocation WATCHER_CALM_KILL = Noellesroles.id("watcher_calm_kill");
+        public static ResourceLocation DNF_TENTACLE = Noellesroles.id("dnf_tentacle");
+        public static ResourceLocation REPAIR_TRIAL_EXECUTION = Noellesroles.id("repair_trial_execution");
+        public static ResourceLocation INFECTION = Noellesroles.id("infection");
+        public static ResourceLocation UNDEAD_INFECTION = Noellesroles.id("undead_infection");
+        public static ResourceLocation GROSELL_TRAVELOG = Noellesroles.id("grosell_travelog");
+        public static ResourceLocation WIZARD_FIREBALL = Noellesroles.id("wizard_fireball");
+        public static ResourceLocation WIZARD_FIRE_ARROW = Noellesroles.id("wizard_fire_arrow");
+        public static ResourceLocation DRY_DEATH = Noellesroles.id("dry_death");
+        public static ResourceLocation MACHENXU = Noellesroles.id("machenxu");
+        public static ResourceLocation HOAN_MEIRIN_LONELY = Noellesroles.id("hoan_meirin_lonely");
+        public static ResourceLocation HOAN_MEIRIN_ATTACK = Noellesroles.id("hoan_meirin_attack");
+        public static ResourceLocation DIO_FINAL_CARNIVAL_CANCEL = Noellesroles.id("dio_final_carnival_cancel");
+
+        public static ResourceLocation BROKEN_HEART = StupidExpress.id("broken_heart");
+        public static ResourceLocation FAILED_INITIATION = StupidExpress.id("failed_initiation");
+        public static ResourceLocation ALLERGIST = StupidExpress.id("allergist");
+        public static ResourceLocation FAILED_IGNITE = StupidExpress.id("failed_ignite");
+        public static ResourceLocation IGNITED = StupidExpress.id("ignited");
+        public static ResourceLocation LOOSE_END = StupidExpress.id("loose_end");
+        public static ResourceLocation SPLIT_PERSONALITY = StupidExpress.id("split_personality");
+
+        private static ResourceLocation itemId(Item item) {
+            return BuiltInRegistries.ITEM.getKey(item);
+        }
+
+        public static Set<ResourceLocation> getConstantDeathReasons() {
+            Set<ResourceLocation> set = new LinkedHashSet<>();
+            Field[] fields = DeathReasons.class.getDeclaredFields();
+            for (Field field : fields) {
+                if (Modifier.isStatic(field.getModifiers()) && field.getType() == ResourceLocation.class) {
+                    try {
+                        ResourceLocation value = (ResourceLocation) field.get(null);
+                        if (value != null) {
+                            set.add(value);
+                        }
+                    } catch (IllegalAccessException ignored) {
+                    }
+                }
+            }
+            return set;
+        }
+
+        public static Set<ResourceLocation> getItemDeathReasons() {
+            Set<ResourceLocation> set = new LinkedHashSet<>();
+            set.add(itemId(ModItems.THROWING_KNIFE));
+            set.add(itemId(ModItems.NINJA_SHURIKEN));
+            set.add(GUN_SHOT);
+            set.remove(null);
+            return set;
+        }
+
+        public static Set<ResourceLocation> getAllDeathReasons() {
+            Set<ResourceLocation> set = getConstantDeathReasons();
+            set.addAll(getItemDeathReasons());
+            return set;
+        }
+
+        public static List<String> getAllDeathReasonIds() {
+            List<String> ids = new ArrayList<>();
+            getAllDeathReasons().stream()
+                    .map(ResourceLocation::toString)
+                    .distinct()
+                    .sorted(Comparator.naturalOrder())
+                    .forEach(ids::add);
+            return List.copyOf(ids);
+        }
+
+        public static ResourceLocation parseOrDefault(String value) {
+            if (value == null || value.isBlank() || value.equals("*")) {
+                return GENERIC;
+            }
+
+            ResourceLocation parsed = ResourceLocation.tryParse(value);
+            if (parsed != null && value.contains(":")) {
+                return parsed;
+            }
+
+            String path = parsed != null ? parsed.getPath() : value;
+            for (ResourceLocation deathReason : getAllDeathReasons()) {
+                if (deathReason.getPath().equals(path) || deathReason.toString().equals(value)) {
+                    return deathReason;
+                }
+            }
+            return parsed != null ? parsed : GENERIC;
+        }
     }
 
     public static int getFurandoruSafeLine() {
