@@ -83,7 +83,7 @@ public abstract class AllergistEatMixin extends LivingEntity {
             );
         } else {
             // Death
-            GameUtils.killPlayer(player, true, null, StupidExpress.deathReason("allergist"));
+            GameUtils.killPlayer(player, true, null, StupidExpress.id("allergist"));
             
             player.displayClientMessage(
                     Component.translatable(

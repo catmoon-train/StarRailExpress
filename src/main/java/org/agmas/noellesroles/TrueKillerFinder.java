@@ -1,9 +1,9 @@
 package org.agmas.noellesroles;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -31,7 +31,7 @@ public class TrueKillerFinder {
                     if (poisonerP != null && !deathReason.getPath().equals("poison") && originalKiller != null
                             && !poisonerC.poisoner.equals(originalKiller.getUUID())) {
 
-                        GameUtils.killPlayer(victim, false, poisonerP, GameConstants.DeathReasons.POISON);
+                        GameUtils.killPlayer(victim, false, poisonerP, SRE.id("poison"));
                         return null;
                     }
                     if (originalKiller != null)

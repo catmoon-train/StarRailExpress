@@ -249,7 +249,7 @@ public class InsaneKillerPlayerComponent
             nearDeathTick();
             deathState--;
             if (deathState == 1) {
-                GameUtils.killPlayer(player, true, null, Noellesroles.deathReason("insane_killer_death"));
+                GameUtils.killPlayer(player, true, null, Noellesroles.id("insane_killer_death"));
             }
             if (deathState % 200 == 0 || deathState == 1 || deathState == 0) {
                 sync();
@@ -270,7 +270,7 @@ public class InsaneKillerPlayerComponent
         isActive = tag.contains("isActive") && tag.getBoolean("isActive");
         cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         deathState = tag.contains("death_state") ? tag.getInt("death_state") : 0;
-        // public UUID target = null;
+        // target = tag.contains("target") ? tag.getUUID("target") : null;
     }
 
     @Override

@@ -458,13 +458,13 @@ public class DevilRouletteTableEntity extends BlockEntity {
                                 && level.getPlayerByUUID(frontPlayerUUID) != winner) {
                             GameUtils.killPlayer(
                                     level.getPlayerByUUID(frontPlayerUUID), false,
-                                    winner, SRE.deathReason("gun_shot"), false);
+                                    winner, SRE.id("gun_shot"), false);
                         }
                         if (level.getPlayerByUUID(backPlayerUUID) != null
                                 && level.getPlayerByUUID(backPlayerUUID) != winner) {
                             GameUtils.killPlayer(
                                     level.getPlayerByUUID(backPlayerUUID), false,
-                                    winner, SRE.deathReason("gun_shot"), false);
+                                    winner, SRE.id("gun_shot"), false);
                         }
                     }
 
@@ -495,13 +495,13 @@ public class DevilRouletteTableEntity extends BlockEntity {
                             GameUtils.killPlayer(
                                     level.getPlayerByUUID(frontPlayerUUID), false,
                                     // 杀手使用null 防止被小脑惩罚
-                                    null, SRE.deathReason("gun_shot"), false);
+                                    null, SRE.id("gun_shot"), false);
                         }
                         if (level.getPlayerByUUID(backPlayerUUID) != null
                                 && level.getPlayerByUUID(backPlayerUUID) != winner) {
                             GameUtils.killPlayer(
                                     level.getPlayerByUUID(backPlayerUUID), false,
-                                    null, SRE.deathReason("gun_shot"), false);
+                                    null, SRE.id("gun_shot"), false);
                         }
                     }
                 }

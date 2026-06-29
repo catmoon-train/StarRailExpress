@@ -745,7 +745,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         for (UUID uuid : markedPlayers) {
             Player markedPlayer = world.getPlayerByUUID(uuid);
             if (markedPlayer != null && GameUtils.isPlayerAliveAndSurvival(markedPlayer)) {
-                GameUtils.killPlayer(markedPlayer, true, player, Noellesroles.bothDeathReason("machenxu"));
+                GameUtils.killPlayer(markedPlayer, true, player, Noellesroles.id("machenxu"));
                 markCount++;
             }
         }
@@ -834,7 +834,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         if (player.level() instanceof ServerLevel sl) {
             playSoulDevourExecutionEffects(sl, player, target);
         }
-        GameUtils.forceKillPlayer(target, true, player, Noellesroles.bothDeathReason("machenxu"));
+        GameUtils.forceKillPlayer(target, true, player, Noellesroles.id("machenxu"));
         if (target instanceof ServerPlayer targetSp) {
             targetSp.getInventory().clearContent();
         }
@@ -1267,7 +1267,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                     }
                     sl.playSound(null, target.blockPosition(), SoundEvents.WARDEN_DEATH, SoundSource.HOSTILE, 1.4F, 0.5F);
                 }
-                GameUtils.forceKillPlayer(target, true, player, Noellesroles.bothDeathReason("machenxu"));
+                GameUtils.forceKillPlayer(target, true, player, Noellesroles.id("machenxu"));
                 if (player instanceof ServerPlayer sp) {
                     sp.displayClientMessage(
                             Component.translatable("message.noellesroles.ma_chen_xu.parasite.killed", target.getName())

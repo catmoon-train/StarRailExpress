@@ -3,7 +3,6 @@ package org.agmas.noellesroles.mixin.roles.elf;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -50,7 +49,7 @@ public class ArrowMixin {
                     }
                     if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.ELF)) {
                         isHit = true;
-                        GameUtils.killPlayer(player, true, serverPlayer, GameConstants.DeathReasons.ARROW);
+                        GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
                     }
                 }
             }

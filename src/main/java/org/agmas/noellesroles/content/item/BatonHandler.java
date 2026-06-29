@@ -78,7 +78,7 @@ public class BatonHandler {
             RECORDS.remove(aId);
 
             {
-                io.wifi.starrailexpress.game.GameUtils.killPlayer(victim, true, attacker, org.agmas.noellesroles.Noellesroles.deathReason("baton_kill"));
+                io.wifi.starrailexpress.game.GameUtils.killPlayer(victim, true, attacker, org.agmas.noellesroles.Noellesroles.id("baton_kill"));
             }
             // 冷却
             attacker.getCooldowns().addCooldown(ModItems.BATON, 15 * 20);

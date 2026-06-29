@@ -237,7 +237,7 @@ public class NianShouPlayerComponent implements RoleComponent, ServerTickingComp
                                 true);
                     }
                     // 杀死年兽（使用鞭炮死亡原因）
-                    GameUtils.killPlayer(player, true, null, Noellesroles.deathReason("nianshou_firecrackers"));
+                    GameUtils.killPlayer(player, true, null, Noellesroles.id("nianshou_firecrackers"));
                 }
             }
         }

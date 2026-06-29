@@ -153,7 +153,7 @@ public final class WizardSpells {
                 continue;
             }
             if (p.position().add(0, p.getBbHeight() / 2, 0).distanceToSqr(center) <= r2) {
-                GameUtils.killPlayer(p, true, caster, Noellesroles.deathReason("wizard_fireball"));
+                GameUtils.killPlayer(p, true, caster, Noellesroles.id("wizard_fireball"));
                 killed++;
                 if (killed >= config().wizardFireballMaxKills) {
                     break;

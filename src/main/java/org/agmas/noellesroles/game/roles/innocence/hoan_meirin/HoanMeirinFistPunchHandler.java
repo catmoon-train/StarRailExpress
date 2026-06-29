@@ -169,7 +169,7 @@ public class HoanMeirinFistPunchHandler {
 
             // 取消普通伤害，改用即死逻辑
             // 使用 hurt + setHealth(0) 确保触发死亡事件和战利品
-            GameUtils.killPlayer(victim, true, attacker, Noellesroles.deathReason("hoan_meirin_attack"));
+            GameUtils.killPlayer(victim, true, attacker, Noellesroles.id("hoan_meirin_attack"));
 
             sendActionBar(attacker,
                     Component.translatable("message.hoan_meirin_attack.3").withStyle(ChatFormatting.RED));

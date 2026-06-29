@@ -226,7 +226,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
                 if (outOfWaterTimer >= DRY_DEATH_TIME) {
                     // 死亡
                     GameUtils.killPlayer(serverPlayer, true, null,
-                            Noellesroles.deathReason("dry_death"));
+                            Noellesroles.id("dry_death"));
                     return;
                 }
 

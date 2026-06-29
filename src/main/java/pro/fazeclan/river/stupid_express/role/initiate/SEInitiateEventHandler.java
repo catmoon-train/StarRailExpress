@@ -241,7 +241,7 @@ public class SEInitiateEventHandler {
                 }
             }
 
-            GameUtils.killPlayer(killer, true, null, StupidExpress.deathReason("failed_initiation"));
+            GameUtils.killPlayer(killer, true, null, StupidExpress.id("failed_initiation"));
             return true;
         }
         return false;

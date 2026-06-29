@@ -30,7 +30,6 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.FireAxeStabPayload;
-import org.agmas.noellesroles.util.DeathReasonRegistry;
 
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class FireAxeItem extends Item implements AdventureUsable {
     private static final int KILL_COOLDOWN = 60 * 20; // 60秒冷却，防止连续使用
 
     // 消防斧死因
-    public static final ResourceLocation DEATH_REASON_FIRE_AXE = DeathReasonRegistry.normal(Noellesroles.id("fire_axe"));
+    public static final ResourceLocation DEATH_REASON_FIRE_AXE = Noellesroles.id("fire_axe");
 
     public FireAxeItem(Properties settings) {
         super(settings);

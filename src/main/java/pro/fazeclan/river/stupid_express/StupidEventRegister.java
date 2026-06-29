@@ -114,7 +114,7 @@ public class StupidEventRegister {
                             lover,
                             true,
                             victim,
-                            StupidExpress.forceDeathReason("broken_heart"));
+                            StupidExpress.id("broken_heart"));
                 }
             }
         });

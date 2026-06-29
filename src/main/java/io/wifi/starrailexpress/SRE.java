@@ -23,7 +23,6 @@ import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.register.SRECommandRegister;
 import io.wifi.starrailexpress.register.SREEventRegister;
 import io.wifi.starrailexpress.register.SREPayloadRegister;
-import org.agmas.noellesroles.util.DeathReasonRegistry;
 import io.wifi.starrailexpress.register.SREReceiverRegister;
 import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import io.wifi.starrailexpress.util.Scheduler;
@@ -65,26 +64,6 @@ public class SRE extends StarRailExpressID implements ModInitializer {
 
     public static @NotNull ResourceLocation id(String name) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
-    }
-
-    public static @NotNull ResourceLocation deathReason(String name, DeathReasonRegistry.KillUsage... usages) {
-        return DeathReasonRegistry.register(id(name), usages);
-    }
-
-    public static @NotNull ResourceLocation forceDeathReason(String name) {
-        return DeathReasonRegistry.force(id(name));
-    }
-
-    public static @NotNull ResourceLocation bothDeathReason(String name) {
-        return DeathReasonRegistry.both(id(name));
-    }
-
-    public static @NotNull ResourceLocation wifiDeathReason(String name, DeathReasonRegistry.KillUsage... usages) {
-        return DeathReasonRegistry.register(wifiId(name), usages);
-    }
-
-    public static @NotNull ResourceLocation bothWifiDeathReason(String name) {
-        return DeathReasonRegistry.both(wifiId(name));
     }
 
     public static void SendRoomInfoToPlayer(ServerPlayer player) {

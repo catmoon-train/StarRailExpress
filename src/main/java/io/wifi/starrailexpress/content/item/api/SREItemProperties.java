@@ -7,7 +7,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.util.DeathReasonRegistry;
 
 public class SREItemProperties {
     /**
@@ -60,9 +59,7 @@ public class SREItemProperties {
     public interface LeftClickKillable extends LeftClickHurtable {
         @Override
         public default void onAttack(ServerPlayer attacker, ServerPlayer target, ItemStack mainhandItem) {
-            GameUtils.killPlayer(target, true, attacker,
-                    DeathReasonRegistry.registerItem(SkinUtils.getItemTypeResourceLocation(mainhandItem),
-                            DeathReasonRegistry.KillUsage.NORMAL));
+            GameUtils.killPlayer(target, true, attacker, SkinUtils.getItemTypeResourceLocation(mainhandItem));
         }
     }
 }

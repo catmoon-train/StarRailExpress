@@ -141,7 +141,7 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
 
             if (wrongGuessCount >= MAX_WRONG_GUESSES) {
                 // 猜错10次，立刻死亡
-                GameUtils.killPlayer(player, true, null, Noellesroles.deathReason("recorder_mistake"));
+                GameUtils.killPlayer(player, true, null, Noellesroles.id("recorder_mistake"));
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.recorder.died_from_mistakes")
                                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),

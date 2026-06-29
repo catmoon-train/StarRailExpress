@@ -418,7 +418,7 @@ public class ModEffects {
                 }
                 return false;
             }
-            if (deathReason.equals(Noellesroles.deathReason("bomb_death")))
+            if (deathReason.equals(Noellesroles.id("bomb_death")))
                 return true;
             if (player.hasEffect(ModEffects.TAROT_ASSEMBLY)) {
                 if (player.position().z >= 19000)

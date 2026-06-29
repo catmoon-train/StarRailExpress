@@ -79,7 +79,7 @@ public class BurningEffect extends MobEffect {
                     ? victim.getServer().getPlayerList().getPlayer(killerId)
                     : null;
             victim.setRemainingFireTicks(0);
-            GameUtils.killPlayer(victim, true, killer, StupidExpress.deathReason("ignited"));
+            GameUtils.killPlayer(victim, true, killer, StupidExpress.id("ignited"));
         });
     }
 }

@@ -305,7 +305,7 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
             modifierComponent.removeModifier(p.getUUID(), SpecialGameModeModifiers.TNT_TAGGED, false);
 
             MCItemsUtils.clearItem(p, FunnyItems.HOT_POTATO);
-            GameUtils.killPlayer(p, true, null, SRE.forceDeathReason("hot_potato"), true);
+            GameUtils.killPlayer(p, true, null, SRE.id("hot_potato"), true);
             if (i > 0) {
                 allTaggedPlayersMessage.append(", ");
             }

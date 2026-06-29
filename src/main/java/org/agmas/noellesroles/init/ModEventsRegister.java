@@ -1590,7 +1590,7 @@ public class ModEventsRegister {
                 var watcher = WatcherPlayerComponent.KEY.get(victim);
                 if (watcher.isInCalmStance()) {
                     if (gameWorldComponent.isInnocent(killer)) {
-                        GameUtils.killPlayer(killer, true, victim, Noellesroles.deathReason("shot_innocent"));
+                        GameUtils.killPlayer(killer, true, victim, Noellesroles.id("shot_innocent"));
                     }
                 }
             }
@@ -1654,7 +1654,7 @@ public class ModEventsRegister {
                 if (watcher.isInCalmStance()) {
                     if (!deathReason.getPath().equals("shot_innocent")) {
                         if (gameWorldComponent.isInnocent(victim)) {
-                            GameUtils.killPlayer(killer, true, null, Noellesroles.deathReason("watcher_calm_kill"));
+                            GameUtils.killPlayer(killer, true, null, Noellesroles.id("watcher_calm_kill"));
                         }
                     }
                 }

@@ -45,11 +45,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class GroselleJourneyManager {
 
     /** 游记内死亡的死因（用于击杀改判与死亡信息）。 */
+<<<<<<< HEAD
     public static final ResourceLocation DEATH_REASON = Noellesroles.deathReason("grosell_travelog");
 
     /** 放逐记录：被放逐玩家 UUID -> 放逐信息（持有者 + 放逐前位置 + 放逐时间）。 */
     private static final Map<UUID, Banishment> banished = new ConcurrentHashMap<>();
 
+=======
+    public static final ResourceLocation DEATH_REASON = Noellesroles.id("grosell_travelog");
+
+    /** 放逐记录：被放逐玩家 UUID -> 放逐信息（持有者 + 放逐前位置 + 放逐时间）。 */
+    private static final Map<UUID, Banishment> banished = new ConcurrentHashMap<>();
+
+>>>>>>> parent of 4f637010d (ccb死亡原因并大一统死亡原因系统)
     /** 反向索引：持有者 UUID -> 被其放逐的玩家 UUID（每个持有者同时只能放逐一人）。 */
     private static final Map<UUID, UUID> banisherToBanished = new ConcurrentHashMap<>();
 

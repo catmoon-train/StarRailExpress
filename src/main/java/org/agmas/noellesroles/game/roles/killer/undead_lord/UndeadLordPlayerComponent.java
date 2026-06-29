@@ -31,7 +31,6 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.UndeadEntity;
 import org.agmas.noellesroles.init.ModEntities;
-import org.agmas.noellesroles.util.DeathReasonRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -46,22 +45,21 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
 
     public static final ComponentKey<UndeadLordPlayerComponent> KEY = ModComponents.UNDEAD_LORD;
 
-    public static final ResourceLocation INFECTION_DEATH_REASON =
-            DeathReasonRegistry.force(Noellesroles.id("undead_infection"));
+    public static final ResourceLocation INFECTION_DEATH_REASON = Noellesroles.id("undead_infection");
 
     private final Player player;
 
-    /** 玩家感染值（0~100）。 */
+    /** 现存亡灵实体 UUID。 */
     private final List<UUID> ownedUndead = new ArrayList<>();
-    /** 满值后的死亡倒计时（tick）。 */
+    /** 玩家感染值（0~100）。 */
     private final Map<UUID, Float> infection = new HashMap<>();
-    /** 每名被感染者的感染血条。 */
+    /** 满值后的死亡倒计时（tick）。 */
     private final Map<UUID, Integer> deathTimers = new HashMap<>();
-    /** 瘟疫之雾区域。 */
+    /** 每名被感染者的感染血条。 */
     private final transient Map<UUID, ServerBossEvent> bossBars = new HashMap<>();
-    /** 感染增幅剩余时间（tick），> 0 时亡灵攻击感染翻倍。 */
+    /** 瘟疫之雾区域。 */
     private final List<FogZone> fogZones = new ArrayList<>();
-    /** 亡者召唤符冷却剩余时间（tick）。 */
+    /** 感染增幅剩余时间（tick），> 0 时亡灵攻击感染翻倍。 */
     public int infectionAmpTicks = 0;
     /** 亡者召唤符冷却剩余时间（tick）。 */
     public int summonCharmCooldown = 0;
@@ -184,7 +182,7 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
         }
     }
 
-    /** 亡灵攻击命中：为目标增加感染值（受感染增幅影响），每次成功注入感染奖励亡灵之主金币。 */
+    // ==================== 感染 ====================
 
     /** 亡灵攻击命中：为目标增加感染值（受感染增幅影响），每次成功注入感染奖励亡灵之主金币。 */
     public void addInfection(ServerPlayer victim, float amount) {
@@ -215,7 +213,7 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
 
     /**
      * 亡者召唤符购买入口：受 60 秒冷却与亡灵上限限制。
-     * @return 是否成功召唤（true 时商店应扣费）。
+     * <p>冷却中或已达上限时拒绝（返回 false，不扣金币）；否则按剩余容量召唤并进入冷却。
      *
      * @return 是否成功召唤（true 时商店应扣费）。
      */

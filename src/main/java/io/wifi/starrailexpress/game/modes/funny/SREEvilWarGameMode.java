@@ -547,7 +547,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         if (item.isEmpty())
                             continue;
                         if (item.is(ModItems.PILL)) {
-                            GameUtils.killPlayer(player, true, player, GameConstants.DeathReasons.POISON);
+                            GameUtils.killPlayer(player, true, player, SRE.id("poison"));
                         }
                     }
                 }

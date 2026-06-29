@@ -588,7 +588,7 @@ public class TraitorAndModifiers {
                 // 检查击杀者是否是平民阵营
                 if (gameWorld.isInnocent(killer)) {
                     // 使用误杀平民的死亡原因
-                    GameUtils.killPlayer(killer, true, victim, Noellesroles.deathReason("shot_innocent"));
+                    GameUtils.killPlayer(killer, true, victim, Noellesroles.id("shot_innocent"));
                 }
             }
         });

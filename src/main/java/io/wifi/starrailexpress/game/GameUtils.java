@@ -72,7 +72,6 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.util.DeathReasonRegistry;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
@@ -1165,7 +1164,6 @@ public class GameUtils {
             return;
         if (victim.level() == null)
             return;
-        DeathReasonRegistry.registerUsage(deathReason, forceDeath);
         var gameMode = SREGameWorldComponent.KEY.get(victim.level()).getGameMode();
         if (gameMode == null)
             return;

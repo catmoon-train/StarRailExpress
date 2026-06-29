@@ -86,7 +86,7 @@ public class GamblerRole extends SRERole {
 
                 // 记录
                 SRE.REPLAY_MANAGER.recordPlayerKill(null, player.getUUID(),
-                        Noellesroles.bothDeathReason("gamble_self_kill"));
+                        Noellesroles.id("gamble_self_kill"));
 
                 // 先传送走
                 teleport(player);
@@ -113,7 +113,7 @@ public class GamblerRole extends SRERole {
                             p.playNotifySound(SoundEvents.BAT_HURT, SoundSource.PLAYERS, 0.5F, 1.3F);
                         });
             } else {
-                GameUtils.killPlayer(player, true, null, Noellesroles.bothDeathReason("gamble_self_kill"), true);
+                GameUtils.killPlayer(player, true, null, Noellesroles.id("gamble_self_kill"), true);
             }
 
             return false;

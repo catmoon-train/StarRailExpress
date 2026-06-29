@@ -81,7 +81,7 @@ public class LighterItem extends Item {
             }
         } else {
             player.playNotifySound(SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0f, 1.0f);
-            GameUtils.killPlayer(player, true, null, StupidExpress.deathReason("failed_ignite"));
+            GameUtils.killPlayer(player, true, null, StupidExpress.id("failed_ignite"));
         }
         player.getCooldowns().addCooldown(Items.COMMAND_BLOCK_MINECART, 20 * 20);
         return InteractionResultHolder.pass(player.getItemInHand(interactionHand));
