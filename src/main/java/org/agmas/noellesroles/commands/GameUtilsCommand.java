@@ -50,6 +50,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
 import org.agmas.noellesroles.role.ModRoles;
@@ -874,6 +875,15 @@ public class GameUtilsCommand {
         Noellesroles.id("gamble_self_kill"),
         Noellesroles.id("wayfarer_error"),
         Noellesroles.id("nianshou_firecrackers"),
+        Noellesroles.id("baton_kill"),
+        Noellesroles.id("bowen"),
+        Noellesroles.id("c4_explosion"),
+        Noellesroles.id("fire_axe"),
+        Noellesroles.id("ninja_knife_kill"),
+        Noellesroles.id("ninja_shuriken_kill"),
+        Noellesroles.id("short_shotgun"),
+        Noellesroles.id("throwing_knife_hit"),
+        Noellesroles.id("yinyang_sword_aoe"),
         StupidExpress.id("broken_heart"),
         StupidExpress.id("failed_initiation"),
         StupidExpress.id("allergist"),
@@ -898,9 +908,23 @@ public class GameUtilsCommand {
       return set;
     }
 
+    private static ResourceLocation itemId(Item item) {
+      return BuiltInRegistries.ITEM.getKey(item);
+    }
+
+    public static Set<ResourceLocation> getItemDeathReasons() {
+      Set<ResourceLocation> set = new HashSet<>(Set.of(
+          itemId(ModItems.THROWING_KNIFE),
+          itemId(ModItems.NINJA_SHURIKEN),
+          ResourceLocation.fromNamespaceAndPath("starrailexpress", "gun_shot")));
+      set.remove(null);
+      return set;
+    }
+
     public static Set<ResourceLocation> getAllSuggestedDeathReasons() {
       Set<ResourceLocation> set = new HashSet<>(getAllDeathReasons());
       set.addAll(CUSTOM_DEATH_REASONS);
+      set.addAll(getItemDeathReasons());
       return set;
     }
 
