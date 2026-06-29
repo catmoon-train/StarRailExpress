@@ -57,7 +57,7 @@ public class RenderEffectMixin {
         // 原版 HUD 模式下保留原版药水图标显示。
 
         LocalPlayer player = this.minecraft.player;
-        if (player == null) {
+        if (player == null || SREClient.gameComponent == null) {
             return collection.isEmpty();
         }
         if (SREClient.shouldRenderVanillaHud() || !SREClient.gameComponent.isRunning()) {
@@ -70,7 +70,7 @@ public class RenderEffectMixin {
         // 原版 HUD 模式下保留原版药水图标显示。
 
         LocalPlayer player = this.minecraft.player;
-        if (player == null) {
+        if (player == null || SREClient.gameComponent == null) {
             return;
         }
         if (SREClient.shouldRenderVanillaHud() || !SREClient.gameComponent.isRunning()) {
