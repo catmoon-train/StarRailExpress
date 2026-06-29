@@ -40,17 +40,16 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>60 秒后自动回归被放逐前的位置；或持有者再次蓄力游记 1 秒可主动将其召回。</li>
  * </ul>
  *
- * <p>采用静态管理器 + 服务端 tick 思路，避免新增 CCA。
- */
+ * </ul>
 public final class GroselleJourneyManager {
 
     /** 游记内死亡的死因（用于击杀改判与死亡信息）。 */
-    public static final ResourceLocation DEATH_REASON = Noellesroles.id("grosell_travelog");
+    public static final ResourceLocation DEATH_REASON = Noellesroles.deathReason("grosell_travelog");
 
-    /** 放逐记录：被放逐玩家 UUID -> 放逐信息（持有者 + 放逐前位置 + 放逐时间）。 */
+    /** 游记内死亡的死因（用于击杀改判与死亡信息）。 */
     private static final Map<UUID, Banishment> banished = new ConcurrentHashMap<>();
 
-    /** 反向索引：持有者 UUID -> 被其放逐的玩家 UUID（每个持有者同时只能放逐一人）。 */
+    /** 放逐记录：被放逐玩家 UUID -> 放逐信息（持有者 + 放逐前位置 + 放逐时间）。 */
     private static final Map<UUID, UUID> banisherToBanished = new ConcurrentHashMap<>();
 
     private GroselleJourneyManager() {
@@ -65,7 +64,6 @@ public final class GroselleJourneyManager {
         ServerTickEvents.END_SERVER_TICK.register(GroselleJourneyManager::tick);
 
         // 游记内的死亡改判为放逐持有者的击杀（在击杀流程最前端解析真正击杀者）。
-        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, reason) -> {
             if (!(victim instanceof ServerPlayer serverVictim)) {
                 return null;
             }
@@ -74,11 +72,9 @@ public final class GroselleJourneyManager {
                 return null;
             }
             // 返回持有者（可能离线为 null，则维持原击杀者）。
-            return serverVictim.level().getPlayerByUUID(b.banisher);
         });
 
         // 一局结束时清空状态并把仍在游记中的玩家送回。
-        OnGameEnd.EVENT.register((world, gameWorldComponent) -> clearAll(world.getServer()));
     }
 
     public static boolean isBanished(UUID playerId) {
@@ -87,18 +83,15 @@ public final class GroselleJourneyManager {
 
     /**
      * 获取被指定持有者放逐的玩家 UUID。
-     *
-     * @param banisherId 持有者 UUID
-     * @return 被放逐的玩家 UUID，若该持有者当前没有放逐任何人则返回 null
+     * 获取被指定持有者放逐的玩家 UUID。
+     * 获取被指定持有者放逐的玩家 UUID。
      */
     public static UUID getBanishedByBanisher(UUID banisherId) {
         return banisherToBanished.get(banisherId);
     }
 
     /**
-     * 将目标放逐到游记坐标。
-     *
-     * @return 是否成功放逐
+     * @return 被放逐的玩家 UUID，若该持有者当前没有放逐任何人则返回 null
      */
     public static boolean banish(ServerPlayer banisher, ServerPlayer target) {
         if (banisher == null || target == null) {
@@ -111,7 +104,6 @@ public final class GroselleJourneyManager {
             return false;
         }
         // 每个持有者同时只能放逐一人
-        if (banisherToBanished.containsKey(banisher.getUUID())) {
             return false;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(target) || !GameUtils.isPlayerAliveAndSurvival(banisher)) {
@@ -124,15 +116,12 @@ public final class GroselleJourneyManager {
         long now = System.currentTimeMillis();
 
         // 记录放逐前位置与放逐时间。
-        banished.put(target.getUUID(), new Banishment(banisher.getUUID(), originLevel.dimension(),
                 target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot(), now));
         banisherToBanished.put(banisher.getUUID(), target.getUUID());
 
         // 放逐处（原位置）粒子与声音。
-        spawnBanishFx(originLevel, target.getX(), target.getY() + 1.0, target.getZ());
 
         // 传送进游记。
-        target.teleportTo(originLevel,
                 config.grosellTravelogBanishX + 0.5,
                 config.grosellTravelogBanishY,
                 config.grosellTravelogBanishZ + 0.5,
@@ -140,7 +129,6 @@ public final class GroselleJourneyManager {
         applyRestrictions(target);
 
         // 目的地粒子与声音。
-        spawnBanishFx(target.serverLevel(), target.getX(), target.getY() + 1.0, target.getZ());
 
         target.displayClientMessage(Component
                 .translatable("message.noellesroles.grosell_travelog.banished")
@@ -160,9 +148,7 @@ public final class GroselleJourneyManager {
 
     /**
      * 由持有者主动将放逐的玩家召回。
-     *
-     * @param banisher 持有者
-     * @return 是否成功召回
+     * 由持有者主动将放逐的玩家召回。
      */
     public static boolean returnPlayerByBanisher(ServerPlayer banisher) {
         UUID banishedId = banisherToBanished.remove(banisher.getUUID());
@@ -220,23 +206,19 @@ public final class GroselleJourneyManager {
             }
             if (!GameUtils.isPlayerAliveAndSurvival(player)) {
                 // 在游记中死亡 / 变为旁观：仅清理状态，不再送回。
-                Banishment b = banished.remove(id);
                 if (b != null) {
                     banisherToBanished.remove(b.banisher);
                 }
                 continue;
             }
-            // 持续封禁技能 / 物品 / 背包。
-            applyRestrictions(player);
+                // 离线：检查是否超时，若超时则清理记录（等其重连时再处理）
 
             // 60 秒后自动回归被放逐前的位置。
-            Banishment b = banished.get(id);
             if (b != null && (now - b.banishedAtMillis) >= autoReturnMillis) {
                 banished.remove(id);
                 banisherToBanished.remove(b.banisher);
                 doReturn(player, b);
                 // 通知持有者
-                ServerPlayer holder = server.getPlayerList().getPlayer(b.banisher);
                 if (holder != null) {
                     holder.displayClientMessage(Component
                             .translatable("item.noellesroles.grosell_travelog.auto_return",
@@ -280,7 +262,6 @@ public final class GroselleJourneyManager {
 
     private static void addHiddenEffect(ServerPlayer player, Holder<MobEffect> effect) {
         // 短时长 + 每 tick 刷新，确保期间始终生效；不显示粒子 / 图标。
-        player.addEffect(new MobEffectInstance(effect, 40, 0, false, false, false));
     }
 
     private static void spawnBanishFx(ServerLevel level, double x, double y, double z) {

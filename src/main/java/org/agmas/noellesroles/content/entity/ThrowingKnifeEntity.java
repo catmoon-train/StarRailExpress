@@ -18,6 +18,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.util.DeathReasonRegistry;
 
 public class ThrowingKnifeEntity extends AbstractArrow {
 
@@ -68,12 +69,12 @@ public class ThrowingKnifeEntity extends AbstractArrow {
                     serverLevel.playSound(player, location.x, location.y, location.z, SoundEvents.CHAIN_HIT,
                             SoundSource.PLAYERS, 1.0f, 1.0f);
                 });
-                ResourceLocation deathReason = Noellesroles.id("throwing_knife_hit");
+                ResourceLocation deathReason = DeathReasonRegistry.normal(Noellesroles.id("throwing_knife_hit"));
                 if (it != null && !it.isEmpty()) {
-                    deathReason = BuiltInRegistries.ITEM.getKey(it.getItem());
-                    if (deathReason == null) {
-                        deathReason = Noellesroles.id("throwing_knife_hit");
-                        ;
+                    ResourceLocation itemDeathReason = BuiltInRegistries.ITEM.getKey(it.getItem());
+                    if (itemDeathReason != null) {
+                        deathReason = DeathReasonRegistry.registerItem(itemDeathReason,
+                                DeathReasonRegistry.KillUsage.FORCE);
                     }
                 }
                 GameUtils.killPlayer(serverPlayer, true, (ServerPlayer) getOwner(),

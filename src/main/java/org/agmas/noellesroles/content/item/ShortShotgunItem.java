@@ -123,7 +123,7 @@ public class ShortShotgunItem extends Item implements HeldLikeBat {
                     for (Player target : tilePlayers) {
                         if (canSeeTarget(world, player, target)) {
                             io.wifi.starrailexpress.game.GameUtils.killPlayer(target, true, player,
-                                    Noellesroles.id("short_shotgun"));
+                                    Noellesroles.deathReason("short_shotgun"));
                         }
                     }
                 }

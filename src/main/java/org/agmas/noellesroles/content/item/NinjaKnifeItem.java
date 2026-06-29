@@ -40,7 +40,7 @@ public class NinjaKnifeItem extends KnifeItem {
         if (collision instanceof net.minecraft.world.phys.EntityHitResult entityHitResult) {
             var target = entityHitResult.getEntity();
             if (target instanceof Player victim) {
-                GameUtils.killPlayer(victim, true, attacker, Noellesroles.id("ninja_knife_kill"));
+                GameUtils.killPlayer(victim, true, attacker, Noellesroles.deathReason("ninja_knife_kill"));
                 stack.shrink(1);
                 // 30秒冷却
                 attacker.getCooldowns().addCooldown(ModItems.NINJA_KNIFE, 30 * 20);

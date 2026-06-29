@@ -90,7 +90,7 @@ public class BowenBadgeItem extends Item implements AdventureUsable{
             targetPlayer.push(knockbackDir.x * 2.5, 0.5, knockbackDir.z * 2.5);
 
             if (GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
-                GameUtils.killPlayer(targetPlayer, true, player, Noellesroles.id("bowen"));
+                GameUtils.killPlayer(targetPlayer, true, player, Noellesroles.deathReason("bowen"));
             }
             break;
         }

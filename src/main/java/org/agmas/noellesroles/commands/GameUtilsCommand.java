@@ -50,18 +50,15 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.scene.SceneTaskManager;
+import org.agmas.noellesroles.util.DeathReasonRegistry;
 import org.agmas.noellesroles.utils.MapScannerManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
-import pro.fazeclan.river.stupid_express.StupidExpress;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -861,71 +858,18 @@ public class GameUtilsCommand {
   }
 
   public static class DeathReasonSuggestions {
-    private static final HashSet<ResourceLocation> CUSTOM_DEATH_REASONS = new HashSet<>(Set.of(
-        Noellesroles.id("voodoo"),
-        Noellesroles.id("shot_innocent"),
-        Noellesroles.id("insane_killer_death"),
-        Noellesroles.id("arrow"),
-        Noellesroles.id("heart_attack"),
-        Noellesroles.id("conspiracy_backfire"),
-        Noellesroles.id("stalker_execution"),
-        Noellesroles.id("bomb_death"),
-        Noellesroles.id("puppeteer_puppet"),
-        Noellesroles.id("recorder_mistake"),
-        Noellesroles.id("gamble_self_kill"),
-        Noellesroles.id("wayfarer_error"),
-        Noellesroles.id("nianshou_firecrackers"),
-        Noellesroles.id("baton_kill"),
-        Noellesroles.id("bowen"),
-        Noellesroles.id("c4_explosion"),
-        Noellesroles.id("fire_axe"),
-        Noellesroles.id("ninja_knife_kill"),
-        Noellesroles.id("ninja_shuriken_kill"),
-        Noellesroles.id("short_shotgun"),
-        Noellesroles.id("throwing_knife_hit"),
-        Noellesroles.id("yinyang_sword_aoe"),
-        StupidExpress.id("broken_heart"),
-        StupidExpress.id("failed_initiation"),
-        StupidExpress.id("allergist"),
-        StupidExpress.id("failed_ignite"),
-        StupidExpress.id("ignited")));
+    private static void ensureCoreDeathReasonsLoaded() {
+      ResourceLocation ignored = GameConstants.DeathReasons.GENERIC;
+    }
 
     public static Set<ResourceLocation> getAllDeathReasons() {
-      Set<ResourceLocation> set = new HashSet<>();
-      Field[] fields = GameConstants.DeathReasons.class.getDeclaredFields();
-      for (Field field : fields) {
-        if (Modifier.isStatic(field.getModifiers())
-            && field.getType() == ResourceLocation.class) {
-          try {
-            ResourceLocation value = (ResourceLocation) field.get(null);
-            set.add(value);
-          } catch (IllegalAccessException e) {
-            // 理论上静态字段可访问，若发生异常则忽略
-            e.printStackTrace();
-          }
-        }
-      }
-      return set;
-    }
-
-    private static ResourceLocation itemId(Item item) {
-      return BuiltInRegistries.ITEM.getKey(item);
-    }
-
-    public static Set<ResourceLocation> getItemDeathReasons() {
-      Set<ResourceLocation> set = new HashSet<>(Set.of(
-          itemId(ModItems.THROWING_KNIFE),
-          itemId(ModItems.NINJA_SHURIKEN),
-          ResourceLocation.fromNamespaceAndPath("starrailexpress", "gun_shot")));
-      set.remove(null);
-      return set;
+      ensureCoreDeathReasonsLoaded();
+      return new HashSet<>(DeathReasonRegistry.gameConstantIds());
     }
 
     public static Set<ResourceLocation> getAllSuggestedDeathReasons() {
-      Set<ResourceLocation> set = new HashSet<>(getAllDeathReasons());
-      set.addAll(CUSTOM_DEATH_REASONS);
-      set.addAll(getItemDeathReasons());
-      return set;
+      ensureCoreDeathReasonsLoaded();
+      return new HashSet<>(DeathReasonRegistry.ids());
     }
 
     public static CompletableFuture<Suggestions> suggestDeathReasons(CommandContext<CommandSourceStack> context,

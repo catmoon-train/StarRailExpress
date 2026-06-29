@@ -245,7 +245,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
                         return;
                     } else {
                         wayC.init();
-                        GameUtils.killPlayer(killer, true, null, Noellesroles.id("wayfarer_error"));
+                        GameUtils.killPlayer(killer, true, null, Noellesroles.deathReason("wayfarer_error"));
                         return;
                     }
                 }

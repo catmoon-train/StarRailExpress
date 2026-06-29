@@ -136,7 +136,7 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
             // 如果达到死亡阈值，直接强制杀死玩家
             // 只有在启用挂机死亡功能时才执行
 
-            GameUtils.forceKillPlayer(this.player, true, null, SRE.id("death_afk"));
+            GameUtils.forceKillPlayer(this.player, true, null, SRE.forceDeathReason("death_afk"));
             this.clear();
             if (SREConfig.instance().afkKickEnabled && this.player instanceof ServerPlayer sp) {
                 sp.connection.disconnect(Component.translatable("message.disconnect.afk"));

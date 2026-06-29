@@ -22,6 +22,7 @@ import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.game.presets.Preset;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.util.DeathReasonRegistry;
 import org.agmas.noellesroles.utils.RightClickBlockManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.utils.ServerManager;
@@ -156,6 +157,18 @@ public class Noellesroles implements ModInitializer {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
     }
 
+    public static @NotNull ResourceLocation deathReason(String name, DeathReasonRegistry.KillUsage... usages) {
+        return DeathReasonRegistry.register(id(name), usages);
+    }
+
+    public static @NotNull ResourceLocation forceDeathReason(String name) {
+        return DeathReasonRegistry.force(id(name));
+    }
+
+    public static @NotNull ResourceLocation bothDeathReason(String name) {
+        return DeathReasonRegistry.both(id(name));
+    }
+
     @Override
     public void onInitialize() {
         io.wifi.starrailexpress.game.GameUtils.CustomWinnersPredicates.add(entry -> entry.getKey().getTags()
@@ -172,20 +185,20 @@ public class Noellesroles implements ModInitializer {
         Harpymodloader.HIDDEN_MODIFIERS.add(SEModifiers.REFUGEE.identifier().getPath());
         Harpymodloader.HIDDEN_MODIFIERS.add(SEModifiers.BLACK_WHITE.identifier().getPath());
         Harpymodloader.HIDDEN_MODIFIERS.add("rebel");
-        // 初始化模组角色列表
+        // 初始化系统组件
         ModRoles.init();
         // 初始化修饰符
         NRModifiers.init();
-        // 初始化初始物品映射
+        // 世界系统与事件处理器注册
         RoleInitialItems.initializeInitialItems();
 
-        // 初始化原版角色列表
+        // 注册命令
         initializeVanillaRoles();
 
-        // 加载配置
+        // 加载预设配置
         RicesRoleRhapsody.onInitialize1();
 
-        // 初始化系统组件
+        // 注册预设命令
         NRSounds.initialize();
         registerMaxRoleCount();
 
@@ -195,7 +208,7 @@ public class Noellesroles implements ModInitializer {
         // 注册命令
         NRCommandRegister.registerCommands();
 
-        // 加载预设配置
+        // 注册商店
         Preset.PresetManager.loadPresets();
 
         // 注册预设命令

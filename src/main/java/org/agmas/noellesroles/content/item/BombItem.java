@@ -141,7 +141,7 @@ public class BombItem extends Item {
             killer = player.level().getPlayerByUUID(owner);
         if (killer == null)
             killer = player;
-        GameUtils.killPlayer(player, true, killer, Noellesroles.id("bomb_death"));
+        GameUtils.killPlayer(player, true, killer, Noellesroles.deathReason("bomb_death"));
         ServerLevel serverLevel = player.serverLevel();
         serverLevel.players().forEach(
                 target -> {

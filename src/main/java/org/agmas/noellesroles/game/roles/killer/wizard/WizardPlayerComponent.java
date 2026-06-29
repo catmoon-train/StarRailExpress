@@ -444,7 +444,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
             }
             mark.deathTicks--;
             if (mark.deathTicks <= 0) {
-                GameUtils.killPlayer(serverTarget, true, caster, Noellesroles.id("wizard_fire_arrow"));
+                GameUtils.killPlayer(serverTarget, true, caster, Noellesroles.deathReason("wizard_fire_arrow"));
                 onKillWhileShielded();
                 caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
                         io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(

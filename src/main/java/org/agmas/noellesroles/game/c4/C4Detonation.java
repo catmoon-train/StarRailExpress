@@ -470,7 +470,7 @@ public final class C4Detonation {
                 attacker != null ? attacker.getUUID() : null, victim.getUUID());
             GameUtils.killPlayer(victim, true,
                 attacker instanceof Player p ? p : null,
-                Noellesroles.id("c4_explosion"));
+                Noellesroles.deathReason("c4_explosion"));
         }
     }
 

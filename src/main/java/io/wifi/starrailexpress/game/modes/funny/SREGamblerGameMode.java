@@ -124,7 +124,7 @@ public class SREGamblerGameMode extends SREMurderGameMode {
                         && gameWorldComponent.isRole(p, ModRoles.GAMBLER));
                 if (gamblerPlayers != null && !gamblerPlayers.isEmpty()) {
                     for (var p : gamblerPlayers) {
-                        GameUtils.killPlayer(p, true, null, Noellesroles.id("gamble_self_kill"));
+                        GameUtils.killPlayer(p, true, null, Noellesroles.bothDeathReason("gamble_self_kill"));
                     }
                 }
                 gamblerTimeout = -1;
