@@ -1245,7 +1245,7 @@
     "item.trainmurdermystery.scorpion": "蝎子",
     "item.trainmurdermystery.scorpion.tooltip": "偷偷放入床中，毒害下一个想要休息的人",
     "item.trainmurdermystery.sniper_rifle": "狙击枪",
-    "item.trainmurdermystery.sniper_rifle.tooltip": "射程200格的远程武器\n左键发射子弹，R键装填子弹\n潜行+左键安装/卸载倍镜\n安装倍镜后右键开镜/关镜",
+    "item.trainmurdermystery.sniper_rifle.tooltip": "射程200格的远程武器\n左键发射子弹，R键装弹(6s)\n蹲下左键安装/卸载瞄准镜(2s)\n安装瞄准镜后右键打开/关闭瞄准镜\n射击后需等待4s才能再次射击\n仅可穿透屏障和屏障镶板\n命中50格以外玩家时无视护盾击毙",
     "item.trainmurdermystery.standard_revolver": "制式左轮",
     "item.trainmurdermystery.standard_revolver.tooltip": "瞄准，右键并射击\n命中玩家后永不掉落",
     "item.trainmurdermystery.sticky_grenade": "粘性雷",

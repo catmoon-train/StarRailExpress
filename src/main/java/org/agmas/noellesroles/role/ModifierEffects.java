@@ -280,7 +280,7 @@ public class ModifierEffects {
             }
 
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(manicPlayer);
-            shop.setBalance(shop.balance + 10);
+            shop.setBalance(shop.balance + 15);
             shop.sync();
         }
     }

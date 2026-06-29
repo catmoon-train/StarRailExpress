@@ -829,7 +829,7 @@
     "item.trainmurdermystery.scope":  "Scope",
     "item.trainmurdermystery.scope.tooltip":  "Telescopic sight for the Sniper Rifle\nHold the Sniper Rifle, sneak, and press the left mouse button to attach to the Sniper Rifle (no need to open inventory)",
     "item.trainmurdermystery.sniper_rifle":  "Sniper Rifle",
-    "item.trainmurdermystery.sniper_rifle.tooltip":  "Long-range weapon with 200 blocks range\nLeft-click to fire, R to reload\nSneak + left-click to attach/detach scope\nRight-click to toggle scope when attached",
+    "item.trainmurdermystery.sniper_rifle.tooltip":  "Long-range weapon with 200 blocks range\nLeft-click to fire, R to reload (6s)\nSneak + left-click to attach/detach Scope (2s)\nWith Scope attached: Right-click to toggle scope\nWait 4s between shots\nOnly penetrates barriers and barrier panels\nHits beyond 50 blocks ignore shields and kill instantly",
     "item.starrailexpress.sniper_rifle.ammo":  "Ammo: %s / %s",
     "item.starrailexpress.sniper_rifle.scope":  "Scope: %s",
     "item.starrailexpress.sniper_rifle.scope.installed":  "Installed",

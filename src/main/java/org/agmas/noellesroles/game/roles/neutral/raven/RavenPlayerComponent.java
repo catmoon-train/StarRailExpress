@@ -45,7 +45,7 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
     public static final int MAX_CHARGES = 5;
     private static final int HUNT_TICKS = 120 * 20;
     private static final int COOLDOWN_TICKS = 60 * 20;
-    private static final double MOOD_RADIUS_SQR = 5 * 5;
+    private static final double MOOD_RADIUS_SQR = 8 * 8;
 
     private final Player player;
     private final Map<UUID, Float> observedMood = new HashMap<>();
@@ -253,6 +253,16 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
         targetRoleId = null;
         bodyUuid = null;
         sync();
+    }
+
+    public static void onLastStand(ServerLevel world) {
+        for (ServerPlayer serverPlayer : world.players()) {
+            RavenPlayerComponent raven = ModComponents.RAVEN.get(serverPlayer);
+            if (raven != null && raven.isHunting()) {
+                raven.charges = Math.min(MAX_CHARGES, raven.charges + 1);
+                raven.endHunt(false);
+            }
+        }
     }
 
     private void removeBody(ServerLevel level) {

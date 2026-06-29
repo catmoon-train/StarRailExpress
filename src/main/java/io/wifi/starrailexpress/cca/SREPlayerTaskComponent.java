@@ -247,7 +247,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                 var worldModifiers = WorldModifierComponent.KEY.get(sp.level());
                 if (worldModifiers != null) {
                     for (Player nearby : sp.level().players()) {
-                        if (nearby != sp && nearby.distanceTo(sp) <= 5.0
+                        if (nearby != sp && nearby.distanceTo(sp) <= 11.0
                                 && nearby instanceof ServerPlayer nearbySp
                                 && GameUtils.isPlayerAliveAndSurvival(nearbySp)
                                 && worldModifiers.isModifier(nearbySp.getUUID(), TraitorAndModifiers.MANIC)) {

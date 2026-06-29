@@ -849,7 +849,7 @@
     "item.trainmurdermystery.scope":  "倍鏡",
     "item.trainmurdermystery.scope.tooltip":  "用於狙擊槍的瞄準鏡\n手上拿著狙擊槍，潛行後按下滑鼠左鍵安裝到狙擊槍（不打開物品欄）",
     "item.trainmurdermystery.sniper_rifle":  "狙擊槍",
-    "item.trainmurdermystery.sniper_rifle.tooltip":  "射程200格的遠程武器\n左鍵裝填子彈，潛行後按下滑鼠左鍵安裝/卸載倍鏡\n蹲下右鍵瞄準\n不蹲下右鍵射擊",
+    "item.trainmurdermystery.sniper_rifle.tooltip":  "射程200格的遠程武器\n左鍵發射子彈，R鍵裝彈(6s)\n蹲下左鍵安裝/卸載瞄準鏡(2s)\n安裝瞄準鏡後右鍵打開/關閉瞄準鏡\n射擊後需等待4s才能再次射擊\n僅可穿透屏障和屏障鑲板\n命中50格以外玩家時無視護盾擊斃",
     "item.starrailexpress.sniper_rifle.ammo":  "子彈: %s / %s",
     "item.starrailexpress.sniper_rifle.scope":  "倍鏡: %s",
     "item.starrailexpress.sniper_rifle.scope.installed":  "已安裝",

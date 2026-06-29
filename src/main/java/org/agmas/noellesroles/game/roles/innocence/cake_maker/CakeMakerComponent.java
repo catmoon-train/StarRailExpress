@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CakeBlock;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.scene.MapStatusBarRuntime;
@@ -71,7 +72,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
 
     private static final int CAKE_PLACEMENT_TICKS = 60 * 20;  // 1 minute
     private static final int EAT_COOLDOWN_TICKS   = 600; // 30 s
-    private static final int SPEED_DURATION_TICKS = 20 * 20;
+    private static final int SPEED_DURATION_TICKS = 12 * 20;
     private static final int MAX_CAKE_BITES       = 6;
     private static final int MOOD_RESTORE_PCT     = 30;
     private static final int STATUS_BAR_MAX       = 20;
@@ -448,7 +449,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
 
     /**
      * Attempt to let {@code eater} take a bite from the cake identified by the clicked interaction entity.
-     * Restores stamina, mood, status bars, and grants Speed I. Cooldown: 30 s per player.
+     * Restores stamina, mood, status bars, and grants Speed I plus infinite stamina. Cooldown: 30 s per player.
      */
     public boolean eat(Entity clickedEntity, ServerPlayer eater) {
         if (eatCooldowns.getOrDefault(eater.getUUID(), 0) > 0) {
@@ -462,8 +463,9 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
 
         eatCooldowns.put(eater.getUUID(), EAT_COOLDOWN_TICKS);
 
-        // Speed I for 20 seconds
+        // Speed I and infinite stamina for 12 seconds
         eater.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, SPEED_DURATION_TICKS, 0));
+        eater.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, SPEED_DURATION_TICKS, 0, false, false, false));
 
         // Restore 30 % mood
         var mood = SREPlayerMoodComponent.KEY.get(eater);
