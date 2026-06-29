@@ -60,42 +60,8 @@ public class XiaoNaoHandler {
                     // 小脑(误杀)惩罚写这里
                     TeamKillViolationHandler.handle(victim, killer, isInnocent, deathReason);
                     if (NoellesRolesConfig.HANDLER.instance().accidentalKillPunishment) {
-<<<<<<< HEAD
                         if (isXiaoNaoReason(deathReason)) {
                             GameUtils.killPlayer(killer, true, null, Noellesroles.id("shot_innocent"));
-=======
-                        if (deathReason.getPath().equals("revolver_shot")
-                                || deathReason.getPath().equals("general_attack")
-                                || deathReason.getPath().equals("sniper_rifle")
-                                || deathReason.getPath().equals("nunchuck_hit")
-                                || deathReason.getPath().equals("bat_hit")
-                                || deathReason.getPath().equals("gun_shot")
-                                || deathReason.getPath().equals("hoan_meirin_attack")
-                                || deathReason.getPath().equals("arrow")
-                                || deathReason.getPath().equals("trident")
-                                || deathReason.getPath().equals("knife_stab")
-                                || deathReason.getPath().equals("stalker_knife")
-                                || deathReason.getPath().equals("knife")
-                                || deathReason.getPath().equals("fell_out_of_train")
-                                || deathReason.getPath().equals("poison")
-                                || deathReason.getPath().equals("throwing_knife_hit")
-                                || deathReason.getPath().equals("throwing_knife")
-                                || deathReason.getPath().equals("bowen")
-                                || deathReason.getPath().equals("baton_kill")
-                                || deathReason.getPath().equals("fire_axe")
-                                || deathReason.getPath().equals("ninja_knife")
-                                || deathReason.getPath().equals("ninja_shuriken")
-                                || deathReason.getPath().equals("short_shotgun")
-                                || deathReason.getPath().equals("grenade")
-                                || deathReason.getPath().equals("zero_one_five_shot")
-                                || deathReason.getPath().equals("incinerator_pushed")
-                                || deathReason.getPath().equals("manhole_suffocation")
-                                || deathReason.getPath().equals("stalactite_impale")
-                                || deathReason.getPath().equals("flamethrower_burned")
-                                || deathReason.getPath().equals("boulder_crush")) {
-                            GameUtils.killPlayer(killer, true, null, Noellesroles.id("shot_innocent"));
-                            TeamKillViolationHandler.handle(victim, killer, isInnocent, deathReason);
->>>>>>> parent of 4f637010d (ccb死亡原因并大一统死亡原因系统)
                             // 仇杀客事件：误杀发生时强化仇杀客
                             for (ServerPlayer player : victim.serverLevel().players()) {
                                 if (gameWorldComponent.isRole(player, ModRoles.BLOOD_FEUDIST)) {

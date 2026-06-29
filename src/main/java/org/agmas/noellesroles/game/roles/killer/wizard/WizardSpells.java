@@ -161,7 +161,7 @@ public final class WizardSpells {
             }
         }
         if (killed > 0) {
-            var comp = WizardPlayerComponent.KEY.get(caster);
+            // var comp = WizardPlayerComponent.KEY.get(caster);
             comp.onKillWhileShielded();
             caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
                     io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(
