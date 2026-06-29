@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import io.wifi.starrailexpress.client.network.EntityInteractionBlockClientNetwork;
+import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
@@ -11,6 +12,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,16 @@ public class EntityInteractionBlockScreen extends Screen {
     private static final int BUTTON_HEIGHT = 20;
     private static final int SECTION_GAP = 15;
 
+    private static List<String> getDeathReasonOptions() {
+        List<String> reasons = new ArrayList<>();
+        reasons.add("*");
+        GameConstants.DeathReasons.getAllDeathReasons().stream()
+                .map(ResourceLocation::toString)
+                .sorted()
+                .forEach(reasons::add);
+        return List.copyOf(reasons);
+    }
+
     // 传送点设置
     private boolean isTeleportPoint = false;
     private int teleportPointId = -1;
@@ -50,37 +62,6 @@ public class EntityInteractionBlockScreen extends Screen {
 
     // 额外任务类型选择（用于ADD_EXTRA_TASK）
     private String extraTaskType = "random";
-
-    // 死亡原因列表（用于DEATH条件）- 参考 GameConstants.DeathReasons + noellesroles + stupid_express
-    private static final List<String> DEATH_REASONS = List.of(
-            // 基础死亡原因 (GameConstants.DeathReasons)
-            "*", "disconnected", "black_white", "backfire", "execute", "generic",
-            "knife_stab", "revolver_shot", "derringer_shot", "bat_hit", "grenade",
-            "poison", "self_explosion", "fell_out_of_train", "arrow", "trident",
-            "sniper_rifle", "sniper_rifle_backfire", "nunchuck_hit",
-            // noellesroles 自定义死亡原因
-            "noellesroles:voodoo",
-            "noellesroles:shot_innocent",
-            "noellesroles:insane_killer_death",
-            "noellesroles:heart_attack",
-            "noellesroles:conspiracy_backfire",
-            "noellesroles:stalker_execution",
-            "noellesroles:bomb_death",
-            "noellesroles:puppeteer_puppet",
-            "noellesroles:recorder_mistake",
-            "noellesroles:gamble_self_kill",
-            "noellesroles:wayfarer_error",
-            "noellesroles:nianshou_firecrackers",
-            "noellesroles:dnf_tentacle",
-            // stupid_express 自定义死亡原因
-            "stupid_express:broken_heart",
-            "stupid_express:failed_initiation",
-            "stupid_express:allergist",
-            "stupid_express:failed_ignite",
-            "stupid_express:ignited",
-            "stupid_express:loose_end",
-            "stupid_express:split_personality"
-    );
 
     // 任务类型列表（用于CHANGE_TASK动作）
     private static final List<String> TASK_TYPES = List.of(
@@ -823,7 +804,7 @@ public class EntityInteractionBlockScreen extends Screen {
                     addRenderableWidget(CycleButton.<String>builder(reason ->
                                     Component.literal(reason.equals("*") ?
                                             Component.translatable("gui.entity_interaction_block.death_reason_any").getString() : reason))
-                            .withValues(DEATH_REASONS)
+                            .withValues(getDeathReasonOptions())
                             .withInitialValue("*")
                             .create(centerX - 100, y, 200, 20,
                                     Component.translatable("gui.entity_interaction_block.death_preset_select"),
@@ -1344,7 +1325,7 @@ public class EntityInteractionBlockScreen extends Screen {
                     addRenderableWidget(CycleButton.<String>builder(reason ->
                                     Component.literal(reason.equals("*") ?
                                             Component.translatable("gui.entity_interaction_block.death_reason_any").getString() : reason))
-                            .withValues(DEATH_REASONS)
+                            .withValues(getDeathReasonOptions())
                             .withInitialValue("*")
                             .create(centerX - 100, y, 200, 20,
                                     Component.translatable("gui.entity_interaction_block.death_preset_select"),

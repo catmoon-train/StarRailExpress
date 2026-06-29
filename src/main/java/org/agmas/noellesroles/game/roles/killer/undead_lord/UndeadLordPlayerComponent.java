@@ -10,6 +10,7 @@ import java.util.UUID;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.data.PlayerEconomyManager;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -26,7 +27,6 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.UndeadEntity;
@@ -45,7 +45,7 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
 
     public static final ComponentKey<UndeadLordPlayerComponent> KEY = ModComponents.UNDEAD_LORD;
 
-    public static final ResourceLocation INFECTION_DEATH_REASON = Noellesroles.id("undead_infection");
+    public static final ResourceLocation INFECTION_DEATH_REASON = GameConstants.DeathReasons.UNDEAD_INFECTION;
 
     private final Player player;
 

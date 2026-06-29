@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.util;
 
+import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -47,12 +48,12 @@ public class DeathReasonHelper {
      * 获取死亡原因的ID（使用 starrailexpress 命名空间，与已有翻译键匹配）
      */
     public static String getDeathReasonId(ItemStack stack) {
-        if (stack.is(Items.IRON_SWORD)) return "starrailexpress:knife_stab";
-        if (stack.is(Items.BOW)) return "starrailexpress:gun_shot";
-        if (stack.is(Items.TNT)) return "starrailexpress:grenade";
-        if (stack.is(Items.BLAZE_ROD)) return "starrailexpress:bat_hit";
-        if (stack.is(Items.POTION)) return "starrailexpress:poison";
-        if (stack.is(Items.OMINOUS_BOTTLE)) return "noellesroles:voodoo";
-        return "starrailexpress:generic";
+        if (stack.is(Items.IRON_SWORD)) return GameConstants.DeathReasons.KNIFE.toString();
+        if (stack.is(Items.BOW)) return GameConstants.DeathReasons.GUN_SHOT.toString();
+        if (stack.is(Items.TNT)) return GameConstants.DeathReasons.GRENADE.toString();
+        if (stack.is(Items.BLAZE_ROD)) return GameConstants.DeathReasons.BAT.toString();
+        if (stack.is(Items.POTION)) return GameConstants.DeathReasons.POISON.toString();
+        if (stack.is(Items.OMINOUS_BOTTLE)) return GameConstants.DeathReasons.VOODOO.toString();
+        return GameConstants.DeathReasons.GENERIC.toString();
     }
 }

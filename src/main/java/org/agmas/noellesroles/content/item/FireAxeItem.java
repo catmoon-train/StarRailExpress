@@ -2,6 +2,7 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
@@ -28,7 +29,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.FireAxeStabPayload;
 
 import java.util.List;
@@ -50,7 +50,7 @@ public class FireAxeItem extends Item implements AdventureUsable {
     private static final int KILL_COOLDOWN = 60 * 20; // 60秒冷却，防止连续使用
 
     // 消防斧死因
-    public static final ResourceLocation DEATH_REASON_FIRE_AXE = Noellesroles.id("fire_axe");
+    public static final ResourceLocation DEATH_REASON_FIRE_AXE = GameConstants.DeathReasons.FIRE_AXE;
 
     public FireAxeItem(Properties settings) {
         super(settings);

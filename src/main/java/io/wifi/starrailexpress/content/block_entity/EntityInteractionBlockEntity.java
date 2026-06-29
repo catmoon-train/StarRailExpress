@@ -1077,13 +1077,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 armor.sync();
             }
             case DAMAGE_DEATH -> {
-                ResourceLocation deathReason = action.stringValue.isEmpty() ? GameConstants.DeathReasons.GENERIC
-                        : ResourceLocation.parse(action.stringValue);
+                ResourceLocation deathReason = GameConstants.DeathReasons.parseOrDefault(action.stringValue);
                 GameUtils.killPlayer(player, false, null, deathReason);
             }
             case FORCE_KILL -> {
-                ResourceLocation deathReason = action.stringValue.isEmpty() ? GameConstants.DeathReasons.GENERIC
-                        : ResourceLocation.parse(action.stringValue);
+                ResourceLocation deathReason = GameConstants.DeathReasons.parseOrDefault(action.stringValue);
                 GameUtils.forceKillPlayer(player, true, null, deathReason);
             }
             case MOOD_CHANGE -> {

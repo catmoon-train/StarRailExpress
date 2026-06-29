@@ -46,7 +46,6 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
@@ -58,7 +57,6 @@ import org.agmas.noellesroles.scene.SceneTaskManager;
 import org.agmas.noellesroles.utils.MapScannerManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
-import pro.fazeclan.river.stupid_express.StupidExpress;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -861,35 +859,6 @@ public class GameUtilsCommand {
   }
 
   public static class DeathReasonSuggestions {
-    private static final HashSet<ResourceLocation> CUSTOM_DEATH_REASONS = new HashSet<>(Set.of(
-        Noellesroles.id("voodoo"),
-        Noellesroles.id("shot_innocent"),
-        Noellesroles.id("insane_killer_death"),
-        Noellesroles.id("arrow"),
-        Noellesroles.id("heart_attack"),
-        Noellesroles.id("conspiracy_backfire"),
-        Noellesroles.id("stalker_execution"),
-        Noellesroles.id("bomb_death"),
-        Noellesroles.id("puppeteer_puppet"),
-        Noellesroles.id("recorder_mistake"),
-        Noellesroles.id("gamble_self_kill"),
-        Noellesroles.id("wayfarer_error"),
-        Noellesroles.id("nianshou_firecrackers"),
-        Noellesroles.id("baton_kill"),
-        Noellesroles.id("bowen"),
-        Noellesroles.id("c4_explosion"),
-        Noellesroles.id("fire_axe"),
-        Noellesroles.id("ninja_knife_kill"),
-        Noellesroles.id("ninja_shuriken_kill"),
-        Noellesroles.id("short_shotgun"),
-        Noellesroles.id("throwing_knife_hit"),
-        Noellesroles.id("yinyang_sword_aoe"),
-        StupidExpress.id("broken_heart"),
-        StupidExpress.id("failed_initiation"),
-        StupidExpress.id("allergist"),
-        StupidExpress.id("failed_ignite"),
-        StupidExpress.id("ignited")));
-
     public static Set<ResourceLocation> getAllDeathReasons() {
       Set<ResourceLocation> set = new HashSet<>();
       Field[] fields = GameConstants.DeathReasons.class.getDeclaredFields();
@@ -922,10 +891,7 @@ public class GameUtilsCommand {
     }
 
     public static Set<ResourceLocation> getAllSuggestedDeathReasons() {
-      Set<ResourceLocation> set = new HashSet<>(getAllDeathReasons());
-      set.addAll(CUSTOM_DEATH_REASONS);
-      set.addAll(getItemDeathReasons());
-      return set;
+      return GameConstants.DeathReasons.getAllDeathReasons();
     }
 
     public static CompletableFuture<Suggestions> suggestDeathReasons(CommandContext<CommandSourceStack> context,
