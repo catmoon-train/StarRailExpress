@@ -62,6 +62,7 @@ public class OtherRolesRegister {
         ReasonerHud.register();
         EmbalmerHud.register();
         SkincrawlerHud.register();
+        SwapperHud.register();
         PhantomMusicianHud.register();
         UndeadLordHud.register();
         VeteranHud.register();
