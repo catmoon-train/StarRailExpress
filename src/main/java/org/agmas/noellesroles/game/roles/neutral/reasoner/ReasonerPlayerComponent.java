@@ -413,7 +413,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     private List<String> allDeathReasonIds() {
-        List<String> reasons = GameUtilsCommand.DeathReasonSuggestions.getAllDeathReasons().stream()
+        List<String> reasons = GameUtilsCommand.DeathReasonSuggestions.getAllSuggestedDeathReasons().stream()
                 .map(ResourceLocation::toString)
                 .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
         reasons.sort(Comparator.naturalOrder());

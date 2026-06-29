@@ -898,17 +898,19 @@ public class GameUtilsCommand {
       return set;
     }
 
+    public static Set<ResourceLocation> getAllSuggestedDeathReasons() {
+      Set<ResourceLocation> set = new HashSet<>(getAllDeathReasons());
+      set.addAll(CUSTOM_DEATH_REASONS);
+      return set;
+    }
+
     public static CompletableFuture<Suggestions> suggestDeathReasons(CommandContext<CommandSourceStack> context,
         SuggestionsBuilder builder) {
       String remaining = builder.getRemaining().toLowerCase(Locale.ROOT);
       Set<String> suggestions = new HashSet<>();
       // 添加自定义 ID 到 Sety
 
-      getAllDeathReasons()
-          .stream().map(ResourceLocation::toString)
-          .filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
-          .forEach(suggestions::add);
-      CUSTOM_DEATH_REASONS.stream()
+      getAllSuggestedDeathReasons().stream()
           .map(ResourceLocation::toString)
           .filter(id -> id.toLowerCase(Locale.ROOT).startsWith(remaining))
           .forEach(suggestions::add);
