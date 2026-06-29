@@ -104,7 +104,8 @@ public class RoleIntroduceScreen extends Screen {
                 item -> item instanceof SRERole r && PlayerRoleWeightManager.getRoleType(r) == 4));
         CATEGORIES.add(new RoleCategory("screen.roleintroduce.category.modifier", 0xFF8877BB,
                 item -> item instanceof SREModifier));
-        CATEGORIES.add(new RoleCategory("screen.roleintroduce.category.item", 0x55FF22BB, item -> item instanceof Item));
+        CATEGORIES
+                .add(new RoleCategory("screen.roleintroduce.category.item", 0x55FF22BB, item -> item instanceof Item));
         CATEGORIES.add(new RoleCategory("screen.roleintroduce.category.sponsor", 0xFFFF66AA,
                 item -> item instanceof Item it
                         && io.wifi.starrailexpress.client.data.ClientSponsorCache.isSponsorPlush(it)));
@@ -176,6 +177,7 @@ public class RoleIntroduceScreen extends Screen {
     private enum FocusArea {
         SEARCH, CATEGORY_BAR, LEFT_LIST, MODE_BUTTONS, RIGHT_TABS
     }
+
     private FocusArea currentFocusArea = FocusArea.SEARCH;
 
     private boolean isDraggingDetailScroll = false;
@@ -209,7 +211,8 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private static SRERole getRole(Player player) {
-        if (SREClient.gameComponent != null) return SREClient.gameComponent.getRole(player);
+        if (SREClient.gameComponent != null)
+            return SREClient.gameComponent.getRole(player);
         return null;
     }
 
@@ -228,7 +231,8 @@ public class RoleIntroduceScreen extends Screen {
         computeLayout();
         initSearchBox();
         refreshFilter();
-        if (selectedRole == null && !filteredItems.isEmpty()) selectedRole = filteredItems.get(0);
+        if (selectedRole == null && !filteredItems.isEmpty())
+            selectedRole = filteredItems.get(0);
         onSelectionChanged();
         setFocusArea(FocusArea.SEARCH);
     }
@@ -258,7 +262,8 @@ public class RoleIntroduceScreen extends Screen {
         int sx = leftX, sw = leftW - 2;
         if (searchWidget == null) {
             searchWidget = new EditBox(font, sx, topBarY, sw, TOP_BAR_H, Component.empty());
-            searchWidget.setHint(Component.translatable("screen.noellesroles.search.placeholder").withStyle(ChatFormatting.GRAY));
+            searchWidget.setHint(
+                    Component.translatable("screen.noellesroles.search.placeholder").withStyle(ChatFormatting.GRAY));
             searchWidget.setResponder(text -> {
                 searchContent = text.isEmpty() ? null : text;
                 listScrollOffset = 0;
@@ -285,7 +290,8 @@ public class RoleIntroduceScreen extends Screen {
         filteredItems.clear();
         RoleCategory cat = currentCategory();
         for (SRERole role : availableRoles) {
-            if (!cat.filter.test(role) || !matchesMode(role)) continue;
+            if (!cat.filter.test(role) || !matchesMode(role))
+                continue;
             String name = RoleUtils.getRoleName(role).getString();
             if (searchContent == null || name.toLowerCase().contains(searchContent.toLowerCase())
                     || role.identifier().toString().contains(searchContent.toLowerCase())
@@ -293,7 +299,8 @@ public class RoleIntroduceScreen extends Screen {
                 filteredItems.add(role);
         }
         for (SREModifier mod : HMLModifiers.MODIFIERS) {
-            if (!cat.filter.test(mod) || !matchesModifierMode(mod)) continue;
+            if (!cat.filter.test(mod) || !matchesModifierMode(mod))
+                continue;
             String name = mod.getName().getString();
             if (searchContent == null || name.toLowerCase().contains(searchContent.toLowerCase())
                     || mod.identifier().toString().contains(searchContent.toLowerCase())
@@ -301,7 +308,8 @@ public class RoleIntroduceScreen extends Screen {
                 filteredItems.add(mod);
         }
         for (Item item : TMMDescItems.introItems) {
-            if (!cat.filter.test(item) || !matchesItemMode(item)) continue;
+            if (!cat.filter.test(item) || !matchesItemMode(item))
+                continue;
             String name = item.getDescription().getString();
             if (searchContent == null || name.toLowerCase().contains(searchContent.toLowerCase())
                     || BuiltInRegistries.ITEM.getKey(item).toString().contains(searchContent.toLowerCase())
@@ -309,7 +317,8 @@ public class RoleIntroduceScreen extends Screen {
                 filteredItems.add(item);
         }
         for (Item item : io.wifi.starrailexpress.client.data.ClientSponsorCache.getPlushItems()) {
-            if (!cat.filter.test(item)) continue;
+            if (!cat.filter.test(item))
+                continue;
             String name = item.getDescription().getString();
             if (searchContent == null || name.toLowerCase().contains(searchContent.toLowerCase())
                     || BuiltInRegistries.ITEM.getKey(item).toString().contains(searchContent.toLowerCase())
@@ -330,7 +339,9 @@ public class RoleIntroduceScreen extends Screen {
         };
     }
 
-    private boolean isRepairRole(SRERole role) { return role instanceof RepairRole; }
+    private boolean isRepairRole(SRERole role) {
+        return role instanceof RepairRole;
+    }
 
     private boolean matchesModifierMode(SREModifier mod) {
         return switch (currentMode) {
@@ -366,25 +377,40 @@ public class RoleIntroduceScreen extends Screen {
 
     private RoleCategory currentCategory() {
         return (selectedCategoryIndex >= 0 && selectedCategoryIndex < CATEGORIES.size())
-                ? CATEGORIES.get(selectedCategoryIndex) : CATEGORIES.get(0);
+                ? CATEGORIES.get(selectedCategoryIndex)
+                : CATEGORIES.get(0);
     }
 
-    private int listAreaH() { return panelH - PANEL_PAD * 2 - 24; }
+    private int listAreaH() {
+        return panelH - PANEL_PAD * 2 - 24;
+    }
 
     // ══════════════════════════════════════════════════════════════════
     // 标签页系统
     // ══════════════════════════════════════════════════════════════════
     private interface DetailTab {
         Component getTitle();
+
         boolean isVisible();
+
         void render(GuiGraphics g, int x, int y, int w, int h, int mouseX, int mouseY, float partialTick);
+
         int getScrollOffset();
+
         int getMaxScroll();
+
         void setScrollOffset(int offset);
+
         int getContentHeight();
+
         void onSwitchTo();
-        default int getColor() { return 0xFFAA88CC; }
-        default void onSwitchAway() {}
+
+        default int getColor() {
+            return 0xFFAA88CC;
+        }
+
+        default void onSwitchAway() {
+        }
     }
 
     private abstract class AbstractTextTab implements DetailTab {
@@ -392,7 +418,9 @@ public class RoleIntroduceScreen extends Screen {
         protected int scrollOffset = 0;
         protected int maxScroll = 0;
 
-        protected int getLineHeight() { return font.lineHeight + 2; }
+        protected int getLineHeight() {
+            return font.lineHeight + 2;
+        }
 
         @Override
         public void render(GuiGraphics g, int x, int y, int w, int h, int mouseX, int mouseY, float partialTick) {
@@ -409,11 +437,32 @@ public class RoleIntroduceScreen extends Screen {
             maxScroll = Math.max(0, totalH - h);
         }
 
-        @Override public int getScrollOffset() { return scrollOffset; }
-        @Override public int getMaxScroll() { return maxScroll; }
-        @Override public void setScrollOffset(int offset) { this.scrollOffset = Mth.clamp(offset, 0, maxScroll); }
-        @Override public int getContentHeight() { return lines.size() * getLineHeight(); }
-        @Override public void onSwitchTo() { prepareLines(); scrollOffset = 0; }
+        @Override
+        public int getScrollOffset() {
+            return scrollOffset;
+        }
+
+        @Override
+        public int getMaxScroll() {
+            return maxScroll;
+        }
+
+        @Override
+        public void setScrollOffset(int offset) {
+            this.scrollOffset = Mth.clamp(offset, 0, maxScroll);
+        }
+
+        @Override
+        public int getContentHeight() {
+            return lines.size() * getLineHeight();
+        }
+
+        @Override
+        public void onSwitchTo() {
+            prepareLines();
+            scrollOffset = 0;
+        }
+
         protected abstract void prepareLines();
     }
 
@@ -424,10 +473,15 @@ public class RoleIntroduceScreen extends Screen {
         private static final int ITEM_H = 32;
         private static final int TEXT_GAP = 2;
 
-        @Override public Component getTitle() { return Component.translatable("screen.roleintroduce.detail.shop"); }
+        @Override
+        public Component getTitle() {
+            return Component.translatable("screen.roleintroduce.detail.shop");
+        }
 
-        @Override public boolean isVisible() {
-            if (!(selectedRole instanceof SRERole)) return false;
+        @Override
+        public boolean isVisible() {
+            if (!(selectedRole instanceof SRERole))
+                return false;
             entries.clear();
             entries.addAll(LimitedInventoryScreen.getRoleShopEntries((SRERole) selectedRole));
             return !entries.isEmpty();
@@ -467,7 +521,8 @@ public class RoleIntroduceScreen extends Screen {
                     ItemStack stack = entries.get(idx).stack();
                     List<Component> tooltipLines;
                     try {
-                        tooltipLines = stack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player, TooltipFlag.NORMAL);
+                        tooltipLines = stack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player,
+                                TooltipFlag.NORMAL);
                     } catch (Exception e) {
                         tooltipLines = List.of(Component.translatable("screen.roleintroduce.error", e.getMessage()));
                     }
@@ -476,36 +531,66 @@ public class RoleIntroduceScreen extends Screen {
             }
         }
 
-        @Override public int getScrollOffset() { return scrollOffset; }
-        @Override public int getMaxScroll() { return maxScroll; }
-        @Override public void setScrollOffset(int offset) { this.scrollOffset = Mth.clamp(offset, 0, maxScroll); }
-        @Override public int getContentHeight() { return entries.size() * ITEM_H; }
-        @Override public void onSwitchTo() {
+        @Override
+        public int getScrollOffset() {
+            return scrollOffset;
+        }
+
+        @Override
+        public int getMaxScroll() {
+            return maxScroll;
+        }
+
+        @Override
+        public void setScrollOffset(int offset) {
+            this.scrollOffset = Mth.clamp(offset, 0, maxScroll);
+        }
+
+        @Override
+        public int getContentHeight() {
+            return entries.size() * ITEM_H;
+        }
+
+        @Override
+        public void onSwitchTo() {
             scrollOffset = 0;
             entries.clear();
-            if (selectedRole instanceof SRERole) entries.addAll(LimitedInventoryScreen.getRoleShopEntries((SRERole) selectedRole));
+            if (selectedRole instanceof SRERole)
+                entries.addAll(LimitedInventoryScreen.getRoleShopEntries((SRERole) selectedRole));
         }
     }
 
     private void buildTabs() {
         tabs.clear();
-        if (selectedRole == null) return;
+        if (selectedRole == null)
+            return;
         int textW = rightW - PANEL_PAD * 2 - SCROLL_W - 4;
 
         // 简介
         tabs.add(new AbstractTextTab() {
-            @Override public Component getTitle() { return Component.translatable("screen.roleintroduce.detail.intro"); }
-            @Override public boolean isVisible() { return true; }
-            @Override protected void prepareLines() {
+            @Override
+            public Component getTitle() {
+                return Component.translatable("screen.roleintroduce.detail.intro");
+            }
+
+            @Override
+            public boolean isVisible() {
+                return true;
+            }
+
+            @Override
+            protected void prepareLines() {
                 lines.clear();
                 int dashCount = textW / Math.max(1, font.width("─"));
                 String dashes = "─".repeat(dashCount);
 
                 // 名称 + ID
-                Component nameComp = RoleUtils.getRoleOrModifierOrItemNameWithColor(selectedRole).copy().withStyle(ChatFormatting.BOLD);
+                Component nameComp = RoleUtils.getRoleOrModifierOrItemNameWithColor(selectedRole).copy()
+                        .withStyle(ChatFormatting.BOLD);
                 Component idComp = Component.translatable("screen.roleintroduce.detail.name.id.warp",
-                        RoleUtils.getRoleOrModifierOrItemIdentifier(selectedRole).toString()).withStyle(ChatFormatting.DARK_GRAY);
-                lines.addAll(font.split(nameComp.copy().append(" ").append(idComp), textW));
+                        RoleUtils.getRoleOrModifierOrItemIdentifier(selectedRole).toString())
+                        .withStyle(ChatFormatting.DARK_GRAY);
+                lines.addAll(font.split(Component.literal("").append(nameComp).append(idComp), textW));
 
                 // 目标
                 lines.add(FormattedCharSequence.EMPTY);
@@ -515,9 +600,12 @@ public class RoleIntroduceScreen extends Screen {
                     String goalKey = "announcement.star.goals." + path;
                     if (selectedRole instanceof CustomNormalRole) {
                         var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(path);
-                        if (cd == null) cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(path);
-                        if (cd != null && !cd.goals.isEmpty()) lines.addAll(font.split(Component.literal(cd.goals), textW));
-                        else lines.addAll(font.split(Component.translatable(goalKey), textW));
+                        if (cd == null)
+                            cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(path);
+                        if (cd != null && !cd.goals.isEmpty())
+                            lines.addAll(font.split(Component.literal(cd.goals), textW));
+                        else
+                            lines.addAll(font.split(Component.translatable(goalKey), textW));
                     } else {
                         lines.addAll(font.split(Component.translatable(goalKey), textW));
                     }
@@ -548,9 +636,18 @@ public class RoleIntroduceScreen extends Screen {
 
         // 详细介绍
         tabs.add(new AbstractTextTab() {
-            @Override public Component getTitle() { return Component.translatable("screen.roleintroduce.detail.description"); }
-            @Override public boolean isVisible() { return true; }
-            @Override protected void prepareLines() {
+            @Override
+            public Component getTitle() {
+                return Component.translatable("screen.roleintroduce.detail.description");
+            }
+
+            @Override
+            public boolean isVisible() {
+                return true;
+            }
+
+            @Override
+            protected void prepareLines() {
                 lines.clear();
                 if (selectedRole != null)
                     lines.addAll(font.split(RoleUtils.getRoleOrModifierOrItemDescription(selectedRole).copy()
@@ -563,13 +660,21 @@ public class RoleIntroduceScreen extends Screen {
 
         // 小故事
         tabs.add(new AbstractTextTab() {
-            @Override public Component getTitle() { return Component.translatable("screen.roleintroduce.detail.story"); }
-            @Override public boolean isVisible() {
-                if (selectedRole == null) return false;
+            @Override
+            public Component getTitle() {
+                return Component.translatable("screen.roleintroduce.detail.story");
+            }
+
+            @Override
+            public boolean isVisible() {
+                if (selectedRole == null)
+                    return false;
                 String key = "star.story." + getObjectType(selectedRole) + "." + getObjectPath(selectedRole);
                 return Language.getInstance().has(key);
             }
-            @Override protected void prepareLines() {
+
+            @Override
+            protected void prepareLines() {
                 lines.clear();
                 String key = "star.story." + getObjectType(selectedRole) + "." + getObjectPath(selectedRole);
                 if (Language.getInstance().has(key))
@@ -579,17 +684,26 @@ public class RoleIntroduceScreen extends Screen {
 
         // 设置
         tabs.add(new AbstractTextTab() {
-            @Override public Component getTitle() { return Component.translatable("screen.roleintroduce.detail.settings"); }
-            @Override public boolean isVisible() {
-                if (selectedRole == null) return false;
+            @Override
+            public Component getTitle() {
+                return Component.translatable("screen.roleintroduce.detail.settings");
+            }
+
+            @Override
+            public boolean isVisible() {
+                if (selectedRole == null)
+                    return false;
                 String settingsKey = "star.settings." + getObjectType(selectedRole) + "." + getObjectPath(selectedRole);
                 return Language.getInstance().has(settingsKey);
             }
-            @Override protected void prepareLines() {
+
+            @Override
+            protected void prepareLines() {
                 lines.clear();
                 String settingsKey = "star.settings." + getObjectType(selectedRole) + "." + getObjectPath(selectedRole);
                 if (Language.getInstance().has(settingsKey))
-                    lines.addAll(font.split(Component.translatable(settingsKey).withStyle(ChatFormatting.WHITE), textW));
+                    lines.addAll(
+                            font.split(Component.translatable(settingsKey).withStyle(ChatFormatting.WHITE), textW));
             }
         });
     }
@@ -597,7 +711,8 @@ public class RoleIntroduceScreen extends Screen {
     private void onSelectionChanged() {
         buildTabs();
         activeTabIndex = 0;
-        if (!tabs.isEmpty()) tabs.get(activeTabIndex).onSwitchTo();
+        if (!tabs.isEmpty())
+            tabs.get(activeTabIndex).onSwitchTo();
     }
 
     private static MutableComponent getFlagText(SREAbstractInfoClass flagInfoable) {
@@ -606,14 +721,18 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private String getObjectPath(Object it) {
-        if (it instanceof Item) return RoleUtils.getRoleOrModifierOrItemIdentifier(it).toLanguageKey();
+        if (it instanceof Item)
+            return RoleUtils.getRoleOrModifierOrItemIdentifier(it).toLanguageKey();
         return RoleUtils.getRoleOrModifierOrItemIdentifier(it).getPath();
     }
 
     private String getObjectType(Object it) {
-        if (it instanceof Item) return "item";
-        if (it instanceof SREModifier) return "modifier";
-        if (it instanceof SRERole) return "role";
+        if (it instanceof Item)
+            return "item";
+        if (it instanceof SREModifier)
+            return "modifier";
+        if (it instanceof SRERole)
+            return "role";
         return "unknown";
     }
 
@@ -633,16 +752,21 @@ public class RoleIntroduceScreen extends Screen {
         g.fillGradient(0, 0, width, topBarY - 4, 0xBB000000, 0x00000000);
         g.drawCenteredString(font, this.title, width / 2, 8, 0xF5E8C8);
         if (isSmall)
-            g.drawCenteredString(font, Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY), width / 2, height - 15, 0x9E8B6E);
+            g.drawCenteredString(font,
+                    Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY), width / 2,
+                    height - 15, 0x9E8B6E);
         else
-            g.drawCenteredString(font, Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY), width / 2, height - 24, 0x9E8B6E);
+            g.drawCenteredString(font,
+                    Component.translatable("screen.roleintroduce.hint").withStyle(ChatFormatting.GRAY), width / 2,
+                    height - 24, 0x9E8B6E);
         renderModeButtons(g, mouseX, mouseY, leftW - PANEL_PAD * 4);
     }
 
     private void renderModeButtons(GuiGraphics g, int mouseX, int mouseY, int maxWidth) {
         IntroductionGameMode[] modes = IntroductionGameMode.values();
         int n = modes.length;
-        if (n == 0) return;
+        if (n == 0)
+            return;
 
         int[] naturalW = new int[n];
         int totalNaturalWidth = 0;
@@ -709,7 +833,8 @@ public class RoleIntroduceScreen extends Screen {
         for (int i = 0; i < filteredItems.size(); i++) {
             Object role = filteredItems.get(i);
             int cardY = areaY + i * (CARD_H + CARD_SPACING) - listScrollOffset;
-            if (cardY + CARD_H < areaY || cardY > areaY + areaH) continue;
+            if (cardY + CARD_H < areaY || cardY > areaY + areaH)
+                continue;
 
             boolean hovered = isInRect(mouseX, mouseY, areaX, cardY, areaW, CARD_H);
             boolean selected = role.equals(selectedRole);
@@ -721,13 +846,15 @@ public class RoleIntroduceScreen extends Screen {
         g.disableScissor();
 
         if (filteredItems.isEmpty()) {
-            g.drawCenteredString(font, Component.translatable("screen.noellesroles.search.empty").withStyle(ChatFormatting.RED),
+            g.drawCenteredString(font,
+                    Component.translatable("screen.noellesroles.search.empty").withStyle(ChatFormatting.RED),
                     leftX + leftW / 2, areaY + areaH / 2, 0xFF5555);
         }
 
         int sbX = leftX + leftW - PANEL_PAD - SCROLL_W;
         int totalH = Math.max(1, filteredItems.size() * (CARD_H + CARD_SPACING));
-        renderVScrollbar(g, sbX, areaY, areaH, listScrollOffset, maxListScroll, totalH, mouseX, mouseY, isDraggingListScroll);
+        renderVScrollbar(g, sbX, areaY, areaH, listScrollOffset, maxListScroll, totalH, mouseX, mouseY,
+                isDraggingListScroll);
     }
 
     private void renderCategoryBar(GuiGraphics g, int mouseX, int mouseY, int barX, int barY, int barW, int barH) {
@@ -742,7 +869,8 @@ public class RoleIntroduceScreen extends Screen {
         int curX = barX;
         for (int i = 0; i < n; i++) {
             int tw = (int) (naturalW[i] * scale);
-            tabX[i] = curX; tabW[i] = tw;
+            tabX[i] = curX;
+            tabW[i] = tw;
 
             boolean active = (i == selectedCategoryIndex);
             boolean hovered = !active && isInRect(mouseX, mouseY, curX, barY, tw, barH);
@@ -776,19 +904,28 @@ public class RoleIntroduceScreen extends Screen {
     private void renderListCard(GuiGraphics g, Object role, int x, int y, int w, int h, float hover, boolean selected) {
         int rawColor = RoleUtils.getRoleOrModifierColor(role);
         int roleColor = rawColor | 0xFF000000;
-        int outerBorder = selected ? 0xFFD4AF37 : (hover > 0.05f ? blendColors(0xFF5A4530, 0xFFC9A84C, hover) : 0xFF5A4530);
+        int outerBorder = selected ? 0xFFD4AF37
+                : (hover > 0.05f ? blendColors(0xFF5A4530, 0xFFC9A84C, hover) : 0xFF5A4530);
         g.fill(x, y, x + w, y + h, outerBorder);
 
         int bgL, bgR;
-        if (selected) { bgL = 0xFF5A4520; bgR = 0xFF3A2A10; }
-        else if (hover > 0.05f) { bgL = blendColors(0xFF1A1008, 0xFF5A4520, hover); bgR = blendColors(0xFF120A04, 0xFF3A2A10, hover); }
-        else { bgL = 0xFF1A1008; bgR = 0xFF120A04; }
+        if (selected) {
+            bgL = 0xFF5A4520;
+            bgR = 0xFF3A2A10;
+        } else if (hover > 0.05f) {
+            bgL = blendColors(0xFF1A1008, 0xFF5A4520, hover);
+            bgR = blendColors(0xFF120A04, 0xFF3A2A10, hover);
+        } else {
+            bgL = 0xFF1A1008;
+            bgR = 0xFF120A04;
+        }
         g.fillGradient(x + 1, y + 1, x + w - 1, y + h - 1, bgL, bgR);
         g.fill(x + 1, y + 1, x + w - 1, y + 2, selected ? 0x44FFE8C0 : (hover > 0.05f ? 0x25FFFFFF : 0x10FFFFFF));
 
         int barW = 3;
         g.fill(x + 1, y + 1, x + 1 + barW, y + h - 1, roleColor);
-        g.fillGradient(x + 1 + barW, y + 1, x + 1 + barW + 4, y + h - 1, (rawColor & 0x00FFFFFF) | 0x40000000, 0x00000000);
+        g.fillGradient(x + 1 + barW, y + 1, x + 1 + barW + 4, y + h - 1, (rawColor & 0x00FFFFFF) | 0x40000000,
+                0x00000000);
 
         int iconX = x + 1 + barW + 5, iconY = y + (h - ICON_SIZE) / 2;
         g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE, blendColors(0xFF120A04, roleColor, 0.25f));
@@ -800,32 +937,40 @@ public class RoleIntroduceScreen extends Screen {
             try {
                 g.blit(getTypeIcon(role), iconX, iconY, 0f, 0f, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
                 iconOk = true;
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         if (!iconOk) {
             g.fill(iconX, iconY, iconX + ICON_SIZE, iconY + ICON_SIZE, blendColors(0xFF1A1008, roleColor, 0.55f));
             String initial = RoleUtils.getRoleOrModifierOrItemName(role).getString();
             if (!initial.isEmpty())
-                g.drawCenteredString(font, Component.literal(String.valueOf(initial.charAt(0)).toUpperCase()).withStyle(ChatFormatting.BOLD),
+                g.drawCenteredString(font,
+                        Component.literal(String.valueOf(initial.charAt(0)).toUpperCase())
+                                .withStyle(ChatFormatting.BOLD),
                         iconX + ICON_SIZE / 2, iconY + (ICON_SIZE - font.lineHeight) / 2, 0xFFFFFF);
         }
         g.renderOutline(iconX, iconY, ICON_SIZE, ICON_SIZE, blendColors(roleColor, 0xFFFFFFFF, 0.3f));
 
         int textX = iconX + ICON_SIZE + 5, textMaxW = w - (textX - x) - 6;
-        g.drawString(font, font.plainSubstrByWidth(RoleUtils.getRoleOrModifierOrItemTypeName(role).getString(), textMaxW),
+        g.drawString(font,
+                font.plainSubstrByWidth(RoleUtils.getRoleOrModifierOrItemTypeName(role).getString(), textMaxW),
                 textX, y + 5, selected ? 0xFFD4AF37 : blendColors(0xFF9E8B6E, 0xFFC9A84C, hover), false);
 
         int nameY = y + 5 + font.lineHeight + 1;
-        List<FormattedCharSequence> nameLines = font.split(RoleUtils.getRoleOrModifierOrItemNameWithColor(role), textMaxW);
+        List<FormattedCharSequence> nameLines = font.split(RoleUtils.getRoleOrModifierOrItemNameWithColor(role),
+                textMaxW);
         if (!nameLines.isEmpty())
-            g.drawString(font, nameLines.get(0), textX, nameY, selected ? 0xFFF5E8C8 : (hover > 0.3f ? 0xFFFFF4DC : 0xFFE8D8B0), selected);
+            g.drawString(font, nameLines.get(0), textX, nameY,
+                    selected ? 0xFFF5E8C8 : (hover > 0.3f ? 0xFFFFF4DC : 0xFFE8D8B0), selected);
 
         Component subText = getCardSubText(role);
         if (subText != null) {
             int subColor = 0xFFFFFFFF;
             var tc = subText.getStyle().getColor();
-            if (tc != null) subColor = new java.awt.Color(tc.getValue()).getRGB();
-            g.drawString(font, font.plainSubstrByWidth(subText.getString(), textMaxW), textX, nameY + font.lineHeight + 1, subColor, false);
+            if (tc != null)
+                subColor = new java.awt.Color(tc.getValue()).getRGB();
+            g.drawString(font, font.plainSubstrByWidth(subText.getString(), textMaxW), textX,
+                    nameY + font.lineHeight + 1, subColor, false);
         }
 
         if (selected) {
@@ -840,17 +985,20 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private boolean isItemDisabled(Object role) {
-        if (role instanceof SRERole r) return SREDisableManager.isRoleDisabled(r);
-        if (role instanceof SREModifier m) return SREDisableManager.isModifierDisabled(m);
+        if (role instanceof SRERole r)
+            return SREDisableManager.isRoleDisabled(r);
+        if (role instanceof SREModifier m)
+            return SREDisableManager.isModifierDisabled(m);
         return false;
     }
 
     private Component getCardSubText(Object role) {
         if (role instanceof SRERole r) {
             return switch (PlayerRoleWeightManager.getRoleType(r)) {
-                case 0,1 -> Component.translatable("display.type.role.innocent").withStyle(ChatFormatting.GREEN);
+                case 0, 1 -> Component.translatable("display.type.role.innocent").withStyle(ChatFormatting.GREEN);
                 case 2 -> Component.translatable("display.type.role.neutral").withStyle(ChatFormatting.YELLOW);
-                case 3 -> Component.translatable("display.type.role.neutral_for_killer").withStyle(ChatFormatting.LIGHT_PURPLE);
+                case 3 -> Component.translatable("display.type.role.neutral_for_killer")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE);
                 case 4 -> Component.translatable("display.type.role.killer").withStyle(ChatFormatting.RED);
                 case 5 -> Component.translatable("display.type.role.vigilante").withStyle(ChatFormatting.AQUA);
                 default -> Component.literal("UNKNOWN");
@@ -863,9 +1011,11 @@ public class RoleIntroduceScreen extends Screen {
     private int getDetailTabBarTop() {
         return panelY + BANNER_H + PANEL_PAD;
     }
+
     private int getRightContentTop() {
         return getDetailTabBarTop() + DETAIL_TAB_H + 6; // 6px 上边距
     }
+
     private int getRightContentHeight() {
         return panelY + panelH - getRightContentTop() - PANEL_PAD;
     }
@@ -874,7 +1024,8 @@ public class RoleIntroduceScreen extends Screen {
         drawPanelBg(g, rightX, panelY, rightW, panelH);
 
         if (selectedRole == null) {
-            g.drawCenteredString(font, Component.translatable("screen.roleintroduce.select_hint").withStyle(ChatFormatting.GRAY),
+            g.drawCenteredString(font,
+                    Component.translatable("screen.roleintroduce.select_hint").withStyle(ChatFormatting.GRAY),
                     rightX + rightW / 2, panelY + panelH / 2, 0x9E8B6E);
             return;
         }
@@ -887,7 +1038,8 @@ public class RoleIntroduceScreen extends Screen {
 
         int bIconSize = BANNER_H - 6;
         int bIconX = rightX + PANEL_PAD, bIconY = panelY + 3;
-        g.fill(bIconX, bIconY, bIconX + bIconSize, bIconY + bIconSize, blendColors(0xFF120A04, rawColor | 0xFF000000, 0.3f));
+        g.fill(bIconX, bIconY, bIconX + bIconSize, bIconY + bIconSize,
+                blendColors(0xFF120A04, rawColor | 0xFF000000, 0.3f));
         if (selectedRole instanceof Item it) {
             g.renderItem(it.getDefaultInstance(), bIconX + (bIconSize - 16) / 2, bIconY + (bIconSize - 16) / 2);
         } else {
@@ -896,14 +1048,16 @@ public class RoleIntroduceScreen extends Screen {
             } catch (Exception ignored) {
                 String s = RoleUtils.getRoleOrModifierOrItemName(selectedRole).getString();
                 if (!s.isEmpty())
-                    g.drawCenteredString(font, Component.literal(String.valueOf(s.charAt(0)).toUpperCase()).withStyle(ChatFormatting.BOLD),
+                    g.drawCenteredString(font,
+                            Component.literal(String.valueOf(s.charAt(0)).toUpperCase()).withStyle(ChatFormatting.BOLD),
                             bIconX + bIconSize / 2, bIconY + (bIconSize - font.lineHeight) / 2, 0xFFFFFF);
             }
         }
         g.renderOutline(bIconX, bIconY, bIconSize, bIconSize, (rawColor & 0x00FFFFFF) | 0xAA000000);
 
         Component nameLine = Component.translatable("gui.roleintroduce.right.warp",
-                RoleUtils.getRoleOrModifierOrItemTypeName(selectedRole).withStyle(ChatFormatting.BOLD, ChatFormatting.AQUA),
+                RoleUtils.getRoleOrModifierOrItemTypeName(selectedRole).withStyle(ChatFormatting.BOLD,
+                        ChatFormatting.AQUA),
                 RoleUtils.getRoleOrModifierOrItemName(selectedRole));
         g.drawString(font, nameLine, bIconX + bIconSize + 5, panelY + (BANNER_H - font.lineHeight) / 2, 0xFFFFFF, true);
 
@@ -917,7 +1071,8 @@ public class RoleIntroduceScreen extends Screen {
         int contentY = getRightContentTop();
         int contentH = getRightContentHeight();
 
-        renderDetailTabBar(g, mouseX, mouseY, rightX + PANEL_PAD, getDetailTabBarTop(), rightW - PANEL_PAD * 2, tabBarH);
+        renderDetailTabBar(g, mouseX, mouseY, rightX + PANEL_PAD, getDetailTabBarTop(), rightW - PANEL_PAD * 2,
+                tabBarH);
 
         if (activeTabIndex >= 0 && activeTabIndex < tabs.size()) {
             DetailTab currentTab = tabs.get(activeTabIndex);
@@ -931,8 +1086,11 @@ public class RoleIntroduceScreen extends Screen {
 
     private void renderDetailTabBar(GuiGraphics g, int mouseX, int mouseY, int barX, int barY, int barW, int barH) {
         int visibleCount = 0;
-        for (DetailTab tab : tabs) if (tab.isVisible()) visibleCount++;
-        if (visibleCount == 0) return;
+        for (DetailTab tab : tabs)
+            if (tab.isVisible())
+                visibleCount++;
+        if (visibleCount == 0)
+            return;
 
         int gap = DETAIL_TAB_GAP;
         int totalGap = gap * (visibleCount - 1);
@@ -940,7 +1098,8 @@ public class RoleIntroduceScreen extends Screen {
         int curX = barX;
         for (int i = 0; i < tabs.size(); i++) {
             DetailTab tab = tabs.get(i);
-            if (!tab.isVisible()) continue;
+            if (!tab.isVisible())
+                continue;
 
             boolean active = (i == activeTabIndex);
             boolean hovered = !active && isInRect(mouseX, mouseY, curX, barY, btnW, barH);
@@ -974,10 +1133,13 @@ public class RoleIntroduceScreen extends Screen {
     // 焦点切换
     // ══════════════════════════════════════════════════════════════════
     private void setFocusArea(FocusArea area) {
-        if (currentFocusArea == area) return;
-        if (currentFocusArea == FocusArea.SEARCH) searchWidget.setFocused(false);
+        if (currentFocusArea == area)
+            return;
+        if (currentFocusArea == FocusArea.SEARCH)
+            searchWidget.setFocused(false);
         currentFocusArea = area;
-        if (area == FocusArea.SEARCH) searchWidget.setFocused(true);
+        if (area == FocusArea.SEARCH)
+            searchWidget.setFocused(true);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -991,9 +1153,12 @@ public class RoleIntroduceScreen extends Screen {
                     int btnX = modeBtnX[i], btnW = modeBtnW[i];
                     if (btnW > 0 && isInRect((int) mx, (int) my, btnX, modeButtonY, btnW, modeButtonH)) {
                         IntroductionGameMode clickedMode = IntroductionGameMode.values()[i];
-                        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
-                        if (clickedMode == IntroductionGameMode.FILTER) openFilterScreen();
-                        else if (currentMode != clickedMode) refreshFilter(clickedMode);
+                        this.minecraft.getSoundManager()
+                                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                        if (clickedMode == IntroductionGameMode.FILTER)
+                            openFilterScreen();
+                        else if (currentMode != clickedMode)
+                            refreshFilter(clickedMode);
                         setFocusArea(FocusArea.MODE_BUTTONS);
                         return true;
                     }
@@ -1003,8 +1168,10 @@ public class RoleIntroduceScreen extends Screen {
             for (int i = 0; i < CATEGORIES.size(); i++) {
                 if (tabW[i] > 0 && isInRect((int) mx, (int) my, tabX[i], topBarY, tabW[i], TOP_BAR_H)) {
                     if (selectedCategoryIndex != i) {
-                        selectedCategoryIndex = i; listScrollOffset = 0;
-                        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                        selectedCategoryIndex = i;
+                        listScrollOffset = 0;
+                        this.minecraft.getSoundManager()
+                                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                         refreshFilter();
                         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
                             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
@@ -1026,13 +1193,15 @@ public class RoleIntroduceScreen extends Screen {
                     int curX = tabXStart;
                     for (int i = 0; i < tabs.size(); i++) {
                         DetailTab tab = tabs.get(i);
-                        if (!tab.isVisible()) continue;
+                        if (!tab.isVisible())
+                            continue;
                         if (isInRect((int) mx, (int) my, curX, tabBarY, btnW, tabBarH)) {
                             if (activeTabIndex != i) {
                                 tabs.get(activeTabIndex).onSwitchAway();
                                 activeTabIndex = i;
                                 tabs.get(activeTabIndex).onSwitchTo();
-                                this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                                this.minecraft.getSoundManager()
+                                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                             }
                             setFocusArea(FocusArea.RIGHT_TABS);
                             return true;
@@ -1050,7 +1219,8 @@ public class RoleIntroduceScreen extends Screen {
                     if (isInRect((int) mx, (int) my, areaX, cardY, areaW, CARD_H)) {
                         selectedRole = filteredItems.get(i);
                         onSelectionChanged();
-                        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                        this.minecraft.getSoundManager()
+                                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                         setFocusArea(FocusArea.LEFT_LIST);
                         return true;
                     }
@@ -1061,7 +1231,9 @@ public class RoleIntroduceScreen extends Screen {
 
             int lsbX = leftX + leftW - PANEL_PAD - SCROLL_W;
             if (isInRect((int) mx, (int) my, lsbX, areaY, SCROLL_W, areaH) && maxListScroll > 0) {
-                isDraggingListScroll = true; dragListStartY = my; dragListStartOffset = listScrollOffset;
+                isDraggingListScroll = true;
+                dragListStartY = my;
+                dragListStartOffset = listScrollOffset;
                 setFocusArea(FocusArea.LEFT_LIST);
                 return true;
             }
@@ -1072,14 +1244,16 @@ public class RoleIntroduceScreen extends Screen {
                 int rsbX = rightX + rightW - PANEL_PAD - SCROLL_W;
                 if (isInRect((int) mx, (int) my, rsbX, contentY, SCROLL_W, contentH)
                         && tabs.get(activeTabIndex).getMaxScroll() > 0) {
-                    isDraggingDetailScroll = true; dragDetailStartY = my;
+                    isDraggingDetailScroll = true;
+                    dragDetailStartY = my;
                     dragDetailStartOffset = tabs.get(activeTabIndex).getScrollOffset();
                     setFocusArea(FocusArea.RIGHT_TABS);
                     return true;
                 }
             }
 
-            if (isInRect((int) mx, (int) my, leftX, topBarY, leftW - 2, TOP_BAR_H)) setFocusArea(FocusArea.SEARCH);
+            if (isInRect((int) mx, (int) my, leftX, topBarY, leftW - 2, TOP_BAR_H))
+                setFocusArea(FocusArea.SEARCH);
         }
         return super.mouseClicked(mx, my, button);
     }
@@ -1088,19 +1262,29 @@ public class RoleIntroduceScreen extends Screen {
         LinkedHashMap<String, Component> optionMap = new LinkedHashMap<>();
         optionMap.put("inner.enable", Component.translatable("screen.roleintroduce.flag.inner.enable"));
         optionMap.put("inner.disable", Component.translatable("screen.roleintroduce.flag.inner.disable"));
-        for (var it : TMMRoles.getAllFlags()) optionMap.put(it, Component.translatableWithFallback("screen.roleintroduce.flag." + it, it.toUpperCase().replaceAll("_", " ")));
-        for (var it : HMLModifiers.getAllFlags()) optionMap.put(it, Component.translatableWithFallback("screen.roleintroduce.flag." + it, it.toUpperCase().replaceAll("_", " ")));
+        for (var it : TMMRoles.getAllFlags())
+            optionMap.put(it, Component.translatableWithFallback("screen.roleintroduce.flag." + it,
+                    it.toUpperCase().replaceAll("_", " ")));
+        for (var it : HMLModifiers.getAllFlags())
+            optionMap.put(it, Component.translatableWithFallback("screen.roleintroduce.flag." + it,
+                    it.toUpperCase().replaceAll("_", " ")));
         FilterSelectionScreen screen = FilterSelectionScreen.builder(this)
                 .title(Component.translatable("screen.filter_selection.title"))
                 .subtitle(Component.translatable("screen.filter_selection.tip"))
                 .options(optionMap).multiSelect(true).defaultSelections(filterFlags)
-                .callback(selected -> { filterFlags.clear(); filterFlags.addAll(selected); refreshFilter(IntroductionGameMode.FILTER); })
+                .callback(selected -> {
+                    filterFlags.clear();
+                    filterFlags.addAll(selected);
+                    refreshFilter(IntroductionGameMode.FILTER);
+                })
                 .build();
         screen.show(this.minecraft);
     }
 
     public void refreshFilter(IntroductionGameMode clickedMode) {
-        currentMode = clickedMode; listScrollOffset = 0; refreshFilter();
+        currentMode = clickedMode;
+        listScrollOffset = 0;
+        refreshFilter();
         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
             onSelectionChanged();
@@ -1114,7 +1298,9 @@ public class RoleIntroduceScreen extends Screen {
             int totalH = Math.max(1, filteredItems.size() * (CARD_H + CARD_SPACING));
             int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (areaH * Math.min(1f, (float) areaH / totalH)));
             double trackH = areaH - thumbH;
-            if (trackH > 0) listScrollOffset = Mth.clamp((int) (dragListStartOffset + (my - dragListStartY) / trackH * maxListScroll), 0, maxListScroll);
+            if (trackH > 0)
+                listScrollOffset = Mth.clamp(
+                        (int) (dragListStartOffset + (my - dragListStartY) / trackH * maxListScroll), 0, maxListScroll);
             return true;
         }
         if (isDraggingDetailScroll && !tabs.isEmpty() && activeTabIndex < tabs.size()) {
@@ -1125,7 +1311,9 @@ public class RoleIntroduceScreen extends Screen {
                 int totalH = tab.getContentHeight();
                 int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (contentH * Math.min(1f, (float) contentH / totalH)));
                 double trackH = contentH - thumbH;
-                if (trackH > 0) tab.setScrollOffset((int) (dragDetailStartOffset + (my - dragDetailStartY) / trackH * tab.getMaxScroll()));
+                if (trackH > 0)
+                    tab.setScrollOffset(
+                            (int) (dragDetailStartOffset + (my - dragDetailStartY) / trackH * tab.getMaxScroll()));
             }
             return true;
         }
@@ -1141,7 +1329,8 @@ public class RoleIntroduceScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mx, double my, double scrollX, double scrollY) {
         if (mx >= leftX && mx < leftX + leftW && my >= panelY && my < panelY + panelH) {
-            listScrollOffset = Mth.clamp((int) (listScrollOffset - scrollY * (CARD_H + CARD_SPACING)), 0, maxListScroll);
+            listScrollOffset = Mth.clamp((int) (listScrollOffset - scrollY * (CARD_H + CARD_SPACING)), 0,
+                    maxListScroll);
             return true;
         }
         if (mx >= rightX && mx < rightX + rightW && my >= panelY && my < panelY + panelH) {
@@ -1176,10 +1365,13 @@ public class RoleIntroduceScreen extends Screen {
 
         if (keyCode == 266 || keyCode == 267) {
             List<Integer> visibleIndices = new ArrayList<>();
-            for (int i = 0; i < tabs.size(); i++) if (tabs.get(i).isVisible()) visibleIndices.add(i);
+            for (int i = 0; i < tabs.size(); i++)
+                if (tabs.get(i).isVisible())
+                    visibleIndices.add(i);
             if (!visibleIndices.isEmpty()) {
                 int currentIdx = visibleIndices.indexOf(activeTabIndex);
-                if (currentIdx == -1) currentIdx = 0;
+                if (currentIdx == -1)
+                    currentIdx = 0;
                 int delta = keyCode == 266 ? -1 : 1;
                 int newPos = Math.floorMod(currentIdx + delta, visibleIndices.size());
                 int newActiveTabIndex = visibleIndices.get(newPos);
@@ -1200,8 +1392,10 @@ public class RoleIntroduceScreen extends Screen {
                 selectedRole = filteredItems.get(idx);
                 onSelectionChanged();
                 int cardY = idx * (CARD_H + CARD_SPACING);
-                if (cardY < listScrollOffset) listScrollOffset = cardY;
-                else if (cardY + CARD_H > listScrollOffset + listAreaH()) listScrollOffset = cardY + CARD_H - listAreaH();
+                if (cardY < listScrollOffset)
+                    listScrollOffset = cardY;
+                else if (cardY + CARD_H > listScrollOffset + listAreaH())
+                    listScrollOffset = cardY + CARD_H - listAreaH();
                 listScrollOffset = Mth.clamp(listScrollOffset, 0, maxListScroll);
             }
             return true;
@@ -1215,13 +1409,17 @@ public class RoleIntroduceScreen extends Screen {
                 int delta = keyCode == 263 ? -1 : 1;
                 int newIndex = Mth.clamp(currentModeIndex + delta, 0, IntroductionGameMode.values().length - 1);
                 IntroductionGameMode newMode = IntroductionGameMode.values()[newIndex];
-                if (newMode == IntroductionGameMode.FILTER) openFilterScreen();
-                else if (newMode != currentMode) refreshFilter(newMode);
+                if (newMode == IntroductionGameMode.FILTER)
+                    openFilterScreen();
+                else if (newMode != currentMode)
+                    refreshFilter(newMode);
                 return true;
             } else {
                 int newIdx = Mth.clamp(selectedCategoryIndex + (keyCode == 263 ? -1 : 1), 0, CATEGORIES.size() - 1);
                 if (newIdx != selectedCategoryIndex) {
-                    selectedCategoryIndex = newIdx; listScrollOffset = 0; refreshFilter();
+                    selectedCategoryIndex = newIdx;
+                    listScrollOffset = 0;
+                    refreshFilter();
                     if (selectedRole != null && !filteredItems.contains(selectedRole)) {
                         selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
                         onSelectionChanged();
@@ -1241,8 +1439,10 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private static int blendColors(int c1, int c2, float t) {
-        if (t <= 0f) return c1;
-        if (t >= 1f) return c2;
+        if (t <= 0f)
+            return c1;
+        if (t >= 1f)
+            return c2;
         int r = (int) (((c1 >> 16) & 0xFF) + (((c2 >> 16) & 0xFF) - ((c1 >> 16) & 0xFF)) * t);
         int g = (int) (((c1 >> 8) & 0xFF) + (((c2 >> 8) & 0xFF) - ((c1 >> 8) & 0xFF)) * t);
         int b = (int) ((c1 & 0xFF) + ((c2 & 0xFF) - (c1 & 0xFF)) * t);
@@ -1260,7 +1460,8 @@ public class RoleIntroduceScreen extends Screen {
             int mouseX, int mouseY, boolean dragging) {
         g.fill(x, y, x + SCROLL_W, y + h, 0xFF1A1008);
         g.fill(x + 1, y + 1, x + SCROLL_W - 1, y + h - 1, 0x558B6914);
-        if (maxScroll <= 0) return;
+        if (maxScroll <= 0)
+            return;
 
         float ratio = Math.min(1f, (float) h / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (h * ratio));
