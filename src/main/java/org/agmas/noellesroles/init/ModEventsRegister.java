@@ -27,7 +27,6 @@ import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.util.SREItemUtils;
-import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -129,7 +128,6 @@ import org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
-import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.MapScanner;
@@ -1725,18 +1723,6 @@ public class ModEventsRegister {
                                 Component.translatable("message.monitor.killer_killed", victim.getName())
                                         .withStyle(ChatFormatting.AQUA),
                                 true);
-                    }
-                } else if (gameWorldComponent.isRole(p, THMiscRoles.TENSHI)) {
-                    if (p.getCooldowns().isOnCooldown(Items.BARRIER)) {
-                        continue;
-                    } else {
-                        p.getCooldowns().addCooldown(Items.BARRIER, 30 * 20);
-                        if (p instanceof ServerPlayer sp) {
-                            SRENetworkMessageUtils.sendCODSubtitleToPlayerTop(sp,
-                                    Component.translatable("message.tenshi.killer_killed.title")
-                                            .withStyle(ChatFormatting.RED),
-                                    Component.translatable("message.tenshi.killer_killed.subtitle", 30), 100);
-                        }
                     }
                 }
             }
