@@ -283,6 +283,8 @@ public class ConfigCommand {
             StupidExpressConfig.HANDLER.load();
             StupidExpressConfig.HANDLER.syncToClient(source.getServer());
             RoleShopHandler.shopRegister();
+            // 商店已重建：重建价格表并向所有在线玩家重新握手同步。
+            io.wifi.starrailexpress.shop.ShopPriceSyncServer.resyncAll(source.getServer());
             if (ModEventsRegister.isMJVerifyEnabled) {
                 Harpymodloader.officialVerify = Noellesroles.checkMJVerify();
             }

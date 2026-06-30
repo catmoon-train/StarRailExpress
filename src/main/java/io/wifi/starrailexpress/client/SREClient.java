@@ -622,6 +622,24 @@ public class SREClient implements ClientModInitializer {
             net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.tick();
         });
         SyncMapConfigPayload.registerReceiver();
+        // 商店价格同步：握手（哈希）+ 完整数据 / Shop price sync: handshake (hash) + full data
+        ClientPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.shop.network.ShopPriceHandshakeS2CPayload.TYPE, (payload, context) -> {
+                    String hash = payload.hash();
+                    context.client().execute(() -> {
+                        if (!io.wifi.starrailexpress.shop.client.ShopPriceClientCache.handleHandshake(hash)) {
+                            ClientPlayNetworking
+                                    .send(new io.wifi.starrailexpress.shop.network.ShopPriceRequestC2SPayload(hash));
+                        }
+                    });
+                });
+        ClientPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.shop.network.ShopPriceDataS2CPayload.TYPE, (payload, context) -> {
+                    String hash = payload.hash();
+                    byte[] data = payload.data();
+                    context.client().execute(
+                            () -> io.wifi.starrailexpress.shop.client.ShopPriceClientCache.handleData(hash, data));
+                });
         FourthRoomStatePayload.registerReceiver();
         FourthRoomTableEffectsPayload.registerReceiver();
         ClientPlayNetworking.registerGlobalReceiver(CustomNarratorPacket.ID, (payload, context) -> {

@@ -21,6 +21,16 @@ public class SREPayloadRegister {
 
     public static void registerPayloadTypes() {
         SceneAssetNetwork.registerPayloadTypes();
+        // 商店价格同步 / Shop price sync
+        PayloadTypeRegistry.playS2C().register(
+                io.wifi.starrailexpress.shop.network.ShopPriceHandshakeS2CPayload.TYPE,
+                io.wifi.starrailexpress.shop.network.ShopPriceHandshakeS2CPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                io.wifi.starrailexpress.shop.network.ShopPriceDataS2CPayload.TYPE,
+                io.wifi.starrailexpress.shop.network.ShopPriceDataS2CPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                io.wifi.starrailexpress.shop.network.ShopPriceRequestC2SPayload.TYPE,
+                io.wifi.starrailexpress.shop.network.ShopPriceRequestC2SPayload.CODEC);
         // Mod Whitelist Payload
         PayloadTypeRegistry.playS2C().register(VoteSyncS2CPacket.TYPE, VoteSyncS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(VoteCastC2SPacket.TYPE, VoteCastC2SPacket.CODEC);

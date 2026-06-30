@@ -667,10 +667,15 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 liveEntry = liveEntries.get(this.index);
             }
             int basePrice = liveEntry.price();
+            // 用服务端同步来的价格覆盖显示用基础价（按下标 + itemId 校验），保证显示价与服务端实际扣费一致。
+            basePrice = io.wifi.starrailexpress.shop.client.ShopPriceClientCache.overrideBasePrice(this.index,
+                    liveEntry.stack(), basePrice);
             int effectivePrice = basePrice;
             final var clientPlayer = Minecraft.getInstance().player;
             if (clientPlayer != null) {
-                effectivePrice = DynamicShopComponent.KEY.get(clientPlayer).effectivePrice(liveEntry);
+                effectivePrice = DynamicShopComponent.KEY.get(clientPlayer).effectivePrice(
+                        net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(liveEntry.stack().getItem()),
+                        basePrice);
             }
             MutableComponent price = Component.literal(effectivePrice + "\uE781");
             int displayX = this.getX() - 4 - this.screen.font.width(price) / 2;

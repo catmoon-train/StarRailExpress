@@ -134,6 +134,8 @@ public class SREEventRegister {
             SceneAssetServer.sendCurrentManifest(handler.player);
             // 同步当前路径点给新加入的玩家
             io.wifi.starrailexpress.util.WaypointSync.syncTo(handler.player);
+            // 商店价格同步握手（仅哈希；客户端本地命中则无需服务端再发完整内容）
+            io.wifi.starrailexpress.shop.ShopPriceSyncServer.syncTo(handler.player);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             CustomRoleServerNetwork.onPlayerDisconnect(handler.player.getUUID());

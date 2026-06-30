@@ -51,6 +51,11 @@ public class SREReceiverRegister {
         ServerPlayNetworking.registerGlobalReceiver(GunShootPayload.ID, new GunShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(SniperShootPayload.TYPE, new SniperShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(StoreBuyPayload.ID, new StoreBuyPayload.Receiver());
+        // 商店价格同步：客户端缓存未命中时请求完整价格表 / Shop price sync: full-table request on cache miss
+        ServerPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.shop.network.ShopPriceRequestC2SPayload.TYPE,
+                (payload, context) -> context.server().execute(() -> io.wifi.starrailexpress.shop.ShopPriceSyncServer
+                        .handleRequest(context.player(), payload.hash())));
         ServerPlayNetworking.registerGlobalReceiver(NoteEditPayload.ID, new NoteEditPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(RequestOpenClueArchivePayload.ID,
                 new RequestOpenClueArchivePayload.Receiver());
