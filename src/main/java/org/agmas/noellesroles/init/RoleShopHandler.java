@@ -36,6 +36,7 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
+import org.agmas.noellesroles.content.item.ToxinShopEntry;
 import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
@@ -69,6 +70,33 @@ public class RoleShopHandler {
 
   private static int banditBlackoutPrice() {
     return (int) (SREConfig.instance().blackoutPrice * 1.275);
+  }
+
+  private static List<ShopEntry> createPoisonerShopEntries() {
+    var entries = new ArrayList<ShopEntry>();
+    entries.add(new ToxinShopEntry(80));
+    entries.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 50, ShopEntry.Type.POISON));
+    entries.add(new ShopEntry(ModItems.TOILET_POISON.getDefaultInstance(), 40, ShopEntry.Type.POISON));
+    entries.add(new ShopEntry(TMMItems.SCORPION.getDefaultInstance(), 15, ShopEntry.Type.POISON));
+    entries.add(new ShopEntry(ModItems.CATALYST.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+    entries.add(new ShopEntry(ModItems.createPillStack(true), 20, ShopEntry.Type.TOOL));
+    entries.add(new ShopEntry(ModItems.CHLORINE_BOMB.getDefaultInstance(), 275, ShopEntry.Type.POISON));
+    entries.add(new ShopEntry(ModItems.POISON_GAS_TANK.getDefaultInstance(), 215, ShopEntry.Type.POISON));
+    entries.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
+    entries.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));
+    entries.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
+    entries.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+    entries.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+      public boolean onBuy(@NotNull Player player) {
+        return SREPlayerShopComponent.useBlackout(player);
+      }
+    });
+    entries.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
+      public boolean onBuy(@NotNull Player player) {
+        return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
+      }
+    });
+    return entries;
   }
 
   public static void resetOldmanEasterEggState() {
@@ -890,7 +918,7 @@ public class RoleShopHandler {
     ShopContent.customEntries.put(
         ModRoles.SILENCER_ID, ShopContent.defaultKnifeEntries);
     ShopContent.customEntries.put(
-        ModRoles.POISONER_ID, ModItems.POISONER_SHOP_ENTRIES);
+        ModRoles.POISONER_ID, createPoisonerShopEntries());
 
     ShopContent.customEntries.put(
         ModRoles.SWAPPER_ID, ShopContent.defaultKnifeEntries);
@@ -899,11 +927,6 @@ public class RoleShopHandler {
     ShopContent.customEntries.put(
         ModRoles.BLOOD_FEUDIST_ID, BLOOD_FEUDIST_SHOP);
 
-    // ShopContent.customEntries.put(
-    // POISONER_ID, ShopContent.defaultEntries
-    // );
-    // ShopContent.customEntries.put(
-    // ModRoles.BANDIT_ID, HSRConstants.BANDIT_SHOP_ENTRIES);
     ShopContent.customEntries.put(
         ModRoles.JESTER_ID, FRAMING_ROLES_SHOP);
     {
