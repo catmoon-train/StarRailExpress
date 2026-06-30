@@ -404,7 +404,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** Photographer - 单个画框最多可传送玩家的次数（用尽后画框失效） */
     public int photographerFrameMaxTeleports = 8;
     /** Photographer - 画框传送的最大水平距离（方块，<=0 表示不限制） */
-    public double photographerFrameMaxDistance = 64.0;
+    public double photographerFrameMaxDistance = 256.0;
     /** Photographer - 画框传送的最大垂直(Y轴)距离（方块，<=0 表示不限制） */
     public double photographerFrameMaxYDistance = 12.0;
 
