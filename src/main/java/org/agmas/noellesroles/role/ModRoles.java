@@ -271,6 +271,7 @@ public class ModRoles {
     public static final ResourceLocation RAVEN_ID = Noellesroles.id("raven");
     public static final ResourceLocation REASONER_ID = Noellesroles.id("reasoner");
     public static final ResourceLocation AMON_ID = Noellesroles.id("amon");
+    public static final ResourceLocation DOOMED_SINNER_ID = Noellesroles.id("doomed_sinner");
     public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
     // 占卜家角色 ID
     public static final ResourceLocation DIVINER_ID = Noellesroles.id("diviner");
@@ -2082,6 +2083,28 @@ public class ModRoles {
             .setCanUseInstinct(false).setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(0)
             .setDefaultEnableNeededPlayerCount(10);
+
+    /**
+     * 宿命的罪人 —— 中立独立胜利角色。
+     * - 中立独立胜利（setNeutrals(true)，杀手视角不视为队友）
+     * - 通过以不同死因死去累积胜利进度（人数越多需要越多，最低 5 最高 10）
+     * - 每次非彻底死亡后在自己的房间复活，尸体数秒后消失
+     * - 同一死因死去 3 次则彻底死亡
+     * - 技能 1「命运的启示」近距离查看目标杀人方式；技能 2「重启」死亡脱离
+     * 胜利条件在 CustomWinnerClass 判定，技能在 ModRolesInitialEventRegister 注册。
+     */
+    public static SRERole DOOMED_SINNER = TMMRoles.registerRole(new NormalRole(
+            DOOMED_SINNER_ID,
+            new Color(126, 36, 84).getRGB(), // 暗紫红 - 宿命与罪
+            false,
+            false,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true))
+            .setComponentKey(org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent.KEY)
+            .setNeutrals(true).setCanSeeTeammateKiller(false)
+            .setCanUseInstinct(true).setCanSeeCoin(true)
+            .setDefaultMax(1).setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 魔术师角色 - 好人阵营（从模仿者移植）

@@ -534,6 +534,19 @@ public class NoellesRolesConfig implements ConfigData {
     /** Leon (里昂) - Alive player count threshold to grant the red herb */
     public int leonRedHerbAtPlayers = 3;
 
+    /** 宿命的罪人 - 不同死因数量下限（&lt;=16 人时） */
+    public int doomedSinnerMinReasons = 5;
+    /** 宿命的罪人 - 不同死因数量上限（&gt;=32 人时） */
+    public int doomedSinnerMaxReasons = 10;
+    /** 宿命的罪人 - 同一死因死亡多少次后彻底死亡 */
+    public int doomedSinnerSamePermanentCount = 3;
+    /** 宿命的罪人 - 复活后留下的尸体多少秒后消失 */
+    public int doomedSinnerCorpseDespawnSeconds = 15;
+    /** 宿命的罪人 - 命运的启示技能的近距离接触范围（格） */
+    public double doomedSinnerRevealRange = 4.0;
+    /** 宿命的罪人 - 复活 / 重启后的短暂无敌时间（秒） */
+    public int doomedSinnerReviveInvincibleSeconds = 3;
+
     /** Morphling (变形者) - Knife dummy skill cooldown in seconds */
     public int morphlingDummyCooldown = 90;
     /** Morphling (变形者) - Knife dummy max lifetime / forward-rush time in seconds */

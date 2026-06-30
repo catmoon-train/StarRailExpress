@@ -412,6 +412,11 @@ public class NoellesrolesClient implements ClientModInitializer {
             context.client().execute(() -> context.client().setScreen(new ReasonerCompassScreen(payload)));
         });
 
+        ClientPlayNetworking.registerGlobalReceiver(DoomedSinnerFateRevealS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> context.client()
+                    .setScreen(new org.agmas.noellesroles.client.screen.DoomedSinnerFateScreen(payload)));
+        });
+
         ClientPlayNetworking.registerGlobalReceiver(ShowCustomNewspaperPacket.ID, (payload, context) -> {
             context.client().setScreen(new NewspaperScreen(payload.pages(),
                     (payload.title().orElse(Component.literal(""))), (payload.author().orElse(Component.literal("")))));

@@ -58,6 +58,7 @@ public class OtherRolesRegister {
         WarlockHud.register();
         WizardHud.register();
         RavenHud.register();
+        DoomedSinnerHud.register();
         org.agmas.noellesroles.client.hud.roles.AmonHud.register();
         AdventurerHud.register();
         ReasonerHud.register();
