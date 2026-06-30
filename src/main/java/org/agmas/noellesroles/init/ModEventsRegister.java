@@ -1735,7 +1735,7 @@ public class ModEventsRegister {
                             SRENetworkMessageUtils.sendCODSubtitleToPlayerTop(sp,
                                     Component.translatable("message.tenshi.killer_killed.title")
                                             .withStyle(ChatFormatting.RED),
-                                    Component.translatable("message.tenshi.killer_killed.subtitle", 30), 40);
+                                    Component.translatable("message.tenshi.killer_killed.subtitle", 30), 100);
                         }
                     }
                 }

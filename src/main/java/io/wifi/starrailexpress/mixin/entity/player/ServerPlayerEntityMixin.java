@@ -73,17 +73,25 @@ public class ServerPlayerEntityMixin {
             self.level().playSound(null, self.blockPosition(), TMMSounds.ITEM_BAT_HIT, SoundSource.PLAYERS, 3f, 1f);
             ci.cancel();
             return;
-        } else if (mainhandItem.getItem() instanceof SREItemProperties.LeftClickHurtable htit
-                && self.getAttackStrengthScale(0.75F) >= 1f) {
+        } else if (mainhandItem.getItem() instanceof SREItemProperties.LeftClickHurtable htit) {
+            boolean original = true;
+            // var result = htit.onTryHurt(self, target, self.getMainHandItem());
+            // if (result.equals(InteractionResult.CONSUME) || result.equals(InteractionResult.FAIL)) {
+            //     ci.cancel();
+            //     return;
+            // }
             if (target instanceof ServerPlayer playerTarget) {
-                htit.onAttack(self, playerTarget, mainhandItem);
+                original = htit.onServerAttack(self, playerTarget, mainhandItem);
             }
             if (target instanceof PuppeteerBodyEntity puppeteerBodyEntity) {
                 puppeteerBodyEntity.playerHurt(self, SkinUtils.getItemTypeResourceLocation(mainhandItem));
             }
+            // self.level().playSound(null, self.blockPosition(), TMMSounds.ITEM_BAT_HIT,
+            // SoundSource.PLAYERS, 3f, 1f);
             CrosshairaddonsCompat.onAttack(target);
-            self.level().playSound(null, self.blockPosition(), TMMSounds.ITEM_BAT_HIT, SoundSource.PLAYERS, 3f, 1f);
-            ci.cancel();
+            if (!original) {
+                ci.cancel();
+            }
             return;
         }
 

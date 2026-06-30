@@ -96,7 +96,7 @@ public class WizardStaffItem extends Item implements ChargeableItem, SREItemProp
     // ==================== 左键击退 ====================
 
     @Override
-    public void onAttack(ServerPlayer attacker, ServerPlayer target, ItemStack mainhandItem) {
+    public boolean onServerAttack(ServerPlayer attacker, ServerPlayer target, ItemStack mainhandItem) {
         double strength = NoellesRolesConfig.HANDLER.instance().wizardStaffKnockback;
         double dx = attacker.getX() - target.getX();
         double dz = attacker.getZ() - target.getZ();
@@ -106,5 +106,6 @@ public class WizardStaffItem extends Item implements ChargeableItem, SREItemProp
         target.level().playSound(null, target.blockPosition(),
                 net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_KNOCKBACK,
                 net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.2f);
+        return false;
     }
 }
