@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.register;
 
+import org.agmas.noellesroles.handler.AAAHandlerFather;
 import org.agmas.noellesroles.init.ModEventsRegister;
 
 /**
@@ -19,6 +20,8 @@ public class NREventRegister {
 
         // 注册事件处理器
         ModEventsRegister.registerEvents();
+        AAAHandlerFather.register();
+        // 
         org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler.register();
         org.agmas.noellesroles.game.roles.neutral.amon.AmonEventHandler.register();
         org.agmas.noellesroles.game.modes.repair.RepairCombatEvents.register();
