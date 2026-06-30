@@ -50,6 +50,8 @@ public class TMMItemTooltips {
             addTooltipForItem(TMMItems.DISGUISE_1, itemStack, tooltipList);
             addTooltipForItem(TMMItems.DISGUISE_2, itemStack, tooltipList);
             addTooltipForItem(TMMItems.DISGUISE_3, itemStack, tooltipList);
+            addTooltipForItem(TMMItems.STICKY_GRENADE, itemStack, tooltipList);
+            addTooltipForItem(TMMItems.TIMED_GRENADE, itemStack, tooltipList);
             addTooltipForItem(TMMItems.NOTE, itemStack, tooltipList);
             addTooltipForItem(TMMItems.MONITOR_BROKEN, itemStack, tooltipList);
             addTooltipForItem(TMMItems.SNIPER_RIFLE, itemStack, tooltipList);

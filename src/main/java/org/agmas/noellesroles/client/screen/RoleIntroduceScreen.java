@@ -930,6 +930,27 @@ public class RoleIntroduceScreen extends Screen {
                     lines.addAll(font.split(Component.literal(dashes).withStyle(ChatFormatting.DARK_GRAY), textW));
                     lines.addAll(font.split(flagInfoable.getSimpleDescription().copy().withStyle(ChatFormatting.WHITE),
                             textW));
+                } else if (selectedRole instanceof Item item) {
+                    lines.add(FormattedCharSequence.EMPTY);
+                    lines.addAll(font.split(Component.translatable("screen.roleintroduce.detail.simple_description")
+                            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), textW));
+                    lines.addAll(font.split(Component.literal(dashes).withStyle(ChatFormatting.DARK_GRAY), textW));
+                    try {
+                        var itemStack = item.getDefaultInstance();
+                        var tooltipLines = itemStack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player,
+                                TooltipFlag.NORMAL);
+                        for (var l : tooltipLines) {
+                            lines.addAll(
+                                    font.split(l.copy().withStyle(ChatFormatting.WHITE),
+                                            textW));
+                        }
+
+                    } catch (Exception e) {
+                        lines.addAll(font.split(
+                                Component.translatable("screen.roleintroduce.error", e.getMessage())
+                                        .withStyle(ChatFormatting.RED),
+                                textW));
+                    }
                 }
 
                 // 分割线 + 标签
@@ -958,9 +979,10 @@ public class RoleIntroduceScreen extends Screen {
             @Override
             protected void prepareLines() {
                 lines.clear();
-                if (selectedRole != null)
+                if (selectedRole != null){
                     lines.addAll(font.split(RoleUtils.getRoleOrModifierOrItemDescription(selectedRole).copy()
                             .withStyle(ChatFormatting.WHITE), textW));
+                }
             }
         });
 
