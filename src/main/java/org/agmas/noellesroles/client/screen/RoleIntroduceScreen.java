@@ -13,6 +13,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.client.screen.RoleIntroduceScreen.IntroductionGameMode;
 import org.agmas.noellesroles.init.RoleInitialItems;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.joml.Matrix4f;
@@ -215,6 +216,7 @@ public class RoleIntroduceScreen extends Screen {
 
     private EditBox searchWidget = null;
     private String searchContent = null;
+    private Object prevRole = null;
 
     public RoleIntroduceScreen() {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
@@ -275,7 +277,7 @@ public class RoleIntroduceScreen extends Screen {
         refreshFilter();
         if (selectedRole == null && !filteredItems.isEmpty())
             selectedRole = filteredItems.get(0);
-
+        prevRole = null;
         onSelectionChanged();
         setFocusArea(FocusArea.SEARCH);
     }
@@ -312,6 +314,7 @@ public class RoleIntroduceScreen extends Screen {
                 listScrollOffset = 0;
                 refreshFilter();
                 selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
+                prevRole = null;
                 onSelectionChanged();
             });
         } else {
@@ -452,6 +455,11 @@ public class RoleIntroduceScreen extends Screen {
     private interface DetailTab {
         Component getTitle();
 
+        default boolean mouseClicked(double mouseX, double mouseY, int button,
+                int contentX, int contentY, int contentW, int contentH) {
+            return false; // 默认不处理
+        }
+
         boolean isVisible();
 
         void render(GuiGraphics g, int x, int y, int w, int h, int mouseX, int mouseY, float partialTick);
@@ -463,6 +471,10 @@ public class RoleIntroduceScreen extends Screen {
         void setScrollOffset(int offset);
 
         int getContentHeight();
+
+        default boolean canSwitchTo() {
+            return isVisible();
+        };
 
         void onSwitchTo();
 
@@ -550,6 +562,29 @@ public class RoleIntroduceScreen extends Screen {
             return !entries.isEmpty();
         }
 
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button,
+                int contentX, int contentY, int contentW, int contentH) {
+            if (button != 0)
+                return false;
+            Item item = getItemAt(mouseX, mouseY, contentX, contentY, contentW, contentH);
+            if (item != null && navigateToItem(item)) {
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                return true;
+            }
+            return false;
+        }
+
+        public Item getItemAt(double mouseX, double mouseY, int x, int y, int w, int h) {
+            int headerOffset = headerLines.isEmpty() ? 0 : headerLines.size() * LINE_H + 2;
+            int relY = (int) mouseY - y + scrollOffset - headerOffset;
+            int idx = relY / ITEM_H;
+            if (relY >= 0 && idx >= 0 && idx < entries.size()) {
+                return entries.get(idx).getItem();
+            }
+            return null;
+        }
+
         private ArrayList<ItemStack> getInitialItems(SRERole role) {
             return RoleInitialItems.getInitialItemsForRole(role);
         }
@@ -558,7 +593,6 @@ public class RoleIntroduceScreen extends Screen {
         public void render(GuiGraphics g, int x, int y, int w, int h, int mouseX, int mouseY, float partialTick) {
             g.enableScissor(x, y, x + w, y + h);
             int currentY = y - scrollOffset;
-
             // 绘制顶部描述文本（支持多行自动换行）
             if (headerLines != null && !headerLines.isEmpty()) {
                 for (FormattedCharSequence line : headerLines) {
@@ -569,12 +603,24 @@ public class RoleIntroduceScreen extends Screen {
                 }
                 currentY += 2; // 与物品列表的间隔
             }
+            int headerOffset = headerLines.isEmpty() ? 0 : headerLines.size() * LINE_H + 2;
 
-            // 绘制物品列表
+            int hoveredIdx = -1;
+            if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
+                int relY = mouseY - y + scrollOffset - headerOffset;
+                int idx = relY / ITEM_H;
+                if (relY >= 0 && idx >= 0 && idx < entries.size()) {
+                    hoveredIdx = idx;
+                }
+            }
             int itemY = currentY;
+            // 绘制物品列表
             for (int i = 0; i < entries.size(); i++) {
                 ItemStack stack = entries.get(i);
                 if (stack != null && itemY + ITEM_H > y && itemY < y + h) {
+                    if (i == hoveredIdx) {
+                        g.fill(x, itemY, x + w, itemY + ITEM_H, 0x22FFFFFF);
+                    }
                     g.renderItem(stack, x + 10, itemY + (ITEM_H - 16) / 2);
                     Component nameText = stack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
                     Component idText = Component.literal(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())
@@ -599,7 +645,6 @@ public class RoleIntroduceScreen extends Screen {
 
             // 物品悬停提示（不含描述区域）
             if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
-                int headerOffset = headerLines.isEmpty() ? 0 : headerLines.size() * LINE_H + 2;
                 int relY = mouseY - y + scrollOffset - headerOffset;
                 if (relY >= 0) {
                     int idx = relY / ITEM_H;
@@ -657,7 +702,33 @@ public class RoleIntroduceScreen extends Screen {
         }
     }
 
+    private boolean navigateToItem(Item item) {
+        // 检查是否在可介绍物品列表中（没有介绍则不跳转）
+        if (!TMMDescItems.introItems.contains(item) &&
+                !io.wifi.starrailexpress.client.data.ClientSponsorCache.getPlushItems().contains(item)) {
+            return false;
+        }
+
+        // 在过滤后的列表中查找该物品
+        int index = -1;
+        for (int i = 0; i < filteredItems.size(); i++) {
+            if (filteredItems.get(i) instanceof Item it && it.equals(item)) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index >= 0) {
+            prevRole = selectedRole;
+            selectedRole = filteredItems.get(index);
+            onSelectionChanged();
+            return true;
+        }
+        return false;
+    }
+
     private class ShopTab implements DetailTab {
+
         private int scrollOffset = 0;
         private int maxScroll = 0;
         private final List<ShopEntry> entries = new ArrayList<>();
@@ -678,14 +749,53 @@ public class RoleIntroduceScreen extends Screen {
             return !entries.isEmpty();
         }
 
+        /**
+         * 获取鼠标悬停的物品，用于点击跳转
+         * 
+         * @return 物品的 Item，若未悬停在有效条目上则返回 null
+         */
+        public Item getItemAt(double mouseX, double mouseY, int x, int y, int w, int h) {
+            int relY = (int) mouseY - y + scrollOffset;
+            int idx = relY / ITEM_H;
+            if (relY >= 0 && idx >= 0 && idx < entries.size()) {
+                return entries.get(idx).stack().getItem();
+            }
+            return null;
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button,
+                int contentX, int contentY, int contentW, int contentH) {
+            if (button != 0)
+                return false; // 只处理左键
+            Item item = getItemAt(mouseX, mouseY, contentX, contentY, contentW, contentH);
+            if (item != null && navigateToItem(item)) {
+                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                return true;
+            }
+            return false;
+        }
+
         @Override
         public void render(GuiGraphics g, int x, int y, int w, int h, int mouseX, int mouseY, float partialTick) {
             g.enableScissor(x, y, x + w, y + h);
             int itemY = y - scrollOffset;
+            int hoveredIdx = -1;
+            if (mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h) {
+                int relY = mouseY - y + scrollOffset;
+                int idx = relY / ITEM_H;
+                if (relY >= 0 && idx >= 0 && idx < entries.size()) {
+                    hoveredIdx = idx;
+                }
+            }
             for (int i = 0; i < entries.size(); i++) {
                 ShopEntry entry = entries.get(i);
                 if (itemY + ITEM_H > y && itemY < y + h) {
                     ItemStack stack = entry.stack();
+                    // 绘制行高亮背景
+                    if (i == hoveredIdx) {
+                        g.fill(x, itemY, x + w, itemY + ITEM_H, 0x22FFFFFF); // 半透明白色
+                    }
                     g.renderItem(stack, x + 10, itemY + (ITEM_H - 16) / 2);
                     Component nameText = stack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
                     Component priceText = Component.translatable("screen.roleintroduce.shop.price", entry.price())
@@ -877,7 +987,7 @@ public class RoleIntroduceScreen extends Screen {
             }
         });
 
-        // 设置
+        // 设定
         tabs.add(new AbstractTextTab() {
             @Override
             public Component getTitle() {
@@ -899,6 +1009,43 @@ public class RoleIntroduceScreen extends Screen {
                 if (Language.getInstance().has(settingsKey))
                     lines.addAll(
                             font.split(Component.translatable(settingsKey).withStyle(ChatFormatting.WHITE), textW));
+            }
+        });
+        // 返回
+        tabs.add(new AbstractTextTab() {
+            @Override
+            public int getColor() {
+                return new java.awt.Color(103, 255, 98).getRGB();
+            }
+
+            @Override
+            public Component getTitle() {
+                return Component.translatable("screen.roleintroduce.detail.back_to_role");
+            }
+
+            @Override
+            public boolean isVisible() {
+                if (selectedRole == null)
+                    return false;
+                if (prevRole == null)
+                    return false;
+                return true;
+            }
+
+            @Override
+            public boolean canSwitchTo() {
+                selectedRole = prevRole;
+                prevRole = null;
+                onSelectionChanged();
+                return false;
+            }
+
+            @Override
+            protected void prepareLines() {
+                lines.clear();
+                lines.addAll(
+                        font.split(Component.translatable("screen.roleintroduce.detail.back_to_role.detail")
+                                .withStyle(ChatFormatting.WHITE), textW));
             }
         });
     }
@@ -1450,6 +1597,7 @@ public class RoleIntroduceScreen extends Screen {
                         refreshFilter();
                         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
                             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
+                            prevRole = null;
                             onSelectionChanged();
                         }
                     }
@@ -1472,11 +1620,14 @@ public class RoleIntroduceScreen extends Screen {
                             continue;
                         if (isInRect((int) mx, (int) my, curX, tabBarY, btnW, tabBarH)) {
                             if (activeTabIndex != i) {
+                                this.minecraft.getSoundManager()
+                                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                                if (!tabs.get(i).canSwitchTo()) {
+                                    return true;
+                                }
                                 tabs.get(activeTabIndex).onSwitchAway();
                                 activeTabIndex = i;
                                 tabs.get(activeTabIndex).onSwitchTo();
-                                this.minecraft.getSoundManager()
-                                        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                             }
                             setFocusArea(FocusArea.RIGHT_TABS);
                             return true;
@@ -1493,6 +1644,7 @@ public class RoleIntroduceScreen extends Screen {
                     int cardY = areaY + i * (CARD_H + CARD_SPACING) - listScrollOffset;
                     if (isInRect((int) mx, (int) my, areaX, cardY, areaW, CARD_H)) {
                         selectedRole = filteredItems.get(i);
+                        prevRole = null;
                         onSelectionChanged();
                         this.minecraft.getSoundManager()
                                 .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
@@ -1529,6 +1681,19 @@ public class RoleIntroduceScreen extends Screen {
 
             if (isInRect((int) mx, (int) my, leftX, topBarY, leftW - 2, TOP_BAR_H))
                 setFocusArea(FocusArea.SEARCH);
+
+            if (selectedRole != null && activeTabIndex >= 0 && activeTabIndex < tabs.size()) {
+                DetailTab tab = tabs.get(activeTabIndex);
+                int contentX = rightX + PANEL_PAD;
+                int contentY = getRightContentTop();
+                int contentW = rightW - PANEL_PAD * 2 - SCROLL_W - 2;
+                int contentH = getRightContentHeight();
+                if (isInRect((int) mx, (int) my, contentX, contentY, contentW, contentH)) {
+                    if (tab.mouseClicked(mx, my, button, contentX, contentY, contentW, contentH)) {
+                        return true;
+                    }
+                }
+            }
         }
         return super.mouseClicked(mx, my, button);
     }
@@ -1562,6 +1727,7 @@ public class RoleIntroduceScreen extends Screen {
         refreshFilter();
         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
+            prevRole = null;
             onSelectionChanged();
         }
     }
@@ -1652,6 +1818,9 @@ public class RoleIntroduceScreen extends Screen {
                 int newPos = Math.floorMod(currentIdx + delta, visibleIndices.size());
                 int newActiveTabIndex = visibleIndices.get(newPos);
                 if (newActiveTabIndex != activeTabIndex) {
+                    if (!tabs.get(newActiveTabIndex).canSwitchTo()) {
+                        return true;
+                    }
                     tabs.get(activeTabIndex).onSwitchAway();
                     activeTabIndex = newActiveTabIndex;
                     tabs.get(activeTabIndex).onSwitchTo();
@@ -1666,6 +1835,7 @@ public class RoleIntroduceScreen extends Screen {
             idx = Mth.clamp(idx, 0, filteredItems.size() - 1);
             if (idx >= 0 && idx < filteredItems.size()) {
                 selectedRole = filteredItems.get(idx);
+                prevRole = null;
                 onSelectionChanged();
                 int cardY = idx * (CARD_H + CARD_SPACING);
                 if (cardY < listScrollOffset)
@@ -1698,6 +1868,7 @@ public class RoleIntroduceScreen extends Screen {
                     refreshFilter();
                     if (selectedRole != null && !filteredItems.contains(selectedRole)) {
                         selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
+                        prevRole = null;
                         onSelectionChanged();
                     }
                 }
