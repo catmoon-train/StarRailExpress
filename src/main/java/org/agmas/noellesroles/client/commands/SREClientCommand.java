@@ -24,6 +24,7 @@ public class SREClientCommand {
                   .then(ClientCommandManager.literal("random_skin")
                       .then(ClientCommandManager.literal("enable").executes((ctx) -> {
                         SREClientConfig.instance().enableRandomSkinForStreaming = true;
+                        SREClientConfig.HANDLER.save();
                         ctx.getSource()
                             .sendFeedback(Component
                                 .translatable("Success enabled %s! Rejoin the world/server to make it work!",
@@ -41,6 +42,8 @@ public class SREClientCommand {
                                             "text.autoconfig.starrailexpress-client.option.enableRandomSkinForStreaming"))
                                     .withStyle(ChatFormatting.RED));
                             SREClientConfig.instance().enableRandomSkinForStreaming = false;
+                            SREClientConfig.HANDLER.save();
+
                             return 1;
                           }))))
               .then(ClientCommandManager.literal("screen")

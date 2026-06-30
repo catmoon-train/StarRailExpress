@@ -575,11 +575,11 @@ public class RoleIntroduceScreen extends Screen {
             for (int i = 0; i < entries.size(); i++) {
                 ItemStack stack = entries.get(i);
                 if (stack != null && itemY + ITEM_H > y && itemY < y + h) {
-                    g.renderItem(stack, x + 4, itemY + (ITEM_H - 16) / 2);
+                    g.renderItem(stack, x + 10, itemY + (ITEM_H - 16) / 2);
                     Component nameText = stack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
                     Component idText = Component.literal(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())
                             .withStyle(ChatFormatting.DARK_GRAY);
-                    int textX = x + 24;
+                    int textX = x + 32;
                     int lineH = font.lineHeight;
                     int blockHeight = lineH * 2 + TEXT_GAP;
                     int blockTop = itemY + (ITEM_H - blockHeight) / 2;
@@ -686,7 +686,7 @@ public class RoleIntroduceScreen extends Screen {
                 ShopEntry entry = entries.get(i);
                 if (itemY + ITEM_H > y && itemY < y + h) {
                     ItemStack stack = entry.stack();
-                    g.renderItem(stack, x + 4, itemY + (ITEM_H - 16) / 2);
+                    g.renderItem(stack, x + 10, itemY + (ITEM_H - 16) / 2);
                     Component nameText = stack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
                     Component priceText = Component.translatable("screen.roleintroduce.shop.price", entry.price())
                             .withStyle(ChatFormatting.GOLD);
