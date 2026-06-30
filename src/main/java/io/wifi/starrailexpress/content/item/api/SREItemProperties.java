@@ -62,7 +62,7 @@ public class SREItemProperties {
 
         /**
          * 服务端玩家攻击玩家时触发。
-         * 攻击力度可通过 self.getAttackStrengthScale(0.75F) >= 1f 获取
+         * 攻击力度可通过 self.getAttackStrengthScale(0.5F) >= 1f 判断是否为满攻击。在onTryHurt前触发。
          * 
          * @param attacker
          * @param target
@@ -80,6 +80,9 @@ public class SREItemProperties {
     public interface LeftClickKillable extends LeftClickHurtable {
         @Override
         public default boolean onServerAttack(ServerPlayer attacker, ServerPlayer target, ItemStack mainhandItem) {
+            if (attacker.getAttackStrengthScale(0.75F) < 1f) {
+                return false;
+            }
             if (GameUtils.isPlayerAliveAndSurvival(attacker) && GameUtils.isPlayerAliveAndSurvival(target)) {
                 GameUtils.killPlayer(target, true, attacker, SkinUtils.getItemTypeResourceLocation(mainhandItem));
             }

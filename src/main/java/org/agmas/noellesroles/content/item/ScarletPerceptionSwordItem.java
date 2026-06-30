@@ -50,6 +50,9 @@ public class ScarletPerceptionSwordItem extends SwordItem implements LeftClickKi
         if (attacker.getCooldowns().isOnCooldown(this)) {
             return false;
         }
+        if (attacker.getAttackStrengthScale(0.75F) < 1F) {
+            return false;
+        }
         if (!attacker.isCreative()) {
             attacker.getCooldowns().addCooldown(this, GameConstants.getRevolverDefaultTicks());
         }

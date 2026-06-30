@@ -15,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
@@ -76,11 +75,11 @@ public class ServerPlayerEntityMixin {
             return;
         } else if (mainhandItem.getItem() instanceof SREItemProperties.LeftClickHurtable htit) {
             boolean original = true;
-            var result = htit.onTryHurt(self, target, self.getMainHandItem());
-            if (result.equals(InteractionResult.CONSUME) || result.equals(InteractionResult.FAIL)) {
-                ci.cancel();
-                return;
-            }
+            // var result = htit.onTryHurt(self, target, self.getMainHandItem());
+            // if (result.equals(InteractionResult.CONSUME) || result.equals(InteractionResult.FAIL)) {
+            //     ci.cancel();
+            //     return;
+            // }
             if (target instanceof ServerPlayer playerTarget) {
                 original = htit.onServerAttack(self, playerTarget, mainhandItem);
             }
