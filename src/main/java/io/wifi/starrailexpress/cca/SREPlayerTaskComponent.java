@@ -23,6 +23,9 @@ import net.minecraft.world.inventory.LecternMenu;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.ModifierEffects;
 import org.agmas.noellesroles.scene.SceneTaskManager;
@@ -242,19 +245,9 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             if (task.getType() == Task.EAT && this.player instanceof ServerPlayer sp) {
                 ModifierEffects.onBigEaterTaskComplete(sp);
             }
-            // 检查5格范围内是否有狂躁症玩家，触发其附近任务完成效果
+            // 触发附近任务完成联动（狂躁症、渡鸦等）
             if (this.player instanceof ServerPlayer sp) {
-                var worldModifiers = WorldModifierComponent.KEY.get(sp.level());
-                if (worldModifiers != null) {
-                    for (Player nearby : sp.level().players()) {
-                        if (nearby != sp && nearby.distanceTo(sp) <= 11.0
-                                && nearby instanceof ServerPlayer nearbySp
-                                && GameUtils.isPlayerAliveAndSurvival(nearbySp)
-                                && worldModifiers.isModifier(nearbySp.getUUID(), TraitorAndModifiers.MANIC)) {
-                            ModifierEffects.onNearbyTaskComplete(nearbySp);
-                        }
-                    }
-                }
+                notifyNearbyTaskComplete(sp);
             }
         }
         // 移除被消失的并列任务（不给予奖励）
@@ -276,6 +269,62 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         }
         if (shouldSync)
             this.sync();
+    }
+
+    public boolean completeManicTask() {
+        TrainTask task = this.tasks.get(Task.MANIC);
+        if (task == null || !(this.player instanceof ServerPlayer sp))
+            return false;
+        if (this.playerMoodComponent == null) {
+            this.playerMoodComponent = SREPlayerMoodComponent.KEY.get(this.player);
+        }
+        float moodGain = GameConstants.MOOD_GAIN;
+        if (this.parallelTaskGenerated) {
+            moodGain += GameConstants.PARALLEL_TASK_COMPLETION_BONUS;
+        }
+        if (this.playerMoodComponent != null) {
+            this.playerMoodComponent.addMood(moodGain);
+        }
+        ServerPlayNetworking.send(sp, new TaskCompletePayload());
+        this.tasks.remove(Task.MANIC);
+        this.parallelTaskTypes.remove(Task.MANIC);
+        io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnFinishQuest(this.player, task.getName(),
+                this.taskStreak, false);
+        this.taskStreak++;
+        if (this.tasks.isEmpty()) {
+            this.currentTaskAge = 0;
+            this.parallelTaskGenerated = false;
+            this.parallelTaskTypes.clear();
+        }
+        notifyNearbyTaskComplete(sp);
+        this.sync();
+        return true;
+    }
+
+    private static void notifyNearbyTaskComplete(ServerPlayer completingPlayer) {
+        var worldModifiers = WorldModifierComponent.KEY.get(completingPlayer.level());
+        if (worldModifiers != null) {
+            for (Player nearby : completingPlayer.level().players()) {
+                if (nearby != completingPlayer && nearby.distanceTo(completingPlayer) <= 11.0
+                        && nearby instanceof ServerPlayer nearbySp
+                        && GameUtils.isPlayerAliveAndSurvival(nearbySp)
+                        && worldModifiers.isModifier(nearbySp.getUUID(), TraitorAndModifiers.MANIC)) {
+                    ModifierEffects.onNearbyTaskComplete(nearbySp, completingPlayer);
+                }
+            }
+        }
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(completingPlayer.level());
+        if (gameWorld != null) {
+            for (Player nearby : completingPlayer.level().players()) {
+                if (nearby != completingPlayer
+                        && nearby.distanceToSqr(completingPlayer) <= RavenPlayerComponent.CHARGE_RADIUS * RavenPlayerComponent.CHARGE_RADIUS
+                        && nearby instanceof ServerPlayer nearbySp
+                        && GameUtils.isPlayerAliveAndSurvival(nearbySp)
+                        && gameWorld.isRole(nearbySp, ModRoles.RAVEN)) {
+                    ModComponents.RAVEN.get(nearbySp).onNearbyTaskComplete();
+                }
+            }
+        }
     }
 
     /**

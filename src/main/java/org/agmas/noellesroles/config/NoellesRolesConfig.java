@@ -371,8 +371,6 @@ public class NoellesRolesConfig implements ConfigData {
     public double divinerRange = 4.0;
 
     // ==================== Photographer (摄影师) 画框传送 ====================
-    /** Photographer - 画框单价（金币） */
-    public int photographerFramePrice = 150;
     /** Photographer - 每局最多购买画框次数 */
     public int photographerFrameMaxBuy = 2;
     /** Photographer - 穿越画框赋予的失明秒数 */

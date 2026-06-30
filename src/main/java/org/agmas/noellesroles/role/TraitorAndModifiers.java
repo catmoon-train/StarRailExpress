@@ -260,6 +260,8 @@ public class TraitorAndModifiers {
     // 狂躁症 - 记录最后触发时间
     public static final Map<UUID, Long> LAST_MANIC_TRIGGER_TIME = new ConcurrentHashMap<>();
 
+    public static final Map<UUID, Set<UUID>> MANIC_TASK_COMPLETERS = new ConcurrentHashMap<>();
+
     // ==================== 初始化方法 ====================
     public static void init() {
         // 已统一配置项
@@ -379,6 +381,7 @@ public class TraitorAndModifiers {
             CORRUPTED_BODIES.remove(player.getUUID());
             LAST_STINGY_REFUND_TIME.remove(player.getUUID());
             LAST_MANIC_TRIGGER_TIME.remove(player.getUUID());
+            MANIC_TASK_COMPLETERS.remove(player.getUUID());
         });
     }
 
@@ -607,12 +610,16 @@ public class TraitorAndModifiers {
             LAST_APPLE_TIME.clear();
             CORRUPTED_BODIES.clear();
             LAST_STINGY_REFUND_TIME.clear();
+            LAST_MANIC_TRIGGER_TIME.clear();
+            MANIC_TASK_COMPLETERS.clear();
         });
 
         // 游戏结束时重置
         OnGameEnd.EVENT.register((level, gameWorldComponent) -> {
             LAST_GASP_TRIGGERED.clear();
             DESPERATE_FAITH_ACTIVATED.clear();
+            LAST_MANIC_TRIGGER_TIME.clear();
+            MANIC_TASK_COMPLETERS.clear();
         });
     }
 

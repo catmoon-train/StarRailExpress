@@ -995,7 +995,7 @@ public class RoleShopHandler {
             .get(ResourceLocation.fromNamespaceAndPath("exposure", "photograph_frame"));
         if (frameItem != null && frameItem != Items.AIR) {
           final var frameStack = frameItem.getDefaultInstance();
-          int price = org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().photographerFramePrice;
+          int price = 200;
           entries.add(new ShopEntry(frameStack, price, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(@NotNull Player player) {

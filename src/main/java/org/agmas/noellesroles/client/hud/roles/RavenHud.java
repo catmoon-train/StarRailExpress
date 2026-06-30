@@ -8,6 +8,8 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
+import java.util.Locale;
+
 public final class RavenHud {
     public static void register() {
         RoleHudRenderCallback.EVENT.register(ModRoles.RAVEN_ID, (context, tickCounter) -> {
@@ -17,22 +19,28 @@ public final class RavenHud {
             int x = context.guiWidth() - 180;
             int y = context.guiHeight() - 40;
 
+            context.drawString(Minecraft.getInstance().font,
+                    Component.translatable("hud.noellesroles.raven.charge_progress",
+                            String.format(Locale.ROOT, "%.2f", raven.moodProgress),
+                            String.format(Locale.ROOT, "%.2f", raven.moodProgressThreshold)),
+                    x, y, 0x8B5EB8);
+
             // Hunt charges
             context.drawString(Minecraft.getInstance().font,
                     Component.translatable("hud.noellesroles.raven.charges", raven.charges, RavenPlayerComponent.MAX_CHARGES),
-                    x, y, 0x6B4B9E);
+                    x, y + 11, 0x6B4B9E);
 
             // Kill progress
             context.drawString(Minecraft.getInstance().font,
                     Component.translatable("hud.noellesroles.raven.kills", raven.kills, raven.requiredKills),
-                    x, y + 11, 0xA66DCC);
+                    x, y + 22, 0xA66DCC);
 
             // Cooldown countdown
             if (raven.cooldownTicks > 0) {
                 int seconds = (raven.cooldownTicks + 19) / 20;
                 context.drawString(Minecraft.getInstance().font,
                         Component.translatable("hud.noellesroles.raven.cooldown", seconds),
-                        x, y + 22, 0xAAAAAA);
+                        x, y + 33, 0xAAAAAA);
             }
 
             // Hunt time remaining during hunt

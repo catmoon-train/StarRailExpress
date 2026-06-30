@@ -3251,6 +3251,7 @@
   "announcement.star.win.raven": "Raven wins!",
   "game.win.star.raven": "The raven completed its hunt — black wings overshadow the final act!",
   "hud.noellesroles.raven.charges": "Hunt charges: %s/%s",
+  "hud.noellesroles.raven.charge_progress": "Charge progress: %s/%s",
   "hud.noellesroles.raven.kills": "Hunt progress: %s/%s",
   "hud.noellesroles.raven.cooldown": "Cooldown: %ss",
   "hud.noellesroles.raven.hunt_time": "Hunt: %ss left",

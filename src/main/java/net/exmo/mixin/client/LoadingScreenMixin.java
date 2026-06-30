@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import io.wifi.starrailexpress.SREClientConfig;
-import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.WithParentScreenPauseScreen;
+import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
 
 @Mixin(Minecraft.class)
 public class LoadingScreenMixin {

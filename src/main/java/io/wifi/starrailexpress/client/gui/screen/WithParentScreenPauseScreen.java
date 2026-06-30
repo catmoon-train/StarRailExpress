@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
+package io.wifi.starrailexpress.client.gui.screen;
 
 import java.net.URI;
 import java.net.URISyntaxException;

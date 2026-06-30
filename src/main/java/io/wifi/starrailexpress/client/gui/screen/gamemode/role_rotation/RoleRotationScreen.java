@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.network.RoleRotationSelectC2SPacket;
 import io.wifi.starrailexpress.network.RoleRotationSyncS2CPacket;

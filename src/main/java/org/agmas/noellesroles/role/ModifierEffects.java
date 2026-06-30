@@ -3,6 +3,7 @@ package org.agmas.noellesroles.role;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -260,11 +261,21 @@ public class ModifierEffects {
     /**
      * 狂躁症触发 - 附近有玩家完成任务，每1秒最多触发一次
      */
-    public static void onNearbyTaskComplete(ServerPlayer manicPlayer) {
+    public static void onNearbyTaskComplete(ServerPlayer manicPlayer, ServerPlayer completingPlayer) {
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(manicPlayer.level());
         UUID uuid = manicPlayer.getUUID();
 
         if (modifiers.isModifier(uuid, TraitorAndModifiers.MANIC)) {
+            SREPlayerTaskComponent taskComponent = SREPlayerTaskComponent.KEY.get(manicPlayer);
+            if (taskComponent != null && taskComponent.tasks.containsKey(SREPlayerTaskComponent.Task.MANIC)) {
+                Set<UUID> completers = TraitorAndModifiers.MANIC_TASK_COMPLETERS.computeIfAbsent(uuid,
+                        ignored -> java.util.concurrent.ConcurrentHashMap.newKeySet());
+                completers.add(completingPlayer.getUUID());
+                if (completers.size() >= 3 && taskComponent.completeManicTask()) {
+                    completers.clear();
+                }
+            }
+
             // 检查是否在1秒冷却期内
             Long lastTime = TraitorAndModifiers.LAST_MANIC_TRIGGER_TIME.get(uuid);
             if (lastTime != null && System.currentTimeMillis() - lastTime < 1000) {
@@ -280,7 +291,7 @@ public class ModifierEffects {
             }
 
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(manicPlayer);
-            shop.setBalance(shop.balance + 15);
+            shop.setBalance(shop.balance + 10);
             shop.sync();
         }
     }
