@@ -75,6 +75,17 @@ public class MonokumaEventHandler {
             return true;
         });
 
+        // 黑白玩家在狂暴前奏中掉线时，平衡疯狂 BGM 与全服狂暴效果，避免音乐永久残留。
+        net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            ServerPlayer sp = handler.getPlayer();
+            if (sp == null)
+                return;
+            MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.maybeGet(sp).orElse(null);
+            if (comp != null && comp.phase == 2) {
+                comp.clear();
+            }
+        });
+
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN))
                 return true;
@@ -87,10 +98,24 @@ public class MonokumaEventHandler {
                 return true;
             MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
             if (!RefugeeComponent.KEY.get(sp.level()).isAnyRevivals && comp.phase == 1) {
-                RoleUtils.dropAndClearAllSatisfiedItems((ServerPlayer) sp, TMMItemTags.GUNS);
-                StupidRoleUtils.changeRole(player, ModRoles.MONOKUMA);
-                StupidRoleUtils.sendWelcomeAnnouncement(sp);
-                comp.onHitTriggered();
+                // 注意：直接在死亡事件回调里同步执行换职业 / 启动疯狂，会让其中任何异常顺着
+                // “攻击者攻击封包”的调用栈抛出，导致触发黑白的玩家（如义警）掉线。
+                // 这里只同步取消死亡，把繁重的狂暴触发推迟到干净的服务端任务栈上执行并捕获异常。
+                if (sp.getServer() != null) {
+                    sp.getServer().execute(() -> {
+                        try {
+                            MonokumaPlayerComponent c = MonokumaPlayerComponent.KEY.get(sp);
+                            if (c.phase != 1)
+                                return;
+                            RoleUtils.dropAndClearAllSatisfiedItems(sp, TMMItemTags.GUNS);
+                            StupidRoleUtils.changeRole(sp, ModRoles.MONOKUMA);
+                            StupidRoleUtils.sendWelcomeAnnouncement(sp);
+                            c.onHitTriggered();
+                        } catch (Exception e) {
+                            org.agmas.noellesroles.Noellesroles.LOGGER.error("黑白狂暴触发失败", e);
+                        }
+                    });
+                }
                 return false;
             } else if (comp.phase == 3) {
                 var gameCCA = SREGameWorldComponent.KEY.get(player.level());

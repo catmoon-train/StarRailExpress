@@ -37,7 +37,9 @@ public class MonokumaRole extends CustomWinnerRole {
 
   @Override
   public void onKill(Player victim, boolean spawnBody, Player killer, ResourceLocation deathReason) {
-    MonokumaPlayerComponent.KEY.get(killer).onKillPlayer();
+    if (killer == null)
+      return;
+    MonokumaPlayerComponent.KEY.maybeGet(killer).ifPresent(MonokumaPlayerComponent::onKillPlayer);
     return;
   }
 

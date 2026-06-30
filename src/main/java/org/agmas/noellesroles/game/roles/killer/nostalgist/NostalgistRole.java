@@ -5,6 +5,9 @@ import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -30,5 +33,15 @@ public class NostalgistRole extends ExtraEffectRole {
     public List<ShopEntry> getShopEntries() {
         // 通用杀手商店（与默认刀手商店一致）
         return ShopContent.defaultKnifeEntries;
+    }
+
+    @Override
+    public InteractionResult onPickUpItem(Player player, ItemStack item) {
+        // 处于里世界时无法捡起任何物品
+        var comp = NostalgistPlayerComponent.KEY.maybeGet(player).orElse(null);
+        if (comp != null && comp.isActiveBackWorld()) {
+            return InteractionResult.FAIL;
+        }
+        return super.onPickUpItem(player, item);
     }
 }

@@ -655,6 +655,19 @@ public class RoleShopHandler {
       ShopContent.customEntries.put(ModRoles.BROADCASTER.getIdentifier(), SHOP);
     }
     {
+      // 占卜家商店 - 晶球（水晶球）可购买
+      var SHOP = new java.util.ArrayList<ShopEntry>();
+      SHOP.add(new ShopEntry(ModItems.CRYSTAL_BALL.getDefaultInstance(),
+          org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().divinerCrystalBallPrice,
+          ShopEntry.Type.TOOL) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          return RoleUtils.insertStackInFreeSlot(player, ModItems.CRYSTAL_BALL.getDefaultInstance().copy());
+        }
+      });
+      ShopContent.customEntries.put(ModRoles.DIVINER.getIdentifier(), SHOP);
+    }
+    {
       // 老人的商店
       var SHOP = new ArrayList<ShopEntry>();
 

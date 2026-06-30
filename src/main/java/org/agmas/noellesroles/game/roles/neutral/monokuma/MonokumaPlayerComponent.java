@@ -122,6 +122,11 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clear() {
+        // 若在狂暴前奏阶段(2)被清理（超时 / 游戏重置 / 掉线），需停止疯狂 BGM 并清除全服狂暴效果，
+        // 与 onHitTriggered 的启动相平衡，否则音乐/水墨滤镜会一直残留。
+        if (this.phase == 2) {
+            stopFrenzy();
+        }
         this.phase = 0;
         this.frenzyTimer = 0;
         this.auraCoinTimer = 0;
@@ -130,6 +135,27 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
         this.isMonokumaMarked = false;
         this.kill_count = 0;
         this.sync();
+    }
+
+    /**
+     * 结束狂暴前奏：停止疯狂 BGM 并清除全服的狂暴前奏效果。
+     * 与 {@link #onHitTriggered()} 的启动逻辑相平衡（参见 {@link #transformToMonokuma()}）。
+     */
+    private void stopFrenzy() {
+        if (!(player instanceof ServerPlayer sp))
+            return;
+        try {
+            SREPlayerPsychoComponent psychoComp = SREPlayerPsychoComponent.KEY.get(sp);
+            psychoComp.stopPsychoAndRefreshPsychoCount(true);
+            psychoComp.sync();
+        } catch (Exception e) {
+            Noellesroles.LOGGER.error("停止黑白疯狂 BGM 失败", e);
+        }
+        for (ServerPlayer p : sp.serverLevel().players()) {
+            if (p.hasEffect(ModEffects.MONOKUMA_FRENZY)) {
+                p.removeEffect(ModEffects.MONOKUMA_FRENZY);
+            }
+        }
     }
 
     // ==================== 狂暴前奏触发 ====================

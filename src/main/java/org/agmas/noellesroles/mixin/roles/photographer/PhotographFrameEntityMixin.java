@@ -62,20 +62,6 @@ public class PhotographFrameEntityMixin implements SrePhotographerFrame {
         this.sre$teleportCount = tag.getInt("SrePhotographerTeleportCount");
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void sre$frameTick(CallbackInfo ci) {
-        PhotographFrameEntity self = (PhotographFrameEntity) (Object) this;
-        Level level = self.level();
-        if (level.isClientSide) {
-            return;
-        }
-        ItemStack photo = self.getItem();
-        if (photo.isEmpty()) {
-            return;
-        }
-        double inflate = NoellesRolesConfig.HANDLER.instance().photographerFrameTriggerInflate;
-        for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, self.getBoundingBox().inflate(inflate))) {
-            PhotographerFrameEvents.tryTeleport(self, player);
-        }
-    }
+    // 画框传送改为玩家主动右键触发（见 PhotographerFrameEvents 的 UseEntityCallback），
+    // 不再在 tick 中扫描穿过画框的玩家自动传送。
 }

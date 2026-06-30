@@ -272,9 +272,12 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             return false;
         }
         seeds.put(target.getUUID(), 0);
-        // 仅通知阿蒙自己；绝不给受害者任何反馈。
         amon.displayClientMessage(Component.translatable("message.noellesroles.amon.seed_planted")
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
+        // 被寄生者获得音效与提示。
+        target.playNotifySound(SoundEvents.SCULK_CLICKING, SoundSource.PLAYERS, 0.8f, 0.6f);
+        target.displayClientMessage(Component.translatable("message.noellesroles.amon.parasitized")
+                .withStyle(ChatFormatting.DARK_PURPLE), false);
         sync();
         return true;
     }
@@ -315,6 +318,10 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         amon.teleportTo(level, host.getX(), host.getY(), host.getZ(), host.getYRot(), host.getXRot());
         amon.displayClientMessage(Component.translatable("message.noellesroles.amon.possess_start", host.getName())
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
+        // 被夺舍宿主获得音效与提示。
+        host.playNotifySound(SoundEvents.SCULK_SHRIEKER_SHRIEK, SoundSource.PLAYERS, 0.9f, 0.7f);
+        host.displayClientMessage(Component.translatable("message.noellesroles.amon.possessed_victim")
+                .withStyle(ChatFormatting.DARK_PURPLE), false);
         sync();
         return true;
     }
@@ -333,7 +340,12 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             return;
         }
         refreshPossessionEffects(amon);
-        amon.teleportTo(level, target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot());
+        // 阿蒙掌控目标移动：阿蒙隐身自由移动，目标被锁定移动/视角并每 tick 牵引到阿蒙位置；
+        // 二者均无碰撞箱，避免互相拥挤。
+        target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 10, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, 10, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 10, 0, false, false, false));
+        target.teleportTo(level, amon.getX(), amon.getY(), amon.getZ(), amon.getYRot(), amon.getXRot());
     }
 
     /**

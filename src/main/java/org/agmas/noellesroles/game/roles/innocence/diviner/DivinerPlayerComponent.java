@@ -162,26 +162,36 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
     private record FactionInfo(Component label, ChatFormatting color) {
     }
 
-    /** 根据职业 ID 判断其阵营，用于占卜结果着色与标注。 */
+    /**
+     * 根据职业 ID 判断其阵营，用于占卜结果着色与标注。
+     *
+     * <p>改用职业自身的阵营标志（治安队 / 杀手 / 乘客）判定，而非脆弱的 {@code getRoleType()}
+     * 整数映射——后者对部分职业返回未被覆盖的取值，导致阵营恒显示为“未知”。</p>
+     */
     private FactionInfo factionOf(ResourceLocation roleId) {
         SRERole role = TMMRoles.ROLES.get(roleId);
-        int type = role == null ? -1 : role.getRoleType();
-        return switch (type) {
-            // 4=杀手, 3=杀手阵营中立
-            case 3, 4 -> new FactionInfo(
-                    Component.translatable("message.noellesroles.diviner.faction.killer"), ChatFormatting.RED);
-            // 5=治安阵营（警长等）
-            case 5 -> new FactionInfo(
-                    Component.translatable("message.noellesroles.diviner.faction.vigilante"), ChatFormatting.AQUA);
-            // 2=普通中立
-            case 2 -> new FactionInfo(
-                    Component.translatable("message.noellesroles.diviner.faction.neutral"), ChatFormatting.GOLD);
-            // 1=乘客（无辜）
-            case 1 -> new FactionInfo(
-                    Component.translatable("message.noellesroles.diviner.faction.passenger"), ChatFormatting.GREEN);
-            default -> new FactionInfo(
+        if (role == null) {
+            return new FactionInfo(
                     Component.translatable("message.noellesroles.diviner.faction.unknown"), ChatFormatting.GRAY);
-        };
+        }
+        // 警长 / 治安阵营（注意：治安职业 isInnocent 也为 true，需优先判定）
+        if (role.isVigilanteTeam()) {
+            return new FactionInfo(
+                    Component.translatable("message.noellesroles.diviner.faction.vigilante"), ChatFormatting.AQUA);
+        }
+        // 杀手 / 杀手阵营
+        if (role.isKiller()) {
+            return new FactionInfo(
+                    Component.translatable("message.noellesroles.diviner.faction.killer"), ChatFormatting.RED);
+        }
+        // 乘客（无辜）
+        if (role.isInnocent()) {
+            return new FactionInfo(
+                    Component.translatable("message.noellesroles.diviner.faction.passenger"), ChatFormatting.GREEN);
+        }
+        // 其余视为中立
+        return new FactionInfo(
+                Component.translatable("message.noellesroles.diviner.faction.neutral"), ChatFormatting.GOLD);
     }
 
     private Component resolveName(ServerPlayer sp, PlayerBodyEntity body) {

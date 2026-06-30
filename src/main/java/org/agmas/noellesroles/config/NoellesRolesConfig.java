@@ -389,6 +389,8 @@ public class NoellesRolesConfig implements ConfigData {
     public int divinerCooldown = 60;
     /** Diviner - Crystal ball targeting range in blocks */
     public double divinerRange = 4.0;
+    /** Diviner - Crystal ball shop price (coins) */
+    public int divinerCrystalBallPrice = 100;
 
     // ==================== Photographer (摄影师) 画框传送 ====================
     /** Photographer - 每局最多购买画框次数 */
@@ -401,6 +403,10 @@ public class NoellesRolesConfig implements ConfigData {
     public double photographerFrameTriggerInflate = 0.25;
     /** Photographer - 单个画框最多可传送玩家的次数（用尽后画框失效） */
     public int photographerFrameMaxTeleports = 8;
+    /** Photographer - 画框传送的最大水平距离（方块，<=0 表示不限制） */
+    public double photographerFrameMaxDistance = 64.0;
+    /** Photographer - 画框传送的最大垂直(Y轴)距离（方块，<=0 表示不限制） */
+    public double photographerFrameMaxYDistance = 12.0;
 
     // ==================== Delayer (滞时鬼) ====================
     /** Delayer - Rewind skill: seconds between anchoring and the automatic rewind */

@@ -7,7 +7,9 @@ import io.github.mortuusars.exposure.world.entity.PhotographFrameEntity;
 import io.github.mortuusars.exposure.world.item.PhotographItem;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -16,6 +18,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -60,6 +64,19 @@ public final class PhotographerFrameEvents {
                 extraData.put(Frame.YAW, sp.getYRot());
             }
         });
+
+        // 仅在玩家主动右键画框时才传送（不再因走过/穿过画框自动触发）。
+        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            if (world.isClientSide || hand != InteractionHand.MAIN_HAND) {
+                return InteractionResult.PASS;
+            }
+            if (entity instanceof PhotographFrameEntity frame && player instanceof ServerPlayer sp) {
+                if (tryTeleport(frame, sp)) {
+                    return InteractionResult.SUCCESS;
+                }
+            }
+            return InteractionResult.PASS;
+        });
     }
 
     public static boolean isPhotographer(Player player) {
@@ -73,44 +90,44 @@ public final class PhotographerFrameEvents {
     }
 
     /**
-     * 由画框实体 tick mixin 调用：尝试把穿过画框的玩家传送到照片拍摄地点。
+     * 由右键画框事件调用：尝试把右键画框的玩家传送到照片拍摄地点。
+     *
+     * @return 是否实际发生了传送（用于在右键事件中决定是否消费交互）。
      */
-    public static void tryTeleport(PhotographFrameEntity frame, ServerPlayer player) {
-        // 仅在游戏进行中允许传送（开局加载阶段 isStartingGame=true、大厅均不允许）。
-        // 旧实现误用 !isStartingGame：该标记只在开局加载窗口为 true，正式对局中恒为 false，
-        // 导致对局中穿过画框永远不触发传送。
+    public static boolean tryTeleport(PhotographFrameEntity frame, ServerPlayer player) {
+        // 仅在游戏进行中允许传送（开局加载阶段、大厅均不允许）。
         SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(player.level());
         if (gw == null || !gw.isRunning()) {
-            return;
+            return false;
         }
         if (!(player.level() instanceof ServerLevel) || !GameUtils.isPlayerAliveAndSurvival(player)) {
-            return;
+            return false;
         }
         NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
         // 画框传送次数上限：用尽后该画框不再触发传送。
         SrePhotographerFrame frameState = (SrePhotographerFrame) frame;
         if (cfg.photographerFrameMaxTeleports > 0
                 && frameState.sre$getTeleportCount() >= cfg.photographerFrameMaxTeleports) {
-            return;
+            return false;
         }
         long now = player.level().getGameTime();
         Long last = LAST_TELEPORT_TICK.get(player.getUUID());
         if (last != null && now - last < (long) cfg.photographerFrameCooldownSeconds * 20L) {
-            return;
+            return false;
         }
 
         ItemStack photo = frame.getItem();
         if (photo.isEmpty() || !(photo.getItem() instanceof PhotographItem photographItem)) {
-            return;
+            return false;
         }
         Frame frameData = photographItem.getFrame(photo);
         if (frameData == null) {
-            return;
+            return false;
         }
         ExtraData data = frameData.getExtraDataForReading();
         Optional<Vec3> posOpt = data.get(Frame.POSITION);
         if (posOpt.isEmpty()) {
-            return;
+            return false;
         }
         Vec3 pos = posOpt.get();
 
@@ -123,6 +140,32 @@ public final class PhotographerFrameEvents {
                 targetLevel = resolved;
             }
         }
+
+        // 距离限制（仅同维度时判定）：水平超距 / Y 轴超距均拒绝，避免跨层、垂直滥用。
+        if (targetLevel == player.level()) {
+            double dx = pos.x - player.getX();
+            double dz = pos.z - player.getZ();
+            double horiz = Math.sqrt(dx * dx + dz * dz);
+            double dy = Math.abs(pos.y - player.getY());
+            if ((cfg.photographerFrameMaxDistance > 0 && horiz > cfg.photographerFrameMaxDistance)
+                    || (cfg.photographerFrameMaxYDistance > 0 && dy > cfg.photographerFrameMaxYDistance)) {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.photographer.frame_too_far")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return false;
+            }
+        }
+
+        // 目的地有效性：避免传送进方块内部或世界之外的奇怪位置。
+        if (!isSafeDestination(targetLevel, pos)) {
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.photographer.frame_blocked")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+
         float yaw = data.get(Frame.YAW).orElse(player.getYRot());
         float pitch = data.get(Frame.PITCH).orElse(player.getXRot());
 
@@ -137,5 +180,22 @@ public final class PhotographerFrameEvents {
                 Component.translatable("message.noellesroles.photographer.frame_teleport")
                         .withStyle(ChatFormatting.AQUA),
                 true);
+        return true;
+    }
+
+    /**
+     * 判定传送落点是否安全：在世界高度范围内，且脚部与头部所在方块没有碰撞箱
+     * （不会卡进墙体），从而避免传送到“奇奇怪怪”的非法位置。
+     */
+    private static boolean isSafeDestination(ServerLevel level, Vec3 pos) {
+        if (pos.y < level.getMinBuildHeight() + 1 || pos.y > level.getMaxBuildHeight() - 1) {
+            return false;
+        }
+        BlockPos feet = BlockPos.containing(pos.x, pos.y, pos.z);
+        if (!level.getBlockState(feet).getCollisionShape(level, feet).isEmpty()) {
+            return false;
+        }
+        BlockPos head = feet.above();
+        return level.getBlockState(head).getCollisionShape(level, head).isEmpty();
     }
 }

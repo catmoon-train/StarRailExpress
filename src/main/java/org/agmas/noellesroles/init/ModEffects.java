@@ -412,6 +412,9 @@ public class ModEffects {
         io.wifi.starrailexpress.content.item.DisguiseEffectSync.init();
         // 把“脚步消失”效果同步给所有客户端，否则其它玩家侧的脚步声/疾跑粒子拦截查不到该效果。
         org.agmas.noellesroles.init.FootstepVanishEffectSync.init();
+        // 把怀旧者“里世界标记”效果同步给所有客户端，否则其它客户端查不到怀旧者的里世界状态，
+        // 导致手持物品仍显示 / 仍能被杀手透视。
+        org.agmas.noellesroles.init.NostalgistBackworldEffectSync.init();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (pierceDeath) {
                 pierceDeath = false;

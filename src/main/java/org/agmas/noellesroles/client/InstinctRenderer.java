@@ -883,6 +883,12 @@ public class InstinctRenderer {
                         && SREClient.isPlayerAliveAndInSurvival()) {
                     return -2;
                 }
+                // 怀旧者里世界：杀手无法透视察觉
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.NOSTALGIST)
+                        && target_player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD) && isKillerTeam(self_role)
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    return -2;
+                }
                 // 记录员
                 if (SREClient.gameComponent.isRole(self, ModRoles.RECORDER)) {
                     if (target instanceof Player targetPlayer) {
