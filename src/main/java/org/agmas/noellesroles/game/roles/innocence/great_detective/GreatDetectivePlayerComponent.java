@@ -52,7 +52,7 @@ public class GreatDetectivePlayerComponent implements RoleComponent, ServerTicki
     public final LinkedHashMap<UUID, List<DetectiveClue>> clues = new LinkedHashMap<>();
     /** 凶手 UUID -> 触发"目标情况"时的距离快照（格）。 */
     public final HashMap<UUID, Integer> revealedDistance = new HashMap<>();
-    private int cooldown = 0;
+    public long cooldown = 0;
 
     public GreatDetectivePlayerComponent(Player player) {
         this.player = player;
@@ -70,6 +70,10 @@ public class GreatDetectivePlayerComponent implements RoleComponent, ServerTicki
 
     public void sync() {
         KEY.sync(this.player);
+    }
+
+    public boolean isInCooldown() {
+        return cooldown > 0 && cooldown > this.player.level().getGameTime();
     }
 
     @Override
@@ -145,7 +149,7 @@ public class GreatDetectivePlayerComponent implements RoleComponent, ServerTicki
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (cooldown > 0) {
-            tag.putInt("cd", cooldown);
+            tag.putLong("cd", cooldown);
         }
         ListTag used = new ListTag();
         for (UUID u : usedCorpses) {
@@ -176,7 +180,7 @@ public class GreatDetectivePlayerComponent implements RoleComponent, ServerTicki
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (tag.contains("cd")) {
-            cooldown = tag.getInt("cd");
+            cooldown = tag.getLong("cd");
         } else {
             cooldown = 0;
         }
@@ -219,22 +223,23 @@ public class GreatDetectivePlayerComponent implements RoleComponent, ServerTicki
 
     @Override
     public void clientTick() {
-        if (this.cooldown > 1) {
-            this.cooldown--;
+        if (this.cooldown > 0) {
+            if (cooldown >= this.player.level().getGameTime()) {
+                cooldown = 0;
+            }
         }
     }
 
     @Override
     public void serverTick() {
         if (this.cooldown > 0) {
-            this.cooldown--;
-            if (this.cooldown % 200 == 0 || this.cooldown == 0) {
-                sync();
+            if (cooldown <= this.player.level().getGameTime()) {
+                cooldown = 0;
             }
         }
     }
 
     public void enterCooldown() {
-        this.cooldown = COOLDOWN_TIME;
+        this.cooldown = this.player.level().getGameTime() + COOLDOWN_TIME;
     }
 }

@@ -850,6 +850,8 @@
   "message.noellesroles.detective.target_moved": "目标玩家移动了，审查结束",
   "message.noellesroles.detective.no_target": "请将准星对准一名玩家！",
   "container.noellesroles.detective.inspect": "审查 %s 的物品栏",
+  "hud.noellesroles.great_detective.cooldown": "推理冷却：%s秒",
+  "hud.noellesroles.great_detective.ready": "推理已就绪！右键尸体获取线索。",
   "hud.noellesroles.detective.cooldown": "审查冷却：%s秒",
   "hud.noellesroles.detective.ready": "审查已就绪！按G并瞄准目标",
   "hud.noellesroles.detective.ready_cost": "审查就绪（150金币）",
