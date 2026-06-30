@@ -279,10 +279,14 @@ public class RoleIntroduceScreen extends Screen {
         refreshFilter();
         if (selectedRole == null && !filteredItems.isEmpty())
             selectedRole = filteredItems.get(0);
-        prevRole = null;
-        prevRoleTab = -1;
+        clearPrevStatus();
         onSelectionChanged();
         setFocusArea(FocusArea.SEARCH);
+    }
+
+    private void clearPrevStatus() {
+        prevRole = null;
+        prevRoleTab = -1;
     }
 
     private void computeLayout() {
@@ -313,12 +317,11 @@ public class RoleIntroduceScreen extends Screen {
             searchWidget.setHint(
                     Component.translatable("screen.noellesroles.search.placeholder").withStyle(ChatFormatting.GRAY));
             searchWidget.setResponder(text -> {
+                clearPrevStatus();
                 searchContent = text.isEmpty() ? null : text;
                 listScrollOffset = 0;
                 refreshFilter();
                 selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
-                prevRole = null;
-                prevRoleTab = -1;
                 onSelectionChanged();
             });
         } else {
@@ -657,8 +660,10 @@ public class RoleIntroduceScreen extends Screen {
                         if (stack != null && !stack.isEmpty()) {
                             List<Component> tooltipLines;
                             try {
+                                TooltipFlag tooltipFlag = minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED
+                                        : TooltipFlag.NORMAL;
                                 tooltipLines = stack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player,
-                                        TooltipFlag.NORMAL);
+                                        tooltipFlag);
                             } catch (Exception e) {
                                 tooltipLines = List
                                         .of(Component.translatable("screen.roleintroduce.error", e.getMessage()));
@@ -707,12 +712,7 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private boolean navigateToItem(Item item) {
-        // 检查是否在可介绍物品列表中（没有介绍则不跳转）
-        if (!TMMDescItems.introItems.contains(item) &&
-                !io.wifi.starrailexpress.client.data.ClientSponsorCache.getPlushItems().contains(item)) {
-            return false;
-        }
-
+        // 临时添加
         // 在过滤后的列表中查找该物品
         int index = -1;
         for (int i = 0; i < filteredItems.size(); i++) {
@@ -722,14 +722,16 @@ public class RoleIntroduceScreen extends Screen {
             }
         }
 
+        prevRoleTab = activeTabIndex;
+        prevRole = selectedRole;
         if (index >= 0) {
-            prevRoleTab = activeTabIndex;
-            prevRole = selectedRole;
             selectedRole = filteredItems.get(index);
             onSelectionChanged();
-            return true;
+        } else {
+            selectedRole = item;
+            onSelectionChanged();
         }
-        return false;
+        return true;
     }
 
     private class ShopTab implements DetailTab {
@@ -768,11 +770,12 @@ public class RoleIntroduceScreen extends Screen {
             return null;
         }
 
+        // 在 ShopTab 内部
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button,
                 int contentX, int contentY, int contentW, int contentH) {
             if (button != 0)
-                return false; // 只处理左键
+                return false;
             Item item = getItemAt(mouseX, mouseY, contentX, contentY, contentW, contentH);
             if (item != null && navigateToItem(item)) {
                 minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
@@ -827,8 +830,9 @@ public class RoleIntroduceScreen extends Screen {
                     ItemStack stack = entries.get(idx).stack();
                     List<Component> tooltipLines;
                     try {
-                        tooltipLines = stack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player,
-                                TooltipFlag.NORMAL);
+                        TooltipFlag tooltipFlag = minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED
+                                : TooltipFlag.NORMAL;
+                        tooltipLines = stack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player, tooltipFlag);
                     } catch (Exception e) {
                         tooltipLines = List.of(Component.translatable("screen.roleintroduce.error", e.getMessage()));
                     }
@@ -929,6 +933,30 @@ public class RoleIntroduceScreen extends Screen {
                     lines.addAll(font.split(Component.literal(dashes).withStyle(ChatFormatting.DARK_GRAY), textW));
                     lines.addAll(font.split(flagInfoable.getSimpleDescription().copy().withStyle(ChatFormatting.WHITE),
                             textW));
+                } else if (selectedRole instanceof Item item) {
+                    lines.add(FormattedCharSequence.EMPTY);
+                    lines.addAll(font.split(Component.translatable("screen.roleintroduce.detail.simple_description")
+                            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), textW));
+                    lines.addAll(font.split(Component.literal(dashes).withStyle(ChatFormatting.DARK_GRAY), textW));
+                    try {
+
+                        TooltipFlag tooltipFlag = minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED
+                                : TooltipFlag.NORMAL;
+                        var itemStack = item.getDefaultInstance();
+                        var tooltipLines = itemStack.getTooltipLines(Item.TooltipContext.EMPTY, minecraft.player,
+                                tooltipFlag);
+                        for (var l : tooltipLines) {
+                            lines.addAll(
+                                    font.split(l.copy().withStyle(ChatFormatting.WHITE),
+                                            textW));
+                        }
+
+                    } catch (Exception e) {
+                        lines.addAll(font.split(
+                                Component.translatable("screen.roleintroduce.error", e.getMessage())
+                                        .withStyle(ChatFormatting.RED),
+                                textW));
+                    }
                 }
 
                 // 分割线 + 标签
@@ -957,9 +985,10 @@ public class RoleIntroduceScreen extends Screen {
             @Override
             protected void prepareLines() {
                 lines.clear();
-                if (selectedRole != null)
+                if (selectedRole != null) {
                     lines.addAll(font.split(RoleUtils.getRoleOrModifierOrItemDescription(selectedRole).copy()
                             .withStyle(ChatFormatting.WHITE), textW));
+                }
             }
         });
 
@@ -1042,11 +1071,10 @@ public class RoleIntroduceScreen extends Screen {
             public boolean canSwitchTo() {
                 if (prevRole != null) {
                     selectedRole = prevRole;
-                    prevRole = null;
                     if (prevRoleTab >= 0 && prevRoleTab < tabs.size()) {
                         onSelectionChanged(prevRoleTab);
                     }
-                    prevRoleTab = -1;
+                    clearPrevStatus();
                 }
                 return false;
             }
@@ -1652,8 +1680,9 @@ public class RoleIntroduceScreen extends Screen {
                                     && SREClient.gameComponent.getRole(minecraft.player) != null) {
                                 refreshFilter(clickedMode);
                             }
-                        } else if (currentMode != clickedMode)
+                        } else if (currentMode != clickedMode) {
                             refreshFilter(clickedMode);
+                        }
                         setFocusArea(FocusArea.MODE_BUTTONS);
                         return true;
                     }
@@ -1669,9 +1698,8 @@ public class RoleIntroduceScreen extends Screen {
                                 .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
                         refreshFilter();
                         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
+                            clearPrevStatus();
                             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
-                            prevRole = null;
-                            prevRoleTab = -1;
                             onSelectionChanged();
                         }
                     }
@@ -1718,8 +1746,7 @@ public class RoleIntroduceScreen extends Screen {
                     int cardY = areaY + i * (CARD_H + CARD_SPACING) - listScrollOffset;
                     if (isInRect((int) mx, (int) my, areaX, cardY, areaW, CARD_H)) {
                         selectedRole = filteredItems.get(i);
-                        prevRole = null;
-                        prevRoleTab = -1;
+                        clearPrevStatus();
                         onSelectionChanged();
                         this.minecraft.getSoundManager()
                                 .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
@@ -1797,13 +1824,12 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     public void refreshFilter(IntroductionGameMode clickedMode) {
+        clearPrevStatus();
         currentMode = clickedMode;
         listScrollOffset = 0;
         refreshFilter();
         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
-            prevRole = null;
-            prevRoleTab = -1;
             onSelectionChanged();
         }
     }
@@ -1910,9 +1936,8 @@ public class RoleIntroduceScreen extends Screen {
             int idx = filteredItems.indexOf(selectedRole) + (keyCode == 265 ? -1 : 1);
             idx = Mth.clamp(idx, 0, filteredItems.size() - 1);
             if (idx >= 0 && idx < filteredItems.size()) {
+                clearPrevStatus();
                 selectedRole = filteredItems.get(idx);
-                prevRole = null;
-                prevRoleTab = -1;
                 onSelectionChanged();
                 int cardY = idx * (CARD_H + CARD_SPACING);
                 if (cardY < listScrollOffset)
@@ -1944,9 +1969,8 @@ public class RoleIntroduceScreen extends Screen {
                     listScrollOffset = 0;
                     refreshFilter();
                     if (selectedRole != null && !filteredItems.contains(selectedRole)) {
+                        clearPrevStatus();
                         selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
-                        prevRole = null;
-                        prevRoleTab = -1;
                         onSelectionChanged();
                     }
                 }
