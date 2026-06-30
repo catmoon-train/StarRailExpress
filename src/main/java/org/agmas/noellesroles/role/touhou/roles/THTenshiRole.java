@@ -29,7 +29,6 @@ public class THTenshiRole extends TouhouRole {
                 return false;
             }
         });
-        SHOP.add(new ShopEntry(ModItems.FLARE.getDefaultInstance(), 90, ShopEntry.Type.TOOL));
     }
 
     public THTenshiRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,

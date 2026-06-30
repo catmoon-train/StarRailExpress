@@ -1407,6 +1407,10 @@ public class ModEventsRegister {
         });
         DropRules.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
+            if (mainHandItem.is(ModItems.NEWSPAPER)) {
+                if (mainHandItem.has(DataComponents.WRITTEN_BOOK_CONTENT))
+                    return true;
+            }
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.isRole(player, RedHouseRoles.BAKA)) {
                 if (mainHandItem.is(FunnyItems.PROBLEM_SET)) {
@@ -2457,7 +2461,6 @@ public class ModEventsRegister {
         });
         DropRules.canDropItem.addAll(List.of(
                 "exposure:stacked_photographs",
-                "noellesroles:newspaper",
                 "exposure:album",
                 "exposure:photograph",
                 "noellesroles:mint_candies",
