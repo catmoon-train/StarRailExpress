@@ -31,12 +31,13 @@ import java.util.UUID;
 /**
  * 大侦探（平民阵营）。
  *
- * <p>开局自带"推理之书"。对着尸体右键发动推理技能：
+ * <p>
+ * 开局自带"推理之书"。对着尸体右键发动推理技能：
  * <ul>
- *     <li>若尸体没有凶手（如坠车/中毒等无击杀者死亡），无法推敲；</li>
- *     <li>一具尸体只能使用一次技能；</li>
- *     <li>成功触发后，随机获得该凶手的一条线索（修饰符 / 凶器大类 / 具体职业 /
- *         名字中的 2-3 个字 / 所在房间），写入推理之书（若身上没有则补发一本）。</li>
+ * <li>若尸体没有凶手（如坠车/中毒等无击杀者死亡），无法推敲；</li>
+ * <li>一具尸体只能使用一次技能；</li>
+ * <li>成功触发后，随机获得该凶手的一条线索（修饰符 / 凶器大类 / 具体职业 /
+ * 名字中的 2-3 个字 / 所在房间），写入推理之书（若身上没有则补发一本）。</li>
  * </ul>
  * 推理之书每页对应一名凶手，线索 >= 3 条时可点击"目标情况"查明其与自己的距离（快照）。
  */
@@ -50,7 +51,7 @@ public class GreatDetectiveRole extends NormalRole {
     @Override
     public List<ItemStack> getDefaultItems() {
         List<ItemStack> items = new ArrayList<>(super.getDefaultItems());
-//        items.add(new ItemStack(ModItems.DEDUCTION_BOOK));
+        // items.add(new ItemStack(ModItems.DEDUCTION_BOOK));
         return items;
     }
 
@@ -85,10 +86,13 @@ public class GreatDetectiveRole extends NormalRole {
                     true);
             return InteractionResult.SUCCESS;
         }
+        comp.enterCooldown();
+        comp.markCorpseUsed(corpseUuid);
 
-        // 无凶手无法推敲（不消耗这具尸体的使用次数）
+        // 无凶手无法推敲，但进入CD
         UUID killerUuid = body.getKillerUuid();
         if (killerUuid == null) {
+            comp.sync();
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.great_detective.no_killer")
                             .withStyle(ChatFormatting.GRAY),
@@ -99,7 +103,6 @@ public class GreatDetectiveRole extends NormalRole {
         List<DetectiveClue> candidates = buildCandidates(serverPlayer, gameWorld, killerUuid, body);
         candidates.removeIf(c -> comp.hasClue(killerUuid, c));
         if (candidates.isEmpty()) {
-            comp.markCorpseUsed(corpseUuid);
             comp.sync();
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.great_detective.no_new_clue")
@@ -110,7 +113,6 @@ public class GreatDetectiveRole extends NormalRole {
 
         DetectiveClue chosen = candidates.get(level.getRandom().nextInt(candidates.size()));
         comp.addClue(killerUuid, chosen);
-        comp.markCorpseUsed(corpseUuid);
         comp.sync();
         ensureBook(serverPlayer);
 
@@ -165,7 +167,7 @@ public class GreatDetectiveRole extends NormalRole {
         return list;
     }
 
-    /** 从名字中随机取一个 2-3 个字的片段。 */
+    /** 从名字中随机取一个 1 个字的片段。 */
     private static String pickNameFragment(String name, RandomSource random) {
         if (name == null) {
             return null;
@@ -174,10 +176,10 @@ public class GreatDetectiveRole extends NormalRole {
         if (name.isEmpty()) {
             return null;
         }
-        if (name.length() <= 3) {
+        if (name.length() <= 1) {
             return name;
         }
-        int len = 2 + random.nextInt(2); // 2 或 3
+        int len = 1;
         int start = random.nextInt(name.length() - len + 1);
         return name.substring(start, start + len);
     }

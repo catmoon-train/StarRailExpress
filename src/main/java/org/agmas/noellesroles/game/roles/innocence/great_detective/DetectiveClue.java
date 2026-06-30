@@ -19,7 +19,7 @@ public record DetectiveClue(ClueType type, String value) {
         WEAPON,
         /** 具体职业（value = 职业 ResourceLocation 字符串）。 */
         ROLE,
-        /** 名字中带有的 2-3 个字（value = 名字片段字面量）。 */
+        /** 名字中带有的 1 个字（value = 名字片段字面量）。 */
         NAME,
         /** 凶手所在房间/车厢（value = 房间号）。 */
         ROOM;

@@ -12,6 +12,8 @@ import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,18 +28,21 @@ import java.util.UUID;
 /**
  * 大侦探（平民阵营）玩家组件。
  *
- * <p>仅同步给玩家自己。存储：
+ * <p>
+ * 仅同步给玩家自己。存储：
  * <ul>
- *     <li>已经使用过推理技能的尸体（实体 UUID，一具尸体只能用一次）；</li>
- *     <li>每名凶手（UUID）已掌握的线索列表（保持插入顺序，对应推理之书的页顺序）；</li>
- *     <li>每名凶手触发"目标情况"时记录的距离快照（格，缺失=未触发，-1=无法定位，触发后冻结）。</li>
+ * <li>已经使用过推理技能的尸体（实体 UUID，一具尸体只能用一次）；</li>
+ * <li>每名凶手（UUID）已掌握的线索列表（保持插入顺序，对应推理之书的页顺序）；</li>
+ * <li>每名凶手触发"目标情况"时记录的距离快照（格，缺失=未触发，-1=无法定位，触发后冻结）。</li>
  * </ul>
  */
-public class GreatDetectivePlayerComponent implements RoleComponent {
+public class GreatDetectivePlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
     public static final ComponentKey<GreatDetectivePlayerComponent> KEY = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "great_detective"),
             GreatDetectivePlayerComponent.class);
+
+    private static final int COOLDOWN_TIME = 20 * 30;
 
     private final Player player;
 
@@ -47,6 +52,7 @@ public class GreatDetectivePlayerComponent implements RoleComponent {
     public final LinkedHashMap<UUID, List<DetectiveClue>> clues = new LinkedHashMap<>();
     /** 凶手 UUID -> 触发"目标情况"时的距离快照（格）。 */
     public final HashMap<UUID, Integer> revealedDistance = new HashMap<>();
+    private int cooldown = 0;
 
     public GreatDetectivePlayerComponent(Player player) {
         this.player = player;
@@ -71,12 +77,14 @@ public class GreatDetectivePlayerComponent implements RoleComponent {
         usedCorpses.clear();
         clues.clear();
         revealedDistance.clear();
+        cooldown = 0;
         sync();
     }
 
     @Override
     public void clear() {
         init();
+        cooldown = 0;
     }
 
     public boolean hasUsedCorpse(UUID corpseUuid) {
@@ -136,6 +144,9 @@ public class GreatDetectivePlayerComponent implements RoleComponent {
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (cooldown > 0) {
+            tag.putInt("cd", cooldown);
+        }
         ListTag used = new ListTag();
         for (UUID u : usedCorpses) {
             CompoundTag t = new CompoundTag();
@@ -164,6 +175,11 @@ public class GreatDetectivePlayerComponent implements RoleComponent {
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (tag.contains("cd")) {
+            cooldown = tag.getInt("cd");
+        } else {
+            cooldown = 0;
+        }
         usedCorpses.clear();
         clues.clear();
         revealedDistance.clear();
@@ -199,5 +215,26 @@ public class GreatDetectivePlayerComponent implements RoleComponent {
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void clientTick() {
+        if (this.cooldown > 1) {
+            this.cooldown--;
+        }
+    }
+
+    @Override
+    public void serverTick() {
+        if (this.cooldown > 0) {
+            this.cooldown--;
+            if (this.cooldown % 200 == 0 || this.cooldown == 0) {
+                sync();
+            }
+        }
+    }
+
+    public void enterCooldown() {
+        this.cooldown = COOLDOWN_TIME;
     }
 }
