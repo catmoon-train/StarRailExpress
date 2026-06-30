@@ -3,8 +3,9 @@ package io.wifi.starrailexpress.index;
 import net.minecraft.world.item.Item;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 public interface TMMDescItems {
-   public static HashSet<Item> introItems = new HashSet<>();
+   public static HashSet<Item> introItems = new LinkedHashSet<>();
    public static void register(){
         introItems.add(TMMItems.BAT);
         introItems.add(TMMItems.KNIFE);
