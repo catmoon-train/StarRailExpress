@@ -1,22 +1,18 @@
 package org.agmas.noellesroles.init;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
-import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.api.impl.KnifeChargeableItem;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.index.DevItems;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.index.TMMItems;
 import static io.wifi.starrailexpress.index.TMMItems.*;
-import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
@@ -26,7 +22,6 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.content.item.charge_item.*;
 import org.agmas.noellesroles.utils.LocalDateData;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1053,9 +1048,6 @@ public class ModItems {
             "scarlet_perception_sword", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
     public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
-    public static List<ShopEntry> POISONER_SHOP_ENTRIES = new ArrayList<>();
-    public static List<ShopEntry> BANDIT_SHOP_ENTRIES = new ArrayList<>();
-
     static {
         var examplerPsychoLore = new ItemLore(
                 List.of(Component.translatable("itemstack.exampler.psychoitem.item_lore.1"),
@@ -1161,86 +1153,6 @@ public class ModItems {
         ITEM_COOLDOWNS.put(ModItems.SHORT_SHOTGUN, getInTicks(30, 0));
         ITEM_COOLDOWNS.put(TMMItems.SCORPION, getInTicks(0, 35));
         ITEM_COOLDOWNS.put(ModItems.CATALYST, getInTicks(0, 75));
-        // 毒药/80（3 点耐久，购买补满，第二次购买半价——与杀手刀一致）
-        ModItems.POISONER_SHOP_ENTRIES.add(new ToxinShopEntry(80));
-        // 毒药瓶/50
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 50,
-                        ShopEntry.Type.POISON));
-        // 马桶毒药/40
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(ModItems.TOILET_POISON.getDefaultInstance(), 40,
-                        ShopEntry.Type.POISON));
-        // 毒蝎子/15
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.SCORPION.getDefaultInstance(), 15, ShopEntry.Type.POISON));
-        // 催化剂/100
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(ModItems.CATALYST.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-        // 假药丸/20
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(ModItems.createPillStack(true), 20, ShopEntry.Type.TOOL));
-        // 氯气弹/275
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(ModItems.CHLORINE_BOMB.getDefaultInstance(), 275,
-                        ShopEntry.Type.POISON));
-        // 毒气瓶/215
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(ModItems.POISON_GAS_TANK.getDefaultInstance(), 215,
-                        ShopEntry.Type.POISON));
-        // 爆竹/10
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
-        // 便签/10
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));
-        // 撬棍/35
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
-        // 开锁器/100
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-        // 黑暗降临/100
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
-                    public boolean onBuy(@NotNull Player player) {
-                        return SREPlayerShopComponent.useBlackout(player);
-                    }
-                });
-        // 监控失灵/100
-        ModItems.POISONER_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 100,
-                        ShopEntry.Type.TOOL) {
-                    public boolean onBuy(@NotNull Player player) {
-                        return SREPlayerShopComponent.useMonitorBroken(player,
-                                SREConfig.instance().monitorBrokenDuration * 20);
-                    }
-                });
-
-        ModItems.BANDIT_SHOP_ENTRIES
-                .add(new ShopEntry(ModItems.BANDIT_REVOLVER.getDefaultInstance(), 175,
-                        ShopEntry.Type.WEAPON));
-        ModItems.BANDIT_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 250, ShopEntry.Type.WEAPON));
-        ModItems.BANDIT_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), 350, ShopEntry.Type.WEAPON));
-        ModItems.BANDIT_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.SCORPION.getDefaultInstance(), 40, ShopEntry.Type.POISON));
-        ModItems.BANDIT_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 20, ShopEntry.Type.TOOL));
-        ModItems.BANDIT_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
-        ModItems.BANDIT_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), 200, ShopEntry.Type.TOOL));
-        ModItems.BANDIT_SHOP_ENTRIES
-                .add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
-                        (int) (SREConfig.instance().blackoutPrice * 1.275), ShopEntry.Type.TOOL) {
-                    public boolean onBuy(@NotNull Player player) {
-                        return SREPlayerShopComponent.useBlackout(player);
-                    }
-                });
-        ModItems.BANDIT_SHOP_ENTRIES
-                .add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));
         DevItems.init();
     }
 
