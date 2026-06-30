@@ -22,6 +22,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.component.ModComponents;
@@ -50,7 +51,6 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     private final Player player;
 
-    public int cooldown = 0;
     /** 已占卜过的尸体 UUID。 */
     private final Set<UUID> divinedCorpses = new HashSet<>();
     /** 是否已发放开局晶球。 */
@@ -72,7 +72,6 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void init() {
-        this.cooldown = 0;
         this.divinedCorpses.clear();
         this.gaveItem = false;
         sync();
@@ -96,9 +95,9 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
             return;
         }
         NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
-        if (cooldown > 0) {
+        if (sp.getCooldowns().isOnCooldown(ModItems.CRYSTAL_BALL)) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.cooldown",
-                    (cooldown + 19) / 20).withStyle(ChatFormatting.RED), true);
+                    (getCrystalBallCooldownTicks(sp) + 19) / 20).withStyle(ChatFormatting.RED), true);
             return;
         }
 
@@ -117,7 +116,7 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
             if (gw.isRole(tp, ModRoles.INSANE_KILLER) && InsaneKillerPlayerComponent.KEY.get(tp).isActive) {
                 // 视为亡语杀手用刀刺死了自己（强制死亡，绕过濒死转化）
                 GameUtils.killPlayer(tp, true, tp, GameConstants.DeathReasons.KNIFE, true);
-                setCooldown(cfg);
+                setCooldown(sp, cfg);
                 castFx(sp);
                 sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.insane_killer")
                         .withStyle(ChatFormatting.DARK_RED), false);
@@ -141,7 +140,7 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
                 return;
             }
             divinedCorpses.add(bodyId);
-            setCooldown(cfg);
+            setCooldown(sp, cfg);
 
             ResourceLocation roleId = body.getComponent().playerRole;
             FactionInfo faction = factionOf(roleId);
@@ -199,9 +198,14 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
         return Component.translatable("message.noellesroles.diviner.unknown");
     }
 
-    private void setCooldown(NoellesRolesConfig cfg) {
-        this.cooldown = GameConstants.getInTicks(0, cfg.divinerCooldown);
-        sync();
+    private void setCooldown(ServerPlayer sp, NoellesRolesConfig cfg) {
+        sp.getCooldowns().addCooldown(ModItems.CRYSTAL_BALL, GameConstants.getInTicks(0, cfg.divinerCooldown));
+    }
+
+    private int getCrystalBallCooldownTicks(ServerPlayer sp) {
+        ItemCooldowns cooldowns = sp.getCooldowns();
+        ItemCooldowns.CooldownInstance cooldown = cooldowns.cooldowns.get(ModItems.CRYSTAL_BALL);
+        return cooldown == null ? 0 : Math.max(0, cooldown.endTime - cooldowns.tickCount);
     }
 
     private void castFx(ServerPlayer sp) {
@@ -223,12 +227,6 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (!gw.isRunning() || !gw.isRole(sp, ModRoles.DIVINER)) {
             return;
         }
-        if (cooldown > 0) {
-            cooldown--;
-            if (cooldown % 200 == 0 || cooldown == 0) {
-                sync();
-            }
-        }
         if (!gaveItem && GameUtils.isPlayerAliveAndSurvival(sp)) {
             sp.addItem(ModItems.CRYSTAL_BALL.getDefaultInstance().copy());
             gaveItem = true;
@@ -242,12 +240,10 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("cooldown", this.cooldown);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.cooldown = tag.getInt("cooldown");
     }
 
     @Override

@@ -3,7 +3,9 @@ package org.agmas.noellesroles.content.entity;
 import java.util.List;
 
 import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModSceneBlocks;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -94,6 +96,10 @@ public class MovingPlatformEntity extends Entity {
         if (this.level().isClientSide) {
             return;
         }
+        if (!hasBaseBlock()) {
+            this.discard();
+            return;
+        }
 
         this.progress += this.speed * (this.forward ? 1 : -1);
         if (this.progress >= this.distance) {
@@ -121,5 +127,10 @@ public class MovingPlatformEntity extends Entity {
                 rider.setPos(rider.getX() + delta.x, rider.getY(), rider.getZ() + delta.z);
             }
         }
+    }
+
+    private boolean hasBaseBlock() {
+        BlockPos basePos = BlockPos.containing(this.homeX, this.homeY - 1.0, this.homeZ);
+        return this.level().getBlockState(basePos).is(ModSceneBlocks.MOVING_PLATFORM);
     }
 }
