@@ -303,6 +303,9 @@ public class RoleInitialItems {
         // 警卫初始物品（无开局物品）
         INITIAL_ITEMS_MAP.put(ModRoles.SHERIFF, new ArrayList<>());
 
+        // 鬼眼·杨间 初始物品（无开局物品；完成两个任务后才获得左轮手枪）
+        INITIAL_ITEMS_MAP.put(ModRoles.GHOST_EYE, new ArrayList<>());
+
         // 广播员初始物品 - 对讲机
         List<Supplier<ItemStack>> broadcasterItems = new ArrayList<>();
         broadcasterItems.add(() -> ModItems.RADIO.getDefaultInstance());

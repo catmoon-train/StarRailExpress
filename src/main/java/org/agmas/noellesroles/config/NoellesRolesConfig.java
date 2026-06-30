@@ -362,6 +362,26 @@ public class NoellesRolesConfig implements ConfigData {
      */
     public int jadeGeneralStunSeconds = 2;
 
+    /**
+     * Ghost Eye / 杨间 (鬼眼·杨间) - Passive scan interval in seconds
+     */
+    public int ghostEyeScanInterval = 16;
+
+    /**
+     * Ghost Eye - Domain (诡域) skill cooldown in seconds
+     */
+    public int ghostEyeDomainCooldown = 70;
+
+    /**
+     * Ghost Eye - Domain duration in seconds
+     */
+    public int ghostEyeDomainDuration = 6;
+
+    /**
+     * Ghost Eye - Domain radius in blocks
+     */
+    public int ghostEyeDomainRadius = 12;
+
 
 
     // ==================== Diviner (占卜家) ====================

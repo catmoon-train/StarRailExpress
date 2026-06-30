@@ -1,6 +1,8 @@
 {
   "info.screen.roleid.custom_pending": "请按下G选择你的职业",
   "info.screen.roleid.custom_pending.simple": "按技能键选择职业",
+  "info.screen.roleid.ghost_eye": "警长阵营\n完成两个任务后获得左轮手枪；在获得左轮手枪之前阵亡，会在死亡位置掉落一把左轮手枪。\n被动·鬼眼：每隔16秒自动扫描周身20格范围，短暂(2秒)以白色直觉显示范围内所有玩家的轮廓。\n主动·诡域(冷却70秒)：在脚下展开半径12格、持续6秒的领域。领域内所有人移速降低(缓慢II)；领域内的杀手无法开启透视；除你之外的所有人陷入失明与黑暗。",
+  "info.screen.roleid.ghost_eye.simple": "警长阵营\n每16秒扫描周身20格，短暂高亮所有玩家。\n技能展开诡域：范围内减速，杀手无法透视，除你外全部失明黑暗。",
   "info.screen.roleid.hide_and_seek_seeker": "请寻找地图里的躲藏者。",
   "info.screen.roleid.hide_and_seek_seeker.simple": "寻找地图里的躲藏者",
   "info.screen.roleid.discovery_civilian": "平民阵营\n特殊模式专用职业。",

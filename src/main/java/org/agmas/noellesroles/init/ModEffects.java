@@ -306,6 +306,15 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8A6BFF));
 
     /**
+     * 诡域标记（鬼眼·杨间）。
+     * - 有害效果，幽蓝色
+     * - 标记处于诡域内的玩家；拥有此效果的玩家无法开启杀手透视
+     *   （客户端拦截见 {@code org.agmas.noellesroles.mixin.client.InstinctMixin}）。
+     */
+    public static final Holder<MobEffect> EERIE_DOMAIN = register("eerie_domain",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6A5ACD));
+
+    /**
      * 注册药水效果到注册表
      */
 

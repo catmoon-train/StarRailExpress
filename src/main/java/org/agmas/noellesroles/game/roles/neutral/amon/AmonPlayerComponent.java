@@ -78,8 +78,10 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
     public static final int INCUBATION_TICKS = 90 * 20;
     /** 终幕「寻找阿蒙」持续时间：80 秒。 */
     public static final int FINALE_TICKS = 80 * 20;
-    /** 种植半径：4 格。 */
-    private static final double PLANT_RADIUS_SQR = 4.0 * 4.0;
+    /** 种植半径：15 格。 */
+    private static final double PLANT_RADIUS_SQR = 15.0 * 15.0;
+    /** 夺舍半径：15 格（玩家主动夺舍时，目标须在此范围内）。 */
+    private static final double USURP_RADIUS_SQR = 15.0 * 15.0;
     /** 食物/饮料标签（noellesroles:food_drink），用于窃取豁免。 */
     private static final TagKey<net.minecraft.world.item.Item> FOOD_DRINK_TAG = TagKey.create(
             Registries.ITEM, ResourceLocation.fromNamespaceAndPath("noellesroles", "food_drink"));
@@ -296,6 +298,12 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         if (!(hostPlayer instanceof ServerPlayer host) || !GameUtils.isPlayerAliveAndSurvival(host)) {
             maturedHosts.remove(targetUuid);
             sync();
+            return false;
+        }
+        // 夺舍距离限制：目标须在 15 格以内。
+        if (amon.distanceToSqr(host) > USURP_RADIUS_SQR) {
+            amon.displayClientMessage(Component.translatable("message.noellesroles.amon.usurp_too_far")
+                    .withStyle(ChatFormatting.RED), true);
             return false;
         }
         // 记录本体位置（完成夺舍时在此生成阿蒙自己的尸体）。

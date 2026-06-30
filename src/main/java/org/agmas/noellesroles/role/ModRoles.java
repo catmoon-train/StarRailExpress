@@ -156,6 +156,8 @@ public class ModRoles {
     public static ResourceLocation CORONER_ID = Noellesroles.id("coroner");
     public static ResourceLocation PATROLLER_ID = Noellesroles.id("patroller");
     public static final ResourceLocation SHERIFF_ID = Noellesroles.id("sheriff");
+    // 鬼眼·杨间角色 ID - 警长阵营
+    public static final ResourceLocation GHOST_EYE_ID = Noellesroles.id("ghost_eye");
     public static final ResourceLocation LEON_ID = Noellesroles.id("leon");
     public static final ResourceLocation GLITCH_ROBOT_ID = Noellesroles.id("glitch_robot");
     public static final ResourceLocation AVENGER_ID = Noellesroles.id("avenger");
@@ -737,8 +739,81 @@ public class ModRoles {
                     sheriffTaskCounts.remove(player.getUUID());
                     sheriffHasReceivedRevolver.remove(player.getUUID());
                 }
+
+                @Override
+                public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer,
+                        net.minecraft.resources.ResourceLocation deathReason) {
+                    // 未解锁左轮手枪前死亡：在死亡位置掉落一把左轮手枪
+                    dropUnearnedRevolverOnDeath(victim, sheriffHasReceivedRevolver);
+                    super.onDeath(victim, spawnBody, killer, deathReason);
+                }
             })
             .setVigilanteTeam(true).setCanPickUpRevolver(true).setCanAutoAddMoney(true);
+
+    /**
+     * 鬼眼·杨间（警长阵营）。完成两个任务后获得左轮手枪。
+     * - 被动·鬼眼：每隔 16 秒自动扫描周身 20 格，短暂（2 秒）以白色直觉显示所有玩家轮廓。
+     * - 主动·诡域（冷却 70 秒）：在脚下展开半径 12 格、持续 6 秒的领域。领域内所有人减速（缓慢 II）；
+     *   领域内杀手无法开启透视；除杨间外所有人失明并陷入黑暗。
+     */
+    public static SRERole GHOST_EYE = TMMRoles.registerRole(
+            new NormalRole(GHOST_EYE_ID, new Color(132, 196, 200).getRGB(),
+                    true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
+                private final java.util.Map<java.util.UUID, Integer> taskCounts = new java.util.HashMap<>();
+                private final java.util.Set<java.util.UUID> hasReceivedRevolver = new java.util.HashSet<>();
+
+                @Override
+                public void onFinishQuest(Player player, String quest) {
+                    java.util.UUID playerUuid = player.getUUID();
+                    // 如果已经获得过左轮手枪，不再处理
+                    if (hasReceivedRevolver.contains(playerUuid))
+                        return;
+                    int count = taskCounts.getOrDefault(playerUuid, 0) + 1;
+                    taskCounts.put(playerUuid, count);
+                    if (count >= 2) {
+                        hasReceivedRevolver.add(playerUuid);
+                        player.addItem(io.wifi.starrailexpress.index.TMMItems.REVOLVER
+                                .getDefaultInstance().copy());
+                        player.displayClientMessage(
+                                net.minecraft.network.chat.Component.translatable(
+                                        "message.noellesroles.ghost_eye.revolver_received")
+                                        .withStyle(net.minecraft.ChatFormatting.GOLD),
+                                true);
+                    }
+                }
+
+                @Override
+                public void onInit(net.minecraft.server.MinecraftServer server, ServerPlayer player) {
+                    // 每局开始时重置任务计数
+                    taskCounts.remove(player.getUUID());
+                    hasReceivedRevolver.remove(player.getUUID());
+                }
+
+                @Override
+                public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer,
+                        net.minecraft.resources.ResourceLocation deathReason) {
+                    // 未解锁左轮手枪前死亡：在死亡位置掉落一把左轮手枪
+                    dropUnearnedRevolverOnDeath(victim, hasReceivedRevolver);
+                    super.onDeath(victim, spawnBody, killer, deathReason);
+                }
+            })
+            .setVigilanteTeam(true).setCanPickUpRevolver(true).setCanAutoAddMoney(true)
+            .setComponentKey(ModComponents.GHOST_EYE)
+            .setDefaultMax(1).setDefaultEnableChance(7000).setDefaultEnableNeededPlayerCount(8);
+
+    /**
+     * 警长 / 鬼眼·杨间 共用：在尚未通过完成两个任务解锁左轮手枪、且身上也没有左轮手枪时死亡，
+     * 于死亡位置掉落一把左轮手枪。
+     */
+    private static void dropUnearnedRevolverOnDeath(Player victim, java.util.Set<java.util.UUID> received) {
+        if (!(victim instanceof ServerPlayer sp)) return;
+        if (received.contains(sp.getUUID())) return;
+        for (ItemStack stack : sp.getInventory().items) {
+            if (stack.is(io.wifi.starrailexpress.index.TMMItems.REVOLVER)) return;
+        }
+        sp.drop(io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance().copy(), false);
+    }
 
     public static SRERole WIND_YAOSE = TMMRoles.registerRole(
             new ExtraEffectRole(WIND_YAOSE_ID, new Color(127, 231, 255).getRGB(),

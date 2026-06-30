@@ -16,6 +16,7 @@ import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.roles.innocence.jade_general.JadeGeneralPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
@@ -224,6 +225,20 @@ public class AbilityHandler {
                 abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
                         NoellesRolesConfig.HANDLER.instance().jadeGeneralKickCooldown);
                 abilityPlayerComponent.sync();
+            }
+            return;
+        }
+        if (gameWorldComponent.isRole(player, ModRoles.GHOST_EYE)
+                && abilityPlayerComponent.cooldown <= 0) {
+            GhostEyePlayerComponent ghostEye = ModComponents.GHOST_EYE.get(player);
+            if (ghostEye.deployDomain()) {
+                abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
+                        NoellesRolesConfig.HANDLER.instance().ghostEyeDomainCooldown);
+                abilityPlayerComponent.sync();
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.ghost_eye.domain_deployed")
+                                .withStyle(ChatFormatting.DARK_AQUA),
+                        true);
             }
             return;
         }

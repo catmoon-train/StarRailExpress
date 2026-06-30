@@ -29,6 +29,7 @@ public class OtherRolesRegister {
         MagicianHud.register();
         MonitorHud.register();
         MorphlingHud.register();
+        GhostEyeHud.register();
         SilencerHud.register();
         NostalgistHud.register();
         NianShouHud.register();

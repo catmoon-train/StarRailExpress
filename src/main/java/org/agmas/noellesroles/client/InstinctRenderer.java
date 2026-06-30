@@ -43,6 +43,7 @@ import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
@@ -67,6 +68,19 @@ public class InstinctRenderer {
             if (!(target instanceof Player) || !hasInstinct || Minecraft.getInstance().player == null || SREClient.gameComponent == null) return -1;
             var self = Minecraft.getInstance().player;
             if (!SREClient.gameComponent.isRole(self, ModRoles.RAVEN) || !ModComponents.RAVEN.get(self).isHunting()) return -1;
+            return Color.WHITE.getRGB();
+        });
+        // 鬼眼·杨间 被动：扫描期间，周身范围内的所有玩家显示白色直觉轮廓
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (!(target instanceof Player targetPlayer) || Minecraft.getInstance().player == null
+                    || SREClient.gameComponent == null) return -1;
+            var self = Minecraft.getInstance().player;
+            if (!SREClient.gameComponent.isRole(self, ModRoles.GHOST_EYE)) return -1;
+            GhostEyePlayerComponent ghostEye = GhostEyePlayerComponent.KEY.get(self);
+            if (ghostEye.revealTicks <= 0) return -1;
+            if (targetPlayer == self || targetPlayer.isSpectator()) return -1;
+            if (targetPlayer.distanceToSqr(self) > GhostEyePlayerComponent.SCAN_RADIUS * GhostEyePlayerComponent.SCAN_RADIUS)
+                return -1;
             return Color.WHITE.getRGB();
         });
         // 鬼祟效果：当目标玩家8格范围内时，禁用杀手直觉高亮

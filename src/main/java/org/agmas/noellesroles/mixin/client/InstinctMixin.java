@@ -48,6 +48,13 @@ public abstract class InstinctMixin {
             cir.cancel();
             return;
         }
+
+        // 鬼眼·杨间 诡域内：禁止开启杀手透视
+        if (player.hasEffect(org.agmas.noellesroles.init.ModEffects.EERIE_DOMAIN)) {
+            cir.setReturnValue(false);
+            cir.cancel();
+            return;
+        }
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent.isRole(player, ModRoles.BETTER_VIGILANTE)) {
             var betterC = BetterVigilantePlayerComponent.KEY.get(player);
