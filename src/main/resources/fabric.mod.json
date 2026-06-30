@@ -230,7 +230,8 @@
       "noellesroles:cake_maker",
       "noellesroles:adventurer",
       "noellesroles:silencer",
-      "noellesroles:diviner"
+      "noellesroles:diviner",
+      "noellesroles:ghost_eye"
     ],
     "loom:injected_interfaces": {
       "net/minecraft/class_5483/class_5496": [
