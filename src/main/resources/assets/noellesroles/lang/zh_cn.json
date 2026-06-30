@@ -180,7 +180,7 @@
   "announcement.star.role.diviner": "占卜家",
   "announcement.star.role.noellesroles.diviner": "占卜家",
   "announcement.star.goals.diviner": "以晶球窥探生死，揭穿伪装的恶徒。",
-  "item.noellesroles.crystal_ball": "晶球",
+  "item.noellesroles.crystal_ball": "水晶球",
   "message.noellesroles.diviner.intro": "§5✦ 占卜家 ✦ §r你获得了§d晶球§r：手持右键对准一具§e尸体§r即可占卜其§b身份§r与§b阵营§r。冷却 %1$s 秒，每具尸体只能占卜一次。",
   "message.noellesroles.diviner.result": "§5✦ 占卜 ✦§r %1$s §7的身份是§r %2$s §8（%3$s§8）",
   "message.noellesroles.diviner.subtitle": "%1$s §8·§r %2$s",

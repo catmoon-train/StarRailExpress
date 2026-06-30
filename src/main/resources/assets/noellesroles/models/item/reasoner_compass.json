@@ -1,3 +1,6 @@
 {
-  "parent": "minecraft:item/compass"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "noellesroles:item/reasoner_compass"
+  }
 }
