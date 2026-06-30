@@ -22,6 +22,14 @@ public class HMLModifiers {
     public static void init() {
     }
 
+    public static SREModifier register(SREModifier modifier) {
+        return registerModifier(modifier);
+    }
+
+    public static SREModifier register(SREModifier modifier, String... flags) {
+        return registerModifier(modifier, flags);
+    }
+
     public static SREModifier registerModifier(SREModifier modifier, String... flags) {
         return registerModifier(modifier.addFlag(flags));
     }
