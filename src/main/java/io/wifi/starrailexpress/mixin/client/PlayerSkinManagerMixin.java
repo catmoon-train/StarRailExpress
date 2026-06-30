@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.concurrent.CompletableFuture;
 
-@Mixin(value = SkinManager.class, priority = 2000)
+@Mixin(value = SkinManager.class, priority = 1)
 public class PlayerSkinManagerMixin {
     @Inject(method = "getOrLoad", at = @At("HEAD"), cancellable = true)
     private void getOrLoad$sre(GameProfile gameProfile, CallbackInfoReturnable<CompletableFuture<PlayerSkin>> cir) {

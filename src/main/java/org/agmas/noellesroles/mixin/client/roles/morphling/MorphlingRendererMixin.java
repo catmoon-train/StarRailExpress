@@ -27,13 +27,11 @@ import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPer
 
 import java.util.UUID;
 
-
 @Mixin(PlayerRenderer.class)
 public abstract class MorphlingRendererMixin {
 
-    @Shadow public abstract ResourceLocation getTextureLocation(AbstractClientPlayer abstractClientPlayerEntity);
-
-
+    @Shadow
+    public abstract ResourceLocation getTextureLocation(AbstractClientPlayer abstractClientPlayerEntity);
 
     @Unique
     private static final ThreadLocal<Boolean> isInMorphingCall = ThreadLocal.withInitial(() -> false);
@@ -61,7 +59,8 @@ public abstract class MorphlingRendererMixin {
     }
 
     @Inject(method = "getTextureLocation(Lnet/minecraft/client/player/AbstractClientPlayer;)Lnet/minecraft/resources/ResourceLocation;", at = @At("HEAD"), cancellable = true)
-    void renderMorphlingSkin(AbstractClientPlayer abstractClientPlayerEntity, CallbackInfoReturnable<ResourceLocation> cir) {
+    void renderMorphlingSkin(AbstractClientPlayer abstractClientPlayerEntity,
+            CallbackInfoReturnable<ResourceLocation> cir) {
         // 防止递归调用
         if (isInMorphingCall.get()) {
             return;
@@ -71,7 +70,8 @@ public abstract class MorphlingRendererMixin {
             isInMorphingCall.set(true);
 
             final var level = abstractClientPlayerEntity.level();
-            if (level == null)return;
+            if (level == null)
+                return;
             final var shuffledTarget = getShuffledTarget(abstractClientPlayerEntity);
             if (shuffledTarget != null) {
                 final var playerInfo = ClientSkinCache.getCachedPlayerInfo(shuffledTarget);
@@ -90,43 +90,46 @@ public abstract class MorphlingRendererMixin {
             var splitPersonalityComponent = SkinSplitPersonalityComponent.KEY.get(abstractClientPlayerEntity);
             if (splitPersonalityComponent != null) {
                 final var skinToAppearAs = splitPersonalityComponent.getSkinToAppearAs();
-                if (skinToAppearAs !=null) {
+                if (skinToAppearAs != null) {
 
-                        final var playerInfo = ClientSkinCache.getCachedPlayerInfo(skinToAppearAs);
-                        if (playerInfo == null) {
-                            return;
-                        }
-                        final var skin = playerInfo.getSkin();
-                        if (skin == null) return;
-                        final var texture = skin.texture();
-                        cir.setReturnValue(texture);
-                        cir.cancel();
+                    final var playerInfo = ClientSkinCache.getCachedPlayerInfo(skinToAppearAs);
+                    if (playerInfo == null) {
+                        return;
+                    }
+                    final var skin = playerInfo.getSkin();
+                    if (skin == null)
+                        return;
+                    final var texture = skin.texture();
+                    cir.setReturnValue(texture);
+                    cir.cancel();
 
                 }
             }
 
-
             final var morphlingPlayerComponent = MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity);
-            if (morphlingPlayerComponent != null && morphlingPlayerComponent.getMorphTicks() > 0 ) {
+            if (morphlingPlayerComponent != null && morphlingPlayerComponent.getMorphTicks() > 0) {
                 final var disguise = (MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity)).disguise;
                 final var playerInfo = ClientSkinCache.getCachedPlayerInfo(disguise);
-                if (playerInfo==null)return;
+                if (playerInfo == null)
+                    return;
                 final var skin = playerInfo.getSkin();
-                if (skin==null)return;
+                if (skin == null)
+                    return;
                 final var texture = skin.texture();
                 if (texture != null) {
                     cir.setReturnValue(texture);
                     cir.cancel();
                 }
-//                if (Minecraft.getInstance().player != null && disguise != null && disguise.equals(Minecraft.getInstance().player.getUUID())) {
-//                    if (Minecraft.getInstance().player != abstractClientPlayerEntity) { // 防止自己伪装成自己导致递归
-//                        cir.setReturnValue(getTextureLocation(Minecraft.getInstance().player));
-//                        cir.cancel();
-//                    }
-//                }
-                        return;
-                    }
-
+                // if (Minecraft.getInstance().player != null && disguise != null &&
+                // disguise.equals(Minecraft.getInstance().player.getUUID())) {
+                // if (Minecraft.getInstance().player != abstractClientPlayerEntity) { //
+                // 防止自己伪装成自己导致递归
+                // cir.setReturnValue(getTextureLocation(Minecraft.getInstance().player));
+                // cir.cancel();
+                // }
+                // }
+                return;
+            }
 
         } finally {
             isInMorphingCall.set(false);
@@ -139,7 +142,8 @@ public abstract class MorphlingRendererMixin {
         try {
             var splitPersonalityComponent = SplitPersonalityComponent.KEY.get(instance);
             final var level = instance.level();
-            if (level == null) return original.call(instance);
+            if (level == null)
+                return original.call(instance);
             if (splitPersonalityComponent != null && !splitPersonalityComponent.isCurrentlyActive()) {
                 UUID mainPersonalityId = splitPersonalityComponent.getMainPersonality();
                 if (mainPersonalityId != null) {
@@ -148,7 +152,8 @@ public abstract class MorphlingRendererMixin {
                         return original.call(instance);
                     }
                     final var skin = playerInfo.getSkin();
-                    if (skin == null) return original.call(instance);
+                    if (skin == null)
+                        return original.call(instance);
                     return skin;
                 }
             }
@@ -182,7 +187,5 @@ public abstract class MorphlingRendererMixin {
         return original.call(instance);
 
     }
-
-
 
 }
