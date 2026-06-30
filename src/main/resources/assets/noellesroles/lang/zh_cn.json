@@ -10,7 +10,7 @@
   "info.screen.role.name.error": "翻译键不存在：%s",
   "info.screen.role.desc.error": "暂无描述。这很可能是一个BUG。请告诉开发者。详细错误信息：\n翻译键不存在：%s",
   "screen.roleintroduce.detail.intro": "简介",
-  "screen.roleintroduce.detail.back_to_role": "返回职业介绍",
+  "screen.roleintroduce.detail.back_to_role": "< 返回职业介绍",
   "screen.roleintroduce.detail.back_to_role.detail": "当前页面点击后返回原有职业介绍。此界面应当不可见。",
   "screen.roleintroduce.detail.misc": "其他信息",
   "screen.roleintroduce.no_misc_info": "暂无其他信息",

@@ -217,6 +217,7 @@ public class RoleIntroduceScreen extends Screen {
     private EditBox searchWidget = null;
     private String searchContent = null;
     private Object prevRole = null;
+    private int prevRoleTab = 0;
 
     public RoleIntroduceScreen() {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
@@ -278,6 +279,7 @@ public class RoleIntroduceScreen extends Screen {
         if (selectedRole == null && !filteredItems.isEmpty())
             selectedRole = filteredItems.get(0);
         prevRole = null;
+        prevRoleTab = -1;
         onSelectionChanged();
         setFocusArea(FocusArea.SEARCH);
     }
@@ -315,6 +317,7 @@ public class RoleIntroduceScreen extends Screen {
                 refreshFilter();
                 selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
                 prevRole = null;
+                prevRoleTab = -1;
                 onSelectionChanged();
             });
         } else {
@@ -719,6 +722,7 @@ public class RoleIntroduceScreen extends Screen {
         }
 
         if (index >= 0) {
+            prevRoleTab = activeTabIndex;
             prevRole = selectedRole;
             selectedRole = filteredItems.get(index);
             onSelectionChanged();
@@ -1020,7 +1024,8 @@ public class RoleIntroduceScreen extends Screen {
 
             @Override
             public Component getTitle() {
-                return Component.translatable("screen.roleintroduce.detail.back_to_role");
+                return Component.translatable("screen.roleintroduce.detail.back_to_role").withStyle(ChatFormatting.BOLD,
+                        ChatFormatting.GREEN);
             }
 
             @Override
@@ -1034,9 +1039,14 @@ public class RoleIntroduceScreen extends Screen {
 
             @Override
             public boolean canSwitchTo() {
-                selectedRole = prevRole;
-                prevRole = null;
-                onSelectionChanged();
+                if (prevRole != null) {
+                    selectedRole = prevRole;
+                    prevRole = null;
+                    if (prevRoleTab >= 0 && prevRoleTab < tabs.size()) {
+                        onSelectionChanged(prevRoleTab);
+                    }
+                    prevRoleTab = -1;
+                }
                 return false;
             }
 
@@ -1050,11 +1060,15 @@ public class RoleIntroduceScreen extends Screen {
         });
     }
 
-    private void onSelectionChanged() {
+    private void onSelectionChanged(int tab) {
         buildTabs();
-        activeTabIndex = 0;
+        activeTabIndex = tab;
         if (!tabs.isEmpty())
             tabs.get(activeTabIndex).onSwitchTo();
+    }
+
+    private void onSelectionChanged() {
+        onSelectionChanged(0);
     }
 
     private static MutableComponent getFlagText(SREAbstractInfoClass flagInfoable) {
@@ -1598,6 +1612,7 @@ public class RoleIntroduceScreen extends Screen {
                         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
                             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
                             prevRole = null;
+                            prevRoleTab = -1;
                             onSelectionChanged();
                         }
                     }
@@ -1645,6 +1660,7 @@ public class RoleIntroduceScreen extends Screen {
                     if (isInRect((int) mx, (int) my, areaX, cardY, areaW, CARD_H)) {
                         selectedRole = filteredItems.get(i);
                         prevRole = null;
+                        prevRoleTab = -1;
                         onSelectionChanged();
                         this.minecraft.getSoundManager()
                                 .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
@@ -1728,6 +1744,7 @@ public class RoleIntroduceScreen extends Screen {
         if (selectedRole != null && !filteredItems.contains(selectedRole)) {
             selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
             prevRole = null;
+            prevRoleTab = -1;
             onSelectionChanged();
         }
     }
@@ -1836,6 +1853,7 @@ public class RoleIntroduceScreen extends Screen {
             if (idx >= 0 && idx < filteredItems.size()) {
                 selectedRole = filteredItems.get(idx);
                 prevRole = null;
+                prevRoleTab = -1;
                 onSelectionChanged();
                 int cardY = idx * (CARD_H + CARD_SPACING);
                 if (cardY < listScrollOffset)
@@ -1869,6 +1887,7 @@ public class RoleIntroduceScreen extends Screen {
                     if (selectedRole != null && !filteredItems.contains(selectedRole)) {
                         selectedRole = filteredItems.isEmpty() ? null : filteredItems.get(0);
                         prevRole = null;
+                        prevRoleTab = -1;
                         onSelectionChanged();
                     }
                 }
