@@ -23,7 +23,7 @@ public class ScarletPerceptionSwordItem extends SwordItem implements LeftClickKi
     }
 
     @Override
-    public void postHurtEnemy(ItemStack itemStack, LivingEntity livingEntity, LivingEntity livingEntity2) {
+    public void postHurtEnemy(ItemStack itemStack, LivingEntity livingEntity, LivingEntity le) {
     }
 
     @Override
