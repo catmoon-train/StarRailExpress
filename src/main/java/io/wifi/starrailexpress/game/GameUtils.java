@@ -116,6 +116,47 @@ public class GameUtils {
         }
     }
 
+    /**
+     * 把玩家传送到一个随机房间（在所有已配置坐标的房间中随机挑选）。
+     * Teleport the player into a random room (chosen among all rooms that have a configured anchor).
+     *
+     * <p>若存在多个可用房间，会尽量避开玩家自己的房间，以保证"随机"确实换了房间；
+     * 没有任何可用房间时退回旁观模式。 / When more than one room is available it avoids the player's own
+     * room so the teleport actually changes rooms; falls back to spectator if no room is configured.
+     */
+    public static void teleportToRandomRoom(Player player) {
+        if (player == null)
+            return;
+
+        var areas = AreasWorldComponent.KEY.get(player.level());
+        if (areas == null)
+            return;
+
+        List<Integer> rooms = new ArrayList<>();
+        for (int room = 1; room <= areas.getRoomCount(); room++) {
+            if (GameUtils.getSpawnPos(areas, room) != null) {
+                rooms.add(room);
+            }
+        }
+        if (rooms.isEmpty()) {
+            if (player instanceof ServerPlayer sp) {
+                sp.setGameMode(GameType.SPECTATOR);
+            }
+            return;
+        }
+
+        // 多于一个房间时排除自己的房间，确保确实传送到了"别的"随机房间。
+        if (rooms.size() > 1) {
+            rooms.remove((Integer) GameUtils.roomToPlayer.getOrDefault(player.getUUID(), 0));
+        }
+
+        int picked = rooms.get(player.getRandom().nextInt(rooms.size()));
+        Vec3 pos = GameUtils.getSpawnPos(areas, picked);
+        if (pos != null) {
+            player.teleportTo(pos.x(), pos.y() + 1, pos.z());
+        }
+    }
+
     public static void recordPlayerStats(ServerLevel serverWorld, SREGameWorldComponent gameComponent,
             ArrayList<ServerPlayer> readyPlayerList) {
         for (ServerPlayer player : readyPlayerList) {

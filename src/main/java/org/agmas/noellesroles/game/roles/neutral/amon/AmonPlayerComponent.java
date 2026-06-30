@@ -458,8 +458,8 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         // 阿蒙抛下原来的躯壳：在旧位置生成阿蒙自己的尸体。
         spawnOwnBody(amon, level, amonOldPos, amonOldYRot);
 
-        // 阿蒙夺舍后回到自己的房间（而非传送到宿主旁边），只顶替宿主外观。
-        GameUtils.teleportBackToRoom(amon);
+        // 阿蒙夺舍后传送到一个随机房间（而非自己的房间或宿主旁边），只顶替宿主外观。
+        GameUtils.teleportToRandomRoom(amon);
         setDisguise(hostUuid);
 
         usurpCount++;
