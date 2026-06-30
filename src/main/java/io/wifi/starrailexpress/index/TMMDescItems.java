@@ -2,9 +2,9 @@ package io.wifi.starrailexpress.index;
 
 import net.minecraft.world.item.Item;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 public interface TMMDescItems {
-   public static ArrayList<Item> introItems = new ArrayList<>();
+   public static HashSet<Item> introItems = new HashSet<>();
    public static void register(){
         introItems.add(TMMItems.BAT);
         introItems.add(TMMItems.KNIFE);
@@ -14,6 +14,9 @@ public interface TMMDescItems {
         introItems.add(TMMItems.DERRINGER);
         introItems.add(TMMItems.FIRECRACKER);
         introItems.add(TMMItems.GRENADE);
+        introItems.add(TMMItems.STANDARD_REVOLVER);
+        introItems.add(TMMItems.STICKY_GRENADE);
+        introItems.add(TMMItems.TIMED_GRENADE);
         introItems.add(TMMItems.IRON_DOOR_KEY);
         introItems.add(TMMItems.KEY);
         introItems.add(TMMItems.LOCKPICK);
