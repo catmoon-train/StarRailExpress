@@ -77,7 +77,13 @@ public class GreatDetectiveRole extends NormalRole {
 
         GreatDetectivePlayerComponent comp = GreatDetectivePlayerComponent.KEY.get(serverPlayer);
         UUID corpseUuid = body.getUUID();
-
+        if (comp.isInCooldown()) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.great_detective.cooldown", comp.getCooldownLeftTime())
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return InteractionResult.FAIL;
+        }
         // 一具尸体只能用一次
         if (comp.hasUsedCorpse(corpseUuid)) {
             serverPlayer.displayClientMessage(

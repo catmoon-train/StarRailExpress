@@ -31,7 +31,7 @@ public class GreatDetectiveHud {
             Font font = client.font;
 
             if (detectiveComponent.isInCooldown()) {
-                long time = detectiveComponent.cooldown - client.level.getGameTime();
+                long time = detectiveComponent.getCooldownLeftTime();
                 // 显示技能冷却
                 float cdSeconds = time / 20;
                 Component cdText = Component.translatable("hud.noellesroles.great_detective.cooldown",

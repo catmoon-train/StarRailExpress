@@ -224,7 +224,7 @@ public class GreatDetectivePlayerComponent implements RoleComponent, ServerTicki
     @Override
     public void clientTick() {
         if (this.cooldown > 0) {
-            if (cooldown >= this.player.level().getGameTime()) {
+            if (cooldown <= this.player.level().getGameTime()) {
                 cooldown = 0;
             }
         }
@@ -241,5 +241,15 @@ public class GreatDetectivePlayerComponent implements RoleComponent, ServerTicki
 
     public void enterCooldown() {
         this.cooldown = this.player.level().getGameTime() + COOLDOWN_TIME;
+    }
+
+    public long getCooldownLeftTime() {
+        if (this.cooldown > 0) {
+            long res = this.cooldown - this.player.level().getGameTime();
+            if (res < 0)
+                res = 0;
+            return res;
+        }
+        return 0;
     }
 }
