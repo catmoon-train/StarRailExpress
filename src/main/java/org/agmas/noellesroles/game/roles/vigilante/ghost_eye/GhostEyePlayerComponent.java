@@ -46,7 +46,7 @@ public class GhostEyePlayerComponent implements RoleComponent, ServerTickingComp
     /** 被动扫描半径（格）。客户端轮廓判定与服务端一致。 */
     public static final int SCAN_RADIUS = 20;
     /** 单次扫描的轮廓显示时长（tick）= 2 秒。 */
-    private static final int REVEAL_TICKS = 40;
+    public static final int REVEAL_TICKS = 40;
     /** 领域内效果每 tick 续期的时长（tick），离开后约 0.5 秒自然消退。 */
     private static final int EFFECT_REFRESH = 10;
 

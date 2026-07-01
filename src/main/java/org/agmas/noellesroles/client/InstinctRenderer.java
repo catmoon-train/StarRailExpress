@@ -25,6 +25,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.item.SignedPaperItem;
 import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
@@ -81,11 +82,10 @@ public class InstinctRenderer {
                     || SREClient.gameComponent == null) return -1;
             var self = Minecraft.getInstance().player;
             if (!SREClient.gameComponent.isRole(self, ModRoles.GHOST_EYE)) return -1;
-            GhostEyePlayerComponent ghostEye = GhostEyePlayerComponent.KEY.get(self);
-            if (ghostEye.revealTicks <= 0) return -1;
+            if (!isGhostEyeScanActive(self)) return -1;
             if (targetPlayer == self || targetPlayer.isSpectator()) return -1;
             if (targetPlayer.distanceToSqr(self) > GhostEyePlayerComponent.SCAN_RADIUS * GhostEyePlayerComponent.SCAN_RADIUS)
-                return -1;
+                return -2;
             return Color.WHITE.getRGB();
         });
         // 鬼祟效果：当目标玩家8格范围内时，禁用杀手直觉高亮
@@ -1107,6 +1107,15 @@ public class InstinctRenderer {
         if (target_role == null)
             return TMMRoles.CIVILIAN.color();
         return target_role.color();
+    }
+
+    private static boolean isGhostEyeScanActive(Player self) {
+        if (self == null || self.level() == null) {
+            return false;
+        }
+        int intervalTicks = Math.max(GhostEyePlayerComponent.REVEAL_TICKS,
+                GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().ghostEyeScanInterval));
+        return self.level().getGameTime() % intervalTicks < GhostEyePlayerComponent.REVEAL_TICKS;
     }
 
     private static boolean isKillerTeam(SRERole role) {
