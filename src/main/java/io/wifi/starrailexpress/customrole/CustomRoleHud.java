@@ -19,14 +19,20 @@ public class CustomRoleHud {
     public static void register() {
         CommonHudRenderCallback.EVENT.register((guiGraphics, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
-            if (client.player == null) return;
-            if (SREClient.gameComponent == null) return;
-            if (!SREClient.isPlayerAliveAndInSurvival()) return;
+            if (client.player == null)
+                return;
+            if (SREClient.gameComponent == null)
+                return;
+            if (!SREClient.isPlayerAliveAndInSurvival())
+                return;
 
             // 判断当前玩家是否为启用了技能的自定义职业
             var role = SREClient.getCachedPlayerRole();
-            if (role == null || !"customrole".equals(role.identifier().getNamespace())) return;
-            if (!RoleSkill.isRegistered(role)) return; // enableAbility=false 的角色不会注册技能
+            if (role == null || !"customrole".equals(role.identifier().getNamespace())
+                    || !(role instanceof CustomNormalRole))
+                return;
+            if (!RoleSkill.isRegistered(role))
+                return; // enableAbility=false 的角色不会注册技能
 
             SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(client.player);
             int cooldownTicks = ability.cooldown;
@@ -44,7 +50,7 @@ public class CustomRoleHud {
             } else {
                 double seconds = cooldownTicks / 20.0;
                 Component cooldownText = Component.translatable("hud.sre.custom_role.skill_cooldown",
-                    String.format("%.1f", seconds));
+                        String.format("%.1f", seconds));
                 guiGraphics.drawString(font, cooldownText, x - font.width(cooldownText), y, 0xFF5555);
             }
         });

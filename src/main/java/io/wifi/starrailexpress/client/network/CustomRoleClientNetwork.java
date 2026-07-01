@@ -2,6 +2,8 @@ package io.wifi.starrailexpress.client.network;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import io.wifi.starrailexpress.customrole.CustomNormalRole;
 import io.wifi.starrailexpress.customrole.CustomRoleData;
 import io.wifi.starrailexpress.network.CustomRoleSyncPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -88,7 +90,8 @@ public class CustomRoleClientNetwork {
             // 清理组装状态
             assemblingChunks.clear();
 
-            if (fullJson.isEmpty()) return;
+            if (fullJson.isEmpty())
+                return;
 
             lastReceivedHash = hash;
             syncedJson = fullJson;
@@ -170,7 +173,7 @@ public class CustomRoleClientNetwork {
         var roles = io.wifi.starrailexpress.api.TMMRoles.ROLES;
         var toRemove = new ArrayList<net.minecraft.resources.ResourceLocation>();
         for (var entry : roles.entrySet()) {
-            if ("customrole".equals(entry.getKey().getNamespace())) {
+            if (entry.getValue() instanceof CustomNormalRole || "customrole".equals(entry.getKey().getNamespace())) {
                 toRemove.add(entry.getKey());
             }
         }
@@ -180,7 +183,8 @@ public class CustomRoleClientNetwork {
         var itemsMap = org.agmas.noellesroles.init.RoleInitialItems.INITIAL_ITEMS_MAP;
         var toRemoveItems = new ArrayList<io.wifi.starrailexpress.api.SRERole>();
         for (var entry : itemsMap.entrySet()) {
-            if ("customrole".equals(entry.getKey().identifier().getNamespace())) {
+            if (entry.getKey() instanceof CustomNormalRole
+                    || "customrole".equals(entry.getKey().identifier().getNamespace())) {
                 toRemoveItems.add(entry.getKey());
             }
         }
