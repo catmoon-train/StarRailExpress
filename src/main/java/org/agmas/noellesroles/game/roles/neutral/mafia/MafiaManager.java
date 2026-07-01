@@ -4,7 +4,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
-import io.wifi.starrailexpress.event.OnPlayerKilledPlayer;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnRevolverUsed;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -42,7 +42,7 @@ public final class MafiaManager {
                 consumeBullet(player);
             }
         });
-        OnPlayerKilledPlayer.EVENT.register((victim, killer, reason) -> {
+        OnPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
             if (killer instanceof ServerPlayer sp) {
                 if (isGodfather(sp)) {
                     SREPlayerShopComponent.KEY.get(sp).addToBalance(50);
