@@ -3344,5 +3344,6 @@
   "message.noellesroles.reasoner.unavailable": "You cannot use the compass right now.",
   "message.noellesroles.reasoner.already_solved": "You have already solved this question.",
   "message.noellesroles.reasoner.shop.time_not_ready": "The compass has not yet manifested. 2 minutes must pass first.",
-  "message.noellesroles.reasoner.shop.already_has_compass": "You already have a compass."
+  "message.noellesroles.reasoner.shop.already_has_compass": "You already have a compass.",
+  "cmd.config.noellesroles.spawn.info": "\n※ %s %s 的生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s"
 }

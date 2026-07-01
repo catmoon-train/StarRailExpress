@@ -58,7 +58,7 @@ public class SEModifiers {
             null,
             false,
             false))
-            .setDefaultEnableChance(1000)
+            .setDefaultEnableChance(500)
             .setDefaultEnableNeededPlayerCount(12).setHidden(true);
 
     public static SREModifier TINY = HMLModifiers.registerModifier(new SREModifier(

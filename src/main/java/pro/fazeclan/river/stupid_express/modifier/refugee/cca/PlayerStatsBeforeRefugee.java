@@ -12,6 +12,8 @@ import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import org.agmas.noellesroles.role.BounsRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
+
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
@@ -21,7 +23,6 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
 import java.util.function.Consumer;
 
@@ -60,12 +61,18 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         player.getInventory().load(playerStats.inventory());
         // 棒球员的球棒是职业自带武器，亡命徒恢复时不清除
         if (!SREGameWorldComponent.KEY.get(player.level()).isRole(player, BounsRoles.BASEBALL_PLAYER)) {
-            StupidRoleUtils.clearAllSatisfiedItems(player, TMMItems.BAT);
+            RoleUtils.clearAllSatisfiedItems(player, TMMItems.BAT);
         }
+        player.setSwimming(false);
+        player.stopRiding();
+        player.stopFallFlying();
+        player.stopSleeping();
+        player.stopUsingItem();
+        player.setShiftKeyDown(false);
         player.setCamera(player);
 
         SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
-        
+
         bartenderPlayerComponent.armor = playerStats.shieldAmount;
         if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), role);

@@ -238,11 +238,12 @@ public class SREMurderGameMode extends GameMode {
             if (SREDisableManager.isModifierDisabled(mod)) {
                 continue;
             }
-
             // 名单只决定修饰符是否启用（上面的过滤），数量始终沿用 MODIFIER_MAX，名单不再接管数量。
             int m_max = Harpymodloader.MODIFIER_MAX.getOrDefault(mod.identifier(), 1);
             int targetAssignments = specificDesiredRoleCount;
-            if (m_max != -1) {
+            if (m_max == -1 || m_max == 0)
+                continue;
+            if (m_max != -2) {
                 targetAssignments = Math.min(targetAssignments, m_max);
             }
             if (playersAssigned >= targetAssignments) {

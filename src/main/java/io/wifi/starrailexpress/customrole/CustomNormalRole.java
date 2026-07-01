@@ -95,8 +95,16 @@ public class CustomNormalRole extends ExtraEffectRole {
         return getDescription();
     }
 
-    
+    @Override
     public boolean hasSimpleDescription() {
         return true;
+    }
+
+    @Override
+    public Component getGoal() {
+        var cd = CustomRoleLoader.getCustomRoleData(this.identifier().getPath());
+        if (cd != null && !cd.goals.isEmpty())
+            return Component.literal(cd.goals);
+        return super.getGoal();
     }
 }

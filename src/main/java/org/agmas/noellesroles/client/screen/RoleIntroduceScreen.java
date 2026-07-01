@@ -31,7 +31,6 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
-import io.wifi.starrailexpress.customrole.CustomNormalRole;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -651,7 +650,7 @@ public class RoleIntroduceScreen extends Screen {
 
             int curY = y - scrollOffset;
             curY = drawGroup(g, x, y, h, curY, w, occupationRoles,
-                    Component.translatable("screen.roleintroduce.related.related").withStyle(ChatFormatting.BOLD,
+                    Component.translatable("screen.roleintroduce.related.occupation").withStyle(ChatFormatting.BOLD,
                             ChatFormatting.GOLD),
                     mouseX, mouseY);
             curY = drawGroup(g, x, y, h, curY, w, oppositeRoles,
@@ -681,7 +680,7 @@ public class RoleIntroduceScreen extends Screen {
                 return y;
 
             if (y + TITLE_H > contentY && y < contentY + contentH) {
-                g.drawString(font, title, contentX + 2, y, 0xFFFFFF);
+                g.drawString(font, title, contentX + 2, y + GAP + TITLE_H / 2 - font.lineHeight / 2, 0xFFFFFF);
             }
             y += TITLE_H + GAP;
 
@@ -1165,20 +1164,7 @@ public class RoleIntroduceScreen extends Screen {
                 // 目标
                 lines.add(FormattedCharSequence.EMPTY);
                 if (selectedRole instanceof SRERole role) {
-                    var rid = role.identifier();
-                    String path = rid.getPath();
-                    String goalKey = "announcement.star.goals." + path;
-                    if (selectedRole instanceof CustomNormalRole) {
-                        var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(path);
-                        if (cd == null)
-                            cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(path);
-                        if (cd != null && !cd.goals.isEmpty())
-                            lines.addAll(font.split(Component.literal(cd.goals), textW));
-                        else
-                            lines.addAll(font.split(Component.translatable(goalKey), textW));
-                    } else {
-                        lines.addAll(font.split(Component.translatable(goalKey), textW));
-                    }
+                    lines.addAll(font.split(role.getGoal(), textW));
                 } else if (selectedRole instanceof Item it) {
                     lines.addAll(font.split(it.getDescription(), textW));
                 } else if (selectedRole instanceof SREModifier mod) {
@@ -1307,6 +1293,7 @@ public class RoleIntroduceScreen extends Screen {
                             font.split(Component.translatable(settingsKey).withStyle(ChatFormatting.WHITE), textW));
             }
         });
+        tabs.add(new RelatedObjectTab());
         // 返回
         tabs.add(new AbstractTextTab() {
             @Override
@@ -1352,7 +1339,6 @@ public class RoleIntroduceScreen extends Screen {
                                 .withStyle(ChatFormatting.WHITE), textW));
             }
         });
-        tabs.add(new RelatedObjectTab());
     }
 
     private void onSelectionChanged(int tab) {

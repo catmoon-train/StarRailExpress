@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -186,21 +187,25 @@ public class CustomRoleLoader {
             }
         } catch (Exception ignored) {
         }
-        // 客户端回退：尝试从本地 config 目录（网络同步写入的）
-        try {
-            var cfg = CustomRoleConfig.loadFromDefaultPath();
-            var found = cfg.findRole(englishId);
-            if (found != null)
-                return found;
-        } catch (Exception ignored) {
+
+        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            // 客户端回退：尝试从本地 config 目录（网络同步写入的）
+            try {
+                var cfg = CustomRoleConfig.loadFromDefaultPath();
+                var found = cfg.findRole(englishId);
+                if (found != null)
+                    return found;
+            } catch (Exception ignored) {
+            }
+            // 最终回退：尝试从客户端内存中的网络同步数据
+            try {
+                var cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(englishId);
+                if (cd != null)
+                    return cd;
+            } catch (Throwable ignored) {
+            }
         }
-        // 最终回退：尝试从客户端内存中的网络同步数据
-        try {
-            var cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(englishId);
-            if (cd != null)
-                return cd;
-        } catch (Throwable ignored) {
-        }
+
         return null;
     }
 

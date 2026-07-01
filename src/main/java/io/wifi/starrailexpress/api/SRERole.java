@@ -96,6 +96,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole clearOccupationRole() {
         for (var i : occupationRoles) {
             removeOccupationRole(i);
+            i.removeRelatedRole(this);
         }
         return this;
     }
@@ -109,6 +110,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole removeOccupationRole(SRERole... role) {
         for (var i : role) {
             this.occupationRoles.remove(i);
+            i.removeRelatedRole(this);
+
         }
         return this;
     }
@@ -122,6 +125,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole addOccupationRoleOnce(SRERole... role) {
         for (var i : role) {
             this.occupationRoles.add(i);
+            i.addRelatedRole(this);
         }
         // 去重。
         occupationRoles = new ArrayList<>(new LinkedHashSet<>(occupationRoles));
@@ -137,6 +141,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole addOccupationRole(SRERole... role) {
         for (var i : role) {
             this.occupationRoles.add(i);
+            i.addRelatedRole(this);
         }
         return this;
     }
@@ -1308,5 +1313,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public ArrayList<SRERole> getoccupationRoles() {
         return new ArrayList<>(this.occupationRoles);
+    }
+
+    public Component getGoal() {
+        return Component.translatable("announcement.star.goals." + this.identifier().getPath());
     }
 }

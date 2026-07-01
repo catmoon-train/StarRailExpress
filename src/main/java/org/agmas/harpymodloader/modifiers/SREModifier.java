@@ -33,7 +33,7 @@ public class SREModifier extends SREAbstractInfoClass {
     public boolean notVigilante;
     public Consumer<ServerPlayer> serverTickEvent = null;
     public Consumer<Player> clientTickEvent = null;
-    public int defaultMaxCount = -1;
+    public int defaultMaxCount = 1;
     public SpawnInfo spawnInfo = new SpawnInfo();
     public int defaultEnableChance = 10000;
     public int defaultNeedPlayerCount = 6;
@@ -206,7 +206,7 @@ public class SREModifier extends SREAbstractInfoClass {
     /**
      * 在启用的状态下，默认的最大分配数量。
      * 
-     * @param count 最大数量
+     * @param count 最大数量。-2代表不限制
      * @return
      */
     public SREModifier setDefaultMax(int count) {
@@ -347,7 +347,7 @@ public class SREModifier extends SREAbstractInfoClass {
      */
     public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players, String mapName) {
-        if (defaultMaxCount == -1)
+        if (spawnInfo.maxSpawn == -1)
             return -1;
         // 优先使用 spawnInfo（来自用户配置），若未设置则不回退。如果要设置默认的请设置canSetSpawnInfoInConfig为false
         int chance = this.spawnInfo.enableChance;

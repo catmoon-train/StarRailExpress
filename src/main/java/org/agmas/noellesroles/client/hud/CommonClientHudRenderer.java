@@ -102,7 +102,7 @@ public class CommonClientHudRenderer {
         LobbyPlayersRenderer.renderHud(font, player, guiGraphics);
       }
       {
-        RoundTextRenderer.renderHud(font, player, guiGraphics, deltaTracker.getRealtimeDeltaTicks());
+        RoundTextRenderer.renderHud(font, client, player, guiGraphics, deltaTracker.getRealtimeDeltaTicks());
       }
       {
         TimeRenderer.renderHud(font, player, guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
@@ -188,7 +188,7 @@ public class CommonClientHudRenderer {
           c.accept(guiGraphics, deltaTracker);
         });
       }
-      
+
       SRERole role = SREClient.getCachedPlayerRole();
       if (role == null)
         return;
@@ -214,7 +214,6 @@ public class CommonClientHudRenderer {
         }
       }
     });
-
 
   }
 
@@ -650,8 +649,8 @@ public class CommonClientHudRenderer {
       int infectedTimeColor;
       try {
         // 尝试获取加速状态
-        java.lang.reflect.Method isAcceleratedMethod = 
-            org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.class.getMethod("isAccelerated");
+        java.lang.reflect.Method isAcceleratedMethod = org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.class
+            .getMethod("isAccelerated");
         boolean isAccelerated = (boolean) isAcceleratedMethod.invoke(null);
         if (isAccelerated) {
           infectedTimeText = Component.translatable("gui.noellesroles.infected.time.unlocked")
@@ -667,12 +666,13 @@ public class CommonClientHudRenderer {
             .withStyle(ChatFormatting.GRAY);
         infectedTimeColor = 0x888888;
       }
-      context.drawString(font, infectedTimeText, x - font.width(infectedTimeText), y - font.lineHeight - 2, infectedTimeColor);
+      context.drawString(font, infectedTimeText, x - font.width(infectedTimeText), y - font.lineHeight - 2,
+          infectedTimeColor);
 
       // 剩余感染次数
       if (abilityComponent.maxCharges > 0) {
         Component chargesText = Component.translatable("gui.noellesroles.infected.charges",
-                abilityComponent.charges, abilityComponent.maxCharges)
+            abilityComponent.charges, abilityComponent.maxCharges)
             .withStyle(ChatFormatting.AQUA);
         context.drawString(font, chargesText, x - font.width(chargesText), y - font.lineHeight * 2 - 4, 0x55FFFF);
       }
@@ -1086,7 +1086,8 @@ public class CommonClientHudRenderer {
     RoleHudRenderCallback.EVENT.register(ModRoles.JADE_GENERAL_ID, (guiGraphics, deltaTracker) -> {
       // 渲染玉将军的飞踢技能状态
       var client = Minecraft.getInstance();
-      if (client.player == null) return;
+      if (client.player == null)
+        return;
       var ability = SREAbilityPlayerComponent.KEY.get(client.player);
       int screenWidth = guiGraphics.guiWidth();
       int screenHeight = guiGraphics.guiHeight();
@@ -1663,7 +1664,8 @@ public class CommonClientHudRenderer {
         if (shadowFalconComponent.temporaryShield > 0) {
           var shieldStatusText = Component.translatable("hud.noellesroles.shadow_falcon.shield_active")
               .withStyle(ChatFormatting.GREEN);
-          guiGraphics.drawString(font, shieldStatusText, xOffset - font.width(shieldStatusText), dy, Color.WHITE.getRGB());
+          guiGraphics.drawString(font, shieldStatusText, xOffset - font.width(shieldStatusText), dy,
+              Color.WHITE.getRGB());
         }
       } else if (shadowFalconComponent.cooldown > 0) {
         // 冷却中
@@ -1683,11 +1685,14 @@ public class CommonClientHudRenderer {
     // 葬仪 HUD - 当前模式 | 技能冷却 | 造尸冷却 | 拖动状态
     RoleHudRenderCallback.EVENT.register(ModRoles.MORTICIAN_BODYMAKER_ID, (guiGraphics, tickCounter) -> {
       var client = Minecraft.getInstance();
-      if (client.player == null) return;
-      if (!SREClient.isPlayerAliveAndInSurvival()) return;
+      if (client.player == null)
+        return;
+      if (!SREClient.isPlayerAliveAndInSurvival())
+        return;
 
       var morticianComponent = ModComponents.MORTICIAN_BODYMAKER.get(client.player);
-      if (morticianComponent == null) return;
+      if (morticianComponent == null)
+        return;
 
       var font = client.font;
       int yOffset = guiGraphics.guiHeight() - 10 - font.lineHeight;
@@ -1695,9 +1700,12 @@ public class CommonClientHudRenderer {
 
       Component modeLabel = Component.translatable("message.noellesroles.mortician_bodymaker.current_mode");
       Component modeText = switch (morticianComponent.currentMode) {
-        case 0 -> Component.translatable("hud.noellesroles.mortician_bodymaker.mode.drag").withStyle(ChatFormatting.GOLD);
-        case 1 -> Component.translatable("hud.noellesroles.mortician_bodymaker.mode.funeral").withStyle(ChatFormatting.RED);
-        case 2 -> Component.translatable("hud.noellesroles.mortician_bodymaker.mode.clean").withStyle(ChatFormatting.AQUA);
+        case 0 ->
+          Component.translatable("hud.noellesroles.mortician_bodymaker.mode.drag").withStyle(ChatFormatting.GOLD);
+        case 1 ->
+          Component.translatable("hud.noellesroles.mortician_bodymaker.mode.funeral").withStyle(ChatFormatting.RED);
+        case 2 ->
+          Component.translatable("hud.noellesroles.mortician_bodymaker.mode.clean").withStyle(ChatFormatting.AQUA);
         default -> Component.empty();
       };
       Component fullModeText = modeLabel.copy().append(modeText);
@@ -1706,13 +1714,15 @@ public class CommonClientHudRenderer {
       if (morticianComponent.cooldown > 0) {
         yOffset -= font.lineHeight + 4;
         int secondsLeft = (morticianComponent.cooldown + 19) / 20;
-        var ct = Component.translatable("hud.noellesroles.mortician_bodymaker.skill_cooldown", secondsLeft).withStyle(ChatFormatting.RED);
+        var ct = Component.translatable("hud.noellesroles.mortician_bodymaker.skill_cooldown", secondsLeft)
+            .withStyle(ChatFormatting.RED);
         guiGraphics.drawString(font, ct, xOffset - font.width(ct), yOffset, 0xFFFFFF);
       }
       if (morticianComponent.bodyCreationCooldown > 0) {
         yOffset -= font.lineHeight + 4;
         int secondsLeft = (morticianComponent.bodyCreationCooldown + 19) / 20;
-        var ct = Component.translatable("hud.noellesroles.mortician_bodymaker.create_cooldown", secondsLeft).withStyle(ChatFormatting.DARK_PURPLE);
+        var ct = Component.translatable("hud.noellesroles.mortician_bodymaker.create_cooldown", secondsLeft)
+            .withStyle(ChatFormatting.DARK_PURPLE);
         guiGraphics.drawString(font, ct, xOffset - font.width(ct), yOffset, 0xFFFFFF);
       }
       if (morticianComponent.draggedBodyUuid != null) {

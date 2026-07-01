@@ -633,4 +633,18 @@ public class RoleUtils extends MCItemsUtils {
             return false;
         return SRERoleWorldComponent.KEY.get(player.level()).isRole(player, role);
     }
+
+    public static MutableComponent getRoleGoal(SRERole role) {
+        return role.getGoal().copy();
+    }
+
+    public static Component getRoleNameWithColor(ResourceLocation id) {
+        if (id == null)
+            return null;
+        SRERole role = TMMRoles.ROLES.getOrDefault(id, null);
+        if (role == null) {
+            return Component.translatable("announcement.star.role." + id.getPath());
+        }
+        return role.getName().copy().withColor(role.color());
+    }
 }

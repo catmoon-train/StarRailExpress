@@ -2,11 +2,10 @@ package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
-import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
+
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +42,10 @@ public class RoleAnnouncementTexts {
             registerRoleAnnouncementText(roleId, new RoleAnnouncementText(roleId, role.getColor()));
         }
     }
+    public static final RoleAnnouncementText DEFAULT = registerRoleAnnouncementText(
+            ResourceLocation.fromNamespaceAndPath("starrailexpress", "inner_blank"),
+            new RoleAnnouncementText(
+                    ResourceLocation.fromNamespaceAndPath("starrailexpress", "inner_blank"), 0x36E51B));
 
     public static class RoleAnnouncementText {
         public ResourceLocation getId() {
@@ -55,47 +58,70 @@ public class RoleAnnouncementTexts {
         private final ResourceLocation id;
         public final int colour;
         public final Component roleText;
-        public final Component titleText;
         public final Component welcomeText;
         public final Function<Integer, Component> premiseText;
         public final Function<Integer, Component> goalText;
         public final Component winText;
 
+        public RoleAnnouncementText(ResourceLocation id) {
+            // 用于滚木
+            this.id = id;
+            this.colour = 0xffffff;
+            this.roleText = Component.translatable("announcement.star.inner_blank");
+            this.welcomeText = Component.translatable("announcement.star.welcome", this.roleText).withColor(0xF0F0F0);
+            this.premiseText = (count) -> Component.translatable(
+                    count == 1 ? "announcement.star.premise" : "announcement.star.premises", count);
+            this.winText = Component
+                    .translatable("announcement.star.win." + this.id.getPath().toLowerCase())
+                    .withColor(this.colour);
+            this.goalText =(count)-> Component.translatable("announcement.star.goals.inner_blank").withColor(this.colour);
+        }
+
         public RoleAnnouncementText(ResourceLocation id, int colour) {
             this.id = id;
             this.colour = colour;
             // 检查自定义职业
-            if (id.getNamespace().equals("customrole")) {
-                var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(id.getPath());
-                // 服务端不可用时，回退到客户端网络同步的数据
-                if (cd == null) {
-                    cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(id.getPath());
+            var r = TMMRoles.getRole(id);
+            if (r == null) {
+                if (id.getNamespace().equals("customrole")) {
+                    var cd = io.wifi.starrailexpress.customrole.CustomRoleLoader.getCustomRoleData(id.getPath());
+                    // 服务端不可用时，回退到客户端网络同步的数据
+                    if (cd == null) {
+                        cd = io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.getSyncedRole(id.getPath());
+                    }
+                    if (cd != null && !cd.displayName.isEmpty()) {
+                        this.roleText = Component.literal(cd.displayName).withColor(this.colour);
+                        String goals = cd.goals.isEmpty() ? cd.description : cd.goals;
+                        this.goalText = (count) -> Component.literal(goals).withColor(this.colour);
+                        this.welcomeText = Component.translatable("announcement.star.welcome", this.roleText)
+                                .withColor(0xF0F0F0);
+                        this.premiseText = (count) -> Component.translatable(
+                                count == 1 ? "announcement.star.premise" : "announcement.star.premises", count);
+                        this.winText = Component
+                                .translatable("announcement.star.win." + this.id.getPath().toLowerCase())
+                                .withColor(this.colour);
+                        return;
+                    }
                 }
-                if (cd != null && !cd.displayName.isEmpty()) {
-                    this.roleText = Component.literal(cd.displayName).withColor(this.colour);
-                    String goals = cd.goals.isEmpty() ? cd.description : cd.goals;
-                    this.goalText = (count) -> Component.literal(goals).withColor(this.colour);
-                    this.welcomeText = Component.translatable("announcement.star.welcome", this.roleText).withColor(0xF0F0F0);
-                    this.titleText = Component.translatable("announcement.star.title." + this.id.getPath().toLowerCase()).withColor(this.colour);
-                    this.premiseText = (count) -> Component.translatable(count == 1 ? "announcement.star.premise" : "announcement.star.premises", count);
-                    this.winText = Component.translatable("announcement.star.win." + this.id.getPath().toLowerCase()).withColor(this.colour);
-                    return;
-                }
+                this.roleText = RoleUtils.getRoleNameWithColor(id);
+                this.welcomeText = Component.translatable("announcement.star.welcome", this.roleText)
+                        .withColor(0xF0F0F0);
+                this.premiseText = (count) -> Component
+                        .translatable(count == 1 ? "announcement.star.premise" : "announcement.star.premises", count);
+                this.goalText = (count) -> Component.translatable("announcement.star.goals." + id.getPath())
+                        .withColor(this.colour);
+                this.winText = Component.translatable("announcement.star.win." + this.id.getPath())
+                        .withColor(this.colour);
+                return;
             }
-            this.roleText = Component.translatable("announcement.star.role." + this.id.getPath().toLowerCase())
-                    .withColor(this.colour);
-            this.titleText = Component.translatable("announcement.star.title." + this.id.getPath().toLowerCase())
-                    .withColor(this.colour);
+
+            this.roleText = RoleUtils.getRoleNameWithColor(id);
             this.welcomeText = Component.translatable("announcement.star.welcome", this.roleText).withColor(0xF0F0F0);
             this.premiseText = (count) -> Component
                     .translatable(count == 1 ? "announcement.star.premise" : "announcement.star.premises", count);
-            this.goalText = (count) -> Component
-                    .translatable(
-                            (count == 1 ? "announcement.star.goals." : "announcement.star.goals.")
-                                    + this.id.getPath().toLowerCase(),
-                            count)
+            this.goalText = (count) -> r.getGoal().copy()
                     .withColor(this.colour);
-            this.winText = Component.translatable("announcement.star.win." + this.id.getPath().toLowerCase())
+            this.winText = Component.translatable("announcement.star.win." + this.id.getPath())
                     .withColor(this.colour);
         }
 
@@ -115,42 +141,6 @@ public class RoleAnnouncementTexts {
                 RoleAnnouncementText killerText = ROLE_ANNOUNCEMENT_TEXTS.get(killerRoleId);
                 return killerText != null ? killerText.winText : Component.literal("Killers Win!").withColor(0xFF0000);
             }
-        }
-
-        public @Nullable Component getEndText(GameUtils.@NotNull WinStatus status, Component winner,
-                SREGameRoundEndComponent roundEnd) {
-            return switch (status) {
-                case NONE -> null;
-                case PASSENGERS, TIME -> this.id.getPath().equals("killer") ? this.getLoseText() : this.winText;
-                case KILLERS -> this.id.getPath().equals("killer") ? this.winText : this.getLoseText();
-                case GAMBLER ->
-                    Component.translatable("announcement.star.win.gambler", winner)
-                            .withColor(new Color(128, 0, 128).getRGB());
-                case RECORDER ->
-                    Component.translatable("announcement.star.win.recorder", winner)
-                            .withColor(new Color(128, 128, 128).getRGB());
-                case NIAN_SHOU ->
-                    Component.translatable("announcement.star.win.nianshou", winner)
-                            .withColor(new Color(255, 69, 0).getRGB());
-                case LOVERS ->
-                    Component.translatable("announcement.star.win.lovers", winner)
-                            .withColor(new Color(243, 138, 255).getRGB());
-                case LOOSE_END -> {
-                    ResourceLocation looseEndRoleId = ResourceLocation.fromNamespaceAndPath("starrailexpress",
-                            "loose_end");
-                    RoleAnnouncementText looseEndText = ROLE_ANNOUNCEMENT_TEXTS.get(looseEndRoleId);
-                    int looseEndColor = looseEndText != null ? looseEndText.colour : 0x9F0000;
-                    yield Component.translatable("announcement.star.win.loose_end", winner).withColor(looseEndColor);
-                }
-                case NO_PLAYER ->
-                    Component.translatable("announcement.star.win.noplayer", winner).withColor(Color.LIGHT_GRAY.getRGB());
-                case CUSTOM ->
-                    Component.translatable("announcement.star.win." + roundEnd.CustomWinnerID, winner)
-                            .withColor(roundEnd.CustomWinnerColor);
-                case CUSTOM_COMPONENT ->
-                    Component.literal("").withColor(roundEnd.CustomWinnerColor).append(roundEnd.CustomWinnerTitle);
-                default -> Component.translatable("announcement.star.win.unknown", winner).withColor(Color.ORANGE.getRGB());
-            };
         }
     }
 
@@ -174,37 +164,14 @@ public class RoleAnnouncementTexts {
         return ROLE_ANNOUNCEMENT_TEXTS.get(ResourceLocation.tryParse(roleId));
     }
 
-    // 保留原有的静态常量访问方法以兼容旧代码
-    public static final RoleAnnouncementText BLANK = new RoleAnnouncementText("", 0xFFFFFF);
-    public static final RoleAnnouncementText CIVILIAN = getRoleAnnouncementText(
-            ResourceLocation.fromNamespaceAndPath("starrailexpress", "civilian")) != null
-                    ? getRoleAnnouncementText(ResourceLocation.fromNamespaceAndPath("starrailexpress", "civilian"))
-                    : registerRoleAnnouncementText(
-                            ResourceLocation.fromNamespaceAndPath("starrailexpress", "civilian"),
-                            new RoleAnnouncementText(
-                                    ResourceLocation.fromNamespaceAndPath("starrailexpress", "civilian"), 0x36E51B));
-    public static final RoleAnnouncementText VIGILANTE = getRoleAnnouncementText(
-            ResourceLocation.fromNamespaceAndPath("starrailexpress", "vigilante")) != null
-                    ? getRoleAnnouncementText(ResourceLocation.fromNamespaceAndPath("starrailexpress", "vigilante"))
-                    : registerRoleAnnouncementText(
-                            ResourceLocation.fromNamespaceAndPath("starrailexpress", "vigilante"),
-                            new RoleAnnouncementText(
-                                    ResourceLocation.fromNamespaceAndPath("starrailexpress", "vigilante"),
-                                    Color.CYAN.getRGB()));
-
-    public static final RoleAnnouncementText KILLER = getRoleAnnouncementText(
-            ResourceLocation.fromNamespaceAndPath("starrailexpress", "killer")) != null
-                    ? getRoleAnnouncementText(ResourceLocation.fromNamespaceAndPath("starrailexpress", "killer"))
-                    : registerRoleAnnouncementText(
-                            ResourceLocation.fromNamespaceAndPath("starrailexpress", "killer"),
-                            new RoleAnnouncementText(
-                                    ResourceLocation.fromNamespaceAndPath("starrailexpress", "killer"), 0xC13838));
-    public static final RoleAnnouncementText LOOSE_END = getRoleAnnouncementText(
-            ResourceLocation.fromNamespaceAndPath("starrailexpress", "loose_end")) != null
-                    ? getRoleAnnouncementText(ResourceLocation.fromNamespaceAndPath("starrailexpress", "loose_end"))
-                    : registerRoleAnnouncementText(
-                            ResourceLocation.fromNamespaceAndPath("starrailexpress", "loose_end"),
-                            new RoleAnnouncementText(
-                                    ResourceLocation.fromNamespaceAndPath("starrailexpress", "loose_end"),
-                                    0x9F0000));
+    public static final Component CIVILIAN_TITLE_TEXT = Component.translatable("announcement.star.title.civilian")
+            .withColor(0x36E51B);
+    public static final Component KILLER_TITLE_TEXT = Component.translatable("announcement.star.title.killer")
+            .withColor(0xC13838);
+    public static final Component LOOSE_END_TITLE_TEXT = Component.translatable("announcement.star.title.loose_end")
+            .withColor(0x9F0000);
+    public static final Component NEUTRAL_TITLE_TEXT = Component.translatable("announcement.star.title.neutral")
+            .withColor(Color.YELLOW.getRGB());
+    public static final Component VIGILANTE_TITLE_TEXT = Component.translatable("announcement.star.title.vigilante")
+            .withColor(Color.CYAN.getRGB());
 }

@@ -42,7 +42,7 @@ public class RoundTextRenderer {
     private static final Map<String, Optional<GameProfile>> failCache = new HashMap<>();
     private static final int WELCOME_DURATION = 200 + GameConstants.FADE_TIME * 2;
     private static final int END_DURATION = 200;
-    private static RoleAnnouncementTexts.RoleAnnouncementText role = RoleAnnouncementTexts.CIVILIAN;
+    private static RoleAnnouncementTexts.RoleAnnouncementText roleTexts = RoleAnnouncementTexts.DEFAULT;
     public static int welcomeTime = 0;
     public static int killers = 0;
     public static int targets = 0;
@@ -69,9 +69,10 @@ public class RoundTextRenderer {
     private static boolean lastCanJump = false;
 
     @SuppressWarnings("IntegerDivisionInFloatingPointContext")
-    public static void renderHud(Font renderer, LocalPlayer player, @NotNull FakeGuiGraphics context,
+    public static void renderHud(Font renderer, Minecraft client, LocalPlayer player, @NotNull FakeGuiGraphics context,
             float partialTicks) {
         // Skip rendering entirely if tick hasn't changed - cached text will be replayed
+        if(roleTexts == null) return;
         if (!OptimizedTextRenderer.INSTANCE.isTickDirty()) {
             return;
         }
@@ -90,11 +91,11 @@ public class RoundTextRenderer {
             // 缓存文本和宽度
             if (lastKillers != killers || lastTargets != targets || cachedWelcomeText == null) {
                 cachedWelcomeText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.welcome")
-                        : role.welcomeText;
+                        : roleTexts.welcomeText;
                 cachedPremiseText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.premise")
-                        : role.premiseText.apply(killers);
+                        : roleTexts.premiseText.apply(killers);
                 cachedGoalText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.goal")
-                        : role.goalText.apply(targets);
+                        : roleTexts.goalText.apply(targets);
                 cachedWelcomeWidth = renderer.width(cachedWelcomeText);
                 cachedPremiseWidth = renderer.width(cachedPremiseText);
                 cachedGoalWidth = renderer.width(cachedGoalText);
@@ -153,7 +154,11 @@ public class RoundTextRenderer {
             String winner = null;
             if (game.getLooseEndWinner() != null)
                 winner = SREClientUtils.getPlayerNameByUid(game.getLooseEndWinner());
-            Component endText = role.getEndText(roundEnd.getWinStatus(),
+            SRERole nowMyRole = null;
+            if (SREClient.gameComponent != null) {
+                nowMyRole = SREClient.gameComponent.getRole(player);
+            }
+            Component endText = getEndText(nowMyRole, roundEnd.getWinStatus(),
                     winner == null ? roundEnd.getCustomWinners() : Component.literal(winner), roundEnd);
             if (endText == null)
                 return;
@@ -240,11 +245,11 @@ public class RoundTextRenderer {
                 }
 
                 // 预缓存所有组件和宽度
-                Component neutralTitle = Component.translatable("announcement.star.title.neutral");
-                Component looseEndRole = Component.translatable("announcement.star.role.loose_end");
-                Component civilianTitle = RoleAnnouncementTexts.CIVILIAN.titleText;
-                Component vigilanteTitle = RoleAnnouncementTexts.VIGILANTE.titleText;
-                Component killerTitle = RoleAnnouncementTexts.KILLER.titleText;
+                Component neutralTitle = RoleAnnouncementTexts.NEUTRAL_TITLE_TEXT;
+                Component looseEndRole = RoleAnnouncementTexts.LOOSE_END_TITLE_TEXT;
+                Component civilianTitle = RoleAnnouncementTexts.CIVILIAN_TITLE_TEXT;
+                Component vigilanteTitle = RoleAnnouncementTexts.VIGILANTE_TITLE_TEXT;
+                Component killerTitle = RoleAnnouncementTexts.KILLER_TITLE_TEXT;
 
                 int neutralWidth = getOrCacheWidth(renderer, neutralTitle);
                 int looseEndWidth = getOrCacheWidth(renderer, looseEndRole);
@@ -254,11 +259,11 @@ public class RoundTextRenderer {
 
                 int neutralY = (loose_endsTotal > 1) ? (14 + 16 + 32 * ((loose_endsTotal) / 2)) : 14;
 
-                context.drawString(renderer, neutralTitle, -neutralWidth / 2 - 90, neutralY, Color.YELLOW.getRGB());
+                context.drawString(renderer, neutralTitle, -neutralWidth / 2 - 90, neutralY, 0xffffff);
 
                 if (loose_endsTotal > 1) {
                     context.drawString(renderer, looseEndRole, -looseEndWidth / 2 - 90, 14,
-                            new Color(160, 0, 0).getRGB());
+                            0xffffff);
                 }
 
                 context.drawString(renderer, civilianTitle, -civilianWidth / 2, 14, 0xFFFFFF);
@@ -403,6 +408,50 @@ public class RoundTextRenderer {
 
     }
 
+    private static Component getEndText(SRERole role, WinStatus winStatus, Component winner,
+            SREGameRoundEndComponent roundEnd) {
+        switch (winStatus) {
+            case NONE:
+                return Component.translatable("announcement.star.win.none");
+            case PASSENGERS:
+            case TIME:
+                return Component.translatable("announcement.star.win.passengers", winner)
+                        .withColor(0x36E51B);
+            case KILLERS:
+                return Component.translatable("announcement.star.win.killers", winner)
+                        .withColor(0x5CFF4A);
+            case GAMBLER:
+                return Component.translatable("announcement.star.win.gambler", winner)
+                        .withColor(new Color(128, 0, 128).getRGB());
+            case RECORDER:
+                return Component.translatable("announcement.star.win.recorder", winner)
+                        .withColor(new Color(128, 128, 128).getRGB());
+            case NIAN_SHOU:
+                return Component.translatable("announcement.star.win.nianshou", winner)
+                        .withColor(new Color(255, 69, 0).getRGB());
+            case LOVERS:
+                return Component.translatable("announcement.star.win.lovers", winner)
+                        .withColor(new Color(243, 138, 255).getRGB());
+            case LOOSE_END: {
+                int looseEndColor = 0x9F0000;
+                return Component.translatable("announcement.star.win.loose_end", winner).withColor(looseEndColor);
+            }
+            case NO_PLAYER:
+                return Component.translatable("announcement.star.win.noplayer", winner)
+                        .withColor(Color.LIGHT_GRAY.getRGB());
+            case CUSTOM:
+                return Component.translatable("announcement.star.win." + roundEnd.CustomWinnerID, winner)
+                        .withColor(roundEnd.CustomWinnerColor);
+            case CUSTOM_COMPONENT:
+                return Component.literal("")
+                        .withColor(roundEnd.CustomWinnerColor)
+                        .append(roundEnd.CustomWinnerTitle);
+            default:
+                return Component.translatable("announcement.star.win.unknown", winner)
+                        .withColor(Color.ORANGE.getRGB());
+        }
+    }
+
     // 宽度缓存辅助方法
     private static int getOrCacheWidth(Font renderer, Component text) {
         return textWidthCache.computeIfAbsent(text, t -> renderer.width(t));
@@ -491,7 +540,7 @@ public class RoundTextRenderer {
     }
 
     public static void startWelcome(RoleAnnouncementTexts.RoleAnnouncementText role, int killers, int targets) {
-        RoundTextRenderer.role = role;
+        RoundTextRenderer.roleTexts = role;
         welcomeTime = WELCOME_DURATION;
         RoundTextRenderer.killers = killers;
         RoundTextRenderer.targets = targets;
