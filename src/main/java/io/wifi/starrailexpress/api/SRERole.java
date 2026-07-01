@@ -31,6 +31,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +40,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -81,7 +83,174 @@ public abstract class SRERole extends SREAbstractInfoClass {
     private int occupiedRoleCount = 1;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
+
+    public HashSet<SREModifier> relatedModifiers = new HashSet<>();
+    public HashSet<SRERole> relatedRoles = new HashSet<>();
+    public ArrayList<SRERole> occupationRoles = new ArrayList<>();
     public HashSet<SRERole> opposingJobs = new HashSet<>();
+
+    /**
+     * 删除关联职业
+     * 
+     * @param role
+     * @return
+     */
+    public SRERole clearOccupationRole() {
+        for (var i : occupationRoles) {
+            removeOccupationRole(i);
+        }
+        return this;
+    }
+
+    /**
+     * 删除关联职业
+     * 
+     * @param role
+     * @return
+     */
+    public SRERole removeOccupationRole(SRERole... role) {
+        for (var i : role) {
+            this.occupationRoles.remove(i);
+        }
+        this.removeRelatedRole(role);
+        return this;
+    }
+
+    /**
+     * 添加关联职业
+     * 
+     * @param role
+     * @return
+     */
+    public SRERole addOccupationRoleOnce(SRERole... role) {
+        for (var i : role) {
+            this.occupationRoles.add(i);
+        }
+        // 去重。
+        occupationRoles = new ArrayList<>(new LinkedHashSet<>(occupationRoles));
+        this.addRelatedRole(role);
+        return this;
+    }
+
+    /**
+     * 添加关联职业
+     * 
+     * @param role
+     * @return
+     */
+    public SRERole addOccupationRole(SRERole... role) {
+        for (var i : role) {
+            this.occupationRoles.add(i);
+        }
+        this.addRelatedRole(role);
+        return this;
+    }
+
+    /**
+     * 添加与此相关的职业。用于职业介绍。
+     * @return
+     */
+    public SRERole addRelatedRole(SRERole... role) {
+        for (var i : role) {
+            if (i != null)
+                this.relatedRoles.add(i);
+        }
+        return this;
+    }
+
+    /**
+     * 获取与此相关的职业。用于职业介绍。
+     * 
+     * @return
+     */
+    public Set<SRERole> getRelatedRoles() {
+        Set<SRERole> result = new HashSet<>();
+        for (var i : relatedRoles) {
+            result.add(i);
+        }
+        return result;
+    }
+
+    /**
+     * 删除与此相关的职业。用于职业介绍。
+     * 
+     * @return
+     */
+    public SRERole removeRelatedRole(SRERole... role) {
+        for (var i : role) {
+            if (i != null)
+                this.relatedRoles.remove(i);
+        }
+        return this;
+    }
+
+    /**
+     * 添加与此相关的修饰符。用于职业介绍。
+     * 
+     * @return
+     */
+    public SRERole addRelatedModifier(SREModifier... modifier) {
+        for (var i : modifier) {
+            if (i != null)
+                this.relatedModifiers.add(i);
+        }
+        return this;
+    }
+
+    /**
+     * 获取与此相关的修饰符。用于职业介绍。
+     * 
+     * @return
+     */
+    public SREModifier getFirstRelatedModifier() {
+        var rs = getRelatedModifiers();
+        return rs.stream().findFirst().orElse(null);
+    }
+
+    /**
+     * 获取与此相关的修饰符。用于职业介绍。
+     * 
+     * @return
+     */
+    public Set<SREModifier> getRelatedModifiers() {
+        Set<SREModifier> result = new HashSet<>();
+        for (var r : relatedModifiers) {
+            result.add(r);
+        }
+        return result;
+    }
+
+    /**
+     * 删除与此相关的修饰符。用于职业介绍。
+     * 
+     * @return
+     */
+    public SRERole removeRelatedModifier(SREModifier... role) {
+        for (var i : role) {
+            if (i != null)
+                this.relatedModifiers.remove(i);
+        }
+        return this;
+    }
+
+    /**
+     * 职业/修饰符是否于此相关。用于职业介绍。
+     * 
+     * @return
+     */
+    public boolean isRelated(SREAbstractInfoClass... item) {
+        for (var i : item) {
+            if (i instanceof SRERole r) {
+                if (!this.relatedRoles.contains(r))
+                    return false;
+            } else if (i instanceof SREModifier m) {
+                if (!this.relatedModifiers.contains(m)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     /**
      * 添加显示FLAG
@@ -339,6 +508,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
      */
     public SRERole removeOpposingJobs(SRERole role) {
         this.opposingJobs.remove(role);
+        this.removeRelatedRole(role);
         return this;
     }
 
@@ -349,8 +519,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @return
      */
     public SRERole addTwoWayOpposingJobs(SRERole role) {
-        this.opposingJobs.add(role);
-        role.opposingJobs.add(this);
+        this.addOpposingJobs(role);
+        role.addOpposingJobs(this);
         return this;
     }
 
@@ -362,6 +532,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
      */
     public SRERole addOpposingJobs(SRERole role) {
         this.opposingJobs.add(role);
+        addRelatedRole(role);
         return this;
     }
 
@@ -374,6 +545,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole setOpposingJobs(List<SRERole> roles) {
         this.opposingJobs.clear();
         this.opposingJobs.addAll(roles);
+        for (var r : roles) {
+            this.addRelatedRole(r);
+        }
         return this;
     }
 
@@ -1148,7 +1322,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public Component getName() {
         String translationKey = "announcement.star.role." + this.identifier().getPath();
         // if (!Language.getInstance().has(translationKey)) {
-        //     return Component.translatable("info.screen.role.name.error", translationKey);
+        // return Component.translatable("info.screen.role.name.error", translationKey);
         // }
         return Component.translatable(translationKey);
     }
@@ -1180,5 +1354,13 @@ public abstract class SRERole extends SREAbstractInfoClass {
             return getDescription();
         }
         return Component.translatable(path);
+    }
+
+    public boolean hasOccupationRole() {
+        return this.occupationRoles.isEmpty();
+    }
+
+    public ArrayList<SRERole> getoccupationRoles() {
+        return new ArrayList<>(this.occupationRoles);
     }
 }

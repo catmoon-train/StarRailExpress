@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.agmas.harpymodloader.Harpymodloader;
+
 /**
  * 自定义职业加载器
  * 负责从 CustomRoleConfig 读取配置并注册为 SRERole
@@ -464,7 +466,7 @@ public class CustomRoleLoader {
             for (String bindId : data.bindWithRoles) {
                 SRERole bindRole = findRole(bindId);
                 if (bindRole != null) {
-                    org.agmas.harpymodloader.modded_murder.RoleAssignmentManager.addOccupationRole(role, bindRole);
+                    Harpymodloader.addOccupationRole(role, bindRole);
                 }
             }
         }

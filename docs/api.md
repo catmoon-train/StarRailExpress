@@ -1294,7 +1294,7 @@ Harpymodloader.setRoleMaximum(MY_ROLE_ID, 2);  // ResourceLocation 版
 ```
 
 #### 伴侣职业 / Companion Role（同时分配两个职业）
-
+现已迁移到 `SRERole` 中存储。当然，您也可以使用旧版本API：
 ```java
 // 设置：分配 DOCTOR 的同时也分配 POISONER
 Harpymodloader.setOccupationRole(ModRoles.DOCTOR, ModRoles.POISONER);
@@ -1304,16 +1304,17 @@ SRERole companion = Harpymodloader.getOccupationRole(ModRoles.DOCTOR); // POISON
 boolean has = Harpymodloader.hasOccupationRole(ModRoles.DOCTOR);
 
 // 移除
-Harpymodloader.removeOccupationRole(ModRoles.DOCTOR);
-Harpymodloader.clearOccupationRoles();
+Harpymodloader.removeOccupationRole(ModRoles.DOCTOR, ModRoles.POISONER);
+Harpymodloader.clearOccupationRole(ModRoles.DOCTOR);
 ```
 
 #### 隐藏修饰符 / Hide Modifiers
 
-将修饰符 path 加入 `HIDDEN_MODIFIERS` 可使其不在 UI 中展示（但仍可被分配）。
+设置修饰符的 `setHidden(true)` 可使其不在 UI 中展示（但仍可被分配）。
 
 ```java
-Harpymodloader.HIDDEN_MODIFIERS.add(NRModifiers.INTROVERTED.identifier().getPath());
+// 假设存在：SREModifier modifier;
+modifier.setHidden(true);
 ```
 
 #### 特殊职业列表 / Special Roles

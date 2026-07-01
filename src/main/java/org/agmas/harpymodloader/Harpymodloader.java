@@ -41,7 +41,7 @@ public class Harpymodloader implements ModInitializer {
      * 支持同时分配两个关联职业（例如医生+毒师）
      * Key: 主职业, Value: 关联职业
      */
-    public static HashMap<SRERole, SRERole> Occupations_Roles = new HashMap<>();
+    // public static HashMap<SRERole, SRERole> Occupations_Roles = new HashMap<>();
 
     public static HashMap<ResourceLocation, Integer> ROLE_MAX = new HashMap<>();
     /**
@@ -147,7 +147,6 @@ public class Harpymodloader implements ModInitializer {
             ListRolesCommand.register(dispatcher);
             ForceModifierCommand.register(dispatcher);
             SetEnabledModifierCommand.register(dispatcher);
-            SetCompanionRoleCommand.register(dispatcher);
             RoleCountManager.registerCommands(dispatcher);
             SetRoleWeightCommand.register(dispatcher);
             SetPlayerWeightCommand.register(dispatcher);
@@ -182,28 +181,32 @@ public class Harpymodloader implements ModInitializer {
      * @param mainRole      主职业
      * @param companionRole 关联职业
      */
-    public static void setOccupationRole(SRERole mainRole, SRERole companionRole) {
-        Occupations_Roles.put(mainRole, companionRole);
+    public static void addOccupationRole(SRERole mainRole, SRERole companionRole) {
+        mainRole.addOccupationRoleOnce(companionRole);
         LOGGER.debug("Added occupation relation: " + mainRole.getIdentifier() + " -> " + companionRole.getIdentifier());
     }
 
     /**
      * 移除职业对应关系
      * 
-     * @param mainRole 要移除对应关系的职业
+     * @param mainRole      要移除对应关系的职业
+     * @param companionRole 要移除对应关系的职业
      */
-    public static void removeOccupationRole(SRERole mainRole) {
-        Occupations_Roles.remove(mainRole);
+    public static void clearOccupationRole(SRERole mainRole, SRERole companionRole) {
+        mainRole.removeOccupationRole(mainRole, companionRole);
         LOGGER.debug("Removed occupation relation for: " + mainRole.getIdentifier());
     }
 
     /**
-     * 清空所有职业对应关系
+     * 清空职业对应关系
+     * 
+     * @param mainRole 要移除对应关系的职业
      */
-    public static void clearOccupationRoles() {
-        Occupations_Roles.clear();
-        LOGGER.debug("Cleared all occupation relations");
+    public static void clearOccupationRole(SRERole mainRole) {
+        mainRole.clearOccupationRole();
+        LOGGER.debug("Cleared occupation relation for: " + mainRole.getIdentifier());
     }
+
 
     /**
      * 获取职业的关联职业
@@ -211,14 +214,14 @@ public class Harpymodloader implements ModInitializer {
      * @param role 主职业
      * @return 关联职业，如果没有则返回null
      */
-    public static SRERole getOccupationRole(SRERole role) {
-        return Occupations_Roles.get(role);
+    public static ArrayList<SRERole> getOccupationRoles(SRERole role) {
+        return role.getoccupationRoles();
     }
 
     /**
      * 检查职业是否有关联职业
      */
     public static boolean hasOccupationRole(SRERole role) {
-        return Occupations_Roles.containsKey(role);
+        return role.hasOccupationRole();
     }
 }

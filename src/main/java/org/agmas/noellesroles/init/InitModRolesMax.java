@@ -233,10 +233,10 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(ModRoles.CORONER_ID, 1);
 
         // 同时出现
-        Harpymodloader.setOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
-        Harpymodloader.setOccupationRole(RedHouseRoles.FURANDORU, RedHouseRoles.PACHURI);
-        Harpymodloader.setOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
-        Harpymodloader.setOccupationRole(ModRoles.GANGSTERS, ModRoles.FITTER);
+        Harpymodloader.addOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
+        Harpymodloader.addOccupationRole(RedHouseRoles.FURANDORU, RedHouseRoles.PACHURI);
+        Harpymodloader.addOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
+        Harpymodloader.addOccupationRole(ModRoles.GANGSTERS, ModRoles.FITTER);
 
         RoleAssignmentManager.addOccupationRole(ModRoles.POISONER, ModRoles.DOCTOR);
         RoleAssignmentManager.addOccupationRole(ModRoles.INFECTED, ModRoles.DOCTOR);

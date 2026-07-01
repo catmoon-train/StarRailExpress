@@ -3,12 +3,10 @@ package org.agmas.harpymodloader.modded_murder;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
-import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.Harpymodloader;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -23,15 +21,15 @@ public class RoleAssignmentManager {
      * @param role 主角色
      * @return 关联的角色，如果没有则返回null
      */
-    public static SRERole getCompanionRole(SRERole role) {
-        return Harpymodloader.Occupations_Roles.get(role);
+    public static ArrayList<SRERole> getCompanionRoles(SRERole role) {
+        return Harpymodloader.getOccupationRoles(role);
     }
 
     /**
      * 检查一个角色是否有关联角色
      */
     public static boolean hasCompanionRole(SRERole role) {
-        return Harpymodloader.Occupations_Roles.containsKey(role);
+        return Harpymodloader.hasOccupationRole(role);
     }
 
     /**
@@ -97,23 +95,25 @@ public class RoleAssignmentManager {
         List<SRERole> companedRoles = new ArrayList<>();
 
         for (var role : oldRoles) {
-            SRERole companion = getCompanionRole(role.role());
-            if (companion != null) {
-                companedRoles.add(role.role());
-                {
-                    if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 0)) {
-                        if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 1)) {
-                            if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 2)) {
-                                if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 3)) {
-                                    Harpymodloader.LOGGER
-                                            .error("Unable to remove a role to make room for linked role {}!",
-                                                    role.role().identifier().toString());
+            ArrayList<SRERole> companions = getCompanionRoles(role.role());
+            for (var companion : companions) {
+                if (companion != null) {
+                    companedRoles.add(role.role());
+                    {
+                        if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 0)) {
+                            if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 1)) {
+                                if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 2)) {
+                                    if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 3)) {
+                                        Harpymodloader.LOGGER
+                                                .error("Unable to remove a role to make room for linked role {}!",
+                                                        role.role().identifier().toString());
+                                    }
                                 }
                             }
                         }
                     }
+                    companionRoles.add(companion);
                 }
-                companionRoles.add(companion);
             }
         }
 
@@ -124,44 +124,10 @@ public class RoleAssignmentManager {
     }
 
     /**
-     * 将角色分配给玩家，同时处理关联角色
-     * 如果玩家已经有角色，则使用 expandWithCompanionRoles 来确保关联角色也被分配
-     * 
-     * @param playerToRole 玩家到角色的映射
-     * @param player       玩家
-     * @param role         要分配的角色
-     */
-    public static void assignRoleWithCompanion(Map<Player, SRERole> playerToRole, Player player, SRERole role) {
-        playerToRole.put(player, role);
-
-        // 如果该角色有关联角色，需要为其他玩家分配相应的关联角色
-        SRERole companionRole = getCompanionRole(role);
-        if (companionRole != null) {
-            Harpymodloader.LOGGER.debug(
-                    String.format("Role %s has companion role %s",
-                            role.getIdentifier(), companionRole.getIdentifier()));
-        }
-    }
-
-    /**
-     * 获取所有角色对应关系
-     */
-    public static Map<SRERole, SRERole> getOccupationsRoles() {
-        return Harpymodloader.Occupations_Roles;
-    }
-
-    /**
-     * 清空所有角色对应关系
-     */
-    public static void clearOccupationsRoles() {
-        Harpymodloader.Occupations_Roles.clear();
-    }
-
-    /**
      * 添加角色对应关系
      */
     public static void addOccupationRole(SRERole mainRole, SRERole companionRole) {
-        Harpymodloader.Occupations_Roles.put(mainRole, companionRole);
+        Harpymodloader.addOccupationRole(mainRole, companionRole);
     }
 
     public static List<RoleInstance> removeOpposingJobs(List<RoleInstance> roles, RoleAssignmentPool killerPool,

@@ -101,6 +101,8 @@ public class HoanMeirinFistPunchHandler {
                 // 必须空手（主手持空气）
                 ItemStack mainHand = player.getMainHandItem();
                 if (mainHand.isEmpty()) {
+                    if (player.getCooldowns().isOnCooldown(Items.BARRIER))
+                        return false;
                     return true;
                 }
             }
@@ -138,6 +140,9 @@ public class HoanMeirinFistPunchHandler {
         if (!mainHand.isEmpty()) {
             return InteractionResult.PASS;
         }
+
+        if (attacker.getCooldowns().isOnCooldown(Items.BARRIER))
+            return InteractionResult.PASS;
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
@@ -146,7 +151,7 @@ public class HoanMeirinFistPunchHandler {
         if (attacker.getUUID().equals(entity.getUUID())) {
             return InteractionResult.PASS;
         }
-
+        attacker.getCooldowns().addCooldown(Items.BARRIER, 10);
         UUID attackerUUID = attacker.getUUID();
         UUID victimUUID = victim.getUUID();
 
