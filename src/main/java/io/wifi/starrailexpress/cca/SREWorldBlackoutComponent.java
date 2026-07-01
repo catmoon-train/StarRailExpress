@@ -74,6 +74,38 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
         return triggerBlackout(true);
     }
 
+    /**
+     * 以center为中心，触发半径为distance的关灯
+     * @param center
+     * @param distance
+     * @param haveSound
+     * @param duration
+     * @return
+     */
+    public boolean triggerBlackout(BlockPos center, int distance, boolean haveSound, int duration) {
+        for (var pos : GameUtils.resetPoints) {
+            if (pos.distSqr(center) > distance * distance)
+                continue;
+            BlockState state = this.world.getBlockState(pos);
+            if (!state.hasProperty(BlockStateProperties.LIT) || !state.hasProperty(TMMProperties.ACTIVE))
+                continue;
+            if (duration > this.blackOutRemainingTicks)
+                this.blackOutRemainingTicks = duration;
+            int maxFloatRange = (int) ((float) duration * GameConstants.getBlackoutRandomRangePercent());
+            maxFloatRange = Math.max(1, maxFloatRange);
+            int randomInt = this.world.random.nextInt(0,
+                    maxFloatRange);
+            randomInt = Math.min(duration, randomInt);
+            BlackoutDetails detail = new BlackoutDetails(pos, duration - randomInt,
+                    state.getValue(BlockStateProperties.LIT));
+            detail.init(this.world);
+            this.blackouts.add(detail);
+        }
+        if (haveSound)
+            playBlackoutSound();
+        return true;
+    }
+
     public boolean triggerBlackout(boolean haveSound, int duration) {
 
         for (var pos : GameUtils.resetPoints) {
@@ -92,28 +124,33 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
             detail.init(this.world);
             this.blackouts.add(detail);
         }
-        if (haveSound) {
-            if (this.world instanceof ServerLevel serverWorld) {
-                for (ServerPlayer player : serverWorld.players()) {
-                    if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                        final var role = SREGameWorldComponent.KEY.get(world).getRole(player);
-                        if (role != null) {
-                            if ((!role.canUseKiller() && !role.isNeutralForKiller() && !role.canIgnoreBlackout(player))) {
-                                player.addEffect(
-                                        new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, false, false, false));
-                                player.addEffect(
-                                        new MobEffectInstance(MobEffects.DARKNESS, 200, 0, false, false, false));
-                            }
+        if (haveSound)
+            playBlackoutSound();
+        return true;
+    }
+
+    public void playBlackoutSound() {
+        if (this.world instanceof ServerLevel serverWorld) {
+            for (ServerPlayer player : serverWorld.players()) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                    final var role = SREGameWorldComponent.KEY.get(world).getRole(player);
+                    if (role != null) {
+                        if ((!role.canUseKiller() && !role.isNeutralForKiller()
+                                && !role.canIgnoreBlackout(player))) {
+                            player.addEffect(
+                                    new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, false, false, false));
+                            player.addEffect(
+                                    new MobEffectInstance(MobEffects.DARKNESS, 200, 0, false, false, false));
                         }
-                        player.connection.send(new ClientboundSoundPacket(
-                                BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.AMBIENT_BLACKOUT),
-                                SoundSource.PLAYERS,
-                                player.getX(), player.getY(), player.getZ(), 100f, 1f, player.getRandom().nextLong()));
                     }
+                    player.connection.send(new ClientboundSoundPacket(
+                            BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.AMBIENT_BLACKOUT),
+                            SoundSource.PLAYERS,
+                            player.getX(), player.getY(), player.getZ(), 100f, 1f, player.getRandom().nextLong()));
                 }
             }
+
         }
-        return true;
     }
 
     public static int getMaxDuration(Level world) {
