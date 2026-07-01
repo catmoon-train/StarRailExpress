@@ -70,6 +70,7 @@ import org.agmas.noellesroles.game.roles.killer.watcher.WatcherRole;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.chef.ChefRole;
+import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
@@ -2101,7 +2102,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true))
-            .setComponentKey(org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent.KEY)
+            .setComponentKey(DoomedSinnerPlayerComponent.KEY)
             .setNeutrals(true).setCanSeeTeammateKiller(false)
             .setCanUseInstinct(true).setCanSeeCoin(true)
             .setDefaultMax(1).setDefaultEnableNeededPlayerCount(12);

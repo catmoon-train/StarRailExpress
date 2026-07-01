@@ -23,7 +23,8 @@ public class IsNightVisionMixin {
 
     @Inject(at = @At("HEAD"), method = "hasEffect", cancellable = true)
     public void hasEffect$sre$inject(Holder<MobEffect> holder, CallbackInfoReturnable<Boolean> cir) {
-        if (holder != MobEffects.NIGHT_VISION || !IrisHelper.isIrisShaderPackInUse()) return;
+        if (holder != MobEffects.NIGHT_VISION || !IrisHelper.isIrisShaderPackInUse())
+            return;
 
         var player = (LivingEntity) (Object) this;
         if (player instanceof LocalPlayer localPlayer) {
@@ -38,7 +39,8 @@ public class IsNightVisionMixin {
 
     @Inject(at = @At("HEAD"), method = "getEffect", cancellable = true)
     public void getEffect$sre$inject(Holder<MobEffect> holder, CallbackInfoReturnable<MobEffectInstance> cir) {
-        if (holder != MobEffects.NIGHT_VISION || !IrisHelper.isIrisShaderPackInUse()) return;
+        if (holder != MobEffects.NIGHT_VISION || !IrisHelper.isIrisShaderPackInUse())
+            return;
 
         var player = (LivingEntity) (Object) this;
         if (player instanceof LocalPlayer localPlayer) {
