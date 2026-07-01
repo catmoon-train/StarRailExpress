@@ -690,9 +690,9 @@ public class RoleIntroduceScreen extends Screen {
                     if (hovered) {
                         g.fill(contentX, y, contentX + w, y + ITEM_H, 0x22FFFFFF);
                     }
-                    Component name = RoleUtils.getRoleOrModifierOrItemName(obj);
-                    int color = RoleUtils.getRoleOrModifierColor(obj) | 0xFF000000;
-                    g.drawString(font, name, contentX + 6, y + (ITEM_H - font.lineHeight) / 2, color);
+                    Component name = RoleUtils.getRoleOrModifierOrItemNameWithColor(obj);
+                    g.drawString(font, Component.literal(" - ").withStyle(ChatFormatting.WHITE).append(name), contentX + 6,
+                            y + (ITEM_H - font.lineHeight) / 2, 0xffffffff);
                     g.fill(contentX + 4, y + ITEM_H - 1, contentX + w - 4, y + ITEM_H, 0x20FFFFFF);
                 }
                 y += ITEM_H + GAP;

@@ -42,7 +42,7 @@ public class GreatDetectiveHud {
 
             } else {
                 // 技能可用 - 显示金币消耗提示
-                Component readyText = Component.translatable("hud.noellesroles.great_detective.ready_cost");
+                Component readyText = Component.translatable("hud.noellesroles.great_detective.ready");
                 context.drawString(font, readyText, x - font.width(readyText), y, CommonColors.GREEN);
             }
         });
