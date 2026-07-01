@@ -87,6 +87,8 @@ import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilant
 import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
 import org.agmas.noellesroles.utils.RandomColorUtil;
 import org.jetbrains.annotations.Nullable;
+
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 import java.awt.*;
@@ -2316,7 +2318,7 @@ public class ModRoles {
             .setCanUseInstinct(false) // 不能使用杀手直觉
             .setCanSeeCoin(true)
             .setDefaultMax(0)
-            .setCanBeRandomedByOtherRoles(false);
+            .setCanBeRandomedByOtherRoles(false).addRelatedModifier(SEModifiers.BLACK_WHITE);
 
     // ─────────────────────── 信使 Courier ───────────────────────
     public static final ResourceLocation COURIER_ID = Noellesroles.id("courier");

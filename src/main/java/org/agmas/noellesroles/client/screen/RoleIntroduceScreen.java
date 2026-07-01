@@ -651,23 +651,23 @@ public class RoleIntroduceScreen extends Screen {
             int curY = y - scrollOffset;
             curY = drawGroup(g, x, y, h, curY, w, occupationRoles,
                     Component.translatable("screen.roleintroduce.related.occupation").withStyle(ChatFormatting.BOLD,
-                            ChatFormatting.GOLD),
+                            ChatFormatting.GREEN),
                     mouseX, mouseY);
             curY = drawGroup(g, x, y, h, curY, w, oppositeRoles,
                     Component.translatable("screen.roleintroduce.related.opposite").withStyle(ChatFormatting.BOLD,
-                            ChatFormatting.GOLD),
+                            ChatFormatting.RED),
                     mouseX, mouseY);
             curY = drawGroup(g, x, y, h, curY, w, otherRoles,
                     otherRoleName.withStyle(ChatFormatting.BOLD,
-                            ChatFormatting.GOLD),
+                            ChatFormatting.AQUA),
                     mouseX, mouseY);
             curY = drawGroup(g, x, y, h, curY, w, relatedModifiers,
                     Component.translatable("screen.roleintroduce.related.modifiers").withStyle(ChatFormatting.BOLD,
-                            ChatFormatting.GOLD),
+                            ChatFormatting.LIGHT_PURPLE),
                     mouseX, mouseY);
             curY = drawGroup(g, x, y, h, curY, w, relatedItems,
                     Component.translatable("screen.roleintroduce.related.items").withStyle(ChatFormatting.BOLD,
-                            ChatFormatting.GOLD),
+                            ChatFormatting.YELLOW),
                     mouseX, mouseY);
 
             g.disableScissor();
