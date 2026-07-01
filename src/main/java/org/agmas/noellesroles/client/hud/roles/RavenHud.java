@@ -58,6 +58,13 @@ public final class RavenHud {
                                 Component.translatable("announcement.star.role." + raven.targetRoleId.getPath())),
                         x, y - 22, 0xFF5555);
             }
+
+            // Return hint during hunt
+            if (raven.isHunting()) {
+                context.drawString(Minecraft.getInstance().font,
+                        Component.translatable("hud.noellesroles.raven.return_hint"),
+                        x, y - 33, 0xFFD700);
+            }
         });
     }
 }
