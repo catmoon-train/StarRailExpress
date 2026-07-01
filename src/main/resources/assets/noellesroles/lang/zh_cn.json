@@ -448,6 +448,7 @@
   "item.noellesroles.toilet_poison.tooltip": "右键涂在马桶上，毒害下一个使用马桶的人",
   "mob_effect.noellesroles.disguise": "伪装",
   "effect.noellesroles.disguise": "伪装",
+  "effect.noellesroles.vision_fog": "视野迷雾",
   "mob_effect.noellesroles.skill_baned": "技能封印",
   "effect.noellesroles.skill_baned": "技能封印",
   "mob_effect.noellesroles.ghost_state": "幽灵状态",

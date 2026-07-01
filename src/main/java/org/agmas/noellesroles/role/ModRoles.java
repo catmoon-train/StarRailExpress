@@ -2291,7 +2291,10 @@ public class ModRoles {
             .setCanUseSkillWhileSpectator(true)
             .setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
-            .setDefaultEnableChance(3000).setDefaultEnableNeededPlayerCount(12);
+            // 划分到警长阵营（isVigilanteTeam 为权威的警长归属判定）
+            .setVigilanteTeam(true)
+            // 出现概率下调一半（3000 -> 1500）
+            .setDefaultEnableChance(1500).setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 黑白角色 - 中立阵营（伪装义警）
