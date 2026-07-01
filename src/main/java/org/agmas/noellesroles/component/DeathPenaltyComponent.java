@@ -37,7 +37,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     public Vec3 limitPos = null;
 
     // 客户端
-    public boolean chatEnabled = false;
+    public boolean chatEnabled = true;
 
     public static ComponentKey<DeathPenaltyComponent> KEY = ModComponents.DEATH_PENALTY;
 
@@ -194,6 +194,10 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         sync();
     }
 
+    public boolean hasStrictPenalty() {
+        return this.hasPenalty() && !chatEnabled;
+    }
+
     public boolean hasPenalty() {
         if (this.penaltyExpiry == 0)
             return false;
@@ -338,6 +342,10 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 player.setPos(limitPos);
             }
         }
+    }
+
+    public static boolean hasStrictPenalty(Player p) {
+        return KEY.get(p).hasStrictPenalty();
     }
 
     public static boolean hasPenalty(Player p) {

@@ -219,6 +219,7 @@ public class SREModifier extends SREAbstractInfoClass {
 
     /**
      * 修饰符普通玩家不可视
+     * 隐藏修饰符
      * 
      * @return
      */

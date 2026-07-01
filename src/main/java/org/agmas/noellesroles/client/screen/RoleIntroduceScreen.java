@@ -15,6 +15,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.init.RoleInitialItems;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.joml.Matrix4f;
@@ -31,6 +32,7 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
 import io.wifi.starrailexpress.customrole.CustomNormalRole;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
@@ -414,8 +416,13 @@ public class RoleIntroduceScreen extends Screen {
             case CURRENT -> {
                 if (this.minecraft.player == null || SREClient.modifierComponent == null)
                     yield false;
-                yield !WorldModifierComponent.isHiddenModifier(mod)
-                        && SREClient.modifierComponent.isModifier(minecraft.player, mod);
+                if (!(GameUtils.isPlayerSpectatingOrCreative(this.minecraft.player)
+                        && !DeathPenaltyComponent.hasStrictPenalty(this.minecraft.player))) {
+                    // 未似不可见
+                    if (WorldModifierComponent.isHiddenModifier(mod))
+                        yield false;
+                }
+                yield SREClient.modifierComponent.isModifier(minecraft.player, mod);
             }
         };
     }
