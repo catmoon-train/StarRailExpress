@@ -1778,7 +1778,11 @@ public class ModEventsRegister {
              * 掉落枪 接口：DropRevolverWhenDead
              */
             {
-                int dropCount = 1 + MCItemsUtils.clearItem(player, (t) -> {
+                // 只按玩家实际持有的枪械 / DropRevolverWhenDead 物品数量掉落左轮，
+                // 不能用 1 + ...，否则任何没有枪的玩家死亡也会凭空掉一把枪。
+                // 警长 / 鬼眼·杨间 未解锁时的补偿掉枪由各自角色 onDeath 的
+                // dropUnearnedRevolverOnDeath 单独处理。
+                int dropCount = MCItemsUtils.clearItem(player, (t) -> {
                     return t.getItem() instanceof DropRevolverWhenDead || t.is(TMMItemTags.GUNS);
                 });
                 while (dropCount > 0) {
