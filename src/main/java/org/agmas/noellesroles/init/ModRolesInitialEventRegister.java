@@ -416,6 +416,35 @@ public class ModRolesInitialEventRegister {
     }
 
     static {
+        // 宿命的罪人技能注册：
+        // 技能 1「命运的启示」(G)：近距离查看准星目标最近 3 次杀人方式
+        // 技能 2「重启」(Shift+G)：随机死因死亡脱离，回房间 + 短暂无敌
+        RoleSkill.register(ModRoles.DOOMED_SINNER,
+                RoleSkill.skill(SRE.id("doomed_sinner_revelation"),
+                        "skill.noellesroles.doomed_sinner.revelation",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            ServerPlayer target = context.target() != null
+                                    && player.level().getPlayerByUUID(context.target()) instanceof ServerPlayer sp
+                                            ? sp
+                                            : null;
+                            return org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent
+                                    .revealFate(player, target);
+                        }).cooldownSeconds(40).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("doomed_sinner_reboot"),
+                        "skill.noellesroles.doomed_sinner.reboot",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            return org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent
+                                    .reboot(player);
+                        }).cooldownSeconds(75).shifted(true).showOnHud(true).announceToSelf(true).build());
+
         // 疫使技能注册：按技能键感染目标玩家
         RoleSkill.register(ModRoles.INFECTED, RoleSkill.skill(
                 SRE.id("infected_infect"),

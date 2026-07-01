@@ -105,6 +105,11 @@ public class CustomWinnerClass {
                 return WinStatus.CUSTOM;
             }
 
+            if (org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent
+                    .checkDoomedSinnerVictory(serverLevel)) {
+                return WinStatus.CUSTOM;
+            }
+
             for (ServerPlayer player : serverLevel.players()) {
                 if (!GameUtils.isPlayerAliveAndSurvival(player) || !gameComponent.isRole(player, ModRoles.RAVEN)) continue;
                 RavenPlayerComponent raven = ModComponents.RAVEN.get(player);
