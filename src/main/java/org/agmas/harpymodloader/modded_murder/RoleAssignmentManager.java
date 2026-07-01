@@ -144,7 +144,7 @@ public class RoleAssignmentManager {
         for (var role : all_roles) {
             if (!new_all_roles.contains(role))
                 continue;
-            for (var oprole : role.opposingJobs) {
+            for (var oprole : role.opposingRoles) {
                 if (new_all_roles.contains(oprole)) {
                     int roleType = oprole.getRoleType();
                     while (new_all_roles.remove(oprole)) {

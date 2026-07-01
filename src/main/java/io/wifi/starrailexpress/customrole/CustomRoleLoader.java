@@ -450,7 +450,7 @@ public class CustomRoleLoader {
             for (String oppId : data.twoWayOpposingJobs) {
                 SRERole oppRole = findRole(oppId);
                 if (oppRole != null) {
-                    role.addTwoWayOpposingJobs(oppRole);
+                    role.addTwoWayOpposingRole(oppRole);
                 }
             }
 
@@ -458,7 +458,7 @@ public class CustomRoleLoader {
             for (String oppId : data.opposingJobs) {
                 SRERole oppRole = findRole(oppId);
                 if (oppRole != null) {
-                    role.addOpposingJobs(oppRole);
+                    role.addOpposingRole(oppRole);
                 }
             }
 

@@ -189,7 +189,7 @@ public class SEModifiers {
             true))
             .setDefaultMax(1)
             .setDefaultEnableChance(1000)
-            .setDefaultEnableNeededPlayerCount(10).setHidden(true);
+            .setDefaultEnableNeededPlayerCount(10).setHidden(true).addRelatedRole(ModRoles.MONOKUMA);
 
     // 标记不屈的一次性免疫是否已被消耗（基于 UUID 的运行时集合）
     public static Set<UUID> UNYIELDING_IMMUNITY_USED = ConcurrentHashMap.newKeySet();

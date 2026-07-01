@@ -220,8 +220,8 @@ public class RoleIntroduceScreen extends Screen {
 
     private EditBox searchWidget = null;
     private String searchContent = null;
-    private Object prevRole = null;
-    private int prevRoleTab = 0;
+    private ArrayList<Object> prevRole = new ArrayList<>();
+    private ArrayList<Integer> prevRoleTab = new ArrayList<>();
 
     public RoleIntroduceScreen() {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
@@ -287,9 +287,16 @@ public class RoleIntroduceScreen extends Screen {
         setFocusArea(FocusArea.SEARCH);
     }
 
+    private void removeAPrevStatus() {
+        if (!prevRole.isEmpty())
+            prevRole.removeLast();
+        if (!prevRoleTab.isEmpty())
+            prevRoleTab.removeLast();
+    }
+
     private void clearPrevStatus() {
-        prevRole = null;
-        prevRoleTab = -1;
+        prevRole.clear();
+        prevRoleTab.clear();
     }
 
     private void computeLayout() {
@@ -555,6 +562,243 @@ public class RoleIntroduceScreen extends Screen {
         protected abstract void prepareLines();
     }
 
+    private class RelatedObjectTab implements DetailTab {
+        private int scrollOffset = 0;
+        private int maxScroll = 0;
+        private int contentHeight = 0;
+
+        // 三个角色分组
+        private final List<SRERole> occupationRoles = new ArrayList<>();
+        private final List<SRERole> oppositeRoles = new ArrayList<>();
+        private final List<SRERole> otherRoles = new ArrayList<>();
+        // 修饰符和物品
+        private final List<SREModifier> relatedModifiers = new ArrayList<>();
+        private final List<Item> relatedItems = new ArrayList<>();
+        private MutableComponent otherRoleName = Component.translatable("screen.roleintroduce.related.other");
+
+        private static final int ITEM_H = 30;
+        private static final int TITLE_H = 18;
+        private static final int GAP = 4;
+
+        @Override
+        public Component getTitle() {
+            return Component.translatable("screen.roleintroduce.detail.related");
+        }
+
+        @Override
+        public boolean isVisible() {
+            if (selectedRole == null)
+                return false;
+            if (!(selectedRole instanceof SREAbstractInfoClass))
+                return false;
+            fetchRelatedObjects();
+            if (occupationRoles.isEmpty() &&
+                    oppositeRoles.isEmpty() &&
+                    otherRoles.isEmpty() &&
+                    relatedModifiers.isEmpty() &&
+                    relatedItems.isEmpty())
+                return false;
+            return true;
+        }
+
+        @Override
+        public void onSwitchTo() {
+            fetchRelatedObjects();
+            computeContentHeight();
+            scrollOffset = 0;
+        }
+
+        private void fetchRelatedObjects() {
+            occupationRoles.clear();
+            oppositeRoles.clear();
+            otherRoles.clear();
+            relatedModifiers.clear();
+            relatedItems.clear();
+            if (selectedRole instanceof SREAbstractInfoClass abic) {
+                if (abic instanceof SRERole role) {
+                    occupationRoles.addAll(role.getoccupationRoles());
+                    oppositeRoles.addAll(role.getOpposingRoles());
+                }
+                otherRoles.addAll(abic.getRelatedRoles());
+                relatedModifiers.addAll(abic.getRelatedModifiers());
+            }
+            if (occupationRoles.isEmpty() && oppositeRoles.isEmpty()) {
+                otherRoleName = Component.translatable("screen.roleintroduce.related.other.only");
+            } else {
+                otherRoleName = Component.translatable("screen.roleintroduce.related.other");
+            }
+        }
+
+        private void computeContentHeight() {
+            int h = 0;
+            h += getGroupHeight(occupationRoles);
+            h += getGroupHeight(oppositeRoles);
+            h += getGroupHeight(otherRoles);
+            h += getGroupHeight(relatedModifiers);
+            h += getGroupHeight(relatedItems);
+            contentHeight = h;
+        }
+
+        private int getGroupHeight(List<?> list) {
+            if (list.isEmpty())
+                return 0;
+            return TITLE_H + GAP + list.size() * (ITEM_H + GAP);
+        }
+
+        @Override
+        public void render(GuiGraphics g, int x, int y, int w, int h, int mouseX, int mouseY, float partialTick) {
+            g.enableScissor(x, y, x + w, y + h);
+
+            int curY = y - scrollOffset;
+            curY = drawGroup(g, x, y, h, curY, w, occupationRoles,
+                    Component.translatable("screen.roleintroduce.related.related").withStyle(ChatFormatting.BOLD,
+                            ChatFormatting.GOLD),
+                    mouseX, mouseY);
+            curY = drawGroup(g, x, y, h, curY, w, oppositeRoles,
+                    Component.translatable("screen.roleintroduce.related.opposite").withStyle(ChatFormatting.BOLD,
+                            ChatFormatting.GOLD),
+                    mouseX, mouseY);
+            curY = drawGroup(g, x, y, h, curY, w, otherRoles,
+                    otherRoleName.withStyle(ChatFormatting.BOLD,
+                            ChatFormatting.GOLD),
+                    mouseX, mouseY);
+            curY = drawGroup(g, x, y, h, curY, w, relatedModifiers,
+                    Component.translatable("screen.roleintroduce.related.modifiers").withStyle(ChatFormatting.BOLD,
+                            ChatFormatting.GOLD),
+                    mouseX, mouseY);
+            curY = drawGroup(g, x, y, h, curY, w, relatedItems,
+                    Component.translatable("screen.roleintroduce.related.items").withStyle(ChatFormatting.BOLD,
+                            ChatFormatting.GOLD),
+                    mouseX, mouseY);
+
+            g.disableScissor();
+            maxScroll = Math.max(0, contentHeight - h);
+        }
+
+        private int drawGroup(GuiGraphics g, int contentX, int contentY, int contentH, int y, int w,
+                List<?> list, Component title, int mouseX, int mouseY) {
+            if (list.isEmpty())
+                return y;
+
+            if (y + TITLE_H > contentY && y < contentY + contentH) {
+                g.drawString(font, title, contentX + 2, y, 0xFFFFFF);
+            }
+            y += TITLE_H + GAP;
+
+            for (Object obj : list) {
+                if (y + ITEM_H > contentY && y < contentY + contentH) {
+                    boolean hovered = isInRect(mouseX, mouseY, contentX, y, w, ITEM_H);
+                    if (hovered) {
+                        g.fill(contentX, y, contentX + w, y + ITEM_H, 0x22FFFFFF);
+                    }
+                    Component name = RoleUtils.getRoleOrModifierOrItemName(obj);
+                    int color = RoleUtils.getRoleOrModifierColor(obj) | 0xFF000000;
+                    g.drawString(font, name, contentX + 6, y + (ITEM_H - font.lineHeight) / 2, color);
+                    g.fill(contentX + 4, y + ITEM_H - 1, contentX + w - 4, y + ITEM_H, 0x20FFFFFF);
+                }
+                y += ITEM_H + GAP;
+            }
+            return y;
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button,
+                int contentX, int contentY, int contentW, int contentH) {
+            if (button != 0)
+                return false;
+
+            int relY = (int) mouseY - contentY + scrollOffset;
+            int curY = 0;
+
+            // 依次检查每个分组，按顺序：relatedRoles → oppositeRoles → otherRoles → modifiers → items
+            if (!occupationRoles.isEmpty()) {
+                curY += TITLE_H + GAP;
+                int idx = (relY - curY) / (ITEM_H + GAP);
+                if (relY >= curY && idx >= 0 && idx < occupationRoles.size()) {
+                    RoleIntroduceScreen.this.navigateToItem(occupationRoles.get(idx));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                    return true;
+                }
+                curY += occupationRoles.size() * (ITEM_H + GAP);
+            }
+
+            if (!oppositeRoles.isEmpty()) {
+                curY += TITLE_H + GAP;
+                int idx = (relY - curY) / (ITEM_H + GAP);
+                if (relY >= curY && idx >= 0 && idx < oppositeRoles.size()) {
+                    RoleIntroduceScreen.this.navigateToItem(oppositeRoles.get(idx));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                    return true;
+                }
+                curY += oppositeRoles.size() * (ITEM_H + GAP);
+            }
+
+            if (!otherRoles.isEmpty()) {
+                curY += TITLE_H + GAP;
+                int idx = (relY - curY) / (ITEM_H + GAP);
+                if (relY >= curY && idx >= 0 && idx < otherRoles.size()) {
+                    RoleIntroduceScreen.this.navigateToItem(otherRoles.get(idx));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                    return true;
+                }
+                curY += otherRoles.size() * (ITEM_H + GAP);
+            }
+
+            if (!relatedModifiers.isEmpty()) {
+                curY += TITLE_H + GAP;
+                int idx = (relY - curY) / (ITEM_H + GAP);
+                if (relY >= curY && idx >= 0 && idx < relatedModifiers.size()) {
+                    RoleIntroduceScreen.this.navigateToItem(relatedModifiers.get(idx));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                    return true;
+                }
+                curY += relatedModifiers.size() * (ITEM_H + GAP);
+            }
+
+            if (!relatedItems.isEmpty()) {
+                curY += TITLE_H + GAP;
+                int idx = (relY - curY) / (ITEM_H + GAP);
+                if (relY >= curY && idx >= 0 && idx < relatedItems.size()) {
+                    RoleIntroduceScreen.this.navigateToItem(relatedItems.get(idx));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        public int getScrollOffset() {
+            return scrollOffset;
+        }
+
+        @Override
+        public int getMaxScroll() {
+            return maxScroll;
+        }
+
+        @Override
+        public void setScrollOffset(int offset) {
+            this.scrollOffset = Mth.clamp(offset, 0, maxScroll);
+        }
+
+        @Override
+        public int getContentHeight() {
+            return contentHeight;
+        }
+
+        @Override
+        public void onSwitchAway() {
+            // 无需操作
+        }
+
+        @Override
+        public int getColor() {
+            return 0xFFBB88AA;
+        }
+    }
+
     private class InitialItemTab implements DetailTab {
         private int scrollOffset = 0;
         private int maxScroll = 0;
@@ -722,19 +966,23 @@ public class RoleIntroduceScreen extends Screen {
         }
     }
 
-    private boolean navigateToItem(Item item) {
-        // 临时添加
-        // 在过滤后的列表中查找该物品
+    /**
+     * 导航到一个子项目（可返回上级）
+     * 
+     * @param item
+     * @return
+     */
+    private boolean navigateToItem(Object item) {
         int index = -1;
         for (int i = 0; i < filteredItems.size(); i++) {
-            if (filteredItems.get(i) instanceof Item it && it.equals(item)) {
+            if (filteredItems.get(i) != null && filteredItems.get(i).equals(item)) {
                 index = i;
                 break;
             }
         }
 
-        prevRoleTab = activeTabIndex;
-        prevRole = selectedRole;
+        prevRoleTab.add(activeTabIndex);
+        prevRole.add(selectedRole);
         if (index >= 0) {
             selectedRole = filteredItems.get(index);
             onSelectionChanged();
@@ -746,7 +994,6 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private class ShopTab implements DetailTab {
-
         private int scrollOffset = 0;
         private int maxScroll = 0;
         private final List<ShopEntry> entries = new ArrayList<>();
@@ -1077,19 +1324,22 @@ public class RoleIntroduceScreen extends Screen {
             public boolean isVisible() {
                 if (selectedRole == null)
                     return false;
-                if (prevRole == null)
+                if (prevRole.isEmpty())
                     return false;
                 return true;
             }
 
             @Override
             public boolean canSwitchTo() {
-                if (prevRole != null) {
-                    selectedRole = prevRole;
-                    if (prevRoleTab >= 0 && prevRoleTab < tabs.size()) {
-                        onSelectionChanged(prevRoleTab);
+                if (!prevRole.isEmpty()) {
+                    selectedRole = prevRole.getLast();
+                    if (!prevRoleTab.isEmpty()) {
+                        int prevRoleTabN = prevRoleTab.getLast();
+                        if (prevRoleTabN >= 0 && prevRoleTabN < tabs.size()) {
+                            onSelectionChanged(prevRoleTabN);
+                        }
                     }
-                    clearPrevStatus();
+                    removeAPrevStatus();
                 }
                 return false;
             }
@@ -1102,6 +1352,7 @@ public class RoleIntroduceScreen extends Screen {
                                 .withStyle(ChatFormatting.WHITE), textW));
             }
         });
+        tabs.add(new RelatedObjectTab());
     }
 
     private void onSelectionChanged(int tab) {

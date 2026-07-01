@@ -40,8 +40,6 @@ public class SREModifier extends SREAbstractInfoClass {
     public int defaultMaxPlayerCount = -1;
     public boolean isOtherModeRole = false;
     public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
-    public HashSet<SREModifier> relatedModifiers = new HashSet<>();
-    public HashSet<SRERole> relatedRoles = new HashSet<>();
 
     /**
      * 添加与此相关的职业。用于职业介绍。
@@ -54,19 +52,6 @@ public class SREModifier extends SREAbstractInfoClass {
                 this.relatedRoles.add(i);
         }
         return this;
-    }
-
-    /**
-     * 获取与此相关的职业。用于职业介绍。
-     * 
-     * @return
-     */
-    public Set<SRERole> getRelatedRoles() {
-        Set<SRERole> result = new HashSet<>();
-        for (var i : relatedRoles) {
-            result.add(i);
-        }
-        return result;
     }
 
     /**
@@ -96,29 +81,6 @@ public class SREModifier extends SREAbstractInfoClass {
     }
 
     /**
-     * 获取与此相关的修饰符。用于职业介绍。
-     * 
-     * @return
-     */
-    public SREModifier getFirstRelatedModifier() {
-        var rs = getRelatedModifiers();
-        return rs.stream().findFirst().orElse(null);
-    }
-
-    /**
-     * 获取与此相关的修饰符。用于职业介绍。
-     * 
-     * @return
-     */
-    public Set<SREModifier> getRelatedModifiers() {
-        Set<SREModifier> result = new HashSet<>();
-        for (var r : relatedModifiers) {
-            result.add(r);
-        }
-        return result;
-    }
-
-    /**
      * 删除与此相关的修饰符。用于职业介绍。
      * 
      * @return
@@ -129,25 +91,6 @@ public class SREModifier extends SREAbstractInfoClass {
                 this.relatedModifiers.remove(i);
         }
         return this;
-    }
-
-    /**
-     * 职业/修饰符是否于此相关。用于职业介绍。
-     * 
-     * @return
-     */
-    public boolean isRelated(SREAbstractInfoClass... item) {
-        for (var i : item) {
-            if (i instanceof SRERole r) {
-                if (!this.relatedRoles.contains(r))
-                    return false;
-            } else if (i instanceof SREModifier m) {
-                if (!this.relatedModifiers.contains(m)) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     /**

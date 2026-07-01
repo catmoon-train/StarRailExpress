@@ -84,10 +84,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
 
-    public HashSet<SREModifier> relatedModifiers = new HashSet<>();
-    public HashSet<SRERole> relatedRoles = new HashSet<>();
     public ArrayList<SRERole> occupationRoles = new ArrayList<>();
-    public HashSet<SRERole> opposingJobs = new HashSet<>();
+    public HashSet<SRERole> opposingRoles = new HashSet<>();
 
     /**
      * 删除关联职业
@@ -112,7 +110,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
         for (var i : role) {
             this.occupationRoles.remove(i);
         }
-        this.removeRelatedRole(role);
         return this;
     }
 
@@ -128,7 +125,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
         }
         // 去重。
         occupationRoles = new ArrayList<>(new LinkedHashSet<>(occupationRoles));
-        this.addRelatedRole(role);
         return this;
     }
 
@@ -142,12 +138,12 @@ public abstract class SRERole extends SREAbstractInfoClass {
         for (var i : role) {
             this.occupationRoles.add(i);
         }
-        this.addRelatedRole(role);
         return this;
     }
 
     /**
      * 添加与此相关的职业。用于职业介绍。
+     * 
      * @return
      */
     public SRERole addRelatedRole(SRERole... role) {
@@ -156,19 +152,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
                 this.relatedRoles.add(i);
         }
         return this;
-    }
-
-    /**
-     * 获取与此相关的职业。用于职业介绍。
-     * 
-     * @return
-     */
-    public Set<SRERole> getRelatedRoles() {
-        Set<SRERole> result = new HashSet<>();
-        for (var i : relatedRoles) {
-            result.add(i);
-        }
-        return result;
     }
 
     /**
@@ -198,29 +181,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     /**
-     * 获取与此相关的修饰符。用于职业介绍。
-     * 
-     * @return
-     */
-    public SREModifier getFirstRelatedModifier() {
-        var rs = getRelatedModifiers();
-        return rs.stream().findFirst().orElse(null);
-    }
-
-    /**
-     * 获取与此相关的修饰符。用于职业介绍。
-     * 
-     * @return
-     */
-    public Set<SREModifier> getRelatedModifiers() {
-        Set<SREModifier> result = new HashSet<>();
-        for (var r : relatedModifiers) {
-            result.add(r);
-        }
-        return result;
-    }
-
-    /**
      * 删除与此相关的修饰符。用于职业介绍。
      * 
      * @return
@@ -231,25 +191,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
                 this.relatedModifiers.remove(i);
         }
         return this;
-    }
-
-    /**
-     * 职业/修饰符是否于此相关。用于职业介绍。
-     * 
-     * @return
-     */
-    public boolean isRelated(SREAbstractInfoClass... item) {
-        for (var i : item) {
-            if (i instanceof SRERole r) {
-                if (!this.relatedRoles.contains(r))
-                    return false;
-            } else if (i instanceof SREModifier m) {
-                if (!this.relatedModifiers.contains(m)) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     /**
@@ -506,10 +447,15 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @param role
      * @return
      */
-    public SRERole removeOpposingJobs(SRERole role) {
-        this.opposingJobs.remove(role);
-        this.removeRelatedRole(role);
+    public SRERole removeOpposingRole(SRERole... role) {
+        for (var r : role) {
+            this.opposingRoles.remove(r);
+        }
         return this;
+    }
+
+    public Set<SRERole> getOpposingRoles() {
+        return new HashSet<>(this.opposingRoles);
     }
 
     /**
@@ -518,9 +464,11 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @param role
      * @return
      */
-    public SRERole addTwoWayOpposingJobs(SRERole role) {
-        this.addOpposingJobs(role);
-        role.addOpposingJobs(this);
+    public SRERole addTwoWayOpposingRole(SRERole... role) {
+        for (var r : role) {
+            this.addOpposingRole(role);
+            r.addOpposingRole(this);
+        }
         return this;
     }
 
@@ -530,9 +478,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @param role
      * @return
      */
-    public SRERole addOpposingJobs(SRERole role) {
-        this.opposingJobs.add(role);
-        addRelatedRole(role);
+    public SRERole addOpposingRole(SRERole... role) {
+        for (var r : role) {
+            this.opposingRoles.add(r);
+        }
         return this;
     }
 
@@ -542,12 +491,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @param roles
      * @return
      */
-    public SRERole setOpposingJobs(List<SRERole> roles) {
-        this.opposingJobs.clear();
-        this.opposingJobs.addAll(roles);
-        for (var r : roles) {
-            this.addRelatedRole(r);
-        }
+    public SRERole setOpposingRoles(List<SRERole> roles) {
+        this.opposingRoles.clear();
+        this.opposingRoles.addAll(roles);
         return this;
     }
 
