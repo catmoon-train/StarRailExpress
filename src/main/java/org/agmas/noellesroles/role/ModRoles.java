@@ -388,7 +388,7 @@ public class ModRoles {
                     .addEffect(
                             new MobEffectInstance(
                                     ModEffects.NO_COLLIDE,
-                                    30 * 20, // 持续时间 30s（tick），ambient=true时自动续期
+                                    60 * 20, // 持续时间 60s（tick），ambient=true时自动续期
                                     0,
                                     true, // ambient（环境效果，如信标）
                                     false, // showParticles（显示粒子）
