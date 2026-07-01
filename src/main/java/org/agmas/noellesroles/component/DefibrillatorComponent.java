@@ -63,7 +63,8 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
         if (serverPlayer.serverLevel() instanceof ServerLevel slevel) {
             var entities = slevel.getAllEntities();
             for (var bentity : entities) {
-                if (bentity instanceof PlayerBodyEntity body) {
+                if (bentity instanceof PlayerBodyEntity body
+                        && !org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
                     if (body.getPlayerUuid().equals(serverPlayer.getUUID())) {
                         return body;
                     }

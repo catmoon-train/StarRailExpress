@@ -67,6 +67,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,6 +81,16 @@ public abstract class GameMode {
     public boolean canPickBodyContent() {
         return false;
     };
+
+    private static boolean shouldGiveKillerBalance(Player victim) {
+        if (victim instanceof ServerPlayer serverVictim) {
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverVictim.level());
+            if (gameWorld.isRole(serverVictim, ModRoles.DOOMED_SINNER)) {
+                return !DoomedSinnerPlayerComponent.KEY.get(serverVictim).shouldSuppressKillerReward();
+            }
+        }
+        return true;
+    }
 
     public boolean cantSeeBodyContent() {
         return false;
@@ -715,7 +727,8 @@ public abstract class GameMode {
             }
 
             // 杀手击杀获得金钱奖励
-            if (killer != null && SREGameWorldComponent.KEY.get(killer.level()).canUseKillerFeatures(killer)) {
+            if (killer != null && SREGameWorldComponent.KEY.get(killer.level()).canUseKillerFeatures(killer)
+                    && shouldGiveKillerBalance(victim)) {
                 int gift = OnGiveKillerBalance.EVENT.invoker().onGiveKillerBalance(victim, killer, deathReason);
                 gift += GameConstants.getMoneyPerKill();
                 SREPlayerShopComponent.KEY.get(killer).addToBalance(gift);

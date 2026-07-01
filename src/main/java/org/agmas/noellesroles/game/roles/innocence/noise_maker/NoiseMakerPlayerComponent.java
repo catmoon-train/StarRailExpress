@@ -2,6 +2,7 @@ package org.agmas.noellesroles.game.roles.innocence.noise_maker;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -28,12 +29,33 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<NoiseMakerPlayerComponent> KEY = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "noise_maker"), NoiseMakerPlayerComponent.class);
     private final Player player;
     public boolean isActive = true;
     public int cooldown = 0;
+    private static final long PUSH_KILL_CREDIT_MS = 8000L;
+    private static final Map<UUID, PushCredit> PUSH_CREDITS = new ConcurrentHashMap<>();
+
+    static {
+        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, deathReason) -> {
+            if (!(victim instanceof ServerPlayer serverVictim)
+                    || !GameConstants.DeathReasons.FELL_OUT_OF_TRAIN.equals(deathReason)) {
+                return null;
+            }
+            PushCredit credit = PUSH_CREDITS.get(serverVictim.getUUID());
+            if (credit == null || System.currentTimeMillis() - credit.timeMs > PUSH_KILL_CREDIT_MS) {
+                PUSH_CREDITS.remove(serverVictim.getUUID());
+                return null;
+            }
+            return serverVictim.serverLevel().getPlayerByUUID(credit.pusherUuid);
+        });
+    }
 
     @Override
     public Player getPlayer() {
@@ -139,6 +161,7 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
                     double strength = cfg.noisemakerShockwaveKnockback;
                     target.push(to.x / dist * strength, 0.42D, to.z / dist * strength);
                     if (target instanceof ServerPlayer stp) {
+                        markShockwavePushed(stp, serverPlayer);
                         stp.hurtMarked = true;
                         stp.connection.send(new ClientboundSetEntityMotionPacket(stp.getId(), stp.getDeltaMovement()));
                     }
@@ -171,5 +194,15 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    public static void markShockwavePushed(ServerPlayer target, ServerPlayer pusher) {
+        if (target == null || pusher == null || target.getUUID().equals(pusher.getUUID())) {
+            return;
+        }
+        PUSH_CREDITS.put(target.getUUID(), new PushCredit(pusher.getUUID(), System.currentTimeMillis()));
+    }
+
+    private record PushCredit(UUID pusherUuid, long timeMs) {
     }
 }

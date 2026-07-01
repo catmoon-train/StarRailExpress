@@ -360,6 +360,9 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
         PlayerBodyEntity closestBody = null;
         double closestDistance = Double.MAX_VALUE;
         for (PlayerBodyEntity body : target.level().getEntitiesOfClass(PlayerBodyEntity.class, searchBox)) {
+            if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
+                continue;
+            }
             if (!target.getUUID().equals(body.getPlayerUuid())) {
                 continue;
             }

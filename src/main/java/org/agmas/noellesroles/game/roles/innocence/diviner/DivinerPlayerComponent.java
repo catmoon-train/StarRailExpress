@@ -133,6 +133,11 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
         }
 
         if (target instanceof PlayerBodyEntity body) {
+            if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
+                sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.not_corpse")
+                        .withStyle(ChatFormatting.GRAY), true);
+                return;
+            }
             UUID bodyId = body.getUUID();
             if (divinedCorpses.contains(bodyId)) {
                 sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.already")

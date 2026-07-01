@@ -537,7 +537,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** 宿命的罪人 - 不同死因数量下限（&lt;=16 人时） */
     public int doomedSinnerMinReasons = 5;
     /** 宿命的罪人 - 不同死因数量上限（&gt;=32 人时） */
-    public int doomedSinnerMaxReasons = 10;
+    public int doomedSinnerMaxReasons = 8;
     /** 宿命的罪人 - 同一死因死亡多少次后彻底死亡 */
     public int doomedSinnerSamePermanentCount = 3;
     /** 宿命的罪人 - 复活后留下的尸体多少秒后消失 */

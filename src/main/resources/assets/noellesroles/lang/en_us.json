@@ -3248,7 +3248,7 @@
   "skill.noellesroles.doomed_sinner.reboot": "Reboot",
   "message.noellesroles.doomed_sinner.no_target": "No target to inspect.",
   "message.noellesroles.doomed_sinner.too_far": "Target is too far; you must be in close contact.",
-  "message.noellesroles.doomed_sinner.reborn": "You died by [%1$s] and revived in your room. (%2$s/%3$s causes)",
+  "message.noellesroles.doomed_sinner.reborn": "You died by [%1$s] and revived in a random room. (%2$s/%3$s causes)",
   "message.noellesroles.doomed_sinner.final_reason": "You died by [%1$s] and completed every cause of death! (%2$s/%3$s)",
   "message.noellesroles.doomed_sinner.perish": "%1$s died from [%2$s] a third time; the Doomed Sinner has truly perished.",
   "message.noellesroles.doomed_sinner.reboot": "Reboot — you slip free of death in the name of [%1$s].",

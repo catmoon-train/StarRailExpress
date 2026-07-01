@@ -46,7 +46,8 @@ public class RedHouseRoles {
         public InteractionResult rightClickEntity(Player player, Entity target) {
           if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player))
             return InteractionResult.PASS;
-          if (target instanceof PlayerBodyEntity be) {
+          if (target instanceof PlayerBodyEntity be
+              && !org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(be)) {
             PlayerBodyEntityComponent bdrc = PlayerBodyEntityComponent.KEY.get(be);
             bdrc.playerRole = THEventHandler.getRandomRole().identifier();
             bdrc.sync();

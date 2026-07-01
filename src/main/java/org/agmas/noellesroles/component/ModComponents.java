@@ -1,10 +1,12 @@
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerPlayerComponent;
@@ -469,6 +471,9 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
 
   @Override
   public void registerEntityComponentFactories(@NotNull EntityComponentFactoryRegistry registry) {
+    registry.beginRegistration(DoomedSinnerBodyEntity.class, PlayerBodyEntityComponent.KEY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(PlayerBodyEntityComponent::new);
 
     // 注册通用技能组件 - 附加到玩家实体
     // RespawnCopyStrategy.NEVER_COPY 表示玩家重生时不保留数据（游戏开始时会重新初始化）

@@ -1,97 +1,70 @@
 package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.network.RoleRotationSelectC2SPacket;
-import io.wifi.starrailexpress.network.RoleRotationSyncS2CPacket;
-import io.wifi.starrailexpress.SREConfig;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.Holder;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
-
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-/**
- * 职业轮选模式GUI
- * 
- * 布局：
- * - 左侧一列：所有玩家的轮选序号状态（已选择职业的玩家显示职业名，未选择的显示"?"）
- * - 右侧：选职业区域（轮到玩家时显示3个候选职业+随机选项，未轮到时显示"等待中"）
- * - 右上角：当前轮到第几个玩家
- */
-@SuppressWarnings({"unused"})
 public class RoleRotationScreen extends Screen {
+    private static final int PAD = 12;
+    private static final int GAP = 8;
+    private static final int MIN_LEFT_W = 180;
+    private static final int MAX_LEFT_W = 280;
+    private static final int PLAYER_ROW_H = 28;
+    private static final int CARD_H = 104;
+    private static final int DETAIL_LINE_H = 11;
 
-    // ==================== 布局常量 ====================
-    private static final int PANEL_WIDTH = 700;
-    private static final int PANEL_HEIGHT = 450;
-    private static final int PANEL_PAD = 20;
+    private static final int BG_TOP = 0xF018120A;
+    private static final int BG_BOTTOM = 0xF0061018;
+    private static final int PANEL_BG_TOP = 0xD81A1008;
+    private static final int PANEL_BG_BOTTOM = 0xD80B1722;
+    private static final int BORDER = 0xFF8B6914;
+    private static final int GOLD = 0xFFD4AF37;
+    private static final int TEXT = 0xFFFFF4DC;
+    private static final int MUTED = 0xFF9E8B6E;
+    private static final int BLUE = 0xFF5EB7D8;
+    private static final int GREEN = 0xFF72C17B;
+    private static final int RED = 0xFFE06B65;
 
-    // 左侧玩家列表区域
-    private static final int LEFT_PANEL_WIDTH = 280;
-    private static final int LEFT_PANEL_X = 0;
+    private int leftX;
+    private int leftY;
+    private int leftW;
+    private int panelH;
+    private int rightX;
+    private int rightY;
+    private int rightW;
+    private int cardW;
+    private int cardY;
+    private int detailX;
+    private int detailY;
+    private int detailW;
+    private int detailH;
 
-    // 右侧选职业区域
-    private static final int RIGHT_PANEL_WIDTH = PANEL_WIDTH - LEFT_PANEL_WIDTH;
-    private static final int RIGHT_PANEL_X = LEFT_PANEL_WIDTH;
-
-    // 玩家列表
-    private static final int PLAYER_LIST_Y = 80;
-    private static final int PLAYER_ITEM_HEIGHT = 30;
-    private static final int PLAYER_ITEM_SPACING = 4;
-
-    // 职业选择区域
-    private static final int ROLE_SELECT_Y = 100;
-    private static final int ROLE_CARD_WIDTH = 50;  // 缩小卡片宽度
-    private static final int ROLE_CARD_HEIGHT = 100;  // 缩小卡片高度
-    private static final int ROLE_CARD_SPACING = 5;  // 减小间距
-
-    // 计时器
-    private static final int TIMER_Y = 35;
-
-    // ==================== 颜色 ====================
-    private static final int COL_PANEL_BG = 0xE00C1828;
-    private static final int COL_PANEL_BORDER = 0xFF152E4E;
-    private static final int COL_TITLE = 0xFFD8EFFF;
-    private static final int COL_TIMER_NORMAL = 0xFF1ABCCC;
-    private static final int COL_TIMER_WARN = 0xFFFFAA33;
-    private static final int COL_TIMER_URGENT = 0xFFFF5555;
-
-    private static final int COL_CARD_BG = 0xFF0D2035;
-    private static final int COL_CARD_HOVER = 0xFF183855;
-    private static final int COL_CARD_SELECTED = 0xFF0C3A46;
-    private static final int COL_CARD_BORDER = 0xFF18374F;
-    private static final int COL_CARD_BORDER_HOVER = 0xFF287AAA;
-    private static final int COL_CARD_BORDER_SELECTED = 0xFF1ABCCC;
-
-    private static final int COL_TEXT_PRIMARY = 0xFFE0F4FF;
-    private static final int COL_TEXT_NORMAL = 0xFFB0D0E8;
-    private static final int COL_TEXT_MUTED = 0xFF4A7090;
-
-    // ==================== 状态 ====================
-    private int tickCounter = 0;
-    private int playerListScroll = 0;
-    private int maxPlayerListScroll = 0;
-
-    // 当前鼠标悬停的卡片索引 (-1表示无)
+    private int tickCounter;
+    private int playerListScroll;
+    private int maxPlayerListScroll;
     private int hoveredCardIndex = -1;
-
-    private int panelX, panelY;
-    private float renderScale = 1.0f; // 缩放比例，适配小屏幕
+    private int hoveredDetailIndex = -1;
 
     public RoleRotationScreen() {
         super(Component.translatable("gui.sre.role_rotation.title").withStyle(ChatFormatting.GOLD));
@@ -100,23 +73,35 @@ public class RoleRotationScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        // 根据屏幕大小计算缩放比例，防止面板溢出屏幕
-        float scaleX = (float) (width - 16) / PANEL_WIDTH;
-        float scaleY = (float) (height - 16) / PANEL_HEIGHT;
-        renderScale = Math.min(1.0f, Math.min(scaleX, scaleY));
-        
-        // 面板位置（未缩放坐标系，可允许负值，通过矩阵变换后正确居中）
-        panelX = (width - PANEL_WIDTH) / 2;
-        panelY = (height - PANEL_HEIGHT) / 2;
+        computeLayout();
         calculateScroll();
     }
 
+    private void computeLayout() {
+        leftX = PAD;
+        leftY = PAD + 22;
+        panelH = Math.max(120, height - leftY - PAD);
+        leftW = Mth.clamp((int) (width * 0.26F), MIN_LEFT_W, MAX_LEFT_W);
+        rightX = leftX + leftW + GAP;
+        rightY = leftY;
+        rightW = Math.max(160, width - rightX - PAD);
+        cardY = rightY + 42;
+        cardW = Math.max(74, (rightW - GAP * 3 - PAD * 2) / 4);
+        detailX = rightX + PAD;
+        detailY = cardY + CARD_H + GAP;
+        detailW = rightW - PAD * 2;
+        detailH = Math.max(70, rightY + panelH - detailY - PAD);
+    }
+
     private void calculateScroll() {
-        int totalPlayers = RoleRotationCache.getTotalPlayers();
-        int visibleHeight = PANEL_HEIGHT - PLAYER_LIST_Y - 60;
-        int totalContent = totalPlayers * (PLAYER_ITEM_HEIGHT + PLAYER_ITEM_SPACING) - PLAYER_ITEM_SPACING;
-        maxPlayerListScroll = Math.max(0, totalContent - visibleHeight);
+        int listH = getPlayerListHeight();
+        int totalContent = RoleRotationCache.getTotalPlayers() * PLAYER_ROW_H;
+        maxPlayerListScroll = Math.max(0, totalContent - listH);
         playerListScroll = Mth.clamp(playerListScroll, 0, maxPlayerListScroll);
+    }
+
+    private int getPlayerListHeight() {
+        return Math.max(48, panelH - 78);
     }
 
     @Override
@@ -127,383 +112,274 @@ public class RoleRotationScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.render(g, mouseX, mouseY, partialTick);
         renderBackground(g, mouseX, mouseY, partialTick);
+        computeLayout();
+        calculateScroll();
+        hoveredCardIndex = -1;
+        hoveredDetailIndex = -1;
 
-        // 根据GUI缩放做缩放变换，防止面板溢出屏幕
-        g.pose().pushPose();
-        if (renderScale < 1.0f) {
-            g.pose().translate(width / 2.0, height / 2.0, 0);
-            g.pose().scale(renderScale, renderScale, 1.0f);
-            g.pose().translate(-width / 2.0, -height / 2.0, 0);
-        }
-
-        // 绘制主面板
-        drawPanel(g);
-
-        // 绘制标题
-        drawTitle(g);
-
-        // 绘制计时器
-        drawTimer(g);
-
-        // 绘制当前轮到第几个玩家
-        drawCurrentTurnIndicator(g);
-
-        // 绘制左侧玩家列表（传入缩放后的鼠标坐标）
-        int scaledMouseX = scaleMouseX(mouseX);
-        int scaledMouseY = scaleMouseY(mouseY);
-        drawPlayerList(g, scaledMouseX, scaledMouseY);
-
-        // 绘制右侧职业选择区域
-        drawRoleSelection(g, scaledMouseX, scaledMouseY);
-
-        // 绘制提示
-        drawHint(g);
-
-        g.pose().popPose();
-    }
-
-    private void drawPanel(GuiGraphics g) {
-        int x = panelX, y = panelY, w = PANEL_WIDTH, h = PANEL_HEIGHT;
-
-        // 外阴影
-        g.fill(x - 3, y - 3, x + w + 3, y + h + 3, 0x28000000);
-        g.fill(x - 2, y - 2, x + w + 2, y + h + 2, 0x40000814);
-
-        // 边框
-        g.fill(x - 1, y - 1, x + w + 1, y + h + 1, COL_PANEL_BORDER);
-
-        // 背景
-        g.fillGradient(x, y, x + w, y + h, COL_PANEL_BG, 0xE0060D18);
-
-        // 顶部高光线
-        g.fill(x, y, x + w, y + 1, 0xFF2AAAD4);
-
-        // 中间分隔线
-        int dividerX = panelX + LEFT_PANEL_WIDTH;
-        g.fill(dividerX, panelY + 10, dividerX + 1, panelY + PANEL_HEIGHT - 10, 0xFF1A3A58);
-    }
-
-    private void drawTitle(GuiGraphics g) {
-        Component titleText = Component.translatable("gui.sre.role_rotation.title");
-        g.drawCenteredString(font, titleText, width / 2, panelY + 12, COL_TITLE);
-    }
-
-    private void drawTimer(GuiGraphics g) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
-        
-        UUID myUuid = mc.player.getUUID();
-        int remainingSeconds;
-        int finalTimerColor;
-        boolean isAdjustPhase = !RoleRotationCache.isSelecting();
-        
-        // 检查是否处于职业调整阶段（所有人都选完，等待确认倒计时）
-        if (isAdjustPhase) {
-            // 职业调整阶段，显示确认倒计时
-            remainingSeconds = RoleRotationCache.getConfirmCountdown() / 20;
-            finalTimerColor = (tickCounter % 20 < 10) ? 0xFFFFAA00 : 0xFFFF8800;
-            
-            // 显示职业调整阶段提示
-            Component adjustPhase = Component.translatable("gui.sre.role_rotation.adjust_phase")
-                    .withStyle(style -> style.withColor(0xFFFFAA00).withBold(true));
-            int tw = font.width(adjustPhase) + 20;
-            int tx = width / 2 - tw / 2;
-            int ty = panelY + TIMER_Y - 20;
-            g.fill(tx, ty, tx + tw, ty + 16, 0xFF060F1C);
-            g.drawCenteredString(font, adjustPhase, width / 2, ty + 4, 0xFFFFAA00);
-        } else if (!RoleRotationCache.isMyTurn(myUuid)) {
-            // 不是自己的回合，不显示倒计时
-            return;
-        } else {
-            // 轮到当前玩家，显示个人倒计时
-            remainingSeconds = RoleRotationCache.getRemainingSeconds();
-            int sec = Math.max(0, remainingSeconds);
-            
-            if (sec <= 10) {
-                finalTimerColor = (tickCounter % 20 < 10) ? COL_TIMER_URGENT : COL_TIMER_URGENT - 0x300000;
-            } else if (sec <= 30) {
-                finalTimerColor = COL_TIMER_WARN;
-            } else {
-                finalTimerColor = COL_TIMER_NORMAL;
-            }
-            
-            // 绘制个人倒计时
-            drawCountdownTimer(g, remainingSeconds, finalTimerColor);
-            return;
-        }
-        
-        // 绘制职业调整阶段倒计时
-        drawCountdownTimer(g, remainingSeconds, finalTimerColor);
-    }
-    
-    private void drawCountdownTimer(GuiGraphics g, int remainingSeconds, int timerColor) {
-        int sec = Math.max(0, remainingSeconds);
-        String timeStr = String.format("%d:%02d", sec / 60, sec % 60);
-        Component timerComp = Component.literal("⏱ " + timeStr).withStyle(style -> style.withColor(timerColor));
-
-        int tw = font.width(timerComp) + 20;
-        int tx = width / 2 - tw / 2;
-        int ty = panelY + TIMER_Y;
-        int badgeH = 16;
-
-        g.fill(tx, ty, tx + tw, ty + badgeH, 0xFF060F1C);
-        g.fill(tx, ty, tx + tw, ty + 1, timerColor & 0x00FFFFFF | 0x99000000);
-        g.drawCenteredString(font, timerComp, width / 2, ty + 4, timerColor);
-    }
-
-    private void drawCurrentTurnIndicator(GuiGraphics g) {
-        int currentIndex = RoleRotationCache.getCurrentIndex();
-        int totalPlayers = RoleRotationCache.getTotalPlayers();
-        int myIndex = RoleRotationCache.getMyRotationIndex();
-
-        // 当前轮到第几个玩家
-        Component indicator = Component.translatable("gui.sre.role_rotation.current_turn",
-                currentIndex, totalPlayers)
-                .withStyle(ChatFormatting.GOLD);
-
-        int tx = panelX + PANEL_WIDTH - 130;
-        int ty = panelY + 12;
-
-        g.drawString(font, indicator, tx, ty, 0xFFFFFF);
-        
-        // 你是第几号玩家
-        if (myIndex > 0) {
-            Component yourIndex = Component.translatable("gui.sre.role_rotation.your_index", myIndex)
-                    .withStyle(ChatFormatting.AQUA);
-            g.drawString(font, yourIndex, tx, ty + 16, 0xFFFFFF);
-        }
-    }
-
-    private void drawPlayerList(GuiGraphics g, int mouseX, int mouseY) {
-        int listX = panelX + 15;
-        int listY = panelY + PLAYER_LIST_Y;
-
-        // 列表标题
-        Component listTitle = Component.translatable("gui.sre.role_rotation.player_list")
-                .withStyle(ChatFormatting.WHITE);
-        g.drawString(font, listTitle, listX, listY - 20, COL_TEXT_NORMAL);
-
-        // 滚动裁剪区域
-        int clipHeight = PANEL_HEIGHT - PLAYER_LIST_Y - 60;
-        g.enableScissor(listX - 5, listY, listX + LEFT_PANEL_WIDTH - 30, listY + clipHeight);
-
-        // 获取排序后的玩家列表（按序号从小到大排序）
-        List<Map.Entry<UUID, Integer>> sortedEntries = new ArrayList<>(RoleRotationCache.getRotationOrder().entrySet());
-        sortedEntries.sort(Comparator.comparingInt(Map.Entry::getValue));
-
-        // 绘制玩家条目
-        int drawY = listY - playerListScroll;
-
-        for (int i = 0; i < sortedEntries.size(); i++) {
-            Map.Entry<UUID, Integer> entry = sortedEntries.get(i);
-            UUID playerUuid = entry.getKey();
-            int playerIndex = entry.getValue();
-            String selectedRolePath = RoleRotationCache.getSelectedRoles().get(playerUuid);
-            boolean isCurrentTurn = playerIndex == RoleRotationCache.getCurrentIndex();
-
-            int itemY = drawY + i * (PLAYER_ITEM_HEIGHT + PLAYER_ITEM_SPACING);
-
-            // 检查是否在可见区域内
-            if (itemY + PLAYER_ITEM_HEIGHT < listY || itemY > listY + clipHeight) {
-                continue;
-            }
-
-            // 绘制背景
-            int bgColor = isCurrentTurn ? 0x401A8A4A : 0x300A1520;
-            g.fill(listX, itemY, listX + LEFT_PANEL_WIDTH - 40, itemY + PLAYER_ITEM_HEIGHT, bgColor);
-
-            // 绘制边框
-            if (isCurrentTurn) {
-                g.fill(listX, itemY, listX + 2, itemY + PLAYER_ITEM_HEIGHT, 0xFF1ABCCC);
-            }
-
-            // 序号
-            String indexStr = "#" + playerIndex;
-            g.drawString(font, indexStr, listX + 5, itemY + 10, isCurrentTurn ? 0xFFFFFF : COL_TEXT_MUTED);
-
-            // 已选职业或等待中（使用翻译后的职业名）
-            String roleText;
-            int roleColor;
-            if (selectedRolePath != null) {
-                // 鹅鸭杀轮抽模式：玩家选择随机时不展示职业
-                if (SREConfig.instance().hideRandomRoleInRoleRotation
-                        && RoleRotationCache.getRandomChoosers().contains(playerUuid)) {
-                    roleText = Component.translatable("gui.sre.role_rotation.random").getString();
-                    roleColor = 0xFFFFAA33;
-                } else {
-                    SRERole role = getRoleByPath(selectedRolePath);
-                    if (role != null) {
-                        roleText = RoleUtils.getRoleName(role).getString();
-                    } else {
-                        roleText = selectedRolePath;
-                    }
-                    roleColor = 0xFF1ABCCC;
-                }
-            } else {
-                roleText = "?";
-                roleColor = COL_TEXT_MUTED;
-            }
-            Component roleComp = Component.literal(roleText).withStyle(style -> style.withColor(roleColor));
-            g.drawString(font, roleComp, listX + LEFT_PANEL_WIDTH - 80, itemY + 10, roleColor);
-        }
-
-        g.disableScissor();
-
-        // 绘制滚动条
-        if (maxPlayerListScroll > 0) {
-            drawScrollbar(g, listX + LEFT_PANEL_WIDTH - 25, listY, clipHeight);
-        }
-    }
-
-    private void drawScrollbar(GuiGraphics g, int sx, int sy, int sh) {
-        int thumbH = Math.max(20, (int) (sh * 0.2));
-        int thumbY = sy + (int) ((sh - thumbH) * ((double) playerListScroll / maxPlayerListScroll));
-
-        g.fill(sx, sy, sx + 5, sy + sh, 0xFF0A1825);
-        g.fillGradient(sx, thumbY, sx + 5, thumbY + thumbH, 0xFF3A7AAA, 0xFF2A5A80);
-    }
-
-    private void drawRoleSelection(GuiGraphics g, int mouseX, int mouseY) {
-        int selectX = panelX + LEFT_PANEL_WIDTH + 20;
-        int selectY = panelY + ROLE_SELECT_Y;
-
-        // 标题
-        Component title = Component.translatable("gui.sre.role_rotation.select_title")
-                .withStyle(ChatFormatting.WHITE);
-        g.drawString(font, title, selectX + 80, selectY - 25, COL_TEXT_NORMAL);
-
-        // 检查是否是当前玩家
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
-
-        UUID myUuid = mc.player.getUUID();
-        boolean isMyTurn = RoleRotationCache.isMyTurn(myUuid);
-        boolean hasSelected = RoleRotationCache.getSelectedRoles().containsKey(myUuid);
-
-        if (hasSelected) {
-            // 已选择职业，显示已选职业（使用翻译后的名字）
-            String rolePath = RoleRotationCache.getSelectedRoles().get(myUuid);
-            String roleName;
-            if (rolePath != null) {
-                SRERole role = getRoleByPath(rolePath);
-                roleName = (role != null) ? RoleUtils.getRoleName(role).getString() : rolePath;
-            } else {
-                roleName = "?";
-            }
-            Component selectedComp = Component.translatable("gui.sre.role_rotation.you_selected", roleName)
-                    .withStyle(ChatFormatting.GREEN);
-            g.drawCenteredString(font, selectedComp, panelX + LEFT_PANEL_WIDTH + RIGHT_PANEL_WIDTH / 2, selectY + 60,
-                    0xFF1ABCCC);
-
-            // 提示可以按U查看职业介绍
-            Component hint = Component.translatable("gui.sre.role_rotation.press_u_hint")
-                    .withStyle(ChatFormatting.GRAY);
-            g.drawCenteredString(font, hint, panelX + LEFT_PANEL_WIDTH + RIGHT_PANEL_WIDTH / 2, selectY + 85,
-                    COL_TEXT_MUTED);
-        } else if (isMyTurn) {
-            // 轮到当前玩家，显示候选职业
-            drawRoleCards(g, selectX, selectY, mouseX, mouseY);
-        } else {
-            // 未轮到，等待中
-            Component waiting = Component.translatable("gui.sre.role_rotation.waiting")
-                    .withStyle(ChatFormatting.YELLOW);
-            g.drawCenteredString(font, waiting, panelX + LEFT_PANEL_WIDTH + RIGHT_PANEL_WIDTH / 2, selectY + 60,
-                    COL_TEXT_MUTED);
-        }
+        drawTitleBar(g);
+        drawPanel(g, leftX, leftY, leftW, panelH);
+        drawPanel(g, rightX, rightY, rightW, panelH);
+        drawPlayerList(g, mouseX, mouseY);
+        drawTurnInfo(g);
+        drawRoleArea(g, mouseX, mouseY);
+        drawFooter(g);
+        super.render(g, mouseX, mouseY, partialTick);
     }
 
     @Override
-    public boolean shouldCloseOnEsc() {
-        return false;
+    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        g.fillGradient(0, 0, width, height, BG_TOP, BG_BOTTOM);
+        g.fillGradient(0, 0, width, 34, 0xAA000000, 0x22000000);
     }
 
-    private void drawRoleCards(GuiGraphics g, int startX, int startY, int mouseX, int mouseY) {
+    private void drawTitleBar(GuiGraphics g) {
+        g.drawString(font, title, PAD, 10, GOLD, false);
+        Component turn = Component.translatable("gui.sre.role_rotation.current_turn",
+                RoleRotationCache.getCurrentIndex(), RoleRotationCache.getTotalPlayers());
+        g.drawString(font, turn, width - PAD - font.width(turn), 10, TEXT, false);
+    }
+
+    private void drawPanel(GuiGraphics g, int x, int y, int w, int h) {
+        g.fillGradient(x, y, x + w, y + h, PANEL_BG_TOP, PANEL_BG_BOTTOM);
+        g.renderOutline(x, y, w, h, BORDER);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x33FFE8C0);
+    }
+
+    private void drawPlayerList(GuiGraphics g, int mouseX, int mouseY) {
+        int x = leftX + PAD;
+        int y = leftY + PAD + 28;
+        int w = leftW - PAD * 2;
+        int h = getPlayerListHeight();
+
+        Component listTitle = Component.translatable("gui.sre.role_rotation.player_list");
+        g.drawString(font, listTitle, x, leftY + PAD, TEXT, false);
+
+        List<Map.Entry<UUID, Integer>> players = new ArrayList<>(RoleRotationCache.getRotationOrder().entrySet());
+        players.sort(Comparator.comparingInt(Map.Entry::getValue));
+
+        g.enableScissor(x, y, x + w, y + h);
+        int drawY = y - playerListScroll;
+        for (int i = 0; i < players.size(); i++) {
+            Map.Entry<UUID, Integer> entry = players.get(i);
+            UUID uuid = entry.getKey();
+            int rowY = drawY + i * PLAYER_ROW_H;
+            if (rowY + PLAYER_ROW_H < y || rowY > y + h) {
+                continue;
+            }
+            boolean current = entry.getValue() == RoleRotationCache.getCurrentIndex();
+            int bg = current ? 0x552A5A42 : 0x331A1008;
+            g.fillGradient(x, rowY, x + w, rowY + PLAYER_ROW_H - 3, bg, 0x33120A04);
+            g.renderOutline(x, rowY, w, PLAYER_ROW_H - 3, current ? GREEN : 0x665A4530);
+
+            String index = "#" + entry.getValue();
+            g.drawString(font, index, x + 6, rowY + 8, current ? GREEN : MUTED, false);
+
+            String name = trim(getPlayerName(uuid), Math.max(30, w / 2 - 10));
+            g.drawString(font, name, x + 42, rowY + 8, TEXT, false);
+
+            Component roleName = selectedRoleText(uuid);
+            g.drawString(font, trim(roleName.getString(), Math.max(30, w - 104)), x + w - 58, rowY + 8,
+                    roleName.getStyle().getColor() != null ? roleName.getStyle().getColor().getValue() : BLUE, false);
+        }
+        g.disableScissor();
+
+        if (maxPlayerListScroll > 0) {
+            int barX = x + w - 4;
+            int thumbH = Math.max(18, h * h / Math.max(h, players.size() * PLAYER_ROW_H));
+            int thumbY = y + (int) ((h - thumbH) * (playerListScroll / (double) maxPlayerListScroll));
+            g.fill(barX, y, barX + 3, y + h, 0x661A1008);
+            g.fill(barX, thumbY, barX + 3, thumbY + thumbH, GOLD);
+        }
+    }
+
+    private Component selectedRoleText(UUID uuid) {
+        String rolePath = RoleRotationCache.getSelectedRoles().get(uuid);
+        if (rolePath == null) {
+            return Component.literal("?").withStyle(ChatFormatting.DARK_GRAY);
+        }
+        if (SREConfig.instance().hideRandomRoleInRoleRotation
+                && RoleRotationCache.getRandomChoosers().contains(uuid)) {
+            return Component.translatable("gui.sre.role_rotation.random").withStyle(ChatFormatting.GOLD);
+        }
+        SRERole role = getRoleByPath(rolePath);
+        return role == null ? Component.literal(rolePath).withStyle(ChatFormatting.AQUA)
+                : RoleUtils.getRoleName(role).withStyle(style -> style.withColor(role.getColor()));
+    }
+
+    private void drawTurnInfo(GuiGraphics g) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) {
+            return;
+        }
+        int x = rightX + PAD;
+        int y = rightY + PAD;
+        int seconds = RoleRotationCache.isSelecting()
+                ? RoleRotationCache.getRemainingSeconds()
+                : Math.max(0, RoleRotationCache.getConfirmCountdown() / 20);
+        int color = seconds <= 10 ? (tickCounter % 20 < 10 ? RED : 0xFFFFA0A0) : seconds <= 30 ? 0xFFFFAA33 : BLUE;
+        String time = String.format("%d:%02d", Math.max(0, seconds) / 60, Math.max(0, seconds) % 60);
+        Component timer = Component.literal(time).withStyle(style -> style.withColor(color).withBold(true));
+        g.drawString(font, timer, x, y, color, false);
+
+        Component phase = RoleRotationCache.isSelecting()
+                ? Component.translatable("gui.sre.role_rotation.select_title")
+                : Component.translatable("gui.sre.role_rotation.adjust_phase");
+        g.drawString(font, phase, x + 54, y, TEXT, false);
+
+        int myIndex = RoleRotationCache.getMyRotationIndex();
+        if (myIndex > 0) {
+            Component mine = Component.translatable("gui.sre.role_rotation.your_index", myIndex)
+                    .withStyle(ChatFormatting.AQUA);
+            g.drawString(font, mine, rightX + rightW - PAD - font.width(mine), y, BLUE, false);
+        }
+    }
+
+    private void drawRoleArea(GuiGraphics g, int mouseX, int mouseY) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) {
+            return;
+        }
+        UUID myUuid = mc.player.getUUID();
+        boolean hasSelected = RoleRotationCache.getSelectedRoles().containsKey(myUuid);
+        boolean canChoose = RoleRotationCache.isSelecting() && RoleRotationCache.isMyTurn(myUuid) && !hasSelected;
+
         List<String> candidates = RoleRotationCache.getCurrentCandidates();
-        if (candidates.isEmpty()) return;
-
-        // 计算4个卡片 + 3个间距的总宽度
-        int totalWidth = 4 * ROLE_CARD_WIDTH + 3 * ROLE_CARD_SPACING;
-        int cardStartX = startX + (RIGHT_PANEL_WIDTH - totalWidth) / 2 - 10;
-
-        hoveredCardIndex = -1;
-
         for (int i = 0; i < 4; i++) {
-            int cardX = cardStartX + i * (ROLE_CARD_WIDTH + ROLE_CARD_SPACING);
-            int cardY = startY;
-
-            boolean isHovered = mouseX >= cardX && mouseX < cardX + ROLE_CARD_WIDTH &&
-                    mouseY >= cardY && mouseY < cardY + ROLE_CARD_HEIGHT;
-
-            if (isHovered) {
+            int x = detailX + i * (cardW + GAP);
+            boolean hover = canChoose && inside(mouseX, mouseY, x, cardY, cardW, CARD_H);
+            if (hover) {
                 hoveredCardIndex = i;
+                hoveredDetailIndex = i;
             }
+            drawRoleCard(g, x, cardY, cardW, CARD_H, i, candidates, hover, canChoose);
+        }
 
-            // 绘制卡片
-            drawRoleCard(g, cardX, cardY, i, candidates, isHovered);
+        String selectedPath = RoleRotationCache.getSelectedRoles().get(myUuid);
+        if (selectedPath != null) {
+            hoveredDetailIndex = detailIndexForSelected(selectedPath, candidates);
+        }
+        drawDetail(g, selectedPath, candidates);
+    }
+
+    private void drawRoleCard(GuiGraphics g, int x, int y, int w, int h, int index, List<String> candidates,
+            boolean hover, boolean enabled) {
+        int border = hover ? GOLD : 0xFF5A4530;
+        int top = hover ? 0xFF2B2112 : 0xFF1A1008;
+        int bottom = hover ? 0xFF112536 : 0xFF0B1722;
+        g.fillGradient(x, y, x + w, y + h, top, bottom);
+        g.renderOutline(x, y, w, h, border);
+        g.fill(x + 1, y + 1, x + w - 1, y + 3, hover ? GOLD : 0x33FFE8C0);
+
+        if (index == 3) {
+            drawRandomCard(g, x, y, w, h, enabled);
+            return;
+        }
+        if (index >= candidates.size()) {
+            drawEmptyCard(g, x, y, w, h);
+            return;
+        }
+        SRERole role = getRoleByPath(candidates.get(index));
+        if (role == null) {
+            drawCenteredWrapped(g, Component.literal(candidates.get(index)), x + 8, y + 32, w - 16, 0xFFFFFFFF);
+            return;
+        }
+        int roleColor = role.getColor() | 0xFF000000;
+        g.fill(x + 8, y + 14, x + w - 8, y + 34, (roleColor & 0x00FFFFFF) | 0x66000000);
+        g.drawCenteredString(font, trim(RoleUtils.getRoleName(role).getString(), w - 16), x + w / 2, y + 20,
+                0xFFFFFFFF);
+        Component faction = getRoleFactionText(role);
+        g.drawCenteredString(font, trim(faction.getString(), w - 16), x + w / 2, y + 48,
+                faction.getStyle().getColor() != null ? faction.getStyle().getColor().getValue() : TEXT);
+        Component hint = Component.translatable("gui.sre.role_rotation.click_to_select");
+        g.drawCenteredString(font, trim(hint.getString(), w - 16), x + w / 2, y + h - 18,
+                enabled ? GREEN : MUTED);
+    }
+
+    private void drawRandomCard(GuiGraphics g, int x, int y, int w, int h, boolean enabled) {
+        g.fill(x + 8, y + 14, x + w - 8, y + 34, 0x55D4AF37);
+        g.drawCenteredString(font, Component.translatable("gui.sre.role_rotation.random"), x + w / 2, y + 20, GOLD);
+        g.drawCenteredString(font, "?", x + w / 2, y + 49, GOLD);
+        Component hint = Component.translatable("gui.sre.role_rotation.click_to_random");
+        g.drawCenteredString(font, trim(hint.getString(), w - 16), x + w / 2, y + h - 18,
+                enabled ? GOLD : MUTED);
+    }
+
+    private void drawEmptyCard(GuiGraphics g, int x, int y, int w, int h) {
+        g.drawCenteredString(font, "-", x + w / 2, y + h / 2 - 4, MUTED);
+    }
+
+    private void drawDetail(GuiGraphics g, String selectedPath, List<String> candidates) {
+        g.fillGradient(detailX, detailY, detailX + detailW, detailY + detailH, 0xAA1A1008, 0xAA0B1722);
+        g.renderOutline(detailX, detailY, detailW, detailH, 0xFF5A4530);
+
+        SRERole role = null;
+        if (hoveredDetailIndex >= 0 && hoveredDetailIndex < 3 && hoveredDetailIndex < candidates.size()) {
+            role = getRoleByPath(candidates.get(hoveredDetailIndex));
+        } else if (selectedPath != null) {
+            role = getRoleByPath(selectedPath);
+        }
+
+        if (role == null) {
+            Component text = hoveredDetailIndex == 3
+                    ? Component.translatable("gui.sre.role_rotation.random")
+                    : Component.translatable("gui.sre.role_rotation.waiting");
+            g.drawCenteredString(font, text, detailX + detailW / 2, detailY + detailH / 2 - 4,
+                    hoveredDetailIndex == 3 ? GOLD : MUTED);
+            return;
+        }
+
+        int x = detailX + PAD;
+        int y = detailY + PAD;
+        int roleColor = role.getColor();
+        Component name = RoleUtils.getRoleName(role).withStyle(style -> style.withColor(roleColor).withBold(true));
+        g.drawString(font, name, x, y, roleColor | 0xFF000000, false);
+        Component faction = getRoleFactionText(role);
+        g.drawString(font, faction, detailX + detailW - PAD - font.width(faction), y,
+                faction.getStyle().getColor() != null ? faction.getStyle().getColor().getValue() : TEXT, false);
+
+        int textY = y + 18;
+        int wrapW = detailW - PAD * 2;
+        List<FormattedCharSequence> lines = getRoleIntroLines(role, wrapW);
+        int visible = Math.max(1, (detailY + detailH - PAD - textY) / DETAIL_LINE_H);
+        for (int i = 0; i < visible && i < lines.size(); i++) {
+            g.drawString(font, lines.get(i), x, textY + i * DETAIL_LINE_H, TEXT, false);
         }
     }
 
-    private void drawRoleCard(GuiGraphics g, int x, int y, int index, List<String> candidates, boolean isHovered) {
-        // 背景
-        int bgColor = isHovered ? COL_CARD_HOVER : COL_CARD_BG;
-        g.fill(x, y, x + ROLE_CARD_WIDTH, y + ROLE_CARD_HEIGHT, bgColor);
-
-        // 边框
-        int borderColor = isHovered ? COL_CARD_BORDER_HOVER : COL_CARD_BORDER;
-        g.renderOutline(x, y, ROLE_CARD_WIDTH, ROLE_CARD_HEIGHT, borderColor);
-
-        // 顶部装饰
-        g.fill(x + 1, y + 1, x + ROLE_CARD_WIDTH - 1, y + 4, 0xFF2AAAD4);
-
-        if (index < 3 && index < candidates.size()) {
-            // 前三个：候选职业
-            String rolePath = candidates.get(index);
-            SRERole role = getRoleByPath(rolePath);
-
-            if (role != null) {
-                // 职业颜色背景
-                g.fill(x + 10, y + 20, x + ROLE_CARD_WIDTH - 10, y + 80, role.getColor() & 0x00FFFFFF | 0x40000000);
-
-                // 职业名
-                Component roleName = RoleUtils.getRoleName(role);
-                List<net.minecraft.util.FormattedCharSequence> wrapped = font.split(roleName,
-                        ROLE_CARD_WIDTH - 20);
-                int nameY = y + 30;
-                for (net.minecraft.util.FormattedCharSequence line : wrapped) {
-                    g.drawString(font, line, x + 10, nameY, 0xFFFFFF);
-                    nameY += font.lineHeight;
-                }
-
-                // 职业阵营
-                Component faction = getRoleFactionText(role);
-                g.drawString(font, faction, x + 10, y + 90, 0xFFB0D0E8);
-
-                // 选择提示
-                Component selectHint = Component.translatable("gui.sre.role_rotation.click_to_select")
-                        .withStyle(ChatFormatting.GREEN);
-                g.drawCenteredString(font, selectHint, x + ROLE_CARD_WIDTH / 2, y + 120, 0xFF22CC6A);
-            }
-        } else if (index == 3) {
-            // 第四个：随机
-            g.fill(x + 10, y + 20, x + ROLE_CARD_WIDTH - 10, y + 80, 0x40FFAA33);
-
-            Component randomText = Component.translatable("gui.sre.role_rotation.random")
-                    .withStyle(ChatFormatting.GOLD);
-            g.drawCenteredString(font, randomText, x + ROLE_CARD_WIDTH / 2, y + 45, 0xFFFFAA33);
-
-            Component randomIcon = Component.literal("?");
-            g.drawCenteredString(font, randomIcon, x + ROLE_CARD_WIDTH / 2, y + 65, 0xFFFFAA33);
-
-            Component selectHint = Component.translatable("gui.sre.role_rotation.click_to_random")
-                    .withStyle(ChatFormatting.YELLOW);
-            g.drawCenteredString(font, selectHint, x + ROLE_CARD_WIDTH / 2, y + 120, 0xFFFFAA33);
+    private List<FormattedCharSequence> getRoleIntroLines(SRERole role, int wrapW) {
+        String key = "info.screen.roleid." + role.identifier().getPath();
+        String raw = Language.getInstance().getOrDefault(key);
+        if (raw.equals(key) || raw.isBlank()) {
+            return font.split(RoleUtils.getRoleDescription(role), wrapW);
         }
+        List<FormattedCharSequence> lines = new ArrayList<>();
+        for (String part : raw.split("\\\\n|\\n")) {
+            lines.addAll(font.split(Component.literal(part), wrapW));
+            lines.add(FormattedCharSequence.EMPTY);
+        }
+        return lines;
+    }
 
-        // 悬停效果
-        if (isHovered) {
-            g.renderOutline(x - 1, y - 1, ROLE_CARD_WIDTH + 2, ROLE_CARD_HEIGHT + 2, 0xFF4AAFDF);
+    private int detailIndexForSelected(String selectedPath, List<String> candidates) {
+        for (int i = 0; i < Math.min(3, candidates.size()); i++) {
+            if (selectedPath.equals(candidates.get(i))) {
+                return i;
+            }
+        }
+        return RoleRotationCache.getRandomChoosers().contains(Minecraft.getInstance().player.getUUID()) ? 3 : -1;
+    }
+
+    private void drawFooter(GuiGraphics g) {
+        Component hint = Component.translatable("gui.sre.role_rotation.scroll_hint").withStyle(ChatFormatting.GRAY);
+        g.drawCenteredString(font, hint, width / 2, height - 12, MUTED);
+    }
+
+    private void drawCenteredWrapped(GuiGraphics g, Component text, int x, int y, int w, int color) {
+        List<FormattedCharSequence> lines = font.split(text, w);
+        for (int i = 0; i < Math.min(3, lines.size()); i++) {
+            g.drawCenteredString(font, lines.get(i), x + w / 2, y + i * font.lineHeight, color);
         }
     }
 
@@ -519,91 +395,59 @@ public class RoleRotationScreen extends Screen {
         } else if (role.isVigilanteTeam()) {
             return Component.translatable("display.type.role.vigilante").withStyle(style -> style.withColor(0xFF22BBCC));
         }
-        return Component.literal("Unknown");
-    }
-
-    private void drawHint(GuiGraphics g) {
-        Component hint = Component.translatable("gui.sre.role_rotation.scroll_hint")
-                .withStyle(ChatFormatting.GRAY);
-        g.drawCenteredString(font, hint, width / 2, panelY + PANEL_HEIGHT - 15, COL_TEXT_MUTED);
-    }
-
-    /**
-     * 将屏幕鼠标坐标转换为缩放前的逻辑坐标
-     */
-    private int scaleMouseX(double screenX) {
-        if (renderScale >= 1.0f) return (int) screenX;
-        return (int) (width / 2.0 + (screenX - width / 2.0) / renderScale);
-    }
-    
-    private int scaleMouseY(double screenY) {
-        if (renderScale >= 1.0f) return (int) screenY;
-        return (int) (height / 2.0 + (screenY - height / 2.0) / renderScale);
+        return Component.literal("Unknown").withStyle(ChatFormatting.GRAY);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) { // 左键
-            // 检查是否点击了职业卡片
-            if (hoveredCardIndex >= 0) {
-                selectRole(hoveredCardIndex);
-                return true;
-            }
+        if (button == 0 && hoveredCardIndex >= 0 && canChooseNow()) {
+            ClientPlayNetworking.send(new RoleRotationSelectC2SPacket(hoveredCardIndex));
+            return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    private void selectRole(int choiceIndex) {
-        ClientPlayNetworking.send(new RoleRotationSelectC2SPacket(choiceIndex));
+    private boolean canChooseNow() {
+        Minecraft mc = Minecraft.getInstance();
+        return mc.player != null
+                && RoleRotationCache.isSelecting()
+                && RoleRotationCache.isMyTurn(mc.player.getUUID())
+                && !RoleRotationCache.getSelectedRoles().containsKey(mc.player.getUUID());
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        double sx = scaleMouseX(mouseX);
-        double sy = scaleMouseY(mouseY);
-        if (maxPlayerListScroll > 0) {
-            int listX = panelX + 15;
-            int listY = panelY + PLAYER_LIST_Y;
-            int clipHeight = PANEL_HEIGHT - PLAYER_LIST_Y - 60;
-
-            // 检查鼠标是否在玩家列表区域
-            if (sx >= listX && sx < listX + LEFT_PANEL_WIDTH - 40 &&
-                    sy >= listY && sy < listY + clipHeight) {
-                playerListScroll = Mth.clamp(playerListScroll - (int) scrollY * (PLAYER_ITEM_HEIGHT + PLAYER_ITEM_SPACING),
-                        0, maxPlayerListScroll);
-                return true;
-            }
+        if (inside(mouseX, mouseY, leftX, leftY, leftW, panelH) && maxPlayerListScroll > 0) {
+            playerListScroll = Mth.clamp(playerListScroll - (int) Math.signum(scrollY) * PLAYER_ROW_H,
+                    0, maxPlayerListScroll);
+            return true;
         }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // 按 ESC 打开退出菜单
-        if(keyCode == 256){
-            this.minecraft.setScreen(new WithParentScreenPauseScreen(this));
+        if (keyCode == 256) {
+            minecraft.setScreen(new WithParentScreenPauseScreen(this));
             return true;
         }
-
-        // 按U键查看职业介绍
-        if (NoellesrolesClient.roleIntroClientBind.matches(keyCode,scanCode)) { // U键
+        if (NoellesrolesClient.roleIntroClientBind.matches(keyCode, scanCode)) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player != null) {
-                UUID myUuid = mc.player.getUUID();
-                String rolePath = RoleRotationCache.getSelectedRoles().get(myUuid);
-                if (rolePath != null) {
-                    SRERole role = getRoleByPath(rolePath);
-                    if (role != null) {
-                        // 打开职业介绍界面，parent设置为this以便按ESC时返回轮选页面
-                        net.minecraft.client.gui.screens.Screen roleScreen = new org.agmas.noellesroles.client.screen.RoleIntroduceScreen(this, role);
-                        mc.setScreen(roleScreen);
-                    }
+                String rolePath = RoleRotationCache.getSelectedRoles().get(mc.player.getUUID());
+                SRERole role = getRoleByPath(rolePath);
+                if (role != null) {
+                    mc.setScreen(new org.agmas.noellesroles.client.screen.RoleIntroduceScreen(this, role));
                 }
             }
             return true;
         }
-
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return false;
     }
 
     @Override
@@ -614,8 +458,6 @@ public class RoleRotationScreen extends Screen {
     public void updateData() {
         calculateScroll();
     }
-
-    // ==================== 工具方法 ====================
 
     private String getPlayerName(UUID uuid) {
         Minecraft mc = Minecraft.getInstance();
@@ -629,8 +471,33 @@ public class RoleRotationScreen extends Screen {
     }
 
     private SRERole getRoleByPath(String path) {
-        if (path == null) return null;
-        ResourceLocation id = ResourceLocation.parse(path);
-        return TMMRoles.ROLES.get(id);
+        if (path == null || path.isBlank()) {
+            return null;
+        }
+        ResourceLocation id = ResourceLocation.tryParse(path);
+        if (id != null) {
+            SRERole role = TMMRoles.ROLES.get(id);
+            if (role != null) {
+                return role;
+            }
+        }
+        if (path.contains(":")) {
+            return null;
+        }
+        for (String namespace : List.of("noellesroles", "starrailexpress", "trainmurdermystery")) {
+            SRERole role = TMMRoles.ROLES.get(ResourceLocation.fromNamespaceAndPath(namespace, path));
+            if (role != null) {
+                return role;
+            }
+        }
+        return null;
+    }
+
+    private String trim(String value, int maxWidth) {
+        return font.plainSubstrByWidth(value, Math.max(4, maxWidth));
+    }
+
+    private static boolean inside(double mouseX, double mouseY, int x, int y, int w, int h) {
+        return mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h;
     }
 }

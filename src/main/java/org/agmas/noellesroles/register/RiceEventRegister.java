@@ -56,6 +56,9 @@ public class RiceEventRegister {
             if (!(entity instanceof PlayerBodyEntity body))
                 return net.minecraft.world.InteractionResult.PASS;
 
+            if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body))
+                return net.minecraft.world.InteractionResult.PASS;
+
             if (gameWorld.isRole(player, ModRoles.DIO)) {
                 DIOPlayerComponent dioPlayerComponent = DIOPlayerComponent.KEY.get(player);
                 boolean success = dioPlayerComponent.feedOnCorpse(body);

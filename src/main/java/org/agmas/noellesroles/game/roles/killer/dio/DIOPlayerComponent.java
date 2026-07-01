@@ -277,7 +277,8 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
      */
 
     public boolean feedOnCorpse(Entity corpse) {
-        if (corpse == null || !(corpse instanceof PlayerBodyEntity))
+        if (corpse == null || !(corpse instanceof PlayerBodyEntity)
+                || org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(corpse))
             return false;
         if (!(player instanceof ServerPlayer serverPlayer))
             return false;

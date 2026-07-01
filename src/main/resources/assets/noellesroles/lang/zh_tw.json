@@ -3195,7 +3195,7 @@
   "skill.noellesroles.doomed_sinner.reboot": "重啟",
   "message.noellesroles.doomed_sinner.no_target": "沒有可窺探的目標。",
   "message.noellesroles.doomed_sinner.too_far": "目標太遠，需要近距離接觸。",
-  "message.noellesroles.doomed_sinner.reborn": "你以【%1$s】之死重返人世，並在房間復活。（%2$s/%3$s 種死因）",
+  "message.noellesroles.doomed_sinner.reborn": "你以【%1$s】之死重返人世，並在隨機房間復活。（%2$s/%3$s 種死因）",
   "message.noellesroles.doomed_sinner.final_reason": "你以【%1$s】之死集齊了所有死因！（%2$s/%3$s）",
   "message.noellesroles.doomed_sinner.perish": "%1$s 第三次以【%2$s】死去，宿命的罪人徹底隕落。",
   "message.noellesroles.doomed_sinner.reboot": "重啟——你以【%1$s】之名掙脫死亡。",

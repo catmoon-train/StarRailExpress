@@ -366,6 +366,9 @@ public class MorticianBodyMakerPlayerComponent extends SREAbilityPlayerComponent
         for (PlayerBodyEntity body : serverPlayer.level().getEntitiesOfClass(PlayerBodyEntity.class,
                 new AABB(eyePos.x - maxDistance, eyePos.y - maxDistance, eyePos.z - maxDistance,
                         eyePos.x + maxDistance, eyePos.y + maxDistance, eyePos.z + maxDistance))) {
+            if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
+                continue;
+            }
 
             Vec3 bodyPos = body.position();
             Vec3 toBody = bodyPos.subtract(eyePos);
@@ -574,6 +577,9 @@ public class MorticianBodyMakerPlayerComponent extends SREAbilityPlayerComponent
                         new AABB(player.getX() - 5, player.getY() - 5, player.getZ() - 5,
                                 player.getX() + 5, player.getY() + 5, player.getZ() + 5));
                 for (PlayerBodyEntity body : bodies) {
+                    if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
+                        continue;
+                    }
                     if (body.getUUID().equals(this.draggedBodyUuid)) {
                         this.draggedBody = body;
                         break;

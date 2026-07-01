@@ -60,7 +60,8 @@ public class GreatDetectiveRole extends NormalRole {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.PASS;
         }
-        if (!(victim instanceof PlayerBodyEntity body)) {
+        if (!(victim instanceof PlayerBodyEntity body)
+                || org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(victim)) {
             return InteractionResult.PASS;
         }
         Level level = serverPlayer.level();

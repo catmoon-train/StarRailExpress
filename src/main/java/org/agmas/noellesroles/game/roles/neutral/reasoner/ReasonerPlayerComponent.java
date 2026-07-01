@@ -359,7 +359,9 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
 
     private List<PlayerBodyEntity> getBodyTargets(ServerLevel level) {
         AABB allWorld = new AABB(-30000000, level.getMinBuildHeight(), -30000000, 30000000, level.getMaxBuildHeight(), 30000000);
-        return level.getEntitiesOfClass(PlayerBodyEntity.class, allWorld, body -> body.getPlayerUuid() != null);
+        return level.getEntitiesOfClass(PlayerBodyEntity.class, allWorld,
+                body -> body.getPlayerUuid() != null
+                        && !org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body));
     }
 
     private PlayerBodyEntity findBody(ServerLevel level, UUID owner) {

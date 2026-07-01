@@ -832,6 +832,8 @@ public class InstinctRenderer {
                 // 直觉看不到旁观
                 if ((target_player).isSpectator())
                     return -2;
+                if (isTargetInvisibleToInstinct(target_player))
+                    return -2;
 
                 // 小透明：杀手无法看到高亮（杀手，与大部分中立偏狼）
                 if (SREClient.gameComponent.isRole(target_player, ModRoles.GHOST) && isKillerTeam(self_role)

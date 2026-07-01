@@ -26,6 +26,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.innocence.builder.BuilderWallPositions;
+import org.agmas.noellesroles.game.roles.innocence.noise_maker.NoiseMakerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.BuilderRemoveWallS2CPacket;
@@ -393,6 +394,7 @@ public class ImitatorSkillRegistry {
                 double strength = cfg.noisemakerShockwaveKnockback;
                 target.push(to.x / dist * strength, 0.42D, to.z / dist * strength);
                 if (target instanceof ServerPlayer stp) {
+                    NoiseMakerPlayerComponent.markShockwavePushed(stp, player);
                     stp.hurtMarked = true;
                     stp.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(
                             stp.getId(), stp.getDeltaMovement()));
