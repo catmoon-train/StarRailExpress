@@ -116,7 +116,7 @@ public class SREHelpCommand {
                 new Entry("/myRoleWeight", "myroleweight"),
                 new Entry("/playerRoleWeight", "playerroleweight"),
                 new Entry("/toggleCustomRoleWeights", "togglecustomroleweights"),
-                new Entry("/setOccupationRole", "setoccupationrole"),
+                new Entry("/sre:occupation_role", "setoccupationrole"),
                 new Entry("/setEnabledRole", "setenabledrole"),
                 new Entry("/setEnabledModifier", "setenabledmodifier"),
                 new Entry("/setCompanionRole", "setcompanionrole"),
