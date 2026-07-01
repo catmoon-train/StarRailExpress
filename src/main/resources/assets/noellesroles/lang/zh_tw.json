@@ -3244,6 +3244,7 @@
   "message.noellesroles.raven.charge": "狩獵充能：%s/%s",
   "message.noellesroles.raven.no_target": "場上沒有可供狩獵的職業。",
   "message.noellesroles.raven.entry": "渡鴉在樹枝上嘶吼",
+  "message.noellesroles.raven.return_body": "渡鴉返回了本體",
   "announcement.star.role.cake_maker": "蛋糕師",
   "announcement.star.goals.cake_maker": "完成任務、烹飪蛋糕，並為同伴提供補給。",
   "message.noellesroles.cake_maker.hotbar_full": "快捷欄至少需要 4 個空位才能拆開蛋糕材料。",

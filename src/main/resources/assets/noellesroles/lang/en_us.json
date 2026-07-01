@@ -3297,6 +3297,7 @@
   "message.noellesroles.raven.charge": "Hunt charges: %s/%s",
   "message.noellesroles.raven.no_target": "No eligible role remains on the field.",
   "message.noellesroles.raven.entry": "A raven cries from a branch",
+  "message.noellesroles.raven.return_body": "Raven returned to its body",
   "announcement.star.role.cake_maker": "Cake Maker",
   "announcement.star.goals.cake_maker": "Complete tasks, bake cakes, and supply your allies.",
   "message.noellesroles.cake_maker.hotbar_full": "You need at least 4 empty hotbar slots to unpack cake ingredients.",
