@@ -164,12 +164,19 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
 
     public ArrayList<SREModifier> getDisplayableModifiers(Player player) {
         var modifiers = new ArrayList<SREModifier>(this.getModifiers(player.getUUID()));
-        modifiers.removeIf((modifier) -> {
-            if (Harpymodloader.HIDDEN_MODIFIERS.contains(modifier.identifier().getPath())) {
-                return true;
-            }
-            return false;
-        });
+        modifiers.removeIf(WorldModifierComponent::isHiddenModifier);
         return modifiers;
+    }
+
+    public static boolean isHiddenModifier(SREModifier modifier) {
+        if (modifier == null)
+            return false;
+        if (Harpymodloader.HIDDEN_MODIFIERS.contains(modifier.identifier().getPath()))
+            return true;
+        for (String flag : modifier.getFlags()) {
+            if (flag != null && flag.regionMatches(true, 0, "ishidden", 0, "ishidden".length()))
+                return true;
+        }
+        return false;
     }
 }

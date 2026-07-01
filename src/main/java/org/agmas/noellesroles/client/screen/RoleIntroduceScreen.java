@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.agmas.harpymodloader.SREDisableManager;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
@@ -413,7 +414,8 @@ public class RoleIntroduceScreen extends Screen {
             case CURRENT -> {
                 if (this.minecraft.player == null || SREClient.modifierComponent == null)
                     yield false;
-                yield SREClient.modifierComponent.isModifier(minecraft.player, mod);
+                yield !WorldModifierComponent.isHiddenModifier(mod)
+                        && SREClient.modifierComponent.isModifier(minecraft.player, mod);
             }
         };
     }
