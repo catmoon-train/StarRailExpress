@@ -271,7 +271,7 @@ public class ModifierEffects {
                 Set<UUID> completers = TraitorAndModifiers.MANIC_TASK_COMPLETERS.computeIfAbsent(uuid,
                         ignored -> java.util.concurrent.ConcurrentHashMap.newKeySet());
                 completers.add(completingPlayer.getUUID());
-                if (completers.size() >= 3 && taskComponent.completeManicTask()) {
+                if (completers.size() >= 4 && taskComponent.completeManicTask()) {
                     completers.clear();
                 }
             }
@@ -289,10 +289,6 @@ public class ModifierEffects {
                 mood.setMood(mood.getMood() + 0.1f);
                 mood.sync();
             }
-
-            SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(manicPlayer);
-            shop.setBalance(shop.balance + 10);
-            shop.sync();
         }
     }
 

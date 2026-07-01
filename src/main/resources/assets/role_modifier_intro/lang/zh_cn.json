@@ -378,7 +378,7 @@
   "info.screen.modifier.workaholic.simple": "",
   "info.screen.modifier.big_eater": "修饰符\n每90秒获得1个苹果。\n完成进食任务恢复75%%理智。\n平民/中立阵营完成进食任务额外获得25金币，杀手阵营额外获得5金币。",
   "info.screen.modifier.big_eater.simple": "",
-  "info.screen.modifier.manic": "修饰符\n仅会分配给平民阵营\n你的任务显示为乱码。\n你无法直接完成任务。当11格范围内累计有3名不同玩家完成任务时，视为完成狂躁症任务。\n当11格范围内的玩家完成任务时，你恢复10%%理智并获得10金币。",
+  "info.screen.modifier.manic": "修饰符\n仅会分配给平民阵营\n你的任务显示为乱码。\n你无法直接完成任务。当11格范围内累计有4名不同玩家完成任务时，视为完成狂躁症任务。\n当11格范围内的玩家完成任务时，你恢复10%%理智。",
   "info.screen.modifier.manic.simple": "",
   "info.screen.modifier.hemophobia": "修饰符\n当你目睹他人死亡时，获得2秒的缓慢III和黑暗II。",
   "info.screen.modifier.hemophobia.simple": "",

@@ -132,7 +132,7 @@ public class TraitorAndModifiers {
             null, null, false, true))
             .setDefaultEnableChance(1000);
 
-    // 狂躁症 - 任务乱码，无法完成，附近完成任务恢复san和金币
+    // 狂躁症 - 任务乱码，无法完成，附近完成任务恢复san
     public static SREModifier MANIC = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("manic"),
             new Color(220, 20, 60).getRGB(), // 深红色

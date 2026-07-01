@@ -2894,7 +2894,7 @@
   "modifier.noellesroles.generous.given": "你给了 %s %s 金币",
   "modifier.noellesroles.generous.received": "你收到了 %s 给予的 %s 金币",
   "modifier.noellesroles.hemophobia.trigger": "死亡现场让你感到头晕目眩！",
-  "modifier.noellesroles.manic.reward": "附近有玩家完成任务！+10%% 理智，+10 金币",
+  "modifier.noellesroles.manic.reward": "附近有玩家完成任务！+10%% 理智",,
   "task.task.manic.name": "§k乱码任务乱码任务",
   "modifier.noellesroles.stingy.refund": "你收到了 %s 金币返还！",
   "modifier.noellesroles.vegetarian.meat_effect": "吃肉真恶心...",
