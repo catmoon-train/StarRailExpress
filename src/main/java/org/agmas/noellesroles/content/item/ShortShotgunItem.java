@@ -97,16 +97,14 @@ public class ShortShotgunItem extends Item implements HeldLikeBat {
 
         ServerLevel serverLevel = (ServerLevel) world;
 
+        int chargeTicks = this.getUseDuration(stack, user) - remainingUseTicks;
+        double killRange = getKillRange(chargeTicks);
+
         // 播放射击音效
         world.playSound(null, player.blockPosition(), NRSounds.SHOTGUN_FIRE, SoundSource.PLAYERS, 1.0F, 1.0F);
 
-        // 生成烈焰弹粒子效果
-        spawnFlameParticles(serverLevel, player);
-
-        int chargeTicks = this.getUseDuration(stack, user) - remainingUseTicks;
-        double chargeProgress = Math.min(1.0, Math.max(0.0,
-                (double) (chargeTicks - MIN_CHARGE_TICKS) / (MAX_CHARGE_TICKS - MIN_CHARGE_TICKS)));
-        double killRange = MIN_KILL_RANGE + (MAX_KILL_RANGE - MIN_KILL_RANGE) * chargeProgress;
+        // 生成与实际扇形射程一致的粒子效果
+        spawnFlameParticles(serverLevel, player, killRange);
 
         // 扇形范围检测：击杀范围随蓄力从2格提升到4格，达到3格后外扩2格造成1点伤害并击退。
         Vec3 look = player.getLookAngle();
@@ -130,6 +128,12 @@ public class ShortShotgunItem extends Item implements HeldLikeBat {
                     usedHand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
             player.getCooldowns().addCooldown(ModItems.SHORT_SHOTGUN, 30 * 20);
         }
+    }
+
+    private static double getKillRange(int chargeTicks) {
+        double chargeProgress = Math.min(1.0, Math.max(0.0,
+                (double) (chargeTicks - MIN_CHARGE_TICKS) / (MAX_CHARGE_TICKS - MIN_CHARGE_TICKS)));
+        return MIN_KILL_RANGE + (MAX_KILL_RANGE - MIN_KILL_RANGE) * chargeProgress;
     }
 
     private static void applyFanEffect(Level world, Player player, Vec3 nlook, double cosHalfAngle,
@@ -180,7 +184,7 @@ public class ShortShotgunItem extends Item implements HeldLikeBat {
     /**
      * 生成烈焰弹粒子效果
      */
-    private void spawnFlameParticles(ServerLevel serverLevel, Player player) {
+    private void spawnFlameParticles(ServerLevel serverLevel, Player player, double killRange) {
         Vec3 look = player.getLookAngle();
         double startX = player.getX() + look.x * 0.5;
         double startY = player.getY() + player.getEyeHeight() * 0.5;
@@ -239,6 +243,56 @@ public class ShortShotgunItem extends Item implements HeldLikeBat {
                     look.z * speed + (serverLevel.random.nextDouble() - 0.5) * 0.03,
                     0.01);
         }
+
+        Vec3 horizontalLook = new Vec3(look.x, 0.0, look.z);
+        double lookLength = horizontalLook.length();
+        if (lookLength <= 0.0) {
+            return;
+        }
+
+        Vec3 nlook = horizontalLook.scale(1.0 / lookLength);
+        spawnFanParticles(serverLevel, player, nlook, 0.4, killRange, ParticleTypes.FLAME, 0.02);
+        spawnFanBoundaryParticles(serverLevel, player, nlook, killRange, ParticleTypes.SOUL_FIRE_FLAME);
+
+        if (killRange >= KNOCKBACK_UNLOCK_RANGE) {
+            double knockbackRange = killRange + KNOCKBACK_RANGE_EXTENSION;
+            spawnFanParticles(serverLevel, player, nlook, killRange, knockbackRange, ParticleTypes.SMOKE, 0.01);
+            spawnFanBoundaryParticles(serverLevel, player, nlook, knockbackRange, ParticleTypes.SMOKE);
+        }
+    }
+
+    private static void spawnFanParticles(ServerLevel serverLevel, Player player, Vec3 nlook,
+                                          double minRange, double maxRange,
+                                          net.minecraft.core.particles.ParticleOptions particle,
+                                          double speed) {
+        double y = player.getY() + 0.85;
+        for (double distance = minRange; distance <= maxRange + 0.001; distance += 0.35) {
+            for (double angle = -FAN_HALF_ANGLE_DEGREES; angle <= FAN_HALF_ANGLE_DEGREES + 0.001; angle += 7.0) {
+                Vec3 dir = rotateHorizontal(nlook, Math.toRadians(angle));
+                double jitter = (serverLevel.random.nextDouble() - 0.5) * 0.12;
+                double x = player.getX() + dir.x * distance + jitter;
+                double z = player.getZ() + dir.z * distance + jitter;
+                serverLevel.sendParticles(particle, x, y, z, 1, 0.03, 0.02, 0.03, speed);
+            }
+        }
+    }
+
+    private static void spawnFanBoundaryParticles(ServerLevel serverLevel, Player player, Vec3 nlook,
+                                                  double range,
+                                                  net.minecraft.core.particles.ParticleOptions particle) {
+        double y = player.getY() + 0.9;
+        for (double angle = -FAN_HALF_ANGLE_DEGREES; angle <= FAN_HALF_ANGLE_DEGREES + 0.001; angle += 3.5) {
+            Vec3 dir = rotateHorizontal(nlook, Math.toRadians(angle));
+            double x = player.getX() + dir.x * range;
+            double z = player.getZ() + dir.z * range;
+            serverLevel.sendParticles(particle, x, y, z, 1, 0.02, 0.02, 0.02, 0.0);
+        }
+    }
+
+    private static Vec3 rotateHorizontal(Vec3 vec, double radians) {
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+        return new Vec3(vec.x * cos - vec.z * sin, 0.0, vec.x * sin + vec.z * cos);
     }
 
     /**

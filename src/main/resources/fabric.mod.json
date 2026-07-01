@@ -232,6 +232,7 @@
       "noellesroles:adventurer",
       "noellesroles:silencer",
       "noellesroles:diviner",
+      "noellesroles:doomed_sinner",
       "noellesroles:ghost_eye"
     ],
     "loom:injected_interfaces": {

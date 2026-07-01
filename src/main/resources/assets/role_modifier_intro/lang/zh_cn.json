@@ -210,6 +210,7 @@
   "info.screen.roleid.baka": "平民阵营\n与小镇做题家(杀手阵营)绑定生成。\n你不会因小镇做题家的强制考试而死。\n你可以直接关闭小镇做题家的考试页面，但你仍会受到san值降低惩罚。\n你可以在商店花费100金币购买习题集。\n右键习题集进入做题界面，在规定时间内完成所有题目。\n你成功完成可获得200金币，否则san值降低30%%。\n你也可以将习题集丢给其他玩家。\n其他玩家成功完成可获得100金币，失败则立即死亡！",
   "info.screen.roleid.baka.simple": "",
   "info.screen.roleid.hinanawi_tenshi": "警长阵营\n你拥有一把绯想之剑。绯想之剑使用方法同球棒。攻击后进入与枪械相同的冷却。\n你对于气息有敏锐的感知力，能够感知到“死亡的味道”。每次感知到后将进入30s的冷却时间。",
+  "info.screen.roleid.hinanawi_tenshi.simple": "",
   "info.screen.roleid.ayayaya": "杀手阵营\n你可以购买并分发报纸，玩家可以阅读。\n你可以购买快递包裹，右键玩家与其交换物品。\n你可以购买收纳袋，可以将其丢出。",
   "info.screen.roleid.ayayaya.simple": "",
   "info.screen.roleid.hatate": "平民阵营\n你可以购买快递包裹，右键玩家与其交换物品。\n你可以购买收纳袋，可以将其丢出。\n你可以购买并分发报纸，玩家可以阅读。",

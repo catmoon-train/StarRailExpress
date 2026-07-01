@@ -388,7 +388,7 @@ public class ModRoles {
                     .addEffect(
                             new MobEffectInstance(
                                     ModEffects.NO_COLLIDE,
-                                    30 * 20, // 持续时间 30s（tick），ambient=true时自动续期
+                                    60 * 20, // 持续时间 60s（tick），ambient=true时自动续期
                                     0,
                                     true, // ambient（环境效果，如信标）
                                     false, // showParticles（显示粒子）
@@ -2291,6 +2291,7 @@ public class ModRoles {
             .setCanUseSkillWhileSpectator(true)
             .setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
+            .setSpecialVigilante(true)
             // 划分到警长阵营（isVigilanteTeam 为权威的警长归属判定）
             .setVigilanteTeam(true)
             // 出现概率下调一半（3000 -> 1500）
