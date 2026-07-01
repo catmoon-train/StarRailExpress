@@ -17,7 +17,7 @@ public final class RavenHud {
             var player = Minecraft.getInstance().player;
             RavenPlayerComponent raven = ModComponents.RAVEN.get(player);
             int x = context.guiWidth() - 180;
-            int y = context.guiHeight() - 40;
+            int y = context.guiHeight() - 55;
 
             context.drawString(Minecraft.getInstance().font,
                     Component.translatable("hud.noellesroles.raven.charge_progress",
