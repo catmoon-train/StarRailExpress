@@ -343,6 +343,9 @@ public class AbilityHandler {
     public static void handlerWithTarget(ServerPlayer player, UUID targetUUID, boolean possessed) {
         if (player.isSpectator())
             return;
+
+        SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
+                .get(player);
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(player.level());
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
@@ -371,6 +374,7 @@ public class AbilityHandler {
             shop.addToBalance(-100);
             ServerPlayNetworking.send(player, new ProblemScreenOpenC2SPacket(true, 2));
             ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 2));
+            abilityPlayerComponent.setCooldown(90 * 20);
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {

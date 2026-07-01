@@ -49,7 +49,7 @@ public class ExamplerPlayerWidget extends Button {
         } else {
             if (SREClient.gameComponent != null && SREClient.gameComponent.getRole(target.getProfile().getId()) != null
                     && org.agmas.noellesroles.role.ModRoles.isVisibleKillerTeammate(
-                        SREClient.gameComponent.getRole(target.getProfile().getId()))) {
+                            SREClient.gameComponent.getRole(target.getProfile().getId()))) {
                 setDisplayText(Component.translatable("hud.general.killer_friend").withStyle(ChatFormatting.GOLD));
             }
         }
@@ -103,7 +103,9 @@ public class ExamplerPlayerWidget extends Button {
                         this.getY() - 9);
             }
             context.setColor(1f, 1f, 1f, 1f);
-            context.drawString(Minecraft.getInstance().font, String.valueOf(100 - shopComponent.balance),
+            context.drawString(Minecraft.getInstance().font,
+                    Component.translatable("%s %s", 100 - shopComponent.balance,
+                            Component.literal("\uE781").withStyle(ChatFormatting.WHITE)),
                     this.getX(), this.getY(), Color.YELLOW.getRGB(), true);
         }
 

@@ -12,7 +12,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.client.PlayerPaginationHelper;
 import org.agmas.noellesroles.client.RoleScreenHelper;
-import org.agmas.noellesroles.client.widget.VoodooPlayerWidget;
+import org.agmas.noellesroles.client.widget.LengxiaoPlayerWidget;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -74,7 +74,7 @@ public abstract class LengxiaoScreenMixin extends LimitedHandledScreen<Inventory
     }
 
     @Unique
-    private VoodooPlayerWidget createVoodooWidget(int x, int y, UUID playerUUID, int index) {
+    private LengxiaoPlayerWidget createVoodooWidget(int x, int y, UUID playerUUID, int index) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) {
             return null;
@@ -85,7 +85,7 @@ public abstract class LengxiaoScreenMixin extends LimitedHandledScreen<Inventory
             return null;
         }
 
-        VoodooPlayerWidget widget = new VoodooPlayerWidget(
+        LengxiaoPlayerWidget widget = new LengxiaoPlayerWidget(
             (LimitedInventoryScreen) (Object) this,
             x, y, playerUUID, playerListEntry, player.level(),index
         );
