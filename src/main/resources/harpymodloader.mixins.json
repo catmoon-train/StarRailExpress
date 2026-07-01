@@ -4,17 +4,12 @@
   "package": "org.agmas.harpymodloader.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "CollisionMixin",
-    "PlayerWeightResetMixin",
-    "VannilaStartMixin"
+    "PlayerWeightResetMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "overwrites": {
     "requireAnnotations": true
-  },
-  "client": [
-    "client.InnocenceReliantWinTextMixin"
-  ]
+  }
 }
