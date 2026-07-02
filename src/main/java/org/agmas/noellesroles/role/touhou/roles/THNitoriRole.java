@@ -9,7 +9,6 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 import io.wifi.starrailexpress.api.TouhouRole;
-import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
@@ -160,7 +159,6 @@ public class THNitoriRole extends TouhouRole {
         ShopEntry.Type.TOOL));
     SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
     SHOP.add(new ShopEntry(FunnyItems.PROBLEM_SET.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-    SHOP.add(new ShopEntry(FunnyItems.HOT_POTATO.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
     // 饮料：
     {
       SHOP.add(new ShopEntry(TMMItems.OLD_FASHIONED.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
@@ -183,9 +181,7 @@ public class THNitoriRole extends TouhouRole {
 
   @Override
   public List<ShopEntry> getShopEntries() {
-    var roleSpecShop = new ArrayList<>(SHOP);
-    roleSpecShop.addAll(ShopContent.defaultKnifeEntries);
-    return roleSpecShop;
+    return SHOP;
   }
 
 
