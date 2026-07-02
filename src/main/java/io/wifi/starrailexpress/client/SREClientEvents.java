@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.client;
 
 import org.agmas.noellesroles.client.hud.PlayerBodyHud;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -69,6 +70,14 @@ public class SREClientEvents {
                                         ChatFormatting.DARK_RED)));
             }
             return TrueFalseAndCustomResult.pass();
+        });
+        OnRenderRoleName.RENDER_PLAYER.register((player, target, context, delta, font) -> {
+            if (!player.getUUID().equals(target.getUUID())
+                    && RoleUtils.isPlayerTheJob(target, ModRoles.RAVEN)
+                    && ModComponents.RAVEN.get(target).isHunting()) {
+                return TrueFalseResult.FALSE;
+            }
+            return TrueFalseResult.PASS;
         });
         {
 
