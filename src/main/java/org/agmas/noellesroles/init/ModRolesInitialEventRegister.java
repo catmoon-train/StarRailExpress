@@ -50,6 +50,7 @@ import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerCompone
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
@@ -310,6 +311,9 @@ public class ModRolesInitialEventRegister {
             }
             if (role.equals(ModRoles.AMON)) {
                 ModComponents.AMON.get(player).init();
+            }
+            if (role.equals(ModRoles.WRAITH_ASSASSIN)) {
+                ModComponents.WRAITH_ASSASSIN.get(player).init();
             }
             if (role.equals(ModRoles.ADVENTURER)) {
                 ModComponents.ADVENTURER.get(player).init();
@@ -970,6 +974,17 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("ma_chen_xu_seize"), "hud.noellesroles.ma_chen_xu.skill.seize",
                         context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("seize"))
                         .announceToSelf(false).build());
+
+        RoleSkill.register(ModRoles.WRAITH_ASSASSIN,
+                RoleSkill.skill(SRE.id("wraith_assault"), "skill.noellesroles.wraith_assassin.assault",
+                        context -> WraithAssassinPlayerComponent.KEY.get(context.player()).useAssault(context.player()))
+                        .cooldownSeconds(4).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("wraith_wail"), "skill.noellesroles.wraith_assassin.wail",
+                        context -> WraithAssassinPlayerComponent.KEY.get(context.player()).useWail(context.player()))
+                        .cooldownSeconds(50).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("wraith_manifest"), "skill.noellesroles.wraith_assassin.manifest",
+                        context -> WraithAssassinPlayerComponent.KEY.get(context.player()).useManifest(context.player()))
+                        .cooldownSeconds(110).showOnHud(true).announceToSelf(false).build());
 
         // 出题人不适用于统一的技能注册：其需要不同的触发方式但这个api不兼容。
         // 年兽技能注册：发送红包给目标玩家（客户端选目标）

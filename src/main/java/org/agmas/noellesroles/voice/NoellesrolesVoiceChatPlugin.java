@@ -80,6 +80,14 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     if (receiverPlayer.hasEffect(ModEffects.PLAYER_ISOLATION) || senderPlayer.hasEffect(ModEffects.PLAYER_ISOLATION)) {
       return true;
     }
+    if (SREGameWorldComponent.KEY.get(senderPlayer.level()).isRole(senderPlayer, ModRoles.WRAITH_ASSASSIN)) {
+      var wraith = ModComponents.WRAITH_ASSASSIN.get(senderPlayer);
+      if (!wraith.isManifested()
+          && !org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent
+              .canPerceiveWraith(receiverPlayer)) {
+        return true;
+      }
+    }
     var deathPenalty = ModComponents.DEATH_PENALTY.get(receiverPlayer);
     if (deathPenalty.hasPenalty()) {
       // 如果任一玩家被鹈鹕吞噬（肚内/stashed），不要因为死亡惩罚把他们直接拉到死亡语音频道

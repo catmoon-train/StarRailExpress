@@ -3297,5 +3297,18 @@
   "message.noellesroles.reasoner.unavailable": "現在無法使用羅盤。",
   "message.noellesroles.reasoner.already_solved": "這個問題已經被你解開了。",
   "message.noellesroles.reasoner.shop.time_not_ready": "遊戲尚未經過2分鐘，羅盤尚未顯現。",
-  "message.noellesroles.reasoner.shop.already_has_compass": "你已經擁有羅盤了。"
+  "message.noellesroles.reasoner.shop.already_has_compass": "你已經擁有羅盤了。",
+  "announcement.star.role.wraith_assassin": "冤魂",
+  "announcement.star.goals.wraith_assassin": "隱於痛苦的維度，拖人一起沉淪仇恨之中。",
+  "announcement.star.win.wraith_assassin": "殺手勝利！",
+  "skill.noellesroles.wraith_assassin.assault": "冤魂突襲",
+  "skill.noellesroles.wraith_assassin.wail": "厲鬼嚎叫",
+  "skill.noellesroles.wraith_assassin.manifest": "冤魂顯現",
+  "item.noellesroles.inferior_lockpick": "劣質開鎖器",
+  "item.noellesroles.wraith_assassin.energy_exchange": "金幣轉化為能量",
+  "item.noellesroles.wraith_assassin.san_drain": "吸收 SAN",
+  "message.noellesroles.wraith_assassin.energy_gain": "痛苦凝成能量：+%s SAN",
+  "message.noellesroles.wraith_assassin.not_enough_energy": "能量不足：需要 %s SAN，目前 %s SAN",
+  "message.noellesroles.wraith_assassin.no_drain_target": "附近沒有可吸收 SAN 的目標。",
+  "message.noellesroles.wraith_assassin.drain": "你從 %2$s 身上吸收了 %1$s SAN。"
 }

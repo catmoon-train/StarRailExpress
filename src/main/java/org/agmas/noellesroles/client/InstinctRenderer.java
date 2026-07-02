@@ -896,6 +896,18 @@ public class InstinctRenderer {
                         && SREClient.isPlayerAliveAndInSurvival()) {
                     return -2;
                 }
+                if (SREClient.gameComponent.isRole(self, ModRoles.WRAITH_ASSASSIN)
+                        && target instanceof Player targetPlayer
+                        && targetPlayer != self
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    int san = Math.round(SREPlayerMoodComponent.KEY.get(targetPlayer).getMood() * 100.0f);
+                    if (san < 10) {
+                        return 0x2C8DFF;
+                    }
+                    if (san < 30) {
+                        return 0xFFD84A;
+                    }
+                }
                 // 记录员
                 if (SREClient.gameComponent.isRole(self, ModRoles.RECORDER)) {
                     if (target instanceof Player targetPlayer) {

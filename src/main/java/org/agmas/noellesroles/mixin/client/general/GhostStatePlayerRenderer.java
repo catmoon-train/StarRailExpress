@@ -1,23 +1,15 @@
 package org.agmas.noellesroles.mixin.client.general;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.GhostStateComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public class GhostStatePlayerRenderer {
-
-
     @Inject(method = "isInvisible", at = @At("RETURN"), cancellable = true)
     public void render$1(CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) {

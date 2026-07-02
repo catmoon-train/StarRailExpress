@@ -279,6 +279,10 @@ public class ModItems {
             new FakeLockpickItem(new Item.Properties().stacksTo(1)),
             "fake_lockpick", TOOLS_GROUP);
 
+    public static final Item INFERIOR_LOCKPICK = register(
+            new InferiorLockpickItem(new Item.Properties().stacksTo(1)),
+            "inferior_lockpick", TOOLS_GROUP);
+
     public static final Item FAKE_CROWBAR = register(
             new FakeCrowbarItem(new Item.Properties().stacksTo(1)),
             "fake_crowbar", TOOLS_GROUP);

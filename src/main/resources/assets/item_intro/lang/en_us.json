@@ -153,5 +153,6 @@
   "shop.noellesroles.undead_lord.plague_fog.desc": "Releases fog at your feet: +5%% infection/s for 10s within the area.",
   "shop.noellesroles.undead_lord.summon_charm.desc": "Instantly summons 2 temporary undead nearby for 45s. 60s cooldown, and never exceeds the undead cap.",
   "shop.noellesroles.undead_lord.infection_amp.desc": "Undead attack infection is doubled for the next 60s.",
-  "item.noellesroles.reasoner_compass.desc": "Reasoner-only item. Automatically granted 2 minutes after the game starts. Right-click to open the compass divination screen. Each answer triggers a 35s cooldown; solve all questions to win alone."
+  "item.noellesroles.reasoner_compass.desc": "Reasoner-only item. Automatically granted 2 minutes after the game starts. Right-click to open the compass divination screen. Each answer triggers a 35s cooldown; solve all questions to win alone.",
+  "item.noellesroles.inferior_lockpick.desc": "A Wraith-only inferior lockpick. It inherits lockpick opening and jamming behavior; after each successful unlock, it enters a 15s cooldown."
 }

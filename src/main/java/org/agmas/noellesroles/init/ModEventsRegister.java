@@ -980,6 +980,7 @@ public class ModEventsRegister {
         THEventHandler.registerEvents();
         NinjaPlayerComponent.registerEvents();
         org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistPlayerComponent.registerEvents();
+        org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent.registerEvents();
         OnPlayerUsedSkill.EVENT.register((player) -> {
             NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
             if (!config.skillEchoEventEnabled) {

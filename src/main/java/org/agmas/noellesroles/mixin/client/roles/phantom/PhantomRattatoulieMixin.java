@@ -1,4 +1,4 @@
-package org.agmas.noellesroles.mixin.client.roles. phantom;
+package org.agmas.noellesroles.mixin.client.roles.phantom;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.doctor4t.ratatouille.client.render.feature.PlushOnHeadFeatureRenderer;
@@ -13,7 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class PhantomRattatoulieMixin {
 
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At("HEAD"), cancellable = true)
-    public void phantomRatMixin(PoseStack matrices, MultiBufferSource vertexConsumerProvider, int i, LivingEntity livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-       if (livingEntity.isInvisible()) ci.cancel();
+    public void phantomRatMixin(PoseStack matrices, MultiBufferSource vertexConsumerProvider, int i,
+            LivingEntity livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
+        if (livingEntity.isInvisible())
+            ci.cancel();
     }
 }

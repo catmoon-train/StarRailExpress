@@ -150,5 +150,6 @@
   "shop.noellesroles.undead_lord.plague_fog.desc": "在脚下释放毒雾，范围内每秒 +5% 感染，持续 10 秒。",
   "shop.noellesroles.undead_lord.summon_charm.desc": "立即在身边召唤 2 个临时亡灵，持续 45 秒。60 秒冷却，且召唤数量不会超过亡灵上限。",
   "shop.noellesroles.undead_lord.infection_amp.desc": "接下来 60 秒内亡灵攻击的感染值翻倍。",
-  "item.noellesroles.reasoner_compass.desc": "推理师专属物品。游戏开始 2 分钟后自动获得，右键打开罗盘占卜界面。每次提交答案后冷却 35 秒，全部问题推理正确即可独立胜利。"
+  "item.noellesroles.reasoner_compass.desc": "推理师专属物品。游戏开始 2 分钟后自动获得，右键打开罗盘占卜界面。每次提交答案后冷却 35 秒，全部问题推理正确即可独立胜利。",
+  "item.noellesroles.inferior_lockpick.desc": "冤魂专属的劣质开锁器，继承开锁器的开门与封锁特性；每次成功用于开锁后进入 15 秒冷却。"
 }

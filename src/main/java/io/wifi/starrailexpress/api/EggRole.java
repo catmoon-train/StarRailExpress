@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.api;
 
+import org.agmas.noellesroles.init.InitModRolesMax;
+
 import net.minecraft.resources.ResourceLocation;
 
 public class EggRole extends NormalRole {
@@ -17,5 +19,12 @@ public class EggRole extends NormalRole {
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
         this.addFlag("bouns");
+    }
+    
+    @Override
+    public boolean canBeRandomed() {
+        if (InitModRolesMax.isEggEnabled)
+            return super.canBeRandomed;
+        return false;
     }
 }

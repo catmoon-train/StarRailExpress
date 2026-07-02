@@ -9,5 +9,17 @@ public enum TrueFalseResult {
     /** 否 */
     FALSE,
     /** 由后续监听器或默认逻辑决定 */
-    PASS
+    PASS;
+
+    public boolean isPass() {
+        return this == PASS;
+    }
+    
+    public boolean isTrue() {
+        return this == TRUE;
+    }
+    
+    public boolean isFalse() {
+        return this == FALSE;
+    }
 }

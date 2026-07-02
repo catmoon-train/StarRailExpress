@@ -3351,5 +3351,18 @@
   "message.noellesroles.reasoner.already_solved": "You have already solved this question.",
   "message.noellesroles.reasoner.shop.time_not_ready": "The compass has not yet manifested. 2 minutes must pass first.",
   "message.noellesroles.reasoner.shop.already_has_compass": "You already have a compass.",
-  "cmd.config.noellesroles.spawn.info": "\n※ %s %s 的生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s"
+  "cmd.config.noellesroles.spawn.info": "\n※ %s %s 的生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s",
+  "announcement.star.role.wraith_assassin": "Wraith",
+  "announcement.star.goals.wraith_assassin": "Hide within a dimension of pain and drag others into hatred.",
+  "announcement.star.win.wraith_assassin": "Killers win!",
+  "skill.noellesroles.wraith_assassin.assault": "Wraith Assault",
+  "skill.noellesroles.wraith_assassin.wail": "Spectral Wail",
+  "skill.noellesroles.wraith_assassin.manifest": "Manifest",
+  "item.noellesroles.inferior_lockpick": "Inferior Lockpick",
+  "item.noellesroles.wraith_assassin.energy_exchange": "Convert Coins to Energy",
+  "item.noellesroles.wraith_assassin.san_drain": "Drain SAN",
+  "message.noellesroles.wraith_assassin.energy_gain": "Pain becomes energy: +%s SAN",
+  "message.noellesroles.wraith_assassin.not_enough_energy": "Not enough energy: need %s SAN, have %s SAN",
+  "message.noellesroles.wraith_assassin.no_drain_target": "No nearby target has SAN to drain.",
+  "message.noellesroles.wraith_assassin.drain": "You drained %1$s SAN from %2$s."
 }

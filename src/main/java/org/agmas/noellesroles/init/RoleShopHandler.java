@@ -43,6 +43,7 @@ import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayer
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
@@ -299,6 +300,7 @@ public class RoleShopHandler {
   // ==================== 嬉命人商店 ====================
   public static ArrayList<ShopEntry> EMBALMER_SHOP = new ArrayList<>();
   public static ArrayList<ShopEntry> PHANTOM_MUSICIAN_SHOP = new ArrayList<>();
+  public static ArrayList<ShopEntry> WRAITH_ASSASSIN_SHOP = new ArrayList<>();
   // ==================== 推理师商店 ====================
   public static ArrayList<ShopEntry> REASONER_SHOP = new ArrayList<>();
 
@@ -1344,6 +1346,8 @@ public class RoleShopHandler {
     {
       ShopContent.customEntries.put(
           ModRoles.PHANTOM_MUSICIAN_ID, PHANTOM_MUSICIAN_SHOP);
+      ShopContent.customEntries.put(
+          ModRoles.WRAITH_ASSASSIN_ID, WRAITH_ASSASSIN_SHOP);
     }
     // 推理师商店
     {
@@ -2739,6 +2743,35 @@ public class RoleShopHandler {
     // ==================== 嬉命人商店 ====================
     // 开锁器 - 100金币
     EMBALMER_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+
+    {
+      ItemStack s = new ItemStack(Items.SCULK);
+      s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.wraith_assassin.energy_exchange"));
+      WRAITH_ASSASSIN_SHOP.add(new ShopEntry(s, 25, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          if (!(player instanceof ServerPlayer sp)) {
+            return false;
+          }
+          WraithAssassinPlayerComponent.KEY.get(sp).addEnergy(25);
+          WraithAssassinPlayerComponent.KEY.get(sp).playConversionCue(sp);
+          sp.displayClientMessage(Component.translatable("message.noellesroles.wraith_assassin.energy_gain", 25)
+              .withStyle(ChatFormatting.DARK_AQUA), true);
+          return true;
+        }
+      });
+    }
+    WRAITH_ASSASSIN_SHOP.add(new ShopEntry(ModItems.INFERIOR_LOCKPICK.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
+    {
+      ItemStack s = new ItemStack(Items.ECHO_SHARD);
+      s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.wraith_assassin.san_drain"));
+      WRAITH_ASSASSIN_SHOP.add(new ShopEntry(s, 80, ShopEntry.Type.TOOL) {
+        @Override
+        public boolean onBuy(@NotNull Player player) {
+          return player instanceof ServerPlayer sp && WraithAssassinPlayerComponent.KEY.get(sp).buyDrain(sp);
+        }
+      });
+    }
 
     // ==================== 推理师商店 ====================
     // 罗盘 - 100金币（游戏时间>=2分钟且没有罗盘时才能购买）

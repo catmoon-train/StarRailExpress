@@ -1040,6 +1040,7 @@ public class SREClient implements ClientModInitializer {
                 }
             }
         });
+        SREClientEvents.registerClientEvents();
     }
 
     private static void updateInstinctCache(Minecraft client) {

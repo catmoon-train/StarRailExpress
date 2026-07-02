@@ -21,6 +21,9 @@ public class InvisbleHandItem {
             if (player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD)) {
                 return ItemStack.EMPTY;
             }
+            if (player.hasEffect(ModEffects.WRAITH_DIMENSION) && !player.hasEffect(ModEffects.WRAITH_MANIFEST)) {
+                return ItemStack.EMPTY;
+            }
             return null; // 不修改
         });
         // 显示手铐

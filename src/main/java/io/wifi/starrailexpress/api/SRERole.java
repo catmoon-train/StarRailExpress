@@ -52,18 +52,18 @@ import java.util.function.ToIntFunction;
 
 public abstract class SRERole extends SREAbstractInfoClass {
     protected final Random random = new Random();
-    private ResourceLocation identifier;
-    private boolean canSetSpawnInfoInConfig = true;
-    private boolean canSeeCoin = true;
-    private boolean canSeeBodyItems = false;
-    private boolean canGetBodyItems = false;
-    private boolean canBeRandomed = true;
-    private boolean canSeeBodyDeathReason = false;
-    private boolean canSeeBodyRoleInfo = false;
-    private boolean canUseInstinct = false;
-    private boolean canIgnoreBlackout = false;
-    private boolean canUseSkillWhileSpectator = false;
-    private boolean mafiaTeam = false;
+    protected ResourceLocation identifier;
+    protected boolean canSetSpawnInfoInConfig = true;
+    protected boolean canSeeCoin = true;
+    protected boolean canSeeBodyItems = false;
+    protected boolean canGetBodyItems = false;
+    protected boolean canBeRandomed = true;
+    protected boolean canSeeBodyDeathReason = false;
+    protected boolean canSeeBodyRoleInfo = false;
+    protected boolean canUseInstinct = false;
+    protected boolean canIgnoreBlackout = false;
+    protected boolean canUseSkillWhileSpectator = false;
+    protected boolean mafiaTeam = false;
     /**
      * -1
      * 表示不设置。将不会调整普通刷新最大数量。与canSetSpawnInfoInConfig设置为false不同的是，此不会覆盖SpawnInfo。而canSetSpawnInfoInConfig将会覆盖SpawnInfo来达到配置项起作用。
@@ -76,11 +76,11 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public int defaultEnableChance = -1;
     public int defaultEnableNeedPlayerCount = -1;
     public int defaultEnableMaxPlayerCount = -1;
-    private SpecialMapRoleMap specialMapRole = SpecialMapRoleMap.all;
-    private boolean specialVigilante = false;
-    private boolean refreshableSpecialVigilante = false;
-    private int refreshableSpecialVigilanteChance = -1;
-    private int occupiedRoleCount = 1;
+    protected SpecialMapRoleMap specialMapRole = SpecialMapRoleMap.all;
+    protected boolean specialVigilante = false;
+    protected boolean refreshableSpecialVigilante = false;
+    protected int refreshableSpecialVigilanteChance = -1;
+    protected int occupiedRoleCount = 1;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
 
@@ -560,10 +560,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
-    private int color;
-    private boolean isInnocent;
-    private boolean canUseKiller;
-    private MoodType moodType;
+    protected int color;
+    protected boolean isInnocent;
+    protected boolean canUseKiller;
+    protected MoodType moodType;
 
     public boolean isAutoReset() {
         return autoReset;
@@ -574,14 +574,14 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
-    private boolean isNeutrals = false;
-    private boolean autoReset = true;
-    private boolean ableToPickUpRevolver;
-    private boolean isNeutralForKiller = false;
-    private boolean canSeeTeammateKiller = true;
-    private boolean canUseSabotage = false;
-    private boolean canJumpManhole = false;
-    private boolean canAcrossFog = false;
+    protected boolean isNeutrals = false;
+    protected boolean autoReset = true;
+    protected boolean ableToPickUpRevolver;
+    protected boolean isNeutralForKiller = false;
+    protected boolean canSeeTeammateKiller = true;
+    protected boolean canUseSabotage = false;
+    protected boolean canJumpManhole = false;
+    protected boolean canAcrossFog = false;
 
     public boolean isNeutrals() {
         return this.isNeutrals;
@@ -673,7 +673,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
-    private boolean isVigilanteTeam;
+    protected boolean isVigilanteTeam;
 
     public int getColor() {
         return color;
@@ -871,19 +871,19 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return InteractionResult.PASS;
     }
 
-    private ComponentKey<? extends RoleComponent> componentKey;
-    private int maxSprintTime;
-    private ToIntFunction<Player> customSprintTimeGetter = null;
-    private boolean canSeeTime;
-    private boolean isOtherModeRole = false;
+    protected ComponentKey<? extends RoleComponent> componentKey;
+    protected int maxSprintTime;
+    protected ToIntFunction<Player> customSprintTimeGetter = null;
+    protected boolean canSeeTime;
+    protected boolean isOtherModeRole = false;
 
     public Consumer<LimitedInventoryScreen> getAddChild() {
         return addChild;
     }
 
-    private Consumer<LimitedInventoryScreen> addChild;
-    private boolean canAutoAddMoney = false;
-    private boolean bodyKillerVisibility = false;
+    protected Consumer<LimitedInventoryScreen> addChild;
+    protected boolean canAutoAddMoney = false;
+    protected boolean bodyKillerVisibility = false;
     public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
 
     /**

@@ -421,5 +421,9 @@
   "info.screen.roleid.repair_saboteur": "中立独立胜利职业\n通过修机校准累计 10 点破坏记录即可独立获胜。",
   "info.screen.roleid.repair_saboteur.simple": "",
   "info.screen.roleid.repair_collector": "中立独立胜利职业\n使用 4 次修机道具或补给即可独立获胜。",
+  "info.screen.roleid.repair_collector.simple": "",
+  "info.screen.roleid.wraith_assassin": "杀手阵营\n你隐于痛苦的维度。未显现时，只有杀手同伴和 SAN<30 的玩家能看见/听见你；你无法拾取物品，手持物不会显示，并且没有碰撞。\n商店：25 金币转化 25 能量；25 金币购买劣质开锁器（拥有开锁器特性，每次开锁后冷却 15 秒）；80 金币吸收附近玩家最多 25 SAN 作为能量。\n技能1 冤魂突袭：消耗 30 能量，向前冲锋。SAN<10 的目标死亡，其他目标掉落 10 SAN；冷却 4 秒。\n技能2 厉鬼嚎叫：消耗 100 能量，使 8 格内玩家恐慌 4 秒，视野干扰并听见心跳，掉落 10 SAN；冷却 50 秒。\n技能3 冤魂显现：消耗 320 能量，显现在所有人面前 15 秒，期间可攻击所有人且冤魂突袭强化；冷却 110 秒。\n低 SAN 玩家靠近你时会视野受限；你看 SAN<10 玩家为蓝框，10-30 为黄框。",
+  "info.screen.roleid.wraith_assassin.simple": "",
+  "==================== 简易描述 ====================": "",
   "info.screen.roleid.repair_collector.simple": ""
 }

@@ -159,6 +159,12 @@ public class ModEffects {
     public static final Holder<MobEffect> NOSTALGIST_BACKWORLD = register("nostalgist_backworld",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xBFBFBF));
 
+    public static final Holder<MobEffect> WRAITH_DIMENSION = register("wraith_dimension",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x315B7C));
+
+    public static final Holder<MobEffect> WRAITH_MANIFEST = register("wraith_manifest",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x8FD6FF));
+
     /**
      * 脚步消失
      * - 中性效果，灰色
@@ -430,6 +436,7 @@ public class ModEffects {
         // 把怀旧者“里世界标记”效果同步给所有客户端，否则其它客户端查不到怀旧者的里世界状态，
         // 导致手持物品仍显示 / 仍能被杀手透视。
         org.agmas.noellesroles.init.NostalgistBackworldEffectSync.init();
+        org.agmas.noellesroles.init.WraithDimensionEffectSync.init();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (pierceDeath) {
                 pierceDeath = false;
