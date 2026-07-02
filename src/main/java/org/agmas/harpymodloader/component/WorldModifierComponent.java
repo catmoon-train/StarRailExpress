@@ -92,6 +92,10 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
             this.sync();
     }
 
+    public void removeModifier(Player player, SREModifier modifier) {
+        this.removeModifier(player.getUUID(), modifier);
+    }
+
     public void removeModifier(UUID player, SREModifier modifier) {
         this.removeModifier(player, modifier, true);
     }
@@ -172,5 +176,13 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         if (modifier == null)
             return false;
         return modifier.isFlag("inner.hidden");
+    }
+
+    public static WorldModifierComponent getInstance(Player player) {
+        return KEY.get(player.level());
+    }
+
+    public static WorldModifierComponent getInstance(Level level) {
+        return KEY.get(level);
     }
 }

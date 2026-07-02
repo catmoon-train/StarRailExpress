@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -252,5 +253,12 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
             tag.putBoolean("original", this.original);
             return tag;
         }
+    }
+    
+    public static SREWorldBlackoutComponent getInstance(Player player) {
+        return KEY.get(player.level());
+    }
+    public static SREWorldBlackoutComponent getInstance(Level level) {
+        return KEY.get(level);
     }
 }

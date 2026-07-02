@@ -1385,7 +1385,14 @@ public class GameUtils {
     public static long getAlivePlayerCount(Level level) {
         return level.players().stream().filter((p) -> isPlayerAliveAndSurvivalIgnoreShitSplit(p)).count();
     }
-
+ public static void revivePlayerToItsRoom(ServerPlayer player) {
+        DeathPenaltyComponent.KEY.get(player).clear();
+        DefibrillatorComponent.KEY.get(player).clear();
+        GameUtils.teleportBackToRoom(player);
+        player.setGameMode(GameType.ADVENTURE);
+        TrainVoicePlugin.resetPlayer(player.getUUID());
+        SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
+    }
     public static void revivePlayer(ServerPlayer player, double x, double y, double z) {
         DeathPenaltyComponent.KEY.get(player).clear();
         DefibrillatorComponent.KEY.get(player).clear();

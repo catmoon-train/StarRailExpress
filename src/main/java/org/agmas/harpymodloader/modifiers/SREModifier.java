@@ -291,6 +291,13 @@ public class SREModifier extends SREAbstractInfoClass {
         this.canOnlyBeAppliedTo = canOnlyBeAppliedTo;
         this.killerOnly = killerOnly;
         this.civilianOnly = civilianOnly;
+        if (this.cannotBeAppliedTo == null) {
+            this.cannotBeAppliedTo = new HashSet<>();
+        }
+
+        if (this.canOnlyBeAppliedTo == null) {
+            this.canOnlyBeAppliedTo = new HashSet<>();
+        }
     }
 
     @Override
@@ -304,10 +311,10 @@ public class SREModifier extends SREAbstractInfoClass {
     }
 
     public MutableComponent getName(boolean color) {
-        String key = "announcement.star.modifier." + identifier().toLanguageKey();
-        // if (!Language.getInstance().has(key)) {
-        // return Component.translatable("info.screen.role.name.error", key);
-        // }
+        String key = "announcement.star.modifier." + identifier().getPath();
+        if (!Language.getInstance().has(key)) {
+            key = "announcement.star.modifier." + identifier().toLanguageKey();
+        }
         final MutableComponent text = Component
                 .translatable(key);
         if (color) {
