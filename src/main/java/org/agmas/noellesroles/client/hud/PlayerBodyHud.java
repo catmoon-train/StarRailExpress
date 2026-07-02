@@ -297,12 +297,12 @@ public class PlayerBodyHud {
                 tickCounter, font) -> {
             HitResult line = ProjectileUtil.getHitResultOnViewVector(player,
                     (entity) -> entity instanceof PlayerBodyEntity || entity instanceof Player, (double) range);
-
             targetBody = null;
             targetFakeBody = null;
             if (line instanceof EntityHitResult ehr) {
                 if (ehr.getEntity() instanceof PlayerBodyEntity playerBodyEntity) {
                     targetBody = playerBodyEntity;
+                    NoellesrolesClient.targetBody = targetBody;// 用于秃鹫兼容
                 } else if (ehr.getEntity() instanceof Player targetPlayer) {
                     InsaneKillerPlayerComponent component = InsaneKillerPlayerComponent.KEY.get(targetPlayer);
                     if (component.isActive) {
