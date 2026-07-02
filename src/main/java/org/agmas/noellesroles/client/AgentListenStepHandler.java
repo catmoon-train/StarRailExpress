@@ -27,8 +27,8 @@ public class AgentListenStepHandler {
     // 缓存
     public static final Stack<SoundInfo> soundInfoPool = new Stack<>();
 
-    public static final ResourceLocation ECHO_TEX =
-            ResourceLocation.tryBuild(Noellesroles.MOD_ID, "textures/gui/sound_gui.png");
+    public static final ResourceLocation ECHO_TEX = ResourceLocation.tryBuild(Noellesroles.MOD_ID,
+            "textures/gui/sound_gui.png");
 
     public static boolean listening = false;
     public static boolean inListen = false;
@@ -40,6 +40,7 @@ public class AgentListenStepHandler {
     public static final int FRAME_DURATION = 10; // 每帧持续 tick 数
 
     public static int tick = 0;
+
     public static void registerEvents() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
@@ -50,12 +51,12 @@ public class AgentListenStepHandler {
                 return;
             }
             final var gameWorldComponent = SREClient.gameComponent;
-            if (gameWorldComponent==null ){
+            if (gameWorldComponent == null) {
                 listening = false;
                 inListen = false;
                 return;
             }
-            if (!canUseListenPassive(mc.player)){
+            if (!canUseListenPassive(mc.player)) {
                 listening = false;
                 inListen = false;
                 return;
@@ -94,10 +95,6 @@ public class AgentListenStepHandler {
                 .orElse(false);
     }
 
-
-
-
-
     public static Vector3f worldToScreen(double worldX, double worldY, double worldZ) {
         Minecraft mc = Minecraft.getInstance();
         Camera camera = mc.gameRenderer.getMainCamera();
@@ -105,9 +102,9 @@ public class AgentListenStepHandler {
         // ====== 1. 世界坐标 → 相机局部坐标 ======
         Vec3 cam = camera.getPosition();
 
-        float x = (float)(worldX - cam.x);
-        float y = (float)(worldY - cam.y);
-        float z = (float)(worldZ - cam.z);
+        float x = (float) (worldX - cam.x);
+        float y = (float) (worldY - cam.y);
+        float z = (float) (worldZ - cam.z);
 
         // ====== 2. 相机旋转（四元数） ======
         Quaternionf rotation = camera.rotation().conjugate(new Quaternionf());
@@ -140,7 +137,7 @@ public class AgentListenStepHandler {
         return new Vector3f(sx, sy, clip.z);
     }
 
-   public static class SoundInfo {
+    public static class SoundInfo {
         public long time;
         public Vec3 pos;
     }

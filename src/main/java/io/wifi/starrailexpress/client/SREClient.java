@@ -493,7 +493,8 @@ public class SREClient implements ClientModInitializer {
                     }
                 });
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
-            if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null) {
+            if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null
+                    || SREClient.gameComponent == null) {
                 return;
             }
             final LocalPlayer player = Minecraft.getInstance().player;
@@ -564,6 +565,8 @@ public class SREClient implements ClientModInitializer {
         });
         intervalTime = new Random().nextInt(0, 200);
         ClientTickEvents.END_CLIENT_TICK.register((client) -> {
+            if (client.level == null || gameComponent == null)
+                return;
             FrameAnimationRenderer.setInWorld(client != null && client.level != null);
             LocalPlayer player = client.player;
             cached_player = player;
@@ -987,6 +990,8 @@ public class SREClient implements ClientModInitializer {
 
         // Register client tick event for stats keybind
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (gameComponent == null || client.level == null)
+                return;
             FourthRoomCameraDirector.tick(client);
             net.exmo.sre.camera.client.AdvancedCameraDirector.tick(client);
             if (SREClient.gameComponent == null)

@@ -56,7 +56,7 @@ public class BloodMain {
         ClientTickEvents.END_CLIENT_TICK.register((client) -> {
             if (client.level != null) {
                 if (this.enabled)
-                    this.DetectBloodSpawn(client.level);
+                    this.detectBloodSpawn(client.level);
             }
         });
     }
@@ -67,7 +67,7 @@ public class BloodMain {
      * 
      * @param world 客户端世界对象
      */
-    private void DetectBloodSpawn(ClientLevel world) {
+    private void detectBloodSpawn(ClientLevel world) {
         boolean isThereBodys = false; // 标记当前世界中是否有玩家尸体
         this.grenadeThisTick = false; // 重置手榴弹标记
 

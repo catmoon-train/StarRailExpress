@@ -8,7 +8,6 @@ import io.wifi.starrailexpress.customrole.CustomRoleScreen;
 import io.wifi.starrailexpress.customrole.CustomRoleToolItem;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.ChatFormatting;
@@ -104,20 +103,6 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         // // 慕恋者持续按键检测（窥视）
         // handleAdmirerContinuousInput(client);
         // });
-
-        // 检查书页物品使用 - 通过检测物品使用来打开GUI
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player == null || client.level == null)
-                return;
-
-            // 检查是否是阴谋家
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
-            if (!gameWorld.isRole(client.player, ModRoles.CONSPIRATOR))
-                return;
-
-            // 检查是否正在使用书页物品（通过检测使用状态）
-            // 书页物品的使用会在服务端验证后触发
-        });
     }
 
     /**
