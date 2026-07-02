@@ -29,6 +29,7 @@ import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.client.hud.roles.BroadcasterHud;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.alchemist.AlchemistPlayerComponent;
@@ -647,21 +648,13 @@ public class CommonClientHudRenderer {
       // 疫使时刻状态显示
       Component infectedTimeText;
       int infectedTimeColor;
-      try {
-        // 尝试获取加速状态
-        java.lang.reflect.Method isAcceleratedMethod = org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.class
-            .getMethod("isAccelerated");
-        boolean isAccelerated = (boolean) isAcceleratedMethod.invoke(null);
-        if (isAccelerated) {
-          infectedTimeText = Component.translatable("gui.noellesroles.infected.time.unlocked")
-              .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
-          infectedTimeColor = 0xFFD700;
-        } else {
-          infectedTimeText = Component.translatable("gui.noellesroles.infected.time.locked")
-              .withStyle(ChatFormatting.GRAY);
-          infectedTimeColor = 0x888888;
-        }
-      } catch (Exception e) {
+      InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(client.player);
+      boolean isAccelerated = infectedComponent.spreadAccelerated;
+      if (isAccelerated) {
+        infectedTimeText = Component.translatable("gui.noellesroles.infected.time.unlocked")
+            .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+        infectedTimeColor = 0xFFD700;
+      } else {
         infectedTimeText = Component.translatable("gui.noellesroles.infected.time.locked")
             .withStyle(ChatFormatting.GRAY);
         infectedTimeColor = 0x888888;

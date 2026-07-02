@@ -279,6 +279,14 @@ public class InfectedWinChecker {
                 if (!wasAccelerated) {
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
                     wasAccelerated = true;
+                    // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
+                    for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+                        if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                            InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
+                            comp.spreadAccelerated = true;
+                            comp.sync();
+                        }
+                    }
                     // 全场播放疫使时刻音效
                     for (ServerPlayer p : level.players()) {
                         level.playSound(null, p.getX(), p.getY(), p.getZ(),
@@ -304,6 +312,14 @@ public class InfectedWinChecker {
                 if (wasAccelerated) {
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                     wasAccelerated = false;
+                    // 同步取消加速状态到疫使玩家自身的组件（供客户端HUD读取）
+                    for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+                        if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                            InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
+                            comp.spreadAccelerated = false;
+                            comp.sync();
+                        }
+                    }
                 }
             }
         });
@@ -398,6 +414,14 @@ public class InfectedWinChecker {
             if (!wasAccelerated) {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
                 wasAccelerated = true;
+                // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
+                for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+                    if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                        InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
+                        comp.spreadAccelerated = true;
+                        comp.sync();
+                    }
+                }
                 for (ServerPlayer p : level.players()) {
                     level.playSound(null, p.getX(), p.getY(), p.getZ(),
                         SoundEvents.WITCH_CELEBRATE, SoundSource.MASTER, 1.0F, 1.0F);
@@ -419,6 +443,14 @@ public class InfectedWinChecker {
             if (wasAccelerated) {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                 wasAccelerated = false;
+                // 同步取消加速状态到疫使玩家自身的组件（供客户端HUD读取）
+                for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+                    if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                        InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
+                        comp.spreadAccelerated = false;
+                        comp.sync();
+                    }
+                }
             }
         }
     }
