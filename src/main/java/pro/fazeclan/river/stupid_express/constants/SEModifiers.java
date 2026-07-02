@@ -226,7 +226,7 @@ public class SEModifiers {
                     .get(player);
             skinSplitPersonalityComponent2.clear();
         });
-        CollisionRules.canCollide.add(p -> {
+        CollisionRules.cantCollide.add(p -> {
             var modifiers = WorldModifierComponent.KEY.get(p.level());
             if (modifiers.isModifier(p.getUUID(), FEATHER)) {
                 return true;

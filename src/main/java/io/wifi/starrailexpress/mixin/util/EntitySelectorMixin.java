@@ -16,12 +16,12 @@ public class EntitySelectorMixin {
     private static void pushableBy(Entity entity, CallbackInfoReturnable<Predicate<Entity>> cir) {
         Predicate<Entity> originalPredicate = cir.getReturnValue();
         Predicate<Entity> additionalPredicate = e -> {
-            if (!CollisionRules.cantPushableBy.isEmpty())
+            if (!CollisionRules.cantPushableBy.isEmpty()) {
                 return !CollisionRules.cantPushableBy.stream()
                         .anyMatch(predicate -> predicate.test(e) || predicate.test(entity));
+            }
             return true;
         };
-
 
         cir.setReturnValue(originalPredicate.and(additionalPredicate));
     }

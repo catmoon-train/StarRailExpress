@@ -788,6 +788,8 @@ public class ModEventsRegister {
             }
             // Cake eating via right-click on cake interaction entity (any player)
             if (CakeMakerComponent.isCakeInteractionEntity(entity)) {
+                if (player.isSpectator())
+                    return InteractionResult.PASS;
                 UUID ownerId = CakeMakerComponent.getCakeOwner(entity);
                 if (ownerId != null) {
                     ServerPlayer cakeOwner = world.getServer().getPlayerList().getPlayer(ownerId);
@@ -1499,7 +1501,7 @@ public class ModEventsRegister {
                     && cat != io.wifi.starrailexpress.game.forensic.ForensicCategory.BLUNT)
                 return;
             // 仅一定距离内才会有血迹（鼓励远距离射击）
-            int track_distance= GameConstants.getBloodTrackWetDistance();
+            int track_distance = GameConstants.getBloodTrackWetDistance();
             if (killer.distanceToSqr(victim) <= track_distance) {
                 return;
             }
@@ -1789,7 +1791,8 @@ public class ModEventsRegister {
             {
                 // 只按玩家实际持有的枪械 / DropRevolverWhenDead 物品数量掉落左轮，
                 int dropCount = MCItemsUtils.clearItem(player, (t) -> {
-                    return t.getItem() instanceof DropRevolverWhenDead || t.is(TMMItems.REVOLVER) || t.is(ModItems.BANDIT_REVOLVER);
+                    return t.getItem() instanceof DropRevolverWhenDead || t.is(TMMItems.REVOLVER)
+                            || t.is(ModItems.BANDIT_REVOLVER);
                 });
                 while (dropCount > 0) {
                     player.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
@@ -2399,7 +2402,7 @@ public class ModEventsRegister {
                 .equals(ModRoles.MONOKUMA_ID)));
         RoleVisibilityRules.canUseOtherPerson.add((role -> role.getIdentifier()
                 .equals(ModRoles.MANIPULATOR_ID)));
-        CollisionRules.canCollide.add(a -> {
+        CollisionRules.cantCollide.add(a -> {
             final var gameWorldComponent = SREGameWorldComponent.KEY.get(a.level());
             if (gameWorldComponent.isRole(a,
                     ModRoles.INSANE_KILLER)) {
@@ -2409,7 +2412,7 @@ public class ModEventsRegister {
             }
             return false;
         });
-        CollisionRules.canCollide.add(a -> {
+        CollisionRules.cantCollide.add(a -> {
             if (a.hasEffect(MobEffects.INVISIBILITY) || a.hasEffect(ModEffects.SAFE_TIME)
                     || a.hasEffect(ModEffects.NO_COLLIDE)) {
                 return true;

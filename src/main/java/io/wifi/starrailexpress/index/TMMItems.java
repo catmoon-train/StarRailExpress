@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.content.item.LetterItem;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 
@@ -120,7 +121,7 @@ public interface TMMItems {
             TOOLS_GROUP, SRE_ALL_GROUP);
     Item BODY_BAG = registrar.create("body_bag", new BodyBagItem(new Item.Properties().stacksTo(1)),
             TOOLS_GROUP, SRE_ALL_GROUP);
-    Item LETTER = registrar.create("letter", new Item(new Item.Properties().stacksTo(1)), TOOLS_GROUP, SRE_ALL_GROUP);
+    Item LETTER = registrar.create("letter", new LetterItem(new Item.Properties().stacksTo(1)), TOOLS_GROUP, SRE_ALL_GROUP);
     Item NOTE = registrar.create("note", new NoteItem(new Item.Properties().stacksTo(4)), TOOLS_GROUP, SRE_ALL_GROUP);
     Item ADMISSION_TICKET = sreRegistrar.create("admission_ticket",
             new AdmissionTicketItem(new Item.Properties().stacksTo(16)), TOOLS_GROUP, SRE_ALL_GROUP);

@@ -19,11 +19,11 @@ import net.minecraft.world.item.Items;
 
 /**
  * 彩蛋职业。没有获胜条件。
- * THNitoriRole
+ * THRinnosukeRole
  */
-public class THNitoriRole extends TouhouRole {
+public class THRinnosukeRole extends TouhouRole {
 
-  public THNitoriRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
+  public THRinnosukeRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
       MoodType moodType, int maxSprintTime, boolean canSeeTime) {
     super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
   }

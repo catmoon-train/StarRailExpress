@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.touhou.roles.THNitoriRole;
+import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SRE;
@@ -38,14 +38,14 @@ public class MountainRoles {
     public static final ResourceLocation AYA_ID = id("ayayaya");
     public static final ResourceLocation HATATE_ID = id("hatate");
     // 河城荷取。可以购买除了杀手道具外的各种东西，且可丢弃！但价格翻倍。
-    public static SRERole NITORI = TMMRoles.registerRole(new THNitoriRole(
+    public static SRERole NITORI = TMMRoles.registerRole(new THRinnosukeRole(
             NITORI_ID, // 角色 ID
             new Color(162, 221, 233).getRGB(),
             false, // isInnocent = 乘客阵营
             false, // canUseKiller = 无杀手能力
-            SRERole.MoodType.FAKE, // 真实心情
+            SRERole.MoodType.REAL, // 真实心情
             Integer.MAX_VALUE, // 标准冲刺时间
-            true)).setNeutrals(true).setDefaultEnableNeededPlayerCount(12).setDefaultEnableChance(100)
+            true), "th_mountain").setNeutrals(true).setDefaultEnableNeededPlayerCount(12).setDefaultEnableChance(100)
             .setCanUseInstinct(false).setCanPickUpRevolver(false);
     public static SRERole AYA = TMMRoles.registerRole(new TouhouRole(AYA_ID, // 角色 ID
             new Color(26, 42, 58).getRGB(), // 黑色 - 代表乌鸦

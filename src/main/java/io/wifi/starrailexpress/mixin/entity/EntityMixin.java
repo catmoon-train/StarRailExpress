@@ -68,9 +68,12 @@ public class EntityMixin {
                     return true;
                 }
                 if (other instanceof Player so) {
-                    // final var role = gameWorldComponent.getRole((Player) self);
-                    // final var role1 = gameWorldComponent.getRole((Player) other);
-                    return CollisionRules.canCollide.stream().noneMatch(p -> p.test(sp) || p.test(so));
+                    if (so.level().isClientSide) {
+                        return false;
+                    }
+                    // 此处：渲染进程和服务端不一致。所以判断的时候应该分开判断。
+                    boolean flag = CollisionRules.cantCollide.stream().noneMatch(p -> p.test(sp) || p.test(so));
+                    return flag;
                 }
             }
         }

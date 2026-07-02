@@ -1,9 +1,11 @@
 package org.agmas.noellesroles.role.touhou;
 
+import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
 import org.agmas.noellesroles.role.touhou.roles.THTenshiRole;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class THMiscRoles {
@@ -19,6 +21,27 @@ public class THMiscRoles {
       .registerRole(new THTenshiRole(TENSHI_ID, new java.awt.Color(89, 177, 250).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false));
+  public static final ResourceLocation RINNOSUKE_ID = id("morichika_rinnosuke");
+  // 森近霖之助 Morichika Rinnosuke
+  public static SRERole RINNOSUKE = TMMRoles.registerRole(new THRinnosukeRole(
+      RINNOSUKE_ID, // 角色 ID
+      new java.awt.Color(252, 250, 249).getRGB(),
+      false, // isInnocent = 乘客阵营
+      false, // canUseKiller = 无杀手能力
+      SRERole.MoodType.REAL, // 真实心情
+      Integer.MAX_VALUE, // 标准冲刺时间
+      true))
+      .setNeutrals(true)
+      .setDefaultEnableNeededPlayerCount(12)
+      .setDefaultEnableChance(100)
+      .setCanUseInstinct(false)
+      .setCanPickUpRevolver(false)
+      .addTwoWayOpposingRole(MountainRoles.NITORI)
+      .setServerGameTickEvent((player, cca) -> {
+        if (player.level().getGameTime() % (20 * 60) == 0) {
+          SREPlayerShopComponent.KEY.get(player).addToBalance(50);
+        }
+      });
 
   public static void init() {
   }

@@ -240,6 +240,7 @@ public class GameConstants {
         public static ResourceLocation STALKER_EXECUTION = Noellesroles.id("stalker_execution");
         public static ResourceLocation BOMB_DEATH = Noellesroles.id("bomb_death");
         public static ResourceLocation PUPPETEER_PUPPET = Noellesroles.id("puppeteer_puppet");
+        public static ResourceLocation RAVEN_BODY_DEATH = Noellesroles.id("raven_body_death");
         public static ResourceLocation RECORDER_MISTAKE = Noellesroles.id("recorder_mistake");
         public static ResourceLocation GAMBLE_SELF_KILL = Noellesroles.id("gamble_self_kill");
         public static ResourceLocation WAYFARER_ERROR = Noellesroles.id("wayfarer_error");
