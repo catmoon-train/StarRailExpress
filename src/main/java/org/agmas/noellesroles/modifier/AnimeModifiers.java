@@ -65,11 +65,11 @@ public class AnimeModifiers {
                             Component.translatable("message.anime.re0_486.trigger.subtitle"), 100, RE0_486.color(),
                             false, SubtitleS2CPayload.POS_CENTER);
             SRE.REPLAY_MANAGER.recordCustomEvent(
-                    Component.translatable("message.anime.re0_486.trigger.title").withStyle(ChatFormatting.YELLOW),
+                    Component.translatable("message.anime.re0_486.trigger.text",player.getScoreboardName()).withStyle(ChatFormatting.YELLOW),
                     false);
             // 时停，让其像时间回溯
             TimeStopEffect.tryTriggerStart(player, 20 * 2,
-                    Component.translatable("message.anime.re0_486.trigger.text"));
+                    Component.translatable("message.anime.re0_486.trigger.time_stop"));
         });
     }
 }
