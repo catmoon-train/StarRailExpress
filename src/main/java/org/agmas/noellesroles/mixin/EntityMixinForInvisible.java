@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.ModComponents;
@@ -22,7 +23,7 @@ public class EntityMixinForInvisible {
         if (SRE.isLobby)
             return;
         // 只处理：自身是玩家 && 自身有隐身效果 && 观察者是旁观模式
-        if (!(self instanceof Player))
+        if (!(self instanceof Player viewee))
             return;
         if (!self.isInvisible())
             return;
@@ -33,10 +34,19 @@ public class EntityMixinForInvisible {
         }
         if (!viewer.isSpectator())
             return;
+
+        var gamecca = SREGameWorldComponent.getInstance(viewer.level());
+        if (!gamecca.isRunning())
+            return;
         var deathPenaltyComponent = ModComponents.DEATH_PENALTY.get(viewer);
         if (deathPenaltyComponent.hasPenalty()) {
             cir.setReturnValue(true);
             return;
+        }
+        if (gamecca.isKillerTeam(viewee) && gamecca.isKillerTeam(viewer) && gamecca.canSeeKillerTeammate(viewer)) {
+            cir.setReturnValue(false);
+        } else {
+            cir.setReturnValue(true);
         }
 
         // 示例 C：旁观者与隐身玩家不在同一队伍时才隐藏

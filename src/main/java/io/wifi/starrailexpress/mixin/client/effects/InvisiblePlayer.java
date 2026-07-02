@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.mixin.client.effects;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,10 +19,13 @@ public class InvisiblePlayer {
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
     private void hideInvisiblePlayer(Entity entity, Frustum frustum, double x, double y, double z,
             CallbackInfoReturnable<Boolean> cir) {
-        if (entity instanceof Player) {
-            // if (player.hasEffect(MobEffects.INVISIBILITY))
-            //     // 完全隐身，其他玩家看不到
-            //     cir.setReturnValue(false);
+        if (entity instanceof Player player) {
+            var self = Minecraft.getInstance().player;
+            if (self == null)
+                return;
+            if (player.isInvisibleTo(self))
+                // 完全隐身，其他玩家看不到
+                cir.setReturnValue(false);
         }
     }
 }
