@@ -671,10 +671,11 @@ public class InstinctRenderer {
                 }
             }
             // 布谷鸟：无法透视玩家；非布谷鸟：无法透视蛋
-            if (SREClient.gameComponent.isRole(self, ModRoles.REASONER) && target instanceof Player) {
+            boolean selfAlive = GameUtils.isPlayerAliveAndSurvival(self);
+            if (selfAlive && SREClient.gameComponent.isRole(self, ModRoles.REASONER) && target instanceof Player) {
                 return -2;
             }
-            if (SREClient.gameComponent.isRole(self, ModRoles.CUCKOO)) {
+            if (selfAlive && SREClient.gameComponent.isRole(self, ModRoles.CUCKOO)) {
                 if (target instanceof Player) {
                     return -2;
                 }
