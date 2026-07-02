@@ -47,6 +47,8 @@ public class InGameHudMixin {
         if (!SREClient.shouldUseTrainHud()) {
             return;
         }
+        if (SREClient.gameComponent == null)
+            return;
         LocalPlayer player = this.minecraft.player;
         if (player == null)
             return;
