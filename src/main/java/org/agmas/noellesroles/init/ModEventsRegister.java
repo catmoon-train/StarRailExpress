@@ -788,6 +788,8 @@ public class ModEventsRegister {
             }
             // Cake eating via right-click on cake interaction entity (any player)
             if (CakeMakerComponent.isCakeInteractionEntity(entity)) {
+                if (player.isSpectator())
+                    return InteractionResult.PASS;
                 UUID ownerId = CakeMakerComponent.getCakeOwner(entity);
                 if (ownerId != null) {
                     ServerPlayer cakeOwner = world.getServer().getPlayerList().getPlayer(ownerId);
