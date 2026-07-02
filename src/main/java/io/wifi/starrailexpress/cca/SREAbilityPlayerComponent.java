@@ -315,7 +315,7 @@ public class SREAbilityPlayerComponent
             }
         } else if (this.cooldown > 0) {
             this.cooldown--;
-            if (this.cooldown % 200 == 0 || this.cooldown == 0) {
+            if (this.cooldown % 400 == 0 || this.cooldown == 0) {
                 this.sync();
             }
         }
