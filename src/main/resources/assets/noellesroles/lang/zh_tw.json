@@ -1092,6 +1092,7 @@
   "item.noellesroles.night_vision_glasses": "夜視儀",
   "death_reason.noellesroles.puppeteer_puppet": "傀儡本體死亡",
   "death_reason.starrailexpress.puppeteer_puppet": "傀儡本體死亡",
+  "death_reason.noellesroles.raven_body_death": "渡鴉本體死亡",
   "==================== 薄荷糖物品 ====================": "",
   "item.noellesroles.mint_candies": "薄荷糖",
   "item.noellesroles.mint_candies.tooltip": "食用後恢復35%%的san值",

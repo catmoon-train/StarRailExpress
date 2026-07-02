@@ -317,9 +317,13 @@ public class PuppeteerBodyEntity extends LivingEntity {
 
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
-        // 只对虚空伤害免疫（防止掉入虚空时不死亡）
-        if (source.is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD)) {
-            return false; // 不免疫虚空伤害，让实体正常死亡
+        // 免疫淹死伤害（渡鸦/傀儡师的玩家傀儡不应被淹死）
+        if (source.is(DamageTypes.DROWN)) {
+            return true;
+        }
+        // 虚空伤害不免疫，让实体正常死亡
+        if (source.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+            return false;
         }
         // 对其他所有伤害都不免疫
         return false;
