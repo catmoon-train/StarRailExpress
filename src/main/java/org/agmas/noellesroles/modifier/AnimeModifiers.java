@@ -57,16 +57,16 @@ public class AnimeModifiers {
             // 触发回溯
             for (var p : players) {
                 GameUtils.teleportBackToRoom(p);
-                SRENetworkMessageUtils
-                        .sendCODSubtitleToAll(
-                                Component.translatable("message.anime.re0_486.trigger.title")
-                                        .withStyle(ChatFormatting.GOLD),
-                                Component.translatable("message.anime.re0_486.trigger.subtitle"), 100, RE0_486.color(),
-                                false, SubtitleS2CPayload.POS_CENTER);
-                SRE.REPLAY_MANAGER.recordCustomEvent(
-                        Component.translatable("message.anime.re0_486.trigger.title").withStyle(ChatFormatting.YELLOW),
-                        false);
             }
+            SRENetworkMessageUtils
+                    .sendCODSubtitleToAll(
+                            Component.translatable("message.anime.re0_486.trigger.title")
+                                    .withStyle(ChatFormatting.GOLD),
+                            Component.translatable("message.anime.re0_486.trigger.subtitle"), 100, RE0_486.color(),
+                            false, SubtitleS2CPayload.POS_CENTER);
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("message.anime.re0_486.trigger.title").withStyle(ChatFormatting.YELLOW),
+                    false);
             // 时停，让其像时间回溯
             TimeStopEffect.tryTriggerStart(player, 20 * 2,
                     Component.translatable("message.anime.re0_486.trigger.text"));

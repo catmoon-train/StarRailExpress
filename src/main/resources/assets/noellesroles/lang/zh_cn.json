@@ -1449,6 +1449,7 @@
   "screen.roleintroduce.flag.inner.disable": "❌ 当前已禁用",
   "screen.roleintroduce.flag.inner.enable": "✔ 当前已启用",
   "screen.roleintroduce.flag.inner.hidden": "隐藏修饰符",
+  "screen.roleintroduce.flag.anime": "动漫相关",
   "screen.roleintroduce.flag.touhou": "东方同人",
   "screen.roleintroduce.flag.bouns": "彩蛋角色",
   "screen.roleintroduce.flag.th_misc": "东方其他",
