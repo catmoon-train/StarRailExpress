@@ -1445,7 +1445,7 @@ public class ModRoles {
             .registerRole(new NormalRole(CORONER_ID, new Color(122, 122, 122).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeBodyDeathReason(true).setCanSeeBodyRoleInfo(true).setCanSeeBodyItems(true)
-            .setDefaultMax(1);
+            .setDefaultMax(1).setCanSeeBodyKiller(false);
 
     // ==================== 自定义角色对象定义 ====================
     // 乘客阵营角色

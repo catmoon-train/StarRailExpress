@@ -31,9 +31,9 @@ public abstract class InsaneKillerRenderMixin
         super(context, entityModel, f);
     }
 
-
     @Inject(method = "render(Lnet/minecraft/client/player/AbstractClientPlayer;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"), cancellable = true)
-    protected void setupRotations(AbstractClientPlayer abstractClientPlayer, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
+    protected void setupRotations(AbstractClientPlayer abstractClientPlayer, float f, float g, PoseStack poseStack,
+            MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
         if (abstractClientPlayer.isSpectator())
             return;
         InsaneKillerPlayerComponent component = InsaneKillerPlayerComponent.KEY.get(abstractClientPlayer);
@@ -41,40 +41,45 @@ public abstract class InsaneKillerRenderMixin
         if (component.isActive) {
             ci.cancel();
             isPlayerBodyEntity.put(abstractClientPlayer.getUUID(), true);
-            if (!playerBodyEntities.containsKey(abstractClientPlayer.getUUID())){
-//                if (abstractClientPlayer.getUUID() == Minecraft.getInstance().player.getUUID()){
-//                    Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
-//                }
+            if (!playerBodyEntities.containsKey(abstractClientPlayer.getUUID())) {
+                // if (abstractClientPlayer.getUUID() ==
+                // Minecraft.getInstance().player.getUUID()){
+                // Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
+                // }
                 final var body = new PlayerBodyEntity(TMMEntities.PLAYER_BODY, abstractClientPlayer.level());
                 body.setPlayerUuid(abstractClientPlayer.getUUID());
-                Vec3 spawnPos = abstractClientPlayer.position().add(abstractClientPlayer.getLookAngle().normalize().scale(1));
+                Vec3 spawnPos = abstractClientPlayer.position()
+                        .add(abstractClientPlayer.getLookAngle().normalize().scale(1));
                 body.moveTo(spawnPos.x(), abstractClientPlayer.getY(), spawnPos.z(), 0, 0f);
-//                body.setYRot(abstractClientPlayer.getYHeadRot());
-//                body.setYHeadRot(abstractClientPlayer.getYHeadRot());
+                // body.setYRot(abstractClientPlayer.getYHeadRot());
+                // body.setYHeadRot(abstractClientPlayer.getYHeadRot());
                 clientLevel.addEntity(body);
                 playerBodyEntities.put(abstractClientPlayer.getUUID(), body);
             }
             final var playerBodyEntity = playerBodyEntities.get(abstractClientPlayer.getUUID());
 
             Entity entity = clientLevel.getEntity(playerBodyEntity.getId());
-            if (entity!=null) {
+            if (entity != null) {
                 entity.setPos(abstractClientPlayer.getX(), abstractClientPlayer.getY(), abstractClientPlayer.getZ());
                 entity.setYHeadRot(0);
-//                entity.setXRot(0);
+                // entity.setXRot(0);
             }
-//            playerBodyEntity.moveTo(abstractClientPlayer.getX(), abstractClientPlayer.getY(), abstractClientPlayer.getZ());
-//            Minecraft.getInstance().getEntityRenderDispatcher().render(playerBodyEntity, 0.0D, 0.0D, 0, f, g, poseStack, multiBufferSource, i);
+            // playerBodyEntity.moveTo(abstractClientPlayer.getX(),
+            // abstractClientPlayer.getY(), abstractClientPlayer.getZ());
+            // Minecraft.getInstance().getEntityRenderDispatcher().render(playerBodyEntity,
+            // 0.0D, 0.0D, 0, f, g, poseStack, multiBufferSource, i);
             // 模拟尸体渲染：绕 Z 轴旋转 90 度，并下移到地面
-//            poseStack.mulPose(Axis.ZP.rotationDegrees(90.0F));
-//            poseStack.translate(0.0F, -0.85F, 0.0F);
-        }else {
+            // poseStack.mulPose(Axis.ZP.rotationDegrees(90.0F));
+            // poseStack.translate(0.0F, -0.85F, 0.0F);
+        } else {
             if (isPlayerBodyEntity.getOrDefault(abstractClientPlayer.getUUID(), false)) {
-//                if (abstractClientPlayer == Minecraft.getInstance().player) {
-//                    Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
-//                }
+                // if (abstractClientPlayer == Minecraft.getInstance().player) {
+                // Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
+                // }
                 isPlayerBodyEntity.put(abstractClientPlayer.getUUID(), false);
                 if (playerBodyEntities.containsKey(abstractClientPlayer.getUUID())) {
-                    clientLevel.removeEntity(playerBodyEntities.get(abstractClientPlayer.getUUID()).getId(), Entity.RemovalReason.DISCARDED);
+                    clientLevel.removeEntity(playerBodyEntities.get(abstractClientPlayer.getUUID()).getId(),
+                            Entity.RemovalReason.DISCARDED);
                     playerBodyEntities.remove(abstractClientPlayer.getUUID());
 
                 }

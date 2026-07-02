@@ -885,6 +885,18 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canAutoAddMoney = false;
     protected boolean bodyKillerVisibility = false;
     public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
+    protected boolean bodyNameVisibility = false;
+
+    /**
+     * 设置是否允许看到尸体的名字
+     * 
+     * @param flag
+     * @return
+     */
+    public SRERole setCanSeeBodyName(boolean flag) {
+        this.bodyNameVisibility = flag;
+        return this;
+    }
 
     /**
      * 设置是否允许看到尸体的杀手
@@ -1156,6 +1168,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public int getRoleType() {
         return PlayerRoleWeightManager.getRoleType(this);
     }
+
+    public boolean canSeeBodyName() {
+        return this.bodyNameVisibility;
+    };
 
     public boolean canSeeBodyKiller() {
         return this.bodyKillerVisibility;

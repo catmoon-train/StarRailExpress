@@ -354,6 +354,7 @@ public class WayfarerPlayerComponent implements RoleComponent, ServerTickingComp
             player.level().addFreshEntity(body);
 
             PlayerBodyEntityComponent component = PlayerBodyEntityComponent.KEY.get(body);
+            component.setOwnerName(player.getScoreboardName(),false);
             component.setDeathReason(trueDeathReason.toString(), false); // 不同步
             component.playerRole = ModRoles.WAYFARER_ID; // 直接赋值，不触发同步
             component.sync(); // 最终统一同步

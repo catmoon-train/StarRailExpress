@@ -1,5 +1,5 @@
 
-    package io.wifi.starrailexpress.cca;
+package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
@@ -31,6 +31,7 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
     public boolean isFakeBody = false; // 葬仪伪造的尸体标记
     public PlayerBodyEntity playerBodyEntity;
 
+    private String ownerName;
     private UUID killer;
     private UUID conspiratorEvidence;
     private String deathReason = "";
@@ -44,6 +45,10 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
     // ---------- 物品容器访问 ----------
     public PlayerBodyEntityContainer getCorpseInventory() {
         return corpseInventory;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
     }
 
     // ---------- Killer / DeathReason 带同步控制的 setter ----------
@@ -154,7 +159,7 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
                 if (stack.getCount() > 99) {
                     stack.setCount(99); // 限制最大数量为99
                 }
-                
+
                 CompoundTag itemTag = new CompoundTag();
                 Tag itemItemTag = stack.save(registryLookup);
                 itemTag.put("Item", itemItemTag);
@@ -219,6 +224,7 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         // 同步基本数据，不包含物品（打开容器时由菜单自动同步物品）
+        tag.putString("oname", ownerName);
         tag.putString("playerRole", playerRole.toString());
         tag.putBoolean("vultured", vultured);
         tag.putBoolean("isFakeBody", isFakeBody);
@@ -233,11 +239,13 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.playerRole = ResourceLocation.tryParse(tag.getString("playerRole"));
+        this.ownerName = tag.contains("oname") ? tag.getString("oname") : "";
+        if (tag.contains("playerRole"))
+            this.playerRole = ResourceLocation.tryParse(tag.getString("playerRole"));
         if (this.playerRole == null)
-            this.playerRole = TMMRoles.CIVILIAN.identifier();
-        this.vultured = tag.getBoolean("vultured");
-        this.isFakeBody = tag.getBoolean("isFakeBody");
+            this.playerRole = TMMRoles.DISCOVERY_CIVILIAN.identifier();
+        this.vultured = tag.contains("vultured") && tag.getBoolean("vultured");
+        this.isFakeBody = tag.contains("isFakeBody") && tag.getBoolean("isFakeBody");
         if (tag.hasUUID("Killer")) {
             killer = tag.getUUID("Killer");
         } else {
@@ -254,5 +262,15 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
     @Override
     public void serverTick() {
         // 可选的定时逻辑
+    }
+
+    public void setOwnerName(String scoreboardName) {
+        setOwnerName(scoreboardName, true);
+    }
+
+    public void setOwnerName(String scoreboardName, boolean sync) {
+        this.ownerName = scoreboardName;
+        if (sync)
+            sync();
     }
 }

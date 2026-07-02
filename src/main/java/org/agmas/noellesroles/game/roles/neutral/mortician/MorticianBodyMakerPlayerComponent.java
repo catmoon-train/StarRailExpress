@@ -426,7 +426,7 @@ public class MorticianBodyMakerPlayerComponent extends SREAbilityPlayerComponent
                 playerBody.setXRot(0f);
 
                 PlayerBodyEntityComponent bodyComponent = PlayerBodyEntityComponent.KEY.get(playerBody);
-
+                bodyComponent.setOwnerName(target.getScoreboardName(), false);
                 ResourceLocation deathReasonLoc = deathReason != null && !deathReason.isEmpty()
                         ? ResourceLocation.parse(deathReason)
                         : ResourceLocation.fromNamespaceAndPath("noellesroles", "mortician_bodymaker");
@@ -527,8 +527,8 @@ public class MorticianBodyMakerPlayerComponent extends SREAbilityPlayerComponent
             this.draggedBody.setYHeadRot(player.getYRot());
             this.draggedBody.yBodyRot = player.getYRot();
             // 通用物证·拖痕：记录该尸体被拖动过（首次记录即同步）
-            io.wifi.starrailexpress.cca.SREGameWorldComponent forensicGw =
-                    io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
+            io.wifi.starrailexpress.cca.SREGameWorldComponent forensicGw = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY
+                    .get(player.level());
             if (forensicGw != null && this.draggedBody.getPlayerUuid() != null) {
                 forensicGw.markCorpseDragged(this.draggedBody.getPlayerUuid());
             }

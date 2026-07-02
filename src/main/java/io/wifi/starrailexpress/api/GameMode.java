@@ -8,7 +8,6 @@ import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.api.replay.screen.ReplayScreenService;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -43,7 +42,6 @@ import io.wifi.starrailexpress.event.ShouldReloadDerringer;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
@@ -60,12 +58,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -638,40 +633,9 @@ public abstract class GameMode {
                     }
                 }
                 if (spawnBody) {
-                    PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
-                    if (body != null) {
-                        double scale = victim.getAttributeValue(Attributes.SCALE);
-                        victim.stopRiding();
-                        victim.stopSleeping();
-                        body.getAttribute(Attributes.SCALE).setBaseValue(scale);
-                        PlayerBodyEntityComponent bodycca = body.getComponent();
-                        if (killer != null) {
-                            bodycca.setKillerUuid(killer.getUUID(), false);
-                        }
-                        bodycca.setDeathReason(deathReason.toString(), false);
-                        body.setPlayerUuid(victim.getUUID());
-
-                        Vec3 spawnPos = victim.position().add(victim.getLookAngle().normalize().scale(1));
-                        body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), victim.getYHeadRot(), 0f);
-                        body.setYRot(victim.getYHeadRot());
-                        body.setYHeadRot(victim.getYHeadRot());
-                        victim.level().addFreshEntity(body);
-
-                        if (SREConfig.instance().savePlayerBodyItems) {
-                            body.setCorpseInventoryFromPlayerInventory(victim.getInventory(), false);
-                        }
-
-                        if (role != null) {
-                            bodycca.playerRole = role.identifier();
-                            // 不立即同步
-                        }
-
-                        victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason, body);
-                        OnDeathWithBody.EVENT.invoker().onDeathWithBody(victim, killer, deathReason, body);
-
-                        // 最后统一同步一次
-                        bodycca.sync();
-                    }
+                    PlayerBodyEntity body = GameUtils.spawnBodyEntity(victim, killer, victimRole, deathReason);
+                    victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason, body);
+                    OnDeathWithBody.EVENT.invoker().onDeathWithBody(victim, killer, deathReason, body);
                 }
             }
 

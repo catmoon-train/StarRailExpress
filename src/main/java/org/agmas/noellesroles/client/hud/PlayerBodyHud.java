@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.client.RicesRoleRhapsodyClient;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
@@ -187,9 +188,10 @@ public class PlayerBodyHud {
                     }
                 }
 
-                MutableComponent name = Component
-                        .translatable("hud.coroner.death_info", targetBody.tickCount / 20)
-                        .append(deathText);
+                MutableComponent nameMessage = Component
+                        .translatable("hud.coroner.death_info.name", targetBody.tickCount / 20, bodyDeathReasonComponent.getOwnerName());
+                MutableComponent deathMessage = Component
+                        .translatable("hud.coroner.death_info.new", targetBody.tickCount / 20, deathText);
                 boolean vultured = bodyDeathReasonComponent.vultured;
                 final var worldModifiers = WorldModifierComponent.KEY.get(Minecraft.getInstance().player.level());
                 if (worldModifiers != null) {
@@ -199,12 +201,15 @@ public class PlayerBodyHud {
                     }
                 }
                 if (vultured) {
-                    name = Component.literal("abcdefghijklmnopqrstuvwxyzaa").withStyle(ChatFormatting.OBFUSCATED);
+                    deathMessage = Component.literal("abcdefghijklmnopqrstuvwxyzaa")
+                            .withStyle(ChatFormatting.OBFUSCATED);
                 }
                 if (hasPenalty) {
-                    name = Component.translatable("message.noellesroles.penalty.limit.death");
+                    nameMessage = Component.empty();
+                    deathMessage = Component.translatable("message.noellesroles.penalty.limit.death");
                 }
-                context.drawString(renderer, name, -renderer.width(name) / 2, 32, CommonColors.RED);
+                context.drawString(renderer, deathMessage, -renderer.width(nameMessage) / 2, 22, CommonColors.RED);
+                context.drawString(renderer, deathMessage, -renderer.width(deathMessage) / 2, 32, CommonColors.RED);
                 SRERole foundRole = TMMRoles.CIVILIAN;
                 for (SRERole role : TMMRoles.ROLES.values()) {
                     if (role.identifier().equals(bodyDeathReasonComponent.playerRole))
@@ -221,10 +226,7 @@ public class PlayerBodyHud {
                     }
                     context.drawString(renderer, roleInfo, -renderer.width(roleInfo) / 2, 48, CommonColors.WHITE);
                 }
-                // 验尸官不允许看到尸体的凶手（即便处于旁观/创造），其余可看凶手的职业不受影响
-                boolean selfIsCoroner = selfrole != null && ModRoles.CORONER_ID.equals(selfrole.identifier());
-                boolean showBodyKiller = (SREClient.isPlayerSpectatingOrCreative() || selfrole.canSeeBodyKiller())
-                        && !selfIsCoroner;
+                boolean showBodyKiller = (SREClient.isPlayerSpectatingOrCreative() || selfrole.canSeeBodyKiller());
                 if (showBodyKiller && !hasPenalty) {
                     var killerName = Component.translatable("sre.general.unknown");
                     UUID killerId = targetBody.getKillerUuid();
@@ -304,6 +306,7 @@ public class PlayerBodyHud {
                     targetBody = playerBodyEntity;
                     NoellesrolesClient.targetBody = targetBody;// 用于秃鹫兼容
                 } else if (ehr.getEntity() instanceof Player targetPlayer) {
+                    RicesRoleRhapsodyClient.targetPlayer = targetPlayer;
                     InsaneKillerPlayerComponent component = InsaneKillerPlayerComponent.KEY.get(targetPlayer);
                     if (component.isActive) {
                         targetFakeBody = targetPlayer;

@@ -76,6 +76,7 @@ import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -116,6 +117,57 @@ public class GameUtils {
                 sp.setGameMode(GameType.SPECTATOR);
             }
         }
+    }
+
+    public static PlayerBodyEntity spawnBodyEntity(Player victim, @Nullable Player killer, @Nullable SRERole victimRole,
+            ResourceLocation deathReason, boolean saveItems) {
+        return spawnBodyEntity(victim, killer, victimRole, deathReason, saveItems,
+                victim.position().add(victim.getLookAngle().normalize().scale(1)), victim.getYHeadRot(), 0f);
+    }
+
+    public static PlayerBodyEntity spawnBodyEntity(Player victim, @Nullable Player killer, @Nullable SRERole victimRole,
+            ResourceLocation deathReason) {
+        return spawnBodyEntity(victim, killer, victimRole, deathReason, SREConfig.instance().savePlayerBodyItems,
+                victim.position().add(victim.getLookAngle().normalize().scale(1)), victim.getYHeadRot(), 0f);
+    }
+
+    public static PlayerBodyEntity spawnBodyEntity(Player victim, @Nullable Player killer, @Nullable SRERole victimRole,
+            ResourceLocation deathReason, boolean saveItems, Vec3 spawnPos, float yHeadRot, float xHeadRot) {
+        if (victim == null)
+            return null;
+        PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(victim.level());
+        if (body != null) {
+            double scale = victim.getAttributeValue(Attributes.SCALE);
+            victim.stopRiding();
+            victim.stopSleeping();
+            body.getAttribute(Attributes.SCALE).setBaseValue(scale);
+            PlayerBodyEntityComponent bodycca = body.getComponent();
+            if (killer != null) {
+                bodycca.setKillerUuid(killer.getUUID(), false);
+            }
+            bodycca.setDeathReason(deathReason.toString(), false);
+            body.setPlayerUuid(victim.getUUID());
+            bodycca.setOwnerName(victim.getScoreboardName(), false);
+            body.moveTo(spawnPos.x(), victim.getY(), spawnPos.z(), yHeadRot, xHeadRot);
+            body.setYRot(victim.getYHeadRot());
+            body.setYHeadRot(victim.getYHeadRot());
+            victim.level().addFreshEntity(body);
+
+            if (saveItems) {
+                body.setCorpseInventoryFromPlayerInventory(victim.getInventory(), false);
+            }
+            var role = victimRole;
+            if (role == null) {
+                role = RoleUtils.getPlayerRole(victim);
+            }
+            if (role != null) {
+                bodycca.playerRole = role.identifier();
+                // 不立即同步
+            }
+            // 最后统一同步一次
+            bodycca.sync();
+        }
+        return body;
     }
 
     /**
@@ -1385,7 +1437,8 @@ public class GameUtils {
     public static long getAlivePlayerCount(Level level) {
         return level.players().stream().filter((p) -> isPlayerAliveAndSurvivalIgnoreShitSplit(p)).count();
     }
- public static void revivePlayerToItsRoom(ServerPlayer player) {
+
+    public static void revivePlayerToItsRoom(ServerPlayer player) {
         DeathPenaltyComponent.KEY.get(player).clear();
         DefibrillatorComponent.KEY.get(player).clear();
         GameUtils.teleportBackToRoom(player);
@@ -1393,6 +1446,7 @@ public class GameUtils {
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
     }
+
     public static void revivePlayer(ServerPlayer player, double x, double y, double z) {
         DeathPenaltyComponent.KEY.get(player).clear();
         DefibrillatorComponent.KEY.get(player).clear();
