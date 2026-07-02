@@ -196,7 +196,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         if (!(player instanceof ServerPlayer amon))
             return;
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(amon.level());
-
+        if(true) return; 
         // 角色被中途更换：清理残留状态与伪装。
         if (!game.isRole(amon, ModRoles.AMON)) {
             if (!seeds.isEmpty() || !maturedHosts.isEmpty() || disguiseTarget != null || possessTarget != null) {
