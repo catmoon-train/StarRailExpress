@@ -75,6 +75,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
+import org.agmas.noellesroles.utils.LocalDateData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
@@ -778,35 +779,35 @@ public class GameUtils {
             roomToPlayer.put(serverPlayerEntity.getUUID(), finalRoomNumber);
 
             // give letter
-            ItemStack letter = new ItemStack(TMMItems.INIT_ITEMS.LETTER);
-            if (TMMItems.INIT_ITEMS.LETTER_UpdateItemFunc != null) {
-                TMMItems.INIT_ITEMS.LETTER_UpdateItemFunc.accept(letter, serverPlayerEntity);
-            } else {
-                letter.set(DataComponents.ITEM_NAME, Component.translatable(letter.getDescriptionId()));
+            ItemStack letter = new ItemStack(ModItems.LETTER_ITEM);
+            {
+                Component displayName = serverPlayerEntity.getName();
+                letter.set(DataComponents.ITEM_NAME,
+                        Component.translatable("tip.n.letter.item_name", displayName)
+                                .withStyle(ChatFormatting.AQUA));
+
                 int letterColor = 0xC5AE8B;
-                String tipString = "tip.letter.";
+                String tipString = "tip.n.letter.";
                 letter.update(DataComponents.LORE, ItemLore.EMPTY, component -> {
                     List<Component> text = new ArrayList<>();
                     UnaryOperator<Style> stylizer = style -> style.withItalic(false).withColor(letterColor);
 
-                    Component displayName = serverPlayerEntity.getName();
                     String string = displayName != null ? displayName.getString()
                             : serverPlayerEntity.getName().getString();
                     if (string.charAt(string.length() - 1) == '\uE780') { // remove ratty supporter icon
                         string = string.substring(0, string.length() - 1);
                     }
-
-                    text.add(Component.translatable(tipString + "name", string)
-                            .withStyle(style -> style.withItalic(false).withColor(0xFFFFFF)));
+                    text.add(Component
+                            .translatable(tipString + "name", string,
+                                    Component.translatable(tipString + "map_name"))
+                            .withStyle(stylizer));
                     text.add(Component.translatable(tipString + "room").withStyle(stylizer));
+                    var date = new LocalDateData();
                     text.add(Component.translatable(tipString + "tooltip1",
-                            Component.translatable(tipString + "room." + switch (finalRoomNumber) {
-                                case 1 -> "grand_suite";
-                                case 2, 3 -> "cabin_suite";
-                                default -> "twin_cabin";
-                            }).getString()).withStyle(stylizer));
+                            Component.translatable(tipString + "date", date.getYear(),
+                                    date.getMonth(), date.getDay()))
+                            .withStyle(stylizer));
                     text.add(Component.translatable(tipString + "tooltip2").withStyle(stylizer));
-
                     return new ItemLore(text);
                 });
             }

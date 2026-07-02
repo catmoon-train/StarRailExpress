@@ -235,8 +235,6 @@ public interface TMMItems {
                 .title(Component.translatable("itemGroup.noellesroles.all"))
                 .icon(() -> new ItemStack(ModItems.BLANK_CARTRIDGE))
                 .build());
-        if (INIT_ITEMS.LETTER == null)
-            INIT_ITEMS.LETTER = LETTER;
 
         SkinableItem.add(TMMItems.KNIFE);
         SkinableItem.add(TMMItems.REVOLVER);

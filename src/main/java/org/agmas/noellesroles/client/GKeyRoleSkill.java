@@ -18,6 +18,7 @@ import org.agmas.noellesroles.packet.VeteranDashC2SPacket;
 import org.agmas.noellesroles.packet.VultureEatC2SPacket;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.MountainRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.HashMap;
@@ -87,7 +88,8 @@ public final class GKeyRoleSkill {
             } else {
                 client.player.displayClientMessage(
                         Component.translatable("message.noellesroles.nianshou.no_target")
-                                .withStyle(ChatFormatting.RED), true);
+                                .withStyle(ChatFormatting.RED),
+                        true);
             }
             return true;
         });
@@ -132,6 +134,13 @@ public final class GKeyRoleSkill {
             ClientPlayNetworking.send(new org.agmas.noellesroles.packet.SwapperFrontSwapC2SPacket());
             return true;
         });
+        register(MountainRoles.NITORI, false, (client, gameWorld) -> {
+            if (NoellesrolesClient.targetPlayer == null) {
+                return true;
+            }
+            ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(NoellesrolesClient.targetPlayer));
+            return true;
+        });
         register(ModRoles.VULTURE, false, (client, gameWorld) -> {
             if (NoellesrolesClient.targetBody == null) {
                 return true;
@@ -153,17 +162,22 @@ public final class GKeyRoleSkill {
                     return true;
                 }
             }
-            client.player.displayClientMessage(Component.translatable("message.noellesroles.pelican.no_target").withStyle(ChatFormatting.RED), true);
+            client.player.displayClientMessage(
+                    Component.translatable("message.noellesroles.pelican.no_target").withStyle(ChatFormatting.RED),
+                    true);
             return true;
         });
         register(ModRoles.GODFATHER, true, (client, gameWorld) -> {
-            var comp = org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent.KEY.maybeGet(client.player).orElse(null);
+            var comp = org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent.KEY.maybeGet(client.player)
+                    .orElse(null);
             if (comp != null && client.player != null && client.player.level() != null) {
                 long now = client.player.level().getGameTime();
                 if (comp.recruitCooldownUntil > 0 && now < comp.recruitCooldownUntil) {
                     long remaining = (comp.recruitCooldownUntil - now) / 20 + 1;
                     client.player.displayClientMessage(
-                        net.minecraft.network.chat.Component.translatable("message.noellesroles.godfather.cooldown", remaining), true);
+                            net.minecraft.network.chat.Component.translatable("message.noellesroles.godfather.cooldown",
+                                    remaining),
+                            true);
                     return true;
                 }
             }
@@ -205,7 +219,8 @@ public final class GKeyRoleSkill {
 
         // 咒法师：按技能键标记目标，蹲下按技能键触发咒杀
         register(ModRoles.WARLOCK, true, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+                return true;
             // 蹲下 = 咒杀
             if (client.player.isShiftKeyDown()) {
                 ClientPlayNetworking.send(new org.agmas.noellesroles.packet.WarlockKillC2SPacket());
@@ -226,14 +241,16 @@ public final class GKeyRoleSkill {
 
         // 嬉命人：按技能键发动变装（冷却80秒）
         register(ModRoles.EMBALMER, true, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+                return true;
             ClientPlayNetworking.send(new org.agmas.noellesroles.packet.EmbalmerC2SPacket());
             return true;
         });
 
         // 窃皮者：按技能键偷皮
         register(ModRoles.SKINCRAWLER, true, (client, gameWorld) -> {
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player)) return true;
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+                return true;
             ClientPlayNetworking.send(new org.agmas.noellesroles.packet.SkincrawlerC2SPacket());
             return true;
         });
