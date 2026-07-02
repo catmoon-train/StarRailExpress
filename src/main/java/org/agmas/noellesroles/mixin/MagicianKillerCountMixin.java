@@ -36,7 +36,7 @@ public class MagicianKillerCountMixin {
     )
     private static void modifyAnnounceWelcomePayload(Args args, ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent, List<ServerPlayer> players) {
         // 获取第一个参数（玩家）
-        Object playerObj = args.get(0);
+        args.get(0);
         // 获取第二个参数（AnnounceWelcomePayload）
         Object payload = args.get(1);
         

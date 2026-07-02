@@ -1044,4 +1044,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return new AlivePlayerRoleTeamInfo(innocent, vigilante, all_neturals, neturals_for_killer,
                 custom_winner_neturals, killer);
     }
+    
+    public static SREGameWorldComponent getInstance(Player player) {
+        return KEY.get(player.level());
+    }
+    public static SREGameWorldComponent getInstance(Level level) {
+        return KEY.get(level);
+    }
 }

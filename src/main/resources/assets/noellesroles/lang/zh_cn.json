@@ -1,4 +1,4 @@
-﻿{
+{
   "unknown": "未知",
   "unknown_role": "未知职业",
   "sre.command.permission_denied": "你没有权限做这件事！",
@@ -1085,7 +1085,6 @@
   "announcement.star.role.manipulator": "操纵师",
   "announcement.star.goals.manipulator": "借他人之手清除所有违抗你的人！",
   "announcement.star.win.manipulator": "杀手胜利！",
-  "info.screen.roleid.manipulator": "操纵师\n潜行到目标背后、凝视其超过 6 秒即可标记（标记成功后目标短暂反胃，你获得 15 金币）。\n之后在 100 格内打开背包、点击已标记目标头像即可附身：你的视角会绑定到对方身上，用移动/跳跃键远程操控其行动。\n附身期间目标失明、无法移动/使用物品/打开背包/使用技能；你不能使用其物品，但可以其身份释放它的技能（冷却记在它身上）。\n操控他人走入虚空会被自动弹回，避免自杀。若目标在操控期间死亡，你将获得 75 金币。\n打开背包即可随时取消操控。操控冷却 80 秒。",
   "hud.noellesroles.manipulator.title": "操纵师",
   "hud.noellesroles.manipulator.cooldown": "操控冷却：%s秒",
   "hud.noellesroles.manipulator.ready": "操控就绪 - 在背包中点击已标记目标",
@@ -2869,6 +2868,11 @@
   "announcement.star.role.traitor": "叛徒",
   "announcement.star.role.noellesroles.traitor": "叛徒",
   "announcement.star.goals.traitor": "去反抗所有不公！",
+  "==================== 彩蛋修饰符 ====================": "",
+  "announcement.star.modifier.anime.re0_486": "486",
+  "message.anime.re0_486.trigger.text": "486 位置回溯",
+  "message.anime.re0_486.trigger.title": "486 位置回溯触发",
+  "message.anime.re0_486.trigger.subtitle": "你已被传送回自己初始房间",
   "==================== 新修饰符 ====================": "",
   "announcement.star.modifier.noellesroles.last_gasp": "回光返照",
   "announcement.star.modifier.noellesroles.rebel": "起义军",
