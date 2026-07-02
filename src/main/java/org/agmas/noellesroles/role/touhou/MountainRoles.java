@@ -46,7 +46,7 @@ public class MountainRoles {
             SRERole.MoodType.FAKE, // 真实心情
             Integer.MAX_VALUE, // 标准冲刺时间
             true)).setNeutrals(true).setDefaultEnableNeededPlayerCount(12).setDefaultEnableChance(100)
-            .setCanUseInstinct(false);
+            .setCanUseInstinct(false).setCanPickUpRevolver(false);
     public static SRERole AYA = TMMRoles.registerRole(new TouhouRole(AYA_ID, // 角色 ID
             new Color(26, 42, 58).getRGB(), // 黑色 - 代表乌鸦
             false, // isInnocent = 乘客阵营
