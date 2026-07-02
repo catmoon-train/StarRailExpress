@@ -19,7 +19,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
-import org.agmas.noellesroles.mini_gme.DevilRouletteGame;
+import org.agmas.noellesroles.minigame.DevilRouletteGame;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;

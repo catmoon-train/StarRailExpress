@@ -19,10 +19,10 @@ public class InvisiblePlayer {
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
     private void hideInvisiblePlayer(Entity entity, Frustum frustum, double x, double y, double z,
             CallbackInfoReturnable<Boolean> cir) {
-        if (entity instanceof Player player) {
-            if (player.hasEffect(MobEffects.INVISIBILITY))
-                // 完全隐身，其他玩家看不到
-                cir.setReturnValue(false);
+        if (entity instanceof Player) {
+            // if (player.hasEffect(MobEffects.INVISIBILITY))
+            //     // 完全隐身，其他玩家看不到
+            //     cir.setReturnValue(false);
         }
     }
 }

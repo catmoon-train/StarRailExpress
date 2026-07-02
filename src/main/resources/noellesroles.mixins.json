@@ -95,8 +95,6 @@
     "client.roles.bodymaker.BodymakerScreenMixin",
     "client.forensic.ForensicCorpseHudMixin",
     "client.forensic.ForensicDoorHudMixin",
-    "client.roles.coroner.CoronerHudMixin",
-    "client.roles.coroner.CustomRolesRoleNameRendererMixin",
     "client.roles.detective.PlaySoundEventMixin",
     "client.roles.exampler.ExamplerScreenMixin",
     "client.roles.executioner.ExecutionerShopScreenMixin",

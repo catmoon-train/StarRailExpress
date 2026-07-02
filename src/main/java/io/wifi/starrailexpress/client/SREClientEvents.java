@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.client;
 
+import org.agmas.noellesroles.client.hud.PlayerBodyHud;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.role.ModRoles;
@@ -31,6 +32,7 @@ public class SREClientEvents {
     }
 
     public static void registerRoleNameRendererEvents() {
+        PlayerBodyHud.registerEvents();
         // 杂项
         OnRenderRoleName.RENDER_ALL.register((player, context, d, font) -> {
             // Penalty 直接啥也别看了
@@ -82,7 +84,7 @@ public class SREClientEvents {
             OnRenderRoleName.RENDER_PLAYER_COHORT.register(lostKillerGeneral);
         }
         // 肉汁：本能提示只对杀手（isKiller）生效
-        OnRenderRoleName.RENDER_EXTRA.register((player, target, context, delta, font) -> {
+        OnRenderRoleName.RENDER_PLAYER_EXTRA.register((player, target, context, delta, font) -> {
             // 此处可以直接用 SREClient.gameComponent，如果是null不会执行此event。
             SREGameWorldComponent component = SREClient.gameComponent;
             if (component.isRole(target, ModRoles.MEATBALL) && component.canUseKillerFeatures(player)) {

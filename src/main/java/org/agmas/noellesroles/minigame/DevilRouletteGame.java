@@ -1,4 +1,4 @@
-package org.agmas.noellesroles.mini_gme;
+package org.agmas.noellesroles.minigame;
 
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;

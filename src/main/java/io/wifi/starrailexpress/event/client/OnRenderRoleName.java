@@ -16,6 +16,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 public class OnRenderRoleName {
+    public static final Event<RenderPlayerNameInterface> RENDER_PLAYER_MODIFIER = EventFactory.createArrayBacked(
+            RenderPlayerNameInterface.class,
+            listeners -> (p, p1, c, t, r) -> {
+                for (RenderPlayerNameInterface listener : listeners) {
+                    var result = listener.allowRender(p, p1, c, t, r);
+                    if (result != null && !result.isPass()) {
+                        return result;
+                    }
+                }
+                return TrueFalseAndCustomResult.pass();
+            });
     public static final Event<RenderPlayerNameInterface> RENDER_PLAYER_NAME = EventFactory.createArrayBacked(
             RenderPlayerNameInterface.class,
             listeners -> (p, p1, c, t, r) -> {
@@ -60,7 +71,23 @@ public class OnRenderRoleName {
                 }
                 return TrueFalseAndCustomResult.pass();
             });
-    public static final Event<RenderPlayerExtraInterface> RENDER_EXTRA = EventFactory.createArrayBacked(
+
+    public static final Event<RenderExtraInterface> RENDER_START = EventFactory.createArrayBacked(
+            RenderExtraInterface.class,
+            listeners -> (p, ra, c, t, r) -> {
+                for (RenderExtraInterface listener : listeners) {
+                    listener.render(p, ra, c, t, r);
+                }
+            });
+
+    public static final Event<RenderExtraInterface> RENDER_END = EventFactory.createArrayBacked(
+            RenderExtraInterface.class,
+            listeners -> (p, ra, c, t, r) -> {
+                for (RenderExtraInterface listener : listeners) {
+                    listener.render(p, ra, c, t, r);
+                }
+            });
+    public static final Event<RenderPlayerExtraInterface> RENDER_PLAYER_EXTRA = EventFactory.createArrayBacked(
             RenderPlayerExtraInterface.class,
             listeners -> (p, p1, c, t, r) -> {
                 for (RenderPlayerExtraInterface listener : listeners) {
@@ -131,6 +158,7 @@ public class OnRenderRoleName {
         TrueFalseResult allowRender(Player player, PuppeteerBodyEntity target, FakeGuiGraphics context,
                 DeltaTracker tickCounter, Font renderer);
     }
+
     public interface RenderWithNoteTargetInterface {
         TrueFalseResult allowRender(Player player, NoteEntity targetNote, FakeGuiGraphics context,
                 DeltaTracker tickCounter, Font renderer);
@@ -138,6 +166,11 @@ public class OnRenderRoleName {
 
     public interface RenderPlayerNameInterface {
         TrueFalseAndCustomResult<Component> allowRender(Player player, Player target, FakeGuiGraphics context,
+                DeltaTracker tickCounter, Font renderer);
+    }
+
+    public interface RenderExtraInterface {
+        void render(Player player, float range, FakeGuiGraphics context,
                 DeltaTracker tickCounter, Font renderer);
     }
 

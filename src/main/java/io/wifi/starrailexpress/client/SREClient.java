@@ -431,7 +431,13 @@ public class SREClient implements ClientModInitializer {
             trainComponent = SRETrainWorldComponent.KEY.get(clientWorld);
             moodComponent = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
         });
-
+        ClientPlayConnectionEvents.DISCONNECT.register((a, b) -> {
+            gameComponent = null;
+            modifierComponent = null;
+            areaComponent = null;
+            trainComponent = null;
+            moodComponent = null;
+        });
         // Lock options
         OptionLocker.overrideOption("gamma", 0d);
         if (getLockedRenderDistance(SREConfig.isUltraPerfMode()) != null) {

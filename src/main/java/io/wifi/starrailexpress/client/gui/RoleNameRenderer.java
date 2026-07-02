@@ -26,7 +26,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.EntityHitResult;
-
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -86,6 +86,9 @@ public class RoleNameRenderer {
             range = result.orElse(range);
         }
         {
+            OnRenderRoleName.RENDER_START.invoker().render(player, range, context, tickCounter, renderer);
+        }
+        {
 
             Player target = null;
             if (ProjectileUtil.getHitResultOnViewVector(player, entity -> entity instanceof Player player1,
@@ -118,6 +121,32 @@ public class RoleNameRenderer {
                         nametag = result.getContent().orElse(Component.empty());
                     } else {
                         nametag = target.getDisplayName();
+                    }
+                }
+                if (SREClient.modifierComponent != null) {
+                    Component modifierText = Component.empty();
+                    boolean shouldRender = false;
+                    var result = OnRenderRoleName.RENDER_PLAYER_MODIFIER.invoker().allowRender(player, target, context,
+                            tickCounter, renderer);
+                    if (result.isFalse()) {
+                        modifierText = Component.empty();
+                        shouldRender = false;
+                    } else if (result.isCustom()) {
+                        modifierText = result.getContent().orElse(Component.empty());
+                        shouldRender = true;
+                    } else {
+                        shouldRender = true;
+                        shouldRender = GameUtils.isPlayerSpectatingOrCreative(player);
+                        MutableComponent temp = Component.literal("");
+                        var modifiers = SREClient.modifierComponent.getModifiers(target);
+                        for (SREModifier modifier : modifiers) {
+                            temp = temp.append(Component.translatable(" [%s]", modifier.getName())
+                                    .withColor(modifier.color));
+                        }
+                    modifierText = temp;
+                    }
+                    if(shouldRender){
+                        nametag = nametag.copy().append(modifierText);
                     }
                 }
                 if (component.canUseKillerFeatures(target)) {
@@ -189,6 +218,10 @@ public class RoleNameRenderer {
                         }
                     }
                     {
+                        OnRenderRoleName.RENDER_PLAYER_EXTRA.invoker().renderExtra(player, target, context, tickCounter,
+                                renderer);
+                    }
+                    {
                         Component cohortText = Component.translatable("game.tip.cohort");
                         boolean allowRenderCohort = true;
                         {
@@ -226,7 +259,7 @@ public class RoleNameRenderer {
                             context, tickCounter,
                             renderer);
                     if (result.isPass()) {
-                        if (!player.isSpectator() && !player.isCreative()) {
+                        if (!GameUtils.isPlayerSpectatingOrCreative(player)) {
                             return;
                         }
                     } else if (result.isFalse()) {
@@ -278,7 +311,9 @@ public class RoleNameRenderer {
             context.pose().popPose();
 
         }
-
+        {
+            OnRenderRoleName.RENDER_END.invoker().render(player, range, context, tickCounter, renderer);
+        }
     }
 
     public enum TrainRole {

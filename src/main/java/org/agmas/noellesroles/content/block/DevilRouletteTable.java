@@ -36,7 +36,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
-import org.agmas.noellesroles.mini_gme.DevilRouletteGame;
+import org.agmas.noellesroles.minigame.DevilRouletteGame;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
