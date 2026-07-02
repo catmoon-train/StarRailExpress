@@ -5,7 +5,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,12 +19,6 @@ import java.util.UUID;
 
 @Mixin(ItemInHandLayer.class)
 public class HeldItemFeatureRendererMixin {
-    @Unique
-    private static boolean sre$isInvisibleToLocalViewer(Player player) {
-        // isInvisibleTo 基于已同步的 isInvisible() 标记，故在所有客户端均可靠（不像 MobEffect 不向他人同步）。
-        Player viewer = Minecraft.getInstance().player;
-        return viewer != null && player.isInvisibleTo(viewer);
-    }
 
     @Unique
     private static boolean sre$shouldHideLocalLayerItem(Player player, boolean mainHand) {
@@ -44,16 +37,12 @@ public class HeldItemFeatureRendererMixin {
         }
 
         if (instance instanceof Player player) {
-            if (player.isCreative()){
-                if (player.isInvisible()){
+            if (player.isCreative()) {
+                if (player.isInvisible()) {
                     return ItemStack.EMPTY;
                 }
             }
-            // 身体对当前观察者隐身时一并隐藏手持物品：修复原版“隐身玩家手持物悬空显示”的渲染问题
-            // （怀旧者里世界等），避免暴露位置。旁观者/创造OP 能看到身体时仍会看到手持物，保持一致。
-            if (sre$isInvisibleToLocalViewer(player)) {
-                return ItemStack.EMPTY;
-            }
+            // 身体对当前观察者隐身时一并隐藏手持物品，请使用event而非在此处修改。而且不要全体！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
 
             if (sre$shouldHideLocalLayerItem(player, false)) {
                 return ItemStack.EMPTY;
@@ -77,14 +66,10 @@ public class HeldItemFeatureRendererMixin {
         }
 
         if (instance instanceof Player player) {
-            if (player.isCreative()){
-                if (player.isInvisible()){
+            if (player.isCreative()) {
+                if (player.isInvisible()) {
                     return ItemStack.EMPTY;
                 }
-            }
-            // 身体对当前观察者隐身时一并隐藏手持物品（见 nrs$changeOffHandItemStack 注释）。
-            if (sre$isInvisibleToLocalViewer(player)) {
-                return ItemStack.EMPTY;
             }
             if (sre$shouldHideLocalLayerItem(player, true)) {
                 return ItemStack.EMPTY;
