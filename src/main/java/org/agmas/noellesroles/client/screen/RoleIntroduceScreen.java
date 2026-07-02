@@ -699,7 +699,7 @@ public class RoleIntroduceScreen extends Screen {
                             numText,
                             contentX + (num_w - font.width(numText)) / 2,
                             y + (ITEM_H - font.lineHeight) / 2, 0xffffffff);
-                    g.fill(contentX + num_w, y + 2, contentX + num_w + 1, y + ITEM_H - 3, 0x20FFFFFF);
+                    g.fill(contentX + num_w - 2, y + 2, contentX + num_w - 1, y + ITEM_H - 3, 0x20FFFFFF);
                     g.drawString(font,
                             Component.translatable("%s", name.copy().withColor(color))
                                     .withStyle(ChatFormatting.WHITE),
