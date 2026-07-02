@@ -95,6 +95,7 @@ public class SERoles {
             var dousedComponent = DousedPlayerComponent.KEY.get(player);
             dousedComponent.reset();
             dousedComponent.sync();
+            player.removeTag("nearDoor");
         });
         /// NECROMANCER
 

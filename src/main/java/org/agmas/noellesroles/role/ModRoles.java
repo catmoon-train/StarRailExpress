@@ -73,6 +73,7 @@ import org.agmas.noellesroles.game.roles.neutral.chef.ChefRole;
 import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
+import org.agmas.noellesroles.game.roles.neutral.jester.JesterHandler;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
@@ -758,7 +759,7 @@ public class ModRoles {
      * 鬼眼·杨间（警长阵营）。完成两个任务后获得左轮手枪。
      * - 被动·鬼眼：每隔 16 秒自动扫描周身 20 格，短暂（2 秒）以白色直觉显示所有玩家轮廓。
      * - 主动·诡域（冷却 70 秒）：在脚下展开半径 12 格、持续 6 秒的领域。领域内所有人减速（缓慢 II）；
-     *   领域内杀手无法开启透视；除杨间外所有人失明并陷入黑暗。
+     * 领域内杀手无法开启透视；除杨间外所有人失明并陷入黑暗。
      */
     public static SRERole GHOST_EYE = TMMRoles.registerRole(
             new NormalRole(GHOST_EYE_ID, new Color(132, 196, 200).getRGB(),
@@ -804,17 +805,21 @@ public class ModRoles {
             })
             .setVigilanteTeam(true).setCanPickUpRevolver(true).setCanAutoAddMoney(true)
             .setComponentKey(ModComponents.GHOST_EYE)
-            .setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(7000).setDefaultEnableNeededPlayerCount(8);
+            .setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(7000)
+            .setDefaultEnableNeededPlayerCount(8);
 
     /**
      * 警长 / 鬼眼·杨间 共用：在尚未通过完成两个任务解锁左轮手枪、且身上也没有左轮手枪时死亡，
      * 于死亡位置掉落一把左轮手枪。
      */
     private static void dropUnearnedRevolverOnDeath(Player victim, java.util.Set<java.util.UUID> received) {
-        if (!(victim instanceof ServerPlayer sp)) return;
-        if (received.contains(sp.getUUID())) return;
+        if (!(victim instanceof ServerPlayer sp))
+            return;
+        if (received.contains(sp.getUUID()))
+            return;
         for (ItemStack stack : sp.getInventory().items) {
-            if (stack.is(io.wifi.starrailexpress.index.TMMItems.REVOLVER)) return;
+            if (stack.is(io.wifi.starrailexpress.index.TMMItems.REVOLVER))
+                return;
         }
         sp.drop(io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance().copy(), false);
     }
@@ -876,7 +881,7 @@ public class ModRoles {
             })
             .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
             .setPassiveIncome(true)
-            .setComponentKey(ModComponents.JESTER)
+            .setServerGameTickEvent((sp, cca) -> JesterHandler.handler(sp, cca))
             .setDefaultMax(1);
     public static SRERole CONDUCTOR = TMMRoles
             .registerRole(new NormalRole(CONDUCTOR_ID, new Color(184, 134, 11).getRGB(), true,

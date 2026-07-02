@@ -32,7 +32,6 @@ import org.agmas.noellesroles.game.roles.innocence.jade_general.JadeGeneralPlaye
 import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.meatball.MeatballPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.jester.JesterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.noise_maker.NoiseMakerPlayerComponent;
@@ -385,11 +384,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<MeatballPlayerComponent> MEATBALL = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "meatball"),
       MeatballPlayerComponent.class);
-
-  // 小丑组件 - 中立阵营，门框无碰撞
-  public static final ComponentKey<JesterPlayerComponent> JESTER = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "jester"),
-      JesterPlayerComponent.class);
 
   // 殡仪员组件 - 平民阵营，透视物品和搜刮尸体
   public static final ComponentKey<MorticianPlayerComponent> MORTICIAN = MorticianPlayerComponent.KEY;
@@ -833,11 +827,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, MEATBALL)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(MeatballPlayerComponent::new);
-
-    // 注册小丑组件 - 门框无碰撞
-    registry.beginRegistration(Player.class, JESTER)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(JesterPlayerComponent::new);
 
     // 注册殡仪员组件 - 存储冷却和已打开的尸体
     registry.beginRegistration(Player.class, MORTICIAN)
