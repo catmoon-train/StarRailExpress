@@ -7,7 +7,6 @@ import io.wifi.starrailexpress.api.replay.ReplayEventTypes;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.content.item.DisguiseVariants;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.ShouldGiveKillerBalance;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -31,18 +30,25 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.DoomedSinnerFateRevealS2CPacket;
+import org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -93,7 +99,20 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
             }
             KEY.get(player).onDeath(deathReason);
         });
+        ModifierAssigned.EVENT.register((player, modifier) -> {
+            if (modifier.equals(SEModifiers.REFUGEE) && player instanceof ServerPlayer serverPlayer) {
+                removeRefugeeIfDoomedSinner(serverPlayer);
+            }
+        });
     }
+
+    private static final Item[] FALSE_DEATH_REASON_REWARDS = {
+            ModItems.FAKE_KNIFE,
+            ModItems.FAKE_REVOLVER,
+            ModItems.FAKE_BAT,
+            ModItems.FAKE_CROWBAR,
+            ModItems.FAKE_LOCKPICK
+    };
 
     private final Player player;
 
@@ -148,6 +167,9 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
         if (player.level() instanceof ServerLevel) {
             int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
             requiredReasons = computeRequiredReasons(totalPlayers);
+            if (player instanceof ServerPlayer serverPlayer) {
+                removeRefugeeModifier(serverPlayer);
+            }
         }
         sync();
     }
@@ -189,6 +211,9 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
         int newCount = reasonCounts.getOrDefault(deathReason, 0) + 1;
         reasonCounts.put(deathReason, newCount);
         boolean isNewReason = distinctReasons.add(deathReason);
+        if (isNewReason && player instanceof ServerPlayer serverPlayer) {
+            grantRandomFalseItem(serverPlayer);
+        }
 
         // 1) 达成不同死因数量 -> 立即独立胜利
         if (isNewReason && distinctReasons.size() >= requiredReasons
@@ -284,6 +309,7 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
         if (!gameWorld.isRunning()) {
             return;
         }
+        removeRefugeeModifier(serverPlayer);
 
         // 尸体定时消失（无论存活与否都要推进）
         tickCorpses();
@@ -349,7 +375,7 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
         double z = roomCaptured ? roomZ : serverPlayer.getZ();
         GameUtils.revivePlayer(serverPlayer, x, y, z);
         GameUtils.teleportToRandomRoom(serverPlayer);
-        applyRandomDisguise(serverPlayer);
+        applyRandomPlayerSkin(serverPlayer);
         int invincibleTicks = Math.max(0,
                 NoellesRolesConfig.HANDLER.instance().doomedSinnerReviveInvincibleSeconds * 20);
         if (invincibleTicks > 0) {
@@ -387,14 +413,43 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
         return true;
     }
 
-    private static void applyRandomDisguise(ServerPlayer player) {
-        int variantCount = DisguiseVariants.VARIANTS.size();
-        if (variantCount <= 0) {
+    private static void applyRandomPlayerSkin(ServerPlayer player) {
+        if (!(player.level() instanceof ServerLevel level)) {
             return;
         }
-        int amplifier = player.getRandom().nextInt(variantCount);
-        player.addEffect(new MobEffectInstance(ModEffects.DISGUISE, GameConstants.getInTicks(10, 0), amplifier,
-                false, false, false));
+        List<ServerPlayer> candidates = level.players().stream()
+                .filter(p -> !p.getUUID().equals(player.getUUID()))
+                .toList();
+        if (candidates.isEmpty()) {
+            return;
+        }
+        UUID skinUuid = candidates.get(player.getRandom().nextInt(candidates.size())).getUUID();
+        SkincrawlerSkinS2CPacket packet = new SkincrawlerSkinS2CPacket(player.getUUID(), skinUuid);
+        for (ServerPlayer viewer : level.players()) {
+            ServerPlayNetworking.send(viewer, packet);
+        }
+    }
+
+    private static void grantRandomFalseItem(ServerPlayer player) {
+        if (FALSE_DEATH_REASON_REWARDS.length == 0) {
+            return;
+        }
+        Item item = FALSE_DEATH_REASON_REWARDS[player.getRandom().nextInt(FALSE_DEATH_REASON_REWARDS.length)];
+        RoleUtils.insertStackInFreeSlot(player, new ItemStack(item));
+    }
+
+    private static void removeRefugeeIfDoomedSinner(ServerPlayer player) {
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        if (gameWorld != null && gameWorld.isRole(player, ModRoles.DOOMED_SINNER)) {
+            removeRefugeeModifier(player);
+        }
+    }
+
+    private static void removeRefugeeModifier(ServerPlayer player) {
+        WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
+        if (modifiers != null && modifiers.isModifier(player.getUUID(), SEModifiers.REFUGEE)) {
+            modifiers.removeModifier(player.getUUID(), SEModifiers.REFUGEE);
+        }
     }
 
     /** 从回放记录中读取目标最近 N 次的杀人方式（死因 ResourceLocation 字符串）。 */

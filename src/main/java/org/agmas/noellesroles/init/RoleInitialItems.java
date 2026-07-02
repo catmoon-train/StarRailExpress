@@ -167,6 +167,15 @@ public class RoleInitialItems {
         cakeMakerItems.add(Items.BUNDLE::getDefaultInstance);
         INITIAL_ITEMS_MAP.put(ModRoles.CAKE_MAKER, cakeMakerItems);
 
+        List<Supplier<ItemStack>> doomedSinnerItems = new ArrayList<>();
+        doomedSinnerItems.add(Items.BUNDLE::getDefaultInstance);
+        INITIAL_ITEMS_MAP.put(ModRoles.DOOMED_SINNER, doomedSinnerItems);
+
+        List<Supplier<ItemStack>> amonItems = new ArrayList<>();
+        amonItems.add(Items.BUNDLE::getDefaultInstance);
+        amonItems.add(Items.BUNDLE::getDefaultInstance);
+        INITIAL_ITEMS_MAP.put(ModRoles.AMON, amonItems);
+
         // 冒险家初始物品 — 格罗赛尔游记
         {
             List<Supplier<ItemStack>> adventurerItems = new ArrayList<>();

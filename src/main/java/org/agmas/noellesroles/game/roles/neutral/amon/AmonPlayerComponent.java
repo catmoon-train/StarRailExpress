@@ -45,6 +45,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BundleContents;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -77,7 +78,8 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             Noellesroles.id("amon"), AmonPlayerComponent.class);
 
     /** 时之虫潜伏成熟时间：90 秒。 */
-    public static final int INCUBATION_TICKS = 90 * 20;
+    public static final int INCUBATION_TICKS = 75 * 20;
+    private static final int POSSESSION_REQUIRED_TICKS = 60 * 20;
     /** 终幕「寻找阿蒙」持续时间：80 秒。 */
     public static final int FINALE_TICKS = 80 * 20;
     /** 种植半径：15 格。 */
@@ -99,9 +101,11 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
     private UUID disguiseTarget;
     /** 正在附身的目标（须为成熟宿主）；非空即处于附身中，按 G 完成夺舍。 */
     public UUID possessTarget;
+    private int possessTicks;
     /** 附身开始时记录的「本体」位置（完成夺舍时在此生成阿蒙自己的尸体）。 */
     private Vec3 homePos;
     private float homeYRot;
+    private double prePossessionScale = Double.NaN;
 
     public int usurpCount;
     public boolean hasUsurped;
@@ -148,7 +152,9 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         maturedHosts.clear();
         disguiseTarget = null;
         possessTarget = null;
+        possessTicks = 0;
         homePos = null;
+        prePossessionScale = Double.NaN;
         usurpCount = 0;
         hasUsurped = false;
         seedCap = 2;
@@ -177,7 +183,9 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         maturedHosts.clear();
         disguiseTarget = null;
         possessTarget = null;
+        possessTicks = 0;
         homePos = null;
+        prePossessionScale = Double.NaN;
         usurpCount = 0;
         hasUsurped = false;
         seedCap = 2;
@@ -207,6 +215,8 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
                 disguiseTarget = null;
                 possessTarget = null;
                 homePos = null;
+                possessTicks = 0;
+                prePossessionScale = Double.NaN;
                 sync();
             }
             return;
@@ -331,7 +341,9 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         homePos = amon.position();
         homeYRot = amon.getYHeadRot();
         possessTarget = targetUuid;
+        possessTicks = 0;
         refreshPossessionEffects(amon);
+        shrinkForPossession(amon);
         // 立即贴附到目标身上。
         amon.teleportTo(level, host.getX(), host.getY(), host.getZ(), host.getYRot(), host.getXRot());
         amon.displayClientMessage(Component.translatable("message.noellesroles.amon.possess_start", host.getName())
@@ -358,6 +370,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             cancelPossession(amon, "message.noellesroles.amon.possession_lost");
             return;
         }
+        possessTicks++;
         refreshPossessionEffects(amon);
         // 阿蒙掌控目标移动：阿蒙隐身自由移动，目标被锁定移动/视角并每 tick 牵引到阿蒙位置；
         // 二者均无碰撞箱，避免互相拥挤。
@@ -385,6 +398,12 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             cancelPossession(amon, "message.noellesroles.amon.possession_lost");
             return false;
         }
+        if (possessTicks < POSSESSION_REQUIRED_TICKS) {
+            int seconds = Math.max(1, (POSSESSION_REQUIRED_TICKS - possessTicks + 19) / 20);
+            amon.displayClientMessage(Component.translatable("message.noellesroles.amon.possess_wait", seconds)
+                    .withStyle(ChatFormatting.DARK_PURPLE), true);
+            return false;
+        }
         Vec3 targetPos = target.position();
         float targetYRot = target.getYRot();
         float targetXRot = target.getXRot();
@@ -405,6 +424,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         seeds.remove(targetUuid);
         maturedHosts.remove(targetUuid);
         possessTarget = null;
+        possessTicks = 0;
         homePos = null;
 
         amon.displayClientMessage(Component.translatable("message.noellesroles.amon.usurp_done")
@@ -420,6 +440,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             amon.teleportTo(level, homePos.x, homePos.y, homePos.z, homeYRot, 0f);
         }
         possessTarget = null;
+        possessTicks = 0;
         homePos = null;
         if (msgKey != null) {
             amon.displayClientMessage(Component.translatable(msgKey).withStyle(ChatFormatting.RED), true);
@@ -438,6 +459,23 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         amon.removeEffect(MobEffects.INVISIBILITY);
         amon.removeEffect(ModEffects.INVINCIBLE);
         amon.removeEffect(ModEffects.NO_COLLIDE);
+        restorePossessionScale(amon);
+    }
+
+    private void shrinkForPossession(ServerPlayer amon) {
+        if (amon.getAttribute(Attributes.SCALE) == null || !Double.isNaN(prePossessionScale)) {
+            return;
+        }
+        prePossessionScale = amon.getAttribute(Attributes.SCALE).getBaseValue();
+        amon.getAttribute(Attributes.SCALE).setBaseValue(prePossessionScale * 0.1D);
+    }
+
+    private void restorePossessionScale(ServerPlayer amon) {
+        if (amon.getAttribute(Attributes.SCALE) == null || Double.isNaN(prePossessionScale)) {
+            return;
+        }
+        amon.getAttribute(Attributes.SCALE).setBaseValue(prePossessionScale);
+        prePossessionScale = Double.NaN;
     }
 
     /**
@@ -721,8 +759,32 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             if (!stack.is(TMMItemTags.GUNS) && !stack.is(Items.BOW)) {
                 inv.setItem(slot, ItemStack.EMPTY);
             }
-            RoleUtils.insertStackInFreeSlot(amon, stolen);
+            insertStolenItem(amon, stolen);
         }
+    }
+
+    private boolean insertStolenItem(ServerPlayer amon, ItemStack stolen) {
+        if (RoleUtils.insertStackInFreeSlot(amon, stolen)) {
+            return true;
+        }
+        return insertIntoBundle(amon, stolen);
+    }
+
+    private boolean insertIntoBundle(ServerPlayer amon, ItemStack stack) {
+        for (int i = 0; i < amon.getInventory().getContainerSize(); i++) {
+            ItemStack bundle = amon.getInventory().getItem(i);
+            if (!bundle.is(Items.BUNDLE)) {
+                continue;
+            }
+            BundleContents.Mutable contents = new BundleContents.Mutable(
+                    bundle.getOrDefault(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY));
+            int inserted = contents.tryInsert(stack);
+            if (inserted > 0) {
+                bundle.set(DataComponents.BUNDLE_CONTENTS, contents.toImmutable());
+                return stack.isEmpty();
+            }
+        }
+        return false;
     }
 
     private boolean isProtectedItem(ItemStack s) {
