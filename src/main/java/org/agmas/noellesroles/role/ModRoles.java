@@ -481,7 +481,7 @@ public class ModRoles {
      * 玉将军（平民阵营）。
      * 飞踢（X 技能）：向视线方向位移约五格，可踹开沿途任意房门；踢中目标将其击退两格，
      * 击退撞墙眩晕 4 秒、否则 2 秒，并附加减速 5 秒；命中有概率使目标变老人（无法购买轮椅），
-     * 踢得越多概率越高（1%→2%→4%→8% 封顶）。释放后清空自身体力条。冷却 90 秒。
+     * 踢得越多概率越高（1%→2%→4%→8% 封顶）。释放后清空自身体力条。冷却 35 秒。
      */
     public static SRERole JADE_GENERAL = TMMRoles.registerRole(new NormalRole(
             JADE_GENERAL_ID, // 角色 ID

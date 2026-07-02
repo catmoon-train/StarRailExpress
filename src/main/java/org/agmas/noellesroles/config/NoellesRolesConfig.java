@@ -338,11 +338,6 @@ public class NoellesRolesConfig implements ConfigData {
     public int nostalgistCollapseWindupTicks = 30;
 
     /**
-     * Jade General (玉将军) - Flying kick cooldown in seconds
-     */
-    public int jadeGeneralKickCooldown = 90;
-
-    /**
      * Jade General - Flying kick displacement distance in blocks
      */
     public int jadeGeneralDashBlocks = 5;

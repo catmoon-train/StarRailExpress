@@ -37,7 +37,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
  *
  * <p>飞踢（按技能键触发）：
  * <ul>
- *   <li>向视线方向位移约五格；冷却 90 秒。</li>
+ *   <li>向视线方向位移约五格；冷却 35 秒。</li>
  *   <li>位移途中踹开沿途的任意房门。</li>
  *   <li>踢中目标玩家将其击退两格；撞到方块眩晕 4 秒，否则 2 秒。</li>
  *   <li>命中后有概率为目标施加一层永久的缓慢效果（I→II→III，最高 3 级）。</li>

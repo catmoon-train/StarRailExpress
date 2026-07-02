@@ -244,8 +244,7 @@ public class AbilityHandler {
                 && abilityPlayerComponent.cooldown <= 0) {
             JadeGeneralPlayerComponent jadeGeneral = ModComponents.JADE_GENERAL.get(player);
             if (jadeGeneral.useSkill()) {
-                abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
-                        NoellesRolesConfig.HANDLER.instance().jadeGeneralKickCooldown);
+                abilityPlayerComponent.cooldown = GameConstants.getInTicks(0, 35);
                 abilityPlayerComponent.sync();
             }
             return;
