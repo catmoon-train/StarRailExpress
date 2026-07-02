@@ -1,4 +1,4 @@
-{
+﻿{
   "unknown": "未知",
   "unknown_role": "未知职业",
   "sre.command.permission_denied": "你没有权限做这件事！",
@@ -380,7 +380,7 @@
   "death_reason.noellesroles.insane_killer_death": "到达不了那个地方",
   "death_reason.noellesroles.baton_kill": "警棍",
   "death_reason.starrailexpress.execute": "处决",
-  "death_reason.starrailexpress.puppeteer_body_death": "本体死亡",
+  "death_reason.starrailexpress.puppeteer_body_death": "傀儡本体死亡",
   "message.noellesroles.fool.tarot_not_enough_members": "成员数量不足",
   "death_reason.noellesroles.throwing_knife_hit": "飞刀",
   "death_reason.noellesroles.watcher_calm_kill": "宁静反噬",
