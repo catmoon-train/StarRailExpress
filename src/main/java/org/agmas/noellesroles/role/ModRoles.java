@@ -2336,7 +2336,7 @@ public class ModRoles {
      * - 黑白熊形态无敌+光环效果
      * - 获胜条件：游戏结束时6格内最近玩家的阵营
      */
-    public static SRERole MONOKUMA = TMMRoles.registerRole(new MonokumaRole())
+    public static final SRERole MONOKUMA = TMMRoles.registerRole(new MonokumaRole())
             .setNeutralForKiller(false) // 杀手视角为好人
             .setCanSeeTeammateKiller(false)
             .setCanPickUpRevolver(false) // 伪装义警可以捡枪
@@ -2344,7 +2344,7 @@ public class ModRoles {
             .setCanUseInstinct(false) // 不能使用杀手直觉
             .setCanSeeCoin(true)
             .setDefaultMax(0)
-            .setCanBeRandomedByOtherRoles(false).addRelatedModifier(SEModifiers.BLACK_WHITE);
+            .setCanBeRandomedByOtherRoles(false).addBothRelatedModifier(SEModifiers.BLACK_WHITE);
 
     // ─────────────────────── 信使 Courier ───────────────────────
     public static final ResourceLocation COURIER_ID = Noellesroles.id("courier");

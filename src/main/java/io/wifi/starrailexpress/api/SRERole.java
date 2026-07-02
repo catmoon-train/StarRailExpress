@@ -125,7 +125,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole addOccupationRoleOnce(SRERole... role) {
         for (var i : role) {
             this.occupationRoles.add(i);
-            i.addRelatedRole(this);
         }
         // 去重。
         occupationRoles = new ArrayList<>(new LinkedHashSet<>(occupationRoles));
@@ -141,7 +140,21 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole addOccupationRole(SRERole... role) {
         for (var i : role) {
             this.occupationRoles.add(i);
-            i.addRelatedRole(this);
+        }
+        return this;
+    }
+
+    /**
+     * 添加与此相关的职业。互相添加。用于职业介绍。
+     * 
+     * @return
+     */
+    public SRERole addBothRelatedRole(SRERole... role) {
+        for (var i : role) {
+            if (i != null) {
+                this.relatedRoles.add(i);
+                i.addRelatedRole(this);
+            }
         }
         return this;
     }
@@ -168,6 +181,21 @@ public abstract class SRERole extends SREAbstractInfoClass {
         for (var i : role) {
             if (i != null)
                 this.relatedRoles.remove(i);
+        }
+        return this;
+    }
+
+    /**
+     * 添加与此相关的修饰符，并且给修饰符添加此。用于职业介绍。
+     * 
+     * @return
+     */
+    public SRERole addBothRelatedModifier(SREModifier... modifier) {
+        for (var i : modifier) {
+            if (i != null) {
+                this.relatedModifiers.add(i);
+                i.addRelatedRole(this);
+            }
         }
         return this;
     }

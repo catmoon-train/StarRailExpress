@@ -42,6 +42,21 @@ public class SREModifier extends SREAbstractInfoClass {
     public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
 
     /**
+     * 添加与此相关的职业。互相添加。用于职业介绍。
+     * 
+     * @return
+     */
+    public SREModifier addBothRelatedRole(SRERole... role) {
+        for (var i : role) {
+            if (i != null) {
+                this.relatedRoles.add(i);
+                i.addRelatedModifier(this);
+            }
+        }
+        return this;
+    }
+
+    /**
      * 添加与此相关的职业。用于职业介绍。
      * 
      * @return
@@ -63,6 +78,21 @@ public class SREModifier extends SREAbstractInfoClass {
         for (var i : role) {
             if (i != null)
                 this.relatedRoles.remove(i);
+        }
+        return this;
+    }
+
+    /**
+     * 添加与此相关的修饰符。互相添加。用于职业介绍。
+     * 
+     * @return
+     */
+    public SREModifier addBothRelatedModifier(SREModifier... modifier) {
+        for (var i : modifier) {
+            if (i != null) {
+                this.relatedModifiers.add(i);
+                i.addRelatedModifier(this);
+            }
         }
         return this;
     }
