@@ -56,8 +56,11 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.MountainRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.agmas.noellesroles.utils.MessageDetail;
+
+import static org.agmas.noellesroles.client.NoellesrolesClient.abilityBind;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -1429,6 +1432,35 @@ public class CommonClientHudRenderer {
       guiGraphics.drawString(font, readyText, xOffset - font.width(readyText), dy, Color.WHITE.getRGB());
     });
 
+    RoleHudRenderCallback.EVENT.register(MountainRoles.NITORI_ID, (guiGraphics, deltaTracker) -> {
+      var client = Minecraft.getInstance();
+
+      int screenWidth = guiGraphics.guiWidth();
+      int screenHeight = guiGraphics.guiHeight();
+      var font = client.font;
+      int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
+      int xOffset = screenWidth - 10; // 距离右边缘
+
+      var cca = SREAbilityPlayerComponent.KEY
+          .maybeGet(client.player).orElse(null);
+      if (cca == null)
+        return;
+      int dy = yOffset;
+
+      // 显示当前模式
+      Component modeText;
+      if (cca.getCooldown() > 0) {
+        modeText = Component.translatable("message.sre.skill.cooldown", cca.getCooldownStr())
+            .withStyle(ChatFormatting.YELLOW);
+      } else {
+
+        modeText = Component
+            .translatable("message.sre.skill.use_tip", abilityBind.getTranslatedKeyMessage(),
+                Component.translatable("skill.noellesroles.nitori_exchange").withStyle(ChatFormatting.GREEN))
+            .withStyle(ChatFormatting.AQUA);
+      }
+      guiGraphics.drawString(font, modeText, xOffset - font.width(modeText), dy, Color.WHITE.getRGB());
+    });
     // 会计HUD
     RoleHudRenderCallback.EVENT.register(ModRoles.ACCOUNTANT_ID, (guiGraphics, deltaTracker) -> {
       var client = Minecraft.getInstance();

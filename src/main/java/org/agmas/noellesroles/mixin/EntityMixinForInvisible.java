@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.ModComponents;
@@ -22,17 +23,28 @@ public class EntityMixinForInvisible {
         if (SRE.isLobby)
             return;
         // 只处理：自身是玩家 && 自身有隐身效果 && 观察者是旁观模式
-        if (!(self instanceof Player))
+        if (!(self instanceof Player viewee))
             return;
-        if (!self.isInvisible())
+        if (!viewee.isInvisible())
             return;
         if (viewer.isCreative() && viewer.hasPermissions(2)) {
             // 创造的 op 可以看见
             cir.setReturnValue(false);
             return;
         }
-        if (!viewer.isSpectator())
+
+        var gamecca = SREGameWorldComponent.getInstance(viewer.level());
+        if (!gamecca.isRunning())
             return;
+        if (!viewer.isSpectator()) {
+            if (gamecca.isKillerTeam(viewee) && gamecca.isKillerTeam(viewer) && gamecca.canSeeKillerTeammate(viewer)) {
+                cir.setReturnValue(false);
+            } else {
+                cir.setReturnValue(true);
+            }
+            return;
+        }
+
         var deathPenaltyComponent = ModComponents.DEATH_PENALTY.get(viewer);
         if (deathPenaltyComponent.hasPenalty()) {
             cir.setReturnValue(true);

@@ -416,4 +416,8 @@ public class SREAbilityPlayerComponent
             }
         }
     }
+
+    public String getCooldownStr() {
+        return String.format("%.1f", getCooldownSeconds());
+    }
 }

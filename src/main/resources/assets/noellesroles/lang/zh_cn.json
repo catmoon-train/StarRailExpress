@@ -3128,6 +3128,7 @@
   "hud.sre.skill.cast_count": "  已释放%s次",
   "hud.sre.passives": "被动：",
   "hud.sre.passive_label": "被动 ",
+  "message.sre.skill.use_tip": "按 %s 使用技能 %s",
   "message.sre.skill.cast": "释放 %s（本局第 %s 次）",
   "message.sre.skill.toggled_off": "已关闭 %s",
   "message.sre.skill.selected": "已切换到技能：%s",

@@ -165,13 +165,17 @@ public class SREMurderGameMode extends GameMode {
     // 将玩家添加到队伍的辅助方法
     public void addPlayersToTeam(CommandSourceStack source, List<ServerPlayer> players, String teamName) {
         try {
+            var cmd = source.getServer().getCommands();
             // 首先尝试创建队伍（如果不存在）
-            source.getServer().getCommands().performPrefixedCommand(source,
+            cmd.performPrefixedCommand(source,
                     "team add " + teamName);
 
             // 将所有玩家添加到队伍中
-            source.getServer().getCommands().performPrefixedCommand(source,
+            cmd.performPrefixedCommand(source,
                     "team join " + teamName + " @a");
+
+            cmd.performPrefixedCommand(source,
+                    "team modify " + teamName + " seeFriendlyInvisibles false");
         } catch (Exception e) {
             Log.warn(LogCategory.GENERAL, "Failed to manage team: " + teamName + ", error: " + e.getMessage());
         }
