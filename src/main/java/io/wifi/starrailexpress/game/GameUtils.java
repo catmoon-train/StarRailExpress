@@ -1187,6 +1187,7 @@ public class GameUtils {
         player.setInvulnerable(false);
         // 体力重置
         StaminaCommand.setStamina(player, 0);
+        // PlayerResetMixin插入位置
     }
 
     public static void resetPlayerAfterGame(ServerPlayer player) {
