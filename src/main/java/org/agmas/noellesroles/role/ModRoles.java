@@ -288,7 +288,7 @@ public class ModRoles {
     public static final ResourceLocation MORTICIAN_BODYMAKER_ID = Noellesroles.id("mortician_bodymaker");
 
     // 幻音师 ID - 杀手方中立
-    public static final ResourceLocation PHANTOM_MUSICIAN_ID = Noellesroles.id("phantom_musician");
+    public static final ResourceLocation PHANTOM_MUSICIAN_ID = Noellesroles.id("musician_phantom");
     public static final ResourceLocation CUPID_ID = Noellesroles.id("cupid");
 
     public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");

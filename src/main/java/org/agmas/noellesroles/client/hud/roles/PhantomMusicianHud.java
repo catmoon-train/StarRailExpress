@@ -39,7 +39,7 @@ public class PhantomMusicianHud {
                 int seconds = (comp.teleportCooldown + 19) / 20;
                 line = Component.translatable("hud.noellesroles.phantom_musician.teleport_cooldown", seconds)
                         .withStyle(ChatFormatting.RED);
-            } else if (shop.balance >= comp.TELEPORT_COST) {
+            } else if (shop.balance >= PhantomMusicianPlayerComponent.TELEPORT_COST) {
                 line = Component.translatable("hud.noellesroles.phantom_musician.teleport_ready")
                         .withStyle(ChatFormatting.GREEN);
             } else {
