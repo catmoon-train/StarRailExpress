@@ -35,6 +35,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
@@ -47,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.OptionalInt;
+import java.util.Set;
 
 /**
  * 角色相关工具
@@ -512,6 +515,7 @@ public class RoleUtils extends MCItemsUtils {
             return getRoleOrModifierColor(obj);
         }
     }
+
     public static ResourceLocation getRoleOrModifierOrItemIdentifier(Object selectedRole) {
         if (selectedRole instanceof Item it) {
             return BuiltInRegistries.ITEM.getKey(it);
@@ -627,6 +631,33 @@ public class RoleUtils extends MCItemsUtils {
     public static Component getTeamName(SRERole role) {
         int roleType = PlayerRoleWeightManager.getRoleType(role);
         return getTeamName(roleType);
+    }
+
+    public static Set<SREModifier> getPlayerModifier(Player player) {
+        if (player == null)
+            return null;
+        return WorldModifierComponent.KEY.get(player.level()).getModifiers(player);
+    }
+
+    public static boolean isPlayerTheModifier(Player player, Set<SREModifier> modifiers) {
+        if (player == null)
+            return false;
+        var cca = WorldModifierComponent.KEY.get(player.level());
+        for (var i : modifiers) {
+            if (!cca.isModifier(player, i))
+                return false;
+        }
+        return true;
+    }
+    public static boolean isPlayerTheModifier(Player player, SREModifier... modifier) {
+        if (player == null)
+            return false;
+        var cca = WorldModifierComponent.KEY.get(player.level());
+        for (var i : modifier) {
+            if (!cca.isModifier(player, i))
+                return false;
+        }
+        return true;
     }
 
     public static SRERole getPlayerRole(Player player) {

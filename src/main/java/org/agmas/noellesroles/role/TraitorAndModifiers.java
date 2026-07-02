@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
+import io.wifi.starrailexpress.event.OnDeathWithBody;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnPlayerKilledPlayer;
@@ -389,7 +390,13 @@ public class TraitorAndModifiers {
     }
 
     private static void registerDeathEvents() {
-
+        OnDeathWithBody.EVENT.register((victim, killer, deathReason, body) -> {
+            // 检查腐化修饰符 - 腐化尸体会直接显示为骷髅
+            WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(victim.level());
+            if (modifiers.isModifier(victim.getUUID(), TraitorAndModifiers.CORRUPTED)) {
+                body.setCorrupted(true);
+            }
+        });
         // 回光返照避免重复被杀
         AllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             if (LAST_GASP_TRIGGERED.contains(victim.getUUID()))

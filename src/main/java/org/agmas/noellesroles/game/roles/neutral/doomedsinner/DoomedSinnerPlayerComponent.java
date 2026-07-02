@@ -9,9 +9,11 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.item.DisguiseVariants;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
+import io.wifi.starrailexpress.event.ShouldGiveKillerBalance;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -55,14 +57,16 @@ import java.util.UUID;
 /**
  * 宿命的罪人（Doomed Sinner）—— 中立独立胜利角色。
  *
- * <p>核心机制「轮回」：罪人通过以 <b>不同</b> 的死亡原因死去来累积胜利进度，
+ * <p>
+ * 核心机制「轮回」：罪人通过以 <b>不同</b> 的死亡原因死去来累积胜利进度，
  * 需要的不同死因数量随人数变化（最低 5，最高 10）。每次非彻底死亡后会在自己的
- * 房间复活，留下的尸体在数秒后消失。若以 <b>同一种</b> 死因死去达到 3 次，则彻底死亡。</p>
+ * 房间复活，留下的尸体在数秒后消失。若以 <b>同一种</b> 死因死去达到 3 次，则彻底死亡。
+ * </p>
  *
  * <ul>
- *   <li>技能 1「命运的启示」：近距离查看目标最近 3 次的杀人方式（GUI）。</li>
- *   <li>技能 2「重启」：随机挑选一种死因进行死亡脱离（回到房间、短暂无敌），
- *       不计入死亡记录、不触发死亡判定。</li>
+ * <li>技能 1「命运的启示」：近距离查看目标最近 3 次的杀人方式（GUI）。</li>
+ * <li>技能 2「重启」：随机挑选一种死因进行死亡脱离（回到房间、短暂无敌），
+ * 不计入死亡记录、不触发死亡判定。</li>
  * </ul>
  *
  * 胜利判定参见 {@link org.agmas.noellesroles.CustomWinnerClass}，
@@ -349,7 +353,8 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
         int invincibleTicks = Math.max(0,
                 NoellesRolesConfig.HANDLER.instance().doomedSinnerReviveInvincibleSeconds * 20);
         if (invincibleTicks > 0) {
-            serverPlayer.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, invincibleTicks, 0, false, false, false));
+            serverPlayer
+                    .addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, invincibleTicks, 0, false, false, false));
         }
         serverPlayer.playNotifySound(SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.PLAYERS, 0.8f, 1.4f);
         sync();
@@ -551,5 +556,19 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
 
     public boolean shouldSuppressKillerReward() {
         return !permanentlyDead;
+    }
+
+    public static void registerEvents() {
+        ShouldGiveKillerBalance.EVENT.register((victim, killer, deathReason) -> {
+            if (victim instanceof ServerPlayer serverVictim) {
+                SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverVictim.level());
+                if (gameWorld.isRole(serverVictim, ModRoles.DOOMED_SINNER)) {
+                    if (DoomedSinnerPlayerComponent.KEY.get(serverVictim).shouldSuppressKillerReward()) {
+                        return TrueFalseResult.FALSE;
+                    }
+                }
+            }
+            return TrueFalseResult.PASS;
+        });
     }
 }
