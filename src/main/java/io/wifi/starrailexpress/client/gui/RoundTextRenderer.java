@@ -419,7 +419,7 @@ public class RoundTextRenderer {
                         .withColor(0x36E51B);
             case KILLERS:
                 return Component.translatable("announcement.star.win.killers", winner)
-                        .withColor(0xFF0000);
+                        .withColor(0xC13838);
             case GAMBLER:
                 return Component.translatable("announcement.star.win.gambler", winner)
                         .withColor(new Color(128, 0, 128).getRGB());
