@@ -39,7 +39,7 @@ import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPl
 import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
-import org.agmas.noellesroles.game.roles.innocence.noise_maker.NoiseMakerPlayerComponent;
+
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
@@ -543,14 +543,14 @@ public class CommonClientHudRenderer {
       Minecraft client = Minecraft.getInstance();
       Component text = null;
       int color = 0xFFFFFFFF;
-      NoiseMakerPlayerComponent noisemakerComponent = NoiseMakerPlayerComponent.KEY.get(client.player);
+      SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(client.player);
       if (client.player.getActiveEffectsMap().containsKey(MobEffects.LUCK)) {
         MobEffectInstance eff = client.player.getEffect(MobEffects.LUCK);
         int seconds = eff.getDuration() / 20;
         text = Component.translatable("gui.noellesroles.noisemaker.during", seconds);
         color = 0x00fff7; // 青蓝色
-      } else if (noisemakerComponent.cooldown > 0) {
-        int seconds = (noisemakerComponent.cooldown) / 20;
+      } else if (abilityComponent.cooldown > 0) {
+        int seconds = (abilityComponent.cooldown + 19) / 20; // 向上取整
         text = Component.translatable("gui.noellesroles.noisemaker.cooldown", seconds);
         color = 0xFF5555; // 红色
       } else {
