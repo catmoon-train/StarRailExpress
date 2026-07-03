@@ -5,8 +5,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.replay.screen.ReplayScreenSavedData;
-import io.wifi.starrailexpress.api.replay.screen.ReplayBoardService;
+import io.wifi.starrailexpress.api.replay.board.ReplayBoardSavedData;
+import io.wifi.starrailexpress.api.replay.board.ReplayBoardService;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -77,14 +77,14 @@ public final class ReplayScreenCommand {
     }
 
     private static int list(CommandContext<CommandSourceStack> context) {
-        ReplayScreenSavedData data = ReplayScreenSavedData.get(context.getSource().getLevel());
+        ReplayBoardSavedData data = ReplayBoardSavedData.get(context.getSource().getLevel());
         if (data.screens().isEmpty()) {
             context.getSource().sendSuccess(() -> Component.literal("No replay screens configured.")
                     .withStyle(ChatFormatting.GRAY), false);
             return 1;
         }
         Component message = Component.literal("Replay screens: ").withStyle(ChatFormatting.GOLD);
-        for (ReplayScreenSavedData.ReplayScreenEntry entry : data.screens().values()) {
+        for (ReplayBoardSavedData.ReplayScreenEntry entry : data.screens().values()) {
             boolean isDefault = entry.id().equals(data.defaultScreenId());
             message = message.copy().append(Component.literal("\n- " + entry.id()
                     + " [" + entry.width() + "x" + entry.height() + " "
@@ -98,7 +98,7 @@ public final class ReplayScreenCommand {
 
     private static int setDefault(CommandContext<CommandSourceStack> context) {
         String id = StringArgumentType.getString(context, "id");
-        ReplayScreenSavedData data = ReplayScreenSavedData.get(context.getSource().getLevel());
+        ReplayBoardSavedData data = ReplayBoardSavedData.get(context.getSource().getLevel());
         if (!data.setDefaultScreen(id)) {
             context.getSource().sendFailure(Component.literal("Replay screen not found: " + id));
             return 0;

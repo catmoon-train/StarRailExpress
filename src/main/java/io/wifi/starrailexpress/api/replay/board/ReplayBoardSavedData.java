@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.api.replay.screen;
+package io.wifi.starrailexpress.api.replay.board;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,26 +21,26 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class ReplayScreenSavedData extends SavedData {
+public final class ReplayBoardSavedData extends SavedData {
     private static final String DATA_NAME = "starrailexpress_replay_screens";
 
     private final Map<String, ReplayScreenEntry> screens = new LinkedHashMap<>();
     private String defaultScreenId = "";
 
-    public static ReplayScreenSavedData get(ServerLevel level) {
+    public static ReplayBoardSavedData get(ServerLevel level) {
         return get(level.getServer());
     }
 
-    public static ReplayScreenSavedData get(MinecraftServer server) {
+    public static ReplayBoardSavedData get(MinecraftServer server) {
         ServerLevel level = server.getLevel(Level.OVERWORLD);
         DimensionDataStorage storage = level.getDataStorage();
         return storage.computeIfAbsent(
-                new SavedData.Factory<>(ReplayScreenSavedData::new, ReplayScreenSavedData::load, null),
+                new SavedData.Factory<>(ReplayBoardSavedData::new, ReplayBoardSavedData::load, null),
                 DATA_NAME);
     }
 
-    public static ReplayScreenSavedData load(CompoundTag tag, HolderLookup.Provider provider) {
-        ReplayScreenSavedData data = new ReplayScreenSavedData();
+    public static ReplayBoardSavedData load(CompoundTag tag, HolderLookup.Provider provider) {
+        ReplayBoardSavedData data = new ReplayBoardSavedData();
         data.defaultScreenId = tag.getString("DefaultScreenId");
         for (Tag entryTag : tag.getList("Screens", Tag.TAG_COMPOUND)) {
             if (entryTag instanceof CompoundTag compound) {

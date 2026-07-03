@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
-import io.wifi.starrailexpress.api.replay.screen.ReplayBoardService;
+import io.wifi.starrailexpress.api.replay.board.ReplayBoardService;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.vote.VoteManager;
 import io.wifi.starrailexpress.event.AFKEventHandler;

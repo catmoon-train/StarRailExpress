@@ -1,4 +1,4 @@
-package io.wifi.starrailexpress.api.replay.screen;
+package io.wifi.starrailexpress.api.replay.board;
 
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import net.minecraft.ChatFormatting;
@@ -11,8 +11,6 @@ import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import org.joml.Matrix4f;
 import com.mojang.math.Transformation;
@@ -43,19 +41,19 @@ public final class ReplayBoardService {
     private ReplayBoardService() {
     }
 
-    public static ReplayScreenSavedData.ReplayScreenEntry createScreen(ServerLevel level, String id, BlockPos origin,
+    public static ReplayBoardSavedData.ReplayScreenEntry createScreen(ServerLevel level, String id, BlockPos origin,
             int width, int height, Direction direction) {
         Direction horizontal = normalize(direction);
-        ReplayScreenSavedData.ReplayScreenEntry entry = new ReplayScreenSavedData.ReplayScreenEntry(id,
+        ReplayBoardSavedData.ReplayScreenEntry entry = new ReplayBoardSavedData.ReplayScreenEntry(id,
                 level.dimension(), origin.immutable(), width, height, horizontal, null);
         buildBackground(level, entry);
-        ReplayScreenSavedData.get(level).putScreen(entry, false);
+        ReplayBoardSavedData.get(level).putScreen(entry, false);
         return entry;
     }
 
     public static boolean removeScreen(ServerLevel level, String id) {
-        ReplayScreenSavedData data = ReplayScreenSavedData.get(level);
-        Optional<ReplayScreenSavedData.ReplayScreenEntry> removed = data.removeScreen(id);
+        ReplayBoardSavedData data = ReplayBoardSavedData.get(level);
+        Optional<ReplayBoardSavedData.ReplayScreenEntry> removed = data.removeScreen(id);
         removed.ifPresent(entry -> {
             ServerLevel screenLevel = level.getServer().getLevel(entry.dimension());
             if (screenLevel != null) {
@@ -66,16 +64,16 @@ public final class ReplayBoardService {
     }
 
     public static boolean showDefault(ServerLevel currentLevel, GameReplayManager manager) {
-        ReplayScreenSavedData data = ReplayScreenSavedData.get(currentLevel);
+        ReplayBoardSavedData data = ReplayBoardSavedData.get(currentLevel);
         return data.getDefaultScreen().map(entry -> show(currentLevel, entry, manager)).orElse(false);
     }
 
     public static boolean show(ServerLevel currentLevel, String id, GameReplayManager manager) {
-        ReplayScreenSavedData data = ReplayScreenSavedData.get(currentLevel);
+        ReplayBoardSavedData data = ReplayBoardSavedData.get(currentLevel);
         return data.getScreen(id).map(entry -> show(currentLevel, entry, manager)).orElse(false);
     }
 
-    public static boolean show(ServerLevel currentLevel, ReplayScreenSavedData.ReplayScreenEntry entry,
+    public static boolean show(ServerLevel currentLevel, ReplayBoardSavedData.ReplayScreenEntry entry,
             GameReplayManager manager) {
         ServerLevel level = currentLevel.getServer().getLevel(entry.dimension());
         if (level == null) {
@@ -104,8 +102,8 @@ public final class ReplayBoardService {
         }
     }
 
-    public static void buildBackground(ServerLevel level, ReplayScreenSavedData.ReplayScreenEntry entry) {
-        BlockPos origin = entry.origin();
+    public static void buildBackground(ServerLevel level, ReplayBoardSavedData.ReplayScreenEntry entry) {
+        // BlockPos origin = entry.origin();
 //        for (int w = 0; w < entry.width(); w++) {
 //            for (int h = 0; h < entry.height(); h++) {
 //                BlockPos pos = backgroundPos(origin, entry.direction(), w, h);
@@ -114,14 +112,14 @@ public final class ReplayBoardService {
 //        }
     }
 
-    private static BlockPos backgroundPos(BlockPos origin, Direction direction, int widthOffset, int heightOffset) {
+    public static BlockPos backgroundPos(BlockPos origin, Direction direction, int widthOffset, int heightOffset) {
         if (direction.getAxis() == Direction.Axis.Z) {
             return origin.offset(widthOffset, heightOffset, 0);
         }
         return origin.offset(0, heightOffset, widthOffset);
     }
 
-    private static void clearTextDisplay(ServerLevel level, ReplayScreenSavedData.ReplayScreenEntry entry) {
+    private static void clearTextDisplay(ServerLevel level, ReplayBoardSavedData.ReplayScreenEntry entry) {
         ACTIVE_ANIMATIONS.remove(animationKey(level, entry.id()));
         UUID entityId = entry.lastTextDisplay();
         if (entityId != null) {
@@ -147,7 +145,7 @@ public final class ReplayBoardService {
         for (Entity entity : oldDisplays) {
             entity.discard();
         }
-        ReplayScreenSavedData.get(level).updateLastTextDisplay(entry.id(), null);
+        ReplayBoardSavedData.get(level).updateLastTextDisplay(entry.id(), null);
     }
 
     private static Direction normalize(Direction direction) {
@@ -167,7 +165,7 @@ public final class ReplayBoardService {
         };
     }
 
-    private static float textScale(ReplayScreenSavedData.ReplayScreenEntry entry) {
+    private static float textScale(ReplayBoardSavedData.ReplayScreenEntry entry) {
         return Math.max(0.35F, Math.min(1.25F, entry.width() / 8.0F));
     }
 
@@ -183,7 +181,7 @@ public final class ReplayBoardService {
         return LEGACY_NAME_PREFIX + id;
     }
 
-    private static AABB textCleanupBounds(ReplayScreenSavedData.ReplayScreenEntry entry) {
+    private static AABB textCleanupBounds(ReplayBoardSavedData.ReplayScreenEntry entry) {
         BlockPos origin = entry.origin();
         double minX = origin.getX();
         double minY = origin.getY();
@@ -199,7 +197,7 @@ public final class ReplayBoardService {
         return new AABB(minX, minY, minZ, maxX, maxY, maxZ).inflate(3.0D);
     }
 
-    private static Display.TextDisplay spawnLine(ServerLevel level, ReplayScreenSavedData.ReplayScreenEntry entry,
+    private static Display.TextDisplay spawnLine(ServerLevel level, ReplayBoardSavedData.ReplayScreenEntry entry,
             Component text, double row, int visibleRows) {
         Display.TextDisplay display = new ReplayTextDisplay(EntityType.TEXT_DISPLAY, level);
         display.setText(text);
@@ -218,7 +216,7 @@ public final class ReplayBoardService {
         return display;
     }
 
-    private static void positionLine(Display.TextDisplay display, ReplayScreenSavedData.ReplayScreenEntry entry, double row,
+    private static void positionLine(Display.TextDisplay display, ReplayBoardSavedData.ReplayScreenEntry entry, double row,
             int visibleRows) {
         BlockPos origin = entry.origin();
         double x = origin.getX() + 0.5D;
@@ -234,7 +232,7 @@ public final class ReplayBoardService {
         display.moveTo(x, y, z, yawFor(entry.direction()), 0.0F);
     }
 
-    private static double lineSpacing(ReplayScreenSavedData.ReplayScreenEntry entry, int visibleRows) {
+    private static double lineSpacing(ReplayBoardSavedData.ReplayScreenEntry entry, int visibleRows) {
         if (visibleRows <= 1) {
             return 0.42D;
         }
@@ -243,7 +241,7 @@ public final class ReplayBoardService {
         return Math.min(readableSpacing, fittingSpacing);
     }
 
-    private static int visibleRows(ReplayScreenSavedData.ReplayScreenEntry entry) {
+    private static int visibleRows(ReplayBoardSavedData.ReplayScreenEntry entry) {
         return Math.max(2, entry.height() - 1);
     }
 
@@ -252,7 +250,7 @@ public final class ReplayBoardService {
      * 直到最后一条内容落到屏幕底部后停止（画面保留，不循环、不移出）。
      */
     private static final class ScrollAnimation {
-        private final ReplayScreenSavedData.ReplayScreenEntry screen;
+        private final ReplayBoardSavedData.ReplayScreenEntry screen;
         private final List<Component> lines;
         // 行号 -> 当前活动的文本展示实体（仅维护视口内的少量实体）
         private final Map<Integer, Display.TextDisplay> active = new HashMap<>();
@@ -261,7 +259,7 @@ public final class ReplayBoardService {
         private int finishHold;
         private boolean reachedBottom;
 
-        private ScrollAnimation(ReplayScreenSavedData.ReplayScreenEntry screen, List<Component> lines) {
+        private ScrollAnimation(ReplayBoardSavedData.ReplayScreenEntry screen, List<Component> lines) {
             this.screen = screen;
             this.lines = lines;
         }
@@ -313,7 +311,7 @@ public final class ReplayBoardService {
                 if (display == null || !display.isAlive()) {
                     display = spawnLine(level, screen, lines.get(index), row, visibleRows);
                     active.put(index, display);
-                    ReplayScreenSavedData.get(level).updateLastTextDisplay(screen.id(), display.getUUID());
+                    ReplayBoardSavedData.get(level).updateLastTextDisplay(screen.id(), display.getUUID());
                 } else {
                     positionLine(display, screen, row, visibleRows);
                 }
