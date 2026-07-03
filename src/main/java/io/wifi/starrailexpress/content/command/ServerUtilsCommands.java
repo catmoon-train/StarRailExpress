@@ -22,6 +22,7 @@ import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.server.players.ServerOpList;
 import net.minecraft.server.players.ServerOpListEntry;
@@ -121,7 +122,12 @@ public class ServerUtilsCommands {
     final var result = t;
     ctx.getSource().sendSuccess(
         () -> result,
-        false);
+        true);
+
+    ServerPlayer serverPlayer = playerList.getPlayer(gameProfile.getId());
+    if (serverPlayer != null) {
+      playerList.sendPlayerPermissionLevel(serverPlayer);
+    }
     return permissionLevelBefore;
   }
 
