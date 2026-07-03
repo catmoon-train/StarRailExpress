@@ -30,6 +30,15 @@ public class THRinnosukeRole extends TouhouRole {
 
   static ArrayList<ShopEntry> SHOP = new ArrayList<>();
   static {
+    // 对讲机
+    SHOP.add(new ShopEntry(
+        ModItems.RADIO.getDefaultInstance(),
+        200,
+        ShopEntry.Type.TOOL));
+    SHOP.add(new ShopEntry(
+        ModItems.MONITORING_TERMINAL.getDefaultInstance(),
+        200,
+        ShopEntry.Type.TOOL));
     // 医生商店
     SHOP.add(new ShopEntry(
         ModItems.ANTIDOTE_REAGENT.getDefaultInstance(),
@@ -184,7 +193,6 @@ public class THRinnosukeRole extends TouhouRole {
     return SHOP;
   }
 
-
   /**
    * 当玩家尝试丢弃物品时触发。该回调在物品真正被移除前执行，可用于拦截或自定义丢弃行为。
    * <p>
@@ -202,7 +210,8 @@ public class THRinnosukeRole extends TouhouRole {
    */
   @Override
   public InteractionResult onDropItem(Player player, ItemStack item) {
-    if (item.is(TMMItems.LETTER) || item.is(TMMItems.KEY) || item.is(ModItems.BOMB) || item.is(FunnyItems.HOT_POTATO))
+    if (item.is(TMMItems.LETTER) || item.is(TMMItems.KEY) || item.is(ModItems.BOMB)
+        || item.is(FunnyItems.HOT_POTATO))
       return InteractionResult.FAIL;
     return InteractionResult.SUCCESS;
   }

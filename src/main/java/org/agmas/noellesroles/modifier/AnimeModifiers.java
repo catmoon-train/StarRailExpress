@@ -32,7 +32,7 @@ public class AnimeModifiers {
             .register(new EggModifier(RE0_486_ID, new Color(243, 207, 180).getRGB(), null, null, false, false),
                     "anime")
             .setHidden(true)
-            .setDefaultEnableChance(2000)
+            .setDefaultEnableChance(200)
             .setDefaultEnableNeededPlayerCount(12);
 
     public static void init() {

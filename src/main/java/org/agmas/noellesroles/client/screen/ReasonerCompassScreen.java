@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -8,10 +10,11 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.widget.ConspiratorRoleWidget;
 import org.agmas.noellesroles.packet.ReasonerOpenScreenS2CPacket;
 import org.agmas.noellesroles.packet.ReasonerSubmitC2SPacket;
-import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.*;
 
@@ -27,7 +30,6 @@ public class ReasonerCompassScreen extends Screen {
     private static final int ROLE_WIDGET_H = 24;
     private static final int ROLE_SPACING_X = 6;
     private static final int ROLE_SPACING_Y = 4;
-
     /** RAED_BOOK 是服务端枚举的 typo，对应翻译键 task.read_book。 */
     private static final Map<String, String> TASK_NAME_FIX = Map.of("RAED_BOOK", "READ_BOOK");
 
@@ -40,23 +42,32 @@ public class ReasonerCompassScreen extends Screen {
     private int selectionQuestion = 0; // 0=主页, 2=角色, 3=死因, 4=任务
     private int selectionPage = 0;
     private List<SRERole> allRoles = List.of();
+    private List<String> allRoleIds = List.of();
+    private List<String> allDeathReasonIds = allDeathReasonIds();
+    private List<String> allTaskIds = allTaskIds();
 
     public ReasonerCompassScreen(ReasonerOpenScreenS2CPacket payload) {
         super(Component.translatable("screen.noellesroles.reasoner.title"));
         this.payload = payload;
-        this.allRoles = resolveRoles(payload.roleIds());
+        this.allRoles = Noellesroles.getAllRolesSorted(true);
+        this.allRoleIds = allRoles.stream().map((t) -> t.identifier().toString()).toList();
     }
 
-    private static List<SRERole> resolveRoles(List<String> roleIds) {
-        List<SRERole> result = new ArrayList<>();
-        for (String id : roleIds) {
-            ResourceLocation loc = ResourceLocation.tryParse(id);
-            if (loc != null) {
-                SRERole role = RoleUtils.getRole(loc);
-                if (role != null) result.add(role);
+    private List<String> allDeathReasonIds() {
+        List<String> reasons = new ArrayList<>(GameConstants.DeathReasons.getAllDeathReasonIds());
+        reasons.sort(Comparator.naturalOrder());
+        return reasons;
+    }
+
+    private List<String> allTaskIds() {
+        List<String> tasks = new ArrayList<>();
+        for (SREPlayerTaskComponent.Task task : SREPlayerTaskComponent.Task.values()) {
+            if (task != SREPlayerTaskComponent.Task.CUSTOM && task != SREPlayerTaskComponent.Task.MANIC) {
+                tasks.add(task.name());
             }
         }
-        return result;
+        tasks.sort(Comparator.comparing(s -> s.toLowerCase(Locale.ROOT)));
+        return tasks;
     }
 
     @Override
@@ -80,8 +91,8 @@ public class ReasonerCompassScreen extends Screen {
         int left = panelX();
         int top = panelY();
         int inputX = left + PANEL_WIDTH - 118;
-        int btnWideX = inputX - 90;     // 选择按钮左侧
-        int submitX = inputX + 40;       // 提交按钮
+        int btnWideX = inputX - 90; // 选择按钮左侧
+        int submitX = inputX + 40; // 提交按钮
         int y = top + 50;
 
         // Q1: 存活人数
@@ -131,8 +142,9 @@ public class ReasonerCompassScreen extends Screen {
             y += ROW_HEIGHT;
         }
 
-        addRenderableWidget(Button.builder(Component.translatable("screen.noellesroles.reasoner.exit"), button -> onClose())
-                .bounds(left + PANEL_WIDTH - 80, top + PANEL_HEIGHT - 28, 62, 20).build());
+        addRenderableWidget(
+                Button.builder(Component.translatable("screen.noellesroles.reasoner.exit"), button -> onClose())
+                        .bounds(left + PANEL_WIDTH - 80, top + PANEL_HEIGHT - 28, 62, 20).build());
     }
 
     private EditBox numberBox(int x, int y, int width) {
@@ -155,8 +167,10 @@ public class ReasonerCompassScreen extends Screen {
     }
 
     private int valueQuestion(String value) {
-        if (payload.deathReasonIds().contains(value)) return 3;
-        if (payload.taskIds().contains(value)) return 4;
+        if (allDeathReasonIds.contains(value))
+            return 3;
+        if (allTaskIds.contains(value))
+            return 4;
         return 2;
     }
 
@@ -190,7 +204,8 @@ public class ReasonerCompassScreen extends Screen {
         int startIdx = selectionPage * ROLES_PER_PAGE;
         for (int i = 0; i < ROLES_PER_PAGE; i++) {
             int idx = startIdx + i;
-            if (idx >= roles.size()) break;
+            if (idx >= roles.size())
+                break;
             SRERole role = roles.get(idx);
             int col = i % ROLE_COLS;
             int row = i / ROLE_COLS;
@@ -200,7 +215,8 @@ public class ReasonerCompassScreen extends Screen {
             addRenderableWidget(new ConspiratorRoleWidget(null, wx, wy, ROLE_WIDGET_W, ROLE_WIDGET_H, role, idx) {
                 @Override
                 public void onPress() {
-                    if (role != null) selectedRole = role.identifier().toString();
+                    if (role != null)
+                        selectedRole = role.identifier().toString();
                     rebuildMain();
                 }
             });
@@ -258,9 +274,9 @@ public class ReasonerCompassScreen extends Screen {
 
     private List<String> optionsFor(int question) {
         return switch (question) {
-            case 3 -> payload.deathReasonIds();
-            case 4 -> payload.taskIds();
-            default -> payload.roleIds();
+            case 3 -> allDeathReasonIds;
+            case 4 -> allTaskIds;
+            default -> allRoleIds;
         };
     }
 
@@ -309,12 +325,29 @@ public class ReasonerCompassScreen extends Screen {
         if (selectionQuestion != 0) {
             if (selectionQuestion == 2) {
                 int totalPages = (allRoles.size() + ROLES_PER_PAGE - 1) / ROLES_PER_PAGE;
-                if (verticalAmount < 0 && selectionPage < totalPages - 1) { selectionPage++; drawRolePage(); return true; }
-                if (verticalAmount > 0 && selectionPage > 0) { selectionPage--; drawRolePage(); return true; }
+                if (verticalAmount < 0 && selectionPage < totalPages - 1) {
+                    selectionPage++;
+                    drawRolePage();
+                    return true;
+                }
+                if (verticalAmount > 0 && selectionPage > 0) {
+                    selectionPage--;
+                    drawRolePage();
+                    return true;
+                }
             } else {
-                int totalPages = Math.max(1, (optionsFor(selectionQuestion).size() + OPTION_PAGE_SIZE - 1) / OPTION_PAGE_SIZE);
-                if (verticalAmount < 0 && selectionPage < totalPages - 1) { selectionPage++; rebuildSelection(); return true; }
-                if (verticalAmount > 0 && selectionPage > 0) { selectionPage--; rebuildSelection(); return true; }
+                int totalPages = Math.max(1,
+                        (optionsFor(selectionQuestion).size() + OPTION_PAGE_SIZE - 1) / OPTION_PAGE_SIZE);
+                if (verticalAmount < 0 && selectionPage < totalPages - 1) {
+                    selectionPage++;
+                    rebuildSelection();
+                    return true;
+                }
+                if (verticalAmount > 0 && selectionPage > 0) {
+                    selectionPage--;
+                    rebuildSelection();
+                    return true;
+                }
             }
         }
         return super.mouseScrolled(mouseX, mouseY, h, verticalAmount);

@@ -59,7 +59,8 @@ public class SEModifiers {
             false,
             false))
             .setDefaultEnableChance(1000)
-            .setDefaultEnableNeededPlayerCount(12).setHidden(true);
+            .setDefaultEnableNeededPlayerCount(12)
+            .setHidden(true);
 
     public static SREModifier TINY = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tiny"),

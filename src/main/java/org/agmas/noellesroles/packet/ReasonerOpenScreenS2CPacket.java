@@ -5,18 +5,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.agmas.noellesroles.Noellesroles;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public record ReasonerOpenScreenS2CPacket(
         String roleTargetName,
         String bodyTargetName,
         String taskTargetName,
         boolean deathReasonQuestionAvailable,
         boolean killerQuestionAvailable,
-        List<String> roleIds,
-        List<String> deathReasonIds,
-        List<String> taskIds,
         boolean solvedAliveCount,
         boolean solvedRole,
         boolean solvedDeathReason,
@@ -34,9 +28,6 @@ public record ReasonerOpenScreenS2CPacket(
         buf.writeUtf(taskTargetName);
         buf.writeBoolean(deathReasonQuestionAvailable);
         buf.writeBoolean(killerQuestionAvailable);
-        writeList(buf, roleIds);
-        writeList(buf, deathReasonIds);
-        writeList(buf, taskIds);
         buf.writeBoolean(solvedAliveCount);
         buf.writeBoolean(solvedRole);
         buf.writeBoolean(solvedDeathReason);
@@ -51,9 +42,6 @@ public record ReasonerOpenScreenS2CPacket(
         String taskTargetName = buf.readUtf();
         boolean deathReasonQuestionAvailable = buf.readBoolean();
         boolean killerQuestionAvailable = buf.readBoolean();
-        List<String> roleIds = readList(buf);
-        List<String> deathReasonIds = readList(buf);
-        List<String> taskIds = readList(buf);
         boolean solvedAliveCount = buf.readBoolean();
         boolean solvedRole = buf.readBoolean();
         boolean solvedDeathReason = buf.readBoolean();
@@ -61,22 +49,8 @@ public record ReasonerOpenScreenS2CPacket(
         boolean solvedKillerCount = buf.readBoolean();
         int cooldownTicks = buf.readVarInt();
         return new ReasonerOpenScreenS2CPacket(roleTargetName, bodyTargetName, taskTargetName,
-                deathReasonQuestionAvailable, killerQuestionAvailable, roleIds, deathReasonIds, taskIds,
+                deathReasonQuestionAvailable, killerQuestionAvailable, 
                 solvedAliveCount, solvedRole, solvedDeathReason, solvedTask, solvedKillerCount, cooldownTicks);
-    }
-
-    private static void writeList(RegistryFriendlyByteBuf buf, List<String> values) {
-        buf.writeVarInt(values.size());
-        values.forEach(buf::writeUtf);
-    }
-
-    private static List<String> readList(RegistryFriendlyByteBuf buf) {
-        int size = buf.readVarInt();
-        List<String> values = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            values.add(buf.readUtf());
-        }
-        return values;
     }
 
     @Override

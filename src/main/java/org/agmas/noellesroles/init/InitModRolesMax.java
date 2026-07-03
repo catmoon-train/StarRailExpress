@@ -332,6 +332,7 @@ public class InitModRolesMax {
                 for (var a : HMLModifiers.MODIFIERS) {
                     if (a instanceof EggModifier) {
                         int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap);
+                        SRE.LOGGER.info("{} : max {}", a.getName().getString(), max);
                         if (max >= 0) {
                             Harpymodloader.MODIFIER_MAX.put(a.identifier(), max);
                         }

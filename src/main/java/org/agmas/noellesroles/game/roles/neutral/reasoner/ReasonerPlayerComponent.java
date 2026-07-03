@@ -6,14 +6,12 @@ import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -29,10 +27,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.UUID;
 
@@ -142,9 +137,6 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
                 taskTargetName,
                 deathAvailable,
                 getElapsedTicks() >= KILLER_QUESTION_TICKS,
-                allRoleIds(),
-                allDeathReasonIds(),
-                allTaskIds(),
                 solvedAliveCount,
                 hideRole,
                 solvedDeathReason,
@@ -405,30 +397,6 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
     private String getTaskQuestionTargetName(ServerLevel level) {
         ServerPlayer target = taskQuestionTarget == null ? null : level.getServer().getPlayerList().getPlayer(taskQuestionTarget);
         return target == null ? "?" : target.getGameProfile().getName();
-    }
-
-    private List<String> allRoleIds() {
-        return Noellesroles.getAllRolesSorted(true).stream()
-                .map(role -> role.identifier().toString())
-                .distinct()
-                .toList();
-    }
-
-    private List<String> allDeathReasonIds() {
-        List<String> reasons = new ArrayList<>(GameConstants.DeathReasons.getAllDeathReasonIds());
-        reasons.sort(Comparator.naturalOrder());
-        return reasons;
-    }
-
-    private List<String> allTaskIds() {
-        List<String> tasks = new ArrayList<>();
-        for (SREPlayerTaskComponent.Task task : SREPlayerTaskComponent.Task.values()) {
-            if (task != SREPlayerTaskComponent.Task.CUSTOM && task != SREPlayerTaskComponent.Task.MANIC) {
-                tasks.add(task.name());
-            }
-        }
-        tasks.sort(Comparator.comparing(s -> s.toLowerCase(Locale.ROOT)));
-        return tasks;
     }
 
     private void markSolved(int question) {

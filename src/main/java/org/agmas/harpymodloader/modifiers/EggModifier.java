@@ -9,6 +9,7 @@ public class EggModifier extends SREModifier {
     public EggModifier(ResourceLocation identifier, int color, HashSet<SRERole> cannotBeAppliedTo,
             HashSet<SRERole> canOnlyBeAppliedTo, boolean killerOnly, boolean civilianOnly) {
         super(identifier, color, cannotBeAppliedTo, canOnlyBeAppliedTo, killerOnly, civilianOnly);
+        this.addFlag("bouns");
     }
     
 }
