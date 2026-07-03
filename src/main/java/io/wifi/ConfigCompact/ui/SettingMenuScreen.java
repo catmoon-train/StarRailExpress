@@ -51,11 +51,11 @@ public class SettingMenuScreen extends Screen {
         this.parent = parent;
     }
 
-    static final int WIDTH_BUTTON_WIDTH = 204;
-    static final int SMALL_BUTTON_WIDTH = 204;
+    static int WIDTH_BUTTON_WIDTH = 204;
+    static int SMALL_BUTTON_WIDTH = 204;
     static final int BUTTON_HEIGHT = 20;
     static final int MARGIN = 4;
-    static final int COLUMN_COUNT = 1;
+    static int COLUMN_COUNT = 1;
     public boolean showSettings = true;
 
     @Override
@@ -78,6 +78,10 @@ public class SettingMenuScreen extends Screen {
                 .build();
     }
 
+    private boolean isSmallUI() {
+        return height <= 300;
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -85,7 +89,8 @@ public class SettingMenuScreen extends Screen {
         int top = 20;
         int maxWidth = this.width;
         this.addRenderableWidget(new StringWidget(0, top, maxWidth, 9, this.title, this.font));
-
+        COLUMN_COUNT = isSmallUI() ? 2 : 1;
+        SMALL_BUTTON_WIDTH = isSmallUI() ? 98 : 204;
         GridLayout gridLayout = new GridLayout();
         gridLayout.defaultCellSetting().padding(4, 4, 4, 0);
         GridLayout.RowHelper rowHelper = gridLayout.createRowHelper(COLUMN_COUNT);
