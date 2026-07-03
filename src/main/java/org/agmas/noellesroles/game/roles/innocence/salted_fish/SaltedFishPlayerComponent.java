@@ -288,9 +288,11 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         if (flipTicks <= 0) {
             return to;
         }
-        // 始终沿同一方向翻转（面朝上 → 面朝下），避免来回旋转
-        if (previousSide == 1 && side == 0) {
-            to = 360.0f;
+        if (previousSide == 0 && side == 1) {
+            to += 360.0f;
+        } else if (previousSide == 1 && side == 0) {
+            from += 360.0f;
+            to += 360.0f;
         }
         float progress = Mth.clamp((FLIP_TICKS - flipTicks + partialTick) / (float) FLIP_TICKS, 0.0f, 1.0f);
         return Mth.lerp(progress, from, to);

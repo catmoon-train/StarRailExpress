@@ -111,9 +111,9 @@ public class MonitoringTerminalItem extends Item implements AdventureUsable {
             return InteractionResultHolder.fail(stack);
         }
 
-        if (SRE.REPLAY_MANAGER != null) {
-            SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
-        }
+//        if (SRE.REPLAY_MANAGER != null) {
+//            SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
+//        }
         return InteractionResultHolder.consume(stack);
     }
 

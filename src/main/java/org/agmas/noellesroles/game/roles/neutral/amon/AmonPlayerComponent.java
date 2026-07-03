@@ -224,6 +224,13 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         if (!alive)
             return;
 
+        // 安全网：若游戏本应结束（平民或杀手胜利）但 handleGameEnd 未能触发终幕，
+        // 由服务端 tick 兜底启动，确保持有成熟宿主的阿蒙不会因时序问题错过终幕。
+        if (!maturedHosts.isEmpty() && isGameEnding(amon, game)) {
+            startFinale();
+            return;
+        }
+
         // 附身中：跟随目标、维持隐身/无敌；目标失效则解除附身。
         if (possessTarget != null) {
             handlePossessionTick(amon);
@@ -371,7 +378,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     /**
-     * 附身期间按 G：完成夺舍——变成目标（伪装其皮肤/名字）、令其死亡，并在本体处生成阿蒙自己的尸体。
+     * 附身期间按 Shift+G：完成夺舍——变成目标（伪装其皮肤/名字）、令其死亡，并在本体处生成阿蒙自己的尸体。
      */
     public boolean finalizePossession() {
         if (!(player instanceof ServerPlayer amon) || !(amon.level() instanceof ServerLevel level))
@@ -611,6 +618,27 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             }
         }
         return block ? GameUtils.WinStatus.NONE : GameUtils.WinStatus.NOT_MODIFY;
+    }
+
+    /**
+     * 检查游戏是否即将结束（杀手全灭或平民全灭），作为 handleGameEnd 的兜底安全网。
+     * 确保持有时之虫的阿蒙不会因 AllowGameEnd.EVENT 时序/游戏模式差异而错过终幕。
+     */
+    private static boolean isGameEnding(ServerPlayer amon, SREGameWorldComponent game) {
+        boolean killerAlive = false;
+        boolean innocentAlive = false;
+        for (ServerPlayer p : amon.serverLevel().players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
+                continue;
+            if (p == amon)
+                continue; // 阿蒙自己是中立，不计入平民或杀手
+            if (game.isKillerTeam(p))
+                killerAlive = true;
+            else if (game.isInnocent(p))
+                innocentAlive = true;
+        }
+        // 平民全灭（杀手胜利）或杀手全灭（平民胜利）→ 游戏应结束
+        return !innocentAlive || !killerAlive;
     }
 
     /** 开启终幕：寄宿体回归为备用能力、窃取全场物品、发光、全服播报。 */

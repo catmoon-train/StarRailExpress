@@ -90,6 +90,11 @@ public class NRRulePredicateEvents {
                     return true;
                 }
             }
+            if (gameWorldComponent.isRole(a, ModRoles.SALTED_FISH)) {
+                if (SaltedFishPlayerComponent.KEY.get(a).isActive()) {
+                    return true;
+                }
+            }
             return false;
         });
 

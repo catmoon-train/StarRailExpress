@@ -57,6 +57,8 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     public static final int DRAIN_RADIUS = 8;
     public static final int DRAIN_SAN_AMOUNT = 30;
     public static final int DRAIN_COOLDOWN_TICKS = 30 * 20;
+    public static final int PASSIVE_DRAIN_INTERVAL = 25 * 20;
+    public static final int PASSIVE_DRAIN_AMOUNT = 10;
     public static final int FLOAT_DURATION = 40; // 2 seconds
     public static final double DASH_SPEED_NORMAL = 2.0;
     public static final double DASH_SPEED_MANIFEST = 3.5;
@@ -67,6 +69,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     public int manifestTicks;
     public int drainCooldownTicks;
     private int heartbeatTimer;
+    private int passiveDrainTimer;
 
     /** 被冲刺命中后处于漂浮状态的玩家：UUID -> 剩余漂浮tick数 */
     private final Map<UUID, Integer> floatingTargets = new HashMap<>();
@@ -95,6 +98,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         manifestTicks = 0;
         drainCooldownTicks = 0;
         heartbeatTimer = 0;
+        passiveDrainTimer = 0;
         floatingTargets.clear();
         sync();
     }
@@ -147,6 +151,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
             applyDimensionEffects();
         }
         applyLowSanNearbyPressure(sp);
+        tickPassiveDrain(sp);
         heartbeatTimer++;
 
         // 处理漂浮死亡目标
@@ -245,6 +250,39 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
             if (heartbeatTimer % 20 == 0) {
                 target.playNotifySound(SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 0.8f, 0.8f);
             }
+        }
+    }
+
+    /**
+     * 每25秒自动吸收周围玩家10点SAN值（被动光环）
+     */
+    private void tickPassiveDrain(ServerPlayer self) {
+        passiveDrainTimer++;
+        if (passiveDrainTimer < PASSIVE_DRAIN_INTERVAL) {
+            return;
+        }
+        passiveDrainTimer = 0;
+        ServerLevel level = self.serverLevel();
+        SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(level);
+        int totalDrained = 0;
+        for (ServerPlayer target : level.players()) {
+            if (target == self || !GameUtils.isPlayerAliveAndSurvival(target) || gw.isKillerTeam(target)) {
+                continue;
+            }
+            if (target.distanceToSqr(self) > DRAIN_RADIUS * DRAIN_RADIUS) {
+                continue;
+            }
+            int san = getSan(target);
+            if (san <= 0) {
+                continue;
+            }
+            int drained = Math.min(PASSIVE_DRAIN_AMOUNT, san);
+            addSan(target, -drained);
+            totalDrained += drained;
+        }
+        if (totalDrained > 0) {
+            addEnergy(totalDrained);
+            sync();
         }
     }
 
