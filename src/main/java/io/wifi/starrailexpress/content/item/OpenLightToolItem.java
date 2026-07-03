@@ -20,8 +20,8 @@ import net.minecraft.world.level.Level;
 
 public class OpenLightToolItem extends Item {
 
-    private static final int MIN_DISTANCE = 3;
-    private static final int MAX_DISTANCE = 10;
+    private static final int MIN_DISTANCE = 1;
+    private static final int MAX_DISTANCE = 16;
     private static final int DEFAULT_DISTANCE = 5;
 
     public OpenLightToolItem(Properties settings) {
