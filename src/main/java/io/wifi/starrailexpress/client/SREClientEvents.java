@@ -173,46 +173,46 @@ public class SREClientEvents {
         });
 
         // 阿蒙名字替换：夺舍后，其他玩家看到的名牌显示为被夺舍宿主的名字。
-        OnRenderRoleName.RENDER_PLAYER_NAME.register((player, target, ctx, delta, font) -> {
+        OnRenderRoleName.RENDER_PLAYER_NAME.register((_, target, ctx, delta, font) -> {
             UUID disguiseTarget = ClientAmonState.disguiseTargetFor(target.getUUID());
             if (disguiseTarget != null) {
                 PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(disguiseTarget);
                 if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
                     return TrueFalseAndCustomResult.custom(getDisplayName(targetInfo));
                 }
-                if (disguiseTarget.equals(player.getUUID())) {
-                    return TrueFalseAndCustomResult.custom(player.getDisplayName());
+                if (disguiseTarget.equals(target.getUUID())) {
+                    return TrueFalseAndCustomResult.custom(target.getDisplayName());
                 }
             }
             return TrueFalseAndCustomResult.pass();
         });
-        OnRenderRoleName.RENDER_PLAYER_NAME.register((player, target, ctx, delta, font) -> {
-            UUID stolenTarget = ClientSkincrawlerState.stolenSkinFor(player.getUUID());
+        OnRenderRoleName.RENDER_PLAYER_NAME.register((_, target, ctx, delta, font) -> {
+            UUID stolenTarget = ClientSkincrawlerState.stolenSkinFor(target.getUUID());
             if (stolenTarget != null) {
                 PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(stolenTarget);
                 if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
                     return TrueFalseAndCustomResult.custom(getDisplayName(targetInfo));
                 }
-                if (stolenTarget.equals(player.getUUID())) {
-                    return TrueFalseAndCustomResult.custom(player.getDisplayName());
+                if (stolenTarget.equals(target.getUUID())) {
+                    return TrueFalseAndCustomResult.custom(target.getDisplayName());
                 }
             }
             return TrueFalseAndCustomResult.pass();
         });
 
-        OnRenderRoleName.RENDER_PLAYER_NAME.register((player, target, ctx, delta, font) -> {
-            if (getShuffledTarget(player) != null) {
+        OnRenderRoleName.RENDER_PLAYER_NAME.register((_, target, ctx, delta, font) -> {
+            if (getShuffledTarget(target) != null) {
                 return TrueFalseAndCustomResult.custom(Component.literal("??!?!").withStyle(ChatFormatting.OBFUSCATED));
             }
             // 嬉命人变装 - 鼠标朝向的玩家名字显示皮肤对应的名称
-            UUID embalmerTarget = ClientEmbalmerState.replacement(player.getUUID());
+            UUID embalmerTarget = ClientEmbalmerState.replacement(target.getUUID());
             if (embalmerTarget != null && ClientEmbalmerState.isActive()) {
                 PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(embalmerTarget);
                 if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
                     return TrueFalseAndCustomResult.custom(getDisplayName(targetInfo));
                 }
             }
-            var mocca = MorphlingPlayerComponent.KEY.get(player);
+            var mocca = MorphlingPlayerComponent.KEY.get(target);
             if ((mocca).getMorphTicks() > 0) {
                 PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(mocca.disguise);
                 if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
@@ -220,8 +220,8 @@ public class SREClientEvents {
                 } else {
                     // Log.info(LogCategory.GENERAL, "Morphling disguise is null!!!");
                 }
-                if (mocca.disguise.equals(player.getUUID())) {
-                    return TrueFalseAndCustomResult.custom(player.getDisplayName());
+                if (mocca.disguise != null && mocca.disguise.equals(target.getUUID())) {
+                    return TrueFalseAndCustomResult.custom(target.getDisplayName());
                 }
             }
             return TrueFalseAndCustomResult.pass();
