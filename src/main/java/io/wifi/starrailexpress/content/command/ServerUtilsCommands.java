@@ -101,7 +101,7 @@ public class ServerUtilsCommands {
     if (gameProfile == null) {
       return 0;
     }
-    if (server.isSingleplayerOwner(gameProfile)) {
+    if (server.isSingleplayerOwner(gameProfile) || server.isSingleplayer()) {
       ctx.getSource().sendFailure(
           Component.translatable("message.serverutils.permission.set.failed", gameProfile.getName(),
               Component.translatable("message.serverutils.permission.set.failed.singleplayer")));
