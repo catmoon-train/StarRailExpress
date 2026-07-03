@@ -533,7 +533,7 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(5000)
             .setDefaultEnableNeededPlayerCount(12);
 
-    public static SRERole GUEST_GHOST = TMMRoles.registerRole(new EggRole(
+    public static SRERole GUEST_GHOST = TMMRoles.registerRole(new NormalRole(
             GUEST_GHOST_ID, // 角色 ID
             new Color(175, 245, 130).getRGB(), // 不知道啥颜色
             true, // isInnocent = 非乘客阵营（杀手）
@@ -543,7 +543,7 @@ public class ModRoles {
             true // 隐藏计分板
     )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.QIYUCUN).setDefaultMax(0);
-    public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new EggRole(
+    public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
             MA_CHEN_XU_ID, // 角色 ID
             new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
             false, // isInnocent = 非乘客阵营（杀手）
