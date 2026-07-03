@@ -677,8 +677,10 @@ public class SREClient implements ClientModInitializer {
                     client.setScreen(new io.wifi.starrailexpress.client.gui.screen.ingame.FourthRoomPeekDeckScreen(
                             client.screen));
                 }));
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> FourthRoomClientState.clear());
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> FourthRoomCameraDirector.clear());
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            FourthRoomClientState.clear();
+            FourthRoomCameraDirector.clear();
+        });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(() -> {
             FourthRoomClientState.clear();
             FourthRoomCameraDirector.clear();

@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.client;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -7,12 +8,14 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.content.item.DisguiseEffectSync;
+import io.wifi.starrailexpress.event.client.OnGameStartedClient;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName.RenderPlayerNameInterface;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -32,6 +35,7 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
+import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -73,6 +77,12 @@ public class SREClientEvents {
 
     public static void registerClientEvents() {
         registerRoleNameRendererEvents();
+        OnGameStartedClient.EVENT.register(() -> {
+            if (!Minecraft.getInstance().isLocalServer()){
+                SRE.LOGGER.info("[CLIENT] Re-register shop entries.");
+                RoleShopHandler.shopRegister();
+            }
+        });
     }
 
     public static void registerRoleNameRendererEvents() {

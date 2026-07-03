@@ -4,6 +4,7 @@ import io.wifi.ConfigCompact.network.RoleEnableInfoPacket;
 import io.wifi.ConfigCompact.network.SyncConfigPayload;
 import io.wifi.ConfigCompact.ui.RoleManageConfigUI;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.event.client.OnConfigSynced;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -13,6 +14,7 @@ public class ClientConfigEvents {
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(SyncConfigPayload.ID, (payload, context) -> {
             ConfigClassHandler.recieveConfigPackFromServer(payload.configId(), payload.content());
+            OnConfigSynced.EVENT.invoker().onConfigSynced(payload.configId(),context.client());
         });
 
         ClientPlayNetworking.registerGlobalReceiver(RoleEnableInfoPacket.ID, (payload, context) -> {
