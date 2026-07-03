@@ -117,7 +117,7 @@
     "client.roles.silencer.SilencerScreenMixin",
     "client.roles.silencer.SilencerHelpMixin",
     "client.roles.panda.PandaClientMixin",
-    "client.roles.salted_fish.SaltedFishRenderMixin",
+    "client.roles.salted_fish.SaltedFishBodyRenderMixin",
     "client.roles.party.PartyKillerScreenMixin",
     "client.roles.phantom.PhantomRattatoulieMixin",
     "client.roles.puppeteer.PuppeteerBodyKnifeTargetMixin",

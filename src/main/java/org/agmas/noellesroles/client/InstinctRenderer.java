@@ -32,6 +32,7 @@ import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponen
 import org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
@@ -64,6 +65,26 @@ import java.util.HashMap;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (!hasInstinct || Minecraft.getInstance().player == null || SREClient.gameComponent == null) {
+                return -1;
+            }
+            Player self = Minecraft.getInstance().player;
+            if (!isKillerTeam(SREClient.gameComponent.getRole(self))) {
+                return -1;
+            }
+            if (target instanceof PlayerBodyEntity body
+                    && SaltedFishPlayerComponent.isSaltedFishFakeBody(body)) {
+                return -2;
+            }
+            if (target instanceof Player targetPlayer) {
+                SaltedFishPlayerComponent component = SaltedFishPlayerComponent.KEY.maybeGet(targetPlayer).orElse(null);
+                if (component != null && component.isActive()) {
+                    return -2;
+                }
+            }
+            return -1;
+        });
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (!(target instanceof Player) || !hasInstinct || Minecraft.getInstance().player == null || SREClient.gameComponent == null) return -1;
             var self = Minecraft.getInstance().player;

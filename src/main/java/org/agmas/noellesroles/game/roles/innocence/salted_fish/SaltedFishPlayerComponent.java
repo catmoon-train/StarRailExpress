@@ -3,12 +3,13 @@ package org.agmas.noellesroles.game.roles.innocence.salted_fish;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMEntities;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +18,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
@@ -28,9 +30,12 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
+import java.util.UUID;
+
 public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<SaltedFishPlayerComponent> KEY = ModComponents.SALTED_FISH;
     public static final ResourceLocation SKILL_ID = Noellesroles.id("salted_fish_sunbathe");
+    public static final String FAKE_BODY_TAG = "noellesroles_salted_fish_body";
 
     public static final int ACTIVE_TICKS = 80 * 20;
     public static final int COOLDOWN_TICKS = 40 * 20;
@@ -44,6 +49,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
     public int side;
     public int previousSide;
     public float sunYaw;
+    private UUID fakeBodyUuid;
 
     public SaltedFishPlayerComponent(Player player) {
         this.player = player;
@@ -65,12 +71,14 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void init() {
+        discardFakeBody();
         activeTicks = 0;
         cooldownTicks = 0;
         flipTicks = 0;
         side = 0;
         previousSide = 0;
         sunYaw = 0.0f;
+        fakeBodyUuid = null;
         sync();
     }
 
@@ -107,7 +115,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         side = 0;
         previousSide = 0;
         updateSunYaw(sp.serverLevel());
-        faceSun(sp, true);
+        spawnFakeBody(sp);
         applyRestraints();
         sync();
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.WOOL_PLACE, SoundSource.PLAYERS, 1.0f, 0.75f);
@@ -125,6 +133,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         if (!gameWorld.isRunning() || !gameWorld.isRole(sp, ModRoles.SALTED_FISH)
                 || !GameUtils.isPlayerAliveAndSurvival(sp)) {
             if (activeTicks > 0) {
+                discardFakeBody();
                 activeTicks = 0;
                 flipTicks = 0;
                 sync();
@@ -147,7 +156,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         }
 
         updateSunYaw(sp.serverLevel());
-        faceSun(sp, elapsed % 10 == 0);
+        updateFakeBodyRotation(sp.serverLevel());
         applyRestraints();
         stopHorizontalMotion(sp);
 
@@ -180,10 +189,6 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         previousSide = side;
         side = 1 - side;
         flipTicks = FLIP_TICKS;
-        Vec3 motion = new Vec3(0.0D, 0.42D, 0.0D);
-        sp.setDeltaMovement(motion);
-        sp.hurtMarked = true;
-        sp.connection.send(new ClientboundSetEntityMotionPacket(sp.getId(), motion));
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.SLIME_BLOCK_STEP, SoundSource.PLAYERS, 1.0f,
                 1.35f);
     }
@@ -192,6 +197,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         activeTicks = 0;
         flipTicks = 0;
         cooldownTicks = COOLDOWN_TICKS;
+        discardFakeBody();
         stopHorizontalMotion(sp);
         SREAbilityPlayerComponent.KEY.get(sp).setSkillCooldown(SKILL_ID, COOLDOWN_TICKS);
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.WOOL_BREAK, SoundSource.PLAYERS, 0.8f, 0.9f);
@@ -202,7 +208,6 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
 
     private void applyRestraints() {
         player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 10, 0, false, false, false));
-        player.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, 10, 0, false, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 10, 0, false, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.INVENTORY_BANED, 10, 0, false, false, false));
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 10, 0, false, false, false));
@@ -220,14 +225,61 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         sunYaw = Mth.wrapDegrees((time / 24000.0f) * 360.0f - 90.0f);
     }
 
-    private void faceSun(ServerPlayer sp, boolean forcePacket) {
-        sp.setYRot(sunYaw);
-        sp.setYHeadRot(sunYaw);
-        sp.setYBodyRot(sunYaw);
-        sp.setXRot(-80.0f);
-        if (forcePacket) {
-            sp.connection.teleport(sp.getX(), sp.getY(), sp.getZ(), sunYaw, -80.0f);
+    private void spawnFakeBody(ServerPlayer sp) {
+        discardFakeBody();
+        PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(sp.serverLevel());
+        if (body == null) {
+            return;
         }
+        body.setPlayerUuid(sp.getUUID());
+        body.addTag(FAKE_BODY_TAG);
+        body.moveTo(sp.getX(), sp.getY(), sp.getZ(), sunYaw, 0.0f);
+        body.setYRot(sunYaw);
+        body.setYHeadRot(sunYaw);
+        body.setYBodyRot(sunYaw);
+        body.yBodyRotO = sunYaw;
+        body.setXRot(0.0f);
+        sp.serverLevel().addFreshEntity(body);
+        fakeBodyUuid = body.getUUID();
+    }
+
+    private PlayerBodyEntity getFakeBody(ServerLevel level) {
+        if (fakeBodyUuid == null) {
+            return null;
+        }
+        Entity entity = level.getEntity(fakeBodyUuid);
+        if (entity instanceof PlayerBodyEntity body && isSaltedFishFakeBody(body)) {
+            return body;
+        }
+        fakeBodyUuid = null;
+        return null;
+    }
+
+    private void updateFakeBodyRotation(ServerLevel level) {
+        PlayerBodyEntity body = getFakeBody(level);
+        if (body == null) {
+            return;
+        }
+        body.setYRot(sunYaw);
+        body.setYHeadRot(sunYaw);
+        body.setYBodyRot(sunYaw);
+        body.yBodyRot = sunYaw;
+        body.yBodyRotO = sunYaw;
+    }
+
+    private void discardFakeBody() {
+        if (!(player.level() instanceof ServerLevel level)) {
+            return;
+        }
+        PlayerBodyEntity body = getFakeBody(level);
+        if (body != null) {
+            body.discard();
+        }
+        fakeBodyUuid = null;
+    }
+
+    public static boolean isSaltedFishFakeBody(Entity entity) {
+        return entity instanceof PlayerBodyEntity && entity.getTags().contains(FAKE_BODY_TAG);
     }
 
     public float getRenderRoll(float partialTick) {
@@ -293,9 +345,13 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (fakeBodyUuid != null) {
+            tag.putUUID("fakeBodyUuid", fakeBodyUuid);
+        }
     }
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        fakeBodyUuid = tag.hasUUID("fakeBodyUuid") ? tag.getUUID("fakeBodyUuid") : null;
     }
 }

@@ -413,6 +413,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientEmbalmerState.register();
         ClientSkincrawlerState.register();
+        SaltedFishClientHandle.register();
         org.agmas.noellesroles.client.ClientAmonState.register();
         CommonClientHudRenderer.registerRenderersEvent();
         MenuScreens.register(ModMenus.HOTBAR_STORAGE, HotbarStorageScreen::new);
