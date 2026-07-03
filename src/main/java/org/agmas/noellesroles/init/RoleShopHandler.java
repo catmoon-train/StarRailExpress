@@ -316,7 +316,7 @@ public class RoleShopHandler {
     FRAMING_ROLES_SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 50,
         ShopEntry.Type.TOOL));
     FRAMING_ROLES_SHOP
-        .add(new ShopEntry(TMMItems.NOTE.getDefaultInstance(), 5, ShopEntry.Type.TOOL));
+        .add(new ShopEntry(TMMItems.NOTE.getDefaultInstance(), 15, ShopEntry.Type.TOOL));
   }
 
   /**

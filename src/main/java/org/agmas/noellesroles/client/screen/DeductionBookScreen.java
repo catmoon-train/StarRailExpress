@@ -116,7 +116,7 @@ public class DeductionBookScreen extends Screen {
         }
         bookWidth = w;
         bookHeight = h;
-        bookX = (width - w) / 2;
+        bookX = (width - w +15) / 2;
         bookY = (height - h) / 2;
 
         scale = (float) bookWidth / ORIG_IMG_WIDTH;

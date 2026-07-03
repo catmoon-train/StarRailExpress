@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerList.class)
 public class DecServerJoinPlayer {
-    @Inject(method = "placeNewPlayer", at = @At("TAIL"), cancellable = true)
+    @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     public void placeNewPlayer(Connection connection, ServerPlayer serverPlayer,
             CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
         if (SRE.isLobby)

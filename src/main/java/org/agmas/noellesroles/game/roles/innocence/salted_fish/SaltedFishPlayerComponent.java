@@ -4,8 +4,10 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.TMMEntities;
+import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
+import org.agmas.noellesroles.init.ModEntities;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -35,7 +37,6 @@ import java.util.UUID;
 public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<SaltedFishPlayerComponent> KEY = ModComponents.SALTED_FISH;
     public static final ResourceLocation SKILL_ID = Noellesroles.id("salted_fish_sunbathe");
-    public static final String FAKE_BODY_TAG = "noellesroles_salted_fish_body";
 
     public static final int ACTIVE_TICKS = 80 * 20;
     public static final int COOLDOWN_TICKS = 40 * 20;
@@ -60,10 +61,10 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         return player;
     }
 
-    @Override
-    public boolean shouldSyncWith(ServerPlayer target) {
-        return target.level() == player.level();
-    }
+//    @Override
+//    public boolean shouldSyncWith(ServerPlayer target) {
+//        return target.level() == player.level();
+//    }
 
     public void sync() {
         KEY.sync(player);
@@ -227,12 +228,11 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
 
     private void spawnFakeBody(ServerPlayer sp) {
         discardFakeBody();
-        PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(sp.serverLevel());
+        SaltedFishBodyEntity body = ModEntities.SALTED_FISH_BODY.create(sp.serverLevel());
         if (body == null) {
             return;
         }
         body.setPlayerUuid(sp.getUUID());
-        body.addTag(FAKE_BODY_TAG);
         body.moveTo(sp.getX(), sp.getY(), sp.getZ(), sunYaw, 0.0f);
         body.setYRot(sunYaw);
         body.setYHeadRot(sunYaw);
@@ -248,7 +248,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
             return null;
         }
         Entity entity = level.getEntity(fakeBodyUuid);
-        if (entity instanceof PlayerBodyEntity body && isSaltedFishFakeBody(body)) {
+        if (entity instanceof SaltedFishBodyEntity body) {
             return body;
         }
         fakeBodyUuid = null;
@@ -279,7 +279,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     public static boolean isSaltedFishFakeBody(Entity entity) {
-        return entity instanceof PlayerBodyEntity && entity.getTags().contains(FAKE_BODY_TAG);
+        return entity instanceof SaltedFishBodyEntity;
     }
 
     public float getRenderRoll(float partialTick) {

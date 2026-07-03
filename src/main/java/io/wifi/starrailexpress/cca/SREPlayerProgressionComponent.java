@@ -384,16 +384,11 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled) {
             return false;
         }
-        try {
-            Map<String, MysqlPlayerDataStore.SyncRecord> records = MysqlPlayerDataStore
-                    .loadBatchAsync(this.player.getUUID(), List.of(NETWORK_TASKS_KEY, NETWORK_DATA_KEY))
-                    .join();
-            return applyDatabaseRecords(records);
-        } catch (Exception exception) {
-            logger.warn("拉取玩家 {} 的 MySQL 进度/任务失败，回退到本地任务。", this.player.getName().getString(), exception);
-            this.networkSyncEnabled = false;
-            return false;
-        }
+        // Use pullProgressionFromNetwork's async pattern instead of blocking .join()
+        // which can stall the server thread while waiting for the database.
+        // The async callback handles applyDatabaseRecords when the data arrives.
+        pullProgressionFromNetwork();
+        return false; // return immediately; actual result arrives via async callback
     }
 
     public void pullProgressionFromNetwork() {

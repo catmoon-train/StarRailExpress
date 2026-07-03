@@ -13,12 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerList.class)
 public class PlayerWeightResetMixin {
     //
-    @Inject(method = "placeNewPlayer", at = @At("TAIL"), cancellable = true)
-    public void onPlayerConnect(Connection connection, ServerPlayer player, CommonListenerCookie clientData,
-            CallbackInfo ci) {
-    }
 
-    @Inject(method = "remove", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "remove", at = @At("HEAD"))
     public void onPlayerDisconnect(ServerPlayer player,
             CallbackInfo ci) {
         PlayerRoleWeightManager.clearWeight(player.getUUID());

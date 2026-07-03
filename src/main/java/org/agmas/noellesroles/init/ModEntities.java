@@ -176,7 +176,20 @@ public class ModEntities {
                     .build());
 
     /**
-     * 操纵师本体实体 - 操纵师使用操控技能时生成的本体
+     * 咸鱼假尸体实体 - 咸鱼晒咸鱼技能时生成的假尸体
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<SaltedFishBodyEntity> SALTED_FISH_BODY = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("salted_fish_body"),
+            FabricEntityTypeBuilder.<SaltedFishBodyEntity>create(MobCategory.MISC, SaltedFishBodyEntity::new)
+                    .dimensions(EntityDimensions.fixed(1.0F, 0.25F))
+                    .trackRangeBlocks(128)
+                    .trackedUpdateRate(2)
+                    .build());
+
+    /**
+     * 宿命的罪人假尸体实体 - 罪人死亡时替换的尸体
      */
     @SuppressWarnings("deprecation")
     public static final EntityType<DoomedSinnerBodyEntity> DOOMED_SINNER_BODY = Registry.register(
@@ -373,6 +386,8 @@ public class ModEntities {
         FabricDefaultAttributeRegistry.register(WHEELCHAIR, WheelchairEntity.createAttributes());
         // 注册傀儡本体实体属性（LivingEntity 必须注册属性才能生成）
         FabricDefaultAttributeRegistry.register(PUPPETEER_BODY, LivingEntity.createLivingAttributes());
+        FabricDefaultAttributeRegistry.register(SALTED_FISH_BODY,
+                io.wifi.starrailexpress.content.entity.PlayerBodyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(DOOMED_SINNER_BODY,
                 io.wifi.starrailexpress.content.entity.PlayerBodyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(PIGEON, PigeonEntity.createAttributes());

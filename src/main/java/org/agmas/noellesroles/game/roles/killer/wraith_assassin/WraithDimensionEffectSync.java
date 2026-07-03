@@ -1,4 +1,4 @@
-package org.agmas.noellesroles.init;
+package org.agmas.noellesroles.game.roles.killer.wraith_assassin;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.Holder;
@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.HashMap;
 import java.util.List;

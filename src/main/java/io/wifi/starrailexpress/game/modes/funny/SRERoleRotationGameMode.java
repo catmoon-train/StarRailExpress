@@ -17,7 +17,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.network.CloseUiPayload;
-import io.wifi.starrailexpress.network.RoleRotationSyncS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -111,16 +110,15 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
     }
 
     private void sendRotationGuiToAllPlayers(ServerLevel serverWorld) {
+        // 仅发送关闭UI包打开轮选GUI（实际数据通过 CCA sync 同步，不再发送重复的 RoleRotationSyncS2CPacket）
         for (ServerPlayer player : serverWorld.players()) {
-            RoleRotationSyncS2CPacket.sendToPlayer(player);
+            ServerPlayNetworking.send(player, new CloseUiPayload());
         }
     }
 
     private void broadcastRotationState(ServerLevel serverWorld) {
         for (ServerPlayer player : serverWorld.players()) {
-            RoleRotationSyncS2CPacket.sendToPlayer(player);
-            // 打开GUI
-            ServerPlayNetworking.send(player, new CloseUiPayload()); // 先关闭可能存在的UI
+            ServerPlayNetworking.send(player, new CloseUiPayload());
         }
     }
 

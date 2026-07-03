@@ -197,7 +197,9 @@ public final class PlayerEconomyManager {
     private static void onDisconnect(ServerPlayer player) {
         Entry entry = ENTRIES.get(player.getUUID());
         if (entry != null) {
-            flushBlocking(player.getUUID());
+            // Use async flush to avoid blocking the network thread.
+            // Final data is guaranteed by SERVER_STOPPING → flushAllBlocking.
+            flushAsync(player, entry);
             ENTRIES.remove(player.getUUID(), entry);
         }
     }

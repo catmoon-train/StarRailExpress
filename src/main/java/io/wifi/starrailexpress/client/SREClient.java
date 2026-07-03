@@ -92,6 +92,7 @@ import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Display;
@@ -129,6 +130,7 @@ public class SREClient implements ClientModInitializer {
     public static HPManager handParticleManager;
     public static Map<Player, Vec3> particleMap;
     public static Map<UUID, Integer> cachedHighLightMap = new HashMap<>();
+    private static boolean previousMyTurn = false;
     private static boolean prevGameRunning;
     public static SREGameWorldComponent gameComponent;
     public static WorldModifierComponent modifierComponent;
@@ -1033,9 +1035,26 @@ public class SREClient implements ClientModInitializer {
                 }
             }
 
+            // 职业轮选GUI - 综合管理：声音、关闭、重新打开
+            boolean currentMyTurn = RoleRotationCache.getWasMyTurn();
+            boolean isRotationActive = RoleRotationCache.canReOpen();
+
+            // 检测轮到自己选职业的音效
+            if (!previousMyTurn && currentMyTurn && client.player != null) {
+                client.player.playSound(SoundEvents.VILLAGER_YES, 1.0f, 1.0f);
+            }
+            previousMyTurn = currentMyTurn;
+
+            // 轮选结束，关闭界面
+            if (!isRotationActive) {
+                if (client.screen instanceof RoleRotationScreen) {
+                    client.setScreen(null);
+                }
+            }
+
             // 职业轮选GUI - 若无UI则5tick强制打开一次
             if (client.screen == null && client.level != null && client.level.getGameTime() % 5 == 0
-                    && RoleRotationCache.canReOpen()) {
+                    && isRotationActive) {
                 // 排除职业介绍页面，查看职业介绍时不应该强制跳转回轮选页面
                 boolean isViewingRoleIntro = client.screen instanceof org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
                 if (!isViewingRoleIntro && (client.screen == null || !(client.screen instanceof RoleRotationScreen))) {

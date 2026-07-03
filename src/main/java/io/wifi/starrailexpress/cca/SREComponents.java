@@ -80,7 +80,7 @@ public class SREComponents
                 .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)
                 .end(CustomRoleGameModeTeamsPlayerComponent::new);
         registry.beginRegistration(Player.class, RoleRotationPlayerComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
                 .end(RoleRotationPlayerComponent::new);
         registry.beginRegistration(Player.class, SREPlayerDamageTrackerComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerDamageTrackerComponent::new);

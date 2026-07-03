@@ -23,20 +23,48 @@ public final class AllowedHashConfigFiles {
 	private static final Path RESOURCE_PACK_HASH_DIR = HASH_DIR.resolve("resourcepacks");
 	private static final Path SHADER_PACK_HASH_DIR = HASH_DIR.resolve("shaderpacks");
 
+	// Cache hash results to avoid repeated synchronous file I/O on the server thread
+	// during mod whitelist verification for every player join.
+	private static volatile Set<String> cachedModHashes;
+	private static volatile Set<String> cachedResourcePackHashes;
+	private static volatile Set<String> cachedShaderPackHashes;
+	private static volatile long lastLoadTime = 0L;
+	private static final long CACHE_TTL_MS = 60_000L; // 60 seconds
+
 	private AllowedHashConfigFiles() {
 		throw new AssertionError("No instances allowed");
 	}
 
 	public static Set<String> loadStarRailExpressHashes() {
-		return loadHashes(MOD_HASH_DIR);
+		if (shouldReload()) {
+			synchronized (AllowedHashConfigFiles.class) {
+				if (shouldReload()) {
+					cachedModHashes = loadHashes(MOD_HASH_DIR);
+					cachedResourcePackHashes = loadHashes(RESOURCE_PACK_HASH_DIR);
+					cachedShaderPackHashes = loadHashes(SHADER_PACK_HASH_DIR);
+					lastLoadTime = System.currentTimeMillis();
+				}
+			}
+		}
+		return cachedModHashes != null ? cachedModHashes : Set.of();
 	}
 
 	public static Set<String> loadResourcePackHashes() {
-		return loadHashes(RESOURCE_PACK_HASH_DIR);
+		if (shouldReload()) {
+			loadStarRailExpressHashes(); // triggers full reload if stale
+		}
+		return cachedResourcePackHashes != null ? cachedResourcePackHashes : Set.of();
 	}
 
 	public static Set<String> loadShaderPackHashes() {
-		return loadHashes(SHADER_PACK_HASH_DIR);
+		if (shouldReload()) {
+			loadStarRailExpressHashes(); // triggers full reload if stale
+		}
+		return cachedShaderPackHashes != null ? cachedShaderPackHashes : Set.of();
+	}
+
+	private static boolean shouldReload() {
+		return cachedModHashes == null || System.currentTimeMillis() - lastLoadTime > CACHE_TTL_MS;
 	}
 
 	public static void ensureFiles() {

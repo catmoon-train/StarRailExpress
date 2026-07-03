@@ -22,6 +22,8 @@ import org.agmas.noellesroles.component.GhostStateComponent;
 import org.agmas.noellesroles.content.effects.NoCollideEffect;
 import org.agmas.noellesroles.content.effects.SimpleMobEffect;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistBackworldEffectSync;
+import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithDimensionEffectSync;
 
 public class ModEffects {
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
@@ -435,8 +437,8 @@ public class ModEffects {
         org.agmas.noellesroles.init.FootstepVanishEffectSync.init();
         // 把怀旧者“里世界标记”效果同步给所有客户端，否则其它客户端查不到怀旧者的里世界状态，
         // 导致手持物品仍显示 / 仍能被杀手透视。
-        org.agmas.noellesroles.init.NostalgistBackworldEffectSync.init();
-        org.agmas.noellesroles.init.WraithDimensionEffectSync.init();
+        NostalgistBackworldEffectSync.init();
+        WraithDimensionEffectSync.init();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (pierceDeath) {
                 pierceDeath = false;

@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
 import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,7 +19,7 @@ public abstract class SaltedFishBodyRenderMixin {
             at = @At("HEAD"), cancellable = true)
     private void noellesroles$setupSaltedFishRotations(PlayerBodyEntity body, PoseStack poseStack,
             float animationProgress, float bodyYaw, float tickDelta, float scale, CallbackInfo ci) {
-        if (!SaltedFishPlayerComponent.isSaltedFishFakeBody(body)) {
+        if (!(body instanceof SaltedFishBodyEntity)) {
             return;
         }
         Minecraft client = Minecraft.getInstance();

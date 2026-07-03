@@ -64,7 +64,7 @@ public class RoleRotationPlayerComponent implements RoleComponent {
     public void setSelectedRoleId(ResourceLocation roleId) {
         this.selectedRoleId = roleId;
         this.hasSelected = true;
-        sync();
+        // sync removed: client never reads these fields (UI reads from RoleRotationWorldComponent)
     }
 
     public boolean isWaiting() {
@@ -73,7 +73,7 @@ public class RoleRotationPlayerComponent implements RoleComponent {
 
     public void setWaiting(boolean waiting) {
         this.isWaiting = waiting;
-        sync();
+        // sync removed: client never reads these fields
     }
 
     public void sync() {
@@ -92,20 +92,12 @@ public class RoleRotationPlayerComponent implements RoleComponent {
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putBoolean("hasSelected", hasSelected);
-        tag.putBoolean("isWaiting", isWaiting);
-        if (selectedRoleId != null) {
-            tag.putString("selectedRole", selectedRoleId.toString());
-        }
+        // 客户端不使用此组件数据（UI 从 RoleRotationWorldComponent 读取），仅保留最小标签满足 CCA 协议
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        hasSelected = tag.getBoolean("hasSelected");
-        isWaiting = tag.getBoolean("isWaiting");
-        if (tag.contains("selectedRole")) {
-            selectedRoleId = ResourceLocation.parse(tag.getString("selectedRole"));
-        }
+        // 客户端不使用此数据，无需反序列化
     }
 
     @Override

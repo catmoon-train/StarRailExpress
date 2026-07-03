@@ -14,15 +14,36 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Storage module for player mod information
- * Tracks mod lists and their SHA256 hashes for each player session
+ * Tracks mod lists and their SHA256 hashes for each player session.
+ * <p>
+ * All file I/O is offloaded to a background thread to avoid stalling
+ * the server network thread during mod whitelist verification.
  */
 public class PlayerModInfoStorage {
 	private static final Path STORAGE_DIR = FabricLoader.getInstance().getConfigDir().resolve("mod_whitelist/player_mods");
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+	/**
+	 * Shared single-thread executor for offloading file I/O from the server thread.
+	 * Uses a single daemon thread to serialize writes and avoid file corruption.
+	 */
+	static final ExecutorService STORAGE_EXECUTOR = Executors.newSingleThreadExecutor(new ThreadFactory() {
+		private int index = 1;
+
+		@Override
+		public Thread newThread(Runnable runnable) {
+			Thread thread = new Thread(runnable, "mw-storage-" + index++);
+			thread.setDaemon(true);
+			return thread;
+		}
+	});
 
 	static {
 		try {
@@ -33,7 +54,7 @@ public class PlayerModInfoStorage {
 	}
 
 	/**
-	 * Stores mod information for a player with network details
+	 * Stores mod information for a player with network details (async — offloaded to background thread).
 	 *
 	 * @param playerUUID  the UUID of the player
 	 * @param playerName  the name of the player
@@ -42,6 +63,11 @@ public class PlayerModInfoStorage {
 	 * @param macAddress  the player's MAC address
 	 */
 	public static void storePlayerMods(UUID playerUUID, String playerName, List<ModInfo> mods, String ipAddress, String macAddress) {
+		// Offload blocking file I/O to background thread to avoid stalling server thread
+		STORAGE_EXECUTOR.execute(() -> storePlayerModsSync(playerUUID, playerName, mods, ipAddress, macAddress));
+	}
+
+	private static void storePlayerModsSync(UUID playerUUID, String playerName, List<ModInfo> mods, String ipAddress, String macAddress) {
 		try {
 			// Ensure directory exists before writing
 			Files.createDirectories(STORAGE_DIR);

@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
@@ -58,7 +59,11 @@ public class EmbalmerPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void serverTick() {
         if (!isActive()) return;
-        if (masqueradeCooldown > 0) { masqueradeCooldown--; sync(); }
+        if (masqueradeCooldown > 0) {
+            masqueradeCooldown--;
+            // 每秒同步一次（20 tick），冷却归零时强制同步
+            if (masqueradeCooldown % 20 == 0 || masqueradeCooldown == 0) sync();
+        }
         if (masqueradeActive && masqueradeTicksLeft > 0) {
             masqueradeTicksLeft--;
             if (masqueradeTicksLeft <= 0) {
@@ -72,49 +77,34 @@ public class EmbalmerPlayerComponent implements RoleComponent, ServerTickingComp
                     }
                 }
             }
-            sync();
+            // 每秒同步一次，状态结束时强制同步
+            if (masqueradeTicksLeft % 20 == 0 || masqueradeTicksLeft <= 0) sync();
         }
+    }
+
+    @Override
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        buf.writeVarInt(masqueradeCooldown);
+        buf.writeBoolean(masqueradeActive);
+        buf.writeVarInt(masqueradeTicksLeft);
+        // skinSwaps/voicePitches 通过 EmbalmerSkinSwapS2CPacket → ClientEmbalmerState 同步，无需经 CCA 重复发送
+    }
+
+    @Override
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        masqueradeCooldown = buf.readVarInt();
+        masqueradeActive = buf.readBoolean();
+        masqueradeTicksLeft = buf.readVarInt();
     }
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
-        tag.putInt("masqCd", masqueradeCooldown);
-        tag.putBoolean("masqActive", masqueradeActive);
-        tag.putInt("masqLeft", masqueradeTicksLeft);
-        // Write maps as ListTag of compounds
-        net.minecraft.nbt.ListTag swaps = new net.minecraft.nbt.ListTag();
-        for (var e : skinSwaps.entrySet()) {
-            CompoundTag c = new CompoundTag();
-            c.putString("k", e.getKey().toString());
-            c.putString("v", e.getValue().toString());
-            swaps.add(c);
-        }
-        tag.put("swaps", swaps);
-        net.minecraft.nbt.ListTag pitches = new net.minecraft.nbt.ListTag();
-        for (var e : voicePitches.entrySet()) {
-            CompoundTag c = new CompoundTag();
-            c.putString("k", e.getKey().toString());
-            c.putFloat("v", e.getValue());
-            pitches.add(c);
-        }
-        tag.put("pitches", pitches);
+        // 使用 writeSyncPacket/applySyncPacket 紧凑二进制格式
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
-        masqueradeCooldown = tag.getInt("masqCd");
-        masqueradeActive = tag.getBoolean("masqActive");
-        masqueradeTicksLeft = tag.getInt("masqLeft");
-        skinSwaps.clear();
-        for (var t : tag.getList("swaps", 10)) {
-            CompoundTag c = (CompoundTag) t;
-            skinSwaps.put(UUID.fromString(c.getString("k")), UUID.fromString(c.getString("v")));
-        }
-        voicePitches.clear();
-        for (var t : tag.getList("pitches", 10)) {
-            CompoundTag c = (CompoundTag) t;
-            voicePitches.put(UUID.fromString(c.getString("k")), c.getFloat("v"));
-        }
+        // 使用 writeSyncPacket/applySyncPacket 紧凑二进制格式
     }
 
     /** Get voice pitch for a player during active masquerade. Returns 1.0F if not active or not found. */

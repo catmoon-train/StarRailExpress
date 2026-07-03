@@ -77,6 +77,7 @@ import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class ModPacketsReciever {
   public static void registerPackets() {
@@ -311,19 +312,14 @@ public class ModPacketsReciever {
     });
     ServerPlayNetworking.registerGlobalReceiver(ChefCookC2SPacket.ID, (payload, context) -> {
       final var player = context.player();
-      int foodT = SREItemUtils.clearItem(player, (food) -> {
-        if (food.getItem() instanceof CocktailItem)
-          return false;
-        if (food.has(ModDataComponentTypes.COOKED))
-          return false;
-        return food.has(DataComponents.FOOD);
-      }, 1);
-      int stuffT = SREItemUtils.clearItem(player, ModItems.FOOD_STUFF, 2);
-      if (!(foodT >= 1 && stuffT >= 2)) {
+      if (SREItemUtils.countItem(player, ModPacketsReciever::isChefCookableFood) < 1
+          || SREItemUtils.countItem(player, ModItems.FOOD_STUFF) < 2) {
         player.displayClientMessage(Component.translatable("screen.noellesroles.chef.not_enough_food_stuff")
             .withStyle(ChatFormatting.RED), true);
         return;
       }
+      shrinkMatchingItems(player, ModPacketsReciever::isChefCookableFood, 1);
+      shrinkMatchingItems(player, foodStuff -> foodStuff.is(ModItems.FOOD_STUFF), 2);
       var cooked_food = ModItems.COOKED_FOOD.getDefaultInstance();
       cooked_food.set(ModDataComponentTypes.COOKED, ModDataComponentTypes.cookedFood(payload.cookInfo()));
       ChefFoodItem.randomModel(cooked_food);
@@ -1494,6 +1490,34 @@ public class ModPacketsReciever {
                 Component.translatable("message.noellesroles.skincrawler.no_body").withStyle(ChatFormatting.RED), true);
           }
         });
+  }
+
+  private static boolean isChefCookableFood(ItemStack food) {
+    if (food.is(ModItems.FOOD_STUFF))
+      return false;
+    if (food.getItem() instanceof CocktailItem)
+      return false;
+    if (food.has(ModDataComponentTypes.COOKED))
+      return false;
+    return food.has(DataComponents.FOOD);
+  }
+
+  private static int shrinkMatchingItems(Player player, Predicate<ItemStack> predicate, int count) {
+    int remaining = count;
+    for (int i = 0; i < player.getInventory().getContainerSize() && remaining > 0; i++) {
+      ItemStack stack = player.getInventory().getItem(i);
+      if (stack.isEmpty() || !predicate.test(stack))
+        continue;
+      int toShrink = Math.min(remaining, stack.getCount());
+      stack.shrink(toShrink);
+      remaining -= toShrink;
+      if (stack.isEmpty()) {
+        player.getInventory().setItem(i, ItemStack.EMPTY);
+      }
+    }
+    player.containerMenu.broadcastChanges();
+    player.inventoryMenu.slotsChanged(player.getInventory());
+    return count - remaining;
   }
 
   private static void sendLotteryResult(ServerPlayer player, BlockPos blockPos, boolean success, String messageKey,

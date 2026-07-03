@@ -37,7 +37,9 @@ public class ViolationRecordStorage {
 	}
 
 	/**
-	 * Records a player violation with detailed information
+	 * Records a player violation with detailed information.
+	 * File I/O is offloaded to the shared storage executor to avoid
+	 * stalling the server network thread.
 	 *
 	 * @param playerId    the player's name/ID
 	 * @param playerUUID  the player's UUID
@@ -46,6 +48,12 @@ public class ViolationRecordStorage {
 	 * @param violations  list of violated mods with their mismatch types
 	 */
 	public static void recordViolation(String playerId, UUID playerUUID, String ipAddress, String macAddress, 
+									 List<Pair<String, MismatchType>> violations) {
+		// Offload blocking file I/O to shared background thread
+		PlayerModInfoStorage.STORAGE_EXECUTOR.execute(() -> recordViolationSync(playerId, playerUUID, ipAddress, macAddress, violations));
+	}
+
+	private static void recordViolationSync(String playerId, UUID playerUUID, String ipAddress, String macAddress,
 									 List<Pair<String, MismatchType>> violations) {
 		try {
 			// Ensure directory exists

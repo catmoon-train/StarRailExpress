@@ -187,4 +187,12 @@ public class RoleRotationCache {
         totalPlayers = total;
         confirmCountdown = countdown;
     }
+
+    public static void setRemainingTime(int time) {
+        remainingTime = time;
+    }
+
+    public static void setWasMyTurn(boolean turn) {
+        wasMyTurn = turn;
+    }
 }

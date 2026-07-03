@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -287,17 +288,27 @@ public class BoxerPlayerComponent implements RoleComponent, ServerTickingCompone
     // ==================== NBT 序列化 ====================
     
     @Override
-    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("cooldown", this.cooldown);
-        tag.putInt("invulnerabilityTicks", this.invulnerabilityTicks);
-        tag.putBoolean("isInvulnerable", this.isInvulnerable);
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        buf.writeVarInt(this.cooldown);
+        buf.writeVarInt(this.invulnerabilityTicks);
+        buf.writeBoolean(this.isInvulnerable);
+    }
+
+    @Override
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        this.cooldown = buf.readVarInt();
+        this.invulnerabilityTicks = buf.readVarInt();
+        this.isInvulnerable = buf.readBoolean();
     }
     
     @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 使用 writeSyncPacket/applySyncPacket 紧凑二进制格式
+    }
+
+    @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
-        this.invulnerabilityTicks = tag.contains("invulnerabilityTicks") ? tag.getInt("invulnerabilityTicks") : 0;
-        this.isInvulnerable = tag.contains("isInvulnerable") && tag.getBoolean("isInvulnerable");
+        // 使用 writeSyncPacket/applySyncPacket 紧凑二进制格式
     }
 
     

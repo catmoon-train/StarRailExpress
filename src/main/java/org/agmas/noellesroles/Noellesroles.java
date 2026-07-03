@@ -20,6 +20,7 @@ import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.game.presets.Preset;
 import org.agmas.noellesroles.init.*;
+import org.agmas.noellesroles.init.ModEventsRegister;
 import org.agmas.noellesroles.register.NRCommandRegister;
 import org.agmas.noellesroles.register.NREventRegister;
 import org.agmas.noellesroles.role.ModRoles;

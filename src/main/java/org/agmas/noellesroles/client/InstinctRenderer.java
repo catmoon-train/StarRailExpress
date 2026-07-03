@@ -25,6 +25,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
 import org.agmas.noellesroles.content.item.SignedPaperItem;
 import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
@@ -72,8 +73,7 @@ public class InstinctRenderer {
             if (!isKillerTeam(SREClient.gameComponent.getRole(self))) {
                 return -1;
             }
-            if (target instanceof PlayerBodyEntity body
-                    && SaltedFishPlayerComponent.isSaltedFishFakeBody(body)) {
+            if (target instanceof SaltedFishBodyEntity) {
                 return -2;
             }
             if (target instanceof Player targetPlayer) {

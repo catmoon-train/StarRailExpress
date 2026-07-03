@@ -388,6 +388,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.renderer.MorphlingKnifeDummyRenderer::new);
         EntityRendererRegistry.register(ModEntities.DOOMED_SINNER_BODY,
                 context -> new io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer<>(context, false));
+        EntityRendererRegistry.register(ModEntities.SALTED_FISH_BODY,
+                context -> new io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer<>(context, false));
 
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);

@@ -1,4 +1,4 @@
-package org.agmas.noellesroles.init;
+package org.agmas.noellesroles.game.roles.killer.nostalgist;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
@@ -6,6 +6,7 @@ import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
+import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.HashMap;
 import java.util.List;

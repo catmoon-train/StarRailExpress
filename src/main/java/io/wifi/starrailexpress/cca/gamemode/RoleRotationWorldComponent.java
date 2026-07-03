@@ -20,8 +20,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -989,27 +987,95 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
 
     @Override
     public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
-        CompoundTag tag = new CompoundTag();
-        writeToSyncNbt(tag, buf.registryAccess());
-        buf.writeNbt(tag);
+        // 基础状态字段
+        buf.writeBoolean(isSelecting);
+        buf.writeVarInt(currentRotationIndex);
+        buf.writeVarInt(totalPlayerCount);
+        buf.writeVarInt(confirmCountdown);
+        buf.writeVarInt(selectionTimeLimit);
+        buf.writeLong(currentPlayerSelectionStart);
+
+        // 玩家轮选序号 (UUID -> index)
+        buf.writeVarInt(playerRotationOrder.size());
+        for (Map.Entry<UUID, Integer> entry : playerRotationOrder.entrySet()) {
+            buf.writeUUID(entry.getKey());
+            buf.writeVarInt(entry.getValue());
+        }
+
+        // 已选职业 (UUID -> role identifier string)
+        buf.writeVarInt(selectedRoles.size());
+        for (Map.Entry<UUID, SRERole> entry : selectedRoles.entrySet()) {
+            buf.writeUUID(entry.getKey());
+            buf.writeUtf(entry.getValue().identifier().toString());
+        }
+
+        // 当前候选职业
+        buf.writeVarInt(currentCandidates.size());
+        for (SRERole role : currentCandidates) {
+            buf.writeUtf(role.identifier().toString());
+        }
+
+        // 随机选择玩家集合
+        buf.writeVarInt(randomChoosers.size());
+        for (UUID uuid : randomChoosers) {
+            buf.writeUUID(uuid);
+        }
     }
 
     @Override
     @CheckEnvironment(EnvType.CLIENT)
     public void applySyncPacket(RegistryFriendlyByteBuf buf) {
-        CompoundTag tag = buf.readNbt();
-        if (tag != null) {
-            readFromSyncNbt(tag, buf.registryAccess());
+        isSelecting = buf.readBoolean();
+        currentRotationIndex = buf.readVarInt();
+        totalPlayerCount = buf.readVarInt();
+        confirmCountdown = buf.readVarInt();
+        selectionTimeLimit = buf.readVarInt();
+        currentPlayerSelectionStart = buf.readLong();
 
-            // 同时更新 RoleRotationCache
-            updateRoleRotationCache();
+        playerRotationOrder.clear();
+        int orderSize = buf.readVarInt();
+        for (int i = 0; i < orderSize; i++) {
+            playerRotationOrder.put(buf.readUUID(), buf.readVarInt());
         }
+
+        selectedRoles.clear();
+        int selectedSize = buf.readVarInt();
+        for (int i = 0; i < selectedSize; i++) {
+            UUID uuid = buf.readUUID();
+            String rolePath = buf.readUtf();
+            SRERole role = TMMRoles.ROLES.get(ResourceLocation.parse(rolePath));
+            if (role != null) {
+                selectedRoles.put(uuid, role);
+            }
+        }
+
+        currentCandidates.clear();
+        int candidatesSize = buf.readVarInt();
+        for (int i = 0; i < candidatesSize; i++) {
+            String rolePath = buf.readUtf();
+            SRERole role = TMMRoles.ROLES.get(ResourceLocation.parse(rolePath));
+            if (role != null) {
+                currentCandidates.add(role);
+            }
+        }
+
+        randomChoosers.clear();
+        int randomSize = buf.readVarInt();
+        for (int i = 0; i < randomSize; i++) {
+            randomChoosers.add(buf.readUUID());
+        }
+
+        // 更新客户端缓存
+        updateRoleRotationCache();
     }
 
     @Environment(EnvType.CLIENT)
     private void updateRoleRotationCache() {
         // 更新基础状态
         RoleRotationCache.updateBaseState(isSelecting, currentRotationIndex, totalPlayerCount, confirmCountdown);
+
+        // 更新剩余时间（使用 selectionTimeLimit 作为剩余时间，与原 RoleRotationSyncS2CPacket 行为一致）
+        RoleRotationCache.setRemainingTime(selectionTimeLimit);
 
         // 更新 rotationOrder
         HashMap<UUID, Integer> orderMap = new HashMap<>();
@@ -1037,6 +1103,8 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         if (mc.player != null) {
             int myIndex = playerRotationOrder.getOrDefault(mc.player.getUUID(), -1);
             RoleRotationCache.setMyRotationIndex(myIndex);
+            // 更新 wasMyTurn 状态（用于客户端声音和 UI 逻辑）
+            RoleRotationCache.setWasMyTurn(isSelecting && RoleRotationCache.isMyTurn(mc.player.getUUID()));
         }
 
         // 更新随机选择玩家
@@ -1053,49 +1121,7 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         tag.putInt("currentIndex", currentRotationIndex);
         tag.putInt("totalPlayers", totalPlayerCount);
         tag.putInt("confirmCountdown", confirmCountdown);
-        tag.putInt("finalPhaseThreshold", finalPhaseThreshold);
-
-        // 卡片使用统计
-        tag.putInt("killerCardCount", cardUsedCount.getOrDefault(4, 0));
-        tag.putInt("neutralCardCount", cardUsedCount.getOrDefault(2, 0));
-        tag.putInt("civilianCardCount", cardUsedCount.getOrDefault(1, 0));
-        tag.putInt("killerCardMax", cardMaxPerType.getOrDefault(4, 0));
-        tag.putInt("neutralCardMax", cardMaxPerType.getOrDefault(2, 0));
-        tag.putInt("civilianCardMax", cardMaxPerType.getOrDefault(1, 0));
-
-        // 序列化玩家序号
-        ListTag orderList = new ListTag();
-        for (Map.Entry<UUID, Integer> entry : playerRotationOrder.entrySet()) {
-            CompoundTag playerTag = new CompoundTag();
-            playerTag.putUUID("uuid", entry.getKey());
-            playerTag.putInt("index", entry.getValue());
-            orderList.add(playerTag);
-        }
-        tag.put("rotationOrder", orderList);
-
-        // 序列化已选职业
-        ListTag selectedList = new ListTag();
-        for (Map.Entry<UUID, SRERole> entry : selectedRoles.entrySet()) {
-            CompoundTag selTag = new CompoundTag();
-            selTag.putUUID("uuid", entry.getKey());
-            selTag.putString("role", entry.getValue().identifier().toString());
-            selectedList.add(selTag);
-        }
-        tag.put("selectedRoles", selectedList);
-
-        // 序列化当前候选职业
-        ListTag candidateList = new ListTag();
-        for (SRERole role : currentCandidates) {
-            candidateList.add(StringTag.valueOf(role.identifier().toString()));
-        }
-        tag.put("candidates", candidateList);
-
-        // 序列化随机选择玩家
-        ListTag randomChooserList = new ListTag();
-        for (UUID uuid : randomChoosers) {
-            randomChooserList.add(StringTag.valueOf(uuid.toString()));
-        }
-        tag.put("randomChoosers", randomChooserList);
+        // card tracking 仅服务端使用，不同步
     }
 
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
@@ -1103,61 +1129,5 @@ public class RoleRotationWorldComponent implements AutoSyncedComponent {
         currentRotationIndex = tag.getInt("currentIndex");
         totalPlayerCount = tag.getInt("totalPlayers");
         confirmCountdown = tag.getInt("confirmCountdown");
-        finalPhaseThreshold = tag.getInt("finalPhaseThreshold");
-
-        cardUsedCount.put(4, tag.getInt("killerCardCount"));
-        cardUsedCount.put(2, tag.getInt("neutralCardCount"));
-        cardUsedCount.put(1, tag.getInt("civilianCardCount"));
-        cardMaxPerType.put(4, tag.getInt("killerCardMax"));
-        cardMaxPerType.put(2, tag.getInt("neutralCardMax"));
-        cardMaxPerType.put(1, tag.getInt("civilianCardMax"));
-
-        playerRotationOrder.clear();
-        if (tag.contains("rotationOrder", CompoundTag.TAG_LIST)) {
-            ListTag orderList = tag.getList("rotationOrder", CompoundTag.TAG_COMPOUND);
-            for (int i = 0; i < orderList.size(); i++) {
-                CompoundTag playerTag = orderList.getCompound(i);
-                UUID uuid = playerTag.getUUID("uuid");
-                int index = playerTag.getInt("index");
-                playerRotationOrder.put(uuid, index);
-            }
-        }
-
-        selectedRoles.clear();
-        if (tag.contains("selectedRoles", CompoundTag.TAG_LIST)) {
-            ListTag selectedList = tag.getList("selectedRoles", CompoundTag.TAG_COMPOUND);
-            for (int i = 0; i < selectedList.size(); i++) {
-                CompoundTag selTag = selectedList.getCompound(i);
-                UUID uuid = selTag.getUUID("uuid");
-                String rolePath = selTag.getString("role");
-                SRERole role = TMMRoles.ROLES.get(ResourceLocation.parse(rolePath));
-                if (role != null) {
-                    selectedRoles.put(uuid, role);
-                }
-            }
-        }
-
-        currentCandidates.clear();
-        if (tag.contains("candidates", CompoundTag.TAG_LIST)) {
-            ListTag candidateList = tag.getList("candidates", CompoundTag.TAG_STRING);
-            for (int i = 0; i < candidateList.size(); i++) {
-                String rolePath = candidateList.getString(i);
-                SRERole role = TMMRoles.ROLES.get(ResourceLocation.parse(rolePath));
-                if (role != null) {
-                    currentCandidates.add(role);
-                }
-            }
-        }
-
-        randomChoosers.clear();
-        if (tag.contains("randomChoosers", CompoundTag.TAG_LIST)) {
-            ListTag randomChooserList = tag.getList("randomChoosers", CompoundTag.TAG_STRING);
-            for (int i = 0; i < randomChooserList.size(); i++) {
-                try {
-                    randomChoosers.add(UUID.fromString(randomChooserList.getString(i)));
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
-        }
     }
 }

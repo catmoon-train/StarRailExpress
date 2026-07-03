@@ -9,12 +9,18 @@ import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class for retrieving player network information
- * Includes IP address and MAC address detection
+ * Includes IP address and MAC address detection.
+ * <p>
+ * MAC address lookups are cached per IP since they involve synchronous
+ * {@link NetworkInterface} scans that can stall the server thread.
  */
 public class PlayerNetworkInfoUtil {
+
+	private static final Map<String, String> MAC_CACHE = new ConcurrentHashMap<>();
 
 	/**
 	 * Gets the IP address of a player
@@ -34,7 +40,8 @@ public class PlayerNetworkInfoUtil {
 	}
 
 	/**
-	 * Gets the physical address (MAC address) of the player's network interface
+	 * Gets the physical address (MAC address) of the player's network interface.
+	 * Results are cached per IP to avoid repeated expensive {@link NetworkInterface} scans.
 	 *
 	 * @param player the server player
 	 * @return the MAC address as a string or "unknown" if not available
@@ -47,18 +54,33 @@ public class PlayerNetworkInfoUtil {
 			if (inetAddress == null) {
 				return "unknown";
 			}
-			
-			// Try to get MAC from player's network interface
+
+			String ip = inetAddress.getHostAddress();
+			if (ip == null || ip.isEmpty()) {
+				return "unknown";
+			}
+
+			// Use cached MAC if available for this IP
+			String cached = MAC_CACHE.get(ip);
+			if (cached != null) {
+				return cached;
+			}
+
+			// Try to get MAC from player's network interface (fast path)
 			NetworkInterface networkInterface = NetworkInterface.getByInetAddress(inetAddress);
 			if (networkInterface != null) {
 				byte[] macBytes = networkInterface.getHardwareAddress();
 				if (macBytes != null && macBytes.length > 0) {
-					return bytesToMACAddress(macBytes);
+					String mac = bytesToMACAddress(macBytes);
+					MAC_CACHE.put(ip, mac);
+					return mac;
 				}
 			}
 			
-			// Fallback: try to find any MAC
-			return tryFindMACAddress();
+			// Fallback: try to find any MAC (cached to avoid repeated slow scans)
+			String mac = tryFindMACAddress();
+			MAC_CACHE.put(ip, mac);
+			return mac;
 		} catch (Exception e) {
 			MWLogger.LOGGER.debug("Failed to get player MAC address", e);
 			return "unknown";
@@ -66,7 +88,8 @@ public class PlayerNetworkInfoUtil {
 	}
 
 	/**
-	 * Attempts to find any MAC address from available network interfaces
+	 * Attempts to find any MAC address from available network interfaces.
+	 * This is a potentially slow operation — results are cached by caller.
 	 *
 	 * @return MAC address string or "unknown"
 	 */

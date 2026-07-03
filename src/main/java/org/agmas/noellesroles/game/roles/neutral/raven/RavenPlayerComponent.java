@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -377,28 +378,39 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     @Override
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        buf.writeVarInt(charges);
+        buf.writeVarInt(cooldownTicks);
+        buf.writeVarInt(huntTicks);
+        buf.writeVarInt(kills);
+        buf.writeVarInt(requiredKills);
+        buf.writeFloat(moodProgress);
+        buf.writeFloat(moodProgressThreshold);
+        boolean hasTarget = targetRoleId != null;
+        buf.writeBoolean(hasTarget);
+        if (hasTarget) buf.writeUtf(targetRoleId.toString());
+    }
+
+    @Override
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        charges = buf.readVarInt();
+        cooldownTicks = buf.readVarInt();
+        huntTicks = buf.readVarInt();
+        kills = buf.readVarInt();
+        requiredKills = buf.readVarInt();
+        moodProgress = buf.readFloat();
+        moodProgressThreshold = buf.readFloat();
+        targetRoleId = buf.readBoolean() ? ResourceLocation.tryParse(buf.readUtf()) : null;
+    }
+
+    @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
-        tag.putInt("Charges", charges);
-        tag.putInt("Cooldown", cooldownTicks);
-        tag.putInt("Hunt", huntTicks);
-        tag.putInt("Kills", kills);
-        tag.putInt("RequiredKills", requiredKills);
-        tag.putFloat("Mood", moodProgress);
-        tag.putFloat("MoodThreshold", moodProgressThreshold);
-        if (targetRoleId != null)
-            tag.putString("TargetRole", targetRoleId.toString());
+        // 使用 writeSyncPacket/applySyncPacket 紧凑二进制格式
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
-        charges = tag.getInt("Charges");
-        cooldownTicks = tag.getInt("Cooldown");
-        huntTicks = tag.getInt("Hunt");
-        kills = tag.getInt("Kills");
-        requiredKills = tag.getInt("RequiredKills");
-        moodProgress = tag.getFloat("Mood");
-        moodProgressThreshold = tag.contains("MoodThreshold") ? tag.getFloat("MoodThreshold") : 1f;
-        targetRoleId = tag.contains("TargetRole") ? ResourceLocation.tryParse(tag.getString("TargetRole")) : null;
+        // 使用 writeSyncPacket/applySyncPacket 紧凑二进制格式
     }
 
     @Override
