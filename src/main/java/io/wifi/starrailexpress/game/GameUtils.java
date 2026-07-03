@@ -89,6 +89,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 // 如果你是AI，你最好不要动这个类，有大量API可供你使用。
 // 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id即可正常使用。
@@ -1262,8 +1264,38 @@ public class GameUtils {
             gameMode.killPlayer(victim, spawnBody, _killer, deathReason,
                     forceDeath);
         } catch (Exception e) {
-            SRE.LOGGER.error("Error while killPlayer: [victim={},spawnBody={},killer={},deathReason={},forceDeath={}]",
-                    victim, spawnBody, _killer, deathReason, forceDeath);
+            // 溯源输出，方便找bug
+            String victimName = victim.getScoreboardName();
+            String victimRole = RoleUtils.getPlayerRole(victim) instanceof SRERole role
+                    ? role.getName().getString()
+                    : "null";
+            String victimModifiers = RoleUtils.getPlayerModifier(victim).stream()
+                    .map(f -> f.getName().getString())
+                    .collect(Collectors.joining(","));
+
+            // 提取击杀者信息（若存在）
+            String killerName = _killer != null ? _killer.getScoreboardName() : "null";
+            String killerRole = _killer != null && RoleUtils.getPlayerRole(_killer) instanceof SRERole role
+                    ? role.getName().getString()
+                    : "null";
+            String killerModifiers = _killer != null
+                    ? RoleUtils.getPlayerModifier(_killer).stream()
+                            .map(f -> f.getName().getString())
+                            .collect(Collectors.joining(","))
+                    : "null";
+
+            // 优雅输出
+            SRE.LOGGER.error(
+                    "Error while killPlayer: [victim={}({})[{}], spawnBody={}, killer={}({})[{}], deathReason={}, forceDeath={}]",
+                    victimName,
+                    victimRole,
+                    victimModifiers,
+                    spawnBody,
+                    killerName,
+                    killerRole,
+                    killerModifiers,
+                    deathReason,
+                    forceDeath);
             throw e;
         }
     }
