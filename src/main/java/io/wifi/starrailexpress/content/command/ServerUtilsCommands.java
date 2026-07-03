@@ -35,7 +35,7 @@ public class ServerUtilsCommands {
         .executes((ctx) -> showPlayerPermission(ctx, ctx.getSource().getPlayerOrException().getGameProfile())));
     dispatcher.register(Commands.literal("sre:server")
         .requires(p -> p.hasPermission(2))
-        .executes(ServerUtilsCommands::listServerInfo)
+        .executes((ctx) -> listServerInfo(ctx, false))
         .then(Commands.literal("permission")
             .then(Commands.argument("player", GameProfileArgument.gameProfile())
                 .then(Commands.literal("get")
@@ -66,7 +66,7 @@ public class ServerUtilsCommands {
                             }))))))
         .then(Commands.literal("motd")
             .then(Commands.literal("get")
-                .executes(ServerUtilsCommands::listServerInfo))
+                .executes((ctx) -> listServerInfo(ctx, true)))
             .then(Commands.literal("reset")
                 .requires(p -> p.hasPermission(3))
                 .executes((ctx) -> setCustomMotd(ctx, null)))
@@ -168,7 +168,7 @@ public class ServerUtilsCommands {
     return permissionLevel;
   }
 
-  public static int listServerInfo(CommandContext<CommandSourceStack> context) {
+  public static int listServerInfo(CommandContext<CommandSourceStack> context, boolean onlyMotd) {
 
     CommandSourceStack source = context.getSource();
     MinecraftServer server = source.getServer();
@@ -177,21 +177,26 @@ public class ServerUtilsCommands {
       source.sendFailure(Component.translatable("message.serverutils.server_not_available"));
       return 0;
     }
-
     int maxPlayers = server.getMaxPlayers();
     int currentPlayers = server.getPlayerList().getPlayers().size();
     Component motd = Component.literal("").withStyle(ChatFormatting.WHITE).append(CustomMotdManager.getMotd());
     Component customMotdPattern = Component.literal("").withStyle(ChatFormatting.WHITE)
         .append(CustomMotdManager.getCustomMotdPattern());
+    var t = Component.translatable("message.serverutils.info.motd", motd,
+        customMotdPattern,
+        onlyMotd ? Component.translatable("message.serverutils.motd.constant")
+            .withStyle(ChatFormatting.GRAY) : Component.empty())
+        .withStyle(ChatFormatting.YELLOW);
+    if (!onlyMotd) {
+      t = Component
+          .translatable("message.serverutils.info",
+              Component.literal(currentPlayers + "").withStyle(ChatFormatting.WHITE),
+              Component.literal(maxPlayers + "").withStyle(ChatFormatting.GREEN), t)
+          .withStyle(ChatFormatting.GOLD);
+    }
+    final var result = t;
     source.sendSuccess(
-        () -> Component
-            .translatable("message.serverutils.info",
-                Component.literal(currentPlayers + "").withStyle(ChatFormatting.WHITE),
-                Component.literal(maxPlayers + "").withStyle(ChatFormatting.GREEN), motd,
-                customMotdPattern,
-                Component.translatable("message.serverutils.motd.constant")
-                    .withStyle(ChatFormatting.AQUA))
-            .withStyle(ChatFormatting.GOLD),
+        () -> result,
         false);
 
     return 1;

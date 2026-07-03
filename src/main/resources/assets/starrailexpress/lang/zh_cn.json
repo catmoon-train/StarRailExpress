@@ -2293,8 +2293,9 @@
     "message.serverutils.permission.set.failed": "设置玩家 %s 的权限失败：%s",
     "message.serverutils.permission.set.failed.singleplayer": "它是单人游戏的主机，权限为最高4，无法修改权限。",
     "message.serverutils.permission.set.failed.permission_low": "执行者权限等级 %s 不能低于新设置权限等级 %s。",
-    "message.serverutils.info": "服务器信息：\n人数：%s / %s\nMOTD：\n* 当前：\n---\n%s\n* 自定义样板：\n---\n%s\n===\n%s",
+    "message.serverutils.info": "服务器信息：\n人数：%s / %s\n%s",
+    "message.serverutils.info.motd": "当前MOTD：\n---\n%s\n---\nMOTD自定义样板：\n---\n%s\n===\n%s",
     "message.serverutils.none": "无自定义MOTD样板",
     "message.serverutils.motd.set": "已设置自定义MOTD为：\n---\n%s\n---",
-    "message.serverutils.motd.constant": "MOTD常量：\n%player_count% 玩家人数；%max_player% 最大玩家数；%sre_packet_version% 列车网络协议版本；%sre_version% 列车版本"
+    "message.serverutils.motd.constant": "MOTD常量：\n%player_count% 玩家人数；\n%max_player% 最大玩家数；\n%sre_packet_version% 列车网络协议版本；\n%sre_version% 列车版本"
 }
