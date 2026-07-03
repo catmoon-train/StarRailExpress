@@ -2577,6 +2577,8 @@
   "message.noellesroles.ghost_eye.domain_deployed": "Eerie Domain deployed!",
   "hud.ghost_eye.ready": "Eerie Domain ready",
   "hud.ghost_eye.cooldown": "Eerie Domain cooldown: %ss",
+  "hud.ghost_eye.scan_countdown": "Ghost Eye scan in %ss",
+  "hud.ghost_eye.scanning": "Scanning... %.1fs left",
   "message.noellesroles.ghost_eye.revolver_received": "You completed two tasks and Ghost Eye · Yang Jian received a revolver!",
   "=============== Jade General 玉将军 ===============": "",
   "announcement.star.role.jade_general": "Jade General",

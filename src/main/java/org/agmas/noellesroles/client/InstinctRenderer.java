@@ -25,6 +25,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
 import org.agmas.noellesroles.content.item.SignedPaperItem;
 import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
@@ -1142,23 +1143,21 @@ public class InstinctRenderer {
         return target_role.color();
     }
 
-    /**
-     * 检查鬼眼·杨间的被动扫描是否激活。
-     *
-     * <p>通过读取组件同步的 {@code revealTicks} 判断，而非本地计算游戏时间，
-     * 确保客户端与服务端保持同步。与验尸官的周期性时机判断模式不同，
-     * 鬼眼的扫描触发依赖服务端的 {@code scanCountdown} 倒计时（随机偏移量），
-     * 因此必须使用组件同步值，不能仅凭游戏时间推算。
-     */
+    /** 检查鬼眼·杨间的被动扫描是否激活。 */
     private static boolean isGhostEyeScanActive(Player self) {
         if (self == null || self.level() == null) {
             return false;
         }
         GhostEyePlayerComponent comp = GhostEyePlayerComponent.KEY.maybeGet(self).orElse(null);
-        if (comp == null) {
+        if (comp != null && comp.revealTicks > 0) {
+            return true;
+        }
+
+        int intervalTicks = GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().ghostEyeScanInterval);
+        if (intervalTicks <= 0) {
             return false;
         }
-        return comp.revealTicks > 0;
+        return self.level().getGameTime() % intervalTicks < GhostEyePlayerComponent.REVEAL_TICKS;
     }
 
     private static boolean isKillerTeam(SRERole role) {

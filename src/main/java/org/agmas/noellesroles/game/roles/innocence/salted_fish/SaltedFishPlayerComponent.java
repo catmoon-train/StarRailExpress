@@ -101,9 +101,9 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
             return false;
         }
         if (activeTicks > 0) {
-            sp.displayClientMessage(Component.translatable("message.noellesroles.salted_fish.already_active")
-                    .withStyle(ChatFormatting.YELLOW), true);
-            return false;
+            // 躺下状态：按技能键主动站起
+            finishActive(sp);
+            return true;
         }
         if (cooldownTicks > 0) {
             sp.displayClientMessage(Component.translatable("message.sre.skill.cooldown",
@@ -288,11 +288,9 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         if (flipTicks <= 0) {
             return to;
         }
-        if (previousSide == 0 && side == 1) {
-            to += 360.0f;
-        } else if (previousSide == 1 && side == 0) {
-            from += 360.0f;
-            to += 360.0f;
+        // 始终沿同一方向翻转（面朝上 → 面朝下），避免来回旋转
+        if (previousSide == 1 && side == 0) {
+            to = 360.0f;
         }
         float progress = Mth.clamp((FLIP_TICKS - flipTicks + partialTick) / (float) FLIP_TICKS, 0.0f, 1.0f);
         return Mth.lerp(progress, from, to);
@@ -307,7 +305,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     private static float sideToRoll(int side) {
-        return side == 0 ? 90.0f : -90.0f;
+        return side == 0 ? 0.0f : 180.0f;
     }
 
     @Override

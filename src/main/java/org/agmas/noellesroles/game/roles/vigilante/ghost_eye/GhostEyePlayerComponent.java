@@ -52,8 +52,8 @@ public class GhostEyePlayerComponent implements RoleComponent, ServerTickingComp
 
     private final Player player;
 
-    /** 距下一次扫描的剩余 tick（仅服务端）。 */
-    private int scanCountdown = REVEAL_TICKS;
+    /** 距下一次扫描的剩余 tick（同步给本人客户端，供 HUD 显示）。 */
+    public int scanCountdown = REVEAL_TICKS;
     /** 当前轮廓显示剩余 tick（同步给本人客户端）。 */
     public int revealTicks = 0;
 
@@ -115,7 +115,13 @@ public class GhostEyePlayerComponent implements RoleComponent, ServerTickingComp
         }
         if (revealTicks > 0) {
             revealTicks--;
-            if (revealTicks % 20 == 0 || revealTicks == 0) sync();
+            if (revealTicks == 0) {
+                sync();
+            }
+        }
+        // 每 20 tick（1 秒）同步一次，保证 HUD 倒计时平滑显示
+        if (sp.serverLevel().getGameTime() % 20 == 0) {
+            sync();
         }
 
         // 主动·诡域：持续施加领域效果
@@ -136,13 +142,14 @@ public class GhostEyePlayerComponent implements RoleComponent, ServerTickingComp
                 GameUtils::isPlayerAliveAndSurvival)) {
             if (target.distanceToSqr(domainX, domainY, domainZ) > radiusSq) continue;
 
-            // 领域内所有人（含杨间）减速：缓慢 II
-            target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, EFFECT_REFRESH, 1, false, false, false));
 
+            target.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, EFFECT_REFRESH, 5, false, false, false));
             if (target == player) continue; // 杨间本人保留视野与透视
+            target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, EFFECT_REFRESH, 1, false, false, false));
 
             target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, EFFECT_REFRESH, 0, false, false, false));
             target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, EFFECT_REFRESH, 0, false, false, false));
+            target.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, EFFECT_REFRESH, 1, false, false, false));
             // 标记效果：使其无法开启杀手透视（InstinctMixin 拦截）
             target.addEffect(new MobEffectInstance(ModEffects.EERIE_DOMAIN, EFFECT_REFRESH, 0, false, false, false));
         }
@@ -155,17 +162,25 @@ public class GhostEyePlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clientTick() {
-        if (revealTicks > 0) revealTicks--;
+        if (revealTicks > 0) {
+            revealTicks--;
+            if (revealTicks == 0) {
+                SREClient.cachedHighLightMap.clear();
+            }
+        }
+        if (scanCountdown > 0) scanCountdown--;
     }
 
     // ==================== NBT ====================
 
     @Override public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
         tag.putInt("revealTicks", revealTicks);
+        tag.putInt("scanCountdown", scanCountdown);
     }
 
     @Override public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
         revealTicks = tag.getInt("revealTicks");
+        scanCountdown = tag.getInt("scanCountdown");
         // 立即刷新本能高亮缓存，使白色轮廓的出现/消失更跟手
         SREClient.cachedHighLightMap.clear();
     }

@@ -3,32 +3,51 @@ package org.agmas.noellesroles.client.hud.roles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
- * 鬼眼·杨间 HUD：显示主动技能「诡域」的客户端冷却倒计时。
+ * 鬼眼·杨间 HUD：右下角显示被动扫描倒计时 + 主动技能「诡域」冷却。
  */
 public class GhostEyeHud {
 
     public static void register() {
         RoleHudRenderCallback.EVENT.register(ModRoles.GHOST_EYE_ID, (context, tickCounter) -> {
             Minecraft client = Minecraft.getInstance();
-            if (SREClient.isPlayerSpectator())
-                return;
+            if (SREClient.isPlayerSpectator()) return;
 
-            final var abilityComp = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY.get(client.player);
-            MutableComponent line;
-            if (abilityComp.cooldown > 0) {
-                line = Component.translatable("hud.ghost_eye.cooldown", abilityComp.cooldown / 20);
+            Font font = client.font;
+            GhostEyePlayerComponent ghostComp = GhostEyePlayerComponent.KEY.get(client.player);
+            int x = context.guiWidth() - 12;
+            int color = ModRoles.GHOST_EYE.color();
+
+            // 第 1 行：被动扫描倒计时（上方）
+            MutableComponent scanLine;
+            if (ghostComp.revealTicks > 0) {
+                scanLine = Component.translatable("hud.ghost_eye.scanning",
+                        ghostComp.revealTicks / 20.0);
             } else {
-                line = Component.translatable("hud.ghost_eye.ready");
+                scanLine = Component.translatable("hud.ghost_eye.scan_countdown",
+                        ghostComp.scanCountdown / 20);
             }
-            context.drawString(client.font, line,
-                    context.guiWidth() - client.font.width(line) - 12,
-                    context.guiHeight() - 20, ModRoles.GHOST_EYE.color());
+            int y = context.guiHeight() - 20 - font.lineHeight - 2;
+            context.drawString(font, scanLine, x - font.width(scanLine), y, color);
+
+            // 第 2 行：主动技能「诡域」冷却（下方，原位置）
+            final var abilityComp = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY.get(client.player);
+            MutableComponent abilityLine;
+            if (abilityComp.cooldown > 0) {
+                abilityLine = Component.translatable("hud.ghost_eye.cooldown", abilityComp.cooldown / 20);
+            } else {
+                abilityLine = Component.translatable("hud.ghost_eye.ready");
+            }
+            context.drawString(font, abilityLine,
+                    x - font.width(abilityLine),
+                    context.guiHeight() - 20, color);
         });
     }
 }

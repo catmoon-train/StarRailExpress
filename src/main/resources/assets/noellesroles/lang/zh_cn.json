@@ -2624,6 +2624,8 @@
   "message.noellesroles.ghost_eye.domain_deployed": "诡域展开！",
   "hud.ghost_eye.ready": "诡域已就绪",
   "hud.ghost_eye.cooldown": "诡域冷却中，剩余 %ss",
+  "hud.ghost_eye.scan_countdown": "鬼眼扫描 %ss 后",
+  "hud.ghost_eye.scanning": "扫描中… %.1fs 剩余",
   "message.noellesroles.ghost_eye.revolver_received": "你已完成两个任务，鬼眼·杨间获得了一把左轮手枪！",
   "=============== 玉将军 Jade General ===============": "",
   "announcement.star.role.jade_general": "玉将军",
