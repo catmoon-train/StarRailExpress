@@ -35,8 +35,8 @@ import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
-
-import java.awt.*;
+//只要Color别的都不要
+import java.awt.Color;
 import java.util.*;
 import java.util.List;
 import java.util.function.*;
