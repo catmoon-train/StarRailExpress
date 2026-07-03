@@ -36,7 +36,7 @@ import java.util.UUID;
  * <p>特性：
  * <ul>
  *   <li>使用死者生前的皮肤外观，周身环绕淡紫色雾气。</li>
- *   <li>未发现目标时在召唤点附近随机徘徊；发现 15 格内活人后无视墙壁直线穿墙追击（幽灵）。</li>
+ *   <li>未发现目标时在召唤点附近随机徘徊；发现 21 格内活人后无视墙壁直线穿墙追击（幽灵）。</li>
  *   <li>攻击不造成伤害，而是每 1.5 秒为目标增加感染值（由亡灵之主组件统一结算）。</li>
  *   <li>持续 90 秒后化为紫色烟雾消散；剩余 30 秒减速、剩余 10 秒闪烁示警。</li>
  *   <li>无实体碰撞（穿墙、无重力悬浮），无法开门、无法使用道具。</li>
@@ -54,11 +54,11 @@ public class UndeadEntity extends PathfinderMob {
     public static final int DEFAULT_LIFETIME = 90 * 20;
     private static final int WARNING_FADE_TICKS = 30 * 20;
     private static final int WARNING_FLICKER_TICKS = 10 * 20;
-    private static final double PERCEPTION_RANGE = 15.0D;
+    private static final double PERCEPTION_RANGE = 21.0D;
     private static final int ATTACK_INTERVAL = 30; // 1.5 秒
     private static final double TOUCH_RANGE = 1.6D;
-    /** 亡灵每次攻击注入的感染值（已减半后再 +15% 感染速度）。 */
-    private static final float INFECTION_PER_HIT = 8.625f;
+    /** 亡灵每次攻击注入的感染值（已加速 20%）。 */
+    private static final float INFECTION_PER_HIT = 10.35f;
     private static final double BASE_SPEED = 0.22D;
     /** 幽灵直线穿墙时的移动速度系数（相对 MOVEMENT_SPEED，避免无视墙壁后追击过强）。 */
     private static final double GHOST_SPEED_FACTOR = 0.55;

@@ -147,7 +147,6 @@ public class GhostEyePlayerComponent implements RoleComponent, ServerTickingComp
             if (target == player) continue; // 杨间本人保留视野与透视
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, EFFECT_REFRESH, 1, false, false, false));
 
-            target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, EFFECT_REFRESH, 0, false, false, false));
             target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, EFFECT_REFRESH, 0, false, false, false));
             target.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, EFFECT_REFRESH, 1, false, false, false));
             // 标记效果：使其无法开启杀手透视（InstinctMixin 拦截）

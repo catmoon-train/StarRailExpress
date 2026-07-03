@@ -495,7 +495,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** Undead Lord - Bone Staff recharge time in seconds after durability is depleted (refills to full, never breaks) */
     public int undeadLordBoneStaffRechargeSeconds = 40;
     /** Undead Lord - Bone Staff infection added per hit (0~100) */
-    public double undeadLordBoneStaffInfection = 20.0;
+    public double undeadLordBoneStaffInfection = 24.0;
     /** Undead Lord - Bone Staff shop price */
     public int undeadLordBoneStaffPrice = 130;
     /** Undead Lord - Real damage each undead deals to a player per attack (HP, 0=disabled) */
