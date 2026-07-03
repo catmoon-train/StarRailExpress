@@ -14,6 +14,8 @@ import java.util.*;
 
 public class CantRightClickBlocks {
     public static final Set<String> CANNOT_INTERACT_IDS = new HashSet<>(Set.of(
+            "charta:wheat_beer_glass",
+            "sorghum_beer_glass",
             "supplementaries:safe",
             "supplementaries:fire_pit",
             "supplementaries:item_shelf"));
