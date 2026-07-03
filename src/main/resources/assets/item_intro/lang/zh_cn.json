@@ -128,7 +128,7 @@
   "item.noellesroles.mercenary_contract.desc": "雇佣兵职业专属道具，其他人可以右键签订雇佣契约，选择目标并支付175金币，雇佣兵右键已签订的契约能够获得雇佣金并为雇佣兵提供通缉目标。契约可以按Q键丢出。",
   "item.noellesroles.riot_shield.desc": "保安职业专属物品。装备在主手/副手举盾时可以抵挡一次正面的攻击并提供保护。",
   "item.noellesroles.baton.desc": "保安职业专属物品。近战武器，拥有4点耐久。左键攻击，可以使目标眩晕，若目标在4秒内受到两次棍击则造成一次击杀。",
-  "item.noellesroles.bone_staff.desc": "亡灵之主职业专属物品。近战武器，拥有5点耐久。左键攻击玩家可为目标注入20%感染值，每次攻击消耗1点耐久。目标感染值满后会被转化为亡灵。",
+  "item.noellesroles.bone_staff.desc": "亡灵之主职业专属物品。近战武器，拥有5点耐久。左键攻击玩家可为目标注入24%感染值，每次攻击消耗1点耐久。目标感染值满后会被转化为亡灵。",
   "item.noellesroles.leon_blue_herb.desc": "里昂专属物品。右键立即使用，刷新格斗体术的冷却。场上仅剩 6 位玩家时获得；里昂死亡后不会随手枪一起掉落。",
   "item.noellesroles.leon_red_herb.desc": "里昂专属物品。长按右键使用，为自己套上一层护盾（不可叠加）。场上仅剩 3 位玩家时获得；里昂死亡后不会随手枪一起掉落。",
   "item.noellesroles.radio.desc": "右键使用，可以与其他玩家进行远程通讯。",
