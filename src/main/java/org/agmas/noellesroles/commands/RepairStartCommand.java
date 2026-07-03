@@ -18,7 +18,7 @@ public final class RepairStartCommand {
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
-                literal("repair")
+                literal("cy:repair")
                         .requires(source -> source.hasPermission(2))
                         .then(literal("start")
                                 .then(argument("minutes", IntegerArgumentType.integer(1))

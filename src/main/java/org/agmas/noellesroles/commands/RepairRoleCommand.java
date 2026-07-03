@@ -27,7 +27,7 @@ public final class RepairRoleCommand {
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
-                Commands.literal("repairrole")
+                Commands.literal("cy:repairrole")
                         .requires(source -> source.hasPermission(2))
                         .then(Commands.literal("force")
                                 .then(Commands.argument("players", EntityArgument.players())

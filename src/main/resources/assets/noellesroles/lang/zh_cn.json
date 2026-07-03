@@ -2765,7 +2765,7 @@
   "screen.noellesroles.repair_shop.owned": "已拥有",
   "screen.noellesroles.repair_shop.price": "价格：%s",
   "screen.noellesroles.repair_roles.locked": "未拥有",
-  "screen.noellesroles.repair_roles.locked_shop": "未拥有：请在 /repairshop 购买",
+  "screen.noellesroles.repair_roles.locked_shop": "未拥有：请在 /cy:repairshop 购买",
   "screen.noellesroles.repair_roles.active_skill_short": "技能",
   "screen.noellesroles.repair_roles.active_skill": "主动",
   "screen.noellesroles.repair_roles.passive": "被动",

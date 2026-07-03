@@ -21,7 +21,7 @@ public final class RepairShopCommand {
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(Commands.literal("repairshop").executes(context -> {
+            dispatcher.register(Commands.literal("cy:repairshop").executes(context -> {
                 ServerPlayer player = context.getSource().getPlayerOrException();
                 SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
                 if (game != null && game.isRunning()) {

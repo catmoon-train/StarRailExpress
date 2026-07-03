@@ -35,7 +35,7 @@ public final class RepairPresetCommand {
 
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
-                literal("repairpreset")
+                literal("cy:repairpreset")
                         .requires(source -> source.hasPermission(2))
                         .then(literal("export")
                                 .then(argument("mapId", StringArgumentType.word())

@@ -65,7 +65,7 @@ public final class RepairMapCommand {
                             .executes(context -> listEscapes(context.getSource(),
                                     StringArgumentType.getString(context, "mapId"))));
 
-            dispatcher.register(literal("repairmap")
+            dispatcher.register(literal("cy:repairmap")
                     .requires(source -> source.hasPermission(2))
                     .then(literal("lock").then(lockAdd).then(lockRemove).then(lockList))
                     .then(literal("escape").then(escapeAdd).then(escapeRemove).then(escapeList)));
