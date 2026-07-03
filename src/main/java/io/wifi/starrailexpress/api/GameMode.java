@@ -6,7 +6,7 @@ import io.wifi.starrailexpress.rules.*;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
-import io.wifi.starrailexpress.api.replay.screen.ReplayScreenService;
+import io.wifi.starrailexpress.api.replay.screen.ReplayBarService;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
@@ -329,7 +329,7 @@ public abstract class GameMode {
         for (ServerPlayer player : world.players()) {
             GameReplayManager.sendSystemMessage(player, text);
         }
-        ReplayScreenService.showDefault(world, SRE.REPLAY_MANAGER);
+        ReplayBarService.showDefault(world, SRE.REPLAY_MANAGER);
     }
 
     /**
