@@ -9,31 +9,31 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class AttendantHandler {
 
     public static final int ATTENDANT_LIGHT_DISTANCE = 5;
 
     public static void openLight(ServerPlayer player) {
-        openLight(player, ATTENDANT_LIGHT_DISTANCE);
+        openLight(player, player.position(), ATTENDANT_LIGHT_DISTANCE);
     }
 
-    public static void openLight(ServerPlayer player, int distance) {
+    public static void openLight(ServerPlayer player, Vec3 startPos, int distance) {
         int lightCount = 0;
         if (!(player.level() instanceof ServerLevel level))
             return;
-        int pY = (int) Math.round(player.getY());
         for (var p : player.getServer().getPlayerList().getPlayers()) {
-            if (p.distanceTo(player) <= 8) {
+            if (p.distanceToSqr(startPos) <= 8 * 8) {
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                         TMMSounds.BLOCK_LIGHT_TOGGLE,
                         SoundSource.BLOCKS, 1F, 1F);
             }
-
         }
 
-        int pX = (int) Math.round(player.getX());
-        int pZ = (int) Math.round(player.getZ());
+        int pX = (int) Math.round(startPos.x());
+        int pY = (int) Math.round(startPos.y());
+        int pZ = (int) Math.round(startPos.z());
         int minX = pX - distance;
         int minY = pY - distance;
         int minZ = pZ - distance;

@@ -10,13 +10,16 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class OpenLightToolItem extends Item {
 
@@ -28,15 +31,25 @@ public class OpenLightToolItem extends Item {
         super(settings);
     }
 
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
-        ItemStack it = player.getItemInHand(interactionHand);
+    public InteractionResult useOn(UseOnContext useOnContext) {
+        Player player = useOnContext.getPlayer();
+        Vec3 pos = useOnContext.getClickLocation();
+        ItemStack it = useOnContext.getItemInHand();
+
         if (!player.isCreative()) {
-            return InteractionResultHolder.pass(it);
+            return InteractionResult.PASS;
         }
-        if (level.isClientSide) {
-            return InteractionResultHolder.sidedSuccess(it, level.isClientSide);
+        if (useOnContext.getLevel().isClientSide) {
+            return InteractionResult.SUCCESS;
         }
+        if (action(it, player, pos)) {
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.FAIL;
+    }
+
+    public boolean action(ItemStack it, Player player, Vec3 pos) {
+
         if (!it.has(DataComponents.CUSTOM_DATA)) {
             var tag = new CompoundTag();
             tag.putInt("distance", DEFAULT_DISTANCE);
@@ -44,7 +57,7 @@ public class OpenLightToolItem extends Item {
         }
         CustomData data = it.getOrDefault(DataComponents.CUSTOM_DATA, null);
         if (data == null) {
-            return InteractionResultHolder.fail(it);
+            return false;
         }
         var tag = data.copyTag();
         int distance = 5;
@@ -63,8 +76,23 @@ public class OpenLightToolItem extends Item {
                 }
                 it.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
             } else if (player instanceof ServerPlayer sp) {
-                AttendantHandler.openLight(sp, distance);
+                AttendantHandler.openLight(sp,pos, distance);
             }
+        }
+        return true;
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
+        ItemStack it = player.getItemInHand(interactionHand);
+        if (!player.isCreative()) {
+            return InteractionResultHolder.pass(it);
+        }
+        if (level.isClientSide) {
+            return InteractionResultHolder.sidedSuccess(it, level.isClientSide);
+        }
+        if (!action(it, player, player.position())) {
+            return InteractionResultHolder.fail(it);
         }
         return InteractionResultHolder.success(it);
     }
