@@ -278,6 +278,8 @@ public class RoleRotationScreen extends Screen {
             return;
         }
 
+        List<String> candidates = RoleRotationCache.getCurrentCandidates();
+
         // 已选完职业 → 只显示职业介绍，不显示卡片
         if (hasSelected) {
             String selectedPath = RoleRotationCache.getSelectedRoles().get(myUuid);
@@ -286,7 +288,6 @@ public class RoleRotationScreen extends Screen {
             return;
         }
 
-        List<String> candidates = RoleRotationCache.getCurrentCandidates();
         for (int i = 0; i < 4; i++) {
             int x = detailX + i * (cardW + GAP);
             boolean hover = canChoose && inside(mouseX, mouseY, x, cardY, cardW, CARD_H);
