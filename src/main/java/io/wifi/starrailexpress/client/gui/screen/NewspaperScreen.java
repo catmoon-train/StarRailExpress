@@ -797,16 +797,7 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        
-        if (keyCode == 258) {
-            if (!Screen.hasShiftDown()) {
-                pageEdit.insertText("    "); // 4 个空格
-                clearDisplayCache();
-                return true;
-            }
-            return true;
-        }
-        if(keyCode == 256){
+        if (keyCode == 256) {
             this.saveChanges(false);
             this.onClose();
         }
@@ -831,7 +822,14 @@ public class NewspaperScreen extends Screen {
 
         if (pageEdit == null)
             return false;
-
+        if (keyCode == 258) {
+            if (!Screen.hasShiftDown()) {
+                pageEdit.insertText("    "); // 4 个空格
+                clearDisplayCache();
+                return true;
+            }
+            return true;
+        }
         if (Screen.isSelectAll(keyCode)) {
             pageEdit.selectAll();
             return true;
