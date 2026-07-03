@@ -17,6 +17,7 @@ import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -89,11 +90,27 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
                 return;
             if (!gameWorldComponent.isRole(player, ModRoles.EXECUTIONER))
                 return;
+            if (PelicanManager.isStashed(target)) {
+                if (redirectTargetToAlivePelicanIfStashed(gameWorldComponent))
+                    return;
+                this.target = null;
+                this.targetSelected = false;
+                assignRandomTarget();
+                return;
+            }
             Player targetPlayer = player.level().getPlayerByUUID(target);
+            if (targetPlayer == null) {
+                this.shopUnlocked = true;
+                this.target = null;
+                this.targetSelected = false;
+                assignRandomTarget();
+                return;
+            }
             var t_role = gameWorldComponent.getRole(targetPlayer);
             // 判断职业是否允许被绑定，否则就应该更换。
-            boolean needChange = judgeRole(player.level(), t_role);
-            if (t_role == null || targetPlayer == null || GameUtils.isPlayerEliminatedIgnoreShitSplit(targetPlayer)
+            boolean targetIsAlivePelican = isAlivePelicanTarget(targetPlayer, gameWorldComponent);
+            boolean needChange = !targetIsAlivePelican && judgeRole(player.level(), t_role);
+            if (t_role == null || GameUtils.isPlayerEliminatedIgnoreShitSplit(targetPlayer)
                     || needChange) {
 
                 // 目标死亡，解锁商店并分配新目标
@@ -133,6 +150,46 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
     /**
      * 自动分配随机目标（仅限平民阵营，优先排除肉汁）
      */
+    private boolean redirectTargetToAlivePelicanIfStashed(SREGameWorldComponent gameWorldComponent) {
+        UUID pelicanId = PelicanManager.getPelicanForStashed(this.target);
+        if (pelicanId == null) {
+            return false;
+        }
+        Player pelican = player.level().getPlayerByUUID(pelicanId);
+        if (!isAlivePelicanTarget(pelican, gameWorldComponent)) {
+            return false;
+        }
+        this.target = pelicanId;
+        this.targetSelected = true;
+        this.sync();
+        return true;
+    }
+
+    private boolean isAlivePelicanTarget(Player targetCandidate, SREGameWorldComponent gameWorldComponent) {
+        return targetCandidate != null
+                && !targetCandidate.getUUID().equals(player.getUUID())
+                && GameUtils.isPlayerAliveAndSurvival(targetCandidate)
+                && !PelicanManager.isStashed(targetCandidate)
+                && gameWorldComponent.isRole(targetCandidate, ModRoles.PELICAN);
+    }
+
+    private Player findAlivePelicanTarget(SREGameWorldComponent gameWorldComponent) {
+        List<Player> pelicans = new ArrayList<>();
+        for (Player candidate : player.level().players()) {
+            if (target != null && target.equals(candidate.getUUID())) {
+                continue;
+            }
+            if (isAlivePelicanTarget(candidate, gameWorldComponent)) {
+                pelicans.add(candidate);
+            }
+        }
+        if (pelicans.isEmpty()) {
+            return null;
+        }
+        Collections.shuffle(pelicans);
+        return pelicans.getFirst();
+    }
+
     public void assignRandomTarget() {
         assignRandomTarget(false);
     }
@@ -163,13 +220,16 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
             if (p.getUUID().equals(player.getUUID())) {
                 continue; // 跳过自己
             }
-            if (mylover != null && p.getUUID() == mylover.getUUID()) {
+            if (mylover != null && p.getUUID().equals(mylover.getUUID())) {
                 continue; // 跳过恋人
             }
-            if (bindNewOne && target == p.getUUID())
+            if (bindNewOne && target != null && target.equals(p.getUUID()))
                 continue;// 跳过当前
             if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue; // 只考虑存活玩家
+            }
+            if (PelicanManager.isStashed(p)) {
+                continue;
             }
             final var role = gameWorldComponent.getRole(p);
             if (role != null
@@ -181,7 +241,7 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
                 }
             }
         }
-        if (bindNewOne && target != null && nonMeatballTargets.isEmpty()) {
+        if (bindNewOne && target != null && nonMeatballTargets.isEmpty() && !eligibleTargets.isEmpty()) {
             return false;
         }
         // 优先从非肉汁玩家中随机选择；如果没有非肉汁目标，才从全体（只剩肉汁）中选
@@ -189,6 +249,13 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
         if (!selectionPool.isEmpty()) {
             Collections.shuffle(selectionPool);
             this.target = selectionPool.getFirst().getUUID();
+            this.targetSelected = true;
+            this.sync();
+            return true;
+        }
+        Player pelicanTarget = findAlivePelicanTarget(gameWorldComponent);
+        if (pelicanTarget != null) {
+            this.target = pelicanTarget.getUUID();
             this.targetSelected = true;
             this.sync();
             return true;
@@ -208,6 +275,13 @@ public class ExecutionerPlayerComponent implements RoleComponent, ServerTickingC
         }
 
         this.target = target;
+        if (PelicanManager.isStashed(target)
+                && !redirectTargetToAlivePelicanIfStashed(SREGameWorldComponent.KEY.get(player.level()))) {
+            this.target = null;
+            this.targetSelected = false;
+            this.sync();
+            return;
+        }
         this.targetSelected = true;
         this.sync();
     }

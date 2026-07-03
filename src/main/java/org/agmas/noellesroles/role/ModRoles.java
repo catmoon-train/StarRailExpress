@@ -2448,8 +2448,6 @@ public class ModRoles {
         ModRoles.GODFATHER.addTwoWayOpposingRole(SERoles.INITIATE);
         // 设置鹈鹕与教父互斥
         ModRoles.PELICAN.addTwoWayOpposingRole(ModRoles.GODFATHER);
-        // 设置鹈鹕与刽子手互斥
-        ModRoles.PELICAN.addTwoWayOpposingRole(ModRoles.EXECUTIONER);
         // 设置鹈鹕与傀儡师互斥
         ModRoles.PELICAN.addTwoWayOpposingRole(ModRoles.PUPPETEER);
         // 设置鹈鹕与渡鸦互斥

@@ -18,6 +18,7 @@ import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
@@ -88,6 +89,7 @@ public final class PelicanManager {
         stashedPreviousGameMode.put(targetId, target.gameMode.getGameModeForPlayer());
         pelicanByStashed.put(targetId, pelicanId);
         stashedByPelican.computeIfAbsent(pelicanId, id -> new ArrayDeque<>()).addLast(targetId);
+        redirectExecutionerTargetsToPelican(targetId, pelican);
 
         target.stopRiding();
         target.setShiftKeyDown(false);
@@ -136,6 +138,28 @@ public final class PelicanManager {
         }
 
         NoellesrolesVoiceChatPlugin.onPelicanStash(targetId, pelicanId);
+    }
+
+    private static void redirectExecutionerTargetsToPelican(UUID stashedTargetId, ServerPlayer pelican) {
+        SREGameWorldComponent pelicanWorld = SREGameWorldComponent.KEY.get(pelican.level());
+        if (pelicanWorld == null
+                || !pelicanWorld.isRole(pelican, ModRoles.PELICAN)
+                || !GameUtils.isPlayerAliveAndSurvival(pelican)
+                || PelicanManager.isStashed(pelican)) {
+            return;
+        }
+        for (ServerPlayer candidate : pelican.getServer().getPlayerList().getPlayers()) {
+            SREGameWorldComponent candidateWorld = SREGameWorldComponent.KEY.get(candidate.level());
+            if (candidateWorld == null || !candidateWorld.isRole(candidate, ModRoles.EXECUTIONER)) {
+                continue;
+            }
+            ExecutionerPlayerComponent executioner = ExecutionerPlayerComponent.KEY.get(candidate);
+            if (stashedTargetId.equals(executioner.target)) {
+                executioner.target = pelican.getUUID();
+                executioner.targetSelected = true;
+                executioner.sync();
+            }
+        }
     }
 
     public static void releasePlayer(ServerPlayer target) {
