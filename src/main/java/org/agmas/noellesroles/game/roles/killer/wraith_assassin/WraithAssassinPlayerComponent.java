@@ -43,7 +43,7 @@ import java.util.*;
 
 public class WraithAssassinPlayerComponent implements RoleComponent, ServerTickingComponent {
     public static final ComponentKey<WraithAssassinPlayerComponent> KEY = ModComponents.WRAITH_ASSASSIN;
-    public static final boolean 残月还是没修罪人 = true;
+
     public static final int MAX_ENERGY = 1000;
     public static final int LOW_SAN_BLUE = 20;
     public static final int LOW_SAN_YELLOW = 30;
@@ -169,7 +169,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
                 if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
                     // 爆发红石粒子
                     Vec3 pos = target.position().add(0, target.getBbHeight() / 2, 0);
-                    for (int i = 0; i < 60; i++) {
+                    for (int i = 0; i < 16; i++) {
                         double angle = Math.random() * Math.PI * 2;
                         double pitch = Math.acos(2 * Math.random() - 1);
                         double speed = 0.3 + Math.random() * 0.7;
@@ -183,7 +183,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
                     // 额外红石爆发环
                     for (int ring = 0; ring < 3; ring++) {
                         double ringRadius = 0.4 + ring * 0.5;
-                        for (int j = 0; j < 16; j++) {
+                        for (int j = 0; j < 5; j++) {
                             double ringAngle = (2 * Math.PI * j) / 16;
                             level.sendParticles(DustParticleOptions.REDSTONE,
                                     pos.x + Math.cos(ringAngle) * ringRadius,
@@ -353,7 +353,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
 
         // 被命中时的音效和粒子反馈
         target.playNotifySound(SoundEvents.WARDEN_ATTACK_IMPACT, SoundSource.HOSTILE, 1.0f, 0.7f);
-        target.playNotifySound(SoundEvents.SOUL_ESCAPE, SoundSource.HOSTILE, 0.6f, 0.5f);
+        target.playNotifySound(SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.6f, 0.5f);
 
         // 命中点红石粒子
         Vec3 hitPos = target.position().add(0, target.getBbHeight() / 2, 0);
