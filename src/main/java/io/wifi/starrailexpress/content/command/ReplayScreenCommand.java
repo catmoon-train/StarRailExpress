@@ -6,7 +6,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.screen.ReplayScreenSavedData;
-import io.wifi.starrailexpress.api.replay.screen.ReplayBarService;
+import io.wifi.starrailexpress.api.replay.screen.ReplayBoardService;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -58,7 +58,7 @@ public final class ReplayScreenCommand {
             context.getSource().sendFailure(Component.literal("Direction must be north, south, east, or west."));
             return 0;
         }
-        ReplayBarService.createScreen(level, id, pos, width, height, direction);
+        ReplayBoardService.createScreen(level, id, pos, width, height, direction);
         context.getSource().sendSuccess(() -> Component.literal("Created replay screen '" + id + "'.")
                 .withStyle(ChatFormatting.GREEN), true);
         return 1;
@@ -66,7 +66,7 @@ public final class ReplayScreenCommand {
 
     private static int remove(CommandContext<CommandSourceStack> context) {
         String id = StringArgumentType.getString(context, "id");
-        boolean removed = ReplayBarService.removeScreen(context.getSource().getLevel(), id);
+        boolean removed = ReplayBoardService.removeScreen(context.getSource().getLevel(), id);
         if (!removed) {
             context.getSource().sendFailure(Component.literal("Replay screen not found: " + id));
             return 0;
@@ -110,7 +110,7 @@ public final class ReplayScreenCommand {
 
     private static int show(CommandContext<CommandSourceStack> context) {
         String id = StringArgumentType.getString(context, "id");
-        if (SRE.REPLAY_MANAGER == null || !ReplayBarService.show(context.getSource().getLevel(), id, SRE.REPLAY_MANAGER)) {
+        if (SRE.REPLAY_MANAGER == null || !ReplayBoardService.show(context.getSource().getLevel(), id, SRE.REPLAY_MANAGER)) {
             context.getSource().sendFailure(Component.literal("Unable to show replay on screen: " + id));
             return 0;
         }

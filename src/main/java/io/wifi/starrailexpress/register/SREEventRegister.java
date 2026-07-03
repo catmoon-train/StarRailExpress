@@ -5,7 +5,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
-import io.wifi.starrailexpress.api.replay.screen.ReplayBarService;
+import io.wifi.starrailexpress.api.replay.screen.ReplayBoardService;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.vote.VoteManager;
 import io.wifi.starrailexpress.event.AFKEventHandler;
@@ -106,7 +106,7 @@ public class SREEventRegister {
         });
         ServerTickEvents.END_SERVER_TICK.register(serv -> {
             VoteManager.onServerTick();
-            ReplayBarService.tick(serv);
+            ReplayBoardService.tick(serv);
             SceneAssetServer.tick(serv);
         });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {

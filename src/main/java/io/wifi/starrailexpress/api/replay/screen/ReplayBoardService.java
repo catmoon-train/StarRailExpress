@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class ReplayBarService {
+public final class ReplayBoardService {
     /** 回放屏幕一次最多纳入的内容行数（让视口能滚过完整时间线）。 */
     private static final int SCREEN_MAX_REPLAY_LINES = 500;
     /** 开始向下滚动前的停顿 tick 数（先让玩家看到开头）。 */
@@ -40,7 +40,7 @@ public final class ReplayBarService {
     private static final String LEGACY_NAME_PREFIX = "SRE Replay Screen: ";
     private static final Map<String, ScrollAnimation> ACTIVE_ANIMATIONS = new HashMap<>();
 
-    private ReplayBarService() {
+    private ReplayBoardService() {
     }
 
     public static ReplayScreenSavedData.ReplayScreenEntry createScreen(ServerLevel level, String id, BlockPos origin,
