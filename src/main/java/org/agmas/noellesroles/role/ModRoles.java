@@ -617,7 +617,8 @@ public class ModRoles {
             .setCanSeeCoin(true).setCanSeeTime(false);
 
     /**
-     * 占卜家（乘客阵营）。开局携带【晶球】，右键对准尸体占卜得知死者职业与名字（60 秒冷却，每具尸体一次）。
+     * 占卜家（乘客阵营）。开局携带【晶球】，右键对准尸体开始 10 秒施法，获知死者死亡时间 + 随机凶手线索；
+     * 50% 概率晶球破碎，60 秒冷却，每具尸体一次。
      * 若占卜对象为亡语杀手伪装的尸体，视为亡语杀手用刀刺死了自己。
      */
     public static SRERole DIVINER = TMMRoles.registerRole(
