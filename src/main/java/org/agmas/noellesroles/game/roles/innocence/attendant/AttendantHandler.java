@@ -12,9 +12,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class AttendantHandler {
 
-    public static int area_distance = 5;
+    public static final int ATTENDANT_LIGHT_DISTANCE = 5;
 
     public static void openLight(ServerPlayer player) {
+        openLight(player, ATTENDANT_LIGHT_DISTANCE);
+    }
+
+    public static void openLight(ServerPlayer player, int distance) {
         int lightCount = 0;
         if (!(player.level() instanceof ServerLevel level))
             return;
@@ -30,12 +34,12 @@ public class AttendantHandler {
 
         int pX = (int) Math.round(player.getX());
         int pZ = (int) Math.round(player.getZ());
-        int minX = pX - area_distance;
-        int minY = pY - area_distance;
-        int minZ = pZ - area_distance;
-        int maxX = pX + area_distance;
-        int maxY = pY + area_distance;
-        int maxZ = pZ + area_distance;
+        int minX = pX - distance;
+        int minY = pY - distance;
+        int minZ = pZ - distance;
+        int maxX = pX + distance;
+        int maxY = pY + distance;
+        int maxZ = pZ + distance;
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
@@ -50,7 +54,7 @@ public class AttendantHandler {
                             blockState = (BlockState) blockState.setValue(LightBlockInterface.LIT, true);
                         }
                         isDirty = true;
-                    } 
+                    }
                     if (isDirty) {
                         level.setBlockAndUpdate(pos, blockState);
                         lightCount++;

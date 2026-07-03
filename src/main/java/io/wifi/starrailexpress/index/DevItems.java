@@ -4,6 +4,7 @@ package io.wifi.starrailexpress.index;
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.item.BindingToolItem;
+import io.wifi.starrailexpress.content.item.OpenLightToolItem;
 import io.wifi.starrailexpress.content.item.map_dev.MapBuildHelperItem;
 import io.wifi.starrailexpress.customrole.CustomRoleToolItem;
 import net.minecraft.resources.ResourceKey;
@@ -13,6 +14,9 @@ import net.minecraft.world.item.Item;
 // OP以及建造使用的物品
 public class DevItems {
     public static final ItemRegistrar registrar = new ItemRegistrar(SRE.MOD_ID);
+    
+    public static Item OPEN_LIGHT_TOOL = register(new OpenLightToolItem(new Item.Properties().stacksTo(1)),
+            "open_light_tool");
     public static Item BINDING_TOOL = register(new BindingToolItem(new Item.Properties().stacksTo(1)),
             "binding_tool");
     public static Item MAP_TOOL = register(new MapBuildHelperItem(new Item.Properties().stacksTo(1)),
@@ -24,6 +28,7 @@ public class DevItems {
         // Create the identifier for the item.
         // Register the item.
         var registeredItem = registrar.create(id, item, new ResourceKey[] { CreativeModeTabs.OP_BLOCKS });
+        TMMDescItems.introItems.add(registeredItem);
 
         // Return the registered item!
         return registeredItem;

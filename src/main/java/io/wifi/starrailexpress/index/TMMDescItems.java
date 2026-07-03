@@ -40,5 +40,7 @@ public interface TMMDescItems {
       introItems.add(TMMItems.SCORPION);
       introItems.add(TMMItems.EMOJI_HELMET);
       introItems.add(TMMItems.DRAWING_BOARD);
+      introItems.add(SREBlocks.REMOTE_REDSTONE.asItem());
+      introItems.add(SREBlocks.TRAIN_LIGHT.asItem());
    }
 }

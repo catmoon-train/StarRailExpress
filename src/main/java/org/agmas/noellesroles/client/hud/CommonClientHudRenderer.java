@@ -1244,7 +1244,7 @@ public class CommonClientHudRenderer {
       var text = Component.literal("");
       if (comc.cooldown <= 0) {
         text.append(Component.translatable("hud.noellesroles.attendant.available",
-            Component.keybind("key.noellesroles.ability"), AttendantHandler.area_distance)
+            Component.keybind("key.noellesroles.ability"), AttendantHandler.distance)
             .withStyle(ChatFormatting.GOLD));
       } else {
         text.append(Component.translatable("hud.noellesroles.attendant.cooldown", (comc.cooldown / 20))
