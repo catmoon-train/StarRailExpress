@@ -429,6 +429,11 @@ public class InitModRolesMax {
                         Harpymodloader.setRoleMaximum(a, 0);
                     }
                 }
+                for (var a : HMLModifiers.MODIFIERS) {
+                    if (a instanceof TouhouModifier) {
+                        Harpymodloader.setModifierMaximum(a, 0);
+                    }
+                }
             }
 
             applySpecialMapRoles(currentMap, config);
