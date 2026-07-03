@@ -40,9 +40,6 @@ public class StingyPurchaseMixin {
             if (role == null || !GameUtils.isPlayerAliveAndSurvival(sp)) return;
             
             List<ShopEntry> entries = ShopContent.getShopEntries(role.getIdentifier());
-            if (entries.isEmpty() && gameWorld.canUseKillerFeatures(sp)) {
-                entries = ShopContent.defaultKnifeEntries;
-            }
             
             if (index >= 0 && index < entries.size()) {
                 ShopEntry entry = entries.get(index);

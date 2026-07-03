@@ -19,25 +19,35 @@ import java.util.List;
 import java.util.Map;
 
 public class ShopContent {
-    public static List<ShopEntry> defaultKnifeEntries = new ArrayList<>();
+    private static List<ShopEntry> defaultKnifeEntries = new ArrayList<>();
+
+    public static List<ShopEntry> getDefaultKnifeEntries() {
+        if (defaultKnifeEntries.isEmpty())
+            register();
+        return new ArrayList<>(defaultKnifeEntries);
+    }
 
     public static void register() {
         {
+            defaultKnifeEntries.clear();
             // 杀手刀使用动态商店条目：murder 模式下带 3 点耐久、可替换耗尽的刀、首购后 -50%。
-            // Killer knife uses the dynamic entry: 3 durability in murder modes, replaces depleted
-            // knives, and -50% after the first purchase. See KillerKnifeShopEntry / DynamicShopComponent.
+            // Killer knife uses the dynamic entry: 3 durability in murder modes, replaces
+            // depleted
+            // knives, and -50% after the first purchase. See KillerKnifeShopEntry /
+            // DynamicShopComponent.
             defaultKnifeEntries.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice));
             defaultKnifeEntries.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
                     SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
-                defaultKnifeEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
+            defaultKnifeEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
                     SREConfig.instance().grenadePrice, ShopEntry.Type.WEAPON));
 
-                defaultKnifeEntries.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice, ShopEntry.Type.WEAPON));
+            defaultKnifeEntries.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(),
+                    SREConfig.instance().shortShotgunPrice, ShopEntry.Type.WEAPON));
             defaultKnifeEntries.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
                     SREConfig.instance().psychoModePrice, ShopEntry.Type.WEAPON) {
                 @Override
                 public boolean canBuy(@NotNull Player player) {
-                    if (player.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
+                    if (player.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)) {
                         return false;
                     }
                     return super.canBuy(player);
@@ -45,7 +55,7 @@ public class ShopContent {
 
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    if (player.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
+                    if (player.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)) {
                         return false;
                     }
 
@@ -65,14 +75,15 @@ public class ShopContent {
             defaultKnifeEntries.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(),
                     SREConfig.instance().bodyBagPrice, ShopEntry.Type.TOOL));
 
-//            defaultKnifeEntries.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(),
-//                    SREConfig.instance().monitorBrokenPrice, ShopEntry.Type.TOOL) {
-//                @Override
-//                public boolean onBuy(@NotNull Player player) {
-//                    return SREPlayerShopComponent.useMonitorBroken(player,
-//                            SREConfig.instance().monitorBrokenDuration * 20);
-//                }
-//            });
+            // defaultKnifeEntries.add(new
+            // ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(),
+            // SREConfig.instance().monitorBrokenPrice, ShopEntry.Type.TOOL) {
+            // @Override
+            // public boolean onBuy(@NotNull Player player) {
+            // return SREPlayerShopComponent.useMonitorBroken(player,
+            // SREConfig.instance().monitorBrokenDuration * 20);
+            // }
+            // });
             defaultKnifeEntries.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
                     SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
                 @Override
@@ -94,18 +105,17 @@ public class ShopContent {
         }
 
         final var shopEntries = sreRole.getShopEntries();
-        List<ShopEntry> result;
-        if (shopEntries != null && !shopEntries.isEmpty()) {
+        List<ShopEntry> result = List.of();
+        if (shopEntries != null) {
             result = shopEntries;
         } else if (customEntries.containsKey(role)) {
             result = customEntries.get(role);
         } else {
-            result = List.of();
+            if (sreRole.canUseKiller()) {
+                result = getDefaultKnifeEntries();
+            }
         }
-
-
-            return result;
-
+        return result;
     }
 
     public static ShopEntry createSheriffBulletEntry() {

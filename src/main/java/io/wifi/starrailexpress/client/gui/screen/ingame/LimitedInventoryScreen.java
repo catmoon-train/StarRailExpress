@@ -157,10 +157,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         if (role == null)
             return List.of();
         final var shopEntries = ShopContent.getShopEntries(role.getIdentifier());
-        if (!shopEntries.isEmpty())
+        if (shopEntries != null)
             return shopEntries;
-        if (role.canUseKiller())
-            return ShopContent.defaultKnifeEntries;
         return List.of();
     }
 

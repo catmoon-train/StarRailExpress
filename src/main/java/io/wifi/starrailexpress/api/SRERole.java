@@ -808,8 +808,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return InteractionResult.PASS;
     }
 
+    @Nullable
     public List<ShopEntry> getShopEntries() {
-        return new ArrayList<>();
+        return null;
     }
 
     /**

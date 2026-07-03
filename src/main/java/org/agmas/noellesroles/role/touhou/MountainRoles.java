@@ -72,7 +72,7 @@ public class MountainRoles {
         @Override
         public List<ShopEntry> getShopEntries() {
             var roleSpecShop = new ArrayList<>(SHOP);
-            roleSpecShop.addAll(ShopContent.defaultKnifeEntries);
+            roleSpecShop.addAll(ShopContent.getDefaultKnifeEntries());
             return roleSpecShop;
         }
 

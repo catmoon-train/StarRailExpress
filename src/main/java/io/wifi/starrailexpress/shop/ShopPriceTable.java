@@ -92,9 +92,6 @@ public final class ShopPriceTable {
         if (entries != null && !entries.isEmpty()) {
             return entries;
         }
-        if (role.canUseKiller()) {
-            return ShopContent.defaultKnifeEntries;
-        }
         return List.of();
     }
 

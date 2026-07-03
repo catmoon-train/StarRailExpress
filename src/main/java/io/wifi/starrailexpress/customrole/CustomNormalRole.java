@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.customrole;
 import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.network.CustomRoleClientNetwork;
+import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -30,8 +31,14 @@ public class CustomNormalRole extends ExtraEffectRole {
 
     @Override
     public List<ShopEntry> getShopEntries() {
-        if (customShop != null && !customShop.isEmpty())
+        if (customShop != null) {
+            if (customShop.isEmpty()) {
+                if (canUseKiller()) {
+                    return ShopContent.getDefaultKnifeEntries();
+                }
+            }
             return customShop;
+        }
         return super.getShopEntries();
     }
 

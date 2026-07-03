@@ -37,7 +37,7 @@ public class NostalgistRole extends ExtraEffectRole {
     @Override
     public List<ShopEntry> getShopEntries() {
 
-        List<ShopEntry> defaultKnifeEntries = ShopContent.defaultKnifeEntries;
+        List<ShopEntry> defaultKnifeEntries = ShopContent.getDefaultKnifeEntries();
         defaultKnifeEntries.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice){
             @Override
             public boolean canDisplay(@NotNull Player player) {
