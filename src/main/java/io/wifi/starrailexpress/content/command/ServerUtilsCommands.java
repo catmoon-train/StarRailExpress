@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 
@@ -19,8 +20,11 @@ import net.minecraft.commands.Commands.CommandSelection;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.server.players.ServerOpList;
+import net.minecraft.server.players.ServerOpListEntry;
 
 public class ServerUtilsCommands {
 
@@ -35,8 +39,30 @@ public class ServerUtilsCommands {
             .then(Commands.argument("player", GameProfileArgument.gameProfile())
                 .then(Commands.literal("get")
                     .executes((ctx) -> {
-                      Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx, "player");
-                      return showPlayerPermission(ctx,profiles.stream().findFirst().orElse(null));}))))
+                      Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx,
+                          "player");
+                      return showPlayerPermission(ctx,
+                          profiles.stream().findFirst().orElse(null));
+                    }))
+                .then(Commands.literal("set")
+                    .requires(p -> p.hasPermission(3))
+                    .then(Commands.argument("level", IntegerArgumentType.integer(0, 4))
+                        .executes((ctx) -> {
+                          Collection<GameProfile> profiles = GameProfileArgument
+                              .getGameProfiles(ctx, "player");
+                          return changePlayerPermission(ctx,
+                              profiles.stream().findFirst().orElse(null),
+                              IntegerArgumentType.getInteger(ctx, "level"), false);
+                        })
+                        .then(Commands.argument("bypassPlayerLimit", BoolArgumentType.bool())
+                            .executes((ctx) -> {
+                              Collection<GameProfile> profiles = GameProfileArgument
+                                  .getGameProfiles(ctx, "player");
+                              return changePlayerPermission(ctx,
+                                  profiles.stream().findFirst().orElse(null),
+                                  IntegerArgumentType.getInteger(ctx, "level"),
+                                  BoolArgumentType.getBool(ctx, "bypassPlayerLimit"));
+                            }))))))
         .then(Commands.literal("motd")
             .then(Commands.literal("get")
                 .executes(ServerUtilsCommands::listServerInfo))
@@ -46,7 +72,8 @@ public class ServerUtilsCommands {
             .then(Commands.literal("set")
                 .requires(p -> p.hasPermission(3))
                 .then(Commands.argument("message", ComponentArgument.textComponent(registryAccess))
-                    .executes(ctx -> setCustomMotd(ctx, ComponentArgument.getComponent(ctx, "message"))))))
+                    .executes(ctx -> setCustomMotd(ctx,
+                        ComponentArgument.getComponent(ctx, "message"))))))
         .then(Commands.literal("max_player")
             .executes(ServerUtilsCommands::getMaxPlayers)
             .then(Commands.literal("get")
@@ -57,11 +84,64 @@ public class ServerUtilsCommands {
                     .executes(ServerUtilsCommands::setMaxPlayers)))));
   }
 
-  private static int showPlayerPermission(CommandContext<CommandSourceStack> ctx, GameProfile gameProfile) {
-    final int permissionLevel = ctx.getSource().getServer().getProfilePermissions(gameProfile);
+  private static int changePlayerPermission(CommandContext<CommandSourceStack> ctx, GameProfile gameProfile,
+      final int newPermissionLevel,
+      final boolean bypassPlayerLimit) {
+    if (gameProfile == null) {
+      return 0;
+    }
+    final var server = ctx.getSource().getServer();
+    if (server.isSingleplayerOwner(gameProfile)) {
+      ctx.getSource().sendFailure(
+          Component.translatable("message.serverutils.permission.set.failed", gameProfile.getName(),
+              Component.translatable("message.serverutils.permission.set.failed.singleplayer")));
+      return 4;
+    }
+    final int permissionLevelBefore = server.getProfilePermissions(gameProfile);
+    var t = Component.translatable("message.serverutils.permission.set.success", gameProfile.getName(),
+        permissionLevelBefore, newPermissionLevel);
+    final PlayerList playerList = server.getPlayerList();
+    final ServerOpList ops = playerList.getOps();
+    if (newPermissionLevel >= 1) {
+      if (playerList.isOp(gameProfile)) {
+        ops.remove(gameProfile);
+      }
+      ops.add(new ServerOpListEntry(gameProfile, newPermissionLevel, bypassPlayerLimit)); // 自己会保存
+    } else {
+      if (playerList.isOp(gameProfile)) {
+        ops.remove(gameProfile); // 自己会保存
+      }
+      if (bypassPlayerLimit) {
+        ops.add(new ServerOpListEntry(gameProfile, newPermissionLevel, bypassPlayerLimit));
+      }
+    }
+    if (bypassPlayerLimit) {
+      t = t.append(Component.translatable("message.serverutils.permission.allow_pass"));
+    }
+    final var result = t;
     ctx.getSource().sendSuccess(
-        () -> Component.translatable("message.serverutils.permission.get.success", gameProfile.getName(),
-            permissionLevel),
+        () -> result,
+        false);
+    return permissionLevelBefore;
+  }
+
+  private static int showPlayerPermission(CommandContext<CommandSourceStack> ctx, GameProfile gameProfile) {
+    if (gameProfile == null) {
+      return 0;
+    }
+    final var server = ctx.getSource().getServer();
+    final int permissionLevel = server.getProfilePermissions(gameProfile);
+    ServerOpList opList = server.getPlayerList().getOps();
+    boolean canBypass = opList.canBypassPlayerLimit(gameProfile);
+    MutableComponent t = Component.translatable("message.serverutils.permission.get.success",
+        gameProfile.getName(),
+        permissionLevel);
+    if (canBypass) {
+      t = t.append(Component.translatable("message.serverutils.permission.allow_pass"));
+    }
+    final var result = t;
+    ctx.getSource().sendSuccess(
+        () -> result,
         false);
     return permissionLevel;
   }
@@ -85,8 +165,10 @@ public class ServerUtilsCommands {
         () -> Component
             .translatable("message.serverutils.info",
                 Component.literal(currentPlayers + "").withStyle(ChatFormatting.WHITE),
-                Component.literal(maxPlayers + "").withStyle(ChatFormatting.GREEN), motd, customMotdPattern,
-                Component.translatable("message.serverutils.motd.constant").withStyle(ChatFormatting.AQUA))
+                Component.literal(maxPlayers + "").withStyle(ChatFormatting.GREEN), motd,
+                customMotdPattern,
+                Component.translatable("message.serverutils.motd.constant")
+                    .withStyle(ChatFormatting.AQUA))
             .withStyle(ChatFormatting.GOLD),
         false);
 
@@ -125,7 +207,8 @@ public class ServerUtilsCommands {
     context.getSource()
         .sendSuccess(
             () -> Component.translatable("message.serverutils.motd.set",
-                Component.literal("").withStyle(ChatFormatting.WHITE).append(motd)).withStyle(ChatFormatting.GREEN),
+                Component.literal("").withStyle(ChatFormatting.WHITE).append(motd))
+                .withStyle(ChatFormatting.GREEN),
             true);
     return 1;
   }
