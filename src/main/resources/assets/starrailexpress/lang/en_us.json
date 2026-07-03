@@ -267,6 +267,7 @@
     "gui.sre.role_rotation.select_title":  "Select Your Role",
     "gui.sre.role_rotation.you_selected":  "You selected: %s",
     "gui.sre.role_rotation.waiting":  "Waiting for your turn...",
+    "gui.sre.role_rotation.wait_for_others":  "Please wait while others choose",
     "gui.sre.role_rotation.adjust_phase":  "⚙ Role Adjustment Phase",
     "gui.sre.role_rotation.random":  "Random",
     "gui.sre.role_rotation.click_to_select":  "Click to select",

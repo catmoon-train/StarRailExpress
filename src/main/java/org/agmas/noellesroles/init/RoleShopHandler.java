@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -417,7 +418,7 @@ public class RoleShopHandler {
       SHOP.add(
           new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL));
       SHOP.add(
-          new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON));
+          new KillerKnifeShopEntry( SREConfig.instance().knifePrice));
       SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), SREConfig.instance().revolverPrice,
           ShopEntry.Type.WEAPON));
       SHOP.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice,
@@ -533,7 +534,7 @@ public class RoleShopHandler {
     {
       // 滞时鬼（Delayer）商店：只可购买 刀（130）、枪（285）、短管霰弹枪（300）、疯狂模式（400）、监控失灵（40）、鞭炮（15）
       var SHOP = new ArrayList<ShopEntry>();
-      SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.TOOL));
+      SHOP.add(new KillerKnifeShopEntry( 130));
       SHOP.add(new ShopEntry(io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance(), 285,
           ShopEntry.Type.TOOL));
       SHOP.add(new ShopEntry(org.agmas.noellesroles.init.ModItems.SHORT_SHOTGUN.getDefaultInstance(), 300,
@@ -574,7 +575,7 @@ public class RoleShopHandler {
     {
       // INITIATE的商店
       var SHOP = new ArrayList<ShopEntry>();
-      SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, ShopEntry.Type.WEAPON));
+      SHOP.add(new KillerKnifeShopEntry( 200));
       ShopContent.customEntries.put(SERoles.INITIATE.getIdentifier(), SHOP);
     }
     {
@@ -586,10 +587,9 @@ public class RoleShopHandler {
     {
       // EXAMPLER的商店
       var SHOP = new ArrayList<ShopEntry>();
-      SHOP.add(new ShopEntry(
-          io.wifi.starrailexpress.index.TMMItems.KNIFE.getDefaultInstance(),
-          120,
-          ShopEntry.Type.TOOL));
+      SHOP.add(new  KillerKnifeShopEntry(
+
+          120));
       SHOP.add(new ShopEntry(
           io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance(),
           400,
@@ -815,7 +815,7 @@ public class RoleShopHandler {
       shop.add(new ShopEntry(TMMItems.DERRINGER.getDefaultInstance(), 300, ShopEntry.Type.WEAPON));
 
       // 刀 - 130金币
-      shop.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
+      shop.add(new KillerKnifeShopEntry(130));
 
       ShopContent.customEntries.put(ModRoles.MERCENARY_ID, shop);
     }
@@ -1179,7 +1179,7 @@ public class RoleShopHandler {
     }
     {
       var shopEntries = new ArrayList<ShopEntry>();
-      shopEntries.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 220, ShopEntry.Type.TOOL));
+      shopEntries.add(new KillerKnifeShopEntry(220));
       shopEntries.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100,
           ShopEntry.Type.TOOL));
       shopEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(), 500, ShopEntry.Type.TOOL));
@@ -1584,7 +1584,7 @@ public class RoleShopHandler {
       // watcher
       var shop = new ArrayList<ShopEntry>();
       shop.add(
-          new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON) {
+          new KillerKnifeShopEntry( SREConfig.instance().knifePrice) {
             @Override
             public boolean canDisplay(Player player) {
               return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
@@ -1841,10 +1841,9 @@ public class RoleShopHandler {
         100,
         ShopEntry.Type.TOOL));
 
-    CONSPIRATOR_SHOP.add(new ShopEntry(
-        io.wifi.starrailexpress.index.TMMItems.KNIFE.getDefaultInstance(),
-        120,
-        ShopEntry.Type.TOOL));
+    CONSPIRATOR_SHOP.add(new KillerKnifeShopEntry(
+
+        120));
 
     CONSPIRATOR_SHOP.add(new ShopEntry(
         io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance(),
@@ -2115,10 +2114,9 @@ public class RoleShopHandler {
     });
 
     // 强盗商店（已调整价格与条目）
-    BANDIT_SHOP.add(new ShopEntry(
-        TMMItems.KNIFE.getDefaultInstance(),
-        200,
-        ShopEntry.Type.WEAPON));
+    BANDIT_SHOP.add(new KillerKnifeShopEntry(
+
+        200));
 
     // 匪徒短管霰弹枪 - 450金币
     BANDIT_SHOP.add(new ShopEntry(
@@ -2432,10 +2430,9 @@ public class RoleShopHandler {
         ShopEntry.Type.TOOL));
 
     // 影隼商店
-    SHADOW_FALCON_SHOP.add(new ShopEntry(
-        TMMItems.KNIFE.getDefaultInstance(),
-        130,
-        ShopEntry.Type.WEAPON));
+    SHADOW_FALCON_SHOP.add(new KillerKnifeShopEntry(
+
+        130));
     SHADOW_FALCON_SHOP.add(new ShopEntry(
         ModItems.THROWING_KNIFE.getDefaultInstance(),
         145,
@@ -2522,10 +2519,9 @@ public class RoleShopHandler {
 
     // ==================== 悍匪商店 ====================
     // 刀 - 160金币
-    GANGSTERS_SHOP.add(new ShopEntry(
-        TMMItems.KNIFE.getDefaultInstance(),
-        160,
-        ShopEntry.Type.WEAPON));
+    GANGSTERS_SHOP.add(new KillerKnifeShopEntry(
+
+        160));
 
     // 短管霰弹枪 - 185金币
     GANGSTERS_SHOP.add(new ShopEntry(
@@ -2629,7 +2625,7 @@ public class RoleShopHandler {
 
     // ==================== 家族教徒商店 ====================
     // 刀 - 200金币
-    MAFIOSO_SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, ShopEntry.Type.WEAPON));
+    MAFIOSO_SHOP.add(new KillerKnifeShopEntry( 200));
     // 左轮手枪 - 300金币
     MAFIOSO_SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 300, ShopEntry.Type.WEAPON));
 
@@ -2721,7 +2717,7 @@ public class RoleShopHandler {
 
     // ==================== 咒法师商店 ====================
     // 刀 - 130金币
-    WARLOCK_SHOP.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 130, ShopEntry.Type.WEAPON));
+    WARLOCK_SHOP.add(new KillerKnifeShopEntry( 130));
     // 撬棍 - 35金币
     WARLOCK_SHOP.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
     // 开锁器 - 80金币

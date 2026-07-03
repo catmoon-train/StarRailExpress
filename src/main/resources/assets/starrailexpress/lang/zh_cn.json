@@ -1085,6 +1085,7 @@
     "gui.sre.role_rotation.selection_timeout": "选择超时（%s秒），已随机分配职业: %s",
     "gui.sre.role_rotation.title": "职业轮选",
     "gui.sre.role_rotation.waiting": "等待轮到您...",
+    "gui.sre.role_rotation.wait_for_others": "请等待其它玩家选择职业",
     "gui.sre.role_rotation.you_selected": "你选择了: %s",
     "gui.sre.role_rotation.your_index": "你是第 %s 号玩家",
     "gui.sre.vote.remaing_time": "投票剩余时间：%ss",

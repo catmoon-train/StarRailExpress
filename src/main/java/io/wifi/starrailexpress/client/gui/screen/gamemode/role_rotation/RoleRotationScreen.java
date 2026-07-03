@@ -249,10 +249,11 @@ public class RoleRotationScreen extends Screen {
         Component timer = Component.literal(time).withStyle(style -> style.withColor(color).withBold(true));
         g.drawString(font, timer, x, y, color, false);
 
-        Component phase = RoleRotationCache.isSelecting()
-                ? Component.translatable("gui.sre.role_rotation.select_title")
-                : Component.translatable("gui.sre.role_rotation.adjust_phase");
-        g.drawString(font, phase, x + 54, y, TEXT, false);
+        // 轮到自己选时不再显示"选择你的职业"（右侧卡片已自明）
+        if (!RoleRotationCache.isSelecting()) {
+            Component phase = Component.translatable("gui.sre.role_rotation.adjust_phase");
+            g.drawString(font, phase, x + 54, y, TEXT, false);
+        }
 
         int myIndex = RoleRotationCache.getMyRotationIndex();
         if (myIndex > 0) {
@@ -271,8 +272,17 @@ public class RoleRotationScreen extends Screen {
         boolean hasSelected = RoleRotationCache.getSelectedRoles().containsKey(myUuid);
         boolean canChoose = RoleRotationCache.isSelecting() && RoleRotationCache.isMyTurn(myUuid) && !hasSelected;
 
-        // 未轮到自己且未选择 → 不显示右侧职业卡片和详情
+        // 未轮到自己且未选择 → 中央显示等待提示
         if (!RoleRotationCache.isMyTurn(myUuid) && !hasSelected) {
+            drawWaitingText(g);
+            return;
+        }
+
+        // 已选完职业 → 只显示职业介绍，不显示卡片
+        if (hasSelected) {
+            String selectedPath = RoleRotationCache.getSelectedRoles().get(myUuid);
+            hoveredDetailIndex = detailIndexForSelected(selectedPath, candidates);
+            drawDetail(g, selectedPath, candidates);
             return;
         }
 
@@ -287,10 +297,8 @@ public class RoleRotationScreen extends Screen {
             drawRoleCard(g, x, cardY, cardW, CARD_H, i, candidates, hover, canChoose);
         }
 
-        String selectedPath = RoleRotationCache.getSelectedRoles().get(myUuid);
-        if (selectedPath != null) {
-            hoveredDetailIndex = detailIndexForSelected(selectedPath, candidates);
-        }
+        // 未选择时的详情（悬停预览）
+        String selectedPath = null;
         drawDetail(g, selectedPath, candidates);
     }
 
@@ -412,6 +420,25 @@ public class RoleRotationScreen extends Screen {
         for (int i = 0; i < Math.min(3, lines.size()); i++) {
             g.drawCenteredString(font, lines.get(i), x + w / 2, y + i * font.lineHeight, color);
         }
+    }
+
+    /**
+     * 中央显示"请等待其它玩家选择职业"，文字根据面板宽度自动缩放。
+     */
+    private void drawWaitingText(GuiGraphics g) {
+        Component waiting = Component.translatable("gui.sre.role_rotation.wait_for_others");
+        int textW = font.width(waiting);
+        int availW = rightW - PAD * 2;
+
+        float scale = Math.min(1.0f, (float) availW / Math.max(1, textW));
+        int centerX = rightX + rightW / 2;
+        int centerY = rightY + panelH / 2;
+
+        g.pose().pushPose();
+        g.pose().translate(centerX, centerY, 0);
+        g.pose().scale(scale, scale, 1.0f);
+        g.drawCenteredString(font, waiting, 0, -font.lineHeight / 2, TEXT);
+        g.pose().popPose();
     }
 
     private Component getRoleFactionText(SRERole role) {

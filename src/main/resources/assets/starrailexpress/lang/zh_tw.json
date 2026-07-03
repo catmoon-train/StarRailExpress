@@ -281,6 +281,7 @@
     "gui.sre.role_rotation.select_title":  "選擇你的職業",
     "gui.sre.role_rotation.you_selected":  "你選擇了: %s",
     "gui.sre.role_rotation.waiting":  "等待輪到您...",
+    "gui.sre.role_rotation.wait_for_others":  "請等待其他玩家選擇職業",
     "gui.sre.role_rotation.adjust_phase":  "⚙ 職業調整階段",
     "gui.sre.role_rotation.random":  "隨機",
     "gui.sre.role_rotation.click_to_select":  "點擊選擇",
