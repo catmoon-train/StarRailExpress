@@ -248,6 +248,14 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
     public static boolean usePsychoMode(@NotNull Player player, double multtiplier, int armour) {
         player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE,
                 GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.PSYCHO_MODE, 0));
+        player.level().players().forEach(
+                player1 -> {
+                    if (!player1.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
+                        player1.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE,
+                                SREConfig.instance().psychoGlobalCooldown);
+                    }
+                }
+        );
         boolean started = SREPlayerPsychoComponent.KEY.get(player).startPsycho(multtiplier, armour);
         if (started) {
             SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.PSYCHO_MODE));

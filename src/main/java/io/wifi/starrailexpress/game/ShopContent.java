@@ -48,14 +48,7 @@ public class ShopContent {
                     if (player.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
                         return false;
                     }
-                    player.level().players().forEach(
-                            player1 -> {
-                                if (!player1.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
-                                    player1.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE,
-                                            SREConfig.instance().psychoGlobalCooldown);
-                                }
-                            }
-                    );
+
                     return SREPlayerShopComponent.usePsychoMode(player);
                 }
             });
