@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
 
-import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
@@ -71,6 +70,7 @@ public class RoleRotationScreen extends Screen {
         super(Component.translatable("gui.sre.role_rotation.title").withStyle(ChatFormatting.GOLD));
     }
 
+
     @Override
     protected void init() {
         super.init();
@@ -109,10 +109,12 @@ public class RoleRotationScreen extends Screen {
     public void tick() {
         super.tick();
         tickCounter++;
+        RoleRotationCache.tickTimers();
     }
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        super.render(g, mouseX, mouseY, partialTick);
         renderBackground(g, mouseX, mouseY, partialTick);
         computeLayout();
         calculateScroll();
@@ -126,7 +128,7 @@ public class RoleRotationScreen extends Screen {
         drawTurnInfo(g);
         drawRoleArea(g, mouseX, mouseY);
         drawFooter(g);
-        super.render(g, mouseX, mouseY, partialTick);
+
     }
 
     @Override
@@ -198,8 +200,8 @@ public class RoleRotationScreen extends Screen {
         if (rolePath == null) {
             return Component.literal("?").withStyle(ChatFormatting.DARK_GRAY);
         }
-        if (SREConfig.instance().hideRandomRoleInRoleRotation
-                && RoleRotationCache.getRandomChoosers().contains(uuid)) {
+        // 玩家选择了随机 → 始终显示"随机"，不暴露具体职业
+        if (RoleRotationCache.getRandomChoosers().contains(uuid)) {
             return Component.translatable("gui.sre.role_rotation.random").withStyle(ChatFormatting.GOLD);
         }
         // 魔术师在左侧列表中显示为"随机"，隐藏真实身份
@@ -207,8 +209,29 @@ public class RoleRotationScreen extends Screen {
             return Component.translatable("gui.sre.role_rotation.random").withStyle(ChatFormatting.GOLD);
         }
         SRERole role = getRoleByPath(rolePath);
-        return role == null ? Component.literal(rolePath).withStyle(ChatFormatting.AQUA)
-                : RoleUtils.getRoleName(role).withStyle(style -> style.withColor(role.getColor()));
+        if (role == null) {
+            return Component.literal(rolePath).withStyle(ChatFormatting.AQUA);
+        }
+        // 阵营着色：杀手=红，平民=绿，中立=金
+        int factionColor = getFactionColor(role);
+        return RoleUtils.getRoleName(role).withStyle(style -> style.withColor(factionColor));
+    }
+
+    /**
+     * 根据职业阵营返回对应的显示颜色
+     */
+    private int getFactionColor(SRERole role) {
+        if (role.canUseKiller()) {
+            return RED;
+        }
+        if (role.isInnocent()) {
+            return GREEN;
+        }
+        // 中立相关阵营
+        if (role.isNeutrals() || role.isNeutralForKiller() || role.isVigilanteTeam()) {
+            return GOLD;
+        }
+        return BLUE;
     }
 
     private void drawTurnInfo(GuiGraphics g) {

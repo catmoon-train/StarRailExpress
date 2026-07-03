@@ -195,4 +195,17 @@ public class RoleRotationCache {
     public static void setWasMyTurn(boolean turn) {
         wasMyTurn = turn;
     }
+
+    /**
+     * 客户端本地倒计时 tick — 每帧调用一次，让倒计时在服务端同步间隔中也能平滑递减。
+     * 服务端数据包到达时会覆盖本地值，保证最终一致性。
+     */
+    public static void tickTimers() {
+        if (remainingTime > 0) {
+            remainingTime--;
+        }
+        if (confirmCountdown > 0) {
+            confirmCountdown--;
+        }
+    }
 }
