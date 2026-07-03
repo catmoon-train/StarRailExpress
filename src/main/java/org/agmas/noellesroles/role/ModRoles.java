@@ -2039,7 +2039,7 @@ public class ModRoles {
             return itemStacks;
         }
     }).setComponentKey(ThiefPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false).setDefaultEnableChance(2500);
+            .setCanSeeTeammateKiller(false).setDefaultEnableChance(5000);
 
     /**
      * 雇佣兵角色 - 中立阵营（非独立胜利）
