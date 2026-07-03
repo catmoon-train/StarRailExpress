@@ -19,11 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TMMRoles {
     public static final Map<ResourceLocation, SRERole> ROLES = new HashMap<>();

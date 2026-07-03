@@ -1,9 +1,7 @@
 package io.wifi.starrailexpress.client.render.item;
 
-import org.agmas.noellesroles.client.renderer.SREPlushBlockEntityRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
 import io.wifi.starrailexpress.client.model.entity.CustomPlayerPlushModel;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -15,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
+import org.agmas.noellesroles.client.renderer.SREPlushBlockEntityRenderer;
 
 /**
  * 自定义玩家 plush 的物品渲染器：让手持 / 背包 / 掉落物也按绑定玩家的皮肤渲染同一个 plush 模型。

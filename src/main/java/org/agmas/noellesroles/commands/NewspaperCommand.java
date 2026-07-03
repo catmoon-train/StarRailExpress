@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.commands;
 
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ComponentArgument;
@@ -10,8 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Iterator;
 import java.util.Optional;
-
-import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 
 public class NewspaperCommand {
   @SuppressWarnings("rawtypes")

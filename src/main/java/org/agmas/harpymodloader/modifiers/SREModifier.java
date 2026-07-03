@@ -10,16 +10,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.function.Consumer;
-
 import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
+
+import java.util.*;
+import java.util.function.Consumer;
 
 public class SREModifier extends SREAbstractInfoClass {
     private final Random random = new Random();

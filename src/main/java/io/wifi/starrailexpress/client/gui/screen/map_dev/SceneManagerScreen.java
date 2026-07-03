@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.client.gui.screen.map_dev;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -11,6 +10,8 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+
+import java.util.List;
 
 public final class SceneManagerScreen extends Screen {
     private static final int PAGE_SIZE = 5;

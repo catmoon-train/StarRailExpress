@@ -1,8 +1,7 @@
 package io.wifi.starrailexpress.api;
 
-import org.agmas.noellesroles.init.InitModRolesMax;
-
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.init.InitModRolesMax;
 
 public class TouhouRole extends NormalRole {
     /**

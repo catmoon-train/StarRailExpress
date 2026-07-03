@@ -1,9 +1,10 @@
 package io.wifi.starrailexpress.content.vote;
 
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 import java.util.function.Predicate;
-import org.jetbrains.annotations.Nullable;
 
 public class VoteSession {
     public static class VoteResultOption {

@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.content.block.SupplyCrateBlock;
 import org.agmas.noellesroles.content.block.VendingMachinesBlock;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.init.ModBlocks;

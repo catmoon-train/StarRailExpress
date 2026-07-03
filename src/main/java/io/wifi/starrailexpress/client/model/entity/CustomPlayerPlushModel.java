@@ -1,15 +1,13 @@
 package io.wifi.starrailexpress.client.model.entity;
 
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public class CustomPlayerPlushModel {
     private static final float TEX_SIZE = 64f;

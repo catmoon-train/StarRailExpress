@@ -1,9 +1,6 @@
 // Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
 package io.wifi.starrailexpress.network.packet;
 
-import java.util.List;
-import java.util.Optional;
-
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -12,6 +9,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
+import java.util.Optional;
 
 public record ShowCustomNewspaperPacket(List<Component> pages, Optional<Component> title, Optional<Component> author)
         implements CustomPacketPayload {

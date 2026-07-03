@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.content.block;
 
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
-import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.PlaneSmallDoorBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;

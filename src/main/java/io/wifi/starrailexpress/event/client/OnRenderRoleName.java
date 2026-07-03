@@ -1,9 +1,5 @@
 package io.wifi.starrailexpress.event.client;
 
-import java.util.Optional;
-
-import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
-
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -14,6 +10,9 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+
+import java.util.Optional;
 
 /**
  * 客户端渲染玩家角色名称及相关信息的事件容器。

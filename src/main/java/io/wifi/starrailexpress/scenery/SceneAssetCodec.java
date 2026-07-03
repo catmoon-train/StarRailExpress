@@ -1,10 +1,8 @@
 package io.wifi.starrailexpress.scenery;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import net.minecraft.world.phys.AABB;
+
+import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -14,8 +12,6 @@ import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
-
-import net.minecraft.world.phys.AABB;
 
 public final class SceneAssetCodec {
     private static final int MAGIC = 0x53524553;

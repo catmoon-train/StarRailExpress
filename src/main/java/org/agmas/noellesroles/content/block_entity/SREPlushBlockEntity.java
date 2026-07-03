@@ -1,12 +1,6 @@
 package org.agmas.noellesroles.content.block_entity;
 
-import org.agmas.noellesroles.init.SREFumoBlocks;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-
 import com.mojang.logging.LogUtils;
-
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -25,6 +19,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.noellesroles.init.SREFumoBlocks;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 public class SREPlushBlockEntity extends BlockEntity {
     private static final String TAG_PROFILE = "profile";

@@ -19,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.init.ModEffects;
 import pro.fazeclan.river.stupid_express.constants.SEEffects;
 
 import java.util.List;

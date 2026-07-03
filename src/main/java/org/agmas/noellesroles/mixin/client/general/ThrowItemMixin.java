@@ -3,7 +3,6 @@ package org.agmas.noellesroles.mixin.client.general;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.player.LocalPlayer;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
-import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.TryThrowItemPacket;

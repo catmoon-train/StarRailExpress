@@ -5,7 +5,6 @@ import io.wifi.starrailexpress.network.RoleRotationSyncS2CPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 
 public class RoleRotationClientReceiver {
     public static void register() {

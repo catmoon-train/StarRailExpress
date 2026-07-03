@@ -1,13 +1,11 @@
 package io.wifi.starrailexpress.mixin.client;
 
-import org.spongepowered.asm.mixin.Mixin;
-
-import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.client.resources.SkinManager;
 import com.mojang.authlib.GameProfile;
-
 import io.sre.client.utils.VTModePlayerSkin;
 import io.wifi.starrailexpress.SREClientConfig;
+import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.client.resources.SkinManager;
+import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;

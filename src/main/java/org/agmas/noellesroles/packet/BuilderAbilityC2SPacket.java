@@ -7,8 +7,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
 
-import java.util.UUID;
-
 /**
  * 建筑师技能网络包（客户端 -> 服务端）
  * 当玩家按下技能键时发送

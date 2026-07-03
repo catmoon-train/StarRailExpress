@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.event;
 
+import io.wifi.starrailexpress.client.util.SREClientUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.Event;
@@ -9,8 +10,6 @@ import net.minecraft.client.resources.PlayerSkin.Model;
 import net.minecraft.resources.ResourceLocation;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
-import io.wifi.starrailexpress.client.util.SREClientUtils;
 
 /**
  * 获取玩家皮肤事件。

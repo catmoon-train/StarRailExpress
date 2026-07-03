@@ -1,14 +1,13 @@
 package io.wifi.starrailexpress.client.animation;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.joml.Vector3f;
-
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.animation.KeyframeAnimations;
+import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SmallDoorAnimations {
   public static final AnimationDefinition OPEN = AnimationDefinition.Builder.withLength(1f)

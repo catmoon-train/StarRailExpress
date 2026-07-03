@@ -1,7 +1,5 @@
 package io.wifi.starrailexpress.content.item;
 
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -23,6 +21,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 
 public class CrowbarItem extends Item implements AdventureUsable, DoorCustomOpenItem {
     public CrowbarItem(Properties settings) {

@@ -27,9 +27,6 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.modes.repair.RepairModeState;
 import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class RepairExitGateBlock extends Block {
     public static final BooleanProperty OPEN = BooleanProperty.create("open");
     // 大型拱门结构：5宽 × 5高 × 2深

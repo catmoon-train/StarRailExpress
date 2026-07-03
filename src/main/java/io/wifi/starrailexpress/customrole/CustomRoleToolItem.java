@@ -1,8 +1,5 @@
 package io.wifi.starrailexpress.customrole;
 
-import java.util.List;
-import java.util.function.Predicate;
-
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -11,6 +8,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 public class CustomRoleToolItem extends Item {
 

@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.content.entity;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +18,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.init.ModEntities;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 变形者「举刀假人」实体。

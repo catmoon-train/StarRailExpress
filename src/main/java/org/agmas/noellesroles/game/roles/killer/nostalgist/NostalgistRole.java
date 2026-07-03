@@ -1,13 +1,18 @@
 package org.agmas.noellesroles.game.roles.killer.nostalgist;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.ExtraEffectRole;
-import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
 import io.wifi.starrailexpress.game.ShopContent;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.init.ModItems;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -31,8 +36,112 @@ public class NostalgistRole extends ExtraEffectRole {
 
     @Override
     public List<ShopEntry> getShopEntries() {
-        // 通用杀手商店（与默认刀手商店一致）
-        return ShopContent.defaultKnifeEntries;
+
+        List<ShopEntry> defaultKnifeEntries = ShopContent.defaultKnifeEntries;
+        defaultKnifeEntries.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice){
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !NostalgistPlayerComponent.KEY.get(player).inBackWorld;
+            }
+
+        });
+        defaultKnifeEntries.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
+                SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON){
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !NostalgistPlayerComponent.KEY.get(player).inBackWorld;
+            }
+
+        });
+        defaultKnifeEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
+                SREConfig.instance().grenadePrice, ShopEntry.Type.WEAPON));
+
+        defaultKnifeEntries.add(new ShopEntry(ModItems.SHORT_SHOTGUN.getDefaultInstance(), SREConfig.instance().shortShotgunPrice, ShopEntry.Type.WEAPON){
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !NostalgistPlayerComponent.KEY.get(player).inBackWorld;
+            }
+
+        });
+        defaultKnifeEntries.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
+                SREConfig.instance().psychoModePrice, ShopEntry.Type.WEAPON) {
+            @Override
+            public boolean canBuy(@NotNull Player player) {
+                if (player.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
+                    return false;
+                }
+                return super.canBuy(player);
+            }
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !NostalgistPlayerComponent.KEY.get(player).inBackWorld;
+            }
+            @Override
+            public boolean onBuy(@NotNull Player player) {
+                if (player.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
+                    return false;
+                }
+                player.level().players().forEach(
+                        player1 -> {
+                            if (!player1.getCooldowns().isOnCooldown(TMMItems.PSYCHO_MODE)){
+                                player1.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE,
+                                        SREConfig.instance().psychoGlobalCooldown);
+                            }
+                        }
+                );
+                return SREPlayerShopComponent.usePsychoMode(player);
+            }
+        });
+
+        defaultKnifeEntries.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(),
+                SREConfig.instance().firecrackerPrice, ShopEntry.Type.TOOL){
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !NostalgistPlayerComponent.KEY.get(player).inBackWorld;
+            }
+
+        });
+        defaultKnifeEntries.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(),
+                SREConfig.instance().lockpickPrice, ShopEntry.Type.TOOL){
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !NostalgistPlayerComponent.KEY.get(player).inBackWorld;
+            }
+
+        });
+        defaultKnifeEntries.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(),
+                SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL){
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !NostalgistPlayerComponent.KEY.get(player).inBackWorld;
+            }
+
+        });
+        defaultKnifeEntries.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(),
+                SREConfig.instance().bodyBagPrice, ShopEntry.Type.TOOL){
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !NostalgistPlayerComponent.KEY.get(player).inBackWorld;
+            }
+
+        });
+
+
+        defaultKnifeEntries.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
+                SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
+            @Override
+            public boolean canDisplay(@NotNull Player player) {
+                return !NostalgistPlayerComponent.KEY.get(player).inBackWorld;
+            }
+
+            @Override
+            public boolean onBuy(@NotNull Player player) {
+                return SREPlayerShopComponent.useBlackout(player);
+            }
+        });
+        defaultKnifeEntries.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice,
+                ShopEntry.Type.TOOL));
+        return defaultKnifeEntries;
     }
 
     @Override

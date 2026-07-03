@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.content.item;
 
-import java.util.Random;
-
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropRevolverWhenDead;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.LeftClickKillable;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -17,6 +15,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
+
+import java.util.Random;
 
 public class ScarletPerceptionSwordItem extends SwordItem implements LeftClickKillable, DropRevolverWhenDead {
     static Random random = new Random();

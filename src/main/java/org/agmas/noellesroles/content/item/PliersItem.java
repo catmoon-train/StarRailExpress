@@ -1,7 +1,7 @@
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.content.entity.StickyGrenadeEntity;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.entity.StickyGrenadeEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;

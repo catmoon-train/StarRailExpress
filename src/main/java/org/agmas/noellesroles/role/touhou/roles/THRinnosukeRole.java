@@ -1,13 +1,5 @@
 package org.agmas.noellesroles.role.touhou.roles;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.agmas.noellesroles.init.FunnyItems;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.utils.RoleUtils;
-import org.jetbrains.annotations.NotNull;
-
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -16,6 +8,13 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.init.FunnyItems;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 彩蛋职业。没有获胜条件。

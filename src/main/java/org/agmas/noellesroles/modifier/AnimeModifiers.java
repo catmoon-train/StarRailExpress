@@ -1,24 +1,22 @@
 package org.agmas.noellesroles.modifier;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.event.OnPlayerDeath;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
+import net.exmo.sre.subtitle.SubtitleS2CPayload;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.modifiers.EggModifier;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.event.OnPlayerDeath;
-import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
-
-import java.awt.Color;
+import java.awt.*;
 import java.util.ArrayList;
-
-import net.exmo.sre.subtitle.SubtitleS2CPayload;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 
 public class AnimeModifiers {
     public static final String NAMESPACE = "anime";

@@ -1,15 +1,14 @@
 package io.wifi.starrailexpress.content.vote;
 
+import io.wifi.starrailexpress.content.vote.VoteManager.VoteBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.registries.BuiltInRegistries;
-import java.util.UUID;
-
 import org.jetbrains.annotations.Nullable;
 
-import io.wifi.starrailexpress.content.vote.VoteManager.VoteBuilder;
+import java.util.UUID;
 
 /**
  * 投票中的一个选项，可以是玩家、文本或物品。

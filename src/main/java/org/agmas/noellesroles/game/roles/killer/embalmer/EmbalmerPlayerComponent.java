@@ -14,7 +14,9 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class EmbalmerPlayerComponent implements RoleComponent, ServerTickingComponent {
     public static final ComponentKey<EmbalmerPlayerComponent> KEY = ComponentRegistry.getOrCreate(

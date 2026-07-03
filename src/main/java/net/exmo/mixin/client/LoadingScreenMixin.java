@@ -1,5 +1,7 @@
 package net.exmo.mixin.client;
 
+import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
 import net.exmo.sre.loading.SREReceivingLevelScreen;
 import net.exmo.sre.loading.StarRailExpressTitleScreen;
 import net.exmo.sre.loading.StarRailLoadingOverlay;
@@ -9,9 +11,6 @@ import net.minecraft.client.gui.screens.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-
-import io.wifi.starrailexpress.SREClientConfig;
-import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
 
 @Mixin(Minecraft.class)
 public class LoadingScreenMixin {

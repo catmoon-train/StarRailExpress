@@ -1,11 +1,5 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import java.util.List;
-
-import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.SceneEventManager;
-import org.agmas.noellesroles.scene.SceneParticles;
-
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.index.TMMParticles;
 import net.minecraft.core.BlockPos;
@@ -15,6 +9,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+import org.agmas.noellesroles.scene.SceneEventManager;
+import org.agmas.noellesroles.scene.SceneParticles;
+
+import java.util.List;
 
 /**
  * 有毒区域方块实体：持续停留在毒区中 400 tick 后获得 30 秒中毒（potionTicks），

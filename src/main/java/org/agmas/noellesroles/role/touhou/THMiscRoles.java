@@ -1,12 +1,11 @@
 package org.agmas.noellesroles.role.touhou;
 
-import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
-import org.agmas.noellesroles.role.touhou.roles.THTenshiRole;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
+import org.agmas.noellesroles.role.touhou.roles.THTenshiRole;
 
 public class THMiscRoles {
   public static final String NAMESPACE = "th_misc";

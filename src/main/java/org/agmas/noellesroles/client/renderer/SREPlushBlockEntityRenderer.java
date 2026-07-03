@@ -1,13 +1,7 @@
 package org.agmas.noellesroles.client.renderer;
 
-import org.agmas.noellesroles.content.block.CustomPlayerPlushBlock;
-import org.agmas.noellesroles.content.block.SREPlushBlock;
-import org.agmas.noellesroles.content.block_entity.SREPlushBlockEntity;
-import org.jetbrains.annotations.Nullable;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.model.entity.CustomPlayerPlushModel;
 import net.minecraft.client.Minecraft;
@@ -25,6 +19,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.noellesroles.content.block.CustomPlayerPlushBlock;
+import org.agmas.noellesroles.content.block.SREPlushBlock;
+import org.agmas.noellesroles.content.block_entity.SREPlushBlockEntity;
+import org.jetbrains.annotations.Nullable;
 
 public class SREPlushBlockEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
     private final BlockRenderDispatcher renderer;

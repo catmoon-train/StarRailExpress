@@ -14,13 +14,12 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-
-import java.util.function.Supplier;
-
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import pro.fazeclan.river.stupid_express.StupidExpressConfig;
+
+import java.util.function.Supplier;
 
 public class SettingMenuScreen extends Screen {
     Screen parent;

@@ -1,12 +1,11 @@
 package org.agmas.noellesroles.client.utils;
 
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.harpymodloader.modifiers.SREModifier;
-
 import io.wifi.ConfigCompact.ui.RoleManageConfigUI;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 
 public class RoleDisabledUtilsForClient {
     public static boolean isModifierDisabled(SREModifier modifier) {

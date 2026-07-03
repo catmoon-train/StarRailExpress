@@ -1,9 +1,5 @@
 package org.agmas.noellesroles.content.entity;
 
-import java.util.List;
-
-import org.agmas.noellesroles.init.ModEntities;
-
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
@@ -21,6 +17,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModEntities;
+
+import java.util.List;
 
 /**
  * 滚石实体：沿指定方向滚动，碾死沿途玩家，撞墙或寿命耗尽后碎裂。渲染为一块巨大的原版石头。

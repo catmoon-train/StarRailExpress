@@ -25,7 +25,6 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.item.SignedPaperItem;
 import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
@@ -44,9 +43,9 @@ import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
-import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
+import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -104,8 +103,9 @@ public class InstinctRenderer {
             if (!SREClient.gameComponent.isRole(self, ModRoles.GHOST_EYE)) return -1;
             if (!isGhostEyeScanActive(self)) return -1;
             if (targetPlayer == self || targetPlayer.isSpectator()) return -1;
+            // 超出扫描范围的玩家不由此处理器控制，透传给后续处理器
             if (targetPlayer.distanceToSqr(self) > GhostEyePlayerComponent.SCAN_RADIUS * GhostEyePlayerComponent.SCAN_RADIUS)
-                return -2;
+                return -1;
             return Color.WHITE.getRGB();
         });
         // 鬼祟效果：当目标玩家8格范围内时，禁用杀手直觉高亮
@@ -1142,13 +1142,23 @@ public class InstinctRenderer {
         return target_role.color();
     }
 
+    /**
+     * 检查鬼眼·杨间的被动扫描是否激活。
+     *
+     * <p>通过读取组件同步的 {@code revealTicks} 判断，而非本地计算游戏时间，
+     * 确保客户端与服务端保持同步。与验尸官的周期性时机判断模式不同，
+     * 鬼眼的扫描触发依赖服务端的 {@code scanCountdown} 倒计时（随机偏移量），
+     * 因此必须使用组件同步值，不能仅凭游戏时间推算。
+     */
     private static boolean isGhostEyeScanActive(Player self) {
         if (self == null || self.level() == null) {
             return false;
         }
-        int intervalTicks = Math.max(GhostEyePlayerComponent.REVEAL_TICKS,
-                GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().ghostEyeScanInterval));
-        return self.level().getGameTime() % intervalTicks < GhostEyePlayerComponent.REVEAL_TICKS;
+        GhostEyePlayerComponent comp = GhostEyePlayerComponent.KEY.maybeGet(self).orElse(null);
+        if (comp == null) {
+            return false;
+        }
+        return comp.revealTicks > 0;
     }
 
     private static boolean isKillerTeam(SRERole role) {

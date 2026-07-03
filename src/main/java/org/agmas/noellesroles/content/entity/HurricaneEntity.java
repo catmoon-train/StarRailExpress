@@ -1,9 +1,5 @@
 package org.agmas.noellesroles.content.entity;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -19,6 +15,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class HurricaneEntity extends Entity {
     private static final int DEFAULT_MAX_AGE = 20 * 20;

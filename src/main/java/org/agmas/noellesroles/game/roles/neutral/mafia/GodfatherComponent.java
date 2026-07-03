@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.game.roles.neutral.mafia;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.ShouldReloadDerringer;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.core.HolderLookup;

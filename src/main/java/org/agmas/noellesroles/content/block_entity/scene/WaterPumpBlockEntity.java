@@ -1,12 +1,11 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.noellesroles.init.ModSceneBlocks;
 
 public class WaterPumpBlockEntity extends BlockEntity {
     private static final int COOLDOWN_TICKS = 30 * 20;

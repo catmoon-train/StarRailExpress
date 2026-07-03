@@ -1,9 +1,6 @@
 package org.agmas.noellesroles.content.block.scene;
 
 import com.mojang.serialization.MapCodec;
-import org.agmas.noellesroles.content.block_entity.scene.CoffinBlockEntity;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -27,6 +24,8 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.agmas.noellesroles.content.block_entity.scene.CoffinBlockEntity;
+import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.jetbrains.annotations.Nullable;
 
 public class CoffinBlock extends BaseEntityBlock {

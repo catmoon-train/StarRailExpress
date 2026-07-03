@@ -1,9 +1,6 @@
 package org.agmas.noellesroles.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-
-import org.agmas.noellesroles.content.entity.MovingPlatformEntity;
-
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -14,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import org.agmas.noellesroles.content.entity.MovingPlatformEntity;
 
 /**
  * 移动平台渲染：以原版平滑石头方块渲染（约 1×0.6×1）。

@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.content.item;
 
-import java.util.List;
-
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -14,6 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+
+import java.util.List;
 
 /**
  * 骨杖（亡灵之主专属近战武器）。

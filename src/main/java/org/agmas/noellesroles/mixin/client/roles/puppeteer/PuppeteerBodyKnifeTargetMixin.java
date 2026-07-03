@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.mixin.client.roles.puppeteer;
 
+import io.wifi.starrailexpress.content.item.KnifeItem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.phys.HitResult;
@@ -8,8 +9,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import io.wifi.starrailexpress.content.item.KnifeItem;
 
 /**
  * 让刀可以攻击傀儡本体实体（客户端目标检测）

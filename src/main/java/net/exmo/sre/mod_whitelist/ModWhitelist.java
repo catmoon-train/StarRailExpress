@@ -2,7 +2,6 @@ package net.exmo.sre.mod_whitelist;
 
 
 import io.wifi.starrailexpress.SRE;
-import net.fabricmc.fabric.mixin.resource.loader.ResourcePackManagerMixin;
 import net.fabricmc.loader.api.FabricLoader;
 
 public class ModWhitelist {

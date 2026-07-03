@@ -1,12 +1,11 @@
 package io.wifi.starrailexpress.event;
 
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
-import io.wifi.starrailexpress.util.TrueFalseResult;
 
 /**
  * 事件接口：计算击杀者击杀玩家后应获得的金币奖励总量。

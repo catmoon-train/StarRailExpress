@@ -1,13 +1,5 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
-
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import net.exmo.sre.loading.StarRailExpressTitleScreen;
 import net.fabricmc.api.EnvType;
@@ -30,6 +22,13 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.ServerLinks;
 import net.minecraft.util.CommonLinks;
+import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class WithParentScreenPauseScreen extends PauseScreen {
     public Screen parent;

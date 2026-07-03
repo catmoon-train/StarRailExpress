@@ -1,11 +1,6 @@
 package org.agmas.noellesroles.content.block.scene;
 
 import com.mojang.serialization.MapCodec;
-
-import org.agmas.noellesroles.content.block_entity.scene.RollingStoneTriggerPlateEntity;
-import org.agmas.noellesroles.content.entity.RollingStoneEntity;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -27,6 +22,9 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.agmas.noellesroles.content.block_entity.scene.RollingStoneTriggerPlateEntity;
+import org.agmas.noellesroles.content.entity.RollingStoneEntity;
+import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.jetbrains.annotations.Nullable;
 
 /**

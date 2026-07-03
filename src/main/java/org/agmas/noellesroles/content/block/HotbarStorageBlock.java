@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.content.block;
 
 import com.mojang.serialization.MapCodec;
-import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

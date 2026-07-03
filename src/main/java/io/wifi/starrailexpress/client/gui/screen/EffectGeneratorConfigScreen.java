@@ -1,8 +1,5 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.wifi.starrailexpress.content.block_entity.EffectGeneratorBlockEntity;
 import io.wifi.starrailexpress.network.EffectGeneratorPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -14,6 +11,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EffectGeneratorConfigScreen extends Screen {
     private static final int ROW_HEIGHT = 24;

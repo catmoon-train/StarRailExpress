@@ -31,10 +31,9 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
-
-import org.jetbrains.annotations.Nullable;
 
 public abstract class LockableButtonBlock extends ButtonBlock
         implements EntityBlock, SimpleWaterloggedBlock {

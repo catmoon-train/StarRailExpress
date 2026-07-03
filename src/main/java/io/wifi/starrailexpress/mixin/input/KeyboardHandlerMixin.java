@@ -1,12 +1,11 @@
 package io.wifi.starrailexpress.mixin.input;
 
+import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
 import net.minecraft.client.KeyboardHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
 
 @Mixin(KeyboardHandler.class)
 public abstract class KeyboardHandlerMixin {

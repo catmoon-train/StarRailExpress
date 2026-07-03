@@ -1,8 +1,8 @@
 package net.exmo.mixin.client;
 
 import net.exmo.sre.mod_whitelist.client.network.ModWhitelistClientNetworkHandler;
-import net.minecraft.client.Minecraft;
 import net.irisshaders.iris.apiimpl.IrisApiV0ConfigImpl;
+import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

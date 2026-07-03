@@ -1,13 +1,5 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.SceneTaskManager;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -18,6 +10,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+import org.agmas.noellesroles.scene.SceneTaskManager;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 作物方块实体：检测在其上蹦跶（向上速度）的玩家并上报场景任务进度，带去抖动。

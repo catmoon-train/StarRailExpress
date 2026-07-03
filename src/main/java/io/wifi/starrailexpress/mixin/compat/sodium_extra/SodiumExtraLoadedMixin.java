@@ -1,9 +1,8 @@
 package io.wifi.starrailexpress.mixin.compat.sodium_extra;
 
-import org.spongepowered.asm.mixin.Mixin;
-
 import me.flashyreese.mods.sodiumextra.client.SodiumExtraClientMod;
 import net.minecraft.world.level.Level;
+import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(value = Level.class)
 public class SodiumExtraLoadedMixin {

@@ -1,8 +1,5 @@
 package io.wifi.starrailexpress.content.block_entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -15,6 +12,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EffectGeneratorBlockEntity extends SyncingBlockEntity {
     public static final int MAX_RADIUS = 100;

@@ -1,33 +1,8 @@
 package org.agmas.noellesroles.client.screen;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Predicate;
-
-import org.agmas.harpymodloader.SREDisableManager;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
-import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.harpymodloader.modifiers.SREModifier;
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.init.RoleInitialItems;
-import org.agmas.noellesroles.utils.RoleUtils;
-import org.joml.Matrix4f;
-
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.RepairRole;
-import io.wifi.starrailexpress.api.SREAbstractInfoClass;
-import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.*;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
@@ -54,6 +29,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import org.agmas.harpymodloader.SREDisableManager;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.harpymodloader.modifiers.HMLModifiers;
+import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.init.RoleInitialItems;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.joml.Matrix4f;
+
+import java.util.*;
+import java.util.function.Predicate;
 
 public class RoleIntroduceScreen extends Screen {
     /**

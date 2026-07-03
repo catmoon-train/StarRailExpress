@@ -7,14 +7,12 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent.AlivePlayerRoleTeamInfo
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
-
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
@@ -25,6 +23,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;

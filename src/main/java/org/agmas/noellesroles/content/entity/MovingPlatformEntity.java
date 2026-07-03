@@ -1,10 +1,5 @@
 package org.agmas.noellesroles.content.entity;
 
-import java.util.List;
-
-import org.agmas.noellesroles.init.ModEntities;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -15,6 +10,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+
+import java.util.List;
 
 /**
  * 移动平台实体：在起点与终点之间往返，玩家可站在其上并被带动。可被实体碰撞（可站立）。

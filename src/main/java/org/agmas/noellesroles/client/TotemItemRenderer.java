@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.ItemSupplier;
-import org.agmas.noellesroles.content.entity.SilenceTotemEntity;
 
 public class TotemItemRenderer<T extends Entity & ItemSupplier> extends ThrownItemRenderer<T > {
     public TotemItemRenderer(EntityRendererProvider.Context context, float f, boolean bl) {

@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.Screen;
@@ -10,9 +9,6 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.content.item.CourierMailData;
-import org.agmas.noellesroles.content.item.CourierMailItem;
 import org.agmas.noellesroles.packet.CourierMailSendC2SPacket;
 
 import java.awt.*;

@@ -1,5 +1,8 @@
 package io.wifi.starrailexpress.client.util;
 
+import com.mojang.blaze3d.vertex.BufferUploader;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.InputType;
 import net.minecraft.client.KeyMapping;
@@ -12,14 +15,10 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.level.Level;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import java.util.UUID;
-
-import com.mojang.blaze3d.vertex.BufferUploader;
 
 public class SREClientUtils {
     public static UUID getPlayerUidByName(String name) {

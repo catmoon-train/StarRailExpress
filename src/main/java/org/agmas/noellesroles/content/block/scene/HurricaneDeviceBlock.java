@@ -1,9 +1,6 @@
 package org.agmas.noellesroles.content.block.scene;
 
 import com.mojang.serialization.MapCodec;
-import org.agmas.noellesroles.content.block_entity.scene.HurricaneDeviceBlockEntity;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +12,8 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.agmas.noellesroles.content.block_entity.scene.HurricaneDeviceBlockEntity;
+import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;

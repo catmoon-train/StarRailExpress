@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.c4;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -18,7 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.cca.C4BackComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 
 import java.util.HashMap;
 import java.util.Iterator;

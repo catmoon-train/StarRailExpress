@@ -1,11 +1,10 @@
 package io.wifi.starrailexpress.event;
 
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.world.entity.player.Player;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
-import io.wifi.starrailexpress.util.TrueFalseResult;
 
 /**
  * 事件接口：判断手枪射击击中时是否允许掉落物品（例如目标的物品）。

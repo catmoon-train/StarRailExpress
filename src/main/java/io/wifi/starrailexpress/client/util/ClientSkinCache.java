@@ -1,14 +1,14 @@
 package io.wifi.starrailexpress.client.util;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import io.sre.client.events.ClientPlayerInfoUpdatePacketEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class ClientSkinCache {
     public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();

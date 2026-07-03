@@ -2,9 +2,6 @@ package org.agmas.noellesroles.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-
-import org.agmas.noellesroles.content.entity.RollingStoneEntity;
-
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -15,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import org.agmas.noellesroles.content.entity.RollingStoneEntity;
 
 /**
  * 滚石渲染：以原版石头方块渲染，随移动方向滚动。

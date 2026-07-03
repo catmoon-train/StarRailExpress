@@ -4,10 +4,9 @@ import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.init.RoleInitialItems;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
-import org.agmas.noellesroles.init.RoleInitialItems;
 
 public interface ModdedRoleAssigned {
 

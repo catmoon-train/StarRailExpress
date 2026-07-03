@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.network.packet.EditNewspaperPacket;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -16,7 +17,10 @@ import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.util.FormattedCharSequence;
@@ -31,14 +35,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
 
-import io.wifi.starrailexpress.network.packet.EditNewspaperPacket;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Optional;
+import java.util.*;
 
 public class NewspaperScreen extends Screen {
 
@@ -800,16 +797,7 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        
-        if (keyCode == 258) {
-            if (!Screen.hasShiftDown()) {
-                pageEdit.insertText("    "); // 4 个空格
-                clearDisplayCache();
-                return true;
-            }
-            return true;
-        }
-        if(keyCode == 256){
+        if (keyCode == 256) {
             this.saveChanges(false);
             this.onClose();
         }
@@ -834,7 +822,14 @@ public class NewspaperScreen extends Screen {
 
         if (pageEdit == null)
             return false;
-
+        if (keyCode == 258) {
+            if (!Screen.hasShiftDown()) {
+                pageEdit.insertText("    "); // 4 个空格
+                clearDisplayCache();
+                return true;
+            }
+            return true;
+        }
         if (Screen.isSelectAll(keyCode)) {
             pageEdit.selectAll();
             return true;

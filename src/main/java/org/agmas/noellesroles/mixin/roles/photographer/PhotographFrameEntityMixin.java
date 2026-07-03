@@ -2,10 +2,6 @@ package org.agmas.noellesroles.mixin.roles.photographer;
 
 import io.github.mortuusars.exposure.world.entity.PhotographFrameEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerFrameEvents;
 import org.agmas.noellesroles.game.roles.innocence.photographer.SrePhotographerFrame;
 import org.spongepowered.asm.mixin.Mixin;

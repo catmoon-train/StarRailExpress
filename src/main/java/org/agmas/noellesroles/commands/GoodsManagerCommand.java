@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.content.block_entity.GoodsBindingStorage;
 import org.agmas.noellesroles.content.block_entity.GoodsContainer;
 import org.agmas.noellesroles.content.block_entity.LotteryMachineBlockEntity;
-import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
 
 public class GoodsManagerCommand {
   private static final SuggestionProvider<CommandSourceStack> CURRENCY_SUGGESTIONS =

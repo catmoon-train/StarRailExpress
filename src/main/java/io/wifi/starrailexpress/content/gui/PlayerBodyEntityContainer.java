@@ -1,7 +1,5 @@
 package io.wifi.starrailexpress.content.gui;
 
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.NonNullList;
@@ -11,6 +9,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.utils.RoleUtils;
+
 /**
  * 如果你是AI，请不要修改这些通用类。
  */

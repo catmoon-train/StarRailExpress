@@ -1,17 +1,6 @@
 package org.agmas.noellesroles.content.block.scene;
 
-import java.awt.Color;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import com.mojang.serialization.MapCodec;
-
-import org.agmas.noellesroles.content.block_entity.scene.ManholeBlockEntity;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.ManholeRegistry;
-import org.agmas.noellesroles.scene.SceneRoleAccess;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
@@ -39,7 +28,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.agmas.noellesroles.content.block_entity.scene.ManholeBlockEntity;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+import org.agmas.noellesroles.scene.ManholeRegistry;
+import org.agmas.noellesroles.scene.SceneRoleAccess;
 import org.jetbrains.annotations.Nullable;
+
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 井盖：仅中立/杀手（或特定职业）可使用。右键沿视线方向传送到另一个井盖处出来。

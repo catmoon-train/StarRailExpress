@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.content.block;
 
+import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -22,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
-
-import com.mojang.serialization.MapCodec;
 
 public abstract class MountableBlock extends Block {
     public static <B extends Block> MapCodec<B> createSimpleCodec(Function<Properties, B> function) {

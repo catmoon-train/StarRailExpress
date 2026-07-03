@@ -1,8 +1,5 @@
 package io.wifi.starrailexpress.game.roles;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -13,6 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SeekerRole extends NormalRole {
 

@@ -1,6 +1,8 @@
 package io.wifi.starrailexpress.customrole;
 
-import io.wifi.starrailexpress.customrole.CustomRoleData.*;
+import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
+import io.wifi.starrailexpress.customrole.CustomRoleData.InitialItemEntry;
+import io.wifi.starrailexpress.customrole.CustomRoleData.ShopEntryData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;

@@ -13,13 +13,12 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.game.roles.innocence.fool.FoolTarotVoteC2SPacket;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import org.agmas.noellesroles.game.roles.innocence.fool.FoolTarotVoteC2SPacket;
 
 public class FoolTarotVoteScreen extends Screen {
     private final List<org.agmas.noellesroles.game.roles.innocence.fool.FoolOpenTarotVoteS2CPacket.CandidateEntry> candidates;

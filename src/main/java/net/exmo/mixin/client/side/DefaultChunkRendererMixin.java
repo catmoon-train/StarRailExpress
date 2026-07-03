@@ -1,9 +1,6 @@
 package net.exmo.mixin.client.side;
 
-import java.nio.ByteBuffer;
-
 import com.llamalad7.mixinextras.sugar.Local;
-
 import io.wifi.starrailexpress.compat.SodiumShaderInterface;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import net.caffeinemc.mods.sodium.client.gl.buffer.GlBufferUsage;
@@ -32,6 +29,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.nio.ByteBuffer;
 
 @Mixin(value = DefaultChunkRenderer.class)
 public abstract class DefaultChunkRendererMixin {

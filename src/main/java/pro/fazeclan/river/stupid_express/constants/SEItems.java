@@ -2,17 +2,14 @@ package pro.fazeclan.river.stupid_express.constants;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.index.TMMDescItems;
-import static io.wifi.starrailexpress.index.TMMItems.TOOLS_GROUP;
-import static io.wifi.starrailexpress.index.TMMItems.WEAPONS_GROUP;
-import static io.wifi.starrailexpress.index.TMMItems.SRE_ALL_GROUP;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.role.arsonist.item.LighterItem;
+
+import static io.wifi.starrailexpress.index.TMMItems.*;
 
 public class SEItems {
 

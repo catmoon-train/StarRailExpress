@@ -6,7 +6,6 @@ import io.wifi.starrailexpress.api.impl.KnifeChargeableItem;
 import io.wifi.starrailexpress.index.DevItems;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.index.TMMItems;
-import static io.wifi.starrailexpress.index.TMMItems.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -20,10 +19,13 @@ import net.minecraft.world.item.component.ItemLore;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.content.item.charge_item.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import static io.wifi.starrailexpress.game.GameConstants.getInTicks;
+import static io.wifi.starrailexpress.index.TMMItems.*;
 
 @SuppressWarnings("unchecked")
 

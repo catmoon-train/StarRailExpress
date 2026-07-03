@@ -1,9 +1,9 @@
 package org.agmas.harpymodloader.modifiers;
 
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.ArrayList;
 import java.util.HashSet;
-
-import net.minecraft.resources.ResourceLocation;
 
 public class HMLModifiers {
 

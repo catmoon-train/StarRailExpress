@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.content.block.scene;
 
-import org.agmas.noellesroles.scene.SceneTaskManager;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import org.agmas.noellesroles.scene.SceneTaskManager;
 
 /**
  * 炉灶（场景任务「点燃炉灶取暖」）：右键点燃，玩家在旁停留 5 秒完成任务。原版熔炉贴图。

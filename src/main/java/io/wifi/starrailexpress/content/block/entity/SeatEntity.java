@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.content.block.entity;
 
+import io.wifi.starrailexpress.content.block.MountableBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
@@ -8,8 +9,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-
-import io.wifi.starrailexpress.content.block.MountableBlock;
 
 public class SeatEntity extends Entity {
     @Nullable

@@ -1,19 +1,18 @@
 // Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
 package io.wifi.ConfigCompact.config_gui_provider;
 
+import me.shedaniel.clothconfig2.gui.entries.AbstractTextFieldListListEntry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import me.shedaniel.clothconfig2.gui.entries.AbstractTextFieldListListEntry;
-
-import org.jetbrains.annotations.ApiStatus.Internal;
 
 @Environment(EnvType.CLIENT)
 public class StringListListEntry extends

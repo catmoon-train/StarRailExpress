@@ -1,13 +1,12 @@
 package io.wifi.starrailexpress.api;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class SREAbstractInfoClass {
 

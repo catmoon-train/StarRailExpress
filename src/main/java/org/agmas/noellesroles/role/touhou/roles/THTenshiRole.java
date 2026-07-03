@@ -1,9 +1,5 @@
 package org.agmas.noellesroles.role.touhou.roles;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.agmas.noellesroles.init.ModItems;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
@@ -13,6 +9,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.init.ModItems;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class THTenshiRole extends TouhouRole {
     public final static ArrayList<ShopEntry> SHOP = new ArrayList<>();

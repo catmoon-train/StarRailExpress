@@ -1,9 +1,6 @@
 package io.wifi.starrailexpress.content.block;
 
-import java.util.function.ToIntFunction;
-
 import com.mojang.serialization.MapCodec;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import io.wifi.starrailexpress.index.SREBlocks;
@@ -25,6 +22,8 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.function.ToIntFunction;
 
 public class TrainLightBlock extends LightBlock implements LightBlockInterface {
     public static final ToIntFunction<BlockState> LIGHT_EMISSION;

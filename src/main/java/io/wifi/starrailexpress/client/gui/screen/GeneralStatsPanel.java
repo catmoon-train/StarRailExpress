@@ -3,8 +3,8 @@ package io.wifi.starrailexpress.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.stats.PlayerStats;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
+import io.wifi.starrailexpress.stats.PlayerStats;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

@@ -1,10 +1,6 @@
 package org.agmas.noellesroles.game.roles.killer.undead_lord;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.wifi.starrailexpress.api.NormalRole;
-import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -20,8 +16,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 亡灵之主（杀手阵营，控场 / 滚雪球）。

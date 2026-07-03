@@ -5,7 +5,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * 布谷鸟蛋数据管理，替代 Fabric 中不可用的 getPersistentData()。

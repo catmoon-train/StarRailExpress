@@ -1,13 +1,13 @@
 package io.wifi.starrailexpress.content.block_entity;
 
-import java.util.UUID;
-
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.UUID;
 
 public class TicketOfficeBlockEntity extends SyncingBlockEntity {
     private int price = 1;

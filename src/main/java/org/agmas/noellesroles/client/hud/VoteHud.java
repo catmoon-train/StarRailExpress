@@ -1,11 +1,10 @@
 package org.agmas.noellesroles.client.hud;
 
-import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
-
 import io.wifi.starrailexpress.client.InputHandler;
 import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 
 public class VoteHud {
 

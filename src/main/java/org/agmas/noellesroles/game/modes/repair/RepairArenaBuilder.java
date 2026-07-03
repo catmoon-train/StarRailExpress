@@ -18,12 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.agmas.noellesroles.init.ModBlocks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public final class RepairArenaBuilder {
     private static final Map<ServerLevel, ArenaState> ARENAS = new java.util.WeakHashMap<>();

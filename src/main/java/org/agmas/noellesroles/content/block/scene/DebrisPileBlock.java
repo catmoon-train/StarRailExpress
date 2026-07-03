@@ -20,7 +20,7 @@ import org.agmas.noellesroles.content.block_entity.scene.DebrisPileBlockEntity;
 import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.function.Consumer;
 
 public class DebrisPileBlock extends BaseEntityBlock implements TaskInstinctShowableInterface {

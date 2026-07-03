@@ -1,10 +1,5 @@
 package org.agmas.noellesroles.game.roles.innocence.mortician;
 
-import java.util.UUID;
-
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.utils.MCItemsUtils;
-
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -21,6 +16,10 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.utils.MCItemsUtils;
+
+import java.util.UUID;
 
 public class MorticianRole extends NormalRole {
 

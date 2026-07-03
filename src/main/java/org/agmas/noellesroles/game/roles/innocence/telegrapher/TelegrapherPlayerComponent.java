@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.innocence.telegrapher;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -12,9 +13,9 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import io.wifi.starrailexpress.game.GameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
+
 /**
  * 电报员组件
  *

@@ -25,7 +25,10 @@ import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
-import org.agmas.noellesroles.init.*;
+import org.agmas.noellesroles.init.FunnyItems;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModMenus;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.packet.Loot.*;
 import org.agmas.noellesroles.register.RiceEventRegister;
@@ -33,7 +36,9 @@ import org.agmas.noellesroles.register.RicePacketTypeRegister;
 import org.agmas.noellesroles.register.RiceReceiverRegister;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+
 import java.util.ArrayList;
+
 import static org.agmas.noellesroles.Noellesroles.LOGGER;
 import static org.agmas.noellesroles.Noellesroles.MOD_ID;
 

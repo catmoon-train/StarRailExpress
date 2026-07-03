@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.scenery;
 
-import java.util.List;
-
 import net.minecraft.world.phys.AABB;
+
+import java.util.List;
 
 public record SceneAsset(
         int schema,

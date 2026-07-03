@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.wifi.starrailexpress.util.TickTimer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -21,7 +22,6 @@ import org.agmas.noellesroles.client.animation.AnimationTimeLineManager;
 import org.agmas.noellesroles.client.animation.BezierAnimation;
 import org.agmas.noellesroles.client.animation.ConstantSpeedAnimation;
 import org.agmas.noellesroles.client.widget.TextureWidget;
-import io.wifi.starrailexpress.util.TickTimer;
 import org.agmas.noellesroles.client.widget.TimerWidget;
 import org.agmas.noellesroles.packet.ChefCookC2SPacket;
 import org.agmas.noellesroles.utils.Pair;

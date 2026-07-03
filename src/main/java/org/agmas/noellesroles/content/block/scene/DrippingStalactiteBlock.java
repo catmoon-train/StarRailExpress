@@ -1,9 +1,5 @@
 package org.agmas.noellesroles.content.block.scene;
 
-import java.util.List;
-
-import org.agmas.noellesroles.scene.SceneParticles;
-
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
@@ -26,6 +22,9 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DripstoneThickness;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.scene.SceneParticles;
+
+import java.util.List;
 
 /**
  * 滴水石椎：随机间隔先滴水预警（dripping），随后坠落一颗石锥实体，砸死正下方一整列内的玩家。

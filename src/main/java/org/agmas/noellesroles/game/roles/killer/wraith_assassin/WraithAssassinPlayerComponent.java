@@ -3,16 +3,18 @@ package org.agmas.noellesroles.game.roles.killer.wraith_assassin;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -36,13 +39,11 @@ import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class WraithAssassinPlayerComponent implements RoleComponent, ServerTickingComponent {
     public static final ComponentKey<WraithAssassinPlayerComponent> KEY = ModComponents.WRAITH_ASSASSIN;
-    public static final boolean 残月还是没修罪人 = true;
+
     public static final int MAX_ENERGY = 1000;
     public static final int LOW_SAN_BLUE = 20;
     public static final int LOW_SAN_YELLOW = 30;
@@ -56,6 +57,9 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     public static final int DRAIN_RADIUS = 8;
     public static final int DRAIN_SAN_AMOUNT = 30;
     public static final int DRAIN_COOLDOWN_TICKS = 30 * 20;
+    public static final int FLOAT_DURATION = 40; // 2 seconds
+    public static final double DASH_SPEED_NORMAL = 2.0;
+    public static final double DASH_SPEED_MANIFEST = 3.5;
     public static final ResourceLocation DEATH_REASON = Noellesroles.id("wraith_assault");
 
     private final Player player;
@@ -63,6 +67,9 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     public int manifestTicks;
     public int drainCooldownTicks;
     private int heartbeatTimer;
+
+    /** 被冲刺命中后处于漂浮状态的玩家：UUID -> 剩余漂浮tick数 */
+    private final Map<UUID, Integer> floatingTargets = new HashMap<>();
 
     public WraithAssassinPlayerComponent(Player player) {
         this.player = player;
@@ -88,6 +95,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         manifestTicks = 0;
         drainCooldownTicks = 0;
         heartbeatTimer = 0;
+        floatingTargets.clear();
         sync();
     }
 
@@ -114,11 +122,11 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         
         SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(player.level());
         if (gw == null || !gw.isRunning() || !gw.isRole(player, ModRoles.WRAITH_ASSASSIN)) {
-            
+            floatingTargets.clear();
             return;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(sp)) {
-            
+            floatingTargets.clear();
             return;
         }
 
@@ -140,6 +148,59 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         }
         applyLowSanNearbyPressure(sp);
         heartbeatTimer++;
+
+        // 处理漂浮死亡目标
+        tickFloatingTargets(sp);
+    }
+
+    /**
+     * 每 tick 检查漂浮目标，倒计时结束后处决并生成红石粒子
+     */
+    private void tickFloatingTargets(ServerPlayer self) {
+        if (floatingTargets.isEmpty()) return;
+        ServerLevel level = self.serverLevel();
+        Iterator<Map.Entry<UUID, Integer>> it = floatingTargets.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, Integer> entry = it.next();
+            int remaining = entry.getValue() - 1;
+            if (remaining <= 0) {
+                // 漂浮结束，处决目标
+                Player target = level.getPlayerByUUID(entry.getKey());
+                if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
+                    // 爆发红石粒子
+                    Vec3 pos = target.position().add(0, target.getBbHeight() / 2, 0);
+                    for (int i = 0; i < 16; i++) {
+                        double angle = Math.random() * Math.PI * 2;
+                        double pitch = Math.acos(2 * Math.random() - 1);
+                        double speed = 0.3 + Math.random() * 0.7;
+                        level.sendParticles(DustParticleOptions.REDSTONE,
+                                pos.x, pos.y, pos.z, 1,
+                                Math.sin(pitch) * Math.cos(angle) * speed,
+                                Math.sin(pitch) * Math.sin(angle) * speed,
+                                Math.cos(pitch) * speed,
+                                0.5d);
+                    }
+                    // 额外红石爆发环
+                    for (int ring = 0; ring < 3; ring++) {
+                        double ringRadius = 0.4 + ring * 0.5;
+                        for (int j = 0; j < 5; j++) {
+                            double ringAngle = (2 * Math.PI * j) / 16;
+                            level.sendParticles(DustParticleOptions.REDSTONE,
+                                    pos.x + Math.cos(ringAngle) * ringRadius,
+                                    pos.y + ring * 0.3,
+                                    pos.z + Math.sin(ringAngle) * ringRadius,
+                                    1, 0, 0.05, 0, 0.5d);
+                        }
+                    }
+                    level.playSound(null, target.blockPosition(), SoundEvents.WARDEN_DEATH,
+                            SoundSource.HOSTILE, 1.2f, 0.6f);
+                    GameUtils.killPlayer(target, true, self, DEATH_REASON);
+                }
+                it.remove();
+            } else {
+                entry.setValue(remaining);
+            }
+        }
     }
 
     private void applyDimensionEffects() {
@@ -211,6 +272,12 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         return true;
     }
 
+    /**
+     * 冤魂突袭 —— 物理冲刺
+     * 向视线方向高速冲刺，路径上的玩家被命中后会漂浮2秒并受到封印，
+     * 漂浮结束后爆发红石粒子死亡。
+     * 显现状态下冲刺速度和距离均得到强化。
+     */
     public boolean useAssault(ServerPlayer self) {
         if (!spendEnergy(self, ASSAULT_COST)) {
             return false;
@@ -219,8 +286,10 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         Vec3 start = self.position();
         Vec3 look = self.getLookAngle().normalize();
         double distance = isManifested() ? 10.0D : 6.0D;
+        double dashSpeed = isManifested() ? DASH_SPEED_MANIFEST : DASH_SPEED_NORMAL;
         Set<UUID> hit = new HashSet<>();
 
+        // 碰撞检测：冲刺路径上分段检测命中
         for (int i = 1; i <= 12; i++) {
             Vec3 pos = start.add(look.scale(distance * i / 12.0D));
             for (ServerPlayer target : level.getEntitiesOfClass(ServerPlayer.class,
@@ -235,19 +304,62 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
                 assaultHit(self, target);
             }
         }
-        Vec3 end = start.add(look.scale(distance));
-        self.teleportTo(end.x, end.y, end.z);
+
+        // 物理冲刺：设置速度而非传送
+        Vec3 dashVector = look.scale(dashSpeed);
+        self.setDeltaMovement(dashVector.x, Math.max(dashVector.y, 0.15), dashVector.z);
+        self.connection.send(new ClientboundSetEntityMotionPacket(self.getId(), dashVector));
+        self.fallDistance = 0f;
+
+        // 冲刺粒子轨迹
+        for (int i = 0; i < 20; i++) {
+            double progress = (double) i / 20;
+            Vec3 trailPos = start.add(look.scale(distance * progress));
+            level.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME,
+                    trailPos.x, trailPos.y + self.getBbHeight() * 0.5, trailPos.z,
+                    3, 0.15, 0.15, 0.15, 0.02);
+            level.sendParticles(net.minecraft.core.particles.ParticleTypes.SMOKE,
+                    trailPos.x, trailPos.y + 0.1, trailPos.z,
+                    1, 0.05, 0.02, 0.05, 0.01);
+        }
+
         level.playSound(null, self.blockPosition(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.HOSTILE, 1.0f, 1.4f);
         return true;
     }
 
+    /**
+     * 冲刺命中处理：施加漂浮、技能封印、移动封印、使用封印
+     * 2秒漂浮结束后自动处决，爆发红石粒子
+     */
     private void assaultHit(ServerPlayer self, ServerPlayer target) {
-        if (getSan(target) < LOW_SAN_BLUE) {
-            GameUtils.killPlayer(target, true, self, DEATH_REASON);
-        } else {
-            addSan(target, -10);
-            target.playNotifySound(SoundEvents.WARDEN_ATTACK_IMPACT, SoundSource.HOSTILE, 1.0f, 0.7f);
-        }
+        // 施加漂浮 II（向上浮起）
+        target.addEffect(new MobEffectInstance(MobEffects.LEVITATION, FLOAT_DURATION, 1,
+                false, true, true));
+
+        // 技能封印
+        target.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, FLOAT_DURATION + 10, 0,
+                false, true, true));
+
+        // 移动封印
+        target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, FLOAT_DURATION + 10, 0,
+                false, true, true));
+
+        // 使用封印
+        target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, FLOAT_DURATION + 10, 0,
+                false, true, true));
+
+        // 记录漂浮目标
+        floatingTargets.put(target.getUUID(), FLOAT_DURATION);
+
+        // 被命中时的音效和粒子反馈
+        target.playNotifySound(SoundEvents.WARDEN_ATTACK_IMPACT, SoundSource.HOSTILE, 1.0f, 0.7f);
+        target.playNotifySound(SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 0.6f, 0.5f);
+
+        // 命中点红石粒子
+        Vec3 hitPos = target.position().add(0, target.getBbHeight() / 2, 0);
+        self.serverLevel().sendParticles(DustParticleOptions.REDSTONE,
+                hitPos.x, hitPos.y, hitPos.z, 20,
+                0.3, 0.3, 0.3, 0.3d);
     }
 
     public boolean useWail(ServerPlayer self) {
@@ -345,16 +457,82 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         return gw.isKillerTeam(viewer) || getSan(viewer) < LOW_SAN_YELLOW;
     }
 
+    /**
+     * 检查攻击者是否可以攻击冤魂目标
+     * 规则：
+     * - 冤魂显现时：所有人都可攻击
+     * - 冤魂未显现时：杀手/中立阵营可攻击；SAN<20的平民可攻击；其余平民不可攻击
+     */
+    private static boolean canAttackWraith(Player attacker, Player wraith) {
+        SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(wraith.level());
+        var comp = KEY.maybeGet(wraith).orElse(null);
+        if (comp == null) return true;
+
+        // 显现状态下所有人都可攻击
+        if (comp.isManifested()) return true;
+
+        // 未显现状态下：
+        // 杀手阵营可攻击
+        if (gw.isKillerTeam(attacker)) return true;
+
+        // 其他阵营（中立等）可攻击
+        if (!gw.isInnocent(attacker)) return true;
+
+        // 平民阵营：只有 SAN < 20 可攻击
+        return getSan(attacker) < LOW_SAN_BLUE;
+    }
+
     public static void registerEvents() {
+        // 攻击拦截：限制非低SAN平民攻击未显现的冤魂
+        AttackEntityCallback.EVENT.register((attacker, level, hand, entity, hitResult) -> {
+            if (level.isClientSide || !(attacker instanceof ServerPlayer serverAttacker)) {
+                return InteractionResult.PASS;
+            }
+            if (!(entity instanceof ServerPlayer target)) {
+                return InteractionResult.PASS;
+            }
+            if (!GameUtils.isPlayerAliveAndSurvival(target) || !GameUtils.isPlayerAliveAndSurvival(serverAttacker)) {
+                return InteractionResult.PASS;
+            }
+            SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(level);
+            if (!gw.isRole(target, ModRoles.WRAITH_ASSASSIN)) {
+                return InteractionResult.PASS;
+            }
+            if (!canAttackWraith(serverAttacker, target)) {
+                serverAttacker.displayClientMessage(
+                        Component.translatable("message.noellesroles.wraith_assassin.cannot_attack")
+                                .withStyle(ChatFormatting.DARK_RED), true);
+                return InteractionResult.FAIL;
+            }
+            return InteractionResult.PASS;
+        });
+
+        // 死亡拦截：冤魂在维度模式下不能通过普通方式杀人（漂浮处决除外）
+        // 同时限制非低SAN平民无法击杀未显现的冤魂
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            if (killer != null) {
+            if (killer == null) return true;
+
+            SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(victim.level());
+
+            // 冤魂作为击杀者：在维度模式下不能直接击杀（漂浮处决走的是另一个路径）
+            if (gw.isRole(killer, ModRoles.WRAITH_ASSASSIN)) {
                 var comp = KEY.maybeGet(killer).orElse(null);
                 if (comp != null && comp.isInDimension()) {
                     return false;
                 }
             }
+
+            // 冤魂作为受害者：检查攻击者是否有权限
+            if (gw.isRole(victim, ModRoles.WRAITH_ASSASSIN)
+                    && !deathReason.equals(DEATH_REASON)) { // wraith_assault 死亡原因由漂浮处决触发
+                if (!canAttackWraith(killer, victim)) {
+                    return false;
+                }
+            }
+
             return true;
         });
+
         AllowPlayerOpenLockedDoor.EVENT.register(entity -> {
             if (!(entity instanceof Player player)) {
                 return false;

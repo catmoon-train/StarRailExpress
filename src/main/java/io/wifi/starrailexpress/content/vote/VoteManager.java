@@ -1,11 +1,5 @@
 package io.wifi.starrailexpress.content.vote;
 
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import org.jetbrains.annotations.Nullable;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.vote.VoteOption.ItemOption;
 import io.wifi.starrailexpress.content.vote.VoteOption.PlayerOption;
@@ -18,6 +12,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class VoteManager {
 

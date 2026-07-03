@@ -5,7 +5,6 @@ import org.agmas.noellesroles.client.hud.modifiers.LoversHud;
 import org.agmas.noellesroles.client.hud.modifiers.RefugeeHud;
 import org.agmas.noellesroles.client.hud.modifiers.ShitSplitHud;
 import org.agmas.noellesroles.client.hud.roles.*;
-import org.agmas.noellesroles.client.hud.roles.CuckooHud;
 
 public class OtherRolesRegister {
 

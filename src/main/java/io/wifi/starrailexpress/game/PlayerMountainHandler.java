@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.game;
 
-import java.util.Random;
-
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.event.CanCollideWith;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.Random;
 
 /**
  * 防止玩家叠叠乐的handler

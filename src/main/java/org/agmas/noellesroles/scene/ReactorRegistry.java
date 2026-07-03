@@ -1,18 +1,13 @@
 package org.agmas.noellesroles.scene;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import org.agmas.noellesroles.content.block_entity.scene.ReactorBlockEntity;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.agmas.noellesroles.content.block_entity.scene.ReactorBlockEntity;
+
+import java.util.*;
 
 /**
  * 反应堆位置登记表（按维度，瞬态）。用于判断“场上所有反应堆是否都已关闭”。

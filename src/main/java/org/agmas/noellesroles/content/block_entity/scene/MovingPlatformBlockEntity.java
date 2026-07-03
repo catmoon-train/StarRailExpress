@@ -1,12 +1,5 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import java.util.UUID;
-
-import org.agmas.noellesroles.content.block.scene.MovingPlatformBlock;
-import org.agmas.noellesroles.content.entity.MovingPlatformEntity;
-import org.agmas.noellesroles.init.ModEntities;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -19,7 +12,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.content.block.scene.MovingPlatformBlock;
+import org.agmas.noellesroles.content.entity.MovingPlatformEntity;
+import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 /**
  * 移动方块底座方块实体：确保其管理的移动平台实体始终存在（按 UUID 跟踪），底座移除时清除平台。

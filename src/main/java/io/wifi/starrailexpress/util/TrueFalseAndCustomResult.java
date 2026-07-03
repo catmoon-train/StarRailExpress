@@ -1,8 +1,8 @@
 package io.wifi.starrailexpress.util;
 
-import java.util.Optional;
-
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class TrueFalseAndCustomResult<T> {
     // 私有单例，使用通配符 ? 表示任意类型

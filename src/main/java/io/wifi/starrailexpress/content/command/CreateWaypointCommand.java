@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.content.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.game.data.WaypointManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

@@ -1,13 +1,5 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import java.util.List;
-
-import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.ManholeRegistry;
-import org.agmas.noellesroles.scene.SceneEventManager;
-import org.agmas.noellesroles.scene.SceneParticles;
-import org.agmas.noellesroles.scene.SceneRoleAccess;
-
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
@@ -18,6 +10,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+import org.agmas.noellesroles.scene.ManholeRegistry;
+import org.agmas.noellesroles.scene.SceneEventManager;
+import org.agmas.noellesroles.scene.SceneParticles;
+import org.agmas.noellesroles.scene.SceneRoleAccess;
+
+import java.util.List;
 
 /**
  * 井盖方块实体：登记自身位置；统计站在井盖上的可进入玩家的停留时间，超 10 秒窒息死亡。

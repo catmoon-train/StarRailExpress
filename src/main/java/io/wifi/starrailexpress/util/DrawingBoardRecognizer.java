@@ -1,13 +1,10 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.utils.ai.SimpleKNN;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.core.registries.BuiltInRegistries;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

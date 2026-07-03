@@ -1,7 +1,6 @@
 package net.exmo.sre.nametag;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.commands.CommandBuildContext;
@@ -10,7 +9,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ComponentArgument;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.commands.TitleCommand;
 import net.minecraft.server.level.ServerPlayer;
 
 public class NameTagCommand {

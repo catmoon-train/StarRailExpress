@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.client.gui;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.util.SREClientUtils;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
@@ -28,6 +27,7 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.EntityHitResult;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

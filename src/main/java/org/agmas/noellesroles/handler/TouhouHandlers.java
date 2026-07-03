@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.handler;
 
-import org.agmas.noellesroles.role.touhou.THMiscRoles;
-
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
@@ -9,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
 
 public class TouhouHandlers {
     public static void register() {

@@ -1,14 +1,13 @@
 package org.agmas.harpymodloader;
 
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.harpymodloader.modifiers.SREModifier;
-
 import io.wifi.ConfigCompact.ui.RoleManageConfigUI;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.data.ClientRoleRosterCache;
 import io.wifi.starrailexpress.roster.RoleRosterManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 
 public class SREDisableManager {
     public static HarpyModLoaderConfig config = HarpyModLoaderConfig.instance();

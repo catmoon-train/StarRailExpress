@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.init;
 
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.content.block.SREPlushBlock;
-import org.agmas.noellesroles.content.block_entity.SREPlushBlockEntity;
 import dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar;
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
@@ -20,6 +17,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.content.block.SREPlushBlock;
+import org.agmas.noellesroles.content.block_entity.SREPlushBlockEntity;
 
 public interface SREFumoBlocks {
 

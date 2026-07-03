@@ -26,7 +26,6 @@ import org.agmas.noellesroles.init.ModBlocks;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.OpenRepairRoleSelectionS2CPacket;
-import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.game_spec.RepairRoles;
 
 import java.util.ArrayList;

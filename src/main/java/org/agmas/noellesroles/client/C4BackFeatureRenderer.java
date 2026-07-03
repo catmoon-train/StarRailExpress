@@ -1,20 +1,19 @@
 package org.agmas.noellesroles.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.cca.C4BackComponent;
 import org.agmas.noellesroles.game.c4.C4PlacementPreset;
 import org.agmas.noellesroles.init.ModItems;
-
-import com.mojang.blaze3d.vertex.PoseStack;
 
 public class C4BackFeatureRenderer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
     private final ItemStack c4Stack;

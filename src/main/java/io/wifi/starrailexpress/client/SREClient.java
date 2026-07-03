@@ -2,27 +2,23 @@ package io.wifi.starrailexpress.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.text2speech.Narrator;
-
 import dev.doctor4t.ratatouille.client.util.OptionLocker;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.ConfigCompact.ClientConfigEvents;
-
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.rules.*;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
-
+import io.wifi.starrailexpress.client.commandmacro.CommandMacroExecutor;
+import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomTableHud;
-
-import io.wifi.starrailexpress.client.commandmacro.CommandMacroExecutor;
-import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
 import io.wifi.starrailexpress.client.gui.*;
 import io.wifi.starrailexpress.client.gui.screen.*;
+import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleRotationScreen;
 import io.wifi.starrailexpress.client.model.GeneralModelLoadingPlugin;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.render.block_entity.*;
@@ -41,10 +37,9 @@ import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.item.GrenadeItem;
 import io.wifi.starrailexpress.content.item.KnifeItem;
-import io.wifi.starrailexpress.content.vote.client.VoteClientReceiver;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationClientReceiver;
-import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleRotationScreen;
+import io.wifi.starrailexpress.content.vote.client.VoteClientReceiver;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.ClientHeldItemSwitchEvent;
@@ -57,11 +52,8 @@ import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
-import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
-import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
-import io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket;
-import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
-import io.wifi.starrailexpress.network.packet.SyncWaypointsPacket;
+import io.wifi.starrailexpress.network.packet.*;
+import io.wifi.starrailexpress.rules.ChatHudRules;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
 import io.wifi.starrailexpress.util.HPManager;
@@ -110,7 +102,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
-
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.ClientSkincrawlerState;
 import org.agmas.noellesroles.client.NoellesrolesClient;

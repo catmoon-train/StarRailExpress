@@ -1,12 +1,11 @@
 package io.wifi.starrailexpress.game.roles;
 
+import io.wifi.starrailexpress.SRE;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
 
-import io.wifi.starrailexpress.SRE;
-
-import java.awt.Color;
+import java.awt.*;
 import java.util.HashSet;
 
 public class SpecialGameModeModifiers {

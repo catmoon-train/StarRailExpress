@@ -1,7 +1,6 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -14,11 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import org.agmas.noellesroles.init.SREFumoBlocks;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * 任务点小游戏的共用界面，承载所有无需自定义贴图的小游戏。

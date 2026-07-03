@@ -1,11 +1,11 @@
 package io.wifi.starrailexpress.mixin.entity.player;
 
+import io.wifi.starrailexpress.index.TMMBlocks;
+import net.minecraft.world.entity.player.Player;
+import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.Mixin;
-import io.wifi.starrailexpress.index.TMMBlocks;
-import net.minecraft.world.entity.player.Player;
 
 @Mixin(Player.class)
 public class WheelcharFixMixin {

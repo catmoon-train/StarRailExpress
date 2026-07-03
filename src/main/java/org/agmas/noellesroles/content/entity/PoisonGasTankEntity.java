@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.content.entity;
 
+import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -10,8 +11,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
-
-import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 
 /**
  * 毒气瓶投掷实体

@@ -10,10 +10,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.init.XiaoNaoHandler;
 
 import java.util.*;
-
-import org.agmas.noellesroles.init.XiaoNaoHandler;
 
 /**
  * 队友击杀违规检测处理器。

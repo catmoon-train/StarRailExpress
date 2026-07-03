@@ -4,11 +4,11 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
 import org.agmas.noellesroles.game.roles.special.dirt.DirtRole;
-import java.awt.Color;
+import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
+
+import java.awt.*;
 
 public class SpecialGameModeRoles {
 

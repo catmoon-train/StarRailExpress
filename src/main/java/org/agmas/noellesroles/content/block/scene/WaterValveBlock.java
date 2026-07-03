@@ -1,10 +1,6 @@
 package org.agmas.noellesroles.content.block.scene;
 
-import java.awt.Color;
-import java.util.function.Consumer;
-
 import com.mojang.serialization.MapCodec;
-
 import io.wifi.starrailexpress.content.block.PanelBlock;
 import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import net.minecraft.core.BlockPos;
@@ -23,6 +19,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.agmas.noellesroles.content.block_entity.scene.WaterValveBlockEntity;
 import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.jetbrains.annotations.Nullable;
+
+import java.awt.*;
+import java.util.function.Consumer;
 
 /**
  * 水阀装置（镶板方块）：破坏任务激活时漏水，玩家右键打开关闭水阀小游戏。

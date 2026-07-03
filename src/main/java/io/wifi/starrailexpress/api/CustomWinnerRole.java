@@ -1,10 +1,9 @@
 package io.wifi.starrailexpress.api;
 
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 public abstract class CustomWinnerRole extends NormalRole {
     /**

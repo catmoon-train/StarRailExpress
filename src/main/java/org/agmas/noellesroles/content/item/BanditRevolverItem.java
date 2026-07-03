@@ -15,11 +15,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-
-import static io.wifi.starrailexpress.content.item.RevolverItem.spawnHandParticle;
-
 import org.agmas.noellesroles.packet.BanditRevolverShootPayload;
 import org.jetbrains.annotations.NotNull;
+
+import static io.wifi.starrailexpress.content.item.RevolverItem.spawnHandParticle;
 
 public class BanditRevolverItem extends SkinableItem {
 

@@ -1,9 +1,5 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import org.agmas.noellesroles.content.block.scene.SceneGateBlock;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.SceneEventManager;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -14,6 +10,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.noellesroles.content.block.scene.SceneGateBlock;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+import org.agmas.noellesroles.scene.SceneEventManager;
 
 /**
  * 场景大门方块实体：每 10 tick 将开合状态与破坏任务状态同步。

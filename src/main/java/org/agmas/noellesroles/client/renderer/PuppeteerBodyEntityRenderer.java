@@ -2,7 +2,6 @@ package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
@@ -24,11 +23,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
-
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 
+import java.awt.*;
 import java.util.UUID;
-import java.awt.Color;
 
 /**
  * 傀儡本体实体渲染器

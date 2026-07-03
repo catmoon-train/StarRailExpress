@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.content.block_entity;
 
+import com.mojang.datafixers.util.Pair;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
@@ -10,7 +11,6 @@ import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.network.EntityInteractionBlockServerNetwork;
 import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -27,19 +27,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import org.agmas.noellesroles.component.InfectedPlayerComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.component.InfectedPlayerComponent;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.jetbrains.annotations.Nullable;
 
 /**
  * 实体交互方块的BlockEntity

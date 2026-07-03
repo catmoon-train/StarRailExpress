@@ -11,6 +11,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.config.NoellesRolesConfig.RoleSpawnInfoEntries;
+import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -20,10 +23,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.agmas.noellesroles.config.NoellesRolesConfig.RoleSpawnInfoEntries;
-import org.agmas.noellesroles.config.NoellesRolesConfig.SpawnInfo;
-import org.agmas.noellesroles.utils.RoleUtils;
 
 @Environment(EnvType.CLIENT)
 @SuppressWarnings({"deprecation","rawtypes"})

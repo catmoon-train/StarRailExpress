@@ -2,7 +2,6 @@ package io.wifi.starrailexpress.client.network;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import io.wifi.starrailexpress.customrole.CustomNormalRole;
 import io.wifi.starrailexpress.customrole.CustomRoleData;
 import io.wifi.starrailexpress.network.CustomRoleSyncPayload;
@@ -13,7 +12,10 @@ import java.io.BufferedWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 自定义职业客户端网络处理

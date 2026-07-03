@@ -1,8 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;

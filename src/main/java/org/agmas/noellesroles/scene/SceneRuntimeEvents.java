@@ -1,12 +1,5 @@
 package org.agmas.noellesroles.scene;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import org.agmas.noellesroles.content.entity.HurricaneEntity;
-import org.agmas.noellesroles.init.ModEntities;
-
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnGameEnd;
@@ -15,6 +8,12 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.content.entity.HurricaneEntity;
+import org.agmas.noellesroles.init.ModEntities;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public final class SceneRuntimeEvents {
     private static final Map<UUID, Integer> ZERO_AIR_TICKS = new HashMap<>();

@@ -1,12 +1,5 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import java.util.Comparator;
-import java.util.UUID;
-
-import org.agmas.noellesroles.content.entity.MummyEntity;
-import org.agmas.noellesroles.init.ModEntities;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
@@ -20,6 +13,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.content.entity.MummyEntity;
+import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+
+import java.util.Comparator;
+import java.util.UUID;
 
 public class CoffinBlockEntity extends BlockEntity {
     private static final int DWELL_TICKS = 5 * 20;

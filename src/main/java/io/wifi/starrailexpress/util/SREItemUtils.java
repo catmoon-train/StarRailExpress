@@ -7,10 +7,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BundleContents;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
-
-import org.jetbrains.annotations.NotNull;
 
 // Author: wifi_left
 public class SREItemUtils {

@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.client.hud.modifiers;
 
-import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
-
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
@@ -12,6 +10,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
 public class ShitSplitHud {

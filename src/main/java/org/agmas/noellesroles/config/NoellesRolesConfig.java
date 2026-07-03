@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.config;
 
+import com.google.gson.annotations.JsonAdapter;
 import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.starrailexpress.api.SRERole;
@@ -7,16 +8,15 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.game.GameConstants;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Category;
 import net.minecraft.resources.ResourceLocation;
-import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import org.agmas.harpymodloader.modifiers.HMLModifiers;
+import org.agmas.harpymodloader.modifiers.SREModifier;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.agmas.harpymodloader.modifiers.HMLModifiers;
-import org.agmas.harpymodloader.modifiers.SREModifier;
-import com.google.gson.annotations.JsonAdapter;
 
 @Config(name = "noellesroles")
 public class NoellesRolesConfig implements ConfigData {

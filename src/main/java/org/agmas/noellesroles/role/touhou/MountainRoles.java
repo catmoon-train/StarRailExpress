@@ -1,14 +1,5 @@
 package org.agmas.noellesroles.role.touhou;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
@@ -25,6 +16,14 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
+import org.agmas.noellesroles.utils.RoleUtils;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MountainRoles {
     public static final String NAMESPACE = "th_mount";

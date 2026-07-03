@@ -1,20 +1,8 @@
 package io.wifi.starrailexpress.index;
 
-import java.util.function.Function;
-
-import org.agmas.noellesroles.init.ModBlocks;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.content.block.LockableElevatorButtonBlock;
-import io.wifi.starrailexpress.content.block.LockableSmallButtonBlock;
-import io.wifi.starrailexpress.content.block.PlaneSmallDoorBlock;
-import io.wifi.starrailexpress.content.block.PlaneTrainDoorBlock;
-import io.wifi.starrailexpress.content.block.RemoteRedstoneBlock;
-import io.wifi.starrailexpress.content.block.TrainLightBlock;
-import io.wifi.starrailexpress.content.block.UpSmallDoorBlock;
-import io.wifi.starrailexpress.content.block.UpTrainDoorBlock;
+import io.wifi.starrailexpress.content.block.*;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -25,6 +13,10 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.MapColor;
+import org.agmas.noellesroles.init.ModBlocks;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+
+import java.util.function.Function;
 
 public interface SREBlocks {
     /** 该常量已废弃：SRE 方块现已合并到 ModBlocks.BLOCK_CREATIVE_GROUP（SRE 方块）。 */

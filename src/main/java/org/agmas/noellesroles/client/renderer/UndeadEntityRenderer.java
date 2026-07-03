@@ -1,11 +1,7 @@
 package org.agmas.noellesroles.client.renderer;
 
-import java.awt.Color;
-import java.util.UUID;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.minecraft.client.Minecraft;
@@ -21,6 +17,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.agmas.noellesroles.content.entity.UndeadEntity;
+
+import java.awt.*;
+import java.util.UUID;
 
 /**
  * 亡灵实体渲染器：与傀儡本体（{@link PuppeteerBodyEntityRenderer}）同款，

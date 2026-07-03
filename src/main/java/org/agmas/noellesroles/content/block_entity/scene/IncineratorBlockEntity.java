@@ -1,10 +1,5 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import java.util.List;
-
-import org.agmas.noellesroles.content.block.scene.IncineratorBlock;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
@@ -20,6 +15,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.content.block.scene.IncineratorBlock;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+
+import java.util.List;
 
 /**
  * 焚化炉方块实体：炉口冒火；将被击退（朝炉口高速）的邻近玩家吸入并烧死。

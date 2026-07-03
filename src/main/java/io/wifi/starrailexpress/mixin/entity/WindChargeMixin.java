@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.mixin.entity;
 
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
@@ -8,18 +9,16 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.windcharge.WindCharge;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level.ExplosionInteraction;
 import net.minecraft.world.level.SimpleExplosionDamageCalculator;
-import net.minecraft.world.phys.*;
-
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import io.wifi.starrailexpress.SRE;
-import net.minecraft.world.level.ExplosionDamageCalculator;
 import java.util.Optional;
 import java.util.function.Function;
 

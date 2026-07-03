@@ -1,8 +1,7 @@
 package org.agmas.noellesroles.modifier;
 
-import org.agmas.noellesroles.modifier.touhou.THMiscModifiers;
-
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.modifier.touhou.THMiscModifiers;
 
 public class BounsModifiers {
     public static final String NAMESPACE = "bouns";

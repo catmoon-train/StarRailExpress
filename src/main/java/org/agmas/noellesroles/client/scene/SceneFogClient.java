@@ -1,9 +1,8 @@
 package org.agmas.noellesroles.client.scene;
 
-import org.agmas.noellesroles.content.block.scene.FogZoneBlock;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import org.agmas.noellesroles.content.block.scene.FogZoneBlock;
 
 /**
  * 客户端：判断本地玩家是否处于迷雾区域内（用于关闭本能）。

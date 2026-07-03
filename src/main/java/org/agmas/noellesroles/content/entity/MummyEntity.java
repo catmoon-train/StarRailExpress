@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.content.entity;
 
-import java.util.Comparator;
-import java.util.Optional;
-
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
@@ -15,6 +12,9 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Comparator;
+import java.util.Optional;
 
 public class MummyEntity extends Husk {
     private static final int MAX_AGE = 15 * 20;

@@ -1,11 +1,5 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import java.util.UUID;
-
-import org.agmas.noellesroles.content.entity.HurricaneEntity;
-import org.agmas.noellesroles.init.ModEntities;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -18,7 +12,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.noellesroles.content.entity.HurricaneEntity;
+import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class HurricaneDeviceBlockEntity extends BlockEntity {
     private UUID hurricaneUuid;

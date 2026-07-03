@@ -3,13 +3,11 @@ package org.agmas.noellesroles.client.screen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.packet.MafiaActionC2SPacket;
-
-import java.util.UUID;
 
 public class GodfatherRecruitScreen extends Screen {
     private static final int COLOR_MAFIOSO = 0xFFDA70D6;

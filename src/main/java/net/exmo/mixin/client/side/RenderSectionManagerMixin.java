@@ -1,12 +1,9 @@
 package net.exmo.mixin.client.side;
 
 import com.llamalad7.mixinextras.sugar.Local;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
-import java.util.ArrayDeque;
-import java.util.Map;
 import net.caffeinemc.mods.sodium.client.render.chunk.ChunkUpdateType;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
@@ -20,6 +17,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.ArrayDeque;
+import java.util.Map;
 
 @Mixin(RenderSectionManager.class)
 public abstract class RenderSectionManagerMixin {

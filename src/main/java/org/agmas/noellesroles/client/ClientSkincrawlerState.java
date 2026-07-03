@@ -1,14 +1,12 @@
 package org.agmas.noellesroles.client;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.PlayerInfo;
-
-import org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket;
-
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin.PlayerSkinResult;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket;
 
 import java.util.Map;
 import java.util.UUID;

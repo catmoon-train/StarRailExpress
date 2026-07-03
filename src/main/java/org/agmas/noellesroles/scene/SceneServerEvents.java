@@ -1,7 +1,5 @@
 package org.agmas.noellesroles.scene;
 
-import org.agmas.noellesroles.content.block.scene.TrainTargetBlock;
-
 import io.wifi.starrailexpress.event.OnRevolverUsed;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -10,6 +8,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.content.block.scene.TrainTargetBlock;
 
 /**
  * 场景方块相关的服务端事件钩子。

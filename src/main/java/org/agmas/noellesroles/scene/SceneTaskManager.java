@@ -1,14 +1,5 @@
 package org.agmas.noellesroles.scene;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import org.agmas.noellesroles.content.block.scene.StatueBlock;
-
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import net.minecraft.core.BlockPos;
@@ -20,6 +11,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.agmas.noellesroles.content.block.scene.StatueBlock;
+
+import java.util.*;
 
 /**
  * 独立场景任务系统（不进入随机任务池）。任务由任务点方块交互或指令指派，完成后走现有任务奖励流程。

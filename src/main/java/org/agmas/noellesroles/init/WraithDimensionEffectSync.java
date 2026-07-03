@@ -13,7 +13,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public final class WraithDimensionEffectSync {
     private static final int REFRESH_INTERVAL = 10;

@@ -1,14 +1,10 @@
 package org.agmas.noellesroles.content.block;
 
-import java.util.List;
-
-import org.agmas.noellesroles.content.block_entity.SREPlushBlockEntity;
-import org.jetbrains.annotations.Nullable;
-
 import com.mojang.serialization.MapCodec;
-
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -20,9 +16,11 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import org.agmas.noellesroles.client.renderer.SREPlushBlockEntityRenderer;
+import org.agmas.noellesroles.content.block_entity.SREPlushBlockEntity;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * 自定义玩家 plush 方块（仅一个方块/物品实现）。

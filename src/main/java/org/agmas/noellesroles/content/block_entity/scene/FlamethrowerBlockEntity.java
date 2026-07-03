@@ -1,11 +1,5 @@
 package org.agmas.noellesroles.content.block_entity.scene;
 
-import java.util.List;
-
-import org.agmas.noellesroles.content.block.scene.FlamethrowerBlock;
-import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.SceneEventManager;
-
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
@@ -19,6 +13,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.content.block.scene.FlamethrowerBlock;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+import org.agmas.noellesroles.scene.SceneEventManager;
+
+import java.util.List;
 
 /**
  * 喷火装置方块实体：周期性喷火；破坏任务激活时持续喷火。火焰范围内玩家死亡。

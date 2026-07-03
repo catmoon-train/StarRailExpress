@@ -1,16 +1,5 @@
 package io.wifi.starrailexpress.scenery.network;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.CRC32;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.scenery.SceneAssetCodec;
@@ -31,6 +20,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
+
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.CRC32;
 
 public final class SceneAssetNetwork {
     private SceneAssetNetwork() {

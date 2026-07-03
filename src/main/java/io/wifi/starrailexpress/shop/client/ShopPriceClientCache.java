@@ -16,11 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 客户端商店价格缓存：把服务端同步来的价格表按哈希存到本地（最多 5 份，LRU 淘汰），并在打开商店时用于覆盖显示价。

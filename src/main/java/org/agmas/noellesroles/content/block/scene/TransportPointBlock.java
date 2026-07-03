@@ -1,9 +1,6 @@
 package org.agmas.noellesroles.content.block.scene;
 
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.scene.SceneTaskManager;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -22,6 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.scene.SceneTaskManager;
 
 /**
  * 运输点（场景任务「运输点任务」）：

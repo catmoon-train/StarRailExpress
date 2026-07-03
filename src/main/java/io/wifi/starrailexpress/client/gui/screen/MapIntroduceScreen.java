@@ -3,6 +3,8 @@ package io.wifi.starrailexpress.client.gui.screen;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.wifi.starrailexpress.index.SREBlocks;
+import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.network.MapIntroSyncPayload;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,19 +21,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import io.wifi.starrailexpress.index.SREBlocks;
-import io.wifi.starrailexpress.index.TMMBlocks;
 import org.agmas.noellesroles.init.ModBlocks;
 import org.agmas.noellesroles.init.ModSceneBlocks;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MapIntroduceScreen extends Screen {
     private static final int MAX_WIDTH = 700;

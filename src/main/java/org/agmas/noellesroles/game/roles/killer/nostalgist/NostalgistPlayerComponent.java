@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.game.roles.killer.nostalgist;
 
-import io.github.mortuusars.exposure.integration.Mods;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;

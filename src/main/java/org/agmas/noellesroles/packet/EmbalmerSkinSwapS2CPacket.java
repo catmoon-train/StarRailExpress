@@ -6,7 +6,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public record EmbalmerSkinSwapS2CPacket(Map<UUID, UUID> swaps, Map<UUID, Float> pitches, int durationTicks)
         implements CustomPacketPayload {

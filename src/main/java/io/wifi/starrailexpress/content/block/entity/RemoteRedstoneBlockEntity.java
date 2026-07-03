@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.content.block.entity;
 
+import io.wifi.starrailexpress.index.TMMBlockEntities;
+import io.wifi.starrailexpress.util.SRENBTUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -8,11 +10,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
 import org.jetbrains.annotations.Nullable;
-
-import io.wifi.starrailexpress.index.TMMBlockEntities;
-import io.wifi.starrailexpress.util.SRENBTUtils;
 
 public class RemoteRedstoneBlockEntity extends BlockEntity {
     @Nullable

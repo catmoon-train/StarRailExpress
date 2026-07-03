@@ -13,13 +13,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.block_entity.HunterCageBlockEntity;
 import org.agmas.noellesroles.game.modes.repair.RepairGameplayEffects;
-import org.agmas.noellesroles.game.modes.repair.RepairArenaBuilder;
 import org.agmas.noellesroles.game.modes.repair.RepairModeState;
-import org.agmas.noellesroles.init.ModBlocks;
 
 import java.util.List;
 

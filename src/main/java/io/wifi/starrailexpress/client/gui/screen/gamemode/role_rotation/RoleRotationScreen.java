@@ -1,25 +1,19 @@
 package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.network.RoleRotationSelectC2SPacket;
-import io.wifi.starrailexpress.network.RoleRotationSyncS2CPacket;
-import io.wifi.starrailexpress.SREConfig;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
-
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.utils.RoleUtils;
 
