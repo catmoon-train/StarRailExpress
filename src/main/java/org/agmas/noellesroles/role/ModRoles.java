@@ -583,7 +583,8 @@ public class ModRoles {
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
             .setCanSeeCoin(true).setCanSeeTeammateKiller(true)
-            .setCanUseInstinct(true).setDefaultMax(1).setDefaultEnableNeededPlayerCount(12).setDefaultEnableChance(400);
+            .setCanUseInstinct(true).setDefaultMax(1).setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(400);
 
     // 好人：锁匠
     public static SRERole LOCKSMITH = TMMRoles.registerRole(
@@ -2038,7 +2039,7 @@ public class ModRoles {
             return itemStacks;
         }
     }).setComponentKey(ThiefPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false);
+            .setCanSeeTeammateKiller(false).setDefaultEnableChance(2500);
 
     /**
      * 雇佣兵角色 - 中立阵营（非独立胜利）
