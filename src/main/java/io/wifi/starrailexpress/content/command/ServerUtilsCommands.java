@@ -38,6 +38,12 @@ public class ServerUtilsCommands {
         .executes((ctx) -> listServerInfo(ctx, false))
         .then(Commands.literal("permission")
             .then(Commands.argument("player", GameProfileArgument.gameProfile())
+                .executes((ctx) -> {
+                  Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx,
+                      "player");
+                  return showPlayerPermission(ctx,
+                      profiles.stream().findFirst().orElse(null));
+                })
                 .then(Commands.literal("get")
                     .executes((ctx) -> {
                       Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles(ctx,
