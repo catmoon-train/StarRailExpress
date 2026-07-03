@@ -1,4 +1,4 @@
-﻿{
+{
   "unknown": "Unknown",
   "sre.general.unknown": "Unknown",
   "commands.loot.error.execute_fail": "Execution failed, reason:\n %s",
@@ -1048,13 +1048,13 @@
   "announcement.star.role.manipulator": "Manipulator",
   "announcement.star.goals.manipulator": "Sneak behind others and stare to mark them, then possess and puppet them to act for you - drive them to their deaths, or use their hands to remove everyone who defies you!",
   "announcement.star.win.manipulator": "Killers win!",
-  "info.screen.roleid.manipulator": "Manipulator\nSneak behind a target and stare at them for over 6 seconds to mark them (on success the target gets brief nausea and you gain 15 coins).\nThen, within 100 blocks, open your inventory and click the marked target's head to possess them: your camera binds to their body and you drive them with the movement/jump keys.\nWhile possessed the target is blinded and cannot move, use items, open their inventory or use skills; you cannot use their items, but you can cast their ability as them (cooldown on them).\nDriving the puppet into the void bounces it back to avoid suicide. If the target dies while controlled, you gain 75 coins.\nOpen your inventory at any time to cancel control. Control cooldown is 80 seconds.",
+  "info.screen.roleid.manipulator": "Killer Faction\nOpen your inventory to select and possess any player within 200 blocks. No prior mark is required. Your camera binds to their body and you drive them with the movement/jump keys.\nWhile possessed the target is blinded and cannot move, use items, open their inventory or use skills; you cannot use their items, but you can cast their ability as them (cooldown on them).\nDriving the puppet into the void bounces it back to avoid suicide. If the target dies while controlled, you gain 75 coins.\nOpen your inventory at any time to cancel control. Control cooldown is 80 seconds.",
   "hud.noellesroles.manipulator.title": "Manipulator",
   "hud.noellesroles.manipulator.cooldown": "Control cooldown: %s seconds",
-  "hud.noellesroles.manipulator.ready": "Control ready - click a marked target in your inventory",
+  "hud.noellesroles.manipulator.ready": "Control ready - click a target within 200 blocks in your inventory",
   "hud.noellesroles.manipulator.controlling": "Manipulating %s: %s seconds remaining",
-  "hud.noellesroles.manipulator.player_selection": "Click a marked target to possess",
-  "hud.manipulator.player_selection": "Click a marked target to possess",
+  "hud.noellesroles.manipulator.player_selection": "Click a target within 200 blocks to possess",
+  "hud.manipulator.player_selection": "Click a target within 200 blocks to possess",
   "hud.amon.player_selection": "Click a player to possess (press G anytime to usurp)",
   "message.noellesroles.manipulator.on_cooldown": "Control on cooldown, %s seconds remaining",
   "message.noellesroles.manipulator.target_selected": "Selected %s as control target",
@@ -1066,7 +1066,7 @@
   "message.noellesroles.manipulator.body_died": "Your body was killed! Game over.",
   "message.noellesroles.manipulator.target_died": "%s was killed while you were controlling them! You gain 75 coins.",
   "message.noellesroles.manipulator.not_marked": "That player is not marked and cannot be controlled. Sneak and stare at their back to mark them first.",
-  "message.noellesroles.manipulator.out_of_range": "Target is too far to start controlling (must be within 100 blocks).",
+  "message.noellesroles.manipulator.out_of_range": "Target is too far to start controlling (must be within 200 blocks).",
   "message.noellesroles.manipulator.control_blocked": "That target cannot be controlled.",
   "message.noellesroles.manipulator.mark_progress": "Marking target... %s seconds left, keep staring and stay unseen.",
   "message.noellesroles.manipulator.mark_success": "Marked %s! (+15 coins) You can now click their head in your inventory to take control.",
@@ -3372,5 +3372,11 @@
   "hud.noellesroles.wraith_assassin.energy": "Current SAN: %1$s/%2$s",
   "hud.noellesroles.wraith_assassin.costs": "Costs: Assault %1$s / Wail %2$s / Manifest %3$s",
   "hud.noellesroles.wraith_assassin.drain_cooldown": "Drain cooldown: %ss",
-  "hud.noellesroles.wraith_assassin.manifesting": "Manifesting: %ss"
+  "hud.noellesroles.wraith_assassin.manifesting": "Manifesting: %ss",
+  "announcement.star.role.salted_fish": "Salted Fish",
+  "announcement.star.goals.salted_fish": "Civilian faction. Lying flat is also a way to work.",
+  "skill.noellesroles.salted_fish.sunbathe": "Face the Sun",
+  "message.noellesroles.salted_fish.start": "You lie down facing the sun.",
+  "message.noellesroles.salted_fish.end": "Salted Fish time is over. Cooldown starts now.",
+  "message.noellesroles.salted_fish.already_active": "You are already lying down with great commitment."
 }

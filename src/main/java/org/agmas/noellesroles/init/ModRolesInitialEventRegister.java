@@ -41,6 +41,7 @@ import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
@@ -985,6 +986,11 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("wraith_manifest"), "skill.noellesroles.wraith_assassin.manifest",
                         context -> WraithAssassinPlayerComponent.KEY.get(context.player()).useManifest(context.player()))
                         .cooldownSeconds(110).showOnHud(true).announceToSelf(false).build());
+
+        RoleSkill.register(ModRoles.SALTED_FISH,
+                RoleSkill.skill(SaltedFishPlayerComponent.SKILL_ID, "skill.noellesroles.salted_fish.sunbathe",
+                        context -> SaltedFishPlayerComponent.KEY.get(context.player()).useSkill(context.player()))
+                        .showOnHud(true).announceToSelf(false).build());
 
         // 出题人不适用于统一的技能注册：其需要不同的触发方式但这个api不兼容。
         // 年兽技能注册：发送红包给目标玩家（客户端选目标）

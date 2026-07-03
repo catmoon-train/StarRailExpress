@@ -51,6 +51,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     public static final ComponentKey<ManipulatorPlayerComponent> KEY = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "manipulator"),
             ManipulatorPlayerComponent.class);
+    public static final int DIRECT_CONTROL_RANGE = 200;
 
     @Override
     public Player getPlayer() {
@@ -64,7 +65,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     /** 当前正在操控的目标（附身中） */
     public UUID target;
 
-    /** 已标记、可被点击操控的目标（可保存多个，按标记顺序排列） */
+    /** 已标记目标。旧数据仍会同步，但操控不再需要标记。 */
     public final Set<UUID> markedTargets = new LinkedHashSet<>();
 
     public boolean isControlling;
@@ -135,7 +136,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     /**
-     * 尝试附身操控目标。包含：已标记校验、距离校验、{@link AllowPlayerControlled} 否决、冷却设置。
+     * 尝试附身操控目标。包含：距离校验、{@link AllowPlayerControlled} 否决、冷却设置。
      */
     public void setTarget(UUID targetUuid) {
         if (!canUseAbility())
@@ -144,13 +145,6 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             return;
         if (targetUuid == null || targetUuid.equals(player.getUUID()))
             return;
-
-        // 必须是已标记目标
-        if (!markedTargets.contains(targetUuid)) {
-            sp.displayClientMessage(Component.translatable("message.noellesroles.manipulator.not_marked")
-                    .withStyle(ChatFormatting.RED), true);
-            return;
-        }
 
         SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
         if (ability.cooldown > 0)
@@ -162,9 +156,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
         if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
             return;
 
-        // 距离判定（基于渲染/配置上限）
-        double maxRange = config().manipulatorMaxControlRange;
-        if (sp.distanceTo(targetPlayer) > maxRange) {
+        if (sp.distanceTo(targetPlayer) > DIRECT_CONTROL_RANGE) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.manipulator.out_of_range")
                     .withStyle(ChatFormatting.RED), true);
             return;
@@ -303,12 +295,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             return;
         }
 
-        // 未附身：处理潜行盯人标记（仅对操纵师本人生效，避免其他职业也能凝视标记）
-        if (isActiveManipulator()) {
-            tickMarking(sp);
-        } else {
-            resetStare();
-        }
+        resetStare();
     }
 
     // ==================== 标记逻辑 ====================

@@ -40,6 +40,7 @@ import org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerPlay
 import org.agmas.noellesroles.game.roles.innocence.pilot.PilotPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
@@ -299,6 +300,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "wraith_assassin"),
       WraithAssassinPlayerComponent.class);
 
+  public static final ComponentKey<SaltedFishPlayerComponent> SALTED_FISH = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "salted_fish"),
+      SaltedFishPlayerComponent.class);
+
   public static final ComponentKey<org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent> LEON = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "leon"),
       org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent.class);
@@ -512,6 +517,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, WRAITH_ASSASSIN)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(WraithAssassinPlayerComponent::new);
+
+    registry.beginRegistration(Player.class, SALTED_FISH)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(SaltedFishPlayerComponent::new);
 
     // 注册里昂组件 - 「幸存之人」被动草药发放
     registry.beginRegistration(Player.class, LEON)

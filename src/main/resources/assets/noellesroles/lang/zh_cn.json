@@ -1,4 +1,4 @@
-﻿{
+{
   "unknown": "未知",
   "unknown_role": "未知职业",
   "sre.command.permission_denied": "你没有权限做这件事！",
@@ -1092,10 +1092,10 @@
   "announcement.star.win.manipulator": "杀手胜利！",
   "hud.noellesroles.manipulator.title": "操纵师",
   "hud.noellesroles.manipulator.cooldown": "操控冷却：%s秒",
-  "hud.noellesroles.manipulator.ready": "操控就绪 - 在背包中点击已标记目标",
+  "hud.noellesroles.manipulator.ready": "操控就绪 - 在背包中点击 200 格内目标",
   "hud.noellesroles.manipulator.controlling": "正在操控 %s：剩余 %s 秒",
-  "hud.noellesroles.manipulator.player_selection": "点击已标记目标进行操控",
-  "hud.manipulator.player_selection": "点击已标记目标进行操控",
+  "hud.noellesroles.manipulator.player_selection": "点击 200 格内目标进行操控",
+  "hud.manipulator.player_selection": "点击 200 格内目标进行操控",
   "hud.amon.player_selection": "点击玩家附身（随时按 G 完成夺舍）",
   "message.noellesroles.manipulator.on_cooldown": "操控冷却中，还需 %s 秒",
   "message.noellesroles.manipulator.target_selected": "已选择 %s 作为操控目标",
@@ -1107,7 +1107,7 @@
   "message.noellesroles.manipulator.body_died": "你的本体被杀死了！游戏结束。",
   "message.noellesroles.manipulator.target_died": "%s 在你操控期间被杀死了！你获得了 75 金币。",
   "message.noellesroles.manipulator.not_marked": "该玩家尚未被标记，无法操控。请先潜行凝视其背后进行标记。",
-  "message.noellesroles.manipulator.out_of_range": "目标太远了，无法发动操控（需在 100 格内）。",
+  "message.noellesroles.manipulator.out_of_range": "目标太远了，无法发动操控（需在 200 格内）。",
   "message.noellesroles.manipulator.control_blocked": "无法操控该目标。",
   "message.noellesroles.manipulator.mark_progress": "正在标记目标……还需 %s 秒，保持凝视且不要被发现。",
   "message.noellesroles.manipulator.mark_success": "已成功标记 %s！（+15 金币）现在可在背包点击其头像进行操控。",
@@ -3437,5 +3437,11 @@
   "hud.noellesroles.wraith_assassin.manifesting": "显现中：%ss",
   "hud.noellesroles.wraith_assassin.costs": "消耗：突袭 %1$s / 嚎叫 %2$s / 显现 %3$s",
   "hud.noellesroles.wraith_assassin.energy": "当前 SAN：%1$s/%2$s",
-  "message.noellesroles.wraith_assassin.drain_cooldown": "吸收 SAN 冷却中，还需 %s 秒。"
+  "message.noellesroles.wraith_assassin.drain_cooldown": "吸收 SAN 冷却中，还需 %s 秒。",
+  "announcement.star.role.salted_fish": "咸鱼",
+  "announcement.star.goals.salted_fish": "平民阵营。躺平也算一种工作方式。",
+  "skill.noellesroles.salted_fish.sunbathe": "面朝太阳",
+  "message.noellesroles.salted_fish.start": "你面朝太阳躺下了。",
+  "message.noellesroles.salted_fish.end": "咸鱼时间结束，冷却开始。",
+  "message.noellesroles.salted_fish.already_active": "你已经躺得很认真了。"
 }

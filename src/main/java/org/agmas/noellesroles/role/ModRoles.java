@@ -51,6 +51,7 @@ import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponen
 import org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
@@ -210,6 +211,7 @@ public class ModRoles {
     public static final ResourceLocation WIZARD_ID = Noellesroles.id("wizard");
     public static final ResourceLocation CAKE_MAKER_ID = Noellesroles.id("cake_maker");
     public static final ResourceLocation ADVENTURER_ID = Noellesroles.id("adventurer");
+    public static final ResourceLocation SALTED_FISH_ID = Noellesroles.id("salted_fish");
     // 亡灵之主角色 ID
     public static final ResourceLocation UNDEAD_LORD_ID = Noellesroles.id("undead_lord");
 
@@ -622,6 +624,16 @@ public class ModRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true).setComponentKey(ModComponents.DIVINER)
             .setDefaultMax(1).setDefaultEnableChance(7000);
+
+    public static SRERole SALTED_FISH = TMMRoles.registerRole(
+            new NormalRole(SALTED_FISH_ID, new Color(255, 184, 87).getRGB(),
+                    true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setCanSeeCoin(true)
+            .setComponentKey(SaltedFishPlayerComponent.KEY)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(5000);
+
     // 忍者
     public static final SRERole NINJA = TMMRoles.registerRole(
             new NinjaRole(
