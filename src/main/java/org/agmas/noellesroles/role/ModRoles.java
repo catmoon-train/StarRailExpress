@@ -1020,7 +1020,7 @@ public class ModRoles {
                     .setVigilanteTeam(true)
                     .setComponentKey(
                             org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent.KEY))
-            .setCanPickUpRevolver(true).setDefaultMax(1).setDefaultEnableChance(5000)
+            .setCanPickUpRevolver(true).setDefaultMax(1).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12)
             .setSpecialVigilante(true);
 
     /**
