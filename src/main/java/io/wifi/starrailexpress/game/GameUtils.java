@@ -1258,8 +1258,14 @@ public class GameUtils {
         var gameMode = SREGameWorldComponent.KEY.get(victim.level()).getGameMode();
         if (gameMode == null)
             return;
-        gameMode.killPlayer(victim, spawnBody, _killer, deathReason,
-                forceDeath);
+        try {
+            gameMode.killPlayer(victim, spawnBody, _killer, deathReason,
+                    forceDeath);
+        } catch (Exception e) {
+            SRE.LOGGER.error("Error while killPlayer: [victim={},spawnBody={},killer={},deathReason={},forceDeath={}]",
+                    victim, spawnBody, _killer, deathReason, forceDeath);
+            throw e;
+        }
     }
 
     public static boolean shouldDropOnDeath(@NotNull ItemStack stack) {
