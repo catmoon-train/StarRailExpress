@@ -317,6 +317,16 @@ public class CustomRoleLoader {
             customSpawn.setMinEnabledPlayer(role.defaultEnableNeedPlayerCount);
         if (role.defaultEnableChance >= 0)
             customSpawn.setEnableChance(role.defaultEnableChance);
+        if (data.mapRestrictedTo != null) {
+            for (String mapId : data.mapRestrictedTo) {
+                if (mapId == null)
+                    continue;
+                String trimmed = mapId.trim();
+                if (!trimmed.isEmpty()) {
+                    customSpawn.map.add(trimmed);
+                }
+            }
+        }
         role.setSpawnInfo(customSpawn);
 
         // 互斥和绑定生成（需要在所有角色注册完成后处理，这里只存储引用）
@@ -529,9 +539,11 @@ public class CustomRoleLoader {
                         if (role == null)
                             continue;
 
-                        final String mapName = currentMap;
+                        final String mapName = currentMap == null ? "" : currentMap.trim();
                         boolean allowed = data.mapRestrictedTo.stream()
-                                .anyMatch(mapId -> mapId.trim().equalsIgnoreCase(mapName));
+                                .filter(Objects::nonNull)
+                                .map(String::trim)
+                                .anyMatch(mapId -> mapId.equalsIgnoreCase(mapName));
 
                         if (!allowed) {
                             // 当前地图不在允许列表中，禁用该职业
