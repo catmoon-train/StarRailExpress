@@ -1,0 +1,31 @@
+{
+  "game.play": { "sounds": [
+    "entity/painting/place1", "entity/painting/place2", "entity/painting/place3"
+  ], "subtitle": "subtitles.minopp.play" },
+  "game.draw": { "sounds": [
+    "dig/sand1", "dig/sand2", "dig/sand3"
+  ], "subtitle": "subtitles.minopp.draw" },
+  "game.draw_multi": { "sounds": [ "minopp:draw_multi" ], "subtitle": "subtitles.minopp.sigh" },
+  "game.pass": { "sounds": [
+    "entity/player/attack/weak1"
+  ], "subtitle": "subtitles.minopp.pass" },
+  "game.turn_notice": { "sounds": [
+    "block/amethyst/resonate1", "block/amethyst/resonate2", "block/amethyst/resonate3"
+  ], "subtitle": "subtitles.minopp.turn_notice" },
+  "game.turn_notice_again": { "sounds": [
+    "block/amethyst_cluster/break1", "block/amethyst_cluster/break2", "block/amethyst_cluster/break3"
+  ], "subtitle": "subtitles.minopp.turn_notice_again" },
+  "game.turn_notice_continuous": { "sounds": [
+    "note/harp2"
+  ], "subtitle": "subtitles.minopp.turn_notice_continuous" },
+  "game.win": { "sounds": [
+    "ui/toast/challenge_complete"
+  ], "subtitle": "subtitles.minopp.win" },
+  "game.mino_shout": { "sounds": [ "minopp:mino_shout" ], "subtitle": "subtitles.minopp.mino_shout" },
+  "game.mino_shout_invalid": { "sounds": [
+    "block/bell/bell_use01", "block/bell/bell_use02"
+  ], "subtitle": "subtitles.minopp.mino_shout_invalid" },
+  "game.doubt_success": { "sounds": [
+    "block/bell/bell_use01", "block/bell/bell_use02"
+  ], "subtitle": "subtitles.minopp.doubt_success" }
+}

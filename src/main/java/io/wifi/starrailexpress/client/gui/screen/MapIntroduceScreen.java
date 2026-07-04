@@ -230,6 +230,7 @@ public class MapIntroduceScreen extends Screen {
         addLine("map_intro.property.room_count", intValue(json, "roomCount", 1), wrapW);
         addTaskSet(json, "disabledTasks", "map_intro.property.disabled_tasks", false, wrapW);
         addTaskSet(json, "enableSceneTask", "map_intro.property.scene_tasks", true, wrapW);
+        addBannedRoles(json, wrapW);
         if (boolValue(json, "minigameQuestEnabled", false))
             addLine("map_intro.property.minigame_quest", wrapW);
         String status = stringValue(json, "mapStatusBar", "NONE");
@@ -311,6 +312,23 @@ public class MapIntroduceScreen extends Screen {
             names.add(taskName(id, scene));
         }
         addLine(labelKey, String.join(", ", names), wrapW);
+    }
+
+    private void addBannedRoles(JsonObject json, int wrapW) {
+        if (!json.has("bannedRoles") || !json.get("bannedRoles").isJsonArray()
+                || json.getAsJsonArray("bannedRoles").isEmpty())
+            return;
+        List<String> names = new ArrayList<>();
+        for (JsonElement element : json.getAsJsonArray("bannedRoles")) {
+            String id = element.getAsString();
+            names.add(roleName(id));
+        }
+        addLine("map_intro.property.banned_roles", String.join(", ", names), wrapW);
+    }
+
+    private String roleName(String id) {
+        String key = "role." + id.replace(':', '.') + ".name";
+        return Component.translatableWithFallback(key, id).getString();
     }
 
     private String taskName(String id, boolean scene) {

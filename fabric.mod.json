@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "packetfixer",
+  "version": "3.3.1",
+  "name": "Packet Fixer",
+  "description": "A simple mod to solve various problems with packets/NBT's.",
+  "authors": [
+    "TonimatasDEV"
+  ],
+  "contact": {
+    "repo": "https://github.com/TonimatasDEV/PacketFixer"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {},
+  "mixins": [
+    "packetfixer.v1_20_5.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": ">=1.20.5"
+  }
+}

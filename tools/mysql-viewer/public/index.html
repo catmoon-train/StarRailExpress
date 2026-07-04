@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>StarRailExpress 数据管理台</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- 登录视图 -->
+  <div id="login-view" class="hidden">
+    <div class="login-wrap">
+      <div class="login-card">
+        <h1 id="login-title">StarRailExpress 数据管理台</h1>
+        <form id="login-form">
+          <div class="field">
+            <label>用户名</label>
+            <input id="login-user" autocomplete="username" />
+          </div>
+          <div class="field">
+            <label>密码</label>
+            <input id="login-pass" type="password" autocomplete="current-password" />
+          </div>
+          <button class="primary" style="width:100%" type="submit">登录</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主应用视图 -->
+  <div id="app-view" class="hidden">
+    <div class="topbar">
+      <span class="brand" id="brand">StarRailExpress 管理台</span>
+      <div class="spacer"></div>
+      <span class="who" id="who"></span>
+      <button class="sm ghost" id="logout-btn">退出</button>
+    </div>
+
+    <div class="tabs">
+      <button class="active" data-tab="player">玩家工作台</button>
+      <button data-tab="admin">管理面板</button>
+    </div>
+
+    <!-- 玩家工作台 -->
+    <div id="tab-player" class="container">
+      <div class="search-row">
+        <input id="search-input" placeholder="输入玩家名 或 UUID，回车搜索" />
+        <button class="primary" id="search-btn">加载</button>
+      </div>
+      <div class="chips" id="recent-chips"></div>
+      <div id="player-content"></div>
+    </div>
+
+    <!-- 管理面板 -->
+    <div id="tab-admin" class="container hidden">
+      <div id="admin-content"></div>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+  <script src="./app.js"></script>
+</body>
+</html>

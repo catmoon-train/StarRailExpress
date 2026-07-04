@@ -288,6 +288,9 @@ public class MapManager {
         // 保存地图初始物品
         jsonObject.add("initialItems", gson.toJsonTree(areas.initialItems));
 
+        // 保存禁用的职业列表
+        jsonObject.add("bannedRoles", gson.toJsonTree(areas.bannedRoles));
+
         // 写入文件
         Path temp = mapConfigPath.resolveSibling(mapConfigPath.getFileName() + ".save.tmp");
         Files.writeString(temp, prettyGson.toJson(jsonObject), StandardCharsets.UTF_8);
@@ -495,6 +498,18 @@ public class MapManager {
                     }
                 }
                 SRE.LOGGER.info("Loaded initialItems: " + areas.initialItems);
+            }
+
+            // 加载禁用职业配置
+            areas.bannedRoles.clear();
+            if (jsonObject.has("bannedRoles")) {
+                var brElement = jsonObject.get("bannedRoles");
+                if (brElement.isJsonArray()) {
+                    for (var e : brElement.getAsJsonArray()) {
+                        areas.bannedRoles.add(e.getAsString());
+                    }
+                }
+                SRE.LOGGER.info("Loaded bannedRoles: " + areas.bannedRoles);
             }
 
             // 应用配置到AreasWorldComponent，使用新的嵌套结构

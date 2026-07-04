@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "cn.zbx1425.minopp.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+    "InventoryMixin",
+    "KeyMappingAccessor"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

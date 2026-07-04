@@ -1,0 +1,188 @@
+================================================================================
+ StarRailExpress 指令导出清单 (Command Export)
+ 自动总结自实际代码注册 (CommandRegistrationCallback / ClientCommandManager / Mixin)
+ 生成基准: master 分支  | 精简清单版本
+================================================================================
+
+--------------------------------------------------------------------------------
+ 一、API 与使用介绍 (API & Usage)
+--------------------------------------------------------------------------------
+
+[注册机制]
+  本 Mod 的服务端指令统一在主入口 io.wifi.starrailexpress.SRE#registerCommands()
+  里通过 Fabric 的 CommandRegistrationCallback.EVENT.register(...) 注册;每个
+  XxxCommand 类提供静态 register(dispatcher[, registryAccess]) 方法, 内部用
+  Brigadier 的 Commands.literal(...) / Commands.argument(...) 构建指令树。
+
+  三类注册来源:
+    1) 服务端指令  - Commands.literal(...)              (绝大多数)
+    2) 客户端指令  - ClientCommandManager.literal(...)   (sre:client / sreclient:scene)
+    3) Mixin 覆写  - @Overwrite 原版指令注册             (io.wifi.mixins.KillCommandMixin)
+
+[权限等级] (source.hasPermission(n))
+    无     - 任何玩家可用 (部分子命令另有限制)
+    2      - OP / 管理员
+    3      - 高级管理员
+    4      - 服主 (危险操作, 如关服)
+    其他   - officialVerify: 需通过官方验证
+
+[命名空间前缀]
+    tmm:        - Train Murder Mystery (SRE 核心玩法)
+    sre:        - Star Rail Express (核心扩展功能)
+    sreclient:  - 客户端专用 (本地执行, 不发送到服务器)
+    nametag:    - 名签系统
+    mw:         - 模组白名单 (Mod Whitelist)
+    goods:      - 商品/售货机系统
+    (无前缀)    - 角色/工具类指令 (HarpyModLoader & Noelle's Roles)
+
+[语言键 / Language Keys]
+    指令的展示名称与描述文案集中存放在独立命名空间:
+        assets/sre_commands/lang/en_us.json   (英文)
+        assets/sre_commands/lang/zh_cn.json   (简体中文)
+    键格式:
+        sre_commands.<命令路径>.name   - 指令显示名
+        sre_commands.<命令路径>.desc   - 一句话用途
+    其中 <命令路径> 为指令字面量将 ':' 替换为 '.' (如 tmm:start -> tmm.start)。
+
+--------------------------------------------------------------------------------
+ 二、SRE 核心指令 (tmm: / sre: / 无前缀)        权限 | 用途
+--------------------------------------------------------------------------------
+ sre:help                        无    按分类列出全部指令 (读取 sre_commands 语言键, 可点击展开)
+ tmm:start                       2     启动指定游戏模式 [force_all_players] [时间(分)]
+ tmm:stop                        2     停止当前游戏 (force 强制停止)
+ tmm:config                      2/3   运行时配置 (config/reload/reset/auto_present/set_round/autoTrainReset)
+ tmm:afk                         2     AFK 挂机检测管理 (reset/status/setTime)
+ tmm:money                       2     金币管理 (get/set/add)
+ tmm:mood                        2     心情(SAN)值管理 (get/set)
+ tmm:autoStart                   2     设置倒计时自动开始 (0 禁用)
+ tmm:votemap                     2     地图投票 (status/pause/resume/stop/setmode)
+ tmm:switchmap                   2/3   切换/扫描服务器地图 (load/list/random/scan_all)
+ tmm:fourthroom                  无/2  第四房间卡牌玩法管理 (status/play/buy/endturn...)
+ tmm:createpoint                 2     创建路径点 (格式 path/name)
+ tmm:togglewaypoints             2     管理员路径点可视化开关
+ tmm:showStats                   无/2  查看个人(或他人)游戏统计
+ tmm:showSelectedMapUI           无    展示当前选中地图的投票 UI
+ tmm:netstats                    2     网络流量统计与排行 (rankings/export...)
+ tmm:giveRoomKey                 2     给予指定房间钥匙物品
+ tmm:participate                 无    本局参与度管理 (join/leave/status)
+ tmm:entity_interact_cmd         2     为实体附加自定义持久化字符串数据 (set)
+ tmm:reload                      2     重载 (default_ready_area / vote_map_config)
+ tmm:skinsync                    2     物品皮肤远程同步 (config/sync/pull/enable...)
+ tmm:skins                       2     物品皮肤管理 (查看玩家皮肤)
+ tmm:game                        2     聚合指令组, 详见第三节
+ forceTeam                       3     强制设置玩家阵营 (innocent/killer/...)
+ listGameRoles                   2     列出本局所有玩家的职业与修饰符
+ stop_when_over                  4     游戏结束后自动关服开关
+ sre:narrator                    2     向玩家发送旁白 TTS 语音
+ sre:custom_replay               2     记录自定义回放事件 (record/record_hidden)
+ sre:show_replay                 2     向玩家展示生成的游戏回放
+ sre:replay_screen               2     回放大屏幕管理 (create/remove/list/show...)
+ sre:kick                        2     踢出指定非 OP 玩家
+ sre:shield                      2     护盾值管理 (add/set)
+ sre:stamina                     2     体力/冲刺值管理 (add/set)
+ sre:inventory / sre:invsee      2     以 GUI 查看指定玩家物品栏
+ sre:monitor                     2     搜索并配置安全监控摄像头位置
+ sre:vote                        2     游戏内通用投票系统 (title/add/start/stop...)
+ sre:reloadRoleConfig            3     重载并同步所有客户端自定义职业配置
+ sre:area_manager                2/3   地图区域配置管理器 (set/get/save/map/info...)
+ sre:pass                        无    通行证/阵营卡激活 (activate)
+ sre:roster                      无/2  职业轮换名册 (edit/enable/disable/randomize)
+ sre:scene                       2/3   场景资源管理
+ sre:camera                      2     高级摄像机控制
+ sre:subtitle                    2     屏幕字幕显示 (center/top/bottom)
+ sre:eggclear                    3     清除范围内布谷鸟蛋实体
+ sre:infected                    3     设置玩家感染状态时长
+ sre:helium                      2     对玩家施加氦气变声效果
+
+--------------------------------------------------------------------------------
+ 三、tmm:game 聚合子指令 (多文件分别注册)        权限 | 用途
+--------------------------------------------------------------------------------
+ tmm:game visual                 2     视觉效果 (snow/sand/fog/hud/trainSpeed/time/reset)
+ tmm:game time                   2     游戏倒计时 (get/set)
+ tmm:game penalty                2     死亡惩罚管理 (start/stop, normal/entity/pos)
+ tmm:game bounds                 2     边界限制开关
+ tmm:game role                   2     游戏内职业管理 (silent_change/send_welcome/sync...)
+ tmm:game role role_change_mode  3     改变职业并清理背包+报幕
+ tmm:game murder_time            2     Murder 随机时间事件系统 (events/hud/defaults...)
+ tmm:game tests                  2     职业机制测试 (prayer/gambler_draw/math...)
+ tmm:game tasks                  2     任务队列管理 (clear/cancel)
+ tmm:game win                    2     手动触发胜利 (id / CUSTOM / CUSTOM_COMPONENT)
+ tmm:game reset                  2     重置地图方块/实体 (blocks/entity)
+ tmm:game scan                   2     扫描地图数据 (reset_points/task_points)
+ tmm:game blackout               2     全图关灯效果 (stop 停止)
+ tmm:game monitor_broken         2     监控摄像头损坏效果 (stop 停止)
+ tmm:game psycho                 2     心理效果机制 (stop 停止)
+ tmm:game body                   2     尸体操作 (kill/as_run)
+ tmm:game revive                 2     复活玩家 (to_body / pos)
+ tmm:game kill                   2     击杀玩家并指定死亡原因
+ tmm:game timestop               2     全局时停 (stop 停止)
+
+--------------------------------------------------------------------------------
+ 四、HarpyModLoader 角色系统 (无前缀)            权限 | 用途
+--------------------------------------------------------------------------------
+ changeRole                      3     改变玩家职业 (支持回放/统计开关)
+ changeModifier                  3     管理玩家修饰符 (add/remove/toggle)
+ forceRole                       3     为玩家强制分配职业
+ forceModifier                   3     为玩家强制分配修饰符
+ setRoleCount                    3     覆盖职业自动分配数量 (killer/detective/nature/reset)
+ setRoleWeight                   3     设置角色类型权重
+ myRoleWeight                    3     查看自己的角色权重
+ playerRoleWeight                3     查看/设置指定玩家的角色权重
+ toggleCustomRoleWeights         3     自定义角色权重系统开关
+ setOccupationRole               3     设置职业绑定生成关系
+ setEnabledRole                  3     启用/禁用职业 (enableAll/disableAll/<role>)
+ setEnabledModifier              3     启用/禁用修饰符 (enableAll/disableAll/<mod>)
+ setCompanionRole                3     设置两个职业的绑定生成关系
+ listRoles                       无    分页列出所有已注册职业
+ manageRolesUI                   2/3   打开职业管理 GUI / 查看职业详情 (role/modifier)
+
+--------------------------------------------------------------------------------
+ 五、Noelle's Roles 角色玩法 (无前缀/goods:)     权限 | 用途
+--------------------------------------------------------------------------------
+ broadcast                       2     向所有玩家广播带格式消息
+ noellesroles preset             3     职业预设管理 (apply/list/create/delete/save)
+ noellesroles setmax             3     设置职业每局最大数量
+ room                            2     列车房间分配管理
+ stuck                           无    卡墙时传送到安全位置
+ vt_mode                         无    切换主播模式 (VTuber Mode)
+ nr_free_cam                     2     退出死亡惩罚并恢复旁观
+ DisplayItem                     无    在聊天栏展示手持物品信息
+ cooldown                        2     设置物品技能冷却时间
+ item                            2     额外物品栏管理 (extra add/set/get/remove)
+ goods:add / goods:remove / goods:list  3  售货机商品管理
+ repairshop                      2     打开修机模式商店管理界面
+ repair start                    2     启动修机模式 [分钟]
+ repairrole                      3     修机职业管理 (force/clear/unlock)
+ repairmap                       2     修机地图数据管理 (lock/escape add/remove/list)
+ repairpreset                    2     导出修机模式地图预设 (export)
+
+ (注: NoellesrolesConfigCommand 将 spawn_info 等子项挂载到 tmm:config 下扩展)
+
+--------------------------------------------------------------------------------
+ 六、名签 / 白名单 / 皮肤同步                     权限 | 用途
+--------------------------------------------------------------------------------
+ nametag:add                     2     为玩家添加自定义名签
+ nametag:remove                  2     移除指定名签
+ nametag:set                     2     设置名签 (替换现有)
+ nametag:get                     2     查看玩家名签
+ nametag:list                    2     列出玩家所有名签
+ nametag:clear                   2     清除玩家所有名签
+ nametag:sync                    2     同步名签到所有客户端
+ mw:reload                       4     重载模组白名单配置
+ mw:maxplayers                   4     查看/设置服务器最大玩家数 (get/set)
+
+--------------------------------------------------------------------------------
+ 七、客户端指令 (ClientCommandManager, 本地执行)  权限 | 用途
+--------------------------------------------------------------------------------
+ sre:client                      客户端  客户端设置/界面/配置 (settings/screen/config)
+ sreclient:scene                 客户端  场景资源客户端命令
+
+--------------------------------------------------------------------------------
+ 八、Mixin 覆写指令                               权限 | 用途
+--------------------------------------------------------------------------------
+ kill                            玩家3/命令块2  @Overwrite 原版 /kill, 收紧权限并改用 entity.kill()
+                                               (io.wifi.mixins.KillCommandMixin)
+
+================================================================================
+ END OF EXPORT
+================================================================================

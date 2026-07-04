@@ -48,6 +48,7 @@
   "map_intro.property.gravity": "地图重力：%s",
   "map_intro.property.effects": "全局药水效果：%s",
   "map_intro.property.initial_items": "全局初始物品：%s",
+  "map_intro.property.banned_roles": "禁用的职业：%s",
   "map_intro.property.time": "地图时间：%s",
   "map_intro.property.daylight_cycle": "具有昼夜循环",
   "map_intro.property.weather_cycle": "具有天气循环",

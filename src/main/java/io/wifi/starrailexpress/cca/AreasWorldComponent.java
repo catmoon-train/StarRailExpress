@@ -57,6 +57,15 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     /** 启用场景任务列表（仅可填场景任务名）。为空表示不启用任何场景任务。 */
     public HashSet<String> enableSceneTask = new HashSet<>();
 
+    /** 该地图禁用的职业 ID 列表（如 "role_guard"）。为空表示不禁用任何职业。 */
+    public HashSet<String> bannedRoles = new HashSet<>();
+
+    public HashSet<String> getBannedRoles() {
+        if (this.bannedRoles == null)
+            return new HashSet<>();
+        return new HashSet<>(this.bannedRoles);
+    }
+
     public HashSet<String> getEnabledSceneTasks() {
         if (this.enableSceneTask == null)
             return new HashSet<>();
@@ -537,6 +546,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
                 this.initialItems.add(iiList.getString(i));
             }
         }
+        this.bannedRoles.clear();
+        if (tag.contains("bannedRoles")) {
+            var brList = tag.getList("bannedRoles", net.minecraft.nbt.Tag.TAG_STRING);
+            for (int i = 0; i < brList.size(); i++) {
+                this.bannedRoles.add(brList.getString(i));
+            }
+        }
         // this.playAreaOffset = getVec3dFromNbt(tag, "playAreaOffset");
         // this.playArea = getBoxFromNbt(tag, "playArea");
         //
@@ -643,6 +659,12 @@ public class AreasWorldComponent implements AutoSyncedComponent {
             initialItemsList.add(net.minecraft.nbt.StringTag.valueOf(item));
         }
         tag.put("initialItems", initialItemsList);
+
+        var bannedRolesList = new net.minecraft.nbt.ListTag();
+        for (String role : this.bannedRoles) {
+            bannedRolesList.add(net.minecraft.nbt.StringTag.valueOf(role));
+        }
+        tag.put("bannedRoles", bannedRolesList);
 
         // 房间位置需要写入NBT（如果实现此功能）
         // 这里暂时不实现，因为NBT格式可能需要专门处理Map类型

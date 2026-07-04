@@ -1,0 +1,18 @@
+{
+  "fragment": "spbrevamped:point",
+  "vertex": "spbrevamped:point",
+  "definitions": [
+    "SHADOWS"
+  ],
+  "textures": {
+    "ShadowSampler": {
+      "type": "framebuffer",
+      "name": "spb-revamped:shadowmap:depth"
+    },
+    "OpaqueNormal": {
+      "type": "framebuffer",
+      "name": "veil:transparent",
+      "sampler": 2
+    }
+  }
+}

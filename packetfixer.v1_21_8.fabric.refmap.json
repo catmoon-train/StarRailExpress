@@ -1,0 +1,142 @@
+{
+  "mappings": {
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ClientboundCustomPayloadPacketMixin": {
+      "method_56460": "Lnet/minecraft/class_2658;method_56460(Lnet/minecraft/class_2960;)Lnet/minecraft/class_9139;",
+      "method_56461": "Lnet/minecraft/class_2658;method_56461(Lnet/minecraft/class_2960;)Lnet/minecraft/class_9139;"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ClientboundCustomQueryPacketMixin": {
+      "readUnknownPayload": "Lnet/minecraft/class_2899;method_52288(Lnet/minecraft/class_2960;Lnet/minecraft/class_2540;)Lnet/minecraft/class_8597;"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ClientboundLevelChunkPacketDataMixin": {
+      "<init>(Lnet/minecraft/network/RegistryFriendlyByteBuf;II)V": "Lnet/minecraft/class_6603;<init>(Lnet/minecraft/class_9129;II)V"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/CompressionDecoderMixin": {
+      "decode": "Lnet/minecraft/class_2532;decode(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Ljava/util/List;)V"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/CompressionEncoderMixin": {
+      "encode(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V": "Lnet/minecraft/class_2534;method_10741(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ConnectionMixin": {
+      "initChannel": "Lnet/minecraft/class_2535$1;initChannel(Lio/netty/channel/Channel;)V",
+      "net.minecraft.network.Connection$1": "net/minecraft/class_2535$1"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/FriendlyByteBufMixin": {
+      "readNbt(Lio/netty/buffer/ByteBuf;)Lnet/minecraft/nbt/CompoundTag;": "Lnet/minecraft/class_2540;method_56345(Lio/netty/buffer/ByteBuf;)Lnet/minecraft/class_2487;",
+      "readResourceLocation": "Lnet/minecraft/class_2540;method_10810()Lnet/minecraft/class_2960;",
+      "readUtf()Ljava/lang/String;": "Lnet/minecraft/class_2540;method_19772()Ljava/lang/String;",
+      "writeUtf(Ljava/lang/String;)Lnet/minecraft/network/FriendlyByteBuf;": "Lnet/minecraft/class_2540;method_10814(Ljava/lang/String;)Lnet/minecraft/class_2540;"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/NbtAccounterMixin": {
+      "Lnet/minecraft/nbt/NbtAccounter;quota:J": "Lnet/minecraft/class_2505;field_11557:J",
+      "accountBytes(J)V": "Lnet/minecraft/class_2505;method_48004(J)V"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/PayloadHelperMixin": {
+      "assertSize": "Lnet/fabricmc/fabric/impl/networking/payload/PayloadHelper;assertSize(Lnet/minecraft/class_2540;I)V"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerCommonPacketListenerImplMixin": {
+      "keepConnectionAlive": "Lnet/minecraft/class_8609;method_52400()V"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerConnectionListenerMixin": {
+      "initChannel": "Lnet/minecraft/class_3242$1;initChannel(Lio/netty/channel/Channel;)V",
+      "net.minecraft.server.network.ServerConnectionListener$1": "net/minecraft/class_3242$1"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerGamePacketListenerImplMixin": {
+      "tick": "Lnet/minecraft/class_3244;method_18784()V"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerLoginPacketListenerImplMixin": {
+      "tick": "Lnet/minecraft/class_3248;method_18784()V"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerboundCustomPayloadPacketMixin": {
+      "method_56475": "Lnet/minecraft/class_2817;method_56475(Lnet/minecraft/class_2960;)Lnet/minecraft/class_9139;"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerboundCustomQueryPacketMixin": {
+      "readUnknownPayload": "Lnet/minecraft/class_2913;method_52293(Lnet/minecraft/class_2540;)Lnet/minecraft/class_8594;"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/VarIntMixin": {
+      "getByteSize": "Lnet/minecraft/class_8703;method_53015(I)I",
+      "read": "Lnet/minecraft/class_8703;method_53016(Lio/netty/buffer/ByteBuf;)I"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/VarLongMixin": {
+      "getByteSize": "Lnet/minecraft/class_8704;method_53019(J)I",
+      "read": "Lnet/minecraft/class_8704;method_53020(Lio/netty/buffer/ByteBuf;)J"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/Varint21FrameDecoderMixin": {
+      "copyVarint": "Lnet/minecraft/class_2550;method_53022(Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)Z",
+      "decode": "Lnet/minecraft/class_2550;decode(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Ljava/util/List;)V"
+    },
+    "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/Varint21LengthFieldPrependerMixin": {
+      "encode(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V": "Lnet/minecraft/class_2552;method_10840(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V"
+    }
+  },
+  "data": {
+    "named:intermediary": {
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ClientboundCustomPayloadPacketMixin": {
+        "method_56460": "Lnet/minecraft/class_2658;method_56460(Lnet/minecraft/class_2960;)Lnet/minecraft/class_9139;",
+        "method_56461": "Lnet/minecraft/class_2658;method_56461(Lnet/minecraft/class_2960;)Lnet/minecraft/class_9139;"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ClientboundCustomQueryPacketMixin": {
+        "readUnknownPayload": "Lnet/minecraft/class_2899;method_52288(Lnet/minecraft/class_2960;Lnet/minecraft/class_2540;)Lnet/minecraft/class_8597;"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ClientboundLevelChunkPacketDataMixin": {
+        "<init>(Lnet/minecraft/network/RegistryFriendlyByteBuf;II)V": "Lnet/minecraft/class_6603;<init>(Lnet/minecraft/class_9129;II)V"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/CompressionDecoderMixin": {
+        "decode": "Lnet/minecraft/class_2532;decode(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Ljava/util/List;)V"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/CompressionEncoderMixin": {
+        "encode(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V": "Lnet/minecraft/class_2534;method_10741(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ConnectionMixin": {
+        "initChannel": "Lnet/minecraft/class_2535$1;initChannel(Lio/netty/channel/Channel;)V",
+        "net.minecraft.network.Connection$1": "net/minecraft/class_2535$1"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/FriendlyByteBufMixin": {
+        "readNbt(Lio/netty/buffer/ByteBuf;)Lnet/minecraft/nbt/CompoundTag;": "Lnet/minecraft/class_2540;method_56345(Lio/netty/buffer/ByteBuf;)Lnet/minecraft/class_2487;",
+        "readResourceLocation": "Lnet/minecraft/class_2540;method_10810()Lnet/minecraft/class_2960;",
+        "readUtf()Ljava/lang/String;": "Lnet/minecraft/class_2540;method_19772()Ljava/lang/String;",
+        "writeUtf(Ljava/lang/String;)Lnet/minecraft/network/FriendlyByteBuf;": "Lnet/minecraft/class_2540;method_10814(Ljava/lang/String;)Lnet/minecraft/class_2540;"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/NbtAccounterMixin": {
+        "Lnet/minecraft/nbt/NbtAccounter;quota:J": "Lnet/minecraft/class_2505;field_11557:J",
+        "accountBytes(J)V": "Lnet/minecraft/class_2505;method_48004(J)V"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/PayloadHelperMixin": {
+        "assertSize": "Lnet/fabricmc/fabric/impl/networking/payload/PayloadHelper;assertSize(Lnet/minecraft/class_2540;I)V"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerCommonPacketListenerImplMixin": {
+        "keepConnectionAlive": "Lnet/minecraft/class_8609;method_52400()V"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerConnectionListenerMixin": {
+        "initChannel": "Lnet/minecraft/class_3242$1;initChannel(Lio/netty/channel/Channel;)V",
+        "net.minecraft.server.network.ServerConnectionListener$1": "net/minecraft/class_3242$1"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerGamePacketListenerImplMixin": {
+        "tick": "Lnet/minecraft/class_3244;method_18784()V"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerLoginPacketListenerImplMixin": {
+        "tick": "Lnet/minecraft/class_3248;method_18784()V"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerboundCustomPayloadPacketMixin": {
+        "method_56475": "Lnet/minecraft/class_2817;method_56475(Lnet/minecraft/class_2960;)Lnet/minecraft/class_9139;"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/ServerboundCustomQueryPacketMixin": {
+        "readUnknownPayload": "Lnet/minecraft/class_2913;method_52293(Lnet/minecraft/class_2540;)Lnet/minecraft/class_8594;"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/VarIntMixin": {
+        "getByteSize": "Lnet/minecraft/class_8703;method_53015(I)I",
+        "read": "Lnet/minecraft/class_8703;method_53016(Lio/netty/buffer/ByteBuf;)I"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/VarLongMixin": {
+        "getByteSize": "Lnet/minecraft/class_8704;method_53019(J)I",
+        "read": "Lnet/minecraft/class_8704;method_53020(Lio/netty/buffer/ByteBuf;)J"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/Varint21FrameDecoderMixin": {
+        "copyVarint": "Lnet/minecraft/class_2550;method_53022(Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)Z",
+        "decode": "Lnet/minecraft/class_2550;decode(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Ljava/util/List;)V"
+      },
+      "dev/tonimatas/packetfixer/mixins/v1_20_5_fabric/Varint21LengthFieldPrependerMixin": {
+        "encode(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V": "Lnet/minecraft/class_2552;method_10840(Lio/netty/channel/ChannelHandlerContext;Lio/netty/buffer/ByteBuf;Lio/netty/buffer/ByteBuf;)V"
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "sre-mysql-viewer",
+  "version": "2.0.0",
+  "private": true,
+  "description": "StarRailExpress 玩家数据查看/编辑工具 (Node.js 重构版，零构建 SPA)",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mysql2": "^3.11.0"
+  }
+}

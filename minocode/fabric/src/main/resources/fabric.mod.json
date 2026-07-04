@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "minopp",
+  "version": "${version}",
+  "name": "Minopp",
+  "description": "Recreation of a classical card game in Minecraft",
+  "authors": [
+    "Zbx1425",
+    "MalayP"
+  ],
+  "contact": {
+    "homepage": "www.zbx1425.cn"
+  },
+  "license": "MIT",
+  "icon": "minopp.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "cn.zbx1425.minopp.fabric.MinoFabric"
+    ],
+    "client": [
+      "cn.zbx1425.minopp.fabric.MinoFabricClient"
+    ]
+  },
+  "mixins": [
+    "minopp.mixins.json",
+    "minopp.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.2",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

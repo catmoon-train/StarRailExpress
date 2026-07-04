@@ -9,8 +9,30 @@ import net.fabricmc.loader.api.FabricLoader;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 public class SREDisableManager {
     public static HarpyModLoaderConfig config = HarpyModLoaderConfig.instance();
+
+    /** 当前地图级别的禁用职业集合（由地图配置的 bannedRoles 字段设置）。游戏结束时清空。 */
+    private static final Set<String> mapBannedRoles = new HashSet<>();
+
+    public static void setMapBannedRoles(Set<String> roles) {
+        mapBannedRoles.clear();
+        if (roles != null) {
+            mapBannedRoles.addAll(roles);
+        }
+    }
+
+    public static void clearMapBannedRoles() {
+        mapBannedRoles.clear();
+    }
+
+    public static Set<String> getMapBannedRoles() {
+        return Collections.unmodifiableSet(mapBannedRoles);
+    }
 
     public static boolean isRoleDisabled(SRERole role) {
         if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
@@ -31,6 +53,9 @@ public class SREDisableManager {
                 return false;
             }
         }
+        // 地图级别的职业禁用（优先级最高）
+        if (!mapBannedRoles.isEmpty() && mapBannedRoles.contains(role.identifier().toString()))
+            return true;
         // 优先采用本地 config
         if (config.disabled != null && config.disabled.contains(role.identifier().toString()))
             return true;

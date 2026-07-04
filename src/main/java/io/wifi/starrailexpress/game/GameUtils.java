@@ -437,6 +437,8 @@ public class GameUtils {
         SREWorldBlackoutComponent.KEY.get(world).reset();
         component.setGameStatus(SREGameWorldComponent.GameStatus.STOPPING);
         component.gameMode.stopGame(world);
+        // 清除地图级别的职业禁用
+        org.agmas.harpymodloader.SREDisableManager.clearMapBannedRoles();
     }
 
     public static void executeFunction(CommandSourceStack source, String function) {
@@ -479,6 +481,14 @@ public class GameUtils {
         GameInitializeEvent.EVENT.invoker().initializeGame(serverWorld, gameComponent, readyPlayerList);
         // 初始化房间等
         gameComponent.getGameMode().beforeInitializeGame(serverWorld, gameComponent, readyPlayerList);
+        // 应用地图级别的职业禁用
+        {
+            var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverWorld);
+            if (areas.bannedRoles != null && !areas.bannedRoles.isEmpty()) {
+                org.agmas.harpymodloader.SREDisableManager.setMapBannedRoles(areas.bannedRoles);
+                SRE.LOGGER.info("Applied map banned roles: " + areas.bannedRoles);
+            }
+        }
         // 分配角色
         gameComponent.getGameMode().initializeGame(serverWorld, gameComponent, readyPlayerList);
         // 初始化回放管理器

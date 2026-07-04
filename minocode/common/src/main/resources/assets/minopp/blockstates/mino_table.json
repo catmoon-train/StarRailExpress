@@ -1,0 +1,20 @@
+{
+  "multipart": [
+    {
+      "when": { "part": "x_less_z_less" },
+      "apply": { "model": "minopp:block/mino_table", "y": 0, "uvlock": true }
+    },
+    {
+      "when": { "part": "x_less_z_more" },
+      "apply": { "model": "minopp:block/mino_table", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "part": "x_more_z_less" },
+      "apply": { "model": "minopp:block/mino_table", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "part": "x_more_z_more" },
+      "apply": { "model": "minopp:block/mino_table", "y": 180, "uvlock": true }
+    }
+  ]
+}

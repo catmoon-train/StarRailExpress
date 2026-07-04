@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "cn.zbx1425.minopp.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "AbstractClientPlayerMixin"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
