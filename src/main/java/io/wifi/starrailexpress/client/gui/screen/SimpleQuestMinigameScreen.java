@@ -2963,8 +2963,10 @@ public class SimpleQuestMinigameScreen extends Screen {
             for(int[]n:nb){int nr=n[0],nc=n[1];if(nr>=0&&nr<pipeH&&nc>=0&&nc<pipeW){solution[r][c]|=(1<<n[2]);solution[nr][nc]|=(1<<n[3]);break;}}
         }
         for(r=0;r<pipeH;r++)for(c=0;c<pipeW;c++)pipeGrid[r][c]=solution[r][c];
-        // 仅随机旋转非路径上的管道（增加难度，不破坏路径）
-        for(int i=0;i<6;i++){int pr=rng.nextInt(pipeH),pc=rng.nextInt(pipeW);if(!onPath[pr][pc])pipeGrid[pr][pc]=(pipeGrid[pr][pc]<<rng.nextInt(3))&15;}
+        for(r=0;r<pipeH;r++)for(c=0;c<pipeW;c++)pipeGrid[r][c]=rotatePipe(pipeGrid[r][c],rng.nextInt(4));
+        if(checkPipeConnected()){
+            pipeGrid[0][0]=rotatePipe(pipeGrid[0][0],2);
+        }
     }
     private void renderPipeConnect(GuiGraphics g,int left,int top){int cs=40,ox=left+(PANEL_W-pipeW*cs)/2,oy=top+40;
         for(int r=0;r<pipeH;r++)for(int c=0;c<pipeW;c++){int x=ox+c*cs,y=oy+r*cs,v=pipeGrid[r][c];
@@ -2987,6 +2989,12 @@ public class SimpleQuestMinigameScreen extends Screen {
             }
         }
         return vis[pipeH-1][pipeW-1];
+    }
+
+    private int rotatePipe(int pipe,int turns){
+        pipe&=15;turns=((turns%4)+4)%4;
+        for(int i=0;i<turns;i++)pipe=((pipe<<1)|(pipe>>3))&15;
+        return pipe;
     }
 
     // ── 点灯 ──
