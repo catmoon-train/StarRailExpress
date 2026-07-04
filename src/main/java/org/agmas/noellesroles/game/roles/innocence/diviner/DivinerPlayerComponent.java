@@ -433,7 +433,7 @@ public class DivinerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     /** 根据 UUID 查找尸体。 */
     private Entity findBodyById(ServerPlayer sp, UUID bodyId) {
-        if (bodyId == null && sp.level() instanceof ServerLevel sl) {
+        if (bodyId != null && sp.level() instanceof ServerLevel sl) {
             return sl.getEntity(bodyId);
         }
         return null;

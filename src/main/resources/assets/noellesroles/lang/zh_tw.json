@@ -445,6 +445,8 @@
   "mob_effect.noellesroles.disguise": "偽裝",
   "effect.noellesroles.disguise": "偽裝",
   "effect.noellesroles.vision_fog": "視野迷霧",
+  "mob_effect.noellesroles.two_dimensional_camera": "2D視角",
+  "effect.noellesroles.two_dimensional_camera": "2D視角",
   "mob_effect.noellesroles.skill_baned": "技能封印",
   "effect.noellesroles.skill_baned": "技能封印",
   "mob_effect.noellesroles.ghost_state": "幽靈狀態",

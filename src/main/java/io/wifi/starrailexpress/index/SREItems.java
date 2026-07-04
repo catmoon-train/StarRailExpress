@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.index;
 
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.ModBlocks;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -59,7 +60,7 @@ public interface SREItems {
 
     public static void init() {
         // 修改物品分类
-        ItemGroupEvents.modifyEntriesEvent(TMMItems.BUILDING_GROUP)
+        ItemGroupEvents.modifyEntriesEvent(ModBlocks.BLOCK_CREATIVE_GROUP)
                 .register((itemGroup) -> itemGroup.accept(TRAIN_TORCH));
     }
 }

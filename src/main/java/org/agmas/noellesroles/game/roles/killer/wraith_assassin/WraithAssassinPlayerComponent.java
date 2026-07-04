@@ -53,12 +53,12 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     public static final int MANIFEST_TICKS = 15 * 20;
     public static final int PANIC_TICKS = 8 * 20;
     public static final int WAIL_RADIUS = 12;
-    public static final int WAIL_SAN_DAMAGE = 25;
+    public static final int WAIL_SAN_DAMAGE = 40;
     public static final int DRAIN_RADIUS = 8;
     public static final int DRAIN_SAN_AMOUNT = 30;
     public static final int DRAIN_COOLDOWN_TICKS = 30 * 20;
-    public static final int PASSIVE_DRAIN_INTERVAL = 25 * 20;
-    public static final int PASSIVE_DRAIN_AMOUNT = 10;
+    public static final int PASSIVE_DRAIN_INTERVAL = 5 * 20;
+    public static final int PASSIVE_DRAIN_AMOUNT = 5;
     public static final int FLOAT_DURATION = 40; // 2 seconds
     public static final double DASH_SPEED_NORMAL = 2.0;
     public static final double DASH_SPEED_MANIFEST = 3.5;
@@ -254,7 +254,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     }
 
     /**
-     * 每25秒自动吸收周围玩家10点SAN值（被动光环）
+     * 每5秒自动吸收周围玩家5点SAN值（被动光环）
      */
     private void tickPassiveDrain(ServerPlayer self) {
         passiveDrainTimer++;

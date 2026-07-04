@@ -432,6 +432,8 @@
   "mob_effect.noellesroles.disguise": "Disguise",
   "effect.noellesroles.disguise": "Disguise",
   "effect.noellesroles.vision_fog": "Vision Fog",
+  "mob_effect.noellesroles.two_dimensional_camera": "2D Camera",
+  "effect.noellesroles.two_dimensional_camera": "2D Camera",
   "mob_effect.noellesroles.skill_baned": "Skill Sealed",
   "effect.noellesroles.skill_baned": "Skill Sealed",
   "mob_effect.noellesroles.ghost_state": "Ghost State",

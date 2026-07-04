@@ -332,6 +332,15 @@ public class ModEffects {
     public static final Holder<MobEffect> VISION_FOG = register("vision_fog",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x55667A));
 
+    /**
+     * 2D 视角
+     * - 中性效果
+     * - 客户端固定侧视镜头。amplifier: 0=西边，1=东边，2=北边，3=南边。
+     *   行为见 {@code TwoDimensionalCameraClientHandle}，最终通过 AdvancedCameraDirector 接管相机。
+     */
+    public static final Holder<MobEffect> TWO_DIMENSIONAL_CAMERA = register("two_dimensional_camera",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x87CEFA));
+
     /** 视野迷雾：根据效果等级计算雾的可见距离（格）。1 级=2 格，每升 1 级多看 3 格。 */
     public static float getVisionFogDistance(int amplifier) {
         return 2.0f + Math.max(0, amplifier) * 3.0f;
