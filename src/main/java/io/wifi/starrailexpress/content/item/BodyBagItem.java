@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.content.item;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -30,7 +31,8 @@ public class BodyBagItem extends Item {
                     SRE.REPLAY_MANAGER.recordItemUse(user.getUUID(), BuiltInRegistries.ITEM.getKey(this));
                 }
                 user.getItemInHand(hand).shrink(1);
-                user.getCooldowns().addCooldown(this, GameConstants.ITEM_COOLDOWNS.get(this));
+                user.getCooldowns().addCooldown(TMMItems.BODY_BAG,
+                        GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.BODY_BAG, 40));
             }
 
             return InteractionResult.SUCCESS;

@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.LockableButtonBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.core.BlockPos;
@@ -45,7 +46,8 @@ public class LockpickItem extends Item implements AdventureUsable {
                     }
 
                     if (!player.isCreative()) {
-                        player.getCooldowns().addCooldown(this, GameConstants.ITEM_COOLDOWNS.get(this));
+                        player.getCooldowns().addCooldown(TMMItems.LOCKPICK,
+                                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.LOCKPICK, 40));
                     }
 
                     if (!world.isClientSide)
@@ -66,7 +68,8 @@ public class LockpickItem extends Item implements AdventureUsable {
                         if (SRE.REPLAY_MANAGER != null) {
                             SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
                         }
-                        player.getCooldowns().addCooldown(this, GameConstants.ITEM_COOLDOWNS.get(this));
+                        player.getCooldowns().addCooldown(TMMItems.LOCKPICK,
+                                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.LOCKPICK, 40));
                     }
 
                     if (!world.isClientSide)
