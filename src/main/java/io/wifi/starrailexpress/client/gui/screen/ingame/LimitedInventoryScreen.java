@@ -566,7 +566,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         if (message == null || displaytime <= 0)
             return;
         int x = width;
-        int y = 4;
+        int y = 10;
         int twidth = font.width(message);
         {
             context.drawString(font, message, (x - twidth) / 2, y, 0xffffffff);
