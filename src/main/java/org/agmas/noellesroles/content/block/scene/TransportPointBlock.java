@@ -94,13 +94,16 @@ public class TransportPointBlock extends Block {
                 SceneTaskManager.assign(sp, SceneTaskManager.Type.TRANSPORT);
             }
             if (SceneTaskManager.hasTransportTask(sp)) {
+                // 如果背包中已存在运输物品，不允许重复取货
+                if (hasTransportPackageInInventory(sp)) {
+                    sp.displayClientMessage(Component.translatable("message.noellesroles.scene_task.transport_already_has"), true);
+                    return InteractionResult.CONSUME;
+                }
                 SceneTaskManager.reportTransportPickup(sp);
                 // 给予运输物品
-                if (!hasTransportPackageInInventory(sp)) {
-                    ItemStack pkg = new ItemStack(ModItems.TRANSPORT_PACKAGE);
-                    if (!sp.getInventory().add(pkg)) {
-                        sp.drop(pkg, false);
-                    }
+                ItemStack pkg = new ItemStack(ModItems.TRANSPORT_PACKAGE);
+                if (!sp.getInventory().add(pkg)) {
+                    sp.drop(pkg, false);
                 }
                 if (level instanceof ServerLevel serverLevel) {
                     serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, pos.getX() + 0.5, pos.getY() + 1.0,

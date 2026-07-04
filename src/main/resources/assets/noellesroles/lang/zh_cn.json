@@ -1681,6 +1681,7 @@
   "message.noellesroles.scene_task.complete": "场景任务完成！",
   "message.noellesroles.scene_task.transport_pickup": "已拿起货物，运往终点",
   "message.noellesroles.scene_task.transport_no_task": "你没有运输任务",
+  "message.noellesroles.scene_task.transport_already_has": "你已经持有运输物品了",
   "item.noellesroles.transport_package": "运输物品",
   "item.noellesroles.scarlet_perception_sword": "绯想之剑",
   "item_group.noellesroles.hsritems": "HSRItems",

@@ -1605,6 +1605,7 @@
   "message.noellesroles.scene_task.complete": "Scene task complete!",
   "message.noellesroles.scene_task.transport_pickup": "Picked up the cargo, deliver it to the end point",
   "message.noellesroles.scene_task.transport_no_task": "You don't have a transport task",
+  "message.noellesroles.scene_task.transport_already_has": "You are already holding a transport package",
   "item.noellesroles.transport_package": "Transport Package",
   "item_group.noellesroles.hsritems": "HSRItems",
   "entity.noellesroles.wheelchair": "Wheelchair",

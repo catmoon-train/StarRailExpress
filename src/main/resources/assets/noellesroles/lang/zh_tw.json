@@ -1621,6 +1621,7 @@
   "message.noellesroles.scene_task.complete": "場景任務完成！",
   "message.noellesroles.scene_task.transport_pickup": "已拿起貨物，運往終點",
   "message.noellesroles.scene_task.transport_no_task": "你沒有運輸任務",
+  "message.noellesroles.scene_task.transport_already_has": "你已經持有運輸物品了",
   "item.noellesroles.transport_package": "運輸物品",
   "item_group.noellesroles.hsritems": "HSRItems",
   "entity.noellesroles.wheelchair": "輪椅",
