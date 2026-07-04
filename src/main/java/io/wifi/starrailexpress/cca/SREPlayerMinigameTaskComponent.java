@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.cca;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.content.block_entity.MinigameQuestBlockEntity;
 import io.wifi.starrailexpress.content.minigame.QuestMinigame;
 import io.wifi.starrailexpress.content.minigame.QuestMinigames;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -18,9 +19,11 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 小游戏任务 / 游戏代币组件（当局制，每局清零）。
@@ -181,12 +184,40 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
             clearSabotageTaskIfPresent();
             return;
         }
-        if (hasSabotageTask() && areas.sabotageMinigameIds.contains(this.sabotageMinigameId)) {
+        List<String> ids = getAvailableSabotageMinigameIds(serverLevel, areas.sabotageMinigameIds);
+        if (ids.isEmpty()) {
+            clearSabotageTaskIfPresent();
             return;
         }
-        List<String> ids = new ArrayList<>(areas.sabotageMinigameIds);
+        if (hasSabotageTask() && ids.contains(this.sabotageMinigameId)) {
+            return;
+        }
         this.sabotageMinigameId = ids.get(sp.getRandom().nextInt(ids.size()));
         this.sync();
+    }
+
+    private List<String> getAvailableSabotageMinigameIds(ServerLevel serverLevel, Set<String> configuredIds) {
+        HashSet<String> ids = new HashSet<>();
+        if (GameUtils.taskBlocks == null || GameUtils.taskBlocks.isEmpty()) {
+            return new ArrayList<>(ids);
+        }
+        long now = serverLevel.getGameTime();
+        for (Map.Entry<BlockPos, Integer> entry : GameUtils.taskBlocks.entrySet()) {
+            int type = entry.getValue();
+            if (type != 14 && type != 15) {
+                continue;
+            }
+            if (!(serverLevel.getBlockEntity(entry.getKey()) instanceof MinigameQuestBlockEntity questBe)
+                    || !questBe.isSabotageTrigger()
+                    || questBe.isSabotageOnCooldown(now)) {
+                continue;
+            }
+            String minigameId = questBe.getMinigameId();
+            if (minigameId != null && !minigameId.isEmpty() && configuredIds.contains(minigameId)) {
+                ids.add(minigameId);
+            }
+        }
+        return new ArrayList<>(ids);
     }
 
     private void clearSabotageTaskIfPresent() {

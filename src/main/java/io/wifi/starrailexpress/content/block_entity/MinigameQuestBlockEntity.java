@@ -79,7 +79,13 @@ public class MinigameQuestBlockEntity extends SyncingBlockEntity {
     }
 
     public long getLastSabotageTime() { return lastSabotageTime; }
-    public void setLastSabotageTime(long time) { this.lastSabotageTime = time; setChanged(); }
+    public void setLastSabotageTime(long time) { this.lastSabotageTime = time; sync(); }
+
+    public boolean isSabotageOnCooldown(long currentGameTime) {
+        long cooldownTicks = (long) this.sabotageCooldown * 20;
+        return cooldownTicks > 0 && this.lastSabotageTime > 0
+                && currentGameTime - this.lastSabotageTime < cooldownTicks;
+    }
 
     /** 从网络包加载配置 */
     public void loadConfigFromTag(CompoundTag tag) {

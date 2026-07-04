@@ -91,6 +91,12 @@ public class MinigameQuestBlock extends BaseEntityBlock
                     if (role == null || (!role.isKiller() && !role.canUseSabotage())) {
                         return InteractionResult.SUCCESS;
                     }
+                    if (questBe.isSabotageOnCooldown(sp.level().getGameTime())) {
+                        sp.displayClientMessage(
+                                net.minecraft.network.chat.Component.translatable("message.sre.sabotage_cooldown"),
+                                true);
+                        return InteractionResult.SUCCESS;
+                    }
                     String sabotageMinigameId = questBe.getMinigameId();
                     if (sabotageMinigameId != null && !sabotageMinigameId.isEmpty()) {
                         net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(sp,
@@ -195,6 +201,9 @@ public class MinigameQuestBlock extends BaseEntityBlock
             if (be instanceof MinigameQuestBlockEntity questBe) {
                 // 破坏任务触发点：杀手 + canUseSabotage 角色可见
                 if (questBe.isSabotageTrigger()) {
+                    if (questBe.isSabotageOnCooldown(level.getGameTime())) {
+                        return false;
+                    }
                     var role = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(level)
                             .getRole(player);
                     return role != null && (role.isKiller() || role.canUseSabotage());
