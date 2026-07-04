@@ -541,7 +541,7 @@ public class ModRolesInitialEventRegister {
                     if (!comp.isPossessing())
                         return false;
                     return comp.finalizePossession();
-                }).toggleable(true).announceToSelf(false).build());
+                }).shifted(true).announceToSelf(false).build());
 
         // 葬仪技能注册：使用当前模式的技能
         RoleSkill.register(ModRoles.MORTICIAN_BODYMAKER, context -> {

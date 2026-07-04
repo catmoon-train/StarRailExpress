@@ -94,8 +94,9 @@ public class ClientAbilityHandler {
             var ability = io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.KEY.get(client.player);
             heldSlot = ability.getSelectedSkill();
             unifiedSkillHeld = true;
+            boolean sneaking = client.player.isShiftKeyDown();
             ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
-                    heldSlot, RoleSkill.Phase.PRESS, findTarget(client)));
+                    heldSlot, RoleSkill.Phase.PRESS, findTarget(client), sneaking));
             return;
         }
 

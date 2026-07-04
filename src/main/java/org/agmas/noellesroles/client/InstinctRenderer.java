@@ -930,6 +930,20 @@ public class InstinctRenderer {
                         return 0xFFD84A;
                     }
                 }
+                // 低 SAN 玩家可见冤魂高亮
+                if (target instanceof Player targetPlayer && targetPlayer != self
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    SRERole selfRole = SREClient.gameComponent.getRole(self);
+                    if (selfRole != null && !selfRole.isKiller()) {
+                        int viewerSan = Math.round(
+                                SREPlayerMoodComponent.KEY.get(self).getMood() * 100.0f);
+                        if (viewerSan < 20
+                                && targetPlayer.hasEffect(ModEffects.WRAITH_DIMENSION)
+                                && !targetPlayer.hasEffect(ModEffects.WRAITH_MANIFEST)) {
+                            return 0xAA66FF;
+                        }
+                    }
+                }
                 // 记录员
                 if (SREClient.gameComponent.isRole(self, ModRoles.RECORDER)) {
                     if (target instanceof Player targetPlayer) {
