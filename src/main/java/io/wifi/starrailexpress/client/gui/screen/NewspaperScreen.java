@@ -115,7 +115,7 @@ public class NewspaperScreen extends Screen {
                 s -> this.title = s,
                 this::getClipboard,
                 this::setClipboard,
-                s -> s.length() < 50);
+                s -> s.length() < 32);
 
         WrittenBookContent written = book.get(DataComponents.WRITTEN_BOOK_CONTENT);
         if (written != null) {

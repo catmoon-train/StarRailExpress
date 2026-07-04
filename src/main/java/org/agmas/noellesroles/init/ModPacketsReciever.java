@@ -372,6 +372,9 @@ public class ModPacketsReciever {
             list.add(Filterable.passThrough(Component.literal(p)));
           }
           String title = titOpt.get();
+          if (title.length() >= 32) {
+            title = title.substring(0, 30);
+          }
           String shortTitle = title;
           if (shortTitle.length() >= 10) {
             shortTitle = shortTitle.substring(0, 8) + "...";
@@ -529,8 +532,8 @@ public class ModPacketsReciever {
     // 操纵师附身移动输入包：驱动被操控目标移动，或请求结束操控
     ServerPlayNetworking.registerGlobalReceiver(
         org.agmas.noellesroles.packet.ManipulatorControlInputC2SPacket.ID, (payload, context) -> {
-          ManipulatorPlayerComponent manipulatorPlayerComponent =
-              (ManipulatorPlayerComponent) ManipulatorPlayerComponent.KEY.get(context.player());
+          ManipulatorPlayerComponent manipulatorPlayerComponent = (ManipulatorPlayerComponent) ManipulatorPlayerComponent.KEY
+              .get(context.player());
           if (!manipulatorPlayerComponent.isControlling || manipulatorPlayerComponent.target == null)
             return;
           if (payload.stop()) {
@@ -550,8 +553,8 @@ public class ModPacketsReciever {
     // 操纵师附身期间：以目标身份释放目标自身技能（冷却记在目标身上）
     ServerPlayNetworking.registerGlobalReceiver(
         org.agmas.noellesroles.packet.ManipulatorAbilityC2SPacket.ID, (payload, context) -> {
-          ManipulatorPlayerComponent manipulatorPlayerComponent =
-              (ManipulatorPlayerComponent) ManipulatorPlayerComponent.KEY.get(context.player());
+          ManipulatorPlayerComponent manipulatorPlayerComponent = (ManipulatorPlayerComponent) ManipulatorPlayerComponent.KEY
+              .get(context.player());
           if (!manipulatorPlayerComponent.isControlling || manipulatorPlayerComponent.target == null)
             return;
           var targetPlayer = context.player().level().getPlayerByUUID(manipulatorPlayerComponent.target);
