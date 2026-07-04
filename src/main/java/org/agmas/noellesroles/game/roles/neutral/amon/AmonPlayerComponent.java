@@ -469,7 +469,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             return;
         }
         prePossessionScale = amon.getAttribute(Attributes.SCALE).getBaseValue();
-        amon.getAttribute(Attributes.SCALE).setBaseValue(prePossessionScale * 0.35D);
+        amon.getAttribute(Attributes.SCALE).setBaseValue(prePossessionScale * 0.45D);
     }
 
     private void restorePossessionScale(ServerPlayer amon) {

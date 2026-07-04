@@ -423,12 +423,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         for (int i = 0; i < 30; i++) {
             double angle = Math.random() * Math.PI * 2;
             double pitch = Math.acos(2 * Math.random() - 1);
-            level.sendParticles(ParticleTypes.SCULK_SOUL,
-                    selfPos.x, selfPos.y, selfPos.z, 1,
-                    Math.sin(pitch) * Math.cos(angle) * 1.2,
-                    Math.sin(pitch) * Math.sin(angle) * 1.2,
-                    Math.cos(pitch) * 1.2,
-                    0.05d);
+
         }
 
         for (ServerPlayer target : level.players()) {
