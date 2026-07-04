@@ -101,19 +101,10 @@ public class DebrisPileBlockEntity extends BlockEntity {
 
     public void onSelfExtinguished() {
         if (!(level instanceof ServerLevel serverLevel)) return;
-        if (!isClosed(serverLevel, worldPosition)) return;
-        for (BlockPos other : linked) {
-            if (!serverLevel.isLoaded(other) || !(serverLevel.getBlockEntity(other) instanceof DebrisPileBlockEntity)) return;
-            if (!isClosed(serverLevel, other)) return;
-        }
+        if (!DebrisPileRegistry.allExtinguished(serverLevel)) return;
         SceneEventManager.stopSabotage(serverLevel);
         for (var player : serverLevel.players()) {
             player.displayClientMessage(Component.translatable("message.noellesroles.debris_pile.all_extinguished"), false);
         }
-    }
-
-    private static boolean isClosed(ServerLevel level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        return state.hasProperty(DebrisPileBlock.CLOSED) && state.getValue(DebrisPileBlock.CLOSED);
     }
 }

@@ -51,9 +51,7 @@ public class MinigameQuestServerNetwork {
                         return;
                     }
                     long now = level.getGameTime();
-                    long cooldownTicks = (long) questBe.getSabotageCooldown() * 20;
-                    if (cooldownTicks > 0 && questBe.getLastSabotageTime() > 0
-                            && now - questBe.getLastSabotageTime() < cooldownTicks) {
+                    if (questBe.isSabotageOnCooldown(now)) {
                         player.displayClientMessage(
                                 net.minecraft.network.chat.Component.translatable("message.sre.sabotage_cooldown"),
                                 true);
