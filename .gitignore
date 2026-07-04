@@ -21,3 +21,7 @@ commitCache
 /bin/
 /tools/dist/
 src/main/java/org/agmas/noellesroles/role/StarRailExpress.code-workspace
+.workbuddy
+.workbuddy/
+/.workbuddy/
+/.workbuddy/*
