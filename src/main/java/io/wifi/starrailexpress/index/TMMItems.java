@@ -250,5 +250,6 @@ public interface TMMItems {
         ChargeableItemRegistry.register(TMMItems.STICKY_GRENADE, new GrenadeChargeableItem());
         WatheBridgerItems.initialize();
         sreRegistrar.registerEntries();
+        SREItems.init();
     }
 }

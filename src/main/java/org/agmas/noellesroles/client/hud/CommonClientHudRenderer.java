@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.client.hud;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
@@ -115,8 +116,11 @@ public class CommonClientHudRenderer {
           HudStoreRenderer.renderHud(font, player, guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
       }
       {
-        
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(SREClientConfig.instance().moodLeftOffset,
+            SREClientConfig.instance().moodTopOffset, 0);
         HudMoodRenderer.renderHud(player, font, guiGraphics, deltaTracker);
+        guiGraphics.pose().popPose();
       }
       {
         // 举盾提示：当玩家主手/副手举防暴盾牌时显示 actionbar 提示
