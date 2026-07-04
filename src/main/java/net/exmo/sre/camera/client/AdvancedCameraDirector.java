@@ -105,7 +105,15 @@ public final class AdvancedCameraDirector {
         if (minecraft.options.getCameraType() == CameraType.FIRST_PERSON) {
             minecraft.options.setCameraType(CameraType.THIRD_PERSON_BACK);
         }
-        fixedOverride = new FixedOverride(pos, yaw, pitch, fov, previousType);
+        Pose previousPose = fixedOverride != null
+                ? new Pose(fixedOverride.pos, fixedOverride.yaw, fixedOverride.pitch, fixedOverride.fov)
+                : new Pose(pos, yaw, pitch, fov);
+        fixedOverride = new FixedOverride(
+                previousPose.pos, pos,
+                previousPose.yaw, yaw,
+                previousPose.pitch, pitch,
+                previousPose.fov, fov,
+                previousType);
     }
 
     public static void clearFixedOverride() {
@@ -199,7 +207,7 @@ public final class AdvancedCameraDirector {
             return active.poseAt(time(partialTick));
         }
         if (fixedOverride != null) {
-            return new Pose(fixedOverride.pos, fixedOverride.yaw, fixedOverride.pitch, fixedOverride.fov);
+            return fixedOverride.poseAt(partialTick);
         }
         return null;
     }
@@ -302,7 +310,22 @@ public final class AdvancedCameraDirector {
         int ticks;
     }
 
-    private record FixedOverride(Vec3 pos, float yaw, float pitch, float fov, CameraType previousType) {
+    private record FixedOverride(Vec3 previousPos, Vec3 pos,
+                                 float previousYaw, float yaw,
+                                 float previousPitch, float pitch,
+                                 float previousFov, float fov,
+                                 CameraType previousType) {
+        Pose poseAt(float partialTick) {
+            float alpha = Mth.clamp(partialTick, 0f, 1f);
+            Vec3 lerpedPos = new Vec3(
+                    Mth.lerp(alpha, previousPos.x, pos.x),
+                    Mth.lerp(alpha, previousPos.y, pos.y),
+                    Mth.lerp(alpha, previousPos.z, pos.z));
+            float lerpedYaw = Mth.rotLerp(alpha, previousYaw, yaw);
+            float lerpedPitch = Mth.lerp(alpha, previousPitch, pitch);
+            float lerpedFov = Mth.lerp(alpha, previousFov, fov);
+            return new Pose(lerpedPos, lerpedYaw, lerpedPitch, lerpedFov);
+        }
     }
 
     private static final class ActiveSequence {
