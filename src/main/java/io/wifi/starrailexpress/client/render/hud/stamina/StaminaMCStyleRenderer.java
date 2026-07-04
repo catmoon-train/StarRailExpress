@@ -69,10 +69,11 @@ public class StaminaMCStyleRenderer {
             context.pose().translate(context.guiWidth() / 2f, context.guiHeight() - 35, 0); // 在物品栏上方显示
             // 1. 更新状态（每帧都传当前体力值）
             StaminaIconRenderer.update(staminaPercent);
-
+            int heartX = context.guiWidth() / 2 - 91; // 第一颗心的 X 坐标
+            int heartY = context.guiHeight() - 49; // 心的 Y 坐标（距底部 49 像素）
             // 2. 将坐标系平移到您想要的左上角位置（例如 x=10, y=20）
             context.pose().pushPose();
-            context.pose().translate(10, 20, 0);
+            context.pose().translate(heartX, heartY, 0);
 
             // 3. 在 (0,0) 处绘制图标
             StaminaIconRenderer.render(context, staminaPercent);
