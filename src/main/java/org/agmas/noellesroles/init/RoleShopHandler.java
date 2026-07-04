@@ -6,11 +6,13 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.item.KnifeItem;
+import io.wifi.starrailexpress.content.item.component.SREWrittenBookContent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.SREItemUtils;
@@ -122,7 +124,8 @@ public class RoleShopHandler {
         hunterCommon.add(new ShopEntry(ModItems.HUNTER_HOOK.getDefaultInstance(), 52, ShopEntry.Type.WEAPON));
         hunterCommon.add(new ShopEntry(ModItems.HUNTER_CHAIN.getDefaultInstance(), 42, ShopEntry.Type.TOOL));
         hunterCommon.add(new ShopEntry(new ItemStack(ModBlocks.HUNTER_SNARE.asItem(), 2), 30, ShopEntry.Type.TOOL));
-        hunterCommon.add(new ShopEntry(ModItems.HUNTER_PLUGIN_LACERATION.getDefaultInstance(), 32, ShopEntry.Type.TOOL));
+        hunterCommon
+                .add(new ShopEntry(ModItems.HUNTER_PLUGIN_LACERATION.getDefaultInstance(), 32, ShopEntry.Type.TOOL));
 
         var warden = new ArrayList<>(hunterCommon);
         warden.add(new ShopEntry(ModItems.HUNTER_JAMMER.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
@@ -414,13 +417,15 @@ public class RoleShopHandler {
             柜子区的商店.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 60, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
+                    return SREPlayerShopComponent.useMonitorBroken(player,
+                            SREConfig.instance().monitorBrokenDuration * 20);
                 }
             });
             {
                 // 射击狂热 - 275金币（魔改psycho，狂暴模式）
                 var 柜子区疯魔 = TMMItems.PSYCHO_MODE.getDefaultInstance();
-                柜子区疯魔.set(DataComponents.ITEM_NAME, Component.translatable("itemstack.executioner.psychoitem.item_name"));
+                柜子区疯魔.set(DataComponents.ITEM_NAME,
+                        Component.translatable("itemstack.executioner.psychoitem.item_name"));
                 var lore = new ItemLore(List.of(
                         Component.translatable("itemstack.executioner.psychoitem.item_lore.1")
                                 .withStyle(style -> style.withItalic(false).withColor(ChatFormatting.GRAY)),
@@ -445,7 +450,8 @@ public class RoleShopHandler {
             {
                 // 切换目标 - 200金币
                 var 柜子区切换目标 = Items.PAPER.getDefaultInstance();
-                柜子区切换目标.set(DataComponents.ITEM_NAME, Component.translatable("itemstack.executioner.change_target.item_name"));
+                柜子区切换目标.set(DataComponents.ITEM_NAME,
+                        Component.translatable("itemstack.executioner.change_target.item_name"));
                 var lore = new ItemLore(List.of(
                         Component.translatable("itemstack.executioner.change_target.item_lore.1")
                                 .withStyle(style -> style.withItalic(false).withColor(ChatFormatting.GRAY)),
@@ -513,23 +519,27 @@ public class RoleShopHandler {
                     ShopEntry.Type.TOOL));
 
             // 闪光弹 - 175金币（捣蛋鬼专用）
-            SLIPPERY_GHOST_SHOP.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 175, ShopEntry.Type.TOOL) {
-                @Override
-                public boolean canBuy(@NotNull Player player) {
-                    return !(MCItemsUtils.countItem(player, ModItems.FLASH_GRENADE) > 0);
-                }
-            });
+            SLIPPERY_GHOST_SHOP
+                    .add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 175, ShopEntry.Type.TOOL) {
+                        @Override
+                        public boolean canBuy(@NotNull Player player) {
+                            return !(MCItemsUtils.countItem(player, ModItems.FLASH_GRENADE) > 0);
+                        }
+                    });
 
             // 诱饵弹 - 25金币（捣蛋鬼专用）
-            SLIPPERY_GHOST_SHOP.add(new ShopEntry(ModItems.DECOY_GRENADE.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
+            SLIPPERY_GHOST_SHOP
+                    .add(new ShopEntry(ModItems.DECOY_GRENADE.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
 
             // 监控失灵 - 50金币（捣蛋鬼专属）
-            SLIPPERY_GHOST_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 50, ShopEntry.Type.TOOL) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
-                }
-            });
+            SLIPPERY_GHOST_SHOP
+                    .add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 50, ShopEntry.Type.TOOL) {
+                        @Override
+                        public boolean onBuy(@NotNull Player player) {
+                            return SREPlayerShopComponent.useMonitorBroken(player,
+                                    SREConfig.instance().monitorBrokenDuration * 20);
+                        }
+                    });
 
             // 关灯 - 300金币 (原版杀手商店物品)
             SLIPPERY_GHOST_SHOP.add(
@@ -818,7 +828,8 @@ public class RoleShopHandler {
             BANDIT_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 75, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
+                    return SREPlayerShopComponent.useMonitorBroken(player,
+                            SREConfig.instance().monitorBrokenDuration * 20);
                 }
             });
 
@@ -1035,7 +1046,8 @@ public class RoleShopHandler {
                         if (player instanceof ServerPlayer sp) {
                             sp.displayClientMessage(
                                     Component.translatable("message.noellesroles.candlebearer.charge_gained",
-                                            comp.invisibilityCharges, CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES)
+                                            comp.invisibilityCharges,
+                                            CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES)
                                             .withStyle(ChatFormatting.GOLD),
                                     true);
                         }
@@ -1049,7 +1061,8 @@ public class RoleShopHandler {
             {
                 var candleItem = Items.CANDLE.getDefaultInstance();
                 candleItem.set(DataComponents.ITEM_NAME,
-                        Component.translatable("item.noellesroles.candlebearer.shop.candle").withStyle(ChatFormatting.YELLOW));
+                        Component.translatable("item.noellesroles.candlebearer.shop.candle")
+                                .withStyle(ChatFormatting.YELLOW));
                 var candleLore = new ArrayList<Component>();
                 candleLore.add(Component.translatable("item.noellesroles.candlebearer.shop.candle.lore1")
                         .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
@@ -1230,7 +1243,8 @@ public class RoleShopHandler {
                             SoundEvents.SMITHING_TABLE_USE, SoundSource.MASTER, 1.0F, 1.0F);
                     // 冷却与关灯一致
                     player.level().players().forEach(
-                            p -> p.getCooldowns().addCooldown(ModItems.LIGHTUP, GameConstants.getBlackoutCooldownGlobal()));
+                            p -> p.getCooldowns().addCooldown(ModItems.LIGHTUP,
+                                    GameConstants.getBlackoutCooldownGlobal()));
                     player.getCooldowns().addCooldown(ModItems.LIGHTUP,
                             GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.BLACKOUT, 0));
                     return true;
@@ -1279,7 +1293,8 @@ public class RoleShopHandler {
                     ShopEntry.Type.WEAPON) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    return org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.tryLoadBullet((ServerPlayer) player);
+                    return org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager
+                            .tryLoadBullet((ServerPlayer) player);
                 }
             });
         }
@@ -1309,7 +1324,8 @@ public class RoleShopHandler {
         // ==================== 家族保姆商店 ====================
         {
             // 护盾试剂 - 325金币
-            NUTRITIONIST_SHOP.add(new ShopEntry(TMMItems.DEFENSE_VIAL.getDefaultInstance(), 325, ShopEntry.Type.WEAPON));
+            NUTRITIONIST_SHOP
+                    .add(new ShopEntry(TMMItems.DEFENSE_VIAL.getDefaultInstance(), 325, ShopEntry.Type.WEAPON));
             // 毒药试剂 - 200金币
             NUTRITIONIST_SHOP.add(new ShopEntry(TMMItems.POISON_VIAL.getDefaultInstance(), 200, ShopEntry.Type.WEAPON));
             // 喷溅型速度3 - 275金币 (持续5秒)
@@ -1416,7 +1432,8 @@ public class RoleShopHandler {
         {
             {
                 ItemStack s = new ItemStack(Items.SCULK);
-                s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.wraith_assassin.energy_exchange"));
+                s.set(DataComponents.ITEM_NAME,
+                        Component.translatable("item.noellesroles.wraith_assassin.energy_exchange"));
                 WRAITH_ASSASSIN_SHOP.add(new ShopEntry(s, 25, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player player) {
@@ -1425,20 +1442,24 @@ public class RoleShopHandler {
                         }
                         WraithAssassinPlayerComponent.KEY.get(sp).addEnergy(25);
                         WraithAssassinPlayerComponent.KEY.get(sp).playConversionCue(sp);
-                        sp.displayClientMessage(Component.translatable("message.noellesroles.wraith_assassin.energy_gain", 25)
-                                .withStyle(ChatFormatting.DARK_AQUA), true);
+                        sp.displayClientMessage(
+                                Component.translatable("message.noellesroles.wraith_assassin.energy_gain", 25)
+                                        .withStyle(ChatFormatting.DARK_AQUA),
+                                true);
                         return true;
                     }
                 });
             }
-            WRAITH_ASSASSIN_SHOP.add(new ShopEntry(ModItems.INFERIOR_LOCKPICK.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
+            WRAITH_ASSASSIN_SHOP
+                    .add(new ShopEntry(ModItems.INFERIOR_LOCKPICK.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
             {
                 ItemStack s = new ItemStack(Items.ECHO_SHARD);
                 s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.wraith_assassin.san_drain"));
                 WRAITH_ASSASSIN_SHOP.add(new ShopEntry(s, 80, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player player) {
-                        return player instanceof ServerPlayer sp && WraithAssassinPlayerComponent.KEY.get(sp).buyDrain(sp);
+                        return player instanceof ServerPlayer sp
+                                && WraithAssassinPlayerComponent.KEY.get(sp).buyDrain(sp);
                     }
                 });
             }
@@ -1453,14 +1474,18 @@ public class RoleShopHandler {
                     var timeComp = io.wifi.starrailexpress.cca.SREGameTimeComponent.KEY.get(player.level());
                     int elapsed = timeComp.getResetTime() - timeComp.getTime();
                     if (elapsed < 2 * 60 * 20) {
-                        player.displayClientMessage(Component.translatable("message.noellesroles.reasoner.shop.time_not_ready")
-                                .withStyle(ChatFormatting.YELLOW), true);
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.reasoner.shop.time_not_ready")
+                                        .withStyle(ChatFormatting.YELLOW),
+                                true);
                         return false;
                     }
                     for (ItemStack stack : player.getInventory().items) {
                         if (stack.is(ModItems.REASONER_COMPASS)) {
-                            player.displayClientMessage(Component.translatable("message.noellesroles.reasoner.shop.already_has_compass")
-                                    .withStyle(ChatFormatting.YELLOW), true);
+                            player.displayClientMessage(
+                                    Component.translatable("message.noellesroles.reasoner.shop.already_has_compass")
+                                            .withStyle(ChatFormatting.YELLOW),
+                                    true);
                             return false;
                         }
                     }
@@ -1474,16 +1499,19 @@ public class RoleShopHandler {
             // 出刀的声音 - 50金币, 冷却30秒
             {
                 ItemStack s = new ItemStack(Items.NOTE_BLOCK);
-                s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.knife_sound"));
+                s.set(DataComponents.ITEM_NAME,
+                        Component.translatable("item.noellesroles.phantom_musician.knife_sound"));
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 50, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
+                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY
+                                .get(p);
                         if (c.knifeSoundCooldown > 0)
                             return false;
                         c.knifeSoundCooldown = PhantomMusicianPlayerComponent.KNIFE_SOUND_COOLDOWN;
                         c.sync();
-                        p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_KNIFE_STAB, SoundSource.PLAYERS, 1F, 1F);
+                        p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_KNIFE_STAB, SoundSource.PLAYERS, 1F,
+                                1F);
                         return true;
                     }
                 });
@@ -1491,16 +1519,19 @@ public class RoleShopHandler {
             // 左轮手枪开火的声音 - 75金币, 冷却30秒
             {
                 ItemStack s = new ItemStack(Items.NOTE_BLOCK);
-                s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.revolver_sound"));
+                s.set(DataComponents.ITEM_NAME,
+                        Component.translatable("item.noellesroles.phantom_musician.revolver_sound"));
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 75, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
+                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY
+                                .get(p);
                         if (c.revolverSoundCooldown > 0)
                             return false;
                         c.revolverSoundCooldown = PhantomMusicianPlayerComponent.REVOLVER_SOUND_COOLDOWN;
                         c.sync();
-                        p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 1F, 1F);
+                        p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS,
+                                1F, 1F);
                         return true;
                     }
                 });
@@ -1508,11 +1539,13 @@ public class RoleShopHandler {
             // 潜行者觉醒的声音 - 100金币, 冷却120秒, MASTER全场
             {
                 ItemStack s = new ItemStack(Items.NOTE_BLOCK);
-                s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.stalker_sound"));
+                s.set(DataComponents.ITEM_NAME,
+                        Component.translatable("item.noellesroles.phantom_musician.stalker_sound"));
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 100, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
+                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY
+                                .get(p);
                         if (c.stalkerSoundCooldown > 0)
                             return false;
                         c.stalkerSoundCooldown = PhantomMusicianPlayerComponent.STALKER_SOUND_COOLDOWN;
@@ -1528,11 +1561,13 @@ public class RoleShopHandler {
             // 疯狂模式的声音 - 350金币, 冷却5分钟, 持续播放30秒
             {
                 ItemStack s = new ItemStack(Items.NOTE_BLOCK);
-                s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.psycho_sound"));
+                s.set(DataComponents.ITEM_NAME,
+                        Component.translatable("item.noellesroles.phantom_musician.psycho_sound"));
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 350, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
+                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY
+                                .get(p);
                         if (c.psychoSoundCooldown > 0)
                             return false;
                         c.psychoSoundCooldown = PhantomMusicianPlayerComponent.PSYCHO_SOUND_COOLDOWN;
@@ -1545,16 +1580,19 @@ public class RoleShopHandler {
             // 撬棍撬门的声音 - 25金币, 冷却1分钟
             {
                 ItemStack s = new ItemStack(Items.NOTE_BLOCK);
-                s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.crowbar_sound"));
+                s.set(DataComponents.ITEM_NAME,
+                        Component.translatable("item.noellesroles.phantom_musician.crowbar_sound"));
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 25, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
+                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY
+                                .get(p);
                         if (c.crowbarSoundCooldown > 0)
                             return false;
                         c.crowbarSoundCooldown = PhantomMusicianPlayerComponent.CROWBAR_SOUND_COOLDOWN;
                         c.sync();
-                        p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_CROWBAR_PRY, SoundSource.PLAYERS, 1F, 1F);
+                        p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_CROWBAR_PRY, SoundSource.PLAYERS,
+                                1F, 1F);
                         return true;
                     }
                 });
@@ -1562,7 +1600,8 @@ public class RoleShopHandler {
             // 随机播放音效 - 50金币, 冷却40秒, 图标为音乐唱片
             {
                 ItemStack s = new ItemStack(Items.MUSIC_DISC_RELIC);
-                s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.phantom_musician.random_sound"));
+                s.set(DataComponents.ITEM_NAME,
+                        Component.translatable("item.noellesroles.phantom_musician.random_sound"));
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 50, ShopEntry.Type.TOOL) {
                     private final java.util.List<Object> allSounds = java.util.List.of(
                             // === TMMSounds (starrailexpress) ===
@@ -1623,7 +1662,8 @@ public class RoleShopHandler {
 
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY.get(p);
+                        var c = org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY
+                                .get(p);
                         if (c.randomSoundCooldown > 0)
                             return false;
                         c.randomSoundCooldown = PhantomMusicianPlayerComponent.RANDOM_SOUND_COOLDOWN;
@@ -1651,7 +1691,8 @@ public class RoleShopHandler {
             SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), SREConfig.instance().lockpickPrice,
                     ShopEntry.Type.TOOL));
             SHOP.add(
-                    new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL));
+                    new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice,
+                            ShopEntry.Type.TOOL));
             SHOP.add(
                     new KillerKnifeShopEntry(SREConfig.instance().knifePrice));
             SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), SREConfig.instance().revolverPrice,
@@ -1785,7 +1826,8 @@ public class RoleShopHandler {
             SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 40, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
+                    return SREPlayerShopComponent.useMonitorBroken(player,
+                            SREConfig.instance().monitorBrokenDuration * 20);
                 }
             });
             // 关灯 - 使用配置价格
@@ -1878,7 +1920,8 @@ public class RoleShopHandler {
             SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 60, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
+                    return SREPlayerShopComponent.useMonitorBroken(player,
+                            SREConfig.instance().monitorBrokenDuration * 20);
                 }
             });
 
@@ -2352,8 +2395,9 @@ public class RoleShopHandler {
         {
             var displayStack = ModItems.NEWSPAPER.getDefaultInstance();
             String title = "\u00a7d\u00a7lPachuri Knowledge Book";
-            displayStack.set(DataComponents.WRITTEN_BOOK_CONTENT,
-                    new WrittenBookContent(new Filterable<String>(title, Optional.of(title)), "Pachuri Knowledge", 1, List.of(),
+            displayStack.set(SREDataComponentTypes.WRITTEN_BOOK_CONTENT,
+                    new SREWrittenBookContent(new Filterable<String>(title, Optional.of(title)), "Pachuri Knowledge",
+                            List.of(),
                             true));
             var SHOP = new ArrayList<ShopEntry>();
             SHOP.add(new ShopEntry(
@@ -2372,7 +2416,8 @@ public class RoleShopHandler {
                     int count = 1;
                     var contents = new ArrayList<Filterable<Component>>();
                     // {
-                    var fstct = Component.translatable("%s\n%s\n\n", Component.translatable("item.written_book.role_title"),
+                    var fstct = Component.translatable("%s\n%s\n\n",
+                            Component.translatable("item.written_book.role_title"),
                             Component.translatable("item.written_book.role_intro"));
                     // var fstcontent = new Filterable<Component>(fstct, Optional.of(fstct));
                     // contents.add(fstcontent);
@@ -2380,7 +2425,8 @@ public class RoleShopHandler {
                     for (int i = 0; i < count; i++) {
                         var p = players.get(i);
 
-                        var ct = Component.translatable("%s%s", Component.translatable("item.written_book.per_role_title", i + 1),
+                        var ct = Component.translatable("%s%s",
+                                Component.translatable("item.written_book.per_role_title", i + 1),
                                 Component
                                         .translatable("item.written_book.per_role_content",
                                                 p.getName(),
@@ -2392,15 +2438,17 @@ public class RoleShopHandler {
                         contents.add(content);
                         if (p instanceof ServerPlayer sp)
                             BroadcastCommand.BroadcastMessage(sp,
-                                    Component.translatable("message.pachuri.be_known_role").withStyle(ChatFormatting.RED));
+                                    Component.translatable("message.pachuri.be_known_role")
+                                            .withStyle(ChatFormatting.RED));
                     }
                     String title = "Pachuri Knowledge Book";
                     String shortTitle = title;
                     if (shortTitle.length() >= 10) {
                         shortTitle = shortTitle.substring(0, 8) + "...";
                     }
-                    itemStack.set(DataComponents.WRITTEN_BOOK_CONTENT,
-                            new WrittenBookContent(new Filterable<String>(title, Optional.of(title)), player.getScoreboardName(), 1,
+                    itemStack.set(SREDataComponentTypes.WRITTEN_BOOK_CONTENT,
+                            new SREWrittenBookContent(new Filterable<String>(title, Optional.of(title)),
+                                    player.getScoreboardName(),
                                     contents, true));
                     itemStack.set(DataComponents.ITEM_NAME,
                             Component.translatable("item.noellesroles.newspaper.name",
@@ -2473,7 +2521,8 @@ public class RoleShopHandler {
             shopEntries.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 60, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
+                    return SREPlayerShopComponent.useMonitorBroken(player,
+                            SREConfig.instance().monitorBrokenDuration * 20);
                 }
             });
             ShopContent.customEntries.put(
@@ -2494,8 +2543,9 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(
                     ModRoles.STALKER_ID,
                     List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75,
-                                    ShopEntry.Type.TOOL),
-                            new ShopEntry(ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance(), 325, ShopEntry.Type.WEAPON) {
+                            ShopEntry.Type.TOOL),
+                            new ShopEntry(ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance(), 325,
+                                    ShopEntry.Type.WEAPON) {
                                 @Override
                                 public boolean canBuy(@NotNull Player player) {
                                     return !(player.getOffhandItem().getItem() instanceof KnifeItem);
@@ -2511,7 +2561,8 @@ public class RoleShopHandler {
 
                                     boolean b = player.getOffhandItem().getItem() instanceof KnifeItem;
                                     if (!b) {
-                                        player.setItemInHand(InteractionHand.OFF_HAND, ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance());
+                                        player.setItemInHand(InteractionHand.OFF_HAND,
+                                                ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance());
                                     }
                                     return b;
                                 }
@@ -2875,7 +2926,8 @@ public class RoleShopHandler {
                                         // 移除护盾
                                         mapc.permanentShield = false;
                                         p.displayClientMessage(
-                                                Component.translatable("message.noellesroles.ma_chen_xu.into_cooldown_by_guest")
+                                                Component.translatable(
+                                                        "message.noellesroles.ma_chen_xu.into_cooldown_by_guest")
                                                         .withStyle(ChatFormatting.RED),
                                                 true);
                                         p.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 1f, 1f);
@@ -2943,7 +2995,8 @@ public class RoleShopHandler {
                 }
             });
             shop.add(
-                    new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL) {
+                    new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), SREConfig.instance().crowbarPrice,
+                            ShopEntry.Type.TOOL) {
                         @Override
                         public boolean canDisplay(Player player) {
                             return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
@@ -2969,7 +3022,8 @@ public class RoleShopHandler {
                 }
             });
             shop
-                    .add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice, ShopEntry.Type.TOOL) {
+                    .add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice,
+                            ShopEntry.Type.TOOL) {
                         @Override
                         public boolean canDisplay(Player player) {
                             return true;

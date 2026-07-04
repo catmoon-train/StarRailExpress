@@ -5,12 +5,12 @@ import io.wifi.starrailexpress.content.item.StandardRevolverItem;
 import io.wifi.starrailexpress.event.*;
 import org.agmas.noellesroles.CustomWinnerClass;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.rules.*;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -243,7 +243,7 @@ public class NRInteractionEvents {
         DropRules.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
             if (mainHandItem.is(ModItems.NEWSPAPER)) {
-                if (mainHandItem.has(DataComponents.WRITTEN_BOOK_CONTENT))
+                if (mainHandItem.has(SREDataComponentTypes.WRITTEN_BOOK_CONTENT))
                     return true;
             }
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());

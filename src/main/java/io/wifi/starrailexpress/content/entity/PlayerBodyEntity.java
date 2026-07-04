@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
@@ -219,7 +220,10 @@ public class PlayerBodyEntity extends LivingEntity {
                 int bodySlot = map[1];
                 if (playerSlot >= 0 && playerSlot < inventory.getContainerSize()) {
                     ItemStack stack = inventory.getItem(playerSlot);
-                    if (!stack.isEmpty() && !stack.is(TMMItems.LETTER) && !stack.is(ModItems.LETTER_ITEM)) {
+                    if (!stack.isEmpty() && !stack.is(TMMItems.LETTER) && !stack.is(ModItems.NEWSPAPER)
+                            && !stack.is(Items.BUNDLE)
+                            && !stack.is(Items.WRITABLE_BOOK) && !stack.is(Items.WRITTEN_BOOK)
+                            && !stack.is(ModItems.LETTER_ITEM)) {
                         inv.setItem(bodySlot, stack.copy());
                     }
                 }

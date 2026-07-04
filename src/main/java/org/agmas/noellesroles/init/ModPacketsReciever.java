@@ -7,8 +7,11 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.item.CocktailItem;
+import io.wifi.starrailexpress.content.item.component.SREWritableBookContent;
+import io.wifi.starrailexpress.content.item.component.SREWrittenBookContent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.packet.EditNewspaperPacket;
 import io.wifi.starrailexpress.util.SREItemUtils;
@@ -32,8 +35,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.WritableBookContent;
-import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -372,22 +373,22 @@ public class ModPacketsReciever {
             list.add(Filterable.passThrough(Component.literal(p)));
           }
           String title = titOpt.get();
-          if (title.length() >= 32) {
-            title = title.substring(0, 30);
+          if (title.length() >= SREWrittenBookContent.TITLE_MAX_LENGTH) {
+            title = title.substring(0, SREWrittenBookContent.TITLE_MAX_LENGTH);
           }
           String shortTitle = title;
           if (shortTitle.length() >= 10) {
             shortTitle = shortTitle.substring(0, 8) + "...";
           }
-          mainHandItem.set(DataComponents.WRITTEN_BOOK_CONTENT,
-              new WrittenBookContent(Filterable.passThrough(title), player.getScoreboardName(), 1, list, true));
+          mainHandItem.set(SREDataComponentTypes.WRITTEN_BOOK_CONTENT,
+              new SREWrittenBookContent(Filterable.passThrough(title), player.getScoreboardName(), list, true));
           mainHandItem.set(DataComponents.ITEM_NAME,
               Component.translatable("item.noellesroles.newspaper.name",
                   Component.translatable("item.noellesroles.newspaper.title.warp", shortTitle)
                       .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)));
 
-          if (mainHandItem.has(DataComponents.WRITABLE_BOOK_CONTENT)) {
-            mainHandItem.remove(DataComponents.WRITABLE_BOOK_CONTENT);
+          if (mainHandItem.has(SREDataComponentTypes.WRITABLE_BOOK_CONTENT)) {
+            mainHandItem.remove(SREDataComponentTypes.WRITABLE_BOOK_CONTENT);
           }
         } else {
           var list = new ArrayList<Filterable<String>>();
@@ -398,7 +399,7 @@ public class ModPacketsReciever {
               Component.translatable("item.noellesroles.newspaper.draft",
                   Component.translatable("item.noellesroles.newspaper.draft.warp", player.getName()).withStyle(
                       ChatFormatting.ITALIC, ChatFormatting.GRAY)));
-          mainHandItem.set(DataComponents.WRITABLE_BOOK_CONTENT, new WritableBookContent(list));
+          mainHandItem.set(SREDataComponentTypes.WRITABLE_BOOK_CONTENT, new SREWritableBookContent(list));
         }
       }
     });
