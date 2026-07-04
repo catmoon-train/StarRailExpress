@@ -12,6 +12,7 @@ import org.agmas.noellesroles.init.ModEffects;
 public final class TwoDimensionalCameraClientHandle {
     private static final double CAMERA_DISTANCE = 28.0D;
     private static final double CAMERA_HEIGHT = 6.0D;
+    private static final double TOP_CAMERA_HEIGHT = 34.0D;
     private static final float CAMERA_FOV = 35.0F;
 
     private TwoDimensionalCameraClientHandle() {
@@ -35,13 +36,19 @@ public final class TwoDimensionalCameraClientHandle {
         }
 
         Vec3 lookAt = player.getEyePosition(1.0F).add(0.0D, 0.5D, 0.0D);
-        Vec3 side = sideVector(effect.getAmplifier());
-        Vec3 cameraPos = lookAt.add(side.scale(CAMERA_DISTANCE)).add(0.0D, CAMERA_HEIGHT, 0.0D);
+        Vec3 cameraPos = cameraPosition(lookAt, effect.getAmplifier());
         Vec3 delta = lookAt.subtract(cameraPos);
         double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
         float yaw = (float) (Math.atan2(delta.z, delta.x) * Mth.RAD_TO_DEG) - 90.0F;
         float pitch = (float) (-(Math.atan2(delta.y, horizontal) * Mth.RAD_TO_DEG));
         AdvancedCameraDirector.setFixedOverride(cameraPos, yaw, pitch, CAMERA_FOV);
+    }
+
+    private static Vec3 cameraPosition(Vec3 lookAt, int amplifier) {
+        if (amplifier == 4) {
+            return lookAt.add(0.0D, TOP_CAMERA_HEIGHT, 0.0D);
+        }
+        return lookAt.add(sideVector(amplifier).scale(CAMERA_DISTANCE)).add(0.0D, CAMERA_HEIGHT, 0.0D);
     }
 
     private static Vec3 sideVector(int amplifier) {

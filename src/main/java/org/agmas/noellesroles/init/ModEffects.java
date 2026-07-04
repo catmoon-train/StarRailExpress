@@ -335,7 +335,7 @@ public class ModEffects {
     /**
      * 2D 视角
      * - 中性效果
-     * - 客户端固定侧视镜头。amplifier: 0=西边，1=东边，2=北边，3=南边。
+     * - 客户端固定侧视镜头。amplifier: 0=西边，1=东边，2=北边，3=南边，4=上方。
      *   行为见 {@code TwoDimensionalCameraClientHandle}，最终通过 AdvancedCameraDirector 接管相机。
      */
     public static final Holder<MobEffect> TWO_DIMENSIONAL_CAMERA = register("two_dimensional_camera",
