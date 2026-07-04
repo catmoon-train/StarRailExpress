@@ -7,21 +7,18 @@ import net.minecraft.util.Mth;
 import org.agmas.noellesroles.Noellesroles;
 
 /**
- * 纯体力图标渲染器 - 只负责绘制图标，位置由外部控制。
- * <p>外部需在调用前通过 {@link GuiGraphics#pose()} 平移到目标位置。</p>
+ * 纯体力图标渲染器 - 绘制一排10个闪电图标，位置由外部控制。
+ * <p>外部需在调用前通过 {@link GuiGraphics#pose()} 平移到目标左上角。</p>
  */
 public class StaminaIconRenderer {
 
-    // 7 个等级图标
-    private static final ResourceLocation STAMINA_EMPTY = Noellesroles.id("stamina/stamina_mc_empty_icon");
-    private static final ResourceLocation STAMINA_1   = Noellesroles.id("stamina/stamina_mc_1_icon");
-    private static final ResourceLocation STAMINA_2   = Noellesroles.id("stamina/stamina_mc_2_icon");
-    private static final ResourceLocation STAMINA_3   = Noellesroles.id("stamina/stamina_mc_3_icon");
-    private static final ResourceLocation STAMINA_4   = Noellesroles.id("stamina/stamina_mc_4_icon");
-    private static final ResourceLocation STAMINA_5   = Noellesroles.id("stamina/stamina_mc_5_icon");
-    private static final ResourceLocation STAMINA_FULL= Noellesroles.id("stamina/stamina_mc_icon");
+    // 闪电图标（空/满）
+    private static final ResourceLocation LIGHTNING_EMPTY = Noellesroles.id("stamina/lightning_empty");
+    private static final ResourceLocation LIGHTNING_FULL  = Noellesroles.id("stamina/lightning_full");
 
-    private static final int ICON_SIZE = 9;    // 图标大小（像素），与原版心一致
+    private static final int ICON_SIZE = 9;      // 图标大小（像素），与原版心一致
+    private static final int GAP = 2;            // 图标间隔（像素）
+    private static final int TOTAL_ICONS = 10;   // 总共10个闪电
 
     // 闪烁状态
     private static float lastValue = -1f;
@@ -42,38 +39,34 @@ public class StaminaIconRenderer {
     }
 
     /**
-     * 在 (0,0) 处绘制体力图标。
-     * <p>外部应在调用前通过 {@link GuiGraphics#pose()} 平移到目标左上角位置。</p>
+     * 从 (0,0) 开始绘制一排10个闪电图标。
+     * 根据 value 计算出需要点亮多少个，未点亮部分显示为空。
      * @param guiGraphics 绘制上下文
      * @param value 体力百分比 (0.0 ~ 1.0)
      */
     public static void render(GuiGraphics guiGraphics, float value) {
-        // 根据 value 选择图标等级 (0~6)
-        int level = Math.round(value * 6);
-        level = Mth.clamp(level, 0, 6);
-        ResourceLocation icon;
-        switch (level) {
-            case 0: icon = STAMINA_EMPTY; break;
-            case 1: icon = STAMINA_1;    break;
-            case 2: icon = STAMINA_2;    break;
-            case 3: icon = STAMINA_3;    break;
-            case 4: icon = STAMINA_4;    break;
-            case 5: icon = STAMINA_5;    break;
-            default: icon = STAMINA_FULL; break;
-        }
+        // 计算应点亮的图标数量（四舍五入）
+        int filled = Math.round(value * TOTAL_ICONS);
+        filled = Mth.clamp(filled, 0, TOTAL_ICONS);
 
-        // 闪烁时绘制为白色（默认已白色，也可改为其他颜色）
+        // 判断是否处于闪烁状态
         boolean blinking = System.currentTimeMillis() - lastDecreaseTime < BLINK_DURATION_MS;
-        if (blinking) {
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f); // 纯白
-        } else {
+
+        // 闪烁时强制使用白色（默认纹理颜色），否则正常绘制
+        if (!blinking) {
+            // 非闪烁：恢复默认颜色（通常会保持纹理原色，但为了安全显式设置）
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        } // 闪烁时也保持白色，但这里是默认，也可不额外设置
+
+        // 逐个绘制
+        for (int i = 0; i < TOTAL_ICONS; i++) {
+            ResourceLocation icon = (i < filled) ? LIGHTNING_FULL : LIGHTNING_EMPTY;
+            int x = i * (ICON_SIZE + GAP);
+            int y = 0;
+            guiGraphics.blitSprite(icon, x, y, ICON_SIZE, ICON_SIZE);
         }
 
-        // 在 (0,0) 绘制图标
-        guiGraphics.blitSprite(icon, 0, 0, ICON_SIZE, ICON_SIZE);
-
-        // 重置颜色
+        // 重置颜色（确保不影响后续绘制）
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 }

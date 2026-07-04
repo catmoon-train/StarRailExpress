@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.RedScreenRenderer;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.StaminaIconRenderer;
+import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.util.ProgressProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -68,7 +69,7 @@ public class StaminaMCStyleRenderer {
             // 1. 更新状态（每帧都传当前体力值）
             StaminaIconRenderer.update(staminaPercent);
             int heartX = context.guiWidth() / 2 - 91; // 第一颗心的 X 坐标
-            int heartY = context.guiHeight() - 49; // 心的 Y 坐标（距底部 49 像素）
+            int heartY = context.guiHeight() - 40; // 心的 Y 坐标（距底部 49 像素）
             // 2. 将坐标系平移到您想要的左上角位置（例如 x=10, y=20）
             context.pose().pushPose();
             context.pose().translate(heartX, heartY, 0);
@@ -82,7 +83,6 @@ public class StaminaMCStyleRenderer {
 
         // 渲染主手物品冷却提示
         renderMainHandCooldown(context, player, delta);
-
 
         {
             context.pose().pushPose();
@@ -145,12 +145,11 @@ public class StaminaMCStyleRenderer {
             // 如果物品已切换，则重置冷却音效标志
             if (!ItemStack.isSameItemSameComponents(lastMainHandStack, mainHandStack)) {
                 // 如果切换到刀，则播放切刀音效
-                // if (mainHandStack.getItem() == TMMItems.KNIFE && lastMainHandStack.getItem()
-                // != TMMItems.KNIFE) {
-                // Minecraft.getInstance().getSoundManager().play(
-                // SimpleSoundInstance.forUI(SoundEvents.IRON_GOLEM_REPAIR, 0.4f, 2.1f)
-                // );
-                // }
+                if (mainHandStack.getItem() instanceof KnifeItem
+                        && !(lastMainHandStack.getItem() instanceof KnifeItem)) {
+                    Minecraft.getInstance().getSoundManager().play(
+                            SimpleSoundInstance.forUI(SoundEvents.IRON_GOLEM_REPAIR, 0.4f, 2.1f));
+                }
                 playedCooldownSound = false;
             }
             // 如果物品仍在冷却中，重置音效标志

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.RedScreenRenderer;
+import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.util.ProgressProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -139,12 +140,11 @@ public class StaminaOldRenderer {
             // 如果物品已切换，则重置冷却音效标志
             if (!ItemStack.isSameItemSameComponents(lastMainHandStack, mainHandStack)) {
                 // 如果切换到刀，则播放切刀音效
-                // if (mainHandStack.getItem() == TMMItems.KNIFE && lastMainHandStack.getItem()
-                // != TMMItems.KNIFE) {
-                // Minecraft.getInstance().getSoundManager().play(
-                // SimpleSoundInstance.forUI(SoundEvents.IRON_GOLEM_REPAIR, 0.4f, 2.1f)
-                // );
-                // }
+                if (mainHandStack.getItem() instanceof KnifeItem
+                        && !(lastMainHandStack.getItem() instanceof KnifeItem)) {
+                    Minecraft.getInstance().getSoundManager().play(
+                            SimpleSoundInstance.forUI(SoundEvents.IRON_GOLEM_REPAIR, 0.4f, 2.1f));
+                }
                 playedCooldownSound = false;
             }
             // 如果物品仍在冷却中，重置音效标志
