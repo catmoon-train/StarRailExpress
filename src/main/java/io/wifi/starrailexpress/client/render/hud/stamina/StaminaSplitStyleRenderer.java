@@ -59,9 +59,6 @@ public class StaminaSplitStyleRenderer {
                 staminaPercent = staminaProvider.getPercent();
             }
         }
-        if (staminaPercent < 0) {
-            staminaPercent = 1f; // 无体力条时，渲染100%
-        }
         // 使用与TimeRenderer类似的颜色逻辑
         if (Math.abs(view.getTarget() - staminaPercent) > 0.1f) {
             offsetDelta = staminaPercent > view.getTarget() ? .6f : -.6f;
@@ -82,20 +79,30 @@ public class StaminaSplitStyleRenderer {
         // 渲染主手物品冷却提示
         renderMainHandCooldown(context, player, delta);
 
-        // 渲染体力条 - 移动到物品栏上方
-        context.pose().pushPose();
-        context.pose().translate(context.guiWidth() / 2f, context.guiHeight() - 35, 0); // 在物品栏上方显示
-        {
-            // 体力条
-            view.renderStamina(context, colour, delta);
-        }
+        if (staminaPercent >= 0) {
+            // 渲染体力条 - 移动到物品栏上方
+            context.pose().pushPose();
+            context.pose().translate(context.guiWidth() / 2f, context.guiHeight() - 35, 0); // 在物品栏上方显示
+            {
+                // 体力条
+                view.renderStamina(context, colour, delta);
+            }
 
-        context.pose().popPose();
+            context.pose().popPose();
+        }
 
         {
             context.pose().pushPose();
             context.pose().translate(context.guiWidth() / 2f, context.guiHeight() / 2 + 10, 0); // 在物品栏上方显示
 
+            // 条颜色 - 黄色，低于1/5时变红
+            int chargeColour = Mth.color(1f, 0.2f, 0.2f) | 0xFF000000;// red
+
+            if (itemPercent < 0.2f) {
+                chargeColour = new java.awt.Color(53, 188, 122).getRGB(); // green
+            } else if (itemPercent < 0.6f) {
+                chargeColour = Mth.color(1f, 0.85f, 0.1f) | 0xFF000000;// 黄
+            }
             // 蓄力武器：应用"前慢后快"缓动曲线，并做逐帧平滑过渡。渲染在鼠标下面，如PEAK
             if (isChargingWeapon) {
                 float easedPercent = easeInCharge(itemPercent);
@@ -120,7 +127,7 @@ public class StaminaSplitStyleRenderer {
                     int flashColour = getFlashColor(); // 红白交替闪烁
                     view.renderItemCharge(context, flashColour, displayValue);
                 } else {
-                    view.renderItemCharge(context, colour, displayValue);
+                    view.renderItemCharge(context, chargeColour, displayValue);
                 }
             }
             context.pose().popPose();
