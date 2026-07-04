@@ -1190,8 +1190,8 @@ public class GameUtils {
         player.removeVehicle();
         ExtraSlotComponent.KEY.get(player).clear();
         player.setInvulnerable(false);
-        // 体力重置
-        StaminaCommand.setStamina(player, 0);
+        // 体力重置。-1代表职业最大值
+        StaminaCommand.setStamina(player, -1);
         // PlayerResetMixin插入位置
     }
 

@@ -127,6 +127,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
                 return;
             }
             if (role != null && maxSprintTime >= 0) {
+                if (sprintingTicks == -1) {
+                    sprintingTicks = maxSprintTime;
+                }
                 float maxStaminaMultiplier = ModEffects.getStaminaCapacityMultiplier(player);
                 float maxSprintTimeWithEffects = maxSprintTime * maxStaminaMultiplier;
                 float staminaRecoveryRate = 0.4f * ModEffects.getStaminaRecoveryMultiplier(player);
