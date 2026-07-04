@@ -2,6 +2,8 @@ package io.wifi.mixins;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
+
+import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -21,7 +23,7 @@ public abstract class KillCommandMixin {
     commandDispatcher.register(
         ((Commands.literal("kill").requires((commandSourceStack) -> {
           if (commandSourceStack.isPlayer())
-            return commandSourceStack.hasPermission(3);
+            return commandSourceStack.hasPermission(SREConfig.instance().gameKillRequiredPermission);
           else
             return commandSourceStack.hasPermission(2);
         }))

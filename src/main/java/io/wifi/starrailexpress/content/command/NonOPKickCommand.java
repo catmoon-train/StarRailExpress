@@ -3,6 +3,8 @@ package io.wifi.starrailexpress.content.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+
+import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -22,7 +24,8 @@ public class NonOPKickCommand {
   public static void register(CommandDispatcher<CommandSourceStack> commandDispatcher,
       CommandBuildContext commandBuildContext) {
     commandDispatcher.register((Commands.literal("sre:kick")
-        .requires(commandSourceStack -> commandSourceStack.hasPermission(2)))
+        .requires(
+            commandSourceStack -> commandSourceStack.hasPermission(SREConfig.instance().gameKickRequiredPermission)))
         .then((Commands.argument("targets", EntityArgument.players())
             .executes((commandContext) -> kickPlayers(commandContext.getSource(),
                 EntityArgument.getPlayers(commandContext, "targets"),
@@ -33,19 +36,29 @@ public class NonOPKickCommand {
                     ComponentArgument.getComponent(commandContext, "reason"))))));
   }
 
-  private static int kickPlayers(CommandSourceStack commandSourceStack, Collection<ServerPlayer> collection,
+  private static int kickPlayers(CommandSourceStack ctx, Collection<ServerPlayer> collection,
       Component component) throws CommandSyntaxException {
-    if (!commandSourceStack.getServer().isPublished()) {
+    if (!ctx.getServer().isPublished()) {
       throw ERROR_SINGLEPLAYER.create();
     } else {
-      int i = 0;
+      int playerPermission = 2;
+      final var server = ctx.getServer();
+      if (ctx.isPlayer()) {
 
+        var runner = ctx.getPlayer();
+        if (runner != null) {
+          playerPermission = server.getProfilePermissions(runner.getGameProfile());
+        }
+      } else {
+        playerPermission = 4;
+      }
+      int i = 0;
       for (ServerPlayer serverPlayer : collection) {
-        if (serverPlayer.hasPermissions(2))
+        if (serverPlayer.hasPermissions(playerPermission))
           continue;
-        if (!commandSourceStack.getServer().isSingleplayerOwner(serverPlayer.getGameProfile())) {
+        if (!ctx.getServer().isSingleplayerOwner(serverPlayer.getGameProfile())) {
           serverPlayer.connection.disconnect(component);
-          commandSourceStack.sendSuccess(() -> Component.translatable("commands.kick.success",
+          ctx.sendSuccess(() -> Component.translatable("commands.kick.success",
               new Object[] { serverPlayer.getName(), component }), true);
           ++i;
         }

@@ -3,6 +3,8 @@ package org.agmas.noellesroles.commands;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
@@ -22,7 +24,7 @@ public class NoellesrolesConfigCommand {
   public static void register() {
     CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
       dispatcher.register(Commands.literal("tmm:config")
-          .requires(c -> c.hasPermission(1))
+          .requires(c -> c.hasPermission(SREConfig.instance().spawnInfoConfigRequiredPermission))
           .then(Commands.literal("spawn_info")
               .then(Commands.literal("role")
                   .then(Commands.argument("id", RoleArgumentType.create())
