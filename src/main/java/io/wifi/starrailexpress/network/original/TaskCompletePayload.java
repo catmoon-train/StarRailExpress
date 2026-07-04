@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.client.gui.MoodRenderer;
+import io.wifi.starrailexpress.client.gui.HudMoodRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -23,7 +23,7 @@ public record TaskCompletePayload() implements CustomPacketPayload {
     public static class Receiver implements ClientPlayNetworking.PlayPayloadHandler<TaskCompletePayload> {
         @Override
         public void receive(@NotNull TaskCompletePayload payload, ClientPlayNetworking.@NotNull Context context) {
-            MoodRenderer.arrowProgress = 1f;
+            HudMoodRenderer.arrowProgress = 1f;
         }
     }
 }

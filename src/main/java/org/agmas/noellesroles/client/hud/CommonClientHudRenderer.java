@@ -115,6 +115,7 @@ public class CommonClientHudRenderer {
           HudStoreRenderer.renderHud(font, player, guiGraphics, deltaTracker.getGameTimeDeltaPartialTick(true));
       }
       {
+        
         HudMoodRenderer.renderHud(player, font, guiGraphics, deltaTracker);
       }
       {

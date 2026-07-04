@@ -95,9 +95,11 @@ public class SREClientEvents {
             if (target == null)
                 return null;
             if (SREClient.gameComponent != null) {
-                if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)) {
-                    var roleR = MagicianPlayerComponent.KEY.get(target).getDisguiseRoleId();
-                    return TrueFalseAndCustomResult.custom(RoleUtils.getRoleName(roleR));
+                if (SREClient.gameComponent.isKillerTeam(player)) {
+                    if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)) {
+                        var roleR = MagicianPlayerComponent.KEY.get(target).getDisguiseRoleId();
+                        return TrueFalseAndCustomResult.custom(RoleUtils.getRoleName(roleR));
+                    }
                 }
             }
             return TrueFalseAndCustomResult.pass();
@@ -115,7 +117,7 @@ public class SREClientEvents {
             }
             return TrueFalseAndCustomResult.pass();
         });
-        
+
         // 杂项
         OnRenderRoleName.RENDER_ALL.register((player, context, d, font) -> {
             // Penalty 直接啥也别看了

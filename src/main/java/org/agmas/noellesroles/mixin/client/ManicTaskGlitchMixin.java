@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.mixin.client;
 
-import io.wifi.starrailexpress.client.gui.MoodRenderer;
+import io.wifi.starrailexpress.client.gui.HudMoodRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Random;
 
-@Mixin(MoodRenderer.TaskRenderer.class)
+@Mixin(HudMoodRenderer.TaskRenderer.class)
 public class ManicTaskGlitchMixin {
 
     private static final Random RANDOM = new Random();
@@ -24,7 +24,7 @@ public class ManicTaskGlitchMixin {
         if (mc.player == null) return;
 
         try {
-            var self = (MoodRenderer.TaskRenderer) (Object) this;
+            var self = (HudMoodRenderer.TaskRenderer) (Object) this;
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(mc.player.level());
             if (modifiers != null && modifiers.isModifier(mc.player.getUUID(), TraitorAndModifiers.MANIC)) {
                 // 将任务名称转换为乱码
