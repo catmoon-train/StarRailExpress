@@ -24,7 +24,7 @@ public class StaminaIconRenderer {
     };
 
     private static final int ICON_SIZE = 9;        // 图标尺寸（像素）
-    private static final int GAP = 2;              // 图标间隔（像素）
+    private static final int GAP = -2;              // 图标间隔（像素）
     private static final int TOTAL_ICONS = 10;     // 闪电总数
     private static final int STAGES_PER_ICON = 6;  // 每个闪电的等级数（6级）
     private static final int TOTAL_STAGES = TOTAL_ICONS * STAGES_PER_ICON; // 60级
