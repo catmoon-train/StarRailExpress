@@ -934,7 +934,8 @@ public class NRDeathEvents {
                             Component.translatable("message.avenger.target_died", victimName, killerName)
                                     .withStyle(ChatFormatting.GOLD),
                             true);
-                    Noellesroles.LOGGER.info("\u590d\u4ec7\u8005 {} \u7ed1\u5b9a\u7684\u76ee\u6807 {} \u88ab {} \u6740\u6b7b\uff0c\u6fc0\u6d3b\u590d\u4ec7\u8005\u80fd\u529b",
+                    Noellesroles.LOGGER.info(
+                            "\u590d\u4ec7\u8005 {} \u7ed1\u5b9a\u7684\u76ee\u6807 {} \u88ab {} \u6740\u6b7b\uff0c\u6fc0\u6d3b\u590d\u4ec7\u8005\u80fd\u529b",
                             player.getName().getString(), victimName, killerName);
                 }
             }
@@ -1359,8 +1360,15 @@ public class NRDeathEvents {
             }
             if (RoleShopHandler.isOldmanEasterEggRod(stack))
                 return true;
-            if (stack.is(ModItems.MASTER_KEY) ||
-                    stack.is(Items.WRITABLE_BOOK) ||
+
+            if (stack.is(ModItems.NEWSPAPER)) {
+                if (stack.has(SREDataComponentTypes.WRITTEN_BOOK_CONTENT)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            if (stack.is(ModItems.MASTER_KEY) || stack.is(Items.BUNDLE) ||
                     stack.is(Items.WRITTEN_BOOK)) {
                 return true;
             }

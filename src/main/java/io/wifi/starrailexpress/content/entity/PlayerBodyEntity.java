@@ -221,6 +221,7 @@ public class PlayerBodyEntity extends LivingEntity {
                 if (playerSlot >= 0 && playerSlot < inventory.getContainerSize()) {
                     ItemStack stack = inventory.getItem(playerSlot);
                     if (!stack.isEmpty() && !stack.is(TMMItems.LETTER) && !stack.is(ModItems.NEWSPAPER)
+                            && !stack.is(Items.BUNDLE)
                             && !stack.is(Items.WRITABLE_BOOK) && !stack.is(Items.WRITTEN_BOOK)
                             && !stack.is(ModItems.LETTER_ITEM)) {
                         inv.setItem(bodySlot, stack.copy());
