@@ -1,5 +1,5 @@
 {
-    "parent":"minecraft:block/lever",
+    "parent": "minecraft:block/lever",
     "textures": {
         "particle": "block/torch",
         "base": "block/cobblestone",
