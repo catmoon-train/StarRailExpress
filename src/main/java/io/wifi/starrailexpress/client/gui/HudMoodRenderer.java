@@ -44,6 +44,7 @@ public class HudMoodRenderer {
     private static final int MINIGAME_GOLD = 0xFFFFD36A;
     private static final int MINIGAME_TEXT_SOFT = 0xFFFFE6A3;
     private static final int MINIGAME_TRACK = 0x66FFD36A;
+    private static final int SABOTAGE_RED = 0xFFFF4A4A;
     private static final int MINIGAME_NOTICE_DURATION = 70;
     private static int lastMinigamePending = -1;
     private static int lastMinigameTokens = -1;
@@ -128,9 +129,13 @@ public class HudMoodRenderer {
         SREPlayerMinigameTaskComponent minigameTask = SREPlayerMinigameTaskComponent.KEY.get(player);
         if (minigameTask != null) {
             tickMinigameNotice(minigameTask);
+            int lineY = 6 + 10 * renderers.size() + 4;
             if (minigameTask.hasPendingTask() || minigameNoticeTicks > 0) {
-                int lineY = 6 + 10 * renderers.size() + 4;
                 renderMinigameTaskHud(textRenderer, context, minigameTask, lineY);
+                lineY += 12;
+            }
+            if (minigameTask.hasSabotageTask()) {
+                renderSabotageTaskHud(textRenderer, context, minigameTask, lineY);
             }
         }
 
@@ -207,6 +212,20 @@ public class HudMoodRenderer {
         int trackAlpha = hasNotice ? (int) ((0.35f + 0.25f * pulse) * 255) : 0x33;
         context.fill(x, y + textRenderer.lineHeight + 1, x + trackWidth, y + textRenderer.lineHeight + 2,
                 (trackAlpha << 24) | (MINIGAME_TRACK & 0x00FFFFFF));
+    }
+
+    private static void renderSabotageTaskHud(Font textRenderer, FakeGuiGraphics context,
+            SREPlayerMinigameTaskComponent minigameTask, int lineY) {
+        var sabotageMg = minigameTask.getSabotageMinigame();
+        Component minigameName = sabotageMg != null ? sabotageMg.displayName() : Component.empty();
+        Component title = Component.translatable("hud.sre.sabotage_task_specific", minigameName);
+        int x = 22;
+        int y = lineY;
+        int color = 0xFF000000 | (SABOTAGE_RED & 0x00FFFFFF);
+        context.drawString(textRenderer, title, x, y, color, false);
+        int trackWidth = Math.min(Math.max(textRenderer.width(title), 64), 174);
+        context.fill(x, y + textRenderer.lineHeight + 1, x + trackWidth, y + textRenderer.lineHeight + 2,
+                0x88FF4A4A);
     }
 
     private static void renderCivilian(@NotNull Font textRenderer, @NotNull FakeGuiGraphics context, float prevMood, int color, SRERole role) {

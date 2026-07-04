@@ -1140,6 +1140,7 @@
     "hud.sre.minigame_task_any": "小游戏任务:完成任意小游戏",
     "hud.sre.minigame_task_count": "小游戏任务 ×%s",
     "hud.sre.minigame_task_specific": "小游戏任务:完成%s",
+    "hud.sre.sabotage_task_specific": "完成破坏任务：%s",
     "hud.sre.participation.not_participating": "未参与游戏",
     "hud.sre.tip.gamemode.ant_war": "蚂蚁大战模式",
     "hud.sre.tip.gamemode.chair_wheel_race": "轮椅模式",

@@ -46,6 +46,10 @@ public class MinigameQuestServerNetwork {
             if (be instanceof MinigameQuestBlockEntity questBe) {
                 // 破坏任务触发点：启动破坏任务（含冷却检查）
                 if (questBe.isSabotageTrigger() && player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+                    var role = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(level).getRole(player);
+                    if (role == null || (!role.isKiller() && !role.canUseSabotage())) {
+                        return;
+                    }
                     long now = level.getGameTime();
                     long cooldownTicks = (long) questBe.getSabotageCooldown() * 20;
                     if (cooldownTicks > 0 && questBe.getLastSabotageTime() > 0

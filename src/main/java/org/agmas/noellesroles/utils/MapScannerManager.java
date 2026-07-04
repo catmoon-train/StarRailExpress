@@ -34,6 +34,7 @@ public class MapScannerManager {
     public static class MapScannerInfos {
         public ArrayList<MapScannerInfo> infos;
         public ArrayList<String> minigameIds;
+        public ArrayList<String> sabotageMinigameIds;
 
         public MapScannerInfos(HashMap<BlockPos, Integer> blocks) {
             infos = new ArrayList<MapScannerInfo>();
@@ -41,14 +42,20 @@ public class MapScannerManager {
                 infos.add(new MapScannerInfo(entry.getKey(), entry.getValue()));
             }
             this.minigameIds = new ArrayList<>();
+            this.sabotageMinigameIds = new ArrayList<>();
         }
 
         public MapScannerInfos(HashMap<BlockPos, Integer> blocks, HashSet<String> minigameIds) {
+            this(blocks, minigameIds, new HashSet<>());
+        }
+
+        public MapScannerInfos(HashMap<BlockPos, Integer> blocks, HashSet<String> minigameIds, HashSet<String> sabotageMinigameIds) {
             infos = new ArrayList<MapScannerInfo>();
             for (var entry : blocks.entrySet()) {
                 infos.add(new MapScannerInfo(entry.getKey(), entry.getValue()));
             }
             this.minigameIds = new ArrayList<>(minigameIds);
+            this.sabotageMinigameIds = new ArrayList<>(sabotageMinigameIds);
         }
 
         public HashMap<BlockPos, Integer> getInfos() {
@@ -61,6 +68,10 @@ public class MapScannerManager {
 
         public HashSet<String> getMinigameIds() {
             return this.minigameIds != null ? new HashSet<>(this.minigameIds) : new HashSet<>();
+        }
+
+        public HashSet<String> getSabotageMinigameIds() {
+            return this.sabotageMinigameIds != null ? new HashSet<>(this.sabotageMinigameIds) : new HashSet<>();
         }
     }
 
@@ -107,7 +118,8 @@ public class MapScannerManager {
         File mapConfigFile = mapConfigPath.toFile();
         try {
             FileWriter writer = new FileWriter(mapConfigFile);
-            MapScannerInfos infos = new MapScannerInfos(GameUtils.taskBlocks, areaC.availableMinigameIds);
+            MapScannerInfos infos = new MapScannerInfos(GameUtils.taskBlocks, areaC.availableMinigameIds,
+                    areaC.sabotageMinigameIds);
             gson.toJson(infos, writer);
             writer.close();
             SRE.LOGGER.info("Successfully cache scanner points for map: " + mapName);
@@ -135,10 +147,16 @@ public class MapScannerManager {
             FileReader reader = new FileReader(mapConfigFile);
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             MapScannerInfos mapinfos = gson.fromJson(jsonObject, MapScannerInfos.class);
+            if (mapinfos.sabotageMinigameIds == null) {
+                reader.close();
+                return false;
+            }
             GameUtils.taskBlocks = mapinfos.getInfos();
             // 恢复可用小游戏种类 ID
             areaC.availableMinigameIds.clear();
             areaC.availableMinigameIds.addAll(mapinfos.getMinigameIds());
+            areaC.sabotageMinigameIds.clear();
+            areaC.sabotageMinigameIds.addAll(mapinfos.getSabotageMinigameIds());
             reader.close();
         } catch (Exception e) {
             e.printStackTrace();

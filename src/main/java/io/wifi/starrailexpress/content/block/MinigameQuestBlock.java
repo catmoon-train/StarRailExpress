@@ -91,6 +91,13 @@ public class MinigameQuestBlock extends BaseEntityBlock
                     if (role == null || (!role.isKiller() && !role.canUseSabotage())) {
                         return InteractionResult.SUCCESS;
                     }
+                    String sabotageMinigameId = questBe.getMinigameId();
+                    if (sabotageMinigameId != null && !sabotageMinigameId.isEmpty()) {
+                        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(sp,
+                                new io.wifi.starrailexpress.network.MinigameQuestPayload.OpenGame(pos,
+                                        sabotageMinigameId));
+                    }
+                    return InteractionResult.SUCCESS;
                 }
                 // 冒险/生存模式：打开小游戏
                 String minigameId = questBe.getMinigameId();

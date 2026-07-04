@@ -219,6 +219,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public boolean minigameQuestEnabled = false;
     /** 当前地图中存在的小游戏种类 ID 集合（由 MapScanner 扫描填充），用于小游戏任务刷新时随机选取。 */
     public final HashSet<String> availableMinigameIds = new HashSet<>();
+    public final HashSet<String> sabotageMinigameIds = new HashSet<>();
 
     // 支持的游戏模式列表，为空表示支持所有模式
     public java.util.List<String> gameModes = new java.util.ArrayList<>();
@@ -522,6 +523,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
                 this.availableMinigameIds.add(mgList.getString(i));
             }
         }
+        this.sabotageMinigameIds.clear();
+        if (tag.contains("SabotageMinigameIds")) {
+            var sabotageMgList = tag.getList("SabotageMinigameIds", net.minecraft.nbt.Tag.TAG_STRING);
+            for (int i = 0; i < sabotageMgList.size(); i++) {
+                this.sabotageMinigameIds.add(sabotageMgList.getString(i));
+            }
+        }
         this.initialItems = new ArrayList<>();
         if (tag.contains("initialItems")) {
             var iiList = tag.getList("initialItems", net.minecraft.nbt.Tag.TAG_STRING);
@@ -623,6 +631,12 @@ public class AreasWorldComponent implements AutoSyncedComponent {
             minigameIdsList.add(net.minecraft.nbt.StringTag.valueOf(id));
         }
         tag.put("AvailableMinigameIds", minigameIdsList);
+
+        var sabotageMinigameIdsList = new net.minecraft.nbt.ListTag();
+        for (String id : this.sabotageMinigameIds) {
+            sabotageMinigameIdsList.add(net.minecraft.nbt.StringTag.valueOf(id));
+        }
+        tag.put("SabotageMinigameIds", sabotageMinigameIdsList);
 
         var initialItemsList = new net.minecraft.nbt.ListTag();
         for (String item : this.initialItems) {

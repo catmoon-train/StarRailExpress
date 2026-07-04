@@ -102,6 +102,13 @@ public class MinigameQuestPanelBlock extends BaseEntityBlock
                     if (role == null || (!role.isKiller() && !role.canUseSabotage())) {
                         return InteractionResult.SUCCESS;
                     }
+                    String sabotageMinigameId = questBe.getMinigameId();
+                    if (sabotageMinigameId != null && !sabotageMinigameId.isEmpty()) {
+                        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(sp,
+                                new io.wifi.starrailexpress.network.MinigameQuestPayload.OpenGame(pos,
+                                        sabotageMinigameId));
+                    }
+                    return InteractionResult.SUCCESS;
                 }
                 String minigameId = questBe.getMinigameId();
                 if (minigameId != null && !minigameId.isEmpty()) {

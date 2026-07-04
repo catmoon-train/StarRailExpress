@@ -456,7 +456,8 @@ public class TaskBlockOverlayRenderer {
                         // 小游戏任务点(14/15)：仅在玩家有待办小游戏任务、该点本局未被使用、
                         // 且该点的 minigameId 与玩家指派的目标类型匹配（或无指定目标）时才金色透视
                         boolean isMinigamePoint = (type == 14 || type == 15)
-                                && renderContext.world().getBlockEntity(pos) instanceof MinigameQuestBlockEntity;
+                                && renderContext.world().getBlockEntity(pos) instanceof MinigameQuestBlockEntity questBe
+                                && !questBe.isSabotageTrigger();
                         if (isMinigamePoint) {
                             var mgComp = SREPlayerMinigameTaskComponent.KEY.get(player);
                             if (mgComp != null && mgComp.hasPendingTask() && !mgComp.isBlockUsed(pos)) {

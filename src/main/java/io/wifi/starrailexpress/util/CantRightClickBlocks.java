@@ -18,7 +18,8 @@ public class CantRightClickBlocks {
             "charta:sorghum_beer_glass",
             "supplementaries:safe",
             "supplementaries:fire_pit",
-            "supplementaries:item_shelf"));
+            "supplementaries:item_shelf",
+            "supplementaries:statue"));
     // 原版工作方块集合
     public static final Set<Block> ALLOWED_BLOCKS = new HashSet<>();
 
@@ -78,10 +79,11 @@ public class CantRightClickBlocks {
     public static boolean shouldPreventInteraction(Player player, Block block, Level level) {
         if (SRE.isLobby)
             return false;
-        String string = BuiltInRegistries.BLOCK.getKey(block).toString();
+        ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
+        String string = blockId.toString();
 
         return !isAllowedBlock(player, block, level) || cantClickItems.contains(string)
-                || CANNOT_INTERACT_IDS.contains(string);
+                || isCannotInteractId(blockId);
     }
 
     /**
@@ -103,10 +105,10 @@ public class CantRightClickBlocks {
         if (VANILLA_WORKSTATIONS.contains(block)) {
             return false;
         }
-        if (CANNOT_INTERACT_IDS.contains(BuiltInRegistries.BLOCK.getKey(block).toString())) {
+        ResourceLocation keys = BuiltInRegistries.BLOCK.getKey(block);
+        if (isCannotInteractId(keys)) {
             return false;
         }
-        ResourceLocation keys = BuiltInRegistries.BLOCK.getKey(block);
         if (keys.getPath().contains("shulker_box")) {
             return false;
         }
@@ -148,5 +150,12 @@ public class CantRightClickBlocks {
 
         return true;
         // 允许TMM模组的方块（除了"minopp"命名空间）
+    }
+
+    private static boolean isCannotInteractId(ResourceLocation blockId) {
+        if (CANNOT_INTERACT_IDS.contains(blockId.toString())) {
+            return true;
+        }
+        return "charta".equals(blockId.getNamespace()) && blockId.getPath().endsWith("_card_table");
     }
 }

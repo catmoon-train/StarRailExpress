@@ -90,6 +90,7 @@
     "hud.sre.minigame_task":  "小遊戲任務",
     "hud.sre.minigame_task_specific":  "小遊戲任務:完成%s",
     "hud.sre.minigame_task_any":  "小遊戲任務:完成任意小遊戲",
+    "hud.sre.sabotage_task_specific":  "完成破壞任務：%s",
     "message.sre.minigame_cooldown":  "該任務點冷卻中，稍後再來",
     "message.sre.minigame_no_task":  "目前沒有對應的小遊戲任務",
     "message.sre.minigame_wrong_type":  "請前往指定的%s任務點",

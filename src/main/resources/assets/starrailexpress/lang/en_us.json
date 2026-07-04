@@ -1687,6 +1687,7 @@
     "hud.sre.minigame_task": "Minigame Quest",
     "hud.sre.minigame_task_specific": "Minigame Quest: %s",
     "hud.sre.minigame_task_any": "Minigame Quest: Any Minigame",
+    "hud.sre.sabotage_task_specific": "Complete Sabotage: %s",
     "message.sre.minigame_cooldown": "This task point is on cooldown, come back later",
     "message.sre.minigame_no_task": "You have no matching minigame quest right now",
     "message.sre.minigame_wrong_type": "Go to the specified %s task point",

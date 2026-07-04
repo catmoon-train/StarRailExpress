@@ -49,6 +49,7 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
     public int pendingMinigameTasks = 0;
     /** 当前指派的小游戏目标类型 ID（null 或空字符串表示任意）。只有同类型任务点才能完成任务。 */
     public String targetMinigameId = null;
+    public String sabotageMinigameId = null;
     /** 本局各小游戏任务点对该玩家的复用冷却到期游戏刻（key 为 {@link BlockPos#asLong()}）。 */
     public final Map<Long, Long> blockCooldownUntil = new HashMap<>();
 
@@ -71,6 +72,7 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         this.minigameTaskTimer = SREConfig.instance().minigameTaskIntervalSeconds * 20;
         this.pendingMinigameTasks = 0;
         this.targetMinigameId = null;
+        this.sabotageMinigameId = null;
         this.blockCooldownUntil.clear();
         this.sync();
     }
@@ -96,6 +98,15 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
     public QuestMinigame getTargetMinigame() {
         if (this.targetMinigameId == null || this.targetMinigameId.isEmpty()) return null;
         return QuestMinigames.get(this.targetMinigameId);
+    }
+
+    public boolean hasSabotageTask() {
+        return this.sabotageMinigameId != null && !this.sabotageMinigameId.isEmpty();
+    }
+
+    public QuestMinigame getSabotageMinigame() {
+        if (!hasSabotageTask()) return null;
+        return QuestMinigames.get(this.sabotageMinigameId);
     }
 
     /** 该任务点当前是否对本玩家处于复用冷却中（冷却未到期）。 */
@@ -139,24 +150,49 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         if (!SREGameWorldComponent.KEY.get(serverLevel).isRunning()
                 || !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(sp)
                 || !AreasWorldComponent.KEY.get(serverLevel).minigameQuestEnabled) {
+            clearSabotageTaskIfPresent();
             return;
         }
+        refreshSabotageTask(serverLevel, sp);
         this.minigameTaskTimer--;
         if (this.minigameTaskTimer <= 0) {
             if (this.pendingMinigameTasks < 1) {
-                this.pendingMinigameTasks++;
                 // 从地图中存在的小游戏种类中随机选取一个
                 var areas = AreasWorldComponent.KEY.get(serverLevel);
                 if (!areas.availableMinigameIds.isEmpty()) {
+                    this.pendingMinigameTasks++;
                     List<String> ids = new ArrayList<>(areas.availableMinigameIds);
                     this.targetMinigameId = ids.get(sp.getRandom().nextInt(ids.size()));
+                    this.sync();
                 } else {
                     // 兜底：没有可用小游戏种类则不指派特定种类
                     this.targetMinigameId = null;
                 }
-                this.sync();
             }
             this.minigameTaskTimer = SREConfig.instance().minigameTaskIntervalSeconds * 20;
+        }
+    }
+
+    private void refreshSabotageTask(ServerLevel serverLevel, ServerPlayer sp) {
+        var areas = AreasWorldComponent.KEY.get(serverLevel);
+        var role = SREGameWorldComponent.KEY.get(serverLevel).getRole(sp);
+        boolean canUseSabotage = role != null && (role.isKiller() || role.canUseSabotage());
+        if (!canUseSabotage || areas.sabotageMinigameIds.isEmpty()) {
+            clearSabotageTaskIfPresent();
+            return;
+        }
+        if (hasSabotageTask() && areas.sabotageMinigameIds.contains(this.sabotageMinigameId)) {
+            return;
+        }
+        List<String> ids = new ArrayList<>(areas.sabotageMinigameIds);
+        this.sabotageMinigameId = ids.get(sp.getRandom().nextInt(ids.size()));
+        this.sync();
+    }
+
+    private void clearSabotageTaskIfPresent() {
+        if (this.sabotageMinigameId != null) {
+            this.sabotageMinigameId = null;
+            this.sync();
         }
     }
 
@@ -195,6 +231,9 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         if (this.targetMinigameId != null) {
             tag.putString("TargetMinigameId", this.targetMinigameId);
         }
+        if (this.sabotageMinigameId != null) {
+            tag.putString("SabotageMinigameId", this.sabotageMinigameId);
+        }
         long[] keys = new long[this.blockCooldownUntil.size()];
         long[] until = new long[this.blockCooldownUntil.size()];
         int i = 0;
@@ -214,6 +253,10 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         this.targetMinigameId = tag.contains("TargetMinigameId") ? tag.getString("TargetMinigameId") : null;
         if (this.targetMinigameId != null && this.targetMinigameId.isEmpty()) {
             this.targetMinigameId = null;
+        }
+        this.sabotageMinigameId = tag.contains("SabotageMinigameId") ? tag.getString("SabotageMinigameId") : null;
+        if (this.sabotageMinigameId != null && this.sabotageMinigameId.isEmpty()) {
+            this.sabotageMinigameId = null;
         }
         this.blockCooldownUntil.clear();
         long[] keys = tag.getLongArray("CdKeys");
