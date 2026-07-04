@@ -470,9 +470,11 @@ public class MapBuildHelperScreen extends Screen {
         final int halfW = (bw - gap) / 2;
         final int smallH = 18;
         final int fieldW = 120;
+        final int rowGap = bh + gap;
+        int rowIndex = 0;
 
         // 第0行：天气按钮
-        final int row0 = startY;
+        final int row0 = startY + rowGap * rowIndex++;
         ModernButton weatherClearBtn = ModernButton.builder(
                 Component.translatable("screen.game_manage.btn.weather_clear"),
                 b -> sendOnly("sre:area_manager set weather clear"))
@@ -490,7 +492,7 @@ public class MapBuildHelperScreen extends Screen {
         addTabWidget(tabWidgets4, weatherRainBtn);
 
         // 第1行：雷暴按钮
-        final int row1 = startY + (bh + gap);
+        final int row1 = startY + rowGap * rowIndex++;
         ModernButton weatherThunderBtn = ModernButton.builder(
                 Component.translatable("screen.game_manage.btn.weather_thunder"),
                 b -> sendOnly("sre:area_manager set weather thunder"))
@@ -500,7 +502,7 @@ public class MapBuildHelperScreen extends Screen {
         addTabWidget(tabWidgets4, weatherThunderBtn);
 
         // 第2行：重力输入
-        final int row2 = startY + 2 * (bh + gap);
+        final int row2 = startY + rowGap * rowIndex++;
         EditBox gravityBox = makeField(panelLeftX + 6, row2, fieldW, smallH, "0.08",
                 v -> {});
         addTabWidget(tabWidgets4, gravityBox);
@@ -518,7 +520,7 @@ public class MapBuildHelperScreen extends Screen {
         addTabWidget(tabWidgets4, gravityBtn);
 
         // 第3行：时间输入
-        final int row3 = startY + 3 * (bh + gap);
+        final int row3 = startY + rowGap * rowIndex++;
         EditBox timeBox = makeField(panelLeftX + 6, row3, fieldW, smallH, "18000",
                 v -> {});
         addTabWidget(tabWidgets4, timeBox);
@@ -536,7 +538,7 @@ public class MapBuildHelperScreen extends Screen {
         addTabWidget(tabWidgets4, timeBtn);
 
         // 第4行：药水效果输入
-        final int row4 = startY + 4 * (bh + gap);
+        final int row4 = startY + rowGap * rowIndex++;
         EditBox effectBox = makeField(panelLeftX + 6, row4, fieldW, smallH, "",
                 v -> {});
         addTabWidget(tabWidgets4, effectBox);
@@ -553,7 +555,7 @@ public class MapBuildHelperScreen extends Screen {
         addTabWidget(tabWidgets4, effectBtn);
 
         // 第5行：雪花效果开关
-        final int row5 = startY + 5 * (bh + gap);
+        final int row5 = startY + rowGap * rowIndex++;
         ModernButton snowEnableBtn = ModernButton.builder(
                 Component.translatable("sre.map_helper.set_true", Component.translatable("sre.field.snowEnabled")),
                 b -> sendOnly("sre:area_manager set snowEnabled true"))
@@ -571,7 +573,7 @@ public class MapBuildHelperScreen extends Screen {
         addTabWidget(tabWidgets4, snowDisableBtn);
 
         // 第5.5行：沙尘暴效果开关
-        final int row5_5 = startY + 5 * (bh + gap) + bh + gap;
+        final int row5_5 = startY + rowGap * rowIndex++;
         ModernButton sandEnableBtn = ModernButton.builder(
                 Component.translatable("sre.map_helper.set_true", Component.translatable("sre.field.sandEnabled")),
                 b -> sendOnly("sre:area_manager set sandEnabled true"))
@@ -589,7 +591,7 @@ public class MapBuildHelperScreen extends Screen {
         addTabWidget(tabWidgets4, sandDisableBtn);
 
         // 第6行：昼夜循环开关
-        final int row6 = startY + 6 * (bh + gap);
+        final int row6 = startY + rowGap * rowIndex++;
         ModernButton daylightEnableBtn = ModernButton.builder(
                 Component.translatable("sre.map_helper.set_true", Component.translatable("sre.field.daylightCycle")),
                 b -> sendOnly("sre:area_manager set daylightCycle true"))
@@ -607,7 +609,7 @@ public class MapBuildHelperScreen extends Screen {
         addTabWidget(tabWidgets4, daylightDisableBtn);
 
         // 第7行：天气循环开关
-        final int row7 = startY + 7 * (bh + gap);
+        final int row7 = startY + rowGap * rowIndex;
         ModernButton weatherCycleEnableBtn = ModernButton.builder(
                 Component.translatable("sre.map_helper.set_true", Component.translatable("sre.field.weatherCycle")),
                 b -> sendOnly("sre:area_manager set weatherCycle true"))
