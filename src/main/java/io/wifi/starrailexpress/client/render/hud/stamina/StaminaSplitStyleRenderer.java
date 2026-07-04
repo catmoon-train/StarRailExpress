@@ -42,6 +42,7 @@ public class StaminaSplitStyleRenderer {
             ProgressProvider staminaProvider,
             ProgressProvider itemChargeProvider, boolean isChargingWeapon) {
         float staminaPercent = -1;
+        float itemPercent = -1;
         if (isChargingWeapon) {
             // 处理蓄力完成效果
             if (itemChargeProvider.getPercent() >= 1.0f && !knifeFullyCharged) { // 重用knifeFullyCharged变量作为通用蓄力完成标志
@@ -52,14 +53,15 @@ public class StaminaSplitStyleRenderer {
             } else if (itemChargeProvider.getPercent() < 1.0f) {
                 knifeFullyCharged = false;
             }
-            staminaPercent = itemChargeProvider.getPercent();
+            itemPercent = itemChargeProvider.getPercent();
         } else {
             if (staminaProvider != null) {
                 staminaPercent = staminaProvider.getPercent();
             }
         }
-        if (staminaPercent < 0) // 无体力条时
-            return;
+        if (staminaPercent < 0) {
+            staminaPercent = 1f; // 无体力条时，渲染100%
+        }
         // 使用与TimeRenderer类似的颜色逻辑
         if (Math.abs(view.getTarget() - staminaPercent) > 0.1f) {
             offsetDelta = staminaPercent > view.getTarget() ? .6f : -.6f;
@@ -69,9 +71,13 @@ public class StaminaSplitStyleRenderer {
         view.setTarget(staminaPercent);
 
         // 体力条颜色 - 黄色，低于1/5时变红
-        int colour = staminaPercent < 0.2f
-                ? Mth.color(1f, 0.2f, 0.2f) | 0xFF000000 // 红色
-                : Mth.color(1f, 0.85f, 0.1f) | 0xFF000000; // 黄色
+        int colour = new java.awt.Color(53, 188, 122).getRGB();// 绿
+        // 体力条颜色 - 黄色，低于1/5时变红
+        if (staminaPercent < 0.2f) {
+            colour = Mth.color(1f, 0.2f, 0.2f) | 0xFF000000; // 红
+        } else if (staminaPercent < 0.6f) {
+            colour = Mth.color(1f, 0.85f, 0.1f) | 0xFF000000;// 黄
+        }
 
         // 渲染主手物品冷却提示
         renderMainHandCooldown(context, player, delta);
@@ -79,39 +85,46 @@ public class StaminaSplitStyleRenderer {
         // 渲染体力条 - 移动到物品栏上方
         context.pose().pushPose();
         context.pose().translate(context.guiWidth() / 2f, context.guiHeight() - 35, 0); // 在物品栏上方显示
-
-        // 蓄力武器：应用"前慢后快"缓动曲线，并做逐帧平滑过渡
-        if (isChargingWeapon) {
-            float easedPercent = easeInCharge(staminaPercent);
-            float displayValue;
-            if (SREClientConfig.instance().disableStaminaBarSmoothing) {
-                // 配置禁用平滑：直接显示缓动后的值
-                displayValue = easedPercent;
-                chargeDisplayValue = easedPercent;
-            } else {
-                // 逐帧向缓动目标平滑靠拢，消除按tick取值带来的阶梯跳变
-                float lerpFactor = Mth.clamp(delta * 0.5f, 0f, 1f);
-                chargeDisplayValue = Mth.lerp(lerpFactor, chargeDisplayValue, easedPercent);
-                if (Math.abs(chargeDisplayValue - easedPercent) < 0.005f) {
-                    chargeDisplayValue = easedPercent;
-                }
-                displayValue = chargeDisplayValue;
-            }
-            // 如果是刀且完全蓄力，则添加特殊效果
-            if (ChargeableItemRegistry.hasSpecialVisualEffects(mainHandStack, player) && knifeFullyCharged
-                    && isFlashActive()) {
-                // 创建闪烁效果
-                int flashColour = getFlashColor(); // 红白交替闪烁
-                view.renderWithoutSmoothing(context, flashColour, displayValue);
-            } else {
-                view.renderWithoutSmoothing(context, colour, displayValue);
-            }
-        } else {
-            view.render(context, colour, delta);
+        {
+            // 体力条
+            view.renderStamina(context, colour, delta);
         }
 
         context.pose().popPose();
 
+        {
+            context.pose().pushPose();
+            context.pose().translate(context.guiWidth() / 2f, context.guiHeight() / 2 + 10, 0); // 在物品栏上方显示
+
+            // 蓄力武器：应用"前慢后快"缓动曲线，并做逐帧平滑过渡。渲染在鼠标下面，如PEAK
+            if (isChargingWeapon) {
+                float easedPercent = easeInCharge(itemPercent);
+                float displayValue;
+                if (SREClientConfig.instance().disableStaminaBarSmoothing) {
+                    // 配置禁用平滑：直接显示缓动后的值
+                    displayValue = easedPercent;
+                    chargeDisplayValue = easedPercent;
+                } else {
+                    // 逐帧向缓动目标平滑靠拢，消除按tick取值带来的阶梯跳变
+                    float lerpFactor = Mth.clamp(delta * 0.5f, 0f, 1f);
+                    chargeDisplayValue = Mth.lerp(lerpFactor, chargeDisplayValue, easedPercent);
+                    if (Math.abs(chargeDisplayValue - easedPercent) < 0.005f) {
+                        chargeDisplayValue = easedPercent;
+                    }
+                    displayValue = chargeDisplayValue;
+                }
+                // 如果是刀且完全蓄力，则添加特殊效果
+                if (ChargeableItemRegistry.hasSpecialVisualEffects(mainHandStack, player) && knifeFullyCharged
+                        && isFlashActive()) {
+                    // 创建闪烁效果
+                    int flashColour = getFlashColor(); // 红白交替闪烁
+                    view.renderItemCharge(context, flashColour, displayValue);
+                } else {
+                    view.renderItemCharge(context, colour, displayValue);
+                }
+            }
+            context.pose().popPose();
+        }
         // 绘制体力图标（仅在按住 Shift 时显示）
         if (!isChargingWeapon) {
             int barCenterY = context.guiHeight() - 35;
@@ -201,7 +214,6 @@ public class StaminaSplitStyleRenderer {
         }
     }
 
-   
     public static void tick() {
         view.update();
         // 如果不在使用蓄力物品，重置蓄力状态
@@ -271,7 +283,7 @@ public class StaminaSplitStyleRenderer {
             }
         }
 
-        public void render(@NotNull GuiGraphics context, int colour, float delta) {
+        public void renderStamina(@NotNull GuiGraphics context, int colour, float delta) {
             float value = Mth.lerp(delta, this.lastValue, this.currentValue);
 
             // 体力条参数 - 更现代、更扁平的设计
@@ -292,15 +304,17 @@ public class StaminaSplitStyleRenderer {
             }
         }
 
-        public void renderWithoutSmoothing(@NotNull GuiGraphics context, int colour, float value) {
+        public void renderItemCharge(@NotNull GuiGraphics context, int colour, float value) {
             // 体力条参数 - 更现代、更扁平的设计
-            int barWidth = 120; // 总宽度增加
-            int barHeight = 2; // 高度减小变得更扁平
+            int barWidth = 60; // 总宽度增加
+            int barHeight = 6; // 高度减小变得更扁平
+            int barBorder = 2; // 高度减小变得更扁平
             int halfWidth = barWidth / 2;
-
+            colour = colour | 0x88000000;
             // 绘制背景（更现代化的半透明黑色）
-            int backgroundColor = 0x66000000; // 更透明的背景
-            context.fill(-halfWidth, -barHeight / 2, halfWidth, barHeight / 2, backgroundColor);
+            int backgroundColor = 0x55000000; // 更透明的背景
+            context.fill(-halfWidth - barBorder, -barHeight / 2 - barBorder, halfWidth + barBorder,
+                    barHeight / 2 + barBorder, backgroundColor);
 
             // 计算当前体力条宽度 - 从左锚定，向右延伸
             int currentWidth = Math.round(barWidth * value);
