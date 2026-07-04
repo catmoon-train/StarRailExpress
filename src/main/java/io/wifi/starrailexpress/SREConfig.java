@@ -64,7 +64,7 @@ public class SREConfig implements ConfigData {
     // 随机地图设置
 
     @ConfigEntry.Category(value = "commands")
-    public int customRolePermission = 2;
+    public int customRolePermission = 3;
     @ConfigEntry.Category(value = "commands")
     public int startGameRequiredPermission = 2;
     @ConfigEntry.Category(value = "commands")
