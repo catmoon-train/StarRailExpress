@@ -4,7 +4,6 @@ import com.google.gson.*;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.ConfigCompact.config_gui_provider.GenericEnumGuiProvider;
 import io.wifi.ConfigCompact.config_gui_provider.GenericMapGuiProvider;
-import io.wifi.ConfigCompact.config_gui_provider.SpawnInfoGuiProvider;
 import io.wifi.ConfigCompact.network.SyncConfigPayload;
 import io.wifi.starrailexpress.SRE;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -39,7 +38,7 @@ public class ConfigClassHandler<T extends ConfigData> {
 
         // ✅ 可以安全引用 Screen，因为整个类已是 CLIENT-only
         public net.minecraft.client.gui.screens.Screen generateScreen(Screen parent) {
-            SpawnInfoGuiProvider.register(AutoConfig.getGuiRegistry(type));
+            // SpawnInfoGuiProvider.register(AutoConfig.getGuiRegistry(type));
             GenericMapGuiProvider.register(AutoConfig.getGuiRegistry(type));
             GenericEnumGuiProvider.register(AutoConfig.getGuiRegistry(type));
             return AutoConfig.getConfigScreen(type, parent).get();
