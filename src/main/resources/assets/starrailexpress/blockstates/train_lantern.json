@@ -1,0 +1,12 @@
+{
+  "multipart": [
+    {
+      "when": { "hanging": "false" },
+      "apply": { "model": "minecraft:block/lantern" }
+    },
+    {
+      "when": { "hanging": "true" },
+      "apply": { "model": "minecraft:block/lantern_hanging" }
+    }
+  ]
+}

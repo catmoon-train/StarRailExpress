@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 
@@ -53,7 +54,30 @@ public interface SREBlocks {
           .mapColor(waterloggedMapColor(MapColor.NONE)).strength(0.5F).sound(SoundType.STONE)
           .pushReaction(PushReaction.DESTROY).noOcclusion().noCollission())),
       new Item.Properties().rarity(Rarity.COMMON));
-
+  // 列车原版灯笼
+  Block TRAIN_VANILLA_LANTERN = registerBlock("train_lantern",
+      new TrainLanternBlock(Block.Properties.of().mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops()
+          .strength(3.5F).sound(SoundType.LANTERN)
+          .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex)).noOcclusion()
+          .pushReaction(PushReaction.DESTROY)));
+  Block TRAIN_SOUL_LANTERN = registerBlock("train_soul_lantern",
+      new TrainLanternBlock(Block.Properties.of().mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops()
+          .strength(3.5F).sound(SoundType.LANTERN)
+          .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(10, blockStatex)).noOcclusion()
+          .pushReaction(PushReaction.DESTROY)));
+  Block SEA_LANTERN = registerBlock("train_sea_lantern",
+      new SimpleTrainLightBlock(
+          Block.Properties.of().mapColor(MapColor.QUARTZ).instrument(NoteBlockInstrument.HAT).strength(0.3F)
+              .sound(SoundType.GLASS)
+              .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex))));
+  Block SHROOMLIGHT = registerBlock("train_shroomlight",
+      new SimpleTrainLightBlock(
+          Block.Properties.of().mapColor(MapColor.COLOR_RED).strength(1.0F).sound(SoundType.SHROOMLIGHT)
+              .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex))));
+  Block JACK_O_LANTERN = registerBlock("jack_o_lantern",
+      new TrainCarvedPumpkinBlock(Block.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(1.0F)
+          .sound(SoundType.WOOD).lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex))
+          .pushReaction(PushReaction.DESTROY)));
   // 卷帘门
   Block UP_GLASS_DOOR = registerBlock("up_glass_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_GLASS_DOOR,
       BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER)),
