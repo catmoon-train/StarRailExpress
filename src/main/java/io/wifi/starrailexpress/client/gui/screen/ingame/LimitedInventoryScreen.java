@@ -563,10 +563,12 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     private void renderOverlayMessageOnScreen(GuiGraphics context, int mouseX, int mouseY, float delta) {
         var message = minecraft.gui.overlayMessageString;
         int displaytime = minecraft.gui.overlayMessageTime;
+        if (message == null || displaytime <= 0)
+            return;
         int x = width;
         int y = 4;
         int twidth = font.width(message);
-        if (message != null && displaytime > 0) {
+        {
             context.drawString(font, message, (x - twidth) / 2, y, 0xffffffff);
         }
     }
