@@ -133,10 +133,21 @@ public class ReactorBlockEntity extends BlockEntity {
     /** 本反应堆关闭后，检查配对的两个反应堆是否都已关闭（直接从 Chunk 读块状态，不依赖全局注册表）。 */
     public void onSelfClosed() {
         if (!(this.level instanceof ServerLevel serverLevel)) return;
+        if (!isClosed()) return;
+        if (!isPartnerClosed(serverLevel)) return;
         if (!ReactorRegistry.allClosed(serverLevel)) return;
         SceneEventManager.stopSabotage(serverLevel);
         for (var player : serverLevel.players()) {
             player.displayClientMessage(Component.translatable("message.noellesroles.reactor.all_closed"), false);
         }
+    }
+
+    private boolean isPartnerClosed(ServerLevel level) {
+        if (partnerPos == null) return true;
+        if (!level.isLoaded(partnerPos)) return false;
+        BlockState state = level.getBlockState(partnerPos);
+        return state.getBlock() instanceof ReactorBlock
+                && state.hasProperty(ReactorBlock.CLOSED)
+                && state.getValue(ReactorBlock.CLOSED);
     }
 }

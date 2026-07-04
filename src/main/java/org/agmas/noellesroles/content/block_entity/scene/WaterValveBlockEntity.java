@@ -118,10 +118,21 @@ public class WaterValveBlockEntity extends BlockEntity {
     /** 本水阀关闭后，检查配对的两个水阀是否都已关闭。 */
     public void onSelfClosed() {
         if (!(this.level instanceof ServerLevel serverLevel)) return;
+        if (!isClosed()) return;
+        if (!isPartnerClosed(serverLevel)) return;
         if (!WaterValveRegistry.allClosed(serverLevel)) return;
         SceneEventManager.stopSabotage(serverLevel);
         for (var player : serverLevel.players()) {
             player.displayClientMessage(Component.translatable("message.noellesroles.water_valve.all_closed"), false);
         }
+    }
+
+    private boolean isPartnerClosed(ServerLevel level) {
+        if (partnerPos == null) return true;
+        if (!level.isLoaded(partnerPos)) return false;
+        BlockState state = level.getBlockState(partnerPos);
+        return state.getBlock() instanceof WaterValveBlock
+                && state.hasProperty(WaterValveBlock.CLOSED)
+                && state.getValue(WaterValveBlock.CLOSED);
     }
 }
