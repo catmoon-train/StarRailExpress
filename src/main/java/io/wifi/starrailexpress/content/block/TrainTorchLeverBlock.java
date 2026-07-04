@@ -53,7 +53,7 @@ public class TrainTorchLeverBlock extends LeverBlock implements LightBlockInterf
     }
 
     public static int lightBlockSupplier(BlockState state) {
-        return isEnabled(state) ? (isPowered(state) ? 16 : 14) : 0;
+        return isEnabled(state) ? (isPowered(state) ? 14 : 13) : 0;
     }
 
     @Override

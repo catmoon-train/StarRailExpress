@@ -1,1636 +1,884 @@
 {
-    "multipart": [
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "east",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 180,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "east",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 180,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "east",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 180,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "east",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 180,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "north",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 180,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "north",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 180,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "north",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 180,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "north",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 180,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "south",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 180,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "south",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 180,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "south",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 180,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "south",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 180,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "west",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 180,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "west",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 180,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "west",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 180,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "ceiling",
-                "facing": "west",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 180,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "east",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 0,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "east",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 0,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "east",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 0,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "east",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 0,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "north",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 0,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "north",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 0,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "north",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 0,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "north",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 0,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "south",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 0,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "south",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 0,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "south",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 0,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "south",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 0,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "west",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 0,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "west",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 0,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "west",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 0,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "floor",
-                "facing": "west",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 0,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "east",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 90,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "east",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 90,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "east",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 90,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "east",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 90,
-                "y": 90
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "north",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 90,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "north",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 90,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "north",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 90,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "north",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 90,
-                "y": 0
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "south",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 90,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "south",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 90,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "south",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 90,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "south",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 90,
-                "y": 180
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "west",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever",
-                "x": 90,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "west",
-                "powered": "false",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_off",
-                "x": 90,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "west",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on",
-                "x": 90,
-                "y": 270
-            }
-        },
-        {
-            "when": {
-                "face": "wall",
-                "facing": "west",
-                "powered": "true",
-                "OR": [
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "true",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "true",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "true"
-                    },
-                    {
-                        "active": "false",
-                        "lit": "false",
-                        "waterlogged": "false"
-                    }
-                ]
-            },
-            "apply": {
-                "model": "starrailexpress:block/train_torch_lever_on_off",
-                "x": 90,
-                "y": 270
-            }
-        }
-    ]
+ "variants": {
+  "face=ceiling,facing=east,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=east,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 180,
+   "y": 90
+  },
+  "face=ceiling,facing=north,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=north,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 180,
+   "y": 0
+  },
+  "face=ceiling,facing=south,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=south,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 180,
+   "y": 180
+  },
+  "face=ceiling,facing=west,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 180,
+   "y": 270
+  },
+  "face=ceiling,facing=west,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 180,
+   "y": 270
+  },
+  "face=floor,facing=east,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "y": 90
+  },
+  "face=floor,facing=east,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "y": 90
+  },
+  "face=floor,facing=north,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off"
+  },
+  "face=floor,facing=north,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off"
+  },
+  "face=floor,facing=north,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off"
+  },
+  "face=floor,facing=north,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off"
+  },
+  "face=floor,facing=north,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off"
+  },
+  "face=floor,facing=north,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off"
+  },
+  "face=floor,facing=north,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever"
+  },
+  "face=floor,facing=north,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever"
+  },
+  "face=floor,facing=north,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off"
+  },
+  "face=floor,facing=north,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off"
+  },
+  "face=floor,facing=north,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off"
+  },
+  "face=floor,facing=north,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off"
+  },
+  "face=floor,facing=north,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off"
+  },
+  "face=floor,facing=north,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off"
+  },
+  "face=floor,facing=north,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on"
+  },
+  "face=floor,facing=north,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on"
+  },
+  "face=floor,facing=south,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "y": 180
+  },
+  "face=floor,facing=south,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "y": 180
+  },
+  "face=floor,facing=west,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "y": 270
+  },
+  "face=floor,facing=west,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "y": 270
+  },
+  "face=wall,facing=east,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=east,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 270,
+   "y": 270
+  },
+  "face=wall,facing=north,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=north,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 270,
+   "y": 180
+  },
+  "face=wall,facing=south,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=south,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 270,
+   "y": 0
+  },
+  "face=wall,facing=west,powered=false,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=false,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=false,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=false,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=false,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=false,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=false,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=false,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=true,active=false,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=true,active=false,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=true,active=false,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=true,active=false,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=true,active=true,lit=false,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=true,active=true,lit=false,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on_off",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=true,active=true,lit=true,waterlogged=false": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 270,
+   "y": 90
+  },
+  "face=wall,facing=west,powered=true,active=true,lit=true,waterlogged=true": {
+   "model": "starrailexpress:block/train_torch_lever_on",
+   "x": 270,
+   "y": 90
+  }
+ }
 }
