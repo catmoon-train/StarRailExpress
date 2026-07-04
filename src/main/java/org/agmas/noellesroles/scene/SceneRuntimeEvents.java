@@ -2,6 +2,7 @@ package org.agmas.noellesroles.scene;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.block_entity.MinigameQuestBlockEntity;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -27,6 +28,7 @@ public final class SceneRuntimeEvents {
             ZERO_AIR_TICKS.clear();
             MapStatusBarRuntime.clear(world);
             SceneEventManager.clear(world);
+            resetSabotageMinigameQuestCooldowns(world);
         });
         ServerTickEvents.END_WORLD_TICK.register(level -> {
             if (level instanceof ServerLevel serverLevel) {
@@ -39,6 +41,23 @@ public final class SceneRuntimeEvents {
     public static void clearHurricanes(ServerLevel level) {
         for (HurricaneEntity hurricane : level.getEntities(ModEntities.HURRICANE, entity -> true)) {
             hurricane.discard();
+        }
+    }
+
+    private static void resetSabotageMinigameQuestCooldowns(ServerLevel level) {
+        if (GameUtils.taskBlocks == null || GameUtils.taskBlocks.isEmpty()) {
+            return;
+        }
+        for (var entry : GameUtils.taskBlocks.entrySet()) {
+            int type = entry.getValue();
+            if (type != 14 && type != 15) {
+                continue;
+            }
+            if (level.getBlockEntity(entry.getKey()) instanceof MinigameQuestBlockEntity questBe
+                    && questBe.isSabotageTrigger()
+                    && questBe.getLastSabotageTime() != 0) {
+                questBe.setLastSabotageTime(0);
+            }
         }
     }
 

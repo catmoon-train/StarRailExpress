@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.content.block.scene.DebrisPileBlock;
 import org.agmas.noellesroles.content.block_entity.scene.DebrisPileBlockEntity;
 
@@ -29,6 +30,9 @@ public final class DebrisPileRegistry {
     }
 
     public static boolean allExtinguished(ServerLevel level) {
+        if (GameUtils.taskBlocks != null && !GameUtils.taskBlocks.isEmpty()) {
+            return allScannedExtinguished(level);
+        }
         Set<BlockPos> set = PILES.get(level.dimension());
         if (set == null || set.isEmpty()) {
             return false;
@@ -47,6 +51,21 @@ public final class DebrisPileRegistry {
                 }
             } else {
                 it.remove();
+            }
+        }
+        return anyValid;
+    }
+
+    private static boolean allScannedExtinguished(ServerLevel level) {
+        boolean anyValid = false;
+        for (BlockPos pos : GameUtils.taskBlocks.keySet()) {
+            var state = level.getBlockState(pos);
+            if (state.getBlock() instanceof DebrisPileBlock) {
+                anyValid = true;
+                if (!state.hasProperty(DebrisPileBlock.CLOSED)
+                        || !state.getValue(DebrisPileBlock.CLOSED)) {
+                    return false;
+                }
             }
         }
         return anyValid;

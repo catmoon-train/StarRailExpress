@@ -5,6 +5,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import io.wifi.starrailexpress.game.GameUtils;
+import org.agmas.noellesroles.content.block.scene.ReactorBlock;
 import org.agmas.noellesroles.content.block_entity.scene.ReactorBlockEntity;
 
 import java.util.*;
@@ -36,6 +38,9 @@ public final class ReactorRegistry {
 
     /** 场上是否存在反应堆且全部已关闭。 */
     public static boolean allClosed(ServerLevel level) {
+        if (GameUtils.taskBlocks != null && !GameUtils.taskBlocks.isEmpty()) {
+            return allScannedClosed(level);
+        }
         Set<BlockPos> set = REACTORS.get(level.dimension());
         if (set == null || set.isEmpty()) {
             return false;
@@ -52,6 +57,21 @@ public final class ReactorRegistry {
                 }
             } else {
                 it.remove();
+            }
+        }
+        return anyValid;
+    }
+
+    private static boolean allScannedClosed(ServerLevel level) {
+        boolean anyValid = false;
+        for (BlockPos pos : GameUtils.taskBlocks.keySet()) {
+            var state = level.getBlockState(pos);
+            if (state.getBlock() instanceof ReactorBlock) {
+                anyValid = true;
+                if (!state.hasProperty(ReactorBlock.CLOSED)
+                        || !state.getValue(ReactorBlock.CLOSED)) {
+                    return false;
+                }
             }
         }
         return anyValid;

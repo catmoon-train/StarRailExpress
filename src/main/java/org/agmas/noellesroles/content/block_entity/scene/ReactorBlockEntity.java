@@ -133,30 +133,21 @@ public class ReactorBlockEntity extends BlockEntity {
     /** 本反应堆关闭后，检查配对的两个反应堆是否都已关闭（直接从 Chunk 读块状态，不依赖全局注册表）。 */
     public void onSelfClosed() {
         if (!(this.level instanceof ServerLevel serverLevel)) return;
-        // 从 Chunk 直接读取块状态，确保不受 BE 缓存影响
-        boolean selfClosed = serverLevel.getBlockState(this.worldPosition).getValue(ReactorBlock.CLOSED);
-        if (!selfClosed) return;
-
-        // 如果有配对的反应堆，检查它是否也关闭了
-        if (partnerPos != null) {
-            if (serverLevel.isLoaded(partnerPos)) {
-                BlockEntity be = serverLevel.getBlockEntity(partnerPos);
-                if (be instanceof ReactorBlockEntity) {
-                    boolean partnerClosed = serverLevel.getBlockState(partnerPos).getValue(ReactorBlock.CLOSED);
-                    if (!partnerClosed) return;
-                } else {
-                    // 配对方块不是反应堆，无法判定
-                    return;
-                }
-            } else {
-                // 配对方块所在区块未加载
-                return;
-            }
-        }
-        // 两个都关闭了（或没有配对，单反应堆场景），结束破坏任务
+        if (!isClosed()) return;
+        if (!isPartnerClosed(serverLevel)) return;
+        if (!ReactorRegistry.allClosed(serverLevel)) return;
         SceneEventManager.stopSabotage(serverLevel);
         for (var player : serverLevel.players()) {
             player.displayClientMessage(Component.translatable("message.noellesroles.reactor.all_closed"), false);
         }
+    }
+
+    private boolean isPartnerClosed(ServerLevel level) {
+        if (partnerPos == null) return true;
+        if (!level.isLoaded(partnerPos)) return false;
+        BlockState state = level.getBlockState(partnerPos);
+        return state.getBlock() instanceof ReactorBlock
+                && state.hasProperty(ReactorBlock.CLOSED)
+                && state.getValue(ReactorBlock.CLOSED);
     }
 }

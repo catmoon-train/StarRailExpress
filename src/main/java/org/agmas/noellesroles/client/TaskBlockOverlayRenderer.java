@@ -32,6 +32,9 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.agmas.noellesroles.content.block.scene.DebrisPileBlock;
+import org.agmas.noellesroles.content.block.scene.ReactorBlock;
+import org.agmas.noellesroles.content.block.scene.WaterValveBlock;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -338,6 +341,17 @@ public class TaskBlockOverlayRenderer {
         for (var set : NoellesrolesClient.taskBlocks.entrySet()) {
             var pos = set.getKey();
             int type = set.getValue();
+            BlockState block = renderContext.world().getBlockState(pos);
+            if (isActiveSabotageRepairBlock(block)) {
+                TaskInstinctShowableInterface it = (TaskInstinctShowableInterface) block.getBlock();
+                java.awt.Color c = it.taskInstinctRenderColor(block, pos, player);
+                float alpha = c.getAlpha() / 255f;
+                TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
+                        c, alpha,
+                        true, 0f,
+                        null);
+                continue;
+            }
             switch (type) { // 1: 食物 2: 水 3: 洗澡 4: 床 5: 跑步机 6: 讲台
                 case 1:
                     if (shouldDisplay[type])
@@ -451,7 +465,6 @@ public class TaskBlockOverlayRenderer {
                                 Component.translatable("hud.noellesroles.task_instinct.render.harvest_crop"));
                     break;
                 default:
-                    BlockState block = renderContext.world().getBlockState(pos);
                     if (block.getBlock() instanceof TaskInstinctShowableInterface it) {
                         // 小游戏任务点(14/15)：仅在玩家有待办小游戏任务、该点本局未被使用、
                         // 且该点的 minigameId 与玩家指派的目标类型匹配（或无指定目标）时才金色透视
@@ -497,6 +510,19 @@ public class TaskBlockOverlayRenderer {
         // 恢复渲染状态
         // 统一提交线框和文字的批次
         // Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
+    }
+
+    private static boolean isActiveSabotageRepairBlock(BlockState state) {
+        if (state.getBlock() instanceof ReactorBlock) {
+            return state.getValue(ReactorBlock.ACTIVE) && !state.getValue(ReactorBlock.CLOSED);
+        }
+        if (state.getBlock() instanceof WaterValveBlock) {
+            return state.getValue(WaterValveBlock.ACTIVE) && !state.getValue(WaterValveBlock.CLOSED);
+        }
+        if (state.getBlock() instanceof DebrisPileBlock) {
+            return state.getValue(DebrisPileBlock.ACTIVE) && !state.getValue(DebrisPileBlock.CLOSED);
+        }
+        return false;
     }
 
 }

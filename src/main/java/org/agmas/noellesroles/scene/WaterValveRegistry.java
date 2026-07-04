@@ -5,6 +5,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import io.wifi.starrailexpress.game.GameUtils;
+import org.agmas.noellesroles.content.block.scene.WaterValveBlock;
 import org.agmas.noellesroles.content.block_entity.scene.WaterValveBlockEntity;
 
 import java.util.*;
@@ -36,6 +38,9 @@ public final class WaterValveRegistry {
 
     /** 场上是否存在水阀且全部已关闭。 */
     public static boolean allClosed(ServerLevel level) {
+        if (GameUtils.taskBlocks != null && !GameUtils.taskBlocks.isEmpty()) {
+            return allScannedClosed(level);
+        }
         Set<BlockPos> set = VALVES.get(level.dimension());
         if (set == null || set.isEmpty()) {
             return false;
@@ -52,6 +57,21 @@ public final class WaterValveRegistry {
                 }
             } else {
                 it.remove();
+            }
+        }
+        return anyValid;
+    }
+
+    private static boolean allScannedClosed(ServerLevel level) {
+        boolean anyValid = false;
+        for (BlockPos pos : GameUtils.taskBlocks.keySet()) {
+            var state = level.getBlockState(pos);
+            if (state.getBlock() instanceof WaterValveBlock) {
+                anyValid = true;
+                if (!state.hasProperty(WaterValveBlock.CLOSED)
+                        || !state.getValue(WaterValveBlock.CLOSED)) {
+                    return false;
+                }
             }
         }
         return anyValid;
