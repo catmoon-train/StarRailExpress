@@ -8,11 +8,11 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
+import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -46,8 +46,6 @@ public class CustomRoleLoader {
 
     // 游戏结束时自动执行的指令：englishRoleId -> 指令列表
     private static final Map<String, List<String>> gameEndCommandsByRoleId = new HashMap<>();
-    // 跟踪每世界游戏状态，检测 ACTIVE → STOPPING 转换
-    private static final Map<ResourceLocation, Boolean> worldWasActive = new HashMap<>();
 
     /**
      * 重新加载所有自定义职业
@@ -431,26 +429,15 @@ public class CustomRoleLoader {
             return;
         gameEndHandlerRegistered = true;
 
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
-            for (ServerLevel level : server.getAllLevels()) {
-                var comp = SREGameWorldComponent.KEY.get(level);
-                var status = comp.getGameStatus();
-                var dim = level.dimension().location();
-                Boolean wasActive = worldWasActive.getOrDefault(dim, false);
-
-                // 检测 ACTIVE → STOPPING 转换
-                if (wasActive && status == SREGameWorldComponent.GameStatus.STOPPING) {
-                    executeGameEndCommands(level, comp);
-                }
-                worldWasActive.put(dim, status == SREGameWorldComponent.GameStatus.ACTIVE);
+        OnGameEnd.EVENT.register((level, comp) -> {
+            if (!gameEndCommandsByRoleId.isEmpty()) {
+                executeGameEndCommands(level, comp);
             }
         });
     }
 
     private static void executeGameEndCommands(ServerLevel level, SREGameWorldComponent comp) {
         for (ServerPlayer player : level.players()) {
-            if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player))
-                continue;
             var role = comp.getRole(player);
             if (role == null)
                 continue;
