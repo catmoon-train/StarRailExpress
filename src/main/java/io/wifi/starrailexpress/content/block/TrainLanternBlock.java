@@ -21,6 +21,6 @@ public class TrainLanternBlock extends LanternBlock implements LightBlockInterfa
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(new Property[] { HANGING, WATERLOGGED, LIT, ACTIVE });
+        builder.add(new Property[] { LIT, ACTIVE });
     }
 }
