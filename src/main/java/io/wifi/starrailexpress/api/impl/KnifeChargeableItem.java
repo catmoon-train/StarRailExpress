@@ -1,6 +1,9 @@
 package io.wifi.starrailexpress.api.impl;
 
+import java.awt.Color;
+
 import io.wifi.starrailexpress.api.ChargeableItem;
+import io.wifi.starrailexpress.client.StaminaRenderer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -31,7 +34,7 @@ public class KnifeChargeableItem implements ChargeableItem {
     @Override
     public void onFullyCharged(ItemStack stack, Player player) {
         // 触发屏幕边缘效果
-        // StaminaRenderer.triggerScreenEdgeEffect(Color.RED.getRGB(), 300L, 0.5f);
+        StaminaRenderer.triggerScreenEdgeEffect(Color.RED.getRGB(), 300L, 0.5f);
         // 默认会触发
     }
 }
