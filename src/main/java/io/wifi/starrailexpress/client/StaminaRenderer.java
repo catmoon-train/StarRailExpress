@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.client;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.client.render.hud.stamina.StaminaDefaultRenderer;
+import io.wifi.starrailexpress.client.render.hud.stamina.StaminaOldRenderer;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.StaminaProvider;
 import io.wifi.starrailexpress.util.ProgressProvider;
 import net.minecraft.client.gui.GuiGraphics;
@@ -32,18 +33,17 @@ public class StaminaRenderer {
 				}
 			}
 		}
+		float staminaPercent = 0;
+		float maxStamina = staminaProvider.getMaxStamina(player);
 
-		{
-			float maxStamina = 0;
-			float staminaPercent = 0;
-			maxStamina = staminaProvider.getMaxStamina(player);
-			if (maxStamina <= 0)
-				return;
+		if (maxStamina > 0 && maxStamina < Integer.MAX_VALUE) {
 			staminaPercent = staminaProvider.getStaminaPercentage(player);
 			stamina = ProgressProvider.of(staminaPercent);
 		}
 		switch (CLIENT_CONFIG.staminaStyle) {
 			case DEFAULT -> StaminaDefaultRenderer.render(player, mainHandStack, context, delta, stamina, itemCharge,
+					isChargingWeapon);
+			case OLD_STYLE -> StaminaOldRenderer.render(player, mainHandStack, context, delta, stamina, itemCharge,
 					isChargingWeapon);
 			case BAMBOO_STYLE ->
 				StaminaDefaultRenderer.render(player, mainHandStack, context, delta, stamina, itemCharge,

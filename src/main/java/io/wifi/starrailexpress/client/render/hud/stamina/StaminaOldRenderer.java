@@ -1,9 +1,9 @@
 package io.wifi.starrailexpress.client.render.hud.stamina;
 
-import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.util.ProgressProvider;
@@ -11,13 +11,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 
-public class StaminaDefaultRenderer {
+public class StaminaOldRenderer {
 
     private static final long SCREEN_RED_EFFECT_DURATION_MS = 300L; // 屏幕红色效果持续时间（毫秒）
     private static final float MAX_RED_INTENSITY = 0.5f; // 最大红色强度（0-1）
@@ -36,11 +35,6 @@ public class StaminaDefaultRenderer {
     public static StaminaBarRenderer view = new StaminaBarRenderer();
     public static float offsetDelta = 0f;
 
-    private static final ResourceLocation STAMINA_ICON = Noellesroles.id("stamina/stamina_icon");
-    private static final int BAR_WIDTH = 120;
-    private static final int ICON_SIZE = 9;
-    private static final int ICON_GAP = 4;
-
     private static final long FLASH_DURATION_MS = 250L; // 闪光持续时间（毫秒）
 
     // 添加屏幕边缘红色效果相关变量
@@ -52,7 +46,7 @@ public class StaminaDefaultRenderer {
     public static void render(LocalPlayer player, ItemStack mainHandStack, GuiGraphics context, float delta,
             ProgressProvider staminaProvider,
             ProgressProvider itemChargeProvider, boolean isChargingWeapon) {
-        float staminaPercent = -1;
+        float staminaPercent = 0;
         if (isChargingWeapon) {
             // 处理蓄力完成效果
             if (itemChargeProvider.getPercent() >= 1.0f && !knifeFullyCharged) { // 重用knifeFullyCharged变量作为通用蓄力完成标志
@@ -65,12 +59,9 @@ public class StaminaDefaultRenderer {
             }
             staminaPercent = itemChargeProvider.getPercent();
         } else {
-            if (staminaProvider != null) {
-                staminaPercent = staminaProvider.getPercent();
-            }
+            staminaPercent = staminaProvider.getPercent();
         }
-        if (staminaPercent < 0) // 无体力条时
-            return;
+
         // 使用与TimeRenderer类似的颜色逻辑
         if (Math.abs(view.getTarget() - staminaPercent) > 0.1f) {
             offsetDelta = staminaPercent > view.getTarget() ? .6f : -.6f;
@@ -122,14 +113,6 @@ public class StaminaDefaultRenderer {
         }
 
         context.pose().popPose();
-
-        // 绘制体力图标（仅在按住 Shift 时显示）
-        if (Minecraft.getInstance().options.keyShift.isDown()) {
-            int barCenterY = context.guiHeight() - 35;
-            int iconX = context.guiWidth() / 2 - BAR_WIDTH / 2 - ICON_SIZE - ICON_GAP;
-            int iconY = barCenterY - ICON_SIZE / 2;
-            context.blitSprite(STAMINA_ICON, iconX, iconY, ICON_SIZE, ICON_SIZE);
-        }
     }
 
     /**
