@@ -38,7 +38,7 @@ public class StaminaMCStyleRenderer {
             ProgressProvider staminaProvider,
             ProgressProvider itemChargeProvider, boolean isChargingWeapon) {
         float staminaPercent = -1;
-        float itemPercent = itemChargeProvider.getPercent();
+        float itemPercent = -1;
         if (isChargingWeapon) {
             // 处理蓄力完成效果
             if (itemChargeProvider.getPercent() >= 1.0f && !knifeFullyCharged) { // 重用knifeFullyCharged变量作为通用蓄力完成标志
