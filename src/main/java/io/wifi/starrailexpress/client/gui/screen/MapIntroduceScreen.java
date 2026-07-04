@@ -150,7 +150,7 @@ public class MapIntroduceScreen extends Screen {
             case SCENE_BLOCKS -> sceneBlockItems().forEach(item -> addItemEntry(q, item, tab));
             case QUEST_BLOCKS -> questBlockItems().forEach(item -> addItemEntry(q, item, tab));
             case MECHANICS -> {
-                for (String id : List.of("tasks", "status_bar", "sabotage", "conduit_core", "special_roles")) {
+                for (String id : List.of("tasks", "status_bar", "sabotage", "conduit_core", "game_currency", "train_target", "special_roles")) {
                     Component name = Component.translatable("map_intro.mechanic." + id + ".title");
                     if (matches(q, id, name.getString())) {
                         entries.add(Entry.text(id, name, tab));

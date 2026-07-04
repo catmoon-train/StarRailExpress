@@ -80,6 +80,8 @@ public class MapScanner {
                     if (blockState.is(ModBlocks.VENDING_MACHINES_BLOCK)
                             && blockState.getValue(VendingMachinesBlock.HALF).equals(DoubleBlockHalf.LOWER)) {
                         GameUtils.taskBlocks.put(blockPos6, 11);
+                    } else if (blockState.is(ModBlocks.LOTTERY_MACHINE_BLOCK)) {
+                        GameUtils.taskBlocks.put(blockPos6, 11);
                     } else if (blockState.is(ModBlocks.SUPPLY_CRATE_BLOCK)) {
                         GameUtils.taskBlocks.put(blockPos6, 12);
                     } else if (blockState.is(Blocks.NOTE_BLOCK)) {

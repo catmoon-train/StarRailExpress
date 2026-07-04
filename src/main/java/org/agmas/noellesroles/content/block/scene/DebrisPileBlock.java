@@ -82,6 +82,6 @@ public class DebrisPileBlock extends BaseEntityBlock implements TaskInstinctShow
 
     @Override
     public Color taskInstinctRenderColor(BlockState state, BlockPos pos, Player player) {
-        return new Color(0x7CFC00);
+        return new Color(139, 90, 43);
     }
 }

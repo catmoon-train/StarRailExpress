@@ -133,6 +133,8 @@
   "map_intro.mechanic.conduit_core.body": "水下地图通常会有潮涌核心机关，潮涌能量会为所有玩家提供水下夜视和水下呼吸的能力。杀手可去潮涌核心处主动通过机关关闭潮涌核心。",
   "map_intro.mechanic.game_currency.title": "游戏货币",
   "map_intro.mechanic.game_currency.body": "游戏中会有2种类型的货币\n金币：最常用且最常见的货币，可以购买职业商店/售货机中的物品，金币通常可通过完成任务/被动收入获得。\n游戏代币：完成小游戏任务时可以获得2个游戏代币，游戏代币可以购买售货机/抽奖机中的物品（小游戏任务仅在特定地图中启用）",
+  "map_intro.mechanic.train_target.title": "列车标靶 / 标靶",
+  "map_intro.mechanic.train_target.body": "列车标靶：被手枪/狙击枪击中时会触发红石机关。标靶：被弹射物击中时会触发红石机关",
   "map_intro.mechanic.special_roles.title": "特定地图刷新的职业",
   "map_intro.mechanic.special_roles.body": "以下职业仅会出现在特定地图\n布袋鬼地图：布袋鬼、诡客\n大地图：特警\n水下地图：海王、水鬼、潜水员\n天空地图：影隼、飞行员\n机关地图：冒险家"
 }
