@@ -1,5 +1,10 @@
 package io.wifi.starrailexpress.client.gui.screen.ingame;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.DynamicShopComponent;
@@ -30,10 +35,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> {
@@ -523,6 +524,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
+        renderOverlayMessageOnScreen(context, mouseX, mouseY, delta);
         boolean gameActive = isGameActive();
 
         // 游戏未开始时：隐藏整个快捷菜单（按钮和选项都不显示）
@@ -544,8 +547,6 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             participationButton.setMessage(participationButtonLabel());
         }
 
-        super.render(context, mouseX, mouseY, delta);
-
         if (shopTotalPages > 1) {
             Component pageText = Component.literal((shopCurrentPage + 1) + " / " + shopTotalPages);
             int textX = this.width / 2 - this.font.width(pageText) / 2;
@@ -557,6 +558,16 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
         this.drawMouseoverTooltip(context, mouseX, mouseY);
         StoreRenderer.renderHud(this.font, this.player, context, delta);
+    }
+
+    private void renderOverlayMessageOnScreen(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        var message = minecraft.gui.overlayMessageString;
+        int displaytime = minecraft.gui.overlayMessageTime;
+        int x = width;
+        int y = 2;
+        if (message != null && displaytime > 0) {
+            context.drawString(font, message, x - font.width(message) / 2, y, 0xffffffff);
+        }
     }
 
     /** 等待面板翻页箭头：无原版按钮底，仅绘制居中箭头，悬停高亮，与面板背景风格统一。 */

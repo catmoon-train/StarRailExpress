@@ -84,3 +84,6 @@ accessible method net/minecraft/client/gui/screens/PauseScreen createPauseMenu (
 accessible method net/minecraft/client/gui/screens/PauseScreen onDisconnect ()V
 accessible method net/minecraft/client/gui/screens/PauseScreen openScreenButton (Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
 accessible method net/minecraft/client/gui/screens/PauseScreen openLinkButton (Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/network/chat/Component;Ljava/net/URI;)Lnet/minecraft/client/gui/components/Button;
+
+accessible field net/minecraft/client/gui/Gui overlayMessageString Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/client/gui/Gui overlayMessageTime I
