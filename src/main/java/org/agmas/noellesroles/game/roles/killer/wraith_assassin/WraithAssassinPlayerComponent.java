@@ -202,7 +202,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
                     }
                     level.playSound(null, target.blockPosition(), SoundEvents.WARDEN_DEATH,
                             SoundSource.HOSTILE, 1.2f, 0.6f);
-                    GameUtils.killPlayer(target, true, self, DEATH_REASON);
+                    GameUtils.forceKillPlayer(target, true, self, DEATH_REASON);
                 }
                 it.remove();
             } else {
