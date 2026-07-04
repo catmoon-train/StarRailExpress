@@ -509,7 +509,7 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("pelican_release"), "skill.noellesroles.pelican.release", context -> {
                     PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(context.player());
                     return comp != null && comp.releaseLast();
-                }).announceToSelf(false).build());
+                }).shifted(true).announceToSelf(false).build());
 
         // 阿蒙技能：
         // - G 键：对准星玩家静默种下时之虫（附身期间也可为其他人种虫）
