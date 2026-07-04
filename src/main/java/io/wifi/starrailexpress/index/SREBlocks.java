@@ -74,7 +74,7 @@ public interface SREBlocks {
       new SimpleTrainLightBlock(
           Block.Properties.of().mapColor(MapColor.COLOR_RED).strength(1.0F).sound(SoundType.SHROOMLIGHT)
               .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex))));
-  Block JACK_O_LANTERN = registerBlock("jack_o_lantern",
+  Block JACK_O_LANTERN = registerBlock("train_jack_o_lantern",
       new TrainCarvedPumpkinBlock(Block.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(1.0F)
           .sound(SoundType.WOOD).lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex))
           .pushReaction(PushReaction.DESTROY)));
