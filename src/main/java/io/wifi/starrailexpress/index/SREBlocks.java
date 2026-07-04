@@ -4,7 +4,6 @@ import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.*;
 import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +13,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.TorchBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -44,19 +42,19 @@ public interface SREBlocks {
 
     // 列车火把
     Block TRAIN_TORCH = onlyRegisterBlock(SRE.id("train_torch"),
-            new TrainTorchBlock(ParticleTypes.FLAME,
-                    Block.Properties.of().noCollission().instabreak()
+            new TrainTorchBlock(
+                    Block.Properties.of().noOcclusion().noCollission().instabreak()
                             .sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY)));
 
     Block WALL_TRAIN_TORCH = onlyRegisterBlock(SRE.id("wall_train_torch"),
-            new TrainTorchBlock(ParticleTypes.FLAME,
-                    Block.Properties.of().noCollission().instabreak()
-                            .sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY)));
+            new WallTrainTorchBlock(Block.Properties.of().noOcclusion().noCollission().instabreak()
+                    .sound(SoundType.WOOD).dropsLike(TRAIN_TORCH).pushReaction(PushReaction.DESTROY)));
     // 列车火把拉杆
-    // Block TRAIN_TORCH_LEVER = registerBlock("train_torch_lever", new RemoteRedstoneBlock(
-    //         (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
-    //                 .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion())),
-    //         new Item.Properties().rarity(Rarity.COMMON));
+    // Block TRAIN_TORCH_LEVER = registerBlock("train_torch_lever", new
+    // RemoteRedstoneBlock(
+    // (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
+    // .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion())),
+    // new Item.Properties().rarity(Rarity.COMMON));
 
     // 卷帘门
     Block UP_GLASS_DOOR = registerBlock("up_glass_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_GLASS_DOOR,

@@ -6,12 +6,14 @@ import io.wifi.starrailexpress.client.render.block_entity.PlaneSmallDoorBlockEnt
 import io.wifi.starrailexpress.client.render.block_entity.SmallDoorBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.UpSmallDoorBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.WheelBlockEntityRenderer;
+import io.wifi.starrailexpress.index.SREBlocks;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-
+import net.minecraft.client.renderer.RenderType;
 public interface TMMModelLayers {
     ModelLayerLocation SMALL_DOOR = layer("small_door");
     ModelLayerLocation PLANE_SMALL_DOOR = layer("plane_small_door");
@@ -22,12 +24,17 @@ public interface TMMModelLayers {
     ModelLayerLocation PLAYER_SKELETON = layer("player_skeleton");
 
     static void initialize() {
-
+        BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_TORCH, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.WALL_TRAIN_TORCH, RenderType.cutout());
         EntityModelLayerRegistry.registerModelLayer(SMALL_DOOR, SmallDoorBlockEntityRenderer::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(UP_SMALL_DOOR, UpSmallDoorBlockEntityRenderer::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(PLANE_SMALL_DOOR, PlaneSmallDoorBlockEntityRenderer::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(PLAYER_BODY, () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64));
-        EntityModelLayerRegistry.registerModelLayer(PLAYER_BODY_SLIM, () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64));
+        EntityModelLayerRegistry.registerModelLayer(UP_SMALL_DOOR,
+                UpSmallDoorBlockEntityRenderer::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(PLANE_SMALL_DOOR,
+                PlaneSmallDoorBlockEntityRenderer::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(PLAYER_BODY,
+                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64));
+        EntityModelLayerRegistry.registerModelLayer(PLAYER_BODY_SLIM,
+                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64));
         EntityModelLayerRegistry.registerModelLayer(WHEEL, WheelBlockEntityRenderer::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(PLAYER_SKELETON, PlayerSkeletonEntityModel::getTexturedModelData);
     }

@@ -5,12 +5,10 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -30,11 +28,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class WallTrainTorchBlock extends TrainTorchBlock {
-    public SimpleParticleType flameParticle;
-    public static final MapCodec<WallTrainTorchBlock> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
-            .group(PARTICLE_OPTIONS_FIELD.forGetter((wallTorchBlock) -> wallTorchBlock.flameParticle),
-                    propertiesCodec())
-            .apply(instance, WallTrainTorchBlock::new));
+    public static final MapCodec<WallTrainTorchBlock> CODEC = simpleCodec(WallTrainTorchBlock::new);
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     protected static final float AABB_OFFSET = 2.5F;
@@ -51,10 +45,9 @@ public class WallTrainTorchBlock extends TrainTorchBlock {
         return CODEC;
     }
 
-    public WallTrainTorchBlock(SimpleParticleType simpleParticleType, Properties properties) {
-        super(simpleParticleType, properties);
+    public WallTrainTorchBlock(Properties properties) {
+        super( properties);
         properties.lightLevel(WallTrainTorchBlock::lightBlockSupplier);
-        this.flameParticle = simpleParticleType;
         this.registerDefaultState(
                 this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, true).setValue(ACTIVE,
                         true));
@@ -73,15 +66,6 @@ public class WallTrainTorchBlock extends TrainTorchBlock {
 
     public static VoxelShape getShape(BlockState blockState) {
         return (VoxelShape) AABBS.get(blockState.getValue(FACING));
-    }
-
-    @Override
-    protected boolean canSurvive(BlockState blockState, LevelReader levelReader, BlockPos blockPos) {
-        return true;
-    }
-
-    public static boolean canSurvive(LevelReader levelReader, BlockPos blockPos, Direction direction) {
-        return true;
     }
 
     @Override
@@ -114,6 +98,8 @@ public class WallTrainTorchBlock extends TrainTorchBlock {
 
     @Override
     public void animateTick(BlockState blockState, Level level, BlockPos blockPos, RandomSource randomSource) {
+        if (!isEnabled(blockState))
+            return;
         Direction direction = (Direction) blockState.getValue(FACING);
         double d = (double) blockPos.getX() + (double) 0.5F;
         double e = (double) blockPos.getY() + 0.7;
@@ -121,7 +107,7 @@ public class WallTrainTorchBlock extends TrainTorchBlock {
         Direction direction2 = direction.getOpposite();
         level.addParticle(ParticleTypes.SMOKE, d + 0.27 * (double) direction2.getStepX(), e + 0.22,
                 f + 0.27 * (double) direction2.getStepZ(), (double) 0.0F, (double) 0.0F, (double) 0.0F);
-        level.addParticle(this.flameParticle, d + 0.27 * (double) direction2.getStepX(), e + 0.22,
+        level.addParticle(flameParticle, d + 0.27 * (double) direction2.getStepX(), e + 0.22,
                 f + 0.27 * (double) direction2.getStepZ(), (double) 0.0F, (double) 0.0F, (double) 0.0F);
     }
 

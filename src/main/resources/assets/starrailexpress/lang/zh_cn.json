@@ -165,6 +165,8 @@
     "announcement.star.win.unknown": "未知获胜！",
     "announcement.star.win.vigilante": "乘客获胜！",
     "announcement.star.win.vigilantes": "乘客获胜！",
+    "block.starrailexpress.train_torch_lever": "列车火把拉杆",
+    "block.starrailexpress.train_torch": "列车火把",
     "block.starrailexpress.effect_generator": "药水效果发生器",
     "block.starrailexpress.entity_interaction_block": "实体交互方块",
     "block.starrailexpress.entity_interaction_panel": "实体交互镶板",

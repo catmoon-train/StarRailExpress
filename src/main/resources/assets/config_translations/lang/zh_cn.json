@@ -22,7 +22,7 @@
   "text.autoconfig.starrailexpress-client.option.staminaStyle": "状态条样式",
   "text.autoconfig.starrailexpress-client.option.staminaStyle.DEFAULT": "默认样式",
   "text.autoconfig.starrailexpress-client.option.staminaStyle.MINECRAFT_STYLE": "Minecraft 样式",
-  "text.autoconfig.starrailexpress-client.option.staminaStyle.BAMBOO_STYLE": "Minecraft 样式",
+  "text.autoconfig.starrailexpress-client.option.staminaStyle.BAMBOO_STYLE": "样式2",
   "text.autoconfig.starrailexpress-client.option.moodLeftOffset": "心情&任务渲染X坐标偏移",
   "text.autoconfig.starrailexpress-client.option.moodTopOffset": "心情&任务渲染Y坐标偏移",
   "text.autoconfig.starrailexpress-client.category.default": "通用",
