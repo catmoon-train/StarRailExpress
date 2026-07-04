@@ -165,8 +165,11 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         if (possessTarget != null && player instanceof ServerPlayer amon) {
             clearPossessionEffects(amon);
         }
-        // 若终幕进行中被重置，关闭全服表现（音乐/滤镜/状态栏）。
+        // 若终幕进行中被重置，关闭全服表现（音乐/滤镜/状态栏）并还原体型。
         if (finalePhase && player instanceof ServerPlayer amon && amon.level() instanceof ServerLevel level) {
+            if (amon.getAttribute(Attributes.SCALE) != null) {
+                amon.getAttribute(Attributes.SCALE).setBaseValue(1.0D);
+            }
             broadcastFinale(level, false);
         }
         seeds.clear();
@@ -370,10 +373,12 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         possessTicks++;
         refreshPossessionEffects(amon);
         // 阿蒙掌控目标移动：阿蒙隐身自由移动，目标被锁定移动/视角并每 tick 牵引到阿蒙位置；
-        // 二者均无碰撞箱，避免互相拥挤。
+        // 二者均无碰撞箱，避免互相拥挤。目标被致盲失明，无法看见阿蒙。
         target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 10, 0, false, false, false));
         target.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, 10, 0, false, false, false));
         target.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 10, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 10, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 10, 0, false, false, false));
         target.teleportTo(level, amon.getX(), amon.getY(), amon.getZ(), amon.getYRot(), amon.getXRot());
     }
 
@@ -464,7 +469,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             return;
         }
         prePossessionScale = amon.getAttribute(Attributes.SCALE).getBaseValue();
-        amon.getAttribute(Attributes.SCALE).setBaseValue(prePossessionScale * 0.1D);
+        amon.getAttribute(Attributes.SCALE).setBaseValue(prePossessionScale * 0.35D);
     }
 
     private void restorePossessionScale(ServerPlayer amon) {
@@ -648,6 +653,16 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         finalePhase = true;
         finaleTicks = FINALE_TICKS;
         reserveLives = maturedHosts.size();
+        // 若有附身残留状态（缩形等），先清理
+        if (possessTarget != null) {
+            clearPossessionEffects(amon);
+            possessTarget = null;
+            possessTicks = 0;
+            homePos = null;
+        }
+        // 终幕形态：8 倍体型
+        amon.getAttribute(Attributes.SCALE).setBaseValue(1.0D);
+        prePossessionScale = Double.NaN;
         // 寄宿体回归阿蒙：清空潜伏/成熟状态。
         maturedHosts.clear();
         seeds.clear();
@@ -728,6 +743,9 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         finalePhase = false;
         finaleTicks = 0;
         if (player instanceof ServerPlayer amon && amon.level() instanceof ServerLevel level) {
+            if (amon.getAttribute(Attributes.SCALE) != null) {
+                amon.getAttribute(Attributes.SCALE).setBaseValue(1.0D);
+            }
             broadcastFinale(level, false);
         }
         sync();
