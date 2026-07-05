@@ -867,6 +867,11 @@ public class InstinctRenderer {
                 if (SREClient.gameComponent.isRole(self, ModRoles.WIND_YAOSE)) {
                     return ModRoles.WIND_YAOSE.getColor();
                 }
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.SALTED_FISH)) {
+                    if (target_player.isInvisible()) {
+                        return -2;
+                    }
+                }
 
                 if (SREClient.gameComponent.isRole(self, RedHouseRoles.FURANDORU)) {
                     if (target_role != null) {

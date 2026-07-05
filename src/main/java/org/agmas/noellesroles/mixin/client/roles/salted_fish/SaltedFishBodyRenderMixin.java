@@ -35,7 +35,10 @@ public abstract class SaltedFishBodyRenderMixin {
 
         poseStack.mulPose(Axis.YP.rotationDegrees(90.0f - bodyYaw));
         poseStack.translate(1.0f, 0.2f + component.getRenderBounce(tickDelta), 0.0f);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(component.getRenderRoll(tickDelta)));
+        // Z=90: 平躺（与默认尸体渲染一致）
+        poseStack.mulPose(Axis.ZP.rotationDegrees(90.0f));
+        // X 轴翻转：0° = 脸朝上，180° = 脸朝下
+        poseStack.mulPose(Axis.XP.rotationDegrees(component.getRenderRoll(tickDelta)));
         poseStack.mulPose(Axis.YP.rotationDegrees(90.0f));
         ci.cancel();
     }

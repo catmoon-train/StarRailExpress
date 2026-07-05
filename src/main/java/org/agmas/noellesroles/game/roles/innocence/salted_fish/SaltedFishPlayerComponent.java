@@ -283,16 +283,17 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     public float getRenderRoll(float partialTick) {
+        if (flipTicks <= 0) {
+            return sideToRoll(side);
+        }
         float from = sideToRoll(previousSide);
         float to = sideToRoll(side);
-        if (flipTicks <= 0) {
-            return to;
-        }
+        // 翻面动画始终朝同一方向旋转，避免来回摆
         if (previousSide == 0 && side == 1) {
-            to += 360.0f;
+            to = 180.0f;
         } else if (previousSide == 1 && side == 0) {
-            from += 360.0f;
-            to += 360.0f;
+            from = 180.0f;
+            to = 360.0f;
         }
         float progress = Mth.clamp((FLIP_TICKS - flipTicks + partialTick) / (float) FLIP_TICKS, 0.0f, 1.0f);
         return Mth.lerp(progress, from, to);
@@ -307,6 +308,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     private static float sideToRoll(int side) {
+        // 0 = 脸朝上（X 轴旋转 0°），1 = 脸朝下（X 轴旋转 180°）
         return side == 0 ? 0.0f : 180.0f;
     }
 

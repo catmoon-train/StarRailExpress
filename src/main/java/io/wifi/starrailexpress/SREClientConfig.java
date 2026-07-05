@@ -58,6 +58,8 @@ public class SREClientConfig implements ConfigData {
     public boolean disableStaminaBarSmoothing = false;
 
     public boolean enableSecurityCameraHUD = true; // 启用安全摄像头HUD显示
+    public boolean showItemCooldownOverlay = false; // 物品栏物品上显示冷却数字
+    public boolean showHotbarCooldown = true; // 快捷栏上方显示冷却时间
     public boolean welcome_voice = false;
 
     public boolean autoSortVotes = false;

@@ -280,6 +280,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
         Vec3 startPos = ropePoint(pos, targetPos, 0.0f);
         rider.setPos(startPos);
         level.addFreshEntity(rider);
+        player.startRiding(rider, true);
 
         return InteractionResult.SUCCESS;
     }

@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.client.render.hud.stamina.StaminaDefaultRenderer;
 import io.wifi.starrailexpress.client.render.hud.stamina.StaminaMCStyleRenderer;
 import io.wifi.starrailexpress.client.render.hud.stamina.StaminaOldRenderer;
 import io.wifi.starrailexpress.client.render.hud.stamina.StaminaSplitStyleRenderer;
+import io.wifi.starrailexpress.client.render.hud.stamina.utils.HotbarCooldownRenderer;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.RedScreenRenderer;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.StaminaProvider;
 import io.wifi.starrailexpress.util.ProgressProvider;
@@ -61,6 +62,11 @@ public class StaminaRenderer {
 
 		// 渲染屏幕边缘红色效果
 		RedScreenRenderer.renderScreenRedEffect(context, delta);
+
+		// 快捷栏上方冷却显示（默认开启）
+		if (CLIENT_CONFIG.showHotbarCooldown) {
+			HotbarCooldownRenderer.render(context, delta);
+		}
 	}
 
 	public static void tick() {
