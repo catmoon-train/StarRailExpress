@@ -51,7 +51,12 @@ public class MouseHandlerMixin {
             if (client == null || client.player == null) {
                 return;
             }
-            
+
+            // 如果当前有打开的 GUI（如背包商店），不要拦截鼠标事件
+            if (client.screen != null) {
+                return;
+            }
+
             LocalPlayer player = client.player;
             ItemStack mainHandStack = player.getMainHandItem();
             
