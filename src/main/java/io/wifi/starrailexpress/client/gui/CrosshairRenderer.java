@@ -43,12 +43,15 @@ public class CrosshairRenderer {
         if (!client.options.getCameraType().isFirstPerson())
             return;
         RenderSystem.enableBlend();
-        
+
         context.pose().pushPose();
         {
             RenderSystem.blendFuncSeparate(SourceFactor.ONE_MINUS_DST_COLOR, DestFactor.ONE_MINUS_SRC_COLOR,
                     SourceFactor.ONE, DestFactor.ZERO);
+            context.pose().pushPose();
+            context.pose().translate(context.guiWidth() / 2f - 1.5f, context.guiHeight() / 2f - 1.5f, 0);
             context.blitSprite(CROSSHAIR, 0, 0, 3, 3);
+            context.pose().popPose();
             {
                 float f = client.player.getAttackStrengthScale(0.0F);
                 boolean bl = false;

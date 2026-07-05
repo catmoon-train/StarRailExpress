@@ -19,7 +19,6 @@ public class StaminaMCStyleRenderer {
 
     private static float chargeDisplayValue = 0f; // 蓄力状态条平滑显示值（逐帧过渡用）
     public static ChargeBarRenderer view = new ChargeBarRenderer();
-    public static float offsetDelta = 0f;
 
     private static final long FLASH_DURATION_MS = 250L; // 闪光持续时间（毫秒）
 
@@ -48,13 +47,6 @@ public class StaminaMCStyleRenderer {
                 staminaPercent = staminaProvider.getPercent();
             }
         }
-        // 使用与TimeRenderer类似的颜色逻辑
-        if (Math.abs(view.getTarget() - staminaPercent) > 0.1f) {
-            offsetDelta = staminaPercent > view.getTarget() ? .6f : -.6f;
-        }
-        offsetDelta = Mth.lerp(delta / 16, offsetDelta, 0f);
-
-        view.setTarget(staminaPercent);
 
         if (staminaPercent >= 0) {
             // 渲染体力条 - 移动到物品栏上方
@@ -234,21 +226,6 @@ public class StaminaMCStyleRenderer {
     }
 
     public static class ChargeBarRenderer {
-        private float target;
-        private float currentValue;
-        public float lastValue;
-
-        public void setTarget(float target) {
-            this.target = Mth.clamp(target, 0f, 1f);
-        }
-
-        public void update() {
-            this.lastValue = this.currentValue;
-            this.currentValue = Mth.lerp(0.15f, this.currentValue, this.target);
-            if (Math.abs(this.currentValue - this.target) < 0.01f) {
-                this.currentValue = this.target;
-            }
-        }
 
         public void renderItemCharge(@NotNull GuiGraphics context, int colour, float value) {
             // 体力条参数 - 更现代、更扁平的设计
@@ -297,14 +274,9 @@ public class StaminaMCStyleRenderer {
             // 4. 右边框
             context.fill(right - width, top + width, right, bottom - width, backgroundColor);
         }
-
-        public float getTarget() {
-            return this.target;
-        }
     }
 
     public static void tick() {
-        view.update();
         // 如果不在使用蓄力物品，重置蓄力状态
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player != null) {
