@@ -157,6 +157,7 @@ public class CantRightClickBlocks {
         if (CANNOT_INTERACT_IDS.contains(blockId.toString())) {
             return true;
         }
-        return "charta".equals(blockId.getNamespace()) && blockId.getPath().endsWith("_card_table");
+        return "charta".equals(blockId.getNamespace())
+                && (blockId.getPath().endsWith("_card_table") || blockId.getPath().endsWith("_bar_shelf"));
     }
 }
