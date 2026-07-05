@@ -52,6 +52,7 @@
   "item.noellesroles.short_shotgun.tooltip2": "击杀射程达到3格后会击退射程范围外2格扇形范围内的玩家，使用后损坏",
   "item.noellesroles.monitoring_terminal": "远程监控终端",
   "item.noellesroles.dealer_package": "荷官包裹",
+  "item.noellesroles.dealer_package.hotbar_full": "§c快捷栏已满，无法打开荷官包裹",
   "item.noellesroles.monitoring_terminal.tooltip": "右键安全监控器进行绑定，再次右键可取消绑定，对空气右键可远程查看绑定的监控器",
   "message.item.noellesroles.monitoring_terminal.please_bind": "请先右键一个安全监控器进行绑定",
   "message.item.noellesroles.monitoring_terminal.bind_successfully": "已绑定远程监控器：%s",

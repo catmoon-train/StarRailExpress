@@ -35,6 +35,7 @@
   "item.noellesroles.short_shotgun.tooltip2": "At 3+ lethal range, players within 2 blocks beyond the current lethal cone take 1 damage and are knocked back. Breaks after use",
   "item.noellesroles.monitoring_terminal": "Remote Monitoring Terminal",
   "item.noellesroles.dealer_package": "Dealer Package",
+  "item.noellesroles.dealer_package.hotbar_full": "§cHotbar is full, cannot open Dealer Package",
   "item.noellesroles.monitoring_terminal.tooltip": "Right-click security monitor to bind, right-click again to unbind, right-click air to remote view bound monitor",
   "message.item.noellesroles.monitoring_terminal.please_bind": "Please right-click a security monitor to bind first",
   "message.item.noellesroles.monitoring_terminal.bind_successfully": "Bound remote monitor: %s",

@@ -1,10 +1,12 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,13 +41,27 @@ public class DealerPackageItem extends Item {
             return InteractionResultHolder.fail(packageStack);
         }
 
+        // 检查快捷栏是否有空位
+        Inventory inventory = player.getInventory();
+        int hotbarSlot = -1;
+        for (int i = 0; i < 9; i++) {
+            if (inventory.getItem(i).isEmpty()) {
+                hotbarSlot = i;
+                break;
+            }
+        }
+
+        if (hotbarSlot == -1) {
+            // 快捷栏已满，不允许打开
+            player.displayClientMessage(Component.translatable("item.noellesroles.dealer_package.hotbar_full"), true);
+            return InteractionResultHolder.fail(packageStack);
+        }
+
         if (!player.getAbilities().instabuild) {
             packageStack.shrink(1);
         }
 
-        if (!player.addItem(reward)) {
-            player.drop(reward, false);
-        }
+        inventory.setItem(hotbarSlot, reward);
 
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BUNDLE_INSERT,
                 SoundSource.PLAYERS, 0.8F, 0.9F + level.random.nextFloat() * 0.2F);
