@@ -69,7 +69,7 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
         float kNorm = k / horizLen;
         float mNorm = m / horizLen;
         Vec3 playerPos = player.position();
-        AABB nearbyBox = new AABB(playerPos, playerPos).inflate(2.0, 1.5, 2.0);
+        AABB nearbyBox = new AABB(playerPos, playerPos).inflate(3.0, 1.5, 3.0);
 
         Vec3 dashFront = playerPos.add(kNorm * 2.5, 0, mNorm * 2.5);
         AABB collisionBox = new AABB(dashFront, dashFront).inflate(0.8, 1.0, 0.8);
@@ -84,7 +84,7 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
                     .subtract(playerPos)
                     .multiply(1, 0, 1)
                     .normalize()
-                    .scale(1.5);
+                    .scale(0.5);
             target.push(knockback.x, 0, knockback.z);
 
             // 被击退实体产生冲击波粒子
