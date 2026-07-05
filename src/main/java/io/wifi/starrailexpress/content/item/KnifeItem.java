@@ -51,9 +51,8 @@ public class KnifeItem extends SkinableItem {
             if (itemStack.getMaxDamage() > 0 && itemStack.getDamageValue() >= itemStack.getMaxDamage()) {
                 return InteractionResultHolder.fail(itemStack);
             }
-            user.playSound(TMMSounds.ITEM_KNIFE_PREPARE, 1.0f, 1.0f);
         }
-
+        user.playSound(TMMSounds.ITEM_KNIFE_PREPARE, 1.0f, 1.0f);
         user.startUsingItem(hand);
         return InteractionResultHolder.consume(itemStack);
     }
