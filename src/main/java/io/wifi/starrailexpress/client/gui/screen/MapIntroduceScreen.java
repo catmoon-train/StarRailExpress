@@ -3,6 +3,8 @@ package io.wifi.starrailexpress.client.gui.screen;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.index.SREBlocks;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.network.MapIntroSyncPayload;
@@ -229,6 +231,7 @@ public class MapIntroduceScreen extends Screen {
         JsonObject json = map.json;
         addLine("map_intro.property.room_count", intValue(json, "roomCount", 1), wrapW);
         addTaskSet(json, "disabledTasks", "map_intro.property.disabled_tasks", false, wrapW);
+        addRoleSet(json, "disabledRoles", "map_intro.property.disabled_roles", wrapW);
         addTaskSet(json, "enableSceneTask", "map_intro.property.scene_tasks", true, wrapW);
         if (boolValue(json, "minigameQuestEnabled", false))
             addLine("map_intro.property.minigame_quest", wrapW);
@@ -322,6 +325,34 @@ public class MapIntroduceScreen extends Screen {
         if ("raed_book".equals(normalized))
             normalized = "read_book";
         return Component.translatableWithFallback("task." + normalized, id).getString();
+    }
+
+    private void addRoleSet(JsonObject json, String key, String labelKey, int wrapW) {
+        if (!json.has(key) || !json.get(key).isJsonArray() || json.getAsJsonArray(key).isEmpty())
+            return;
+        List<String> names = new ArrayList<>();
+        for (JsonElement element : json.getAsJsonArray(key)) {
+            names.add(roleName(element.getAsString()));
+        }
+        addLine(labelKey, String.join(", ", names), wrapW);
+    }
+
+    private String roleName(String id) {
+        SRERole role = null;
+        ResourceLocation location = ResourceLocation.tryParse(id);
+        if (location != null) {
+            role = TMMRoles.getRole(location);
+        }
+        if (role == null) {
+            String path = id.contains(":") ? id.substring(id.indexOf(':') + 1) : id;
+            for (SRERole candidate : TMMRoles.ROLES.values()) {
+                if (candidate.identifier().getPath().equals(path)) {
+                    role = candidate;
+                    break;
+                }
+            }
+        }
+        return role == null ? id : role.getName().getString();
     }
 
     private void addEffects(JsonObject json, int wrapW) {

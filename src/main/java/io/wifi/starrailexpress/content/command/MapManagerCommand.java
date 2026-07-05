@@ -130,6 +130,7 @@ public class MapManagerCommand {
                   areas.enableOxygenDrowning = false;
                   areas.mapStatusBar = MapStatusBarType.NONE;
                   areas.disabledTasks = new HashSet<>();
+                  areas.disabledRoles = new HashSet<>();
                   areas.enableSceneTask = new HashSet<>();
                   areas.haveOutsideSound = false;
                   areas.sceneOutsideSound = "train";
@@ -191,6 +192,7 @@ public class MapManagerCommand {
                 .then(setMustCopy())
                 .then(setMapName())
                 .then(setDisabledTasks())
+                .then(setDisabledRoles())
                 .then(setEnableSceneTask())
                 .then(setWeather())
                 .then(setGravity())
@@ -239,6 +241,7 @@ public class MapManagerCommand {
                 .then(buildGetSimple("minigameQuestEnabled", a -> String.valueOf(a.minigameQuestEnabled)))
                 .then(buildGetSimple("initialItems", a -> a.initialItems.isEmpty() ? "(none)" : String.join(", ", a.initialItems)))
                 .then(getDisabledTasks())
+                .then(getDisabledRoles())
                 .then(getEnableSceneTask()))
             .then(Commands.literal("remove")
                 .requires(source -> source.hasPermission(3))
@@ -568,6 +571,25 @@ public class MapManagerCommand {
     }
   }
 
+  private static void addDisabledRole(CommandSourceStack source, String roleId) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    if (areas.disabledRoles == null)
+      areas.disabledRoles = new HashSet<>();
+    areas.disabledRoles.add(roleId);
+    areas.sync();
+    sendSetFeedback(source, "disabledRoles.add", roleId);
+  }
+
+  private static void removeDisabledRole(CommandSourceStack source, String roleId) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    if (areas.disabledRoles != null && areas.disabledRoles.remove(roleId)) {
+      areas.sync();
+      sendSetFeedback(source, "disabledRoles.remove", roleId);
+    } else {
+      source.sendFailure(Component.literal("职业 " + roleId + " 不在禁用列表中"));
+    }
+  }
+
   // 10. weather
   private static void setWeather(CommandSourceStack source, String value) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
@@ -691,6 +713,7 @@ public class MapManagerCommand {
     sb.append("minigameQuestEnabled: ").append(areas.minigameQuestEnabled).append("\n");
     sb.append("initialItems: ").append(areas.initialItems.isEmpty() ? "(none)" : String.join(", ", areas.initialItems)).append("\n");
     sb.append("disabledTasks: ").append(formatDisabledTasks(areas.disabledTasks)).append("\n");
+    sb.append("disabledRoles: ").append(formatDisabledTasks(areas.disabledRoles)).append("\n");
     sb.append("enableSceneTask: ").append(formatDisabledTasks(areas.enableSceneTask));
     source.sendSuccess(
         () -> Component.literal(sb.toString()).withStyle(style -> style.withColor(ChatFormatting.AQUA)),
@@ -1264,6 +1287,22 @@ public class MapManagerCommand {
                 })));
   }
 
+  private static LiteralArgumentBuilder<CommandSourceStack> setDisabledRoles() {
+    return Commands.literal("disabledRoles")
+        .then(Commands.literal("add")
+            .then(Commands.argument("roleId", StringArgumentType.string())
+                .executes(ctx -> {
+                  addDisabledRole(ctx.getSource(), StringArgumentType.getString(ctx, "roleId"));
+                  return 1;
+                })))
+        .then(Commands.literal("remove")
+            .then(Commands.argument("roleId", StringArgumentType.string())
+                .executes(ctx -> {
+                  removeDisabledRole(ctx.getSource(), StringArgumentType.getString(ctx, "roleId"));
+                  return 1;
+                })));
+  }
+
   // enableSceneTask
   private static void addEnableSceneTask(CommandSourceStack source, String taskId) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
@@ -1404,6 +1443,23 @@ public class MapManagerCommand {
               AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
               boolean has = a.disabledTasks != null && a.disabledTasks.contains(taskId);
               sendGetFeedback(ctx.getSource(), "disabledTasks.contains(" + taskId + ")", String.valueOf(has));
+              return 1;
+            }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> getDisabledRoles() {
+    return Commands.literal("disabledRoles")
+        .executes(ctx -> {
+          AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
+          sendGetFeedback(ctx.getSource(), "disabledRoles", formatDisabledTasks(a.disabledRoles));
+          return 1;
+        })
+        .then(Commands.argument("roleId", StringArgumentType.string())
+            .executes(ctx -> {
+              String roleId = StringArgumentType.getString(ctx, "roleId");
+              AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
+              boolean has = a.disabledRoles != null && a.disabledRoles.contains(roleId);
+              sendGetFeedback(ctx.getSource(), "disabledRoles.contains(" + roleId + ")", String.valueOf(has));
               return 1;
             }));
   }

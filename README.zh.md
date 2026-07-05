@@ -214,6 +214,7 @@
     }
   },
   "disabledTasks": ["BREATHE"], // 禁用的任务
+  "disabledRoles": ["noellesroles:pilot"], // 禁用的职业（可写完整ID或职业path）
   "canSwim": true, // 是否允许玩家进入超过2格的水，设置为false将导致玩家进入2格水时死亡。
   "canJump": true, // 是否允许玩家跳跃
   "haveOutsideSound": true, // 是否有室外室内音效

@@ -120,6 +120,7 @@
   },
 
   "disabledTasks": [],
+  "disabledRoles": [],
   "enableSceneTask": [],
 
   "gameModes": []

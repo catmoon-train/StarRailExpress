@@ -952,8 +952,7 @@ public class InstinctRenderer {
                         int viewerSan = Math.round(
                                 SREPlayerMoodComponent.KEY.get(self).getMood() * 100.0f);
                         if (viewerSan < 40
-                                && targetPlayer.hasEffect(ModEffects.WRAITH_DIMENSION)
-                                && !targetPlayer.hasEffect(ModEffects.WRAITH_MANIFEST)) {
+) {
                             return 0xAA66FF;
                         }
                     }

@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.game.modes.funny;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -33,6 +34,7 @@ import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -118,8 +120,13 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
         vigilanteCount = Math.max(0, vigilanteCount);
         neutralsCount = Math.max(0, neutralsCount);
 
-        List<RoleInstance> expandedRoles = super.getAllRoles(killerCount, vigilanteCount, neutralsCount, players.size(),
-                0);
+        final int finalKillerCount = killerCount;
+        final int finalVigilanteCount = vigilanteCount;
+        final int finalNeutralsCount = neutralsCount;
+        final int finalPlayerSize = players.size();
+        List<RoleInstance> expandedRoles = RoleAssignmentPool.withMapDisabledRoles(
+                AreasWorldComponent.KEY.get(serverWorld).getDisabledRoles(),
+                () -> super.getAllRoles(finalKillerCount, finalVigilanteCount, finalNeutralsCount, finalPlayerSize, 0));
         HashMap<Integer, Integer> roleTypesCount = new HashMap<>();
 
         var crgmwc = CustomRoleGameModeWorldComponent.KEY.get(serverWorld);

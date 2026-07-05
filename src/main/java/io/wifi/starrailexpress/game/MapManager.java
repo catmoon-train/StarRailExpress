@@ -241,6 +241,7 @@ public class MapManager {
                 ? io.wifi.starrailexpress.game.data.MapStatusBarType.NONE
                 : areas.mapStatusBar).name());
         jsonObject.add("disabledTasks", gson.toJsonTree(areas.disabledTasks));
+        jsonObject.add("disabledRoles", gson.toJsonTree(areas.disabledRoles));
         jsonObject.add("enableSceneTask", gson.toJsonTree(areas.enableSceneTask));
         jsonObject.addProperty("haveOutsideSound", areas.haveOutsideSound);
         jsonObject.addProperty("sceneOutsideSound", areas.sceneOutsideSound);
@@ -707,6 +708,14 @@ public class MapManager {
                 var jsonArr = jsonObject.get("disabledTasks").getAsJsonArray();
                 for (JsonElement data : jsonArr.asList()) {
                     areas.disabledTasks.add(data.getAsString());
+                }
+            }
+
+            areas.disabledRoles.clear();
+            if (jsonObject.has("disabledRoles")) {
+                var jsonArr = jsonObject.get("disabledRoles").getAsJsonArray();
+                for (JsonElement data : jsonArr.asList()) {
+                    areas.disabledRoles.add(data.getAsString());
                 }
             }
 

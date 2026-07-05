@@ -54,6 +54,15 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         return new HashSet<>(this.disabledTasks);
     }
 
+    /** 此地图禁用的职业 ID。可填完整 ID 或职业 path。 */
+    public HashSet<String> disabledRoles = new HashSet<>();
+
+    public HashSet<String> getDisabledRoles() {
+        if (this.disabledRoles == null)
+            return new HashSet<>();
+        return new HashSet<>(this.disabledRoles);
+    }
+
     /** 启用场景任务列表（仅可填场景任务名）。为空表示不启用任何场景任务。 */
     public HashSet<String> enableSceneTask = new HashSet<>();
 
@@ -518,6 +527,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         this.daylightCycle = tag.contains("daylightCycle") ? tag.getBoolean("daylightCycle") : false;
         this.weatherCycle = tag.contains("weatherCycle") ? tag.getBoolean("weatherCycle") : false;
         this.minigameQuestEnabled = tag.contains("minigameQuestEnabled") && tag.getBoolean("minigameQuestEnabled");
+        this.disabledRoles = new HashSet<>();
+        if (tag.contains("disabledRoles")) {
+            var disabledRolesList = tag.getList("disabledRoles", net.minecraft.nbt.Tag.TAG_STRING);
+            for (int i = 0; i < disabledRolesList.size(); i++) {
+                this.disabledRoles.add(disabledRolesList.getString(i));
+            }
+        }
         this.availableMinigameIds.clear();
         if (tag.contains("AvailableMinigameIds")) {
             var mgList = tag.getList("AvailableMinigameIds", net.minecraft.nbt.Tag.TAG_STRING);
@@ -626,6 +642,14 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         tag.putBoolean("daylightCycle", this.daylightCycle);
         tag.putBoolean("weatherCycle", this.weatherCycle);
         tag.putBoolean("minigameQuestEnabled", this.minigameQuestEnabled);
+
+        var disabledRolesList = new net.minecraft.nbt.ListTag();
+        if (this.disabledRoles != null) {
+            for (String role : this.disabledRoles) {
+                disabledRolesList.add(net.minecraft.nbt.StringTag.valueOf(role));
+            }
+        }
+        tag.put("disabledRoles", disabledRolesList);
 
         // 序列化 availableMinigameIds
         var minigameIdsList = new net.minecraft.nbt.ListTag();

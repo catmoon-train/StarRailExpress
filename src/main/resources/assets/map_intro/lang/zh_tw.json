@@ -7,5 +7,6 @@
   "map_intro.tab.map_properties": "地圖屬性",
   "map_intro.tab.scene_blocks": "場景方塊",
   "map_intro.tab.quest_blocks": "任務點方塊",
-  "map_intro.tab.mechanics": "地圖機制"
+  "map_intro.tab.mechanics": "地圖機制",
+  "map_intro.property.disabled_roles": "禁用的職業：%s"
 }

@@ -32,6 +32,7 @@
   "map_intro.special.trap": "地图会刷新冒险家",
   "map_intro.property.room_count": "房间数量：%s",
   "map_intro.property.disabled_tasks": "禁用的常规任务：%s",
+  "map_intro.property.disabled_roles": "禁用的职业：%s",
   "map_intro.property.scene_tasks": "启用的场景任务：%s",
   "map_intro.property.minigame_quest": "地图启用小游戏任务",
   "map_intro.property.status_bar": "地图启用了%s状态",
