@@ -216,8 +216,8 @@ public class MinigameQuestPanelBlock extends BaseEntityBlock
                 // 读取该方块的小游戏类型
                 boolean typeMatches = true;
                 if (level
-                        .getBlockEntity(pos) instanceof MinigameQuestBlockEntity questBe) {
-                    String blockMgId = questBe.getMinigameId();
+                        .getBlockEntity(pos) instanceof MinigameQuestBlockEntity questBe2) {
+                    String blockMgId = questBe2.getMinigameId();
                     if (mgComp.targetMinigameId != null && !mgComp.targetMinigameId.isEmpty()
                             && !mgComp.targetMinigameId.equals(blockMgId)) {
                         typeMatches = false;
@@ -227,6 +227,7 @@ public class MinigameQuestPanelBlock extends BaseEntityBlock
                     return true;
                 }
             }
+            return false;
         }
         if (level != null) {
             BlockEntity be = level.getBlockEntity(pos);
@@ -253,10 +254,10 @@ public class MinigameQuestPanelBlock extends BaseEntityBlock
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof MinigameQuestBlockEntity questBe) {
                 int c = questBe.getMarkerColor();
-                if (questBe.isSabotageTrigger() && c == 0x00FF00) return Color.RED;
+                if (questBe.isSabotageTrigger() && c == 0xFFD700) return Color.RED;
                 return new Color(c);
             }
         }
-        return Color.GREEN;
+        return new Color(255, 215, 0); // 金色
     }
 }
