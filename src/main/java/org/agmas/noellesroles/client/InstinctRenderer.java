@@ -285,8 +285,6 @@ public class InstinctRenderer {
             if (self == null)
                 return -1;
             if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(self, ModRoles.CUPID)) {
-                if (!GameUtils.isPlayerAliveAndSurvival(self))
-                    return -1;
                 if (!hasInstinct)
                     return -1;
                 if (!(target instanceof Player targetPlayer))
