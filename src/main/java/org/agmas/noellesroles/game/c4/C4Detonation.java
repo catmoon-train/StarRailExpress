@@ -146,10 +146,6 @@ public final class C4Detonation {
     public static void triggerRemoteDetonation(ServerPlayer player) {
         if (player == null || !(player.level() instanceof ServerLevel level)) return;
         registerVisibleThrownCharges(level, player);
-        if (hasArmedCharge(level, player)) {
-            player.displayClientMessage(Component.translatable("c4.already_armed"), true);
-            return;
-        }
         long now = level.getGameTime();
         long detonationAt = now + 3L * 20L + 15L * 20L;
         Map.Entry<UUID, ThrownCharge> target = newestUnarmedCharge(level, player);
