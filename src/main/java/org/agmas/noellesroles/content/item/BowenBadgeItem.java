@@ -69,7 +69,7 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
         float kNorm = k / horizLen;
         float mNorm = m / horizLen;
         Vec3 playerPos = player.position();
-        AABB nearbyBox = new AABB(playerPos, playerPos).inflate(3.0, 1.5, 3.0);
+        AABB nearbyBox = new AABB(playerPos, playerPos).inflate(2.0, 1.5, 2.0);
 
         Vec3 dashFront = playerPos.add(kNorm * 2.5, 0, mNorm * 2.5);
         AABB collisionBox = new AABB(dashFront, dashFront).inflate(0.8, 1.0, 0.8);
@@ -95,6 +95,7 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
             }
         }
         player.push(kNorm * force, 0.0, mNorm * force);
+        player.hurtMarked = true;
     }
 
     @Override
