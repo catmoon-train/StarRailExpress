@@ -889,7 +889,8 @@ public class ModRoles {
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false))
             .setCanSeeCoin(true).setCanPickUpRevolver(true).setCanJumpManhole(true).setCanAcrossFog(true)
             .setComponentKey(AdventurerPlayerComponent.KEY).setDefaultEnableNeededPlayerCount(6)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.TRAP).setDefaultMax(0).setCanBeRandomedByOtherRoles(false);
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.TRAP).setDefaultMax(0)
+            .setCanBeRandomedByOtherRoles(false);
     // 红尘客
     public static SRERole WAYFARER = TMMRoles.registerRole(
             new NormalRole(WAYFARER_ID, new Color(255, 54, 105).getRGB(),
@@ -1020,7 +1021,8 @@ public class ModRoles {
                     .setVigilanteTeam(true)
                     .setComponentKey(
                             org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent.KEY))
-            .setCanPickUpRevolver(true).setDefaultMax(1).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12)
+            .setCanPickUpRevolver(true).setDefaultMax(1).setDefaultEnableChance(5000)
+            .setDefaultEnableNeededPlayerCount(12)
             .setSpecialVigilante(true);
 
     /**
@@ -1324,7 +1326,7 @@ public class ModRoles {
             .registerRole(new GamblerRole(GAMBLER_ID, new Color(72, 61, 139).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), true))
             .setCanPickUpRevolver(true).setComponentKey(GamblerPlayerComponent.KEY).setNeutrals(true)
-            .setDefaultMax(1);
+            .setDefaultMax(1).setHiddenForRoleRotation(true);
     public static SRERole POISONER = TMMRoles
             .registerRole(new NormalRole(POISONER_ID, (new Color(115, 0, 57)).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
@@ -1965,7 +1967,8 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 隐藏计分板
     )).setComponentKey(RecorderPlayerComponent.KEY).setCanUseInstinct(true).setNeutrals(true)
-            .setDefaultEnableNeededPlayerCount(10);
+            .setDefaultEnableNeededPlayerCount(10)
+            .setHiddenForRoleRotation(true);
 
     /**
      * 故障机器人角色
@@ -2042,7 +2045,8 @@ public class ModRoles {
             return itemStacks;
         }
     }).setComponentKey(ThiefPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(10);
+            .setCanSeeTeammateKiller(false).setDefaultEnableChance(5000)
+            .setDefaultEnableNeededPlayerCount(10);
 
     /**
      * 雇佣兵角色 - 中立阵营（非独立胜利）
