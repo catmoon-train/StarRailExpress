@@ -6,7 +6,6 @@ import io.wifi.starrailexpress.api.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -204,39 +203,34 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
         killerCount = Math.max(0, killerCount);
         vigilanteCount = Math.max(0, vigilanteCount);
 
-        final int finalKillerCount = killerCount;
-        final int finalVigilanteCount = vigilanteCount;
-        final int finalNeutralsCount = neutralsCount;
-        final int finalPlayerSize = players.size();
-        final int finalForcedRoleSize = forcedRoles.size();
-        List<RoleInstance> expandedRoles = RoleAssignmentPool.withMapDisabledRoles(
-                AreasWorldComponent.KEY.get(serverWorld).getDisabledRoles(), () -> {
-                    RoleAssignmentPool killerPool = RoleAssignmentPool.createUnlimited("Killer",
-                            role -> role.identifier() == SpecialGameModeRoles.SEEKER.identifier());
-                    RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
-                            role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
-                                    role.isVigilanteTeam() && !role.isOtherModeRole() && !(role instanceof RepairRole));
-                    RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
-                            role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
-                                    !role.isOtherModeRole() &&
-                                    !(role instanceof RepairRole) &&
-                                    ((!role.canUseKiller() &&
-                                            !role.isInnocent()) || role.isNeutrals())
-                                    &&
-                                    role != TMMRoles.CIVILIAN));
-                    RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
-                            role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
-                                    !role.isOtherModeRole() &&
-                                    !(role instanceof RepairRole) &&
-                                    !role.isVigilanteTeam() &&
-                                    !role.canUseKiller() &&
-                                    !role.isNeutrals() &&
-                                    role.isInnocent() &&
-                                    role != TMMRoles.CIVILIAN);
-                    return getAllRoles(finalKillerCount, finalVigilanteCount, finalNeutralsCount, finalPlayerSize,
-                            finalForcedRoleSize, killerPool,
-                            neutralsPool, vigilantePool, civilianPool, false);
-                });
+        RoleAssignmentPool killerPool = RoleAssignmentPool.createUnlimited("Killer",
+                role -> role.identifier() == SpecialGameModeRoles.SEEKER.identifier());
+        RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
+                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        role.isVigilanteTeam() && !role.isOtherModeRole() && !(role instanceof RepairRole));
+        // 中立池
+        RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
+                role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        !role.isOtherModeRole() &&
+                        !(role instanceof RepairRole) &&
+                        ((!role.canUseKiller() &&
+                                !role.isInnocent()) || role.isNeutrals())
+                        &&
+                        role != TMMRoles.CIVILIAN));
+        // 平民池（只包含真正的"平民"角色，例如医生等）
+        RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
+                role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
+                        !role.isOtherModeRole() &&
+                        !(role instanceof RepairRole) &&
+                        !role.isVigilanteTeam() &&
+                        !role.canUseKiller() &&
+                        !role.isNeutrals() &&
+                        role.isInnocent() &&
+                        role != TMMRoles.CIVILIAN);
+
+        List<RoleInstance> expandedRoles = getAllRoles(killerCount, vigilanteCount, neutralsCount, players.size(),
+                forcedRoles.size(), killerPool,
+                neutralsPool, vigilantePool, civilianPool, false);
 
         RandomSource random = serverWorld.random;
         // 第五步：为未分配的玩家分配角色

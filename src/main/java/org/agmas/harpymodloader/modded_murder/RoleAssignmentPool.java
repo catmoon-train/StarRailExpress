@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * 模块化角色分配池 - 处理通用的角色选择和计数逻辑
@@ -57,16 +56,6 @@ public class RoleAssignmentPool {
      */
     public static RoleAssignmentPool createUnlimited(String poolName, Predicate<SRERole> filter) {
         return createInternal(poolName, filter, true);
-    }
-
-    public static <T> T withMapDisabledRoles(java.util.Set<String> disabledRoleIds, Supplier<T> action) {
-        java.util.Set<String> previous = MAP_DISABLED_ROLE_IDS.get();
-        MAP_DISABLED_ROLE_IDS.set(disabledRoleIds == null ? java.util.Set.of() : disabledRoleIds);
-        try {
-            return action.get();
-        } finally {
-            MAP_DISABLED_ROLE_IDS.set(previous);
-        }
     }
 
     /**

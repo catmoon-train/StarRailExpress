@@ -56,7 +56,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
     /** 此地图禁用的职业 ID。可填完整 ID 或职业 path。 */
     public HashSet<String> disabledRoles = new HashSet<>();
+    public HashSet<String> disabledModifiers = new HashSet<>();
 
+    public HashSet<String> getDisabledModifiers() {
+        if (this.disabledRoles == null)
+            return new HashSet<>();
+        return new HashSet<>(this.disabledRoles);
+    }
     public HashSet<String> getDisabledRoles() {
         if (this.disabledRoles == null)
             return new HashSet<>();

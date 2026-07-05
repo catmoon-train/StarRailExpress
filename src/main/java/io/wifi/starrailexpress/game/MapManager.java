@@ -242,6 +242,7 @@ public class MapManager {
                 : areas.mapStatusBar).name());
         jsonObject.add("disabledTasks", gson.toJsonTree(areas.disabledTasks));
         jsonObject.add("disabledRoles", gson.toJsonTree(areas.disabledRoles));
+        jsonObject.add("disabledModifiers", gson.toJsonTree(areas.disabledModifiers));
         jsonObject.add("enableSceneTask", gson.toJsonTree(areas.enableSceneTask));
         jsonObject.addProperty("haveOutsideSound", areas.haveOutsideSound);
         jsonObject.addProperty("sceneOutsideSound", areas.sceneOutsideSound);
@@ -719,6 +720,12 @@ public class MapManager {
                 }
             }
 
+            if (jsonObject.has("disabledModifiers")) {
+                var jsonArr = jsonObject.get("disabledModifiers").getAsJsonArray();
+                for (JsonElement data : jsonArr.asList()) {
+                    areas.disabledModifiers.add(data.getAsString());
+                }
+            }
             areas.enableSceneTask.clear();
             if (jsonObject.has("enableSceneTask")) {
                 var jsonArr = jsonObject.get("enableSceneTask").getAsJsonArray();
