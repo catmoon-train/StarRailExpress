@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client.hud;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,6 +18,13 @@ public final class MapStatusBarHudRenderer {
     private static final int BAR_HEIGHT = 2;
     private static final int ICON_SIZE = 9;
     private static final int ICON_GAP = 4;
+
+    /** 低于此比例触发屏幕边框效果 */
+    private static final float LOW_THRESHOLD = 0.35f;
+    /** 边框颜色：口渴=蓝色、保暖=雪色、饥饿=棕色 */
+    private static final int THIRST_EDGE_COLOR = 0xFF4488FF;
+    private static final int WARMTH_EDGE_COLOR = 0xFFFFFAFA;
+    private static final int HUNGER_EDGE_COLOR = 0xFFC89632;
 
     private MapStatusBarHudRenderer() {
     }
@@ -40,6 +48,18 @@ public final class MapStatusBarHudRenderer {
         }
 
         float value = (float) MapStatusBarClientState.value() / MapStatusBarClientState.maxValue();
+
+        // 低于35%时触发屏幕边框效果
+        if (value < LOW_THRESHOLD) {
+            int edgeColor = switch (type) {
+                case WARMTH -> WARMTH_EDGE_COLOR;
+                case THIRST -> THIRST_EDGE_COLOR;
+                case HUNGER -> HUNGER_EDGE_COLOR;
+                default -> 0xFFFFFFFF;
+            };
+            StaminaRenderer.triggerScreenEdgeEffect(edgeColor, 100, 1.0f);
+        }
+
         int barX = graphics.guiWidth() / 2 - BAR_WIDTH / 2;
         int barY = graphics.guiHeight() - 28;
         int iconX = barX - ICON_SIZE - ICON_GAP;
