@@ -437,7 +437,6 @@ public class SEModifiers {
                     player.getAttribute(Attributes.SCALE).removeModifier(TraitorAndModifiers.DWARF_MODIFIER);
                 }
                 player.getAttribute(Attributes.SCALE).removeModifier(TINY_MODIFIER);
-                player.getAttribute(Attributes.SCALE).addPermanentModifier(TINY_MODIFIER);
             }
             if (modifier.equals(TALL)) {
                 // Cannot assign TINY if player has TALL

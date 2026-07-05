@@ -147,10 +147,11 @@ public class MapManagerCommand {
                   areas.sceneOffsetZ = 0;
                   io.wifi.starrailexpress.scenery.server.SceneLibrary.clearScene(areas);
                   areas.weather = "clear";
-                  areas.gravity = 0.08;
+                  areas.gravity = 0;
                   areas.effect = new java.util.ArrayList<>();
                   areas.time = 18000;
                   areas.daylightCycle = false;
+                  areas.fallToDeathHeight = 0;
                   areas.weatherCycle = false;
                   areas.minigameQuestEnabled = false;
                   areas.sync();

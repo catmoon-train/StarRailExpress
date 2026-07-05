@@ -198,8 +198,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     // 天气配置（默认晴天）
     public String weather = "clear"; // clear, rain, thunder
     
-    // 重力配置（默认0.08）
-    public double gravity = 0.08;
+    // 重力modifier（默认0）
+    public double gravity = 0;
     
     // 药水效果配置（格式：["namespace:effect_id,level", ...]，为空数组则无效果）
     public List<String> effect = new ArrayList<>();
@@ -226,6 +226,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
     // 地图初始物品（格式：["itemId;count", ...]，所有玩家进入地图时获得）
     public java.util.List<String> initialItems = new java.util.ArrayList<>();
+    // 0为禁用
+    public int fallToDeathHeight = 0;
 
     public PosWithOrientation getSpawnPos() {
         return spawnPos;

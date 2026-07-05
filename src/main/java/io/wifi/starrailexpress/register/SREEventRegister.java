@@ -76,6 +76,9 @@ public class SREEventRegister {
             return InteractionResult.PASS;
         });
         GameUtils.registerEventForServerTickForDoingResetTasks();
+        ServerLifecycleEvents.SERVER_STOPPED.register((server) -> {
+            SRE.SERVER = null;
+        });
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             SRE.SERVER = server;
             VoteManager.init(server);

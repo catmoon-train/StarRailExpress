@@ -54,7 +54,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     public static SREMurderGameMode GAME;
     // 服务端会覆盖此项目，此项目用于客户端。
     public static GameReplayManager REPLAY_MANAGER = new EmptyGameReplayManager();
-    public static final Networking NETWORKING = new Networking();
+    public static final SRENetworking NETWORKING = new SRENetworking();
     public static boolean isLobby = false;
     // 各类"列表式"注册点已按类别归一化至 io.wifi.starrailexpress.rules 包：
     // ChatHudRules - canUseChatHud / canUseChatHudPlayer / cantUseChatHud
@@ -219,7 +219,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         return GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player);
     }
 
-    public static class Networking {
+    public static class SRENetworking {
         public void sendToAllPlayers(CustomPacketPayload packet) {
             if (SERVER != null) {
                 for (ServerPlayer player : SERVER.getPlayerList().getPlayers()) {

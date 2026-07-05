@@ -50,6 +50,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -962,10 +963,14 @@ public class GameUtils {
         gameComponent.setSceneOutsideSoundType(areas.sceneOutsideSound);
 
         // 应用地图重力配置
+        // 不要修改base用modifier！！！！！！！！！！
         for (ServerPlayer player : players) {
             var gravityAttr = player.getAttribute(Attributes.GRAVITY);
             if (gravityAttr != null) {
-                gravityAttr.setBaseValue(areas.gravity);
+                AttributeModifier gravityModifier = new AttributeModifier(
+                        SRE.id("map"),
+                        areas.gravity, AttributeModifier.Operation.ADD_VALUE);
+                gravityAttr.addOrReplacePermanentModifier(gravityModifier);
             }
         }
 
@@ -1575,6 +1580,16 @@ public class GameUtils {
         DefibrillatorComponent.KEY.get(player).clear();
         GameUtils.teleportBackToRoom(player);
         player.setGameMode(GameType.ADVENTURE);
+        {
+            var gravityAttr = player.getAttribute(Attributes.GRAVITY);
+            if (gravityAttr != null) {
+                var areas = AreasWorldComponent.KEY.get(player.level());
+                AttributeModifier gravityModifier = new AttributeModifier(
+                        SRE.id("map"),
+                        areas.gravity, AttributeModifier.Operation.ADD_VALUE);
+                gravityAttr.addOrReplacePermanentModifier(gravityModifier);
+            }
+        }
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
     }
@@ -1582,6 +1597,16 @@ public class GameUtils {
     public static void revivePlayer(ServerPlayer player, double x, double y, double z) {
         DeathPenaltyComponent.KEY.get(player).clear();
         DefibrillatorComponent.KEY.get(player).clear();
+        {
+            var gravityAttr = player.getAttribute(Attributes.GRAVITY);
+            if (gravityAttr != null) {
+                var areas = AreasWorldComponent.KEY.get(player.level());
+                AttributeModifier gravityModifier = new AttributeModifier(
+                        SRE.id("map"),
+                        areas.gravity, AttributeModifier.Operation.ADD_VALUE);
+                gravityAttr.addOrReplacePermanentModifier(gravityModifier);
+            }
+        }
         player.teleportTo(x, y, z);
         player.setGameMode(GameType.ADVENTURE);
         TrainVoicePlugin.resetPlayer(player.getUUID());
