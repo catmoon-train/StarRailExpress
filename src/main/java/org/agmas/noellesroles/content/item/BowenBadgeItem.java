@@ -34,7 +34,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.FunnyItems;
 
-public class BowenBadgeItem extends Item implements AdventureUsable{
+public class BowenBadgeItem extends Item implements AdventureUsable {
 
     public BowenBadgeItem(Properties properties) {
         super(properties);
@@ -56,6 +56,45 @@ public class BowenBadgeItem extends Item implements AdventureUsable{
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
         return UseAnim.BOW;
+    }
+
+    public static void fowardAndKnockbackPlayerNearby(Level level, Player player, float force) {
+        // ── 击退周围的玩家（排除正前方碰撞目标）──
+        float g = player.getYRot();
+
+        // 水平朝向向量
+        float k = -Mth.sin(g * ((float) Math.PI / 180F));
+        float m = Mth.cos(g * ((float) Math.PI / 180F));
+        float horizLen = Mth.sqrt(k * k + m * m);
+        float kNorm = k / horizLen;
+        float mNorm = m / horizLen;
+        Vec3 playerPos = player.position();
+        AABB nearbyBox = new AABB(playerPos, playerPos).inflate(3.0, 1.5, 3.0);
+
+        Vec3 dashFront = playerPos.add(kNorm * 2.5, 0, mNorm * 2.5);
+        AABB collisionBox = new AABB(dashFront, dashFront).inflate(0.8, 1.0, 0.8);
+
+        for (var entity : level.getEntities(player, nearbyBox)) {
+            if (!(entity instanceof LivingEntity target))
+                continue;
+            if (collisionBox.intersects(target.getBoundingBox()))
+                continue;
+
+            Vec3 knockback = target.position()
+                    .subtract(playerPos)
+                    .multiply(1, 0, 1)
+                    .normalize()
+                    .scale(1.5);
+            target.push(knockback.x, 0, knockback.z);
+
+            // 被击退实体产生冲击波粒子
+            if (level instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER,
+                        target.getX(), target.getY() + 1, target.getZ(),
+                        1, 0, 0, 0, 0);
+            }
+        }
+        player.push(kNorm * force, 0.0, mNorm * force);
     }
 
     @Override

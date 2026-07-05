@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.resources.ResourceLocation;
+import org.agmas.noellesroles.role.touhou.roles.THKomachiRole;
 import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
 import org.agmas.noellesroles.role.touhou.roles.THTenshiRole;
 
@@ -14,6 +15,12 @@ public class THMiscRoles {
     return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
   }
 
+  // 小野塚小町 Onozuka Komachi
+  public static final ResourceLocation KOMACHI_ID = id("onozuka_komachi");
+  public static SRERole KOMACHI = TMMRoles
+      .registerRole(new THKomachiRole(KOMACHI_ID, new java.awt.Color(199, 144, 161).getRGB(),
+          false, true, SRERole.MoodType.FAKE,
+          TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false));
   // 天子Hinanawi Tenshi
   public static final ResourceLocation TENSHI_ID = id("hinanawi_tenshi");
   public static SRERole TENSHI = TMMRoles

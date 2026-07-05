@@ -1356,6 +1356,8 @@ public class NRDeathEvents {
                     || "exposure:stacked_photographs".equals(key) || stack.is(ModItems.PATROLLER_REVOLVER)) {
                 return true;
             }
+            if (stack.is(ModItems.DEALER_PACKAGE))
+                return true;
             if (RoleShopHandler.isOldmanEasterEggRod(stack))
                 return true;
 

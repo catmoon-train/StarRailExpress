@@ -1,25 +1,19 @@
 package org.agmas.noellesroles.role.touhou;
 
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
+import org.agmas.noellesroles.handler.TouhouHandlers;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
-import org.agmas.noellesroles.utils.RoleUtils;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +25,9 @@ public class MountainRoles {
         return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
     }
 
-    //
     public static final ResourceLocation NITORI_ID = id("kawashiro_nitori");
     public static final ResourceLocation AYA_ID = id("ayayaya");
     public static final ResourceLocation HATATE_ID = id("hatate");
-    private static final List<ShopEntry> NITORI_SHOP = List.of(
-            new ShopEntry(ModItems.DEALER_PACKAGE.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
     // 河城荷取。可以购买除了杀手道具外的各种东西，且可丢弃！但价格翻倍。
     public static SRERole NITORI = TMMRoles.registerRole(new THRinnosukeRole(
             NITORI_ID, // 角色 ID
@@ -46,6 +37,8 @@ public class MountainRoles {
             SRERole.MoodType.REAL, // 真实心情
             Integer.MAX_VALUE, // 标准冲刺时间
             true) {
+        private static final List<ShopEntry> NITORI_SHOP = List.of(
+                new ShopEntry(ModItems.DEALER_PACKAGE.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
         @Override
         public List<ShopEntry> getShopEntries() {
             return NITORI_SHOP;
@@ -130,43 +123,6 @@ public class MountainRoles {
 
     public static void init() {
         // 强制交易：Nitori
-        RoleSkill.register(NITORI, RoleSkill.skill(SRE.id("nitori_exchange"),
-                "skill.noellesroles.nitori_exchange",
-                context -> {
-                    if (context.target() == null) {
-                        return false;
-                    }
-
-                    var target = context.player().level().getPlayerByUUID(context.target());
-                    if (target == null) {
-                        context.player().displayClientMessage(Component.translatable(
-                                "message.noellesroles.nitori_exchange.failed.no_target"), true);
-                        return false;
-                    }
-                    ItemStack it = context.player().getMainHandItem();
-                    if (it == null || it.isEmpty()) {
-                        context.player().displayClientMessage(Component.translatable(
-                                "message.noellesroles.nitori_exchange.failed.noitem"), true);
-                        return false;
-                    }
-                    var targetShop = SREPlayerShopComponent.KEY.get(target);
-                    var selfShop = SREPlayerShopComponent.KEY.get(context.player());
-                    if (targetShop.balance < 200) {
-
-                        context.player().displayClientMessage(Component.translatable(
-                                "message.noellesroles.nitori_exchange.failed.nomoney"), true);
-                        return false;
-                    }
-
-                    if (RoleUtils.insertStackInFreeSlot(target, it.copy())) {
-                        targetShop.addToBalance(-200);
-                        selfShop.addToBalance(200);
-                        context.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                        context.player().displayClientMessage(Component.translatable(
-                                "message.noellesroles.nitori_exchange.success", it.getDisplayName()), true);
-                        return true;
-                    }
-                    return false;
-                }).cooldownSeconds(30).build());
+        TouhouHandlers.register();
     }
 }

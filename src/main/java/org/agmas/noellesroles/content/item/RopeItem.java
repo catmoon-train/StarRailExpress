@@ -74,7 +74,7 @@ public class RopeItem extends Item implements AdventureUsable {
         }
 
         // 查找前方直线距离12格内你瞄准的玩家
-        Player target = findTargetedPlayerInView(world, player);
+        Player target = findTargetedPlayerInView(world, player, MAX_DISTANCE);
 
         if (target == null) {
             if (!world.isClientSide) {
@@ -99,7 +99,7 @@ public class RopeItem extends Item implements AdventureUsable {
             }
 
             // 将目标玩家拉到玩家身前
-            pullPlayer(player, target);
+            pullPlayer(player, target, 1.5);
 
             // 标记目标玩家，10秒内无法被再次拉取
             ropeImmunityMap.put(target.getUUID(), System.currentTimeMillis());
@@ -123,9 +123,8 @@ public class RopeItem extends Item implements AdventureUsable {
     /**
      * 查找前方直线距离12格内你瞄准的玩家（使用视线投射）
      */
-    private Player findTargetedPlayerInView(Level world, Player player) {
+    public static Player findTargetedPlayerInView(Level world, Player player, double bestDistance) {
         Player targetedPlayer = null;
-        double bestDistance = MAX_DISTANCE;
 
         // 获取玩家视线起点和方向
         var eyePos = player.getEyePosition(1.0f);
@@ -163,8 +162,6 @@ public class RopeItem extends Item implements AdventureUsable {
 
             // 检查视线是否与目标的碰撞箱相交
             if (isLineIntersectsBox(eyePos, viewVector, targetBB, distance)) {
-                // 计算目标到视线的垂直距离
-                var toTarget = target.position().subtract(player.position());
                 var toEyePos = target.position().subtract(eyePos);
 
                 // 计算视线方向上的投影距离
@@ -186,7 +183,7 @@ public class RopeItem extends Item implements AdventureUsable {
     /**
      * 检查射线是否与方块相交（简化版）
      */
-    private boolean isLineIntersectsBox(net.minecraft.world.phys.Vec3 rayOrigin,
+    public static boolean isLineIntersectsBox(net.minecraft.world.phys.Vec3 rayOrigin,
             net.minecraft.world.phys.Vec3 rayDirection,
             net.minecraft.world.phys.AABB box,
             double maxDistance) {
@@ -241,7 +238,7 @@ public class RopeItem extends Item implements AdventureUsable {
      * @param player 执行拉取操作的玩家
      * @param target 被拉取的目标玩家
      */
-    private void pullPlayer(Player player, Player target) {
+    public static void pullPlayer(Player player, Player target, double maxDistance) {
         // 记录拉拽者为最近攻击者，使被搜救绳拉入列车碾压区的死亡能归属到拉人者（拉拽本身不造成伤害）。
         target.setLastHurtByMob(player);
         if (player instanceof ServerPlayer) {
@@ -249,7 +246,6 @@ public class RopeItem extends Item implements AdventureUsable {
         }
 
         var viewVector = player.getViewVector(1.0f);
-        double maxDistance = 1.5; // 最远距离（玩家前方）
         double step = 0.2; // 步长
         int steps = (int) Math.ceil(maxDistance / step) + 1;
 
@@ -302,7 +298,7 @@ public class RopeItem extends Item implements AdventureUsable {
     /**
      * 通用的玩家传送方法。
      */
-    private void teleportPlayer(Player target, double x, double y, double z) {
+    public static void teleportPlayer(Player target, double x, double y, double z) {
         if (target instanceof ServerPlayer serverTarget) {
             serverTarget.teleportTo(x, y, z);
         } else {
@@ -319,7 +315,6 @@ public class RopeItem extends Item implements AdventureUsable {
 
         // 在玩家和目标之间生成绳索粒子
         int particleCount = 20; // 粒子数量
-        double distance = player.distanceTo(target);
 
         for (int i = 0; i < particleCount; i++) {
             // 计算从玩家到目标的插值位置

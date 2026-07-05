@@ -34,6 +34,8 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
     private final Player player;
     public int balance = 0;
     public long grenadeLastPurchaseTime = 0;
+    // 仅服务端存储：
+    public int total_cost = 0;
 
     public SREPlayerShopComponent(Player player) {
         this.player = player;
@@ -52,6 +54,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
     public void init() {
         this.balance = 0;
         this.grenadeLastPurchaseTime = 0;
+        this.total_cost = 0;
         this.sync();
     }
 
@@ -60,6 +63,21 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         init();
     }
 
+    /**
+     * 服务端Only
+     */
+    public int getTotalCost() {
+        return this.total_cost;
+    }
+
+    /**
+     * 服务端Only
+     */
+    public int getTotalCostAndClear() {
+        int r = this.total_cost;
+        this.total_cost = 0;
+        return r;
+    }
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
         return this.player == player;
@@ -140,6 +158,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         if (this.balance >= price && !this.player.getCooldowns().isOnCooldown(entry.stack().getItem())
                 && entry.canDisplay(this.player) && entry.canBuy(this.player) && !entry.isSafeTime(this.player)
                 && entry.onBuy(this.player)) {
+            this.total_cost += price;
             this.balance -= price;
             // 手榴弹购买后记录购买时间
             if (entry.stack().is(TMMItems.GRENADE)) {
