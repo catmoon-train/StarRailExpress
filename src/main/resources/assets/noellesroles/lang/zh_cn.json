@@ -3172,7 +3172,7 @@
   "hud.sre.skill.charges": "  %s/%s次",
   "hud.sre.skill.charges_remaining": "还可使用%s次",
   "hud.sre.skill.cast_count": "  已释放%s次",
-  "hud.sre.skill.shift_to_use": "  (按下%s+%s 触发)",
+  "hud.sre.skill.shift_to_use": "  (蹲下时)",
   "hud.sre.passives": "被动：",
   "hud.sre.passive_label": "被动 ",
   "message.sre.skill.use_tip": "按 %s 使用技能 %s",

@@ -17,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 
 public class StaminaMCStyleRenderer {
 
-
     private static float chargeDisplayValue = 0f; // 蓄力状态条平滑显示值（逐帧过渡用）
     public static ChargeBarRenderer view = new ChargeBarRenderer();
     public static float offsetDelta = 0f;
@@ -260,8 +259,13 @@ public class StaminaMCStyleRenderer {
             colour = colour & 0x88FFFFFF;
             // 绘制背景（更现代化的半透明黑色）
             int backgroundColor = 0x55000000; // 更透明的背景
-            context.fill(-halfWidth - barBorder, -barHeight / 2 - barBorder, halfWidth + barBorder,
-                    barHeight / 2 + barBorder, backgroundColor);
+            if (value <= 0) {
+                context.renderOutline(-halfWidth - barBorder, -barHeight / 2 - barBorder, halfWidth + barBorder,
+                        barHeight / 2 + barBorder, backgroundColor);
+            } else {
+                context.fill(-halfWidth - barBorder, -barHeight / 2 - barBorder, halfWidth + barBorder,
+                        barHeight / 2 + barBorder, backgroundColor);
+            }
 
             // 计算当前体力条宽度 - 从左锚定，向右延伸
             int currentWidth = Math.round(barWidth * value);

@@ -87,3 +87,4 @@ accessible method net/minecraft/client/gui/screens/PauseScreen openLinkButton (L
 
 accessible field net/minecraft/client/gui/Gui overlayMessageString Lnet/minecraft/network/chat/Component;
 accessible field net/minecraft/client/gui/Gui overlayMessageTime I
+accessible method net/minecraft/client/gui/Gui getCameraPlayer ()Lnet/minecraft/world/entity/player/Player;

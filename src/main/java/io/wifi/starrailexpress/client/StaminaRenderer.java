@@ -22,6 +22,27 @@ public class StaminaRenderer {
 	public static void renderHud(@NotNull LocalPlayer player, @NotNull GuiGraphics context, float delta) {
 		if (staminaProvider == null)
 			return;
+
+		// 渲染屏幕边缘红色效果
+		RedScreenRenderer.renderScreenRedEffect(context, delta);
+
+		// 快捷栏上方冷却显示（默认开启）
+		if (CLIENT_CONFIG.showHotbarCooldown) {
+			HotbarCooldownRenderer.render(context, delta);
+		}
+		// 主手物品冷却显示默认开启
+		if (CLIENT_CONFIG.showMainhandCooldown) {
+			HotbarCooldownRenderer.renderMainHandCooldown(context, player, delta);
+		}
+		// 氧气值渲染（水下）
+		if (CLIENT_CONFIG.showMainhandCooldown) {
+			StatusHudRenderer.renderOxygen(context, player, delta);
+		}
+
+		if (player.isSpectator()){
+			// 避免和职业信息渲染冲突
+			return;
+		}
 		ProgressProvider stamina = null;
 		ProgressProvider itemCharge = null;
 		final var mainHandStack = player.getMainHandItem();
@@ -60,16 +81,6 @@ public class StaminaRenderer {
 			}
 		}
 
-		// 渲染屏幕边缘红色效果
-		RedScreenRenderer.renderScreenRedEffect(context, delta);
-
-		// 快捷栏上方冷却显示（默认开启）
-		if (CLIENT_CONFIG.showHotbarCooldown) {
-			HotbarCooldownRenderer.render(context, delta);
-		}
-		if (CLIENT_CONFIG.showMainhandCooldown) {
-			HotbarCooldownRenderer.renderMainHandCooldown(context, player, delta);
-		}
 	}
 
 	public static void tick() {
