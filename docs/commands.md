@@ -794,6 +794,8 @@
 | `set mapName <name>` | string | 设置地图名称 |
 | `set disabledTasks add <taskId>` | string | 添加禁用任务 |
 | `set disabledTasks remove <taskId>` | string | 移除禁用任务 |
+| `set disabledRoles add <roleId>` | string | 添加禁用职业 |
+| `set disabledRoles remove <roleId>` | string | 移除禁用职业 |
 | `set weather <value>` | string (clear/rain/thunder) | 设置天气 |
 | `set gravity <value>` | double | 设置重力 |
 | `set effect <value>` | string | 设置药水效果 |

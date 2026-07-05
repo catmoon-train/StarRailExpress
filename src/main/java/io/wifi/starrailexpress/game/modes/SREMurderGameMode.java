@@ -518,8 +518,15 @@ public class SREMurderGameMode extends GameMode {
         vigilanteCount = Math.max(0, vigilanteCount);
         neutralsCount = Math.max(0, neutralsCount);
 
-        List<RoleInstance> expandedRoles = getAllRoles(killerCount, vigilanteCount, neutralsCount, players.size(),
-                forcedRoles.size());
+        final int finalKillerCount = killerCount;
+        final int finalVigilanteCount = vigilanteCount;
+        final int finalNeutralsCount = neutralsCount;
+        final int finalPlayerSize = players.size();
+        final int finalForcedRoleSize = forcedRoles.size();
+        List<RoleInstance> expandedRoles = RoleAssignmentPool.withMapDisabledRoles(
+                AreasWorldComponent.KEY.get(serverWorld).getDisabledRoles(),
+                () -> getAllRoles(finalKillerCount, finalVigilanteCount, finalNeutralsCount, finalPlayerSize,
+                        finalForcedRoleSize));
         RandomSource random = serverWorld.random;
         // 第五步：为未分配的玩家分配角色
         List<ServerPlayer> unassignedPlayers = new ArrayList<>();
