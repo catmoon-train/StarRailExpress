@@ -34,6 +34,7 @@
   "item.noellesroles.short_shotgun.tooltip": "右鍵蓄力射擊，蓄力越久擊殺扇形射程越遠（2-4格）",
   "item.noellesroles.short_shotgun.tooltip2": "擊殺射程達到3格後獲得擊退能力，當前擊殺射程外2格扇形內的玩家會受到1點傷害並被擊退，使用後損壞",
   "item.noellesroles.monitoring_terminal": "遠程監控終端",
+  "item.noellesroles.dealer_package": "荷官包裹",
   "item.noellesroles.monitoring_terminal.tooltip": "右鍵安全監控器進行綁定，再次右鍵可取消綁定，對空氣右鍵可遠程查看綁定的監控器",
   "message.item.noellesroles.monitoring_terminal.please_bind": "請先右鍵一個安全監控器進行綁定",
   "message.item.noellesroles.monitoring_terminal.bind_successfully": "已綁定遠程監控器：%s",

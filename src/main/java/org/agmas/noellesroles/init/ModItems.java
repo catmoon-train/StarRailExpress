@@ -640,6 +640,9 @@ public class ModItems {
             new org.agmas.noellesroles.content.item.MonitoringTerminalItem(
                     new Item.Properties().stacksTo(1)),
             "monitoring_terminal", TOOLS_GROUP);
+    public static final Item DEALER_PACKAGE = register(
+            new DealerPackageItem(new Item.Properties().stacksTo(1)),
+            "dealer_package", ROLE_ITEMS_GROUP);
     /**
      * 锁
      * - 工程师专属物品
@@ -1108,6 +1111,7 @@ public class ModItems {
         TMMItems.INVISIBLE_ITEMS.add(ModItems.DECOY_GRENADE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.SILENCE_TOTEM);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.PURIFY_BOMB);
+        TMMItems.INVISIBLE_ITEMS.add(ModItems.DEALER_PACKAGE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.HONORED_NOTE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.SPIRIT_CLOAK);
         // TMMItems.INVISIBLE_ITEMS.add(TMMItems.KNIFE);

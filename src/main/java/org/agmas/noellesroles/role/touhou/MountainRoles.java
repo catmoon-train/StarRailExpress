@@ -35,6 +35,8 @@ public class MountainRoles {
     public static final ResourceLocation NITORI_ID = id("kawashiro_nitori");
     public static final ResourceLocation AYA_ID = id("ayayaya");
     public static final ResourceLocation HATATE_ID = id("hatate");
+    private static final List<ShopEntry> NITORI_SHOP = List.of(
+            new ShopEntry(ModItems.DEALER_PACKAGE.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
     // 河城荷取。可以购买除了杀手道具外的各种东西，且可丢弃！但价格翻倍。
     public static SRERole NITORI = TMMRoles.registerRole(new THRinnosukeRole(
             NITORI_ID, // 角色 ID
@@ -43,7 +45,12 @@ public class MountainRoles {
             false, // canUseKiller = 无杀手能力
             SRERole.MoodType.REAL, // 真实心情
             Integer.MAX_VALUE, // 标准冲刺时间
-            true), "th_mountain").setNeutrals(true).setDefaultEnableNeededPlayerCount(12).setDefaultEnableChance(100)
+            true) {
+        @Override
+        public List<ShopEntry> getShopEntries() {
+            return NITORI_SHOP;
+        }
+    }, "th_mountain").setNeutrals(true).setDefaultEnableNeededPlayerCount(12).setDefaultEnableChance(100)
             .setCanUseInstinct(false).setCanPickUpRevolver(false);
     public static SRERole AYA = TMMRoles.registerRole(new TouhouRole(AYA_ID, // 角色 ID
             new Color(26, 42, 58).getRGB(), // 黑色 - 代表乌鸦
