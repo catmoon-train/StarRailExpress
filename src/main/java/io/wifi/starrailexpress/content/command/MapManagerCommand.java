@@ -193,6 +193,7 @@ public class MapManagerCommand {
                 .then(setMapName())
                 .then(setDisabledTasks())
                 .then(setDisabledRoles())
+                .then(setDisabledModifiers())
                 .then(setEnableSceneTask())
                 .then(setWeather())
                 .then(setGravity())
@@ -217,7 +218,8 @@ public class MapManagerCommand {
                 .then(buildGetSimple("canJump", a -> String.valueOf(a.canJump)))
                 .then(buildGetSimple("canSwim", a -> String.valueOf(a.canSwim)))
                 .then(buildGetSimple("enableOxygenDrowning", a -> String.valueOf(a.enableOxygenDrowning)))
-                .then(buildGetSimple("mapStatusBar", a -> String.valueOf(a.mapStatusBar == null ? MapStatusBarType.NONE : a.mapStatusBar)))
+                .then(buildGetSimple("mapStatusBar",
+                    a -> String.valueOf(a.mapStatusBar == null ? MapStatusBarType.NONE : a.mapStatusBar)))
                 .then(buildGetSimple("noReset", a -> String.valueOf(a.noReset)))
                 .then(buildGetSimple("haveOutsideSound", a -> String.valueOf(a.haveOutsideSound)))
                 .then(buildGetSimple("sceneOutsideSound", a -> a.sceneOutsideSound))
@@ -239,7 +241,8 @@ public class MapManagerCommand {
                 .then(buildGetSimple("daylightCycle", a -> String.valueOf(a.daylightCycle)))
                 .then(buildGetSimple("weatherCycle", a -> String.valueOf(a.weatherCycle)))
                 .then(buildGetSimple("minigameQuestEnabled", a -> String.valueOf(a.minigameQuestEnabled)))
-                .then(buildGetSimple("initialItems", a -> a.initialItems.isEmpty() ? "(none)" : String.join(", ", a.initialItems)))
+                .then(buildGetSimple("initialItems",
+                    a -> a.initialItems.isEmpty() ? "(none)" : String.join(", ", a.initialItems)))
                 .then(getDisabledTasks())
                 .then(getDisabledRoles())
                 .then(getEnableSceneTask()))
@@ -259,8 +262,8 @@ public class MapManagerCommand {
                         .requires(source -> source.hasPermission(3))
                         .executes(context -> executeSave(
                             context.getSource(),
-                             StringArgumentType.getString(context, "mapName"),
-                             true)))))
+                            StringArgumentType.getString(context, "mapName"),
+                            true)))))
             .then(buildMapTools())
             .then(Commands.literal("info")
                 .requires(source -> source.hasPermission(2))
@@ -590,6 +593,25 @@ public class MapManagerCommand {
     }
   }
 
+  private static void addDisabledModifiers(CommandSourceStack source, String roleId) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    if (areas.disabledModifiers == null)
+      areas.disabledModifiers = new HashSet<>();
+    areas.disabledModifiers.add(roleId);
+    areas.sync();
+    sendSetFeedback(source, "disabledModifiers.add", roleId);
+  }
+
+  private static void removeDisabledModifiers(CommandSourceStack source, String roleId) {
+    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
+    if (areas.disabledModifiers != null && areas.disabledModifiers.remove(roleId)) {
+      areas.sync();
+      sendSetFeedback(source, "disabledModifiers.remove", roleId);
+    } else {
+      source.sendFailure(Component.literal("Modifier " + roleId + " not disabled in the map!"));
+    }
+  }
+
   // 10. weather
   private static void setWeather(CommandSourceStack source, String value) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
@@ -611,9 +633,9 @@ public class MapManagerCommand {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
     areas.effect = new java.util.ArrayList<>();
     if (!value.isEmpty()) {
-        // 支持逗号分隔的多个效果，如 "minecraft:speed,2,minecraft:jump_boost,1"
-        // 这里简单地把整个 value 当作单个效果
-        areas.effect.add(value);
+      // 支持逗号分隔的多个效果，如 "minecraft:speed,2,minecraft:jump_boost,1"
+      // 这里简单地把整个 value 当作单个效果
+      areas.effect.add(value);
     }
     areas.sync();
     sendSetFeedback(source, "effect", "\"" + value + "\"");
@@ -689,7 +711,8 @@ public class MapManagerCommand {
     sb.append("canJump: ").append(areas.canJump).append("\n");
     sb.append("canSwim: ").append(areas.canSwim).append("\n");
     sb.append("enableOxygenDrowning: ").append(areas.enableOxygenDrowning).append("\n");
-    sb.append("mapStatusBar: ").append(areas.mapStatusBar == null ? MapStatusBarType.NONE : areas.mapStatusBar).append("\n");
+    sb.append("mapStatusBar: ").append(areas.mapStatusBar == null ? MapStatusBarType.NONE : areas.mapStatusBar)
+        .append("\n");
     sb.append("noReset: ").append(areas.noReset).append("\n");
     sb.append("haveOutsideSound: ").append(areas.haveOutsideSound).append("\n");
     sb.append("sceneOutsideSound: \"").append(areas.sceneOutsideSound).append("\"\n");
@@ -711,9 +734,11 @@ public class MapManagerCommand {
     sb.append("daylightCycle: ").append(areas.daylightCycle).append("\n");
     sb.append("weatherCycle: ").append(areas.weatherCycle).append("\n");
     sb.append("minigameQuestEnabled: ").append(areas.minigameQuestEnabled).append("\n");
-    sb.append("initialItems: ").append(areas.initialItems.isEmpty() ? "(none)" : String.join(", ", areas.initialItems)).append("\n");
+    sb.append("initialItems: ").append(areas.initialItems.isEmpty() ? "(none)" : String.join(", ", areas.initialItems))
+        .append("\n");
     sb.append("disabledTasks: ").append(formatDisabledTasks(areas.disabledTasks)).append("\n");
     sb.append("disabledRoles: ").append(formatDisabledTasks(areas.disabledRoles)).append("\n");
+    sb.append("disabledModifiers: ").append(formatDisabledTasks(areas.disabledModifiers)).append("\n");
     sb.append("enableSceneTask: ").append(formatDisabledTasks(areas.enableSceneTask));
     source.sendSuccess(
         () -> Component.literal(sb.toString()).withStyle(style -> style.withColor(ChatFormatting.AQUA)),
@@ -1283,6 +1308,22 @@ public class MapManagerCommand {
             .then(Commands.argument("taskId", StringArgumentType.string())
                 .executes(ctx -> {
                   removeDisabledTask(ctx.getSource(), StringArgumentType.getString(ctx, "taskId"));
+                  return 1;
+                })));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setDisabledModifiers() {
+    return Commands.literal("disabledRoles")
+        .then(Commands.literal("add")
+            .then(Commands.argument("roleId", StringArgumentType.string())
+                .executes(ctx -> {
+                  addDisabledModifiers(ctx.getSource(), StringArgumentType.getString(ctx, "roleId"));
+                  return 1;
+                })))
+        .then(Commands.literal("remove")
+            .then(Commands.argument("roleId", StringArgumentType.string())
+                .executes(ctx -> {
+                  removeDisabledModifiers(ctx.getSource(), StringArgumentType.getString(ctx, "roleId"));
                   return 1;
                 })));
   }

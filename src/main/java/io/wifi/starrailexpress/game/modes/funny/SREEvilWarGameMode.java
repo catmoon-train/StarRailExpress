@@ -212,15 +212,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         }
 
         // 生成杀手池
-        final int killerRolesToSelect = playersWithoutForcedRoles.size() - superLooseEndCount;
-        final Set<String> disabledRoles = players.isEmpty()
-                ? Set.of()
-                : AreasWorldComponent.KEY.get(players.get(0).serverLevel()).getDisabledRoles();
-        List<SRERole> assignedKillers = RoleAssignmentPool.withMapDisabledRoles(
-                disabledRoles, () -> {
-                    RoleAssignmentPool killerPool = createEvilWarRolePool();
-                    return killerPool.selectRoles(killerRolesToSelect);
-                });
+        RoleAssignmentPool killerPool = createEvilWarRolePool();
+        List<SRERole> assignedKillers = killerPool.selectRoles(playersWithoutForcedRoles.size() - superLooseEndCount);
         // 打乱需要分配的玩家列表
         Collections.shuffle(playersWithoutForcedRoles);
         // 前 superLooseEndeCount 个是亡命徒，剩下的为普通杀手，优先分配亡命徒，然后再分配杀手

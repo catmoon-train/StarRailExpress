@@ -13,14 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * 模块化角色分配池 - 处理通用的角色选择和计数逻辑
  * 避免重复代码，提高可维护性
  */
 public class RoleAssignmentPool {
-    private static final ThreadLocal<java.util.Set<String>> MAP_DISABLED_ROLE_IDS = ThreadLocal.withInitial(java.util.Set::of);
     private final WeightedUtil<SRERole> roleWeights;
     private final Map<ResourceLocation, Integer> roleCountMap;
     private final String poolName;
@@ -59,16 +57,6 @@ public class RoleAssignmentPool {
         return createInternal(poolName, filter, true);
     }
 
-    public static <T> T withMapDisabledRoles(java.util.Set<String> disabledRoleIds, Supplier<T> action) {
-        java.util.Set<String> previous = MAP_DISABLED_ROLE_IDS.get();
-        MAP_DISABLED_ROLE_IDS.set(disabledRoleIds == null ? java.util.Set.of() : disabledRoleIds);
-        try {
-            return action.get();
-        } finally {
-            MAP_DISABLED_ROLE_IDS.set(previous);
-        }
-    }
-
     /**
      * 内部方法：创建角色分配池
      */
@@ -80,9 +68,6 @@ public class RoleAssignmentPool {
             if (role.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())
                     || role.identifier().equals(TMMRoles.LOOSE_END.identifier())
                     || !filter.test(role)) {
-                return true;
-            }
-            if (isDisabledByCurrentMap(role)) {
                 return true;
             }
             // 统一API处理
@@ -219,24 +204,5 @@ public class RoleAssignmentPool {
 
     public void setIgnoreRoleOccupiedCount(boolean b) {
         this.ignoreeRoleOccupiedCount = b;
-    }
-
-    private static boolean isDisabledByCurrentMap(SRERole role) {
-        java.util.Set<String> disabledRoleIds = MAP_DISABLED_ROLE_IDS.get();
-        if (disabledRoleIds == null || disabledRoleIds.isEmpty()) {
-            return false;
-        }
-        String fullId = role.identifier().toString();
-        String path = role.identifier().getPath();
-        for (String id : disabledRoleIds) {
-            if (id == null || id.isBlank()) {
-                continue;
-            }
-            String normalized = id.trim();
-            if (normalized.equals(fullId) || normalized.equals(path)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
