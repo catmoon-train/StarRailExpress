@@ -1137,7 +1137,7 @@ public class MapManagerCommand {
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setFallToDeathHeight() {
-    return Commands.literal("enableOxygenDrowning")
+    return Commands.literal("fallToDeathHeight")
         .then(Commands.argument("value", IntegerArgumentType.integer(0))
             .executes(ctx -> {
               setFallToDeathHeight(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "value"));
