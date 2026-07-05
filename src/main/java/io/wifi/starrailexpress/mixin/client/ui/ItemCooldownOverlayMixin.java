@@ -18,7 +18,7 @@ public class ItemCooldownOverlayMixin {
     @Inject(method = "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", at = @At("TAIL"))
     private void sre$renderCooldownOnItem(Font font, ItemStack stack, int x, int y, String text, CallbackInfo ci) {
         // 检查开关：默认关闭，需手动开启
-        if (!io.wifi.starrailexpress.SREClientConfig.instance().showItemCooldownOverlay) return;
+        if (!io.wifi.starrailexpress.SREClientConfig.instance().showItemCooldownOverlayNum) return;
 
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;

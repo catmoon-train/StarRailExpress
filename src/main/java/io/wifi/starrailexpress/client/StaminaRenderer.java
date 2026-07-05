@@ -67,6 +67,9 @@ public class StaminaRenderer {
 		if (CLIENT_CONFIG.showHotbarCooldown) {
 			HotbarCooldownRenderer.render(context, delta);
 		}
+		if (CLIENT_CONFIG.showMainhandCooldown) {
+			HotbarCooldownRenderer.renderMainHandCooldown(context, player, delta);
+		}
 	}
 
 	public static void tick() {
