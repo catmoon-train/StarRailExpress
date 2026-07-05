@@ -9,11 +9,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class ZiplineRiderEntity extends Entity {
     private static final float RIDE_SPEED = 0.05f; // 滑动速度（每 tick 的比例，0~1）
@@ -24,6 +25,8 @@ public class ZiplineRiderEntity extends Entity {
     private BlockPos startPos;
     @Nullable
     private BlockPos endPos;
+    @Nullable
+    private UUID riderId;
     private float progress = 0f; // 0~1，滑动进度
     private int rideTick = 0;
 
@@ -40,6 +43,9 @@ public class ZiplineRiderEntity extends Entity {
     protected void readAdditionalSaveData(CompoundTag tag) {
         NbtUtils.readBlockPos(tag, "StartPos").ifPresent(pos -> this.startPos = pos);
         NbtUtils.readBlockPos(tag, "EndPos").ifPresent(pos -> this.endPos = pos);
+        if (tag.hasUUID("Rider")) {
+            this.riderId = tag.getUUID("Rider");
+        }
         this.progress = tag.getFloat("Progress");
         this.rideTick = tag.getInt("RideTick");
     }
@@ -48,13 +54,15 @@ public class ZiplineRiderEntity extends Entity {
     protected void addAdditionalSaveData(CompoundTag tag) {
         if (startPos != null) tag.put("StartPos", NbtUtils.writeBlockPos(startPos));
         if (endPos != null) tag.put("EndPos", NbtUtils.writeBlockPos(endPos));
+        if (riderId != null) tag.putUUID("Rider", riderId);
         tag.putFloat("Progress", progress);
         tag.putInt("RideTick", rideTick);
     }
 
-    public void setStartAndEnd(BlockPos start, BlockPos end) {
+    public void setStartAndEnd(BlockPos start, BlockPos end, Player rider) {
         this.startPos = start;
         this.endPos = end;
+        this.riderId = rider.getUUID();
         this.progress = 0f;
         this.setPos(ZiplineBlock.ropePoint(start, end, 0.0f));
     }
@@ -63,26 +71,25 @@ public class ZiplineRiderEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (startPos == null || endPos == null) {
-            ejectAndDiscard();
+        if (this.level().isClientSide) {
             return;
         }
 
-        // 检查骑乘者是否仍然有效
-        if (!this.isVehicle()) {
+        if (startPos == null || endPos == null || riderId == null) {
             this.discard();
             return;
         }
 
-        Entity passenger = this.getFirstPassenger();
-        if (passenger == null) {
+        Player rider = this.level().getPlayerByUUID(riderId);
+        if (rider == null || !rider.isAlive() || rider.isSpectator()) {
             this.discard();
             return;
         }
 
-        // 检查脱离条件
-        if (shouldDetach(passenger)) {
-            ejectAndDiscard();
+        Vec3 currentRopePos = ZiplineBlock.ropePoint(startPos, endPos, progress);
+        this.setPos(currentRopePos);
+        if (rider.position().distanceTo(currentRopePos) > MAX_DISTANCE) {
+            this.discard();
             return;
         }
 
@@ -96,70 +103,32 @@ public class ZiplineRiderEntity extends Entity {
         progress += RIDE_SPEED;
         if (progress >= 1.0f) {
             progress = 1.0f;
-            // 到达终点
-            Vec3 endCenter = ZiplineBlock.ropePoint(startPos, endPos, 1.0f);
-            this.setPos(endCenter);
-            ejectAndDiscard();
+            Vec3 endRopePos = ZiplineBlock.ropePoint(startPos, endPos, 1.0f);
+            this.setPos(endRopePos);
+            moveRider(rider, endRopePos);
+            this.discard();
             return;
         }
 
-        Vec3 endCenter = ZiplineBlock.ropePoint(startPos, endPos, 1.0f);
-        Vec3 currentPos = ZiplineBlock.ropePoint(startPos, endPos, progress);
-        this.setPos(currentPos);
+        Vec3 endRopePos = ZiplineBlock.ropePoint(startPos, endPos, 1.0f);
+        Vec3 nextRopePos = ZiplineBlock.ropePoint(startPos, endPos, progress);
+        this.setPos(nextRopePos);
+        moveRider(rider, nextRopePos);
 
-        // 让乘客看向终点
-        if (passenger instanceof Player player) {
-            Vec3 lookTarget = endCenter.subtract(currentPos).normalize();
-            float yaw = (float) Math.toDegrees(Math.atan2(-lookTarget.x, lookTarget.z));
-            float pitch = (float) Math.toDegrees(Math.asin(-lookTarget.y));
-            // 平滑设置朝向
-            player.setYRot(yaw);
-            player.setXRot(pitch);
-        }
+        Vec3 lookTarget = endRopePos.subtract(nextRopePos).normalize();
+        float yaw = (float) Math.toDegrees(Math.atan2(-lookTarget.x, lookTarget.z));
+        float pitch = (float) Math.toDegrees(Math.asin(-lookTarget.y));
+        rider.setYRot(yaw);
+        rider.setXRot(pitch);
 
         rideTick++;
     }
 
-    /**
-     * 检查是否应该脱离滑索
-     */
-    private boolean shouldDetach(Entity passenger) {
-        // 1. 旁观模式检查
-        if (passenger instanceof Player player) {
-            if (player.isSpectator()) {
-                return true;
-            }
-        }
-
-        // 2. 距离检查 - 如果乘客距滑索路径超过 MAX_DISTANCE
-        Vec3 passengerPos = passenger.position();
-        double distanceToPath = passengerPos.distanceTo(this.position().add(0, RIDER_VERTICAL_OFFSET, 0));
-
-        if (distanceToPath > MAX_DISTANCE) {
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    protected void positionRider(Entity passenger, MoveFunction moveFunction) {
-        if (this.hasPassenger(passenger)) {
-            Vec3 targetPos = this.position().add(0, RIDER_VERTICAL_OFFSET, 0);
-            moveFunction.accept(passenger, targetPos.x, targetPos.y, targetPos.z);
-        }
-    }
-
-    @Override
-    public Vec3 getDismountLocationForPassenger(LivingEntity passenger) {
-        return this.position().add(0, RIDER_VERTICAL_OFFSET, 0);
-    }
-
-    private void ejectAndDiscard() {
-        if (this.isVehicle()) {
-            this.ejectPassengers();
-        }
-        this.discard();
+    private void moveRider(Player rider, Vec3 ropePos) {
+        Vec3 riderPos = ropePos.add(0, RIDER_VERTICAL_OFFSET, 0);
+        rider.setDeltaMovement(Vec3.ZERO);
+        rider.setPos(riderPos.x, riderPos.y, riderPos.z);
+        rider.hurtMarked = true;
     }
 
     @Override

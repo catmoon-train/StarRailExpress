@@ -35,10 +35,19 @@ public abstract class WorldRendererMixin {
             original.call(camera, fogType, viewDistance, thickFog, tickDelta);
             return;
         }
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null)return;
+        if (player.hasEffect(ModEffects.VISION_FOG)) {
+            var instance = player.getEffect(ModEffects.VISION_FOG);
+            float end = ModEffects.getVisionFogDistance(instance.getAmplifier());
+            float start = Math.max(0.0f, end - 2.0f);
+            tmm$doFog(start, end);
+            return;
+        }
         if (SREClient.trainComponent != null && SREClient.trainComponent.isFoggy()
                 && SREClient.areaComponent != null && SREClient.areaComponent.fogEnabled
                 && SREClient.isTrainMoving()) {
-            LocalPlayer player = Minecraft.getInstance().player;
+
             if (player.hasEffect(ModEffects.OTHERWORLD_AURA)){
                 if (SREClient.gameComponent== null|| !SREClient.gameComponent.canUseKillerFeatures(player)){
                     tmm$doFog(0, 17);
