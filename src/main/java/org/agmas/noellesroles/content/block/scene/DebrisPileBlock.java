@@ -78,7 +78,9 @@ public class DebrisPileBlock extends BaseEntityBlock implements TaskInstinctShow
     public int taskInstinctId() { return TASK_INSTINCT_ID; }
 
     @Override
-    public boolean shouldRenderTaskInstinct(Level level, BlockState state, BlockPos pos, Player player) { return true; }
+    public boolean shouldRenderTaskInstinct(Level level, BlockState state, BlockPos pos, Player player) {
+        return state.getValue(ACTIVE) && !state.getValue(CLOSED);
+    }
 
     @Override
     public Color taskInstinctRenderColor(BlockState state, BlockPos pos, Player player) {

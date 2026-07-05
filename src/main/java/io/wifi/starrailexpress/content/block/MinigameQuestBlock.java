@@ -221,8 +221,8 @@ public class MinigameQuestBlock extends BaseEntityBlock
                 // 读取该方块的小游戏类型
                 boolean typeMatches = true;
                 if (level
-                        .getBlockEntity(pos) instanceof MinigameQuestBlockEntity questBe) {
-                    String blockMgId = questBe.getMinigameId();
+                        .getBlockEntity(pos) instanceof MinigameQuestBlockEntity questBe2) {
+                    String blockMgId = questBe2.getMinigameId();
                     if (mgComp.targetMinigameId != null && !mgComp.targetMinigameId.isEmpty()
                             && !mgComp.targetMinigameId.equals(blockMgId)) {
                         typeMatches = false;
@@ -232,6 +232,7 @@ public class MinigameQuestBlock extends BaseEntityBlock
                     return true;
                 }
             }
+            return false;
         }
         if (level != null) {
             BlockEntity be = level.getBlockEntity(pos);
@@ -258,13 +259,13 @@ public class MinigameQuestBlock extends BaseEntityBlock
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof MinigameQuestBlockEntity questBe) {
                 int c = questBe.getMarkerColor();
-                // 破坏任务触发点：若颜色为默认绿色则改为红色
-                if (questBe.isSabotageTrigger() && c == 0x00FF00) {
+                // 破坏任务触发点：若颜色为默认金色则改为红色
+                if (questBe.isSabotageTrigger() && c == 0xFFD700) {
                     return Color.RED;
                 }
                 return new Color(c);
             }
         }
-        return Color.GREEN;
+        return new Color(255, 215, 0); // 金色
     }
 }

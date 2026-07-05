@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class MinigameQuestBlockEntity extends SyncingBlockEntity {
 
     private String minigameId = QuestMinigames.getDefaultId();
-    private int markerColor = 0x00FF00; // 默认绿色边框
+    private int markerColor = 0xFFD700; // 默认金色边框
     private boolean isTaskMarker = true; // 默认作为任务路标
     private boolean isSabotageTrigger = false; // 是否破坏任务触发点
     private int sabotageDuration = 60; // 破坏任务持续时间（秒），默认1分钟

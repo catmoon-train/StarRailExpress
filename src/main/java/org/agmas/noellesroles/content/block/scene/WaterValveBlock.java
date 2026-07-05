@@ -102,7 +102,7 @@ public class WaterValveBlock extends PanelBlock implements EntityBlock, TaskInst
 
     @Override
     public boolean shouldRenderTaskInstinct(Level level, BlockState state, BlockPos pos, Player player) {
-        return true;
+        return state.getValue(ACTIVE) && !state.getValue(CLOSED);
     }
 
     @Override
