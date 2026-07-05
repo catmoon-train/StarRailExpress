@@ -1219,6 +1219,8 @@ public class SREClient implements ClientModInitializer {
      * @return 0: 无; 1: 普通惩罚; 2: 限制更多
      */
     public static int getDeathPenaltyType(Player self) {
+        if (!self.isSpectator())
+            return 0;
         var deathPenalty = org.agmas.noellesroles.component.ModComponents.DEATH_PENALTY.get(self);
         if (deathPenalty.hasPenalty()) {
             if (!deathPenalty.chatEnabled)
