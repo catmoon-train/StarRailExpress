@@ -230,20 +230,15 @@ public final class StreamingSpectatorCommand {
 
     private static void sendWatchPayload(ServerPlayer player, Session session, ServerPlayer target) {
         PacketTracker.sendToClient(player,
-                StreamingSpectatorPayload.watch(session.targetUuid, session.cameraMode, inventorySnapshot(target)));
+                StreamingSpectatorPayload.watch(session.targetUuid, session.cameraMode, hotbarSnapshot(target),
+                        target.getInventory().selected));
         session.inventorySyncCooldown = INVENTORY_SYNC_INTERVAL_TICKS;
     }
 
-    private static List<ItemStack> inventorySnapshot(ServerPlayer target) {
-        List<ItemStack> stacks = new ArrayList<>(StreamingSpectatorPayload.INVENTORY_SLOTS);
-        for (ItemStack stack : target.getInventory().items) {
-            stacks.add(stack.copy());
-        }
-        for (ItemStack stack : target.getInventory().armor) {
-            stacks.add(stack.copy());
-        }
-        for (ItemStack stack : target.getInventory().offhand) {
-            stacks.add(stack.copy());
+    private static List<ItemStack> hotbarSnapshot(ServerPlayer target) {
+        List<ItemStack> stacks = new ArrayList<>(StreamingSpectatorPayload.HOTBAR_SLOTS);
+        for (int i = 0; i < StreamingSpectatorPayload.HOTBAR_SLOTS; i++) {
+            stacks.add(target.getInventory().items.get(i).copy());
         }
         return stacks;
     }

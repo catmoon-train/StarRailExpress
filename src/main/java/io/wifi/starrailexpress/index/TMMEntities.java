@@ -44,6 +44,13 @@ public interface TMMEntities {
                     .clientTrackingRange(128)
     );
 
+    EntityType<ZiplineRiderEntity> ZIPLINE_RIDER = registrar.create("zipline_rider",
+            EntityType.Builder.of(ZiplineRiderEntity::new, MobCategory.MISC)
+                    .sized(0.5f, 0.5f)
+                    .clientTrackingRange(256)
+                    .noSummon()
+    );
+
     static void initialize() {
         registrar.registerEntries();
 

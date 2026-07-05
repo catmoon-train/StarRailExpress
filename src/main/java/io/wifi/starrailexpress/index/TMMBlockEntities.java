@@ -3,9 +3,9 @@ package io.wifi.starrailexpress.index;
 import dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar;
 import io.wifi.starrailexpress.SRE;
 
+import io.wifi.starrailexpress.content.block_entity.*;
 import io.wifi.starrailexpress.content.block.entity.HornBlockEntity;
 import io.wifi.starrailexpress.content.block.entity.RemoteRedstoneBlockEntity;
-import io.wifi.starrailexpress.content.block_entity.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -98,6 +98,10 @@ public interface TMMBlockEntities {
 
   BlockEntityType<RemoteRedstoneBlockEntity> REMOTE_REDSTONE = registrar.create("remote_redstone",
       BlockEntityType.Builder.of(RemoteRedstoneBlockEntity::new, SREBlocks.REMOTE_REDSTONE));
+
+  BlockEntityType<ZiplineBlockEntity> ZIPLINE = registrar.create("zipline",
+      BlockEntityType.Builder.of((pos, state) -> new ZiplineBlockEntity(TMMBlockEntities.ZIPLINE, pos, state),
+          TMMBlocks.ZIPLINE));
 
   BlockEntityType<UpSmallDoorBlockEntity> UP_GLASS_DOOR = registrar
       .create("up_glass_door",

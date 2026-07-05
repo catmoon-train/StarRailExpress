@@ -3342,7 +3342,7 @@
   "hud.noellesroles.wraith_assassin.costs": "消耗：突襲 %1$s / 嚎叫 %2$s / 顯現 %3$s",
   "hud.noellesroles.wraith_assassin.energy": "目前 SAN：%1$s/%2$s",
   "message.noellesroles.wraith_assassin.drain_cooldown": "吸收 SAN 冷卻中，還需 %s 秒。",
-  "message.noellesroles.wraith_assassin.cannot_attack": "你的理智不足以攻擊冤魂…需要SAN<20或在冤魂顯現時才能攻擊。",
+  "message.noellesroles.wraith_assassin.cannot_attack": "你的理智不足以攻擊冤魂…需要 SAN<40 或在冤魂顯現時才能攻擊。",
   "announcement.star.role.salted_fish": "鹹魚",
   "announcement.star.goals.salted_fish": "平民陣營。躺平也算一種工作方式。",
   "skill.noellesroles.salted_fish.sunbathe": "面朝太陽",

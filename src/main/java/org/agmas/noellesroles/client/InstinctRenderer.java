@@ -923,10 +923,10 @@ public class InstinctRenderer {
                         && targetPlayer != self
                         && SREClient.isPlayerAliveAndInSurvival()) {
                     int san = Math.round(SREPlayerMoodComponent.KEY.get(targetPlayer).getMood() * 100.0f);
-                    if (san < 10) {
+                    if (san < 20) {
                         return 0x2C8DFF;
                     }
-                    if (san < 30) {
+                    if (san < 40) {
                         return 0xFFD84A;
                     }
                 }
@@ -937,7 +937,7 @@ public class InstinctRenderer {
                     if (selfRole != null && !selfRole.isKiller()) {
                         int viewerSan = Math.round(
                                 SREPlayerMoodComponent.KEY.get(self).getMood() * 100.0f);
-                        if (viewerSan < 20
+                        if (viewerSan < 40
                                 && targetPlayer.hasEffect(ModEffects.WRAITH_DIMENSION)
                                 && !targetPlayer.hasEffect(ModEffects.WRAITH_MANIFEST)) {
                             return 0xAA66FF;

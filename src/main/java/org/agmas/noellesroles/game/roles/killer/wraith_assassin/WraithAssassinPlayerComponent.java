@@ -45,20 +45,20 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     public static final ComponentKey<WraithAssassinPlayerComponent> KEY = ModComponents.WRAITH_ASSASSIN;
 
     public static final int MAX_ENERGY = 1000;
-    public static final int LOW_SAN_BLUE = 20;
-    public static final int LOW_SAN_YELLOW = 30;
-    public static final int ASSAULT_COST = 30;
-    public static final int WAIL_COST = 100;
+    public static final int LOW_SAN_BLUE = 40;
+    public static final int LOW_SAN_YELLOW = 50;
+    public static final int ASSAULT_COST = 40;
+    public static final int WAIL_COST = 110;
     public static final int MANIFEST_COST = 320;
     public static final int MANIFEST_TICKS = 15 * 20;
     public static final int PANIC_TICKS = 8 * 20;
     public static final int WAIL_RADIUS = 12;
-    public static final int WAIL_SAN_DAMAGE = 28;
+    public static final int WAIL_SAN_DAMAGE = 25;
     public static final int WAIL_SELF_STUN_TICKS = 10; // 0.5秒
     public static final int DRAIN_RADIUS = 8;
-    public static final int DRAIN_SAN_AMOUNT = 30;
+    public static final int DRAIN_SAN_AMOUNT = 20;
     /** 单次吸收（被动或主动）最多获得的能量上限。 */
-    public static final int MAX_DRAIN_ENERGY_PER_EVENT = 30;
+    public static final int MAX_DRAIN_ENERGY_PER_EVENT = 25;
     public static final int DRAIN_COOLDOWN_TICKS = 30 * 20;
     public static final int PASSIVE_DRAIN_INTERVAL = 5 * 20;
     public static final int PASSIVE_DRAIN_AMOUNT = 5;
@@ -421,10 +421,14 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         self.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, WAIL_SELF_STUN_TICKS, 0, false, false, false));
         self.addEffect(new MobEffectInstance(ModEffects.USED_BANED, WAIL_SELF_STUN_TICKS, 0, false, false, false));
         Vec3 selfPos = self.position().add(0, self.getBbHeight() / 2, 0);
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 20; i++) {
             double angle = Math.random() * Math.PI * 2;
             double pitch = Math.acos(2 * Math.random() - 1);
-
+            level.sendParticles(DustParticleOptions.REDSTONE,
+                    selfPos.x + Math.cos(angle) * WAIL_RADIUS * Math.sin(pitch),
+                    selfPos.y + WAIL_RADIUS * Math.cos(pitch),
+                    selfPos.z + Math.sin(angle) * WAIL_RADIUS * Math.sin(pitch),
+                    1, 0.05, 0.05, 0.05, 0.01);
         }
 
         for (ServerPlayer target : level.players()) {

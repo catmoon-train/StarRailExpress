@@ -3391,7 +3391,7 @@
   "message.noellesroles.wraith_assassin.drain": "You drained %1$s SAN from %2$s.",
   "message.noellesroles.wraith_assassin.drain_area": "You drained %1$s total SAN from %2$s nearby players.",
   "message.noellesroles.wraith_assassin.drain_cooldown": "SAN Drain is cooling down: %ss remaining.",
-  "message.noellesroles.wraith_assassin.cannot_attack": "Your sanity is too high to attack the Wraith... Requires SAN<20 or wait for the Wraith to manifest.",
+  "message.noellesroles.wraith_assassin.cannot_attack": "Your sanity is too high to attack the Wraith... Requires SAN<40 or wait for the Wraith to manifest.",
   "hud.noellesroles.wraith_assassin.energy": "Current SAN: %1$s/%2$s",
   "hud.noellesroles.wraith_assassin.costs": "Costs: Assault %1$s / Wail %2$s / Manifest %3$s",
   "hud.noellesroles.wraith_assassin.drain_cooldown": "Drain cooldown: %ss",

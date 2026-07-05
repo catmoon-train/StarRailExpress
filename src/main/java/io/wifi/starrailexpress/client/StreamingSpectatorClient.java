@@ -29,14 +29,21 @@ public final class StreamingSpectatorClient {
     private static int cameraMode = StreamingSpectatorPayload.CAMERA_NONE;
     private static boolean cameraBound;
     private static List<ItemStack> targetInventory = List.of();
+    private static int selectedHotbarSlot = -1;
+    private static final float ROLE_HUD_SCALE = 1.4F;
     private static final float DESCRIPTION_SCALE = 0.6F;
-    private static final float ITEM_SCALE = 0.75F;
-    private static final int SLOT_SIZE = 12;
-    private static final int SLOT_GAP = 2;
-    private static final int INVENTORY_COLUMNS = 9;
-    private static final int MAIN_INVENTORY_SLOTS = 36;
-    private static final int PANEL_FILL = 0x78141822;
-    private static final int PANEL_BORDER = 0x4A5F9FD7;
+    private static final int PANEL_FILL = 0x7A3A2408;
+    private static final int PANEL_BORDER = 0x99E2B654;
+    private static final int PANEL_SHADOW = 0x26000000;
+    private static final int GOLD_TITLE = 0xFFFFDA76;
+    private static final int GOLD_HEADING = 0xFFFFC44D;
+    private static final int GOLD_TEXT = 0xFFFFF0C3;
+    private static final int GOLD_MUTED = 0xFFD8BE76;
+    private static final int GOLD_WARNING = 0xFFFFC29B;
+    private static final int HOTBAR_SLOTS = StreamingSpectatorPayload.HOTBAR_SLOTS;
+    private static final int HOTBAR_WIDTH = 182;
+    private static final int HOTBAR_HEIGHT = 22;
+    private static final int HOTBAR_SLOT_SIZE = 20;
 
     private StreamingSpectatorClient() {
     }
@@ -55,6 +62,7 @@ public final class StreamingSpectatorClient {
         targetUuid = payload.targetUuid();
         cameraMode = payload.cameraMode();
         targetInventory = copyInventory(payload.inventory());
+        selectedHotbarSlot = payload.selectedHotbarSlot();
         if (!active || targetUuid == null) {
             clearCameraBinding(client);
         } else if (!targetUuid.equals(previousTarget)) {
@@ -90,69 +98,86 @@ public final class StreamingSpectatorClient {
         Font font = client.font;
         int screenWidth = client.getWindow().getGuiScaledWidth();
         int screenHeight = client.getWindow().getGuiScaledHeight();
-        int width = Mth.clamp(screenWidth / 3, 190, 310);
-        int x = 10;
-        int y = 34;
-        int wrapWidth = width - 24;
-
-        List<HudLine> lines = new ArrayList<>();
         Player target = targetUuid == null ? null : client.level.getPlayerByUUID(targetUuid);
-        if (target == null) {
-            addWrapped(lines, font,
-                    Component.translatable("hud.sre.streaming_spectator.title").withStyle(ChatFormatting.BOLD),
-                    wrapWidth, 0xFFF3DEAD, 0);
-            addWrapped(lines, font,
-                    Component.translatable("hud.sre.streaming_spectator.waiting"), wrapWidth, 0xFFD6DCE5, 0);
-        } else {
-            buildTargetLines(lines, font, wrapWidth, target);
-        }
 
-        int inventoryHeight = target == null ? 0 : inventoryHeight(font);
-        int maxPanelHeight = Math.max(58, screenHeight - y - 24);
-        int maxTextHeight = Math.max(0, maxPanelHeight - 18 - inventoryHeight);
-        VisibleLines visible = collectVisibleLines(lines, maxTextHeight, font);
-        int ellipsisHeight = visible.truncated() ? lineHeight(font, 1.0F) : 0;
-        int height = 18 + visible.height() + ellipsisHeight + inventoryHeight;
-
-        drawPanel(guiGraphics, x, y, width, height, PANEL_FILL, PANEL_BORDER);
-        int lineY = y + 10;
-        for (int i = 0; i < visible.count(); i++) {
-            HudLine line = lines.get(i);
-            drawLine(guiGraphics, font, line, x + 12 + line.indent(), lineY);
-            lineY += line.height();
-        }
-        if (visible.truncated()) {
-            guiGraphics.drawString(font, Component.literal("..."), x + 12, lineY, 0xFFB8C0CA, false);
-            lineY += ellipsisHeight;
-        }
+        renderRoleHud(guiGraphics, font, screenWidth, screenHeight, target);
         if (target != null) {
-            renderInventory(guiGraphics, font, x + 12, lineY, wrapWidth);
+            renderModifierHud(guiGraphics, font, screenWidth, screenHeight, target);
+            renderTargetHotbar(guiGraphics, font, screenWidth, screenHeight);
         }
     }
 
-    private static void buildTargetLines(List<HudLine> lines, Font font, int wrapWidth, Player target) {
+    private static void renderRoleHud(GuiGraphics guiGraphics, Font font, int screenWidth, int screenHeight,
+            Player target) {
+        int x = 10;
+        int y = 28;
+        int width = scaledRolePanelWidth(screenWidth);
+        int wrapWidth = width - 24;
+        int maxPanelHeight = Math.max(54, Mth.floor(screenHeight * 0.46F / ROLE_HUD_SCALE));
+
+        List<HudLine> lines = new ArrayList<>();
+        if (target == null) {
+            addWrapped(lines, font,
+                    Component.translatable("hud.sre.streaming_spectator.title").withStyle(ChatFormatting.BOLD),
+                    wrapWidth, GOLD_TITLE, 0);
+            addWrapped(lines, font,
+                    Component.translatable("hud.sre.streaming_spectator.waiting"), wrapWidth, GOLD_TEXT, 0);
+        } else {
+            buildRoleLines(lines, font, wrapWidth, target);
+        }
+
+        PanelLayout layout = measurePanel(lines, maxPanelHeight, font);
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(x, y, 0.0F);
+        guiGraphics.pose().scale(ROLE_HUD_SCALE, ROLE_HUD_SCALE, 1.0F);
+        renderTextPanel(guiGraphics, font, 0, 0, width, lines, layout);
+        guiGraphics.pose().popPose();
+    }
+
+    private static int scaledRolePanelWidth(int screenWidth) {
+        int upper = Math.min(310, Math.max(150, Mth.floor((screenWidth - 20) / ROLE_HUD_SCALE)));
+        int lower = Math.min(190, upper);
+        return Mth.clamp(screenWidth / 3, lower, upper);
+    }
+
+    private static void renderModifierHud(GuiGraphics guiGraphics, Font font, int screenWidth, int screenHeight,
+            Player target) {
+        int width = Mth.clamp(screenWidth / 3, 190, 310);
+        int wrapWidth = width - 24;
+        List<HudLine> lines = new ArrayList<>();
+        buildModifierLines(lines, font, wrapWidth, target);
+
+        int maxPanelHeight = Math.max(58, screenHeight / 3);
+        PanelLayout layout = measurePanel(lines, maxPanelHeight, font);
+        int x = 10;
+        int y = Math.max(34, screenHeight - layout.height() - 34);
+        renderTextPanel(guiGraphics, font, x, y, width, lines, layout);
+    }
+
+    private static void buildRoleLines(List<HudLine> lines, Font font, int wrapWidth, Player target) {
         addWrapped(lines, font,
                 Component.translatable("hud.sre.streaming_spectator.target", target.getDisplayName())
                         .withStyle(ChatFormatting.BOLD),
-                wrapWidth, 0xFFF3DEAD, 0);
+                wrapWidth, GOLD_TITLE, 0);
 
         SRERole role = SREClient.gameComponent == null ? null : SREClient.gameComponent.getRole(target);
         if (role != null) {
-            addWrapped(lines, font, role.getName().copy().withColor(role.color()), wrapWidth, 0xFFFFFFFF, 0);
-            addDescription(lines, font, role.getSimpleDescription(), wrapWidth, 0xFFDDE3EA, 8);
+            addWrapped(lines, font, role.getName().copy().withColor(GOLD_HEADING), wrapWidth, GOLD_HEADING, 0);
+            addDescription(lines, font, role.getSimpleDescription(), wrapWidth, GOLD_TEXT, 8);
         } else {
             addWrapped(lines, font,
-                    Component.translatable("hud.sre.streaming_spectator.unknown_role"), wrapWidth, 0xFFFFB0A8, 0);
+                    Component.translatable("hud.sre.streaming_spectator.unknown_role"), wrapWidth, GOLD_WARNING, 0);
         }
+    }
 
-        addSpacer(lines);
+    private static void buildModifierLines(List<HudLine> lines, Font font, int wrapWidth, Player target) {
         addWrapped(lines, font,
                 Component.translatable("hud.sre.streaming_spectator.modifiers").withStyle(ChatFormatting.BOLD),
-                wrapWidth, 0xFFE4CAA1, 0);
+                wrapWidth, GOLD_HEADING, 0);
         if (SREClient.modifierComponent == null) {
             addWrapped(lines, font,
                     Component.translatable("hud.sre.streaming_spectator.modifiers_unavailable"),
-                    wrapWidth, 0xFFB8C0CA, 8);
+                    wrapWidth, GOLD_MUTED, 8);
             return;
         }
 
@@ -160,13 +185,13 @@ public final class StreamingSpectatorClient {
         modifiers.sort(Comparator.comparing(modifier -> modifier.identifier().toString()));
         if (modifiers.isEmpty()) {
             addWrapped(lines, font,
-                    Component.translatable("hud.sre.streaming_spectator.none"), wrapWidth, 0xFFB8C0CA, 8);
+                    Component.translatable("hud.sre.streaming_spectator.none"), wrapWidth, GOLD_MUTED, 8);
             return;
         }
 
         for (SREModifier modifier : modifiers) {
-            addWrapped(lines, font, modifier.getName(true), wrapWidth, 0xFFFFFFFF, 8);
-            addDescription(lines, font, modifier.getSimpleDescription(), wrapWidth, 0xFFDDE3EA, 16);
+            addWrapped(lines, font, modifier.getName(true), wrapWidth, GOLD_TEXT, 8);
+            addDescription(lines, font, modifier.getSimpleDescription(), wrapWidth, GOLD_MUTED, 16);
         }
     }
 
@@ -222,6 +247,7 @@ public final class StreamingSpectatorClient {
         targetUuid = null;
         cameraMode = StreamingSpectatorPayload.CAMERA_NONE;
         targetInventory = List.of();
+        selectedHotbarSlot = -1;
         clearCameraBinding(client);
     }
 
@@ -233,12 +259,33 @@ public final class StreamingSpectatorClient {
     }
 
     private static void drawPanel(GuiGraphics guiGraphics, int x, int y, int width, int height, int fill, int border) {
-        guiGraphics.fill(x + 2, y + 2, x + width + 2, y + height + 2, 0x22000000);
+        guiGraphics.fill(x + 2, y + 2, x + width + 2, y + height + 2, PANEL_SHADOW);
         guiGraphics.fill(x, y, x + width, y + height, fill);
         guiGraphics.fill(x, y, x + width, y + 1, border);
         guiGraphics.fill(x, y + height - 1, x + width, y + height, border);
         guiGraphics.fill(x, y, x + 1, y + height, border);
         guiGraphics.fill(x + width - 1, y, x + width, y + height, border);
+    }
+
+    private static PanelLayout measurePanel(List<HudLine> lines, int maxPanelHeight, Font font) {
+        int maxTextHeight = Math.max(0, maxPanelHeight - 18);
+        VisibleLines visible = collectVisibleLines(lines, maxTextHeight, font);
+        int ellipsisHeight = visible.truncated() ? lineHeight(font, 1.0F) : 0;
+        return new PanelLayout(18 + visible.height() + ellipsisHeight, visible);
+    }
+
+    private static void renderTextPanel(GuiGraphics guiGraphics, Font font, int x, int y, int width,
+            List<HudLine> lines, PanelLayout layout) {
+        drawPanel(guiGraphics, x, y, width, layout.height(), PANEL_FILL, PANEL_BORDER);
+        int lineY = y + 10;
+        for (int i = 0; i < layout.visible().count(); i++) {
+            HudLine line = lines.get(i);
+            drawLine(guiGraphics, font, line, x + 12 + line.indent(), lineY);
+            lineY += line.height();
+        }
+        if (layout.visible().truncated()) {
+            guiGraphics.drawString(font, Component.literal("..."), x + 12, lineY, GOLD_MUTED, false);
+        }
     }
 
     private static VisibleLines collectVisibleLines(List<HudLine> lines, int maxHeight, Font font) {
@@ -275,58 +322,41 @@ public final class StreamingSpectatorClient {
         return Math.max(1, Mth.ceil(font.lineHeight * scale)) + 2;
     }
 
-    private static int inventoryHeight(Font font) {
-        return 4 + font.lineHeight + 4
-                + (MAIN_INVENTORY_SLOTS / INVENTORY_COLUMNS) * (SLOT_SIZE + SLOT_GAP)
-                + 4 + SLOT_SIZE;
-    }
+    private static void renderTargetHotbar(GuiGraphics guiGraphics, Font font, int screenWidth, int screenHeight) {
+        int x = screenWidth / 2 - HOTBAR_WIDTH / 2;
+        int y = screenHeight - HOTBAR_HEIGHT;
 
-    private static void renderInventory(GuiGraphics guiGraphics, Font font, int x, int y, int width) {
-        int cursorY = y + 4;
-        guiGraphics.drawString(font,
-                Component.translatable("hud.sre.streaming_spectator.inventory").withStyle(ChatFormatting.BOLD),
-                x, cursorY, 0xFFE4CAA1, false);
-        cursorY += font.lineHeight + 4;
+        guiGraphics.fill(x + 1, y + 1, x + HOTBAR_WIDTH + 1, y + HOTBAR_HEIGHT + 1, PANEL_SHADOW);
+        guiGraphics.fill(x, y, x + HOTBAR_WIDTH, y + HOTBAR_HEIGHT, 0x7A2C1B07);
+        guiGraphics.fill(x, y, x + HOTBAR_WIDTH, y + 1, PANEL_BORDER);
+        guiGraphics.fill(x, y + HOTBAR_HEIGHT - 1, x + HOTBAR_WIDTH, y + HOTBAR_HEIGHT, PANEL_BORDER);
+        guiGraphics.fill(x, y, x + 1, y + HOTBAR_HEIGHT, PANEL_BORDER);
+        guiGraphics.fill(x + HOTBAR_WIDTH - 1, y, x + HOTBAR_WIDTH, y + HOTBAR_HEIGHT, PANEL_BORDER);
 
-        int gridWidth = INVENTORY_COLUMNS * SLOT_SIZE + (INVENTORY_COLUMNS - 1) * SLOT_GAP;
-        int gridX = x + Math.max(0, (width - gridWidth) / 2);
-        for (int slot = 0; slot < MAIN_INVENTORY_SLOTS; slot++) {
-            int row = slot / INVENTORY_COLUMNS;
-            int col = slot % INVENTORY_COLUMNS;
-            int inventoryIndex = slot < 27 ? slot + 9 : slot - 27;
-            renderInventorySlot(guiGraphics, font, inventoryIndex,
-                    gridX + col * (SLOT_SIZE + SLOT_GAP),
-                    cursorY + row * (SLOT_SIZE + SLOT_GAP));
-        }
-
-        cursorY += (MAIN_INVENTORY_SLOTS / INVENTORY_COLUMNS) * (SLOT_SIZE + SLOT_GAP) + 4;
-        int[] equipmentSlots = {39, 38, 37, 36, 40};
-        int equipmentX = gridX + Math.max(0,
-                (gridWidth - equipmentSlots.length * SLOT_SIZE - (equipmentSlots.length - 1) * SLOT_GAP) / 2);
-        for (int i = 0; i < equipmentSlots.length; i++) {
-            renderInventorySlot(guiGraphics, font, equipmentSlots[i],
-                    equipmentX + i * (SLOT_SIZE + SLOT_GAP), cursorY);
+        for (int slot = 0; slot < HOTBAR_SLOTS; slot++) {
+            int slotX = x + 1 + slot * HOTBAR_SLOT_SIZE;
+            renderHotbarSlot(guiGraphics, font, slot, slotX, y + 1);
         }
     }
 
-    private static void renderInventorySlot(GuiGraphics guiGraphics, Font font, int stackIndex, int x, int y) {
-        guiGraphics.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, 0x55212935);
-        guiGraphics.fill(x, y, x + SLOT_SIZE, y + 1, 0x55D8E2EF);
-        guiGraphics.fill(x, y + SLOT_SIZE - 1, x + SLOT_SIZE, y + SLOT_SIZE, 0x552B3340);
-        guiGraphics.fill(x, y, x + 1, y + SLOT_SIZE, 0x55D8E2EF);
-        guiGraphics.fill(x + SLOT_SIZE - 1, y, x + SLOT_SIZE, y + SLOT_SIZE, 0x552B3340);
-
-        ItemStack stack = getInventoryStack(stackIndex);
-        if (stack.isEmpty()) {
-            return;
+    private static void renderHotbarSlot(GuiGraphics guiGraphics, Font font, int slot, int x, int y) {
+        boolean selected = slot == selectedHotbarSlot;
+        if (selected) {
+            guiGraphics.fill(x - 1, y - 1, x + HOTBAR_SLOT_SIZE + 1, y + HOTBAR_SLOT_SIZE + 1, 0x80FFD86A);
+            guiGraphics.fill(x, y, x + HOTBAR_SLOT_SIZE, y + HOTBAR_SLOT_SIZE, 0x66351F05);
+        } else {
+            guiGraphics.fill(x, y, x + HOTBAR_SLOT_SIZE, y + HOTBAR_SLOT_SIZE, 0x55351F05);
         }
+        guiGraphics.fill(x, y, x + HOTBAR_SLOT_SIZE, y + 1, 0x7AFFE08A);
+        guiGraphics.fill(x, y + HOTBAR_SLOT_SIZE - 1, x + HOTBAR_SLOT_SIZE, y + HOTBAR_SLOT_SIZE, 0x7A7D5520);
+        guiGraphics.fill(x, y, x + 1, y + HOTBAR_SLOT_SIZE, 0x7AFFE08A);
+        guiGraphics.fill(x + HOTBAR_SLOT_SIZE - 1, y, x + HOTBAR_SLOT_SIZE, y + HOTBAR_SLOT_SIZE, 0x7A7D5520);
 
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(x, y, 0.0F);
-        guiGraphics.pose().scale(ITEM_SCALE, ITEM_SCALE, 1.0F);
-        guiGraphics.renderItem(stack, 0, 0);
-        guiGraphics.renderItemDecorations(font, stack, 0, 0);
-        guiGraphics.pose().popPose();
+        ItemStack stack = getInventoryStack(slot);
+        if (!stack.isEmpty()) {
+            guiGraphics.renderItem(stack, x + 2, y + 2);
+            guiGraphics.renderItemDecorations(font, stack, x + 2, y + 2);
+        }
     }
 
     private static ItemStack getInventoryStack(int index) {
@@ -352,5 +382,8 @@ public final class StreamingSpectatorClient {
     }
 
     private record VisibleLines(int count, int height, boolean truncated) {
+    }
+
+    private record PanelLayout(int height, VisibleLines visible) {
     }
 }

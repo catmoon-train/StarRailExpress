@@ -502,6 +502,9 @@ public interface TMMBlocks {
     Block STAINLESS_STEEL_LADDER = registrar.createWithItem("stainless_steel_ladder",
             new TrainLadderBlock(BlockBehaviour.Properties.of().noOcclusion().strength(0.5f).sound(SoundType.LANTERN)),
             TMMItems.DECORATION_GROUP);
+    Block ZIPLINE = registrar.createWithItem("zipline",
+            new ZiplineBlock(),
+            TMMItems.DECORATION_GROUP);
     Block OAK_BRANCH = createBranch("oak_branch", Blocks.OAK_WOOD, registrar);
     Block SPRUCE_BRANCH = createBranch("spruce_branch", Blocks.SPRUCE_WOOD, registrar);
     Block BIRCH_BRANCH = createBranch("birch_branch", Blocks.BIRCH_WOOD, registrar);
