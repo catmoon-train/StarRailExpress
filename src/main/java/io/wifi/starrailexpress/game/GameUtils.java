@@ -1055,7 +1055,6 @@ public class GameUtils {
         world.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(false, world.getServer());
         world.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, world.getServer());
         gameComponent.getGameMode().finalizeGame(world, gameComponent);
-        serverCacheKillState.clear();
         OnGameEnd.EVENT.invoker().onGameEnd(world, gameComponent);
         SRE.REPLAY_MANAGER.finalizeReplay(roundEnd.getWinStatus(), roundEnd);
         // 对局结束后把完整回放时间线作为全局战绩异步保存到远端数据库（未开启 MySQL 同步时自动跳过）。
@@ -1121,6 +1120,7 @@ public class GameUtils {
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(world);
         worldModifierComponent.modifiers.clear();
         worldModifierComponent.sync();
+        serverCacheKillState.clear();
     }
 
     public static void recordWinStats(ServerLevel world, SREGameRoundEndComponent roundEnd,
