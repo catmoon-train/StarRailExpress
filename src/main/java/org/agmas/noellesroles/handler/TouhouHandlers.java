@@ -73,7 +73,7 @@ public class TouhouHandlers {
     }
 
     public static void registerSkills() {
-        RoleSkill.register(MountainRoles.NITORI,
+        RoleSkill.register(THMiscRoles.KOMACHI_ID,
                 RoleSkill.skill(SRE.id("komachi_pull"), "skill.noellesroles.komachi_pull", context -> {
                     Player player = context.player();
                     var target = RopeItem.findTargetedPlayerInView(player.level(), player, 20);
