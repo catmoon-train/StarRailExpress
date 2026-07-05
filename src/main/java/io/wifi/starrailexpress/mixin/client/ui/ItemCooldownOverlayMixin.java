@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GuiGraphics.class)
 public class ItemCooldownOverlayMixin {
 
-    @Inject(method = "renderItemDecorations", at = @At("TAIL"))
+    @Inject(method = "renderItemDecorations*", at = @At("TAIL"))
     private void sre$renderCooldownOnItem(Font font, ItemStack stack, int x, int y, String text, CallbackInfo ci) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
