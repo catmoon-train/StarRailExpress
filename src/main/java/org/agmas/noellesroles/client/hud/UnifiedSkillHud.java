@@ -8,8 +8,6 @@ import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-
-import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 
 import java.util.List;
@@ -133,9 +131,7 @@ public final class UnifiedSkillHud {
                 }
                 if (skill.shifted() && isReady) {
                     line = line.copy()
-                            .append(Component.translatable("hud.sre.skill.shift_to_use",
-                                    client.options.keyShift.getTranslatedKeyMessage(),
-                                    NoellesrolesClient.abilityBind.getTranslatedKeyMessage()))
+                            .append(Component.translatable("hud.sre.skill.shift_to_use"))
                             .withStyle(ChatFormatting.GRAY);
                 }
 

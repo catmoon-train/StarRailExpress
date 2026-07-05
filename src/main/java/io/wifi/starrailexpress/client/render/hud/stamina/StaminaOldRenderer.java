@@ -6,7 +6,6 @@ import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.client.render.hud.stamina.utils.RedScreenRenderer;
 import io.wifi.starrailexpress.util.ProgressProvider;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -58,11 +57,11 @@ public class StaminaOldRenderer {
         if (isChargingWeapon) {
             // 物品蓄力条
             if (staminaPercent < 0.2f) {
-                colour = java.awt.Color.CYAN.getRGB();
+                colour = new java.awt.Color(53, 188, 122).getRGB();
             } else if (staminaPercent < 0.6f) {
-                colour = ChatFormatting.AQUA.getColor() | 0xFF000000;
+                colour = Mth.color(1f, 0.85f, 0.1f) | 0xFF000000;// 黄
             } else {
-                colour = java.awt.Color.BLUE.getRGB();
+                colour = Mth.color(1f, 0.2f, 0.2f) | 0xFF000000; // 红
             }
         } else {
             // 体力条颜色 - 黄色，低于1/5时变红
@@ -109,7 +108,6 @@ public class StaminaOldRenderer {
 
         context.pose().popPose();
     }
-
 
     /**
      * 蓄力状态条缓动曲线：前慢后快（二次缓入 ease-in）。
@@ -209,7 +207,6 @@ public class StaminaOldRenderer {
         }
     }
 
-    
     public static void tick() {
         view.update();
         // 如果不在使用蓄力物品，重置蓄力状态
