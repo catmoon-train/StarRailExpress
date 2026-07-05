@@ -54,20 +54,17 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         return new HashSet<>(this.disabledTasks);
     }
 
-    /** 此地图禁用的职业 ID。可填完整 ID 或职业 path。 */
+    /**
+     * 此地图禁用的职业 ID。可填完整 ID 或职业 path。
+     * 直接访问，避免额外消耗
+     */
     public HashSet<String> disabledRoles = new HashSet<>();
+    
+    /**
+     * 此地图禁用的修饰符 ID。可填完整 ID 或职业 path。
+     * 直接访问，避免额外消耗
+     */
     public HashSet<String> disabledModifiers = new HashSet<>();
-
-    public HashSet<String> getDisabledModifiers() {
-        if (this.disabledRoles == null)
-            return new HashSet<>();
-        return new HashSet<>(this.disabledRoles);
-    }
-    public HashSet<String> getDisabledRoles() {
-        if (this.disabledRoles == null)
-            return new HashSet<>();
-        return new HashSet<>(this.disabledRoles);
-    }
 
     /** 启用场景任务列表（仅可填场景任务名）。为空表示不启用任何场景任务。 */
     public HashSet<String> enableSceneTask = new HashSet<>();
@@ -194,40 +191,40 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public double sceneOffsetX = 0;
     public double sceneOffsetY = 125; // 默认向上偏移125格（场景放置在游玩区域下方100-150格）
     public double sceneOffsetZ = 0;
-    
+
     // 雪花效果配置（默认关闭）
     public boolean snowEnabled = false;
-    
+
     // 沙尘暴效果配置（默认关闭）
     public boolean sandEnabled = false;
 
     // 雾气效果配置（默认启用）
     public boolean fogEnabled = true;
-    
+
     // 雾气可见范围（fogEnd，默认200），仅在 fogEnabled 启用时生效
     public float fogEnd = 200.0f;
 
     // 雾气形状（SPHERE 或 CYLINDER），默认 SPHERE，仅在 fogEnabled 启用时生效
     public String fogShape = "SPHERE";
-    
+
     // 天气配置（默认晴天）
     public String weather = "clear"; // clear, rain, thunder
-    
+
     // 重力modifier（默认0）
     public double gravity = 0;
-    
+
     // 药水效果配置（格式：["namespace:effect_id,level", ...]，为空数组则无效果）
     public List<String> effect = new ArrayList<>();
-    
+
     // 时间配置（默认午夜 18000）
     public long time = 18000;
-    
+
     // 昼夜循环配置（默认关闭）
     public boolean daylightCycle = false;
-    
+
     // 天气循环配置（默认关闭）
     public boolean weatherCycle = false;
-    
+
     public boolean mustCopy = false;
 
     // 小游戏任务系统（默认关闭）：每完成 2 个普通任务派发一个小游戏任务，完成后奖励游戏代币
@@ -504,13 +501,14 @@ public class AreasWorldComponent implements AutoSyncedComponent {
                 : null;
         this.canJump = tag.contains("canJump") ? tag.getBoolean("canJump") : false;
         this.canSwim = tag.contains("canSwim") ? tag.getBoolean("canSwim") : false;
-        this.enableOxygenDrowning = tag.contains("enableOxygenDrowning") && tag.getBoolean("enableOxygenDrowning");
+        this.enableOxygenDrowning = tag.contains("drowning") && tag.getBoolean("drowning");
         this.mapStatusBar = tag.contains("mapStatusBar")
                 ? MapStatusBarType.byName(tag.getString("mapStatusBar"))
                 : MapStatusBarType.NONE;
         this.haveOutsideSound = tag.contains("haveOutsideSound") ? tag.getBoolean("haveOutsideSound") : false;
         this.sceneOutsideSound = tag.contains("sceneOutsideSound") && !tag.getString("sceneOutsideSound").isBlank()
-                ? tag.getString("sceneOutsideSound") : "train";
+                ? tag.getString("sceneOutsideSound")
+                : "train";
         this.snowEnabled = tag.contains("snowEnabled") ? tag.getBoolean("snowEnabled") : false;
         this.sandEnabled = tag.contains("sandEnabled") ? tag.getBoolean("sandEnabled") : false;
         this.fogEnabled = tag.contains("fogEnabled") ? tag.getBoolean("fogEnabled") : true;
@@ -624,7 +622,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         tag.putInt("roomCount", this.roomCount);
         tag.putBoolean("canJump", this.canJump);
         tag.putBoolean("canSwim", this.canSwim);
-        tag.putBoolean("enableOxygenDrowning", this.enableOxygenDrowning);
+        tag.putBoolean("drowning", this.enableOxygenDrowning);
         tag.putString("mapStatusBar", (this.mapStatusBar == null ? MapStatusBarType.NONE : this.mapStatusBar).name());
         tag.putBoolean("haveOutsideSound", this.haveOutsideSound);
         tag.putString("sceneOutsideSound", this.sceneOutsideSound);
@@ -655,7 +653,15 @@ public class AreasWorldComponent implements AutoSyncedComponent {
                 disabledRolesList.add(net.minecraft.nbt.StringTag.valueOf(role));
             }
         }
+
+        var disabledModifiersList = new net.minecraft.nbt.ListTag();
+        if (this.disabledModifiers != null) {
+            for (String role : this.disabledModifiers) {
+                disabledModifiersList.add(net.minecraft.nbt.StringTag.valueOf(role));
+            }
+        }
         tag.put("disabledRoles", disabledRolesList);
+        tag.put("disabledModifiers", disabledModifiersList);
 
         // 序列化 availableMinigameIds
         var minigameIdsList = new net.minecraft.nbt.ListTag();
