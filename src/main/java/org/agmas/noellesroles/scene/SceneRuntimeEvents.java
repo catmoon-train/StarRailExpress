@@ -34,6 +34,7 @@ public final class SceneRuntimeEvents {
             if (level instanceof ServerLevel serverLevel) {
                 tickOxygenDrowning(serverLevel);
                 MapStatusBarRuntime.tick(serverLevel);
+                SceneEventManager.tickSabotageAlarm(serverLevel);
             }
         });
     }
