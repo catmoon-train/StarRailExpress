@@ -46,39 +46,27 @@ public class CrosshairRenderer {
             context.blitSprite(CROSSHAIR, 0, 0, 3, 3);
             context.pose().popPose();
             {
-                // --- 2. 攻击指示器（手绘） ---
-                float f = player.getAttackStrengthScale(0.0F);
-                boolean fullAttack = false;
-                if (f >= 1.0F) {
-                    fullAttack = player.getCurrentItemAttackStrengthDelay() > 5.0F;
-                }
+                float totalCooldownTicks = player.getCurrentItemAttackStrengthDelay();
+                // 2. 攻击指示器（仅当蓄力中时显示）
+                float f = player.getAttackStrengthScale(0.0F); // 0~1
+                if (totalCooldownTicks < 4.0 && f < 1.0F) { // 非空手才显示
+                    // 指示器位置（与原版一致）
+                    int barX = context.guiWidth() / 2 - 8;
+                    int barY = context.guiHeight() / 2 - 7 + 16;
+                    int barWidth = 16;
+                    int barHeight = 2;
 
-                // 指示器的位置（与原版一致）
-                int barX = context.guiWidth() / 2 - 8;
-                int barY = context.guiHeight() / 2 - 7 + 16;
-                int barWidth = 16;
-                int barHeight = 4;
+                    // 2.1 黑色半透明背景（50% 透明度）
+                    int bgColor = 0x80000000; // ARGB: 0x80 = 128/255 ≈ 50%
+                    context.fill(barX, barY, barX + barWidth, barY + barHeight, bgColor);
 
-                // 2.1 绘制背景条（半透明白色，透明度 30%）
-                int bgColor = 0x4CFFFFFF; // ARGB: 30% 白色
-                context.fill(barX, barY, barX + barWidth, barY + barHeight, bgColor);
-                if (f >= 1.0F) {
-                    // 2.2 根据状态绘制进度
-                    if (fullAttack) {
-                        // // 满攻击：绘制完整白色条（或自定义颜色）
-                        // int fullColor = 0xCC000000; // 纯白
-                        // context.fill(barX, barY, barX + barWidth, barY + barHeight, fullColor);
-                        // 不绘制
-                    } else if (f < 1.0F) {
-                        // 冷却中：计算进度宽度（0~16）
-                        int progressWidth = (int) (f * barWidth);
-                        // 保证至少 1 像素，避免进度为 0 时看不到
-                        progressWidth = Math.max(progressWidth, 1);
-                        // 进度颜色：半透明白色，透明度 80%
-                        int progressColor = 0xCCFFFFFF;
-                        context.fill(barX, barY, barX + progressWidth, barY + barHeight, progressColor);
-                    }
+                    // 2.2 白色半透明进度条（80% 不透明度）
+                    int progressWidth = (int) (f * barWidth);
+                    progressWidth = Math.max(progressWidth, 1); // 至少 1 像素，确保可见
+                    int progressColor = 0x80FFFFFF; // 0xCC ≈ 80% 不透明
+                    context.fill(barX, barY, barX + progressWidth, barY + barHeight, progressColor);
                 }
+                // 当 f >= 1.0 时，不绘制任何指示器，符合“满蓄力不显示条”的要求
             }
         }
         context.pose().popPose();
