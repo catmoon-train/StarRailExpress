@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -15,6 +16,7 @@ import java.util.List;
 public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
     private final Currency currency;
     private final int weight;
+    private Component failedMessage = null;
 
     public ShopEntry(ItemStack stack, int price, dev.doctor4t.wathe.util.ShopEntry.Type type) {
         this(stack, price, type, Currency.MONEY);
@@ -37,6 +39,14 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
     public int weight() {
         return this.weight;
+    }
+
+    public void setFailedMessage(Component message) {
+        this.failedMessage = message;
+    }
+
+    public Component getFailedMessage() {
+        return this.failedMessage;
     }
 
     public boolean hasEnoughCurrency(@NotNull Player player) {

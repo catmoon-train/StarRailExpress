@@ -16,6 +16,7 @@ import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnGameStarted;
 import io.wifi.starrailexpress.event.OnTrainAreaHaveReseted;
 import io.wifi.starrailexpress.event.ShouldDropOnDeath;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -1488,5 +1489,29 @@ public class GameUtils {
         if (level == null)
             return false;
         return SREGameWorldComponent.KEY.get(level).isRunning();
+    }
+
+    public static boolean haveUsedoutDerringer(Player player) {
+        for (List<ItemStack> list : player.getInventory().compartments) {
+            for (int i = 0; i < list.size(); i++) {
+                ItemStack stack = list.get(i);
+                if (stack.is(TMMItems.DERRINGER)) {
+                    return stack.getOrDefault(SREDataComponentTypes.USED, false);
+                }
+            }
+        }
+        return false;
+    }
+    public static boolean refillDerringer(Player player, boolean haveBullet) {
+        for (List<ItemStack> list : player.getInventory().compartments) {
+            for (int i = 0; i < list.size(); i++) {
+                ItemStack stack = list.get(i);
+                if (stack.is(TMMItems.DERRINGER)) {
+                    stack.set(SREDataComponentTypes.USED, !haveBullet);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

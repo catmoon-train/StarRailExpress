@@ -66,6 +66,26 @@ import java.util.HashMap;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {
+        
+        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+            if (!hasInstinct || Minecraft.getInstance().player == null || SREClient.gameComponent == null) {
+                return -1;
+            }
+            Player self = Minecraft.getInstance().player;
+            if (!isKillerTeam(SREClient.gameComponent.getRole(self))) {
+                return -1;
+            }
+            if (target instanceof SaltedFishBodyEntity) {
+                return -2;
+            }
+            if (target instanceof Player targetPlayer) {
+                SaltedFishPlayerComponent component = SaltedFishPlayerComponent.KEY.maybeGet(targetPlayer).orElse(null);
+                if (component != null && component.isActive()) {
+                    return -2;
+                }
+            }
+            return -1;
+        });
         OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
             if (!hasInstinct || Minecraft.getInstance().player == null || SREClient.gameComponent == null) {
                 return -1;

@@ -78,6 +78,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         this.total_cost = 0;
         return r;
     }
+
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
         return this.player == player;
@@ -155,7 +156,11 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         final int price = DynamicShopComponent.KEY.get(this.player).effectivePrice(entry);
         if (FabricLoader.getInstance().isDevelopmentEnvironment() && this.balance < price)
             this.balance = price * 10;
-        if (this.balance >= price && !this.player.getCooldowns().isOnCooldown(entry.stack().getItem())
+        boolean isOnCooldown = this.player.getCooldowns().isOnCooldown(entry.stack().getItem());
+        boolean haveEnoughBalance = this.balance >= price;
+        // 重置错误信息
+        entry.setFailedMessage(null);
+        if (haveEnoughBalance && !isOnCooldown
                 && entry.canDisplay(this.player) && entry.canBuy(this.player) && !entry.isSafeTime(this.player)
                 && entry.onBuy(this.player)) {
             this.total_cost += price;
@@ -174,8 +179,23 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
                         price);
             }
         } else {
-            this.player.displayClientMessage(
-                    Component.translatable("message.tip.purchase_failed").withStyle(ChatFormatting.DARK_RED), true);
+            Component reason = null;
+            if (isOnCooldown) {
+                reason = Component.translatable("message.tip.purchase_failed.cooldown");
+            } else if (!haveEnoughBalance) {
+                reason = Component.translatable("message.tip.purchase_failed.not_enough_money");
+            } else {
+                reason = entry.getFailedMessage();
+            }
+            if (reason != null) {
+                this.player.displayClientMessage(
+                        Component.translatable("message.tip.purchase_failed_with_reason", reason)
+                                .withStyle(ChatFormatting.DARK_RED),
+                        true);
+            } else {
+                this.player.displayClientMessage(
+                        Component.translatable("message.tip.purchase_failed").withStyle(ChatFormatting.DARK_RED), true);
+            }
             if (this.player instanceof ServerPlayer player) {
                 player.connection.send(new ClientboundSoundPacket(
                         BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.UI_SHOP_BUY_FAIL), SoundSource.PLAYERS,

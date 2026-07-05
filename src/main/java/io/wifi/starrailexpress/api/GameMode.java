@@ -13,8 +13,6 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.*;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
 import io.wifi.starrailexpress.network.PlayerDeathPayload;
@@ -672,15 +670,7 @@ public abstract class GameMode {
             }
             if (killer != null) {
                 if (shouldReloadDerringer(victim, killer, deathReason)) {
-                    inventory_label: for (List<ItemStack> list : killer.getInventory().compartments) {
-                        for (int i = 0; i < list.size(); i++) {
-                            ItemStack stack = list.get(i);
-                            if (stack.is(TMMItems.DERRINGER)) {
-                                stack.set(SREDataComponentTypes.USED, false);
-                                break inventory_label;
-                            }
-                        }
-                    }
+                    GameUtils.refillDerringer(victim, true);
                 }
             }
 

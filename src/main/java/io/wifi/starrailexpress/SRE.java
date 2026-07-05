@@ -4,6 +4,7 @@ import com.google.common.reflect.Reflection;
 import io.wifi.ConfigCompact.ConfigEvents;
 import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.replay.ClientGameReplayManager;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.api.replay.ReplayApiInitializer;
 import io.wifi.starrailexpress.cca.*;
@@ -51,7 +52,8 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static MinecraftServer SERVER;
     public static SREMurderGameMode GAME;
-    public static GameReplayManager REPLAY_MANAGER;
+    // 服务端会覆盖此项目，此项目用于客户端。
+    public static GameReplayManager REPLAY_MANAGER = new ClientGameReplayManager();
     public static final Networking NETWORKING = new Networking();
     public static boolean isLobby = false;
     // 各类"列表式"注册点已按类别归一化至 io.wifi.starrailexpress.rules 包：

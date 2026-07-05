@@ -19,6 +19,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 通用技能组件
@@ -47,12 +48,14 @@ public class SREAbilityPlayerComponent
 
     // 技能冷却时间（tick）
     public int cooldown = 100;
+    public int duration = 0;
 
     // 技能剩余使用次数（-1 表示无限制）
     public int charges = -1;
 
     // 最大使用次数（用于 HUD 显示）
     public int maxCharges = -1;
+    public UUID targetUUID = null;
 
     // 状态
     public int status = -1;
@@ -86,6 +89,8 @@ public class SREAbilityPlayerComponent
     }
 
     public void init(boolean sync) {
+        this.targetUUID = null;
+        this.duration = 0;
         this.cooldown = 0;
         this.charges = -1;
         this.maxCharges = -1;
@@ -101,6 +106,16 @@ public class SREAbilityPlayerComponent
     @Override
     public void clear() {
         this.init();
+    }
+
+    /**
+     * 设置持续时间
+     * 
+     * @param ticks 冷却时间（tick），20 tick = 1 秒
+     */
+    public void setDuration(int ticks) {
+        this.duration = ticks;
+        this.sync();
     }
 
     /**
@@ -152,6 +167,10 @@ public class SREAbilityPlayerComponent
 
     public int getCooldown() {
         return this.cooldown;
+    }
+
+    public boolean isInDuration() {
+        return this.duration > 0;
     }
 
     public boolean hasCooldown() {
@@ -300,6 +319,21 @@ public class SREAbilityPlayerComponent
     @Override
     public void serverTick() {
         boolean unifiedStateChanged = false;
+        boolean shouldSync = true;
+        if (this.cooldown > 0) {
+            this.cooldown--;
+
+            if (this.cooldown % 400 == 0 || this.cooldown == 0) {
+                shouldSync = true;
+            }
+        }
+        if (this.duration > 0) {
+            this.duration--;
+
+            if (this.duration % 400 == 0 || this.duration == 0) {
+                shouldSync = true;
+            }
+        }
         if (!skillStates.isEmpty()) {
             for (SkillState state : skillStates.values()) {
                 if (state.cooldown > 0) {
@@ -310,25 +344,23 @@ public class SREAbilityPlayerComponent
             var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
             List<RoleSkill.Definition> definitions = RoleSkill.getDefinitions(role);
             mirrorSelectedSkill(definitions);
-            if (unifiedStateChanged && (player.level().getGameTime() % 20 == 0 || cooldown == 0)) {
-                sync();
-            }
-        } else if (this.cooldown > 0) {
-            this.cooldown--;
-            if (this.cooldown % 400 == 0 || this.cooldown == 0) {
-                this.sync();
+            if (unifiedStateChanged && (player.level().getGameTime() % 400 == 0 || cooldown == 0)) {
+                shouldSync = true;
             }
         }
         if (player instanceof ServerPlayer serverPlayer) {
+            var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+            if (gameWorldComponent.isRunning()) {
+                var role = gameWorldComponent.getRole(player);
+                if (role != null) {
+                    role.serverGameTickEvent(serverPlayer, gameWorldComponent);
+                }
+            }
             var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
             RolePassive.tick(serverPlayer, role);
         }
-        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        if (gameWorldComponent.isRunning()) {
-            var role = gameWorldComponent.getRole(player);
-            if (role != null) {
-                role.clientGameTickEvent(player, gameWorldComponent);
-            }
+        if (shouldSync) {
+            sync();
         }
     }
 
@@ -336,6 +368,9 @@ public class SREAbilityPlayerComponent
     public void clientTick() {
         if (this.cooldown > 1)
             this.cooldown--;
+        if (this.duration > 1) {
+            this.duration--;
+        }
         for (SkillState state : skillStates.values()) {
             if (state.cooldown > 1) {
                 state.cooldown--;
@@ -368,6 +403,12 @@ public class SREAbilityPlayerComponent
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (targetUUID != null) {
+            tag.putUUID("targetUUID", targetUUID);
+        }
+        if (duration > 0) {
+            tag.putInt("duration", duration);
+        }
         tag.putInt("cooldown", this.cooldown);
         tag.putInt("charges", this.charges);
         tag.putInt("maxCharges", this.maxCharges);
@@ -390,6 +431,10 @@ public class SREAbilityPlayerComponent
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (tag.hasUUID("targetUUID")) {
+            targetUUID = tag.getUUID("targetUUID");
+        }
+        this.duration = tag.contains("duration") ? tag.getInt("duration") : 0;
         this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         this.charges = tag.contains("charges") ? tag.getInt("charges") : -1;
         this.maxCharges = tag.contains("maxCharges") ? tag.getInt("maxCharges") : -1;
