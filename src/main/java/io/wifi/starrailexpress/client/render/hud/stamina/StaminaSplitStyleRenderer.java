@@ -133,7 +133,7 @@ public class StaminaSplitStyleRenderer {
             context.pose().popPose();
         }
         // 绘制体力图标
-        {
+        if (staminaPercent >= 0) {
             int barCenterY = context.guiHeight() - 35;
             int iconX = context.guiWidth() / 2 - BAR_WIDTH / 2 - ICON_SIZE - ICON_GAP;
             int iconY = barCenterY - ICON_SIZE / 2;
@@ -161,9 +161,9 @@ public class StaminaSplitStyleRenderer {
             if (!ItemStack.isSameItemSameComponents(lastMainHandStack, mainHandStack)) {
                 // 如果切换到刀，则播放切刀音效
                 // if (mainHandStack.getItem() instanceof KnifeItem
-                //         && !(lastMainHandStack.getItem() instanceof KnifeItem)) {
-                //     Minecraft.getInstance().getSoundManager().play(
-                //             SimpleSoundInstance.forUI(SoundEvents.IRON_GOLEM_REPAIR, 0.4f, 2.1f));
+                // && !(lastMainHandStack.getItem() instanceof KnifeItem)) {
+                // Minecraft.getInstance().getSoundManager().play(
+                // SimpleSoundInstance.forUI(SoundEvents.IRON_GOLEM_REPAIR, 0.4f, 2.1f));
                 // }
                 playedCooldownSound = false;
             }
