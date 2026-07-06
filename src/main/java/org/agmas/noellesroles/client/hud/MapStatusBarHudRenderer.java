@@ -65,19 +65,19 @@ public final class MapStatusBarHudRenderer {
             int warnGap = 20; // 1s = 20tick
             float intensity = 0.5f;
             if (value < LOW_THRESHOLD_5) {
-                warnGap = 1;
+                warnGap = 5;
                 intensity = 1f;
             } else if (value < LOW_THRESHOLD_4) {
-                warnGap = 5;
+                warnGap = 10;
                 intensity = 0.9f;
             } else if (value < LOW_THRESHOLD_3) {
-                warnGap = 10;
+                warnGap = 20;
                 intensity = 0.8f;
             } else if (value < LOW_THRESHOLD_2) {
-                warnGap = 15;
+                warnGap = 30;
                 intensity = 0.7f;
             } else if (value < LOW_THRESHOLD_1) {
-                warnGap = 18;
+                warnGap = 40;
                 intensity = 0.6f;
             }
             long nowTime = client.level.getGameTime();
