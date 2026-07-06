@@ -412,7 +412,7 @@ public class AllSettingsModule implements TabModule {
             ModernButton toggleBtn = ModernButton.builder(Component.literal(entry.expanded ? "▾" : "▸"), b -> {
                 entry.expanded = !entry.expanded;
                 ctx.requestModuleRefresh();
-            }).bounds(controlX, y, 20, 20).accentBar(AccentSide.BOTTOM).build();
+            }).bounds(controlX, y, 20, 20).accentBar().build();
             placements.add(new WidgetPlacement(toggleBtn, y));
         }
         return usedHeight;
