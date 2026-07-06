@@ -16,7 +16,9 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 
 import java.lang.reflect.Field;
@@ -212,14 +214,13 @@ public class MapManagerSettingsCommand {
     ServerLevel level = getLevel(source);
     AreasWorldComponent component = getComponent(level);
     Object root = getRoot(component);
-
     try {
       String[] pathParts = path.split("\\.");
       Object target = getObjectByPath(root, pathParts);
       if (target == null) {
         source.sendSuccess(
             () -> Component.translatable("sre.area_manager.get.success", path, "null")
-                .withStyle(style -> style.withColor(ChatFormatting.AQUA)),
+                .withStyle(ChatFormatting.AQUA),
             false);
         return 1;
       }
@@ -227,31 +228,81 @@ public class MapManagerSettingsCommand {
       if (target instanceof Collection<?>) {
         List<?> list = new ArrayList<>((Collection<?>) target);
         int total = list.size();
+        if (total == 0) {
+          source.sendSuccess(
+              () -> Component.translatable("sre.area_manager.get.empty", path)
+                  .withStyle(ChatFormatting.AQUA),
+              false);
+          return 1;
+        }
         int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
         if (page < 1)
           page = 1;
-        if (page > totalPages && totalPages > 0) {
+        if (page > totalPages) {
           throw new SimpleCommandExceptionType(
               Component.translatable("sre.area_manager.error.page_out_of_range", totalPages)).create();
         }
         int start = (page - 1) * PAGE_SIZE;
         int end = Math.min(start + PAGE_SIZE, total);
         List<?> subList = list.subList(start, end);
-        String items = subList.stream()
-            .map(MapManagerSettingsCommand::objectToString)
-            .collect(Collectors.joining(", "));
+
+        MutableComponent result = Component.literal("");
+        // 头部：路径、总项数、当前页码
         final int temp = page;
-        source.sendSuccess(
-            () -> Component.translatable("sre.area_manager.get.page", temp, totalPages, total, items)
-                .withStyle(style -> style.withColor(ChatFormatting.AQUA)),
-            false);
+        result.append(Component.translatable("sre.area_manager.get.header", path, total, temp, totalPages)
+            .withStyle(ChatFormatting.AQUA))
+            .append("\n");
+
+        // 每个元素一行，灰色
+        for (Object item : subList) {
+          result.append(Component.literal(objectToString(item))
+              .withStyle(ChatFormatting.GRAY))
+              .append("\n");
+        }
+
+        // 翻页导航（总页数 > 1 时显示）
+        if (totalPages > 1) {
+          MutableComponent nav = Component.literal("");
+          if (page > 1) {
+            nav.append(Component.literal("[首页]")
+                .withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                        "/sre:area_manager get " + path + " 1"))))
+                .append(" ");
+            nav.append(Component.literal("[上一页]")
+                .withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                        "/sre:area_manager get " + path + " " + (temp - 1)))))
+                .append(" ");
+          }
+          nav.append(Component.literal(page + "/" + totalPages)
+              .withStyle(ChatFormatting.AQUA));
+          if (page < totalPages) {
+            nav.append(" ")
+                .append(Component.literal("[下一页]")
+                    .withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                            "/sre:area_manager get " + path + " " + (temp + 1)))))
+                .append(" ");
+            nav.append(Component.literal("[尾页]")
+                .withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                        "/sre:area_manager get " + path + " " + totalPages))));
+          }
+          result.append(nav);
+        }
+
+        final MutableComponent finalResult = result;
+        source.sendSuccess(() -> finalResult, false);
+        return 1;
       } else {
+        // 非集合类型的原逻辑不变
         source.sendSuccess(
             () -> Component.translatable("sre.area_manager.get.success", path, objectToString(target))
-                .withStyle(style -> style.withColor(ChatFormatting.AQUA)),
+                .withStyle(ChatFormatting.AQUA),
             false);
+        return 1;
       }
-      return 1;
     } catch (Exception e) {
       throw new SimpleCommandExceptionType(
           Component.translatable("sre.area_manager.error.operation_failed", e.getMessage())).create();
