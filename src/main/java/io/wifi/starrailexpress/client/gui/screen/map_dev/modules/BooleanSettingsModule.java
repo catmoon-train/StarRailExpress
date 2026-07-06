@@ -7,7 +7,7 @@ import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSid
 import java.util.List;
 
 public class BooleanSettingsModule implements TabModule {
-    private static final String[] FIELDS = { "noReset", "haveOutsideSound", "sceneOffsetEnabled", "mustCopy",
+    private static final String[] FIELDS = { "noReset", "haveOutsideSound", "mustCopy",
             "minigameQuestEnabled" };
     private static final String[] FIELD_KEYS = {
             "sre.field.noReset", "sre.field.haveOutsideSound", "sre.field.mustCopy",

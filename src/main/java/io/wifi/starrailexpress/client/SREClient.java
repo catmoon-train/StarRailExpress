@@ -1099,12 +1099,9 @@ public class SREClient implements ClientModInitializer {
                 && trainComponent.getSpeed() > 0;
     }
 
-    public static boolean isSceneOffsetActive() {
-        return areaComponent != null && areaComponent.sceneOffsetEnabled;
-    }
 
     public static boolean needsChunkOffset() {
-        return isTrainMoving() || isSceneOffsetActive();
+        return isTrainMoving();
     }
 
     public static class CustomModelProvider implements ModelLoadingPlugin {

@@ -240,21 +240,11 @@ public class MapManager {
         jsonObject.add("disabledRoles", gson.toJsonTree(areas.disabledRoles));
         jsonObject.add("disabledModifiers", gson.toJsonTree(areas.disabledModifiers));
         jsonObject.add("enableSceneTask", gson.toJsonTree(areas.enableSceneTask));
-        jsonObject.addProperty("haveOutsideSound", areas.haveOutsideSound);
-        jsonObject.addProperty("sceneOutsideSound", areas.sceneOutsideSound);
         jsonObject.addProperty("noReset", areas.noReset);
         jsonObject.addProperty("mustCopy", areas.mustCopy);
 
         // 保存支持的游戏模式列表
         jsonObject.add("gameModes", gson.toJsonTree(areas.gameModes));
-
-        // 保存场景偏移配置
-        JsonObject sceneOffsetObj = new JsonObject();
-        sceneOffsetObj.addProperty("enabled", areas.sceneOffsetEnabled);
-        sceneOffsetObj.addProperty("x", areas.sceneOffsetX);
-        sceneOffsetObj.addProperty("y", areas.sceneOffsetY);
-        sceneOffsetObj.addProperty("z", areas.sceneOffsetZ);
-        jsonObject.add("sceneOffset", sceneOffsetObj);
 
         // 保存药水效果配置
         jsonObject.add("effect", gson.toJsonTree(areas.effect));
@@ -337,14 +327,15 @@ public class MapManager {
                 areas.mustCopy = false;
             }
             if (jsonObject.has("haveOutsideSound")) {
-                areas.haveOutsideSound = jsonObject.get("haveOutsideSound").getAsBoolean();
-            } else {
-                areas.haveOutsideSound = false;
+                areas.areasSettings.haveOutsideSound = jsonObject.get("haveOutsideSound").getAsBoolean();
             }
             if (jsonObject.has("sceneOutsideSound")) {
-                areas.sceneOutsideSound = jsonObject.get("sceneOutsideSound").getAsString();
-            } else {
-                areas.sceneOutsideSound = "train";
+                areas.areasSettings.sceneOutsideSound = AreasSettings.BackgroundAmbienceSound
+                        .valueOf(jsonObject.get("sceneOutsideSound").getAsString());
+                if (areas.areasSettings.sceneOutsideSound == null) {
+
+                    areas.areasSettings.sceneOutsideSound = AreasSettings.BackgroundAmbienceSound.train;
+                }
             }
 
             // 旧版格式兼容
@@ -393,23 +384,6 @@ public class MapManager {
                 String fogShape = jsonObject.get("fogShape").getAsString();
                 fogShape = fogShape.toUpperCase();
                 areas.areasSettings.fogShape = AreasSettings.FogShape.valueOf(fogShape);
-            }
-
-            // 加载场景偏移配置（默认关闭）
-            if (jsonObject.has("sceneOffset")) {
-                JsonObject sceneOffsetObj = jsonObject.getAsJsonObject("sceneOffset");
-                areas.sceneOffsetEnabled = sceneOffsetObj.has("enabled")
-                        && sceneOffsetObj.get("enabled").getAsBoolean();
-                areas.sceneOffsetX = sceneOffsetObj.has("x") ? sceneOffsetObj.get("x").getAsDouble() : 0;
-                areas.sceneOffsetY = sceneOffsetObj.has("y") ? sceneOffsetObj.get("y").getAsDouble() : 125;
-                areas.sceneOffsetZ = sceneOffsetObj.has("z") ? sceneOffsetObj.get("z").getAsDouble() : 0;
-                SRE.LOGGER.info("Loaded scene offset: enabled=" + areas.sceneOffsetEnabled +
-                        ", x=" + areas.sceneOffsetX + ", y=" + areas.sceneOffsetY + ", z=" + areas.sceneOffsetZ);
-            } else {
-                areas.sceneOffsetEnabled = false;
-                areas.sceneOffsetX = 0;
-                areas.sceneOffsetY = 125;
-                areas.sceneOffsetZ = 0;
             }
 
             // 加载天气配置（默认晴天）

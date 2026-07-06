@@ -130,15 +130,9 @@ public class MapManagerCommand {
                   areas.disabledTasks = new HashSet<>();
                   areas.disabledRoles = new HashSet<>();
                   areas.enableSceneTask = new HashSet<>();
-                  areas.haveOutsideSound = false;
-                  areas.sceneOutsideSound = "train";
                   areas.mapName = "new_area";
                   areas.mustCopy = false;
                   areas.noReset = false;
-                  areas.sceneOffsetEnabled = false;
-                  areas.sceneOffsetX = 0;
-                  areas.sceneOffsetY = 0;
-                  areas.sceneOffsetZ = 0;
                   io.wifi.starrailexpress.scenery.server.SceneLibrary.clearScene(areas);
                   areas.effect = new java.util.ArrayList<>();
                   areas.minigameQuestEnabled = false;
@@ -161,12 +155,6 @@ public class MapManagerCommand {
                 .then(setRoomCount())
                 .then(setRoomPositions())
                 .then(setNoReset())
-                .then(setHaveOutsideSound())
-                .then(setSceneOutsideSound())
-                .then(setSceneOffsetEnabled())
-                .then(setSceneOffsetX())
-                .then(setSceneOffsetY())
-                .then(setSceneOffsetZ())
                 .then(setMustCopy())
                 .then(setMapName())
                 .then(setDisabledTasks())
@@ -189,12 +177,6 @@ public class MapManagerCommand {
                 .then(getRoomCount())
                 .then(getRoomPositions())
                 .then(buildGetSimple("noReset", a -> String.valueOf(a.noReset)))
-                .then(buildGetSimple("haveOutsideSound", a -> String.valueOf(a.haveOutsideSound)))
-                .then(buildGetSimple("sceneOutsideSound", a -> a.sceneOutsideSound))
-                .then(buildGetSimple("sceneOffsetEnabled", a -> String.valueOf(a.sceneOffsetEnabled)))
-                .then(buildGetSimple("sceneOffsetX", a -> String.valueOf(a.sceneOffsetX)))
-                .then(buildGetSimple("sceneOffsetY", a -> String.valueOf(a.sceneOffsetY)))
-                .then(buildGetSimple("sceneOffsetZ", a -> String.valueOf(a.sceneOffsetZ)))
                 .then(buildGetSimple("mustCopy", a -> String.valueOf(a.mustCopy)))
                 .then(buildGetSimple("effect", a -> a.effect.isEmpty() ? "(none)" : String.join(", ", a.effect)))
                 .then(buildGetSimple("minigameQuestEnabled", a -> String.valueOf(a.minigameQuestEnabled)))
@@ -398,19 +380,7 @@ public class MapManagerCommand {
     sendSetFeedback(source, "noReset", String.valueOf(value));
   }
 
-  private static void setHaveOutsideSound(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.haveOutsideSound = value;
-    areas.sync();
-    sendSetFeedback(source, "haveOutsideSound", String.valueOf(value));
-  }
 
-  private static void setSceneOffsetEnabled(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.sceneOffsetEnabled = value;
-    areas.sync();
-    sendSetFeedback(source, "sceneOffsetEnabled", String.valueOf(value));
-  }
 
   private static void setMustCopy(CommandSourceStack source, boolean value) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
@@ -419,27 +389,6 @@ public class MapManagerCommand {
     sendSetFeedback(source, "mustCopy", String.valueOf(value));
   }
 
-  // 7. 双精度浮点字段
-  private static void setSceneOffsetX(CommandSourceStack source, double value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.sceneOffsetX = value;
-    areas.sync();
-    sendSetFeedback(source, "sceneOffsetX", String.valueOf(value));
-  }
-
-  private static void setSceneOffsetY(CommandSourceStack source, double value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.sceneOffsetY = value;
-    areas.sync();
-    sendSetFeedback(source, "sceneOffsetY", String.valueOf(value));
-  }
-
-  private static void setSceneOffsetZ(CommandSourceStack source, double value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.sceneOffsetZ = value;
-    areas.sync();
-    sendSetFeedback(source, "sceneOffsetZ", String.valueOf(value));
-  }
 
   // 8. mapName
   private static void setMapName(CommandSourceStack source, String name) {
@@ -565,12 +514,6 @@ public class MapManagerCommand {
     sb.append("roomCount: ").append(areas.getRoomCount()).append("\n");
     sb.append("roomPositions: ").append(formatRoomPositions(areas.getRoomPositions())).append("\n");
     sb.append("noReset: ").append(areas.noReset).append("\n");
-    sb.append("haveOutsideSound: ").append(areas.haveOutsideSound).append("\n");
-    sb.append("sceneOutsideSound: \"").append(areas.sceneOutsideSound).append("\"\n");
-    sb.append("sceneOffsetEnabled: ").append(areas.sceneOffsetEnabled).append("\n");
-    sb.append("sceneOffsetX: ").append(areas.sceneOffsetX).append("\n");
-    sb.append("sceneOffsetY: ").append(areas.sceneOffsetY).append("\n");
-    sb.append("sceneOffsetZ: ").append(areas.sceneOffsetZ).append("\n");
     sb.append("mustCopy: ").append(areas.mustCopy).append("\n");
     sb.append("mapName: \"").append(areas.mapName).append("\"\n");
     sb.append("effect: ").append(areas.effect.isEmpty() ? "(none)" : String.join(", ", areas.effect)).append("\n");
@@ -913,73 +856,6 @@ public class MapManagerCommand {
             }));
   }
 
-  private static LiteralArgumentBuilder<CommandSourceStack> setHaveOutsideSound() {
-    return Commands.literal("haveOutsideSound")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setHaveOutsideSound(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setSceneOutsideSound() {
-    return Commands.literal("sceneOutsideSound")
-        .then(Commands.argument("value", StringArgumentType.word())
-            .suggests((ctx, builder) -> {
-              for (String s : new String[] { "train", "wind", "sand_storm", "snow_storm", "circus" }) {
-                if (s.startsWith(builder.getRemainingLowerCase()))
-                  builder.suggest(s);
-              }
-              return builder.buildFuture();
-            })
-            .executes(ctx -> {
-              setSceneOutsideSound(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static void setSceneOutsideSound(CommandSourceStack source, String value) {
-    var areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.sceneOutsideSound = value;
-    sendSetFeedback(source, "sceneOutsideSound", value);
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setSceneOffsetEnabled() {
-    return Commands.literal("sceneOffsetEnabled")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setSceneOffsetEnabled(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setSceneOffsetX() {
-    return Commands.literal("sceneOffsetX")
-        .then(Commands.argument("value", DoubleArgumentType.doubleArg())
-            .executes(ctx -> {
-              setSceneOffsetX(ctx.getSource(), DoubleArgumentType.getDouble(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setSceneOffsetY() {
-    return Commands.literal("sceneOffsetY")
-        .then(Commands.argument("value", DoubleArgumentType.doubleArg())
-            .executes(ctx -> {
-              setSceneOffsetY(ctx.getSource(), DoubleArgumentType.getDouble(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setSceneOffsetZ() {
-    return Commands.literal("sceneOffsetZ")
-        .then(Commands.argument("value", DoubleArgumentType.doubleArg())
-            .executes(ctx -> {
-              setSceneOffsetZ(ctx.getSource(), DoubleArgumentType.getDouble(ctx, "value"));
-              return 1;
-            }));
-  }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setMustCopy() {
     return Commands.literal("mustCopy")

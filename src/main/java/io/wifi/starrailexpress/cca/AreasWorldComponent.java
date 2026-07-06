@@ -187,15 +187,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     Map<Integer, Vec3> roomPositions = new HashMap<>();
     public boolean noReset = false;
     public String mapName = null;
-    public boolean haveOutsideSound = false;
-    /** 背景音效类型：train/wind/sand_storm/snow_storm/circus。空字符串或未设置时默认 train。 */
-    public String sceneOutsideSound = "train";
-
-    // 场景偏移配置 - 将sceneArea内的区块渲染到偏移位置（默认关闭）
-    public boolean sceneOffsetEnabled = false;
-    public double sceneOffsetX = 0;
-    public double sceneOffsetY = 125; // 默认向上偏移125格（场景放置在游玩区域下方100-150格）
-    public double sceneOffsetZ = 0;
 
     // 药水效果配置（格式：["namespace:effect_id,level", ...]，为空数组则无效果）
     public List<String> effect = new ArrayList<>();
@@ -480,10 +471,10 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // this.mapStatusBar = tag.contains("mapStatusBar")
         // ? MapStatusBarType.byName(tag.getString("mapStatusBar"))
         // : MapStatusBarType.NONE;
-        this.haveOutsideSound = tag.contains("haveOutsideSound") ? tag.getBoolean("haveOutsideSound") : false;
-        this.sceneOutsideSound = tag.contains("sceneOutsideSound") && !tag.getString("sceneOutsideSound").isBlank()
-                ? tag.getString("sceneOutsideSound")
-                : "train";
+        // this.haveOutsideSound = tag.contains("haveOutsideSound") ? tag.getBoolean("haveOutsideSound") : false;
+        // this.sceneOutsideSound = tag.contains("sceneOutsideSound") && !tag.getString("sceneOutsideSound").isBlank()
+        //         ? tag.getString("sceneOutsideSound")
+        //         : "train";
         // this.snowEnabled = tag.contains("snowEnabled") ?
         // tag.getBoolean("snowEnabled") : false;
         // this.sandEnabled = tag.contains("sandEnabled") ?
@@ -493,10 +484,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // this.fogEnd = tag.contains("fogEnd") ? tag.getFloat("fogEnd") : 200.0f;
         // this.fogShape = tag.contains("fogShape") ? tag.getString("fogShape") :
         // "SPHERE";
-        this.sceneOffsetEnabled = tag.contains("sceneOffsetEnabled") ? tag.getBoolean("sceneOffsetEnabled") : false;
-        this.sceneOffsetX = tag.contains("sceneOffsetX") ? tag.getDouble("sceneOffsetX") : 0;
-        this.sceneOffsetY = tag.contains("sceneOffsetY") ? tag.getDouble("sceneOffsetY") : 125;
-        this.sceneOffsetZ = tag.contains("sceneOffsetZ") ? tag.getDouble("sceneOffsetZ") : 0;
         // this.weather = tag.contains("weather") ? tag.getString("weather") : "clear";
         // this.gravity = tag.contains("gravity") ? tag.getDouble("gravity") : 0.08;
         this.effect = new ArrayList<>();
@@ -611,14 +598,9 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // 将房间数量写入NBT
         tag.putInt("roomCount", this.roomCount);
 
-        tag.putBoolean("haveOutsideSound", this.haveOutsideSound);
-        tag.putString("sceneOutsideSound", this.sceneOutsideSound);
-
-        tag.putBoolean("sceneOffsetEnabled", this.sceneOffsetEnabled);
-        tag.putDouble("sceneOffsetX", this.sceneOffsetX);
-        tag.putDouble("sceneOffsetY", this.sceneOffsetY);
-        tag.putDouble("sceneOffsetZ", this.sceneOffsetZ);
-        // effect 在客户端无用，不发包
+        // tag.putBoolean("haveOutsideSound", this.haveOutsideSound);
+        // tag.putString("sceneOutsideSound", this.sceneOutsideSound);
+        // // effect 在客户端无用，不发包
         // var effectList = new net.minecraft.nbt.ListTag();
         // for (String e : this.effect) {
         // effectList.add(net.minecraft.nbt.StringTag.valueOf(e));

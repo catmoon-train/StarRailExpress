@@ -72,7 +72,7 @@ public class AreasSettings {
      * <pre> @ConfigSync(shouldSync = false) </pre>
      * 在field前标记
      */
-    
+
     /**
      * 示例：不需要同步，也不需要保存的类
      */
@@ -147,17 +147,33 @@ public class AreasSettings {
     public String weather = "clear"; // clear, rain, thunder
 
     // 重力modifier（默认0）
+    @Category("action")
     public double gravityModifier = 0;
     // 时间配置（默认午夜 18000）
+    @Category("visual")
     public long time = 18000;
 
     // 昼夜循环配置（默认关闭）
+    @Category("visual")
     public boolean daylightCycle = false;
 
     // 天气循环配置（默认关闭）
+    @Category("visual")
     public boolean weatherCycle = false;
     // 死亡高度。0禁用
+    @Category("action")
     public int fallToDeathHeight = 0;
-
+    @Category("action")
     public MapStatusBarType mapStatusBar = MapStatusBarType.NONE;
+
+    @Category("sound")
+    public boolean haveOutsideSound = false;
+
+    /** 背景音效类型：train/wind/sand_storm/snow_storm/circus。空字符串或未设置时默认 train。 */
+    public static enum BackgroundAmbienceSound {
+        train, wind, sand_storm, snow_storm, circus
+    }
+
+    @Category("sound")
+    public BackgroundAmbienceSound sceneOutsideSound = BackgroundAmbienceSound.train;
 }

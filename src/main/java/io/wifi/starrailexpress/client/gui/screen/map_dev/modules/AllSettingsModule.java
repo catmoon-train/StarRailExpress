@@ -164,14 +164,6 @@ public class AllSettingsModule implements TabModule {
         return height;
     }
 
-    private String getEnumDisplayName(Class<?> type, String enumName) {
-        String fieldName = ""; // 可以从外部传入，这里简单用默认 key
-        // 实际使用时，你需要根据 entry.field.getName() 构建 key
-        // 但该方法是静态上下文，此处仅示意。可改为 entry.getDisplayName() 逻辑。
-        String key = "sre.map_helper.settings." + fieldName + "." + enumName;
-        return Component.translatableWithFallback(key, enumName).getString();
-    }
-
     private static class EnumValueLabel extends AbstractWidget {
         private String text;
 
@@ -243,7 +235,7 @@ public class AllSettingsModule implements TabModule {
                 placements.add(new WidgetPlacement(enableBtn, y));
                 placements.add(new WidgetPlacement(disableBtn, y));
                 placements.add(new WidgetPlacement(viewBtn, y));
-            } else if (type == String.class || Number.class.isAssignableFrom(type)) {
+            } else if (type == String.class || isNumberType(type)) {
                 int inputWidth = Math.max(70, remainingWidth - 40 - 30 - 6);
                 EditBox input = new EditBox(layout.font, controlX, y, inputWidth, 20, Component.empty());
                 input.setValue(value != null ? value.toString() : "");
@@ -391,6 +383,17 @@ public class AllSettingsModule implements TabModule {
         return usedHeight;
     }
 
+    private boolean isNumberType(Class<?> type) {
+        if (Number.class.isAssignableFrom(type))
+            return true;
+        if (type == Integer.class || type == int.class ||
+                type == Long.class || type == long.class ||
+                type == Double.class || type == double.class ||
+                type == Float.class || type == float.class)
+            return true;
+        return false;
+    }
+
     // ── Inner classes ───────────────────────────────────────────────
     private class SettingsEntry {
         String path;
@@ -400,7 +403,6 @@ public class AllSettingsModule implements TabModule {
         boolean expanded = false;
         List<SettingsEntry> children = new ArrayList<>();
         String displayName;
-        String categoryId;
         Object currentValue;
 
         SettingsEntry(String path, Field field, Object parent, int depth) {
@@ -411,7 +413,7 @@ public class AllSettingsModule implements TabModule {
             this.displayName = Component
                     .translatableWithFallback("sre.map_helper.settings." + field.getName(), field.getName())
                     .getString();
-            this.categoryId = getCategoryId(field);
+            getCategoryId(field);
             updateValue();
         }
 

@@ -959,8 +959,8 @@ public class GameUtils {
         // entitiesToDiscard.forEach(net.minecraft.world.entity.Entity::discard);
 
         gameComponent.setJumpAvailable(areas.areasSettings.canJump);
-        gameComponent.setOutsideSoundsAvailable(areas.haveOutsideSound);
-        gameComponent.setSceneOutsideSoundType(areas.sceneOutsideSound);
+        gameComponent.setOutsideSoundsAvailable(areas.areasSettings.haveOutsideSound);
+        gameComponent.setSceneOutsideSoundType(areas.areasSettings.sceneOutsideSound.name());
 
         // 应用地图重力配置
         // 不要修改base用modifier！！！！！！！！！！
