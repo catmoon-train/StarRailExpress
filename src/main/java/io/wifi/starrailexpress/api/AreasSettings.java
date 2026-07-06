@@ -1,11 +1,5 @@
 package io.wifi.starrailexpress.api;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-
-import com.google.gson.annotations.Expose;
-
 import io.wifi.ConfigCompact.annotation.Category;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
@@ -57,13 +51,6 @@ public class AreasSettings {
         }
     }
 
-    public static class Test {
-        public HashSet<String> hashSet = new HashSet<>();
-        public ArrayList<String> arrayList = new ArrayList<>();
-        public HashMap<String, String> hashMap = new HashMap<>();
-        public StoreableBlockPos pos = new StoreableBlockPos(0, 0, 0);
-    }
-
     public static class StoreableVec3 {
         double x = 0, y = 0, z = 0;
 
@@ -96,15 +83,15 @@ public class AreasSettings {
      * 在field前标记
      */
 
-    /**
-     * 示例：不需要同步，也不需要保存的类
-     */
-    @Expose(serialize = false, deserialize = false)
-    @ConfigSync(shouldSync = false)
-    public boolean __isTest__ = true;
-    public Test testpos = new Test();
+    // 示例：不需要同步，也不需要保存的类
+    // @Expose(serialize = false, deserialize = false)
+    // @ConfigSync(shouldSync = false)
+    // public boolean __isTest__ = true;
+
     /** 是否可跳跃 */
     @Category("action")
+    // 默认为 true，此处只是为了占位
+    @ConfigSync(shouldSync = true)
     public boolean canJump = false;
     /** 是否允许触碰岩浆（isInLava) */
     @Category("action")
