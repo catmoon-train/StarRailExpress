@@ -28,17 +28,26 @@ public class AreasModule implements TabModule {
 
             placements.add(new WidgetPlacement(
                     ModernButton
-                            .builder(Component.translatable("sre.map_helper.area.set_min", areaName),
-                                    b -> ctx.sendAndClose(String.format("sre:area_manager set %s min %.0f %.0f %.0f",
-                                            cmd, Math.floor(ctx.ax()), Math.floor(ctx.ay()), Math.floor(ctx.az()))))
+                            .builder(Component.translatable("sre.map_helper.area.set_min",
+                                    areaName),
+                                    b -> ctx.sendAndClose(String.format(
+                                            "sre:area_manager set %s min %.0f %.0f %.0f",
+                                            cmd, Math.floor(ctx.ax()),
+                                            Math.floor(ctx.ay()),
+                                            Math.floor(ctx.az()))))
                             .bounds(leftX, rowY, bw, bh).accentBar(AccentSide.LEFT).build(),
                     rowY));
             placements.add(new WidgetPlacement(
                     ModernButton
-                            .builder(Component.translatable("sre.map_helper.area.set_max", areaName),
-                                    b -> ctx.sendAndClose(String.format("sre:area_manager set %s max %.0f %.0f %.0f",
-                                            cmd, Math.floor(ctx.ax()), Math.floor(ctx.ay()), Math.floor(ctx.az()))))
-                            .bounds(rightX, rowY, bw, bh).accentBar(AccentSide.RIGHT).build(),
+                            .builder(Component.translatable("sre.map_helper.area.set_max",
+                                    areaName),
+                                    b -> ctx.sendAndClose(String.format(
+                                            "sre:area_manager set %s max %.0f %.0f %.0f",
+                                            cmd, Math.floor(ctx.ax()),
+                                            Math.floor(ctx.ay()),
+                                            Math.floor(ctx.az()))))
+                            .bounds(rightX, rowY, bw, bh).accentBar(AccentSide.RIGHT)
+                            .build(),
                     rowY));
         }
     }
