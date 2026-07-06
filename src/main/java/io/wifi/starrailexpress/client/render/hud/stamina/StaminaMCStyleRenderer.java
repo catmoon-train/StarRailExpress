@@ -44,12 +44,11 @@ public class StaminaMCStyleRenderer {
                 knifeFullyCharged = false;
             }
             itemPercent = itemChargeProvider.getPercent();
-        } else {
-            if (staminaProvider != null) {
-                staminaPercent = staminaProvider.getPercent();
-            }
         }
 
+        if (staminaProvider != null) {
+            staminaPercent = staminaProvider.getPercent();
+        }
         if (staminaPercent >= 0) {
             // 渲染体力条 - 移动到物品栏上方
             // 1. 更新状态（每帧都传当前体力值）

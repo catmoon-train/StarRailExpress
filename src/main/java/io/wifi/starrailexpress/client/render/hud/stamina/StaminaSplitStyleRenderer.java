@@ -49,10 +49,10 @@ public class StaminaSplitStyleRenderer {
                 knifeFullyCharged = false;
             }
             itemPercent = itemChargeProvider.getPercent();
-        } else {
-            if (staminaProvider != null) {
-                staminaPercent = staminaProvider.getPercent();
-            }
+        }
+
+        if (staminaProvider != null) {
+            staminaPercent = staminaProvider.getPercent();
         }
         // 使用与TimeRenderer类似的颜色逻辑
         if (Math.abs(view.getTarget() - staminaPercent) > 0.1f) {
