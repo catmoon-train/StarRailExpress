@@ -2429,7 +2429,7 @@
     "sre.map_helper.settings.canUnderWater": "允许标准溺水 2",
     "sre.map_helper.settings.canUnderWater.@tooltip": "关闭后玩家眼睛没入水中即判定溺水。图例：\n水（头）\n水（脚）",
     "sre.map_helper.settings.allowInDeepWater": "允许严格溺水 3",
-    "sre.map_helper.settings.allowInDeepWater.@tooltip": "关闭后玩家在脚触水时判定溺水，禁止简单游泳；同时会使用标准溺水检测（同关闭“允许标准溺水”）。图例：\n水\n水（脚）",
+    "sre.map_helper.settings.allowInDeepWater.@tooltip": "关闭后玩家在脚触水时判定溺水，禁止简单游泳；同时会使用标准溺水检测（同关闭“允许标准溺水”）。图例：\n水（脚）\n水",
     "sre.map_helper.settings.enableOxygenDrowning": "氧气耗尽溺亡",
     "sre.map_helper.settings.enableOxygenDrowning.@tooltip": "开启后氧气值归零 5 秒后玩家将死亡",
     "sre.map_helper.settings.snowEnabled": "下雪效果",
