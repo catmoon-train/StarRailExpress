@@ -25,7 +25,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MapManagerSettingsCommand {
 
@@ -255,7 +254,7 @@ public class MapManagerSettingsCommand {
 
         // 每个元素一行，灰色
         for (Object item : subList) {
-          result.append(Component.literal(objectToString(item))
+          result.append(objectToComponent(path, item).copy()
               .withStyle(ChatFormatting.GRAY))
               .append("\n");
         }
@@ -298,7 +297,7 @@ public class MapManagerSettingsCommand {
       } else {
         // 非集合类型的原逻辑不变
         source.sendSuccess(
-            () -> Component.translatable("sre.area_manager.get.success", path, objectToString(target))
+            () -> Component.translatable("sre.area_manager.get.success", path, objectToComponent(path, target))
                 .withStyle(ChatFormatting.AQUA),
             false);
         return 1;
@@ -434,30 +433,43 @@ public class MapManagerSettingsCommand {
 
   // ============ 对象转字符串 ============
 
-  private static String objectToString(Object obj) {
+  private static Component objectToComponent(String path, Object obj) {
     if (obj == null)
-      return "null";
+      return Component.literal("null");
     if (obj instanceof Enum)
-      return ((Enum<?>) obj).name();
+      return warpEnum(path, ((Enum<?>) obj).name());
     if (obj instanceof Collection) {
-      return ((Collection<?>) obj).stream()
-          .map(MapManagerSettingsCommand::objectToString)
-          .collect(Collectors.joining(", ", "[", "]"));
+      MutableComponent result = Component.literal("[");
+      boolean first = true;
+      for (Object o : (Collection<?>) obj) {
+        if (!first) {
+          result.append(Component.literal(", "));
+        }
+        result.append(MapManagerSettingsCommand.objectToComponent(path, o));
+        first = false;
+      }
+      result.append(Component.literal("]"));
+      return result;
     }
     if (obj instanceof Map) {
-      return GSON.toJson(obj);
+      return Component.literal(GSON.toJson(obj));
     }
     if (obj instanceof String || obj instanceof Number || obj instanceof Boolean) {
-      return obj.toString();
+      return Component.literal(obj.toString());
     }
     try {
-      return GSON.toJson(obj);
+      return Component.literal(GSON.toJson(obj));
     } catch (Exception e) {
-      return obj.toString();
+      return Component.literal(obj.toString());
     }
   }
 
   // ============ 世界/组件/根对象获取辅助 ============
+
+  private static Component warpEnum(String path, String name) {
+    return Component.translatable("%s (%s)", name,
+        Component.translatableWithFallback("sre.map_helper.settings." + path + "." + name, name));
+  }
 
   private static ServerLevel getLevel(CommandSourceStack source) throws CommandSyntaxException {
     if (source.getLevel() instanceof ServerLevel) {
