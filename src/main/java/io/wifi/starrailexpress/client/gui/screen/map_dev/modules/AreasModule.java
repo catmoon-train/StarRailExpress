@@ -7,7 +7,7 @@ import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSid
 import java.util.List;
 
 public class AreasModule implements TabModule {
-    private static final String[] AREA_KEYS = { "readyArea", "playArea", "sceneArea", "resetTemplateArea",
+    private static final String[] AREA_KEYS = { "readyArea", "playArea", "resetTemplateArea",
             "resetPasteArea" };
 
     @Override
