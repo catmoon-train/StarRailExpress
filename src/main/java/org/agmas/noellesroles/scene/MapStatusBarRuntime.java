@@ -60,7 +60,9 @@ public final class MapStatusBarRuntime {
                 state.reset(type);
             }
             tickPlayer(level, player, state);
-            state.sync(player);
+            if (level.getGameTime() % 20 == 0) {
+                state.sync(player);
+            }
         }
 
         Iterator<UUID> iterator = STATES.keySet().iterator();
@@ -78,7 +80,8 @@ public final class MapStatusBarRuntime {
         }
         for (ServerPlayer player : level.players()) {
             if (STATES.remove(player.getUUID()) != null) {
-                ServerPlayNetworking.send(player, new MapStatusBarSyncS2CPacket(MapStatusBarType.NONE, MAX_VALUE, MAX_VALUE));
+                ServerPlayNetworking.send(player,
+                        new MapStatusBarSyncS2CPacket(MapStatusBarType.NONE, MAX_VALUE, MAX_VALUE));
             }
         }
     }
@@ -240,7 +243,8 @@ public final class MapStatusBarRuntime {
 
     private static void remove(ServerPlayer player) {
         if (STATES.remove(player.getUUID()) != null) {
-            ServerPlayNetworking.send(player, new MapStatusBarSyncS2CPacket(MapStatusBarType.NONE, MAX_VALUE, MAX_VALUE));
+            ServerPlayNetworking.send(player,
+                    new MapStatusBarSyncS2CPacket(MapStatusBarType.NONE, MAX_VALUE, MAX_VALUE));
         }
     }
 
@@ -260,10 +264,14 @@ public final class MapStatusBarRuntime {
 
     private static int leatherArmorPieces(ServerPlayer player) {
         int count = 0;
-        if (player.getItemBySlot(EquipmentSlot.HEAD).is(Items.LEATHER_HELMET)) count++;
-        if (player.getItemBySlot(EquipmentSlot.CHEST).is(Items.LEATHER_CHESTPLATE)) count++;
-        if (player.getItemBySlot(EquipmentSlot.LEGS).is(Items.LEATHER_LEGGINGS)) count++;
-        if (player.getItemBySlot(EquipmentSlot.FEET).is(Items.LEATHER_BOOTS)) count++;
+        if (player.getItemBySlot(EquipmentSlot.HEAD).is(Items.LEATHER_HELMET))
+            count++;
+        if (player.getItemBySlot(EquipmentSlot.CHEST).is(Items.LEATHER_CHESTPLATE))
+            count++;
+        if (player.getItemBySlot(EquipmentSlot.LEGS).is(Items.LEATHER_LEGGINGS))
+            count++;
+        if (player.getItemBySlot(EquipmentSlot.FEET).is(Items.LEATHER_BOOTS))
+            count++;
         return count;
     }
 
@@ -274,7 +282,8 @@ public final class MapStatusBarRuntime {
                 for (int z = -3; z <= 3; z++) {
                     pos.set(center.getX() + x, center.getY() + y, center.getZ() + z);
                     BlockState state = level.getBlockState(pos);
-                    if (state.is(ModSceneBlocks.STOVE) && state.hasProperty(StoveBlock.LIT) && state.getValue(StoveBlock.LIT)) {
+                    if (state.is(ModSceneBlocks.STOVE) && state.hasProperty(StoveBlock.LIT)
+                            && state.getValue(StoveBlock.LIT)) {
                         return true;
                     }
                 }

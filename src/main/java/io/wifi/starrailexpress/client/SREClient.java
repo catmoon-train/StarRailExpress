@@ -49,6 +49,7 @@ import io.wifi.starrailexpress.event.client.OnGameStartedClient;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.data.MapConfig;
+import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.*;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
@@ -106,6 +107,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.ClientSkincrawlerState;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.client.hud.MapStatusBarClientState;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomStatePayload;
@@ -771,9 +773,11 @@ public class SREClient implements ClientModInitializer {
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(OnGameFinishedPayload.TYPE, (payload, context) -> {
+            MapStatusBarClientState.set(MapStatusBarType.NONE, 20, 20);
             OnGameFinishedClient.EVENT.invoker().gameFinished();
         });
         ClientPlayNetworking.registerGlobalReceiver(OnGameStartedPayload.TYPE, (payload, context) -> {
+            MapStatusBarClientState.set(MapStatusBarType.NONE, 20, 20);
             OnGameStartedClient.EVENT.invoker().gameStarted();
         });
         ClientPlayNetworking.registerGlobalReceiver(SyncRoomToPlayerPayload.ID, (payload, context) -> {
@@ -1098,7 +1102,6 @@ public class SREClient implements ClientModInitializer {
         return gameComponent != null && gameComponent.isRunning() && trainComponent != null
                 && trainComponent.getSpeed() > 0;
     }
-
 
     public static boolean needsChunkOffset() {
         return isTrainMoving();

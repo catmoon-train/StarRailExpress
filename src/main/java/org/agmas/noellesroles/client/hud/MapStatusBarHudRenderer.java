@@ -53,6 +53,10 @@ public final class MapStatusBarHudRenderer {
         if (type == MapStatusBarType.NONE) {
             return;
         }
+        type = SREClient.areaComponent.areasSettings.mapStatusBar;
+        if (type == MapStatusBarType.NONE) {
+            return;
+        }
 
         float value = (float) MapStatusBarClientState.value() / MapStatusBarClientState.maxValue();
 
