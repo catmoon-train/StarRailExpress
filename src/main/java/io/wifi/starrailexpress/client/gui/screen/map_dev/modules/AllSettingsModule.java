@@ -249,8 +249,9 @@ public class AllSettingsModule implements TabModule {
                 placements.add(new WidgetPlacement(disableBtn, y));
                 placements.add(new WidgetPlacement(viewBtn, y));
             } else if (type == String.class || isNumberType(type)) {
-                int inputWidth = Math.max(70, remainingWidth - 40 - 60 - 6);
-                EditBox input = new EditBox(layout.font, rightEdge - inputWidth, y, inputWidth, 20, Component.empty());
+                int inputWidth = Math.max(70, remainingWidth - 40 - 60 - gap);
+                EditBox input = new EditBox(layout.font, rightEdge - inputWidth - 40, y, inputWidth, 20,
+                        Component.empty());
                 input.setValue(value != null ? value.toString() : "");
                 input.setMaxLength(50);
                 {
@@ -264,7 +265,7 @@ public class AllSettingsModule implements TabModule {
                     String val = input.getValue().trim();
                     if (!val.isEmpty())
                         ctx.sendOnly("sre:area_manager set " + entry.path + " " + ctx.quoteCommandArgument(val));
-                }).bounds(controlX + inputWidth + gap, y, 40, 20).accentBar(AccentSide.BOTTOM).build();
+                }).bounds(rightEdge-40, y, 40, 20).accentBar(AccentSide.BOTTOM).build();
                 ModernButton viewBtn = ModernButton
                         .builder(Component.translatable("sre.map_helper.view"),
                                 b -> ctx.sendOnly("sre:area_manager get " + entry.path))
