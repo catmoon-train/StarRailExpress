@@ -24,8 +24,8 @@ public abstract class FallDamageCheckMixin {
                 if (player.isSpectator() || player.isCreative())
                     return;
                 var cca = AreasWorldComponent.KEY.get(player.level());
-                if (cca.fallToDeathHeight > 0) {
-                    if (self.fallDistance >= cca.fallToDeathHeight) {
+                if (cca.areasSettings.fallToDeathHeight > 0) {
+                    if (self.fallDistance >= cca.areasSettings.fallToDeathHeight) {
                         GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.FALL_DAMAGE);
                     }
                     self.resetFallDistance();

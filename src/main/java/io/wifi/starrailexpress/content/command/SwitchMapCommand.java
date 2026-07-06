@@ -363,11 +363,11 @@ public class SwitchMapCommand {
                         .withStyle(style -> style.withColor(0x00FFFF)),
                 false);
         source.sendSuccess(
-                () -> Component.literal("Can Jump: " + (areas.canJump ? "Yes" : "No"))
+                () -> Component.literal("Can Jump: " + (areas.areasSettings.canJump ? "Yes" : "No"))
                         .withStyle(style -> style.withColor(0x00FFFF)),
                 false);
         source.sendSuccess(
-                () -> Component.literal("Can Swim: " + (areas.canSwim ? "Yes" : "No"))
+                () -> Component.literal("Can Swim: " + (areas.areasSettings.canSwim ? "Yes" : "No"))
                         .withStyle(style -> style.withColor(0x00FFFF)),
                 false);
         source.sendSuccess(

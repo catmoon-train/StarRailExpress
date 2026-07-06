@@ -89,7 +89,7 @@ public final class SceneRuntimeEvents {
     }
 
     private static boolean isOxygenDrowningEnabled(ServerLevel level) {
-        return AreasWorldComponent.KEY.get(level).enableOxygenDrowning;
+        return AreasWorldComponent.KEY.get(level).areasSettings.enableOxygenDrowning;
     }
 
     private static void clearOxygenDrowning(ServerLevel level) {

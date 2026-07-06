@@ -62,6 +62,7 @@ public abstract class ClientWorldMixin extends Level {
     private static final int SRE_SAND_UPDATE_INTERVAL = 3; // 每3tick更新一次
     private static final int SRE_SAND_PARTICLES_PER_TICK = 500; // 粒子数量（比雪花更密集）
 
+    @SuppressWarnings("rawtypes")
     @Inject(method = "<init>", at = @At("TAIL"))
     public void tmm$addCustomBlockMarkers(ClientPacketListener networkHandler, ClientLevel.ClientLevelData properties, ResourceKey registryRef, Holder dimensionTypeEntry, int loadDistance, int simulationDistance, Supplier profiler, LevelRenderer worldRenderer, boolean debugWorld, long seed, CallbackInfo ci) {
         MARKER_PARTICLE_ITEMS = new HashSet<>(MARKER_PARTICLE_ITEMS);
@@ -84,7 +85,7 @@ public abstract class ClientWorldMixin extends Level {
         if (!SREClient.isTrainMoving() || 
             !SREClient.getTrainComponent().isSnowing() || 
             SREClient.areaComponent == null || 
-            !SREClient.areaComponent.snowEnabled) {
+            !SREClient.areaComponent.areasSettings.snowEnabled) {
             return;
         }
         
@@ -139,7 +140,7 @@ public abstract class ClientWorldMixin extends Level {
         if (!SREClient.isTrainMoving() || 
             !SREClient.getTrainComponent().isSandEnabled() ||
             SREClient.areaComponent == null || 
-            !SREClient.areaComponent.sandEnabled) {
+            !SREClient.areaComponent.areasSettings.sandEnabled) {
             return;
         }
         

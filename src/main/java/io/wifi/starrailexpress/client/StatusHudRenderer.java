@@ -18,7 +18,7 @@ public class StatusHudRenderer {
     public static void renderOxygen(GuiGraphics context, LocalPlayer self, float delta) {
         if (SREClient.areaComponent == null)
             return;
-        if (!SREClient.areaComponent.enableOxygenDrowning)
+        if (!SREClient.areaComponent.areasSettings.enableOxygenDrowning)
             return;
         Minecraft client = Minecraft.getInstance();
         Player player = client.gui.getCameraPlayer();

@@ -816,7 +816,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                             GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
                 }
             }
-            if (!areas.canSwim) {
+            if (!areas.areasSettings.canSwim) {
                 if (checkPlayerIsSwiming(player, areas)) {
                     GameUtils.killPlayer(player, false,
                             player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
@@ -828,6 +828,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                                 GameConstants.DeathReasons.CANNOT_SWIM);
                     }
                 }
+            }
+            if (!areas.areasSettings.canInLava) {
                 if (checkPlayerIsInLava(player, areas)) {
                     GameUtils.killPlayer(player, false,
                             player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,

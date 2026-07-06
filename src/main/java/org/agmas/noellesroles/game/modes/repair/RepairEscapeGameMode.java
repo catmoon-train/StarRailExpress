@@ -20,6 +20,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
+
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.block_entity.HunterCageBlockEntity;
 import org.agmas.noellesroles.init.ModBlocks;
@@ -70,20 +72,25 @@ public class RepairEscapeGameMode extends GameMode {
                 .set(false, serverWorld.getServer());
         // 应用地图配置的时间、天气和昼夜循环
         var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverWorld);
-        serverWorld.setDayTime(areas.time);
-        serverWorld.getGameRules().getRule(net.minecraft.world.level.GameRules.RULE_DAYLIGHT)
-                .set(areas.daylightCycle, serverWorld.getServer());
-        switch (areas.weather) {
+        serverWorld.setDayTime(areas.areasSettings.time);
+        serverWorld.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, serverWorld.getServer());
+        // 天气循环配置 - 默认关闭
+        serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(areas.areasSettings.weatherCycle,
+                serverWorld.getServer());
+
+        // 应用地图天气配置
+        switch (areas.areasSettings.weather) {
             case "rain":
-                serverWorld.setWeatherParameters(0, 6000, true, false);
+                serverWorld.setWeatherParameters(0, 120000, true, false);
                 break;
             case "thunder":
-                serverWorld.setWeatherParameters(0, 6000, true, true);
+                serverWorld.setWeatherParameters(0, 120000, true, true);
                 break;
-            default:
-                serverWorld.setWeatherParameters(6000, 0, false, false);
+            default: // clear
+                serverWorld.setWeatherParameters(120000, 0, false, false);
                 break;
         }
+
         serverWorld.getServer().setDifficulty(net.minecraft.world.Difficulty.PEACEFUL, true);
 
         // 将所有玩家设为冒险模式
@@ -95,7 +102,8 @@ public class RepairEscapeGameMode extends GameMode {
         // 将非参战玩家传送到固定庄园上方的观察者位置
         BlockPos manorBase = RepairArenaBuilder.defaultMansionBase(serverWorld);
         for (ServerPlayer player : serverWorld.getServer().getPlayerList().getPlayers()) {
-            if (players.contains(player)) continue;
+            if (players.contains(player))
+                continue;
             player.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
             // 传送到庄园中心上方
             player.teleportTo(serverWorld,
@@ -109,8 +117,8 @@ public class RepairEscapeGameMode extends GameMode {
             io.wifi.starrailexpress.cca.SREPlayerMoodComponent.KEY.get(player).init();
             io.wifi.starrailexpress.cca.SREPlayerShopComponent.KEY.get(player).init();
             // 清除物品冷却
-            java.util.HashSet<net.minecraft.world.item.Item> copy =
-                    new java.util.HashSet<>(player.getCooldowns().cooldowns.keySet());
+            java.util.HashSet<net.minecraft.world.item.Item> copy = new java.util.HashSet<>(
+                    player.getCooldowns().cooldowns.keySet());
             for (net.minecraft.world.item.Item item : copy)
                 player.getCooldowns().removeCooldown(item);
         }
@@ -129,7 +137,7 @@ public class RepairEscapeGameMode extends GameMode {
         ArrayList<ServerPlayer> shuffled = new ArrayList<>(players);
         Collections.shuffle(shuffled);
         int hunterCount = hunterCount(shuffled.size());
-        //int neutralCount = neutralCount(shuffled.size());
+        // int neutralCount = neutralCount(shuffled.size());
         int neutralCount = 0;
         int forcedHunters = 0;
         int forcedNeutrals = 0;
@@ -243,7 +251,8 @@ public class RepairEscapeGameMode extends GameMode {
                 reopenRoleSelection(serverWorld, gameWorldComponent);
             }
         }
-        if (!rolesFinalized && serverWorld.getGameTime() >= selectionEndTick && RepairArenaBuilder.isReady(serverWorld)) {
+        if (!rolesFinalized && serverWorld.getGameTime() >= selectionEndTick
+                && RepairArenaBuilder.isReady(serverWorld)) {
             finalizeSelectedRoles(serverWorld, gameWorldComponent);
         }
 
@@ -306,7 +315,8 @@ public class RepairEscapeGameMode extends GameMode {
             boolean survivor = RepairRoleDefinition.byId(component.activeRole)
                     .map(role -> role.faction == RepairRoleDefinition.Faction.SURVIVOR)
                     .orElse(gameWorldComponent.isRole(player, RepairRoles.REPAIR_SURVIVOR));
-            if (survivor && !player.getTags().contains(RepairModeState.ESCAPED_TAG) && !GameUtils.isPlayerEliminated(player)) {
+            if (survivor && !player.getTags().contains(RepairModeState.ESCAPED_TAG)
+                    && !GameUtils.isPlayerEliminated(player)) {
                 totalSurvivors++;
                 if (component.downed) {
                     downedSurvivors++;
@@ -345,7 +355,8 @@ public class RepairEscapeGameMode extends GameMode {
         }
     }
 
-    private static RepairRoleDefinition.Faction selectionFaction(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
+    private static RepairRoleDefinition.Faction selectionFaction(ServerPlayer player,
+            SREGameWorldComponent gameWorldComponent) {
         if (gameWorldComponent.isRole(player, RepairRoles.REPAIR_HUNTER)) {
             return RepairRoleDefinition.Faction.HUNTER;
         }
@@ -391,8 +402,10 @@ public class RepairEscapeGameMode extends GameMode {
                 }
             }
             player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
-            player.displayClientMessage(Component.translatable("message.noellesroles.repair.role_locked", role.displayName())
-                    .withStyle(ChatFormatting.GREEN), false);
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.repair.role_locked", role.displayName())
+                            .withStyle(ChatFormatting.GREEN),
+                    false);
         }
         gameWorldComponent.syncRoles();
     }
@@ -546,9 +559,10 @@ public class RepairEscapeGameMode extends GameMode {
             component.activeTrialPrisoners = activeTrialPrisoners;
             component.downedAllies = countDownedAllies(serverWorld, gameWorldComponent, player);
             component.nearestTrialProgress = component.trialStand.present()
-                    && serverWorld.getBlockEntity(component.trialStand.toBlockPos()) instanceof HunterCageBlockEntity cage
-                            ? cage.getProgress(player.getUUID())
-                            : 0;
+                    && serverWorld
+                            .getBlockEntity(component.trialStand.toBlockPos()) instanceof HunterCageBlockEntity cage
+                                    ? cage.getProgress(player.getUUID())
+                                    : 0;
             component.sync();
         }
     }

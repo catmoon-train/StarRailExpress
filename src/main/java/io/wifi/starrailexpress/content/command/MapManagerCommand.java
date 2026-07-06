@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.AreasWorldComponent.PosWithOrientation;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -12,7 +13,6 @@ import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
 import io.wifi.starrailexpress.content.command.argument.MapLoadArgumentType;
 import io.wifi.starrailexpress.content.item.BindingToolItem;
 import io.wifi.starrailexpress.game.MapManager;
-import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 public class MapManagerCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    MapManagerSettingsCommand.register(dispatcher);
     dispatcher.register(
         Commands.literal("sre:monitor").requires(source -> source.hasPermission(2))
             .then(Commands.literal("search")
@@ -125,10 +126,7 @@ public class MapManagerCommand {
                 .requires(source -> source.hasPermission(3))
                 .executes((ctx) -> {
                   var areas = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-                  areas.canJump = false;
-                  areas.canSwim = false;
-                  areas.enableOxygenDrowning = false;
-                  areas.mapStatusBar = MapStatusBarType.NONE;
+                  areas.areasSettings = new AreasSettings();
                   areas.disabledTasks = new HashSet<>();
                   areas.disabledRoles = new HashSet<>();
                   areas.enableSceneTask = new HashSet<>();
@@ -138,22 +136,11 @@ public class MapManagerCommand {
                   areas.mustCopy = false;
                   areas.noReset = false;
                   areas.sceneOffsetEnabled = false;
-                  areas.snowEnabled = false;
-                  areas.sandEnabled = false;
-                  areas.fogEnabled = true;
-                  areas.fogEnd = 200.0f;
-                  areas.fogShape = "SPHERE";
                   areas.sceneOffsetX = 0;
                   areas.sceneOffsetY = 0;
                   areas.sceneOffsetZ = 0;
                   io.wifi.starrailexpress.scenery.server.SceneLibrary.clearScene(areas);
-                  areas.weather = "clear";
-                  areas.gravity = 0;
                   areas.effect = new java.util.ArrayList<>();
-                  areas.time = 18000;
-                  areas.daylightCycle = false;
-                  areas.fallToDeathHeight = 0;
-                  areas.weatherCycle = false;
                   areas.minigameQuestEnabled = false;
                   areas.sync();
                   ctx.getSource().sendSuccess(
@@ -173,35 +160,20 @@ public class MapManagerCommand {
                 .then(setPlayAreaOffset())
                 .then(setRoomCount())
                 .then(setRoomPositions())
-                .then(setCanJump())
-                .then(setCanSwim())
-                .then(setEnableOxygenDrowning())
-                .then(setMapStatusBar())
                 .then(setNoReset())
                 .then(setHaveOutsideSound())
                 .then(setSceneOutsideSound())
                 .then(setSceneOffsetEnabled())
-                .then(setSnowEnabled())
-                .then(setSandEnabled())
-                .then(setFogEnabled())
-                .then(setFogEnd())
-                .then(setFogShape())
                 .then(setSceneOffsetX())
                 .then(setSceneOffsetY())
                 .then(setSceneOffsetZ())
                 .then(setMustCopy())
-                .then(setFallToDeathHeight())
                 .then(setMapName())
                 .then(setDisabledTasks())
                 .then(setDisabledRoles())
                 .then(setDisabledModifiers())
                 .then(setEnableSceneTask())
-                .then(setWeather())
-                .then(setGravity())
                 .then(setEffect())
-                .then(setTime())
-                .then(setDaylightCycle())
-                .then(setWeatherCycle())
                 .then(setMinigameQuestEnabled())
                 .then(setInitialItems()))
             .then(Commands.literal("get")
@@ -216,32 +188,15 @@ public class MapManagerCommand {
                 .then(getPlayAreaOffset())
                 .then(getRoomCount())
                 .then(getRoomPositions())
-                .then(buildGetSimple("fallToDeathHeight", a -> String.valueOf(a.fallToDeathHeight)))
-                .then(buildGetSimple("canJump", a -> String.valueOf(a.canJump)))
-                .then(buildGetSimple("canSwim", a -> String.valueOf(a.canSwim)))
-                .then(buildGetSimple("enableOxygenDrowning", a -> String.valueOf(a.enableOxygenDrowning)))
-                .then(buildGetSimple("mapStatusBar",
-                    a -> String.valueOf(a.mapStatusBar == null ? MapStatusBarType.NONE : a.mapStatusBar)))
                 .then(buildGetSimple("noReset", a -> String.valueOf(a.noReset)))
                 .then(buildGetSimple("haveOutsideSound", a -> String.valueOf(a.haveOutsideSound)))
                 .then(buildGetSimple("sceneOutsideSound", a -> a.sceneOutsideSound))
                 .then(buildGetSimple("sceneOffsetEnabled", a -> String.valueOf(a.sceneOffsetEnabled)))
-                .then(buildGetSimple("snowEnabled", a -> String.valueOf(a.snowEnabled)))
-                .then(buildGetSimple("sandEnabled", a -> String.valueOf(a.sandEnabled)))
-                .then(buildGetSimple("fogEnabled", a -> String.valueOf(a.fogEnabled)))
-                .then(buildGetSimple("fogEnd", a -> String.valueOf(a.fogEnd)))
-                .then(buildGetSimple("fogShape", a -> "\"" + a.fogShape + "\""))
                 .then(buildGetSimple("sceneOffsetX", a -> String.valueOf(a.sceneOffsetX)))
                 .then(buildGetSimple("sceneOffsetY", a -> String.valueOf(a.sceneOffsetY)))
                 .then(buildGetSimple("sceneOffsetZ", a -> String.valueOf(a.sceneOffsetZ)))
                 .then(buildGetSimple("mustCopy", a -> String.valueOf(a.mustCopy)))
-                .then(buildGetSimple("mapName", a -> "\"" + a.mapName + "\""))
-                .then(buildGetSimple("weather", a -> a.weather))
-                .then(buildGetSimple("gravity", a -> String.valueOf(a.gravity)))
                 .then(buildGetSimple("effect", a -> a.effect.isEmpty() ? "(none)" : String.join(", ", a.effect)))
-                .then(buildGetSimple("time", a -> String.valueOf(a.time)))
-                .then(buildGetSimple("daylightCycle", a -> String.valueOf(a.daylightCycle)))
-                .then(buildGetSimple("weatherCycle", a -> String.valueOf(a.weatherCycle)))
                 .then(buildGetSimple("minigameQuestEnabled", a -> String.valueOf(a.minigameQuestEnabled)))
                 .then(buildGetSimple("initialItems",
                     a -> a.initialItems.isEmpty() ? "(none)" : String.join(", ", a.initialItems)))
@@ -249,6 +204,7 @@ public class MapManagerCommand {
                 .then(getDisabledRoles())
                 .then(getDisabledModifiers())
                 .then(getEnableSceneTask()))
+                .then(buildGetSimple("mapName", a -> "\"" + a.mapName + "\""))
             .then(Commands.literal("remove")
                 .requires(source -> source.hasPermission(3))
                 .then(Commands.argument("mapName", MapLoadArgumentType.string())
@@ -435,42 +391,6 @@ public class MapManagerCommand {
     }
   }
 
-  // 6. 布尔值字段
-  private static void setCanJump(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.canJump = value;
-    areas.sync();
-    sendSetFeedback(source, "canJump", String.valueOf(value));
-  }
-
-  private static void setCanSwim(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.canSwim = value;
-    areas.sync();
-    sendSetFeedback(source, "canSwim", String.valueOf(value));
-  }
-
-  private static void setFallToDeathHeight(CommandSourceStack source, int value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.fallToDeathHeight = value;
-    areas.sync();
-    sendSetFeedback(source, "fallToDeathHeight", String.valueOf(value));
-  }
-
-  private static void setEnableOxygenDrowning(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.enableOxygenDrowning = value;
-    areas.sync();
-    sendSetFeedback(source, "enableOxygenDrowning", String.valueOf(value));
-  }
-
-  private static void setMapStatusBar(CommandSourceStack source, MapStatusBarType value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.mapStatusBar = value == null ? MapStatusBarType.NONE : value;
-    areas.sync();
-    sendSetFeedback(source, "mapStatusBar", areas.mapStatusBar.name());
-  }
-
   private static void setNoReset(CommandSourceStack source, boolean value) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
     areas.noReset = value;
@@ -490,41 +410,6 @@ public class MapManagerCommand {
     areas.sceneOffsetEnabled = value;
     areas.sync();
     sendSetFeedback(source, "sceneOffsetEnabled", String.valueOf(value));
-  }
-
-  private static void setSnowEnabled(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.snowEnabled = value;
-    areas.sync();
-    sendSetFeedback(source, "snowEnabled", String.valueOf(value));
-  }
-
-  private static void setSandEnabled(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.sandEnabled = value;
-    areas.sync();
-    sendSetFeedback(source, "sandEnabled", String.valueOf(value));
-  }
-
-  private static void setFogEnabled(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.fogEnabled = value;
-    areas.sync();
-    sendSetFeedback(source, "fogEnabled", String.valueOf(value));
-  }
-
-  private static void setFogEnd(CommandSourceStack source, float value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.fogEnd = value;
-    areas.sync();
-    sendSetFeedback(source, "fogEnd", String.valueOf(value));
-  }
-
-  private static void setFogShape(CommandSourceStack source, String value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.fogShape = value;
-    areas.sync();
-    sendSetFeedback(source, "fogShape", "\"" + value + "\"");
   }
 
   private static void setMustCopy(CommandSourceStack source, boolean value) {
@@ -622,22 +507,6 @@ public class MapManagerCommand {
     }
   }
 
-  // 10. weather
-  private static void setWeather(CommandSourceStack source, String value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.weather = value;
-    areas.sync();
-    sendSetFeedback(source, "weather", "\"" + value + "\"");
-  }
-
-  // 11. gravity
-  private static void setGravity(CommandSourceStack source, double value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.gravity = value;
-    areas.sync();
-    sendSetFeedback(source, "gravity", String.valueOf(value));
-  }
-
   // 12. effect
   private static void setEffect(CommandSourceStack source, String value) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
@@ -649,30 +518,6 @@ public class MapManagerCommand {
     }
     areas.sync();
     sendSetFeedback(source, "effect", "\"" + value + "\"");
-  }
-
-  // 13. time
-  private static void setTime(CommandSourceStack source, long value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.time = value;
-    areas.sync();
-    sendSetFeedback(source, "time", String.valueOf(value));
-  }
-
-  // 14. daylightCycle
-  private static void setDaylightCycle(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.daylightCycle = value;
-    areas.sync();
-    sendSetFeedback(source, "daylightCycle", String.valueOf(value));
-  }
-
-  // 15. weatherCycle
-  private static void setWeatherCycle(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.weatherCycle = value;
-    areas.sync();
-    sendSetFeedback(source, "weatherCycle", String.valueOf(value));
   }
 
   // 15b. minigameQuestEnabled
@@ -708,6 +553,7 @@ public class MapManagerCommand {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
     StringBuilder sb = new StringBuilder();
     sb.append("\n=== 当前区域配置 ===\n");
+    sb.append("AreasSettings: ").append(MapManagerSettingsCommand.GSON.toJson(areas.getSpawnPos())).append("\n");
     sb.append("spawnPos: ").append(formatPosWithOrientation(areas.getSpawnPos())).append("\n");
     sb.append("spectatorSpawnPos: ").append(formatPosWithOrientation(areas.getSpectatorSpawnPos())).append("\n");
     sb.append("readyArea: ").append(formatAABB(areas.getReadyArea())).append("\n");
@@ -718,32 +564,16 @@ public class MapManagerCommand {
     sb.append("playAreaOffset: ").append(formatVec3(areas.getPlayAreaOffset())).append("\n");
     sb.append("roomCount: ").append(areas.getRoomCount()).append("\n");
     sb.append("roomPositions: ").append(formatRoomPositions(areas.getRoomPositions())).append("\n");
-    sb.append("canJump: ").append(areas.canJump).append("\n");
-    sb.append("canSwim: ").append(areas.canSwim).append("\n");
-    sb.append("enableOxygenDrowning: ").append(areas.enableOxygenDrowning).append("\n");
-    sb.append("fallToDeathHeight: ").append(areas.fallToDeathHeight).append("\n");
-    sb.append("mapStatusBar: ").append(areas.mapStatusBar == null ? MapStatusBarType.NONE : areas.mapStatusBar)
-        .append("\n");
     sb.append("noReset: ").append(areas.noReset).append("\n");
     sb.append("haveOutsideSound: ").append(areas.haveOutsideSound).append("\n");
     sb.append("sceneOutsideSound: \"").append(areas.sceneOutsideSound).append("\"\n");
     sb.append("sceneOffsetEnabled: ").append(areas.sceneOffsetEnabled).append("\n");
-    sb.append("snowEnabled: ").append(areas.snowEnabled).append("\n");
-    sb.append("sandEnabled: ").append(areas.sandEnabled).append("\n");
-    sb.append("fogEnabled: ").append(areas.fogEnabled).append("\n");
-    sb.append("fogEnd: ").append(areas.fogEnd).append("\n");
-    sb.append("fogShape: \"").append(areas.fogShape).append("\"\n");
     sb.append("sceneOffsetX: ").append(areas.sceneOffsetX).append("\n");
     sb.append("sceneOffsetY: ").append(areas.sceneOffsetY).append("\n");
     sb.append("sceneOffsetZ: ").append(areas.sceneOffsetZ).append("\n");
     sb.append("mustCopy: ").append(areas.mustCopy).append("\n");
     sb.append("mapName: \"").append(areas.mapName).append("\"\n");
-    sb.append("weather: ").append(areas.weather).append("\n");
-    sb.append("gravity: ").append(areas.gravity).append("\n");
     sb.append("effect: ").append(areas.effect.isEmpty() ? "(none)" : String.join(", ", areas.effect)).append("\n");
-    sb.append("time: ").append(areas.time).append("\n");
-    sb.append("daylightCycle: ").append(areas.daylightCycle).append("\n");
-    sb.append("weatherCycle: ").append(areas.weatherCycle).append("\n");
     sb.append("minigameQuestEnabled: ").append(areas.minigameQuestEnabled).append("\n");
     sb.append("initialItems: ").append(areas.initialItems.isEmpty() ? "(none)" : String.join(", ", areas.initialItems))
         .append("\n");
@@ -978,56 +808,12 @@ public class MapManagerCommand {
                 })));
   }
 
-  private static LiteralArgumentBuilder<CommandSourceStack> setWeather() {
-    return Commands.literal("weather")
-        .then(Commands.argument("value", StringArgumentType.string())
-            .executes(ctx -> {
-              setWeather(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setGravity() {
-    return Commands.literal("gravity")
-        .then(Commands.argument("value", DoubleArgumentType.doubleArg())
-            .executes(ctx -> {
-              setGravity(ctx.getSource(), DoubleArgumentType.getDouble(ctx, "value"));
-              return 1;
-            }));
-  }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setEffect() {
     return Commands.literal("effect")
         .then(Commands.argument("value", StringArgumentType.string())
             .executes(ctx -> {
               setEffect(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setTime() {
-    return Commands.literal("time")
-        .then(Commands.argument("value", LongArgumentType.longArg())
-            .executes(ctx -> {
-              setTime(ctx.getSource(), LongArgumentType.getLong(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setDaylightCycle() {
-    return Commands.literal("daylightCycle")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setDaylightCycle(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setWeatherCycle() {
-    return Commands.literal("weatherCycle")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setWeatherCycle(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
               return 1;
             }));
   }
@@ -1118,60 +904,6 @@ public class MapManagerCommand {
                 })));
   }
 
-  private static LiteralArgumentBuilder<CommandSourceStack> setCanJump() {
-    return Commands.literal("canJump")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setCanJump(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setCanSwim() {
-    return Commands.literal("canSwim")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setCanSwim(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setFallToDeathHeight() {
-    return Commands.literal("fallToDeathHeight")
-        .then(Commands.argument("value", IntegerArgumentType.integer(0))
-            .executes(ctx -> {
-              setFallToDeathHeight(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setEnableOxygenDrowning() {
-    return Commands.literal("enableOxygenDrowning")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setEnableOxygenDrowning(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setMapStatusBar() {
-    return Commands.literal("mapStatusBar")
-        .then(Commands.argument("value", StringArgumentType.word())
-            .suggests((ctx, builder) -> {
-              for (MapStatusBarType type : MapStatusBarType.values()) {
-                String name = type.name().toLowerCase();
-                if (name.startsWith(builder.getRemainingLowerCase())) {
-                  builder.suggest(name);
-                }
-              }
-              return builder.buildFuture();
-            })
-            .executes(ctx -> {
-              setMapStatusBar(ctx.getSource(), MapStatusBarType.byName(StringArgumentType.getString(ctx, "value")));
-              return 1;
-            }));
-  }
-
   private static LiteralArgumentBuilder<CommandSourceStack> setNoReset() {
     return Commands.literal("noReset")
         .then(Commands.argument("value", BoolArgumentType.bool())
@@ -1221,55 +953,6 @@ public class MapManagerCommand {
             }));
   }
 
-  private static LiteralArgumentBuilder<CommandSourceStack> setSnowEnabled() {
-    return Commands.literal("snowEnabled")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setSnowEnabled(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setSandEnabled() {
-    return Commands.literal("sandEnabled")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setSandEnabled(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setFogEnabled() {
-    return Commands.literal("fogEnabled")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setFogEnabled(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setFogEnd() {
-    return Commands.literal("fogEnd")
-        .then(Commands.argument("value", FloatArgumentType.floatArg(1, 10000))
-            .executes(ctx -> {
-              setFogEnd(ctx.getSource(), FloatArgumentType.getFloat(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setFogShape() {
-    return Commands.literal("fogShape")
-        .then(Commands.argument("value", StringArgumentType.string())
-            .suggests((ctx, builder) -> {
-              builder.suggest("SPHERE");
-              builder.suggest("CYLINDER");
-              return builder.buildFuture();
-            })
-            .executes(ctx -> {
-              setFogShape(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
-              return 1;
-            }));
-  }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setSceneOffsetX() {
     return Commands.literal("sceneOffsetX")

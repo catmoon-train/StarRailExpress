@@ -357,7 +357,7 @@ public class InitModRolesMax {
             boolean canJumpMap = false;
             var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
             if (areas != null) {
-                canJumpMap = areas.canJump;
+                canJumpMap = areas.areasSettings.canJump;
             }
             {
                 // 杀手中立（只处理没有配置的职业：无概率 且 无显式 setMax）

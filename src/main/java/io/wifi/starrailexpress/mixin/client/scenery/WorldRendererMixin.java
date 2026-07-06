@@ -45,7 +45,7 @@ public abstract class WorldRendererMixin {
             return;
         }
         if (SREClient.trainComponent != null && SREClient.trainComponent.isFoggy()
-                && SREClient.areaComponent != null && SREClient.areaComponent.fogEnabled
+                && SREClient.areaComponent != null && SREClient.areaComponent.areasSettings.fogEnabled
                 && SREClient.isTrainMoving()) {
 
             if (player.hasEffect(ModEffects.OTHERWORLD_AURA)){
@@ -63,8 +63,8 @@ public abstract class WorldRendererMixin {
                 return;
             }
             // 如果地图未自定义 fogEnd（仍是默认200），则使用原默认值100
-            tmm$doFog(0, SREClient.areaComponent.fogEnd != 200.0f ? SREClient.areaComponent.fogEnd : 100,
-                    SREClient.areaComponent.fogShape);
+            tmm$doFog(0, SREClient.areaComponent.areasSettings.fogEnd != 200.0f ? SREClient.areaComponent.areasSettings.fogEnd : 100,
+                    SREClient.areaComponent.areasSettings.fogShape);
         } else {
             original.call(camera, fogType, viewDistance, thickFog, tickDelta);
         }

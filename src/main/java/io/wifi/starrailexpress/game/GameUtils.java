@@ -793,14 +793,14 @@ public class GameUtils {
         SREWorldBlackoutComponent.KEY.get(serverWorld).reset();
         // 重置画板已画出物品状态
         gameComponent.resetDrawnCategories();
-        serverWorld.setDayTime(areas.time);
+        serverWorld.setDayTime(areas.areasSettings.time);
         serverWorld.getGameRules().getRule(GameRules.RULE_KEEPINVENTORY).set(true, serverWorld.getServer());
         // 天气循环配置 - 默认关闭
-        serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(areas.weatherCycle,
+        serverWorld.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(areas.areasSettings.weatherCycle,
                 serverWorld.getServer());
 
         // 应用地图天气配置
-        switch (areas.weather) {
+        switch (areas.areasSettings.weather) {
             case "rain":
                 serverWorld.setWeatherParameters(0, 120000, true, false);
                 break;
@@ -813,7 +813,7 @@ public class GameUtils {
         }
 
         // 昼夜循环配置 - 默认关闭，开启后使用正常昼夜循环
-        serverWorld.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(areas.daylightCycle,
+        serverWorld.getGameRules().getRule(GameRules.RULE_DAYLIGHT).set(areas.areasSettings.daylightCycle,
                 serverWorld.getServer());
 
         serverWorld.getGameRules().getRule(GameRules.RULE_MOBGRIEFING).set(false, serverWorld.getServer());
@@ -958,7 +958,7 @@ public class GameUtils {
         // });
         // entitiesToDiscard.forEach(net.minecraft.world.entity.Entity::discard);
 
-        gameComponent.setJumpAvailable(areas.canJump);
+        gameComponent.setJumpAvailable(areas.areasSettings.canJump);
         gameComponent.setOutsideSoundsAvailable(areas.haveOutsideSound);
         gameComponent.setSceneOutsideSoundType(areas.sceneOutsideSound);
 
@@ -969,7 +969,7 @@ public class GameUtils {
             if (gravityAttr != null) {
                 AttributeModifier gravityModifier = new AttributeModifier(
                         SRE.id("map"),
-                        areas.gravity, AttributeModifier.Operation.ADD_VALUE);
+                        areas.areasSettings.gravityModifier, AttributeModifier.Operation.ADD_VALUE);
                 gravityAttr.addOrReplacePermanentModifier(gravityModifier);
             }
         }
@@ -1586,7 +1586,7 @@ public class GameUtils {
                 var areas = AreasWorldComponent.KEY.get(player.level());
                 AttributeModifier gravityModifier = new AttributeModifier(
                         SRE.id("map"),
-                        areas.gravity, AttributeModifier.Operation.ADD_VALUE);
+                        areas.areasSettings.gravityModifier, AttributeModifier.Operation.ADD_VALUE);
                 gravityAttr.addOrReplacePermanentModifier(gravityModifier);
             }
         }
@@ -1603,7 +1603,7 @@ public class GameUtils {
                 var areas = AreasWorldComponent.KEY.get(player.level());
                 AttributeModifier gravityModifier = new AttributeModifier(
                         SRE.id("map"),
-                        areas.gravity, AttributeModifier.Operation.ADD_VALUE);
+                        areas.areasSettings.gravityModifier, AttributeModifier.Operation.ADD_VALUE);
                 gravityAttr.addOrReplacePermanentModifier(gravityModifier);
             }
         }

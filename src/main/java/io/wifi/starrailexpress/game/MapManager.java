@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.game;
 
 import com.google.gson.*;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.scenery.SceneAsset;
@@ -121,6 +122,9 @@ public class MapManager {
         }
         // 创建JSON对象并填充当前地图配置，使用新的嵌套结构
         JsonObject jsonObject = new JsonObject();
+        if (areas.areasSettings == null)
+            areas.areasSettings = new AreasSettings();
+        jsonObject.add("settings", gson.toJsonTree(areas.areasSettings));
 
         // 保存出生点位置 - 使用嵌套对象
         JsonObject spawnPosObj = new JsonObject();
@@ -232,14 +236,6 @@ public class MapManager {
             }
         }
         jsonObject.add("roomPositions", roomPositionsObj);
-        jsonObject.addProperty("canJump", areas.canJump);
-        jsonObject.addProperty("fallToDeathHeight", areas.fallToDeathHeight);
-
-        jsonObject.addProperty("canSwim", areas.canSwim);
-        jsonObject.addProperty("enableOxygenDrowning", areas.enableOxygenDrowning);
-        jsonObject.addProperty("mapStatusBar", (areas.mapStatusBar == null
-                ? io.wifi.starrailexpress.game.data.MapStatusBarType.NONE
-                : areas.mapStatusBar).name());
         jsonObject.add("disabledTasks", gson.toJsonTree(areas.disabledTasks));
         jsonObject.add("disabledRoles", gson.toJsonTree(areas.disabledRoles));
         jsonObject.add("disabledModifiers", gson.toJsonTree(areas.disabledModifiers));
@@ -260,31 +256,8 @@ public class MapManager {
         sceneOffsetObj.addProperty("z", areas.sceneOffsetZ);
         jsonObject.add("sceneOffset", sceneOffsetObj);
 
-        // 保存雪花效果配置
-        jsonObject.addProperty("snowEnabled", areas.snowEnabled);
-        // 保存沙尘暴效果配置
-        jsonObject.addProperty("sandEnabled", areas.sandEnabled);
-        jsonObject.addProperty("fogEnabled", areas.fogEnabled);
-        jsonObject.addProperty("fogEnd", areas.fogEnd);
-        jsonObject.addProperty("fogShape", areas.fogShape);
-
-        // 保存天气配置
-        jsonObject.addProperty("weather", areas.weather);
-
-        // 保存重力配置
-        jsonObject.addProperty("gravityModifier", areas.gravity);
-
         // 保存药水效果配置
         jsonObject.add("effect", gson.toJsonTree(areas.effect));
-
-        // 保存时间配置
-        jsonObject.addProperty("time", areas.time);
-
-        // 保存昼夜循环配置
-        jsonObject.addProperty("daylightCycle", areas.daylightCycle);
-
-        // 保存天气循环配置
-        jsonObject.addProperty("weatherCycle", areas.weatherCycle);
 
         // 保存小游戏任务系统开关
         jsonObject.addProperty("minigameQuestEnabled", areas.minigameQuestEnabled);
@@ -340,6 +313,18 @@ public class MapManager {
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
             areas.mapName = normalizedMapName(mapName);
+            // 先读取，避免后面被覆盖了
+            if (jsonObject.has("settings")) {
+                try {
+                    areas.areasSettings = gson.fromJson(jsonObject.get("settings"), AreasSettings.class);
+                } catch (Exception e) {
+                    areas.areasSettings = new AreasSettings();
+                    SRE.LOGGER.error("Error while loading map config 'settings'", e);
+                }
+            } else {
+                areas.areasSettings = new AreasSettings();
+            }
+
             if (jsonObject.has("noReset")) {
                 areas.noReset = jsonObject.get("noReset").getAsBoolean();
             } else {
@@ -362,57 +347,50 @@ public class MapManager {
                 areas.sceneOutsideSound = "train";
             }
 
+            // 旧版格式兼容
             if (jsonObject.has("fallToDeathHeight")) {
-                areas.fallToDeathHeight = jsonObject.get("fallToDeathHeight").getAsInt();
-            } else {
-                areas.fallToDeathHeight = 0;
+                areas.areasSettings.fallToDeathHeight = jsonObject.get("fallToDeathHeight").getAsInt();
             }
+            // 旧版格式兼容
 
             if (jsonObject.has("canJump")) {
-                areas.canJump = jsonObject.get("canJump").getAsBoolean();
-            } else {
-                areas.canJump = false;
+                areas.areasSettings.canJump = jsonObject.get("canJump").getAsBoolean();
             }
+            // 旧版格式兼容
 
             if (jsonObject.has("canSwim")) {
-                areas.canSwim = jsonObject.get("canSwim").getAsBoolean();
-            } else {
-                areas.canSwim = false;
+                areas.areasSettings.canSwim = jsonObject.get("canSwim").getAsBoolean();
             }
-
-            areas.enableOxygenDrowning = jsonObject.has("enableOxygenDrowning")
-                    && jsonObject.get("enableOxygenDrowning").getAsBoolean();
-            areas.mapStatusBar = jsonObject.has("mapStatusBar")
-                    ? io.wifi.starrailexpress.game.data.MapStatusBarType
-                            .byName(jsonObject.get("mapStatusBar").getAsString())
-                    : io.wifi.starrailexpress.game.data.MapStatusBarType.NONE;
+            // 旧版格式兼容
+            if (jsonObject.has("enableOxygenDrowning")) {
+                areas.areasSettings.enableOxygenDrowning = jsonObject.get("enableOxygenDrowning").getAsBoolean();
+            }
+            // 旧版格式兼容
+            if (jsonObject.has("mapStatusBar")) {
+                areas.areasSettings.mapStatusBar = io.wifi.starrailexpress.game.data.MapStatusBarType
+                        .byName(jsonObject.get("mapStatusBar").getAsString());
+            }
 
             // 加载雪花效果配置（默认关闭）
+            // 旧版格式兼容
             if (jsonObject.has("snowEnabled")) {
-                areas.snowEnabled = jsonObject.get("snowEnabled").getAsBoolean();
-            } else {
-                areas.snowEnabled = false;
+                areas.areasSettings.snowEnabled = jsonObject.get("snowEnabled").getAsBoolean();
             }
             // 加载沙尘暴效果配置（默认关闭）
+            // 旧版格式兼容
             if (jsonObject.has("sandEnabled")) {
-                areas.sandEnabled = jsonObject.get("sandEnabled").getAsBoolean();
-            } else {
-                areas.sandEnabled = false;
+                areas.areasSettings.sandEnabled = jsonObject.get("sandEnabled").getAsBoolean();
             }
+            // 旧版格式兼容
             if (jsonObject.has("fogEnabled")) {
-                areas.fogEnabled = jsonObject.get("fogEnabled").getAsBoolean();
-            } else {
-                areas.fogEnabled = true;
+                areas.areasSettings.fogEnabled = jsonObject.get("fogEnabled").getAsBoolean();
             }
+            // 旧版格式兼容
             if (jsonObject.has("fogEnd")) {
-                areas.fogEnd = jsonObject.get("fogEnd").getAsFloat();
-            } else {
-                areas.fogEnd = 200.0f;
+                areas.areasSettings.fogEnd = jsonObject.get("fogEnd").getAsFloat();
             }
             if (jsonObject.has("fogShape")) {
-                areas.fogShape = jsonObject.get("fogShape").getAsString();
-            } else {
-                areas.fogShape = "SPHERE";
+                areas.areasSettings.fogShape = jsonObject.get("fogShape").getAsString();
             }
 
             // 加载场景偏移配置（默认关闭）
@@ -433,24 +411,16 @@ public class MapManager {
             }
 
             // 加载天气配置（默认晴天）
+            // 旧版兼容
             if (jsonObject.has("weather")) {
-                areas.weather = jsonObject.get("weather").getAsString();
-                SRE.LOGGER.info("Loaded weather: " + areas.weather);
-            } else {
-                areas.weather = "clear";
+                areas.areasSettings.weather = jsonObject.get("weather").getAsString();
             }
 
             // 加载重力配置（默认0.08）
-            if (jsonObject.has("gravityModifier")) {
-                areas.gravity = jsonObject.get("gravityModifier").getAsDouble();
-                SRE.LOGGER.info("Loaded gravity modifier: " + areas.gravity);
-            } else {
-                if (jsonObject.has("gravity")) {
-                    areas.gravity = jsonObject.get("gravity").getAsDouble() - 0.08;
-                    SRE.LOGGER.info("Loaded gravity modifier: " + areas.gravity);
-                } else {
-                    areas.gravity = 0;
-                }
+            // 旧版兼容
+            if (jsonObject.has("gravity")) {
+                areas.areasSettings.gravityModifier = jsonObject.get("gravity").getAsDouble() - 0.08;
+                SRE.LOGGER.info("Loaded old gravity modifier config: " + areas.areasSettings.gravityModifier);
             }
 
             // 加载药水效果配置（默认空数组）
@@ -472,28 +442,22 @@ public class MapManager {
             }
 
             // 加载时间配置（默认午夜 18000）
+            // 旧版兼容
             if (jsonObject.has("time")) {
-                areas.time = jsonObject.get("time").getAsLong();
-                SRE.LOGGER.info("Loaded time: " + areas.time);
-            } else {
-                areas.time = 18000;
-            }
+                areas.areasSettings.time = jsonObject.get("time").getAsLong();
+            } 
 
             // 加载昼夜循环配置（默认关闭）
+            // 旧版兼容
             if (jsonObject.has("daylightCycle")) {
-                areas.daylightCycle = jsonObject.get("daylightCycle").getAsBoolean();
-                SRE.LOGGER.info("Loaded daylightCycle: " + areas.daylightCycle);
-            } else {
-                areas.daylightCycle = false;
-            }
+                areas.areasSettings.daylightCycle = jsonObject.get("daylightCycle").getAsBoolean();
+            } 
 
             // 加载天气循环配置（默认关闭）
+            // 旧版兼容
             if (jsonObject.has("weatherCycle")) {
-                areas.weatherCycle = jsonObject.get("weatherCycle").getAsBoolean();
-                SRE.LOGGER.info("Loaded weatherCycle: " + areas.weatherCycle);
-            } else {
-                areas.weatherCycle = false;
-            }
+                areas.areasSettings.weatherCycle = jsonObject.get("weatherCycle").getAsBoolean();
+            } 
 
             // 加载小游戏任务系统开关（默认关闭）
             if (jsonObject.has("minigameQuestEnabled")) {
