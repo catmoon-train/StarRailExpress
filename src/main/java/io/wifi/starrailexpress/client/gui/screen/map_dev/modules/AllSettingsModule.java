@@ -266,11 +266,12 @@ public class AllSettingsModule implements TabModule {
                     if (!val.isEmpty())
                         ctx.sendOnly("sre:area_manager set " + entry.path + " " + ctx.quoteCommandArgument(val));
                 }).bounds(rightEdge - 30 - 40 - gap, y, 40, 20).accentBar(AccentSide.BOTTOM).build();
+
+                placements.add(new WidgetPlacement(modifyBtn, y));
                 ModernButton viewBtn = ModernButton
                         .builder(Component.translatable("sre.map_helper.view"),
                                 b -> ctx.sendOnly("sre:area_manager get " + entry.path))
                         .bounds(rightEdge - 30, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
-                placements.add(new WidgetPlacement(modifyBtn, y));
                 placements.add(new WidgetPlacement(viewBtn, y));
             } else if (type.isEnum()) {
                 Object[] constants = type.getEnumConstants();
@@ -291,7 +292,7 @@ public class AllSettingsModule implements TabModule {
                     }
 
                     int arrowBtnW = 20, displayW = 80, gapBtn = 4;
-                    int totalW = arrowBtnW + gapBtn + displayW + gapBtn + arrowBtnW;
+                    int totalW = arrowBtnW + gapBtn + displayW + gapBtn + arrowBtnW + 30 + gap;
                     int startX = rightEdge - totalW;
 
                     // 当前索引的包装（数组以便在 lambda 中修改）
@@ -351,7 +352,11 @@ public class AllSettingsModule implements TabModule {
                             rightArrow.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
                         }
                     }
-
+                    ModernButton viewBtn = ModernButton
+                            .builder(Component.translatable("sre.map_helper.view"),
+                                    b -> ctx.sendOnly("sre:area_manager get " + entry.path))
+                            .bounds(rightEdge - 30, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
+                    placements.add(new WidgetPlacement(viewBtn, y));
                     placements.add(new WidgetPlacement(leftArrow, y));
                     placements.add(new WidgetPlacement(displayLabel, y));
                     placements.add(new WidgetPlacement(rightArrow, y));
