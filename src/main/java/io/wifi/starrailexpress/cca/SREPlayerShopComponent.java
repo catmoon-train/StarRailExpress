@@ -19,6 +19,8 @@ import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -129,6 +131,14 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         if (index < 0 || index >= getShopEntries().size())
             return;
         ShopEntry entry = getShopEntries().get(index);
+        if (this.player.hasEffect(ModEffects.SAFE_TIME)) {
+            // 安全时间不准买
+            this.player.displayClientMessage(
+                    Component.translatable("message.tip.purchase_failed_with_reason", Component.translatable("message.tip.purchase_failed.safe_time"))
+                            .withStyle(ChatFormatting.DARK_RED),
+                    true);
+            return;
+        }
         // 手榴弹购买冷却检查（可配置，默认30秒）
         if (entry.stack().is(TMMItems.GRENADE)) {
             int purchaseCooldownTicks = SREConfig.instance().grenadePurchaseCooldown * 20;

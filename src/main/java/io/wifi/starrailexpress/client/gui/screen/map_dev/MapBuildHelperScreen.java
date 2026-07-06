@@ -1,4 +1,5 @@
 package io.wifi.starrailexpress.client.gui.screen.map_dev;
+
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.modules.*;
 import net.minecraft.client.Minecraft;
@@ -25,12 +26,12 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
     private int activeTab = 0;
 
     private EditBox dxBox, dyBox, dzBox;
-    private final List<AbstractWidget> fixedWidgets = new ArrayList<>(); // 不会添加到屏幕，手动渲染
+    private final List<AbstractWidget> fixedWidgets = new ArrayList<>();
     private final Map<Integer, TabModule> modules = new LinkedHashMap<>();
-    private final List<WidgetPlacement> currentTabPlacements = new ArrayList<>(); // 可滚动控件，添加到屏幕
+    private final List<WidgetPlacement> currentTabPlacements = new ArrayList<>();
 
     private int panelWidth, panelHeight;
-    private static final int MAX_PANEL_WIDTH = 600;
+    private static final int MAX_PANEL_WIDTH = 500;
     private static final int MIN_PANEL_WIDTH = 340;
     private static final int MIN_PANEL_HEIGHT = 200;
     private int panelLeftX, panelTopY;
@@ -164,11 +165,11 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
         panelLeftX = (width - panelWidth) / 2;
         panelTopY = (height - panelHeight) / 2;
 
-        int titleHeight = 60;
+        int titleHeight = 40;
         int offsetRowHeight = 42;
         int tabBarHeight = 30;
         int headerGap = 10;
-        int bottomStatusHeight = 12;
+        int bottomStatusHeight = 8;
         int contentStartY = panelTopY + titleHeight + offsetRowHeight + tabBarHeight + headerGap;
         int contentEndY = panelTopY + panelHeight - bottomStatusHeight;
         layoutCtx = new LayoutContext(panelLeftX, panelTopY, panelWidth, panelHeight, contentStartY, contentEndY, 6,
@@ -187,7 +188,8 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
             contentHeight = module.getContentHeight();
         }
 
-        // 只将可滚动控件加入屏幕渲染列表，固定控件自行绘制
+        // 所有控件（固定 + 可滚动）都加入屏幕列表，让屏幕自动管理焦点和事件
+        fixedWidgets.forEach(this::addRenderableWidget);
         currentTabPlacements.forEach(p -> addRenderableWidget(p.widget));
         scrollOffset = 0;
     }
@@ -280,7 +282,6 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
 
     @Override
     public boolean mouseScrolled(double mx, double my, double horiz, double vert) {
-        // 先让固定控件处理滚轮（通常没有效果），然后处理滚动
         if (contentHeight > visibleContentHeight()) {
             scrollOffset = Math.max(0,
                     Math.min(scrollOffset - (int) vert * 20, contentHeight - visibleContentHeight()));
@@ -291,13 +292,7 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
-        // 优先处理固定控件
-        for (AbstractWidget w : fixedWidgets) {
-            if (w.isMouseOver(mx, my) && w.mouseClicked(mx, my, button)) {
-                return true;
-            }
-        }
-        // 滚动条拖拽处理
+        // 滚动条拖拽处理（优先）
         if (contentHeight > visibleContentHeight()) {
             int barX = panelLeftX + panelWidth - 8, barY = layoutCtx.contentStartY, barH = visibleContentHeight();
             if (mx >= barX && mx <= barX + 4 && my >= barY && my <= barY + barH) {
@@ -307,27 +302,23 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
                 return true;
             }
         }
+        // 剩余事件交给屏幕自动分发给所有控件
         return super.mouseClicked(mx, my, button);
     }
 
     @Override
     public boolean mouseReleased(double mx, double my, int button) {
-        for (AbstractWidget w : fixedWidgets)
-            w.mouseReleased(mx, my, button);
         isDraggingScroll = false;
         return super.mouseReleased(mx, my, button);
     }
 
     @Override
     public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
-        for (AbstractWidget w : fixedWidgets)
-            w.mouseDragged(mx, my, button, dx, dy);
         if (isDraggingScroll && contentHeight > visibleContentHeight()) {
             int delta = (int) (my - dragStartY);
-            scrollOffset = Math.max(0,
-                    Math.min(
-                            dragStartScroll + delta * (contentHeight - visibleContentHeight()) / visibleContentHeight(),
-                            contentHeight - visibleContentHeight()));
+            scrollOffset = Math.max(0, Math.min(
+                    dragStartScroll + delta * (contentHeight - visibleContentHeight()) / visibleContentHeight(),
+                    contentHeight - visibleContentHeight()));
             return true;
         }
         return super.mouseDragged(mx, my, button, dx, dy);
@@ -335,19 +326,11 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        for (AbstractWidget w : fixedWidgets) {
-            if (w.keyPressed(keyCode, scanCode, modifiers))
-                return true;
-        }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
-        for (AbstractWidget w : fixedWidgets) {
-            if (w.charTyped(codePoint, modifiers))
-                return true;
-        }
         return super.charTyped(codePoint, modifiers);
     }
 
@@ -362,28 +345,31 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
         g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, 0xCC080C18);
         g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY - 2, 0xFF5577CC);
 
-        // 1. 先绘制固定控件（不受 scissor 影响）
+        // 1. 绘制固定控件（不受裁剪，且不会被 super.render 重复绘制）
         for (AbstractWidget w : fixedWidgets) {
             w.render(g, mouseX, mouseY, partial);
         }
 
-        // 2. 应用滚动偏移到可滚动控件
+        // 2. 更新可滚动控件 Y 坐标并裁剪绘制
         for (WidgetPlacement p : currentTabPlacements) {
             p.widget.setY(layoutCtx.contentStartY + p.relativeY - scrollOffset);
         }
 
-        // 3. 开启裁剪，绘制可滚动控件（由 super.render 完成）
         g.enableScissor(layoutCtx.panelLeftX, layoutCtx.contentStartY,
                 layoutCtx.panelLeftX + layoutCtx.panelWidth, layoutCtx.contentEndY);
-        super.render(g, mouseX, mouseY, partial);
+        for (WidgetPlacement p : currentTabPlacements) {
+            p.widget.render(g, mouseX, mouseY, partial);
+        }
         g.disableScissor();
 
-        // 4. 绘制固定文本 overlay 和模块额外内容
+        // 3. 固定文本 overlay 和模块额外内容
         drawFixedOverlays(g);
         TabModule mod = modules.get(activeTab);
         if (mod != null)
             mod.renderOverlay(g, mouseX, mouseY, partial);
         drawScrollbar(g);
+
+        // 4. 手动绘制 tooltip（因为未调用 super.render）
     }
 
     private void drawFixedOverlays(GuiGraphics g) {
@@ -421,7 +407,7 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
         g.drawString(font,
                 Component.translatable("sre.map_helper.tab_title." + tabTitlesKeys[activeTab])
                         .withStyle(Style.EMPTY.withColor(0x5577CC).withBold(true)),
-                panelLeftX + 6, panelTopY + 104, 0xFFFFFF, false);
+                panelLeftX + 6, panelTopY + 94, 0xFFFFFF, false);
     }
 
     private void drawScrollbar(GuiGraphics g) {

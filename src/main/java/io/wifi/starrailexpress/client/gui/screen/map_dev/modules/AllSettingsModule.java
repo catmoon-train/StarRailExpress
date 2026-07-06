@@ -11,7 +11,9 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
@@ -162,8 +164,46 @@ public class AllSettingsModule implements TabModule {
         return height;
     }
 
+    private String getEnumDisplayName(Class<?> type, String enumName) {
+        String fieldName = ""; // 可以从外部传入，这里简单用默认 key
+        // 实际使用时，你需要根据 entry.field.getName() 构建 key
+        // 但该方法是静态上下文，此处仅示意。可改为 entry.getDisplayName() 逻辑。
+        String key = "sre.map_helper.settings." + fieldName + "." + enumName;
+        return Component.translatableWithFallback(key, enumName).getString();
+    }
+
+    private static class EnumValueLabel extends AbstractWidget {
+        private String text;
+
+        public EnumValueLabel(Font font, int x, int y, int width, int height, String initialText) {
+            super(x, y, width, height, Component.literal(initialText));
+            this.text = initialText;
+        }
+
+        public void setText(String newText) {
+            this.text = newText;
+            setMessage(Component.literal(newText)); // 同步无障碍消息
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+            Font font = Minecraft.getInstance().font;
+            int textWidth = font.width(text);
+            int textX = getX() + (getWidth() - textWidth) / 2;
+            int textY = getY() + (getHeight() - font.lineHeight) / 2 + 1;
+            g.drawString(font, text, textX, textY, 0xFFCCDDEE, false);
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+            this.defaultButtonNarrationText(narrationElementOutput);
+        }
+    }
+
     private int createWidgetsForEntry(LayoutContext layout, ModuleContext ctx, List<WidgetPlacement> placements,
             SettingsEntry entry, int y) {
+        int rightEdge = layout.panelLeftX + layout.panelWidth - layout.gutter;
+
         int leftX = layout.leftColumnX() + entry.depth * 12;
         int labelWidth = Math.min(100, (layout.contentWidth() - entry.depth * 12) / 3);
         int gap = 6;
@@ -179,18 +219,27 @@ public class AllSettingsModule implements TabModule {
 
         if (entry.isLeaf()) {
             if (type == boolean.class || type == Boolean.class) {
-                ModernButton enableBtn = ModernButton
-                        .builder(Component.translatable("sre.map_helper.set_true", Component.literal("")),
-                                b -> ctx.sendOnly("sre:area_manager set " + entry.path + " true"))
-                        .bounds(controlX, y, 50, 20).accentBar(AccentSide.LEFT).build();
-                ModernButton disableBtn = ModernButton
-                        .builder(Component.translatable("sre.map_helper.set_false", Component.literal("")),
-                                b -> ctx.sendOnly("sre:area_manager set " + entry.path + " false"))
-                        .bounds(controlX + 54, y, 50, 20).accentBar(AccentSide.RIGHT).build();
-                ModernButton viewBtn = ModernButton
-                        .builder(Component.translatable("sre.map_helper.view"),
-                                b -> ctx.sendOnly("sre:area_manager get " + entry.path))
-                        .bounds(controlX + 108, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
+                int btnW1 = 50, btnW2 = 50, btnW3 = 30;
+                int gapBtn = 4;
+                int totalControlWidth = btnW1 + gapBtn + btnW2 + gapBtn + btnW3;
+                int startX = rightEdge - totalControlWidth;
+
+                ModernButton enableBtn = ModernButton.builder(
+                        Component.translatable("sre.map_helper.set_true_null"),
+                        b -> ctx.sendOnly("sre:area_manager set " + entry.path + " true"))
+                        .bounds(startX, y, btnW1, 20).accentBar(AccentSide.LEFT).build();
+
+                ModernButton disableBtn = ModernButton.builder(
+                        Component.translatable("sre.map_helper.set_false_null"),
+                        b -> ctx.sendOnly("sre:area_manager set " + entry.path + " false"))
+                        .bounds(startX + btnW1 + gapBtn, y, btnW2, 20).accentBar(AccentSide.RIGHT).build();
+
+                ModernButton viewBtn = ModernButton.builder(
+                        Component.translatable("sre.map_helper.view"),
+                        b -> ctx.sendOnly("sre:area_manager get " + entry.path))
+                        .bounds(startX + btnW1 + gapBtn + btnW2 + gapBtn, y, btnW3, 20).accentBar(AccentSide.BOTTOM)
+                        .build();
+
                 placements.add(new WidgetPlacement(enableBtn, y));
                 placements.add(new WidgetPlacement(disableBtn, y));
                 placements.add(new WidgetPlacement(viewBtn, y));
@@ -212,16 +261,74 @@ public class AllSettingsModule implements TabModule {
                 placements.add(new WidgetPlacement(modifyBtn, y));
                 placements.add(new WidgetPlacement(viewBtn, y));
             } else if (type.isEnum()) {
-                // Simplified enum rendering: show current value and a button to cycle or select
-                EditBox enumView = new EditBox(layout.font, controlX, y, remainingWidth - 34, 20, Component.empty());
-                enumView.setValue(value.toString());
-                enumView.setEditable(false);
-                placements.add(new WidgetPlacement(enumView, y));
-                ModernButton viewBtn = ModernButton
-                        .builder(Component.translatable("sre.map_helper.view"),
-                                b -> ctx.sendOnly("sre:area_manager get " + entry.path))
-                        .bounds(controlX + remainingWidth - 30, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
-                placements.add(new WidgetPlacement(viewBtn, y));
+                Object[] constants = type.getEnumConstants();
+                if (constants == null || constants.length == 0) {
+                    // 无枚举常量，仅显示查看按钮（右对齐）
+                    ModernButton viewBtn = ModernButton.builder(Component.translatable("sre.map_helper.view"),
+                            b -> ctx.sendOnly("sre:area_manager get " + entry.path))
+                            .bounds(rightEdge - 30, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
+                    placements.add(new WidgetPlacement(viewBtn, y));
+                } else {
+                    int currentIdx = 0;
+                    String currentEnumName = (value instanceof Enum<?> e) ? e.name() : "";
+                    for (int i = 0; i < constants.length; i++) {
+                        if (((Enum<?>) constants[i]).name().equals(currentEnumName)) {
+                            currentIdx = i;
+                            break;
+                        }
+                    }
+
+                    int arrowBtnW = 20, displayW = 80, gapBtn = 4;
+                    int totalW = arrowBtnW + gapBtn + displayW + gapBtn + arrowBtnW;
+                    int startX = rightEdge - totalW;
+
+                    // 当前索引的包装（数组以便在 lambda 中修改）
+                    final int[] selectedIndex = { currentIdx };
+
+                    // 枚举值显示文本获取函数
+                    java.util.function.Function<Integer, String> getDisplayName = idx -> {
+                        String name = ((Enum<?>) constants[idx]).name();
+                        String key = "sre.map_helper.settings." + entry.field.getName() + "." + name;
+                        return Component.translatableWithFallback(key, name).getString();
+                    };
+
+                    // 中间显示标签
+                    EnumValueLabel displayLabel = new EnumValueLabel(layout.font, startX + arrowBtnW + gapBtn, y,
+                            displayW, 20,
+                            getDisplayName.apply(selectedIndex[0]));
+
+                    // 左箭头按钮
+                    ModernButton leftArrow = ModernButton.builder(Component.literal("<-"), b -> {
+                        int idx = selectedIndex[0];
+                        int newIdx = (idx - 1 + constants.length) % constants.length;
+                        String newName = ((Enum<?>) constants[newIdx]).name();
+                        ctx.sendOnly("sre:area_manager set " + entry.path + " " + newName);
+                        selectedIndex[0] = newIdx;
+                        displayLabel.setText(getDisplayName.apply(newIdx));
+                    }).bounds(startX, y, arrowBtnW, 20).accentBar(AccentSide.LEFT).build();
+
+                    // 右箭头按钮
+                    ModernButton rightArrow = ModernButton.builder(Component.literal("->"), b -> {
+                        int idx = selectedIndex[0];
+                        int newIdx = (idx + 1) % constants.length;
+                        String newName = ((Enum<?>) constants[newIdx]).name();
+                        ctx.sendOnly("sre:area_manager set " + entry.path + " " + newName);
+                        selectedIndex[0] = newIdx;
+                        displayLabel.setText(getDisplayName.apply(newIdx));
+                    }).bounds(startX + arrowBtnW + gapBtn + displayW + gapBtn, y, arrowBtnW, 20)
+                            .accentBar(AccentSide.RIGHT).build();
+
+                    // 为箭头按钮添加 Tooltip（若存在）
+                    String tooltipKey = "sre.map_helper.settings." + entry.field.getName() + ".@tooltip";
+                    if (I18n.exists(tooltipKey)) {
+                        leftArrow.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
+                        rightArrow.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
+                    }
+
+                    placements.add(new WidgetPlacement(leftArrow, y));
+                    placements.add(new WidgetPlacement(displayLabel, y));
+                    placements.add(new WidgetPlacement(rightArrow, y));
+                }
             } else if (Collection.class.isAssignableFrom(type)) {
                 int x = controlX;
                 int inputWidth = Math.min(70, (remainingWidth - 35 - 55 - 35 - 35 - 30 - 5 * gap) / 2);
@@ -340,10 +447,20 @@ public class AllSettingsModule implements TabModule {
 
         @Override
         protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-            g.fill(getX(), getY() + 4, getX() + 4, getY() + getHeight() - 4, 0xFF5577CC);
-            g.drawString(Minecraft.getInstance().font,
-                    Component.literal(text).withStyle(Style.EMPTY.withColor(0xFFAA00).withBold(true)), getX() + 8,
-                    getY() + 4, 0xFFFFFF, false);
+            Font font = Minecraft.getInstance().font;
+            int textY = getY() + 4; // 文本绘制的 Y 坐标（与原来一致）
+            int textCenterY = textY + font.lineHeight / 2; // 文字垂直中心点
+            int barHeight = 4; // 左侧色条高度（可调整）
+            int barTop = textCenterY - barHeight / 2;
+            int barBottom = textCenterY + barHeight / 2;
+
+            // 绘制左侧蓝色竖条，垂直居中对齐文字
+            g.fill(getX(), barTop, getX() + 4, barBottom, 0xFF5577CC);
+
+            // 绘制分类标题文本
+            g.drawString(font,
+                    Component.literal(text).withStyle(Style.EMPTY.withColor(0xFFAA00).withBold(true)),
+                    getX() + 8, textY, 0xFFFFFF, false);
         }
 
         @Override

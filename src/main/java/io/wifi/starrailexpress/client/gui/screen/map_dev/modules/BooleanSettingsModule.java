@@ -10,7 +10,7 @@ public class BooleanSettingsModule implements TabModule {
     private static final String[] FIELDS = { "noReset", "haveOutsideSound", "sceneOffsetEnabled", "mustCopy",
             "minigameQuestEnabled" };
     private static final String[] FIELD_KEYS = {
-            "sre.field.noReset", "sre.field.haveOutsideSound", "sre.field.sceneOffsetEnabled", "sre.field.mustCopy",
+            "sre.field.noReset", "sre.field.haveOutsideSound", "sre.field.mustCopy",
             "sre.field.minigameQuestEnabled"
     };
 
@@ -32,15 +32,20 @@ public class BooleanSettingsModule implements TabModule {
 
             placements.add(new WidgetPlacement(
                     ModernButton
-                            .builder(Component.translatable("sre.map_helper.set_true", label),
-                                    b -> ctx.sendOnly("sre:area_manager set " + field + " true"))
+                            .builder(Component.translatable("sre.map_helper.set_true",
+                                    label),
+                                    b -> ctx.sendOnly("sre:area_manager set "
+                                            + field + " true"))
                             .bounds(leftX, rowY, bw, bh).accentBar(AccentSide.LEFT).build(),
                     rowY));
             placements.add(new WidgetPlacement(
                     ModernButton
-                            .builder(Component.translatable("sre.map_helper.set_false", label),
-                                    b -> ctx.sendOnly("sre:area_manager set " + field + " false"))
-                            .bounds(rightX, rowY, bw, bh).accentBar(AccentSide.RIGHT).build(),
+                            .builder(Component.translatable("sre.map_helper.set_false",
+                                    label),
+                                    b -> ctx.sendOnly("sre:area_manager set "
+                                            + field + " false"))
+                            .bounds(rightX, rowY, bw, bh).accentBar(AccentSide.RIGHT)
+                            .build(),
                     rowY));
         }
     }

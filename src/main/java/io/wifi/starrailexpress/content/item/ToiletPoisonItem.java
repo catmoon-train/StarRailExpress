@@ -26,7 +26,8 @@ public class ToiletPoisonItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-
+        if (player.getCooldowns().isOnCooldown(this))
+            return InteractionResultHolder.pass(stack);
         // 获取玩家视线指向的方块
         HitResult hitResult = player.pick(5.0, 0.0f, false);
 
@@ -51,7 +52,8 @@ public class ToiletPoisonItem extends Item {
                             // 记录回放
                             if (SRE.REPLAY_MANAGER != null) {
                                 SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
-                                        BuiltInRegistries.ITEM.getKey(org.agmas.noellesroles.init.ModItems.TOILET_POISON));
+                                        BuiltInRegistries.ITEM
+                                                .getKey(org.agmas.noellesroles.init.ModItems.TOILET_POISON));
                             }
 
                             return InteractionResultHolder.success(stack);
