@@ -213,7 +213,12 @@ public class AllSettingsModule implements TabModule {
 
         FieldLabel label = new FieldLabel(layout.font, leftX, y, labelWidth, 20, entry.displayName);
         placements.add(new WidgetPlacement(label, y));
-
+        {
+            String tooltipKey = "sre.map_helper.settings." + entry.path + ".@tooltip";
+            if (I18n.exists(tooltipKey)) {
+                label.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
+            }
+        }
         int controlX = leftX + labelWidth + gap;
         int remainingWidth = layout.contentWidth() - (controlX - layout.leftColumnX()) - 6;
 
@@ -245,9 +250,15 @@ public class AllSettingsModule implements TabModule {
                 placements.add(new WidgetPlacement(viewBtn, y));
             } else if (type == String.class || isNumberType(type)) {
                 int inputWidth = Math.max(70, remainingWidth - 40 - 60 - 6);
-                EditBox input = new EditBox(layout.font, controlX, y, inputWidth, 20, Component.empty());
+                EditBox input = new EditBox(layout.font, rightEdge - inputWidth, y, inputWidth, 20, Component.empty());
                 input.setValue(value != null ? value.toString() : "");
                 input.setMaxLength(50);
+                {
+                    String tooltipKey = "sre.map_helper.settings." + entry.path + ".@tooltip";
+                    if (I18n.exists(tooltipKey)) {
+                        input.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
+                    }
+                }
                 placements.add(new WidgetPlacement(input, y));
                 ModernButton modifyBtn = ModernButton.builder(Component.translatable("sre.map_helper.modify"), b -> {
                     String val = input.getValue().trim();
@@ -288,7 +299,7 @@ public class AllSettingsModule implements TabModule {
                     // 枚举值显示文本获取函数
                     java.util.function.Function<Integer, String> getDisplayName = idx -> {
                         String name = ((Enum<?>) constants[idx]).name();
-                        String key = "sre.map_helper.settings." + entry.field.getName() + "." + name;
+                        String key = "sre.map_helper.settings." + entry.path + "." + name;
                         return Component.translatableWithFallback(key, name).getString();
                     };
 
@@ -296,7 +307,14 @@ public class AllSettingsModule implements TabModule {
                     EnumValueLabel displayLabel = new EnumValueLabel(layout.font, startX + arrowBtnW + gapBtn, y,
                             displayW, 20,
                             getDisplayName.apply(selectedIndex[0]));
+                    {
 
+                        String tooltipKey = "sre.map_helper.settings." + entry.path + "." + selectedIndex[0]
+                                + ".@tooltip";
+                        if (I18n.exists(tooltipKey)) {
+                            displayLabel.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
+                        }
+                    }
                     // 左箭头按钮
                     ModernButton leftArrow = ModernButton.builder(Component.literal("<-"), b -> {
                         int idx = selectedIndex[0];
@@ -315,14 +333,22 @@ public class AllSettingsModule implements TabModule {
                         ctx.sendOnly("sre:area_manager set " + entry.path + " " + newName);
                         selectedIndex[0] = newIdx;
                         displayLabel.setText(getDisplayName.apply(newIdx));
+                        String tooltipKey = "sre.map_helper.settings." + entry.path + "." + newName + ".@tooltip";
+                        if (I18n.exists(tooltipKey)) {
+                            displayLabel.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
+                        }
                     }).bounds(startX + arrowBtnW + gapBtn + displayW + gapBtn, y, arrowBtnW, 20)
                             .accentBar(AccentSide.RIGHT).build();
 
                     // 为箭头按钮添加 Tooltip（若存在）
-                    String tooltipKey = "sre.map_helper.settings." + entry.field.getName() + ".@tooltip";
-                    if (I18n.exists(tooltipKey)) {
-                        leftArrow.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
-                        rightArrow.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
+                    {
+                        String tooltipKey = "sre.map_helper.settings." + entry.field.getName() + "." + selectedIndex[0]
+                                + ".@tooltip";
+
+                        if (I18n.exists(tooltipKey)) {
+                            leftArrow.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
+                            rightArrow.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
+                        }
                     }
 
                     placements.add(new WidgetPlacement(leftArrow, y));
