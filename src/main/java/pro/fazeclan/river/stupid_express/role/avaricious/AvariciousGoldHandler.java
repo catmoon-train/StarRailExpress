@@ -3,6 +3,7 @@ package pro.fazeclan.river.stupid_express.role.avaricious;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.OnGameStarted;
+import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -11,8 +12,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
-import pro.fazeclan.river.stupid_express.constants.SERoles;
+import org.agmas.noellesroles.init.ModEffects;
 
+import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 public class AvariciousGoldHandler {
 
@@ -44,6 +46,9 @@ public class AvariciousGoldHandler {
         OnGameStarted.EVENT.register((ServerLevel) -> {
             AvariciousGoldHandler.gameStartTime = -1;
         });
+        OnGameTrueStarted.EVENT.register((ServerLevel) -> {
+            AvariciousGoldHandler.gameStartTime = -1;
+        });
         ModdedRoleAssigned.EVENT.register(((player, role) -> {
             if (role.equals(SERoles.AVARICIOUS)) {
                 SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
@@ -55,7 +60,8 @@ public class AvariciousGoldHandler {
     public static void playerServerTick(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
         var serverWorld = player.serverLevel();
         long time = serverWorld.getGameTime();
-
+        if (player.hasEffect(ModEffects.SAFE_TIME))
+            return;
         if (AvariciousGoldHandler.gameStartTime == -1) {
             AvariciousGoldHandler.gameStartTime = time;
             return;
