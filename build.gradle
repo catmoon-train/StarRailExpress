@@ -1,9 +1,5 @@
 plugins {
-<<<<<<< HEAD
     id 'fabric-loom' version '1.17.13'
-=======
-    id 'fabric-loom' version '1.15.5'
->>>>>>> parent of 455a32b17 (sodium update)
     id 'maven-publish'
 }
 
