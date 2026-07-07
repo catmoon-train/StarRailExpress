@@ -15,7 +15,7 @@ public class WorldRendererMixin {
     public int render(int original, @Local Entity entity) {
         if (SRE.isLobby)
             return original;
-        int highlight = SREClient.getCachedInstinctHighlight(entity);
-        return highlight == -1 ? original : highlight;
+        var highlight = SREClient.getCachedInstinctHighlight(entity);
+        return highlight.isEmpty() ? original : highlight.getAsInt();
     }
 }

@@ -74,8 +74,6 @@ public final class SceneAssetClient {
 
     private static final Long2ObjectOpenHashMap<LevelChunk> CHUNKS = new Long2ObjectOpenHashMap<>();
     private static final LongOpenHashSet ACTIVE_SECTIONS = new LongOpenHashSet();
-    // 以 sodium RenderRegion（8x4x8 个 section）为粒度的活动区域索引
-    private static final LongOpenHashSet ACTIVE_REGIONS = new LongOpenHashSet();
     private static long[] activeSectionSnapshot = new long[0];
     private static final LongOpenHashSet NOTIFIED_CHUNKS = new LongOpenHashSet();
     private static final List<PreviewBlock> PREVIEW_BLOCKS = new ArrayList<>();
@@ -300,7 +298,6 @@ public final class SceneAssetClient {
         }
         CHUNKS.clear();
         ACTIVE_SECTIONS.clear();
-        ACTIVE_REGIONS.clear();
         activeSectionSnapshot = new long[0];
         NOTIFIED_CHUNKS.clear();
         PREVIEW_BLOCKS.clear();
@@ -318,15 +315,6 @@ public final class SceneAssetClient {
     public static boolean isActiveSection(int sectionX, int sectionY, int sectionZ) {
         return isFormalSceneVisible()
                 && ACTIVE_SECTIONS.contains(SectionPos.asLong(sectionX, sectionY, sectionZ));
-    }
-
-    /**
-     * 入参为任意 section 坐标（通常传 sodium RenderRegion 的起始 section 坐标），
-     * 判断其所属的 8x4x8 渲染区域内是否含有活动场景 section。
-     */
-    public static boolean isActiveRegion(int sectionX, int sectionY, int sectionZ) {
-        return isFormalSceneVisible()
-                && ACTIVE_REGIONS.contains(SectionPos.asLong(sectionX >> 3, sectionY >> 2, sectionZ >> 3));
     }
 
     public static long[] activeSections() {
@@ -728,13 +716,6 @@ public final class SceneAssetClient {
             }
         }
         activeSectionSnapshot = ACTIVE_SECTIONS.toLongArray();
-        ACTIVE_REGIONS.clear();
-        for (long packedSection : activeSectionSnapshot) {
-            ACTIVE_REGIONS.add(SectionPos.asLong(
-                    SectionPos.x(packedSection) >> 3,
-                    SectionPos.y(packedSection) >> 2,
-                    SectionPos.z(packedSection) >> 3));
-        }
 
         var biomeRegistry = client.level.registryAccess().registryOrThrow(Registries.BIOME);
         var lightEngine = client.level.getChunkSource().getLightEngine();

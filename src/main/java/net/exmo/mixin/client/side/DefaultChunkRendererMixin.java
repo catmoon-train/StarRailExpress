@@ -1,7 +1,5 @@
 package net.exmo.mixin.client.side;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.wifi.starrailexpress.compat.SodiumShaderInterface;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
@@ -34,12 +32,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.ByteBuffer;
 
-/**
- * Sodium 0.8 版场景偏移集成。与 0.6 不同，0.8 会按 region 缓存 draw batch
- * （{@code batch.isFilled}），因此对包含活动场景 section 的 region 每帧强制
- * 重新填充；偏移按 section 局部索引写入 UBO（着色器以 {@code _draw_id}
- * ——即 LocalSectionIndex——为下标读取）。
- */
 @Mixin(value = DefaultChunkRenderer.class)
 public abstract class DefaultChunkRendererMixin {
     @Unique
@@ -49,38 +41,20 @@ public abstract class DefaultChunkRendererMixin {
     private static ByteBuffer sre$offsetBuffer;
     @Unique
     private static GlMutableBuffer sre$glBuffer;
-    @Unique
-    private static GlMutableBuffer sre$zeroBuffer;
-    @Unique
-    private static boolean sre$currentRegionActive;
 
     @Shadow(remap = false)
-    private static void addLocalIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
+    private static int getVisibleFaces(int originX, int originY, int originZ, int chunkX, int chunkY, int chunkZ) {
         throw new AssertionError();
     }
 
     @Shadow(remap = false)
-    private static void addSharedIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int mask) {
+    private static void addNonIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int slices) {
         throw new AssertionError();
     }
 
-    @WrapOperation(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/region/RenderRegion;getCachedBatch(Lnet/caffeinemc/mods/sodium/client/render/chunk/terrain/TerrainRenderPass;)Lnet/caffeinemc/mods/sodium/client/gl/device/MultiDrawBatch;"),
-            remap = false)
-    private MultiDrawBatch sre$invalidateSceneBatch(RenderRegion region, TerrainRenderPass pass,
-            Operation<MultiDrawBatch> original) {
-        MultiDrawBatch batch = original.call(region, pass);
-        sre$currentRegionActive = SceneAssetClient.hasActiveAsset()
-                && SceneAssetClient.isActiveRegion(region.getChunkX(), region.getChunkY(), region.getChunkZ());
-        if (sre$currentRegionActive) {
-            // 偏移随时间变化，且面剔除结果依赖偏移后的位置，场景 region 不能吃缓存；
-            // clear() 会同时重置 size 与 isFilled，避免重填时在旧命令上追加
-            batch.clear();
-        }
-        return batch;
+    @Shadow(remap = false)
+    private static void addIndexedDrawCommands(MultiDrawBatch batch, long pMeshData, int slices) {
+        throw new AssertionError();
     }
 
     @Inject(method = "fillCommandBuffer", at = @At("HEAD"), cancellable = true, remap = false)
@@ -92,25 +66,17 @@ public abstract class DefaultChunkRendererMixin {
             CameraTransform camera,
             TerrainRenderPass pass,
             boolean useBlockFaceCulling,
-            boolean useIndexedTessellation,
             CallbackInfo ci) {
-        ci.cancel();
-        batch.isFilled = true;
-
-        boolean sceneRegion = sre$currentRegionActive;
-        Vec3 offset = Vec3.ZERO;
-        if (sceneRegion) {
-            if (sre$offsetBuffer == null) {
-                sre$offsetBuffer = MemoryUtil.memCalloc(sre$offsetCount * 16);
-            } else {
-                MemoryUtil.memSet(sre$offsetBuffer, 0);
-            }
-            float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
-            offset = SceneAssetClient.renderOffset(partialTick);
+        batch.clear();
+        if (sre$offsetBuffer != null) {
+            MemoryUtil.memFree(sre$offsetBuffer);
         }
+        sre$offsetBuffer = MemoryUtil.memCalloc(sre$offsetCount * 16);
 
-        ByteIterator iterator = renderList.sectionsWithGeometryIterator(pass.isTranslucent());
+        boolean translucent = pass.isTranslucent();
+        ByteIterator iterator = renderList.sectionsWithGeometryIterator(translucent);
         if (iterator == null) {
+            ci.cancel();
             return;
         }
 
@@ -125,13 +91,9 @@ public abstract class DefaultChunkRendererMixin {
             int sectionZ = originZ + LocalSectionIndex.unpackZ(sectionIndex);
 
             int slices = useBlockFaceCulling
-                    ? DefaultChunkRenderer.getVisibleFaces(camera.intX, camera.intY, camera.intZ,
-                            sectionX, sectionY, sectionZ)
+                    ? getVisibleFaces(camera.intX, camera.intY, camera.intZ, sectionX, sectionY, sectionZ)
                     : ModelQuadFacing.ALL;
-            boolean activeSection = sceneRegion
-                    && SceneAssetClient.isActiveSection(sectionX, sectionY, sectionZ);
-            if (activeSection) {
-                // 几何体会被偏移，摄像机相对原位置的面剔除不再可靠
+            if (SceneAssetClient.isActiveSection(sectionX, sectionY, sectionZ)) {
                 slices = ModelQuadFacing.ALL;
             }
             slices &= SectionRenderDataUnsafe.getSliceMask(pMeshData);
@@ -139,18 +101,32 @@ public abstract class DefaultChunkRendererMixin {
                 continue;
             }
 
-            if (useIndexedTessellation && SectionRenderDataUnsafe.isLocalIndex(pMeshData)) {
-                addLocalIndexedDrawCommands(batch, pMeshData, slices);
+            int firstCommand = batch.size();
+            if (translucent) {
+                addIndexedDrawCommands(batch, pMeshData, slices);
             } else {
-                addSharedIndexedDrawCommands(batch, pMeshData, slices);
+                addNonIndexedDrawCommands(batch, pMeshData, slices);
             }
+            sre$writeSceneOffset(batch, sectionX, sectionY, sectionZ, firstCommand);
+        }
+        ci.cancel();
+    }
 
-            if (activeSection) {
-                int base = sectionIndex * 16;
-                sre$offsetBuffer.putFloat(base, (float) offset.x);
-                sre$offsetBuffer.putFloat(base + 4, (float) offset.y);
-                sre$offsetBuffer.putFloat(base + 8, (float) offset.z);
-            }
+    @Unique
+    private static void sre$writeSceneOffset(MultiDrawBatch batch, int sectionX, int sectionY,
+            int sectionZ, int firstCommand) {
+        if (sre$offsetBuffer == null
+                || !SceneAssetClient.isActiveSection(sectionX, sectionY, sectionZ)) {
+            return;
+        }
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
+        Vec3 offset = SceneAssetClient.renderOffset(partialTick);
+        int lastCommand = Math.min(batch.size(), sre$offsetCount);
+        for (int command = firstCommand; command < lastCommand; command++) {
+            int base = command * 16;
+            sre$offsetBuffer.putFloat(base, (float) offset.x);
+            sre$offsetBuffer.putFloat(base + 4, (float) offset.y);
+            sre$offsetBuffer.putFloat(base + 8, (float) offset.z);
         }
     }
 
@@ -166,44 +142,37 @@ public abstract class DefaultChunkRendererMixin {
             ChunkRenderListIterable renderLists,
             TerrainRenderPass renderPass,
             CameraTransform camera,
-            boolean indexedRenderingEnabled,
             CallbackInfo ci,
             @Local(ordinal = 0) ChunkShaderInterface shader) {
-        if (!(shader instanceof SodiumShaderInterface offsetShader)) {
+        if (sre$offsetBuffer == null) {
             return;
         }
-        if (sre$currentRegionActive && sre$offsetBuffer != null) {
-            if (sre$glBuffer == null) {
-                sre$glBuffer = commandList.createMutableBuffer();
-            }
-            commandList.uploadData(sre$glBuffer, sre$offsetBuffer, GlBufferUsage.STREAM_DRAW);
-            offsetShader.tmm$set(sre$glBuffer);
-        } else {
-            // batch 按 region 缓存后，非场景 region 也可能残留上一次绑定的偏移，必须绑回全零
-            if (sre$zeroBuffer == null) {
-                sre$zeroBuffer = commandList.createMutableBuffer();
-                ByteBuffer zeros = MemoryUtil.memCalloc(sre$offsetCount * 16);
-                commandList.uploadData(sre$zeroBuffer, zeros, GlBufferUsage.STATIC_DRAW);
-                MemoryUtil.memFree(zeros);
-            }
-            offsetShader.tmm$set(sre$zeroBuffer);
-        }
+        sre$glBuffer = commandList.createMutableBuffer();
+        commandList.uploadData(sre$glBuffer, sre$offsetBuffer, GlBufferUsage.STREAM_DRAW);
+        ((SodiumShaderInterface) shader).tmm$set(sre$glBuffer);
     }
 
-    @Inject(method = "delete", at = @At("HEAD"), remap = false)
-    private void sre$release(CommandList commandList, CallbackInfo ci) {
+    @Inject(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer;executeDrawBatch(Lnet/caffeinemc/mods/sodium/client/gl/device/CommandList;Lnet/caffeinemc/mods/sodium/client/gl/tessellation/GlTessellation;Lnet/caffeinemc/mods/sodium/client/gl/device/MultiDrawBatch;)V",
+                    shift = At.Shift.AFTER),
+            remap = false)
+    private void sre$releaseOffsets(
+            ChunkRenderMatrices matrices,
+            CommandList commandList,
+            ChunkRenderListIterable renderLists,
+            TerrainRenderPass renderPass,
+            CameraTransform camera,
+            CallbackInfo ci) {
         if (sre$glBuffer != null) {
             commandList.deleteBuffer(sre$glBuffer);
             sre$glBuffer = null;
-        }
-        if (sre$zeroBuffer != null) {
-            commandList.deleteBuffer(sre$zeroBuffer);
-            sre$zeroBuffer = null;
         }
         if (sre$offsetBuffer != null) {
             MemoryUtil.memFree(sre$offsetBuffer);
             sre$offsetBuffer = null;
         }
-        sre$currentRegionActive = false;
     }
 }
