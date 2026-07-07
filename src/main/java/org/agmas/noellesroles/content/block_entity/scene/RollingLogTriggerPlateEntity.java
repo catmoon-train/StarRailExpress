@@ -7,7 +7,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import org.agmas.noellesroles.content.block.scene.RollingLogTriggerPlate;
+import org.agmas.noellesroles.content.block.scene.RollingLogTriggerPlateBlock;
 import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.agmas.noellesroles.scene.SceneEventManager;
 
@@ -50,13 +50,13 @@ public class RollingLogTriggerPlateEntity extends BlockEntity {
                     new AABB(pos).expandTowards(0, 1, 0).inflate(0.2),
                     p -> p.isAlive() && !p.isSpectator());
             if (!playersOnPlate.isEmpty() && be.tryTrigger(serverLevel)) {
-                RollingLogTriggerPlate.spawnLog(serverLevel, pos, state.getValue(RollingLogTriggerPlate.FACING));
+                RollingLogTriggerPlateBlock.spawnLog(serverLevel, pos, state.getValue(RollingLogTriggerPlateBlock.FACING));
             }
         }
         // 破坏任务期间周期性召唤
         if (SceneEventManager.isSabotageActive(serverLevel)
                 && now % SABOTAGE_INTERVAL == 0) {
-            RollingLogTriggerPlate.spawnLog(serverLevel, pos, state.getValue(RollingLogTriggerPlate.FACING));
+            RollingLogTriggerPlateBlock.spawnLog(serverLevel, pos, state.getValue(RollingLogTriggerPlateBlock.FACING));
         }
     }
 }

@@ -17,6 +17,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.material.MapColor;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.block.scene.*;
 import org.agmas.noellesroles.content.block_entity.scene.*;
@@ -102,7 +104,7 @@ public interface ModSceneBlocks {
             "rolling_stone_trigger",
             BlockEntityType.Builder.of(RollingStoneTriggerPlateEntity::new, ROLLING_STONE_TRIGGER));
     Block ROLLING_LOG_TRIGGER = registerBlock("rolling_log_trigger",
-            new RollingLogTriggerPlate(Properties.ofFullCopy(Blocks.OAK_LOG).noOcclusion()));
+            new RollingLogTriggerPlateBlock(Properties.ofFullCopy(Blocks.OAK_LOG).noOcclusion().mapColor(MapColor.WOOD)));
     BlockEntityType<RollingLogTriggerPlateEntity> ROLLING_LOG_TRIGGER_ENTITY = blockEntityRegistrar.create(
             "rolling_log_trigger",
             BlockEntityType.Builder.of(RollingLogTriggerPlateEntity::new, ROLLING_LOG_TRIGGER));
