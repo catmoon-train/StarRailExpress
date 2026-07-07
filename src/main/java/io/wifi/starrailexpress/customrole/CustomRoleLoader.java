@@ -12,6 +12,7 @@ import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import io.wifi.starrailexpress.util.ShopEntry;
+import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -606,46 +607,48 @@ public class CustomRoleLoader {
      */
     private static class ClientInstinctHandler {
         static void register() {
-            io.wifi.starrailexpress.event.OnGetInstinctHighlight.EVENT.register((target, isInstinctEnabled) -> {
-                if (!(target instanceof net.minecraft.world.entity.player.Player))
-                    return -1;
-                net.minecraft.world.entity.player.Player targetPlayer = (net.minecraft.world.entity.player.Player) target;
-                net.minecraft.client.Minecraft client = net.minecraft.client.Minecraft.getInstance();
-                if (client.player == null)
-                    return -1;
-                if (!isInstinctEnabled)
-                    return -1;
+            io.wifi.starrailexpress.event.client.OnGetInstinctHighlight.ALIVE_EVENT
+                    .register((self, target, isInstinctEnabled) -> {
+                        if (!(target instanceof net.minecraft.world.entity.player.Player))
+                            return TrueFalseAndCustomResult.pass();
+                        net.minecraft.world.entity.player.Player targetPlayer = (net.minecraft.world.entity.player.Player) target;
+                        net.minecraft.client.Minecraft client = net.minecraft.client.Minecraft.getInstance();
+                        if (client.player == null)
+                            return TrueFalseAndCustomResult.pass();
+                        if (!isInstinctEnabled)
+                            return TrueFalseAndCustomResult.pass();
 
-                io.wifi.starrailexpress.cca.SREGameWorldComponent gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY
-                        .get(client.player.level());
-                if (gameWorld == null)
-                    return -1;
-                SRERole role = gameWorld.getRole(client.player);
-                if (role == null)
-                    return -1;
-                if (!"customrole".equals(role.identifier().getNamespace()) || !(role instanceof CustomNormalRole))
-                    return -1;
+                        io.wifi.starrailexpress.cca.SREGameWorldComponent gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY
+                                .get(client.player.level());
+                        if (gameWorld == null)
+                            return TrueFalseAndCustomResult.pass();
+                        SRERole role = gameWorld.getRole(client.player);
+                        if (role == null)
+                            return TrueFalseAndCustomResult.pass();
+                        if (!"customrole".equals(role.identifier().getNamespace())
+                                || !(role instanceof CustomNormalRole))
+                            return TrueFalseAndCustomResult.pass();
 
-                String englishId = role.identifier().getPath();
+                        String englishId = role.identifier().getPath();
 
-                Integer maxRangeSq = instinctMaxRanges.get(englishId);
-                if (maxRangeSq != null) {
-                    double distSq = client.player.distanceToSqr(targetPlayer);
-                    if (distSq > maxRangeSq)
-                        return -2;
-                }
+                        Integer maxRangeSq = instinctMaxRanges.get(englishId);
+                        if (maxRangeSq != null) {
+                            double distSq = client.player.distanceToSqr(targetPlayer);
+                            if (distSq > maxRangeSq)
+                                return TrueFalseAndCustomResult.no();
+                        }
 
-                Boolean sameColor = instinctSameColor.get(englishId);
-                if (sameColor != null && sameColor) {
-                    if (io.wifi.starrailexpress.client.SREClient.gameComponent != null
-                            && io.wifi.starrailexpress.client.SREClient.gameComponent.isKillerTeamRole(role)) {
-                        return java.awt.Color.RED.getRGB();
-                    }
-                    return java.awt.Color.GREEN.getRGB();
-                }
+                        Boolean sameColor = instinctSameColor.get(englishId);
+                        if (sameColor != null && sameColor) {
+                            if (io.wifi.starrailexpress.client.SREClient.gameComponent != null
+                                    && io.wifi.starrailexpress.client.SREClient.gameComponent.isKillerTeamRole(role)) {
+                                return TrueFalseAndCustomResult.custom(java.awt.Color.RED.getRGB());
+                            }
+                            return TrueFalseAndCustomResult.custom(java.awt.Color.GREEN.getRGB());
+                        }
 
-                return -1;
-            });
+                        return TrueFalseAndCustomResult.pass();
+                    });
         }
     }
 

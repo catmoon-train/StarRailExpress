@@ -35,8 +35,10 @@ public class MinecraftClientMixin {
     public boolean tmm$hasInstinctOutline(boolean original, @Local(argsOnly = true) Entity entity) {
         if (SRE.isLobby)
             return original;
-        if (SREClient.getCachedInstinctHighlight(entity) != -1)
+        var color = SREClient.getCachedInstinctHighlight(entity);
+        if (!color.isEmpty()) {
             return true;
+        }
         return original;
     }
 

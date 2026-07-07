@@ -43,9 +43,9 @@ import io.wifi.starrailexpress.content.vote.client.VoteClientReceiver;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.ClientHeldItemSwitchEvent;
-import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
 import io.wifi.starrailexpress.event.client.OnGameStartedClient;
+import io.wifi.starrailexpress.event.client.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.data.MapConfig;
@@ -57,6 +57,7 @@ import io.wifi.starrailexpress.network.packet.*;
 import io.wifi.starrailexpress.rules.ChatHudRules;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
+import io.wifi.starrailexpress.util.Color;
 import io.wifi.starrailexpress.util.HPManager;
 import io.wifi.starrailexpress.util.MatrixParticleManager;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
@@ -131,7 +132,7 @@ public class SREClient implements ClientModInitializer {
     public static boolean hasCustomSkinLoaderAndNeedToWarn = false;
     public static HPManager handParticleManager;
     public static Map<Player, Vec3> particleMap;
-    public static Map<UUID, Integer> cachedHighLightMap = new HashMap<>();
+    public static Map<UUID, OptionalInt> cachedHighLightMap = new HashMap<>();
     private static boolean previousMyTurn = false;
     private static boolean prevGameRunning;
     public static SREGameWorldComponent gameComponent;
@@ -1197,19 +1198,19 @@ public class SREClient implements ClientModInitializer {
         return cachedLooseEndPenalty;
     }
 
-    public static int getCachedInstinctHighlight(Entity target) {
+    public static OptionalInt getCachedInstinctHighlight(Entity target) {
         if (!(target instanceof ItemEntity || target instanceof Player || target instanceof NoteEntity
                 || target instanceof PuppeteerBodyEntity
                 || target instanceof FirecrackerEntity || target instanceof PlayerBodyEntity
                 || target instanceof Display.BlockDisplay)) {
-            return -1;
+            return OptionalInt.empty();
         }
         if (!cachedHighLightMap.containsKey(target.getUUID())) {
-            int color = getInstinctHighlight(target);
+            OptionalInt color = getInstinctHighlight(target);
             cachedHighLightMap.put(target.getUUID(), color);
             return color;
         }
-        return cachedHighLightMap.getOrDefault(target.getUUID(), -1);
+        return cachedHighLightMap.getOrDefault(target.getUUID(), OptionalInt.empty());
     }
 
     /**
@@ -1230,40 +1231,61 @@ public class SREClient implements ClientModInitializer {
         return 0;// 无
     }
 
-    public static int getInstinctHighlight(Entity target) {
+    /**
+     * 使用新的OptionalInt.empty()代替-1，避免白色==-1的问题
+     * 
+     * @param target
+     * @return
+     */
+    public static OptionalInt getInstinctHighlight(Entity target) {
         Minecraft client = Minecraft.getInstance();
         if (client == null || client.player == null || gameComponent == null) {
-            return -1;
+            return OptionalInt.empty();
         }
         boolean instinctEnabled = isInstinctEnabled();
         {
             int deathPenaltyType = getDeathPenaltyType(client.player);
             if (deathPenaltyType == 1) {
                 if (instinctEnabled)
-                    return new java.awt.Color(254, 254, 254).getRGB();
-                return -1;
+                    return OptionalInt.of(Color.WHITE.getRGB());
+                return OptionalInt.empty();
             } else if (deathPenaltyType == 2) {
-                return -1;
+                return OptionalInt.empty();
             }
         }
-        int invokerColor = OnGetInstinctHighlight.EVENT.invoker().GetInstinctHighlight(target, instinctEnabled);
-        if (invokerColor != -1) {
-            if (invokerColor == -2)
-                return -1;
-            return invokerColor;
+        var self = client.player;
+        if (GameUtils.isPlayerAliveAndSurvival(self)) {
+            var result = OnGetInstinctHighlight.ALIVE_EVENT.invoker().getInstinctHighlight(self, target,
+                    instinctEnabled);
+            if (result.isCustom()) {
+                int color = result.getContent().orElse(-1);
+                return OptionalInt.of(color);
+            } else if (result.isFalse()) {
+                return OptionalInt.empty();
+            }
+        } else {
+            var result = OnGetInstinctHighlight.SPECTATOR_EVENT.invoker().getInstinctHighlight(self, target,
+                    instinctEnabled);
+            if (result.isCustom()) {
+                int color = result.getContent().orElse(-1);
+                return OptionalInt.of(color);
+            } else if (result.isFalse()) {
+                return OptionalInt.empty();
+            }
         }
         if (!instinctEnabled) {
-            return -1;
+            return OptionalInt.empty();
         }
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(Minecraft.getInstance().player.level());
         // if (target instanceof PlayerBodyEntity) return 0x606060;
         if (target instanceof ItemEntity || target instanceof NoteEntity || target instanceof FirecrackerEntity)
-            return 0xDB9D00;
+            return OptionalInt.of(0xDB9D00);
         // 渲染傀儡高亮
         if (target instanceof PuppeteerBodyEntity) {
             if (GameUtils.isPlayerSpectatingOrCreativeIgnoreShitSplit(Minecraft.getInstance().player)) {
-                return new java.awt.Color(181, 255, 231).getRGB();
+                // new Color(181, 255, 231).getRGB()
+                return OptionalInt.of(-4849689);
             }
         }
         if (target instanceof Player targetPlayer) {
@@ -1271,17 +1293,17 @@ public class SREClient implements ClientModInitializer {
                 if (GameUtils.isPlayerSpectatingOrCreativeIgnoreShitSplit(Minecraft.getInstance().player)) {
                     SRERole role = gameWorldComponent.getRole(targetPlayer);
                     if (role == null) {
-                        return (TMMRoles.CIVILIAN.color());
+                        return OptionalInt.of(TMMRoles.DISCOVERY_CIVILIAN.color());
                     } else {
-                        return (role.color());
+                        return OptionalInt.of(role.color());
                     }
                 } else {
-                    return (TMMRoles.CIVILIAN.color());
+                    return OptionalInt.of(TMMRoles.CIVILIAN.color());
                 }
 
             }
         }
-        return -1;
+        return OptionalInt.empty();
     }
 
     static Predicate<Player> isHoldSpecialItem = (player) -> {

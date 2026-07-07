@@ -7,7 +7,7 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.BatItem;
 import io.wifi.starrailexpress.content.item.KnifeItem;
-import io.wifi.starrailexpress.event.OnGetInstinctHighlight;
+import io.wifi.starrailexpress.event.client.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +17,7 @@ public class TouhouInstincts {
     public static void registerEvents() {
 
         // 四季
-        OnGetInstinctHighlight.EVENT.register((target, hasInstinct) -> {
+        OnGetInstinctHighlight.ALIVE_EVENT.register((target, hasInstinct) -> {
             if (!hasInstinct || Minecraft.getInstance().player == null || SREClient.gameComponent == null) {
                 return -1;
             }
