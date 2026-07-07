@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.16.3'
+    id 'fabric-loom' version '1.17.13'
     id 'maven-publish'
 }
 
@@ -141,6 +141,7 @@ dependencies {
     // modRuntimeOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}:fabric-stub"
     modImplementation "maven.modrinth:sodium:${sodium_version}-fabric"
     modImplementation "maven.modrinth:sodium-extra:${sodium_extra_version}+fabric"
+    modRuntimeOnly "maven.modrinth:reeses-sodium-options:${reeses_sodium_option_version}+fabric"
     modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140") {
         exclude(group: "net.fabricmc.fabric-api")
     }
