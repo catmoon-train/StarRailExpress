@@ -39,7 +39,7 @@ public class RollingLogTriggerPlateBlock extends BaseEntityBlock {
 
     public RollingLogTriggerPlateBlock(Properties settings) {
         super(settings);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(super.defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
     @Override
