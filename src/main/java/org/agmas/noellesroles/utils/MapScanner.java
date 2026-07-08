@@ -163,6 +163,8 @@ public class MapScanner {
                         GameUtils.taskBlocks.put(blockPos6, 21); // 灌木 — 修剪
                     } else if (blockState.is(ModSceneBlocks.CROP)) {
                         GameUtils.taskBlocks.put(blockPos6, 22); // 草垫 — 活动筋骨
+                    } else if (blockState.is(Blocks.BELL)) {
+                        GameUtils.taskBlocks.put(blockPos6, 24); // 钟 — 摇铃会议
                     }
                 }
             }

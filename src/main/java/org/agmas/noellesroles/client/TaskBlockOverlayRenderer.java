@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
@@ -430,6 +431,12 @@ public class TaskBlockOverlayRenderer {
                         TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
                                 new Color(218, 165, 32), 1f, true, 0f);
                     break;
+                case 24:
+                    if (isBellMeetingEnabled(renderContext)) {
+                        TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
+                                new Color(255, 215, 0), 1f, true, 0f);
+                    }
+                    break;
                 default:
                     if (block.getBlock() instanceof TaskInstinctShowableInterface it) {
                         // 给我tmd老老实实的用api判断！！！！！！！！！！！！
@@ -460,6 +467,14 @@ public class TaskBlockOverlayRenderer {
             return state.getValue(DebrisPileBlock.ACTIVE) && !state.getValue(DebrisPileBlock.CLOSED);
         }
         return false;
+    }
+
+    /** 检查当前地图是否启用了摇铃会议 */
+    private static boolean isBellMeetingEnabled(WorldRenderContext context) {
+        var areas = AreasWorldComponent.KEY.get(context.world());
+        if (areas == null)
+            return false;
+        return areas.areasSettings.bellMeetingEnabled && areas.areasSettings.meetingEnabled;
     }
 
 }

@@ -215,4 +215,16 @@ public class AreasSettings {
     /** 两次会议之间的冷却（秒）。 */
     @Category("meeting")
     public int meetingCooldownSeconds = 90;
+
+    // ==================== 摇铃会议系统 / Bell Meeting ====================
+
+    /** 是否启用摇铃会议（右键原版钟方块召开紧急会议）。前提是 meetingEnabled 为 true。 */
+    @Category("meeting")
+    public boolean bellMeetingEnabled = false;
+    /** 摇铃开局冷却（秒）。开局后多少秒才能摇铃。 */
+    @Category("meeting")
+    public int bellMeetingStartCooldown = 120;
+    /** 摇铃冷却（秒）。摇铃后间隔多少秒才能再次摇铃。 */
+    @Category("meeting")
+    public int bellMeetingCooldown = 120;
 }
