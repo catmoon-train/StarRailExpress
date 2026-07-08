@@ -3432,5 +3432,11 @@
   "skill.noellesroles.salted_fish.sunbathe": "Face the Sun",
   "message.noellesroles.salted_fish.start": "You lie down facing the sun.",
   "message.noellesroles.salted_fish.end": "Salted Fish time is over. Cooldown starts now.",
-  "message.noellesroles.salted_fish.already_active": "You are already lying down with great commitment."
+  "message.noellesroles.salted_fish.already_active": "You are already lying down with great commitment.",
+  "announcement.star.role.leather_pig": "Leather Pig",
+  "announcement.star.goals.leather_pig": "Civilian faction. Dream, carry me!",
+  "skill.noellesroles.leather_pig.frenzy": "Frenzy Mode",
+  "message.noellesroles.leather_pig.frenzy_start": "Dream, carry me! Frenzy Mode activated!",
+  "message.noellesroles.leather_pig.frenzy_end": "Frenzy Mode is over. The pig calms down.",
+  "message.noellesroles.leather_pig.already_active": "You are frenzied enough already!"
 }

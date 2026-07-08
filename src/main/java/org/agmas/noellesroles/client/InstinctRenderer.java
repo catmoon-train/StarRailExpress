@@ -33,6 +33,7 @@ import org.agmas.noellesroles.content.item.SignedPaperItem;
 import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
@@ -112,6 +113,24 @@ public class InstinctRenderer {
                     * GhostEyePlayerComponent.SCAN_RADIUS)
                 return TrueFalseAndCustomResult.pass();
             return TrueFalseAndCustomResult.custom(Color.WHITE.getRGB());
+        });
+        // 皮革噶的：疯魔模式期间开启直觉，高亮周围所有玩家
+        OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {
+            if (!(target instanceof Player targetPlayer) || SREClient.gameComponent == null)
+                return TrueFalseAndCustomResult.pass();
+            if (!SREClient.gameComponent.isRole(self, ModRoles.LEATHER_PIG))
+                return TrueFalseAndCustomResult.pass();
+            LeatherPigPlayerComponent leatherPigComponent = LeatherPigPlayerComponent.KEY.maybeGet(self).orElse(null);
+            if (leatherPigComponent == null || !leatherPigComponent.isFrenzyActive())
+                return TrueFalseAndCustomResult.pass();
+            if (targetPlayer == self || targetPlayer.isSpectator())
+                return TrueFalseAndCustomResult.pass();
+            if (isTargetInvisibleToInstinct(targetPlayer))
+                return TrueFalseAndCustomResult.disallow();
+            if (targetPlayer.distanceToSqr(self) > LeatherPigPlayerComponent.INSTINCT_RANGE
+                    * LeatherPigPlayerComponent.INSTINCT_RANGE)
+                return TrueFalseAndCustomResult.pass();
+            return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
         });
         // 鬼祟效果：当目标玩家8格范围内时，禁用杀手直觉高亮
         OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {

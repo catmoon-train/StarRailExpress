@@ -21,8 +21,8 @@ import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.RepairRolePlayerComponent;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
+import net.exmo.sre.repair.state.RepairModeState;
+import net.exmo.sre.repair.role.RepairRoleDefinition;
 import org.agmas.noellesroles.init.ModBlocks;
 
 import java.util.ArrayList;

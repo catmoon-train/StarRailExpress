@@ -304,6 +304,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "salted_fish"),
       SaltedFishPlayerComponent.class);
 
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent> LEATHER_PIG = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "leather_pig"),
+      org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent.class);
+
   public static final ComponentKey<org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent> LEON = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "leon"),
       org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent.class);
@@ -521,6 +525,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, SALTED_FISH)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(SaltedFishPlayerComponent::new);
+
+    registry.beginRegistration(Player.class, LEATHER_PIG)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent::new);
 
     // 注册里昂组件 - 「幸存之人」被动草药发放
     registry.beginRegistration(Player.class, LEON)

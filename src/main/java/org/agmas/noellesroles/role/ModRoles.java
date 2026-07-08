@@ -214,6 +214,8 @@ public class ModRoles {
     public static final ResourceLocation CAKE_MAKER_ID = Noellesroles.id("cake_maker");
     public static final ResourceLocation ADVENTURER_ID = Noellesroles.id("adventurer");
     public static final ResourceLocation SALTED_FISH_ID = Noellesroles.id("salted_fish");
+    // 皮革噶的角色 ID
+    public static final ResourceLocation LEATHER_PIG_ID = Noellesroles.id("leather_pig");
     // 亡灵之主角色 ID
     public static final ResourceLocation UNDEAD_LORD_ID = Noellesroles.id("undead_lord");
 
@@ -635,6 +637,21 @@ public class ModRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true)
             .setComponentKey(SaltedFishPlayerComponent.KEY)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(5000);
+
+    /**
+     * 皮革噶的 - 平民阵营
+     * - 被动：模型变成一头猪
+     * - 技能（G）：消耗 150 金币进入疯魔模式 30 秒，开启直觉并获得速度 III，
+     *   期间播放神秘追杀音效（Dream带带带！）
+     */
+    public static SRERole LEATHER_PIG = TMMRoles.registerRole(
+            new NormalRole(LEATHER_PIG_ID, new Color(255, 158, 170).getRGB(),
+                    true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setCanSeeCoin(true)
+            .setComponentKey(org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent.KEY)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000);
 

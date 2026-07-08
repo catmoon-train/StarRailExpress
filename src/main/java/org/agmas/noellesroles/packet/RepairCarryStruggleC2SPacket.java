@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
+import net.exmo.sre.repair.state.RepairModeState;
 
 public record RepairCarryStruggleC2SPacket(String side) implements CustomPacketPayload {
     public static final Type<RepairCarryStruggleC2SPacket> ID = new Type<>(Noellesroles.id("repair_carry_struggle"));

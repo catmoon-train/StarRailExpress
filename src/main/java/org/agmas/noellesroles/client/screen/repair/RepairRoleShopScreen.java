@@ -6,7 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
+import net.exmo.sre.repair.role.RepairRoleDefinition;
 import org.agmas.noellesroles.packet.RepairRoleShopPurchaseC2SPacket;
 
 import java.util.LinkedHashSet;

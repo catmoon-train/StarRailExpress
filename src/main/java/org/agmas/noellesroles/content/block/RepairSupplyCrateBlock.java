@@ -18,8 +18,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import org.agmas.noellesroles.game.modes.repair.RepairGameplayEffects;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
+import net.exmo.sre.repair.util.RepairGameplayEffects;
+import net.exmo.sre.repair.state.RepairModeState;
 import org.agmas.noellesroles.init.ModItems;
 
 public class RepairSupplyCrateBlock extends Block {

@@ -24,8 +24,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
+import net.exmo.sre.repair.state.RepairModeState;
+import net.exmo.sre.repair.role.RepairRoleDefinition;
 
 public class RepairExitGateBlock extends Block {
     public static final BooleanProperty OPEN = BooleanProperty.create("open");

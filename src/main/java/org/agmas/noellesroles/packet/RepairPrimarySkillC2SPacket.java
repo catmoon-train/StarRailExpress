@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.block_entity.RepairStationBlockEntity;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
+import net.exmo.sre.repair.state.RepairModeState;
 import org.agmas.noellesroles.init.ModItems;
 
 public record RepairPrimarySkillC2SPacket() implements CustomPacketPayload {

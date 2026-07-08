@@ -11,8 +11,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDatabase;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
+import net.exmo.sre.repair.role.RepairRoleDatabase;
+import net.exmo.sre.repair.role.RepairRoleDefinition;
 
 import java.util.ArrayList;
 

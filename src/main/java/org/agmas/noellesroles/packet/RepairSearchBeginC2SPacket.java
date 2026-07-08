@@ -6,7 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.game.modes.repair.RepairSearchState;
+import net.exmo.sre.repair.state.RepairSearchState;
 
 public record RepairSearchBeginC2SPacket(BlockPos pos) implements CustomPacketPayload {
     public static final Type<RepairSearchBeginC2SPacket> ID = new Type<>(Noellesroles.id("repair_search_begin"));

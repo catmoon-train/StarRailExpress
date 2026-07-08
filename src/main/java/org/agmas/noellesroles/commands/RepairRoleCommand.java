@@ -10,9 +10,9 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.modes.repair.RepairForcedRoleState;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDatabase;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
+import net.exmo.sre.repair.role.RepairForcedRoleState;
+import net.exmo.sre.repair.role.RepairRoleDatabase;
+import net.exmo.sre.repair.role.RepairRoleDefinition;
 
 public final class RepairRoleCommand {
     private static final SuggestionProvider<CommandSourceStack> ROLE_SUGGESTIONS = (context, builder) -> {

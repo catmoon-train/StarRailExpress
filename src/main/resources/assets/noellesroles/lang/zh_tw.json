@@ -3377,5 +3377,11 @@
   "skill.noellesroles.salted_fish.sunbathe": "面朝太陽",
   "message.noellesroles.salted_fish.start": "你面朝太陽躺下了。",
   "message.noellesroles.salted_fish.end": "鹹魚時間結束，冷卻開始。",
-  "message.noellesroles.salted_fish.already_active": "你已經躺得很認真了。"
+  "message.noellesroles.salted_fish.already_active": "你已經躺得很認真了。",
+  "announcement.star.role.leather_pig": "皮革噶的",
+  "announcement.star.goals.leather_pig": "平民陣營。Dream帶帶帶！",
+  "skill.noellesroles.leather_pig.frenzy": "瘋魔模式",
+  "message.noellesroles.leather_pig.frenzy_start": "Dream帶帶帶！瘋魔模式開啟！",
+  "message.noellesroles.leather_pig.frenzy_end": "瘋魔模式結束，豬豬歸於平靜。",
+  "message.noellesroles.leather_pig.already_active": "你已經夠瘋魔了！"
 }

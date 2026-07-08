@@ -10,8 +10,8 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDatabase;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDefinition;
+import net.exmo.sre.repair.role.RepairRoleDatabase;
+import net.exmo.sre.repair.role.RepairRoleDefinition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;

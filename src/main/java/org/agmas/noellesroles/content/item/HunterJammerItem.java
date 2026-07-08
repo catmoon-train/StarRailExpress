@@ -11,8 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import org.agmas.noellesroles.content.block_entity.RepairStationBlockEntity;
-import org.agmas.noellesroles.game.modes.repair.RepairGameplayEffects;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
+import net.exmo.sre.repair.util.RepairGameplayEffects;
+import net.exmo.sre.repair.state.RepairModeState;
 
 import java.util.List;
 

@@ -16,8 +16,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.agmas.noellesroles.game.modes.repair.RepairGameplayEffects;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
+import net.exmo.sre.repair.util.RepairGameplayEffects;
+import net.exmo.sre.repair.state.RepairModeState;
 
 public class RepairPalletBlock extends Block {
     public RepairPalletBlock(Properties properties) {

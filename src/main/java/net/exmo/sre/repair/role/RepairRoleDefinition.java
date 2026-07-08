@@ -1,4 +1,10 @@
-package org.agmas.noellesroles.game.modes.repair;
+package net.exmo.sre.repair.role;
+
+import net.exmo.sre.repair.*;
+import net.exmo.sre.repair.state.*;
+import net.exmo.sre.repair.arena.*;
+import net.exmo.sre.repair.event.*;
+import net.exmo.sre.repair.util.*;
 
 import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.network.chat.Component;

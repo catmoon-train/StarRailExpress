@@ -14,9 +14,9 @@ import net.minecraft.sounds.SoundSource;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.block_entity.RepairStationBlockEntity;
-import org.agmas.noellesroles.game.modes.repair.RepairEventSystem;
-import org.agmas.noellesroles.game.modes.repair.RepairGameplayEffects;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
+import net.exmo.sre.repair.event.RepairEventSystem;
+import net.exmo.sre.repair.util.RepairGameplayEffects;
+import net.exmo.sre.repair.state.RepairModeState;
 
 public record RepairStationActionC2SPacket(BlockPos blockPos, boolean greatHit, boolean accidentCheck,
         boolean accidentSuccess) implements CustomPacketPayload {

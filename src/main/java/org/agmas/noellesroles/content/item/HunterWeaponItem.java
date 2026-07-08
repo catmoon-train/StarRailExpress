@@ -24,8 +24,8 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.modes.repair.HunterAttackProfile;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
+import net.exmo.sre.repair.role.HunterAttackProfile;
+import net.exmo.sre.repair.state.RepairModeState;
 import org.agmas.noellesroles.packet.RepairCombatFeedbackS2CPacket;
 
 import java.util.List;

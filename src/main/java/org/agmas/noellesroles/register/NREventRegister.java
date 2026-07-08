@@ -24,8 +24,8 @@ public class NREventRegister {
         // 
         org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler.register();
         org.agmas.noellesroles.game.roles.neutral.amon.AmonEventHandler.register();
-        org.agmas.noellesroles.game.modes.repair.RepairCombatEvents.register();
-        org.agmas.noellesroles.game.modes.repair.RepairWorldInteractions.register();
+        net.exmo.sre.repair.event.RepairCombatEvents.register();
+        net.exmo.sre.repair.event.RepairWorldInteractions.register();
 
         // 注册疫使胜利检测
         org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.registerEvent();

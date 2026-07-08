@@ -40,6 +40,8 @@ public class NRSounds {
     public static final SoundEvent BROKEN_ALARM = registrar.create("noellesroles.broken_alarm");
     public static final SoundEvent CIRCUS_BACKGROUND = registrar.create("noellesroles.circus_background");
     public static final SoundEvent A_MENG = registrar.create("noellesroles.a_meng");
+    // 皮革噶的：疯魔模式神秘追杀音效
+    public static final SoundEvent MANHUNT_CHASE = registrar.create("noellesroles.manhunt_chase");
     public static final SoundEvent CIRCUS_INDOOR = registrar.create("noellesroles.dasiy_bell");
 
     public static void initialize() {

@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.content.block_entity.HunterCageBlockEntity;
-import org.agmas.noellesroles.game.modes.repair.RepairModeState;
+import net.exmo.sre.repair.state.RepairModeState;
 import org.joml.Matrix4f;
 
 public class HunterCageBlockEntityRenderer implements BlockEntityRenderer<HunterCageBlockEntity> {

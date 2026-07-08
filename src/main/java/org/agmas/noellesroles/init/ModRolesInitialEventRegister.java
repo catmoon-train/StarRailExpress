@@ -38,6 +38,7 @@ import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
@@ -1008,6 +1009,13 @@ public class ModRolesInitialEventRegister {
         RoleSkill.register(ModRoles.SALTED_FISH,
                 RoleSkill.skill(SaltedFishPlayerComponent.SKILL_ID, "skill.noellesroles.salted_fish.sunbathe",
                         context -> SaltedFishPlayerComponent.KEY.get(context.player()).useSkill(context.player()))
+                        .showOnHud(true).announceToSelf(false).build());
+
+        // 皮革噶的技能注册：消耗 150 金币进入疯魔模式（直觉 + 速度 III + 追杀音效）
+        RoleSkill.register(ModRoles.LEATHER_PIG,
+                RoleSkill.skill(LeatherPigPlayerComponent.SKILL_ID, "skill.noellesroles.leather_pig.frenzy",
+                        context -> LeatherPigPlayerComponent.KEY.get(context.player()).useSkill(context.player()))
+                        .cooldownSeconds(LeatherPigPlayerComponent.COOLDOWN_SECONDS)
                         .showOnHud(true).announceToSelf(false).build());
 
         // 出题人不适用于统一的技能注册：其需要不同的触发方式但这个api不兼容。

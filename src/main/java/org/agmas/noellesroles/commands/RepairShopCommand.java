@@ -10,7 +10,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.modes.repair.RepairRoleDatabase;
+import net.exmo.sre.repair.role.RepairRoleDatabase;
 import org.agmas.noellesroles.packet.OpenRepairRoleShopS2CPacket;
 
 import java.util.ArrayList;
