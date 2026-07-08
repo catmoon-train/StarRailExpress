@@ -316,7 +316,7 @@ public class AllSettingsModule implements TabModule {
         int currentY = y;
         int depth = entry.depth + 1;
         int leftX = layout.leftColumnX() + depth * 12;
-        int rightEdge = layout.panelLeftX + layout.panelWidth - layout.gutter - 8;
+        int rightEdge = layout.panelLeftX + layout.panelWidth - layout.gutter - 4;
         int gap = 6;
         int rowHeight = 30;
         String tooltipKey = "sre.map_helper.settings." + entry.path + ".@tooltip";
@@ -552,7 +552,7 @@ public class AllSettingsModule implements TabModule {
 
     private int createWidgetsForEntry(LayoutContext layout, ModuleContext ctx, List<WidgetPlacement> placements,
             SettingsEntry entry, int y) {
-        int rightEdge = layout.panelLeftX + layout.panelWidth - layout.gutter;
+        int rightEdge = layout.panelLeftX + layout.panelWidth - layout.gutter - 4;
         int leftX = layout.leftColumnX() + entry.depth * 12;
         int labelWidth = Math.min(140, (layout.contentWidth() - entry.depth * 12) / 3);
         int gap = 6;
