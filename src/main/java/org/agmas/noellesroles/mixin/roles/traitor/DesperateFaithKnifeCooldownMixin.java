@@ -21,7 +21,7 @@ public class DesperateFaithKnifeCooldownMixin {
 
     @Inject(method = "receive", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/item/ItemCooldowns;addCooldown(Lnet/minecraft/world/item/Item;I)V",
-            ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD)
+            ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     private void onKnifeCooldown(KnifeStabPayload payload, ServerPlayNetworking.Context context, CallbackInfo ci,
             ServerPlayer player) {
         // 检查玩家是否有绝境信徒修饰符
