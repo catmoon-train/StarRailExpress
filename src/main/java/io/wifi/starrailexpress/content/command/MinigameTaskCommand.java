@@ -30,7 +30,7 @@ public final class MinigameTaskCommand {
     private static int set(CommandContext<CommandSourceStack> ctx, boolean value) {
         ServerLevel level = ctx.getSource().getLevel();
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
-        areas.minigameQuestEnabled = value;
+        areas.areasSettings.minigameQuestEnabled = value;
         areas.sync();
         ctx.getSource().sendSuccess(
                 () -> Component.translatable(value
@@ -43,7 +43,7 @@ public final class MinigameTaskCommand {
 
     private static int query(CommandContext<CommandSourceStack> ctx) {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-        boolean value = areas.minigameQuestEnabled;
+        boolean value = areas.areasSettings.minigameQuestEnabled;
         ctx.getSource().sendSuccess(
                 () -> Component.translatable("commands.sre.minigamequest.query", value)
                         .withStyle(ChatFormatting.AQUA),

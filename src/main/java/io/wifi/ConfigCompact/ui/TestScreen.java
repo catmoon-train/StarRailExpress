@@ -9,6 +9,7 @@ public class TestScreen extends Screen {
 
     public TestScreen(Screen screen) {
         super(Component.literal("Test Screen"));
+        this.parent = screen;
     }
 
     int lastKeyCode;

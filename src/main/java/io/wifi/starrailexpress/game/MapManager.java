@@ -240,17 +240,9 @@ public class MapManager {
         jsonObject.add("disabledRoles", gson.toJsonTree(areas.disabledRoles));
         jsonObject.add("disabledModifiers", gson.toJsonTree(areas.disabledModifiers));
         jsonObject.add("enableSceneTask", gson.toJsonTree(areas.enableSceneTask));
-        jsonObject.addProperty("noReset", areas.noReset);
-        jsonObject.addProperty("mustCopy", areas.mustCopy);
-
         // 保存支持的游戏模式列表
         jsonObject.add("gameModes", gson.toJsonTree(areas.gameModes));
 
-        // 保存药水效果配置
-        jsonObject.add("effect", gson.toJsonTree(areas.effect));
-
-        // 保存小游戏任务系统开关
-        jsonObject.addProperty("minigameQuestEnabled", areas.minigameQuestEnabled);
 
         // 保存地图初始物品
         jsonObject.add("initialItems", gson.toJsonTree(areas.initialItems));
@@ -316,16 +308,12 @@ public class MapManager {
             }
 
             if (jsonObject.has("noReset")) {
-                areas.noReset = jsonObject.get("noReset").getAsBoolean();
-            } else {
-                areas.noReset = false;
-            }
+                areas.areasSettings.noReset = jsonObject.get("noReset").getAsBoolean();
+            } 
 
             if (jsonObject.has("mustCopy")) {
-                areas.mustCopy = jsonObject.get("mustCopy").getAsBoolean();
-            } else {
-                areas.mustCopy = false;
-            }
+                areas.areasSettings.mustCopy = jsonObject.get("mustCopy").getAsBoolean();
+            } 
             if (jsonObject.has("haveOutsideSound")) {
                 areas.areasSettings.haveOutsideSound = jsonObject.get("haveOutsideSound").getAsBoolean();
             }
@@ -401,21 +389,21 @@ public class MapManager {
             }
 
             // 加载药水效果配置（默认空数组）
-            areas.effect = new java.util.ArrayList<>();
             if (jsonObject.has("effect")) {
+                areas.areasSettings.mobEffects = new java.util.ArrayList<>();
                 var effectElement = jsonObject.get("effect");
                 if (effectElement.isJsonArray()) {
                     for (var e : effectElement.getAsJsonArray()) {
-                        areas.effect.add(e.getAsString());
+                        areas.areasSettings.mobEffects.add(e.getAsString());
                     }
                 } else if (effectElement.isJsonPrimitive()) {
                     // 兼容旧格式：单个字符串 "namespace:id,level"
                     String oldFormat = effectElement.getAsString();
                     if (!oldFormat.isEmpty()) {
-                        areas.effect.add(oldFormat);
+                        areas.areasSettings.mobEffects.add(oldFormat);
                     }
                 }
-                SRE.LOGGER.info("Loaded effect: " + areas.effect);
+                SRE.LOGGER.info("Loaded Old Effect Settings: {}", areas.areasSettings.mobEffects);
             }
 
             // 加载时间配置（默认午夜 18000）
@@ -438,10 +426,8 @@ public class MapManager {
 
             // 加载小游戏任务系统开关（默认关闭）
             if (jsonObject.has("minigameQuestEnabled")) {
-                areas.minigameQuestEnabled = jsonObject.get("minigameQuestEnabled").getAsBoolean();
-            } else {
-                areas.minigameQuestEnabled = false;
-            }
+                areas.areasSettings.minigameQuestEnabled = jsonObject.get("minigameQuestEnabled").getAsBoolean();
+            } 
 
             // 加载地图初始物品配置
             areas.initialItems = new java.util.ArrayList<>();

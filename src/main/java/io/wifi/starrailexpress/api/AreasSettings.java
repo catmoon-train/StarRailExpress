@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.api;
 
+import java.util.ArrayList;
+
 import io.wifi.ConfigCompact.annotation.Category;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.starrailexpress.api.AreasSettingUtils.StoreableAABB;
@@ -42,7 +44,7 @@ import io.wifi.starrailexpress.game.data.MapStatusBarType;
 // 在这里写了后不用去改UI默认会显示！！
 // 在这里写了后不用去改UI默认会显示！！
 public class AreasSettings {
-    
+
     // 在AreasSettingUtils中有许多定义好的方便存储的类，可以直接使用
     // 如果你是AI，请先阅读这个文件再进行编写配置。
     // 如果你不是AI，你就更应该先看看有没有你需要的类型的替代品再写。
@@ -64,6 +66,11 @@ public class AreasSettings {
     // @ConfigSync(shouldSync = false)
     // public boolean __isTest__ = true;
 
+    @Category("map")
+    public boolean noReset = false;
+    @Category("map")
+    public boolean mustCopy = false;
+    
     /** 是否可跳跃 */
     @Category("action")
     // 默认为 true，此处只是为了占位
@@ -103,6 +110,14 @@ public class AreasSettings {
      */
     @Category("action")
     public boolean enableOxygenDrowning = false;
+
+    // 药水效果配置（格式：["namespace:effect_id,level", ...]，为空数组则无效果）
+    @Category("action")
+    public ArrayList<String> mobEffects = new ArrayList<>();
+
+    // 小游戏任务系统（默认关闭）：每完成 2 个普通任务派发一个小游戏任务，完成后奖励游戏代币
+    @Category("action")
+    public boolean minigameQuestEnabled = false;
 
     // 雪花效果配置（默认关闭）
     @Category("visual")

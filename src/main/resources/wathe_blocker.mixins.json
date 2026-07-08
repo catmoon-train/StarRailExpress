@@ -7,7 +7,8 @@
     "KillCommandMixin",
     "cca.CCAHttpBlocker",
     "cca.CCAWatheBlockMixin",
-    "cca.ModComponentBlocker"
+    "cca.ModComponentBlocker",
+    "cca.MixinServerWorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -19,6 +20,7 @@
     "client.GuiRenderMixin",
     "client.IHateWatheModelLayers",
     "client.PanoramaMixin",
-    "client.SignRendererMixin"
+    "client.SignRendererMixin",
+    "client.cca.MixinClientWorldMixin"
   ]
 }

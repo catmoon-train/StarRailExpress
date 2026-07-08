@@ -273,7 +273,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             changed = true;
         }
 
-        if (changed || amon.tickCount % 20 == 0)
+        if (changed || amon.tickCount % 200 == 0)
             sync();
     }
 

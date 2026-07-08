@@ -19,6 +19,20 @@ public class SREClientCommand {
     ClientCommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess) -> {
           dispatcher.register(ClientCommandManager.literal("sre:client")
+              .then(
+                  ClientCommandManager.literal("resource")
+                      .then(ClientCommandManager.literal("reload")
+                          .executes((ctx) -> {
+                            ctx.getSource().getClient().reloadResourcePacks();
+                            return 1;
+                          })))
+              .then(
+                  ClientCommandManager.literal("chat")
+                      .then(ClientCommandManager.literal("clear")
+                          .executes((ctx) -> {
+                            ctx.getSource().getClient().gui.getChat().clearMessages(false);
+                            return 1;
+                          })))
               .then(ClientCommandManager.literal("settings")
                   .then(ClientCommandManager.literal("random_skin")
                       .then(ClientCommandManager.literal("enable").executes((ctx) -> {

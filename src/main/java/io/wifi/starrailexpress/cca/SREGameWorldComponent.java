@@ -765,9 +765,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                         }
 
                         // put players with no role in spectator mode
-
-                        // 调用角色的服务器端tick方法
-                        io.wifi.starrailexpress.api.RoleMethodDispatcher.callServerTick(player, gameWorldComponent);
                         var modifiers = worldModifierComponent.getModifiers(player);
                         for (var mo : modifiers) {
                             mo.serverGameTickEvent(player);

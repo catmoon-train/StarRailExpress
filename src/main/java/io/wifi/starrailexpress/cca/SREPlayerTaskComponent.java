@@ -189,7 +189,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                     * (maxCooldown - minCooldown)
                     + minCooldown);
             // 小游戏任务未启用时，正常任务刷新加快 30%
-            if (!AreasWorldComponent.KEY.get(this.player.level()).minigameQuestEnabled) {
+            if (!AreasWorldComponent.KEY.get(this.player.level()).areasSettings.minigameQuestEnabled) {
                 this.nextTaskTimer = (int) (this.nextTaskTimer * 0.7f);
             }
             // 轮换模式：全局任务刷新速率减缓 15%

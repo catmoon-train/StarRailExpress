@@ -92,13 +92,11 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
     private void registerModules() {
         modules.put(0, new PositionsModule());
         modules.put(1, new AreasModule());
-        modules.put(2, new BooleanSettingsModule());
-        modules.put(3, new RoomsModule());
-        modules.put(4, new EnvironmentModule());
+        modules.put(2, new RoomsModule());
+        modules.put(3, new AllSettingsModule());
+        modules.put(4, new MeetingModule());
         modules.put(5, new SceneModule());
         modules.put(6, new MapModule());
-        modules.put(7, new MeetingModule());
-        modules.put(8, new AllSettingsModule());
     }
 
     // ── ModuleContext implementation ─────────────────────────────────
