@@ -587,7 +587,7 @@ public class ModRoles {
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
             .setCanSeeCoin(true).setCanSeeTeammateKiller(true)
-            .setCanUseInstinct(true).setDefaultMax(1).setDefaultEnableNeededPlayerCount(12)
+            .setCanUseInstinctAndNightVision(true).setDefaultMax(1).setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(400);
 
     // 好人：锁匠
@@ -698,7 +698,7 @@ public class ModRoles {
             true))
             .setComponentKey(ModComponents.WRAITH_ASSASSIN)
             .setCanSeeCoin(true)
-            .setCanUseInstinct(true)
+            .setCanUseInstinctAndNightVision(true)
             .setCanSeeTeammateKiller(true)
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
@@ -888,7 +888,7 @@ public class ModRoles {
                                     false, // showParticles（显示粒子）
                                     true // showIcon（显示图标）
                             )))
-            .setCanSeeCoin(true).setCanPickUpRevolver(false).setNeutrals(true).setCanUseInstinct(true)
+            .setCanSeeCoin(true).setCanPickUpRevolver(false).setNeutrals(true).setCanUseInstinctAndNightVision(true)
             .setNeutralForKiller(true);
     public static SRERole CHEF = TMMRoles.registerRole(
             new ChefRole(CHEF_ID, new Color(229, 255, 0).getRGB(),
@@ -914,7 +914,7 @@ public class ModRoles {
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, false))
             .setCanSeeCoin(true).setNeutrals(true).setCanPickUpRevolver(false)
-            .setComponentKey(ModComponents.WAYFARER).setCanUseInstinct(false).setCanSeeBodyDeathReason(true)
+            .setComponentKey(ModComponents.WAYFARER).setCanUseInstinctAndNightVision(false).setCanSeeBodyDeathReason(true)
             .setDefaultEnableChance(2500).setDefaultEnableNeededPlayerCount(10);
     public static final ResourceLocation CUCKOO_ID = Noellesroles.id("cuckoo");
 
@@ -923,7 +923,7 @@ public class ModRoles {
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
             .setCanSeeCoin(true).setComponentKey(ModComponents.CUCKOO).setCanBeRandomedByOtherRoles(false)
-            .setCanUseInstinct(true).setNeutrals(true).setDefaultMax(1).setDefaultEnableChance(4500);
+            .setCanUseInstinctAndNightVision(true).setNeutrals(true).setDefaultMax(1).setDefaultEnableChance(4500);
     public static SRERole JESTER = TMMRoles
             .registerRole(new NormalRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
@@ -932,7 +932,7 @@ public class ModRoles {
                     return SRE.id("textures/entity/custom_psycho/jester.png");
                 };
             })
-            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(true)
             .setPassiveIncome(true)
             .setServerGameTickEvent((sp, cca) -> JesterHandler.handler(sp, cca))
             .setDefaultMax(1);
@@ -1354,7 +1354,7 @@ public class ModRoles {
             .registerRole(new NormalRole(INFECTED_ID, new Color(66, 181, 0).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setNeutralForKiller(true)
-            .setCanUseInstinct(true)
+            .setCanUseInstinctAndNightVision(true)
             .setDefaultMax(1)
             .setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false)
@@ -1385,7 +1385,7 @@ public class ModRoles {
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setComponentKey(ModComponents.MORTICIAN_BODYMAKER)
             .setNeutralForKiller(true)
-            .setCanUseInstinct(true)
+            .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
             .setDefaultMax(1);
 
@@ -1394,7 +1394,7 @@ public class ModRoles {
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setComponentKey(ModComponents.CUPID)
             .setNeutralForKiller(true)
-            .setCanUseInstinct(true)
+            .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(8);
@@ -1417,7 +1417,7 @@ public class ModRoles {
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
             .setCanSeeCoin(true).setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(true)
-            .setCanUseInstinct(true);
+            .setCanUseInstinctAndNightVision(true);
     public static SRERole VULTURE = TMMRoles
             .registerRole(new NormalRole(VULTURE_ID, new Color(210, 105, 30).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
@@ -1442,7 +1442,7 @@ public class ModRoles {
                     .setComponentKey(
                             org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY))
             .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKiller(false).setDefaultMax(1)
-            .setCanUseInstinct(true).setCanSeeCoin(true).setCanPickUpRevolver(false)
+            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true).setCanPickUpRevolver(false)
             .setCanBeRandomedByOtherRoles(false).setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(4000);
 
@@ -1450,29 +1450,29 @@ public class ModRoles {
     public static SRERole GODFATHER = TMMRoles
             .registerRole(new EggRole(GODFATHER_ID, new Color(199, 21, 133).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
-            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true).setOccupiedRoleCount(3).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
             .setMafiaTeam(true).setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(2000);
     public static SRERole MAFIOSO = TMMRoles
             .registerRole(new EggRole(MAFIOSO_ID, new Color(218, 112, 214).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
-            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
     public static SRERole JANITOR = TMMRoles
             .registerRole(new EggRole(JANITOR_ID, new Color(255, 105, 180).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
-            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
     public static SRERole NUTRITIONIST = TMMRoles
             .registerRole(new EggRole(NUTRITIONIST_ID, new Color(50, 205, 50).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
-            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
     public static SRERole PARASOL = TMMRoles
             .registerRole(new EggRole(PARASOL_ID, new Color(0, 139, 139).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
-            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setNeutrals(true).setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setMafiaTeam(true);
 
     // 验尸官
@@ -1828,7 +1828,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限冲刺时间
             false // 隐藏计分板
     )).setOccupiedRoleCount(0) // 不占用杀手位
-            .setCanUseInstinct(false) // 没有杀手透视
+            .setCanUseInstinctAndNightVision(false) // 没有杀手透视
             .setCanSeeTeammateKiller(false) // 杀手本能看不到队友，对杀手的框显示如平民
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1).setDefaultEnableChance(2000).setDefaultEnableNeededPlayerCount(12);
@@ -1913,7 +1913,7 @@ public class ModRoles {
             ADMIRER_ID, // 角色 ID
             new Color(255, 192, 203).getRGB(), false, false, SRERole.MoodType.FAKE, Integer.MAX_VALUE,
             true)).setComponentKey(AdmirerPlayerComponent.KEY).setNeutralForKiller(true)
-            .setCanUseInstinct(true)
+            .setCanUseInstinctAndNightVision(true)
             .setCanSeeTeammateKiller(false);;
 
     /**
@@ -1949,7 +1949,7 @@ public class ModRoles {
             return PUPPETEER_COLOR.getOrRandomColor();
         }
     }).setComponentKey(PuppeteerPlayerComponent.KEY).setAutoReset(false).setNeutralForKiller(true)
-            .setCanUseInstinct(true);
+            .setCanUseInstinctAndNightVision(true);
 
     /**
      * 监察员角色
@@ -1983,7 +1983,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(RecorderPlayerComponent.KEY).setCanUseInstinct(true).setNeutrals(true)
+    )).setComponentKey(RecorderPlayerComponent.KEY).setCanUseInstinctAndNightVision(true).setNeutrals(true)
             .setDefaultEnableNeededPlayerCount(10);
 
     /**
@@ -2078,7 +2078,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true)).setComponentKey(MercenaryPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false).setCanUseInstinct(false).setDefaultMax(1)
+            .setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(false).setDefaultMax(1)
             .setDefaultEnableChance(1000).setDefaultEnableNeededPlayerCount(12);
 
     /**
@@ -2095,7 +2095,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true)).setComponentKey(CandleBearerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(12);
 
     public static SRERole RAVEN = TMMRoles.registerRole(new NormalRole(
@@ -2106,7 +2106,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true)).setComponentKey(RavenPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(10);
 
     public static SRERole REASONER = TMMRoles.registerRole(new NormalRole(
@@ -2117,7 +2117,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true)).setComponentKey(ReasonerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
-            .setCanSeeTeammateKiller(false).setCanUseInstinct(true)
+            .setCanSeeTeammateKiller(false).setCanUseInstinctAndNightVision(true)
             .setDefaultMax(1).setDefaultEnableNeededPlayerCount(10).setDefaultEnableChance(6500);
 
     /**
@@ -2145,7 +2145,7 @@ public class ModRoles {
             .setComponentKey(org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent.KEY)
             .setNeutrals(true).setNeutralForKiller(false)
             .setCanSeeTeammateKiller(false).setCanPickUpRevolver(false)
-            .setCanUseInstinct(false)
+            .setCanUseInstinctAndNightVision(false)
             .setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
@@ -2171,7 +2171,7 @@ public class ModRoles {
             true), "lord_of_mysteries")
             .setComponentKey(DoomedSinnerPlayerComponent.KEY)
             .setNeutrals(true).setCanSeeTeammateKiller(false)
-            .setCanUseInstinct(true)
+            .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(12)
@@ -2386,7 +2386,7 @@ public class ModRoles {
             .setCanSeeTeammateKiller(false)
             .setCanPickUpRevolver(false) // 伪装义警可以捡枪
             .setNeutrals(true)
-            .setCanUseInstinct(false) // 不能使用杀手直觉
+            .setCanUseInstinctAndNightVision(false) // 不能使用杀手直觉
             .setCanSeeCoin(true)
             .setDefaultMax(0)
             .setCanBeRandomedByOtherRoles(false).addBothRelatedModifier(SEModifiers.BLACK_WHITE);
@@ -2414,7 +2414,7 @@ public class ModRoles {
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY))
             .setCanUseKiller(true).setCanSeeTeammateKiller(true).setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
-            .setCanUseInstinct(true).setCanSeeCoin(true);
+            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true);
 
     // ==================== 嬉命人（Embalmer）====================
     public static SRERole EMBALMER = TMMRoles.registerRole(new NormalRole(
@@ -2422,7 +2422,7 @@ public class ModRoles {
             false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.KEY))
             .setNeutralForKiller(true).setCanSeeTeammateKiller(false).setNeutrals(true)
-            .setCanUseInstinct(true).setCanSeeCoin(true).setDefaultEnableChance(4500);
+            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true).setDefaultEnableChance(4500);
 
     // ==================== 窃皮者 ====================
     public static SRERole SKINCRAWLER = TMMRoles.registerRole(new NormalRole(
@@ -2431,7 +2431,7 @@ public class ModRoles {
             .setComponentKey(
                     org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY))
             .setCanUseKiller(true).setCanSeeTeammateKiller(true)
-            .setCanUseInstinct(true).setCanSeeCoin(true);
+            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true);
 
     /**
      * 幻音师角色 (Phantom Musician)
@@ -2460,7 +2460,7 @@ public class ModRoles {
                             org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicianPlayerComponent.KEY))
             .setNeutralForKiller(true)
             .setNeutrals(true)
-            .setCanUseInstinct(true)
+            .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
             .setDefaultMax(1);
 

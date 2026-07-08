@@ -42,8 +42,6 @@ public class StarRailLoadingOverlay extends Overlay {
     private static final ResourceLocation BG_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "background.png");
 
-    private static final String TITLE = "STAR RAIL EXPRESS";
-
     // 资源加载阶段语言文件未必就绪，提示固定用拉丁文以保证可渲染。
     private static final List<String> TIPS = List.of(
             "Calibrating star rail navigation",

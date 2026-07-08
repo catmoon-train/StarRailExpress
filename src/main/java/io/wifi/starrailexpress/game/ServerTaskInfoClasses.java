@@ -190,7 +190,7 @@ public class ServerTaskInfoClasses {
         public boolean onTick(MinecraftServer server) {
             count++;
 
-            if (area.noReset) {
+            if (area.areasSettings.noReset) {
                 if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("NO RESET MAP!");
                 }

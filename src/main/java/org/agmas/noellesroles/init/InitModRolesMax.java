@@ -522,7 +522,7 @@ public class InitModRolesMax {
             }
             case MINIGAME_QUEST -> {
                 var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.minigameQuestEnabled;
+                yield areas != null && areas.areasSettings.minigameQuestEnabled;
             }
             case MAP_STATUS_BAR -> {
                 var areas = AreasWorldComponent.KEY.get(serverLevel);

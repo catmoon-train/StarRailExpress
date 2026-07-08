@@ -52,14 +52,12 @@ public final class StreamingSpectatorCommand {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("挂播")
+        var t = dispatcher.register(Commands.literal("tmm:guabo")
                 .executes(StreamingSpectatorCommand::toggle)
                 .then(Commands.literal("start").executes(StreamingSpectatorCommand::start))
                 .then(Commands.literal("stop").executes(StreamingSpectatorCommand::stop)));
-        dispatcher.register(Commands.literal("tmm:guabo")
-                .executes(StreamingSpectatorCommand::toggle)
-                .then(Commands.literal("start").executes(StreamingSpectatorCommand::start))
-                .then(Commands.literal("stop").executes(StreamingSpectatorCommand::stop)));
+        dispatcher.register(Commands.literal("tmm:streaming_spectator").redirect(t));
+        dispatcher.register(Commands.literal("streaming_spectator").redirect(t));
     }
 
     private static int toggle(CommandContext<CommandSourceStack> context) {
@@ -86,14 +84,15 @@ public final class StreamingSpectatorCommand {
         }
 
         if (SESSIONS.containsKey(player.getUUID())) {
-            context.getSource().sendSuccess(() ->
-                    Component.translatable("commands.sre.streaming_spectator.already_active"), false);
+            context.getSource().sendSuccess(
+                    () -> Component.translatable("commands.sre.streaming_spectator.already_active"), false);
             return 1;
         }
 
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameComponent.isRunning()) {
-            context.getSource().sendFailure(Component.translatable("commands.sre.streaming_spectator.game_not_running"));
+            context.getSource()
+                    .sendFailure(Component.translatable("commands.sre.streaming_spectator.game_not_running"));
             return 0;
         }
 
@@ -112,8 +111,8 @@ public final class StreamingSpectatorCommand {
             return 0;
         }
 
-        context.getSource().sendSuccess(() ->
-                Component.translatable("commands.sre.streaming_spectator.started"), false);
+        context.getSource().sendSuccess(() -> Component.translatable("commands.sre.streaming_spectator.started"),
+                false);
         return 1;
     }
 
@@ -134,8 +133,8 @@ public final class StreamingSpectatorCommand {
 
         restoreOriginalRole(player, session);
         PacketTracker.sendToClient(player, StreamingSpectatorPayload.stop());
-        context.getSource().sendSuccess(() ->
-                Component.translatable("commands.sre.streaming_spectator.stopped"), false);
+        context.getSource().sendSuccess(() -> Component.translatable("commands.sre.streaming_spectator.stopped"),
+                false);
         return 1;
     }
 

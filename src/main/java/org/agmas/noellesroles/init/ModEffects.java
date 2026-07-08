@@ -26,6 +26,8 @@ import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistBackworldEf
 import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithDimensionEffectSync;
 
 public class ModEffects {
+    public static final Holder<MobEffect> SKILL_FREEZED = register("skill_freezed",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
     public static final Holder<MobEffect> INVENTORY_BANED = register("inventory_baned",

@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 public class MapBuildHelperScreen extends Screen implements ModuleContext {
     @Override
     public void requestModuleRefresh() {
-        if (activeTab < 0 || activeTab >= modules.size())
+        if (activeTab == null || !modules.containsKey(activeTab))
             return;
 
         // 1. 移除当前所有可滚动控件（从屏幕的渲染列表、子控件列表、旁白列表中删除）
@@ -57,11 +57,11 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
     private static double offsetZ = 0.5;
 
     private final BlockPos position;
-    private int activeTab = 0;
+    private String activeTab = "";
 
     private EditBox dxBox, dyBox, dzBox;
     private final List<AbstractWidget> fixedWidgets = new ArrayList<>();
-    private final Map<Integer, TabModule> modules = new LinkedHashMap<>();
+    private final Map<String, TabModule> modules = new LinkedHashMap<>();
     private final List<WidgetPlacement> currentTabPlacements = new ArrayList<>();
 
     private int panelWidth, panelHeight;
@@ -69,7 +69,6 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
     private static final int MIN_PANEL_WIDTH = 340;
     private static final int MIN_PANEL_HEIGHT = 200;
     private int panelLeftX, panelTopY;
-
     private int scrollOffset = 0;
     private int contentHeight = 0;
     private boolean isDraggingScroll = false;
@@ -86,19 +85,17 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
         super(Component.translatable("sre.map_helper.title"));
         this.position = position;
         registerModules();
-        this.activeTab = Math.max(0, Math.min(modules.size() - 1, initialTab));
+        this.activeTab = modules.keySet().stream().findFirst().orElse("");
     }
 
     private void registerModules() {
-        modules.put(0, new PositionsModule());
-        modules.put(1, new AreasModule());
-        modules.put(2, new BooleanSettingsModule());
-        modules.put(3, new RoomsModule());
-        modules.put(4, new EnvironmentModule());
-        modules.put(5, new SceneModule());
-        modules.put(6, new MapModule());
-        modules.put(7, new MeetingModule());
-        modules.put(8, new AllSettingsModule());
+        modules.put("spawn_offset", new PositionsModule());
+        modules.put("aabb_areas", new AreasModule());
+        modules.put("rooms_config", new RoomsModule());
+        modules.put("all", new AllSettingsModule());
+        modules.put("meeting", new MeetingModule());
+        modules.put("scene", new SceneModule());
+        modules.put("map", new MapModule());
     }
 
     // ── ModuleContext implementation ─────────────────────────────────
@@ -277,10 +274,10 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
         int tabW = Math.min(42, (panelWidth - 12 - (tabCount - 1) * tabGap) / tabCount);
         int totalTabW = tabW * tabCount + tabGap * (tabCount - 1);
         int startX = panelLeftX + (panelWidth - totalTabW) / 2;
-
-        for (int i = 0; i < tabCount; i++) {
-            final int idx = i;
-            TabModule mod = modules.get(idx);
+        int i = 0;
+        for (final var entry : modules.entrySet()) {
+            final String idx = entry.getKey();
+            TabModule mod = entry.getValue();
             Component title = mod != null ? mod.getTabTitle() : Component.literal("?");
             var builder = ModernButton.builder(title, b -> {
                 activeTab = idx;
@@ -292,6 +289,7 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
             else
                 builder.accentBar();
             fixedWidgets.add(builder.build());
+            i++;
         }
     }
 
@@ -440,11 +438,8 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
         g.fill(panelLeftX, panelTopY + 110, panelLeftX + panelWidth, panelTopY + 111, 0x20FFFFFF);
 
         // 当前标签标题
-        String[] tabTitlesKeys = { "spawn_offset", "aabb_areas", "boolean_settings", "rooms_config", "environment",
-                "scene", "map", "meeting", "all" };
         g.drawString(font,
-                Component.translatable("sre.map_helper.tab_title." + tabTitlesKeys[Math.min(activeTab,
-                        tabTitlesKeys.length - 1)])
+                modules.get(activeTab).getTabFullTitle().copy()
                         .withStyle(Style.EMPTY.withColor(0xD4AF37).withBold(true)),
                 panelLeftX + 6, panelTopY + 94, 0xFFFFFF, false);
     }

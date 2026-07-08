@@ -355,14 +355,14 @@ public class MapManagerSettingsCommand {
       throw new IllegalArgumentException("路径为空");
     Object current = root;
     for (int i = 0; i < path.length - 1; i++) {
-      Field field = current.getClass().getDeclaredField(path[i]);
+      Field field = findField(current.getClass(), path[i]);
       field.setAccessible(true);
       current = field.get(current);
       if (current == null) {
         throw new NullPointerException("字段 " + path[i] + " 为 null，无法继续");
       }
     }
-    Field lastField = current.getClass().getDeclaredField(path[path.length - 1]);
+    Field lastField = findField(current.getClass(), path[path.length - 1]);
     lastField.setAccessible(true);
     return new FieldAccess(current, lastField);
   }
@@ -370,12 +370,11 @@ public class MapManagerSettingsCommand {
   private static Object getObjectByPath(Object root, String[] path) throws Exception {
     Object current = root;
     for (String part : path) {
-      Field field = current.getClass().getDeclaredField(part);
+      Field field = findField(current.getClass(), part);
       field.setAccessible(true);
       current = field.get(current);
-      if (current == null) {
+      if (current == null)
         return null;
-      }
     }
     return current;
   }
@@ -522,19 +521,17 @@ public class MapManagerSettingsCommand {
     int lastIndex = parts.length - 1;
     String prefix = parts[lastIndex];
     String[] pathToParent = Arrays.copyOf(parts, lastIndex);
-
     try {
       Object current = root;
       for (String part : pathToParent) {
-        Field field = current.getClass().getDeclaredField(part);
+        Field field = findField(current.getClass(), part); // 改用 findField
         field.setAccessible(true);
         current = field.get(current);
-        if (current == null) {
+        if (current == null)
           return builder.buildFuture();
-        }
       }
       List<String> candidates = new ArrayList<>();
-      for (Field field : current.getClass().getDeclaredFields()) {
+      for (Field field : getAllFields(current.getClass())) { // 改用 getAllFields
         candidates.add(field.getName());
       }
       for (String name : candidates) {
@@ -629,5 +626,32 @@ public class MapManagerSettingsCommand {
       builder.suggest("{}");
       builder.suggest("[]");
     }
+  }
+
+  /**
+   * 递归查找字段（包括父类）
+   */
+  private static Field findField(Class<?> clazz, String name) throws NoSuchFieldException {
+    while (clazz != null && clazz != Object.class) {
+      try {
+        Field field = clazz.getDeclaredField(name);
+        return field;
+      } catch (NoSuchFieldException e) {
+        clazz = clazz.getSuperclass();
+      }
+    }
+    throw new NoSuchFieldException("Field " + name + " not found");
+  }
+
+  /**
+   * 获取类及其所有父类的字段列表（排除 Object 类）
+   */
+  private static List<Field> getAllFields(Class<?> clazz) {
+    List<Field> fields = new ArrayList<>();
+    while (clazz != null && clazz != Object.class) {
+      fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+      clazz = clazz.getSuperclass();
+    }
+    return fields;
   }
 }

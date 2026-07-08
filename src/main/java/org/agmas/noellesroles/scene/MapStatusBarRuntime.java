@@ -332,7 +332,9 @@ public final class MapStatusBarRuntime {
     }
 
     private static MapStatusBarType currentStatusBar(ServerLevel level) {
-        MapStatusBarType type = AreasWorldComponent.KEY.get(level).areasSettings.mapStatusBar;
+        var areas = AreasWorldComponent.KEY.get(level);
+        if (areas == null) return MapStatusBarType.NONE;
+        MapStatusBarType type = areas.areasSettings.mapStatusBar;
         return type == null ? MapStatusBarType.NONE : type;
     }
 

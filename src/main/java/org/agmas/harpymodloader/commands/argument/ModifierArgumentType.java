@@ -7,10 +7,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 
@@ -58,7 +59,16 @@ public class ModifierArgumentType implements ArgumentType<SREModifier> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-        return SharedSuggestionProvider.suggestResource(HMLModifiers.MODIFIERS.stream(), builder, SREModifier::identifier, SREModifier::getName);
+        
+        final String remaining = builder.getRemainingLowerCase();
+        for (var modifier : HMLModifiers.MODIFIERS) {
+            if (modifier == null)
+                continue;
+            if (remaining.isEmpty() || modifier.identifier().getPath().startsWith(remaining)) {
+                builder.suggest(modifier.identifier().toString(), modifier.getDisplayName());
+            }
+        }
+        return builder.buildFuture();
     }
 
     @Override

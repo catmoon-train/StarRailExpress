@@ -517,7 +517,7 @@ public class SREClient implements ClientModInitializer {
             prevInstinctKeyDown = isKeyDown;
 
             // instinct night vision - 现在基于切换状态而不是按键按下来判断
-            if (SREClient.isInstinctEnabled()) {
+            if (SREClient.isInstinctEnabled() && SREClient.hasInstinctNightVision()) {
                 instinctLightLevel += .2f;
             } else {
                 instinctLightLevel -= .2f;
@@ -1078,6 +1078,13 @@ public class SREClient implements ClientModInitializer {
             }
         });
         SREClientEvents.registerClientEvents();
+    }
+
+    public static boolean hasInstinctNightVision() {
+        if(cachedPlayerRole!=null){
+            return cachedPlayerRole.haveInstinctNightVision();
+        }
+        return false;
     }
 
     private static void updateInstinctCache(Minecraft client) {

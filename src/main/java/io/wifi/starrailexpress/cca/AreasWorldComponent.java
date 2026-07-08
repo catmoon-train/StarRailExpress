@@ -185,16 +185,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     int roomCount = 1;
     // Room positions map
     Map<Integer, Vec3> roomPositions = new HashMap<>();
-    public boolean noReset = false;
     public String mapName = null;
 
-    // 药水效果配置（格式：["namespace:effect_id,level", ...]，为空数组则无效果）
-    public List<String> effect = new ArrayList<>();
-
-    public boolean mustCopy = false;
-
-    // 小游戏任务系统（默认关闭）：每完成 2 个普通任务派发一个小游戏任务，完成后奖励游戏代币
-    public boolean minigameQuestEnabled = false;
     /** 当前地图中存在的小游戏种类 ID 集合（由 MapScanner 扫描填充），用于小游戏任务刷新时随机选取。 */
     public final HashSet<String> availableMinigameIds = new HashSet<>();
     public final HashSet<String> sabotageMinigameIds = new HashSet<>();
@@ -486,19 +478,11 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // "SPHERE";
         // this.weather = tag.contains("weather") ? tag.getString("weather") : "clear";
         // this.gravity = tag.contains("gravity") ? tag.getDouble("gravity") : 0.08;
-        this.effect = new ArrayList<>();
-        if (tag.contains("effect")) {
-            var list = tag.getList("effect", net.minecraft.nbt.Tag.TAG_STRING);
-            for (int i = 0; i < list.size(); i++) {
-                this.effect.add(list.getString(i));
-            }
-        }
         // this.time = tag.contains("time") ? tag.getLong("time") : 18000;
         // this.daylightCycle = tag.contains("daylightCycle") ?
         // tag.getBoolean("daylightCycle") : false;
         // this.weatherCycle = tag.contains("weatherCycle") ?
         // tag.getBoolean("weatherCycle") : false;
-        this.minigameQuestEnabled = tag.contains("minigameQuestEnabled") && tag.getBoolean("minigameQuestEnabled");
         this.disabledRoles = new HashSet<>();
         if (tag.contains("disabledRoles")) {
             var disabledRolesList = tag.getList("disabledRoles", net.minecraft.nbt.Tag.TAG_STRING);

@@ -61,7 +61,7 @@ public class IsNightVisionMixin {
         }
         starRailExpress$isCheckingInstinct = true;
         try {
-            return SREClient.isInstinctEnabled();
+            return SREClient.isInstinctEnabled() && SREClient.hasInstinctNightVision();
         } finally {
             starRailExpress$isCheckingInstinct = false;
         }

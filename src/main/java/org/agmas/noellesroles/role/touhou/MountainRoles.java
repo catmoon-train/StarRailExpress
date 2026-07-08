@@ -45,7 +45,7 @@ public class MountainRoles {
             return NITORI_SHOP;
         }
     }, "th_mountain").setNeutrals(true).setDefaultEnableNeededPlayerCount(12).setDefaultEnableChance(100)
-            .setCanUseInstinct(false).setCanPickUpRevolver(false);
+            .setCanUseInstinctAndNightVision(false).setCanPickUpRevolver(false);
     public static SRERole AYA = TMMRoles.registerRole(new TouhouRole(AYA_ID, // 角色 ID
             new Color(26, 42, 58).getRGB(), // 黑色 - 代表乌鸦
             false, // isInnocent = 乘客阵营

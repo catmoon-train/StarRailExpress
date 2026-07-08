@@ -10,7 +10,7 @@ import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 /**
- * @author canyuesama
+ * @author wifi_left, canyuesama
  */
 public interface RoleComponent extends AutoSyncedComponent {
     Player getPlayer();
@@ -30,9 +30,6 @@ public interface RoleComponent extends AutoSyncedComponent {
 
     default void writeToSyncNbtWithPlayer(CompoundTag tag, HolderLookup.Provider registryLookup,
             ServerPlayer recipient) {
-        // if (!SREGameWorldComponent.KEY.get(recipient.level()).isRunning()) {
-        //     return;
-        // }
         writeToSyncNbt(tag, registryLookup);
     }
 

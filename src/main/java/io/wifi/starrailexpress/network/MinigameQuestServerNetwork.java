@@ -83,7 +83,7 @@ public class MinigameQuestServerNetwork {
                             net.minecraft.sounds.SoundSource.BLOCKS, 0.8F, 1.2F);
                 }
                 // 小游戏任务系统：若该方块正是玩家被指派的目标，则发放游戏代币
-                if (io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(player.level()).minigameQuestEnabled) {
+                if (io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(player.level()).areasSettings.minigameQuestEnabled) {
                     io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent.KEY.get(player)
                             .onMinigameBlockCompleted(player, pos,
                                     io.wifi.starrailexpress.game.GameConstants.MINIGAME_TASK_TOKEN_REWARD,

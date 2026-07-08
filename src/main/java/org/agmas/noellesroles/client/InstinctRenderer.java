@@ -449,7 +449,7 @@ public class InstinctRenderer {
             if (!SREClient.gameComponent.isRole(self, SERoles.ARSONIST)) {
                 return TrueFalseAndCustomResult.pass();
             }
-            if (!SREClient.isInstinctEnabled()) {
+            if (!hasInstinct) {
                 return TrueFalseAndCustomResult.pass();
             }
 

@@ -78,7 +78,7 @@ public class MapScannerManager {
     public static Gson gson = new Gson();
 
     public static void loadOrScanAndSaveScannerArea(ServerLevel serverWorld, AreasWorldComponent areas) {
-        if (areas.noReset) {
+        if (areas.areasSettings.noReset) {
             SRE.LOGGER.info("No need to scan: no reset flag found. " + areas.toString());
             return;
         }
@@ -90,7 +90,7 @@ public class MapScannerManager {
     }
 
     public static void scanAndSaveScannerArea(ServerLevel serverWorld, AreasWorldComponent areas) {
-        if (areas.noReset) {
+        if (areas.areasSettings.noReset) {
             SRE.LOGGER.info("No need to scan: no reset flag found. " + areas.toString());
             return;
         }

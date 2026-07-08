@@ -12,7 +12,6 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -26,8 +25,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class RoleArgumentType implements ArgumentType<SRERole> {
-    public static final DynamicCommandExceptionType ROLE_EMPTY = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.role.notfound", input));
-    public static final DynamicCommandExceptionType ROLE_MULTIPLE = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.role.found-multiple", input));
+    public static final DynamicCommandExceptionType ROLE_EMPTY = new DynamicCommandExceptionType(
+            input -> Component.translatable("argument.harpymodloader.role.notfound", input));
+    public static final DynamicCommandExceptionType ROLE_MULTIPLE = new DynamicCommandExceptionType(
+            input -> Component.translatable("argument.harpymodloader.role.found-multiple", input));
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
 
     private final boolean skipVanilla;
@@ -79,13 +80,20 @@ public class RoleArgumentType implements ArgumentType<SRERole> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-        return SharedSuggestionProvider.suggestResource(
-                TMMRoles.ROLES.values().stream().filter(role -> !skipVanilla || !Harpymodloader.VANNILA_ROLES.contains(role)),
-                builder,
-                SRERole::identifier,
-                Harpymodloader::getRoleName
-        );
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context,
+            final SuggestionsBuilder builder) {
+        final String remaining = builder.getRemainingLowerCase();
+        for (var role : TMMRoles.ROLES.values()) {
+            if (role == null)
+                continue;
+            if (skipVanilla)
+                if (Harpymodloader.VANNILA_ROLES.contains(role))
+                    continue;
+            if (remaining.isEmpty() || role.identifier().getPath().startsWith(remaining)) {
+                builder.suggest(role.identifier().toString(), role.getDisplayName());
+            }
+        }
+        return builder.buildFuture();
     }
 
     @Override

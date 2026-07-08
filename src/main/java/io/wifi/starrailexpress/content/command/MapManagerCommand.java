@@ -131,11 +131,7 @@ public class MapManagerCommand {
                   areas.disabledRoles = new HashSet<>();
                   areas.enableSceneTask = new HashSet<>();
                   areas.mapName = "new_area";
-                  areas.mustCopy = false;
-                  areas.noReset = false;
                   io.wifi.starrailexpress.scenery.server.SceneLibrary.clearScene(areas);
-                  areas.effect = new java.util.ArrayList<>();
-                  areas.minigameQuestEnabled = false;
                   areas.sync();
                   ctx.getSource().sendSuccess(
                       () -> Component.literal("Created new area configuration")
@@ -154,15 +150,11 @@ public class MapManagerCommand {
                 .then(setPlayAreaOffset())
                 .then(setRoomCount())
                 .then(setRoomPositions())
-                .then(setNoReset())
-                .then(setMustCopy())
                 .then(setMapName())
                 .then(setDisabledTasks())
                 .then(setDisabledRoles())
                 .then(setDisabledModifiers())
                 .then(setEnableSceneTask())
-                .then(setEffect())
-                .then(setMinigameQuestEnabled())
                 .then(setInitialItems()))
             .then(Commands.literal("get")
                 .requires(source -> source.hasPermission(2))
@@ -176,17 +168,13 @@ public class MapManagerCommand {
                 .then(getPlayAreaOffset())
                 .then(getRoomCount())
                 .then(getRoomPositions())
-                .then(buildGetSimple("noReset", a -> String.valueOf(a.noReset)))
-                .then(buildGetSimple("mustCopy", a -> String.valueOf(a.mustCopy)))
-                .then(buildGetSimple("effect", a -> a.effect.isEmpty() ? "(none)" : String.join(", ", a.effect)))
-                .then(buildGetSimple("minigameQuestEnabled", a -> String.valueOf(a.minigameQuestEnabled)))
                 .then(buildGetSimple("initialItems",
                     a -> a.initialItems.isEmpty() ? "(none)" : String.join(", ", a.initialItems)))
                 .then(getDisabledTasks())
                 .then(getDisabledRoles())
                 .then(getDisabledModifiers())
                 .then(getEnableSceneTask()))
-                .then(buildGetSimple("mapName", a -> "\"" + a.mapName + "\""))
+            .then(buildGetSimple("mapName", a -> "\"" + a.mapName + "\""))
             .then(Commands.literal("remove")
                 .requires(source -> source.hasPermission(3))
                 .then(Commands.argument("mapName", MapLoadArgumentType.string())
@@ -373,23 +361,6 @@ public class MapManagerCommand {
     }
   }
 
-  private static void setNoReset(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.noReset = value;
-    areas.sync();
-    sendSetFeedback(source, "noReset", String.valueOf(value));
-  }
-
-
-
-  private static void setMustCopy(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.mustCopy = value;
-    areas.sync();
-    sendSetFeedback(source, "mustCopy", String.valueOf(value));
-  }
-
-
   // 8. mapName
   private static void setMapName(CommandSourceStack source, String name) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
@@ -456,27 +427,6 @@ public class MapManagerCommand {
     }
   }
 
-  // 12. effect
-  private static void setEffect(CommandSourceStack source, String value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.effect = new java.util.ArrayList<>();
-    if (!value.isEmpty()) {
-      // 支持逗号分隔的多个效果，如 "minecraft:speed,2,minecraft:jump_boost,1"
-      // 这里简单地把整个 value 当作单个效果
-      areas.effect.add(value);
-    }
-    areas.sync();
-    sendSetFeedback(source, "effect", "\"" + value + "\"");
-  }
-
-  // 15b. minigameQuestEnabled
-  private static void setMinigameQuestEnabled(CommandSourceStack source, boolean value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.minigameQuestEnabled = value;
-    areas.sync();
-    sendSetFeedback(source, "minigameQuestEnabled", String.valueOf(value));
-  }
-
   // 16. initialItems
   private static void setInitialItems(CommandSourceStack source, String value) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
@@ -502,7 +452,7 @@ public class MapManagerCommand {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
     StringBuilder sb = new StringBuilder();
     sb.append("\n=== 当前区域配置 ===\n");
-    sb.append("AreasSettings: ").append(MapManagerSettingsCommand.GSON.toJson(areas.getSpawnPos())).append("\n");
+    sb.append("AreasSettings: ").append(MapManagerSettingsCommand.GSON.toJson(areas.areasSettings)).append("\n");
     sb.append("spawnPos: ").append(formatPosWithOrientation(areas.getSpawnPos())).append("\n");
     sb.append("spectatorSpawnPos: ").append(formatPosWithOrientation(areas.getSpectatorSpawnPos())).append("\n");
     sb.append("readyArea: ").append(formatAABB(areas.getReadyArea())).append("\n");
@@ -513,11 +463,8 @@ public class MapManagerCommand {
     sb.append("playAreaOffset: ").append(formatVec3(areas.getPlayAreaOffset())).append("\n");
     sb.append("roomCount: ").append(areas.getRoomCount()).append("\n");
     sb.append("roomPositions: ").append(formatRoomPositions(areas.getRoomPositions())).append("\n");
-    sb.append("noReset: ").append(areas.noReset).append("\n");
-    sb.append("mustCopy: ").append(areas.mustCopy).append("\n");
     sb.append("mapName: \"").append(areas.mapName).append("\"\n");
-    sb.append("effect: ").append(areas.effect.isEmpty() ? "(none)" : String.join(", ", areas.effect)).append("\n");
-    sb.append("minigameQuestEnabled: ").append(areas.minigameQuestEnabled).append("\n");
+
     sb.append("initialItems: ").append(areas.initialItems.isEmpty() ? "(none)" : String.join(", ", areas.initialItems))
         .append("\n");
     sb.append("disabledTasks: ").append(formatDisabledTasks(areas.disabledTasks)).append("\n");
@@ -751,25 +698,6 @@ public class MapManagerCommand {
                 })));
   }
 
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setEffect() {
-    return Commands.literal("effect")
-        .then(Commands.argument("value", StringArgumentType.string())
-            .executes(ctx -> {
-              setEffect(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
-              return 1;
-            }));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setMinigameQuestEnabled() {
-    return Commands.literal("minigameQuestEnabled")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setMinigameQuestEnabled(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
   private static LiteralArgumentBuilder<CommandSourceStack> setInitialItems() {
     return Commands.literal("initialItems")
         .then(Commands.argument("value", StringArgumentType.string())
@@ -845,25 +773,6 @@ public class MapManagerCommand {
                   removeRoomPosition(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "roomId"));
                   return 1;
                 })));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setNoReset() {
-    return Commands.literal("noReset")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setNoReset(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
-  }
-
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setMustCopy() {
-    return Commands.literal("mustCopy")
-        .then(Commands.argument("value", BoolArgumentType.bool())
-            .executes(ctx -> {
-              setMustCopy(ctx.getSource(), BoolArgumentType.getBool(ctx, "value"));
-              return 1;
-            }));
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setMapName() {

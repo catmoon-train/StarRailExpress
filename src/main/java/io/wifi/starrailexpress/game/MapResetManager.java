@@ -70,7 +70,7 @@ public class MapResetManager {
     public static void scanArea(ServerLevel serverWorld, AreasWorldComponent areas) {
         GameUtils.resetPoints.clear();
 
-        if (areas.noReset) {
+        if (areas.areasSettings.noReset) {
             SRE.LOGGER.info("No nedd to scan: no reset flag found. " + areas.toString());
             return;
         }

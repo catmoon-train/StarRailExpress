@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.api.RolePassive;
 import io.wifi.starrailexpress.api.RoleSkill;
 import net.minecraft.core.HolderLookup;
@@ -351,10 +352,7 @@ public class SREAbilityPlayerComponent
         if (player instanceof ServerPlayer serverPlayer) {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.isRunning()) {
-                var role = gameWorldComponent.getRole(player);
-                if (role != null) {
-                    role.serverGameTickEvent(serverPlayer, gameWorldComponent);
-                }
+                RoleMethodDispatcher.callServerTick(serverPlayer, gameWorldComponent);
             }
             var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
             RolePassive.tick(serverPlayer, role);
