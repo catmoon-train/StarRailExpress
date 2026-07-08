@@ -51,7 +51,7 @@ public class SettingMenuScreen extends Screen {
         this.parent = parent;
     }
 
-    static int WIDTH_BUTTON_WIDTH = 204;
+    static int WIDE_BUTTON_WIDTH = 204;
     static int SMALL_BUTTON_WIDTH = 204;
     static final int BUTTON_HEIGHT = 20;
     static final int MARGIN = 4;
@@ -101,12 +101,15 @@ public class SettingMenuScreen extends Screen {
         rowHelper.addChild(
                 Button.builder(Component.translatable("screen.starrailexpress.settings.introduction"), (button) -> {
                     this.minecraft.setScreen(new RoleIntroduceScreen(this));
-                }).width(WIDTH_BUTTON_WIDTH).build(), COLUMN_COUNT, gridLayout.newCellSettings().paddingTop(50));
+                }).width(WIDE_BUTTON_WIDTH).build(), COLUMN_COUNT, gridLayout.newCellSettings().paddingTop(50));
 
         rowHelper.addChild(
                 this.openScreenButton(Component.translatable("screen.starrailexpress.settings.client"),
                         () -> (SREClientConfig.HANDLER.generateGui().generateScreen(this))));
 
+        rowHelper.addChild(
+                this.openScreenButton(Component.translatable("screen.starrailexpress.client_utils"),
+                        () -> (new ClientUtilScreen(this))));
         // 列车设置
         {
             Button btn = this.openScreenButton(Component.translatable("screen.starrailexpress.settings.tmm"),
@@ -193,12 +196,12 @@ public class SettingMenuScreen extends Screen {
             rowHelper.addChild(
                     Button.builder(Component.translatable("screen.starrailexpress.settings.backpausing"), (button) -> {
                         SREClientUtils.setScreenIgnoreMixins(this.minecraft, new PauseScreen(true));
-                    }).width(WIDTH_BUTTON_WIDTH).build(), COLUMN_COUNT);
+                    }).width(SMALL_BUTTON_WIDTH).build());
         }
         // 返回
         rowHelper.addChild(Button.builder(Component.translatable("gui.back"), (button) -> {
             this.minecraft.setScreen((Screen) parent);
-        }).width(WIDTH_BUTTON_WIDTH).build(), COLUMN_COUNT);
+        }).width(WIDE_BUTTON_WIDTH).build(), COLUMN_COUNT);
         // gridLayout.newCellSettings().paddingTop(50)
         gridLayout.arrangeElements();
         FrameLayout.alignInRectangle(gridLayout, 0, 0, this.width, this.height, 0.5F, 0.25F);
