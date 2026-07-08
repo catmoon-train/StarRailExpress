@@ -1417,9 +1417,20 @@ public class RoleShopHandler {
             });
             // 关灯 - 使用配置价格
             WARLOCK_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                    ShopEntry.Type.TOOL));
+                    ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    return SREPlayerShopComponent.useBlackout(player);
+                }
+            });
             // 监控失灵 - 60金币
-            WARLOCK_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
+            WARLOCK_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 60, ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    return SREPlayerShopComponent.useMonitorBroken(player,
+                            SREConfig.instance().monitorBrokenDuration * 20);
+                }
+            });
         }
 
         // ==================== 嬉命人商店 ====================

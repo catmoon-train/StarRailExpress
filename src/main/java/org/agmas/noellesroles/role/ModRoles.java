@@ -2396,7 +2396,7 @@ public class ModRoles {
             true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY))
             .setCanUseKiller(true).setCanSeeTeammateKiller(true).setCanBeRandomedByOtherRoles(false)
-            .setDefaultMax(0)
+            .setDefaultMax(1)
             .setCanUseInstinct(true).setCanSeeCoin(true);
 
     // ==================== 嬉命人（Embalmer）====================
