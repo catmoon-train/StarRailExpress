@@ -27,6 +27,15 @@ import net.minecraft.world.phys.Vec3;
  *  &#64;Category(value = "分类id")
  * </pre>
  * 
+ * <h3>记得写翻译键</h3>
+ * 位置：{@code starrailexpress:lang/zh_cn.json}<br/>
+ * 从 {@code "=== 地图设置开始 ===":""}，后面开始写，直到 {@code "== 地图设置末尾 END ==": ""}<br/>
+ * field的翻译：{@code "sre.map_helper.settings." + field名称}<br/>
+ * 分类的翻译：{@code "sre.map_helper.settings.category." + 分类名称}<br/>
+ * 如果有注释（可选）则写：{@code "sre.map_helper.settings." + field名称 + ".tooltip"}<br/>
+ * 枚举（Enum）则写：{@code "sre.map_helper.settings." + field名称 + "." + enum.name()}<br/>
+ * Enum的注释（可选）则写{@code "sre.map_helper.settings." + field名称 + "." + enum.name() + ".tooltip"}
+ * 
  */
 
 public class AreasSettings {
