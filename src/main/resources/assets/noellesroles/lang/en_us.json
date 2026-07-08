@@ -2937,6 +2937,7 @@
   "hud.noellesroles.repair.route.main_gate": "Manor Main Gate",
   "hud.noellesroles.repair.route.secret_tunnel": "Old-Key Secret Tunnel",
   "hud.noellesroles.repair.route.service_lift": "Service Lift",
+  "hud.noellesroles.repair.route.crypt_tunnel": "Crypt Tunnel",
   "hud.noellesroles.repair.route.boiler_pipe": "Boiler Pipe Exit",
   "message.noellesroles.repair.trial_broadcast_25": "TRIAL: %s is being judged... 75%% remaining (%ss left)",
   "message.noellesroles.repair.trial_broadcast_50": "TRIAL: %s is halfway through judgment! 50%% (%ss left)",

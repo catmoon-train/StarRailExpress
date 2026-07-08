@@ -66,14 +66,15 @@ public final class RepairLootSpawner {
                 break;
             }
             int[] offset = offsets.get(index++);
-            entries.put(base.offset(offset[0], 1, offset[1]), Reward.item(stack));
+            entries.put(base.offset(offset[0], offset[1], offset[2]), Reward.item(stack));
         }
         while (index < offsets.size()) {
             int[] offset = offsets.get(index++);
-            entries.put(base.offset(offset[0], 1, offset[1]), randomDefaultReward(level));
+            entries.put(base.offset(offset[0], offset[1], offset[2]), randomDefaultReward(level));
         }
-        entries.put(base.offset(22, 7, 50), Reward.item(new ItemStack(random(level, ModItems.REPAIR_LOCKPICK,
-                ModItems.REPAIR_TOOLBOX, ModItems.REPAIR_MEDKIT))));
+        // 地穴深处的额外好货：进得去锁着的门就有回报
+        entries.put(base.offset(10, -2, 64), Reward.item(new ItemStack(random(level, ModItems.REPAIR_LOCKPICK,
+                ModItems.CRUCIFIX, ModItems.REPAIR_MEDKIT))));
     }
 
     public static Reward take(ServerLevel level, BlockPos pos) {

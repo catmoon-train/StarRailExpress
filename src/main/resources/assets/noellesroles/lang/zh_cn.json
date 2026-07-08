@@ -3010,6 +3010,7 @@
   "hud.noellesroles.repair.route.main_gate": "庄园主门",
   "hud.noellesroles.repair.route.secret_tunnel": "旧钥匙密道",
   "hud.noellesroles.repair.route.service_lift": "维修升降机",
+  "hud.noellesroles.repair.route.crypt_tunnel": "墓穴密道",
   "hud.noellesroles.repair.route.boiler_pipe": "锅炉管道出口",
   "message.noellesroles.repair.trial_broadcast_25": "【审判】%s 正在被审判... 剩余75%% (%s秒)",
   "message.noellesroles.repair.trial_broadcast_50": "【审判】%s 审判过半！剩余50%% (%s秒)",

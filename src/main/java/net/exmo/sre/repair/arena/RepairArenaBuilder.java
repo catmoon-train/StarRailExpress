@@ -7,7 +7,6 @@ import net.exmo.sre.repair.event.*;
 import net.exmo.sre.repair.util.*;
 
 import io.wifi.starrailexpress.game.data.MapConfig;
-import io.wifi.starrailexpress.index.TMMBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -21,7 +20,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LanternBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.Heightmap;
 import org.agmas.noellesroles.init.ModBlocks;
 
 import java.util.*;
@@ -113,17 +111,10 @@ public final class RepairArenaBuilder {
     public static void teleportToDefaultGameplaySpawn(ServerPlayer player, boolean hunter, int index) {
         ServerLevel level = player.serverLevel();
         BlockPos base = defaultMansionBase(level);
-        int[][] hunterSpawns = {
-                { 22, 1, 28 }, { 20, 1, 32 }, { 24, 1, 32 }, { 22, 1, 36 }
-        };
-        int[][] survivorSpawns = {
-                { 18, 1, 24 }, { 22, 1, 24 }, { 26, 1, 24 }, { 18, 1, 34 },
-                { 22, 1, 34 }, { 26, 1, 34 }, { 20, 1, 40 }, { 24, 1, 40 }
-        };
-        int[] offset = hunter
-                ? hunterSpawns[Math.floorMod(index, hunterSpawns.length)]
-                : survivorSpawns[Math.floorMod(index, survivorSpawns.length)];
+        int[][] spawns = hunter ? RepairManorScene.hunterSpawns() : RepairManorScene.survivorSpawns();
+        int[] offset = spawns[Math.floorMod(index, spawns.length)];
         BlockPos pos = base.offset(offset[0], offset[1], offset[2]);
+        // 追捕者在墓地面向庄园（-Z），幸存者在庄园南侧面向大厅（+Z）
         float yaw = hunter ? 180.0F : 0.0F;
         player.teleportTo(level, pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, yaw, 0.0F);
     }
@@ -213,250 +204,22 @@ public final class RepairArenaBuilder {
         }
     }
 
+    static List<int[]> defaultLootOffsets() {
+        return RepairManorScene.lootOffsets();
+    }
+
     public static BlockPos defaultMansionBase(ServerLevel level) {
         return DEFAULT_MANSION_BASE;
     }
 
     private static void buildDefaultMansionTemplate(ServerLevel level, ArenaState state) {
-        BlockPos base = defaultMansionBase(level);
-
-        clearGameplayVolume(level, state, base.offset(-6, 0, -6), base.offset(50, 11, 62));
-
-        // Region-based mansion footprint: foyer/courtyard south, kitchen/storage and study middle,
-        // bedroom/infirmary and workshop/power north, plus basement boiler and attic storage landmarks.
-        for (int x = 0; x <= 44; x++) {
-            for (int z = 0; z <= 56; z++) {
-                placeGameplay(level, state, base.offset(x, 0, z), checker(x, z));
-                for (int y = 1; y <= 5; y++) {
-                    boolean outer = x == 0 || x == 44 || z == 0 || z == 56;
-                    boolean verticalWall = (x == 14 || x == 28) && z > 0 && z < 56;
-                    boolean horizontalWall = (z == 14 || z == 30 || z == 44) && x > 0 && x < 44;
-                    placeGameplay(level, state, base.offset(x, y, z),
-                            outer || verticalWall || horizontalWall
-                                    ? Blocks.DARK_OAK_PLANKS.defaultBlockState()
-                                    : Blocks.AIR.defaultBlockState());
-                }
-                placeGameplay(level, state, base.offset(x, 6, z), Blocks.SPRUCE_SLAB.defaultBlockState());
-            }
-        }
-
-        // External routes: main gate, secret tunnel, repair lift, boiler pipe, and courtyard branch gaps.
-        clearPassage(level, state, base.offset(21, 1, 56), true, 5);
-        clearPassage(level, state, base.offset(0, 1, 22), false, 3);
-        clearPassage(level, state, base.offset(44, 1, 22), false, 3);
-        clearPassage(level, state, base.offset(21, 1, 0), true, 3);
-
-        // Doorways are always carved through a real wall segment and leave wall blocks on both sides.
-        doorway(level, state, base, 14, 8, false, false);  // 改为木门
-        doorway(level, state, base, 28, 8, false, false);  // 改为木门
-        doorway(level, state, base, 14, 22, false, false); // 改为木门
-        doorway(level, state, base, 28, 22, false, false); // 改为木门
-        doorway(level, state, base, 14, 38, false, true);  // 保留1个铁门
-        doorway(level, state, base, 28, 38, false, false); // 改为木门
-        doorway(level, state, base, 10, 14, true, false);
-        doorway(level, state, base, 22, 14, true, false);
-        doorway(level, state, base, 34, 14, true, false);
-        doorway(level, state, base, 10, 30, true, false);
-        doorway(level, state, base, 22, 30, true, false);
-        doorway(level, state, base, 34, 30, true, false);
-        doorway(level, state, base, 10, 44, true, false);
-        doorway(level, state, base, 22, 44, true, false); // 改为木门
-        doorway(level, state, base, 34, 44, true, false); // 改为木门
-
-        // Break the grid feeling with readable room features and a few chase loops.
-        placeRoomDetails(level, state, base);
-
-        int[][] stations = { { 7, 8 }, { 36, 8 }, { 7, 36 }, { 36, 36 }, { 22, 49 } };
-        for (int[] offset : stations) {
-            BlockPos pos = base.offset(offset[0], 1, offset[1]);
-            placeGameplay(level, state, pos, ModBlocks.REPAIR_STATION.defaultBlockState());
-            placeGameplay(level, state, pos.above(), Blocks.CHAIN.defaultBlockState());
-        }
-
-        int[][] cages = { { 22, 8 }, { 6, 49 }, { 38, 49 }, { 22, 24 } };
-        for (int[] offset : cages) {
-            BlockPos pos = base.offset(offset[0], 1, offset[1]);
-            placeGameplay(level, state, pos, ModBlocks.HUNTER_CAGE.defaultBlockState());
-            for (BlockPos bars : List.of(pos.north(), pos.south(), pos.east(), pos.west())) {
-                placeGameplay(level, state, bars, Blocks.IRON_BARS.defaultBlockState());
-            }
-        }
-
-        for (int[] offset : defaultLootOffsets()) {
-            placeGameplay(level, state, base.offset(offset[0], 1, offset[1]), ModBlocks.HOTBAR_STORAGE.defaultBlockState());
-        }
-
-        for (int[] offset : new int[][] { { 12, 7 }, { 30, 7 }, { 12, 23 }, { 30, 23 }, { 12, 39 }, { 30, 39 },
-                { 20, 35 }, { 24, 35 } }) {
-            placeGameplay(level, state, base.offset(offset[0], 1, offset[1]), ModBlocks.REPAIR_PALLET.defaultBlockState());
-        }
-
-        placeGameplay(level, state, base.offset(22, 0, 56), ModBlocks.REPAIR_EXIT_GATE.defaultBlockState());
-        placeGameplay(level, state, base.offset(43, 0, 22), ModBlocks.REPAIR_EXIT_GATE.defaultBlockState());
-
-
-        // Basement/boiler and attic markers without requiring schema changes.
-        for (int x = 18; x <= 26; x++) {
-            for (int z = 18; z <= 26; z++) {
-                placeGameplay(level, state, base.offset(x, -5, z), Blocks.STONE_BRICKS.defaultBlockState());
-                for (int y = -4; y <= -1; y++) {
-                    boolean wall = x == 18 || x == 26 || z == 18 || z == 26;
-                    placeGameplay(level, state, base.offset(x, y, z), wall ? Blocks.DEEPSLATE_BRICKS.defaultBlockState() : Blocks.AIR.defaultBlockState());
-                }
-            }
-        }
-        placeGameplay(level, state, base.offset(22, -4, 22), Blocks.BLAST_FURNACE.defaultBlockState());
-        placeGameplay(level, state, base.offset(22, 7, 50), ModBlocks.HOTBAR_STORAGE.defaultBlockState());
-        placeGameplay(level, state, base.offset(21, 6, 50), Blocks.LADDER.defaultBlockState());
-
-        buildCourtyard(level, state, base);
-
-        for (int x = 5; x <= 39; x += 8) {
-            for (int z = 6; z <= 50; z += 10) {
-                placeGameplay(level, state, base.offset(x, 5, z),
-                        Blocks.LANTERN.defaultBlockState().setValue(LanternBlock.HANGING, true));
-            }
-        }
-        for (int[] light : new int[][] { { 7, 4, 7 }, { 22, 4, 8 }, { 36, 4, 8 }, { 7, 4, 22 },
-                { 22, 4, 22 }, { 36, 4, 22 }, { 7, 4, 36 }, { 22, 4, 36 }, { 36, 4, 36 },
-                { 7, 4, 49 }, { 22, 4, 49 }, { 36, 4, 49 } }) {
-            placeGameplay(level, state, base.offset(light[0], light[1], light[2]),
-                    Blocks.SOUL_LANTERN.defaultBlockState().setValue(LanternBlock.HANGING, true));
-        }
+        RepairManorScene.build((pos, blockState) -> placeGameplay(level, state, pos, blockState),
+                defaultMansionBase(level));
     }
 
-    static List<int[]> defaultLootOffsets() {
-        return List.of(new int[] { 5, 6 }, new int[] { 12, 11 }, new int[] { 21, 8 },
-                new int[] { 32, 6 }, new int[] { 39, 11 }, new int[] { 5, 20 }, new int[] { 21, 20 },
-                new int[] { 39, 20 }, new int[] { 5, 28 }, new int[] { 21, 28 }, new int[] { 39, 28 },
-                new int[] { 5, 38 }, new int[] { 21, 38 }, new int[] { 39, 38 }, new int[] { 8, 50 },
-                new int[] { 22, 50 }, new int[] { 36, 50 }, new int[] { 22, 7 }, new int[] { 10, 6 },
-                new int[] { 34, 6 }, new int[] { 10, 22 }, new int[] { 34, 22 }, new int[] { 10, 36 },
-                new int[] { 34, 36 }, new int[] { 12, 50 }, new int[] { 32, 50 });
-    }
 
-    private static void doorway(ServerLevel level, ArenaState state, BlockPos base, int x, int z, boolean northSouthWall) {
-        doorway(level, state, base, x, z, northSouthWall, true);
-    }
 
-    private static void doorway(ServerLevel level, ArenaState state, BlockPos base, int x, int z,
-            boolean northSouthWall, boolean ironDoor) {
-        BlockPos lower = base.offset(x, 1, z);
-        clearDoorSpace(level, state, lower, northSouthWall);
-        BlockState door = (ironDoor ? Blocks.IRON_DOOR : TMMBlocks.SMALL_WOOD_DOOR).defaultBlockState();
-        if (northSouthWall) {
-            door = door.setValue(net.minecraft.world.level.block.DoorBlock.FACING, net.minecraft.core.Direction.SOUTH);
-            placeGameplay(level, state, lower.west(), Blocks.DARK_OAK_PLANKS.defaultBlockState());
-            placeGameplay(level, state, lower.east(), Blocks.DARK_OAK_PLANKS.defaultBlockState());
-        } else {
-            door = door.setValue(net.minecraft.world.level.block.DoorBlock.FACING, net.minecraft.core.Direction.EAST);
-            placeGameplay(level, state, lower.north(), Blocks.DARK_OAK_PLANKS.defaultBlockState());
-            placeGameplay(level, state, lower.south(), Blocks.DARK_OAK_PLANKS.defaultBlockState());
-        }
-        placeGameplay(level, state, lower, door);
-        placeGameplay(level, state, lower.above(), door.setValue(net.minecraft.world.level.block.DoorBlock.HALF,
-                net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER));
-        placeGameplay(level, state, lower.above(2), Blocks.AIR.defaultBlockState());
-    }
 
-    private static void clearDoorSpace(ServerLevel level, ArenaState state, BlockPos lower, boolean northSouthWall) {
-        List<BlockPos> spaces = northSouthWall
-                ? List.of(lower.north(), lower.north().above(), lower.south(), lower.south().above())
-                : List.of(lower.west(), lower.west().above(), lower.east(), lower.east().above());
-        for (BlockPos pos : spaces) {
-            placeGameplay(level, state, pos, Blocks.AIR.defaultBlockState());
-        }
-    }
-
-    private static void clearPassage(ServerLevel level, ArenaState state, BlockPos center, boolean alongX, int width) {
-        int radius = width / 2;
-        for (int i = -radius; i <= radius; i++) {
-            for (int y = 1; y <= 3; y++) {
-                placeGameplay(level, state, alongX ? center.offset(i, y - 1, 0) : center.offset(0, y - 1, i),
-                        Blocks.AIR.defaultBlockState());
-            }
-        }
-    }
-
-    private static void clearGameplayVolume(ServerLevel level, ArenaState state, BlockPos min, BlockPos max) {
-        for (int x = min.getX(); x <= max.getX(); x++) {
-            for (int z = min.getZ(); z <= max.getZ(); z++) {
-                for (int y = min.getY(); y <= max.getY(); y++) {
-                    placeGameplay(level, state, new BlockPos(x, y, z), Blocks.AIR.defaultBlockState());
-                }
-            }
-        }
-    }
-
-    private static void placeRoomDetails(ServerLevel level, ArenaState state, BlockPos base) {
-        // Kitchen and storage.
-        for (int z = 4; z <= 11; z += 2) {
-            placeGameplay(level, state, base.offset(3, 1, z), Blocks.BLAST_FURNACE.defaultBlockState());
-            placeGameplay(level, state, base.offset(11, 1, z), Blocks.BARREL.defaultBlockState());
-        }
-        for (int x = 5; x <= 10; x++) {
-            placeGameplay(level, state, base.offset(x, 1, 10), Blocks.SPRUCE_SLAB.defaultBlockState());
-        }
-
-        // Study shelves form cover without sealing the route.
-        for (int z = 5; z <= 25; z += 5) {
-            placeGameplay(level, state, base.offset(31, 1, z), Blocks.BOOKSHELF.defaultBlockState());
-            placeGameplay(level, state, base.offset(40, 1, z), Blocks.BOOKSHELF.defaultBlockState());
-            placeGameplay(level, state, base.offset(31, 2, z), Blocks.BOOKSHELF.defaultBlockState());
-            placeGameplay(level, state, base.offset(40, 2, z), Blocks.BOOKSHELF.defaultBlockState());
-        }
-        placeGameplay(level, state, base.offset(36, 1, 11), Blocks.CRAFTING_TABLE.defaultBlockState());
-        placeGameplay(level, state, base.offset(37, 1, 11), Blocks.DARK_OAK_STAIRS.defaultBlockState());
-
-        // Infirmary and sleeping area.
-        placeGameplay(level, state, base.offset(5, 1, 34), Blocks.RED_BED.defaultBlockState());
-        placeGameplay(level, state, base.offset(10, 1, 34), Blocks.WHITE_BED.defaultBlockState());
-        placeGameplay(level, state, base.offset(5, 1, 42), Blocks.WATER_CAULDRON.defaultBlockState());
-        placeGameplay(level, state, base.offset(10, 1, 42), Blocks.BARREL.defaultBlockState());
-
-        // Workshop and power room.
-        placeGameplay(level, state, base.offset(33, 1, 35), Blocks.SMITHING_TABLE.defaultBlockState());
-        placeGameplay(level, state, base.offset(38, 1, 35), Blocks.ANVIL.defaultBlockState());
-        placeGameplay(level, state, base.offset(33, 1, 41), Blocks.COPPER_BLOCK.defaultBlockState());
-        placeGameplay(level, state, base.offset(38, 1, 41), Blocks.LIGHTNING_ROD.defaultBlockState());
-
-        // Central hall landmarks.
-        for (int x = 19; x <= 25; x++) {
-            placeGameplay(level, state, base.offset(x, 1, 27), Blocks.DARK_OAK_SLAB.defaultBlockState());
-        }
-        placeGameplay(level, state, base.offset(22, 2, 27), Blocks.SOUL_LANTERN.defaultBlockState());
-        placeGameplay(level, state, base.offset(20, 1, 33), Blocks.FLOWER_POT.defaultBlockState());
-        placeGameplay(level, state, base.offset(24, 1, 33), Blocks.FLOWER_POT.defaultBlockState());
-    }
-
-    private static void buildCourtyard(ServerLevel level, ArenaState state, BlockPos base) {
-        for (int x = -5; x <= 49; x++) {
-            for (int z = -5; z <= 61; z++) {
-                if (x >= 0 && x <= 44 && z >= 0 && z <= 56) {
-                    continue;
-                }
-                placeGameplay(level, state, base.offset(x, 0, z), Blocks.GRAVEL.defaultBlockState());
-            }
-        }
-        for (int x = -5; x <= 49; x++) {
-            placeGameplay(level, state, base.offset(x, 1, -5), Blocks.OAK_LEAVES.defaultBlockState());
-            placeGameplay(level, state, base.offset(x, 1, 61), Blocks.OAK_LEAVES.defaultBlockState());
-        }
-        for (int z = -4; z <= 60; z++) {
-            placeGameplay(level, state, base.offset(-5, 1, z), Blocks.OAK_LEAVES.defaultBlockState());
-            placeGameplay(level, state, base.offset(49, 1, z), Blocks.OAK_LEAVES.defaultBlockState());
-        }
-        clearPassage(level, state, base.offset(22, 1, 61), true, 5);
-        clearPassage(level, state, base.offset(-5, 1, 22), false, 3);
-        clearPassage(level, state, base.offset(49, 1, 22), false, 3);
-        clearPassage(level, state, base.offset(22, 1, -5), true, 3);
-        placeGameplay(level, state, base.offset(12, 1, -3), Blocks.SPRUCE_STAIRS.defaultBlockState());
-        placeGameplay(level, state, base.offset(13, 1, -3), Blocks.SPRUCE_SLAB.defaultBlockState());
-        placeGameplay(level, state, base.offset(14, 1, -3), Blocks.SPRUCE_STAIRS.defaultBlockState());
-        placeGameplay(level, state, base.offset(31, 1, 59), Blocks.SPRUCE_STAIRS.defaultBlockState());
-        placeGameplay(level, state, base.offset(32, 1, 59), Blocks.SPRUCE_SLAB.defaultBlockState());
-        placeGameplay(level, state, base.offset(33, 1, 59), Blocks.SPRUCE_STAIRS.defaultBlockState());
-    }
 
     private static void buildConfiguredGameplay(ServerLevel level, ArenaState state, MapConfig.RepairConfig config) {
         for (MapConfig.CloneEntry clone : config.cloneEntries) {
@@ -509,21 +272,7 @@ public final class RepairArenaBuilder {
         }
     }
 
-    private static void ruinCluster(ServerLevel level, ArenaState state, BlockPos origin, int side) {
-        for (int i = 1; i <= 3; i++) {
-            BlockPos p = origin.offset(side * (2 + i), 0, i - 2);
-            placeGameplay(level, state, p, Blocks.CRACKED_STONE_BRICKS.defaultBlockState());
-            if (i % 2 == 0) {
-                placeGameplay(level, state, p.above(), Blocks.STONE_BRICKS.defaultBlockState());
-            }
-        }
-        placeGameplay(level, state, origin.offset(side * 2, 0, -2), Blocks.LANTERN.defaultBlockState());
-    }
 
-    private static BlockPos surface(ServerLevel level, int x, int z) {
-        int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-        return new BlockPos(x, y, z);
-    }
 
     private static void placeSelection(ServerLevel level, ArenaState state, BlockPos pos, BlockState blockState) {
         snapshot(level, state.selectionBlocks, pos);

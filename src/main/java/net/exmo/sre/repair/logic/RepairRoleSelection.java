@@ -140,10 +140,9 @@ public class RepairRoleSelection {
     private static void giveModeItems(ServerPlayer player, RepairRoleDefinition.Faction faction, RandomSource random) {
         switch (faction) {
             case HUNTER -> {
-                // 追捕者初始获得基础利刃和开门钥匙，避免出生房间被铁门卡住。
+                // 追捕者初始获得基础利刃；新庄园场景主通道无锁，不再需要开门钥匙
                 player.addItem(new ItemStack(ModItems.HUNTER_WEAPON));
-                player.addItem(new ItemStack(ModItems.REPAIR_OLD_KEY));
-                // 追捕者开局12s缓慢5
+                // 追捕者开局12s缓慢5，给幸存者散开的时间
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 12 * 20, 5, false, false, true));
             }
             case NEUTRAL -> {

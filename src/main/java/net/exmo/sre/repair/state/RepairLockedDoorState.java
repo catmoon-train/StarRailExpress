@@ -49,31 +49,27 @@ public final class RepairLockedDoorState {
         ROUTES.put(level, routes);
     }
 
+    /**
+     * 默认庄园+墓地场景的锁与逃生路线（与 RepairManorScene 的坐标一一对应）。
+     * 锁只放在捷径上，主通道全部是无门拱廊 —— 幸存者不会再被锁死在房间里。
+     * 两座出口大门由 RepairExitGateBlock 自己处理（修满机器后可开），不注册为路线。
+     */
     private static void prepareDefaultMansionLocks(ServerLevel level, Map<BlockPos, DoorLock> locks,
             Map<String, EscapeRoute> routes) {
         BlockPos base = RepairArenaBuilder.defaultMansionBase(level);
-        int lockIndex = 0;
-        for (int[] offset : new int[][] { { 14, 8 }, { 28, 8 }, { 14, 22 }, { 28, 22 }, { 14, 38 }, { 28, 38 },
-                { 10, 14 }, { 22, 14 }, { 34, 14 }, { 10, 30 }, { 22, 30 }, { 34, 30 }, { 10, 44 },
-                { 22, 44 }, { 34, 44 } }) {
-            BlockPos pos = base.offset(offset[0], 1, offset[1]);
-            if (level.getBlockState(pos).hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
-                locks.put(pos.immutable(), new DoorLock("default_mansion_lock_" + lockIndex++,
-                        lockIndex % 3 == 0 ? "repair_lockpick" : "repair_old_key", true, false));
-            }
-        }
-        routes.put("default_mansion_main_gate", new EscapeRoute("default_mansion_main_gate",
-                "hud.noellesroles.repair.route.main_gate", base.offset(22, 1, 56), Integer.MAX_VALUE,
-                new ArrayList<>(), 0));
-        routes.put("default_mansion_secret_tunnel", new EscapeRoute("default_mansion_secret_tunnel",
-                "hud.noellesroles.repair.route.secret_tunnel", base.offset(1, 1, 22), 1,
+        // 锁 #1：工坊 → 墓地小路的后门（旧钥匙）
+        locks.put(base.offset(37, 1, 40), new DoorLock("manor_workshop_backdoor", "repair_old_key", true, false));
+        // 锁 #2：教堂东侧门（撬锁器）
+        locks.put(base.offset(39, 1, 63), new DoorLock("chapel_side_door", "repair_lockpick", true, false));
+        // 锁 #3：地穴铁门（旧钥匙），门后是密道与高级战利品
+        locks.put(base.offset(9, -2, 62), new DoorLock("crypt_gate", "repair_old_key", true, false));
+
+        routes.put("crypt_tunnel", new EscapeRoute("crypt_tunnel",
+                "hud.noellesroles.repair.route.crypt_tunnel", base.offset(9, -2, 67), 1,
                 new ArrayList<>(List.of("repair_old_key", "repair_crowbar")), 0));
-        routes.put("default_mansion_service_lift", new EscapeRoute("default_mansion_service_lift",
-                "hud.noellesroles.repair.route.service_lift", base.offset(43, 1, 22), 2,
+        routes.put("service_lift", new EscapeRoute("service_lift",
+                "hud.noellesroles.repair.route.service_lift", base.offset(44, 2, 20), 2,
                 new ArrayList<>(List.of("repair_fuse", "repair_gear_handle", "repair_battery")), 0));
-        routes.put("default_mansion_boiler_pipe", new EscapeRoute("default_mansion_boiler_pipe",
-                "hud.noellesroles.repair.route.boiler_pipe", base.offset(22, 1, 1), 2,
-                new ArrayList<>(List.of("repair_valve_handle", "repair_bolt_cutter")), 0));
     }
 
     public static boolean handleUse(ServerPlayer player, BlockPos pos) {
@@ -81,7 +77,8 @@ public final class RepairLockedDoorState {
             return false;
         }
         for (EscapeRoute route : ROUTES.getOrDefault(level, Map.of()).values()) {
-            if (route.pos.equals(pos)) {
+            // 容差 1 格：密道铁栏是 2 格高、电梯铁板是 3x3，点击任意相邻部分都算
+            if (route.pos.distManhattan(pos) <= 1) {
                 return tryEscape(level, player, route);
             }
         }
@@ -116,12 +113,6 @@ public final class RepairLockedDoorState {
     }
 
     private static boolean tryEscape(ServerLevel level, ServerPlayer player, EscapeRoute route) {
-        if ("default_mansion_main_gate".equals(route.id) && !RepairModeState.areExitGatesPowered(level)) {
-            prompt(player, Component.translatable("message.noellesroles.repair.gate_locked",
-                    RepairModeState.getCompletedStationCount(level), RepairModeState.REQUIRED_REPAIRED_STATIONS)
-                    .withStyle(ChatFormatting.RED));
-            return true;
-        }
         if (route.used >= route.capacity) {
             prompt(player, Component.translatable("message.noellesroles.repair.route_full").withStyle(ChatFormatting.RED));
             return true;
