@@ -41,7 +41,7 @@ public class SERoles {
             false,
             SRERole.MoodType.FAKE,
             -1,
-            true)).setCanUseInstinct(true).setDefaultEnableNeededPlayerCount(12);
+            true)).setCanUseInstinctAndNightVision(true).setDefaultEnableNeededPlayerCount(12);
 
     public static SRERole AVARICIOUS = registerRole(new NormalRole(
             StupidExpress.id("avaricious"),

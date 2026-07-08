@@ -38,7 +38,7 @@ public class TMMRoles {
                             false, // showParticles（显示粒子）
                             true // showIcon（显示图标）
                     )))
-            .setCanSeeTime(true).setCanUseInstinct(true).setCanBeRandomedByOtherRoles(false);
+            .setCanSeeTime(true).setCanUseInstinctAndNightVision(true).setCanBeRandomedByOtherRoles(false);
 
     public static SRERole registerRole(SRERole role, String... flags) {
         return registerRole(role.addFlag(flags));

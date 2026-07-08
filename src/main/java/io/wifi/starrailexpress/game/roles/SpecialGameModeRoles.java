@@ -44,7 +44,7 @@ public class SpecialGameModeRoles {
       true))
       .setComponentKey(ModComponents.SUPER_LOOSE_END)
       .setCanSeeCoin(true)
-      .setCanUseInstinct(true)
+      .setCanUseInstinctAndNightVision(true)
       .setCanAutoAddMoney(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true);
 
   /**
@@ -63,7 +63,7 @@ public class SpecialGameModeRoles {
       true),"inner.other_gamemode")
       .setCanSeeCoin(true)
       .setCanSeeTime(true)
-      .setCanUseInstinct(true)
+      .setCanUseInstinctAndNightVision(true)
       .setDefaultMax(0)
       .setCanBeRandomedByOtherRoles(false)
       .setNeutrals(true).setOtherModeRole(true);

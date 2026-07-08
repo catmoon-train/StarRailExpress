@@ -52,6 +52,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canSeeBodyDeathReason = false;
     protected boolean canSeeBodyRoleInfo = false;
     protected boolean canUseInstinct = false;
+    protected boolean instinctNightVision = false;
     protected boolean canIgnoreBlackout = false;
     protected boolean canUseSkillWhileSpectator = false;
     protected boolean mafiaTeam = false;
@@ -370,9 +371,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
     // ───────────────────────── 任务刷新控制 / Task Refresh Control ─────────────────────────
 
     /** 该职业不可刷出的任务类型（黑名单）。 */
-    private final Set<SREPlayerTaskComponent.Task> unrefreshableTasks = new HashSet<>();
+    protected final Set<SREPlayerTaskComponent.Task> unrefreshableTasks = new HashSet<>();
     /** 该职业仅可刷出的任务类型（白名单，为空表示不限制）。 */
-    private final Set<SREPlayerTaskComponent.Task> onlyRefreshableTasks = new HashSet<>();
+    protected final Set<SREPlayerTaskComponent.Task> onlyRefreshableTasks = new HashSet<>();
 
     /** 指定该职业不可刷出的任务类型（链式，可多次调用叠加）。 */
     public SRERole addUnrefreshableTasks(SREPlayerTaskComponent.Task... tasks) {
@@ -597,12 +598,21 @@ public abstract class SRERole extends SREAbstractInfoClass {
         this.occupiedRoleCount = occupiedRoleCount;
         return this;
     }
-
-    public SRERole setCanUseInstinct(boolean canUseInstinct) {
-        this.canUseInstinct = canUseInstinct;
+    
+    public SRERole setCanUseInstinct(boolean flag) {
+        this.instinctNightVision = flag;
         return this;
     }
 
+    public SRERole setCanUseInstinctAndNightVision(boolean canUseInstinct) {
+        this.canUseInstinct = canUseInstinct;
+        this.instinctNightVision = canUseInstinct;
+        return this;
+    }
+
+    public boolean instinctNightVision() {
+        return this.instinctNightVision;
+    }
     public boolean canUseInstinct() {
         return this.canUseInstinct;
     }

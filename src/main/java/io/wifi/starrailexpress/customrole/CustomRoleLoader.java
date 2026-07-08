@@ -261,7 +261,7 @@ public class CustomRoleLoader {
         // === 高级定义 ===
         role.setCanSeeCoin(data.canSeeCoin);
         if (data.canUseInstinct) {
-            role.setCanUseInstinct(true);
+            role.setCanUseInstinctAndNightVision(true);
             // 存储本能透视范围配置（供 ClientInstinctHandler 查询）
             if (!"*".equals(data.instinctMaxRange)) {
                 try {
@@ -272,7 +272,7 @@ public class CustomRoleLoader {
             }
             instinctSameColor.put(data.englishId, data.instinctSameColorFrame);
         } else {
-            role.setCanUseInstinct(false);
+            role.setCanUseInstinctAndNightVision(false);
         }
         if (data.ableToPickUpRevolver != null)
             role.setAbleToPickUpRevolver(data.ableToPickUpRevolver);

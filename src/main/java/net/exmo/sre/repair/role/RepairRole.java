@@ -28,7 +28,7 @@ public class RepairRole extends NormalRole{
         setCanSeeTime(true);
         setCanSeeCoin(true);
         setMoodType(MoodType.FAKE);
-        setCanUseInstinct(false);
+        setCanUseInstinctAndNightVision(false);
         setCanAutoAddMoney(true);
         setCanBeRandomedByOtherRoles(false);
         addFlag("inner.repair_gamemode");

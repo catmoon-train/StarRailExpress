@@ -50,7 +50,7 @@ public class THMiscRoles {
       .setNeutrals(true)
       .setDefaultEnableNeededPlayerCount(12)
       .setDefaultEnableChance(100)
-      .setCanUseInstinct(false)
+      .setCanUseInstinctAndNightVision(false)
       .setCanPickUpRevolver(false)
       .addTwoWayOpposingRole(MountainRoles.NITORI)
       .setServerGameTickEvent((player, cca) -> {
