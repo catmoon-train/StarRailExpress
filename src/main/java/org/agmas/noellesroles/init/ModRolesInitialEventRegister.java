@@ -80,6 +80,8 @@ public class ModRolesInitialEventRegister {
 
         // 初始化仇杀客事件
         BloodFeudistPlayerComponent.registerEvents();
+        // 初始化皮革噶的事件（疯魔推开致死→平民则小脑归因）
+        LeatherPigPlayerComponent.registerEvents();
         ModdedRoleAssigned.EVENT.register((player, role) -> {
             // 魔术师角色初始化
             if (RoleUtils.compareRole(role, ModRoles.CONSPIRATOR)) {

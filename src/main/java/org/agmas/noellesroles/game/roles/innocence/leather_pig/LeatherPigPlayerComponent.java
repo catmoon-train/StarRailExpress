@@ -1,8 +1,10 @@
 package org.agmas.noellesroles.game.roles.innocence.leather_pig;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -12,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +26,10 @@ import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 皮革噶的组件
@@ -44,6 +51,22 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
     public static final double INSTINCT_RANGE = 40.0;
     /** 追杀心跳音效间隔（tick） */
     private static final int HEARTBEAT_INTERVAL = 40;
+
+    /** 疯魔模式期间推开路径上玩家的判定范围（格） */
+    private static final double PUSH_RANGE = 2.6;
+    /** 推开力度（水平） */
+    private static final double PUSH_STRENGTH = 0.9;
+    /** 推开后的死亡归因窗口（tick）：被推玩家在此窗口内因环境死亡则归因给皮革噶的 */
+    private static final int PUSH_ATTRIBUTION_TICKS = 100;
+
+    /**
+     * 被皮革噶的推开的玩家登记表：受害者 UUID -&gt; (皮革噶的 UUID, 归因过期游戏刻)。
+     * 用于将"被推致死"的平民归因给皮革噶的，从而复用小脑惩罚管线。
+     */
+    private static final Map<UUID, PushRecord> PUSHED = new HashMap<>();
+
+    private record PushRecord(UUID pusher, long expiryGameTime) {
+    }
 
     private final Player player;
     /** 是否以猪的形象示人（角色分配且存活期间为 true，同步给所有客户端） */
@@ -141,6 +164,8 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
 
         frenzyTicks--;
         sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 10, 2, true, false, true));
+        // 疯魔冲锋：持续推开路径上的邻近玩家
+        pushPlayersOnPath(sp);
 
         int elapsed = FRENZY_TICKS - frenzyTicks;
         if (elapsed % HEARTBEAT_INTERVAL == 0) {
@@ -163,6 +188,93 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
     public void clientTick() {
         if (frenzyTicks > 0) {
             frenzyTicks--;
+        }
+    }
+
+    /**
+     * 疯魔模式期间持续推开路径上的邻近玩家，并登记以便环境致死时归因小脑惩罚。
+     */
+    private void pushPlayersOnPath(ServerPlayer sp) {
+        long now = sp.level().getGameTime();
+        for (ServerPlayer target : sp.serverLevel().getEntitiesOfClass(ServerPlayer.class,
+                sp.getBoundingBox().inflate(PUSH_RANGE),
+                p -> p != sp && GameUtils.isPlayerAliveAndSurvival(p))) {
+            double dx = target.getX() - sp.getX();
+            double dz = target.getZ() - sp.getZ();
+            double lenSq = dx * dx + dz * dz;
+            if (lenSq < 1.0e-4) {
+                // 位置重叠时，用皮革噶的自身朝向作为推开方向
+                float yawRad = sp.getYRot() * Mth.DEG_TO_RAD;
+                dx = -Mth.sin(yawRad);
+                dz = Mth.cos(yawRad);
+                lenSq = 1.0;
+            }
+            double inv = 1.0 / Math.sqrt(lenSq);
+            // 覆盖水平速度为推开方向（避免每 tick 叠加导致失控）；仅在着地时给一次小跳，避免持续升空
+            double vy = target.onGround() ? 0.42 : target.getDeltaMovement().y;
+            target.setDeltaMovement(dx * inv * PUSH_STRENGTH, vy, dz * inv * PUSH_STRENGTH);
+            target.hurtMarked = true;
+            PUSHED.put(target.getUUID(), new PushRecord(sp.getUUID(), now + PUSH_ATTRIBUTION_TICKS));
+        }
+    }
+
+    /**
+     * 注册皮革噶的相关事件：将"被推致死"的平民归因给皮革噶的。
+     * 在 {@code ModRolesInitialEventRegister.register()} 中调用一次。
+     *
+     * <p>被推玩家若在归因窗口内因无归属的环境死亡（坠车/摔落/岩浆/溺水等）而死，
+     * 且其为平民（乘客阵营），则将皮革噶的判定为真正击杀者。随后 {@code killPlayer}
+     * 管线会触发 {@code OnTeammateKilledTeammate(innocent, innocent)} →
+     * {@code XiaoNaoHandler} 施加小脑惩罚。
+     */
+    public static void registerEvents() {
+        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, reason) -> {
+            // 仅认领无归属的环境死亡
+            if (originalKiller != null) {
+                return null;
+            }
+            if (!(victim instanceof ServerPlayer serverVictim)) {
+                return null;
+            }
+            PushRecord record = PUSHED.get(serverVictim.getUUID());
+            if (record == null) {
+                return null;
+            }
+            if (serverVictim.level().getGameTime() > record.expiryGameTime()) {
+                PUSHED.remove(serverVictim.getUUID());
+                return null;
+            }
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverVictim.level());
+            SRERole victimRole = gameWorld.getRole(serverVictim);
+            // 仅当目标为平民（乘客阵营/好人）时才归因并触发小脑惩罚
+            if (victimRole == null || !victimRole.isInnocent()) {
+                return null;
+            }
+            Player pusher = serverVictim.level().getPlayerByUUID(record.pusher());
+            if (!(pusher instanceof ServerPlayer)) {
+                return null;
+            }
+            if (!gameWorld.isRole(pusher, ModRoles.LEATHER_PIG) || !GameUtils.isPlayerAliveAndSurvival(pusher)) {
+                return null;
+            }
+            PUSHED.remove(serverVictim.getUUID());
+            return pusher;
+        });
+    }
+
+    @Override
+    public boolean shouldSyncWith(ServerPlayer player) {
+        // 伪装状态必须同步给所有客户端，否则其他玩家看不到猪模型（此前只有本人能看到自己的猪模型）。
+        return true;
+    }
+
+    @Override
+    public void writeToSyncNbtWithPlayer(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup,
+            ServerPlayer recipient) {
+        // 伪装状态广播给所有人；疯魔剩余时间只同步给本人。
+        tag.putBoolean("disguised", disguised);
+        if (recipient == this.player) {
+            tag.putInt("frenzyTicks", frenzyTicks);
         }
     }
 
