@@ -479,6 +479,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
         MapStatusBarRuntime.addWarmth(eater, STATUS_BAR_MAX);
         MapStatusBarRuntime.addThirst(eater, STATUS_BAR_MAX);
         MapStatusBarRuntime.addHunger(eater, STATUS_BAR_MAX);
+        MapStatusBarRuntime.addPollution(eater, -STATUS_BAR_MAX); // 吃蛋糕清空污染值
 
         // Advance bites; update display entity block state
         cake.bites++;

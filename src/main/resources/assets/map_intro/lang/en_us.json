@@ -8,5 +8,6 @@
   "map_intro.tab.scene_blocks": "Scene Blocks",
   "map_intro.tab.quest_blocks": "Quest Blocks",
   "map_intro.tab.mechanics": "Map Mechanics",
-  "map_intro.property.disabled_roles": "Disabled roles: %s"
+  "map_intro.property.disabled_roles": "Disabled roles: %s",
+  "map_intro.status.pollution": "Pollution"
 }

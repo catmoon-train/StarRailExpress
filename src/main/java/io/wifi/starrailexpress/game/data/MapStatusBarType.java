@@ -4,7 +4,8 @@ public enum MapStatusBarType {
     NONE,
     WARMTH,
     THIRST,
-    HUNGER;
+    HUNGER,
+    POLLUTION;
 
     public static MapStatusBarType byName(String name) {
         if (name == null || name.isBlank()) {
