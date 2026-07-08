@@ -9,7 +9,7 @@ import net.exmo.sre.repair.state.RepairModeState;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role.game_spec.RepairRoles;
+import net.exmo.sre.repair.role.RepairRoles;
 
 /**
  * 修机模式胜负判定：

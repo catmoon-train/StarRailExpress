@@ -278,7 +278,7 @@ public class RecorderScreen extends Screen {
         // 排除所有DNF职业
         roles.removeIf(r -> r != null && IGNORED_ROLE_IDS.contains(r.identifier()));
         // 排除所有修机模式职业
-        roles.removeIf(r -> r != null && r instanceof io.wifi.starrailexpress.api.RepairRole);
+        roles.removeIf(r -> r != null && r instanceof net.exmo.sre.repair.role.RepairRole);
 
         // 如果列表为空（可能是单人测试或者数据未同步），回退到显示所有角色
         if (roles.isEmpty()) {

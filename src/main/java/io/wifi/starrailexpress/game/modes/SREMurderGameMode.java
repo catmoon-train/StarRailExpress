@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.game.modes;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.GameMode;
-import io.wifi.starrailexpress.api.RepairRole;
+import net.exmo.sre.repair.role.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;

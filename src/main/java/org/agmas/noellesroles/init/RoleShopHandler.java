@@ -53,7 +53,7 @@ import org.agmas.noellesroles.game.roles.neutral.phantom_musician.PhantomMusicia
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
-import org.agmas.noellesroles.role.game_spec.RepairRoles;
+import net.exmo.sre.repair.role.RepairRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;

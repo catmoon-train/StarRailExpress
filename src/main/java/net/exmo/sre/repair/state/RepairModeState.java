@@ -23,11 +23,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Pose;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.content.block_entity.RepairStationBlockEntity;
+import net.exmo.sre.repair.content.block_entity.RepairStationBlockEntity;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.packet.RepairCoinRewardS2CPacket;
-import org.agmas.noellesroles.packet.RepairCombatFeedbackS2CPacket;
-import org.agmas.noellesroles.role.game_spec.RepairRoles;
+import net.exmo.sre.repair.network.RepairCoinRewardS2CPacket;
+import net.exmo.sre.repair.network.RepairCombatFeedbackS2CPacket;
+import net.exmo.sre.repair.role.RepairRoles;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -63,7 +63,7 @@ public final class RepairModeState {
             component.carriedBy = null;
             component.carrying = null;
             component.carryBlockedTicks = 0;
-            component.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+            component.trialStand = net.exmo.sre.repair.component.RepairRolePlayerComponent.BlockPosTag.NONE;
             component.completedStations = 0;
             component.gatesPowered = false;
             component.downedAllies = 0;
@@ -87,7 +87,7 @@ public final class RepairModeState {
             component.lastStruggleTick = -1000L;
             component.activeAttackPlugin = "";
             component.forcedRole = "";
-            component.searchTarget = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+            component.searchTarget = net.exmo.sre.repair.component.RepairRolePlayerComponent.BlockPosTag.NONE;
             component.searchStartTick = 0L;
             component.searchTotalTicks = 0;
             component.searchPromptKey = "";
@@ -250,7 +250,7 @@ public final class RepairModeState {
         }
         component.downed = true;
         component.carriedBy = null;
-        component.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+        component.trialStand = net.exmo.sre.repair.component.RepairRolePlayerComponent.BlockPosTag.NONE;
         component.repairInjuryLevel = 0;
         component.lastHunterHitTick = -1000L;
         component.carryStruggleProgress = 0;
@@ -281,7 +281,7 @@ public final class RepairModeState {
         prisonerComponent.downedLastStruggleTick = -1000L;
         prisonerComponent.lastStruggleSide = "";
         prisonerComponent.lastStruggleTick = -1000L;
-        prisonerComponent.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.of(cagePos);
+        prisonerComponent.trialStand = net.exmo.sre.repair.component.RepairRolePlayerComponent.BlockPosTag.of(cagePos);
         prisoner.setPose(Pose.STANDING);
         prisoner.teleportTo(cagePos.getX() + 0.5D, cagePos.getY(), cagePos.getZ() + 0.5D);
         prisoner.setDeltaMovement(0.0D, 0.0D, 0.0D);
@@ -297,7 +297,7 @@ public final class RepairModeState {
         component.downed = false;
         component.carriedBy = null;
         component.carrying = null;
-        component.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+        component.trialStand = net.exmo.sre.repair.component.RepairRolePlayerComponent.BlockPosTag.NONE;
         component.repairInjuryLevel = 0;
         component.lastHunterHitTick = -1000L;
         component.carryStruggleProgress = 0;
@@ -326,7 +326,7 @@ public final class RepairModeState {
         component.carriedBy = null;
         component.carrying = null;
         component.carryBlockedTicks = 0;
-        component.trialStand = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+        component.trialStand = net.exmo.sre.repair.component.RepairRolePlayerComponent.BlockPosTag.NONE;
         component.repairInjuryLevel = 0;
         component.lastHunterHitTick = -1000L;
         component.activeSkillCooldownEndTick = 0L;
@@ -338,7 +338,7 @@ public final class RepairModeState {
         component.lastStruggleSide = "";
         component.lastStruggleTick = -1000L;
         component.activeAttackPlugin = "";
-        component.searchTarget = org.agmas.noellesroles.component.RepairRolePlayerComponent.BlockPosTag.NONE;
+        component.searchTarget = net.exmo.sre.repair.component.RepairRolePlayerComponent.BlockPosTag.NONE;
         component.searchStartTick = 0L;
         component.searchTotalTicks = 0;
         component.searchPromptKey = "";

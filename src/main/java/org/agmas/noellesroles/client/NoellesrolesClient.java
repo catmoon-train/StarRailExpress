@@ -1,5 +1,8 @@
 package org.agmas.noellesroles.client;
 
+import net.exmo.sre.repair.content.item.*;
+import net.exmo.sre.repair.network.*;
+import net.exmo.sre.repair.client.screen.*;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.doctor4t.ratatouille.util.TextUtils;
@@ -76,8 +79,8 @@ import org.agmas.noellesroles.client.commands.SREClientCommand;
 import org.agmas.noellesroles.client.event.MutableComponentResult;
 import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.hud.CommonClientHudRenderer;
-import org.agmas.noellesroles.client.hud.RepairEscapeHud;
-import org.agmas.noellesroles.client.renderer.HunterCageBlockEntityRenderer;
+import net.exmo.sre.repair.client.RepairEscapeHud;
+import net.exmo.sre.repair.client.HunterCageBlockEntityRenderer;
 import org.agmas.noellesroles.client.renderer.SREPlushBlockEntityRenderer;
 import org.agmas.noellesroles.client.renderer.VendingMachinesBlockEntityRenderer;
 import org.agmas.noellesroles.client.screen.*;
@@ -795,22 +798,22 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(OpenRepairRoleSelectionS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> {
                 if (context
-                        .client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen) {
+                        .client().screen instanceof net.exmo.sre.repair.client.screen.RepairRoleSelectionScreen) {
                     return;
                 }
-                context.client().setScreen(new org.agmas.noellesroles.client.screen.repair.RepairRoleSelectionScreen(
+                context.client().setScreen(new net.exmo.sre.repair.client.screen.RepairRoleSelectionScreen(
                         payload.faction(), payload.endTick(), payload.playerNames()));
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenRepairRoleShopS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> {
                 if (context
-                        .client().screen instanceof org.agmas.noellesroles.client.screen.repair.RepairRoleShopScreen screen) {
+                        .client().screen instanceof net.exmo.sre.repair.client.screen.RepairRoleShopScreen screen) {
                     screen.updateData(payload.skinCoins(), payload.ownedRoles());
                     screen.init(context.client(), context.client().getWindow().getGuiScaledWidth(),
                             context.client().getWindow().getGuiScaledHeight());
                 } else {
-                    context.client().setScreen(new org.agmas.noellesroles.client.screen.repair.RepairRoleShopScreen(
+                    context.client().setScreen(new net.exmo.sre.repair.client.screen.RepairRoleShopScreen(
                             payload.skinCoins(), payload.ownedRoles()));
                 }
             });
@@ -819,7 +822,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(OpenRepairStationScreenS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> {
                 context.client().setScreen(
-                        new org.agmas.noellesroles.client.screen.repair.RepairStationScreen(payload.blockPos()));
+                        new net.exmo.sre.repair.client.screen.RepairStationScreen(payload.blockPos()));
             });
         });
 
@@ -1213,16 +1216,16 @@ public class NoellesrolesClient implements ClientModInitializer {
                             .getGameMode() == io.wifi.starrailexpress.api.SREGameModes.REPAIR_ESCAPE_MODE;
             if (client.screen == null && repairGameRunning && repairInputComponent.carriedBy != null) {
                 if (client.options.keyAttack.consumeClick()) {
-                    ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("left"));
+                    ClientPlayNetworking.send(new net.exmo.sre.repair.network.RepairCarryStruggleC2SPacket("left"));
                 }
                 if (client.options.keyUse.consumeClick()) {
-                    ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("right"));
+                    ClientPlayNetworking.send(new net.exmo.sre.repair.network.RepairCarryStruggleC2SPacket("right"));
                 }
             }
             if (client.screen == null && repairGameRunning && repairInputComponent.downed
                     && repairInputComponent.carriedBy == null
                     && client.options.keyShift.consumeClick()) {
-                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.RepairCarryStruggleC2SPacket("downed"));
+                ClientPlayNetworking.send(new net.exmo.sre.repair.network.RepairCarryStruggleC2SPacket("downed"));
             }
             handleRepairSearchInput(client);
             if (client.player.isCreative()) {

@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
+import net.exmo.sre.repair.component.RepairRolePlayerComponent;
 import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerPlayerComponent;

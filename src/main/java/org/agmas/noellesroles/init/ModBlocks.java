@@ -21,6 +21,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.block.*;
 import org.agmas.noellesroles.content.block_entity.*;
+import net.exmo.sre.repair.content.block.*;
+import net.exmo.sre.repair.content.block_entity.*;
 
 import static io.wifi.starrailexpress.index.TMMBlocks.DARK_STEEL;
 

@@ -10,7 +10,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role.game_spec.RepairRoles;
+import net.exmo.sre.repair.role.RepairRoles;
 
 import java.util.Arrays;
 import java.util.List;

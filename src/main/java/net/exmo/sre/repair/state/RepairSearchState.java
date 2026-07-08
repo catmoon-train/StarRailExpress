@@ -12,8 +12,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.RepairRolePlayerComponent;
-import org.agmas.noellesroles.content.block_entity.HotbarStorageBlockEntity;
+import net.exmo.sre.repair.component.RepairRolePlayerComponent;
+import net.exmo.sre.repair.content.block_entity.HotbarStorageBlockEntity;
 import org.agmas.noellesroles.init.ModBlocks;
 
 public final class RepairSearchState {

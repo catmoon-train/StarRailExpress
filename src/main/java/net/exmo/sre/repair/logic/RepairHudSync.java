@@ -6,7 +6,7 @@ import net.exmo.sre.repair.state.RepairModeState;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.content.block_entity.HunterCageBlockEntity;
+import net.exmo.sre.repair.content.block_entity.HunterCageBlockEntity;
 
 /** 每秒向所有玩家同步修机 HUD 状态（修机进度、闸门供电、受审/倒地人数）。 */
 public final class RepairHudSync {

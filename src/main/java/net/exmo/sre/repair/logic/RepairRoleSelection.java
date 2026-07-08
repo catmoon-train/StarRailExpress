@@ -24,8 +24,8 @@ import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModBlocks;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.packet.OpenRepairRoleSelectionS2CPacket;
-import org.agmas.noellesroles.role.game_spec.RepairRoles;
+import net.exmo.sre.repair.network.OpenRepairRoleSelectionS2CPacket;
+import net.exmo.sre.repair.role.RepairRoles;
 
 import java.util.ArrayList;
 import java.util.Collections;

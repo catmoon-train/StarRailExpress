@@ -13,7 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.component.RepairRolePlayerComponent;
+import net.exmo.sre.repair.component.RepairRolePlayerComponent;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

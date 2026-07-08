@@ -20,8 +20,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.content.block_entity.RepairStationBlockEntity;
-import org.agmas.noellesroles.packet.RepairCombatFeedbackS2CPacket;
+import net.exmo.sre.repair.content.block_entity.RepairStationBlockEntity;
+import net.exmo.sre.repair.network.RepairCombatFeedbackS2CPacket;
 
 public record HunterAttackProfile(
         String id,

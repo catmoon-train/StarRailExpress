@@ -11,7 +11,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import net.exmo.sre.repair.role.RepairRoleDefinition;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.game_spec.RepairRoles;
+import net.exmo.sre.repair.role.RepairRoles;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

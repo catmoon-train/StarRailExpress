@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.init;
 
+import net.exmo.sre.repair.content.item.*;
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.api.impl.KnifeChargeableItem;
@@ -46,6 +47,10 @@ public class ModItems {
     public static final Item RESCUE_FLARE = register(
             new RescueFlareItem(new Item.Properties().stacksTo(4)),
             "rescue_flare", ROLE_ITEMS_GROUP);
+    // 遗恨德林加 - 处决地点掉落的一发反抗手枪（murder 融合机制）
+    public static final Item VENGEANCE_DERRINGER = register(
+            new VengeanceDerringerItem(new Item.Properties().stacksTo(1)),
+            "vengeance_derringer", REPAIR_MODE_GROUP);
     // 推理之书 - 大侦探专属
     public static final Item DEDUCTION_BOOK = register(
             new DeductionBookItem(new Item.Properties().stacksTo(1)),

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.register;
 
+import net.exmo.sre.repair.command.*;
 import org.agmas.noellesroles.commands.*;
 
 /**

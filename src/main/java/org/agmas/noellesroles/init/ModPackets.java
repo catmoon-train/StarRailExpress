@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.init;
 
+import net.exmo.sre.repair.network.*;
 import io.wifi.starrailexpress.network.packet.EditNewspaperPacket;
 import io.wifi.starrailexpress.network.packet.EnableTaskHighlightPacket;
 import io.wifi.starrailexpress.network.packet.ShowCustomNewspaperPacket;
@@ -118,14 +119,12 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(OpenRepairRoleShopS2CPacket.ID,
                 OpenRepairRoleShopS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairRoleSelectC2SPacket.ID, RepairRoleSelectC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairRolePurchaseC2SPacket.ID, RepairRolePurchaseC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairRoleShopPurchaseC2SPacket.ID, RepairRoleShopPurchaseC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairPrimarySkillC2SPacket.ID, RepairPrimarySkillC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairCarryStruggleC2SPacket.ID, RepairCarryStruggleC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairSearchBeginC2SPacket.ID, RepairSearchBeginC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairSearchCancelC2SPacket.ID, RepairSearchCancelC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(RepairRoleSelectC2SPacket.ID, RepairRoleSelectC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairRolePurchaseC2SPacket.ID, RepairRolePurchaseC2SPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(RepairRoleShopPurchaseC2SPacket.ID, RepairRoleShopPurchaseC2SPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(RepairPrimarySkillC2SPacket.ID, RepairPrimarySkillC2SPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(RepairCarryStruggleC2SPacket.ID, RepairCarryStruggleC2SPacket::handle);

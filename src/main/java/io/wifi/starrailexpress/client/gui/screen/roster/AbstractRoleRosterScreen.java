@@ -2,7 +2,7 @@ package io.wifi.starrailexpress.client.gui.screen.roster;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.wifi.starrailexpress.api.RepairRole;
+import net.exmo.sre.repair.role.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.roster.RoleRosterState;
 import net.minecraft.client.gui.GuiGraphics;

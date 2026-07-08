@@ -1,6 +1,6 @@
 package org.agmas.noellesroles.client;
 
-import io.wifi.starrailexpress.api.RepairRole;
+import net.exmo.sre.repair.role.RepairRole;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.client.PostProcessor;
 import io.wifi.starrailexpress.client.SREClient;
