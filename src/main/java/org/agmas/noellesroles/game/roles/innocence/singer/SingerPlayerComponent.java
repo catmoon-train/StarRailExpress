@@ -33,7 +33,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 /**
  * 歌手组件
  *
- * 主动技能：随机播放原版唱片音乐（60秒冷却）
+ * 主动技能：播放唱片音乐（60秒冷却）
  * 
  * 歌手为好人阵营（乘客阵营）
  */
