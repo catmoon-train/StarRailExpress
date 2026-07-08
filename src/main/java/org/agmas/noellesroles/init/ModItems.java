@@ -51,6 +51,16 @@ public class ModItems {
     public static final Item VENGEANCE_DERRINGER = register(
             new VengeanceDerringerItem(new Item.Properties().stacksTo(1)),
             "vengeance_derringer", REPAIR_MODE_GROUP);
+    // 恐鬼症道具：镇静剂 / EMF 探测器 / 守护十字
+    public static final Item SANITY_MEDS = register(
+            new SanityMedsItem(new Item.Properties().stacksTo(4)),
+            "sanity_meds", REPAIR_MODE_GROUP);
+    public static final Item EMF_READER = register(
+            new EmfReaderItem(new Item.Properties().stacksTo(1)),
+            "emf_reader", REPAIR_MODE_GROUP);
+    public static final Item CRUCIFIX = register(
+            new CrucifixItem(new Item.Properties().stacksTo(2)),
+            "crucifix", REPAIR_MODE_GROUP);
     // 推理之书 - 大侦探专属
     public static final Item DEDUCTION_BOOK = register(
             new DeductionBookItem(new Item.Properties().stacksTo(1)),

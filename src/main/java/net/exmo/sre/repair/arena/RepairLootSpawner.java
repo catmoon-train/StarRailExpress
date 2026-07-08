@@ -123,15 +123,17 @@ public final class RepairLootSpawner {
             return Reward.item(new ItemStack(ModItems.REPAIR_MEDKIT));
         }
         if (roll < 56) {
-            return Reward.item(new ItemStack(random(level, ModItems.RESCUE_FLARE, ModItems.SMOKE_PELLET)));
+            return Reward.item(new ItemStack(random(level, ModItems.RESCUE_FLARE, ModItems.SMOKE_PELLET,
+                    ModItems.SANITY_MEDS)));
         }
         if (roll < 78) {
             return Reward.item(new ItemStack(random(level, ModItems.SPARE_PARTS, ModItems.REPAIR_TOOLBOX,
-                    ModItems.REPAIR_LOCKPICK)));
+                    ModItems.REPAIR_LOCKPICK, ModItems.EMF_READER)));
         }
         return Reward.item(new ItemStack(random(level, ModItems.REPAIR_AREA_KEY, ModItems.REPAIR_OLD_KEY,
                 ModItems.REPAIR_CROWBAR, ModItems.REPAIR_BOLT_CUTTER, ModItems.REPAIR_FUSE,
-                ModItems.REPAIR_GEAR_HANDLE, ModItems.REPAIR_BATTERY, ModItems.REPAIR_VALVE_HANDLE)));
+                ModItems.REPAIR_GEAR_HANDLE, ModItems.REPAIR_BATTERY, ModItems.REPAIR_VALVE_HANDLE,
+                ModItems.CRUCIFIX)));
     }
 
     private static Reward fallback(ServerLevel level, String category) {
@@ -143,7 +145,7 @@ public final class RepairLootSpawner {
             case "escape" -> Reward.item(new ItemStack(random(level, ModItems.REPAIR_FUSE, ModItems.REPAIR_GEAR_HANDLE,
                     ModItems.REPAIR_BATTERY, ModItems.REPAIR_VALVE_HANDLE)));
             case "medical" -> Reward.item(new ItemStack(random(level, ModItems.RESCUE_FLARE, ModItems.SMOKE_PELLET,
-                    ModItems.REPAIR_MEDKIT)));
+                    ModItems.REPAIR_MEDKIT, ModItems.SANITY_MEDS)));
             default -> Reward.item(new ItemStack(random(level, ModItems.REPAIR_CROWBAR, ModItems.REPAIR_BOLT_CUTTER,
                     ModItems.SPARE_PARTS)));
         };

@@ -7,6 +7,9 @@ import net.exmo.sre.repair.arena.*;
 import net.exmo.sre.repair.util.*;
 
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
+import net.exmo.sre.repair.logic.RepairSanitySystem;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -104,10 +107,11 @@ public final class RepairEventSystem {
                     player.addItem(new ItemStack(ModBlocks.HUNTER_SNARE.asItem()));
                     player.addItem(new ItemStack(ModItems.HUNTER_PULSE));
                 } else {
-                    ItemStack reward = switch (level.random.nextInt(4)) {
+                    ItemStack reward = switch (level.random.nextInt(5)) {
                         case 0 -> new ItemStack(ModItems.SMOKE_PELLET);
                         case 1 -> new ItemStack(ModItems.DECOY_BEACON);
                         case 2 -> new ItemStack(ModItems.ESCAPE_GRAPPLE);
+                        case 3 -> new ItemStack(ModItems.SANITY_MEDS);
                         default -> new ItemStack(ModItems.SPARE_PARTS, 2);
                     };
                     player.addItem(reward);
@@ -139,6 +143,18 @@ public final class RepairEventSystem {
                 }
             }
             case MACHINE_OVERLOAD -> player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, 20 * 10, 0, false, true, true));
+            case GHOST_HUNT -> {
+                if (hunter) {
+                    player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, event.durationTicks, 0, false, true, true));
+                } else {
+                    // 怨灵降临：黑暗压顶、紫屏、理智重创
+                    player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 20 * 6, 0, false, false, true));
+                    ServerPlayNetworking.send(player, new TriggerScreenEdgeEffectPayload(0x6A0DAD, 1200, 0.8F));
+                    RepairSanitySystem.drain(player, 15);
+                    player.displayClientMessage(Component.translatable("message.noellesroles.repair.ghost_hunt_hint")
+                            .withStyle(ChatFormatting.DARK_PURPLE), false);
+                }
+            }
             default -> {
             }
         }
@@ -198,6 +214,29 @@ public final class RepairEventSystem {
                                 0.45D, 0.4D, 0.45D, 0.02D);
                     }
                 }
+                case GHOST_HUNT -> {
+                    if (hunter) {
+                        if (now % 50 == 0) {
+                            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 70, 0, false, true, true));
+                        }
+                    } else {
+                        // 灯光闪烁（随机短失明脉冲）
+                        if (now % 45 == 0 && level.random.nextInt(100) < 30) {
+                            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 15, 0, false, false, true));
+                            level.sendParticles(player, ParticleTypes.ASH, true,
+                                    player.getX(), player.getY() + 1.2D, player.getZ(), 12, 0.6D, 0.5D, 0.6D, 0.01D);
+                        }
+                        // 低理智者被怨灵锁定：蹲伏且静止方可躲避
+                        if (now % 40 == 0) {
+                            boolean hiding = player.isCrouching()
+                                    && player.getDeltaMovement().horizontalDistanceSqr() < 0.0025D;
+                            if (ModComponents.REPAIR_ROLES.get(player).sanity < 50 && !hiding) {
+                                player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 50, 0, false, false, true));
+                                player.playNotifySound(SoundEvents.WARDEN_SNIFF, SoundSource.AMBIENT, 0.9F, 0.6F);
+                            }
+                        }
+                    }
+                }
                 default -> {
                 }
             }
@@ -214,10 +253,11 @@ public final class RepairEventSystem {
             case BLACKOUT -> 45;
             case MACHINE_OVERLOAD -> 30;
             case JUDGMENT_BELL -> 40;
+            case GHOST_HUNT -> 50;
             default -> 0;
         };
         int hunterReward = switch (event) {
-            case BLOOD_MOON, JUDGMENT_BELL -> 25;
+            case BLOOD_MOON, JUDGMENT_BELL, GHOST_HUNT -> 25;
             default -> 0;
         };
         for (ServerPlayer player : level.players()) {
@@ -228,6 +268,10 @@ public final class RepairEventSystem {
             int reward = hunter ? hunterReward : nonHunterReward;
             if (reward > 0) {
                 RepairModeState.awardCoins(player, reward, "repair_coin_source.event");
+            }
+            if (event == RepairEvent.GHOST_HUNT && !hunter) {
+                // 熬过猎杀，惊魂稍定
+                RepairSanitySystem.restore(player, 20);
             }
             player.displayClientMessage(Component.translatable("message.noellesroles.repair.event.end", event.localizedName())
                     .withStyle(ChatFormatting.GRAY), true);
@@ -263,7 +307,7 @@ public final class RepairEventSystem {
 
     private static RepairEvent chooseEvent(ServerLevel level, EventState state, RandomSource random) {
         RepairEvent[] values = { RepairEvent.BLOOD_MOON, RepairEvent.BLACKOUT, RepairEvent.MACHINE_OVERLOAD,
-                RepairEvent.PHANTOM_CACHE, RepairEvent.JUDGMENT_BELL };
+                RepairEvent.PHANTOM_CACHE, RepairEvent.JUDGMENT_BELL, RepairEvent.GHOST_HUNT };
         int totalWeight = 0;
         int[] weights = new int[values.length];
         for (int i = 0; i < values.length; i++) {
@@ -315,7 +359,8 @@ public final class RepairEventSystem {
         if (survivorsBehind && (event == RepairEvent.MACHINE_OVERLOAD || event == RepairEvent.PHANTOM_CACHE)) {
             weight += 3;
         }
-        if (huntersBehind && (event == RepairEvent.BLOOD_MOON || event == RepairEvent.JUDGMENT_BELL)) {
+        if (huntersBehind && (event == RepairEvent.BLOOD_MOON || event == RepairEvent.JUDGMENT_BELL
+                || event == RepairEvent.GHOST_HUNT)) {
             weight += 3;
         }
         if (event == RepairEvent.BLACKOUT && !survivorsBehind && !huntersBehind) {
@@ -354,7 +399,9 @@ public final class RepairEventSystem {
         PHANTOM_CACHE("hud.noellesroles.repair.event.phantom_cache", "hud.noellesroles.repair.event_reward.cache", 20 * 28, 35,
                 ChatFormatting.GOLD, SoundEvents.ALLAY_AMBIENT_WITHOUT_ITEM, 1.2F),
         JUDGMENT_BELL("hud.noellesroles.repair.event.judgment_bell", "hud.noellesroles.repair.event_reward.rescue", 20 * 38, 80,
-                ChatFormatting.RED, SoundEvents.BELL_BLOCK, 0.45F);
+                ChatFormatting.RED, SoundEvents.BELL_BLOCK, 0.45F),
+        GHOST_HUNT("hud.noellesroles.repair.event.ghost_hunt", "hud.noellesroles.repair.event_reward.hide", 20 * 35, 95,
+                ChatFormatting.DARK_PURPLE, SoundEvents.WARDEN_EMERGE, 0.55F);
 
         private final String nameKey;
         private final String rewardKey;

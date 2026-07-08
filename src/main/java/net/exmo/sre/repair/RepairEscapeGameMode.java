@@ -10,6 +10,7 @@ import net.exmo.sre.repair.logic.RepairGameSetup;
 import net.exmo.sre.repair.logic.RepairHudSync;
 import net.exmo.sre.repair.logic.RepairRolePassives;
 import net.exmo.sre.repair.logic.RepairRoleSelection;
+import net.exmo.sre.repair.logic.RepairSanitySystem;
 import net.exmo.sre.repair.logic.RepairWinConditions;
 import net.exmo.sre.repair.role.RepairForcedRoleState;
 import net.exmo.sre.repair.state.RepairLockedDoorState;

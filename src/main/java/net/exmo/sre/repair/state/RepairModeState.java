@@ -93,6 +93,7 @@ public final class RepairModeState {
             component.searchPromptKey = "";
             component.lockPromptKey = "";
             component.escapedRouteId = "";
+            component.sanity = 100;
             player.setPose(Pose.STANDING);
             player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
             player.removeEffect(MobEffects.WEAKNESS);
@@ -248,6 +249,9 @@ public final class RepairModeState {
             player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 40, 0, false, false, true));
             return true;
         }
+        if (tryCrucifixProtection(player)) {
+            return true;
+        }
         component.downed = true;
         component.carriedBy = null;
         component.trialStand = net.exmo.sre.repair.component.RepairRolePlayerComponent.BlockPosTag.NONE;
@@ -270,6 +274,40 @@ public final class RepairModeState {
         return true;
     }
 
+
+    /**
+     * 守护十字（恐鬼症融合）：背包中持有时抵挡一次倒地并消耗。
+     * 必须返回 true 走"已处理"路径 —— 返回 false 会让 SpawnMixin 放行真实死亡。
+     */
+    private static boolean tryCrucifixProtection(ServerPlayer player) {
+        var inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            var stack = inventory.getItem(slot);
+            if (!stack.is(org.agmas.noellesroles.init.ModItems.CRUCIFIX)) {
+                continue;
+            }
+            stack.shrink(1);
+            player.setHealth(Math.min(player.getMaxHealth(), 12.0F));
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 20 * 3, 1, false, true, true));
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 20 * 3, 0, false, true, true));
+            if (player.level() instanceof ServerLevel level) {
+                level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                        player.getX(), player.getY() + 1.0D, player.getZ(), 40, 0.4D, 0.7D, 0.4D, 0.25D);
+                level.playSound(null, player.blockPosition(), SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 0.9F, 1.3F);
+                for (ServerPlayer other : level.players()) {
+                    if (RepairModeState.isHunter(other) && other.distanceToSqr(player) <= 24 * 24) {
+                        other.displayClientMessage(Component.translatable(
+                                "message.noellesroles.repair.crucifix_saved_hunter", player.getDisplayName())
+                                .withStyle(ChatFormatting.GOLD), true);
+                    }
+                }
+            }
+            player.displayClientMessage(Component.translatable("message.noellesroles.repair.crucifix_saved")
+                    .withStyle(ChatFormatting.GOLD), false);
+            return true;
+        }
+        return false;
+    }
 
     public static void startTrial(ServerPlayer hunter, ServerPlayer prisoner, BlockPos cagePos) {
         var hunterComponent = ModComponents.REPAIR_ROLES.get(hunter);

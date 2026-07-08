@@ -35,7 +35,7 @@ public final class RepairEscapeHud {
     private static final int PANEL_SRC_H = 166;
     private static final int PANEL_TEX_SIZE = 256;
     private static final int MAIN_W = 150;
-    private static final int MAIN_H = 58;
+    private static final int MAIN_H = 70;
     private static final int EVENT_W = 160;
     private static final int EVENT_H = 28;
 
@@ -73,6 +73,7 @@ public final class RepairEscapeHud {
         renderEventPanel(graphics, component, Mth.clamp(width / 2 - EVENT_W / 2, 8, width - EVENT_W - 8), 8);
         renderSearchAndLockPrompt(graphics, player, component, width, height, tick);
         renderRepairInjuryEdges(graphics, component, width, height, tick);
+        renderSanityVignette(graphics, component, width, height, tick);
         renderCombatCues(graphics, width, height, tick);
         renderCoinToasts(graphics, width, height, tick);
     }
@@ -150,6 +151,8 @@ public final class RepairEscapeHud {
 
         Component subSkill = subSkillLine(component);
         drawFitted(graphics, font, subSkill, x + 9, y + 48, 132, 0xFFFFE8A3);
+
+        renderSanityRow(graphics, font, component, x, y + 58, tick);
 
         if (component.nearestTrialProgress > 0) {
             int seconds = Math.max(0, (RepairModeState.TRIAL_EXECUTION_TICKS - component.nearestTrialProgress) / 20);
@@ -334,6 +337,55 @@ public final class RepairEscapeHud {
             case HUNTER -> 0xFFE85D4F;
             case NEUTRAL -> 0xFFFFC857;
         }).orElse(0xFFE9C46A);
+    }
+
+    /** 理智条（仅幸存者/中立显示，猎人无理智机制）。 */
+    private static void renderSanityRow(FakeGuiGraphics graphics, Font font, RepairRolePlayerComponent component,
+            int x, int y, long tick) {
+        boolean hunter = RepairRoleDefinition.byId(component.activeRole)
+                .map(role -> role.faction == RepairRoleDefinition.Faction.HUNTER).orElse(false);
+        if (hunter || component.activeRole.isEmpty()) {
+            return;
+        }
+        int sanity = Mth.clamp(component.sanity, 0, 100);
+        int color = sanity >= 70 ? 0xFF9FE6A0 : sanity >= 40 ? 0xFFE9C46A : sanity >= 25 ? 0xFFE85D4F : 0xFF9B4DCA;
+        Component label = Component.translatable("hud.noellesroles.repair.sanity", sanity);
+        drawFitted(graphics, font, label, x + 9, y, 54, color);
+        // 低理智时理智条闪烁
+        float pct = sanity / 100.0F;
+        int fill = color;
+        if (sanity < 25 && (tick / 8) % 2 == 0) {
+            fill = 0xFF6A0DAD;
+        }
+        drawPixelBar(graphics, x + 62, y + 1, 79, 5, pct, 0xFF1B0B22, fill);
+    }
+
+    /** 低理智紫黑晕影：理智越低边缘越重，且带呼吸式脉动（恐鬼症式压迫感）。 */
+    private static void renderSanityVignette(FakeGuiGraphics graphics, RepairRolePlayerComponent component,
+            int width, int height, long tick) {
+        boolean hunter = RepairRoleDefinition.byId(component.activeRole)
+                .map(role -> role.faction == RepairRoleDefinition.Faction.HUNTER).orElse(false);
+        int sanity = Mth.clamp(component.sanity, 0, 100);
+        if (hunter || component.activeRole.isEmpty() || sanity >= 40) {
+            return;
+        }
+        float severity = (40 - sanity) / 40.0F; // 0..1
+        float pulse = 0.75F + 0.25F * (float) Math.sin(tick * 0.12D);
+        int alpha = (int) (severity * pulse * 120.0F);
+        int color = (alpha << 24) | 0x2B0A38;
+        int thickness = 4 + (int) (severity * 14.0F);
+        graphics.fill(0, 0, width, thickness, color);
+        graphics.fill(0, height - thickness, width, height, color);
+        graphics.fill(0, 0, thickness, height, color);
+        graphics.fill(width - thickness, 0, width, height, color);
+        for (int i = thickness; i < thickness + 8; i++) {
+            int fade = (int) (alpha * (1.0F - (i - thickness) / 8.0F));
+            int edge = (fade << 24) | 0x2B0A38;
+            graphics.fill(i, 0, i + 1, height, edge);
+            graphics.fill(width - i - 1, 0, width - i, height, edge);
+            graphics.fill(0, i, width, i + 1, edge);
+            graphics.fill(0, height - i - 1, width, height - i, edge);
+        }
     }
 
     private static void renderCombatCues(FakeGuiGraphics graphics, int width, int height, long tick) {
