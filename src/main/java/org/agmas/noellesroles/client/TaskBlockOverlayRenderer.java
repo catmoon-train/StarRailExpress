@@ -390,7 +390,7 @@ public class TaskBlockOverlayRenderer {
                             new Color(255, 174, 201), 1f,
                             true, 0f);
                     break;
-                case 13:
+                case 23:
                     TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
                             new Color(147, 112, 219), 1f,
                             true, 0f);

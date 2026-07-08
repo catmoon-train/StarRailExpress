@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.content.block;
 
 import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
+import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import net.minecraft.Util;
@@ -32,6 +33,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -39,7 +41,7 @@ import java.util.Map;
  * 全透明，无碰撞箱，创造模式玩家右键可打开UI
  * 参考屏障镶板的设计
  */
-public class EntityInteractionPanelBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+public class EntityInteractionPanelBlock extends BaseEntityBlock implements TaskInstinctShowableInterface, SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -204,5 +206,81 @@ public class EntityInteractionPanelBlock extends BaseEntityBlock implements Simp
             }
         }
         return 0;
+    }
+
+    // ===== TaskInstinctShowableInterface 实现 =====
+
+    /** 任务路标ID - 与 EntityInteractionBlock 保持一致 */
+    public static final int TASK_MARKER_INSTINCT_ID = 13;
+
+    @Override
+    public int taskInstinctId() {
+        return TASK_MARKER_INSTINCT_ID;
+    }
+
+    /**
+     * 获取指定位置的自定义任务本能ID
+     */
+    public static int getCustomTaskInstinctId(Level level, BlockPos pos) {
+        if (level == null)
+            return TASK_MARKER_INSTINCT_ID;
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof EntityInteractionBlockEntity entity) {
+            if (entity.isTaskMarker()) {
+                return entity.getTaskInstinctId();
+            }
+        }
+        return TASK_MARKER_INSTINCT_ID;
+    }
+
+    @Override
+    public boolean shouldRenderTaskInstinct(Level level, BlockState state, BlockPos pos, Player player) {
+        if (state.getBlock() instanceof EntityInteractionPanelBlock) {
+            if (level != null) {
+                if (level.getBlockEntity(pos) instanceof EntityInteractionBlockEntity entity) {
+                    if (!entity.isTaskMarker()) {
+                        return false;
+                    }
+                    // 根据透视条件判断
+                    EntityInteractionBlockEntity.TaskHighlightCondition condition = entity.getTaskHighlightCondition();
+                    switch (condition) {
+                        case NONE:
+                            return false;
+                        case ALWAYS:
+                            return true;
+                        case NORMAL_TASK: {
+                            var taskComponent = io.wifi.starrailexpress.cca.SREPlayerTaskComponent.KEY.get(player);
+                            return taskComponent != null && !taskComponent.tasks.isEmpty();
+                        }
+                        case CUSTOM_TASK: {
+                            var taskComponent = io.wifi.starrailexpress.cca.SREPlayerTaskComponent.KEY.get(player);
+                            if (taskComponent == null)
+                                return false;
+                            String customTaskId = entity.getTaskHighlightCustomTaskId();
+                            if (customTaskId == null || customTaskId.isEmpty())
+                                return false;
+                            return taskComponent.tasks.values().stream()
+                                    .anyMatch(task -> customTaskId.equals(task.getCustomTaskId()));
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Color taskInstinctRenderColor(BlockState state, BlockPos pos, Player player) {
+        if (state.getBlock() instanceof EntityInteractionPanelBlock) {
+            Level level = player.level();
+            if (level != null) {
+                BlockEntity be = level.getBlockEntity(pos);
+                if (be instanceof EntityInteractionBlockEntity entity) {
+                    int color = entity.getTaskMarkerColor();
+                    return new Color(color);
+                }
+            }
+        }
+        return Color.WHITE;
     }
 }
