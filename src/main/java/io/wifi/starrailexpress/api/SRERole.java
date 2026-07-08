@@ -75,7 +75,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected int occupiedRoleCount = 1;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
-    
+
     public ArrayList<SRERole> occupationRoles = new ArrayList<>();
     public HashSet<SRERole> opposingRoles = new HashSet<>();
 
@@ -331,6 +331,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public boolean canBeRandomedDefination() {
         return this.canBeRandomed;
     }
+
     /**
      * 是否可以出现在其他角色（例如赌徒）的随机池
      * 
@@ -368,7 +369,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
-    // ───────────────────────── 任务刷新控制 / Task Refresh Control ─────────────────────────
+    // ───────────────────────── 任务刷新控制 / Task Refresh Control
+    // ─────────────────────────
 
     /** 该职业不可刷出的任务类型（黑名单）。 */
     protected final Set<SREPlayerTaskComponent.Task> unrefreshableTasks = new HashSet<>();
@@ -598,9 +600,14 @@ public abstract class SRERole extends SREAbstractInfoClass {
         this.occupiedRoleCount = occupiedRoleCount;
         return this;
     }
-    
-    public SRERole setCanUseInstinct(boolean flag) {
+
+    public SRERole setInstinctNightVision(boolean flag) {
         this.instinctNightVision = flag;
+        return this;
+    }
+
+    public SRERole setCanUseInstinct(boolean flag) {
+        this.canUseInstinct = flag;
         return this;
     }
 
@@ -610,9 +617,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
-    public boolean instinctNightVision() {
+    public boolean haveInstinctNightVision() {
         return this.instinctNightVision;
     }
+
     public boolean canUseInstinct() {
         return this.canUseInstinct;
     }
@@ -1036,6 +1044,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
         this.maxSprintTime = maxSprintTime;
         this.canSeeTime = canSeeTime;
         this.canUseInstinct = this.canUseKiller;
+        this.instinctNightVision = this.canUseInstinct;
     }
 
     public SRERole setCanAutoAddMoney(boolean bl) {
