@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.content.item;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -8,9 +9,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public class BlackoutItem extends Item {
+public class MonitorBrokenItem extends Item {
 
-    public BlackoutItem(Properties properties) {
+    public MonitorBrokenItem(Properties properties) {
         super(properties);
     }
 
@@ -21,7 +22,8 @@ public class BlackoutItem extends Item {
             InteractionResultHolder.pass(item);
         }
         if (!user.isSpectator() && !world.isClientSide())
-            if (!SREPlayerShopComponent.useBlackout(user))
+            if (!SREPlayerShopComponent.useMonitorBroken(user,
+                    SREConfig.instance().monitorBrokenDuration * 20))
                 return InteractionResultHolder.fail(item);
         if (user.isCreative()) {
             return InteractionResultHolder.consume(item);
