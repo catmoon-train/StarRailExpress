@@ -14,23 +14,32 @@ public final class MapStatusBarHudRenderer {
     private static final ResourceLocation THIRST_ICON = Noellesroles.id("stamina/thirst_icon");
     private static final ResourceLocation HUNGER_ICON = ResourceLocation.fromNamespaceAndPath("minecraft",
             "hud/food_full");
+    private static final ResourceLocation POLLUTION_ICON = Noellesroles.id("stamina/pollution_icon");
 
     private static final int BAR_WIDTH = 120;
     private static final int BAR_HEIGHT = 2;
     private static final int ICON_SIZE = 9;
     private static final int ICON_GAP = 4;
 
-    /** 低于此比例触发屏幕边框效果 */
+    /** 低于此比例触发屏幕边框效果（保暖/口渴/饥饿） */
     private static final float LOW_THRESHOLD = 0.35f;
     private static final float LOW_THRESHOLD_1 = 0.3f;
     private static final float LOW_THRESHOLD_2 = 0.25f;
     private static final float LOW_THRESHOLD_3 = 0.2f;
     private static final float LOW_THRESHOLD_4 = 0.15f;
     private static final float LOW_THRESHOLD_5 = 0.1f;
-    /** 边框颜色：口渴=蓝色、保暖=雪色、饥饿=棕色 */
+    /** 高于此比例触发屏幕边框效果（污染值） */
+    private static final float HIGH_THRESHOLD = 0.65f;
+    private static final float HIGH_THRESHOLD_1 = 0.7f;
+    private static final float HIGH_THRESHOLD_2 = 0.75f;
+    private static final float HIGH_THRESHOLD_3 = 0.8f;
+    private static final float HIGH_THRESHOLD_4 = 0.85f;
+    private static final float HIGH_THRESHOLD_5 = 0.9f;
+    /** 边框颜色：口渴=蓝色、保暖=雪色、饥饿=棕色、污染=灰色 */
     private static final int THIRST_EDGE_COLOR = 0xFF4488FF;
     private static final int WARMTH_EDGE_COLOR = 0xFFFFFAFA;
     private static final int HUNGER_EDGE_COLOR = 0xFFC89632;
+    private static final int POLLUTION_EDGE_COLOR = 0xFF888888;
     private static long lastWarnedTime = 0;
 
     private MapStatusBarHudRenderer() {
@@ -60,8 +69,31 @@ public final class MapStatusBarHudRenderer {
 
         float value = (float) MapStatusBarClientState.value() / MapStatusBarClientState.maxValue();
 
-        // 低于35%时触发屏幕边框效果
-        if (value < LOW_THRESHOLD) {
+        // 边框效果：污染值（值越高越危险），其他（值越低越危险）
+        if (type == MapStatusBarType.POLLUTION) {
+            if (value >= HIGH_THRESHOLD) {
+                int warnGap = 20;
+                float intensity = 0.5f;
+                if (value >= HIGH_THRESHOLD_5) {
+                    warnGap = 5; intensity = 1f;
+                } else if (value >= HIGH_THRESHOLD_4) {
+                    warnGap = 10; intensity = 0.9f;
+                } else if (value >= HIGH_THRESHOLD_3) {
+                    warnGap = 20; intensity = 0.8f;
+                } else if (value >= HIGH_THRESHOLD_2) {
+                    warnGap = 30; intensity = 0.7f;
+                } else if (value >= HIGH_THRESHOLD_1) {
+                    warnGap = 40; intensity = 0.6f;
+                }
+                long nowTime = client.level.getGameTime();
+                if (lastWarnedTime <= 0 || nowTime - lastWarnedTime >= warnGap) {
+                    StaminaRenderer.triggerScreenEdgeEffect(POLLUTION_EDGE_COLOR, 100, intensity);
+                    lastWarnedTime = nowTime;
+                }
+            } else {
+                lastWarnedTime = 0;
+            }
+        } else if (value < LOW_THRESHOLD) {
             int warnGap = 20; // 1s = 20tick
             float intensity = 0.5f;
             if (value < LOW_THRESHOLD_5) {
@@ -118,11 +150,17 @@ public final class MapStatusBarHudRenderer {
             case WARMTH -> WARMTH_ICON;
             case THIRST -> THIRST_ICON;
             case HUNGER -> HUNGER_ICON;
+            case POLLUTION -> POLLUTION_ICON;
             default -> HUNGER_ICON;
         };
     }
 
     private static int color(MapStatusBarType type, float value) {
+        // 污染值：大于80%变红（与其他状态栏方向相反）
+        if (type == MapStatusBarType.POLLUTION) {
+            if (value > 0.8f) return 0xFFDD3333;
+            return 0xFFAAAAAA; // 淡灰色
+        }
         if (value < 0.2f) {
             return 0xFFDD3333; // 红色 (低于1/5)
         }
