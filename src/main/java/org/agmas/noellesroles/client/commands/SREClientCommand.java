@@ -2,8 +2,6 @@ package org.agmas.noellesroles.client.commands;
 
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.ConfigCompact.ui.TestScreen;
-import io.wifi.starrailexpress.SREClientConfig;
-import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.NewspaperScreen;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
