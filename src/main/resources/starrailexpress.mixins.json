@@ -102,7 +102,6 @@
     "compat.sodium_extra.SodiumExtraDisableOptionMixin",
     "compat.sodium_extra.SodiumExtraLoadedMixin",
     "compat.carpet.FixClientReturnCrash",
-    "compat.handheldmoon.RemoveCrashBlock",
     "entity.player.LocalPlayerMixin",
     "gui.ScreenDrawableGetMixin",
     "input.KeyboardHandlerMixin",

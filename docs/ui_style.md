@@ -64,7 +64,24 @@ scissor 裁剪，交互元素有平滑的 hover 过渡动画。
 
 ## 3. 面板绘制范式
 
-所有新面板照抄这个模式（见 `MapIntroduceScreen.drawPanelBg` / `RoleRotationScreen.drawPanel`）：
+Screen 的绘制有顺序（请严格按照这个顺序来）：
+```java
+@Override
+public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+    // 第一步，先调用super.render绘制组件，放在这个方法的**最前面**。super.render会自动调用renderBackground。如果想要渲染特殊背景请override renderBackground。
+    super.render(g, mouseX, mouseY, partialTick);
+    // 第二部，渲染其他组件，比如文本、自定义组件
+}
+
+@Override
+public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+    // 如果需要使用原版的背景样式，在这个方法的**最前面**调用 `super.renderBackground(g, mouseX, mouseY, partialTick);`
+    // 绘制背景，drawPanel应当放在这里。理论上不应该绘制文本。但在此处绘制文本也不会出现问题。文本更推荐写在render末尾，避免被遮挡。
+    drawPanel(g, mouseX, mouseY, partialTick);
+}
+```
+
+所有新面板照抄这个模式（见`RoleIntroduceScreen` / `MapIntroduceScreen.drawPanelBg` / `RoleRotationScreen.drawPanel`）：
 
 ```java
 // 1. 上下渐变背景
