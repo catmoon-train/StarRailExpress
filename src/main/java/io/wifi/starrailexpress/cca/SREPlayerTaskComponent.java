@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMBlockTags;
 import io.wifi.starrailexpress.network.original.TaskCompletePayload;
+import io.wifi.starrailexpress.util.BlockTypeChecker;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -1039,17 +1040,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         }
 
         private static boolean isSeat(Entity vehicleE) {
-            if (vehicleE instanceof SeatEntity)
-                return true;
-            // 兼容 Handcrafted 的座椅
-            try {
-                Class<?> seatClass = Class.forName("earth.terrarium.handcrafted.common.entities.Seat");
-                if (seatClass.isInstance(vehicleE))
-                    return true;
-            } catch (ClassNotFoundException ignored) {
-                // Handcrafted 未安装，忽略
-            }
-            return false;
+            return BlockTypeChecker.isSeatEntity(vehicleE);
         }
 
         @Override

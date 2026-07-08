@@ -11,6 +11,7 @@ import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
+import io.wifi.starrailexpress.util.BlockTypeChecker;
 import net.exmo.sre.meeting.network.MeetingStateS2CPayload;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -28,6 +29,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.Nullable;
@@ -67,7 +69,6 @@ public final class MeetingManager {
     private static final int CHAT_SPEAK_TICKS = 80;
     /** 语音活动的“发言中”标记保持时长（tick）。 */
     private static final int VOICE_SPEAK_TICKS = 15;
-    private static final int MAX_SCAN_RADIUS = 32;
 
     public static final int PHASE_NONE = 0;
     public static final int PHASE_INTRO = 1;
@@ -406,13 +407,15 @@ public final class MeetingManager {
 
     /** 搜寻会议点周围的椅子，按与中心的距离排序。 */
     private static List<BlockPos> scanChairs(ServerLevel serverLevel, AreasSettings settings) {
-        int radius = (int) Math.min(MAX_SCAN_RADIUS, Math.max(1, settings.meetingChairScanRadius));
-        BlockPos centerPos = BlockPos.containing(settings.meetingPosition.x, settings.meetingPosition.y, settings.meetingPosition.z);
+        AABB scanBox = settings.meetingChairScanBox.toAABB();
+        BlockPos centerPos = BlockPos.containing(settings.meetingPosition.x, settings.meetingPosition.y,
+                settings.meetingPosition.z);
         List<BlockPos> chairs = new ArrayList<>();
         for (BlockPos pos : BlockPos.betweenClosed(
-                centerPos.offset(-radius, -3, -radius), centerPos.offset(radius, 3, radius))) {
+                centerPos.offset((int) scanBox.minX, (int) scanBox.minY, (int) scanBox.minZ),
+                centerPos.offset((int) scanBox.maxX, (int) scanBox.maxY, (int) scanBox.maxZ))) {
             BlockState state = serverLevel.getBlockState(pos);
-            if (state.getBlock() instanceof MountableBlock) {
+            if (BlockTypeChecker.isSeatBlock(state.getBlock())) {
                 chairs.add(pos.immutable());
             }
         }

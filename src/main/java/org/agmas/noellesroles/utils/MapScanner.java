@@ -21,6 +21,7 @@ import net.minecraft.world.item.HoneyBottleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.ThrowablePotionItem;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.state.properties.BedPart;
@@ -111,7 +112,8 @@ public class MapScanner {
                             if (items.size() > 0) {
                                 ItemStack item_0 = items.get(0);
                                 Item item_ = item_0.getItem();
-                                if ((item_ instanceof CocktailItem) || (item_ instanceof PotionItem)
+                                if ((item_ instanceof CocktailItem)
+                                        || ((item_ instanceof PotionItem) && !(item_ instanceof ThrowablePotionItem))
                                         || (item_ instanceof HoneyBottleItem)) {
                                     GameUtils.taskBlocks.put(blockPos6, 2);
                                 } else {
@@ -132,7 +134,8 @@ public class MapScanner {
                     } else if (blockState.getBlock() instanceof TaskInstinctShowableInterface it) {
                         int instinctId = it.taskInstinctId();
                         GameUtils.taskBlocks.put(blockPos6, instinctId);
-                        // 收集小游戏任务点方块的 minigameId（type 14 = MinigameQuestBlock, 15 = MinigameQuestPanelBlock）
+                        // 收集小游戏任务点方块的 minigameId（type 14 = MinigameQuestBlock, 15 =
+                        // MinigameQuestPanelBlock）
                         if (instinctId == 14 || instinctId == 15) {
                             if (localLevel.getBlockEntity(blockPos6) instanceof MinigameQuestBlockEntity questBe) {
                                 String mgId = questBe.getMinigameId();

@@ -4,6 +4,7 @@ import io.wifi.ConfigCompact.annotation.Category;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -39,9 +40,90 @@ import net.minecraft.world.phys.Vec3;
  */
 
 public class AreasSettings {
+    public static class StoreableAABB {
+        public final double minX;
+        public final double minY;
+        public final double minZ;
+        public final double maxX;
+        public final double maxY;
+        public final double maxZ;
+
+        public StoreableAABB(AABB aabb) {
+            this.minX = aabb.minX;
+            this.minY = aabb.minY;
+            this.minZ = aabb.minZ;
+            this.maxX = aabb.maxX;
+            this.maxY = aabb.maxY;
+            this.maxZ = aabb.maxZ;
+        }
+
+        public StoreableAABB(net.minecraft.world.phys.Vec3 pos1, net.minecraft.world.phys.Vec3 pos2) {
+            this.minX = Math.min(pos1.x, pos2.x);
+            this.minY = Math.min(pos1.y, pos2.y);
+            this.minZ = Math.min(pos1.z, pos2.z);
+            this.maxX = Math.max(pos1.x, pos2.x);
+            this.maxY = Math.max(pos1.y, pos2.y);
+            this.maxZ = Math.max(pos1.z, pos2.z);
+        }
+
+        public StoreableAABB(double d, double e, double f, double g, double h, double i) {
+            this.minX = Math.min(d, g);
+            this.minY = Math.min(e, h);
+            this.minZ = Math.min(f, i);
+            this.maxX = Math.max(d, g);
+            this.maxY = Math.max(e, h);
+            this.maxZ = Math.max(f, i);
+        }
+
+        public StoreableAABB setMinX(double d) {
+            return new StoreableAABB(d, this.minY, this.minZ, this.maxX, this.maxY, this.maxZ);
+        }
+
+        public StoreableAABB setMinY(double d) {
+            return new StoreableAABB(this.minX, d, this.minZ, this.maxX, this.maxY, this.maxZ);
+        }
+
+        public StoreableAABB setMinZ(double d) {
+            return new StoreableAABB(this.minX, this.minY, d, this.maxX, this.maxY, this.maxZ);
+        }
+
+        public StoreableAABB setMaxX(double d) {
+            return new StoreableAABB(this.minX, this.minY, this.minZ, d, this.maxY, this.maxZ);
+        }
+
+        public StoreableAABB setMaxY(double d) {
+            return new StoreableAABB(this.minX, this.minY, this.minZ, this.maxX, d, this.maxZ);
+        }
+
+        public StoreableAABB setMaxZ(double d) {
+            return new StoreableAABB(this.minX, this.minY, this.minZ, this.maxX, this.maxY, d);
+        }
+
+        public AABB toAABB() {
+            return new AABB(this.minX, this.minY, this.minZ, this.maxX, this.maxY, this.maxZ);
+        }
+    }
+
+    public static class PosWithOrientation {
+        public final StoreableVec3 pos;
+        public final float yaw;
+        public final float pitch;
+
+        public PosWithOrientation(StoreableVec3 pos, float yaw, float pitch) {
+            this.pos = pos;
+            this.yaw = yaw;
+            this.pitch = pitch;
+        }
+
+        public PosWithOrientation(double x, double y, double z, float yaw, float pitch) {
+            this(new StoreableVec3(x, y, z), yaw, pitch);
+        }
+
+    }
 
     public static class StoreableBlockPos {
         public int x = 0, y = 0, z = 0;
+
         public int x() {
             return x;
         }
@@ -234,7 +316,7 @@ public class AreasSettings {
     public StoreableVec3 meetingPosition = new StoreableVec3(0, 0, 0);
     /** 以会议地点为中心自动搜寻椅子（MountableBlock）的半径。 */
     @Category("meeting")
-    public double meetingChairScanRadius = 12;
+    public StoreableAABB meetingChairScanBox = new StoreableAABB(-12, -3, -12, 12, 3, 12);
     /** 讨论阶段时长（秒）。 */
     @Category("meeting")
     public int meetingDiscussSeconds = 60;
