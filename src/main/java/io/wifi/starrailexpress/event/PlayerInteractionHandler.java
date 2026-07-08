@@ -34,24 +34,31 @@ public class PlayerInteractionHandler {
 
                 if (game.isRunning() && !player.isCreative() && !player.isSpectator()) {
                     BlockState state = world.getBlockState(hitResult.getBlockPos());
-                    Block block = state.getBlock();
                     if (state.is(Blocks.NOTE_BLOCK)) {
                         var moodC = SREPlayerMoodComponent.KEY.get(player);
                         if (moodC != null) {
                             moodC.playNoteBlock();
                         }
                     }
-                    if (isVanillaWorkstation(block)) {
-                        return InteractionResult.FAIL;
-                    }
+                }
+            }
+            SREGameWorldComponent game = SREGameWorldComponent.KEY.get(world);
 
-                    if (CantRightClickBlocks.shouldPreventInteraction(player, block, world)) {
-                        return InteractionResult.FAIL;
-                    }
+            if (game.isRunning() && !player.isCreative() && !player.isSpectator()) {
+
+                BlockState state = world.getBlockState(hitResult.getBlockPos());
+                Block block = state.getBlock();
+
+                if (isVanillaWorkstation(block)) {
+                    return InteractionResult.FAIL;
+                }
+                if (CantRightClickBlocks.shouldPreventInteraction(player, block, world)) {
+                    return InteractionResult.FAIL;
                 }
             }
             return InteractionResult.PASS; // 继续正常处理
         });
+
     }
 
     /**
