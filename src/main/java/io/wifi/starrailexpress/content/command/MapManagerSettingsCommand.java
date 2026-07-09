@@ -496,6 +496,7 @@ public class MapManagerSettingsCommand {
   // ============ 命令补全 ============
 
   private static final SuggestionProvider<CommandSourceStack> PATH_SUGGESTIONS = (ctx, builder) -> {
+    String input = builder.getRemaining();
     CommandSourceStack source = ctx.getSource();
     ServerLevel level;
     try {
@@ -516,31 +517,70 @@ public class MapManagerSettingsCommand {
       return builder.buildFuture();
     }
 
-    String input = builder.getRemaining();
-    String[] parts = input.split("\\.");
-    int lastIndex = parts.length - 1;
-    String prefix = parts[lastIndex];
-    String[] pathToParent = Arrays.copyOf(parts, lastIndex);
-    try {
-      Object current = root;
-      for (String part : pathToParent) {
-        Field field = findField(current.getClass(), part); // 改用 findField
-        field.setAccessible(true);
-        current = field.get(current);
-        if (current == null)
+    if (input.isEmpty()) {
+      // 输入为空，直接建议根对象的所有字段
+      for (Field field : getAllFields(root.getClass())) {
+        builder.suggest(field.getName());
+      }
+      return builder.buildFuture();
+    }
+
+    boolean endsWithDot = input.endsWith(".");
+    Object currentObject = root;
+    String parentPath = ""; // 不含末尾点的父路径字符串（用于构造完整路径）
+    String prefix = ""; // 用户已输入的最后一段（可能不完整）
+
+    if (endsWithDot) {
+      // 例如 "meetingPosition." → parentPath = "meetingPosition"
+      parentPath = input.substring(0, input.length() - 1);
+      if (parentPath.isEmpty()) {
+        currentObject = root;
+      } else {
+        try {
+          currentObject = getObjectByPath(root, parentPath.split("\\."));
+        } catch (Exception e) {
           return builder.buildFuture();
-      }
-      List<String> candidates = new ArrayList<>();
-      for (Field field : getAllFields(current.getClass())) { // 改用 getAllFields
-        candidates.add(field.getName());
-      }
-      for (String name : candidates) {
-        if (name.startsWith(prefix)) {
-          String suggestion = input.substring(0, input.length() - prefix.length()) + name;
-          builder.suggest(suggestion);
         }
       }
-    } catch (Exception ignored) {
+      prefix = ""; // 点后面没有输入，前缀为空
+    } else {
+      // 例如 "meetingPosition.x" → parts = ["meetingPosition", "x"]
+      String[] parts = input.split("\\.");
+      int lastIndex = parts.length - 1;
+      prefix = parts[lastIndex];
+      if (lastIndex == 0) {
+        // 没有点，父路径为空
+        parentPath = "";
+        currentObject = root;
+      } else {
+        // 父路径为 parts[0..lastIndex-1]
+        parentPath = String.join(".", Arrays.copyOf(parts, lastIndex));
+        try {
+          currentObject = getObjectByPath(root, Arrays.copyOf(parts, lastIndex));
+        } catch (Exception e) {
+          return builder.buildFuture();
+        }
+      }
+    }
+
+    if (currentObject == null)
+      return builder.buildFuture();
+
+    // 遍历当前对象的所有字段
+    for (Field field : getAllFields(currentObject.getClass())) {
+      String fieldName = field.getName();
+      // 根据前缀过滤（不区分大小写）
+      if (!prefix.isEmpty() && !fieldName.toLowerCase().startsWith(prefix.toLowerCase())) {
+        continue;
+      }
+      // 构造完整路径
+      String fullPath;
+      if (parentPath.isEmpty()) {
+        fullPath = fieldName;
+      } else {
+        fullPath = parentPath + "." + fieldName;
+      }
+      builder.suggest(fullPath);
     }
     return builder.buildFuture();
   };
