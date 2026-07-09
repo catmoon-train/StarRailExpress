@@ -2425,6 +2425,8 @@
     "meeting.sre.discussion": "自由討論",
     "meeting.sre.speak_hint": "按 %s 舉手發言（語音/聊天也會被鏡頭捕捉）",
     "meeting.sre.speaking": "發言中……再按一次結束",
+    "meeting.vote.result.none_expelled": "無人被驅逐",
+    "meeting.vote.result.expelled": "%s 被驅逐了",
     "sre.scene.publish.start":  "正在擷取並發布場景資產，請稍候…",
     "sre.scene.publish.saved":  "已保存場景 %s 並指定給地圖 %s，開始發布資產",
     "sre.scene.publish.complete":  "場景發布並保存完成：%s（%s MiB）",

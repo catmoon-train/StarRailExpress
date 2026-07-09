@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.util.BlockTypeChecker;
 import net.exmo.sre.meeting.network.MeetingStateS2CPayload;
+import net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -517,6 +518,7 @@ public final class MeetingManager {
                 .maxSelect(1).type("meeting").start();
         // 投票结束时处理结果
         VoteManager.addEndCallback(session -> {
+            String expelledName = "";
             var topOpt = session.getTopResult();
             if (topOpt != null && topOpt.getValue().count() > 0) {
                 String resultId = topOpt.getKey();
@@ -528,12 +530,29 @@ public final class MeetingManager {
                             if (MeetingVoteOutEvent.EVENT.invoker().onVoteOut(serverLevel, target)) {
                                 GameUtils.forceKillPlayer(target, false, null,
                                         GameConstants.DeathReasons.VOTED_OUT);
+                                expelledName = target.getGameProfile().getName();
                             }
                         }
                         break;
                     }
                 }
             }
+
+            // 收集投票结果（每人获得的票数）
+            var results = session.getResults();
+            List<MeetingVoteResultS2CPayload.VoteEntry> entries = new ArrayList<>();
+            for (var entry : results.entrySet()) {
+                String playerName = entry.getValue().option().display().getString();
+                int count = entry.getValue().count();
+                entries.add(new MeetingVoteResultS2CPayload.VoteEntry(playerName, count));
+            }
+
+            // 广播投票结果给所有玩家
+            MeetingVoteResultS2CPayload resultPayload = new MeetingVoteResultS2CPayload(expelledName, entries);
+            for (ServerPlayer player : serverLevel.players()) {
+                ServerPlayNetworking.send(player, resultPayload);
+            }
+
             // 稍微延迟让 kill 处理完再结束
             endMeeting(false);
         });

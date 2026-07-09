@@ -2360,6 +2360,8 @@
     "meeting.sre.discussion": "自由讨论",
     "meeting.sre.speak_hint": "按 %s 举手发言（语音/聊天也会被镜头捕捉）",
     "meeting.sre.speaking": "发言中……再按一次结束",
+    "meeting.vote.result.none_expelled": "无人被驱逐",
+    "meeting.vote.result.expelled": "%s 被驱逐了",
     "sre.map_helper.set_spawn": "设置玩家出生点",
     "sre.map_helper.set_spectator_spawn": "设置旁观者出生点",
     "sre.map_helper.area.set_min": "设置 %s 最小角",
