@@ -1,8 +1,11 @@
 package org.agmas.noellesroles.commands;
 
 import com.mojang.brigadier.context.CommandContext;
+
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -11,8 +14,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
 
 public class StuckCommand {
     public static void register() {
@@ -24,15 +28,11 @@ public class StuckCommand {
                 });
     }
 
-    /** 打开抽奖界面 */
-    public static boolean checkBlock(ServerLevel level, BlockState blockState, BlockPos blockPos) {
-        return blockState.isSolidRender(level, blockPos) &&
-                blockState.isCollisionShapeFullBlock(level, blockPos);
-    }
-
     protected static int stuckDeal(CommandContext<CommandSourceStack> context) {
         try {
             ServerPlayer player = context.getSource().getPlayer();
+            if (player == null)
+                return 0;
             ServerLevel level = context.getSource().getLevel();
             if (SREGameWorldComponent.KEY.get(level).getGameStatus() == GameStatus.INACTIVE) {
                 BlockPos spawn = level.getSharedSpawnPos();
@@ -48,11 +48,23 @@ public class StuckCommand {
 
                 return 1;
             }
-            if (player == null)
+            if (player.isSpectator()) {
+                if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+                    if (DeathPenaltyComponent.hasPenalty(player)) {
+                        return 0;
+                    }
+                    AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
+                    AreasWorldComponent.PosWithOrientation spectatorSpawnPos = areas.getSpectatorSpawnPos();
+                    player.teleportTo(level, spectatorSpawnPos.pos.x(), spectatorSpawnPos.pos.y(),
+                            spectatorSpawnPos.pos.z(), spectatorSpawnPos.yaw, spectatorSpawnPos.pitch);
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.commands.stuck.success")
+                                    .withStyle(ChatFormatting.GREEN),
+                            true);
+                }
                 return 0;
-            var playerInBlockPos = player.blockPosition();
-            var blockState = level.getBlockState(playerInBlockPos);
-            if (checkBlock(level, blockState, playerInBlockPos)) {
+            }
+            if (checkPos(level, player, player.getBoundingBox())) {
 
                 // var playerInBlockPos2 = player.blockPosition();
                 // var blockState2 = level.getBlockState(playerInBlockPos2);
@@ -76,5 +88,9 @@ public class StuckCommand {
             Noellesroles.LOGGER.error("[LootSys] Failed to send checkPacket\n", e);
             return 0;
         }
+    }
+
+    private static boolean checkPos(ServerLevel level, ServerPlayer player, AABB area) {
+        return (level.noBlockCollision(player, area));
     }
 }

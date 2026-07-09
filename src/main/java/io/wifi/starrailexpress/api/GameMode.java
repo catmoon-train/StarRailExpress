@@ -347,7 +347,12 @@ public abstract class GameMode {
         else
             killer = _killer;
         _killer = killer;
-        OnKillPlayerTriggered.EVENT.invoker().onKillPlayerTriggered(victim, spawnBody, killer, deathReason, forceDeath);
+        {
+            var c = OnKillPlayerTriggered.EVENT.invoker().onKillPlayerTriggered(victim, spawnBody, killer, deathReason,
+                    forceDeath);
+            if (c != null && c.isFalse())
+                return;
+        }
         SREPlayerPsychoComponent psychocca = SREPlayerPsychoComponent.KEY.get(victim);
         if (killer != null && killer instanceof ServerPlayer serverPlayer) {
             final var triggerScreenEdgeEffectPayload = new TriggerScreenEdgeEffectPayload(Color.RED.getRGB(),

@@ -62,7 +62,10 @@ public class KnifeItem extends SkinableItem {
         if (user.isSpectator()) {
             return;
         }
-        if (remainingUseTicks >= this.getUseDuration(stack, user) - 8 || !(user instanceof Player attacker)
+        // 蓄力阈值：拥有2D视角效果时降至0.2秒（4刻），否则0.4秒（8刻）。
+        // 需与 KnifeChargeableItem.getMaxChargeTime 保持一致。
+        int chargeTicks = user.hasEffect(org.agmas.noellesroles.init.ModEffects.TWO_DIMENSIONAL_CAMERA) ? 4 : 8;
+        if (remainingUseTicks >= this.getUseDuration(stack, user) - chargeTicks || !(user instanceof Player attacker)
                 || !world.isClientSide)
             return;
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(world);
