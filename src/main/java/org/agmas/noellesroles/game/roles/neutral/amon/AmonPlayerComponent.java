@@ -383,7 +383,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     /**
-     * 附身期间按 Shift+G：完成夺舍——变成目标（伪装其皮肤/名字）、令其死亡，并在本体处生成阿蒙自己的尸体。
+     * 附身期间按 潜行+技能键：完成夺舍——变成目标（伪装其皮肤/名字）、令其死亡，并在本体处生成阿蒙自己的尸体。
      */
     public boolean finalizePossession() {
         if (!(player instanceof ServerPlayer amon) || !(amon.level() instanceof ServerLevel level))

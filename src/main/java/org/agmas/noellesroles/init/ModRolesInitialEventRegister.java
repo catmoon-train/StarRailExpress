@@ -426,7 +426,7 @@ public class ModRolesInitialEventRegister {
     static {
         // 宿命的罪人技能注册：
         // 技能 1「命运的启示」(G)：近距离查看准星目标最近 3 次杀人方式
-        // 技能 2「重启」(Shift+G)：随机死因死亡脱离，回房间 + 短暂无敌
+        // 技能 2「重启」(潜行+技能键)：随机死因死亡脱离，回房间 + 短暂无敌
         RoleSkill.register(ModRoles.DOOMED_SINNER,
                 RoleSkill.skill(SRE.id("doomed_sinner_revelation"),
                         "skill.noellesroles.doomed_sinner.revelation",
@@ -520,7 +520,7 @@ public class ModRolesInitialEventRegister {
 
         // 阿蒙技能：
         // - G 键：对准星玩家静默种下时之虫（附身期间也可为其他人种虫）
-        // - Shift+G 键：附身期间完成夺舍（变成目标、令其死亡、本体处生成尸体）
+        // - 潜行+技能键 键：附身期间完成夺舍（变成目标、令其死亡、本体处生成尸体）
         RoleSkill.register(ModRoles.AMON,
                 RoleSkill.skill(SRE.id("amon_plant_seed"), "skill.noellesroles.amon.plant_seed", context -> {
                     ServerPlayer player = context.player();
@@ -529,7 +529,7 @@ public class ModRolesInitialEventRegister {
                     var comp = org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent.KEY.get(player);
                     if (comp == null)
                         return false;
-                    // G 键始终执行种时之虫（附身期间不夺舍，夺舍改用 Shift+G）
+                    // G 键始终执行种时之虫（附身期间不夺舍，夺舍改用 潜行+技能键）
                     if (!context.skillReady())
                         return false;
                     ServerPlayer target = context.target() == null ? null
@@ -537,7 +537,7 @@ public class ModRolesInitialEventRegister {
                     return comp.plantSeed(target);
                 }).cooldownSeconds(20).toggleable(true).announceToSelf(false).build(),
 
-                // Shift+G：附身期间完成夺舍
+                // 潜行+技能键：附身期间完成夺舍
                 RoleSkill.skill(SRE.id("amon_usurp"), "skill.noellesroles.amon.usurp", context -> {
                     ServerPlayer player = context.player();
                     if (player.isSpectator())
@@ -559,7 +559,7 @@ public class ModRolesInitialEventRegister {
             }
         });
 
-        // 咒术师技能注册（重做版）：窃取发肤（G）/ 蚀骨之咒（V 切换）/ 领域展开（Shift+G）
+        // 咒术师技能注册（重做版）：窃取发肤（G）/ 蚀骨之咒（V 切换）/ 领域展开（潜行+技能键）
         org.agmas.noellesroles.game.roles.killer.warlock.WarlockDomainManager.register();
         RoleSkill.register(ModRoles.WARLOCK,
                 RoleSkill.skill(SRE.id("warlock_steal"), "skill.noellesroles.warlock.steal", context -> {

@@ -9,6 +9,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 
 import java.util.List;
@@ -117,7 +119,8 @@ public final class UnifiedSkillHud {
                     stateColor = MUTED;
                 } else {
                     stateText = skill.shifted()
-                            ? Component.translatable("hud.sre.skill.ready_shift")
+                            ? Component.translatable("hud.sre.skill.ready_shift", client.options.keyShift,
+                                    NoellesrolesClient.abilityBind)
                             : Component.translatable("hud.sre.skill.ready");
                     stateColor = GREEN;
                 }

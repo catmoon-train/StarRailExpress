@@ -41,7 +41,7 @@ import java.util.UUID;
  * 每名玩家整局只能被窃取一次。目标只会收到一句模糊的寒意提示。</li>
  * <li><b>蚀骨之咒</b>（V 切换）：消耗一份咒物诅咒其主人 —— 目标反胃、短暂迟缓，
  * 周身萦绕灵魂颗粒；若诅咒未解时目标死亡（不限死因），咒术师收取咒酬。</li>
- * <li><b>领域展开·灰髓之境</b>（Shift+G）：消耗至多 {@value WarlockDomainManager#MAX_VICTIMS}
+ * <li><b>领域展开·灰髓之境</b>（潜行+技能键）：消耗至多 {@value WarlockDomainManager#MAX_VICTIMS}
  * 份咒物，将其主人连同自己一并拉入灰雾领域（高空异空间，见
  * {@link WarlockDomainManager}），域内自由猎杀；杀死咒术师即可立刻破界而出。</li>
  * </ul>
