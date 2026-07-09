@@ -1081,7 +1081,10 @@ public class SREClient implements ClientModInitializer {
     }
 
     public static boolean hasInstinctNightVision() {
-        if(cachedPlayerRole!=null){
+        if (cachedPlayerSpectatingOrCreative) {
+            return true;
+        }
+        if (cachedPlayerRole != null) {
             return cachedPlayerRole.haveInstinctNightVision();
         }
         return false;
