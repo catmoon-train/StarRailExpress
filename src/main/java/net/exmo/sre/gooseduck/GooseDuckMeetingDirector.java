@@ -97,6 +97,10 @@ public final class GooseDuckMeetingDirector {
     private static void applyMeetingEffects(ServerPlayer player) {
         addEffect(player, ModEffects.TWO_DIMENSIONAL_CAMERA, TWO_D_OVERHEAD_AMPLIFIER);
         addEffect(player, ModEffects.TWO_DIMENSIONAL_CAMERA_DISTANCE, TWO_D_DISTANCE_AMPLIFIER);
+        // 箱庭视野：以区块网格级的方块剔除精确移除玩家所在房间的屋顶 / 近墙，
+        // 让 2D 俯视能直接俯瞰全场。它是 2D 视角遮挡剔除的正解——永不产生「一片虚空」
+        // （未封闭房间会被判为 outside 从而完整渲染），取代早期脆弱的近裁剪面平面裁剪。
+        addEffect(player, ModEffects.HAKONIWA_VISION, 0);
         addEffect(player, ModEffects.SKILL_FREEZED, 0);
         addEffect(player, ModEffects.SAFE_TIME, 0);
         addEffect(player, ModEffects.MOOD_DRAIN_IMMUNITY, 0);
@@ -110,6 +114,7 @@ public final class GooseDuckMeetingDirector {
         for (ServerPlayer player : level.players()) {
             player.removeEffect(ModEffects.TWO_DIMENSIONAL_CAMERA);
             player.removeEffect(ModEffects.TWO_DIMENSIONAL_CAMERA_DISTANCE);
+            player.removeEffect(ModEffects.HAKONIWA_VISION);
             player.removeEffect(ModEffects.SKILL_FREEZED);
             player.removeEffect(ModEffects.SAFE_TIME);
             player.removeEffect(ModEffects.MOOD_DRAIN_IMMUNITY);

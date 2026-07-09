@@ -1,9 +1,11 @@
 package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.content.block.ZiplineBlock;
 import io.wifi.starrailexpress.content.block.entity.RemoteRedstoneBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.CameraBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.ZiplineBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -20,6 +22,7 @@ public class BindingToolItem extends Item {
     private BlockPos lastReactorPos = null;
     private BlockPos lastWaterValvePos = null;
     private BlockPos lastDebrisPilePos = null;
+    private BlockPos lastZiplinePos = null;
 
     public BindingToolItem(Properties settings) {
         super(settings);
@@ -107,6 +110,66 @@ public class BindingToolItem extends Item {
         return InteractionResult.SUCCESS;
     }
 
+    /**
+     * 滑索柱连线：右键第一根柱子选中，右键第二根柱子连上（已连上则断开）。
+     * 潜行右键清空该柱子的全部连接。手动连线可以跨高度、可以斜拉。
+     */
+    private InteractionResult handleZiplineBind(Level level, BlockPos pos, Player player) {
+        if (player.isShiftKeyDown()) {
+            ZiplineBlock.unlinkAll(level, pos);
+            lastZiplinePos = null;
+            player.displayClientMessage(
+                    Component.translatable("message.item.starrailexpress.binding_tool.zipline_cleared")
+                            .withStyle(ChatFormatting.GREEN),
+                    true);
+            return InteractionResult.SUCCESS;
+        }
+
+        if (lastZiplinePos == null || lastZiplinePos.equals(pos)) {
+            lastZiplinePos = lastZiplinePos == null ? pos.immutable() : null;
+            player.displayClientMessage(
+                    Component.translatable(lastZiplinePos == null
+                            ? "message.item.starrailexpress.binding_tool.zipline_unselected"
+                            : "message.item.starrailexpress.binding_tool.zipline_first")
+                            .withStyle(ChatFormatting.AQUA),
+                    true);
+            return InteractionResult.SUCCESS;
+        }
+
+        if (!(level.getBlockEntity(lastZiplinePos) instanceof ZiplineBlockEntity firstZbe)) {
+            lastZiplinePos = pos.immutable();
+            player.displayClientMessage(
+                    Component.translatable("message.item.starrailexpress.binding_tool.zipline_first")
+                            .withStyle(ChatFormatting.AQUA),
+                    true);
+            return InteractionResult.SUCCESS;
+        }
+
+        if (!lastZiplinePos.closerThan(pos, ZiplineBlock.MAX_LINK_DISTANCE)) {
+            player.displayClientMessage(
+                    Component.translatable("message.item.starrailexpress.binding_tool.zipline_too_far",
+                            ZiplineBlock.MAX_LINK_DISTANCE).withStyle(ChatFormatting.RED),
+                    true);
+            return InteractionResult.SUCCESS;
+        }
+
+        boolean connected = firstZbe.hasConnection(pos);
+        if (connected) {
+            ZiplineBlock.unlink(level, lastZiplinePos, pos);
+        } else {
+            ZiplineBlock.link(level, lastZiplinePos, pos);
+        }
+        player.displayClientMessage(
+                Component.translatable(connected
+                        ? "message.item.starrailexpress.binding_tool.zipline_unbound"
+                        : "message.item.starrailexpress.binding_tool.zipline_bound",
+                        lastZiplinePos.toShortString(), pos.toShortString())
+                        .withStyle(connected ? ChatFormatting.YELLOW : ChatFormatting.GREEN),
+                true);
+        lastZiplinePos = null;
+        return InteractionResult.SUCCESS;
+    }
+
     public static BlockPos CalcRelativePosition(BlockPos from, BlockPos to) {
         var x1 = from.getX();
         var x2 = to.getX();
@@ -157,6 +220,10 @@ public class BindingToolItem extends Item {
         }
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
+
+        if (blockEntity instanceof ZiplineBlockEntity) {
+            return handleZiplineBind(world, pos, player);
+        }
 
         if (blockEntity instanceof CameraBlockEntity) {
             // 右键点击摄像头：保存摄像头位置

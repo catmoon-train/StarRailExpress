@@ -58,17 +58,22 @@ public final class RepairLockedDoorState {
             Map<String, EscapeRoute> routes) {
         BlockPos base = RepairArenaBuilder.defaultMansionBase(level);
         // 锁 #1：工坊 → 墓地小路的后门（旧钥匙）
-        locks.put(base.offset(37, 1, 40), new DoorLock("manor_workshop_backdoor", "repair_old_key", true, false));
+        locks.put(RepairManorScene.at(base, RepairManorScene.LOCK_WORKSHOP_BACKDOOR),
+                new DoorLock("manor_workshop_backdoor", "repair_old_key", true, false));
         // 锁 #2：教堂东侧门（撬锁器）
-        locks.put(base.offset(39, 1, 63), new DoorLock("chapel_side_door", "repair_lockpick", true, false));
+        locks.put(RepairManorScene.at(base, RepairManorScene.LOCK_CHAPEL_SIDE_DOOR),
+                new DoorLock("chapel_side_door", "repair_lockpick", true, false));
         // 锁 #3：地穴铁门（旧钥匙），门后是密道与高级战利品
-        locks.put(base.offset(9, -2, 62), new DoorLock("crypt_gate", "repair_old_key", true, false));
+        locks.put(RepairManorScene.at(base, RepairManorScene.LOCK_CRYPT_GATE),
+                new DoorLock("crypt_gate", "repair_old_key", true, false));
 
         routes.put("crypt_tunnel", new EscapeRoute("crypt_tunnel",
-                "hud.noellesroles.repair.route.crypt_tunnel", base.offset(9, -2, 67), 1,
+                "hud.noellesroles.repair.route.crypt_tunnel",
+                RepairManorScene.at(base, RepairManorScene.ROUTE_CRYPT_TUNNEL), 1,
                 new ArrayList<>(List.of("repair_old_key", "repair_crowbar")), 0));
         routes.put("service_lift", new EscapeRoute("service_lift",
-                "hud.noellesroles.repair.route.service_lift", base.offset(44, 2, 20), 2,
+                "hud.noellesroles.repair.route.service_lift",
+                RepairManorScene.at(base, RepairManorScene.ROUTE_SERVICE_LIFT), 2,
                 new ArrayList<>(List.of("repair_fuse", "repair_gear_handle", "repair_battery")), 0));
     }
 

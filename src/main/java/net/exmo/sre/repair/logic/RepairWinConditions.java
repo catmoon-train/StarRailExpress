@@ -42,6 +42,9 @@ public final class RepairWinConditions {
                     .map(role -> role.faction == RepairRoleDefinition.Faction.HUNTER)
                     .orElse(gameWorldComponent.isRole(player, RepairRoles.REPAIR_HUNTER));
             if (hunter) {
+                if (!GameUtils.isPlayerAliveAndSurvival(player)){
+                    continue;
+                }
                 if (!GameUtils.isPlayerEliminated(player)) {
                     livingHunters++;
                 }
@@ -89,6 +92,11 @@ public final class RepairWinConditions {
             } else if (!SREGameTimeComponent.KEY.get(serverWorld).hasTime()) {
                 winStatus = GameUtils.WinStatus.KILLERS;
             }
+        }
+        if (livingHunters==0){
+            winStatus = GameUtils.WinStatus.PASSENGERS;
+            SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(), winStatus);
+            GameUtils.stopGame(serverWorld);
         }
 
         if (winStatus != GameUtils.WinStatus.NONE

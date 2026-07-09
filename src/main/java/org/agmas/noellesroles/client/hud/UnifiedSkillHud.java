@@ -18,7 +18,7 @@ import java.util.List;
  * 统一技能 HUD —— 复古车票风格（见 docs/ui_style.md）。
  *
  * 设计要点：
- * - 所有技能收进一块「深棕渐变 + 棕褐描边 + 顶部装饰线」的整体面板，而非分散卡片；
+ * - 所有技能收进一块「深棕渐变 + 棕褐描边 + 顶部装饰线」的半透明整体面板，而非分散卡片；
  * - 技能名（奶油色）左对齐，状态右对齐（就绪=绿 / 冷却=蓝 / 无次数=土褐）；
  * - 冷却期间行底部有 1px 金色进度条，直观显示恢复进度；
  * - 当前选中技能以金色侧边条 + 微亮背景标识（V/Y 键循环选择）；
@@ -30,18 +30,19 @@ public final class UnifiedSkillHud {
     }
 
     // ── 色板（docs/ui_style.md §2）───────────────────────────────
-    private static final int PANEL_TOP = 0xD81A1008;
-    private static final int PANEL_BOTTOM = 0xD820140A;
-    private static final int BORDER = 0xFF8B6914;
-    private static final int DECO_LINE = 0x33FFE8C0;
+    // 面板整体半透明：底色 / 描边 / 装饰线降低 alpha，文字与进度条保持不透明以保证可读性
+    private static final int PANEL_TOP = 0x8C1A1008;
+    private static final int PANEL_BOTTOM = 0x9420140A;
+    private static final int BORDER = 0xA08B6914;
+    private static final int DECO_LINE = 0x26FFE8C0;
     private static final int GOLD = 0xFFD4AF37;
     private static final int TEXT = 0xFFFFF4DC;
     private static final int MUTED = 0xFF9E8B6E;
     private static final int GREEN = 0xFF72C17B;
     private static final int BLUE = 0xFF5EB7D8;
-    private static final int DIVIDER = 0x20FFFFFF;
-    private static final int SELECTED_BG = 0x2AC9A84C;
-    private static final int COOLDOWN_TRACK = 0x33000000;
+    private static final int DIVIDER = 0x18FFFFFF;
+    private static final int SELECTED_BG = 0x24C9A84C;
+    private static final int COOLDOWN_TRACK = 0x4D000000;
 
     // ── 布局 ────────────────────────────────────────────────────
     private static final int PAD = 5;
@@ -177,12 +178,13 @@ public final class UnifiedSkillHud {
 
                 int nameColor = passiveRow ? MUTED : (r == selectedIdx ? TEXT : blend(TEXT, MUTED, 0.35F));
                 int textY = rowY + (ROW_H - client.font.lineHeight) / 2 + 1;
-                graphics.drawString(client.font, names[r], textX, textY, nameColor, false);
+                // 面板半透明后亮景色会透上来，文字带投影才不至于糊掉
+                graphics.drawString(client.font, names[r], textX, textY, nameColor, true);
 
                 if (states[r] != null) {
                     int stateW = client.font.width(states[r]);
                     graphics.drawString(client.font, states[r],
-                            baseX + panelW - PAD - stateW, textY, stateColors[r], false);
+                            baseX + panelW - PAD - stateW, textY, stateColors[r], true);
                 }
 
                 // 冷却恢复进度条（行底 1px）

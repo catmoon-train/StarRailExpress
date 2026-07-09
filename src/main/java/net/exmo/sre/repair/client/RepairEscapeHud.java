@@ -38,6 +38,8 @@ public final class RepairEscapeHud {
     private static final int MAIN_H = 70;
     private static final int EVENT_W = 160;
     private static final int EVENT_H = 28;
+    private static final int MACHINE_W = 128;
+    private static final int MACHINE_H = 62;
 
     private static final List<CoinToast> coinToasts = new ArrayList<>();
     private static final List<CombatCue> combatCues = new ArrayList<>();
@@ -70,6 +72,8 @@ public final class RepairEscapeHud {
         long tick = client.level.getGameTime();
 
         renderMainPanel(graphics, player, component, 8, Math.max(8, height - MAIN_H - 50), tick);
+        renderMachinePanel(graphics, component, Math.max(8, width - MACHINE_W - 8),
+                Math.max(8, height - MACHINE_H - 50));
         renderEventPanel(graphics, component, Mth.clamp(width / 2 - EVENT_W / 2, 8, width - EVENT_W - 8), 8);
         renderSearchAndLockPrompt(graphics, player, component, width, height, tick);
         renderRepairInjuryEdges(graphics, component, width, height, tick);
@@ -164,6 +168,38 @@ public final class RepairEscapeHud {
             drawFitted(graphics, font, Component.translatable("hud.noellesroles.repair.neutral_task",
                     component.neutralTaskProgress, needed), x + 89, y + 28, 52, 0xFFFFE8A3);
         }
+    }
+
+    /** 右下角机器面板：地图上一共几台修机台、已修好几台、通电还差几台、当前按人数缩放的修速。 */
+    private static void renderMachinePanel(FakeGuiGraphics graphics, RepairRolePlayerComponent component,
+            int x, int y) {
+        Minecraft client = Minecraft.getInstance();
+        Font font = client.font;
+        int required = RepairModeState.REQUIRED_REPAIRED_STATIONS;
+        int total = Math.max(required, component.totalStations);
+        int completed = Mth.clamp(component.completedStations, 0, total);
+        int accent = component.gatesPowered ? 0xFF8DCC7D : 0xFFE9C46A;
+        int textWidth = MACHINE_W - 18;
+        drawWoodPanel(graphics, x, y, MACHINE_W, MACHINE_H, accent);
+
+        drawFitted(graphics, font, Component.translatable("hud.noellesroles.repair.machines_title"),
+                x + 9, y + 7, textWidth, 0xFFFFE6A3);
+        drawFitted(graphics, font, Component.translatable("hud.noellesroles.repair.machines_count", completed, total),
+                x + 9, y + 19, textWidth, completed >= required ? 0xFF9FE6A0 : 0xFFFFE082);
+
+        float pct = Mth.clamp(completed / (float) required, 0.0F, 1.0F);
+        drawPixelBar(graphics, x + 9, y + 31, textWidth, 5, pct, 0xFF241006, accent);
+
+        drawFitted(graphics, font, component.gatesPowered
+                        ? Component.translatable("hud.noellesroles.repair.gates_powered")
+                        : Component.translatable("hud.noellesroles.repair.machines_required",
+                                Math.max(0, required - completed)),
+                x + 9, y + 40, textWidth, component.gatesPowered ? 0xFF9FE6A0 : 0xFFF2C88B);
+
+        int speed = component.repairSpeedPercent <= 0 ? 100 : component.repairSpeedPercent;
+        int speedColor = speed > 110 ? 0xFFB9F6CA : speed < 90 ? 0xFFFFB36B : 0xFFFFE8A3;
+        drawFitted(graphics, font, Component.translatable("hud.noellesroles.repair.machines_speed", speed),
+                x + 9, y + 50, textWidth, speedColor);
     }
 
     private static void renderEventPanel(FakeGuiGraphics graphics, RepairRolePlayerComponent component, int x, int y) {

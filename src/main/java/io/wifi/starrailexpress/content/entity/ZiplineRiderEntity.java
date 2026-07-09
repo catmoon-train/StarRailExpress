@@ -158,7 +158,7 @@ public class ZiplineRiderEntity extends Entity {
         progress += progressStep(startPos, endPos);
         if (progress >= 1.0f) {
             // 到达当前柱子：优先沿路线接续下一段，走不通才落地
-            BlockPos next = findNextSegment(endPos, startPos);
+            BlockPos next = findNextSegment(endPos, startPos, rider);
             if (next != null) {
                 BlockPos reached = endPos;
                 this.startPos = reached;
@@ -202,10 +202,11 @@ public class ZiplineRiderEntity extends Entity {
     }
 
     /**
-     * 到达柱子后寻找可接续的下一段：优先直行；拐角处若只有一条其他连接则跟随；岔路口停下。
+     * 到达柱子后寻找可接续的下一段：优先直行；拐角处若只有一条其他连接则跟随；
+     * 岔路口跟随玩家视线，视线里没有任何向前的分支才停下。
      */
     @Nullable
-    private BlockPos findNextSegment(BlockPos from, BlockPos cameFrom) {
+    private BlockPos findNextSegment(BlockPos from, BlockPos cameFrom, Player rider) {
         if (!(this.level().getBlockState(from).getBlock() instanceof ZiplineBlock)) {
             return null;
         }
@@ -230,7 +231,7 @@ public class ZiplineRiderEntity extends Entity {
                 continue;
             }
             others.add(conn);
-            double dot = travel.dot(Vec3.atCenterOf(conn).subtract(Vec3.atCenterOf(from)).normalize());
+            double dot = travel.dot(direction(from, conn));
             if (dot > bestDot) {
                 bestDot = dot;
                 straight = conn;
@@ -239,7 +240,25 @@ public class ZiplineRiderEntity extends Entity {
         if (straight != null) {
             return straight;
         }
-        return others.size() == 1 ? others.get(0) : null;
+        if (others.size() <= 1) {
+            return others.isEmpty() ? null : others.get(0);
+        }
+
+        Vec3 look = rider.getLookAngle();
+        BlockPos chosen = null;
+        double bestLookDot = 0.0;
+        for (BlockPos conn : others) {
+            double dot = look.dot(direction(from, conn));
+            if (dot > bestLookDot) {
+                bestLookDot = dot;
+                chosen = conn;
+            }
+        }
+        return chosen;
+    }
+
+    private static Vec3 direction(BlockPos from, BlockPos to) {
+        return Vec3.atCenterOf(to).subtract(Vec3.atCenterOf(from)).normalize();
     }
 
     @Override

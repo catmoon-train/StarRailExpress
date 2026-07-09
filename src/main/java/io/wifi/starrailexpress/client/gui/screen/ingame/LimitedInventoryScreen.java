@@ -3,9 +3,11 @@ package io.wifi.starrailexpress.client.gui.screen.ingame;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.agmas.noellesroles.client.hud.CommonClientHudRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.DynamicShopComponent;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
@@ -15,9 +17,11 @@ import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.network.original.StoreBuyPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
+import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -100,6 +104,9 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     private Button waitingNextPageButton = null;
     private int waitingMenuPage = 0;
     private int waitingMenuPages = 1;
+
+    /** 复用同一个包装实例绘制信息行；界面渲染时不在 Gui.render 帧内，FakeGuiGraphics 会直接透传给真实 GuiGraphics。 */
+    private FakeGuiGraphics fakeGraphics = null;
 
     // 右上角：参与 / 不参与本局游戏切换按钮
     private Button participationButton = null;
@@ -558,6 +565,14 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
         this.drawMouseoverTooltip(context, mouseX, mouseY);
         StoreRenderer.renderHud(this.font, this.player, context, delta);
+
+        // 金币下方的信息行：开启配置后只在本界面显示（HUD 上不再绘制），位置与 HUD 上一致
+        if (SREClientConfig.instance().showInfoLinesInInventory && this.minecraft != null) {
+            if (fakeGraphics == null || fakeGraphics.getDefaultGuiGraphics() != context) {
+                fakeGraphics = new FakeGuiGraphics(context);
+            }
+            CommonClientHudRenderer.renderMessagesBelowMoney(this.minecraft, fakeGraphics, DeltaTracker.ONE);
+        }
     }
 
     private void renderOverlayMessageOnScreen(GuiGraphics context, int mouseX, int mouseY, float delta) {

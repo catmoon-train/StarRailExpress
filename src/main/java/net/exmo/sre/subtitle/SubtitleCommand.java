@@ -34,28 +34,23 @@ public class SubtitleCommand {
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.players())
                     .then(Commands.argument("mainText", ComponentArgument.textComponent(registryAccess))
-                        // /sre:subtitle <player> <mainText>
                         .executes(ctx -> execute(ctx, Component.empty(), 100, 0xFFFFFFFF, false, SubtitleS2CPayload.POS_CENTER))
                         .then(Commands.argument("subText", ComponentArgument.textComponent(registryAccess))
-                            // /sre:subtitle <player> <mainText> <subText>
                             .executes(ctx -> execute(ctx,
                                 ComponentArgument.getComponent(ctx, "subText"),
                                 100, 0xFFFFFFFF, false, SubtitleS2CPayload.POS_CENTER))
                             .then(Commands.argument("durationTicks", IntegerArgumentType.integer(20, 6000))
-                                // /sre:subtitle <player> <mainText> <subText> <duration>
                                 .executes(ctx -> execute(ctx,
                                     ComponentArgument.getComponent(ctx, "subText"),
                                     IntegerArgumentType.getInteger(ctx, "durationTicks"),
                                     0xFFFFFFFF, false, SubtitleS2CPayload.POS_CENTER))
                                 .then(Commands.argument("color", ColorArgument.color())
-                                    // /sre:subtitle <player> <mainText> <subText> <duration> <color>
                                     .executes(ctx -> execute(ctx,
                                         ComponentArgument.getComponent(ctx, "subText"),
                                         IntegerArgumentType.getInteger(ctx, "durationTicks"),
                                         ColorArgument.getColor(ctx, "color").getColor(),
                                         false, SubtitleS2CPayload.POS_CENTER))
                                     .then(Commands.argument("typewriter", BoolArgumentType.bool())
-                                        // /sre:subtitle <player> <mainText> <subText> <duration> <color> <typewriter>
                                         .executes(ctx -> execute(ctx,
                                             ComponentArgument.getComponent(ctx, "subText"),
                                             IntegerArgumentType.getInteger(ctx, "durationTicks"),
@@ -69,7 +64,14 @@ public class SubtitleCommand {
                                                 ColorArgument.getColor(ctx, "color").getColor(),
                                                 BoolArgumentType.getBool(ctx, "typewriter"),
                                                 SubtitleS2CPayload.POS_CENTER))
-                                        )
+                                            .then(Commands.argument("showBackground", BoolArgumentType.bool())
+                                                .executes(ctx -> execute(ctx,
+                                                    ComponentArgument.getComponent(ctx, "subText"),
+                                                    IntegerArgumentType.getInteger(ctx, "durationTicks"),
+                                                    ColorArgument.getColor(ctx, "color").getColor(),
+                                                    BoolArgumentType.getBool(ctx, "typewriter"),
+                                                    SubtitleS2CPayload.POS_CENTER,
+                                                    BoolArgumentType.getBool(ctx, "showBackground")))))
                                         .then(Commands.literal("top")
                                             .executes(ctx -> execute(ctx,
                                                 ComponentArgument.getComponent(ctx, "subText"),
@@ -77,7 +79,14 @@ public class SubtitleCommand {
                                                 ColorArgument.getColor(ctx, "color").getColor(),
                                                 BoolArgumentType.getBool(ctx, "typewriter"),
                                                 SubtitleS2CPayload.POS_TOP))
-                                        )
+                                            .then(Commands.argument("showBackground", BoolArgumentType.bool())
+                                                .executes(ctx -> execute(ctx,
+                                                    ComponentArgument.getComponent(ctx, "subText"),
+                                                    IntegerArgumentType.getInteger(ctx, "durationTicks"),
+                                                    ColorArgument.getColor(ctx, "color").getColor(),
+                                                    BoolArgumentType.getBool(ctx, "typewriter"),
+                                                    SubtitleS2CPayload.POS_TOP,
+                                                    BoolArgumentType.getBool(ctx, "showBackground")))))
                                         .then(Commands.literal("bottom")
                                             .executes(ctx -> execute(ctx,
                                                 ComponentArgument.getComponent(ctx, "subText"),
@@ -85,18 +94,25 @@ public class SubtitleCommand {
                                                 ColorArgument.getColor(ctx, "color").getColor(),
                                                 BoolArgumentType.getBool(ctx, "typewriter"),
                                                 SubtitleS2CPayload.POS_BOTTOM))
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-        );
+                                            .then(Commands.argument("showBackground", BoolArgumentType.bool())
+                                                .executes(ctx -> execute(ctx,
+                                                    ComponentArgument.getComponent(ctx, "subText"),
+                                                    IntegerArgumentType.getInteger(ctx, "durationTicks"),
+                                                    ColorArgument.getColor(ctx, "color").getColor(),
+                                                    BoolArgumentType.getBool(ctx, "typewriter"),
+                                                    SubtitleS2CPayload.POS_BOTTOM,
+                                                    BoolArgumentType.getBool(ctx, "showBackground"))))))))))));
     }
 
     private static int execute(CommandContext<CommandSourceStack> ctx,
                                Component subText, int durationTicks, int color, boolean typewriter, int position)
+            throws CommandSyntaxException {
+        return execute(ctx, subText, durationTicks, color, typewriter, position, true);
+    }
+
+    private static int execute(CommandContext<CommandSourceStack> ctx,
+                               Component subText, int durationTicks, int color, boolean typewriter, int position,
+                               boolean showBackground)
             throws CommandSyntaxException {
 
         Component mainText = ComponentArgument.getComponent(ctx, "mainText");
@@ -107,7 +123,7 @@ public class SubtitleCommand {
             Component resolvedSub  = ComponentUtils.updateForEntity(ctx.getSource(), subText, player, 0);
 
             SubtitleS2CPayload payload = new SubtitleS2CPayload(
-                    resolvedMain, resolvedSub, durationTicks, color, typewriter, position);
+                    resolvedMain, resolvedSub, durationTicks, color, typewriter, position, showBackground);
             PacketTracker.sendToClient(player, payload);
         }
 
@@ -130,9 +146,16 @@ public class SubtitleCommand {
         PacketTracker.sendToClient(player, payload);
     }
 
-    /** 发送 TOP 模式字幕给单个玩家（方便在任务系统中调用） */
+    /** 发送 TOP 模式字幕给单个玩家（方便在任务系统中调用），默认显示背景 */
     public static void sendToPlayerTop(ServerPlayer player, Component mainText, Component subText, int durationTicks) {
-        var payload = new SubtitleS2CPayload(mainText, subText, durationTicks, 0xFFFFFFFF, false, SubtitleS2CPayload.POS_TOP);
+        sendToPlayerTop(player, mainText, subText, durationTicks, true);
+    }
+
+    /** 发送 TOP 模式字幕给单个玩家，可控制是否显示背景底衬 */
+    public static void sendToPlayerTop(ServerPlayer player, Component mainText, Component subText,
+                                       int durationTicks, boolean showBackground) {
+        var payload = new SubtitleS2CPayload(mainText, subText, durationTicks, 0xFFFFFFFF, false,
+                SubtitleS2CPayload.POS_TOP, showBackground);
         PacketTracker.sendToClient(player, payload);
     }
 
@@ -146,6 +169,15 @@ public class SubtitleCommand {
     public static void sendToPlayer(ServerPlayer player, Component mainText, Component subText,
                                      int durationTicks, int color, boolean typewriter, int screenPosition) {
         var payload = new SubtitleS2CPayload(mainText, subText, durationTicks, color, typewriter, screenPosition);
+        PacketTracker.sendToClient(player, payload);
+    }
+
+    /** 发送字幕给单个玩家（完整参数，含背景开关） */
+    public static void sendToPlayer(ServerPlayer player, Component mainText, Component subText,
+                                     int durationTicks, int color, boolean typewriter, int screenPosition,
+                                     boolean showBackground) {
+        var payload = new SubtitleS2CPayload(mainText, subText, durationTicks, color, typewriter,
+                screenPosition, showBackground);
         PacketTracker.sendToClient(player, payload);
     }
 

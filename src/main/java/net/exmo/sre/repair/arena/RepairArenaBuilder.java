@@ -43,6 +43,8 @@ public final class RepairArenaBuilder {
         } else {
             buildDefaultMansionTemplate(level, state);
         }
+        // 场上实际存在多少台修机台 —— HUD 用它显示"已修 X / 需要 Y（共 Z 台）"
+        RepairModeState.setTotalStationCount(level, state.stationPositions.size());
         RepairLootSpawner.prepare(level, repairConfig);
         RepairLockedDoorState.prepare(level, repairConfig);
         placePlayers(level, state, players);
@@ -258,6 +260,7 @@ public final class RepairArenaBuilder {
                         blockEntityTag = sourceEntity.saveWithFullMetadata(level.registryAccess());
                     }
                     level.setBlock(dst, blockState, Block.UPDATE_ALL);
+                    trackStation(state, dst, blockState);
                     if (blockEntityTag != null && level.getBlockEntity(dst) instanceof BlockEntity targetEntity) {
                         CompoundTag tag = blockEntityTag.copy();
                         tag.putInt("x", dst.getX());
@@ -281,9 +284,24 @@ public final class RepairArenaBuilder {
     }
 
     private static void placeGameplay(ServerLevel level, ArenaState state, BlockPos pos, BlockState blockState) {
+        trackStation(state, pos, blockState);
+        // 场景生成器要先把整块空域填成空气，其中绝大多数格子本来就是空气。
+        // 这些无变化的写入不必快照、也不必 setBlock —— 否则光是清空就要记 6 万多条还原记录。
+        if (level.getBlockState(pos) == blockState && level.getBlockEntity(pos) == null) {
+            return;
+        }
         snapshot(level, state.gameplayBlocks, pos);
         level.setBlock(pos, blockState, Block.UPDATE_ALL);
         level.getLightEngine().checkBlock(pos);
+    }
+
+    /** 记录修机台落点；同一格被后续方块覆盖时要撤销，否则统计会虚高。 */
+    private static void trackStation(ArenaState state, BlockPos pos, BlockState blockState) {
+        if (blockState.is(ModBlocks.REPAIR_STATION)) {
+            state.stationPositions.add(pos.immutable());
+        } else {
+            state.stationPositions.remove(pos);
+        }
     }
 
     private static void snapshot(ServerLevel level, LinkedHashMap<BlockPos, BlockSnapshot> snapshots, BlockPos pos) {
@@ -321,6 +339,7 @@ public final class RepairArenaBuilder {
     private static final class ArenaState {
         private final LinkedHashMap<BlockPos, BlockSnapshot> selectionBlocks = new LinkedHashMap<>();
         private final LinkedHashMap<BlockPos, BlockSnapshot> gameplayBlocks = new LinkedHashMap<>();
+        private final Set<BlockPos> stationPositions = new HashSet<>();
         private final Map<UUID, PlayerSlot> playerSlots = new HashMap<>();
         private final List<ArmorStand> seats = new ArrayList<>();
         private BlockPos selectionCenter = BlockPos.ZERO;

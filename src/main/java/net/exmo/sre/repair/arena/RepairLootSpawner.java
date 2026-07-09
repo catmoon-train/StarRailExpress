@@ -72,8 +72,8 @@ public final class RepairLootSpawner {
             int[] offset = offsets.get(index++);
             entries.put(base.offset(offset[0], offset[1], offset[2]), randomDefaultReward(level));
         }
-        // 地穴深处的额外好货：进得去锁着的门就有回报
-        entries.put(base.offset(10, -2, 64), Reward.item(new ItemStack(random(level, ModItems.REPAIR_LOCKPICK,
+        // 地穴深处的额外好货：进得去锁着的门就有回报（坐标须落在 RepairManorScene.lootOffsets 里）
+        entries.put(base.offset(20, -4, 96), Reward.item(new ItemStack(random(level, ModItems.REPAIR_LOCKPICK,
                 ModItems.CRUCIFIX, ModItems.REPAIR_MEDKIT))));
     }
 

@@ -48,7 +48,7 @@ public class HunterWeaponItem extends Item {
         // 不同武器有不同的基础冷却
         this.weaponCooldownTicks = switch (weaponId) {
             case "hammer" -> 64;   // 重锤：长冷却
-            case "hook" -> 75;    // 钩镰：5秒冷却（独立）
+            case "hook" -> 75;    // 钩镰：长冷却（独立）
             default -> 20;         // 利刃：短冷却
         };
     }
@@ -69,7 +69,9 @@ public class HunterWeaponItem extends Item {
         if (!(player instanceof ServerPlayer hunter) || !(level instanceof ServerLevel serverLevel)) {
             return InteractionResultHolder.consume(stack);
         }
-        player.getCooldowns().addCooldown(stack.getItem(), weaponCooldownTicks==75? 120 : 20);
+        // 原版物品冷却必须与共享冷却池一致：物品冷却更长时 ServerPlayerGameMode.useItem
+        // 会在调用 use() 之前直接 PASS，玩家右键完全没有反馈（HUD 读的是共享池，会显示"可用"）。
+        player.getCooldowns().addCooldown(stack.getItem(), weaponCooldownTicks);
         var hunterComponent = ModComponents.REPAIR_ROLES.get(hunter);
         HunterAttackProfile profile = HunterAttackProfile.of(hunterComponent.activeRole,
                 hunterComponent.activeAttackPlugin, weaponId);

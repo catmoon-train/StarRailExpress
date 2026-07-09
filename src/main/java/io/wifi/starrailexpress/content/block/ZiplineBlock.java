@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.content.block;
 
 import io.wifi.starrailexpress.content.block_entity.ZiplineBlockEntity;
 import io.wifi.starrailexpress.content.entity.ZiplineRiderEntity;
+import io.wifi.starrailexpress.content.item.BindingToolItem;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMEntities;
 import net.minecraft.core.BlockPos;
@@ -9,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +42,10 @@ public class ZiplineBlock extends Block implements EntityBlock {
     public static final BooleanProperty EAST = BlockStateProperties.EAST;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
     public static final BooleanProperty WEST = BlockStateProperties.WEST;
+    /** 玩家放置时自动连线的直线扫描距离 */
     private static final int MAX_ZIPLINE_RANGE = 25;
+    /** 绑定工具手动连线的最大距离，可跨高度、可斜拉 */
+    public static final int MAX_LINK_DISTANCE = 64;
     private static final double ROPE_HEIGHT = 0.40;
     private static final VoxelShape CENTER_SHAPE = Block.box(6.5, 5.5, 6.5, 9.5, 8.5, 9.5);
     private static final VoxelShape NORTH_SHAPE = Block.box(6.5, 5.5, 0.0, 9.5, 8.5, 8.0);
@@ -84,12 +90,18 @@ public class ZiplineBlock extends Block implements EntityBlock {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
+    /**
+     * 自动连线只在玩家手动放置时进行。
+     * onPlace 会被 /setblock、整区复制（BlockCopyUtils）等批量写方块的路径触发，
+     * 在那里扫描会让复制区的柱子连到游戏区的柱子上；复制出来的连接由方块实体 NBT 里的相对偏移负责。
+     */
     @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        super.onPlace(state, level, pos, oldState, movedByPiston);
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
+                           ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide) {
-            refreshRoute(level, pos);
-            refreshNearbyRoutes(level, pos);
+            rescanRoute(level, pos);
+            rescanNearbyRoutes(level, pos);
         }
     }
 
@@ -99,72 +111,60 @@ public class ZiplineBlock extends Block implements EntityBlock {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof ZiplineBlockEntity zbe) {
                 for (BlockPos connected : zbe.getConnectedPositions()) {
-                    BlockEntity otherBe = level.getBlockEntity(connected);
-                    if (otherBe instanceof ZiplineBlockEntity otherZbe) {
+                    if (level.getBlockEntity(connected) instanceof ZiplineBlockEntity otherZbe) {
                         otherZbe.removeConnection(pos);
+                        updateVisualConnections(level, connected, otherZbe.getConnectedPositions());
                     }
                 }
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
-        if (!level.isClientSide && !state.is(newState.getBlock())) {
-            refreshNearbyRoutes(level, pos);
-        }
     }
 
-    @Override
-    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
-                                boolean notify) {
-        super.neighborChanged(state, level, pos, block, fromPos, notify);
-        if (!level.isClientSide) {
-            refreshRoute(level, pos);
-        }
-    }
-
-    private void refreshRoute(Level level, BlockPos pos) {
+    /**
+     * 重新扫描本柱子的自动连线。手动（绑定工具）拉出的斜线/跨层连接不会被回收。
+     */
+    private static void rescanRoute(Level level, BlockPos pos) {
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof ZiplineBlockEntity zbe)) {
             return;
         }
 
-        Set<BlockPos> oldConnections = new HashSet<>(zbe.getConnectedPositions());
-        Set<BlockPos> newConnections = scanConnections(level, pos);
-
-        zbe.clearConnections();
-        for (BlockPos connected : newConnections) {
-            zbe.addConnection(connected);
-        }
-
-        for (BlockPos old : oldConnections) {
-            if (!newConnections.contains(old) && level.getBlockEntity(old) instanceof ZiplineBlockEntity otherZbe) {
-                otherZbe.removeConnection(pos);
-                updateVisualConnections(level, old, otherZbe.getConnectedPositions());
+        Set<BlockPos> scanned = scanConnections(level, pos);
+        for (BlockPos old : zbe.getConnectedPositions()) {
+            if (isAutoScannable(pos, old) && !scanned.contains(old)) {
+                unlink(level, pos, old);
             }
         }
-
-        for (BlockPos connected : newConnections) {
-            if (level.getBlockEntity(connected) instanceof ZiplineBlockEntity otherZbe) {
-                otherZbe.addConnection(pos);
-                updateVisualConnections(level, connected, otherZbe.getConnectedPositions());
-            }
+        for (BlockPos connected : scanned) {
+            link(level, pos, connected);
         }
-
-        updateVisualConnections(level, pos, newConnections);
     }
 
-    private void refreshNearbyRoutes(Level level, BlockPos pos) {
+    /**
+     * 在两根柱子中间插入新柱子时，让两侧的旧柱子改连到新柱子上。
+     */
+    private static void rescanNearbyRoutes(Level level, BlockPos pos) {
         for (Direction dir : Direction.Plane.HORIZONTAL) {
             for (int i = 1; i <= MAX_ZIPLINE_RANGE; i++) {
                 BlockPos checkPos = pos.relative(dir, i);
                 if (level.getBlockState(checkPos).getBlock() instanceof ZiplineBlock) {
-                    refreshRoute(level, checkPos);
+                    rescanRoute(level, checkPos);
                     break;
                 }
             }
         }
     }
 
-    private Set<BlockPos> scanConnections(Level level, BlockPos pos) {
+    /** 同层、且正好落在某个水平方向上的连接，才是自动扫描能生成/回收的 */
+    private static boolean isAutoScannable(BlockPos from, BlockPos to) {
+        if (from.getY() != to.getY()) {
+            return false;
+        }
+        return (from.getX() == to.getX()) != (from.getZ() == to.getZ());
+    }
+
+    private static Set<BlockPos> scanConnections(Level level, BlockPos pos) {
         Set<BlockPos> connections = new HashSet<>();
         for (Direction dir : Direction.Plane.HORIZONTAL) {
             for (int i = 1; i <= MAX_ZIPLINE_RANGE; i++) {
@@ -179,7 +179,56 @@ public class ZiplineBlock extends Block implements EntityBlock {
         return connections;
     }
 
-    private void updateVisualConnections(Level level, BlockPos pos, Set<BlockPos> connections) {
+    /** 双向连接两根柱子。返回 false 表示其中一端不是滑索柱。 */
+    public static boolean link(Level level, BlockPos from, BlockPos to) {
+        if (from.equals(to)) {
+            return false;
+        }
+        if (!(level.getBlockEntity(from) instanceof ZiplineBlockEntity fromZbe)
+                || !(level.getBlockEntity(to) instanceof ZiplineBlockEntity toZbe)) {
+            return false;
+        }
+        fromZbe.addConnection(to);
+        toZbe.addConnection(from);
+        updateVisualConnections(level, from, fromZbe.getConnectedPositions());
+        updateVisualConnections(level, to, toZbe.getConnectedPositions());
+        return true;
+    }
+
+    /** 双向断开两根柱子 */
+    public static void unlink(Level level, BlockPos from, BlockPos to) {
+        if (level.getBlockEntity(from) instanceof ZiplineBlockEntity fromZbe) {
+            fromZbe.removeConnection(to);
+            updateVisualConnections(level, from, fromZbe.getConnectedPositions());
+        }
+        if (level.getBlockEntity(to) instanceof ZiplineBlockEntity toZbe) {
+            toZbe.removeConnection(from);
+            updateVisualConnections(level, to, toZbe.getConnectedPositions());
+        }
+    }
+
+    /** 断开某根柱子的全部连接 */
+    public static void unlinkAll(Level level, BlockPos pos) {
+        if (!(level.getBlockEntity(pos) instanceof ZiplineBlockEntity zbe)) {
+            return;
+        }
+        for (BlockPos connected : zbe.getConnectedPositions()) {
+            unlink(level, pos, connected);
+        }
+    }
+
+    /**
+     * 丢掉指向非滑索方块的连接。未加载的区块会被跳过，避免误删跨区块的长连接。
+     */
+    private static void pruneDeadConnections(Level level, BlockPos pos, ZiplineBlockEntity zbe) {
+        for (BlockPos connected : zbe.getConnectedPositions()) {
+            if (level.hasChunkAt(connected) && !(level.getBlockState(connected).getBlock() instanceof ZiplineBlock)) {
+                unlink(level, pos, connected);
+            }
+        }
+    }
+
+    private static void updateVisualConnections(Level level, BlockPos pos, Set<BlockPos> connections) {
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof ZiplineBlock)) {
             return;
@@ -198,18 +247,23 @@ public class ZiplineBlock extends Block implements EntityBlock {
                 .setValue(WEST, level.getBlockState(pos.west()).getBlock() instanceof ZiplineBlock);
     }
 
-    private BlockState applyVisualConnections(BlockState state, BlockPos pos, Set<BlockPos> connections) {
+    private static BlockState applyVisualConnections(BlockState state, BlockPos pos, Set<BlockPos> connections) {
         boolean north = false;
         boolean east = false;
         boolean south = false;
         boolean west = false;
         for (BlockPos connected : connections) {
-            int dx = Integer.compare(connected.getX() - pos.getX(), 0);
-            int dz = Integer.compare(connected.getZ() - pos.getZ(), 0);
-            if (dx == 0 && dz < 0) north = true;
-            if (dx > 0 && dz == 0) east = true;
-            if (dx == 0 && dz > 0) south = true;
-            if (dx < 0 && dz == 0) west = true;
+            int dx = connected.getX() - pos.getX();
+            int dz = connected.getZ() - pos.getZ();
+            if (dx == 0 && dz == 0) continue;
+            // 斜拉的连接取水平分量更大的那一侧出杆
+            if (Math.abs(dx) >= Math.abs(dz)) {
+                if (dx > 0) east = true;
+                else west = true;
+            } else {
+                if (dz > 0) south = true;
+                else north = true;
+            }
         }
         return state.setValue(NORTH, north).setValue(EAST, east).setValue(SOUTH, south).setValue(WEST, west);
     }
@@ -224,10 +278,24 @@ public class ZiplineBlock extends Block implements EntityBlock {
         return shape;
     }
 
+    /**
+     * 滑索上的玩家从柱子里穿过去，不然经过途中的柱子时会被柱头顶住。
+     */
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if (context instanceof EntityCollisionContext entityContext
+                && entityContext.getEntity() != null
+                && entityContext.getEntity().getVehicle() instanceof ZiplineRiderEntity) {
+            return Shapes.empty();
+        }
+        return getShape(state, level, pos, context);
+    }
+
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
                                               Player player, InteractionHand hand, BlockHitResult hit) {
-        if (isHoldingZiplineBlock(stack)) {
+        // 让方块本身放行：滑索方块交给放置逻辑，绑定工具交给 BindingToolItem.useOn
+        if (isHoldingZiplineBlock(stack) || stack.getItem() instanceof BindingToolItem) {
             return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
         }
         InteractionResult result = tryStartZipline(state, level, pos, player);
@@ -256,7 +324,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
             return InteractionResult.PASS;
         }
 
-        refreshRoute(level, pos);
+        pruneDeadConnections(level, pos, zbe);
         Set<BlockPos> connections = zbe.getConnectedPositions();
         if (connections.isEmpty()) {
             return InteractionResult.PASS;

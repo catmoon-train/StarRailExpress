@@ -20,6 +20,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +52,8 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
     public static final double INSTINCT_RANGE = 40.0;
     /** 追杀心跳音效间隔（tick） */
     private static final int HEARTBEAT_INTERVAL = 40;
+    /** 伪装状态补发间隔（tick） */
+    private static final int DISGUISE_RESYNC_INTERVAL = 20;
 
     /** 疯魔模式期间推开路径上玩家的判定范围（格） */
     private static final double PUSH_RANGE = 2.6;
@@ -151,6 +154,12 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
         if (shouldDisguise != disguised) {
             disguised = shouldDisguise;
             sync();
+        } else if (disguised && sp.tickCount % DISGUISE_RESYNC_INTERVAL == 0) {
+            // 伪装只在翻转那一 tick 推送一次，而翻转恰好落在开局传送/重生的窗口里：
+            // 此时客户端可能还没有对应实体，CCA 会直接丢弃这个组件包，而服务端此后
+            // 不会再发第二次，客户端就永远停在 disguised=false（看到玩家本体而非猪）。
+            // 每秒补发一次，保证所有客户端最终收敛到猪模型。
+            sync();
         }
 
         if (frenzyTicks <= 0) {
@@ -164,6 +173,7 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
 
         frenzyTicks--;
         sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 10, 2, true, false, true));
+        sp.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, 10, 2, true, false, true));
         // 疯魔冲锋：持续推开路径上的邻近玩家
         pushPlayersOnPath(sp);
 

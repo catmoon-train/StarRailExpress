@@ -43,6 +43,14 @@ public class SREClientConfig implements ConfigData {
     public int moodLeftOffset = 0;
 
     @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    public boolean showInfoLinesInInventory = true; // 金币下方的信息行改为在物品栏界面中显示，不再显示在HUD上
+
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    public boolean useLegacyMapSelector = false; // 使用旧版地图投票界面（卡片墙）
+
+    @Category("style")
     public boolean showItemCooldownOverlayNum = false; // 物品栏物品上显示冷却数字
     @Category("style")
     public boolean showHotbarCooldown = true; // 快捷栏上方显示冷却时间

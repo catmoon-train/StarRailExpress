@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -29,6 +30,8 @@ public final class PointerClientHandle {
     private static final float ENTITY_PICK_MARGIN = 0.25F;
     private static final double POINTER_SPEED = 1.0D;
     private static final int POINTER_MARK_SIZE = 5;
+    /** 玩家模型朝指针方向转动的每 tick 缓动系数（指数平滑，越小越平滑）。 */
+    private static final float ROTATION_SMOOTHING = 0.35F;
     private static boolean active;
     private static boolean pointerInitialized;
     private static boolean hasMouseSample;
@@ -68,7 +71,7 @@ public final class PointerClientHandle {
         if (target == null) {
             return;
         }
-        lookAt(player, target.location());
+        lookAt(player, aimPoint(target));
         client.hitResult = target.hitResult();
         client.crosshairPickEntity = target.entity();
     }
@@ -143,6 +146,24 @@ public final class PointerClientHandle {
         pointerInitialized = false;
         hasMouseSample = false;
         currentTarget = null;
+    }
+
+    /**
+     * 指针效果会把玩家 yaw 强行掰向指针命中点（见 {@link #lookAt}），而原版 WASD 是相对 yaw 的，
+     * 于是移动方向会跟着指针乱转。二维视角下改用固定的镜头朝向做移动基准：W 永远是屏幕上方。
+     * 由 {@code PointerMovementYawMixin} 在 {@code Entity#moveRelative} 里调用，仅对本地玩家生效。
+     */
+    public static boolean isMovementYawLocked(Entity entity) {
+        Minecraft client = Minecraft.getInstance();
+        return client != null
+                && entity == client.player
+                && isPointerActive(client)
+                && TwoDimensionalCameraClientHandle.isActive();
+    }
+
+    /** 见 {@link #isMovementYawLocked}：锁定后玩家移动所用的偏航角。 */
+    public static float lockedMovementYaw() {
+        return TwoDimensionalCameraClientHandle.cameraYaw();
     }
 
     /** 当前指针命中的实体（无则 null），供指引渲染（{@link PointerGuidanceRenderer}）读取。 */
@@ -282,6 +303,18 @@ public final class PointerClientHandle {
         return cameraPos.add(direction.scale(Mth.clamp(t, 1.0D, POINTER_RANGE)));
     }
 
+    /**
+     * 指针命中生物（尤其是玩家）时，瞄准其眼睛高度而非命中盒上的原始落点——否则从 2D 俯视 /
+     * 侧视相机射出的指针常落在对方脚下，导致本地玩家「低头看脚下」。命中方块 / 空处时仍用原落点。
+     */
+    private static Vec3 aimPoint(PointerTarget target) {
+        Entity entity = target.entity();
+        if (entity instanceof LivingEntity living) {
+            return living.getEyePosition(1.0F);
+        }
+        return target.location();
+    }
+
     private static void lookAt(LocalPlayer player, Vec3 target) {
         Vec3 eye = player.getEyePosition(1.0F);
         Vec3 delta = target.subtract(eye);
@@ -289,9 +322,13 @@ public final class PointerClientHandle {
         if (horizontal <= 1.0E-5D && Math.abs(delta.y) <= 1.0E-5D) {
             return;
         }
-        float yaw = (float) (Math.atan2(delta.z, delta.x) * Mth.RAD_TO_DEG) - 90.0F;
-        float pitch = (float) (-(Math.atan2(delta.y, horizontal) * Mth.RAD_TO_DEG));
-        pitch = Mth.clamp(pitch, -90.0F, 90.0F);
+        float targetYaw = (float) (Math.atan2(delta.z, delta.x) * Mth.RAD_TO_DEG) - 90.0F;
+        float targetPitch = (float) (-(Math.atan2(delta.y, horizontal) * Mth.RAD_TO_DEG));
+        targetPitch = Mth.clamp(targetPitch, -90.0F, 90.0F);
+        // 每 tick 向目标朝向缓动，而非瞬间对齐：叠加渲染插值后玩家模型转动更平滑。
+        // 瞄准仍由指针射线（hitResult）决定，这里只影响模型朝向，不影响命中判定。
+        float yaw = Mth.rotLerp(ROTATION_SMOOTHING, player.getYRot(), targetYaw);
+        float pitch = Mth.lerp(ROTATION_SMOOTHING, player.getXRot(), targetPitch);
         player.setYRot(yaw);
         player.setXRot(pitch);
         player.setYHeadRot(yaw);

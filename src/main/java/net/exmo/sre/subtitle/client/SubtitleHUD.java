@@ -67,7 +67,13 @@ public class SubtitleHUD {
     public void enqueueFromPacket(Component mainText, Component subText, int durationTicks,
                                    int color, boolean typewriter, int screenPosition) {
         enqueue(new SubtitleEntry(mainText, subText, durationTicks, DEFAULT_FADE_IN_TICKS,
-                DEFAULT_FADE_OUT_TICKS, color, typewriter, screenPosition));
+                DEFAULT_FADE_OUT_TICKS, color, typewriter, screenPosition, true));
+    }
+
+    public void enqueueFromPacket(Component mainText, Component subText, int durationTicks,
+                                   int color, boolean typewriter, int screenPosition, boolean showBackground) {
+        enqueue(new SubtitleEntry(mainText, subText, durationTicks, DEFAULT_FADE_IN_TICKS,
+                DEFAULT_FADE_OUT_TICKS, color, typewriter, screenPosition, showBackground));
     }
 
     public void clear() {
@@ -203,7 +209,9 @@ public class SubtitleHUD {
         pose.translate(centerX, baseY + slide, 0);
         pose.scale(panelScale, panelScale, 1f);
 
-        drawPanel(guiGraphics, bgX, bgY, bgW, bgH, alpha, accent, isSmallFont);
+        if (current.showBackground) {
+            drawPanel(guiGraphics, bgX, bgY, bgW, bgH, alpha, accent, isSmallFont);
+        }
 
         if (hasMain) {
             pose.pushPose();
@@ -321,10 +329,18 @@ public class SubtitleHUD {
         public final int       color;
         public final boolean   typewriter;
         public final int       screenPosition;
+        public final boolean   showBackground;
 
         public SubtitleEntry(Component mainText, Component subText,
                              int durationTicks, int fadeInTicks, int fadeOutTicks,
                              int color, boolean typewriter, int screenPosition) {
+            this(mainText, subText, durationTicks, fadeInTicks, fadeOutTicks,
+                    color, typewriter, screenPosition, true);
+        }
+
+        public SubtitleEntry(Component mainText, Component subText,
+                             int durationTicks, int fadeInTicks, int fadeOutTicks,
+                             int color, boolean typewriter, int screenPosition, boolean showBackground) {
             this.mainText       = mainText;
             this.subText        = subText != null ? subText : Component.empty();
             this.durationTicks  = Math.max(durationTicks, 20);
@@ -333,6 +349,7 @@ public class SubtitleHUD {
             this.color          = color;
             this.typewriter     = typewriter;
             this.screenPosition = screenPosition;
+            this.showBackground = showBackground;
         }
     }
 }

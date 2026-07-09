@@ -172,7 +172,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                     if (this.player instanceof ServerPlayer sp) {
                         Component taskTitle = Component.translatable("task." + task.getName());
                         Component taskSub = Component.translatable("subtitle.task.new");
-                        net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 60);
+                        net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 60, false);
                         // 轮换模式：普通任务刷新计数（供轮换到小游戏任务判断）
                         if (minigameComponent != null) {
                             minigameComponent.onNormalTaskGenerated(sp);
@@ -219,7 +219,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                         if (this.player instanceof ServerPlayer sp) {
                             Component taskTitle = Component.translatable("task." + parallelTask.getName());
                             Component taskSub = Component.translatable("subtitle.task.parallel");
-                            net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 60);
+                            net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 60, false);
                         }
                         shouldSync = true;
                     }

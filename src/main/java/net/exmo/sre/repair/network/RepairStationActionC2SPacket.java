@@ -77,6 +77,8 @@ public record RepairStationActionC2SPacket(BlockPos blockPos, boolean greatHit, 
             amount = Math.max(amount + 1, (int) Math.ceil(amount * 1.75D));
         }
         amount += RepairEventSystem.repairProgressBonus(level);
+        // 人数越少推进越快：单人残局也修得动，满员局不会秒修
+        amount = RepairModeState.scaleRepairAmount(level, amount);
 
         boolean jammed = station.isJammed();
         if (!station.addProgress(amount)) {

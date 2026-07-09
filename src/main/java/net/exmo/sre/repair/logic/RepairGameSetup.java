@@ -45,7 +45,7 @@ public final class RepairGameSetup {
                 continue;
             player.setGameMode(GameType.SPECTATOR);
             player.teleportTo(serverWorld,
-                    manorBase.getX() + 26.5D, manorBase.getY() + 20.0D, manorBase.getZ() + 32.5D,
+                    manorBase.getX() + 32.5D, manorBase.getY() + 26.0D, manorBase.getZ() + 56.5D,
                     player.getYRot(), player.getXRot());
         }
 

@@ -649,9 +649,12 @@ public class ModRoles {
     public static SRERole LEATHER_PIG = TMMRoles.registerRole(
             new NormalRole(LEATHER_PIG_ID, new Color(255, 158, 170).getRGB(),
                     true, false, SRERole.MoodType.REAL,
-                    TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false)
+                    // registerRole 在此刻读取 componentKey 填 TMMRoles.COMPONENT_KEYS，
+                    // 放到链式调用后面会漏掉，开局/结算的 clear()+sync() 就不会覆盖本组件
+                    .setComponentKey(
+                            org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent.KEY))
             .setCanSeeCoin(true)
-            .setComponentKey(org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent.KEY)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000);
 

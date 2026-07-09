@@ -22,9 +22,12 @@ public final class TwoDimensionalCameraClientHandle {
     private static final float DEFAULT_FOREGROUND_CLIP_DISTANCE = 0.05F;
     private static final float MIN_OCCLUDED_FOREGROUND_CLIP_DISTANCE = 3.0F;
     private static final double PLAYER_CLIP_MARGIN = 0.25D;
+    /** 近裁剪面越过房间近墙内表面的余量：保证墙被剔除、又只吃掉极薄一层房间地板。 */
+    private static final double ROOM_WALL_CLEAR_MARGIN = 0.25D;
     private static volatile boolean active;
     private static volatile float foregroundClipDistance = DEFAULT_FOREGROUND_CLIP_DISTANCE;
     private static volatile Vec3 voiceListenerPosition;
+    private static volatile float cameraYaw;
 
     private TwoDimensionalCameraClientHandle() {
     }
@@ -63,6 +66,7 @@ public final class TwoDimensionalCameraClientHandle {
         double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
         float yaw = (float) (Math.atan2(delta.z, delta.x) * Mth.RAD_TO_DEG) - 90.0F;
         float pitch = (float) (-(Math.atan2(delta.y, horizontal) * Mth.RAD_TO_DEG));
+        cameraYaw = yaw;
         AdvancedCameraDirector.setFixedOverride(cameraPos, yaw, pitch, CAMERA_FOV);
     }
 
@@ -98,18 +102,60 @@ public final class TwoDimensionalCameraClientHandle {
     }
 
     private static float smartForegroundClipDistance(Minecraft client, LocalPlayer player, Vec3 cameraPos, Vec3 lookAt) {
+        // 有箱庭视野（HAKONIWA_VISION）时，遮挡剔除交给区块级方块剔除精确处理——它按房间边界
+        // 逐块移除屋顶 / 近墙，永不产生虚空（未封闭房间会被判为 outside 而完整渲染）。
+        // 此时近裁剪面保持默认，避免平面近裁剪在未封闭房间等场景把整幅画面裁空。
+        if (player.hasEffect(ModEffects.HAKONIWA_VISION)) {
+            return DEFAULT_FOREGROUND_CLIP_DISTANCE;
+        }
         if (client.level == null || !hasBlockingSightline(client, player, cameraPos, lookAt)) {
             return DEFAULT_FOREGROUND_CLIP_DISTANCE;
         }
 
         double targetDistance = cameraPos.distanceTo(lookAt);
-        double clipDistance = playerNearClipLimit(player, cameraPos, lookAt) - PLAYER_CLIP_MARGIN;
+        // 关键修复：近裁剪面只推进到「玩家所在房间朝镜头一侧的墙」为止，而不是一路推到玩家身前。
+        // 这样既能剔除该墙及其之前的所有前景（其它车厢/房间的墙、屋顶），又能完整保留玩家所在
+        // 房间的地板与内部——避免在封闭房间 / 站在不完整方块（台阶、半砖等）上时，
+        // 把整间屋子连同地板一起裁成一片虚空。
+        double roomWallDepth = roomNearWallDepth(client, player, cameraPos, lookAt);
+        if (roomWallDepth <= 0.0D) {
+            // 玩家到镜头方向一路无阻挡（正对门口 / 开阔处），玩家本就可见，不做激进裁剪。
+            return DEFAULT_FOREGROUND_CLIP_DISTANCE;
+        }
+
+        // 近裁剪面落在房间近墙内表面稍外一点：墙被剔除，仅吃掉极薄一层地板。
+        double clipDistance = targetDistance - roomWallDepth + ROOM_WALL_CLEAR_MARGIN;
+        // 绝不越过玩家自身，否则会把玩家一起裁掉（玩家紧贴近墙时退化为贴着玩家裁剪）。
+        double playerLimit = playerNearClipLimit(player, cameraPos, lookAt) - PLAYER_CLIP_MARGIN;
+        clipDistance = Math.min(clipDistance, playerLimit);
         if (clipDistance <= DEFAULT_FOREGROUND_CLIP_DISTANCE) {
             return DEFAULT_FOREGROUND_CLIP_DISTANCE;
         }
         return (float) Mth.clamp(clipDistance,
                 MIN_OCCLUDED_FOREGROUND_CLIP_DISTANCE,
                 Math.max(MIN_OCCLUDED_FOREGROUND_CLIP_DISTANCE, targetDistance - 0.25D));
+    }
+
+    /**
+     * 从玩家视点（{@code lookAt}）朝镜头方向反向发射一条射线，返回命中的第一堵实心方块
+     * （即玩家所在房间朝镜头一侧的墙）到玩家的距离；若一路无阻挡返回 0。
+     * 用它把近裁剪面精确停在房间边界上，而不是一路推到玩家身前——这是「房间内一片虚空」的根因修复。
+     * 使用 {@link ClipContext.Block#OUTLINE} 让台阶 / 半砖等不完整方块也能被正确识别为房间墙。
+     */
+    private static double roomNearWallDepth(Minecraft client, LocalPlayer player, Vec3 cameraPos, Vec3 lookAt) {
+        if (client.level == null || cameraPos.distanceToSqr(lookAt) <= 1.0E-4D) {
+            return 0.0D;
+        }
+        BlockHitResult hit = client.level.clip(new ClipContext(
+                lookAt,
+                cameraPos,
+                ClipContext.Block.OUTLINE,
+                ClipContext.Fluid.NONE,
+                player));
+        if (hit.getType() == HitResult.Type.MISS) {
+            return 0.0D;
+        }
+        return lookAt.distanceTo(hit.getLocation());
     }
 
     private static boolean hasBlockingSightline(Minecraft client, LocalPlayer player, Vec3 cameraPos, Vec3 lookAt) {
@@ -182,6 +228,15 @@ public final class TwoDimensionalCameraClientHandle {
 
     public static boolean isActive() {
         return active;
+    }
+
+    /**
+     * 当前二维相机的水平偏航角。把它当作偏航角走 {@code getInputVector} 时，W 恰好是屏幕正上方：
+     * 侧视 / 2.5D 俯视下它就是镜头的水平朝向；amplifier 4 的纯俯视（pitch = 90°）下相机的
+     * up 向量退化为该偏航角的水平前向，结论同样成立。
+     */
+    public static float cameraYaw() {
+        return cameraYaw;
     }
 
     public static Vec3 voiceListenerPosition() {

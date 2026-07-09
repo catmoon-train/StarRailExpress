@@ -84,6 +84,8 @@
     "client.general.InventoryIntroductionRenderer",
     "client.general.MobEffectKeyMixin",
     "client.general.MobEffectMouseHandleSuppressMixin",
+    "client.general.PointerMovementYawMixin",
+    "client.general.PointerSprintJumpYawMixin",
     "client.general.PlayerIsolationClientMixin",
     "client.general.PlayerIsolationSoundMixin",
     "client.general.TwoDimensionalCameraProjectionMixin",

@@ -44,13 +44,21 @@ public final class RepairModeState {
     public static final int SABOTEUR_TASK_NEEDED = 10;
     public static final int COLLECTOR_TASK_NEEDED = 4;
 
+    /** 修机速度按这个人数标定：正好这么多可修机玩家时速度是 100%。 */
+    public static final int BASELINE_REPAIR_PLAYERS = 4;
+    /** 速度倍率上下限（百分比）。 */
+    private static final int MIN_REPAIR_SPEED_PERCENT = 70;
+    private static final int MAX_REPAIR_SPEED_PERCENT = 200;
+
     private static final Map<ServerLevel, Integer> COMPLETED_STATIONS = new WeakHashMap<>();
+    private static final Map<ServerLevel, Integer> TOTAL_STATIONS = new WeakHashMap<>();
 
     private RepairModeState() {
     }
 
     public static void reset(ServerLevel level) {
         COMPLETED_STATIONS.put(level, 0);
+        TOTAL_STATIONS.remove(level);
         level.players().forEach(player -> {
             player.removeTag(ESCAPED_TAG);
             player.removeTag(NEUTRAL_WIN_TAG);
@@ -111,6 +119,7 @@ public final class RepairModeState {
             player.removeEffect(MobEffects.POISON);
             player.removeEffect(MobEffects.JUMP);
             player.removeEffect(ModEffects.NO_COLLIDE);
+            player.removeEffect(ModEffects.VISION_FOG);
             component.sync();
         });
     }
@@ -148,8 +157,49 @@ public final class RepairModeState {
         return COMPLETED_STATIONS.getOrDefault(level, 0);
     }
 
+    /** 由 RepairArenaBuilder 在场地建好后写入：本局地图上一共放了几台修机台。 */
+    public static void setTotalStationCount(ServerLevel level, int total) {
+        TOTAL_STATIONS.put(level, Math.max(0, total));
+    }
+
+    public static int getTotalStationCount(ServerLevel level) {
+        // 没统计到（例如老地图配置）时退化成"至少要修够的台数"，HUD 不会显示 0 台。
+        return Math.max(REQUIRED_REPAIRED_STATIONS, TOTAL_STATIONS.getOrDefault(level, 0));
+    }
+
     public static boolean areExitGatesPowered(ServerLevel level) {
         return getCompletedStationCount(level) >= REQUIRED_REPAIRED_STATIONS;
+    }
+
+    /** 还能参与修机的玩家数（幸存者 + 中立，排除已淘汰/已逃脱）。 */
+    public static int countActiveRepairPlayers(ServerLevel level) {
+        int count = 0;
+        for (ServerPlayer player : level.players()) {
+            if (isNonHunterRepairPlayer(player) && !GameUtils.isPlayerEliminated(player)
+                    && !player.getTags().contains(ESCAPED_TAG)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 修机速度倍率（百分比）。用平方根曲线而不是简单的反比：
+     * 人越少每次校准推进越多（单人残局不会变成无望的苦役），人越多个人越慢，
+     * 但团队总产出仍随人数增长（收益递减），满员局不会几十秒就修完一台。
+     */
+    public static int repairSpeedPercent(ServerLevel level) {
+        int active = countActiveRepairPlayers(level);
+        if (active <= 0) {
+            return 100;
+        }
+        int percent = (int) Math.round(100.0D * Math.sqrt(BASELINE_REPAIR_PLAYERS / (double) active));
+        return Math.max(MIN_REPAIR_SPEED_PERCENT, Math.min(MAX_REPAIR_SPEED_PERCENT, percent));
+    }
+
+    /** 把一次校准的基础推进量按人数缩放，至少推进 1 点。 */
+    public static int scaleRepairAmount(ServerLevel level, int baseAmount) {
+        return Math.max(1, Math.round(baseAmount * repairSpeedPercent(level) / 100.0F));
     }
 
     public static void addNeutralTaskProgress(ServerPlayer player, String roleId, int amount, int needed) {

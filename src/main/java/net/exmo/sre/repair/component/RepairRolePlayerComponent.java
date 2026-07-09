@@ -34,6 +34,10 @@ public class RepairRolePlayerComponent implements RoleComponent {
     public int carryBlockedTicks = 0;
     public BlockPosTag trialStand = BlockPosTag.NONE;
     public int completedStations = 0;
+    /** 本局地图上一共有几台修机台（HUD 右侧面板用）。 */
+    public int totalStations = 0;
+    /** 当前修机速度倍率，百分比（按存活可修机人数缩放）。 */
+    public int repairSpeedPercent = 100;
     public boolean gatesPowered = false;
     public int downedAllies = 0;
     public int activeTrialPrisoners = 0;
@@ -88,6 +92,8 @@ public class RepairRolePlayerComponent implements RoleComponent {
         carryBlockedTicks = 0;
         trialStand = BlockPosTag.NONE;
         completedStations = 0;
+        totalStations = 0;
+        repairSpeedPercent = 100;
         gatesPowered = false;
         downedAllies = 0;
         activeTrialPrisoners = 0;
@@ -209,6 +215,8 @@ public class RepairRolePlayerComponent implements RoleComponent {
         tag.putInt("CarryBlockedTicks", carryBlockedTicks);
         trialStand.write(tag, "TrialStand");
         tag.putInt("CompletedStations", completedStations);
+        tag.putInt("TotalStations", totalStations);
+        tag.putInt("RepairSpeedPercent", repairSpeedPercent);
         tag.putBoolean("GatesPowered", gatesPowered);
         tag.putInt("DownedAllies", downedAllies);
         tag.putInt("ActiveTrialPrisoners", activeTrialPrisoners);
@@ -268,6 +276,8 @@ public class RepairRolePlayerComponent implements RoleComponent {
         carryBlockedTicks = tag.getInt("CarryBlockedTicks");
         trialStand = BlockPosTag.read(tag, "TrialStand");
         completedStations = tag.getInt("CompletedStations");
+        totalStations = tag.getInt("TotalStations");
+        repairSpeedPercent = tag.contains("RepairSpeedPercent") ? tag.getInt("RepairSpeedPercent") : 100;
         gatesPowered = tag.getBoolean("GatesPowered");
         downedAllies = tag.getInt("DownedAllies");
         activeTrialPrisoners = tag.getInt("ActiveTrialPrisoners");

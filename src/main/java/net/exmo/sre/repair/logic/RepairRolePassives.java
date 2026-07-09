@@ -9,15 +9,27 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.init.ModEffects;
 
-/** 修机模式角色被动效果（疾跑者残影、蛮力者力量、追踪者定期高亮最近目标）。 */
+/** 修机模式角色被动效果（追捕者视野迷雾、疾跑者残影、蛮力者力量、追踪者定期高亮最近目标）。 */
 public final class RepairRolePassives {
+    /** 追捕者视野迷雾等级：getVisionFogDistance(3) = 11 格。 */
+    private static final int HUNTER_FOG_AMPLIFIER = 3;
+    /** 迷雾续期间隔与时长：时长必须大于间隔，否则两次续期之间雾会闪断。 */
+    private static final int HUNTER_FOG_REFRESH_INTERVAL = 20;
+    private static final int HUNTER_FOG_DURATION = 60;
+
     private RepairRolePassives() {
     }
 
     public static void tick(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         for (ServerPlayer player : serverWorld.players()) {
             String active = ModComponents.REPAIR_ROLES.get(player).activeRole;
+            if (serverWorld.getGameTime() % HUNTER_FOG_REFRESH_INTERVAL == 0
+                    && RepairModeState.isHunter(player) && !GameUtils.isPlayerEliminated(player)) {
+                player.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, HUNTER_FOG_DURATION,
+                        HUNTER_FOG_AMPLIFIER, false, false, false));
+            }
             if ("runner".equals(active)) {
                 if (serverWorld.getGameTime() % 8 == 0) {
                     serverWorld.sendParticles(ParticleTypes.CLOUD,

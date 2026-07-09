@@ -18,6 +18,8 @@ public final class RepairHudSync {
             return;
         }
         int completed = RepairModeState.getCompletedStationCount(serverWorld);
+        int total = RepairModeState.getTotalStationCount(serverWorld);
+        int speedPercent = RepairModeState.repairSpeedPercent(serverWorld);
         boolean gatesPowered = RepairModeState.areExitGatesPowered(serverWorld);
         int activeTrialPrisoners = 0;
         for (ServerPlayer player : serverWorld.players()) {
@@ -28,6 +30,8 @@ public final class RepairHudSync {
         for (ServerPlayer player : serverWorld.players()) {
             var component = ModComponents.REPAIR_ROLES.get(player);
             component.completedStations = completed;
+            component.totalStations = total;
+            component.repairSpeedPercent = speedPercent;
             component.gatesPowered = gatesPowered;
             component.activeTrialPrisoners = activeTrialPrisoners;
             component.downedAllies = countDownedAllies(serverWorld, gameWorldComponent, player);

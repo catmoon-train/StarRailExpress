@@ -832,7 +832,7 @@ public class SREClient implements ClientModInitializer {
                 e.printStackTrace();
             }
             context.client().execute(() -> {
-                context.client().setScreen(new MapSelectorScreen());
+                context.client().setScreen(MapVoteScreen.create());
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(MapVotingResultsPayload.TYPE, (payload, context) -> {
@@ -936,7 +936,8 @@ public class SREClient implements ClientModInitializer {
                                 payload.durationTicks(),
                                 payload.color(),
                                 payload.typewriter(),
-                                payload.screenPosition());
+                                payload.screenPosition(),
+                                payload.showBackground());
                     });
                 });
 

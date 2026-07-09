@@ -73,6 +73,9 @@ public class CommonClientHudRenderer {
   static SRERole lastRenderRole = null;
   public static int effectStartY = 0;
 
+  /** 金币下方信息行的起始 y，HUD 与物品栏界面共用，保证两处位置一致。 */
+  public static final int INFO_LINES_TOP_Y = 20;
+
   public static MessageDetail foldHelpDisplayTip = new MessageDetail(Component
       .translatable("noellesroles.hud.fold_help_display_tip", Component.keybind("key.noellesroles.show_help_display"))
       .withStyle(ChatFormatting.GRAY), false);
@@ -83,6 +86,34 @@ public class CommonClientHudRenderer {
   public static MessageDetail showHelpDisplayTip = new MessageDetail(Component
       .translatable("noellesroles.hud.show_help_display_tip", Component.keybind("key.noellesroles.show_help_display"))
       .withStyle(ChatFormatting.GRAY), true);
+
+  /**
+   * 绘制金币下方的信息行（右对齐）。返回最后一行之后的 y，供状态效果图标接续排布。
+   */
+  public static int renderMessagesBelowMoney(Minecraft client, FakeGuiGraphics guiGraphics,
+      DeltaTracker deltaTracker) {
+    MutableComponentResult texts = OnMessageBelowMoneyRenderer.EVENT.invoker().onRenderer(client, guiGraphics,
+        deltaTracker);
+    java.util.List<MessageDetail> infoLines = texts.mutipleContent;
+    boolean expanded = NoellesrolesClient.isShowHelpDisplay;
+    if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()) {
+      infoLines.add(creditText);
+      infoLines.add(expanded ? foldHelpDisplayTip : showHelpDisplayTip);
+    }
+
+    int y = INFO_LINES_TOP_Y;
+    int width = guiGraphics.guiWidth();
+    int lineHeight = client.font.lineHeight + 4;
+    for (var line : infoLines) {
+      if (!expanded && !line.briefly())
+        continue;
+      guiGraphics.drawString(client.font, line.mutableComponent(),
+          width - 10 - client.font.width(line.mutableComponent()), y,
+          java.awt.Color.WHITE.getRGB());
+      y += lineHeight;
+    }
+    return y;
+  }
 
   public static void registerFather() {
     // Use FakeHudRenderCallback instead of Fabric's HudRenderCallback
@@ -135,43 +166,10 @@ public class CommonClientHudRenderer {
       }
       {
         if (client.screen == null) {
-          MutableComponentResult texts = OnMessageBelowMoneyRenderer.EVENT.invoker().onRenderer(
-              client, guiGraphics,
-              deltaTracker);
-          java.util.List<MessageDetail> infoLines = texts.mutipleContent;
-          int y = 20;
-          int width = guiGraphics.guiWidth();
-          int lineHeight = client.font.lineHeight + 4;
-          if (NoellesrolesClient.isShowHelpDisplay) {
-            if (SREClient.gameComponent != null) {
-              if (SREClient.gameComponent.isRunning()) {
-                infoLines.add(creditText);
-                infoLines.add(foldHelpDisplayTip);
-              }
-            }
-            for (var line : infoLines) {
-              guiGraphics.drawString(client.font, line.mutableComponent(),
-                  width - 10 - client.font.width(line.mutableComponent()), y,
-                  java.awt.Color.WHITE.getRGB());
-              y += lineHeight;
-            }
-          } else {
-            if (SREClient.gameComponent != null) {
-              if (SREClient.gameComponent.isRunning()) {
-                infoLines.add(creditText);
-                infoLines.add(showHelpDisplayTip);
-              }
-            }
-            for (var line : infoLines) {
-              if (!line.briefly())
-                continue;
-              guiGraphics.drawString(client.font, line.mutableComponent(),
-                  width - 10 - client.font.width(line.mutableComponent()), y,
-                  java.awt.Color.WHITE.getRGB());
-              y += lineHeight;
-            }
-          }
-          effectStartY = y;
+          // 开启 showInfoLinesInInventory 时信息行改由 LimitedInventoryScreen 绘制，HUD 上不再显示
+          effectStartY = SREClientConfig.instance().showInfoLinesInInventory
+              ? INFO_LINES_TOP_Y
+              : renderMessagesBelowMoney(client, guiGraphics, deltaTracker);
         }
       }
       {
