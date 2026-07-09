@@ -542,15 +542,30 @@ public final class MeetingManager {
 
     // ==================== 投票权重 ====================
 
-    /** 设置指定玩家的投票权重（该玩家的投票算几票）。默认权重为 1。 */
+    /** 设置指定玩家的投票权重（覆盖）。默认权重为 1。 */
     public static void setVoteWeight(ServerPlayer player, int weight) {
         voteWeightOverrides.put(player.getUUID(), weight);
     }
 
+    /** 为指定玩家增加投票权重（加算）。如传教士给政客 2 票加成 → 2+2=4。 */
+    public static void addVoteWeight(ServerPlayer player, int addedWeight) {
+        addVoterWeight(player.getUUID(), addedWeight);
+    }
+
+    /** UUID 版加算投票权重。传教士切换目标时用负数恢复旧目标权重。 */
+    public static void addVoterWeight(UUID uuid, int addedWeight) {
+        int current = voteWeightOverrides.getOrDefault(uuid, 1);
+        voteWeightOverrides.put(uuid, current + addedWeight);
+    }
+
     /** 获取指定玩家的投票权重（含存活人数规则）。无覆盖时返回 1。 */
     public static int getVoteWeight(ServerPlayer player) {
-        int weight = voteWeightOverrides.getOrDefault(player.getUUID(), 1);
-        // 存活玩家 > 24 时，权重 >= 2 的提升为 3
+        return getVoterWeight(player.getUUID());
+    }
+
+    /** UUID 版：获取投票权重（无覆盖返回 1，含存活人数规则）。 */
+    public static int getVoterWeight(UUID uuid) {
+        int weight = voteWeightOverrides.getOrDefault(uuid, 1);
         if (weight >= 2 && level != null) {
             long alive = level.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
             if (alive > 24) weight = Math.max(weight, 3);
@@ -561,6 +576,11 @@ public final class MeetingManager {
     /** 重置指定玩家的投票权重。 */
     public static void resetVoteWeight(ServerPlayer player) {
         voteWeightOverrides.remove(player.getUUID());
+    }
+
+    /** UUID 版：重置投票权重。 */
+    public static void resetVoterWeight(UUID uuid) {
+        voteWeightOverrides.remove(uuid);
     }
 
     /** 重置所有投票权重（游戏结束时调用）。 */

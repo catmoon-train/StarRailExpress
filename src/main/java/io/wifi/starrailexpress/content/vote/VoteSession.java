@@ -161,9 +161,13 @@ public class VoteSession {
         return tally;
     }
 
-    /** 获取投票者的投票权重（默认 1）。子类可覆盖以支持自定义权重。 */
+    /** 获取投票者的投票权重。优先从 MeetingManager 读取，无覆盖时返回 1。 */
     protected int getVoterWeight(UUID voterId) {
-        return 1;
+        try {
+            return net.exmo.sre.meeting.MeetingManager.getVoterWeight(voterId);
+        } catch (Exception e) {
+            return 1;
+        }
     }
 
     public Map<String, VoteResultOption> getResults() {

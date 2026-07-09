@@ -215,5 +215,14 @@
   "info.screen.roleid.salted_fish": "平民陣營\n按技能鍵會面朝太陽躺下，期間無法移動、轉向、使用物品或打開背包。\n最多持續 80 秒；每隔 20 秒會蹦起來翻到另一面繼續躺下。\n持續時間結束後才開始 40 秒冷卻。",
   "info.screen.roleid.salted_fish.simple": "平民陣營\n按 G 面朝太陽躺下 80 秒，每 20 秒蹦起翻面一次，結束後冷卻 40 秒。",
   "info.screen.roleid.leather_pig": "平民陣營\n被動：你的模型變成一頭豬。\n主動·瘋魔模式（技能鍵 G）：消耗 150 金幣進入瘋魔模式 30 秒——開啟直覺（高亮周圍 40 格內所有玩家）並獲得速度 III，期間播放神祕追殺音效。\n冷卻 45 秒。\nDream帶帶帶！",
-  "info.screen.roleid.leather_pig.simple": "平民陣營\n你的模型是一頭豬。\n按 G 花 150 金幣瘋魔 30 秒：直覺透視 + 速度 III + 追殺音效，冷卻 45 秒。"
+  "info.screen.roleid.leather_pig.simple": "平民陣營\n你的模型是一頭豬。\n按 G 花 150 金幣瘋魔 30 秒：直覺透視 + 速度 III + 追殺音效，冷卻 45 秒。",
+  "info.screen.roleid.canada_goose": "平民陣營\n僅在啟用會議的地圖中刷新。\n當你被他人擊殺或被鵜鶘吞掉時，自動發起緊急會議，發起人為擊殺你的人。",
+  "info.screen.roleid.canada_goose.simple": "平民陣營\n被殺時自動發起緊急會議",
+  "info.screen.roleid.dummy_bird": "中立陣營（獨立勝利）\n僅在啟用會議投票的地圖中刷新。\n擁有殺手透視，但無法透視到任何玩家。\n在會議投票中被投票出局即可獲得獨立勝利。",
+  "info.screen.roleid.dummy_bird.simple": "中立陣營\n在會議中被投票出局即可獨立勝利",
+  "info.screen.roleid.politician": "平民陣營\n僅在啟用會議投票的地圖中刷新。\n你不會因投票出局。\n你的投票權重視為2票（存活>24人時3票）。\n當你獲得的投票數達到存活玩家的四分之一時，獲得左輪手槍。",
+  "info.screen.roleid.politician.simple": "平民陣營\n投票免疫+權重2/3票+得票多獲左輪",
+  "info.screen.roleid.missionary": "殺手陣營\n僅在啟用會議投票的地圖中刷新。\n在背包中點擊玩家頭像可以傳教，增加其會議投票權重（開局60秒冷卻，技能冷卻80秒）。\n被傳教的玩家在投票時視為+1票（存活>24人時視為+2票），疊加在原權重之上。\n切換傳教目標時，舊目標的額外投票加成會被移除。",
+  "info.screen.roleid.missionary.simple": "殺手陣營\n背包點頭像使目標投票權重+1/2票",
+
 }

@@ -20,14 +20,12 @@ public class ModMeetingRoleEvents {
         if (registered) return;
         registered = true;
 
-        // 加拿大鹅：被杀时自动发起会议（已死亡后触发）
+        // 加拿大鹅：被杀时自动发起会议
         OnPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (!(player instanceof ServerPlayer sp)) return;
-            if (!GameUtils.isPlayerAliveAndSurvival(sp) || sp.isSpectator()) return;
             var game = SREGameWorldComponent.KEY.get(sp.serverLevel());
             if (game == null || !game.isRunning()) return;
             if (!game.isRole(sp, ModMeetingRoles.CANADA_GOOSE)) return;
-            // 已死亡后，自动开会议
             ServerPlayer reporter = killer instanceof ServerPlayer kp ? kp : sp;
             MeetingApi.startMeeting(sp.serverLevel(), reporter, sp.getGameProfile().getName());
         });
@@ -52,7 +50,7 @@ public class ModMeetingRoleEvents {
             return true;
         });
 
-        // 政客：游戏开始时设置投票权重
+        // 政客：游戏开始时设置投票权重（覆盖默认值）
         OnGameTrueStarted.EVENT.register((level) -> {
             long alive = level.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
             for (ServerPlayer p : level.players()) {

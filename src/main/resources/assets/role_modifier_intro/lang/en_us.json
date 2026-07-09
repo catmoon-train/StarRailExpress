@@ -213,6 +213,14 @@
   "info.screen.roleid.salted_fish": "Civilian Faction\nPress the ability key to lie down facing the sun. While lying down, you cannot move, turn, use items, or open your inventory.\nLasts up to 80 seconds. Every 20 seconds you bounce up, roll over, and lie down on the other side.\nThe 40-second cooldown starts only after the duration ends.",
   "info.screen.roleid.salted_fish.simple": "Civilian Faction\nPress G to lie facing the sun for 80s, bounce and roll every 20s, then cool down for 40s.",
   "info.screen.roleid.leather_pig": "Civilian Faction\nPassive: your model becomes a pig.\nActive, Frenzy Mode (ability key G): spend 150 coins to enter Frenzy Mode for 30 seconds — gain instinct vision (highlights all players within 40 blocks) and Speed III, while a mysterious manhunt sound plays.\nCooldown 45 seconds.\nDream, carry me!",
-  "info.screen.roleid.leather_pig.simple": "Civilian Faction\nYour model is a pig.\nPress G to spend 150 coins and go frenzied for 30s: instinct vision + Speed III + manhunt sound. 45s cooldown."
+  "info.screen.roleid.leather_pig.simple": "Civilian Faction\nYour model is a pig.\nPress G to spend 150 coins and go frenzied for 30s: instinct vision + Speed III + manhunt sound. 45s cooldown.",
+  "info.screen.roleid.canada_goose": "Civilian Faction\nOnly spawns in maps with meeting enabled.\nWhen you are killed by another player or swallowed by a Pelican, an emergency meeting is automatically called, with your killer as the reporter.",
+  "info.screen.roleid.canada_goose.simple": "Civilian Faction\nAuto-calls emergency meeting when killed",
+  "info.screen.roleid.dummy_bird": "Neutral (Independent Victory)\nOnly spawns in maps with meeting voting enabled.\nHas killer instinct, but cannot see any players through it.\nAchieve independent victory by being voted out during meeting.",
+  "info.screen.roleid.dummy_bird.simple": "Neutral\nWin independently by being voted out",
+  "info.screen.roleid.politician": "Civilian Faction\nOnly spawns in maps with meeting voting enabled.\nCannot be voted out.\nYour vote counts as 2 (3 if >24 players alive).\nWhen votes received reach 1/4 of alive players, receive a revolver.",
+  "info.screen.roleid.politician.simple": "Civilian Faction\nVote immune + weight 2/3, receive revolver when heavily voted",
+  "info.screen.roleid.missionary": "Killer Faction\nOnly spawns in maps with meeting voting enabled.\nClick player heads in your backpack to convert them, adding +1 to their meeting vote weight (60s initial CD, 80s skill CD).\nBuffed players get +1 vote (+2 if >24 alive), stacked on top of their base weight.\nSwitching target removes the bonus from the old target.",
+  "info.screen.roleid.missionary.simple": "Killer Faction\nClick player head in backpack: target gets +1/2 vote weight"
 
 }
