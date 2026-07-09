@@ -14,6 +14,7 @@ import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
@@ -21,9 +22,38 @@ import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
 import java.util.function.Supplier;
 
+/**
+ * 设置菜单 —— 复古列车车票风格。
+ * <p>
+ * 遵循 {@code docs/ui_style.md}：深棕渐变背景 + 棕褐描边 + 浅米色装饰线，
+ * 金色标题，居中按钮网格。
+ */
 public class SettingMenuScreen extends Screen {
     Screen parent;
     boolean isFromPausingScreen = false;
+
+    // ── 颜色（复古列车车票风格，参见 docs/ui_style.md §2）───────────────────────
+    private static final int BG_TOP     = 0xD81A1008;
+    private static final int BG_BOTTOM  = 0xD820140A;
+    private static final int BORDER     = 0xFF8B6914;
+    private static final int DECOR_LINE = 0x33FFE8C0;
+    private static final int GOLD       = 0xFFD4AF37;
+    private static final int TEXT       = 0xFFFFF4DC;
+    private static final int MUTED      = 0xFF9E8B6E;
+
+    // ── 布局 ──────────────────────────────────────────────────────────────────
+    private static final int MAX_PANEL_W = 480;
+    private static final int MAX_PANEL_H = 420;
+    private static final int MIN_PANEL_H = 280;
+    private static final int TITLE_H     = 24;
+    private static final int TOP_PAD     = 16;
+
+    static int WIDE_BUTTON_WIDTH = 204;
+    static int SMALL_BUTTON_WIDTH = 204;
+    static final int BUTTON_HEIGHT = 20;
+    static final int MARGIN = 4;
+    static int COLUMN_COUNT = 1;
+    public boolean showSettings = true;
 
     public SettingMenuScreen(Screen parent, boolean isFromPausingScreen) {
         this(parent);
@@ -51,16 +81,52 @@ public class SettingMenuScreen extends Screen {
         this.parent = parent;
     }
 
-    static int WIDE_BUTTON_WIDTH = 204;
-    static int SMALL_BUTTON_WIDTH = 204;
-    static final int BUTTON_HEIGHT = 20;
-    static final int MARGIN = 4;
-    static int COLUMN_COUNT = 1;
-    public boolean showSettings = true;
+    // =========================================================================
+    // renderBackground — 复古列车车票面板
+    // =========================================================================
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
+    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(g, mouseX, mouseY, partialTick);
+        drawPanel(g);
+    }
+
+    private void drawPanel(GuiGraphics g) {
+        int panelW = Math.min(MAX_PANEL_W, (int)(this.width  * 0.55F));
+        int panelH = Mth.clamp((int)(this.height * 0.72F), MIN_PANEL_H, MAX_PANEL_H);
+        int panelX = (this.width  - panelW) / 2;
+        int panelY = (this.height - panelH) / 2;
+
+        // 全局半透明遮罩
+        g.fill(0, 0, this.width, this.height, 0x88000000);
+
+        // 1. 上下渐变背景
+        g.fillGradient(panelX, panelY, panelX + panelW, panelY + panelH, BG_TOP, BG_BOTTOM);
+
+        // 2. 棕褐色描边
+        g.renderOutline(panelX, panelY, panelW, panelH, BORDER);
+
+        // 3. 上边缘装饰线
+        g.fill(panelX + 1, panelY + 1, panelX + panelW - 1, panelY + 2, DECOR_LINE);
+    }
+
+    // =========================================================================
+    // render — 叠加金色粗体标题
+    // =========================================================================
+
+    @Override
+    public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        super.render(g, mouseX, mouseY, delta);
+
+        // 金色粗体标题，置于面板顶部
+        Component titleComp = this.title.copy().withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+        int titleW = font.width(titleComp);
+        int titleX = (this.width - titleW) / 2;
+
+        int panelY = (this.height - Mth.clamp((int)(this.height * 0.72F), MIN_PANEL_H, MAX_PANEL_H)) / 2;
+        int titleY = panelY + TOP_PAD;
+
+        g.drawString(font, titleComp, titleX, titleY, TEXT);
     }
 
     @Override
@@ -94,8 +160,6 @@ public class SettingMenuScreen extends Screen {
         GridLayout gridLayout = new GridLayout();
         gridLayout.defaultCellSetting().padding(4, 4, 4, 0);
         GridLayout.RowHelper rowHelper = gridLayout.createRowHelper(COLUMN_COUNT);
-        // 客户端设置
-        // rowHelper.addChild()
 
         // 角色介绍
         rowHelper.addChild(
@@ -130,7 +194,6 @@ public class SettingMenuScreen extends Screen {
         }
 
         // Noelle's Roles
-
         {
             Button btn = this.openScreenButton(Component.translatable("screen.starrailexpress.settings.noellesroles"),
                     () -> {
@@ -146,7 +209,6 @@ public class SettingMenuScreen extends Screen {
             rowHelper.addChild(btn);
         }
         // HarpyModLoader
-
         {
             Button btn = this.openScreenButton(Component.translatable("screen.starrailexpress.settings.harpymodloader"),
                     () -> {
@@ -163,7 +225,6 @@ public class SettingMenuScreen extends Screen {
         }
 
         // StupidExpress
-
         {
             Button btn = this.openScreenButton(Component.translatable("screen.starrailexpress.settings.stupid_express"),
                     () -> {
@@ -179,7 +240,6 @@ public class SettingMenuScreen extends Screen {
             rowHelper.addChild(btn);
         }
         // 角色设置
-
         {
             Button btn = this.openScreenButton(Component.translatable("screen.starrailexpress.settings.role_modifier"),
                     () -> {
@@ -205,7 +265,7 @@ public class SettingMenuScreen extends Screen {
         rowHelper.addChild(Button.builder(Component.translatable("gui.back"), (button) -> {
             this.minecraft.setScreen((Screen) parent);
         }).width(WIDE_BUTTON_WIDTH).build(), COLUMN_COUNT);
-        // gridLayout.newCellSettings().paddingTop(50)
+
         gridLayout.arrangeElements();
         FrameLayout.alignInRectangle(gridLayout, 0, 0, this.width, this.height, 0.5F, 0.25F);
         gridLayout.visitWidgets(this::addRenderableWidget);

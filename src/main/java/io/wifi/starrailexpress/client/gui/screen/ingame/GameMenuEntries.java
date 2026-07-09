@@ -99,6 +99,11 @@ public class GameMenuEntries {
             minecraft.setScreen(new MapIntroduceScreen(parent));
             toggleViewMenu.accept(false);
         }));
+        // 地图轮换：同一个界面，管理员多出启用/停用按钮
+        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.map_rotation"), (btn) -> {
+            minecraft.setScreen(new io.wifi.starrailexpress.client.gui.screen.maprotation.MapRotationScreen());
+            toggleViewMenu.accept(false);
+        }));
         // 战绩页面
         entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.records"), (btn) -> {
 

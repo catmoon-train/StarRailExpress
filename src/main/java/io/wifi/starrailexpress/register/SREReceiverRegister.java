@@ -131,6 +131,29 @@ public class SREReceiverRegister {
         ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.MapIntroRequestPayload.ID,
                 (payload, context) -> context.server().execute(() -> sendMapIntro(context.player())));
 
+        // 地图轮换：管理员启用/停用地图
+        ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.MapRotationTogglePayload.ID,
+                (payload, context) -> {
+                    ServerPlayer player = context.player();
+                    context.server().execute(() -> {
+                        if (!player.hasPermissions(2)) {
+                            player.displayClientMessage(Component.translatable("sre.command.permission_denied")
+                                    .withStyle(ChatFormatting.RED), false);
+                            return;
+                        }
+                        io.wifi.starrailexpress.game.data.ServerMapConfig mapConfig =
+                                io.wifi.starrailexpress.game.data.ServerMapConfig.getInstance(player.server);
+                        io.wifi.starrailexpress.game.data.MapConfig.MapEntry entry =
+                                mapConfig.getMapById(payload.mapId());
+                        if (entry == null) {
+                            return;
+                        }
+                        entry.canSelect = payload.enabled();
+                        mapConfig.saveConfig(player.server);
+                        broadcastMapRotation(player.server);
+                    });
+                });
+
         // Mailbox receivers
         ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.content.mail.MailClaimC2SPayload.ID,
                 new io.wifi.starrailexpress.content.mail.MailClaimC2SPayload.Receiver());
@@ -181,6 +204,27 @@ public class SREReceiverRegister {
 
                     executeDialogueCommand(context, line.command, line.runsOnServer());
                 });
+    }
+
+    /** 把全部地图的启用状态广播给所有在线玩家（比重发 MapIntroSyncPayload 便宜得多）。 */
+    private static void broadcastMapRotation(net.minecraft.server.MinecraftServer server) {
+        io.wifi.starrailexpress.game.data.ServerMapConfig mapConfig =
+                io.wifi.starrailexpress.game.data.ServerMapConfig.getInstance(server);
+        if (mapConfig.getMaps() == null) {
+            return;
+        }
+        java.util.List<io.wifi.starrailexpress.network.MapRotationSyncPayload.Entry> entries = new ArrayList<>();
+        for (io.wifi.starrailexpress.game.data.MapConfig.MapEntry entry : mapConfig.getMaps()) {
+            if (entry == null || entry.id == null || entry.id.isBlank()) {
+                continue;
+            }
+            entries.add(new io.wifi.starrailexpress.network.MapRotationSyncPayload.Entry(entry.id, entry.canSelect));
+        }
+        io.wifi.starrailexpress.network.MapRotationSyncPayload payload =
+                new io.wifi.starrailexpress.network.MapRotationSyncPayload(entries);
+        for (ServerPlayer online : server.getPlayerList().getPlayers()) {
+            ServerPlayNetworking.send(online, payload);
+        }
     }
 
     private static void sendMapIntro(ServerPlayer player) {

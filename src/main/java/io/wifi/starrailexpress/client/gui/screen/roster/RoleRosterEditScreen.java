@@ -8,7 +8,9 @@ import io.wifi.starrailexpress.roster.RoleRosterState;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
@@ -110,10 +112,8 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.disable_all"), b -> disableAll())
                 .bounds(bx + 74, by, 70, 20).build());
 
-        toggleButton = addRenderableWidget(Button.builder(toggleLabel(), b -> {
-            working.enabled = !working.enabled;
-            toggleButton.setMessage(toggleLabel());
-        }).bounds(bx + 148, by, 80, 20).build());
+        toggleButton = addRenderableWidget(Button.builder(toggleLabel(), b -> toggleRosterEnabled())
+                .bounds(bx + 148, by, 80, 20).build());
 
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.save"), b -> save())
                 .bounds(panelX + panelW - PAD - 124, by, 60, 20).build());
@@ -125,6 +125,34 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         return working.enabled
                 ? Component.translatable("gui.sre.role_roster.toggle.on")
                 : Component.translatable("gui.sre.role_roster.toggle.off");
+    }
+
+    private Component statusLabel() {
+        return working.enabled
+                ? Component.translatable("gui.sre.role_roster.status.on")
+                : Component.translatable("gui.sre.role_roster.status.off");
+    }
+
+    /**
+     * 右上角启用/停用开关的命中矩形（x, y, w, h）。
+     * 渲染与点击共用同一份计算，避免两处尺寸算错位。
+     */
+    private int[] statusRect() {
+        int w = this.font.width(statusLabel()) + 12;
+        int h = this.font.lineHeight + 6;
+        return new int[] { panelX + panelW - 16 - w, panelY + 11, w, h };
+    }
+
+    /**
+     * 翻转名单启用状态，并让底部那颗按钮的文字跟着变。
+     * 与底部按钮语义一致：只改本地 working，点“保存”才下发到服务端。
+     * 不在这里播音效——Button 自己会播，重复调用会叠两声。
+     */
+    private void toggleRosterEnabled() {
+        working.enabled = !working.enabled;
+        if (toggleButton != null) {
+            toggleButton.setMessage(toggleLabel());
+        }
     }
 
     private void rebuildGroups() {
@@ -233,6 +261,16 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // 右上角状态开关：在列表区之上，先于卡片命中判定
+        if (button == 0 && isOverStatusToggle(mouseX, mouseY)) {
+            toggleRosterEnabled();
+            if (this.minecraft != null) {
+                this.minecraft.getSoundManager().play(
+                        SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0F));
+            }
+            return true;
+        }
+
         // 优先处理滚动条拖拽
         int viewport = listBottom - listTop;
         if (button == 0 && contentHeight > viewport) {
@@ -300,12 +338,7 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
                 RoleRosterStyle.PANEL_BORDER);
 
         g.drawString(this.font, this.title, panelX + 16, panelY + 14, RoleRosterStyle.TITLE, false);
-        Component status = working.enabled
-                ? Component.translatable("gui.sre.role_roster.status.on")
-                : Component.translatable("gui.sre.role_roster.status.off");
-        int statusColor = working.enabled ? RoleRosterStyle.ENABLED_GREEN : RoleRosterStyle.DISABLED_RED;
-        int statusW = this.font.width(status);
-        g.drawString(this.font, status, panelX + panelW - 16 - statusW, panelY + 14, statusColor, false);
+        renderStatusToggle(g, mouseX, mouseY);
         g.drawString(this.font, Component.translatable("gui.sre.role_roster.hint", enabledCount()),
                 panelX + 16, panelY + 30, RoleRosterStyle.SUBTITLE, false);
 
@@ -318,6 +351,27 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         }
 
         renderScrollbar(g);
+    }
+
+    /** 右上角的启用/停用开关：与卡片上的开/关药丸同一套配色，可直接点击切换。 */
+    private void renderStatusToggle(GuiGraphics g, int mouseX, int mouseY) {
+        int[] r = statusRect();
+        boolean on = working.enabled;
+        boolean hovered = isOverStatusToggle(mouseX, mouseY);
+
+        int bg = on ? (hovered ? 0x5544BB66 : 0x3344BB66) : (hovered ? 0x55CC2233 : 0x33CC2233);
+        int border = on ? 0xFF44BB66 : 0xFF8A5050;
+        RoleRosterStyle.drawPanel(g, r[0], r[1], r[2], r[3], bg, border);
+
+        Component status = statusLabel();
+        int color = on ? RoleRosterStyle.ENABLED_GREEN : RoleRosterStyle.DISABLED_RED;
+        g.drawString(this.font, status, r[0] + (r[2] - this.font.width(status)) / 2,
+                r[1] + (r[3] - this.font.lineHeight) / 2 + 1, color, false);
+    }
+
+    private boolean isOverStatusToggle(double mouseX, double mouseY) {
+        int[] r = statusRect();
+        return mouseX >= r[0] && mouseX < r[0] + r[2] && mouseY >= r[1] && mouseY < r[1] + r[3];
     }
 
     private void enableScissor(GuiGraphics g) {
