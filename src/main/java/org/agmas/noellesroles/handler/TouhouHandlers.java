@@ -146,7 +146,7 @@ public class TouhouHandlers {
               Component.translatable("message.shikieiki.skill.failed").withStyle(ChatFormatting.RED), true);
           cca.sync();
           return true;
-        }).announceToSelf(false).build());
+        }).noCastCCA(true).announceToSelf(false).build());
     RoleSkill.register(THMiscRoles.KOMACHI_ID,
         RoleSkill.skill(SRE.id("komachi_rush"), "skill.noellesroles.komachi_rush", context -> {
           Player player = context.player();

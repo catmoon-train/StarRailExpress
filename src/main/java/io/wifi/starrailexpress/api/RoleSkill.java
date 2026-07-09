@@ -51,6 +51,7 @@ public final class RoleSkill {
             int maxCharges,
             boolean continuous,
             int holdIntervalTicks,
+            boolean noCastCCA,
             boolean announceToSelf,
             boolean toggleable,
             boolean shifted,
@@ -77,6 +78,7 @@ public final class RoleSkill {
         private final String nameKey;
         private final Handler handler;
         private int cooldownTicks;
+        private boolean noCastCCA = false;
         private int maxCharges = -1;
         private boolean continuous;
         private int holdIntervalTicks = 1;
@@ -93,6 +95,11 @@ public final class RoleSkill {
 
         public Builder cooldownTicks(int ticks) {
             this.cooldownTicks = ticks;
+            return this;
+        }
+
+        public Builder noCastCCA(boolean flag) {
+            noCastCCA = flag;
             return this;
         }
 
@@ -145,7 +152,7 @@ public final class RoleSkill {
 
         public Definition build() {
             return new Definition(id, nameKey, cooldownTicks, maxCharges, continuous,
-                    holdIntervalTicks, announceToSelf, toggleable, shifted, showOnHud, handler);
+                    holdIntervalTicks, noCastCCA, announceToSelf, toggleable, shifted, showOnHud, handler);
         }
     }
 

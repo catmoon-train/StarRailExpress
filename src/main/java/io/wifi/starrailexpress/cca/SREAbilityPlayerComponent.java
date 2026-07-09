@@ -244,9 +244,11 @@ public class SREAbilityPlayerComponent
         }
         state.castCount++;
         castingSkill = definition.continuous() ? definition.id() : null;
-        cooldown = state.cooldown;
-        charges = state.charges;
-        maxCharges = state.maxCharges;
+        if (!definition.noCastCCA()) {
+            cooldown = state.cooldown;
+            charges = state.charges;
+            maxCharges = state.maxCharges;
+        }
         sync();
     }
 
@@ -283,7 +285,12 @@ public class SREAbilityPlayerComponent
         if (definitions.isEmpty()) {
             return;
         }
-        SkillState state = getSkillState(definitions.get(selectedSkill).id());
+        var definition = definitions.get(selectedSkill);
+        if (definition.noCastCCA()) {
+            return;
+        }
+        SkillState state = getSkillState(definition.id());
+
         cooldown = state.cooldown;
         charges = state.charges;
         maxCharges = state.maxCharges;
