@@ -2392,7 +2392,7 @@
     "key.starrailexpress.meeting_speak": "会议发言",
     "meeting.sre.title.body": "发现尸体!!",
     "meeting.sre.title.emergency": "紧急会议!!",
-    "meeting.sre.subtitle.body": "%s 发现了 %s 的尸体",
+    "meeting.sre.subtitle.body": "%s 报告了 %s 的尸体",
     "meeting.sre.subtitle.emergency": "%s 召开了紧急会议",
     "meeting.vote.title": "投票出局",
     "meeting.vote.skip": "跳过",

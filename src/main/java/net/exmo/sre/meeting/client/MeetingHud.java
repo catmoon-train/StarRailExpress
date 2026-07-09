@@ -184,6 +184,13 @@ public final class MeetingHud {
         // 发言者名牌（面板正下方横排，金框脉冲）
         renderSpeakers(g, client, py + panelH + 4);
 
+        // 报告信息（面板上方）
+        if (!MeetingClientHandler.victimName.isEmpty()) {
+            Component reportInfo = Component.translatable("meeting.sre.subtitle.body",
+                    MeetingClientHandler.reporterName, MeetingClientHandler.victimName);
+            g.drawCenteredString(font, reportInfo, w / 2, py - 14, TEXT);
+        }
+
         // 底部：发言键提示 / 自己发言中的状态
         boolean self = client.player != null
                 && MeetingClientHandler.participants.contains(client.player.getUUID());
