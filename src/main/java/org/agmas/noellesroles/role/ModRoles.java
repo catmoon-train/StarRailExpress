@@ -543,7 +543,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 假心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 无限冲刺时间
             true // 隐藏计分板
-    )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true)
+    )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true).setCanBeRandomedByOtherRoles(false)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.QIYUCUN).setDefaultMax(0);
     public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
             MA_CHEN_XU_ID, // 角色 ID
@@ -1159,7 +1159,7 @@ public class ModRoles {
                     false, // showParticles（显示粒子）
                     true // showIcon（显示图标）
             )))
-            .setCanSeeCoin(true).setComponentKey(DiverPlayerComponent.KEY)
+            .setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setComponentKey(DiverPlayerComponent.KEY)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER).setDefaultMax(0);
 
     /**
