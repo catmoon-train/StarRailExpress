@@ -18,10 +18,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,10 +47,7 @@ public final class StreamingSpectatorCommand {
         eventsRegistered = true;
         ServerTickEvents.END_SERVER_TICK.register(StreamingSpectatorCommand::tick);
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            Session session = SESSIONS.remove(handler.getPlayer().getUUID());
-            if (session != null) {
-                restoreOriginalRole(handler.getPlayer(), session);
-            }
+            SESSIONS.remove(handler.getPlayer().getUUID());
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> SESSIONS.clear());
         OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> {
@@ -82,18 +80,23 @@ public final class StreamingSpectatorCommand {
             context.getSource().sendFailure(Component.translatable("commands.sre.streaming_spectator.player_only"));
             return 0;
         }
+        boolean flag = SESSIONS.containsKey(player.getUUID());
+        if (!flag && GameUtils.isPlayerAliveAndSurvival(player)) {
+            context.getSource().sendFailure(Component.translatable("commands.sre.streaming_spectator.need_spectator"));
 
-        if (GameUtils.isPlayerAliveAndSurvival(player)) {
-            context.getSource().sendSuccess(
-                    () -> Component.translatable("commands.sre.streaming_spectator.need_spectator"), false);
+            player.displayClientMessage(Component.translatable("commands.sre.streaming_spectator.need_spectator"),
+                    true);
             return 0;
         }
-        if (DeathPenaltyComponent.hasStrictPenalty(player)) {
-            context.getSource().sendSuccess(
-                    () -> Component.translatable("commands.sre.streaming_spectator.penalty"), false);
+        if (!flag && DeathPenaltyComponent.hasStrictPenalty(player)) {
+            context.getSource().sendFailure(
+                    Component.translatable("commands.sre.streaming_spectator.penalty"));
+
+            player.displayClientMessage(
+                    Component.translatable("commands.sre.streaming_spectator.penalty"), true);
             return 0;
         }
-        if (SESSIONS.containsKey(player.getUUID())) {
+        if (flag) {
             return stop(context);
         }
         return start(context);
@@ -108,13 +111,18 @@ public final class StreamingSpectatorCommand {
             return 0;
         }
         if (GameUtils.isPlayerAliveAndSurvival(player)) {
-            context.getSource().sendSuccess(
-                    () -> Component.translatable("commands.sre.streaming_spectator.need_spectator"), false);
+            context.getSource().sendFailure(Component.translatable("commands.sre.streaming_spectator.need_spectator"));
+
+            player.displayClientMessage(Component.translatable("commands.sre.streaming_spectator.need_spectator"),
+                    true);
             return 0;
         }
         if (DeathPenaltyComponent.hasStrictPenalty(player)) {
-            context.getSource().sendSuccess(
-                    () -> Component.translatable("commands.sre.streaming_spectator.penalty"), false);
+            context.getSource().sendFailure(
+                    Component.translatable("commands.sre.streaming_spectator.penalty"));
+
+            player.displayClientMessage(
+                    Component.translatable("commands.sre.streaming_spectator.penalty"), true);
             return 0;
         }
         if (SESSIONS.containsKey(player.getUUID())) {
@@ -130,7 +138,7 @@ public final class StreamingSpectatorCommand {
             return 0;
         }
 
-        Session session = new Session(gameComponent.getRole(player), player.gameMode.getGameModeForPlayer());
+        Session session = new Session(player.gameMode.getGameModeForPlayer());
         SESSIONS.put(player.getUUID(), session);
         if (player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
             player.setGameMode(GameType.SPECTATOR);
@@ -138,7 +146,6 @@ public final class StreamingSpectatorCommand {
 
         if (!attachToRandomTarget(player, session, null)) {
             SESSIONS.remove(player.getUUID());
-            restoreOriginalRole(player, session);
             restoreOriginalGameMode(player, session);
             PacketTracker.sendToClient(player, StreamingSpectatorPayload.stop());
             context.getSource().sendFailure(Component.translatable("commands.sre.streaming_spectator.no_target"));
@@ -156,7 +163,6 @@ public final class StreamingSpectatorCommand {
             return false;
         }
 
-        restoreOriginalRole(player, session);
         PacketTracker.sendToClient(player, StreamingSpectatorPayload.stop());
         player.displayClientMessage(Component.translatable("commands.sre.streaming_spectator.stopped"),
                 false);
@@ -178,7 +184,6 @@ public final class StreamingSpectatorCommand {
             return 0;
         }
 
-        restoreOriginalRole(player, session);
         PacketTracker.sendToClient(player, StreamingSpectatorPayload.stop());
         context.getSource().sendSuccess(() -> Component.translatable("commands.sre.streaming_spectator.stopped"),
                 false);
@@ -201,7 +206,6 @@ public final class StreamingSpectatorCommand {
             Session session = entry.getValue();
             SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(player.level());
             if (!gameComponent.isRunning()) {
-                restoreOriginalRole(player, session);
                 PacketTracker.sendToClient(player, StreamingSpectatorPayload.stop());
                 stopped.add(entry.getKey());
                 continue;
@@ -224,10 +228,6 @@ public final class StreamingSpectatorCommand {
                 attachToRandomTarget(player, session, session.targetUuid);
                 continue;
             }
-            SRERole currentRole = gameComponent.getRole(player);
-            if (!sameRole(currentRole, targetRole)) {
-                changeRoleQuietly(player, targetRole);
-            }
             if (--session.inventorySyncCooldown <= 0) {
                 sendWatchPayload(player, session, target);
             }
@@ -248,7 +248,6 @@ public final class StreamingSpectatorCommand {
             session.targetUuid = null;
             session.inventorySyncCooldown = 0;
             if (!session.waitingForTarget) {
-                restoreOriginalRole(player, session);
                 PacketTracker.sendToClient(player, StreamingSpectatorPayload.waiting());
                 player.displayClientMessage(Component.translatable("commands.sre.streaming_spectator.waiting"), true);
                 session.waitingForTarget = true;
@@ -267,7 +266,6 @@ public final class StreamingSpectatorCommand {
                 ? StreamingSpectatorPayload.CAMERA_FIRST_PERSON
                 : StreamingSpectatorPayload.CAMERA_THIRD_PERSON_BACK;
         session.waitingForTarget = false;
-        changeRoleQuietly(player, targetRole);
         sendWatchPayload(player, session, target);
         player.displayClientMessage(Component.translatable(
                 "commands.sre.streaming_spectator.target", target.getGameProfile().getName()), true);
@@ -275,6 +273,13 @@ public final class StreamingSpectatorCommand {
     }
 
     private static void sendWatchPayload(ServerPlayer player, Session session, ServerPlayer target) {
+        if (target != null) {
+            Vec3 pos = target.position();
+            if (player.level() != target.level())
+                player.changeDimension(new DimensionTransition(target.serverLevel(), target, DimensionTransition.DO_NOTHING));
+            player.teleportTo(pos.x, pos.y, pos.z);
+        }
+
         PacketTracker.sendToClient(player,
                 StreamingSpectatorPayload.watch(session.targetUuid, session.cameraMode, hotbarSnapshot(target),
                         target.getInventory().selected));
@@ -321,24 +326,6 @@ public final class StreamingSpectatorCommand {
         return SREGameWorldComponent.KEY.get(target.level()).getRole(target) != null;
     }
 
-    private static void changeRoleQuietly(ServerPlayer player, SRERole role) {
-        if (role == null) {
-            return;
-        }
-        RoleUtils.changeRole(player, role, false, false, false);
-    }
-
-    private static void restoreOriginalRole(ServerPlayer player, Session session) {
-        if (session.originalRole == null) {
-            SREGameWorldComponent.KEY.get(player.level()).removeRole(player);
-            SREGameWorldComponent.KEY.get(player.level()).syncRoles();
-            return;
-        }
-        if (!sameRole(SREGameWorldComponent.KEY.get(player.level()).getRole(player), session.originalRole)) {
-            RoleUtils.changeRole(player, session.originalRole, false, false, false);
-        }
-    }
-
     private static void restoreOriginalGameMode(ServerPlayer player, Session session) {
         if (session.originalGameType != null
                 && player.gameMode.getGameModeForPlayer() != session.originalGameType) {
@@ -346,26 +333,14 @@ public final class StreamingSpectatorCommand {
         }
     }
 
-    private static boolean sameRole(SRERole first, SRERole second) {
-        if (first == second) {
-            return true;
-        }
-        if (first == null || second == null) {
-            return false;
-        }
-        return first.identifier().equals(second.identifier());
-    }
-
     private static final class Session {
-        private final SRERole originalRole;
         private final GameType originalGameType;
-        private UUID targetUuid;
+        public UUID targetUuid;
         private int cameraMode = StreamingSpectatorPayload.CAMERA_FIRST_PERSON;
         private boolean waitingForTarget;
         private int inventorySyncCooldown;
 
-        private Session(SRERole originalRole, GameType originalGameType) {
-            this.originalRole = originalRole;
+        private Session(GameType originalGameType) {
             this.originalGameType = originalGameType;
         }
     }

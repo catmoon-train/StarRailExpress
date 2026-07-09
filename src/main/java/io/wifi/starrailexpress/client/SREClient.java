@@ -993,7 +993,6 @@ public class SREClient implements ClientModInitializer {
             FourthRoomCameraDirector.renderOverlay(guiGraphics);
             net.exmo.sre.camera.client.AdvancedCameraDirector.renderOverlay(guiGraphics);
             FourthRoomTableHud.render(guiGraphics);
-            StreamingSpectatorClient.renderHud(guiGraphics);
 
             // Subtitle 字幕报幕
             net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.render(guiGraphics, deltaTick.getRealtimeDeltaTicks());
