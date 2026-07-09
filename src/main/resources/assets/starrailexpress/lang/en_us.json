@@ -2451,6 +2451,8 @@
     "meeting.sre.subtitle.body": "%s found the body of %s",
     "meeting.sre.subtitle.emergency": "%s called an emergency meeting",
     "meeting.sre.discussion": "Discussion",
+    "meeting.vote.title": "Vote Out",
+    "meeting.vote.skip": "Skip",
     "meeting.sre.speak_hint": "Press %s to take the floor (voice/chat is captured too)",
     "meeting.sre.speaking": "Speaking... press again to stop",
     "meeting.vote.result.none_expelled": "No one was expelled",

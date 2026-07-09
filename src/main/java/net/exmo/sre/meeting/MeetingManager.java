@@ -136,9 +136,8 @@ public final class MeetingManager {
             if (!state.is(Blocks.BELL)) {
                 return InteractionResult.PASS;
             }
-            if (tryBellMeeting(serverPlayer)) {
-                return InteractionResult.SUCCESS;
-            }
+            // 始终返回 PASS，保证原版钟的正常响声和动画
+            tryBellMeeting(serverPlayer);
             return InteractionResult.PASS;
         });
 
@@ -495,7 +494,10 @@ public final class MeetingManager {
 
     // ==================== 投票阶段 ====================
 
-    /** 开始投票阶段：创建玩家投票 Session，投票结束时处理出局。 */
+    /** "跳过"选项的 resultId 常量。 */
+    private static final String SKIP_RESULT_ID = "meeting_skip";
+
+    /** 开始投票阶段：创建玩家投票 Session，投票结束时按新规则处理出局。 */
     private static void startVotingPhase(ServerLevel serverLevel) {
         phase = PHASE_VOTE;
         phaseEndTick = serverLevel.getGameTime() + VOTE_DURATION_SECONDS * 20L;
@@ -510,18 +512,40 @@ public final class MeetingManager {
         for (ServerPlayer p : alive) {
             options.add(new VoteOption.PlayerOption(p.getName(), p.getUUID()));
         }
+        // 添加"跳过"选项
+        options.add(VoteOption.text(
+                Component.translatable("meeting.vote.skip"), SKIP_RESULT_ID));
+
         Set<UUID> targetPlayers = new HashSet<>();
         for (ServerPlayer p : alive) targetPlayers.add(p.getUUID());
         VoteManager.builder(Component.translatable("meeting.vote.title"))
                 .options(options).duration(VOTE_DURATION_SECONDS * 20).allowReVote(true)
                 .showResults(false).syncInterval(20).targetPlayerUUIDs(targetPlayers)
                 .maxSelect(1).type("meeting").start();
-        // 投票结束时处理结果
+
+        // ==================== 投票结束时按新规则处理 ====================
         VoteManager.addEndCallback(session -> {
             String expelledName = "";
-            var topOpt = session.getTopResult();
-            if (topOpt != null && topOpt.getValue().count() > 0) {
-                String resultId = topOpt.getKey();
+
+            // 第一步：统计所有选项的票数
+            var results = session.getResults();
+            int maxVotes = 0;
+            for (var entry : results.entrySet()) {
+                maxVotes = Math.max(maxVotes, entry.getValue().count());
+            }
+
+            // 第二步：找出所有达到最高票的选项
+            List<String> topResultIds = new ArrayList<>();
+            for (var entry : results.entrySet()) {
+                if (entry.getValue().count() == maxVotes && maxVotes > 0) {
+                    topResultIds.add(entry.getKey());
+                }
+            }
+
+            // 第三步：判定出局者
+            // 只有当最高票唯一、且不是"跳过"、且是玩家时，才驱逐
+            if (topResultIds.size() == 1 && !topResultIds.get(0).equals(SKIP_RESULT_ID)) {
+                String resultId = topResultIds.get(0);
                 for (VoteOption opt : session.getOptions()) {
                     if (opt.resultId().equals(resultId) && opt instanceof VoteOption.PlayerOption po) {
                         UUID votedOut = po.uuid();
@@ -538,8 +562,7 @@ public final class MeetingManager {
                 }
             }
 
-            // 收集投票结果（每人获得的票数）
-            var results = session.getResults();
+            // 收集投票结果（含跳过票数）
             List<MeetingVoteResultS2CPayload.VoteEntry> entries = new ArrayList<>();
             for (var entry : results.entrySet()) {
                 String playerName = entry.getValue().option().display().getString();
@@ -553,7 +576,6 @@ public final class MeetingManager {
                 ServerPlayNetworking.send(player, resultPayload);
             }
 
-            // 稍微延迟让 kill 处理完再结束
             endMeeting(false);
         });
         broadcastState(serverLevel);

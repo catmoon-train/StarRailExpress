@@ -2423,6 +2423,8 @@
     "meeting.sre.subtitle.body": "%s 發現了 %s 的屍體",
     "meeting.sre.subtitle.emergency": "%s 召開了緊急會議",
     "meeting.sre.discussion": "自由討論",
+    "meeting.vote.title": "投票出局",
+    "meeting.vote.skip": "跳過",
     "meeting.sre.speak_hint": "按 %s 舉手發言（語音/聊天也會被鏡頭捕捉）",
     "meeting.sre.speaking": "發言中……再按一次結束",
     "meeting.vote.result.none_expelled": "無人被驅逐",
