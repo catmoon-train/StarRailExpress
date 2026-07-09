@@ -38,6 +38,8 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
     // 容器大小54（6行），支持DAY_NIGHT_FIGHT模式，仅允许0-53槽放置物品
     private final PlayerBodyEntityContainer corpseInventory = new PlayerBodyEntityContainer(54);
 
+    public UUID skinUuid = null;
+
     public PlayerBodyEntityComponent(PlayerBodyEntity playerBodyEntity) {
         this.playerBodyEntity = playerBodyEntity;
     }
@@ -238,6 +240,9 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
         }
         if (deathReason != null)
             tag.putString("DeathReason", deathReason);
+        if (skinUuid != null) {
+            tag.putUUID("skin", skinUuid);
+        }
     }
 
     @Override
@@ -253,6 +258,9 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
             killer = tag.getUUID("Killer");
         } else {
             killer = null;
+        }
+        if (tag.hasUUID("skin")) {
+            this.skinUuid = tag.getUUID("skin");
         }
         if (tag.hasUUID("ConspiratorEvidence")) {
             conspiratorEvidence = tag.getUUID("ConspiratorEvidence");
@@ -276,5 +284,14 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
         this.ownerName = scoreboardName;
         if (sync)
             sync();
+    }
+
+    public void setSkinUuid(UUID player) {
+        this.skinUuid = player;
+        sync();
+    }
+
+    public UUID getSkinUuid() {
+        return this.skinUuid;
     }
 }

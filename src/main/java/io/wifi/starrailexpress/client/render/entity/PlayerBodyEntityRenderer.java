@@ -30,6 +30,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 
 import java.awt.*;
+import java.util.UUID;
 
 public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>>
         extends LivingEntityRenderer<PlayerBodyEntity, PlayerModel<PlayerBodyEntity>> {
@@ -195,6 +196,13 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
     @Override
     public ResourceLocation getTextureLocation(PlayerBodyEntity playerBodyEntity) {
         PlayerInfo playerListEntry = ClientSkinCache.getCachedPlayerInfo(playerBodyEntity.getPlayerUuid());
+        UUID skinUuid = playerBodyEntity.getComponent().getSkinUuid();
+        if (skinUuid != null) {
+            PlayerInfo skinBodyInfo = ClientSkinCache.getCachedPlayerInfo(skinUuid);
+            if (skinBodyInfo != null) {
+                playerListEntry = skinBodyInfo;
+            }
+        }
         if (SREClient.getLooseEndPenalty()) {
             PlayerSkin.Model model = playerListEntry.getSkin().model();
             boolean isSLIM = (model == PlayerSkin.Model.SLIM);

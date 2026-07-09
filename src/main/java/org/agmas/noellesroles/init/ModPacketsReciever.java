@@ -1431,7 +1431,7 @@ public class ModPacketsReciever {
           if (body != null) {
             UUID prev = comp.stolenSkin != null ? comp.stolenSkin : player.getUUID();
             comp.stolenSkin = body.getPlayerUuid();
-            body.setPlayerUuid(prev);
+            body.getComponent().setSkinUuid(prev);
             comp.stealCooldown = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.STEAL_COOLDOWN;
             // 广播皮肤给所有玩家
             for (ServerPlayer p : player.serverLevel().getPlayers(p2 -> true)) {
