@@ -315,8 +315,8 @@ public final class MeetingHud {
                         (int) (0x60 * fade) << 24 | (0x100A05 & 0xFFFFFF));
 
                 // 表头
-                String headerVotes = "票数";
-                String headerName = "玩家";
+                Component headerVotes = Component.translatable("meeting.vote.result.header_votes");
+                Component headerName = Component.translatable("meeting.vote.result.header_name");
                 int headerAlpha = (int) (180 * fade);
                 g.drawString(font, headerName, listX, listY - 12, (headerAlpha << 24) | (MUTED & 0xFFFFFF), false);
                 g.drawString(font, headerVotes, listX + listW - font.width(headerVotes), listY - 12,

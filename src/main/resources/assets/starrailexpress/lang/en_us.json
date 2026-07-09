@@ -2457,6 +2457,8 @@
     "meeting.sre.speaking": "Speaking... press again to stop",
     "meeting.vote.result.none_expelled": "No one was expelled",
     "meeting.vote.result.expelled": "%s was expelled",
+    "meeting.vote.result.header_name": "Player",
+    "meeting.vote.result.header_votes": "Votes",
     "sre.scene.publish.start": "Capturing and publishing the scene asset. Please wait...",
     "sre.scene.publish.saved": "Saved scene %s and assigned it to map %s. Publishing the asset...",
     "sre.scene.publish.complete": "Scene published and saved: %s (%s MiB)",

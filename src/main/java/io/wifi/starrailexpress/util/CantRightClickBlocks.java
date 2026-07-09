@@ -52,7 +52,6 @@ public class CantRightClickBlocks {
             Blocks.DAMAGED_ANVIL,
             Blocks.BREWING_STAND,
             Blocks.CAULDRON,
-            Blocks.BELL,
             Blocks.ENCHANTING_TABLE,
             Blocks.BEACON,
             Blocks.RESPAWN_ANCHOR,
