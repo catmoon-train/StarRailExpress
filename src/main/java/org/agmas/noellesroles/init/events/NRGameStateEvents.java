@@ -46,6 +46,7 @@ import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPun
 import org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.init.ModEventsRegister;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.init.RoleShopHandler;
@@ -68,8 +69,6 @@ public class NRGameStateEvents {
 
     /** 本局游戏是否已发放过年兽鞭炮（一局只能有一次） */
     public static boolean nianShouFirecrackersDistributedThisGame = false;
-
-    public static boolean isMJVerifyEnabled = false;
 
     public static void register() {
         registerOnGameStarted();
@@ -343,7 +342,7 @@ public class NRGameStateEvents {
 
     private static void registerServerLifecycle() {
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
-            if (isMJVerifyEnabled) {
+            if (ModEventsRegister.isMJVerifyEnabled) {
                 Harpymodloader.officialVerify = Noellesroles.checkMJVerify();
             } else {
                 Harpymodloader.officialVerify = true;

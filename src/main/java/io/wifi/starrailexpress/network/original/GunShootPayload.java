@@ -32,8 +32,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.item.SheriffRevolverItem;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 public record GunShootPayload(int target) implements CustomPacketPayload {
@@ -145,9 +143,10 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 }
 
                 if (!backfire) {
-                    if (!isGodfather(player)) {
-                        mainHandStack.set(SREDataComponentTypes.USED, false);
-                    }
+                    // if (!isGodfather(player)) {
+                    // mainHandStack.set(SREDataComponentTypes.USED, false);
+                    // }
+                    // 德林加不在这里补充
                     GameUtils.killPlayer(target, true, player, deathReason);
                 }
                 OnRevolverUsed.EVENT.invoker().onPlayerShoot(player, target);
@@ -172,10 +171,5 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 }
             }
         }
-    }
-
-    private static boolean isGodfather(ServerPlayer player) {
-        var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
-        return role != null && RoleUtils.compareRole(role, ModRoles.GODFATHER);
     }
 }

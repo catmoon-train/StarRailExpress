@@ -29,8 +29,6 @@ public class ModEventsRegister {
     public static void registerPredicate() {
         NRRulePredicateEvents.register();
 
-        // 同步外部引用的字段
-        isMJVerifyEnabled = NRGameStateEvents.isMJVerifyEnabled;
         canThrowItems = NRRulePredicateEvents.canThrowItems;
     }
 

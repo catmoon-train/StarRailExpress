@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.util.SREItemUtils;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -585,8 +586,17 @@ public class NRDeathEvents {
         registerOnShieldBroken();
         registerShouldDropOnDeath();
         registerPostDeathChain();
+        registerOthers();
     }
 
+    private static void registerOthers() {
+        ShouldReloadDerringer.EVENT.register((victim, killer, deathReason) -> {
+            if (RoleUtils.isPlayerTheJob(killer, ModRoles.GODFATHER)) {
+                return TrueFalseResult.FALSE;
+            }
+            return TrueFalseResult.PASS;
+        });
+    }
     // --- AllowPlayerDeath ---
 
     private static void registerAllowPlayerDeath() {
