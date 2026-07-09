@@ -22,8 +22,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModifierArgumentType implements ArgumentType<SREModifier> {
-    public static final DynamicCommandExceptionType MODIFIER_EMPTY = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.modifier.notfound", input));
-    public static final DynamicCommandExceptionType MODIFIER_MULTIPLE = new DynamicCommandExceptionType(input -> Component.translatable("argument.harpymodloader.modifier.found-multiple", input));
+    public static final DynamicCommandExceptionType MODIFIER_EMPTY = new DynamicCommandExceptionType(
+            input -> Component.translatable("argument.harpymodloader.modifier.notfound", input));
+    public static final DynamicCommandExceptionType MODIFIER_MULTIPLE = new DynamicCommandExceptionType(
+            input -> Component.translatable("argument.harpymodloader.modifier.found-multiple", input));
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
 
     public static ModifierArgumentType create() {
@@ -58,13 +60,15 @@ public class ModifierArgumentType implements ArgumentType<SREModifier> {
     }
 
     @Override
-    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-        
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context,
+            final SuggestionsBuilder builder) {
+
         final String remaining = builder.getRemainingLowerCase();
         for (var modifier : HMLModifiers.MODIFIERS) {
             if (modifier == null)
                 continue;
-            if (remaining.isEmpty() || modifier.identifier().getPath().startsWith(remaining)) {
+            if (remaining.isEmpty() || modifier.identifier().toString().startsWith(remaining)
+                    || modifier.identifier().getPath().startsWith(remaining)) {
                 builder.suggest(modifier.identifier().toString(), modifier.getDisplayName());
             }
         }

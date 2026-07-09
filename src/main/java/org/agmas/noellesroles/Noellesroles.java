@@ -221,6 +221,9 @@ public class Noellesroles implements ModInitializer {
 
         // 注册药水效果
         ModEffects.init();
+
+        // 注册鹅鸭杀模式（职业 / 游戏模式 / 破坏技能）
+        net.exmo.sre.gooseduck.GooseDuckMod.init();
     }
 
     /**

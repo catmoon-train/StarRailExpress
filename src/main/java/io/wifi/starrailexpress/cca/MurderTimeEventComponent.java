@@ -108,12 +108,13 @@ public class MurderTimeEventComponent implements AutoSyncedComponent, CommonTick
     }
 
     private void maybeAddDefault(String id, String nameKey, int minSeconds, int maxSeconds, float chance,
-                                 MurderTimeAction action, int durationTicks, int amount, int warningTicks) {
+            MurderTimeAction action, int durationTicks, int amount, int warningTicks) {
         if (world.random.nextFloat() >= chance) {
             return;
         }
         int seconds = minSeconds + world.random.nextInt(Math.max(1, maxSeconds - minSeconds + 1));
-        this.events.add(new MurderTimeEvent(id, nameKey, seconds * 20, action, durationTicks, amount, warningTicks, false, -1));
+        this.events.add(
+                new MurderTimeEvent(id, nameKey, seconds * 20, action, durationTicks, amount, warningTicks, false, -1));
         this.events.sort(Comparator.comparingInt(MurderTimeEvent::elapsedTicks));
     }
 
@@ -273,7 +274,7 @@ public class MurderTimeEventComponent implements AutoSyncedComponent, CommonTick
                 pos.move(0, -1, 0);
             }
             pos.move(0, 1, 0);
-            if (level.getBlockState(pos).isAir() && level.getBlockState(pos.below()).isSolid()) {
+            if (level.getBlockState(pos).isAir() && level.getBlockState(pos.below()).isSolidRender(level, pos)) {
                 return pos.immutable();
             }
         }
@@ -347,8 +348,8 @@ public class MurderTimeEventComponent implements AutoSyncedComponent, CommonTick
         private int visibleUntilElapsedTicks;
 
         public MurderTimeEvent(String id, String nameKey, int elapsedTicks, MurderTimeAction action,
-                               int durationTicks, int amount, int warningTicks, boolean triggered,
-                               int visibleUntilElapsedTicks) {
+                int durationTicks, int amount, int warningTicks, boolean triggered,
+                int visibleUntilElapsedTicks) {
             this.id = id;
             this.nameKey = nameKey;
             this.elapsedTicks = Math.max(0, elapsedTicks);

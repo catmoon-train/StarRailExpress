@@ -423,6 +423,8 @@
   "info.screen.roleid.repair_survivor": "逃脱阵营\n修满 5 台修机方块后，前往逃脱大门离开。可用工具箱、零件加速修机，也能救援笼中的队友。",
   "info.screen.roleid.repair_survivor.simple": "",
   "info.screen.roleid.repair_hunter": "抓捕阵营\n阻止逃脱方修机并开门。使用抓捕锁链将逃脱者关进笼子，拖延他们的开门节奏。",
+  "info.screen.roleid.goose": "好人阵营（鹅）\n完成地图上的小游戏任务积累进度；发现尸体后右键上报召开会议，讨论后投票放逐可疑的鸭。会议现场会切到 2D 俯视视角并冻结技能。票光所有鸭即获胜。",
+  "info.screen.roleid.duck": "杀手阵营（鸭）\n伪装成鹅混入其中，用杀手能力击杀落单的鹅。G 键释放「破坏·关灯」制造混乱、拖延任务，并在会议投票中误导众鹅，在被放逐前消灭所有鹅。",
   "info.screen.roleid.repair_hunter.simple": "",
   "info.screen.roleid.repair_neutral": "中立阵营\n在修机逃脱模式中拥有独立胜利任务。选择中立职业后完成对应特殊任务即可独立获胜。",
   "info.screen.roleid.repair_neutral.simple": "",

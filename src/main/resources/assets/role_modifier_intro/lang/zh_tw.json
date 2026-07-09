@@ -198,6 +198,8 @@
   "=======修機模式=======": "",
   "info.screen.roleid.repair_survivor": "逃脫陣營\n修滿 5 臺修機方塊後，前往逃脫大門離開。可用工具箱、零件加速修機，也能救援籠中的隊友。",
   "info.screen.roleid.repair_hunter": "抓捕陣營\n阻止逃脫方修機並開門。使用抓捕鎖鏈將逃脫者關進籠子，拖延他們的開門節奏。",
+  "info.screen.roleid.goose": "好人陣營（鵝）\n完成地圖上的小遊戲任務累積進度；發現屍體後右鍵上報召開會議，討論後投票放逐可疑的鴨。會議現場會切到 2D 俯視視角並凍結技能。票光所有鴨即獲勝。",
+  "info.screen.roleid.duck": "殺手陣營（鴨）\n偽裝成鵝混入其中，用殺手能力擊殺落單的鵝。G 鍵釋放「破壞·關燈」製造混亂、拖延任務，並在會議投票中誤導眾鵝，在被放逐前消滅所有鵝。",
   "info.screen.roleid.repair_neutral": "中立陣營\n在修機逃脫模式中擁有獨立勝利任務。選擇中立職業後完成對應特殊任務即可獨立獲勝。",
   "info.screen.roleid.repair_mechanic": "逃脫方職業\n修機校準額外獲得進度。",
   "info.screen.roleid.repair_medic": "逃脫方職業\n救援籠中隊友時速度更快。",

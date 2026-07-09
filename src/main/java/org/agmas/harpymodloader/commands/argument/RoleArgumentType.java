@@ -89,7 +89,8 @@ public class RoleArgumentType implements ArgumentType<SRERole> {
             if (skipVanilla)
                 if (Harpymodloader.VANNILA_ROLES.contains(role))
                     continue;
-            if (remaining.isEmpty() || role.identifier().getPath().startsWith(remaining)) {
+            if (remaining.isEmpty() || role.identifier().toString().startsWith(remaining)
+                    || role.identifier().getPath().startsWith(remaining)) {
                 builder.suggest(role.identifier().toString(), role.getDisplayName());
             }
         }
