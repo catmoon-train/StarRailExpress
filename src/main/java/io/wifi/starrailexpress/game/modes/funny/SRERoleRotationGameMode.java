@@ -56,11 +56,6 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
     }
 
     @Override
-    public boolean shouldRecordPlayerStats() {
-        return true;
-    }
-
-    @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         // 清除现有角色，暂不同步
