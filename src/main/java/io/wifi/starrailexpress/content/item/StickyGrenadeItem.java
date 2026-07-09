@@ -42,6 +42,8 @@ public class StickyGrenadeItem extends SkinableItem {
 
     @Override
     public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
+        if (user.isSpectator())
+            return;
         if (!world.isClientSide) {
             if (user instanceof Player player && GrenadeItem.isAnyGrenadeOnCooldown(player))
                 return;
