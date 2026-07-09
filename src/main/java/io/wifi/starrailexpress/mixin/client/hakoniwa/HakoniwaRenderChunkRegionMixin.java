@@ -19,7 +19,7 @@ public abstract class HakoniwaRenderChunkRegionMixin {
     @ModifyReturnValue(method = "getBlockState", at = @At("RETURN"))
     private BlockState sre$hakoniwaCutBlock(BlockState original, BlockPos pos) {
         if (!original.isAir()
-                && HakoniwaVisionClientHandle.shouldHideBlock(pos.getX(), pos.getY(), pos.getZ())) {
+                && HakoniwaVisionClientHandle.shouldHideBlock(original, pos.getX(), pos.getY(), pos.getZ())) {
             return Blocks.AIR.defaultBlockState();
         }
         return original;

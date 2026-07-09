@@ -33,6 +33,7 @@ public class SREGameModes {
     // Author: canyuesama (catmoon233)
     public static final ResourceLocation REPAIR_ESCAPE_ID = SRE.canyueId("repair_escape");
     public static final ResourceLocation FOURTH_ROOM_ID = SRE.canyueId("fourth_room");
+    public static final ResourceLocation CHAMELEON_MODE_ID = SRE.canyueId("chameleon");
 
     // Author: xiao_hei_hand
     public static final ResourceLocation ANT_WAR_MODE_ID = SRE.xiaoheihandId("ant_war");
@@ -82,6 +83,8 @@ public class SREGameModes {
     public static final GameMode DEVIL_ROULETTE_MODE = registerGameMode(
             new SREDevilRouletteGameMode(DEVIL_ROULETTE_ID));
     public static final GameMode REPAIR_ESCAPE_MODE = registerGameMode(new RepairEscapeGameMode(REPAIR_ESCAPE_ID));
+
+    public static final GameMode CHAMELEON_MODE = registerGameMode(new SREChameleonGameMode(CHAMELEON_MODE_ID));
     public static final GameMode THIEF_MODE = registerGameMode(new SREThiefWarGameMode(THIEF_MODE_ID));
 
     // Role Rotation Mode

@@ -336,6 +336,13 @@ public interface TMMBlocks {
                     .strength(-1.0f, 3600000.0f).forceSolidOn().isValidSpawn(Blocks::never).sound(SoundType.GLASS)),
             TMMItems.DECORATION_GROUP);
 
+    // 镜子：方块本体不渲染，只提供孔洞与碰撞；倒影由客户端 MirrorReflectionManager 作为真实世界几何构建。
+    // noOcclusion() 是必需的——否则遮挡剔除会把镜面后方的倒影空腔整块剔掉。
+    Block MIRROR = registrar.createWithItem("mirror",
+            new MirrorBlock(BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.GLASS)
+                    .noOcclusion().isValidSpawn(Blocks::never).pushReaction(PushReaction.BLOCK)),
+            TMMItems.DECORATION_GROUP);
+
     // Stones
     Block MARBLE = registrar.createWithItem("marble",
             new Block(BlockBehaviour.Properties.of().strength(2f).sound(SoundType.CALCITE)), TMMItems.BUILDING_GROUP);

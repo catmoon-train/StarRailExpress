@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "trainmurdermystery:block/mirror"
+    },
+    "facing=east": {
+      "model": "trainmurdermystery:block/mirror",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "trainmurdermystery:block/mirror",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "trainmurdermystery:block/mirror",
+      "y": 270
+    }
+  }
+}

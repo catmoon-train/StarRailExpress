@@ -217,7 +217,8 @@ public final class PointerClientHandle {
         Vec3 rayStart = cameraPos.add(direction.scale(startOffset));
         Vec3 rayEnd = cameraPos.add(direction.scale(POINTER_RANGE));
 
-        BlockHitResult blockHit = client.level.clip(new ClipContext(
+        // 被箱庭视野剔除的方块（已隐藏的屋顶 / 二楼）对射线透明，否则指针会打在看不见的东西上。
+        BlockHitResult blockHit = client.level.clip(new HakoniwaClipContext(
                 rayStart,
                 rayEnd,
                 ClipContext.Block.OUTLINE,
@@ -236,7 +237,8 @@ public final class PointerClientHandle {
                 rayStart,
                 rayEnd,
                 searchBox,
-                entity -> entity != player && !entity.isSpectator() && entity.isPickable(),
+                entity -> entity != player && !entity.isSpectator() && entity.isPickable()
+                        && !HakoniwaVisionClientHandle.shouldCullEntity(entity),
                 ENTITY_PICK_MARGIN);
         if (entityHit != null) {
             double entityDistance = rayStart.distanceToSqr(entityHit.getLocation());

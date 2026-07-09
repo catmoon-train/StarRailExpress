@@ -18,7 +18,7 @@ public abstract class HakoniwaLevelSliceMixin {
     @ModifyReturnValue(method = "getBlockState(III)Lnet/minecraft/world/level/block/state/BlockState;",
             at = @At("RETURN"), remap = false)
     private BlockState sre$hakoniwaCutBlock(BlockState original, int x, int y, int z) {
-        if (!original.isAir() && HakoniwaVisionClientHandle.shouldHideBlock(x, y, z)) {
+        if (!original.isAir() && HakoniwaVisionClientHandle.shouldHideBlock(original, x, y, z)) {
             return Blocks.AIR.defaultBlockState();
         }
         return original;

@@ -216,6 +216,7 @@ public class SREClient implements ClientModInitializer {
         SceneAssetNetwork.registerClientReceivers();
         ClientScheduler.init();
         ClientSkinCache.init();
+        io.wifi.starrailexpress.client.mirror.MirrorReflectionManager.init();
         ClientConfigEvents.register();
         new EXSREClient().onInitializeClient();
         // Load config

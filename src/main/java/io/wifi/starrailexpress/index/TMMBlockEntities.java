@@ -145,6 +145,9 @@ public interface TMMBlockEntities {
           new Block[] { SREBlocks.LOCKABLE_ELEVATOR_BUTTON,
               SREBlocks.LOCKABLE_SMALL_BUTTON }));
 
+  BlockEntityType<MirrorBlockEntity> MIRROR = registrar.create("mirror",
+      BlockEntityType.Builder.of(MirrorBlockEntity::new, TMMBlocks.MIRROR));
+
   static void initialize() {
     registrar.registerEntries();
   }
