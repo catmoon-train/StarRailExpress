@@ -2427,6 +2427,7 @@
     "meeting.vote.skip": "跳過",
     "meeting.sre.speak_hint": "按 %s 舉手發言（語音/聊天也會被鏡頭捕捉）",
     "meeting.sre.speaking": "發言中……再按一次結束",
+    "meeting.speak.cooldown": "舉手發言冷卻中，還需 %s 秒",
     "meeting.vote.result.none_expelled": "無人被驅逐",
     "meeting.vote.result.expelled": "%s 被驅逐了",
     "meeting.vote.result.header_name": "玩家",

@@ -2361,6 +2361,7 @@
     "meeting.sre.discussion": "自由讨论",
     "meeting.sre.speak_hint": "按 %s 举手发言（语音/聊天也会被镜头捕捉）",
     "meeting.sre.speaking": "发言中……再按一次结束",
+    "meeting.speak.cooldown": "举手发言冷却中，还需 %s 秒",
     "meeting.vote.result.none_expelled": "无人被驱逐",
     "meeting.vote.result.expelled": "%s 被驱逐了",
     "meeting.vote.result.header_name": "玩家",

@@ -2455,6 +2455,7 @@
     "meeting.vote.skip": "Skip",
     "meeting.sre.speak_hint": "Press %s to take the floor (voice/chat is captured too)",
     "meeting.sre.speaking": "Speaking... press again to stop",
+    "meeting.speak.cooldown": "Raise-hand on cooldown - %s s left",
     "meeting.vote.result.none_expelled": "No one was expelled",
     "meeting.vote.result.expelled": "%s was expelled",
     "meeting.vote.result.header_name": "Player",

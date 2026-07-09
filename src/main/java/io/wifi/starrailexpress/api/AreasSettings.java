@@ -203,6 +203,12 @@ public class AreasSettings {
     /** 两次会议之间的冷却（秒）。 */
     @Category("meeting")
     public int meetingCooldownSeconds = 90;
+    /** 开局冷却（秒）：游戏开始后多少秒内不能召开会议（右键尸体 / API）。0 表示无开局冷却。 */
+    @Category("meeting")
+    public int meetingStartCooldown = 30;
+    /** 会议中「举手发言」冷却（秒）：每次开始发言后需间隔多少秒才能再次举手。0 表示无冷却。 */
+    @Category("meeting")
+    public int meetingSpeakCooldownSeconds = 5;
 
     // ==================== 摇铃会议系统 / Bell Meeting ====================
 

@@ -2,6 +2,7 @@ package net.exmo.sre.meeting;
 
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block.MountableBlock;
 import io.wifi.starrailexpress.content.block.entity.SeatEntity;
@@ -26,6 +27,7 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -98,6 +100,8 @@ public final class MeetingManager {
     private static final List<Integer> seatEntityIds = new ArrayList<>();
     private static final Set<UUID> manualSpeakers = new LinkedHashSet<>();
     private static final Map<UUID, Long> transientSpeakers = new HashMap<>();
+    /** 举手发言冷却：玩家 UUID → 可再次举手发言的游戏刻。 */
+    private static final Map<UUID, Long> speakCooldownUntil = new HashMap<>();
     private static List<UUID> lastSyncedSpeakers = List.of();
     private static long cooldownUntilTick;
     private static long bellCooldownUntilTick;
@@ -147,6 +151,7 @@ public final class MeetingManager {
             reportedBodies.clear();
             cooldownUntilTick = 0;
             bellCooldownUntilTick = 0;
+            speakCooldownUntil.clear();
             resetAllVoteWeights();
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
@@ -249,6 +254,16 @@ public final class MeetingManager {
         if (now < cooldownUntilTick) {
             return false;
         }
+        // 开局冷却：游戏开始后一段时间内不能召开会议。
+        if (settings.meetingStartCooldown > 0) {
+            SREGameTimeComponent timeComponent = SREGameTimeComponent.KEY.get(serverLevel);
+            if (timeComponent != null) {
+                long elapsed = Math.max(0, timeComponent.getResetTime() - timeComponent.getTime());
+                if (elapsed < settings.meetingStartCooldown * 20L) {
+                    return false;
+                }
+            }
+        }
 
         level = serverLevel;
         phase = PHASE_INTRO;
@@ -260,6 +275,7 @@ public final class MeetingManager {
         seatEntityIds.clear();
         manualSpeakers.clear();
         transientSpeakers.clear();
+        speakCooldownUntil.clear();
         lastSyncedSpeakers = List.of();
 
         List<ServerPlayer> alive = serverLevel.players().stream()
@@ -359,15 +375,35 @@ public final class MeetingManager {
 
     // ==================== 发言 ====================
 
-    /** 发言键 / GUI 触发。 */
+    /** 发言键 / GUI 触发。举手（开始发言）有冷却，放下发言不受限。 */
     public static void setManualSpeaking(ServerPlayer player, boolean speaking) {
         if (!isActive() || phase != PHASE_DISCUSS || !participants.containsKey(player.getUUID())) {
             return;
         }
+        UUID uuid = player.getUUID();
         if (speaking) {
-            manualSpeakers.add(player.getUUID());
+            // 仅在「举手」的上升沿判定冷却；持续按住不会重复触发。
+            if (manualSpeakers.contains(uuid)) {
+                return;
+            }
+            long now = player.level().getGameTime();
+            long until = speakCooldownUntil.getOrDefault(uuid, 0L);
+            if (now < until) {
+                int remainSeconds = (int) Math.ceil((until - now) / 20.0);
+                player.displayClientMessage(
+                        Component.translatable("meeting.speak.cooldown", remainSeconds)
+                                .withStyle(ChatFormatting.GRAY),
+                        true);
+                return;
+            }
+            manualSpeakers.add(uuid);
+            AreasSettings settings = settings(player.serverLevel());
+            int cooldownSeconds = settings != null ? settings.meetingSpeakCooldownSeconds : 5;
+            if (cooldownSeconds > 0) {
+                speakCooldownUntil.put(uuid, now + cooldownSeconds * 20L);
+            }
         } else {
-            manualSpeakers.remove(player.getUUID());
+            manualSpeakers.remove(uuid);
         }
     }
 
