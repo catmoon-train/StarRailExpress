@@ -398,4 +398,14 @@ public final class PelicanManager {
             releaseAllForPelican(pelicanId, world.getServer());
         }
     }
+
+    /** 获取所有鹈鹕→肚内玩家映射（只读） */
+    public static Map<UUID, Deque<UUID>> getStashedByPelican() {
+        return Collections.unmodifiableMap(stashedByPelican);
+    }
+
+    /** 标记某玩家已在肚内死亡，防止释放时复活 */
+    public static void markStashedDead(UUID playerId) {
+        stashedDead.add(playerId);
+    }
 }

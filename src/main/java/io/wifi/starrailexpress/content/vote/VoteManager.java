@@ -340,7 +340,18 @@ public class VoteManager {
             return this;
         }
 
-        /** 设置多选模式，maxCount 必须 ≥1，大于1时启用多选 */
+        public VoteBuilder targetPlayerUUIDs(Set<UUID> uuids) {
+            this.targetPlayers = uuids;
+            return this;
+        }
+
+        /** 批量添加选项 */
+        public VoteBuilder options(List<VoteOption> opts) {
+            for (VoteOption opt : opts) this.option(opt);
+            return this;
+        }
+
+        /** 设置多选模式，maxCount 必须 >=1，大于1时启用多选 */
         public VoteBuilder maxSelect(int maxCount) {
             this.maxSelectCount = Math.max(1, maxCount);
             return this;

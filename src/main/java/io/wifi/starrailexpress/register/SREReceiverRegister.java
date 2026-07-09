@@ -32,6 +32,13 @@ public class SREReceiverRegister {
 
         // 紧急会议系统：服务端核心 + 发言请求
         net.exmo.sre.meeting.MeetingManager.register();
+        org.agmas.noellesroles.game.roles.neutral.pelican.PelicanMeetingHandler.register();
+        org.agmas.noellesroles.role.ModMeetingRoles.init();
+        org.agmas.noellesroles.role.ModMeetingRoleEvents.register();
+        // 投票系统 Tick
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(
+                server -> io.wifi.starrailexpress.content.vote.VoteManager.onServerTick());
+        io.wifi.starrailexpress.content.vote.VoteManager.registerEvents();
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.meeting.network.MeetingSpeakC2SPayload.ID,
                 (payload, context) -> context.server().execute(
                         () -> net.exmo.sre.meeting.MeetingManager.setManualSpeaking(context.player(),

@@ -36,6 +36,7 @@
   "map_intro.property.scene_tasks": "启用的场景任务：%s",
   "map_intro.property.minigame_quest": "地图启用小游戏任务",
   "map_intro.property.meeting_enabled": "地图启用投票会议",
+  "map_intro.property.meeting_vote_enabled": "地图启用会议投票出局",
   "map_intro.property.bell_meeting_enabled": "地图可以通过摇铃主动发起会议",
   "map_intro.property.status_bar": "地图启用了%s状态",
   "map_intro.property.can_swim.true": "允许在地图中游泳",

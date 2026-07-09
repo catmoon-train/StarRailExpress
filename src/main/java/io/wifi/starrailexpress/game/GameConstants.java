@@ -274,6 +274,8 @@ public class GameConstants {
         public static ResourceLocation DIO_FINAL_CARNIVAL_CANCEL = Noellesroles.id("dio_final_carnival_cancel");
         public static ResourceLocation WRAITH_ASSAULT = Noellesroles.id("wraith_assault");
         public static ResourceLocation MORTICIAN_BODYMAKER = Noellesroles.id("mortician_bodymaker");
+        public static ResourceLocation VOTED_OUT = Noellesroles.id("voted_out");
+        public static ResourceLocation PELICAN_EATEN = Noellesroles.id("pelican_eaten");
 
         public static ResourceLocation BROKEN_HEART = StupidExpress.id("broken_heart");
         public static ResourceLocation FAILED_INITIATION = StupidExpress.id("failed_initiation");

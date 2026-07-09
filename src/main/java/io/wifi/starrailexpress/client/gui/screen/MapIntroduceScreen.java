@@ -237,6 +237,8 @@ public class MapIntroduceScreen extends Screen {
             addLine("map_intro.property.minigame_quest", wrapW);
         if (meetingBoolValue(json, "meetingEnabled", false))
             addLine("map_intro.property.meeting_enabled", wrapW);
+        if (meetingBoolValue(json, "meetingVoteEnabled", false))
+            addLine("map_intro.property.meeting_vote_enabled", wrapW);
         if (meetingBoolValue(json, "bellMeetingEnabled", false))
             addLine("map_intro.property.bell_meeting_enabled", wrapW);
         String status = stringValue(json, "mapStatusBar", "NONE");

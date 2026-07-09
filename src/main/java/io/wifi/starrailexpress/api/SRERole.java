@@ -494,6 +494,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
         CAN_JUMP,
         /** 仅可召开会议地图生成 */
         MEETING,
+        /** 仅可召开会议且启用了投票的地图生成 */
+        MEETING_VOTE,
         /** 仅可游玩小游戏地图生成 */
         MINIGAME_QUEST,
         /** 仅拥有状态栏地图生成（mapStatusBar != NONE） */

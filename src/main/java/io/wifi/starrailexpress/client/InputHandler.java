@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
 import io.wifi.starrailexpress.content.vote.client.VoteScreen;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.RequestOpenClueArchivePayload;
+import net.exmo.sre.meeting.client.MeetingClientHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -102,10 +103,16 @@ public class InputHandler {
         }
 
         if (openVotingScreenKeybind.consumeClick()) {
-            // 检查是否处于投票阶段
+            // 会议投票阶段：打开玩家投票界面
+            if (MeetingClientHandler.phase == 3
+                    && ClientVoteCache.getCurrentSession() != null
+                    && !ClientVoteCache.getCurrentSession().isEnded()) {
+                client.setScreen(new VoteScreen());
+                return;
+            }
+            // 地图投票阶段
             final MapVotingComponent mapVotingComponent = MapVotingComponent.KEY.get(client.level);
             if (mapVotingComponent.isVotingActive()) {
-                // 打开投票界面
                 client.setScreen(new MapSelectorScreen());
             } else if (ClientVoteCache.canReOpen() && !(client.screen instanceof VoteScreen)) {
                 client.setScreen(new VoteScreen());

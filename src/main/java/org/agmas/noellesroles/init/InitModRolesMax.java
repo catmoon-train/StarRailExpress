@@ -520,6 +520,11 @@ public class InitModRolesMax {
                 var areas = AreasWorldComponent.KEY.get(serverLevel);
                 yield areas != null && areas.areasSettings.meetingEnabled;
             }
+            case MEETING_VOTE -> {
+                var areas = AreasWorldComponent.KEY.get(serverLevel);
+                yield areas != null && areas.areasSettings.meetingEnabled
+                        && areas.areasSettings.meetingVoteEnabled;
+            }
             case MINIGAME_QUEST -> {
                 var areas = AreasWorldComponent.KEY.get(serverLevel);
                 yield areas != null && areas.areasSettings.minigameQuestEnabled;
