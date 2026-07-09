@@ -1,0 +1,26 @@
+{
+  "flower_outdoor": {
+    "sounds": [
+      {
+        "name": "noellesroles:flower_outdoor",
+        "stream": true
+      }
+    ]
+  },
+  "music_indoor": {
+    "sounds": [
+      {
+        "name": "noellesroles:music_indoor",
+        "stream": true
+      }
+    ]
+  },
+  "odo": {
+    "sounds": [
+      {
+        "name": "noellesroles:odo",
+        "stream": false
+      }
+    ]
+  }
+}

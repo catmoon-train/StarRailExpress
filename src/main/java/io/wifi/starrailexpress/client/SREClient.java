@@ -421,6 +421,24 @@ public class SREClient implements ClientModInitializer {
                         && SRE.isSkyVisible(player)
                         && gameComponent.getSceneOutsideSoundType().equals("circus"),
                 0.6f, 20, 10));
+        // 花海外部（能看到天空时，仅 flower_sea 类型生效，仅户外）
+        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
+                org.agmas.noellesroles.init.NRSounds.FLOWER_OUTDOOR,
+                SoundSource.AMBIENT,
+                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
+                        && SRE.isSkyVisible(player)
+                        && gameComponent.getSceneOutsideSoundType().equals("flower_sea"),
+                0.6f, 20, 10));
+        // 室内音乐（看不到天空时，仅 indoor_music 类型生效，仅室内）
+        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
+                org.agmas.noellesroles.init.NRSounds.MUSIC_INDOOR,
+                SoundSource.AMBIENT,
+                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
+                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
+                        && !SRE.isSkyVisible(player)
+                        && gameComponent.getSceneOutsideSoundType().equals("indoor_music"),
+                0.25f, 20, 10));
 
         // Caching components
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {

@@ -43,6 +43,9 @@ public class NRSounds {
     // 皮革噶的：疯魔模式神秘追杀音效
     public static final SoundEvent MANHUNT_CHASE = registrar.create("noellesroles.manhunt_chase");
     public static final SoundEvent CIRCUS_INDOOR = registrar.create("noellesroles.dasiy_bell");
+    public static final SoundEvent FLOWER_OUTDOOR = registrar.create("noellesroles.flower_outdoor");
+    public static final SoundEvent MUSIC_INDOOR = registrar.create("noellesroles.music_indoor");
+    public static final SoundEvent ODO = registrar.create("noellesroles.odo");
 
     public static void initialize() {
         registrar.registerEntries();
