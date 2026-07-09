@@ -68,7 +68,7 @@ public final class MeetingClientHandler {
     public static void register() {
         speakKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.starrailexpress.meeting_speak",
-                GLFW.GLFW_KEY_B,
+                GLFW.GLFW_KEY_SEMICOLON,
                 "category.starrailexpress.general"));
 
         ClientPlayNetworking.registerGlobalReceiver(MeetingStateS2CPayload.ID, (payload, context) -> {
