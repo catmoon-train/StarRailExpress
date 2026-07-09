@@ -20,10 +20,10 @@ import org.jetbrains.annotations.Nullable;
  */
 public class MirrorBlockEntity extends BlockEntity {
 
-    public static final int DEFAULT_DEPTH = 10;
+    public static final int DEFAULT_DEPTH = 20;
     public static final int DEFAULT_LATERAL_MARGIN = 5;
 
-    private static final int MAX_DEPTH = 32;
+    private static final int MAX_DEPTH = 48;
     private static final int MAX_LATERAL_MARGIN = 16;
 
     private int depth = DEFAULT_DEPTH;

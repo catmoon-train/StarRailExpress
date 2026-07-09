@@ -2,8 +2,12 @@ package io.wifi.starrailexpress.game.roles;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.event.AllowOtherCameraType;
+import io.wifi.starrailexpress.game.modes.funny.SREChameleonGameMode;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.special.dirt.DirtRole;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
@@ -75,9 +79,16 @@ public class SpecialGameModeRoles {
    * </p>
    */
   public static final SRERole CHAMELEON = registerRole(
-      new ChameleonRole(SRE.canyueId("chameleon"), 0x4CAF50, true, false, SRERole.MoodType.NONE, -1, false))
+      new ChameleonRole(SRE.canyueId("chameleon"), 0x4CAF50, true, false, SRERole.MoodType.FAKE, -1, true))
       .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(0).setOtherModeRole(true);
-
+static {
+  AllowOtherCameraType.EVENT.register((original, localplayer) -> {
+    if (SREClient.gameComponent!=null&&SREClient.gameComponent.gameMode== SREGameModes.CHAMELEON_MODE){
+      return AllowOtherCameraType.ReturnCameraType.THIRD_PERSON_BACK;
+    }
+    return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
+  });
+}
   /**
    * 猎人：变色龙模式的击杀者阵营
    * <p>
@@ -87,7 +98,7 @@ public class SpecialGameModeRoles {
   public static final SRERole CHAMELEON_HUNTER = registerRole(
       new ChameleonHunterRole(SRE.canyueId("chameleon_hunter"), TMMRoles.KILLER.color(), false, true,
           SRERole.MoodType.NONE, -1, true))
-      .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(0).setOtherModeRole(true);
+      .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(0).setOtherModeRole(true).setCanUseInstinct(false);
 
   public static SRERole registerRole(SRERole role) {
     return TMMRoles.registerRole(role);
