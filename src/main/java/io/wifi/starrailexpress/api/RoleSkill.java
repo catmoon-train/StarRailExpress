@@ -214,9 +214,9 @@ public final class RoleSkill {
             return this;
         }
 
-        public Builder customAnnounce(Function<AnnounceContext, Component> suppilier, AnnounceType announceType) {
+        public Builder customAnnounce(Function<AnnounceContext, Component> suppilier) {
             this.announceInfo.suppilier = suppilier;
-            this.announceInfo.type = announceType;
+            this.announceInfo.type = AnnounceType.ANNOUNCE_TO_SELF;
             return this;
         }
 
@@ -228,6 +228,22 @@ public final class RoleSkill {
 
         public Builder announceInfo(AnnounceInfo announceInfo) {
             this.announceInfo = announceInfo;
+            return this;
+        }
+
+        public Builder announcement(AnnounceType type) {
+            this.announceInfo.type = type;
+            return this;
+        }
+
+        public Builder noAnnouncement() {
+            this.announceInfo.type = AnnounceType.NONE;
+            return this;
+        }
+
+        public Builder announceToSelf() {
+            this.announceInfo.type = AnnounceType.ANNOUNCE_TO_SELF;
+
             return this;
         }
 
