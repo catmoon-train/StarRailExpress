@@ -4,6 +4,7 @@ import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.exmo.sre.meeting.MeetingManager;
 import net.exmo.sre.meeting.network.MeetingSpeakC2SPayload;
 import net.exmo.sre.meeting.network.MeetingStateS2CPayload;
+import net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -52,6 +53,12 @@ public final class MeetingClientHandler {
     /** 讨论阶段总时长（tick），供 HUD 进度条使用。 */
     public static long discussTotalTicks = 1;
 
+    // ── 投票结果（来自 MeetingVoteResultS2CPayload）───────────────────
+    public static boolean showVoteResult;
+    public static String voteResultExpelledName = "";
+    public static List<MeetingVoteResultS2CPayload.VoteEntry> voteResultEntries = List.of();
+    public static long voteResultReceiveMillis;
+
     private static boolean overriding;
     private static boolean speakingToggled;
 
@@ -66,6 +73,14 @@ public final class MeetingClientHandler {
 
         ClientPlayNetworking.registerGlobalReceiver(MeetingStateS2CPayload.ID, (payload, context) -> {
             context.client().execute(() -> applyState(payload));
+        });
+        ClientPlayNetworking.registerGlobalReceiver(MeetingVoteResultS2CPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                showVoteResult = true;
+                voteResultExpelledName = payload.expelledPlayerName();
+                voteResultEntries = payload.voteEntries();
+                voteResultReceiveMillis = Util.getMillis();
+            });
         });
         ClientTickEvents.END_CLIENT_TICK.register(MeetingClientHandler::tick);
     }
@@ -89,6 +104,8 @@ public final class MeetingClientHandler {
         speakers = payload.speakers();
         if (phase == MeetingManager.PHASE_NONE) {
             speakingToggled = false;
+            showVoteResult = false;
+            voteResultEntries = List.of();
             stopOverride();
         }
     }

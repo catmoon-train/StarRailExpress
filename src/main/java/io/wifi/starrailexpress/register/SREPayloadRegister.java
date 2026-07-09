@@ -170,6 +170,8 @@ public class SREPayloadRegister {
                 net.exmo.sre.meeting.network.MeetingStateS2CPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.meeting.network.MeetingSpeakC2SPayload.ID,
                 net.exmo.sre.meeting.network.MeetingSpeakC2SPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload.ID,
+                net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload.CODEC);
 
         // Mailbox
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.content.mail.OpenMailboxScreenPayload.ID,
