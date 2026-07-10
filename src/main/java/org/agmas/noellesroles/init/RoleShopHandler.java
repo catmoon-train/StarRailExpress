@@ -340,6 +340,7 @@ public class RoleShopHandler {
     }
 
     public static void shopRegister() {
+        SRE.LOGGER.info("[SHOP] Register Role Shops");
         haveRegistered = true;
         ShopContent.customEntries.clear();
         ShopContent.register();

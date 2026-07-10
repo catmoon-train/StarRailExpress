@@ -217,7 +217,7 @@ public class RoleIntroduceScreen extends Screen {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
         availableRoles.addAll(Noellesroles.getAllRolesSorted(true));
         filterFlags.clear();
-        if(!RoleShopHandler.haveRegistered){
+        if (!RoleShopHandler.haveRegistered) {
             RoleShopHandler.shopRegister();
         }
     }
@@ -927,19 +927,22 @@ public class RoleIntroduceScreen extends Screen {
                     if (idx >= 0 && idx < entries.size()) {
                         ItemStack stack = entries.get(idx);
                         if (stack != null && !stack.isEmpty()) {
-                            List<Component> tooltipLines;
                             try {
+                                List<Component> tooltipLines;
                                 TooltipFlag tooltipFlag = minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED
                                         : TooltipFlag.NORMAL;
                                 Item.TooltipContext tooltipContext = minecraft.level == null ? Item.TooltipContext.EMPTY
                                         : Item.TooltipContext.of(minecraft.level);
                                 tooltipLines = stack.getTooltipLines(tooltipContext, minecraft.player,
                                         tooltipFlag);
+
+                                g.renderTooltip(font, tooltipLines, stack.getTooltipImage(), mouseX, mouseY);
                             } catch (Exception e) {
-                                tooltipLines = List
-                                        .of(Component.translatable("screen.roleintroduce.error", e.getMessage()));
+                                final var tooltip = font.split(Component.translatable("screen.roleintroduce.error",
+                                        e.getMessage()), w);
+
+                                g.renderTooltip(font, tooltip, mouseX, mouseY);
                             }
-                            g.renderTooltip(font, tooltipLines, stack.getTooltipImage(), mouseX, mouseY);
                         }
                     }
                 }
@@ -1102,17 +1105,20 @@ public class RoleIntroduceScreen extends Screen {
                 int idx = relY / ITEM_H;
                 if (idx >= 0 && idx < entries.size()) {
                     ItemStack stack = entries.get(idx).stack();
-                    List<Component> tooltipLines;
                     try {
+                        List<Component> tooltipLines;
                         TooltipFlag tooltipFlag = minecraft.options.advancedItemTooltips ? TooltipFlag.ADVANCED
                                 : TooltipFlag.NORMAL;
                         Item.TooltipContext tooltipContext = minecraft.level == null ? Item.TooltipContext.EMPTY
                                 : Item.TooltipContext.of(minecraft.level);
                         tooltipLines = stack.getTooltipLines(tooltipContext, minecraft.player, tooltipFlag);
+
+                        g.renderTooltip(font, tooltipLines, stack.getTooltipImage(), mouseX, mouseY);
                     } catch (Exception e) {
-                        tooltipLines = List.of(Component.translatable("screen.roleintroduce.error", e.getMessage()));
+                        var tooltipLines = font
+                                .split(Component.translatable("screen.roleintroduce.error", e.getMessage()), w);
+                        g.renderTooltip(font, tooltipLines, mouseX, mouseY);
                     }
-                    g.renderTooltip(font, tooltipLines, stack.getTooltipImage(), mouseX, mouseY);
                 }
             }
         }
