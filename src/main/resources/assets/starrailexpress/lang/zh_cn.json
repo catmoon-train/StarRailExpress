@@ -2004,7 +2004,7 @@
     "sre.custom_role.hidden_for_role_rotation": "在职业轮换中隐藏",
     "sre.custom_role.mafia_team": "家族成员",
     "sre.custom_role.neutral_for_innocent": "好人方中立",
-    "sre.custom_role.refreshable_special_vigilante": "可刷新特殊治安官",
+    "sre.custom_role.refreshable_special_vigilante": "可刷新出多个的特殊警长",
     "sre.custom_role.special_map_role": "特殊地图类型限制",
     "sre.custom_role.special_map_role.current": "当前",
     "sre.custom_role.special_vigilante": "特殊警长",
