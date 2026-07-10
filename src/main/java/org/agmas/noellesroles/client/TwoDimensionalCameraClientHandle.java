@@ -7,13 +7,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModEffects;
 
+/**
+ * 二维视角（{@link ModEffects#TWO_DIMENSIONAL_CAMERA}）客户端相机。
+ *
+ * <p><b>遮挡剔除一律走箱庭视野</b>（{@link HakoniwaVisionClientHandle}，区块网格级逐块剔除），
+ * 二维视角激活时它会自动启用，无需再单独授予 {@link ModEffects#HAKONIWA_VISION}。
+ *
+ * <p>历史上这里还有一条「把近裁剪面推到房间近墙外」的退路，已删除：近裁剪面垂直于视线，
+ * 而墙是竖直平面 —— 2.5D / 侧视有俯角时二者不平行，墙的下半截必然落在裁剪面之后活下来，
+ * 正好挡住玩家。此时玩家本体被深度测试挡掉，而透视高亮的描边（{@code RenderType.outline}
+ * 带 {@code NO_DEPTH_TEST}）却照画不误，症状就是「看不见模型，只看得到一圈发光边缘」。
+ */
 public final class TwoDimensionalCameraClientHandle {
     /** 正上方俯视：相机在玩家头顶垂直下望（pitch = 90°），区别于 0~3 的 2.5D 俯视与 5~8 的纯侧视。 */
     public static final int TOP_VIEW_AMPLIFIER = 4;
@@ -21,17 +28,13 @@ public final class TwoDimensionalCameraClientHandle {
     private static final double CAMERA_HEIGHT = 6.0D;
     private static final double TOP_CAMERA_HEIGHT = 34.0D;
     private static final float CAMERA_FOV = 35.0F;
-    private static final float DEFAULT_FOREGROUND_CLIP_DISTANCE = 0.05F;
-    private static final float MIN_OCCLUDED_FOREGROUND_CLIP_DISTANCE = 3.0F;
-    private static final double PLAYER_CLIP_MARGIN = 0.25D;
-    /** 近裁剪面越过房间近墙内表面的余量：保证墙被剔除、又只吃掉极薄一层房间地板。 */
-    private static final double ROOM_WALL_CLEAR_MARGIN = 0.25D;
     private static volatile boolean active;
-    private static volatile float foregroundClipDistance = DEFAULT_FOREGROUND_CLIP_DISTANCE;
-    private static volatile Vec3 voiceListenerPosition;
+    private static volatile Vec3 listenerPosition;
     private static volatile float cameraYaw;
     private static volatile boolean topView;
     private static volatile Vec3 cameraPosition;
+    /** 本导演是否正持有 {@link AdvancedCameraDirector} 的固定镜头。 */
+    private static boolean ownsOverride;
 
     private TwoDimensionalCameraClientHandle() {
     }
@@ -50,38 +53,48 @@ public final class TwoDimensionalCameraClientHandle {
         LocalPlayer player = client.player;
         if (player == null || client.level == null) {
             deactivate();
-            AdvancedCameraDirector.clearFixedOverride();
+            releaseOverride();
             return;
         }
 
         MobEffectInstance effect = player.getEffect(ModEffects.TWO_DIMENSIONAL_CAMERA);
         if (effect == null) {
             deactivate();
-            AdvancedCameraDirector.clearFixedOverride();
+            releaseOverride();
             return;
         }
 
         active = true;
         topView = effect.getAmplifier() == TOP_VIEW_AMPLIFIER;
-        voiceListenerPosition = player.getEyePosition(1.0F);
+        listenerPosition = player.getEyePosition(1.0F);
         Vec3 lookAt = player.getEyePosition(1.0F).add(0.0D, 0.5D, 0.0D);
         Vec3 cameraPos = cameraPosition(lookAt, effect.getAmplifier(), cameraDistance(player));
         cameraPosition = cameraPos;
-        foregroundClipDistance = smartForegroundClipDistance(client, player, cameraPos, lookAt);
         Vec3 delta = lookAt.subtract(cameraPos);
         double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
         float yaw = (float) (Math.atan2(delta.z, delta.x) * Mth.RAD_TO_DEG) - 90.0F;
         float pitch = (float) (-(Math.atan2(delta.y, horizontal) * Mth.RAD_TO_DEG));
         cameraYaw = yaw;
         AdvancedCameraDirector.setFixedOverride(cameraPos, yaw, pitch, CAMERA_FOV);
+        ownsOverride = true;
     }
 
     private static void deactivate() {
         active = false;
         topView = false;
-        foregroundClipDistance = DEFAULT_FOREGROUND_CLIP_DISTANCE;
-        voiceListenerPosition = null;
+        listenerPosition = null;
         cameraPosition = null;
+    }
+
+    /**
+     * 只归还本导演自己设过的固定镜头。固定镜头是 {@link AdvancedCameraDirector} 的全局单槽，
+     * 无条件 clear 会把别的持有者（如会议镜头 {@code MeetingClientHandler}）一起清掉。
+     */
+    private static void releaseOverride() {
+        if (ownsOverride) {
+            ownsOverride = false;
+            AdvancedCameraDirector.clearFixedOverride();
+        }
     }
 
     private static boolean isLocalTwoDimensionalActive(LocalPlayer localPlayer) {
@@ -107,122 +120,6 @@ public final class TwoDimensionalCameraClientHandle {
             return lookAt.add(sideVector(amplifier - 5).scale(cameraDistance));
         }
         return lookAt.add(sideVector(amplifier).scale(cameraDistance)).add(0.0D, CAMERA_HEIGHT, 0.0D);
-    }
-
-    private static float smartForegroundClipDistance(Minecraft client, LocalPlayer player, Vec3 cameraPos, Vec3 lookAt) {
-        // 有箱庭视野（HAKONIWA_VISION）时，遮挡剔除交给区块级方块剔除精确处理——它按房间边界
-        // 逐块移除屋顶 / 近墙，永不产生虚空（未封闭房间会被判为 outside 而完整渲染）。
-        // 此时近裁剪面保持默认，避免平面近裁剪在未封闭房间等场景把整幅画面裁空。
-        if (player.hasEffect(ModEffects.HAKONIWA_VISION)) {
-            return DEFAULT_FOREGROUND_CLIP_DISTANCE;
-        }
-        if (client.level == null || !hasBlockingSightline(client, player, cameraPos, lookAt)) {
-            return DEFAULT_FOREGROUND_CLIP_DISTANCE;
-        }
-
-        double targetDistance = cameraPos.distanceTo(lookAt);
-        // 关键修复：近裁剪面只推进到「玩家所在房间朝镜头一侧的墙」为止，而不是一路推到玩家身前。
-        // 这样既能剔除该墙及其之前的所有前景（其它车厢/房间的墙、屋顶），又能完整保留玩家所在
-        // 房间的地板与内部——避免在封闭房间 / 站在不完整方块（台阶、半砖等）上时，
-        // 把整间屋子连同地板一起裁成一片虚空。
-        double roomWallDepth = roomNearWallDepth(client, player, cameraPos, lookAt);
-        if (roomWallDepth <= 0.0D) {
-            // 玩家到镜头方向一路无阻挡（正对门口 / 开阔处），玩家本就可见，不做激进裁剪。
-            return DEFAULT_FOREGROUND_CLIP_DISTANCE;
-        }
-
-        // 近裁剪面落在房间近墙内表面稍外一点：墙被剔除，仅吃掉极薄一层地板。
-        double clipDistance = targetDistance - roomWallDepth + ROOM_WALL_CLEAR_MARGIN;
-        // 绝不越过玩家自身，否则会把玩家一起裁掉（玩家紧贴近墙时退化为贴着玩家裁剪）。
-        double playerLimit = playerNearClipLimit(player, cameraPos, lookAt) - PLAYER_CLIP_MARGIN;
-        clipDistance = Math.min(clipDistance, playerLimit);
-        if (clipDistance <= DEFAULT_FOREGROUND_CLIP_DISTANCE) {
-            return DEFAULT_FOREGROUND_CLIP_DISTANCE;
-        }
-        return (float) Mth.clamp(clipDistance,
-                MIN_OCCLUDED_FOREGROUND_CLIP_DISTANCE,
-                Math.max(MIN_OCCLUDED_FOREGROUND_CLIP_DISTANCE, targetDistance - 0.25D));
-    }
-
-    /**
-     * 从玩家视点（{@code lookAt}）朝镜头方向反向发射一条射线，返回命中的第一堵实心方块
-     * （即玩家所在房间朝镜头一侧的墙）到玩家的距离；若一路无阻挡返回 0。
-     * 用它把近裁剪面精确停在房间边界上，而不是一路推到玩家身前——这是「房间内一片虚空」的根因修复。
-     * 使用 {@link ClipContext.Block#OUTLINE} 让台阶 / 半砖等不完整方块也能被正确识别为房间墙。
-     */
-    private static double roomNearWallDepth(Minecraft client, LocalPlayer player, Vec3 cameraPos, Vec3 lookAt) {
-        if (client.level == null || cameraPos.distanceToSqr(lookAt) <= 1.0E-4D) {
-            return 0.0D;
-        }
-        BlockHitResult hit = client.level.clip(new ClipContext(
-                lookAt,
-                cameraPos,
-                ClipContext.Block.OUTLINE,
-                ClipContext.Fluid.NONE,
-                player));
-        if (hit.getType() == HitResult.Type.MISS) {
-            return 0.0D;
-        }
-        return lookAt.distanceTo(hit.getLocation());
-    }
-
-    private static boolean hasBlockingSightline(Minecraft client, LocalPlayer player, Vec3 cameraPos, Vec3 lookAt) {
-        AABB box = player.getBoundingBox().inflate(0.12D);
-        Vec3 center = box.getCenter();
-        Vec3[] targets = new Vec3[] {
-                lookAt,
-                center,
-                new Vec3(center.x, box.minY + 0.1D, center.z),
-                new Vec3(center.x, box.maxY - 0.1D, center.z),
-                new Vec3(box.minX, center.y, center.z),
-                new Vec3(box.maxX, center.y, center.z),
-                new Vec3(center.x, center.y, box.minZ),
-                new Vec3(center.x, center.y, box.maxZ)
-        };
-
-        for (Vec3 target : targets) {
-            double targetDistance = cameraPos.distanceTo(target);
-            if (targetDistance <= 0.25D) {
-                continue;
-            }
-            BlockHitResult hit = client.level.clip(new ClipContext(
-                    cameraPos,
-                    target,
-                    ClipContext.Block.OUTLINE,
-                    ClipContext.Fluid.NONE,
-                    player));
-            if (hit.getType() != HitResult.Type.MISS
-                    && cameraPos.distanceTo(hit.getLocation()) < targetDistance - 0.35D) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static double playerNearClipLimit(LocalPlayer player, Vec3 cameraPos, Vec3 lookAt) {
-        Vec3 view = lookAt.subtract(cameraPos);
-        if (view.lengthSqr() <= 1.0E-7D) {
-            return DEFAULT_FOREGROUND_CLIP_DISTANCE;
-        }
-        view = view.normalize();
-        AABB box = player.getBoundingBox().inflate(0.18D);
-        double nearest = Double.MAX_VALUE;
-        double[] xs = {box.minX, box.maxX};
-        double[] ys = {box.minY, box.maxY};
-        double[] zs = {box.minZ, box.maxZ};
-        for (double x : xs) {
-            for (double y : ys) {
-                for (double z : zs) {
-                    Vec3 point = new Vec3(x, y, z);
-                    nearest = Math.min(nearest, dot(point.subtract(cameraPos), view));
-                }
-            }
-        }
-        return Double.isFinite(nearest) ? nearest : DEFAULT_FOREGROUND_CLIP_DISTANCE;
-    }
-
-    private static double dot(Vec3 a, Vec3 b) {
-        return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
     private static Vec3 sideVector(int amplifier) {
@@ -257,11 +154,15 @@ public final class TwoDimensionalCameraClientHandle {
         return active ? cameraPosition : null;
     }
 
-    public static Vec3 voiceListenerPosition() {
-        return active ? voiceListenerPosition : null;
-    }
-
-    public static float foregroundClipDistance() {
-        return active ? foregroundClipDistance : DEFAULT_FOREGROUND_CLIP_DISTANCE;
+    /**
+     * 二维视角下「耳朵」所在的世界坐标（玩家眼睛），未激活时为 null。
+     *
+     * <p>相机被架到玩家上方 / 侧面十几到几十格外，而 OpenAL 监听者、simple voice chat 的参考点
+     * 默认都取相机位置 —— 于是脚边的脚步声、几格外的说话声都被按「几十格外」做距离衰减，
+     * 直接衰减到听不见（原版音效默认衰减距离仅 16 格）。监听位置必须回到玩家身上。
+     * 朝向仍取相机的：这样左右声道与屏幕方向一致。
+     */
+    public static Vec3 listenerPosition() {
+        return active ? listenerPosition : null;
     }
 }

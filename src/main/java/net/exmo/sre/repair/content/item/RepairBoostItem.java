@@ -1,5 +1,6 @@
 package net.exmo.sre.repair.content.item;
 
+import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -17,7 +18,8 @@ import net.exmo.sre.repair.state.RepairModeState;
 
 import java.util.List;
 
-public class RepairBoostItem extends Item {
+/** 修机模式全程是冒险模式，不实现 AdventureUsable 的话 ItemStack#useOn 会直接 PASS 掉。 */
+public class RepairBoostItem extends Item implements AdventureUsable {
     private final int boost;
     private final String tooltipKey;
 

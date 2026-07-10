@@ -7,7 +7,6 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
-import io.wifi.starrailexpress.game.modes.funny.SREChameleonGameMode;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.special.dirt.DirtRole;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;

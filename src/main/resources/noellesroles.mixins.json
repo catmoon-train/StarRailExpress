@@ -87,7 +87,7 @@
     "client.general.PointerSprintJumpYawMixin",
     "client.general.PlayerIsolationClientMixin",
     "client.general.PlayerIsolationSoundMixin",
-    "client.general.TwoDimensionalCameraProjectionMixin",
+    "client.general.SoundEngineListenerMixin",
     "client.general.VoicechatALSpeakerBaseMixin",
     "client.general.VoicechatFreecamUtilMixin",
     "client.general.WraithVisibilityMixin",

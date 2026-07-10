@@ -126,11 +126,18 @@ public final class HakoniwaVisionClientHandle {
 
     private static void tick(Minecraft client) {
         LocalPlayer player = client.player;
-        if (player == null || client.level == null || !player.hasEffect(ModEffects.HAKONIWA_VISION)) {
+        if (player == null || client.level == null) {
             deactivate();
             return;
         }
-        if (!TwoDimensionalCameraClientHandle.isActive() && player.getXRot() <= TOP_PITCH_THRESHOLD) {
+        // 二维视角必然需要遮挡剔除（否则屋顶 / 近墙挡住玩家自己），故它一并启用本剔除，
+        // 不要求额外授予 HAKONIWA_VISION —— 逐块剔除是二维视角遮挡剔除的唯一手段。
+        boolean twoDimensional = TwoDimensionalCameraClientHandle.isActive();
+        if (!twoDimensional && !player.hasEffect(ModEffects.HAKONIWA_VISION)) {
+            deactivate();
+            return;
+        }
+        if (!twoDimensional && player.getXRot() <= TOP_PITCH_THRESHOLD) {
             deactivate();
             return;
         }

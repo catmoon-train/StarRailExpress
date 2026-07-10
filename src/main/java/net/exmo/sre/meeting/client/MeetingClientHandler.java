@@ -17,6 +17,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModEffects;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ import java.util.UUID;
  * 自动拉远取所有发言者的中点取景；</li>
  * <li>讨论·无人发言：绕场缓慢巡航。</li>
  * </ul>
+ * 玩家持有 {@link ModEffects#TWO_DIMENSIONAL_CAMERA}（如鹅鸭杀模式全程俯视）时，相机由
+ * {@code TwoDimensionalCameraClientHandle} 独占，本导演不接管。
  */
 @Environment(EnvType.CLIENT)
 public final class MeetingClientHandler {
@@ -131,6 +134,14 @@ public final class MeetingClientHandler {
 
         if (!participant) {
             stopOverride();
+            return;
+        }
+        // 2D 视角（鹅鸭杀全程俯视）自己就在每 tick 写 fixedOverride。两边同时写会让导演在两套
+        // 完全不同的机位之间来回插值，画面剧烈抖动，所以此时会议镜头整体让位。
+        // 注意不能调 stopOverride()：那会清掉 2D 相机的 override。overriding 恒为 false，
+        // 故散会时的 stopOverride() 也自然是空操作。
+        if (player.hasEffect(ModEffects.TWO_DIMENSIONAL_CAMERA)) {
+            overriding = false;
             return;
         }
         driveCamera(client, player);

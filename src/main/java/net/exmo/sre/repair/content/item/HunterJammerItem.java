@@ -1,5 +1,6 @@
 package net.exmo.sre.repair.content.item;
 
+import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -16,7 +17,8 @@ import net.exmo.sre.repair.state.RepairModeState;
 
 import java.util.List;
 
-public class HunterJammerItem extends Item {
+/** 同 RepairBoostItem：冒险模式下必须 AdventureUsable，否则 useOn 到不了。 */
+public class HunterJammerItem extends Item implements AdventureUsable {
     public HunterJammerItem(Properties properties) {
         super(properties);
     }

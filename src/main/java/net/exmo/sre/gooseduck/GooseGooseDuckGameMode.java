@@ -6,14 +6,19 @@ import io.wifi.starrailexpress.cca.MurderTimeEventComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import net.exmo.sre.gooseduck.role.GooseDuckRoles;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
+import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,12 +36,22 @@ import java.util.List;
  *   <li><b>只刷新小游戏任务</b>：鹅 / 鸭职业（{@link net.exmo.sre.gooseduck.role.GooseDuckRole}）屏蔽全部普通任务，
  *       且本模式关闭 Mood（{@link #hasMood()} 返回 false）；任务完全来自小游戏任务点
  *       （开局运行时打开 {@code minigameQuestEnabled}）。</li>
+ *   <li><b>全程俯视视角</b>：开局起给所有存活玩家施加 2D 俯视（{@link ModEffects#TWO_DIMENSIONAL_CAMERA}
+ *       等级 4 + 视距）、鼠标指针（{@link ModEffects#POINTER}）与箱庭视野
+ *       （{@link ModEffects#HAKONIWA_VISION}），复刻原作的俯视 + 指针操作手感。</li>
  *   <li><b>会议 + 投票</b>：右键尸体上报召开会议（运行时打开 {@code meetingEnabled}），
- *       会议现场施加 2D 俯视视角 + 冻结技能等效果并发起放逐投票。</li>
+ *       会议现场施加冻结技能等效果并发起放逐投票。</li>
  *   <li><b>破坏</b>：鸭拥有主动关灯破坏技能（{@link GooseDuckSabotage}），并复用谋杀模式的随机时间事件。</li>
  * </ul>
  */
 public class GooseGooseDuckGameMode extends SREMurderGameMode {
+
+    /** 视角效果的续期时长（tick）。每秒补发一次，玩家重连 / 死亡复活也能自愈。 */
+    private static final int PERSPECTIVE_DURATION_TICKS = 60;
+    /** 2D 视角：4 = 正上方俯视，对应原作的俯视棋盘视野。 */
+    private static final int TWO_D_OVERHEAD_AMPLIFIER = 4;
+    /** 2D 视距：等级越高相机拉得越远，看清全场。 */
+    private static final int TWO_D_DISTANCE_AMPLIFIER = 2;
 
     public GooseGooseDuckGameMode(ResourceLocation identifier) {
         super(identifier, 10, 4);
@@ -92,6 +107,46 @@ public class GooseGooseDuckGameMode extends SREMurderGameMode {
             ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player, role);
         }
         gameWorldComponent.syncRoles();
+        // 开局立刻切到俯视 + 指针，别等第一次 tick。
+        applyPerspectiveEffects(serverWorld);
+    }
+
+    /**
+     * 全程俯视视角：2D 俯视相机 + 视距 + 鼠标指针 + 箱庭视野。
+     * <p>
+     * 箱庭视野负责在区块网格级剔除玩家所在房间的屋顶 / 近墙，让俯视直接看到室内——
+     * 它是 2D 视角遮挡剔除的正解，永不产生「一片虚空」（未封闭房间会被判为 outside 而完整渲染）。
+     * 效果只给存活的游戏内玩家；旁观者保持自由视角。
+     */
+    private static void applyPerspectiveEffects(ServerLevel serverWorld) {
+        for (ServerPlayer player : serverWorld.players()) {
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                addPerspectiveEffect(player, ModEffects.TWO_DIMENSIONAL_CAMERA, TWO_D_OVERHEAD_AMPLIFIER);
+                addPerspectiveEffect(player, ModEffects.TWO_DIMENSIONAL_CAMERA_DISTANCE, TWO_D_DISTANCE_AMPLIFIER);
+                addPerspectiveEffect(player, ModEffects.HAKONIWA_VISION, 0);
+                addPerspectiveEffect(player, ModEffects.POINTER, 0);
+            } else {
+                // 刚死亡的玩家立刻交还自由视角，不必等效果自然过期。
+                removePerspectiveEffects(player);
+            }
+        }
+    }
+
+    private static void addPerspectiveEffect(ServerPlayer player, Holder<MobEffect> effect, int amplifier) {
+        player.addEffect(new MobEffectInstance(effect, PERSPECTIVE_DURATION_TICKS, amplifier, false, false, false));
+    }
+
+    private static void clearPerspectiveEffects(ServerLevel serverWorld) {
+        for (ServerPlayer player : serverWorld.players()) {
+            removePerspectiveEffects(player);
+        }
+    }
+
+    private static void removePerspectiveEffects(ServerPlayer player) {
+        player.removeEffect(ModEffects.TWO_DIMENSIONAL_CAMERA);
+        player.removeEffect(ModEffects.TWO_DIMENSIONAL_CAMERA_DISTANCE);
+        player.removeEffect(ModEffects.HAKONIWA_VISION);
+        player.removeEffect(ModEffects.POINTER);
     }
 
     /** 鸭数量：约每 4 名玩家 1 只鸭，范围 1~3。 */
@@ -101,6 +156,10 @@ public class GooseGooseDuckGameMode extends SREMurderGameMode {
 
     @Override
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
+        // 每秒续期一次视角效果（时长 60 tick，留足冗余）。
+        if (serverWorld.getGameTime() % 20L == 0L) {
+            applyPerspectiveEffects(serverWorld);
+        }
         // 先驱动会议 / 投票 / 会议期效果，再走谋杀模式的胜负与被动收益判定。
         GooseDuckMeetingDirector.tick(serverWorld);
         super.tickServerGameLoop(serverWorld, gameWorldComponent);
@@ -108,6 +167,7 @@ public class GooseGooseDuckGameMode extends SREMurderGameMode {
 
     @Override
     public void stopGame(ServerLevel world) {
+        clearPerspectiveEffects(world);
         GooseDuckMeetingDirector.onGameStop(world);
         super.stopGame(world);
     }

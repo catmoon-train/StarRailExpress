@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.cca;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.block.ToiletBlock;
 import io.wifi.starrailexpress.content.block.entity.SeatEntity;
@@ -158,6 +159,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                     minigameDispatched = minigameComponent.dispatchRotationTask(sp, serverLevel);
                 }
             }
+
             if (!minigameDispatched) {
                 TrainTask task = this.generateTask();
                 if (task != null) {
@@ -170,10 +172,13 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                     this.parallelTaskGenerated = false;
                     // 任务出现时通过字幕报幕通知玩家（TOP 模式，兼容 broadcast）
                     if (this.player instanceof ServerPlayer sp) {
-                        Component taskTitle = Component.translatable("task." + task.getName());
-                        Component taskSub = Component.translatable("subtitle.task.new");
-                        net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 60, false);
-                        // 轮换模式：普通任务刷新计数（供轮换到小游戏任务判断）
+                        SRERole role = gameWorldComponent.getRole(sp);
+                        if (role != null && role.getMoodType() != SRERole.MoodType.NONE) {
+                            Component taskTitle = Component.translatable("task." + task.getName());
+                            Component taskSub = Component.translatable("subtitle.task.new");
+                            net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 75, false);
+                            // 轮换模式：普通任务刷新计数（供轮换到小游戏任务判断）
+                        }
                         if (minigameComponent != null) {
                             minigameComponent.onNormalTaskGenerated(sp);
                         }
@@ -217,9 +222,12 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                         this.parallelTaskGenerated = true;
                         // 并列任务也通过字幕报幕通知（TOP 模式）
                         if (this.player instanceof ServerPlayer sp) {
-                            Component taskTitle = Component.translatable("task." + parallelTask.getName());
-                            Component taskSub = Component.translatable("subtitle.task.parallel");
-                            net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 60, false);
+                            SRERole role = gameWorldComponent.getRole(sp);
+                            if (role != null && role.getMoodType() != SRERole.MoodType.NONE) {
+                                Component taskTitle = Component.translatable("task." + parallelTask.getName());
+                                Component taskSub = Component.translatable("subtitle.task.parallel");
+                                net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(sp, taskTitle, taskSub, 75, false);
+                            }
                         }
                         shouldSync = true;
                     }

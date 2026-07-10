@@ -66,6 +66,12 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
     @Override
     public void render(PlayerBodyEntity playerBodyEntity, float f, float g, PoseStack matrixStack,
             MultiBufferSource vertexConsumerProvider, int light) {
+        // 提前返回必须在 pushPose 之前：留下未配对的 push 会让 LevelRenderer.checkPoseStack 抛
+        // "Pose stack not empty" 崩溃
+        final var moodComponent = SREClient.moodComponent;
+        if (moodComponent == null)
+            return;
+
         this.setModelPose();
         matrixStack.pushPose();
         float clamp = Mth.clamp(
@@ -73,9 +79,6 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
                         / GameConstants.DECOMPOSING_TIME,
                 0, GameConstants.TIME_TO_DECOMPOSITION + GameConstants.DECOMPOSING_TIME);
         float ease = Easing.CUBIC_IN.ease(clamp, 0, -1, 1);
-        final var moodComponent = SREClient.moodComponent;
-        if (moodComponent == null)
-            return;
 
         // 腐化尸体直接只显示骷髅模型，不渲染原玩家身体
         if (playerBodyEntity.isCorrupted()) {

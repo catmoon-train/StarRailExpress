@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
 
 /**
@@ -27,15 +28,20 @@ import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerC
 public class LeatherPigDisguiseRenderer {
     private static final Map<UUID, Pig> PIGS = new HashMap<>();
 
-    // ==== 玩家脸部（贴在猪头上）几何参数（格；可按需微调） ====
-    /** 脸部锚点相对脚底的高度（猪头高度） */
-    private static final float FACE_HEIGHT = 0.62F;
-    /** 脸部相对身体中心向前（猪吻方向）的偏移 */
-    private static final float FACE_FORWARD = 0.46F;
-    /** 脸部半宽/半高 */
-    private static final float FACE_HALF = 0.26F;
-    /** 皮肤第二层（帽层）相对第一层向前的偏移，形成双层皮肤 */
-    private static final float FACE_HAT_OFFSET = 0.03F;
+    // ==== 猪头几何（PigModel：head 枢轴在模型 (0,12,-6)，8×8×8 的头，前方再伸出 1px 猪吻） ====
+    // 模型坐标 -> 实体根坐标：y = 1.501 - my/16，向前 = -mz/16。
+    /** 猪头旋转枢轴距脚底的高度：1.501 - 12/16 */
+    private static final float HEAD_PIVOT_Y = 0.751F;
+    /** 猪头旋转枢轴相对身体中心向前的偏移：6/16 */
+    private static final float HEAD_PIVOT_FORWARD = 0.375F;
+    /** 枢轴到猪头正面的距离：8/16 */
+    private static final float FACE_FORWARD = 0.5F;
+    /** 脸部半宽/半高（猪头正面恰好 8×8 像素） */
+    private static final float FACE_HALF = 0.25F;
+    /** 贴面外移量，避免与猪头正面 z-fighting */
+    private static final float FACE_EPSILON = 0.005F;
+    /** 皮肤第二层（帽层）相对第一层向外的偏移，形成双层皮肤 */
+    private static final float FACE_HAT_OFFSET = 0.02F;
 
     // 皮肤贴图中脸部的 UV（64x64 皮肤，归一化）
     private static final float BASE_U0 = 8F / 64F, BASE_U1 = 16F / 64F;
@@ -67,12 +73,16 @@ public class LeatherPigDisguiseRenderer {
         pig.yBodyRotO = player.yBodyRotO;
         pig.yHeadRot = player.yHeadRot;
         pig.yHeadRotO = player.yHeadRotO;
-        pig.setXRot(player.getXRot());
-        pig.xRotO = player.xRotO;
+        // 猪头的俯仰角直接取自实体 xRot（QuadrupedModel 把 headPitch 原样写进 head.xRot），
+        // 而猪头枢轴在颈后、整头只有 0.9 格高：玩家稍一低头，猪头就整个扎进地里，看上去一直低着头。
+        // 伪装只跟随偏航即可，俯仰恒为 0，脸部贴图也随之保持水平。
+        pig.setXRot(0.0F);
+        pig.xRotO = 0.0F;
         pig.setInvisible(player.isInvisible());
         pig.hurtTime = player.hurtTime;
-        pig.setCustomName(player.getDisplayName());
-        pig.setCustomNameVisible(true);
+        // 伪装期间不显示名字；玩家本体的名牌已随 PlayerRenderer.render 一起被取消。
+        pig.setCustomName(null);
+        pig.setCustomNameVisible(false);
 
         EntityRenderer<? super Pig> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(pig);
         renderer.render(pig, yaw, tickDelta, poseStack, bufferSource, packedLight);
@@ -85,27 +95,40 @@ public class LeatherPigDisguiseRenderer {
     }
 
     /**
-     * 在猪头位置渲染玩家自身皮肤的脸部（第一层 + 帽层，即双层皮肤），朝向跟随玩家头部。
+     * 在猪头正面渲染玩家自身皮肤的脸部（第一层 + 帽层，即双层皮肤），朝向跟随玩家头部。
+     *
+     * <p>脸部必须贴在猪头这块骨骼上，因此要沿着 PigModel 的层级走一遍：抬到枢轴高度 →
+     * 转到身体坐标系 → 前移到枢轴 → 施加头部相对身体的偏航 → 在枢轴前方 8/16 处画脸。
+     * 直接在实体根坐标系里"抬高 + 前移"会把脸埋进猪头内部，且转头时绕错枢轴摆动。
      */
     private static void renderPlayerFace(AbstractClientPlayer player, float tickDelta,
             PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         ResourceLocation skin = player.getSkin().texture();
+        float bodyYaw = Mth.rotLerp(tickDelta, player.yBodyRotO, player.yBodyRot);
         float headYaw = Mth.rotLerp(tickDelta, player.yHeadRotO, player.yHeadRot);
-        float pitch = Mth.lerp(tickDelta, player.xRotO, player.getXRot());
+        // 与 LivingEntityRenderer 保持一致：净偏航钳制到 ±85°，超过 50° 后身体被头带着转一点
+        float netHeadYaw = Mth.clamp(Mth.wrapDegrees(headYaw - bodyYaw), -85.0F, 85.0F);
+        bodyYaw = headYaw - netHeadYaw;
+        if (netHeadYaw * netHeadYaw > 2500.0F) {
+            bodyYaw += netHeadYaw * 0.2F;
+        }
+        netHeadYaw = headYaw - bodyYaw;
 
         poseStack.pushPose();
-        // 抬到猪头高度（世界竖直方向）
-        poseStack.translate(0.0F, FACE_HEIGHT, 0.0F);
-        // 朝向玩家头部：Axis.YP.rotationDegrees(-yaw) 使局部 +Z 指向玩家朝向
-        poseStack.mulPose(Axis.YP.rotationDegrees(-headYaw));
-        // 俯仰
-        poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
+        // Axis.YP.rotationDegrees(-yaw) 使局部 +Z 指向该 yaw 的正前方
+        poseStack.translate(0.0F, HEAD_PIVOT_Y, 0.0F);
+        poseStack.mulPose(Axis.YP.rotationDegrees(-bodyYaw));
+        poseStack.translate(0.0F, 0.0F, HEAD_PIVOT_FORWARD);
+        poseStack.mulPose(Axis.YP.rotationDegrees(-netHeadYaw));
 
         // 无剔除渲染，避免正反面被裁剪；帽层透明像素由 cutout 丢弃露出第一层
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(skin));
-        addFaceQuad(consumer, poseStack, FACE_HALF, FACE_FORWARD, BASE_U0, BASE_V0, BASE_U1, BASE_V1, packedLight);
-        addFaceQuad(consumer, poseStack, FACE_HALF + FACE_HAT_OFFSET, FACE_FORWARD + FACE_HAT_OFFSET,
-                HAT_U0, HAT_V0, HAT_U1, HAT_V1, packedLight);
+        addFaceQuad(consumer, poseStack, FACE_HALF, FACE_FORWARD + FACE_EPSILON,
+                BASE_U0, BASE_V0, BASE_U1, BASE_V1, packedLight);
+        if (player.isModelPartShown(PlayerModelPart.HAT)) {
+            addFaceQuad(consumer, poseStack, FACE_HALF + FACE_HAT_OFFSET, FACE_FORWARD + FACE_HAT_OFFSET,
+                    HAT_U0, HAT_V0, HAT_U1, HAT_V1, packedLight);
+        }
 
         poseStack.popPose();
     }

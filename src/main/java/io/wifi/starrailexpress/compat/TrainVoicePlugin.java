@@ -63,11 +63,13 @@ public class TrainVoicePlugin implements VoicechatPlugin {
         registration.registerEvent(ClientVoicechatConnectionEvent.class, event -> {
             CLIENT_API = event.getVoicechat();
         });
-        // 会议系统：语音活动 → 标记发言者（镜头对准正在说话的人）
+        // 会议系统：讨论阶段未举手的参会者不发出语音——否则所有人都能抢话。
+        // 本回调跑在 svc 的语音线程上，只允许读 MeetingManager 发布的不可变快照。
         registration.registerEvent(de.maxhenkel.voicechat.api.events.MicrophonePacketEvent.class, event -> {
             VoicechatConnection sender = event.getSenderConnection();
-            if (sender != null && sender.getPlayer() != null) {
-                net.exmo.sre.meeting.MeetingManager.onVoiceActivity(sender.getPlayer().getUuid());
+            if (sender != null && sender.getPlayer() != null
+                    && net.exmo.sre.meeting.MeetingManager.isVoiceMuted(sender.getPlayer().getUuid())) {
+                event.cancel();
             }
         });
     }

@@ -501,12 +501,6 @@ public class SREClient implements ClientModInitializer {
             hideLocalMainHandItemInLayer = isHandHiddenByEvent(player, mainHand, true);
             hideLocalOffHandItemInLayer = isHandHiddenByEvent(player, offHand, false);
         });
-        AllowOtherCameraType.EVENT.register((original, localplayer) -> {
-            if (SREClient.gameComponent!=null&&SREClient.gameComponent.gameMode== SREGameModes.CHAMELEON_MODE){
-                return AllowOtherCameraType.ReturnCameraType.THIRD_PERSON_BACK;
-            }
-            return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
-        });
         ItemTooltipCallback.EVENT.register(
                 (itemStack, tooltipContext, tooltipFlag, list) -> {
                     if (canThrowItems.contains(itemStack.getItem())) {
@@ -1003,7 +997,8 @@ public class SREClient implements ClientModInitializer {
             FourthRoomTableHud.render(guiGraphics);
 
             // Subtitle 字幕报幕
-            net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.render(guiGraphics, deltaTick.getRealtimeDeltaTicks());
+            net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.render(guiGraphics,
+                    deltaTick.getGameTimeDeltaPartialTick(false));
 
             // 滞时雷引爆倒计时 HUD
             io.wifi.starrailexpress.client.hud.TimedGrenadeHUD.render(guiGraphics, deltaTick.getRealtimeDeltaTicks());

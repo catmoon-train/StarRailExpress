@@ -297,6 +297,11 @@ public class HunterCageBlockEntity extends BlockEntity {
                 GameUtils.forceKillPlayer(target, true,
                         entry.captor != null ? serverLevel.getPlayerByUUID(entry.captor) : null,
                         ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "repair_trial_execution"));
+                // 处决被拦下（护盾、事件否决……）时把人放回倒地。否则他会停在"没倒地也没淘汰"
+                // 的状态里，胜负判定永远数不到全员失能，这一局就再也结束不了。
+                if (!GameUtils.isPlayerEliminated(target)) {
+                    RepairModeState.downPlayer(target);
+                }
                 onTrialExecuted(serverLevel, pos, entry, target);
                 entity.prisoners.remove(entry);
                 changed = true;

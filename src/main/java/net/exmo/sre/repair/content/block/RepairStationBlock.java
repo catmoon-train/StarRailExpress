@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.exmo.sre.repair.content.block_entity.RepairStationBlockEntity;
+import net.exmo.sre.repair.content.item.HunterJammerItem;
+import net.exmo.sre.repair.content.item.RepairBoostItem;
 import net.exmo.sre.repair.network.OpenRepairStationScreenS2CPacket;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +38,11 @@ public class RepairStationBlock extends BaseEntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hitResult) {
+        // 修机加速道具和干扰器都在自己的 useOn 里处理修机台。这里必须让行，
+        // 否则方块先把右键吃掉打开校准界面，物品的 useOn 根本没机会跑。
+        if (stack.getItem() instanceof RepairBoostItem || stack.getItem() instanceof HunterJammerItem) {
+            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        }
         openRepairGui(player, pos);
         return ItemInteractionResult.SUCCESS;
     }

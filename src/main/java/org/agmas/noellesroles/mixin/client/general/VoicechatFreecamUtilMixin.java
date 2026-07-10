@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class VoicechatFreecamUtilMixin {
     @Inject(method = "getReferencePoint", at = @At("HEAD"), cancellable = true, remap = false)
     private static void noellesroles$usePlayerAsVoiceReference(CallbackInfoReturnable<Vec3> cir) {
-        Vec3 listener = TwoDimensionalCameraClientHandle.voiceListenerPosition();
+        Vec3 listener = TwoDimensionalCameraClientHandle.listenerPosition();
         if (listener != null) {
             cir.setReturnValue(listener);
         }

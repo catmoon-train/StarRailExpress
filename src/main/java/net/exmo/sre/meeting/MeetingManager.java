@@ -24,7 +24,6 @@ import net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -64,8 +63,9 @@ import java.util.UUID;
  * <li>全体存活玩家被传送至会议地点，系统自动搜寻周围的椅子
  * （{@link MountableBlock}）并让玩家就座，多余的人围成一圈站立；</li>
  * <li>开场阶段客户端播放环绕运镜与标题动画（见 {@code MeetingClientHandler}）；</li>
- * <li>讨论阶段为狼人杀式发言：按发言键 / 在聊天栏说话 / 使用语音（svc）都会把
- * 自己标记为「发言中」，镜头自动对准发言者，允许多人同时发言；</li>
+ * <li>讨论阶段为狼人杀式发言：只有按发言键「举手」的玩家才持有发言权，镜头自动对准
+ * 发言者，允许多人同时举手；未举手的参会者语音会被静音（见 {@link #isVoiceMuted}），
+ * 否则所有人都能出声、镜头也会在人群间反复跳变；</li>
  * <li>讨论期间禁止移动 / 攻击 / 技能，任何死亡一律否决；</li>
  * <li>时间到后全员原路返回。</li>
  * </ol>
@@ -75,10 +75,6 @@ public final class MeetingManager {
 
     /** 开场运镜时长（tick）。 */
     public static final int INTRO_TICKS = 70;
-    /** 聊天发言的“发言中”标记保持时长（tick）。 */
-    private static final int CHAT_SPEAK_TICKS = 80;
-    /** 语音活动的“发言中”标记保持时长（tick）。 */
-    private static final int VOICE_SPEAK_TICKS = 15;
 
     public static final int PHASE_NONE = 0;
     public static final int PHASE_INTRO = 1;
@@ -99,7 +95,13 @@ public final class MeetingManager {
     private static final Map<UUID, ReturnPos> participants = new LinkedHashMap<>();
     private static final List<Integer> seatEntityIds = new ArrayList<>();
     private static final Set<UUID> manualSpeakers = new LinkedHashSet<>();
-    private static final Map<UUID, Long> transientSpeakers = new HashMap<>();
+    /**
+     * 被静音的参会者快照：讨论阶段中未举手的人。
+     * 由主线程在 {@link #refreshVoiceMuted()} 里整体替换为新的不可变集合，
+     * svc 的语音线程只读它（{@link #isVoiceMuted}）—— 绝不能让语音线程直接碰
+     * {@link #participants} / {@link #manualSpeakers} 这两个主线程集合。
+     */
+    private static volatile Set<UUID> voiceMuted = Set.of();
     /** 举手发言冷却：玩家 UUID → 可再次举手发言的游戏刻。 */
     private static final Map<UUID, Long> speakCooldownUntil = new HashMap<>();
     private static List<UUID> lastSyncedSpeakers = List.of();
@@ -158,21 +160,12 @@ public final class MeetingManager {
             UUID uuid = handler.player.getUUID();
             participants.remove(uuid);
             manualSpeakers.remove(uuid);
-            transientSpeakers.remove(uuid);
+            refreshVoiceMuted();
         });
 
         // 会议期间否决一切死亡（forceKill 除外）
         AllowPlayerDeath.EVENT.register((player, deathReason) -> !isActive());
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> !isActive());
-
-        // 聊天栏发言 → 标记为发言中（消息照常放行）
-        ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) -> {
-            if (isActive() && phase == PHASE_DISCUSS && participants.containsKey(sender.getUUID())) {
-                transientSpeakers.put(sender.getUUID(),
-                        sender.level().getGameTime() + CHAT_SPEAK_TICKS);
-            }
-            return true;
-        });
     }
 
     public static boolean isActive() {
@@ -274,7 +267,6 @@ public final class MeetingManager {
         participants.clear();
         seatEntityIds.clear();
         manualSpeakers.clear();
-        transientSpeakers.clear();
         speakCooldownUntil.clear();
         lastSyncedSpeakers = List.of();
 
@@ -361,7 +353,6 @@ public final class MeetingManager {
         participants.clear();
         seatEntityIds.clear();
         manualSpeakers.clear();
-        transientSpeakers.clear();
         lastSyncedSpeakers = List.of();
         if (!silent) {
             for (ServerPlayer player : serverLevel.players()) {
@@ -405,14 +396,30 @@ public final class MeetingManager {
         } else {
             manualSpeakers.remove(uuid);
         }
+        refreshVoiceMuted();
     }
 
-    /** svc 语音活动回调（见 TrainVoicePlugin 的 MicrophonePacketEvent 挂钩）。 */
-    public static void onVoiceActivity(UUID uuid) {
-        if (!isActive() || phase != PHASE_DISCUSS || !participants.containsKey(uuid) || level == null) {
+    /**
+     * 重算 {@link #voiceMuted}。只在服务端主线程调用；发布的是不可变副本，
+     * 语音线程读到的要么是旧集合要么是新集合，不会看到半个集合。
+     */
+    private static void refreshVoiceMuted() {
+        if (phase != PHASE_DISCUSS) {
+            voiceMuted = Set.of();
             return;
         }
-        transientSpeakers.put(uuid, level.getGameTime() + VOICE_SPEAK_TICKS);
+        Set<UUID> muted = new HashSet<>(participants.keySet());
+        muted.removeAll(manualSpeakers);
+        voiceMuted = Set.copyOf(muted);
+    }
+
+    /**
+     * 讨论阶段中该玩家是否应被静音（未举手发言）。
+     * 由 svc 的 {@code MicrophonePacketEvent} 在语音线程调用（见 {@code TrainVoicePlugin}），
+     * 因此只读 {@link #voiceMuted} 这份不可变快照。
+     */
+    public static boolean isVoiceMuted(UUID uuid) {
+        return voiceMuted.contains(uuid);
     }
 
     // ==================== Tick ====================
@@ -432,7 +439,6 @@ public final class MeetingManager {
             return;
         }
         if (phase == PHASE_DISCUSS) {
-            transientSpeakers.entrySet().removeIf(entry -> now >= entry.getValue());
             List<UUID> speakers = currentSpeakers();
             if (!speakers.equals(lastSyncedSpeakers) && now % 3 == 0) {
                 lastSyncedSpeakers = speakers;
@@ -454,14 +460,9 @@ public final class MeetingManager {
         }
     }
 
+    /** 当前持有发言权的玩家（举手者）。顺序随 {@link #manualSpeakers} 的插入序稳定，镜头不会因排序抖动。 */
     private static List<UUID> currentSpeakers() {
-        List<UUID> speakers = new ArrayList<>(manualSpeakers);
-        for (UUID uuid : transientSpeakers.keySet()) {
-            if (!speakers.contains(uuid)) {
-                speakers.add(uuid);
-            }
-        }
-        return speakers;
+        return List.copyOf(manualSpeakers);
     }
 
     // ==================== 场景构建 ====================
@@ -512,6 +513,8 @@ public final class MeetingManager {
     // ==================== 同步 ====================
 
     private static void broadcastState(ServerLevel serverLevel) {
+        // 每次状态变化（开会 / 换阶段 / 举手变动 / 散会）都同步刷新语音静音名单。
+        refreshVoiceMuted();
         MeetingStateS2CPayload payload = new MeetingStateS2CPayload(
                 phase, center.x, center.y, center.z, phaseEndTick,
                 reporterName, victimName,

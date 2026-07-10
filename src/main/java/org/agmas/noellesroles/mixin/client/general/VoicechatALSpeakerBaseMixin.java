@@ -20,7 +20,7 @@ public class VoicechatALSpeakerBaseMixin {
                     shift = At.Shift.AFTER),
             remap = false)
     private void noellesroles$usePlayerAsOpenALListener(Vec3 soundPosition, float distance, CallbackInfo ci) {
-        Vec3 listener = TwoDimensionalCameraClientHandle.voiceListenerPosition();
+        Vec3 listener = TwoDimensionalCameraClientHandle.listenerPosition();
         if (listener == null) {
             return;
         }

@@ -121,6 +121,7 @@ public final class FourthRoomPeekDeckScreen extends Screen {
             graphics.drawString(font, lines.get(index), left + 10, textY, 0xFF382F27, false);
             textY += 11;
         }
+        graphics.pose().popPose();
     }
 
     private void drawPanel(GuiGraphics graphics, int x, int y, int width, int height, int fill, int border) {

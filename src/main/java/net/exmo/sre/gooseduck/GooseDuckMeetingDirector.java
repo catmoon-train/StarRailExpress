@@ -29,10 +29,11 @@ import java.util.UUID;
  * 本类不改动会议内核，仅在游戏模式的服务端 tick 中<b>轮询</b>会议状态
  * （{@link MeetingApi#isMeetingActive()}）来做两件事：
  * <ol>
- *   <li><b>会议现场效果</b>：给全体参会者叠加 {@code ModEffects} 中的
- *       <b>2D 俯视视角</b>（{@link ModEffects#TWO_DIMENSIONAL_CAMERA} 等级 4 + 视距）
- *       以及若干辅助效果——<b>冻结技能</b>（{@link ModEffects#SKILL_FREEZED}，暂停技能 / 冷却 tick）、
- *       安全时间（{@link ModEffects#SAFE_TIME}）、心情免疫（{@link ModEffects#MOOD_DRAIN_IMMUNITY}）；</li>
+ *   <li><b>会议现场效果</b>：给全体参会者叠加 <b>冻结技能</b>（{@link ModEffects#SKILL_FREEZED}，
+ *       暂停技能 / 冷却 tick）、安全时间（{@link ModEffects#SAFE_TIME}）、
+ *       心情免疫（{@link ModEffects#MOOD_DRAIN_IMMUNITY}）。
+ *       2D 俯视 / 指针 / 箱庭视野属于全局视角，开局即由 {@link GooseGooseDuckGameMode} 施加并全程维持，
+ *       本类不再重复处理；</li>
  *   <li><b>放逐投票</b>：用既有的 {@link VoteManager 投票系统} 发起放逐投票，会议结束（或投票倒计时到）时
  *       结算票数，放逐得票唯一最高者，并公布其身份（鹅 / 鸭）。</li>
  * </ol>
@@ -40,10 +41,6 @@ import java.util.UUID;
  */
 public final class GooseDuckMeetingDirector {
     private static final int EFFECT_DURATION_TICKS = 60;
-    /** 2D 视角：4 = 上方俯视（2.5D），最适合围坐讨论的会议现场。 */
-    private static final int TWO_D_OVERHEAD_AMPLIFIER = 4;
-    /** 2D 视距：等级越高相机拉得越远，看清全场。 */
-    private static final int TWO_D_DISTANCE_AMPLIFIER = 2;
     private static final String EJECT_PREFIX = "eject:";
 
     private static boolean meetingWasActive = false;
@@ -95,12 +92,6 @@ public final class GooseDuckMeetingDirector {
     }
 
     private static void applyMeetingEffects(ServerPlayer player) {
-        addEffect(player, ModEffects.TWO_DIMENSIONAL_CAMERA, TWO_D_OVERHEAD_AMPLIFIER);
-        addEffect(player, ModEffects.TWO_DIMENSIONAL_CAMERA_DISTANCE, TWO_D_DISTANCE_AMPLIFIER);
-        // 箱庭视野：以区块网格级的方块剔除精确移除玩家所在房间的屋顶 / 近墙，
-        // 让 2D 俯视能直接俯瞰全场。它是 2D 视角遮挡剔除的正解——永不产生「一片虚空」
-        // （未封闭房间会被判为 outside 从而完整渲染），取代早期脆弱的近裁剪面平面裁剪。
-        addEffect(player, ModEffects.HAKONIWA_VISION, 0);
         addEffect(player, ModEffects.SKILL_FREEZED, 0);
         addEffect(player, ModEffects.SAFE_TIME, 0);
         addEffect(player, ModEffects.MOOD_DRAIN_IMMUNITY, 0);
@@ -112,9 +103,6 @@ public final class GooseDuckMeetingDirector {
 
     private static void clearMeetingEffects(ServerLevel level) {
         for (ServerPlayer player : level.players()) {
-            player.removeEffect(ModEffects.TWO_DIMENSIONAL_CAMERA);
-            player.removeEffect(ModEffects.TWO_DIMENSIONAL_CAMERA_DISTANCE);
-            player.removeEffect(ModEffects.HAKONIWA_VISION);
             player.removeEffect(ModEffects.SKILL_FREEZED);
             player.removeEffect(ModEffects.SAFE_TIME);
             player.removeEffect(ModEffects.MOOD_DRAIN_IMMUNITY);

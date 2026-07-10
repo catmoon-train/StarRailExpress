@@ -33,6 +33,7 @@ public class SubtitleHUD {
     private static final int DEFAULT_FADE_IN_TICKS  = 12;
     private static final int DEFAULT_FADE_OUT_TICKS = 18;
     private static final int TYPEWRITER_SPEED       = 2;
+    private static final Component TYPEWRITER_CURSOR = Component.literal("|");
 
     private static final int PANEL_TOP = 0xC0101218;
     private static final int PANEL_BOTTOM = 0xA006080D;
@@ -85,11 +86,7 @@ public class SubtitleHUD {
 
     public void tick() {
         if (current == null) {
-            if (!queue.isEmpty()) {
-                current = queue.pollFirst();
-                tick = 0;
-                visibleChars = 0;
-            }
+            advance();
             return;
         }
 
@@ -104,12 +101,16 @@ public class SubtitleHUD {
             }
         }
 
-        int totalTicks = current.fadeInTicks + current.durationTicks + current.fadeOutTicks;
-        if (tick >= totalTicks) {
-            current = null;
-            tick = 0;
-            visibleChars = 0;
+        // 到时立刻取下一条，避免两条字幕之间空一 tick。
+        if (tick >= current.totalTicks()) {
+            advance();
         }
+    }
+
+    private void advance() {
+        current = queue.pollFirst();
+        tick = 0;
+        visibleChars = 0;
     }
 
     /**
@@ -134,21 +135,33 @@ public class SubtitleHUD {
         float mainScale = isSmallFont ? 1.15f : 2.0f;
         float subScale  = isSmallFont ? 0.82f : 1.0f;
 
-        float age = tick + Mth.clamp(partialTicks, 0.0f, 1.0f);
-        float alpha = computeAlpha(age);
-        if (alpha <= 0.01f) return;
+        int totalTicks = current.totalTicks();
+        // tick 在 >= totalTicks 时就被回收，所以 age 最多刚好落在 totalTicks 上（退场恰好收敛到 0）。
+        float age = Math.min(tick + Mth.clamp(partialTicks, 0.0f, 1.0f), totalTicks);
+
         float intro = easeOutCubic(Mth.clamp(age / current.fadeInTicks, 0.0f, 1.0f));
-        float totalTicks = current.fadeInTicks + current.durationTicks + current.fadeOutTicks;
-        float outro = easeInCubic(Mth.clamp((totalTicks - age) / current.fadeOutTicks, 0.0f, 1.0f));
+        // 退场进度 0→1，用 easeInOut 反相：两端导数为 0，既不会在退场瞬间突然掉速，也不会末尾硬切。
+        float exitProgress = Mth.clamp(
+                (age - current.fadeInTicks - current.durationTicks) / current.fadeOutTicks, 0.0f, 1.0f);
+        float outro = 1.0f - easeInOutCubic(exitProgress);
         float settle = Math.min(intro, outro);
 
+        float alpha = intro * outro;
+        if (alpha <= 0.004f) return;
+
+        // 打字机逐字变宽会让底衬一格一格地跳，所以布局一律按完整文本量，宽度全程恒定。
+        Component mainMeasureText = current.mainText != null ? current.mainText : Component.empty();
         Component mainDisplayText = getMainDisplayText();
         Component subDisplayText = current.subText;
 
-        if ((mainDisplayText == null || mainDisplayText.getString().isEmpty())
-                && (subDisplayText == null || subDisplayText.getString().isEmpty())) {
-            return;
-        }
+        boolean hasMainBox = !mainMeasureText.getString().isEmpty();
+        boolean hasSub  = subDisplayText != null && !subDisplayText.getString().isEmpty();
+        if (!hasMainBox && !hasSub) return;
+
+        boolean hasMain = !mainDisplayText.getString().isEmpty();
+        boolean showCursor = current.typewriter
+                && visibleChars < mainMeasureText.getString().length()
+                && (tick / 6) % 2 == 0;
 
         int textColor = normalizeColor(current.color != 0 ? current.color : 0xFFFFFFFF);
         int mainColor = applyAlpha(textColor, alpha);
@@ -156,25 +169,22 @@ public class SubtitleHUD {
                 ? applyAlpha(mixColor(textColor, TEXT_SECONDARY, 0.42f), alpha * 0.86f)
                 : applyAlpha(TEXT_SECONDARY, alpha * 0.9f);
 
-        boolean hasMain = mainDisplayText != null && !mainDisplayText.getString().isEmpty();
-        boolean hasSub  = subDisplayText != null && !subDisplayText.getString().isEmpty();
-
-        int mainWidth  = hasMain ? (int)(font.width(mainDisplayText) * mainScale) : 0;
-        int subWidth   = hasSub  ? (int)(font.width(subDisplayText) * subScale) : 0;
+        int mainWidth  = hasMainBox ? (int)(font.width(mainMeasureText) * mainScale) : 0;
+        int subWidth   = hasSub     ? (int)(font.width(subDisplayText) * subScale) : 0;
         int maxWidth   = Math.max(mainWidth, subWidth);
         int maxContentWidth = screenWidth - (isSmallFont ? 56 : 88);
         if (maxWidth > maxContentWidth && maxContentWidth > 0) {
             float widthScale = maxContentWidth / (float) maxWidth;
             mainScale *= widthScale;
             subScale *= widthScale;
-            mainWidth = hasMain ? (int)(font.width(mainDisplayText) * mainScale) : 0;
+            mainWidth = hasMainBox ? (int)(font.width(mainMeasureText) * mainScale) : 0;
             subWidth = hasSub ? (int)(font.width(subDisplayText) * subScale) : 0;
             maxWidth = Math.max(mainWidth, subWidth);
         }
 
-        float mainHeight = hasMain ? (9f * mainScale) : 0;
-        float subHeight  = hasSub  ? (9f * subScale) : 0;
-        float gap        = hasMain && hasSub ? (isSmallFont ? 4f : 7f) : 0;
+        float mainHeight = hasMainBox ? (9f * mainScale) : 0;
+        float subHeight  = hasSub     ? (9f * subScale) : 0;
+        float gap        = hasMainBox && hasSub ? (isSmallFont ? 4f : 7f) : 0;
         float totalHeight = mainHeight + gap + subHeight;
         int paddingX = isSmallFont ? COMPACT_PADDING_X : CENTER_PADDING_X;
         int paddingY = isSmallFont ? COMPACT_PADDING_Y : CENTER_PADDING_Y;
@@ -213,11 +223,19 @@ public class SubtitleHUD {
             drawPanel(guiGraphics, bgX, bgY, bgW, bgH, alpha, accent, isSmallFont);
         }
 
-        if (hasMain) {
+        // 居中偏移放在 scale 之后用浮点 translate 做，避免 -width/2 的整数除法在文本宽度奇偶变化时抖半像素。
+        // 光标不参与居中，否则每次闪烁整行都要左右挪半个光标宽。
+        if (hasMain || showCursor) {
+            int typedWidth = hasMain ? font.width(mainDisplayText) : 0;
             pose.pushPose();
-            pose.translate(0, 0, 0);
             pose.scale(mainScale, mainScale, 1f);
-            guiGraphics.drawString(font, mainDisplayText, -font.width(mainDisplayText) / 2, 0, mainColor, true);
+            pose.translate(-typedWidth / 2f, 0f, 0f);
+            if (hasMain) {
+                guiGraphics.drawString(font, mainDisplayText, 0, 0, mainColor, true);
+            }
+            if (showCursor) {
+                guiGraphics.drawString(font, TYPEWRITER_CURSOR, typedWidth + 1, 0, mainColor, true);
+            }
             pose.popPose();
         }
 
@@ -225,7 +243,8 @@ public class SubtitleHUD {
             pose.pushPose();
             pose.translate(0, mainHeight + gap, 0);
             pose.scale(subScale, subScale, 1f);
-            guiGraphics.drawString(font, subDisplayText, -font.width(subDisplayText) / 2, 0, subColor, true);
+            pose.translate(-font.width(subDisplayText) / 2f, 0f, 0f);
+            guiGraphics.drawString(font, subDisplayText, 0, 0, subColor, true);
             pose.popPose();
         }
 
@@ -233,21 +252,6 @@ public class SubtitleHUD {
     }
 
     // ==================== 内部方法 ====================
-
-    private float computeAlpha(float age) {
-        int fadeIn  = current.fadeInTicks;
-        int dur     = current.durationTicks;
-        int fadeOut = current.fadeOutTicks;
-
-        if (age < fadeIn) {
-            return easeOutCubic(Mth.clamp(age / fadeIn, 0f, 1f));
-        } else if (age < fadeIn + dur) {
-            return 1f;
-        } else {
-            float exitTick = age - fadeIn - dur;
-            return easeInCubic(Mth.clamp(1f - exitTick / fadeOut, 0f, 1f));
-        }
-    }
 
     private void drawPanel(GuiGraphics guiGraphics, int x, int y, int w, int h,
                            float alpha, int accent, boolean compact) {
@@ -268,9 +272,7 @@ public class SubtitleHUD {
         if (!current.typewriter) return current.mainText;
 
         String full = current.mainText.getString();
-        int len = Math.min(visibleChars, full.length());
-        boolean cursor = len < full.length() && ((tick / 6) % 2 == 0);
-        return Component.literal(full.substring(0, len) + (cursor ? "|" : ""));
+        return Component.literal(full.substring(0, Math.min(visibleChars, full.length())));
     }
 
     private static int applyAlpha(int color, float alpha) {
@@ -307,8 +309,12 @@ public class SubtitleHUD {
         return 1.0f - inv * inv * inv;
     }
 
-    private static float easeInCubic(float t) {
-        return t * t * t;
+    private static float easeInOutCubic(float t) {
+        if (t < 0.5f) {
+            return 4.0f * t * t * t;
+        }
+        float inv = -2.0f * t + 2.0f;
+        return 1.0f - (inv * inv * inv) / 2.0f;
     }
 
     // ==================== 字幕数据类 ====================
@@ -350,6 +356,10 @@ public class SubtitleHUD {
             this.typewriter     = typewriter;
             this.screenPosition = screenPosition;
             this.showBackground = showBackground;
+        }
+
+        public int totalTicks() {
+            return fadeInTicks + durationTicks + fadeOutTicks;
         }
     }
 }

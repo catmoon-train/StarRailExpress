@@ -72,6 +72,7 @@ public class RepairRole extends NormalRole{
         entries.add(shopItem(ModItems.REPAIR_TOOLBOX, 120, ShopEntry.Type.TOOL));
         entries.add(shopItem(ModItems.SPARE_PARTS, 48, ShopEntry.Type.TOOL));
         entries.add(shopItem(ModItems.FLARE, 48, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.RESCUE_FLARE, 80, ShopEntry.Type.TOOL));
 
         entries.add(shopItem(ModItems.REPAIR_BOLT_CUTTER, 160, ShopEntry.Type.TOOL));
         entries.add(shopItem(ModItems.EMF_READER, 55, ShopEntry.Type.TOOL));
@@ -117,6 +118,7 @@ public class RepairRole extends NormalRole{
     private List<ShopEntry> runnerShop() {
         List<ShopEntry> entries = new ArrayList<>();
         entries.add(shopItem(ModItems.ESCAPE_GRAPPLE, 160, ShopEntry.Type.TOOL));
+        entries.add(shopItem(ModItems.RESCUE_FLARE, 80, ShopEntry.Type.TOOL));
         entries.add(shopItem(ModItems.SANITY_MEDS, 50, ShopEntry.Type.TOOL));
         entries.add(shopItem(ModItems.SMOKE_PELLET, 48, ShopEntry.Type.TOOL));
         entries.add(shopItem(ModItems.DECOY_BEACON, 88, ShopEntry.Type.TOOL));
@@ -223,6 +225,7 @@ public class RepairRole extends NormalRole{
             entries.add(shopItem(ModItems.SMOKE_PELLET, 18, ShopEntry.Type.TOOL));
             entries.add(shopItem(ModItems.SPARE_PARTS, 15, ShopEntry.Type.TOOL));
             entries.add(shopItem(ModItems.SANITY_MEDS, 20, ShopEntry.Type.TOOL));
+            entries.add(shopItem(ModItems.RESCUE_FLARE, 80, ShopEntry.Type.TOOL));
             return entries;
         }
     }

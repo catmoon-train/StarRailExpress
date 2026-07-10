@@ -211,10 +211,9 @@ public final class PointerClientHandle {
             return null;
         }
 
-        double startOffset = TwoDimensionalCameraClientHandle.isActive()
-                ? TwoDimensionalCameraClientHandle.foregroundClipDistance()
-                : 0.05D;
-        Vec3 rayStart = cameraPos.add(direction.scale(startOffset));
+        // 从镜头近裁剪面起步即可：被隐藏的方块（屋顶 / 近墙 / 二楼）由下面的 HakoniwaClipContext
+        // 判成空体素，射线不会打在看不见的东西上。
+        Vec3 rayStart = cameraPos.add(direction.scale(0.05D));
         Vec3 rayEnd = cameraPos.add(direction.scale(POINTER_RANGE));
 
         // 被箱庭视野剔除的方块（已隐藏的屋顶 / 二楼）对射线透明，否则指针会打在看不见的东西上。
