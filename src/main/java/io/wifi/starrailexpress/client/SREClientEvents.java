@@ -304,12 +304,14 @@ public class SREClientEvents {
                 context.pose().translate(context.guiWidth() / 2.0f, context.guiHeight() / 2.0f + 24.0f, 0.0f);
                 context.pose().scale(0.6f, 0.6f, 1.0f);
                 if (wayC.phase != 0) {
+                    context.pose().popPose();
                     return;
                 }
                 Component status = Component.translatable("hud.noellesroles.wayfarer.select");
 
                 WayfarerPlayerComponent nc = WayfarerPlayerComponent.KEY.get(player);
                 if (nc.phase > 1) {
+                    context.pose().popPose();
                     return;
                 }
                 context.drawString(font, status, -font.width(status) / 2, 32, 0x9457ff);

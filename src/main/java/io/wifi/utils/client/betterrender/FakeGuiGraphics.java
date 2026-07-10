@@ -1,6 +1,8 @@
 package io.wifi.utils.client.betterrender;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,8 +26,9 @@ import java.util.Optional;
  * FakeGuiGraphics — perfect drop-in replacement for GuiGraphics.
  *
  * <p>
- * All methods delegate to the wrapped real GuiGraphics, but with tick-rate caching
- * for optimized rendering. Draw calls are batched and submitted in a single GPU 
+ * All methods delegate to the wrapped real GuiGraphics, but with tick-rate
+ * caching
+ * for optimized rendering. Draw calls are batched and submitted in a single GPU
  * draw call at the end of Gui.render() by GuiRenderMixin.
  *
  * <h2>Usage</h2>
@@ -46,6 +49,7 @@ import java.util.Optional;
  */
 public class FakeGuiGraphics {
 
+    public static int trackCount = 0;
     // ── Shared renderer (one per class, not per instance) ─────────────────────
     private static final OptimizedTextRenderer textRenderer = OptimizedTextRenderer.INSTANCE;
 
@@ -142,6 +146,9 @@ public class FakeGuiGraphics {
     // ── Geometry ──────────────────────────────────────────────────────────────
 
     public PoseStack pose() {
+        if (trackCount > 0) {
+            SRE.LOGGER.info("[Track] Pose ", new Throwable());
+        }
         return real.pose();
     }
 
@@ -250,9 +257,11 @@ public class FakeGuiGraphics {
 
     /**
      * Blit with width/height and UV region - used by PlayerFaceRenderer.
-     * Signature: blit(texture, x, y, width, height, u, v, uWidth, vHeight, texWidth, texHeight)
+     * Signature: blit(texture, x, y, width, height, u, v, uWidth, vHeight,
+     * texWidth, texHeight)
      */
-    public void blit(ResourceLocation loc, int x, int y, int w, int h, float u, float v, int uw, int vh, int tw, int th) {
+    public void blit(ResourceLocation loc, int x, int y, int w, int h, float u, float v, int uw, int vh, int tw,
+            int th) {
         textRenderer.enqueueBlitResourceRegion(real, loc, x, y, w, h, u, v, uw, vh, tw, th);
     }
 
@@ -360,9 +369,12 @@ public class FakeGuiGraphics {
     private static final int SKIN_TEX_HEIGHT = 64;
 
     /**
-     * Draw a player face (head + hat layer) - optimized replacement for PlayerFaceRenderer.draw().
+     * Draw a player face (head + hat layer) - optimized replacement for
+     * PlayerFaceRenderer.draw().
      * 
-     * <p>Usage:
+     * <p>
+     * Usage:
+     * 
      * <pre>{@code
      * // Instead of:
      * PlayerFaceRenderer.draw(guiGraphics, skinTexture, x, y, size);
@@ -372,9 +384,9 @@ public class FakeGuiGraphics {
      * }</pre>
      * 
      * @param skinTexture the player skin texture
-     * @param x the x position
-     * @param y the y position
-     * @param size the size (width and height) of the face
+     * @param x           the x position
+     * @param y           the y position
+     * @param size        the size (width and height) of the face
      */
     public void drawPlayerFace(ResourceLocation skinTexture, int x, int y, int size) {
         drawPlayerFace(skinTexture, x, y, size, true, false);
@@ -384,33 +396,33 @@ public class FakeGuiGraphics {
      * Draw a player face with options for hat layer and mirroring.
      * 
      * @param skinTexture the player skin texture
-     * @param x the x position
-     * @param y the y position
-     * @param size the size (width and height) of the face
-     * @param drawHat whether to draw the hat layer
-     * @param upsideDown whether to flip the face vertically
+     * @param x           the x position
+     * @param y           the y position
+     * @param size        the size (width and height) of the face
+     * @param drawHat     whether to draw the hat layer
+     * @param upsideDown  whether to flip the face vertically
      */
-    public void drawPlayerFace(ResourceLocation skinTexture, int x, int y, int size, 
-                                boolean drawHat, boolean upsideDown) {
+    public void drawPlayerFace(ResourceLocation skinTexture, int x, int y, int size,
+            boolean drawHat, boolean upsideDown) {
         int vOffset = SKIN_HEAD_V + (upsideDown ? SKIN_HEAD_HEIGHT : 0);
         int vHeight = SKIN_HEAD_HEIGHT * (upsideDown ? -1 : 1);
-        
+
         // Draw head base layer
-        blit(skinTexture, x, y, size, size, 
-             (float) SKIN_HEAD_U, (float) vOffset, 
-             SKIN_HEAD_WIDTH, vHeight, 
-             SKIN_TEX_WIDTH, SKIN_TEX_HEIGHT);
-        
+        blit(skinTexture, x, y, size, size,
+                (float) SKIN_HEAD_U, (float) vOffset,
+                SKIN_HEAD_WIDTH, vHeight,
+                SKIN_TEX_WIDTH, SKIN_TEX_HEIGHT);
+
         // Draw hat overlay layer
         if (drawHat) {
             int hatVOffset = SKIN_HAT_V + (upsideDown ? SKIN_HEAD_HEIGHT : 0);
             int hatVHeight = SKIN_HEAD_HEIGHT * (upsideDown ? -1 : 1);
-            
+
             // Note: The hat layer uses blend, handled by the blit action
             blit(skinTexture, x, y, size, size,
-                 (float) SKIN_HAT_U, (float) hatVOffset,
-                 SKIN_HEAD_WIDTH, hatVHeight,
-                 SKIN_TEX_WIDTH, SKIN_TEX_HEIGHT);
+                    (float) SKIN_HAT_U, (float) hatVOffset,
+                    SKIN_HEAD_WIDTH, hatVHeight,
+                    SKIN_TEX_WIDTH, SKIN_TEX_HEIGHT);
         }
     }
 
@@ -418,8 +430,8 @@ public class FakeGuiGraphics {
      * Draw a player face from PlayerSkin - convenience method.
      * 
      * @param skin the player skin
-     * @param x the x position
-     * @param y the y position
+     * @param x    the x position
+     * @param y    the y position
      * @param size the size (width and height) of the face
      */
     public void drawPlayerFace(net.minecraft.client.resources.PlayerSkin skin, int x, int y, int size) {

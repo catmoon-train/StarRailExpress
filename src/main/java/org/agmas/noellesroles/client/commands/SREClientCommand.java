@@ -5,6 +5,7 @@ import io.wifi.ConfigCompact.ui.TestScreen;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.NewspaperScreen;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
+import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
@@ -12,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.screen.GameManagementScreen;
 
 import com.google.gson.GsonBuilder;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +46,13 @@ public class SREClientCommand {
                           })))
               .then(ClientCommandManager.literal("debug")
                   .requires(ctx -> ctx.hasPermission(2))
+                  .then(ClientCommandManager.literal("track_pose")
+                      .then(ClientCommandManager.argument("count", IntegerArgumentType.integer(0, 1024))
+                          .executes((ctx) -> {
+                            int count = IntegerArgumentType.getInteger(ctx, "count");
+                            FakeGuiGraphics.trackCount = count;
+                            return 0;
+                          })))
                   .then(ClientCommandManager.literal("client_area_config")
                       .executes((ctx) -> {
                         var key = AreasWorldComponent.KEY.get(ctx.getSource().getWorld());

@@ -23,16 +23,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * and the cached entries from the last tick are replayed instead.
  * 
  * <h2>FakeHudRenderCallback Integration:</h2>
- * This mixin now invokes {@link FakeHudRenderCallback} INSIDE the frame lifecycle,
- * guaranteeing that all rendering is properly batched. This fixes the font rendering
+ * This mixin now invokes {@link FakeHudRenderCallback} INSIDE the frame
+ * lifecycle,
+ * guaranteeing that all rendering is properly batched. This fixes the font
+ * rendering
  * issue where text would randomly disappear because Fabric's HudRenderCallback
  * could fire outside our frame boundaries.
  */
 @Mixin(Gui.class)
 public class GuiRenderMixin {
 
-    @Shadow @Final private Minecraft minecraft;
-    
+    @Shadow
+    @Final
+    private Minecraft minecraft;
+
     @Unique
     private FakeGuiGraphics sre$fakeGuiGraphics;
 
@@ -50,8 +54,9 @@ public class GuiRenderMixin {
         if (FakeHudRenderCallback.EVENT.hasCallbacks() && !minecraft.options.hideGui) {
             FakeHudRenderCallback.EVENT.invoke(sre$fakeGuiGraphics, partialTick);
         }
-        
+
         OptimizedTextRenderer.INSTANCE.endFrame();
+        FakeGuiGraphics.trackCount--;
         sre$fakeGuiGraphics = null;
     }
 }

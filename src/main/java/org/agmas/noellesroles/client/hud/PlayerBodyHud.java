@@ -250,7 +250,7 @@ public class PlayerBodyHud {
                         roleInfo = Component.translatable("hud.coroner.body.killer", killerName)
                                 .withColor(CommonColors.RED);
                     } else {
-                        roleInfo = Component.translatable("hud.coroner.body.no_killer") 
+                        roleInfo = Component.translatable("hud.coroner.body.no_killer")
                                 .withColor(CommonColors.RED);
                     }
                     context.drawString(renderer, roleInfo, -renderer.width(roleInfo) / 2, 64, CommonColors.WHITE);
@@ -315,6 +315,8 @@ public class PlayerBodyHud {
                 tickCounter, font) -> {
             HitResult line = ProjectileUtil.getHitResultOnViewVector(player,
                     (entity) -> entity instanceof PlayerBodyEntity || entity instanceof Player, (double) range);
+            NoellesrolesClient.targetBody = null;
+            NoellesrolesClient.targetPlayer = null;
             targetBody = null;
             targetFakeBody = null;
             if (line instanceof EntityHitResult ehr) {
