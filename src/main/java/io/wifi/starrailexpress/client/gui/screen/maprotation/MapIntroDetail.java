@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.client.gui.screen.MapSpecialRoleLines;
 import io.wifi.starrailexpress.network.MapIntroSyncPayload;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -63,14 +64,14 @@ public final class MapIntroDetail {
 
         if (special != null) {
             sink.section("map_intro.section.special_roles");
-            boolean any = false;
-            any |= sink.ifContains(special.bag(), id, "map_intro.special.bag");
-            any |= sink.ifContains(special.underwater(), id, "map_intro.special.underwater");
-            any |= sink.ifContains(special.police(), id, "map_intro.special.police");
-            any |= sink.ifContains(special.air(), id, "map_intro.special.air");
-            any |= sink.ifContains(special.trap(), id, "map_intro.special.trap");
-            if (!any) {
+            List<Component> specialLines = MapSpecialRoleLines.build(id, special.bag(), special.police(),
+                    special.underwater(), special.air(), special.trap(), json);
+            if (specialLines.isEmpty()) {
                 sink.wrapped(Component.translatable("map_intro.special.none").withStyle(ChatFormatting.GRAY));
+            } else {
+                for (Component specialLine : specialLines) {
+                    sink.wrapped(specialLine);
+                }
             }
             sink.blank();
         }

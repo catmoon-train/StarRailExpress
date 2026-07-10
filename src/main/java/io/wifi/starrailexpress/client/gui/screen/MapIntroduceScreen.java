@@ -217,14 +217,14 @@ public class MapIntroduceScreen extends Screen {
             addBlank();
         }
         addSection("map_intro.section.special_roles", wrapW);
-        boolean anySpecial = false;
-        anySpecial |= addIfContains(bagMaps, map.id, "map_intro.special.bag", wrapW);
-        anySpecial |= addIfContains(underwaterMaps, map.id, "map_intro.special.underwater", wrapW);
-        anySpecial |= addIfContains(policeMaps, map.id, "map_intro.special.police", wrapW);
-        anySpecial |= addIfContains(airMaps, map.id, "map_intro.special.air", wrapW);
-        anySpecial |= addIfContains(trapMaps, map.id, "map_intro.special.trap", wrapW);
-        if (!anySpecial) {
+        List<Component> specialLines = MapSpecialRoleLines.build(map.id, bagMaps, policeMaps,
+                underwaterMaps, airMaps, trapMaps, map.json);
+        if (specialLines.isEmpty()) {
             addWrapped(Component.translatable("map_intro.special.none").withStyle(ChatFormatting.GRAY), wrapW);
+        } else {
+            for (Component specialLine : specialLines) {
+                addWrapped(specialLine, wrapW);
+            }
         }
         addBlank();
         addSection("map_intro.section.properties", wrapW);

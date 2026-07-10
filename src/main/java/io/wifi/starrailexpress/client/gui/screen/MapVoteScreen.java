@@ -278,16 +278,16 @@ public class MapVoteScreen extends Screen {
             addBlank();
         }
 
-        // 特殊角色标记
+        // 特殊角色标记（按 setSpecialMapRole 动态生成）
         addSection("map_intro.section.special_roles", wrapW);
-        boolean anySpecial = false;
-        anySpecial |= addIfContains(bagMaps, id, "map_intro.special.bag", wrapW);
-        anySpecial |= addIfContains(underwaterMaps, id, "map_intro.special.underwater", wrapW);
-        anySpecial |= addIfContains(policeMaps, id, "map_intro.special.police", wrapW);
-        anySpecial |= addIfContains(airMaps, id, "map_intro.special.air", wrapW);
-        anySpecial |= addIfContains(trapMaps, id, "map_intro.special.trap", wrapW);
-        if (!anySpecial) {
+        List<Component> specialLines = MapSpecialRoleLines.build(id, bagMaps, policeMaps,
+                underwaterMaps, airMaps, trapMaps, mapJsons.get(id));
+        if (specialLines.isEmpty()) {
             addLine(translate("map_intro.special.none").copy().withStyle(ChatFormatting.GRAY), wrapW);
+        } else {
+            for (Component specialLine : specialLines) {
+                addLine(specialLine, wrapW);
+            }
         }
         addBlank();
 

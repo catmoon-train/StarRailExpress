@@ -4,6 +4,7 @@
   "map_intro.search": "搜尋地圖 / 方塊 / 詞典",
   "map_intro.loading": "正在等待伺服端地圖配置...",
   "map_intro.hint": "按 ESC 返回",
+  "map_intro.special.prefix": "地圖會刷新",
   "map_intro.tab.map_properties": "地圖屬性",
   "map_intro.tab.scene_blocks": "場景方塊",
   "map_intro.tab.quest_blocks": "任務點方塊",

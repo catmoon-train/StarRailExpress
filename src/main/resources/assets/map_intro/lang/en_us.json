@@ -4,6 +4,7 @@
   "map_intro.search": "Search maps / blocks / glossary",
   "map_intro.loading": "Waiting for server map configs...",
   "map_intro.hint": "Press ESC to return",
+  "map_intro.special.prefix": "Map refreshes",
   "map_intro.tab.map_properties": "Map Properties",
   "map_intro.tab.scene_blocks": "Scene Blocks",
   "map_intro.tab.quest_blocks": "Quest Blocks",
