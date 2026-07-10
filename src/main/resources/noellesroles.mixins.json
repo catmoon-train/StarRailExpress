@@ -141,7 +141,6 @@
     "client.time_stop.PlayerAnimationStopMixin",
     "client.time_stop.SoundVolumeMixin",
     "client.time_stop.StatusHudMixin",
-    "roles.insanekiller.CrossHairFixer",
     "roles.photographer.BlindnessEffectMixin",
     "client.C4ItemEntityRendererMixin",
     "client.AbstractClientPlayerSkinMixin",

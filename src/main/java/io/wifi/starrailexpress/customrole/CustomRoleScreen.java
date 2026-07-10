@@ -309,6 +309,34 @@ public class CustomRoleScreen extends Screen {
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_see_body_role_info", data.canSeeBodyRoleInfo, v -> data.canSeeBodyRoleInfo = v, true);
         addTriBtn(tabWidgets1, r, "sre.custom_role.can_see_body_death_reason", data.canSeeBodyDeathReason, v -> data.canSeeBodyDeathReason = v, true);
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_see_body_killer", data.canSeeBodyKiller, v -> data.canSeeBodyKiller = v, true);
+
+        // === 职业通用属性补全 ===
+        addTriBtn(tabWidgets1, r, "sre.custom_role.neutral_for_innocent", data.neutralForInnocent, v -> data.neutralForInnocent = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.mafia_team", data.mafiaTeam, v -> data.mafiaTeam = v, true);
+        addTriBtn(tabWidgets1, r, "sre.custom_role.can_see_body_name", data.canSeeBodyName, v -> data.canSeeBodyName = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_use_skill_while_spectator", data.canUseSkillWhileSpectator, v -> data.canUseSkillWhileSpectator = v, true);
+        addTriBtn(tabWidgets1, r, "sre.custom_role.can_be_poisoned", data.canBePoisoned, v -> data.canBePoisoned = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.hidden_for_role_rotation", data.hiddenForRoleRotation, v -> data.hiddenForRoleRotation = v, true);
+        addTriBtn(tabWidgets1, r, "sre.custom_role.special_vigilante", data.specialVigilante, v -> data.specialVigilante = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.refreshable_special_vigilante", data.refreshableSpecialVigilante, v -> data.refreshableSpecialVigilante = v, true);
+        makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.refresh_special_vigilante_chance", String.valueOf(data.refreshableSpecialVigilanteChance), "0-10000",
+            v -> { try { data.refreshableSpecialVigilanteChance = Math.min(10000, Math.max(0, Integer.parseInt(v))); } catch(Exception ignored){} });
+
+        // 特殊地图类型限制（枚举按钮，默认 ALL）
+        int smRow = r++;
+        addLabel(tabLabels1, "sre.custom_role.special_map_role", smRow);
+        var smBtn = makeModernButton(fieldX(), baseRowY(smRow), FIELD_W, 18,
+            Component.translatable("sre.custom_role.special_map_role.current").append(": ").append(Component.literal(data.specialMapRole)),
+            () -> {
+                String[] vals = {"ALL","QIYUCUN","BIGMAP","UNDERWATER","FLY","TRAP","CAN_JUMP","MEETING","MEETING_VOTE","MINIGAME_QUEST","MAP_STATUS_BAR"};
+                int idx = java.util.Arrays.asList(vals).indexOf(data.specialMapRole);
+                if (idx < 0) idx = 0;
+                idx = (idx + 1) % vals.length;
+                data.specialMapRole = vals[idx];
+                init(minecraft, width, height);
+            },
+            AccentSide.LEFT);
+        tabWidgets1.add(smBtn);
     }
 
     // ---- TAB 2: Ability ----
@@ -433,6 +461,8 @@ public class CustomRoleScreen extends Screen {
                 v -> { try { data.enableChance = Math.min(100, Math.max(0, Integer.parseInt(v))); } catch(Exception ignored){} });
         makeLabeledHintBox(tabWidgets3, tabLabels3, r++, 80, "sre.custom_role.label.min_players", String.valueOf(data.enableNeededPlayerCount), "-1=无门槛",
             v -> { try { data.enableNeededPlayerCount = Integer.parseInt(v); } catch(Exception ignored){} });
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, 80, "sre.custom_role.label.max_players", String.valueOf(data.defaultEnableMaxPlayerCount), "-1=无上限",
+            v -> { try { data.defaultEnableMaxPlayerCount = Integer.parseInt(v); } catch(Exception ignored){} });
     }
 
     // ---- TAB 4: Shop ----

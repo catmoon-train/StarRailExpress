@@ -35,10 +35,6 @@ public class SREMixinPlugin implements IMixinConfigPlugin {
                 && mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.carpet")) {
             return false;
         }
-        if (!FabricLoader.getInstance().isModLoaded("meccha_chameleon")
-                && mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.mecchachameleon")) {
-            return false;
-        }
         return true;
     }
 

@@ -300,6 +300,30 @@ public class CustomRoleLoader {
         if (data.canSeeBodyKiller != null)
             role.setCanSeeBodyKiller(data.canSeeBodyKiller);
 
+        // === 职业通用属性补全 ===
+        if (data.neutralForInnocent != null)
+            role.setNeutralForInnocent(data.neutralForInnocent);
+        if (data.canSeeBodyName != null)
+            role.setCanSeeBodyName(data.canSeeBodyName);
+        if (data.canUseSkillWhileSpectator != null)
+            role.setCanUseSkillWhileSpectator(data.canUseSkillWhileSpectator);
+        if (data.mafiaTeam != null)
+            role.setMafiaTeam(data.mafiaTeam);
+        if (data.canBePoisoned != null)
+            role.setCanBePoisoned(data.canBePoisoned);
+        if (data.hiddenForRoleRotation != null)
+            role.setHiddenForRoleRotation(data.hiddenForRoleRotation);
+        if (data.specialMapRole != null && !"ALL".equalsIgnoreCase(data.specialMapRole)) {
+            try {
+                role.setSpecialMapRole(SRERole.SpecialMapRoleMap.valueOf(data.specialMapRole.trim().toUpperCase()));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        if (data.specialVigilante != null)
+            role.setSpecialVigilante(data.specialVigilante);
+        if (data.refreshableSpecialVigilante != null)
+            role.setRefreshableSpecialVigilante(data.refreshableSpecialVigilanteChance, data.refreshableSpecialVigilante);
+
         // === 生成选项 ===
         if (data.enableChance >= 0 && !data.useRareChance)
             role.setDefaultEnableChance(data.enableChance * 100);
@@ -307,6 +331,8 @@ public class CustomRoleLoader {
             role.setDefaultEnableChance(data.enableRareChance);
         if (data.enableNeededPlayerCount >= 0)
             role.setDefaultEnableNeededPlayerCount(data.enableNeededPlayerCount);
+        if (data.defaultEnableMaxPlayerCount >= 0)
+            role.setDefaultEnableMaxPlayerCount(data.defaultEnableMaxPlayerCount);
 
         // 自定义职业直接设置 spawnInfo 并禁止配置覆盖，确保工具设置的值始终生效
         role.setCanSetSpawnInfoInConfig(false);

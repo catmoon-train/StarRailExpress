@@ -9,12 +9,6 @@
     "cca.CCASyncSatMixin",
     "chat.PlayerPrefixMixin",
     "command.ExecuteCommandInvoker",
-    "compat.mecchachameleon.AnnouncerMixin",
-    "compat.mecchachameleon.GameCommandMixin",
-    "compat.mecchachameleon.RoomAccessor",
-    "compat.mecchachameleon.RoomGuardMixin",
-    "compat.mecchachameleon.RoomsGateMixin",
-    "compat.mecchachameleon.ShotgunItemMixin",
     "entity.EntityMixin",
     "entity.FallDamageCheckMixin",
     "entity.ItemFrameMixin",
@@ -56,9 +50,6 @@
     "defaultRequire": 1
   },
   "client": [
-    "compat.mecchachameleon.LockControlsMixin",
-    "compat.mecchachameleon.PaintHudMixin",
-
     "client.AbstractClientPlayerEntityMixin",
     "client.AdvancedCameraMixin",
     "client.CameraPositionMixin",
@@ -108,7 +99,6 @@
     "client.vc.BetterVoiceChatVolumeManageMixin",
     "client.vc.DoubleConfigEntryMixin",
     "compat.carpet.FixClientReturnCrash",
-    "compat.mecchachameleon.PaintEditorScreenMixin",
     "compat.sodium.HakoniwaLevelSliceMixin",
     "compat.sodium.SodiumWorldRendererMixin",
     "compat.sodium_extra.SodiumExtraDisableOptionMixin",

@@ -3,7 +3,6 @@ package io.wifi.starrailexpress.mixin.client.restrictions;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.game.modes.funny.SREChameleonGameMode;
 import io.wifi.starrailexpress.rules.DropRules;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -19,27 +18,6 @@ public abstract class KeyBindingMixin {
     @Shadow
     public abstract boolean same(KeyMapping other);
 
-    @Shadow
-    public abstract String getName();
-
-    /** 变色龙自己注册的按键：涂装、姿势轮盘、匍匐、口哨。 */
-    @Unique
-    private static final String CHAMELEON_KEY_PREFIX = "key.meccha_chameleon.";
-
-    /**
-     * 变色龙的按键只在变色龙模式里可用。否则玩家在大厅或其它模式里按一下就能进涂装模式
-     * （自由视角 + 锁定身体），等于绕过了“其余时刻不能使用变色龙功能”的限制。
-     */
-    @Unique
-    private boolean sre$suppressChameleonKey() {
-        if (!this.getName().startsWith(CHAMELEON_KEY_PREFIX)) {
-            return false;
-        }
-        return SREClient.gameComponent == null
-                || !SREClient.gameComponent.isRunning()
-                || !(SREClient.gameComponent.getGameMode() instanceof SREChameleonGameMode);
-    }
-
     @Unique
     private boolean shouldSuppressKey() {
         final var instance = Minecraft.getInstance();
@@ -51,9 +29,6 @@ public abstract class KeyBindingMixin {
         if (player == null)
             return false;
         final var options = instance.options;
-        if (this.sre$suppressChameleonKey()) {
-            return true;
-        }
         if (SREClient.isInLobby) {
             return false;
         }

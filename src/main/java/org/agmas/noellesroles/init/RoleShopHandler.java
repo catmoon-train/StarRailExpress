@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.init;
 
-import io.github.mortuusars.exposure_polaroid.ExposurePolaroid;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
@@ -32,6 +31,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -2328,8 +2328,9 @@ public class RoleShopHandler {
             List<ShopEntry> entries = new ArrayList<>();
             // 拍立得相机 - 75金币
             {
-                var item = ExposurePolaroid.Items.INSTANT_CAMERA.get();
-                if (item != null) {
+                final var itemId = "exposure_polaroid:instant_camera";
+                if (BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(itemId))) {
+                    Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId));
                     final var defaultInstance = item.getDefaultInstance();
                     entries.add(new ShopEntry(defaultInstance, 75, ShopEntry.Type.TOOL) {
                         @Override
@@ -2342,16 +2343,19 @@ public class RoleShopHandler {
             }
             // 拍立得相纸 - 50
             {
-                var item = ExposurePolaroid.Items.INSTANT_COLOR_SLIDE.get();
-                if (item != null) {
-                    final var defaultInstance = item.getDefaultInstance();
-                    entries.add(new ShopEntry(defaultInstance, 50, ShopEntry.Type.TOOL) {
-                        @Override
-                        public boolean onBuy(@NotNull Player player) {
-                            player.addItem(defaultInstance.copy());
-                            return true;
-                        }
-                    });
+                final var itemId = "exposure_polaroid:instant_color_slide";
+                if (BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(itemId))) {
+                    Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId));
+                    if (item != null) {
+                        final var defaultInstance = item.getDefaultInstance();
+                        entries.add(new ShopEntry(defaultInstance, 50, ShopEntry.Type.TOOL) {
+                            @Override
+                            public boolean onBuy(@NotNull Player player) {
+                                player.addItem(defaultInstance.copy());
+                                return true;
+                            }
+                        });
+                    }
                 }
             }
             // 画框（照片框） - 默认200金币，一局最多购买两次

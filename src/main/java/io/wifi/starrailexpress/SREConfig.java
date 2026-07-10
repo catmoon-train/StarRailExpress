@@ -39,16 +39,6 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "gamemodes")
     public int customRoleModeForceSelectTime = 20;
 
-    // 变色龙模式
-    @ConfigEntry.Category(value = "gamemodes")
-    public int chameleonBaseTime = 240;
-    @ConfigEntry.Category(value = "gamemodes")
-    public int chameleonTimePerPlayer = 20;
-    /** 霰弹枪弹药上限，命中回一发、落空扣一发，打空后只能用商店买的刀；<=0 为无限。 */
-    @ConfigEntry.Category(value = "gamemodes")
-    public int chameleonShotgunAmmo = 6;
-    @ConfigEntry.Category(value = "gamemodes")
-    public int chameleonShotCooldown = 30;
     @ConfigEntry.Category(value = "gamemodes")
     public double antWarPlayerScale = -0.5;
     @ConfigEntry.Category(value = "gamemodes")

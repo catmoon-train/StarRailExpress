@@ -2,12 +2,12 @@ package io.wifi.starrailexpress.game.roles;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
-
+import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-
-
-
+import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.event.AllowOtherCameraType;
+import io.wifi.starrailexpress.game.modes.funny.SREChameleonGameMode;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.special.dirt.DirtRole;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
@@ -72,28 +72,6 @@ public class SpecialGameModeRoles {
       .setCanBeRandomedByOtherRoles(false)
       .setNeutrals(true).setOtherModeRole(true);
 
-  /**
-   * 变色龙：变色龙模式的平民阵营
-   * <p>
-   * - 穿全套变色龙衣服，可涂装、方块伪装
-   * </p>
-   */
-  public static final SRERole CHAMELEON = registerRole(
-      new ChameleonRole(SRE.canyueId("chameleon"), 0x4CAF50, true, false, SRERole.MoodType.FAKE, -1, true))
-      .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(0).setOtherModeRole(true);
-static {
-
-}
-  /**
-   * 猎人：变色龙模式的击杀者阵营
-   * <p>
-   * - 同样穿全套变色龙衣服，额外携带霰弹枪
-   * </p>
-   */
-  public static final SRERole CHAMELEON_HUNTER = registerRole(
-      new ChameleonHunterRole(SRE.canyueId("chameleon_hunter"), TMMRoles.KILLER.color(), false, true,
-          SRERole.MoodType.NONE, -1, true))
-      .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(0).setOtherModeRole(true).setCanUseInstinct(false);
 
   public static SRERole registerRole(SRERole role) {
     return TMMRoles.registerRole(role);

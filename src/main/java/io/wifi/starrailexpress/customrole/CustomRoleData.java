@@ -98,6 +98,40 @@ public class CustomRoleData {
     @SerializedName("canSeeBodyKiller")
     public Boolean canSeeBodyKiller = null;
 
+    // ============ 职业通用属性补全（原 srerole 暴露、工具此前缺失） ============
+    @SerializedName("neutralForInnocent")
+    public Boolean neutralForInnocent = null;
+
+    @SerializedName("canSeeBodyName")
+    public Boolean canSeeBodyName = null;
+
+    @SerializedName("canUseSkillWhileSpectator")
+    public Boolean canUseSkillWhileSpectator = null;
+
+    @SerializedName("mafiaTeam")
+    public Boolean mafiaTeam = null;
+
+    @SerializedName("canBePoisoned")
+    public Boolean canBePoisoned = null;
+
+    @SerializedName("hiddenForRoleRotation")
+    public Boolean hiddenForRoleRotation = null;
+
+    @SerializedName("specialMapRole")
+    public String specialMapRole = "ALL";
+
+    @SerializedName("specialVigilante")
+    public Boolean specialVigilante = null;
+
+    @SerializedName("refreshableSpecialVigilante")
+    public Boolean refreshableSpecialVigilante = null;
+
+    @SerializedName("refreshableSpecialVigilanteChance")
+    public int refreshableSpecialVigilanteChance = 0;
+
+    @SerializedName("defaultEnableMaxPlayerCount")
+    public int defaultEnableMaxPlayerCount = -1;
+
     // ============ 职业能力选项 ============
     @SerializedName("initialItems")
     public List<InitialItemEntry> initialItems = new ArrayList<>();
