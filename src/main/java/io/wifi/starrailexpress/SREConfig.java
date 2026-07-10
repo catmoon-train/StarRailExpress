@@ -238,6 +238,7 @@ public class SREConfig implements ConfigData {
     // 小游戏任务轮换模式：开启后小游戏任务并入 Mood 任务轮换（刷 2~3 个普通任务后替换刷新一个
     // 小游戏任务，不重复刷新），小游戏任务完成额外获得 minigameRotationCoinBonus 金币，
     // 全局任务刷新速率减缓 15%；关闭后恢复独立计时刷新逻辑
+    @Tooltip
     public boolean minigameTaskRotationMode = true;
     // 轮换模式下小游戏任务完成时的额外金币奖励
     public int minigameRotationCoinBonus = 15;
