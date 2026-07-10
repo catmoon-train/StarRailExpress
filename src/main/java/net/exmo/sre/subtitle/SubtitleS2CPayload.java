@@ -48,14 +48,15 @@ public record SubtitleS2CPayload(
             new StreamCodec<RegistryFriendlyByteBuf, SubtitleS2CPayload>() {
                 @Override
                 public SubtitleS2CPayload decode(RegistryFriendlyByteBuf buf) {
-                    return new SubtitleS2CPayload(
-                            ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buf),
-                            ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buf),
-                            ByteBufCodecs.VAR_INT.decode(buf),
-                            ByteBufCodecs.INT.decode(buf),
-                            ByteBufCodecs.BOOL.decode(buf),
-                            ByteBufCodecs.VAR_INT.decode(buf),
-                            ByteBufCodecs.BOOL.decode(buf));
+                    Component mainText = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buf);
+                    Component subText = ComponentSerialization.TRUSTED_STREAM_CODEC.decode(buf);
+                    int durationTicks = ByteBufCodecs.VAR_INT.decode(buf);
+                    int color = ByteBufCodecs.INT.decode(buf);
+                    boolean typewriter = ByteBufCodecs.BOOL.decode(buf);
+                    int screenPosition = ByteBufCodecs.VAR_INT.decode(buf);
+                    // 兼容旧版本服务端：若 buffer 已读完（未写入 showBackground），默认显示背景
+                    boolean showBackground = buf.readableBytes() > 0 ? ByteBufCodecs.BOOL.decode(buf) : true;
+                    return new SubtitleS2CPayload(mainText, subText, durationTicks, color, typewriter, screenPosition, showBackground);
                 }
 
                 @Override
