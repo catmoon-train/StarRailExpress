@@ -274,6 +274,9 @@ public class CustomRoleLoader {
         } else {
             role.setCanUseInstinctAndNightVision(false);
         }
+        // 独立夜视开关：若显式设置，覆盖上面组合 setter 的夜视值（true=本能+夜视，false=仅本能无夜视）
+        if (data.instinctNightVision != null)
+            role.setInstinctNightVision(data.instinctNightVision);
         if (data.ableToPickUpRevolver != null)
             role.setAbleToPickUpRevolver(data.ableToPickUpRevolver);
         if (data.setNeutrals != null)
@@ -323,6 +326,12 @@ public class CustomRoleLoader {
             role.setSpecialVigilante(data.specialVigilante);
         if (data.refreshableSpecialVigilante != null)
             role.setRefreshableSpecialVigilante(data.refreshableSpecialVigilanteChance, data.refreshableSpecialVigilante);
+        if (data.canJumpManhole != null)
+            role.setCanJumpManhole(data.canJumpManhole);
+        if (data.canAcrossFog != null)
+            role.setCanAcrossFog(data.canAcrossFog);
+        if (data.canUseSabotage != null)
+            role.setCanUseSabotage(data.canUseSabotage);
 
         // === 生成选项 ===
         if (data.enableChance >= 0 && !data.useRareChance)

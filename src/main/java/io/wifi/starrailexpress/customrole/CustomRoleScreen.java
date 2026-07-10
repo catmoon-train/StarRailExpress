@@ -293,6 +293,7 @@ public class CustomRoleScreen extends Screen {
         int r = 0;
         addBoolBtn(tabWidgets1, r, "sre.custom_role.can_see_coin", data.canSeeCoin, v -> data.canSeeCoin = v, true);
         addBoolBtnX(tabWidgets1, r++, "sre.custom_role.can_use_instinct", data.canUseInstinct, v -> data.canUseInstinct = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.instinct_night_vision", data.instinctNightVision, v -> data.instinctNightVision = v, true);
         addTriBtn(tabWidgets1, r, "sre.custom_role.able_pickup_revolver", data.ableToPickUpRevolver, v -> data.ableToPickUpRevolver = v, true);
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.set_neutrals", data.setNeutrals, v -> data.setNeutrals = v, true);
         addTriBtn(tabWidgets1, r, "sre.custom_role.set_neutral_for_killer", data.setNeutralForKiller, v -> data.setNeutralForKiller = v, true);
@@ -321,6 +322,9 @@ public class CustomRoleScreen extends Screen {
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.refreshable_special_vigilante", data.refreshableSpecialVigilante, v -> data.refreshableSpecialVigilante = v, true);
         makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.refresh_special_vigilante_chance", String.valueOf(data.refreshableSpecialVigilanteChance), "0-10000",
             v -> { try { data.refreshableSpecialVigilanteChance = Math.min(10000, Math.max(0, Integer.parseInt(v))); } catch(Exception ignored){} });
+        addTriBtn(tabWidgets1, r, "sre.custom_role.can_jump_manhole", data.canJumpManhole, v -> data.canJumpManhole = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_across_fog", data.canAcrossFog, v -> data.canAcrossFog = v, true);
+        addTriBtn(tabWidgets1, r++, "sre.custom_role.can_use_sabotage", data.canUseSabotage, v -> data.canUseSabotage = v, true);
 
         // 特殊地图类型限制（枚举按钮，默认 ALL）
         int smRow = r++;

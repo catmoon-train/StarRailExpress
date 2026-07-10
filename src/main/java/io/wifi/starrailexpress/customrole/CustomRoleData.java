@@ -129,6 +129,15 @@ public class CustomRoleData {
     @SerializedName("refreshableSpecialVigilanteChance")
     public int refreshableSpecialVigilanteChance = 0;
 
+    @SerializedName("canJumpManhole")
+    public Boolean canJumpManhole = null;
+
+    @SerializedName("canAcrossFog")
+    public Boolean canAcrossFog = null;
+
+    @SerializedName("canUseSabotage")
+    public Boolean canUseSabotage = null;
+
     @SerializedName("defaultEnableMaxPlayerCount")
     public int defaultEnableMaxPlayerCount = -1;
 
@@ -141,6 +150,9 @@ public class CustomRoleData {
 
     @SerializedName("instinctMaxRange")
     public String instinctMaxRange = "*";
+
+    @SerializedName("instinctNightVision")
+    public Boolean instinctNightVision = null;
 
     @SerializedName("enableAbility")
     public boolean enableAbility = false;
