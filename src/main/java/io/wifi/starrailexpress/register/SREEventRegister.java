@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.register;
 
+import org.agmas.noellesroles.init.RoleShopHandler;
+
 import com.google.gson.JsonObject;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
@@ -79,10 +81,12 @@ public class SREEventRegister {
         ServerLifecycleEvents.SERVER_STOPPED.register((server) -> {
             SRE.SERVER = null;
         });
+
+        VoteManager.registerEvents(); // 注册JOIN事件
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             SRE.SERVER = server;
             VoteManager.init(server);
-            VoteManager.registerEvents(); // 注册JOIN事件
+            RoleShopHandler.shopRegister();
             SRE.initConstants();
             SRE.GAME = new SREMurderGameMode(SRE.id("murder"));
             ServerMapConfig.getInstance(server);

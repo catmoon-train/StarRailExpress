@@ -2328,25 +2328,31 @@ public class RoleShopHandler {
             List<ShopEntry> entries = new ArrayList<>();
             // 拍立得相机 - 75金币
             {
-                final var itemId = "exposure_polaroid:instant_camera";
-                if (BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(itemId))) {
-                    Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId));
-                    final var defaultInstance = item.getDefaultInstance();
-                    entries.add(new ShopEntry(defaultInstance, 75, ShopEntry.Type.TOOL) {
-                        @Override
-                        public boolean onBuy(@NotNull Player player) {
-                            player.addItem(defaultInstance.copy());
-                            return true;
-                        }
-                    });
+                final var itemNamespace = "exposure_polaroid";
+                final var itemId = "instant_camera";
+                {
+                    Item item = BuiltInRegistries.ITEM
+                            .get(ResourceLocation.fromNamespaceAndPath(itemNamespace, itemId));
+                    if (item != null && item != Items.AIR) {
+                        final var defaultInstance = item.getDefaultInstance();
+                        entries.add(new ShopEntry(defaultInstance, 75, ShopEntry.Type.TOOL) {
+                            @Override
+                            public boolean onBuy(@NotNull Player player) {
+                                player.addItem(defaultInstance.copy());
+                                return true;
+                            }
+                        });
+                    }
                 }
             }
             // 拍立得相纸 - 50
             {
-                final var itemId = "exposure_polaroid:instant_color_slide";
-                if (BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(itemId))) {
-                    Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemId));
-                    if (item != null) {
+                final var itemNamespace = "exposure_polaroid";
+                final var itemId = "instant_color_slide";
+                {
+                    Item item = BuiltInRegistries.ITEM
+                            .get(ResourceLocation.fromNamespaceAndPath(itemNamespace, itemId));
+                    if (item != null && item != Items.AIR) {
                         final var defaultInstance = item.getDefaultInstance();
                         entries.add(new ShopEntry(defaultInstance, 50, ShopEntry.Type.TOOL) {
                             @Override

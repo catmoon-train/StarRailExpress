@@ -256,11 +256,11 @@
     "modmenu": "*",
     "voicechat": "*",
     "architectury": "*",
-    "exposure_polaroid": "*",
     "exposure": "*",
     "sre_resource": "*"
   },
   "recommends": {
+    "exposure_polaroid": "*",
     "sodium": "*",
     "sodium-extra": "*"
   },
