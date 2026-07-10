@@ -12,6 +12,7 @@
   "map_intro.block.id": "物品 ID：%s",
   "map_intro.block.no_desc": "暂无专门介绍。",
   "map_intro.section.special_roles": "特定地图刷新的职业",
+  "map_intro.section.info": "地图介绍",
   "map_intro.section.vote_config": "投票地图配置",
   "map_intro.section.properties": "地图属性",
   "map_intro.vote.display_name": "地图名称：%s",

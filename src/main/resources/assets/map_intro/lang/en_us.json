@@ -1,6 +1,7 @@
 {
   "key.noellesroles.map_intro": "Map Introduction",
   "map_intro.title": "Map Introduction",
+  "map_intro.section.info": "Map Introduction",
   "map_intro.search": "Search maps / blocks / glossary",
   "map_intro.loading": "Waiting for server map configs...",
   "map_intro.hint": "Press ESC to return",

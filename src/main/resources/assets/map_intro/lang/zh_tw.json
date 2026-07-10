@@ -1,6 +1,7 @@
 {
   "key.noellesroles.map_intro": "地圖介紹",
   "map_intro.title": "地圖介紹",
+  "map_intro.section.info": "地圖介紹",
   "map_intro.search": "搜尋地圖 / 方塊 / 詞典",
   "map_intro.loading": "正在等待伺服端地圖配置...",
   "map_intro.hint": "按 ESC 返回",

@@ -259,8 +259,9 @@ public class VoteScreen extends Screen {
     }
 
     private void drawAbstainButton(GuiGraphics g, int mouseX, int mouseY) {
-        int bx = ABSTAIN_MARGIN;
-        int by = height - ABSTAIN_MARGIN - ABSTAIN_H;
+        // 贴在中间玩家列表面板（panel）的左下角边缘，而不是屏幕边缘
+        int bx = panelX + ABSTAIN_MARGIN;
+        int by = panelY + panelH - ABSTAIN_MARGIN - ABSTAIN_H;
         boolean hovered = mouseX >= bx && mouseX < bx + ABSTAIN_W && mouseY >= by && mouseY < by + ABSTAIN_H;
         int idx = abstainIndices.get(0);
         boolean selected = selectedIndices.contains(idx);
@@ -487,8 +488,8 @@ public class VoteScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!abstainIndices.isEmpty()) {
-            int bx = ABSTAIN_MARGIN;
-            int by = height - ABSTAIN_MARGIN - ABSTAIN_H;
+            int bx = panelX + ABSTAIN_MARGIN;
+            int by = panelY + panelH - ABSTAIN_MARGIN - ABSTAIN_H;
             if (mouseX >= bx && mouseX < bx + ABSTAIN_W && mouseY >= by && mouseY < by + ABSTAIN_H) {
                 handleOptionClick(abstainIndices.get(0));
                 return true;
