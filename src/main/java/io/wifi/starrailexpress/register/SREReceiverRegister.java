@@ -43,6 +43,10 @@ public class SREReceiverRegister {
                 (payload, context) -> context.server().execute(
                         () -> net.exmo.sre.meeting.MeetingManager.setManualSpeaking(context.player(),
                                 payload.speaking())));
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.meeting.network.MeetingSkipC2SPayload.ID,
+                (payload, context) -> context.server().execute(
+                        () -> net.exmo.sre.meeting.MeetingManager.setSkipVote(context.player(),
+                                payload.skip())));
 
         UpdateSkinSelectedPayload.registerReceiver();
         UpdateNameTagSelectedPayload.registerReceiver();

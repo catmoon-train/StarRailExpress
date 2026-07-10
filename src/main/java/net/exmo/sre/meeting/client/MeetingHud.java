@@ -209,6 +209,35 @@ public final class MeetingHud {
             }
             g.drawCenteredString(font, hint, w / 2, g.guiHeight() - 44, color);
         }
+
+        // 跳过会议按钮（物品栏正上方）
+        renderSkipButton(g, client);
+    }
+
+    // ==================== 跳过会议按钮 ====================
+
+    private static void renderSkipButton(GuiGraphics g, Minecraft client) {
+        int[] r = MeetingClientHandler.skipButtonRect();
+        int bx = r[0], by = r[1], bw = r[2], bh = r[3];
+        boolean voted = MeetingClientHandler.skipVoted;
+
+        // 按钮底色与边框
+        int fill = voted ? 0xAA3A2A12 : 0xAA1A1008;
+        g.fill(bx, by, bx + bw, by + bh, fill);
+        g.renderOutline(bx, by, bw, bh, voted ? GREEN : BORDER);
+
+        var font = client.font;
+        Component label = Component.translatable(voted ? "meeting.sre.skip_button_voted"
+                : "meeting.sre.skip_button");
+        g.drawCenteredString(font, label, bx + bw / 2, by + (bh - font.lineHeight) / 2,
+                voted ? GREEN : TEXT);
+
+        // 进度：按钮旁边显示「已有多少人跳过会议」（超过存活玩家二分之一即跳过）
+        int alive = MeetingClientHandler.skipAliveCount;
+        int need = alive / 2 + 1;
+        Component progress = Component.translatable("meeting.sre.skip_progress",
+                MeetingClientHandler.skipCount, need);
+        g.drawString(font, progress, bx + bw + 6, by + (bh - font.lineHeight) / 2, MUTED);
     }
 
     /** 居中绘制报告信息：文本过宽时按 maxWidth 等比缩小，避免溢出屏幕。 */

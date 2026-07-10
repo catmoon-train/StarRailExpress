@@ -2,6 +2,8 @@ package net.exmo.sre.meeting.client;
 
 import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.exmo.sre.meeting.MeetingManager;
+import net.exmo.sre.meeting.network.MeetingSkipC2SPayload;
+import net.exmo.sre.meeting.network.MeetingSkipStateS2CPayload;
 import net.exmo.sre.meeting.network.MeetingSpeakC2SPayload;
 import net.exmo.sre.meeting.network.MeetingStateS2CPayload;
 import net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload;
@@ -66,8 +68,18 @@ public final class MeetingClientHandler {
     public static List<MeetingVoteResultS2CPayload.VoteEntry> voteResultEntries = List.of();
     public static long voteResultReceiveMillis;
 
+    // ── 跳过会议（来自 MeetingSkipStateS2CPayload）───────────────────
+    /** 本地玩家是否已投「跳过」（点击切换）。 */
+    public static boolean skipVoted;
+    /** 已投跳过的存活玩家数。 */
+    public static int skipCount;
+    /** 场上存活玩家总数（阈值 = 超过 aliveCount/2）。 */
+    public static int skipAliveCount;
+
     private static boolean overriding;
     private static boolean speakingToggled;
+    /** 跳过按钮左键按下沿检测。 */
+    private static boolean wasLeftDownSkip;
 
     private MeetingClientHandler() {
     }
@@ -82,6 +94,12 @@ public final class MeetingClientHandler {
                 voteResultExpelledName = payload.expelledPlayerName();
                 voteResultEntries = payload.voteEntries();
                 voteResultReceiveMillis = Util.getMillis();
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(MeetingSkipStateS2CPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                skipCount = payload.skipCount();
+                skipAliveCount = payload.aliveCount();
             });
         });
         ClientTickEvents.END_CLIENT_TICK.register(MeetingClientHandler::tick);
@@ -108,7 +126,13 @@ public final class MeetingClientHandler {
             speakingToggled = false;
             showVoteResult = false;
             voteResultEntries = List.of();
+            skipVoted = false;
+            skipCount = 0;
+            skipAliveCount = 0;
             stopOverride();
+        } else if (payload.phase() == MeetingManager.PHASE_INTRO) {
+            // 新会议开始：重置本地跳过投票状态
+            skipVoted = false;
         }
     }
 
@@ -131,6 +155,22 @@ public final class MeetingClientHandler {
                 ClientPlayNetworking.send(new MeetingSpeakC2SPayload(speakingToggled));
             }
         }
+
+        // 跳过会议按钮（开场 / 讨论阶段的参会者，左键点击切换）
+        boolean canSkip = participant
+                && (phase == MeetingManager.PHASE_INTRO || phase == MeetingManager.PHASE_DISCUSS);
+        boolean leftDown = org.lwjgl.glfw.GLFW.glfwGetMouseButton(
+                client.getWindow().getWindow(), org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+        if (canSkip && leftDown && !wasLeftDownSkip) {
+            int[] r = skipButtonRect();
+            double mx = client.mouseHandler.xpos();
+            double my = client.mouseHandler.ypos();
+            if (mx >= r[0] && mx <= r[0] + r[2] && my >= r[1] && my <= r[1] + r[3]) {
+                skipVoted = !skipVoted;
+                ClientPlayNetworking.send(new MeetingSkipC2SPayload(skipVoted));
+            }
+        }
+        wasLeftDownSkip = leftDown;
 
         if (!participant) {
             stopOverride();
@@ -224,5 +264,15 @@ public final class MeetingClientHandler {
     static float easeOutCubic(float t) {
         float f = 1f - t;
         return 1f - f * f * f;
+    }
+
+    /** 跳过会议按钮矩形（GUI 坐标）：物品栏正上方居中。返回 {x, y, w, h}。 */
+    public static int[] skipButtonRect() {
+        Minecraft client = Minecraft.getInstance();
+        int w = client.getWindow().getGuiScaledWidth();
+        int h = client.getWindow().getGuiScaledHeight();
+        int bw = 150;
+        int bh = 20;
+        return new int[] { (w - bw) / 2, h - 70, bw, bh };
     }
 }

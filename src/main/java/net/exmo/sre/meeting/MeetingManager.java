@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.util.BlockTypeChecker;
+import net.exmo.sre.meeting.network.MeetingSkipStateS2CPayload;
 import net.exmo.sre.meeting.network.MeetingStateS2CPayload;
 import net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -109,6 +110,8 @@ public final class MeetingManager {
     private static long cooldownUntilTick;
     private static long bellCooldownUntilTick;
     private static final Set<UUID> reportedBodies = new HashSet<>();
+    /** 投票跳过会议的存活玩家（讨论/开场阶段可投）。 */
+    private static final Set<UUID> skipVoters = new HashSet<>();
     /** 投票权重：玩家 UUID → 其投票算几票 */
     private static final Map<UUID, Integer> voteWeightOverrides = new HashMap<>();
     private static boolean registered;
@@ -252,6 +255,7 @@ public final class MeetingManager {
         if (RefugeeComponent.KEY.get(serverLevel).isAnyRevivals) {
             return false;
         }
+        skipVoters.clear();
         AreasSettings settings = settings(serverLevel);
         if (settings == null || !settings.meetingEnabled || isActive()) {
             return false;
@@ -327,6 +331,7 @@ public final class MeetingManager {
             player.playNotifySound(SoundEvents.BELL_BLOCK, SoundSource.MASTER, 1.0F, 0.8F);
         }
         broadcastState(serverLevel);
+        broadcastSkipState(serverLevel);
         MeetingStartEvent.EVENT.invoker().onMeetingStart(serverLevel, reporter);
         return true;
     }
@@ -370,6 +375,7 @@ public final class MeetingManager {
         participants.clear();
         seatEntityIds.clear();
         manualSpeakers.clear();
+        skipVoters.clear();
         lastSyncedSpeakers = List.of();
         if (!silent) {
             for (ServerPlayer player : serverLevel.players()) {
@@ -379,6 +385,59 @@ public final class MeetingManager {
         broadcastState(serverLevel);
         MeetingEndEvent.EVENT.invoker().onMeetingEnd(serverLevel);
         level = null;
+    }
+
+
+    // ==================== 跳过会议 ====================
+
+    /**
+     * 客户端「跳过会议」按钮点击（可再次点击取消）。
+     * 仅会议进行中（开场 / 讨论阶段）且为参会者时生效；达到「超过半数存活玩家」阈值则跳过会议。
+     */
+    public static void setSkipVote(ServerPlayer player, boolean skip) {
+        if (!isActive() || level == null) {
+            return;
+        }
+        // 仅开场 / 讨论阶段可投跳过；投票阶段已不可跳过
+        if (phase != PHASE_INTRO && phase != PHASE_DISCUSS) {
+            return;
+        }
+        UUID uuid = player.getUUID();
+        if (!participants.containsKey(uuid)) {
+            return;
+        }
+        if (skip) {
+            skipVoters.add(uuid);
+        } else {
+            skipVoters.remove(uuid);
+        }
+        ServerLevel serverLevel = level;
+        broadcastSkipState(serverLevel);
+        // 超过二分之一的存活玩家投了跳过 → 跳过会议（有投票则直接进入投票阶段）
+        long alive = serverLevel.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
+        if (alive > 0 && skipVoters.size() > alive / 2) {
+            skipMeeting(serverLevel);
+        }
+    }
+
+    /** 跳过会议：直接进入投票阶段（若地图启用投票），否则直接结束会议。 */
+    private static void skipMeeting(ServerLevel serverLevel) {
+        skipVoters.clear();
+        AreasSettings settings = settings(serverLevel);
+        if (settings != null && settings.meetingVoteEnabled) {
+            startVotingPhase(serverLevel);
+        } else {
+            endMeeting(false);
+        }
+    }
+
+    /** 向全体玩家同步跳过计票状态。 */
+    private static void broadcastSkipState(ServerLevel serverLevel) {
+        long alive = serverLevel.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
+        MeetingSkipStateS2CPayload payload = new MeetingSkipStateS2CPayload(skipVoters.size(), (int) alive);
+        for (ServerPlayer player : serverLevel.players()) {
+            ServerPlayNetworking.send(player, payload);
+        }
     }
 
     // ==================== 发言 ====================
