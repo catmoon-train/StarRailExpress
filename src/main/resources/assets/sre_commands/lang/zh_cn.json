@@ -84,6 +84,8 @@
   "sre_commands.sre.kick.desc": "踢出指定的非 OP 玩家, 可附带理由。",
   "sre_commands.sre.shield.name": "护盾管理",
   "sre_commands.sre.shield.desc": "统一管理普通/限时/弱效护盾: sre:shield <normal|timed|weak> <add|set|get|clear> [参数] [目标]。限时护盾额外传持续时间(秒)与是否重置计时器并叠加; 弱效护盾额外传持续时间(秒)与抵挡的死亡原因(* 表示任意)。",
+  "sre_commands.sre.poison.name": "中毒管理",
+  "sre_commands.sre.poison.desc": "给予/移除/触发玩家的中毒或假毒: sre:poison <normal|fake> <set|get|clear|trigger> [tick] [目标]。set 传游戏刻数(tick, 1秒=20tick); clear 直接移除; trigger 立即触发当前中毒并致死(假毒也会致死)。",
   "sre_commands.sre.stamina.name": "体力",
   "sre_commands.sre.stamina.desc": "为玩家增加或设置冲刺体力值。",
   "sre_commands.sre.inventory.name": "查看物品栏",

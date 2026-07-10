@@ -64,6 +64,7 @@ public class SREHelpCommand {
                 new Entry("/sre:replay_screen", "sre.replay_screen"),
                 new Entry("/sre:kick", "sre.kick"),
                 new Entry("/sre:shield", "sre.shield"),
+                new Entry("/sre:poison", "sre.poison"),
                 new Entry("/sre:stamina", "sre.stamina"),
                 new Entry("/sre:inventory", "sre.inventory"),
                 new Entry("/sre:invsee", "sre.invsee"),

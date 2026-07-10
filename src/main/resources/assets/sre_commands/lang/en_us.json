@@ -84,6 +84,8 @@
   "sre_commands.sre.kick.desc": "Kick the targeted non-OP players, with an optional reason.",
   "sre_commands.sre.shield.name": "Shield Management",
   "sre_commands.sre.shield.desc": "Unified management of normal/timed/weak shields: sre:shield <normal|timed|weak> <add|set|get|clear> [args] [targets]. Timed shields take an extra duration (seconds) and whether to reset the timer and stack; weak shields take an extra duration (seconds) and the death reason to block (* for any).",
+  "sre_commands.sre.poison.name": "Poison Management",
+  "sre_commands.sre.poison.desc": "Give/remove/trigger real or fake poison for players: sre:poison <normal|fake> <set|get|clear|trigger> [ticks] [targets]. set takes game ticks (1s=20 ticks); clear removes it directly; trigger instantly triggers the current poison and kills (fake poison also kills).",
   "sre_commands.sre.stamina.name": "Stamina",
   "sre_commands.sre.stamina.desc": "Add to or set a player's sprint stamina value.",
   "sre_commands.sre.inventory.name": "View Inventory",

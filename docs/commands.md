@@ -243,6 +243,16 @@
   - `set <amount> [targets]` — 设置指定玩家的护盾
 - **用途**: 管理玩家护盾值
 
+### `sre:poison` — 中毒管理
+- **权限**: `2`
+- **结构**: `sre:poison <normal|fake> <set|get|clear|trigger> [参数] [目标]`
+  - `normal` / `fake` — 真毒 / 假毒
+  - `set <tick>` (int, 游戏刻, 1秒=20tick) — 给予目标指定 tick 的中毒/假毒
+  - `get [targets]` — 查看目标当前中毒状态与剩余 tick
+  - `clear [targets]` — 直接移除目标的中毒/假毒
+  - `trigger [targets]` — 立即触发目标当前中毒并致死（假毒也会致死，仅对已有中毒的目标生效）
+- **用途**: 给予/移除/触发玩家的中毒或假毒
+
 ### `sre:stamina` — 体力管理
 - **权限**: `2`
 - **结构**:

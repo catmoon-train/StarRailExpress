@@ -78,6 +78,7 @@ public class SRECommandRegister {
             PlayerInventoryCommand.register(dispatcher);
             StreamingSpectatorCommand.register(dispatcher);
             ShieldCommand.register(dispatcher);
+            PoisonCommand.register(dispatcher);
             StaminaCommand.register(dispatcher);
             SceneCommand.register(dispatcher);
             SceneEventCommand.register(dispatcher);
