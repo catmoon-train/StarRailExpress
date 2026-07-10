@@ -32,7 +32,7 @@ public class SERoles {
             false,
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            false)).setPassiveIncome(false).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
+            false)).setPassiveIncome(false).setNeutralForInnocent(true).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
 
     public static SRERole ARSONIST = registerRole(new NormalRole(
             StupidExpress.id("arsonist"),

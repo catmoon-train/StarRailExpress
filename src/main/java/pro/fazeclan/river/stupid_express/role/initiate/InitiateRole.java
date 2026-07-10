@@ -9,6 +9,7 @@ public class InitiateRole extends SRERole {
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
         this.setNeutrals(true);
+        this.setNeutralForInnocent(true);
     }
 
     // @Override

@@ -703,6 +703,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean autoReset = true;
     protected boolean ableToPickUpRevolver;
     protected boolean isNeutralForKiller = false;
+    protected boolean isNeutralForInnocent = false;
     protected boolean canSeeTeammateKiller = true;
     protected boolean canUseSabotage = false;
     protected boolean canJumpManhole = false;
@@ -722,6 +723,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public boolean getNeutralForKiller() {
         return this.isNeutralForKiller;
+    }
+
+    public boolean isNeutralForInnocent() {
+        return this.isNeutralForInnocent;
     }
 
     public boolean canSeeTeammateKiller() {
@@ -762,6 +767,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public SRERole setNeutralForKiller(boolean forKiller) {
         this.isNeutralForKiller = forKiller;
+        this.isNeutrals = true;
+        return this;
+    }
+
+    /**
+     * 随好人胜利的中立：该中立职业在好人（乘客）阵营胜利时一同获胜。
+     * 与 {@link #setNeutralForKiller(boolean)} 相对，这里对齐的是无辜/好人阵营。
+     */
+    public SRERole setNeutralForInnocent(boolean forInnocent) {
+        this.isNeutralForInnocent = forInnocent;
         this.isNeutrals = true;
         return this;
     }

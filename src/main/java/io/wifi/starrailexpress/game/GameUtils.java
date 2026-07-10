@@ -1217,12 +1217,9 @@ public class GameUtils {
                             // 排除游客职业
                             if (playerRole.isInnocent())
                                 isWinner = true;
-                            else {
-                                String roleidentifier = playerRole.identifier().getPath();
-                                if ("amnesiac".equals(roleidentifier) || "initiate".equals(roleidentifier)) {
-                                    isWinner = true;
-                                }
-                                // 魔术师不需要判断，因为他是innocent
+                            else if (playerRole.isNeutralForInnocent()) {
+                                // 随好人胜利的中立（如失忆患者、初学者）：好人胜利时一同获胜
+                                isWinner = true;
                             }
                             if (!isWinner && playerRole.identifier().equals(ModRoles.MERCENARY_ID)) {
                                 var mercenary = MercenaryPlayerComponent.KEY.maybeGet(player).orElse(null);
