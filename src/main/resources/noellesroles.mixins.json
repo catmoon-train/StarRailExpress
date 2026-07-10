@@ -34,7 +34,6 @@
     "roles.engineer.EngineerCrowbarMixin",
     "roles.executioner.ExecutionerConfirmMixin",
     "roles.framing.DelusionVialApplyMixin",
-    "roles.framing.DoNotApplyFakePoisonMixin",
     "roles.ghost.GhostSoundMixin",
     "roles.glitch_robot.GlitchRobotNoPoisonMixin",
     "roles.glitch_robot.GlitchRobotNoInfectionMixin",

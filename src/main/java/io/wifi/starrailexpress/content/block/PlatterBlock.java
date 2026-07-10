@@ -189,6 +189,10 @@ public abstract class PlatterBlock extends BaseEntityBlock {
 
                 if (poisoner != null) {
                     randomItem.set(SREDataComponentTypes.POISONER, poisoner);
+                    if (blockEntity.isPoisonFake) {
+                        randomItem.set(SREDataComponentTypes.FAKE_POISON, true);
+                        blockEntity.isPoisonFake = false;
+                    }
                     blockEntity.setPoisoner(null);
                 }
                 if (armorer != null) {

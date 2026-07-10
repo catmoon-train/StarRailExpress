@@ -22,6 +22,7 @@ import java.util.Optional;
 public abstract class PlateTrayBlockEntity extends BlockEntity {
     public final List<ItemStack> storedItems = new ArrayList<>();
     public String poisoner = null;
+    public boolean isPoisonFake = false;
     public String armorer = null;
     public PlateType plate = PlateType.DRINK;
 
@@ -104,6 +105,7 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
         nbt.put("Items", itemsNbt);
         if (this.poisoner != null)
             nbt.putString("poisoner", this.poisoner);
+        nbt.putBoolean("isPoisonFake", this.isPoisonFake);
         if (this.armorer != null)
             nbt.putString("armorer", this.armorer);
         nbt.putBoolean("Drink", this.plate == PlateType.DRINK);
@@ -121,6 +123,7 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
             }
         }
         this.poisoner = nbt.contains("poisoner") ? nbt.getString("poisoner") : null;
+        this.isPoisonFake = nbt.contains("isPoisonFake") ? nbt.getBoolean("isPoisonFake") : false;
         this.armorer = nbt.contains("armorer") ? nbt.getString("armorer") : null;
         this.plate = nbt.getBoolean("Drink") ? PlateType.DRINK : PlateType.FOOD;
     }

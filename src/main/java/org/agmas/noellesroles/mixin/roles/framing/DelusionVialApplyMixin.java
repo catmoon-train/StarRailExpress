@@ -29,6 +29,7 @@ public abstract class DelusionVialApplyMixin {
         if (platter instanceof PlateTrayBlockEntity blockEntity) {
             if (player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DELUSION_VIAL) && blockEntity.getPoisoner() == null) {
                 blockEntity.setPoisoner(player.getStringUUID());
+                blockEntity.isPoisonFake = true;
                 player.getItemInHand(InteractionHand.MAIN_HAND).shrink(1);
                 player.playNotifySound(SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 0.5F, 1.0F);
                 cir.setReturnValue(InteractionResult.SUCCESS);

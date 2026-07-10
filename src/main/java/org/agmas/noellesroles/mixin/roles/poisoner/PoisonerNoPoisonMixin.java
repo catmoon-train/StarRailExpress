@@ -19,6 +19,7 @@ public abstract class PoisonerNoPoisonMixin {
     @Shadow private Player player;
     @Shadow public int poisonTicks;
     @Shadow public UUID poisoner;
+    @Shadow public boolean fakePoison;
 
     /**
      * 阻止毒师被施加中毒（setPoisonTicks）
@@ -27,6 +28,17 @@ public abstract class PoisonerNoPoisonMixin {
     private void poisonerNoPoison(int ticks, UUID poisoner, CallbackInfo ci) {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(this.player.level());
         if (gameWorld.isRole(this.player, ModRoles.POISONER) ) {
+            ci.cancel();
+        }
+    }
+
+    /**
+     * 阻止毒师被施加假毒（setFakePoisonTicks）
+     */
+    @Inject(method = "setFakePoisonTicks", at = @At("HEAD"), cancellable = true)
+    private void poisonerNoFakePoison(int ticks, UUID poisoner, CallbackInfo ci) {
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(this.player.level());
+        if (gameWorld.isRole(this.player, ModRoles.POISONER)) {
             ci.cancel();
         }
     }
@@ -42,6 +54,7 @@ public abstract class PoisonerNoPoisonMixin {
             if (this.poisonTicks > 0) {
                 this.poisonTicks = -1;
                 this.poisoner = null;
+                this.fakePoison = false;
             }
         }
     }

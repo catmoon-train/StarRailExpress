@@ -27,6 +27,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     public static final Tuple<Integer, Integer> clampTime = new Tuple<>(800, 1400);
     private final Player player;
     public int poisonTicks = -1;
+    public boolean fakePoison = false;
     private int initialPoisonTicks = 0;
     private int poisonPulseCooldown = 0;
     public float pulseProgress = 0f;
@@ -72,6 +73,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     @Override
     public void init() {
         this.poisonTicks = -1;
+        this.fakePoison = false;
         this.poisonPulseCooldown = 0;
         this.initialPoisonTicks = 0;
         this.pulseProgress = 0f;
@@ -148,6 +150,12 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
             this.poisonTicks--;
             if (this.poisonTicks == 0) {
                 this.poisonTicks = -1;
+                if (this.fakePoison) {
+                    this.fakePoison = false;
+                    this.poisoner = null;
+                    this.sync();
+                    return;
+                }
                 GameUtils.killPlayer(this.player, true,
                         this.poisoner == null ? null : this.player.level().getPlayerByUUID(this.poisoner),
                         GameConstants.DeathReasons.POISON);
@@ -166,6 +174,16 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     public void setPoisonTicks(int ticks, UUID poisoner) {
         this.poisoner = poisoner;
         this.poisonTicks = ticks;
+        this.fakePoison = false;
+        if (this.initialPoisonTicks == 0)
+            this.initialPoisonTicks = ticks;
+        this.sync();
+    }
+
+    public void setFakePoisonTicks(int ticks, UUID poisoner) {
+        this.poisoner = poisoner;
+        this.poisonTicks = ticks;
+        this.fakePoison = true;
         if (this.initialPoisonTicks == 0)
             this.initialPoisonTicks = ticks;
         this.sync();
@@ -180,6 +198,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
             if (this.initialPoisonTicks >= 0)
                 tag.putInt("initialPoisonTicks", this.initialPoisonTicks);
         }
+        tag.putBoolean("fakePoison", this.fakePoison);
     }
 
     @Override
@@ -187,6 +206,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
         this.poisoner = tag.contains("poisoner") ? tag.getUUID("poisoner") : null;
         this.poisonTicks = tag.contains("poisonTicks") ? tag.getInt("poisonTicks") : -1;
         this.initialPoisonTicks = tag.contains("initialPoisonTicks") ? tag.getInt("initialPoisonTicks") : 0;
+        this.fakePoison = tag.contains("fakePoison") ? tag.getBoolean("fakePoison") : false;
     }
 
     @Override

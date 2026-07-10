@@ -24,4 +24,12 @@ public abstract class GlitchRobotNoPoisonMixin {
             ci.cancel();
         }
     }
+
+    @Inject(method = "setFakePoisonTicks", at = @At("HEAD"), cancellable = true)
+    private void glitchRobotNoFakePoison(int ticks, UUID poisoner, CallbackInfo ci) {
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(this.player.level());
+        if (gameWorld.isRole(this.player, ModRoles.GLITCH_ROBOT)) {
+            ci.cancel();
+        }
+    }
 }

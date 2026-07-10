@@ -374,6 +374,7 @@ public class ServerTaskInfoClasses {
                     if (serverWorld.getBlockEntity(blockPos6) instanceof BeveragePlateBlockEntity entity) {
                         entity.setArmorer(null);
                         entity.setPoisoner(null);
+                        entity.isPoisonFake = false;
                         BlockEntityInfo blockEntityInfo = new BlockEntityInfo(
                                 entity.saveCustomOnly(serverWorld.registryAccess()),
                                 entity.components());

@@ -192,6 +192,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
         var player = (Player) (Object) this;
         String poisoner = stack.getOrDefault(SREDataComponentTypes.POISONER, null);
         String armorer = stack.getOrDefault(SREDataComponentTypes.ARMORER, null);
+        boolean isFakePoison = stack.getOrDefault(SREDataComponentTypes.FAKE_POISON, false);
         if (poisoner != null) {
             int poisonTicks = SREPlayerPoisonComponent.KEY.get(this).poisonTicks;
             if (SRE.REPLAY_MANAGER != null) {
@@ -199,15 +200,23 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
                     SRE.REPLAY_MANAGER.recordItemEatFlaggedItem(player, stack.getItem(), "poison");
                 }
             }
+            UUID poisonerUUID = UUID.fromString(poisoner);
             if (poisonTicks == -1) {
-                SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(
-                        world.getRandom().nextIntBetweenInclusive(SREPlayerPoisonComponent.clampTime.getA(),
-                                SREPlayerPoisonComponent.clampTime.getB()),
-                        UUID.fromString(poisoner));
+                int randomTicks = world.getRandom().nextIntBetweenInclusive(SREPlayerPoisonComponent.clampTime.getA(),
+                        SREPlayerPoisonComponent.clampTime.getB());
+                if (isFakePoison) {
+                    SREPlayerPoisonComponent.KEY.get(this).setFakePoisonTicks(randomTicks, poisonerUUID);
+                } else {
+                    SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(randomTicks, poisonerUUID);
+                }
             } else {
-                SREPlayerPoisonComponent.KEY.get(this)
-                        .setPoisonTicks(Mth.clamp(poisonTicks - world.getRandom().nextIntBetweenInclusive(100, 300), 0,
-                                SREPlayerPoisonComponent.clampTime.getB()), UUID.fromString(poisoner));
+                int reducedTicks = Mth.clamp(poisonTicks - world.getRandom().nextIntBetweenInclusive(100, 300), 0,
+                        SREPlayerPoisonComponent.clampTime.getB());
+                if (isFakePoison) {
+                    SREPlayerPoisonComponent.KEY.get(this).setFakePoisonTicks(reducedTicks, poisonerUUID);
+                } else {
+                    SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(reducedTicks, poisonerUUID);
+                }
             }
             // this.playSound(SoundEvents.WITCH_DRINK, 1f, 1f);
         }
