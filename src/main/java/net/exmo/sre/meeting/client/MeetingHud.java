@@ -182,13 +182,14 @@ public final class MeetingHud {
         }
 
         // 发言者名牌（面板正下方横排，金框脉冲）
-        renderSpeakers(g, client, py + panelH + 4);
+        int speakersY = py + panelH + 4;
+        renderSpeakers(g, client, speakersY);
 
-        // 报告信息（面板上方）
+        // 报告信息（发言人名牌下方；过宽时自动缩放，避免溢出屏幕）
         if (!MeetingClientHandler.victimName.isEmpty()) {
             Component reportInfo = Component.translatable("meeting.sre.subtitle.body",
                     MeetingClientHandler.reporterName, MeetingClientHandler.victimName);
-            g.drawCenteredString(font, reportInfo, w / 2, py - 14, TEXT);
+            drawReportInfo(g, client, reportInfo, w / 2, speakersY + 18, TEXT, w - 20);
         }
 
         // 底部：发言键提示 / 自己发言中的状态
@@ -208,6 +209,22 @@ public final class MeetingHud {
             }
             g.drawCenteredString(font, hint, w / 2, g.guiHeight() - 44, color);
         }
+    }
+
+    /** 居中绘制报告信息：文本过宽时按 maxWidth 等比缩小，避免溢出屏幕。 */
+    private static void drawReportInfo(GuiGraphics g, Minecraft client, Component text, int cx, int y,
+            int color, int maxWidth) {
+        var font = client.font;
+        int textW = font.width(text);
+        float scale = 1.0F;
+        if (textW > maxWidth && textW > 0) {
+            scale = (float) maxWidth / textW;
+        }
+        g.pose().pushPose();
+        g.pose().translate(cx, y, 0);
+        g.pose().scale(scale, scale, 1.0F);
+        g.drawCenteredString(font, text, 0, 0, color);
+        g.pose().popPose();
     }
 
     private static void renderSpeakers(GuiGraphics g, Minecraft client, int y) {

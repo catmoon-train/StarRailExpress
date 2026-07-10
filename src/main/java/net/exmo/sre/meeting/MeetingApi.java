@@ -38,6 +38,18 @@ public final class MeetingApi {
         return MeetingManager.startMeeting(level, reporter, victimName);
     }
 
+    /**
+     * 召开紧急会议（紧急模式：绕过开局冷却与会议间冷却）。
+     *
+     * @param victimName 可选的「死者」展示名；无则传 null
+     * @param emergency   是否为紧急会议（如角色死亡触发），紧急时忽略冷却
+     * @return 是否成功召开
+     */
+    public static boolean startMeeting(ServerLevel level, ServerPlayer reporter, @Nullable String victimName,
+            boolean emergency) {
+        return MeetingManager.startMeeting(level, reporter, victimName, emergency);
+    }
+
     /** 立即结束当前会议（全员送回原位）。 */
     public static void endMeeting() {
         MeetingManager.endMeeting(false);

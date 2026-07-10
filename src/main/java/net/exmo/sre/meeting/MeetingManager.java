@@ -235,6 +235,18 @@ public final class MeetingManager {
      * @param victim 被发现的尸体主人名，紧急按钮式会议传 null
      */
     public static boolean startMeeting(ServerLevel serverLevel, ServerPlayer reporter, @Nullable String victim) {
+        return startMeeting(serverLevel, reporter, victim, false);
+    }
+
+    /**
+     * 召开会议（可指定为紧急会议）。
+     *
+     * @param victim    被发现的尸体主人名，紧急按钮式会议传 null
+     * @param emergency 紧急会议（如加拿大鹅死亡触发）：绕过开局冷却与会议间冷却，
+     *                  确保由死亡触发的会议必定能召开
+     */
+    public static boolean startMeeting(ServerLevel serverLevel, ServerPlayer reporter, @Nullable String victim,
+            boolean emergency) {
         AreasSettings settings = settings(serverLevel);
         if (settings == null || !settings.meetingEnabled || isActive()) {
             return false;
@@ -244,15 +256,15 @@ public final class MeetingManager {
             return false;
         }
         long now = serverLevel.getGameTime();
-        if (now < cooldownUntilTick) {
+        if (!emergency && now < cooldownUntilTick) {
             return false;
         }
-        // 开局冷却：游戏开始后一段时间内不能召开会议。
+        // 开局冷却：游戏开始后一段时间内不能召开会议（紧急会议绕过）。
         if (settings.meetingStartCooldown > 0) {
             SREGameTimeComponent timeComponent = SREGameTimeComponent.KEY.get(serverLevel);
             if (timeComponent != null) {
                 long elapsed = Math.max(0, timeComponent.getResetTime() - timeComponent.getTime());
-                if (elapsed < settings.meetingStartCooldown * 20L) {
+                if (!emergency && elapsed < settings.meetingStartCooldown * 20L) {
                     return false;
                 }
             }

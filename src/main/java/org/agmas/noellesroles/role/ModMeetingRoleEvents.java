@@ -27,7 +27,8 @@ public class ModMeetingRoleEvents {
             if (game == null || !game.isRunning()) return;
             if (!game.isRole(sp, ModMeetingRoles.CANADA_GOOSE)) return;
             ServerPlayer reporter = killer instanceof ServerPlayer kp ? kp : sp;
-            MeetingApi.startMeeting(sp.serverLevel(), reporter, sp.getGameProfile().getName());
+            // 紧急会议：绕过开局冷却与会议间冷却，确保加拿大鹅死亡必定触发会议
+            MeetingApi.startMeeting(sp.serverLevel(), reporter, sp.getGameProfile().getName(), true);
         });
 
         // 呆呆鸟：被投票出局时独立胜利
