@@ -43,6 +43,8 @@ public class SREComponents
     public void registerEntityComponentFactories(@NotNull EntityComponentFactoryRegistry registry) {
         registry.beginRegistration(Player.class, SREArmorPlayerComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREArmorPlayerComponent::new);
+        registry.beginRegistration(Player.class, SREWeakArmorPlayerComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREWeakArmorPlayerComponent::new);
         registry.beginRegistration(Player.class, SREPlayerTaskComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerTaskComponent::new);
         registry.beginRegistration(Player.class, ExtraSlotComponent.KEY)

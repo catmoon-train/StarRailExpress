@@ -46,17 +46,32 @@ public class AntidoteReagentItem extends Item {
                         InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(target);
                         
                         boolean isPoisoned = poisonComponent.poisonTicks > 0;
+                        boolean isFakePoison = isPoisoned && poisonComponent.fakePoison;
+                        boolean isRealPoison = isPoisoned && !poisonComponent.fakePoison;
                         boolean isInfected = infectedComponent.infectedTicks > 0;
 
-                        if (isPoisoned && isInfected) {
-                            // 两者兼有
+                        if (isFakePoison && isInfected) {
+                            // 假毒 + 感染
+                            player.displayClientMessage(Component.translatable(
+                                    "message.noellesroles.antidote_reagent.fake_poison_and_infected", target.getName()), true);
+                            poisonComponent.init();
+                            poisonComponent.sync();
+                            infectedComponent.cure();
+                        } else if (isRealPoison && isInfected) {
+                            // 真毒 + 感染
                             player.displayClientMessage(Component.translatable(
                                     "message.noellesroles.antidote_reagent.both", target.getName()), true);
                             poisonComponent.init();
                             poisonComponent.sync();
                             infectedComponent.cure();
-                        } else if (isPoisoned) {
-                            // 只有中毒
+                        } else if (isFakePoison) {
+                            // 只有假毒
+                            player.displayClientMessage(Component.translatable(
+                                    "message.noellesroles.antidote_reagent.fake_poison_only", target.getName()), true);
+                            poisonComponent.init();
+                            poisonComponent.sync();
+                        } else if (isRealPoison) {
+                            // 只有真毒
                             player.displayClientMessage(Component.translatable(
                                     "message.noellesroles.antidote_reagent.poisoned_only", target.getName()), true);
                             poisonComponent.init();

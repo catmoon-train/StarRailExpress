@@ -864,6 +864,8 @@
     "item.trainmurdermystery.disguise_3.tooltip": "Right-click and consume one to gain a 30-second disguise, swapping your skin to appearance #3.",
     "item.trainmurdermystery.defense_vial": "Defense Vial",
     "item.trainmurdermystery.defense_vial.tooltip": "Place in food or drink to give the next person who takes it a shield!",
+    "item.trainmurdermystery.weak_defense_vial": "Weak Shield Vial",
+    "item.trainmurdermystery.weak_defense_vial.tooltip": "Place in food or drink to give the next person a weak shield! The weak shield is temporary and only blocks one knife attack.",
     "item.trainmurdermystery.poison_vial.tooltip": "Sneakily place in food or drink to poison the next person who takes it",
     "item.trainmurdermystery.psycho_mode": "Psycho Mode",
     "item.trainmurdermystery.psycho_mode.tooltip": "\"Do you like hurting people?\"\nHide your identity, allowing you to go on a bat-swinging rampage for 30 seconds\nA full swing of the bat can kill, and cannot be cancelled during the duration\nActivates immediately upon purchase, has a 5-minute cooldown",

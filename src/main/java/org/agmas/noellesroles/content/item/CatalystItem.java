@@ -47,11 +47,15 @@ public class CatalystItem extends Item {
                     
                     // 如果是杀手阵营或杀手方中立，跳过致死（但仍然可以清除状态）
                     
-                    // 处理中毒玩家
+                    // 处理中毒玩家（包括假毒）
                     SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(target);
                     if (poisonComponent.poisonTicks > 0) {
                         if (!isKillerSide) {
-                            // 立即杀死中毒玩家
+                            // 立即杀死中毒玩家（无论真毒还是假毒，催化剂都能催化致死）
+                            if (poisonComponent.fakePoison) {
+                                // 假毒转真毒后立即致死
+                                poisonComponent.fakePoison = false;
+                            }
                             poisonComponent.setPoisonTicks(1, player.getUUID());
                         } else {
                             // 清除杀手阵营的中毒状态

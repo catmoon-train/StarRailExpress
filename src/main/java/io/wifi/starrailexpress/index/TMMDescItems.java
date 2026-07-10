@@ -15,6 +15,7 @@ public interface TMMDescItems {
       introItems.add(TMMItems.BODY_BAG);
       introItems.add(TMMItems.CROWBAR);
       introItems.add(TMMItems.DEFENSE_VIAL);
+      introItems.add(TMMItems.WEAK_DEFENSE_VIAL);
       introItems.add(TMMItems.DERRINGER);
       introItems.add(TMMItems.FIRECRACKER);
       introItems.add(TMMItems.GRENADE);

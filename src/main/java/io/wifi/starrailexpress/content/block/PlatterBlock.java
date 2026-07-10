@@ -134,6 +134,17 @@ public abstract class PlatterBlock extends BaseEntityBlock {
             }
             return InteractionResult.SUCCESS;
         }
+        if (player.getItemInHand(InteractionHand.MAIN_HAND).is(TMMItems.WEAK_DEFENSE_VIAL)
+                && blockEntity.getWeakArmorer() == null) {
+            blockEntity.setWeakArmorer(player.getStringUUID());
+            player.getItemInHand(InteractionHand.MAIN_HAND).shrink(1);
+            player.playNotifySound(SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 0.5f, 1f);
+            if (SRE.REPLAY_MANAGER != null) {
+                SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
+                        BuiltInRegistries.ITEM.getKey(TMMItems.WEAK_DEFENSE_VIAL));
+            }
+            return InteractionResult.SUCCESS;
+        }
         if (player.getItemInHand(InteractionHand.MAIN_HAND).is(TMMItems.POISON_VIAL)
                 && blockEntity.getPoisoner() == null) {
             blockEntity.setPoisoner(player.getStringUUID());
@@ -186,6 +197,7 @@ public abstract class PlatterBlock extends BaseEntityBlock {
                 randomItem.set(DataComponents.MAX_STACK_SIZE, 1);
                 String poisoner = blockEntity.getPoisoner();
                 String armorer = blockEntity.getArmorer();
+                String weakArmorer = blockEntity.getWeakArmorer();
 
                 if (poisoner != null) {
                     randomItem.set(SREDataComponentTypes.POISONER, poisoner);
@@ -198,6 +210,10 @@ public abstract class PlatterBlock extends BaseEntityBlock {
                 if (armorer != null) {
                     randomItem.set(SREDataComponentTypes.ARMORER, armorer);
                     blockEntity.setArmorer(null);
+                }
+                if (weakArmorer != null) {
+                    randomItem.set(SREDataComponentTypes.WEAK_ARMORER, weakArmorer);
+                    blockEntity.setWeakArmorer(null);
                 }
                 player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1f);
                 player.setItemInHand(InteractionHand.MAIN_HAND, randomItem);

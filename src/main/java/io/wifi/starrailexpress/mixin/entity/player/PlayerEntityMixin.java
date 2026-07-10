@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent;
 import io.wifi.starrailexpress.content.item.CocktailItem;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
@@ -192,6 +193,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
         var player = (Player) (Object) this;
         String poisoner = stack.getOrDefault(SREDataComponentTypes.POISONER, null);
         String armorer = stack.getOrDefault(SREDataComponentTypes.ARMORER, null);
+        String weakArmorer = stack.getOrDefault(SREDataComponentTypes.WEAK_ARMORER, null);
         boolean isFakePoison = stack.getOrDefault(SREDataComponentTypes.FAKE_POISON, false);
         if (poisoner != null) {
             int poisonTicks = SREPlayerPoisonComponent.KEY.get(this).poisonTicks;
@@ -210,12 +212,21 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
                     SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(randomTicks, poisonerUUID);
                 }
             } else {
-                int reducedTicks = Mth.clamp(poisonTicks - world.getRandom().nextIntBetweenInclusive(100, 300), 0,
-                        SREPlayerPoisonComponent.clampTime.getB());
-                if (isFakePoison) {
-                    SREPlayerPoisonComponent.KEY.get(this).setFakePoisonTicks(reducedTicks, poisonerUUID);
+                // 如果玩家当前处于假毒状态，且受到真毒，则真毒直接覆盖假毒（重新计时）
+                boolean currentlyFakePoisoned = SREPlayerPoisonComponent.KEY.get(this).fakePoison;
+                if (currentlyFakePoisoned && !isFakePoison) {
+                    // 真毒覆盖假毒，使用全新计时
+                    int randomTicks = world.getRandom().nextIntBetweenInclusive(SREPlayerPoisonComponent.clampTime.getA(),
+                            SREPlayerPoisonComponent.clampTime.getB());
+                    SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(randomTicks, poisonerUUID);
                 } else {
-                    SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(reducedTicks, poisonerUUID);
+                    int reducedTicks = Mth.clamp(poisonTicks - world.getRandom().nextIntBetweenInclusive(100, 300), 0,
+                            SREPlayerPoisonComponent.clampTime.getB());
+                    if (isFakePoison) {
+                        SREPlayerPoisonComponent.KEY.get(this).setFakePoisonTicks(reducedTicks, poisonerUUID);
+                    } else {
+                        SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(reducedTicks, poisonerUUID);
+                    }
                 }
             }
             // this.playSound(SoundEvents.WITCH_DRINK, 1f, 1f);
@@ -229,6 +240,15 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(this);
             // this.playSound(SoundEvents.SHIELD_BLOCK, 1f, 1f);
             bartenderPlayerComponent.giveArmor();
+        }
+        if (weakArmorer != null) {
+            if (SRE.REPLAY_MANAGER != null) {
+                SRE.REPLAY_MANAGER.recordItemEatFlaggedItem(player, stack.getItem(), "weak_armor");
+            }
+            SREWeakArmorPlayerComponent weakComponent = SREWeakArmorPlayerComponent.KEY.get(this);
+            weakComponent.giveWeakArmor(SREWeakArmorPlayerComponent.VIAL_WEAK_ARMOR_DURATION,
+                    new java.util.HashSet<>(java.util.Set.of(
+                            io.wifi.starrailexpress.game.GameConstants.DeathReasons.KNIFE)));
         }
         if (poisoner != null && armorer != null) {
             SRE.REPLAY_MANAGER.recordItemEatFlaggedItem(player, stack.getItem(), "poison_and_armor");

@@ -21,6 +21,8 @@ public interface SREDataComponentTypes {
             stringBuilder -> stringBuilder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
     DataComponentType<String> ARMORER = register("armorer",
             stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+    DataComponentType<String> WEAK_ARMORER = register("weak_armorer",
+            stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
     DataComponentType<Boolean> USED = register("used",
             stringBuilder -> stringBuilder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
     DataComponentType<String> OWNER = register("owner",

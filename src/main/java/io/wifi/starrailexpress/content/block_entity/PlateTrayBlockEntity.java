@@ -24,6 +24,7 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
     public String poisoner = null;
     public boolean isPoisonFake = false;
     public String armorer = null;
+    public String weakArmorer = null;
     public PlateType plate = PlateType.DRINK;
 
     public PlateTrayBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -80,6 +81,15 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
         this.sync();
     }
 
+    public String getWeakArmorer() {
+        return this.weakArmorer;
+    }
+
+    public void setWeakArmorer(String weakArmorer) {
+        this.weakArmorer = weakArmorer;
+        this.sync();
+    }
+
     public void setPoisoner(String poisoner) {
         this.poisoner = poisoner;
         this.sync();
@@ -108,6 +118,8 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
         nbt.putBoolean("isPoisonFake", this.isPoisonFake);
         if (this.armorer != null)
             nbt.putString("armorer", this.armorer);
+        if (this.weakArmorer != null)
+            nbt.putString("weakArmorer", this.weakArmorer);
         nbt.putBoolean("Drink", this.plate == PlateType.DRINK);
     }
 
@@ -125,6 +137,7 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
         this.poisoner = nbt.contains("poisoner") ? nbt.getString("poisoner") : null;
         this.isPoisonFake = nbt.contains("isPoisonFake") ? nbt.getBoolean("isPoisonFake") : false;
         this.armorer = nbt.contains("armorer") ? nbt.getString("armorer") : null;
+        this.weakArmorer = nbt.contains("weakArmorer") ? nbt.getString("weakArmorer") : null;
         this.plate = nbt.getBoolean("Drink") ? PlateType.DRINK : PlateType.FOOD;
     }
 

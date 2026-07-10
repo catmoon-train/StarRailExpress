@@ -1274,6 +1274,8 @@
     "item.trainmurdermystery.crowbar.tooltip": "对任意门使用可将其永久打开",
     "item.trainmurdermystery.defense_vial": "防御药剂",
     "item.trainmurdermystery.defense_vial.tooltip": "放入食物或饮料中，给下一个拿取的人增加护盾！",
+    "item.trainmurdermystery.weak_defense_vial": "弱效护盾试剂",
+    "item.trainmurdermystery.weak_defense_vial.tooltip": "放入食物或饮料中，给下一个拿取的人增加弱效护盾！弱效护盾持续20秒，仅能抵挡一次刀伤害。",
     "item.trainmurdermystery.derringer": "德林加手枪",
     "item.trainmurdermystery.derringer.tooltip": "瞄准，右键并射击\n只能射击一次，所以务必命中！\n击杀后子弹会补充",
     "item.trainmurdermystery.disguise_1": "伪装道具·甲",

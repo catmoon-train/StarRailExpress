@@ -482,6 +482,34 @@ public abstract class GameMode {
             }
         }
 
+        // 弱效护盾拦截检查
+        SREWeakArmorPlayerComponent weakArmorComponent = SREWeakArmorPlayerComponent.KEY.get(victim);
+        if (weakArmorComponent != null && weakArmorComponent.getWeakArmor() > 0) {
+            if (weakArmorComponent.canBlockDeathReason(deathReason)) {
+                weakArmorComponent.consumeWeakArmor();
+                victim.displayClientMessage(Component.translatable("message.bartender.weak_armor_broke_self")
+                        .withStyle(ChatFormatting.YELLOW), true);
+                victim.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR,
+                        SoundSource.MASTER, 5.0F, 1.0F);
+                if (SRE.REPLAY_MANAGER != null) {
+                    SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
+                    SRE.REPLAY_MANAGER.recordPlayerNotKilled(
+                            killer,
+                            victim,
+                            deathReason);
+                }
+                if (killer instanceof ServerPlayer serverPlayer) {
+                    ServerPlayNetworking.send(serverPlayer,
+                            new BreakArmorPayload(victim.getX(), victim.getY(), victim.getZ()));
+                }
+                OnShieldBroken.EVENT.invoker().onShieldBroken(victim, killer);
+                if (!forceDeath) {
+                    GameUtils.recordPlayerKill(killer, victim, deathReason, false);
+                    return;
+                }
+            }
+        }
+
         if (psychocca.getPsychoTicks() > 0) {
             if (!forceDeath && psychocca.getArmour() > 0) {
                 psychocca.setArmour(psychocca.getArmour() - 1);

@@ -108,6 +108,9 @@ public interface TMMItems {
     Item DEFENSE_VIAL = registrar.create("defense_vial",
             new DefenseItem(new Item.Properties().stacksTo(1)),
             TOOLS_GROUP, SRE_ALL_GROUP);
+    Item WEAK_DEFENSE_VIAL = registrar.create("weak_defense_vial",
+            new WeakDefenseItem(new Item.Properties().stacksTo(1)),
+            TOOLS_GROUP, SRE_ALL_GROUP);
     Item DISGUISE_1 = registrar.create("disguise_1",
             new DisguiseItem(new Item.Properties().stacksTo(16), 0),
             TOOLS_GROUP, SRE_ALL_GROUP);
@@ -167,11 +170,17 @@ public interface TMMItems {
     public static void initialize() {
         INVISIBLE_ITEMS.add(TMMItems.NOTE);
         INVISIBLE_ITEMS.add(TMMItems.DEFENSE_VIAL);
+        INVISIBLE_ITEMS.add(TMMItems.WEAK_DEFENSE_VIAL);
 
         // 亡命徒，超级亡命徒，土块 可以直接使用防御药剂
         DefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
         DefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
         DefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
+
+        // 亡命徒，超级亡命徒，土块 也可以直接使用弱效护盾试剂
+        WeakDefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
+        WeakDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
+        WeakDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         registrar.registerEntries();
 

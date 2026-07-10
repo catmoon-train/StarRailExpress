@@ -28,6 +28,8 @@ public interface WatheBridgerItems {
     Item CROWBAR = registrar.create("crowbar", new CrowbarItem(new Item.Properties().stacksTo(1)));
     Item DEFENSE_VIAL = registrar.create("defense_vial",
             new DefenseItem(new Item.Properties().stacksTo(1)));
+    Item WEAK_DEFENSE_VIAL = registrar.create("weak_defense_vial",
+            new WeakDefenseItem(new Item.Properties().stacksTo(1)));
     Item GRENADE = registrar.create("grenade", new GrenadeItem(new Item.Properties().stacksTo(1)));
     Item THROWN_GRENADE = registrar.create("thrown_grenade", new GrenadeItem(new Item.Properties().stacksTo(1)));
     Item FIRECRACKER = registrar.create("firecracker", new FirecrackerItem(new Item.Properties().stacksTo(1)));

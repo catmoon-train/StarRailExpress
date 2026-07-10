@@ -615,10 +615,12 @@ public class InstinctRenderer {
                 if (SREClient.gameComponent.isRole(self, ModRoles.BARTENDER)) {
                     if (self.hasEffect(ModEffects.SAFE_TIME))
                         return TrueFalseAndCustomResult.pass();
+                    var weakArmorComponent = io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent.KEY.get(target_player);
+                    boolean hasWeakArmor = weakArmorComponent != null && weakArmorComponent.getWeakArmor() > 0;
                     if (armorPlayerComponent.getArmor() > 0 && playerPoisonComponent.poisonTicks > 0) {
                         return TrueFalseAndCustomResult.custom(new Color(186, 255, 65).getRGB());
                     }
-                    if (armorPlayerComponent.getArmor() > 0) {
+                    if (armorPlayerComponent.getArmor() > 0 || hasWeakArmor) {
                         if (target_role.identifier().equals(ModRoles.WATCHER_ID)) {
                             return TrueFalseAndCustomResult.pass();
                         }
