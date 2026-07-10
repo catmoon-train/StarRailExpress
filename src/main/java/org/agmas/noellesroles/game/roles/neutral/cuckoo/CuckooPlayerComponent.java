@@ -38,6 +38,8 @@ public class CuckooPlayerComponent implements RoleComponent, ServerTickingCompon
     /** 场上当前存活的蛋数量 */
     public int survivingEggs = 0;
     public int placeCooldown = 0;
+    /** 回正计数用的计时器（tick），每 100 tick（5 秒）回正一次 */
+    private int reconcileCooldown = 0;
 
     public CuckooPlayerComponent(Player player) {
         this.player = player;
@@ -80,6 +82,19 @@ public class CuckooPlayerComponent implements RoleComponent, ServerTickingCompon
         var level = sp.serverLevel();
         var gameWorld = SREGameWorldComponent.KEY.get(level);
         if (!gameWorld.isRole(player, ModRoles.CUCKOO)) return;
+
+        // 每 5 秒（100 tick）以权威蛋数据回正计数，避免每 tick 开销；
+        // 即时减一仍由 onEggBroken 负责，这里仅作为兜底防脱钩
+        if (reconcileCooldown > 0) reconcileCooldown--;
+        if (reconcileCooldown <= 0) {
+            int actual = CuckooEggData.countOwnedEggs(player.getUUID());
+            if (actual != survivingEggs) {
+                survivingEggs = actual;
+                sync();
+            }
+            reconcileCooldown = 100;
+        }
+
         if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(player)) return;
 
         if (placeCooldown > 0) placeCooldown--;

@@ -62,6 +62,18 @@ public class CuckooEggData {
         CLIENT_OWNED_EGGS.clear();
     }
 
+    /** 统计指定拥有者当前存活的蛋数量（服务端权威来源）。 */
+    public static int countOwnedEggs(UUID owner) {
+        if (owner == null) return 0;
+        int count = 0;
+        for (EggInfo info : EGGS.values()) {
+            if (owner.equals(info.ownerUuid)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public static boolean hasNearbyEgg(net.minecraft.world.level.Level level, AABB aabb) {
         for (Entity e : level.getEntities(null, aabb)) {
             if (isCuckooEgg(e)) return true;
