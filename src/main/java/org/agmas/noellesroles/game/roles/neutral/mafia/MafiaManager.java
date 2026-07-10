@@ -39,7 +39,7 @@ public final class MafiaManager {
     public static void register() {
         PayloadTypeRegistry.playC2S().register(MafiaActionC2SPacket.ID, MafiaActionC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(MafiaActionC2SPacket.ID,
-            (payload, context) -> context.server().execute(() -> handleAction(context.player(), payload.action(), payload.target())));
+            (payload, context) -> context.server().execute(() -> handleAction(context.player(), payload.action(), payload.target(), payload.rolePath())));
         OnRevolverUsed.EVENT.register((player, target) -> {
             if (isGodfather(player) && player.getMainHandItem().is(TMMItems.DERRINGER)) {
                 consumeBullet(player);
@@ -89,7 +89,7 @@ public final class MafiaManager {
         });
     }
 
-    private static void handleAction(ServerPlayer player, int action, UUID target) {
+    private static void handleAction(ServerPlayer player, int action, UUID target, String rolePath) {
         if (!isGodfather(player)) return;
         if (target == null) return;
         ServerPlayer tgt = player.server.getPlayerList().getPlayer(target);
@@ -97,7 +97,13 @@ public final class MafiaManager {
         var comp = GodfatherComponent.KEY.get(player);
         long now = player.level().getGameTime();
 
-        if (action == MafiaActionC2SPacket.RECRUIT_MAFIOSO || action == MafiaActionC2SPacket.RECRUIT_JANITOR || action == MafiaActionC2SPacket.RECRUIT_NUTRITIONIST || action == MafiaActionC2SPacket.RECRUIT_PARASOL) {
+        if (action == MafiaActionC2SPacket.RECRUIT_ROLE) {
+            // 动态解析被招募的职业：必须是 isMafiaTeam，且不能是教父自己
+            SRERole newRole = RoleUtils.getRole(rolePath);
+            if (newRole == null || !newRole.isMafiaTeam() || newRole.identifier().equals(ModRoles.GODFATHER.identifier())) {
+                player.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.noellesroles.godfather.cannot_recruit"), true);
+                return;
+            }
             if (now < comp.recruitCooldownUntil) return;
             if (comp.familyMembers.size() >= comp.recruitLimit) return;
             if (!isRecruitable(tgt)) {
@@ -105,10 +111,6 @@ public final class MafiaManager {
                 return;
             }
             SRERole prevRole = SREGameWorldComponent.KEY.get(tgt.level()).getRole(tgt);
-            SRERole newRole = action == MafiaActionC2SPacket.RECRUIT_MAFIOSO ? ModRoles.MAFIOSO
-                    : action == MafiaActionC2SPacket.RECRUIT_JANITOR ? ModRoles.JANITOR
-                    : action == MafiaActionC2SPacket.RECRUIT_NUTRITIONIST ? ModRoles.NUTRITIONIST
-                    : ModRoles.PARASOL;
             previousRoleByMember.put(target, prevRole);
             godfatherByMember.put(target, player.getUUID());
             comp.familyMembers.add(target);
@@ -122,7 +124,7 @@ public final class MafiaManager {
             player.displayClientMessage(
                     net.minecraft.network.chat.Component.translatable("message.noellesroles.godfather.recruit_success",
                             tgt.getDisplayName(),
-                            net.minecraft.network.chat.Component.translatable("announcement.star.role.noellesroles." + newRole.getIdentifier().getPath()))
+                            net.minecraft.network.chat.Component.translatable("announcement.star.role." + newRole.getIdentifier().getPath()))
                             .withStyle(net.minecraft.ChatFormatting.GREEN),
                     true);
         }

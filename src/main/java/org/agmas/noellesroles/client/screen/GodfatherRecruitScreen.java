@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -8,12 +9,15 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.packet.MafiaActionC2SPacket;
+import org.agmas.noellesroles.role.ModRoles;
+import io.wifi.starrailexpress.api.TMMRoles;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class GodfatherRecruitScreen extends Screen {
-    private static final int COLOR_MAFIOSO = 0xFFDA70D6;
-    private static final int COLOR_JANITOR = 0xFFFF69B4;
-    private static final int COLOR_NUTRITIONIST = 0xFF32CD32;
-    private static final int COLOR_PARASOL = 0xFF008B8B;
+    private final List<SRERole> familyRoles = new ArrayList<>();
 
     public GodfatherRecruitScreen() {
         super(Component.translatable("screen.noellesroles.godfather.recruit"));
@@ -22,43 +26,49 @@ public class GodfatherRecruitScreen extends Screen {
     @Override
     protected void init() {
         super.init();
+
+        // 自动收集所有被标记为 isMafiaTeam 的职业（排除教父自身）
+        // 附属模组只要给职业设置 .setMafiaTeam(true)，就会自动出现在教父的招募 GUI 中
+        familyRoles.clear();
+        for (SRERole role : TMMRoles.ROLES.values()) {
+            if (role.isMafiaTeam() && !role.identifier().equals(ModRoles.GODFATHER.identifier())) {
+                familyRoles.add(role);
+            }
+        }
+        // 按职业路径稳定排序，保证 GUI 排版稳定
+        familyRoles.sort(Comparator.comparing(r -> r.identifier().getPath()));
+
         int cx = width / 2;
         int midY = height / 2 - 50;
         int bw = 100, bh = 50, gap = 10;
 
-        // 上排: 家族教徒 (左) | 家族侍卫 (右)
-        addRenderableWidget(Button.builder(
-            Component.translatable("role.noellesroles.mafioso"),
-            btn -> sendRecruit(MafiaActionC2SPacket.RECRUIT_MAFIOSO))
-            .pos(cx - bw - gap / 2, midY).size(bw, bh).build());
-
-        addRenderableWidget(Button.builder(
-            Component.translatable("role.noellesroles.janitor"),
-            btn -> sendRecruit(MafiaActionC2SPacket.RECRUIT_JANITOR))
-            .pos(cx + gap / 2, midY).size(bw, bh).build());
-
-        // 下排: 家族调理师 (左) | 家族保护伞 (右)
-        addRenderableWidget(Button.builder(
-            Component.translatable("role.noellesroles.nutritionist"),
-            btn -> sendRecruit(MafiaActionC2SPacket.RECRUIT_NUTRITIONIST))
-            .pos(cx - bw - gap / 2, midY + bh + gap).size(bw, bh).build());
-
-        addRenderableWidget(Button.builder(
-            Component.translatable("role.noellesroles.parasol"),
-            btn -> sendRecruit(MafiaActionC2SPacket.RECRUIT_PARASOL))
-            .pos(cx + gap / 2, midY + bh + gap).size(bw, bh).build());
+        // 两列网格，每个 isMafiaTeam 职业一个按钮（排版与原来一致）
+        int rows = (familyRoles.size() + 1) / 2;
+        for (int i = 0; i < familyRoles.size(); i++) {
+            SRERole role = familyRoles.get(i);
+            int col = i % 2;
+            int row = i / 2;
+            int x = cx + (col == 0 ? -bw - gap / 2 : gap / 2);
+            int y = midY + row * (bh + gap);
+            var id = role.identifier();
+            addRenderableWidget(Button.builder(
+                    Component.translatable("role." + id.getNamespace() + "." + id.getPath()),
+                    btn -> sendRecruit(id.toString()))
+                    .pos(x, y).size(bw, bh).build());
+        }
 
         // Close button
+        int closeY = midY + rows * (bh + gap) + 10;
         addRenderableWidget(Button.builder(
-            Component.translatable("gui.cancel"),
-            btn -> onClose())
-            .pos(cx - 50, midY + bh * 2 + gap * 2 + 10).size(100, 20).build());
+                Component.translatable("gui.cancel"),
+                btn -> onClose())
+                .pos(cx - 50, closeY).size(100, 20).build());
     }
 
-    private void sendRecruit(int action) {
+    private void sendRecruit(String rolePath) {
         Minecraft client = Minecraft.getInstance();
         if (client.crosshairPickEntity instanceof Player target && client.player != null) {
-            ClientPlayNetworking.send(new MafiaActionC2SPacket(action, target.getUUID()));
+            ClientPlayNetworking.send(new MafiaActionC2SPacket(MafiaActionC2SPacket.RECRUIT_ROLE, target.getUUID(), rolePath));
         }
         onClose();
     }
