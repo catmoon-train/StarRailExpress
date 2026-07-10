@@ -3140,7 +3140,7 @@
   "hud.sre.skill.charges": "  %s/%s次",
   "hud.sre.skill.charges_remaining": "還可使用%s次",
   "hud.sre.skill.cast_count": "  已釋放%s次",
-  "hud.sre.skill.ready_shift": "就緒 (潜行+技能键)",
+  "hud.sre.skill.ready_shift": "就緒 (%s+%s)",
   "hud.sre.passives": "被動：",
   "hud.sre.passive_label": "被動 ",
   "message.sre.skill.cast": "釋放 %s（本局第 %s 次）",

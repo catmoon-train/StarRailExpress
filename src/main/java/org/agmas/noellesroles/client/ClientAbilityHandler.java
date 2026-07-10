@@ -164,17 +164,18 @@ public class ClientAbilityHandler {
         }
 
         var definitions = RoleSkill.getDefinitions(role);
-        if (!definitions.isEmpty()) {
+        // 仅显式标记 modeSwitch 的技能才由切换键触发。其余潜行技能（重启、篡夺、领域……）
+        // 只能由 潜行+技能键 释放，否则切换键会误放技能。
+        var modeSwitch = RoleSkill.getModeSwitchDefinition(role);
+        if (modeSwitch.isPresent()) {
+            // 服务端按「潜行技能」子列表取槽位，这里也要用同一子列表的下标
             var shiftedDefs = definitions.stream().filter(RoleSkill.Definition::shifted).toList();
-            if (!shiftedDefs.isEmpty()) {
-                // 存在模式切换技能，Y 键触发模式切换
-                ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
-                        definitions.indexOf(shiftedDefs.getFirst()),
-                        RoleSkill.Phase.PRESS,
-                        findTarget(client),
-                        true));
-                return;
-            }
+            ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
+                    Math.max(0, shiftedDefs.indexOf(modeSwitch.get())),
+                    RoleSkill.Phase.PRESS,
+                    findTarget(client),
+                    true));
+            return;
         }
         if (definitions.size() < 2) {
             return;

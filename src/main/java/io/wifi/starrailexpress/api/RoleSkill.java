@@ -151,6 +151,7 @@ public final class RoleSkill {
             AnnounceInfo announceInfo,
             boolean toggleable,
             boolean shifted,
+            boolean modeSwitch,
             boolean showOnHud,
             Handler handler) {
         public Definition {
@@ -181,6 +182,7 @@ public final class RoleSkill {
         private AnnounceInfo announceInfo = AnnounceInfo.none();
         private boolean toggleable;
         private boolean shifted;
+        private boolean modeSwitch;
         private boolean showOnHud = false;
 
         private Builder(ResourceLocation id, String nameKey, Handler handler) {
@@ -275,6 +277,16 @@ public final class RoleSkill {
         }
 
         /**
+         * 标记此技能为「模式切换」，切换技能键可直接触发它。
+         * 仅用于纯粹的模式/槽位切换（如小偷的偷窃/潜行模式），
+         * 不要标记任何有实际效果的技能——否则切换键会误放技能。
+         */
+        public Builder modeSwitch(boolean modeSwitch) {
+            this.modeSwitch = modeSwitch;
+            return this;
+        }
+
+        /**
          * Whether this skill should appear on the HUD. Defaults to false. Set true for
          * skills that need HUD display.
          */
@@ -285,7 +297,7 @@ public final class RoleSkill {
 
         public Definition build() {
             return new Definition(id, nameKey, cooldownTicks, maxCharges, continuous,
-                    holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, showOnHud, handler);
+                    holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, modeSwitch, showOnHud, handler);
         }
     }
 
@@ -371,6 +383,11 @@ public final class RoleSkill {
 
     public static List<Definition> getSelectableDefinitions(SRERole role) {
         return role == null ? List.of() : getSelectableDefinitions(role.identifier());
+    }
+
+    /** 该职业的模式切换技能（若有），供切换技能键直接触发。 */
+    public static Optional<Definition> getModeSwitchDefinition(SRERole role) {
+        return getDefinitions(role).stream().filter(Definition::modeSwitch).findFirst();
     }
 
     /**

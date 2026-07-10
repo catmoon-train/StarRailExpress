@@ -19,6 +19,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
 
 /**
@@ -49,9 +50,35 @@ public class LeatherPigDisguiseRenderer {
     private static final float HAT_U0 = 40F / 64F, HAT_U1 = 48F / 64F;
     private static final float HAT_V0 = 8F / 64F, HAT_V1 = 16F / 64F;
 
+    // ==== 第一人称的自己 ====
+    // 相机在实体原点上方（眼高已由 LeatherPigEyeHeightMixin 降到猪的眼高），而猪眼在实体原点
+    // 【前方】0.875 格（枢轴 0.375 + 枢轴到脸 0.5）。原样画的话，正前方 0.375 格处就是后脑勺的
+    // 背面，整个视野一片粉。所以只对自己把整只猪往后挪，让猪眼落到相机上：猪头退到相机之后，
+    // 低头就能看见自己的猪吻。相机本身不动——它一动，准星射线（仍从实体原点出发）就会和画面
+    // 产生俯仰视差，枪打不准。
+    /** 猪脸再退到相机之后的余量，需大于 FACE_HAT_OFFSET，免得猪脸和相机共面 */
+    private static final float SELF_VIEW_CLEARANCE = 0.02F;
+
     public static boolean shouldDisguise(AbstractClientPlayer player) {
         LeatherPigPlayerComponent component = LeatherPigPlayerComponent.KEY.maybeGet(player).orElse(null);
         return component != null && component.isDisguised();
+    }
+
+    /**
+     * 猪眼相对实体原点的水平偏移。沿 PigModel 的骨骼层级拆成两段：枢轴段跟随身体偏航，
+     * 脸部段跟随头部偏航。俯仰不参与——渲染时猪头的 xRot 恒为 0。
+     */
+    private static Vec3 pigEyeOffset(AbstractClientPlayer player, float tickDelta) {
+        float bodyYaw = Mth.rotLerp(tickDelta, player.yBodyRotO, player.yBodyRot);
+        float headYaw = Mth.rotLerp(tickDelta, player.yHeadRotO, player.yHeadRot);
+        return forward(bodyYaw).scale(HEAD_PIVOT_FORWARD)
+                .add(forward(headYaw).scale(FACE_FORWARD + SELF_VIEW_CLEARANCE));
+    }
+
+    /** yaw 对应的水平前方向量（yaw=0 指向 +Z）。 */
+    private static Vec3 forward(float yawDegrees) {
+        float radians = yawDegrees * Mth.DEG_TO_RAD;
+        return new Vec3(-Mth.sin(radians), 0.0, Mth.cos(radians));
     }
 
     public static boolean render(AbstractClientPlayer player, float yaw, float tickDelta,
@@ -60,6 +87,10 @@ public class LeatherPigDisguiseRenderer {
         if (pig == null) {
             return false;
         }
+        Minecraft minecraft = Minecraft.getInstance();
+        // 第一人称下的自己：猪照画，但要整体后移，让猪眼落到相机上
+        boolean firstPersonSelf = minecraft.getCameraEntity() == player
+                && minecraft.options.getCameraType().isFirstPerson();
         // 行走动画每 tick 只推进一次，其余状态逐帧复制
         if (pig.tickCount != player.tickCount) {
             pig.walkAnimation.update(player.walkAnimation.speed(), 1.0f);
@@ -84,13 +115,21 @@ public class LeatherPigDisguiseRenderer {
         pig.setCustomName(null);
         pig.setCustomNameVisible(false);
 
-        EntityRenderer<? super Pig> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(pig);
+        poseStack.pushPose();
+        if (firstPersonSelf) {
+            Vec3 offset = pigEyeOffset(player, tickDelta);
+            poseStack.translate(-offset.x, 0.0, -offset.z);
+        }
+
+        EntityRenderer<? super Pig> renderer = minecraft.getEntityRenderDispatcher().getRenderer(pig);
         renderer.render(pig, yaw, tickDelta, poseStack, bufferSource, packedLight);
 
-        // 在猪头上叠加玩家自己皮肤的脸部（含双层皮肤）
-        if (!player.isInvisible()) {
+        // 在猪头上叠加玩家自己皮肤的脸部（含双层皮肤）。
+        // 第一人称的自己不画：脸部是无剔除四边形，此时正贴在相机上，会从背面糊住整个视野。
+        if (!player.isInvisible() && !firstPersonSelf) {
             renderPlayerFace(player, tickDelta, poseStack, bufferSource, packedLight);
         }
+        poseStack.popPose();
         return true;
     }
 

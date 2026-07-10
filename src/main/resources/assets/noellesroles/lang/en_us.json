@@ -3248,7 +3248,7 @@
   "hud.sre.skill.charges": "  %s/%s",
   "hud.sre.skill.charges_remaining": "%s left",
   "hud.sre.skill.cast_count": "  Used %s",
-  "hud.sre.skill.ready_shift": "Ready (潜行+技能键)",
+  "hud.sre.skill.ready_shift": "Ready (%s+%s)",
   "hud.sre.passives": "Passives:",
   "hud.sre.passive_label": "Passive ",
   "item.noellesroles.wreath": "Wreath",

@@ -18,7 +18,7 @@ import java.util.List;
  * 统一技能 HUD —— 复古车票风格（见 docs/ui_style.md）。
  *
  * 设计要点：
- * - 所有技能收进一块「深棕渐变 + 棕褐描边 + 顶部装饰线」的半透明整体面板，而非分散卡片；
+ * - 无背景面板，直接叠在画面上，靠文字投影保证可读性；
  * - 技能名（奶油色）左对齐，状态右对齐（就绪=绿 / 冷却=蓝 / 无次数=土褐）；
  * - 冷却期间行底部有 1px 金色进度条，直观显示恢复进度；
  * - 当前选中技能以金色侧边条 + 微亮背景标识（V/Y 键循环选择）；
@@ -30,18 +30,13 @@ public final class UnifiedSkillHud {
     }
 
     // ── 色板（docs/ui_style.md §2）───────────────────────────────
-    // 面板整体半透明：底色 / 描边 / 装饰线降低 alpha，文字与进度条保持不透明以保证可读性
-    private static final int PANEL_TOP = 0x8C1A1008;
-    private static final int PANEL_BOTTOM = 0x9420140A;
-    private static final int BORDER = 0xA08B6914;
-    private static final int DECO_LINE = 0x26FFE8C0;
+    // 无背景板，文字一律带投影以在亮景色上保持可读性
     private static final int GOLD = 0xFFD4AF37;
     private static final int TEXT = 0xFFFFF4DC;
     private static final int MUTED = 0xFF9E8B6E;
     private static final int GREEN = 0xFF72C17B;
     private static final int BLUE = 0xFF5EB7D8;
     private static final int DIVIDER = 0x18FFFFFF;
-    private static final int SELECTED_BG = 0x24C9A84C;
     private static final int COOLDOWN_TRACK = 0x4D000000;
 
     // ── 布局 ────────────────────────────────────────────────────
@@ -81,6 +76,10 @@ public final class UnifiedSkillHud {
             var ability = SREAbilityPlayerComponent.KEY.get(client.player);
             ability.ensureSkills(skills);
 
+            List<RoleSkill.Definition> selectable = RoleSkill.getSelectableDefinitions(role);
+            RoleSkill.Definition selectedDef = selectable.isEmpty() ? null
+                    : selectable.get(Mth.clamp(ability.getSelectedSkill(), 0, selectable.size() - 1));
+
             int rowCount = visible.size() + (passives.isEmpty() ? 0 : 1);
             Component[] names = new Component[rowCount];
             Component[] states = new Component[rowCount];
@@ -92,9 +91,8 @@ public final class UnifiedSkillHud {
             int idx = 0;
             for (RoleSkill.Definition skill : visible) {
                 SREAbilityPlayerComponent.SkillState state = ability.getSkillState(skill.id());
-                boolean selected = skill
-                        .equals(visible.get(Math.min(ability.getSelectedSkill(), visible.size() - 1)));
-                if (selected) {
+                // 选中下标是「可循环技能」列表的下标，不能直接拿去索引 HUD 行（HUD 还含潜行技能）
+                if (skill.equals(selectedDef)) {
                     selectedIdx = idx;
                 }
 
@@ -119,7 +117,8 @@ public final class UnifiedSkillHud {
                     stateColor = MUTED;
                 } else {
                     stateText = skill.shifted()
-                            ? Component.translatable("hud.sre.skill.ready_shift", client.options.keyShift.getTranslatedKeyMessage(),
+                            ? Component.translatable("hud.sre.skill.ready_shift",
+                                    client.options.keyShift.getTranslatedKeyMessage(),
                                     NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
                             : Component.translatable("hud.sre.skill.ready");
                     stateColor = GREEN;
@@ -149,15 +148,11 @@ public final class UnifiedSkillHud {
                 maxRowW = Math.max(maxRowW, client.font.width(passiveLine));
             }
 
-            // ── 面板绘制（右下角锚定）──────────────────────────
+            // ── 绘制（右下角锚定，无背景板，仅文字/侧边条/进度条）──────
             int panelW = maxRowW + PAD * 2 + ACCENT_W + 3;
             int panelH = rowCount * ROW_H + PAD * 2 + (passives.isEmpty() ? 0 : 2);
             int baseX = graphics.guiWidth() - panelW - 6;
             int baseY = graphics.guiHeight() - panelH - 20;
-
-            graphics.fillGradient(baseX, baseY, baseX + panelW, baseY + panelH, PANEL_TOP, PANEL_BOTTOM);
-            graphics.renderOutline(baseX, baseY, panelW, panelH, BORDER);
-            graphics.fill(baseX + 1, baseY + 1, baseX + panelW - 1, baseY + 2, DECO_LINE);
 
             int textX = baseX + PAD + ACCENT_W + 3;
             for (int r = 0; r < rowCount; r++) {
@@ -169,8 +164,7 @@ public final class UnifiedSkillHud {
                 }
 
                 if (r == selectedIdx) {
-                    // 选中行：微亮背景 + 呼吸金色侧边条
-                    graphics.fill(baseX + 2, rowY, baseX + panelW - 2, rowY + ROW_H - 1, SELECTED_BG);
+                    // 选中行：呼吸金色侧边条
                     float pulse = 0.7F + 0.3F * Mth.sin((Util.getMillis() % 1600L) / 1600.0F * Mth.TWO_PI);
                     int accent = (((int) (0xFF * pulse)) << 24) | (GOLD & 0xFFFFFF);
                     graphics.fill(baseX + 2, rowY + 1, baseX + 2 + ACCENT_W, rowY + ROW_H - 2, accent);
@@ -178,7 +172,7 @@ public final class UnifiedSkillHud {
 
                 int nameColor = passiveRow ? MUTED : (r == selectedIdx ? TEXT : blend(TEXT, MUTED, 0.35F));
                 int textY = rowY + (ROW_H - client.font.lineHeight) / 2 + 1;
-                // 面板半透明后亮景色会透上来，文字带投影才不至于糊掉
+                // 无背景板，文字带投影才不至于在亮景色上糊掉
                 graphics.drawString(client.font, names[r], textX, textY, nameColor, true);
 
                 if (states[r] != null) {

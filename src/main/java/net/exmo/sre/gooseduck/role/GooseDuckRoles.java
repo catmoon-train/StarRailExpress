@@ -20,12 +20,12 @@ public final class GooseDuckRoles {
     /** 鹅：好人阵营，完成小游戏任务或投票放逐所有鸭即获胜。 */
     public static final SRERole GOOSE = TMMRoles.registerRole(new GooseDuckRole(
             GOOSE_ID, new Color(240, 240, 240).getRGB(), true, false,
-            SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true).setDefaultMax(0));
+            SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true).setDefaultMax(0).setCanGetBodyItems(false));
 
     /** 鸭：伪装杀手，可击杀鹅、破坏（关灯）扰乱任务，需在被投票放逐前消灭鹅。 */
     public static final SRERole DUCK = TMMRoles.registerRole(new GooseDuckRole(
             DUCK_ID, new Color(210, 170, 40).getRGB(), false, true,
-            SRERole.MoodType.FAKE, Integer.MAX_VALUE, true).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true).setDefaultMax(0));
+            SRERole.MoodType.FAKE, Integer.MAX_VALUE, true).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true).setDefaultMax(0).setCanGetBodyItems(false));
 
     private GooseDuckRoles() {
     }

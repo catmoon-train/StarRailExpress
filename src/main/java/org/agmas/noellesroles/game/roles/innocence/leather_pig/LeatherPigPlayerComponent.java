@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
@@ -44,6 +45,14 @@ import java.util.UUID;
 public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<LeatherPigPlayerComponent> KEY = ModComponents.LEATHER_PIG;
     public static final ResourceLocation SKILL_ID = Noellesroles.id("leather_pig_frenzy");
+
+    /**
+     * 伪装期间玩家的真实眼高（= 猪实体的眼高）。
+     *
+     * <p>改的是眼高而不是相机位置：相机、准星射线、枪械命中判定全都读 {@code getEyeY()}，
+     * 只挪相机会让画面与实际命中点错开 0.75 格。见 LeatherPigEyeHeightMixin。
+     */
+    public static final float PIG_EYE_HEIGHT = EntityType.PIG.getDimensions().eyeHeight();
 
     public static final int FRENZY_COST = 150;
     public static final int FRENZY_TICKS = 30 * 20;
@@ -92,7 +101,7 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void init() {
-        disguised = false;
+        setDisguised(false);
         frenzyTicks = 0;
         sync();
     }
@@ -104,6 +113,21 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
 
     public boolean isDisguised() {
         return disguised;
+    }
+
+    /** 伪装状态翻转时必须 refreshDimensions()，否则 Entity 缓存的 eyeHeight 不会重算。 */
+    private void setDisguised(boolean value) {
+        if (disguised == value) {
+            return;
+        }
+        disguised = value;
+        player.refreshDimensions();
+    }
+
+    /** 供 mixin 在无组件实例时查询：该玩家当前是否顶着猪的皮。 */
+    public static boolean isDisguised(Player player) {
+        LeatherPigPlayerComponent component = KEY.maybeGet(player).orElse(null);
+        return component != null && component.disguised;
     }
 
     public boolean isFrenzyActive() {
@@ -152,7 +176,7 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
         boolean shouldDisguise = gameWorld.isRunning() && gameWorld.isRole(sp, ModRoles.LEATHER_PIG)
                 && GameUtils.isPlayerAliveAndSurvival(sp);
         if (shouldDisguise != disguised) {
-            disguised = shouldDisguise;
+            setDisguised(shouldDisguise);
             sync();
         } else if (disguised && sp.tickCount % DISGUISE_RESYNC_INTERVAL == 0) {
             // 伪装只在翻转那一 tick 推送一次，而翻转恰好落在开局传送/重生的窗口里：
@@ -296,7 +320,7 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        disguised = tag.getBoolean("disguised");
+        setDisguised(tag.getBoolean("disguised"));
         frenzyTicks = tag.getInt("frenzyTicks");
     }
 
