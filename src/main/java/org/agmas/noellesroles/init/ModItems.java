@@ -1091,6 +1091,15 @@ public class ModItems {
     // "sheriff_gun_maintenance"
     // );
 
+    /**
+     * 桃木钉
+     * - 诡客商店专属（Guest Ghost）
+     * - 对布袋鬼使用，使其鬼术进入冷却 + 移除护盾
+     */
+    public static final Item TAOMUDING = register(
+            new Item(new Item.Properties().stacksTo(1)),
+            "taomuding", ROLE_ITEMS_GROUP);
+
     public static Item register(Item item, String id, ResourceKey<CreativeModeTab>... extraGroups) {
         ResourceKey<CreativeModeTab>[] allGroups = java.util.Arrays.copyOf(extraGroups, extraGroups.length + 1);
         allGroups[extraGroups.length] = NOELLESROLES_ALL_GROUP;

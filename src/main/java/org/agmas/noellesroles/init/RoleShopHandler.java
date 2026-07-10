@@ -2906,7 +2906,7 @@ public class RoleShopHandler {
             }
             // 桃木钉
             {
-                ItemStack it = Items.WOODEN_SWORD.getDefaultInstance();
+                ItemStack it = ModItems.TAOMUDING.getDefaultInstance();
                 it.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.guest_ghost.taomuding"));
                 var rainLore = new ArrayList<Component>();
                 rainLore.add(Component.translatable("item.noellesroles.guest_ghost.taomuding.tooltip1")
@@ -2917,10 +2917,10 @@ public class RoleShopHandler {
                         ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(Player player) {
-                        if (player.getCooldowns().isOnCooldown(Items.WOODEN_SWORD)) {
+                        if (player.getCooldowns().isOnCooldown(ModItems.TAOMUDING)) {
                             return false;
                         }
-                        player.getCooldowns().addCooldown(Items.WOODEN_SWORD, 60 * 20);
+                        player.getCooldowns().addCooldown(ModItems.TAOMUDING, 60 * 20);
                         if (player instanceof ServerPlayer sp) {
                             final SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(sp.level());
                             List<ServerPlayer> players = sp.serverLevel().players();

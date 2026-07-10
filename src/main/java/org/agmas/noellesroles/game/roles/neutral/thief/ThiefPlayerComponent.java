@@ -531,6 +531,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         // 护盾试剂（来自TMM）
         if (stack.is(TMMItems.DEFENSE_VIAL))
             return true; // 护盾试剂
+        if (stack.is(TMMItems.WEAK_DEFENSE_VIAL))
+            return true; // 弱效护盾试剂
 
         if (stack.is(TMMItems.KEY))
             return true;
@@ -840,6 +842,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         // 护盾试剂（来自TMM）
         if (stack.is(TMMItems.DEFENSE_VIAL))
             return true; // 护盾试剂
+        if (stack.is(TMMItems.WEAK_DEFENSE_VIAL))
+            return true; // 弱效护盾试剂
 
         if (stack.is(TMMItems.KEY))
             return true; // 钥匙
