@@ -465,4 +465,9 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
         SceneAssetClient.closeEditor();
         super.onClose();
     }
+
+    @Override
+    public Screen screen() {
+        return this;
+    }
 }

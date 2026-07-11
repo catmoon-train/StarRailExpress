@@ -27,7 +27,14 @@ import net.minecraft.server.level.ServerLevel;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MapManagerSettingsCommand {
 
@@ -120,7 +127,7 @@ public class MapManagerSettingsCommand {
       Component nameComponent = Component.translatableWithFallback(displayNameKey, field.getName());
 
       // 字段值
-      Component valueComponent = formatValueComponent(value);
+      Component valueComponent = formatValueComponent(field, value);
 
       // 拼装一行：前缀 + 名称 + ": " + 值 + 换行
       MutableComponent line = Component.literal(prefix)
@@ -196,23 +203,138 @@ public class MapManagerSettingsCommand {
   }
 
   /**
-   * 将字段值格式化为 Component（客户端可直接渲染）
-   * 枚举使用翻译键显示，其他类型使用简单字符串
+   * 将字段值格式化为可显示的 Component。
+   * - 自定义对象（应展开）只显示简短提示（不调用 toString）
+   * - Collection 根据元素类型展示不同摘要（内置类型显示内容，自定义类型显示类型+数量）
+   * - 其他类型（String、Enum、Number 等）正常显示
    */
-  private static Component formatValueComponent(Object value) {
+  private static Component formatValueComponent(Field field, Object value) {
     if (value == null)
       return Component.literal("null");
-    if (value instanceof String)
+
+    // 可展开的自定义 POJO —— 不显示具体内容，只标出类型提示
+    if (shouldExpandObject(value)) {
+      return Component.literal("{" + value.getClass().getSimpleName() + "}");
+    }
+
+    // 集合
+    if (value instanceof Collection<?> col) {
+      int size = col.size();
+      Class<?> elemType = getElementType(field);
+
+      if (elemType != null && !isBuiltinType(elemType)) {
+        // 自定义元素类型
+        return Component.literal("Collection<" + elemType.getSimpleName() + ">[" + size + "]");
+      } else {
+        // 内置元素类型：显示前几个元素的内容
+        if (size == 0)
+          return Component.literal("[]");
+        List<Component> items = new ArrayList<>();
+        int limit = Math.min(size, 5);
+        int i = 0;
+        for (Object item : col) {
+          if (i >= limit)
+            break;
+          // 使用无字段信息的简化格式化（元素无对应字段，所以传 null）
+          items.add(formatSimpleValue(item));
+          i++;
+        }
+        MutableComponent list = Component.literal("[");
+        for (int j = 0; j < items.size(); j++) {
+          if (j > 0)
+            list.append(", ");
+          list.append(items.get(j));
+        }
+        if (size > limit)
+          list.append(", ...");
+        list.append("]");
+        return list;
+      }
+    }
+
+    // 映射
+    if (value instanceof Map) {
+      return Component.literal("Map[" + ((Map<?, ?>) value).size() + "]");
+    }
+
+    // 字符串
+    if (value instanceof String) {
       return Component.literal("\"" + value + "\"");
+    }
+
+    // 枚举（使用翻译键，若无则回退到枚举名）
     if (value instanceof Enum<?> e) {
       String enumKey = "sre.map_helper.settings." + e.getDeclaringClass().getSimpleName() + "." + e.name();
       return Component.translatableWithFallback(enumKey, e.name());
     }
-    if (value instanceof Collection)
-      return Component.literal("Collection[" + ((Collection<?>) value).size() + "]");
-    if (value instanceof Map)
-      return Component.literal("Map[" + ((Map<?, ?>) value).size() + "]");
+
+    // 数字、布尔等
     return Component.literal(value.toString());
+  }
+
+  /** 用于集合内元素的简单格式化（无字段上下文） */
+  private static Component formatSimpleValue(Object value) {
+    if (value == null)
+      return Component.literal("null");
+    if (value instanceof String)
+      return Component.literal("\"" + value + "\"");
+    if (value instanceof Enum<?> e)
+      return Component.literal(e.name());
+    return Component.literal(value.toString());
+  }
+
+  // 新增依赖方法：判断是否为内置类型（照搬 AllSettingsModule 逻辑）
+  private static boolean isBuiltinType(Class<?> clazz) {
+    if (clazz == null)
+      return true;
+    if (clazz.isPrimitive())
+      return true;
+    if (clazz == Boolean.class || clazz == Byte.class || clazz == Short.class ||
+        clazz == Integer.class || clazz == Long.class || clazz == Float.class ||
+        clazz == Double.class || clazz == Character.class)
+      return true;
+    if (clazz == String.class)
+      return true;
+    if (clazz.isEnum())
+      return true;
+    if (clazz == AtomicInteger.class || clazz == AtomicLong.class || clazz == AtomicBoolean.class)
+      return true;
+    if (clazz == Optional.class || clazz == OptionalInt.class ||
+        clazz == OptionalLong.class || clazz == OptionalDouble.class)
+      return true;
+    if (clazz == UUID.class || clazz == Date.class || clazz == Instant.class ||
+        clazz == LocalDate.class || clazz == LocalDateTime.class)
+      return true;
+    if (clazz.isArray())
+      return true;
+    if (Collection.class.isAssignableFrom(clazz) || Map.class.isAssignableFrom(clazz))
+      return true;
+    if (Number.class.isAssignableFrom(clazz))
+      return true;
+    return false;
+  }
+
+  /** 从字段泛型中提取 Collection 的元素类型 */
+  private static Class<?> getElementType(Field field) {
+    Type genericType = field.getGenericType();
+    if (genericType instanceof ParameterizedType pt) {
+      Type[] args = pt.getActualTypeArguments();
+      if (args.length > 0) {
+        Type arg = args[0];
+        if (arg instanceof Class<?> c)
+          return c;
+        if (arg instanceof ParameterizedType pt2)
+          return (Class<?>) pt2.getRawType();
+        if (arg instanceof WildcardType wt) {
+          Type[] upper = wt.getUpperBounds();
+          if (upper.length > 0 && upper[0] instanceof Class<?> c)
+            return c;
+          return Object.class;
+        }
+        return Object.class;
+      }
+    }
+    return null;
   }
 
   private static int showMapConfigInNewspaper(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {

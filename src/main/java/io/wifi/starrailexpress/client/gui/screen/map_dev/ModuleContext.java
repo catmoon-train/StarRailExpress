@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.client.gui.screen.map_dev;
 
+import net.minecraft.client.gui.screens.Screen;
+
 public interface ModuleContext {
     double ax();
 
@@ -38,4 +40,6 @@ public interface ModuleContext {
      * 实现应重新初始化该模块并更新可滚动控件，同时保留固定控件和滚动偏移。
      */
     void requestModuleRefresh();
+
+    Screen screen();
 }

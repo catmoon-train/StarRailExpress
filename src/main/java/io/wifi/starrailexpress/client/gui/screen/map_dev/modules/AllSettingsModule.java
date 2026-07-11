@@ -1,6 +1,6 @@
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import com.google.gson.annotations.Expose;
 import io.wifi.ConfigCompact.annotation.Category;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * - 嵌套对象字段：sre.map_helper.settings.class.<类名>.<字段名>
  * 工具提示：对应键 + ".@tooltip"
  * 集合（Collection）：
- * - 元素为自定义类型：叶子，右侧显示 Add, Clear, View 按钮
+ * - 元素为自定义类型：叶子，右侧显示 Add, JSON, Clear, View 按钮
  * - 元素为内置类型：可展开，子行显示每个元素输入框 + Remove，末尾添加 Add 行
  */
 public class AllSettingsModule implements TabModule {
@@ -519,9 +519,7 @@ public class AllSettingsModule implements TabModule {
         return currentY;
     }
 
-    /**
-     * 枚举值显示标签（支持动态更新）
-     */
+    // ── 枚举值显示标签（已在原代码中） ──
     private static class EnumValueLabel extends AbstractWidget {
         private String text;
 
@@ -576,38 +574,47 @@ public class AllSettingsModule implements TabModule {
         if (Collection.class.isAssignableFrom(type)) {
             // 区分自定义元素和内置元素
             if (isCollectionWithCustomElements(entry)) {
-                // 自定义元素列表：叶子，右侧 Add, Clear, View
-                int btnW = 40;
-                int viewW = 30;
-                int gapBtn = 4;
-                int totalWidth = btnW + gapBtn + btnW + gapBtn + viewW;
+                // 自定义元素列表：Add, JSON, Clear, View
+                int btnW = 30;
+                int gapBtn = 3;
+                int totalWidth = btnW * 4 + gapBtn * 3; // 30*4 + 3*3 = 129
                 int startX = rightEdge - totalWidth;
 
-                // Add 按钮：打开 JSON 输入对话框
+                // Add 按钮：打开表单添加
                 ModernButton addBtn = ModernButton.builder(
-                        Component.translatable("sre.map_helper.add"),
+                        Component.translatableWithFallback("sre.map_helper.add.form", "Add"),
                         b -> {
-                            // 打开输入对话框
-                            Minecraft.getInstance().setScreen(
-                                    new JsonInputScreen(entry.path, ctx,
-                                            () -> ctx.requestModuleRefresh()) // 添加后刷新
-                            );
+                            Class<?> elemType = getElementType(entry.field);
+                            if (elemType != null) {
+                                Minecraft.getInstance().setScreen(
+                                        new FormAddScreen(entry.path, ctx, elemType,
+                                                () -> ctx.requestModuleRefresh(), ctx.screen()));
+                            }
                         })
                         .bounds(startX, y, btnW, 20).accentBar(AccentSide.LEFT).build();
                 placements.add(new WidgetPlacement(addBtn, y));
+
+                // JSON 按钮：打开 JSON 输入对话框
+                ModernButton jsonBtn = ModernButton.builder(
+                        Component.literal("JSON"),
+                        b -> Minecraft.getInstance().setScreen(
+                                new JsonInputScreen(entry.path, ctx,
+                                        () -> ctx.requestModuleRefresh(), ctx.screen())))
+                        .bounds(startX + btnW + gapBtn, y, btnW, 20).accentBar().build();
+                placements.add(new WidgetPlacement(jsonBtn, y));
 
                 // Clear 按钮
                 ModernButton clearBtn = ModernButton.builder(
                         Component.translatable("sre.map_helper.clear"),
                         b -> ctx.sendOnly("sre:area_manager clear " + entry.path))
-                        .bounds(startX + btnW + gapBtn, y, btnW, 20).accentBar(AccentSide.BOTTOM).build();
+                        .bounds(startX + (btnW + gapBtn) * 2, y, btnW, 20).accentBar(AccentSide.BOTTOM).build();
                 placements.add(new WidgetPlacement(clearBtn, y));
 
                 // View 按钮
                 ModernButton viewBtn = ModernButton.builder(
                         Component.translatable("sre.map_helper.view"),
                         b -> ctx.sendOnly("sre:area_manager get " + entry.path))
-                        .bounds(startX + btnW + gapBtn + btnW + gapBtn, y, viewW, 20).accentBar(AccentSide.BOTTOM)
+                        .bounds(startX + (btnW + gapBtn) * 3, y, btnW, 20).accentBar(AccentSide.BOTTOM)
                         .build();
                 placements.add(new WidgetPlacement(viewBtn, y));
 
@@ -828,7 +835,7 @@ public class AllSettingsModule implements TabModule {
         return false;
     }
 
-    // ── JSON 输入对话框（用于自定义集合添加） ──────────────────────
+    // ── JSON 输入对话框（原有，保留） ──────────────────────
     private static class JsonInputScreen extends Screen {
         private final String path;
         private final ModuleContext ctx;
@@ -836,12 +843,14 @@ public class AllSettingsModule implements TabModule {
         private EditBox jsonInput;
         private ModernButton confirmBtn;
         private ModernButton cancelBtn;
+        private final Screen parent;
 
-        protected JsonInputScreen(String path, ModuleContext ctx, Runnable onSuccess) {
+        protected JsonInputScreen(String path, ModuleContext ctx, Runnable onSuccess, Screen parent) {
             super(Component.translatable("sre.map_helper.add_json.title"));
             this.path = path;
             this.ctx = ctx;
             this.onSuccess = onSuccess;
+            this.parent = parent;
         }
 
         @Override
@@ -850,14 +859,12 @@ public class AllSettingsModule implements TabModule {
             int centerX = width / 2;
             int centerY = height / 2;
 
-            // 输入框
             jsonInput = new EditBox(font, centerX - 100, centerY - 20, 200, 20,
                     Component.translatable("sre.map_helper.add_json.placeholder"));
             jsonInput.setMaxLength(10000);
             jsonInput.setValue("{}");
             addRenderableWidget(jsonInput);
 
-            // 确认按钮
             confirmBtn = ModernButton.builder(
                     Component.translatable("sre.map_helper.confirm"),
                     b -> {
@@ -873,7 +880,6 @@ public class AllSettingsModule implements TabModule {
                     .accentBar(AccentSide.LEFT).build();
             addRenderableWidget(confirmBtn);
 
-            // 取消按钮
             cancelBtn = ModernButton.builder(
                     Component.translatable("sre.map_helper.cancel"),
                     b -> Minecraft.getInstance().setScreen(null))
@@ -893,6 +899,171 @@ public class AllSettingsModule implements TabModule {
         public boolean isPauseScreen() {
             return false;
         }
+
+        @Override
+        public void onClose() {
+            this.minecraft.setScreen(parent);
+        }
+    }
+
+    // ── 新增：表单式添加复杂元素的 Screen ──────────────────────
+    private static class FormAddScreen extends Screen {
+        private final String path;
+        private final ModuleContext ctx;
+        private final Class<?> elementType;
+        private final Runnable onSuccess;
+        private final Screen parent;
+        private final List<FieldRow> fieldRows = new ArrayList<>();
+
+        private static class FieldRow {
+            final Field field;
+            final String label;
+            AbstractWidget widget;
+            java.util.function.Supplier<JsonElement> valueSupplier;
+
+            FieldRow(Field field, String label) {
+                this.field = field;
+                this.label = label;
+            }
+        }
+
+        public FormAddScreen(String path, ModuleContext ctx, Class<?> elementType, Runnable onSuccess, Screen parent) {
+            super(Component.translatableWithFallback("sre.map_helper.form.title", "Add " + elementType.getSimpleName()));
+            this.path = path;
+            this.ctx = ctx;
+            this.elementType = elementType;
+            this.onSuccess = onSuccess;
+            this.parent = parent;
+        }
+
+        @Override
+        protected void init() {
+            super.init();
+            fieldRows.clear();
+            int y = 35;
+            int labelWidth = Math.min(100, width / 4);
+            int fieldStartX = 10 + labelWidth + 5;
+            int fieldWidth = width - fieldStartX - 10;
+            Font font = this.font;
+
+            Field[] fields = elementType.getDeclaredFields();
+            for (Field f : fields) {
+                if (!shouldShowFieldStatic(f)) continue;
+                f.setAccessible(true);
+                String fieldName = Component.translatableWithFallback(
+                        "sre.map_helper.settings.class." + elementType.getSimpleName() + "." + f.getName(),
+                        f.getName()).getString();
+                FieldRow row = new FieldRow(f, fieldName);
+                Class<?> type = f.getType();
+
+                if (type == boolean.class || type == Boolean.class) {
+                    AtomicBoolean boolVal = new AtomicBoolean(false);
+                    ModernButton toggle = ModernButton.builder(Component.literal("false"), b -> {
+                        boolVal.set(!boolVal.get());
+                        b.setMessage(Component.literal(boolVal.get() ? "true" : "false"));
+                    }).bounds(fieldStartX, y, 60, 20).accentBar().build();
+                    row.widget = toggle;
+                    row.valueSupplier = () -> new JsonPrimitive(boolVal.get());
+                } else if (type.isEnum()) {
+                    Object[] constants = type.getEnumConstants();
+                    if (constants != null && constants.length > 0) {
+                        final int[] idx = {0};
+                        ModernButton enumBtn = ModernButton.builder(Component.literal(((Enum<?>)constants[0]).name()), b -> {
+                            idx[0] = (idx[0] + 1) % constants.length;
+                            b.setMessage(Component.literal(((Enum<?>)constants[idx[0]]).name()));
+                        }).bounds(fieldStartX, y, Math.min(120, fieldWidth), 20).accentBar().build();
+                        row.widget = enumBtn;
+                        row.valueSupplier = () -> new JsonPrimitive(((Enum<?>)constants[idx[0]]).name());
+                    } else {
+                        EditBox edit = new EditBox(font, fieldStartX, y, fieldWidth, 20, Component.empty());
+                        edit.setValue("");
+                        row.widget = edit;
+                        row.valueSupplier = () -> new JsonPrimitive(edit.getValue());
+                    }
+                } else if (type == String.class || Number.class.isAssignableFrom(type) || type.isPrimitive()) {
+                    EditBox edit = new EditBox(font, fieldStartX, y, fieldWidth, 20, Component.empty());
+                    edit.setValue("");
+                    row.widget = edit;
+                    row.valueSupplier = () -> {
+                        String val = edit.getValue().trim();
+                        if (type == String.class) return new JsonPrimitive(val);
+                        try {
+                            if (type == int.class || type == Integer.class) return new JsonPrimitive(Integer.parseInt(val));
+                            if (type == long.class || type == Long.class) return new JsonPrimitive(Long.parseLong(val));
+                            if (type == double.class || type == Double.class) return new JsonPrimitive(Double.parseDouble(val));
+                            if (type == float.class || type == Float.class) return new JsonPrimitive(Float.parseFloat(val));
+                            if (Number.class.isAssignableFrom(type))
+                                return new JsonPrimitive(new com.google.gson.internal.LazilyParsedNumber(val));
+                        } catch (NumberFormatException ignored) {}
+                        return new JsonPrimitive(val);
+                    };
+                } else {
+                    // 复杂类型、集合、Map 等使用 JSON 文本输入
+                    EditBox edit = new EditBox(font, fieldStartX, y, fieldWidth, 20, Component.empty());
+                    edit.setValue("{}");
+                    row.widget = edit;
+                    row.valueSupplier = () -> {
+                        try {
+                            return JsonParser.parseString(edit.getValue().trim());
+                        } catch (Exception e) {
+                            return JsonNull.INSTANCE;
+                        }
+                    };
+                }
+
+                // 标签
+                FieldLabel label = new FieldLabel(font, 10, y, labelWidth, 20, row.label);
+                addRenderableWidget(label);
+                addRenderableWidget(row.widget);
+                fieldRows.add(row);
+                y += 24;
+            }
+
+            // 底部按钮
+            int btnY = Math.max(y + 10, height - 32);
+            ModernButton confirmBtn = ModernButton.builder(Component.translatable("sre.map_helper.confirm"), b -> {
+                JsonObject json = new JsonObject();
+                for (FieldRow row : fieldRows) {
+                    json.add(row.field.getName(), row.valueSupplier.get());
+                }
+                String jsonStr = json.toString();
+                ctx.sendOnly("sre:area_manager add " + path + " " + ctx.quoteCommandArgument(jsonStr));
+                if (onSuccess != null) onSuccess.run();
+                Minecraft.getInstance().setScreen(null);
+            }).bounds(width / 2 - 105, btnY, 100, 20).accentBar(AccentSide.LEFT).build();
+            addRenderableWidget(confirmBtn);
+
+            ModernButton cancelBtn = ModernButton.builder(Component.translatable("sre.map_helper.cancel"), b -> {
+                Minecraft.getInstance().setScreen(parent);
+            }).bounds(width / 2 + 5, btnY, 100, 20).accentBar(AccentSide.RIGHT).build();
+            addRenderableWidget(cancelBtn);
+        }
+
+        @Override
+        public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
+            renderBackground(g, mouseX, mouseY, partial);
+            g.drawCenteredString(font, title, width / 2, 12, 0xFFFFFF);
+            super.render(g, mouseX, mouseY, partial);
+        }
+
+        @Override
+        public boolean isPauseScreen() {
+            return false;
+        }
+
+        @Override
+        public void onClose() {
+            this.minecraft.setScreen(parent);
+        }
+
+        private static boolean shouldShowFieldStatic(Field field) {
+            if (field.isAnnotationPresent(Expose.class)) {
+                Expose expose = field.getAnnotation(Expose.class);
+                return expose.serialize() && expose.deserialize();
+            }
+            int mod = field.getModifiers();
+            return !Modifier.isStatic(mod) && !Modifier.isTransient(mod);
+        }
     }
 
     // ── Inner classes ───────────────────────────────────────────────
@@ -911,17 +1082,11 @@ public class AllSettingsModule implements TabModule {
         String displayNameKey; // 保存用于工具提示的键
         Object currentValue;
 
-        /**
-         * 构造函数：根据字段所属对象决定翻译键。
-         * 如果是根对象（parentObject == rootSettings），使用路径键；
-         * 否则使用类名+字段名键。
-         */
         SettingsEntry(String path, Field field, Object parent, int depth) {
             this.path = path;
             this.field = field;
             this.parentObject = parent;
             this.depth = depth;
-            // 判断是否根对象的直接字段
             if (parentObject == rootSettings) {
                 this.displayNameKey = "sre.map_helper.settings." + path;
             } else {
