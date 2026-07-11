@@ -27,15 +27,18 @@ public class BannedBlockWarrningHud {
                 return;
             final long leftTime;
             if (SREGameWorldComponent.isKillerTeamRoleStatic(role)) {
-                leftTime = level.getGameTime()
-                        - SREClientBannedBlockTickEvents.bannedBlockPlayerInfo.standonTick
-                        - SREClientBannedBlockTickEvents.bannedBlockInfo.deathTimeForKillers();
+                leftTime = SREClientBannedBlockTickEvents.bannedBlockInfo.deathTimeForKillers() - level.getGameTime()
+                        - SREClientBannedBlockTickEvents.bannedBlockPlayerInfo.standonTick;
 
             } else {
-                leftTime = level.getGameTime()
-                        - SREClientBannedBlockTickEvents.bannedBlockPlayerInfo.standonTick
-                        - SREClientBannedBlockTickEvents.bannedBlockInfo.deathTimeForInnocent();
+                leftTime = SREClientBannedBlockTickEvents.bannedBlockInfo.deathTimeForInnocent() - level.getGameTime()
+                        - SREClientBannedBlockTickEvents.bannedBlockPlayerInfo.standonTick;
             }
+            
+            if (leftTime <= -100) {
+                return;
+            }
+            
             {
                 ctx.pose().pushPose();
                 ctx.pose().translate((float) (ctx.guiWidth() / 2),

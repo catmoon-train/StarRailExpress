@@ -19,7 +19,9 @@ public class SREClientBannedBlockTickEvents {
     private static void checkPlayerBannedBlocksClientAndWarns(ClientLevel level, Player player) {
         if (level.getGameTime() % 2 != 0) // 2tick 检测一次
             return;
-        if (player.isSpectator()) {
+        if (player.isSpectator() || player.isCreative()) {
+            bannedBlockPlayerInfo = null;
+            bannedBlockInfo = null;
             return;
         }
         final var areas = SREClient.areaComponent;
@@ -47,7 +49,7 @@ public class SREClientBannedBlockTickEvents {
                     || info.blockId().equalsIgnoreCase(blockId3)) {
 
                 bannedBlockInfo = info;
-                if (bannedBlockPlayerInfo == null) {
+                if (bannedBlockPlayerInfo == null || bannedBlockPlayerInfo.standonTick <= 0) {
                     bannedBlockPlayerInfo = new PlayerBannedBlockTimeInfo(info.blockId(), level.getGameTime());
                 } else if (!bannedBlockPlayerInfo.blockId.equalsIgnoreCase(info.blockId())) {
                     bannedBlockPlayerInfo = (new PlayerBannedBlockTimeInfo(info.blockId(), level.getGameTime()));

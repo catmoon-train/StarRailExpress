@@ -378,7 +378,6 @@ public class RoleIntroduceScreen extends Screen {
                 filteredItems.add(item);
         }
         if (currentMode.equals(IntroductionGameMode.CURRENT)) {
-
             if (SREClient.areaComponent != null && SREClient.areaComponent.areasSettings != null) {
                 if (cat.filter.test(SREClient.areaComponent.areasSettings))
                     filteredItems.add(SREClient.areaComponent.areasSettings);
@@ -1276,10 +1275,11 @@ public class RoleIntroduceScreen extends Screen {
                         Component.translatable(getDisplayNameKey("bannedBlock")),
                         Component.literal("")));
                 for (var info : settings.bannedBlock) {
-                    var block = MCItemsUtils.getItemById(info.blockId()).orElse(null);
+                    var block = MCItemsUtils.getBlockById(info.blockId()).orElse(null);
                     if (block != null) {
-                        Component.translatable("screen.detail.areas_settings.banned_blocks", block.getDescription(),
-                                info.deathTimeForKillers(), info.deathTimeForInnocent());
+                        rawLines.add(
+                                Component.translatable("screen.detail.areas_settings.banned_blocks", block.getName(),
+                                        info.deathTimeForKillers(), info.deathTimeForInnocent()));
                     }
                 }
             }
