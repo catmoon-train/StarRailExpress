@@ -13,6 +13,9 @@ import io.wifi.starrailexpress.cca.DynamicShopComponent;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.StoreRenderer;
+import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen.StoreItemWidget;
+import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen.WaitingMenuCellButton;
+import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen.WaitingNavButton;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.network.original.StoreBuyPayload;
@@ -34,7 +37,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
@@ -582,11 +587,25 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         int displaytime = minecraft.gui.overlayMessageTime;
         if (message == null || displaytime <= 0)
             return;
-        int x = width;
-        int y = 10;
-        int twidth = font.width(message);
-        {
-            context.drawString(font, message, (x - twidth) / 2, y, 0xffffffff);
+        float f = (float) displaytime - delta;
+        int i = (int) (f * 255.0F / 20.0F);
+        if (i > 255) {
+            i = 255;
+        }
+
+        if (i > 8) {
+            int j;
+            if (minecraft.gui.animateOverlayMessageColor) {
+               j = Mth.hsvToArgb(f / 50.0F, 0.7F, 0.6F, i);
+            } else {
+               j = ARGB32.color(i, -1);
+            }
+            int x = width;
+            int y = 10;
+            int twidth = font.width(message);
+            {
+                context.drawStringWithBackdrop(font, message, (x - twidth) / 2, y, twidth, j);
+            }
         }
     }
 
