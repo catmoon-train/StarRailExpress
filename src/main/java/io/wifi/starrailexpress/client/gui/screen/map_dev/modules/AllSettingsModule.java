@@ -959,25 +959,28 @@ public class AllSettingsModule implements TabModule {
                 Class<?> type = f.getType();
 
                 if (type == boolean.class || type == Boolean.class) {
-                    AtomicBoolean boolVal = new AtomicBoolean(false);
-                    ModernButton toggle = ModernButton.builder(Component.literal("false"), b -> {
-                        boolVal.set(!boolVal.get());
-                        b.setMessage(Component.literal(boolVal.get() ? "true" : "false"));
-                    }).bounds(fieldStartX, y, 60, 20).accentBar().build();
-                    row.widget = toggle;
-                    row.valueSupplier = () -> new JsonPrimitive(boolVal.get());
+                    // 改为输入框，解析 true/false
+                    EditBox edit = new EditBox(font, fieldStartX, y, fieldWidth, 20, Component.empty());
+                    edit.setValue("false");
+                    edit.setMaxLength(5);
+                    row.widget = edit;
+                    row.valueSupplier = () -> {
+                        String val = edit.getValue().trim();
+                        return new JsonPrimitive("true".equalsIgnoreCase(val));
+                    };
                 } else if (type.isEnum()) {
                     Object[] constants = type.getEnumConstants();
                     if (constants != null && constants.length > 0) {
                         final int[] idx = { 0 };
-                        ModernButton enumBtn = ModernButton
-                                .builder(Component.literal(((Enum<?>) constants[0]).name()), b -> {
+                        ModernButton enumBtn = ModernButton.builder(
+                                Component.literal(((Enum<?>) constants[0]).name()), b -> {
                                     idx[0] = (idx[0] + 1) % constants.length;
                                     b.setMessage(Component.literal(((Enum<?>) constants[idx[0]]).name()));
                                 }).bounds(fieldStartX, y, Math.min(120, fieldWidth), 20).accentBar().build();
                         row.widget = enumBtn;
                         row.valueSupplier = () -> new JsonPrimitive(((Enum<?>) constants[idx[0]]).name());
                     } else {
+                        // 空枚举，回退为文本输入
                         EditBox edit = new EditBox(font, fieldStartX, y, fieldWidth, 20, Component.empty());
                         edit.setValue("");
                         row.widget = edit;
@@ -1075,7 +1078,6 @@ public class AllSettingsModule implements TabModule {
             return !Modifier.isStatic(mod) && !Modifier.isTransient(mod);
         }
     }
-
     // ── Inner classes ───────────────────────────────────────────────
 
     /**
