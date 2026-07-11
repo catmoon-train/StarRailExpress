@@ -1,6 +1,10 @@
 ﻿{
   "unknown": "未知",
   "unknown_role": "未知职业",
+  "status_bar.warn.warmth": "你需要立即回到室内取暖",
+  "status_bar.warn.thirst": "你需要立刻找水或饮料喝",
+  "status_bar.warn.hunger": "你需要立刻找东西吃",
+  "status_bar.warn.pollution": "你需要立即去淋浴头下洗澡",
   "sre.command.permission_denied": "你没有权限做这件事！",
   "sre.command.not_enabled": "未启用Roster功能。请在配置文件中启用后重启服务器！",
   "sre.general.unknown": "未知",

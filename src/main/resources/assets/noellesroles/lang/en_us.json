@@ -1,5 +1,10 @@
 {
   "unknown": "Unknown",
+  "status_bar.warn.warmth": "You need to go back indoors to warm up immediately",
+  "status_bar.warn.thirst": "You need to drink water immediately",
+  "status_bar.warn.hunger": "You need to find something to eat immediately",
+  "status_bar.warn.pollution": "You need to take a shower under the sprinkler immediately",
+
   "sre.general.unknown": "Unknown",
   "commands.loot.error.execute_fail": "Execution failed, reason:\n %s",
   "commands.loot.success.add_or_degree_chance": "Successfully added %s draw attempts to player %s. Total attempts: %s",

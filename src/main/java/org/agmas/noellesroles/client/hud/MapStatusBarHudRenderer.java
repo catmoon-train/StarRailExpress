@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
 
@@ -41,6 +42,7 @@ public final class MapStatusBarHudRenderer {
     private static final int HUNGER_EDGE_COLOR = 0xFFC89632;
     private static final int POLLUTION_EDGE_COLOR = 0xFF888888;
     private static long lastWarnedTime = 0;
+    private static boolean warningVisible = false;
 
     private MapStatusBarHudRenderer() {
     }
@@ -72,8 +74,10 @@ public final class MapStatusBarHudRenderer {
         float value = (float) MapStatusBarClientState.value() / MapStatusBarClientState.maxValue();
 
         // 边框效果：污染值（值越高越危险），其他（值越低越危险）
+        boolean critical = false;
         if (type == MapStatusBarType.POLLUTION) {
             if (value >= HIGH_THRESHOLD) {
+                critical = true;
                 int warnGap = 20;
                 float intensity = 0.5f;
                 if (value >= HIGH_THRESHOLD_5) {
@@ -90,12 +94,12 @@ public final class MapStatusBarHudRenderer {
                 long nowTime = client.level.getGameTime();
                 if (lastWarnedTime <= 0 || nowTime - lastWarnedTime >= warnGap) {
                     StaminaRenderer.triggerScreenEdgeEffect(POLLUTION_EDGE_COLOR, 100, intensity);
+                    showStatusWarning(client, type);
                     lastWarnedTime = nowTime;
                 }
-            } else {
-                lastWarnedTime = 0;
             }
         } else if (value < LOW_THRESHOLD) {
+            critical = true;
             int warnGap = 20; // 1s = 20tick
             float intensity = 0.5f;
             if (value < LOW_THRESHOLD_5) {
@@ -123,10 +127,20 @@ public final class MapStatusBarHudRenderer {
                     default -> 0xFFFFFFFF;
                 };
                 StaminaRenderer.triggerScreenEdgeEffect(edgeColor, 100, intensity);
+                showStatusWarning(client, type);
                 lastWarnedTime = nowTime;
             }
-        } else {
+        }
+
+        // 状态恢复正常：立即清除提示并重置边框节流；处于危险时保持标记
+        if (!critical && warningVisible) {
+            warningVisible = false;
             lastWarnedTime = 0;
+            if (client.player != null) {
+                client.player.displayClientMessage(Component.empty(), true);
+            }
+        } else if (critical) {
+            warningVisible = true;
         }
 
         int barX = graphics.guiWidth() / 2 - BAR_WIDTH / 2;
@@ -172,5 +186,22 @@ public final class MapStatusBarHudRenderer {
             case HUNGER -> 0xFFC89632; // 棕黄色
             default -> 0xFFFFFFFF;
         };
+    }
+
+    /** 与屏幕边框同时出现的 actionbar 提示 */
+    private static void showStatusWarning(Minecraft client, MapStatusBarType type) {
+        if (client.player == null) {
+            return;
+        }
+        Component msg = switch (type) {
+            case WARMTH -> Component.translatable("status_bar.warn.warmth");
+            case THIRST -> Component.translatable("status_bar.warn.thirst");
+            case HUNGER -> Component.translatable("status_bar.warn.hunger");
+            case POLLUTION -> Component.translatable("status_bar.warn.pollution");
+            default -> null;
+        };
+        if (msg != null) {
+            client.player.displayClientMessage(msg, true);
+        }
     }
 }

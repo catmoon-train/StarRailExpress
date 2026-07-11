@@ -1,5 +1,10 @@
 {
   "unknown": "未知",
+  "status_bar.warn.warmth": "你需要立即回到室內取暖",
+  "status_bar.warn.thirst": "你需要立刻喝水",
+  "status_bar.warn.hunger": "你需要立刻找東西吃",
+  "status_bar.warn.pollution": "你需要立即去淋浴頭下洗澡",
+
   "sre.general.unknown": "未知",
   "commands.loot.error.execute_fail": "執行失敗, 原因:\n %s",
   "commands.loot.success.add_or_degree_chance": "成功為玩家 %s 添加 %s 次抽獎次數. 當前總次數: %s",

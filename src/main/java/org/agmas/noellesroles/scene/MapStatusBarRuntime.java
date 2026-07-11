@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.content.item.CocktailItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.index.tag.TMMBlockTags;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
@@ -288,12 +289,16 @@ public final class MapStatusBarRuntime {
 
         // 污染值满时效果
         if (state.value >= MAX_VALUE) {
-            // 每秒降低0.05心情值
+            // 每秒降低0.05心情值（仅真实心情角色；假心情不受影响）
             if (++state.indoorTicks >= 20) {
                 state.indoorTicks = 0;
-                var mood = SREPlayerMoodComponent.KEY.get(player);
-                if (mood != null) {
-                    mood.setMood(Math.max(0, mood.getMood() - 0.05f));
+                var game = SREGameWorldComponent.KEY.get(level);
+                var role = game.getRole(player);
+                if (role != null && role.getMoodType() == SRERole.MoodType.REAL) {
+                    var mood = SREPlayerMoodComponent.KEY.get(player);
+                    if (mood != null) {
+                        mood.setMood(Math.max(0, mood.getMood() - 0.05f));
+                    }
                 }
             }
             // 每5秒检查并施加缓慢1 + 失明2（效果持续6秒，保证不中断）
