@@ -29,9 +29,9 @@ import java.util.function.Predicate;
  * <li>字符串 (String)</li>
  * <li>枚举 (Enum) – 存储为名称字符串</li>
  * <li>原始数组 (int[], byte[], long[], short[], float[], double[])</li>
- * <li>集合 (Collection) – 包括 List 和 Set，保留泛型信息</li>
+ * <li>集合 (Collection) – 包括 List 和 Set，保留泛型信息（支持嵌套）</li>
  * <li>映射 (Map) – 键强制转为 String（反序列化后键均为 String）</li>
- * <li>自定义 POJO – 递归序列化所有字段（支持继承）</li>
+ * <li>自定义 POJO（包括 record 及无默认构造的类）– 递归序列化所有字段（支持继承），优先无参构造，回退到 Unsafe 分配</li>
  * <li>Optional, OptionalInt, OptionalLong, OptionalDouble</li>
  * <li>UUID – 存储为字符串</li>
  * <li>Date, LocalDate, LocalDateTime – 存储为时间戳或 ISO 字符串</li>
@@ -45,15 +45,58 @@ import java.util.function.Predicate;
  * <li>类型适配器注册（用于定制特定类型的序列化/反序列化）</li>
  * <li>并发安全的字段缓存</li>
  * <li>支持继承层次中的字段</li>
+ * <li>类 Gson 的无默认构造器实例化（利用 Unsafe），无需 JVM 参数</li>
  * </ul>
  *
  * @author NbtSerializer
- * @version 2.1
+ * @version 2.2
  */
 public final class NbtSerializer {
 
     // ========== Gson 后备 ==========
     private static final Gson GSON = new Gson();
+
+    // ========== Unsafe 分配器（用于无默认构造的类）==========
+    private static final sun.misc.Unsafe UNSAFE;
+
+    static {
+        sun.misc.Unsafe unsafe = null;
+        try {
+            Field f = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            f.setAccessible(true);
+            unsafe = (sun.misc.Unsafe) f.get(null);
+        } catch (Exception ignored) {
+            // 如果不支持 Unsafe（极少数环境），UNSAFE 将为 null
+        }
+        UNSAFE = unsafe;
+    }
+
+    /**
+     * 分配一个未初始化的类实例（类似 Gson 的做法）
+     * 如果 Unsafe 不可用，则尝试使用 ReflectionFactory（可能需要 JVM 参数），都不行则抛出异常
+     */
+    private static Object allocateInstance(Class<?> clazz) throws Exception {
+        if (UNSAFE != null) {
+            return UNSAFE.allocateInstance(clazz);
+        }
+        // 备用：使用 ReflectionFactory（需要 --add-opens）
+        // 这里仅作为极端情况下的后备
+        try {
+            Class<?> rfClass = Class.forName("jdk.internal.reflect.ReflectionFactory");
+            Method getReflectionFactory = rfClass.getDeclaredMethod("getReflectionFactory");
+            Object rf = getReflectionFactory.invoke(null);
+            Constructor<?> objConstructor = Object.class.getDeclaredConstructor();
+            Method newConstructorForSerialization = rfClass.getDeclaredMethod(
+                    "newConstructorForSerialization", Class.class, Constructor.class);
+            Constructor<?> intConstr = (Constructor<?>) newConstructorForSerialization.invoke(rf, clazz,
+                    objConstructor);
+            intConstr.setAccessible(true);
+            return intConstr.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Cannot create instance of " + clazz.getName() +
+                    " (Unsafe unavailable, ReflectionFactory not found). Add --add-opens or provide a no-arg constructor.");
+        }
+    }
 
     // ========== 配置 ==========
 
@@ -196,37 +239,26 @@ public final class NbtSerializer {
         }
 
         // ----- UUID -----
-        if (obj instanceof UUID) {
+        if (obj instanceof UUID)
             return StringTag.valueOf(obj.toString());
-        }
 
         // ----- Date / Time -----
-        if (obj instanceof Date) {
+        if (obj instanceof Date)
             return LongTag.valueOf(((Date) obj).getTime());
-        }
-        if (obj instanceof Instant) {
+        if (obj instanceof Instant)
             return LongTag.valueOf(((Instant) obj).toEpochMilli());
-        }
-        if (obj instanceof LocalDate) {
+        if (obj instanceof LocalDate)
             return StringTag.valueOf(((LocalDate) obj).format(DateTimeFormatter.ISO_LOCAL_DATE));
-        }
-        if (obj instanceof LocalDateTime) {
+        if (obj instanceof LocalDateTime)
             return StringTag.valueOf(((LocalDateTime) obj).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        }
 
-        // ----- 原始数组 (int[], byte[], long[], short[], float[], double[]) -----
-        if (obj instanceof int[]) {
-            int[] arr = (int[]) obj;
-            return new IntArrayTag(Arrays.copyOf(arr, arr.length));
-        }
-        if (obj instanceof byte[]) {
-            byte[] arr = (byte[]) obj;
-            return new ByteArrayTag(Arrays.copyOf(arr, arr.length));
-        }
-        if (obj instanceof long[]) {
-            long[] arr = (long[]) obj;
-            return new LongArrayTag(Arrays.copyOf(arr, arr.length));
-        }
+        // ----- 原始数组 -----
+        if (obj instanceof int[])
+            return new IntArrayTag(Arrays.copyOf((int[]) obj, ((int[]) obj).length));
+        if (obj instanceof byte[])
+            return new ByteArrayTag(Arrays.copyOf((byte[]) obj, ((byte[]) obj).length));
+        if (obj instanceof long[])
+            return new LongArrayTag(Arrays.copyOf((long[]) obj, ((long[]) obj).length));
         if (obj instanceof short[]) {
             short[] arr = (short[]) obj;
             ListTag list = new ListTag();
@@ -260,23 +292,21 @@ public final class NbtSerializer {
             return list;
         }
 
-        // ----- Map (键转换为 String) -----
+        // ----- Map -----
         if (obj instanceof Map) {
             CompoundTag mapTag = new CompoundTag();
             for (Map.Entry<?, ?> entry : ((Map<?, ?>) obj).entrySet()) {
                 String key = entry.getKey().toString();
                 Tag valueTag = serializeObject(entry.getValue());
-                if (valueTag != null) {
+                if (valueTag != null)
                     mapTag.put(key, valueTag);
-                }
             }
             return mapTag;
         }
 
-        // ----- 自定义对象 (POJO) -----
+        // ----- 自定义 POJO -----
         CompoundTag compound = new CompoundTag();
         serializeFields(obj, clazz, compound);
-        // 如果对象没有字段，但又不是简单类型，我们仍然返回复合标签（空）
         return compound;
     }
 
@@ -292,13 +322,34 @@ public final class NbtSerializer {
                 if (tag != null) {
                     container.put(field.getName(), tag);
                 }
-            } catch (IllegalAccessException e) {
-                // 忽略或记录日志
+            } catch (IllegalAccessException ignored) {
             }
         }
     }
 
     // ========== 核心反序列化逻辑 ==========
+
+    /**
+     * 根据完整 Type 反序列化（保留泛型嵌套信息）
+     */
+    @Nullable
+    private Object deserializeObjectByType(Tag tag, Type type, Field field) throws Exception {
+        if (type instanceof Class) {
+            return deserializeObject(tag, (Class<?>) type, field);
+        } else if (type instanceof ParameterizedType) {
+            Class<?> rawClass = (Class<?>) ((ParameterizedType) type).getRawType();
+            return deserializeObject(tag, rawClass, field);
+        } else if (type instanceof WildcardType) {
+            Type[] upperBounds = ((WildcardType) type).getUpperBounds();
+            if (upperBounds.length > 0) {
+                return deserializeObjectByType(tag, upperBounds[0], field);
+            }
+            return null;
+        } else if (type instanceof TypeVariable) {
+            return deserializeObject(tag, Object.class, field);
+        }
+        return null;
+    }
 
     @Nullable
     private Object deserializeObject(Tag tag, Class<?> targetType, Field field) throws Exception {
@@ -311,7 +362,7 @@ public final class NbtSerializer {
             return adapter.apply(tag);
         }
 
-        // ----- 检查是否为 Gson 后备数据 (存放在 CompoundTag 中) -----
+        // ----- Gson 后备数据检查 -----
         if (tag instanceof CompoundTag) {
             CompoundTag compound = (CompoundTag) tag;
             if (compound.contains("_gson_data")) {
@@ -319,11 +370,9 @@ public final class NbtSerializer {
                 String className = compound.getString("_gson_class");
                 try {
                     Class<?> clazz = Class.forName(className);
-                    // 如果目标类型是接口或抽象类，使用存储的具体类
                     if (targetType.isInterface() || Modifier.isAbstract(targetType.getModifiers())) {
                         return GSON.fromJson(json, clazz);
                     } else {
-                        // 若存储类可赋值给目标类型，则使用存储类，否则使用目标类型
                         if (targetType.isAssignableFrom(clazz)) {
                             return GSON.fromJson(json, clazz);
                         } else {
@@ -334,36 +383,28 @@ public final class NbtSerializer {
                     if (targetType != null && targetType != Object.class) {
                         return GSON.fromJson(json, targetType);
                     }
-                    throw new RuntimeException("无法加载类: " + className, e);
+                    throw new RuntimeException("Cannot load class: " + className, e);
                 }
             }
         }
 
-        // ----- 基本类型 (使用 NumericTag 统一处理) -----
-        if (targetType == boolean.class || targetType == Boolean.class) {
+        // ----- 基本类型 -----
+        if (targetType == boolean.class || targetType == Boolean.class)
             return ((NumericTag) tag).getAsByte() != 0;
-        }
-        if (targetType == byte.class || targetType == Byte.class) {
+        if (targetType == byte.class || targetType == Byte.class)
             return ((NumericTag) tag).getAsByte();
-        }
-        if (targetType == short.class || targetType == Short.class) {
+        if (targetType == short.class || targetType == Short.class)
             return ((NumericTag) tag).getAsShort();
-        }
-        if (targetType == int.class || targetType == Integer.class) {
+        if (targetType == int.class || targetType == Integer.class)
             return ((NumericTag) tag).getAsInt();
-        }
-        if (targetType == long.class || targetType == Long.class) {
+        if (targetType == long.class || targetType == Long.class)
             return ((NumericTag) tag).getAsLong();
-        }
-        if (targetType == float.class || targetType == Float.class) {
+        if (targetType == float.class || targetType == Float.class)
             return ((NumericTag) tag).getAsFloat();
-        }
-        if (targetType == double.class || targetType == Double.class) {
+        if (targetType == double.class || targetType == Double.class)
             return ((NumericTag) tag).getAsDouble();
-        }
-        if (targetType == String.class) {
+        if (targetType == String.class)
             return tag.getAsString();
-        }
 
         // ----- 枚举 -----
         if (targetType.isEnum()) {
@@ -371,23 +412,19 @@ public final class NbtSerializer {
             if (name == null)
                 return null;
             for (Object constant : targetType.getEnumConstants()) {
-                if (((Enum<?>) constant).name().equals(name)) {
+                if (((Enum<?>) constant).name().equals(name))
                     return constant;
-                }
             }
             return null;
         }
 
         // ----- 原子类 -----
-        if (targetType == AtomicInteger.class) {
+        if (targetType == AtomicInteger.class)
             return new AtomicInteger(((NumericTag) tag).getAsInt());
-        }
-        if (targetType == AtomicLong.class) {
+        if (targetType == AtomicLong.class)
             return new AtomicLong(((NumericTag) tag).getAsLong());
-        }
-        if (targetType == AtomicBoolean.class) {
+        if (targetType == AtomicBoolean.class)
             return new AtomicBoolean(((NumericTag) tag).getAsByte() != 0);
-        }
 
         // ----- Optional 系列 -----
         if (targetType == Optional.class) {
@@ -398,13 +435,8 @@ public final class NbtSerializer {
             if (!present)
                 return Optional.empty();
             Tag valueTag = compound.get("value");
-            Class<?> valueType = null;
-            if (field != null) {
-                valueType = getGenericType(field, 0);
-            }
-            if (valueType == null)
-                valueType = Object.class;
-            Object value = deserializeObject(valueTag, valueType, null);
+            Type valueType = field != null ? resolveTypeArgument(field.getGenericType(), 0) : Object.class;
+            Object value = deserializeObjectByType(valueTag, valueType, field);
             return Optional.ofNullable(value);
         }
         if (targetType == OptionalInt.class) {
@@ -451,38 +483,32 @@ public final class NbtSerializer {
             return LocalDateTime.parse(tag.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         }
 
-        // ----- 数组 -----
-        if (targetType == int[].class && tag instanceof IntArrayTag) {
+        // ----- 原始数组 -----
+        if (targetType == int[].class && tag instanceof IntArrayTag)
             return ((IntArrayTag) tag).getAsIntArray();
-        }
-        if (targetType == byte[].class && tag instanceof ByteArrayTag) {
+        if (targetType == byte[].class && tag instanceof ByteArrayTag)
             return ((ByteArrayTag) tag).getAsByteArray();
-        }
-        if (targetType == long[].class && tag instanceof LongArrayTag) {
+        if (targetType == long[].class && tag instanceof LongArrayTag)
             return ((LongArrayTag) tag).getAsLongArray();
-        }
         if (targetType == short[].class && tag instanceof ListTag) {
             ListTag list = (ListTag) tag;
             short[] arr = new short[list.size()];
-            for (int i = 0; i < list.size(); i++) {
+            for (int i = 0; i < list.size(); i++)
                 arr[i] = ((NumericTag) list.get(i)).getAsShort();
-            }
             return arr;
         }
         if (targetType == float[].class && tag instanceof ListTag) {
             ListTag list = (ListTag) tag;
             float[] arr = new float[list.size()];
-            for (int i = 0; i < list.size(); i++) {
+            for (int i = 0; i < list.size(); i++)
                 arr[i] = ((NumericTag) list.get(i)).getAsFloat();
-            }
             return arr;
         }
         if (targetType == double[].class && tag instanceof ListTag) {
             ListTag list = (ListTag) tag;
             double[] arr = new double[list.size()];
-            for (int i = 0; i < list.size(); i++) {
+            for (int i = 0; i < list.size(); i++)
                 arr[i] = ((NumericTag) list.get(i)).getAsDouble();
-            }
             return arr;
         }
 
@@ -491,14 +517,10 @@ public final class NbtSerializer {
             if (!(tag instanceof ListTag))
                 return null;
             ListTag listTag = (ListTag) tag;
-            Class<?> elementType = null;
-            if (field != null) {
-                elementType = getGenericType(field, 0);
-            }
+            Type elementType = field != null ? resolveTypeArgument(field.getGenericType(), 0) : null;
             if (elementType == null) {
                 if (!listTag.isEmpty()) {
-                    Tag first = listTag.get(0);
-                    elementType = guessTypeFromTag(first);
+                    elementType = guessTypeFromTag(listTag.get(0));
                 } else {
                     elementType = Object.class;
                 }
@@ -507,10 +529,9 @@ public final class NbtSerializer {
                     ? new ArrayList<>()
                     : new HashSet<>();
             for (Tag itemTag : listTag) {
-                Object item = deserializeObject(itemTag, elementType, null);
-                if (item != null) {
+                Object item = deserializeObjectByType(itemTag, elementType, field);
+                if (item != null)
                     collection.add(item);
-                }
             }
             return collection;
         }
@@ -520,19 +541,13 @@ public final class NbtSerializer {
             if (!(tag instanceof CompoundTag))
                 return null;
             CompoundTag compound = (CompoundTag) tag;
-            Class<?> valueType = null;
-            if (field != null) {
-                valueType = getGenericType(field, 1);
-            }
-            if (valueType == null)
-                valueType = Object.class;
+            Type valueType = field != null ? resolveTypeArgument(field.getGenericType(), 1) : Object.class;
             Map<Object, Object> map = new HashMap<>();
             for (String key : compound.getAllKeys()) {
                 Tag valueTag = compound.get(key);
-                Object value = deserializeObject(valueTag, valueType, null);
-                if (value != null) {
+                Object value = deserializeObjectByType(valueTag, valueType, field);
+                if (value != null)
                     map.put(key, value);
-                }
             }
             return map;
         }
@@ -541,20 +556,22 @@ public final class NbtSerializer {
         if (tag instanceof CompoundTag) {
             CompoundTag compound = (CompoundTag) tag;
             if (targetType.isInterface() || Modifier.isAbstract(targetType.getModifiers())) {
-                // 无法实例化，返回 null（Gson 后备已在前面检查过）
-                return null;
+                return null; // 交由 Gson 后备（已前面检查）
             }
+            Object instance;
             try {
-                Object instance = targetType.getDeclaredConstructor().newInstance();
-                deserializeFields(compound, instance);
-                return instance;
+                // 1. 首选无参构造器
+                instance = targetType.getDeclaredConstructor().newInstance();
             } catch (NoSuchMethodException e) {
-                // 无默认构造，返回 null
-                return null;
+                // 2. 回退到 Unsafe 分配（类似 Gson）
+                instance = allocateInstance(targetType);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to create instance of " + targetType.getName(), e);
             }
+            deserializeFields(compound, instance);
+            return instance;
         }
 
-        // ----- 其他情况：无法处理，返回 null -----
         return null;
     }
 
@@ -569,7 +586,7 @@ public final class NbtSerializer {
                 continue;
             field.setAccessible(true);
             Tag tag = container.get(name);
-            Object value = deserializeObject(tag, field.getType(), field);
+            Object value = deserializeObjectByType(tag, field.getGenericType(), field);
             if (value != null) {
                 field.set(instance, value);
             }
@@ -577,6 +594,20 @@ public final class NbtSerializer {
     }
 
     // ========== 辅助方法 ==========
+
+    /**
+     * 从字段的泛型类型中安全提取第 index 个类型参数（保留嵌套 ParameterizedType）
+     */
+    @Nullable
+    private static Type resolveTypeArgument(Type genericType, int index) {
+        if (genericType instanceof ParameterizedType) {
+            Type[] args = ((ParameterizedType) genericType).getActualTypeArguments();
+            if (args.length > index) {
+                return args[index];
+            }
+        }
+        return null;
+    }
 
     private Field[] getFields(Class<?> clazz) {
         return fieldsCache.computeIfAbsent(clazz, c -> {
@@ -588,33 +619,6 @@ public final class NbtSerializer {
             }
             return list.toArray(new Field[0]);
         });
-    }
-
-    @Nullable
-    private Class<?> getGenericType(Field field, int index) {
-        Type genericType = field.getGenericType();
-        if (genericType instanceof ParameterizedType) {
-            ParameterizedType pt = (ParameterizedType) genericType;
-            Type[] args = pt.getActualTypeArguments();
-            if (args.length > index) {
-                Type arg = args[index];
-                if (arg instanceof Class) {
-                    return (Class<?>) arg;
-                } else if (arg instanceof ParameterizedType) {
-                    return (Class<?>) ((ParameterizedType) arg).getRawType();
-                } else if (arg instanceof WildcardType) {
-                    WildcardType wildcard = (WildcardType) arg;
-                    Type[] upper = wildcard.getUpperBounds();
-                    if (upper.length > 0 && upper[0] instanceof Class) {
-                        return (Class<?>) upper[0];
-                    }
-                    return Object.class;
-                } else if (arg instanceof TypeVariable) {
-                    return Object.class;
-                }
-            }
-        }
-        return null;
     }
 
     private Class<?> guessTypeFromTag(Tag tag) {
