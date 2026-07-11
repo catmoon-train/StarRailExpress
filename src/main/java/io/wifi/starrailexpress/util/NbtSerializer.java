@@ -23,35 +23,31 @@ import java.util.logging.Logger;
 /**
  * 通用 NBT 序列化工具（灵感来自 Gson 架构）
  * <p>
- * 支持类型覆盖基本类型、包装类、String、枚举、数组、集合（含泛型嵌套）、Map、自定义 POJO（包括 record 和无默认构造类）、
- * Optional 系列、原子类、UUID、日期时间等。反序列化时优先无参构造，失败则采用 Unsafe 分配实例（类似 Gson），
- * 字段级异常不会导致对象丢失。
+ * 支持基本类型、包装类、String、枚举、数组、集合（含泛型嵌套）、Map、自定义 POJO（包括 record 和 final 字段）、
+ * Optional 系列、原子类、UUID、日期时间等。反序列化时优先无参构造，失败则采用 Unsafe 分配实例，并通过反射去掉 final 修饰符以支持
+ * record 等。
  * </p>
  *
  * @author NbtSerializer (参照 Google Gson 设计)
- * @version 2.3
+ * @version 2.4
  */
 public final class NbtSerializer {
 
     private static final Logger LOGGER = Logger.getLogger("NbtSerializer");
-    public static final Gson GSON = new Gson();
+    private static final Gson GSON = new Gson();
 
     // ========== Unsafe 分配器 (仿 Gson ConstructorConstructor) ==========
     private static final InternalUnsafeAllocator unsafeAllocator = InternalUnsafeAllocator.create();
 
-    /**
-     * 尝试分配未初始化的类实例，优先使用 {@code sun.misc.Unsafe}，失败则尝试 {@code ReflectionFactory}。
-     */
     private static Object allocateInstance(Class<?> clazz) {
         return unsafeAllocator.newInstance(clazz);
     }
 
-    // ---------- 内部 Unsafe 分配器实现 ----------
     private abstract static class InternalUnsafeAllocator {
         abstract <T> T newInstance(Class<T> c);
 
         static InternalUnsafeAllocator create() {
-            // 1. 尝试 sun.misc.Unsafe
+            // 1. sun.misc.Unsafe
             try {
                 Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
                 Field f = unsafeClass.getDeclaredField("theUnsafe");
@@ -71,8 +67,7 @@ public final class NbtSerializer {
                 };
             } catch (Exception ignored) {
             }
-
-            // 2. 尝试 ReflectionFactory (需要 --add-opens)
+            // 2. ReflectionFactory (可能需要 --add-opens)
             try {
                 Class<?> rfClass = Class.forName("jdk.internal.reflect.ReflectionFactory");
                 Method getReflectionFactory = rfClass.getDeclaredMethod("getReflectionFactory");
@@ -96,23 +91,21 @@ public final class NbtSerializer {
                 };
             } catch (Exception ignored) {
             }
-
-            // 3. 兜底：尝试无参构造 (尽管此时调用者已经知道无参构造不存在，但作为最后努力)
+            // 3. 最后尝试无参构造（一般不会走到这里）
             return new InternalUnsafeAllocator() {
                 @Override
                 <T> T newInstance(Class<T> c) {
                     try {
                         return c.getDeclaredConstructor().newInstance();
                     } catch (Exception e) {
-                        throw new RuntimeException("Unable to create instance of " + c.getName()
-                                + "; register an InstanceCreator or add a no-arg constructor.", e);
+                        throw new RuntimeException("Unable to create instance of " + c.getName(), e);
                     }
                 }
             };
         }
     }
 
-    // ========== 循环引用检测 (仿 Gson 的 ThreadLocal 队列，可选) ==========
+    // ========== 循环引用检测 ==========
     private final boolean detectCycles;
     private final ThreadLocal<Set<Object>> serializingObjects;
 
@@ -152,13 +145,27 @@ public final class NbtSerializer {
         return instance;
     }
 
+    // ========== 字段访问工具（关键：去除 final 修饰符）==========
+    private static void makeAccessible(Field field) {
+        field.setAccessible(true);
+        if (Modifier.isFinal(field.getModifiers())) {
+            try {
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                // 如果失败，忽略（极少数严格 JVM 上可能禁止修改）
+                LOGGER.log(Level.FINE, "Could not remove final modifier from field " + field.getName(), e);
+            }
+        }
+    }
+
     // ========== 序列化 ==========
     @Nullable
     private Tag serializeObject(Object obj) {
         if (obj == null)
             return null;
 
-        // 循环引用检测
         if (detectCycles) {
             Set<Object> set = serializingObjects.get();
             if (!set.add(obj)) {
@@ -173,7 +180,7 @@ public final class NbtSerializer {
             if (adapter != null)
                 return adapter.apply(obj, this);
 
-            // 基本类型与包装类
+            // 基本类型 & 包装类
             if (obj instanceof Boolean)
                 return ByteTag.valueOf((Boolean) obj);
             if (obj instanceof Byte)
@@ -317,7 +324,7 @@ public final class NbtSerializer {
         for (Field field : getFields(clazz)) {
             if (!fieldFilter.test(field))
                 continue;
-            field.setAccessible(true);
+            makeAccessible(field);
             try {
                 Object value = field.get(obj);
                 Tag t = serializeObject(value);
@@ -472,7 +479,7 @@ public final class NbtSerializer {
             return arr;
         }
 
-        // 集合 (仿 Gson 的 CollectionTypeAdapterFactory)
+        // 集合 (支持泛型)
         if (List.class.isAssignableFrom(targetType) || Set.class.isAssignableFrom(targetType)) {
             if (!(tag instanceof ListTag))
                 return null;
@@ -494,7 +501,7 @@ public final class NbtSerializer {
             return coll;
         }
 
-        // Map (仿 Gson 的 MapTypeAdapterFactory)
+        // Map (支持泛型)
         if (Map.class.isAssignableFrom(targetType)) {
             if (!(tag instanceof CompoundTag))
                 return null;
@@ -513,7 +520,7 @@ public final class NbtSerializer {
             return map;
         }
 
-        // 自定义 POJO (仿 Gson 的 ReflectiveTypeAdapterFactory + ConstructorConstructor)
+        // 自定义 POJO (包括 record)
         if (tag instanceof CompoundTag) {
             CompoundTag ct = (CompoundTag) tag;
             if (targetType.isInterface() || Modifier.isAbstract(targetType.getModifiers()))
@@ -540,7 +547,7 @@ public final class NbtSerializer {
             String name = field.getName();
             if (!container.contains(name))
                 continue;
-            field.setAccessible(true);
+            makeAccessible(field); // <-- 关键：去除 final 修饰符
             try {
                 Tag tag = container.get(name);
                 Object value = deserializeObjectByType(tag, field.getGenericType(), field);
@@ -641,9 +648,6 @@ public final class NbtSerializer {
             return this;
         }
 
-        /**
-         * 启用循环引用检测（序列化时如果同一对象出现两次将跳过，避免死循环）
-         */
         public Builder detectCycles(boolean detect) {
             this.detectCycles = detect;
             return this;
