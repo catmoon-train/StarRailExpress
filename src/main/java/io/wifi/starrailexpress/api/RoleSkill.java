@@ -397,6 +397,9 @@ public final class RoleSkill {
      * 所有技能派发路径应在入口处调用此方法。
      */
     public static boolean blockForSpectator(ServerPlayer player) {
+        if (player.hasEffect(ModEffects.SKILL_BANED) || player.hasEffect(ModEffects.SKILL_FREEZED)) {
+            return true;
+        }
         if (!player.isSpectator()) {
             return false;
         }

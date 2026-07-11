@@ -758,6 +758,10 @@ public class ModPacketsReciever {
 
     ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BroadcasterC2SPacket.ID,
         (payload, context) -> {
+          if (context.player().hasEffect(ModEffects.SKILL_BANED)
+              || context.player().hasEffect(ModEffects.SKILL_FREEZED)) {
+            return;
+          }
           SREAbilityPlayerComponent abilityPlayerComponent = SREAbilityPlayerComponent.KEY
               .get(context.player());
           SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(context.player().level());
@@ -939,6 +943,9 @@ public class ModPacketsReciever {
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MONITOR_MARK_PACKET, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
         return;
+      if (context.player().hasEffect(ModEffects.SKILL_BANED) || context.player().hasEffect(ModEffects.SKILL_FREEZED)) {
+        return;
+      }
       SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
           .get(context.player().level());
       if (gameWorldComponent.isRole(context.player(), ModRoles.MONITOR)) {
@@ -977,6 +984,10 @@ public class ModPacketsReciever {
         (payload, context) -> {
           if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
             return;
+          if (context.player().hasEffect(ModEffects.SKILL_BANED)
+              || context.player().hasEffect(ModEffects.SKILL_FREEZED)) {
+            return;
+          }
           org.agmas.noellesroles.packet.WaterGhostUseSkillC2SPacket.handle(payload, context);
           ConfigWorldComponent.onPlayerUsedSkill(context.player());
         });
@@ -1074,6 +1085,11 @@ public class ModPacketsReciever {
         (payload, context) -> {
           if (context.player().hasEffect(ModEffects.SAFE_TIME))
             return;
+
+          if (context.player().hasEffect(ModEffects.SKILL_BANED)
+              || context.player().hasEffect(ModEffects.SKILL_FREEZED)) {
+            return;
+          }
           ServerPlayer player = context.player();
           SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
@@ -1134,6 +1150,11 @@ public class ModPacketsReciever {
           ServerPlayer player = context.player();
           if (player.isSpectator())
             return;
+
+          if (context.player().hasEffect(ModEffects.SKILL_BANED)
+              || context.player().hasEffect(ModEffects.SKILL_FREEZED)) {
+            return;
+          }
           SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
           if (!gameWorldComponent.isSkillAvailable) {
             player.displayClientMessage(
@@ -1176,6 +1197,10 @@ public class ModPacketsReciever {
         (payload, context) -> {
           if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
             return;
+          if (context.player().hasEffect(ModEffects.SKILL_BANED)
+              || context.player().hasEffect(ModEffects.SKILL_FREEZED)) {
+            return;
+          }
           ServerPlayer player = context.player();
           SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
               .get(player.level());
@@ -1292,6 +1317,10 @@ public class ModPacketsReciever {
     // 葬仪造尸包处理
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MORTICIAN_CREATE_BODY_PACKET, (payload, context) -> {
       ServerPlayer player = context.player();
+
+      if (context.player().hasEffect(ModEffects.SKILL_BANED) || context.player().hasEffect(ModEffects.SKILL_FREEZED)) {
+        return;
+      }
       SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
       if (gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
@@ -1343,6 +1372,10 @@ public class ModPacketsReciever {
           SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
           if (!gameWorld.isSkillAvailable)
             return;
+          if (context.player().hasEffect(ModEffects.SKILL_BANED)
+              || context.player().hasEffect(ModEffects.SKILL_FREEZED)) {
+            return;
+          }
           if (player.hasEffect(ModEffects.SAFE_TIME))
             return;
           if (!gameWorld.isRole(player, ModRoles.EMBALMER))
@@ -1408,6 +1441,10 @@ public class ModPacketsReciever {
             return;
           if (player.hasEffect(ModEffects.SAFE_TIME))
             return;
+          if (context.player().hasEffect(ModEffects.SKILL_BANED)
+              || context.player().hasEffect(ModEffects.SKILL_FREEZED)) {
+            return;
+          }
           if (!gameWorld.isRole(player, ModRoles.SKINCRAWLER))
             return;
           if (!GameUtils.isPlayerAliveAndSurvival(player))

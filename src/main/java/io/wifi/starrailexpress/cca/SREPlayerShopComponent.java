@@ -139,6 +139,13 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
                                     Component.translatable("message.tip.purchase_failed.safe_time"))
                             .withStyle(ChatFormatting.DARK_RED),
                     true);
+            if (this.player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.connection.send(new ClientboundSoundPacket(
+                        BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.UI_SHOP_BUY_FAIL),
+                        SoundSource.PLAYERS, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 1.0f,
+                        0.9f + this.player.getRandom().nextFloat() * 0.2f,
+                        serverPlayer.getRandom().nextLong()));
+            }
             return;
         }
         if (this.player.hasEffect(ModEffects.SHOP_BANNED)) {
@@ -149,6 +156,13 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
                                     Component.translatable("message.tip.purchase_failed.shop_banned"))
                             .withStyle(ChatFormatting.DARK_RED),
                     true);
+            if (this.player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.connection.send(new ClientboundSoundPacket(
+                        BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.UI_SHOP_BUY_FAIL),
+                        SoundSource.PLAYERS, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 1.0f,
+                        0.9f + this.player.getRandom().nextFloat() * 0.2f,
+                        serverPlayer.getRandom().nextLong()));
+            }
             return;
         }
         // 手榴弹购买冷却检查（可配置，默认30秒）
