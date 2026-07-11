@@ -176,6 +176,10 @@ public class SREPayloadRegister {
                 net.exmo.sre.meeting.network.MeetingSpeakC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload.ID,
                 net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.meeting.network.MeetingReportC2SPayload.ID,
+                net.exmo.sre.meeting.network.MeetingReportC2SPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.meeting.network.MeetingCooldownS2CPayload.ID,
+                net.exmo.sre.meeting.network.MeetingCooldownS2CPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.meeting.network.MeetingSkipC2SPayload.ID,
                 net.exmo.sre.meeting.network.MeetingSkipC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.meeting.network.MeetingSkipStateS2CPayload.ID,

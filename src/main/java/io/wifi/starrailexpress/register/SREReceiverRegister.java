@@ -32,6 +32,8 @@ public class SREReceiverRegister {
 
         // 紧急会议系统：服务端核心 + 发言请求
         net.exmo.sre.meeting.MeetingManager.register();
+        // 瞄准尸体按键上报会议 + 冷却同步
+        net.exmo.sre.meeting.MeetingReportServerHandler.register();
         org.agmas.noellesroles.game.roles.neutral.pelican.PelicanMeetingHandler.register();
         org.agmas.noellesroles.role.ModMeetingRoles.init();
         org.agmas.noellesroles.role.ModMeetingRoleEvents.register();

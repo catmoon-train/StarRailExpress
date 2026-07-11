@@ -1,4 +1,7 @@
 {
+  "entity.noellesroles.rainbow_horse": "Haiman Rainbow Horse",
+  "item.noellesroles.rainbow_horseshoe": "Rainbow Horseshoe",
+  "item.noellesroles.rainbow_horseshoe.tooltip": "Right-click to summon a Haiman Rainbow Horse from the sky. Seats two riders. Vanishes after 120 seconds.",
   "unknown": "Unknown",
   "status_bar.warn.warmth": "You need to go back indoors to warm up immediately",
   "status_bar.warn.thirst": "You need to drink water immediately",

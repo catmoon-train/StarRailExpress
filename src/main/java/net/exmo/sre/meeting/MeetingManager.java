@@ -180,6 +180,16 @@ public final class MeetingManager {
         return participants.containsKey(uuid);
     }
 
+    /** 会议间冷却结束的游戏刻（供客户端 HUD 冷却提示同步，见 MeetingReportServerHandler）。 */
+    public static long getCooldownUntilTick() {
+        return cooldownUntilTick;
+    }
+
+    /** 已上报过的尸体 UUID 快照（每具尸体只能召开一次会议）。 */
+    public static Set<UUID> getReportedBodies() {
+        return Set.copyOf(reportedBodies);
+    }
+
     /** 尸体被右键：满足条件则召开会议。返回是否已消费该交互。 */
     public static boolean tryReportBody(ServerPlayer reporter, PlayerBodyEntity body) {
         ServerLevel serverLevel = reporter.serverLevel();

@@ -377,6 +377,17 @@ public class ModEntities {
                     .trackedUpdateRate(2)
                     .build());
 
+    /** 海曼彩虹马实体 - 彩虹马蹄铁召唤的双人坐骑，120 秒后消失 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<RainbowHorseEntity> RAINBOW_HORSE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("rainbow_horse"),
+            FabricEntityTypeBuilder.<RainbowHorseEntity>create(MobCategory.MISC, RainbowHorseEntity::new)
+                    .dimensions(EntityDimensions.fixed(1.4F, 1.6F))
+                    .trackRangeBlocks(128)
+                    .trackedUpdateRate(2)
+                    .build());
+
     /** 移动平台实体 - 可站立、往返移动 */
     @SuppressWarnings("deprecation")
     public static final EntityType<MovingPlatformEntity> MOVING_PLATFORM = Registry.register(
@@ -406,5 +417,6 @@ public class ModEntities {
         FabricDefaultAttributeRegistry.register(MUMMY, net.minecraft.world.entity.monster.Husk.createAttributes());
         FabricDefaultAttributeRegistry.register(UNDEAD, UndeadEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(MORPHLING_KNIFE_DUMMY, MorphlingKnifeDummyEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(RAINBOW_HORSE, RainbowHorseEntity.createAttributes());
     }
 }

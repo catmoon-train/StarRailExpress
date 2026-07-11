@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -18,7 +19,8 @@ import java.util.Set;
 
 public class ZiplineBlockEntityRenderer implements BlockEntityRenderer<ZiplineBlockEntity> {
 
-    private static final double MAX_RENDER_DISTANCE_SQ = 32.0 * 32.0;
+    /** 与 ZiplineBlock.MAX_LINK_DISTANCE 对齐：站在长索中段时两端柱子都可能离得很远 */
+    private static final double MAX_RENDER_DISTANCE_SQ = 64.0 * 64.0;
 
     public ZiplineBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
     }
@@ -56,7 +58,8 @@ public class ZiplineBlockEntityRenderer implements BlockEntityRenderer<ZiplineBl
 
     private void renderRope(PoseStack matrices, VertexConsumer consumer, BlockPos fromPos, BlockPos toPos,
                             int segments) {
-        Matrix4f pose = matrices.last().pose();
+        PoseStack.Pose entry = matrices.last();
+        Matrix4f pose = entry.pose();
 
         Vec3 prevPoint = null;
         for (int i = 0; i <= segments; i++) {
@@ -71,8 +74,22 @@ public class ZiplineBlockEntityRenderer implements BlockEntityRenderer<ZiplineBl
                 float dy2 = (float) (currentPoint.y - fromPos.getY());
                 float dz2 = (float) (currentPoint.z - fromPos.getZ());
 
-                consumer.addVertex(pose, dx, dy, dz).setColor(176, 137, 81, 255).setNormal(0, 1, 0);
-                consumer.addVertex(pose, dx2, dy2, dz2).setColor(176, 137, 81, 255).setNormal(0, 1, 0);
+                // LINES 的法线是线段方向，着色器用它在屏幕空间展开线宽；
+                // 写死 (0,1,0) 时从正下方仰视法线与视线平行，投影退化线宽为 0，绳索不可见
+                float nx = dx2 - dx;
+                float ny = dy2 - dy;
+                float nz = dz2 - dz;
+                float len = Mth.sqrt(nx * nx + ny * ny + nz * nz);
+                if (len < 1.0e-5f) {
+                    prevPoint = currentPoint;
+                    continue;
+                }
+                nx /= len;
+                ny /= len;
+                nz /= len;
+
+                consumer.addVertex(pose, dx, dy, dz).setColor(176, 137, 81, 255).setNormal(entry, nx, ny, nz);
+                consumer.addVertex(pose, dx2, dy2, dz2).setColor(176, 137, 81, 255).setNormal(entry, nx, ny, nz);
             }
             prevPoint = currentPoint;
         }

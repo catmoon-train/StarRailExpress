@@ -390,6 +390,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 context -> new io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer<>(context, false));
         EntityRendererRegistry.register(ModEntities.SALTED_FISH_BODY,
                 context -> new io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer<>(context, false));
+        EntityRendererRegistry.register(ModEntities.RAINBOW_HORSE,
+                org.agmas.noellesroles.client.renderer.RainbowHorseRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);

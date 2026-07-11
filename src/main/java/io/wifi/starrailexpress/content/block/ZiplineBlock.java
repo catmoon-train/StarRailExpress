@@ -1,11 +1,17 @@
 package io.wifi.starrailexpress.content.block;
 
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block_entity.ZiplineBlockEntity;
 import io.wifi.starrailexpress.content.entity.ZiplineRiderEntity;
 import io.wifi.starrailexpress.content.item.BindingToolItem;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMEntities;
+import io.wifi.starrailexpress.util.PlayerStaminaGetter;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -46,6 +52,8 @@ public class ZiplineBlock extends Block implements EntityBlock {
     private static final int MAX_ZIPLINE_RANGE = 25;
     /** 绑定工具手动连线的最大距离，可跨高度、可斜拉 */
     public static final int MAX_LINK_DISTANCE = 64;
+    /** 上滑索消耗的体力（冲刺 tick 数）。标准体力条为 10 秒 = 200 tick */
+    private static final float RIDE_STAMINA_COST = 60f;
     private static final double ROPE_HEIGHT = 0.40;
     private static final VoxelShape CENTER_SHAPE = Block.box(6.5, 5.5, 6.5, 9.5, 8.5, 9.5);
     private static final VoxelShape NORTH_SHAPE = Block.box(6.5, 5.5, 0.0, 9.5, 8.5, 8.0);
@@ -316,6 +324,13 @@ public class ZiplineBlock extends Block implements EntityBlock {
         }
 
         if (level.isClientSide) {
+            // 客户端镜像服务端的体力扣除：sprintingTicks 两端各自独立计算且没有同步包，
+            // 只在服务端扣会让客户端 HUD 体力条纹丝不动
+            if (level.getBlockEntity(pos) instanceof ZiplineBlockEntity clientZbe
+                    && !clientZbe.getConnectedPositions().isEmpty()
+                    && !tryConsumeRideStamina(level, player)) {
+                return InteractionResult.FAIL;
+            }
             return InteractionResult.sidedSuccess(true);
         }
 
@@ -336,6 +351,14 @@ public class ZiplineBlock extends Block implements EntityBlock {
             return InteractionResult.PASS;
         }
 
+        if (!tryConsumeRideStamina(level, player)) {
+            player.displayClientMessage(
+                    Component.translatable("message.starrailexpress.zipline.not_enough_stamina")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return InteractionResult.FAIL;
+        }
+
         ZiplineRiderEntity rider = TMMEntities.ZIPLINE_RIDER.create(level);
         if (rider == null) {
             return InteractionResult.PASS;
@@ -351,6 +374,46 @@ public class ZiplineBlock extends Block implements EntityBlock {
         player.startRiding(rider, true);
 
         return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * 游戏运行中上滑索消耗体力，体力不足返回 false（不扣）。
+     * 判定口径与 PlayerEntityMixin.tmm$limitSprint / StaminaProvider 保持一致：
+     * 未开局、旁观/死亡、无限体力效果、职业不受体力限制（maxSprintTime 为负或 MAX_VALUE）都直接放行。
+     */
+    private static boolean tryConsumeRideStamina(Level level, Player player) {
+        SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(level);
+        if (gameComponent == null || !gameComponent.isRunning()) {
+            return true;
+        }
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+            return true;
+        }
+        if (org.agmas.noellesroles.init.ModEffects.hasInfiniteStamina(player)) {
+            return true;
+        }
+        SRERole role = gameComponent.getRole(player);
+        if (role == null) {
+            return true;
+        }
+        int maxSprintTime = role.getMaxSprintTime(player);
+        if (maxSprintTime < 0 || maxSprintTime == Integer.MAX_VALUE) {
+            return true;
+        }
+        if (!(player instanceof PlayerStaminaGetter stamina)) {
+            return true;
+        }
+        float max = maxSprintTime * org.agmas.noellesroles.init.ModEffects.getStaminaCapacityMultiplier(player);
+        float current = stamina.starrailexpress$getStamina();
+        if (current < 0) {
+            current = max; // -1 = 尚未初始化，视为满
+        }
+        current = Math.min(current, max);
+        if (current < RIDE_STAMINA_COST) {
+            return false;
+        }
+        stamina.starrailexpress$setStamina(current - RIDE_STAMINA_COST);
+        return true;
     }
 
     private boolean isHoldingZiplineBlock(ItemStack stack) {

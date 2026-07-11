@@ -10,6 +10,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.BowenBadgeItem;
 import org.agmas.noellesroles.content.item.HotPotatoItem;
 import org.agmas.noellesroles.content.item.ProblemSetItem;
+import org.agmas.noellesroles.content.item.RainbowHorseshoeItem;
 import org.agmas.noellesroles.content.item.ShisiyeItem;
 
 public class FunnyItems {
@@ -28,6 +29,10 @@ public class FunnyItems {
   public static final Item PROBLEM_SET = register(
       new ProblemSetItem(new Item.Properties().stacksTo(1)),
       "problem_set");
+  // 彩虹马蹄铁 - 召唤海曼彩虹马从天而降
+  public static final Item RAINBOW_HORSESHOE = register(
+      new RainbowHorseshoeItem(new Item.Properties().stacksTo(1)),
+      "rainbow_horseshoe");
 
   @SuppressWarnings("unchecked")
   public static Item register(Item item, String id) {

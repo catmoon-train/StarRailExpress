@@ -820,6 +820,8 @@ public class SREClient implements ClientModInitializer {
         // 紧急会议：客户端摄像机导演 + HUD
         net.exmo.sre.meeting.client.MeetingClientHandler.register();
         net.exmo.sre.meeting.client.MeetingHud.register();
+        // 瞄准尸体按键上报会议：按键 + 准星提示
+        net.exmo.sre.meeting.client.MeetingReportClientHandler.register();
 
         ClientPlayNetworking.registerGlobalReceiver(ShowSelectedMapUIPayload.ID, (payload, context) -> {
             var str = payload.serverConfig();

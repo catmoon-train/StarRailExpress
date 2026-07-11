@@ -9,10 +9,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
 
@@ -28,8 +30,18 @@ public class BlankCartridgeItem extends Item {
     // 冷却时间: 30秒 = 600 ticks
     private static final int GUN_COOLDOWN_TICKS = 600;
 
+    // 右键空气的物品冷却: 1秒 = 20 ticks，防止连按
+    private static final int AIR_USE_COOLDOWN_TICKS = 20;
+
     public BlankCartridgeItem(Properties settings) {
         super(settings);
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        // 右键空气时进入1秒冷却
+        player.getCooldowns().addCooldown(this, AIR_USE_COOLDOWN_TICKS);
+        return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
     }
 
     @Override
