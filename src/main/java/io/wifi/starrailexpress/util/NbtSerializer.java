@@ -21,87 +21,88 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 通用 NBT 序列化工具（灵感来自 Gson 架构）
+ * 通用 NBT 序列化工具（JDK 21+ 兼容）
  * <p>
- * 支持基本类型、包装类、String、枚举、数组、集合（含泛型嵌套）、Map、自定义 POJO（包括 record 和 final 字段）、
- * Optional 系列、原子类、UUID、日期时间等。反序列化时优先无参构造，失败则采用 Unsafe 分配实例，并通过反射去掉 final 修饰符以支持
- * record 等。
- * </p>
+ * 核心增强：
+ * <ul>
+ * <li>支持 record 及 final 字段的反序列化（使用 {@code sun.misc.Unsafe} 直接写入字段）</li>
+ * <li>无默认构造器时自动调用 {@code Unsafe.allocateInstance} 实例化</li>
+ * <li>保留完整的泛型信息，可处理嵌套集合/Map</li>
+ * <li>单个字段或元素反序列化失败不会导致整个对象丢失</li>
+ * </ul>
  *
- * @author NbtSerializer (参照 Google Gson 设计)
- * @version 2.4
+ * @author NbtSerializer (基于 Gson 设计)
+ * @version 3.0
  */
 public final class NbtSerializer {
 
     private static final Logger LOGGER = Logger.getLogger("NbtSerializer");
     private static final Gson GSON = new Gson();
 
-    // ========== Unsafe 分配器 (仿 Gson ConstructorConstructor) ==========
-    private static final InternalUnsafeAllocator unsafeAllocator = InternalUnsafeAllocator.create();
+    // ========== Unsafe 实例（所有 JDK 21+ 操作的基础）==========
+    private static final sun.misc.Unsafe UNSAFE;
 
-    private static Object allocateInstance(Class<?> clazz) {
-        return unsafeAllocator.newInstance(clazz);
+    static {
+        sun.misc.Unsafe unsafe = null;
+        try {
+            Field f = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            f.setAccessible(true);
+            unsafe = (sun.misc.Unsafe) f.get(null);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "sun.misc.Unsafe is not available, falling back to reflection", e);
+        }
+        UNSAFE = unsafe;
     }
 
-    private abstract static class InternalUnsafeAllocator {
-        abstract <T> T newInstance(Class<T> c);
+    /**
+     * 分配一个未初始化的类实例（跳过所有构造器，类似 Gson）
+     */
+    private static Object allocateInstance(Class<?> clazz) {
+        if (UNSAFE != null) {
+            try {
+                return UNSAFE.allocateInstance(clazz);
+            } catch (Exception e) {
+                throw new RuntimeException("Cannot allocate instance of " + clazz.getName() + " with Unsafe", e);
+            }
+        }
+        // 备用：尝试无参构造（此时一般会失败）
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to create instance of " + clazz.getName()
+                    + ". Provide a no-arg constructor or ensure sun.misc.Unsafe is accessible.", e);
+        }
+    }
 
-        static InternalUnsafeAllocator create() {
-            // 1. sun.misc.Unsafe
-            try {
-                Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
-                Field f = unsafeClass.getDeclaredField("theUnsafe");
-                f.setAccessible(true);
-                final Object unsafe = f.get(null);
-                final Method allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
-                return new InternalUnsafeAllocator() {
-                    @Override
-                    @SuppressWarnings("unchecked")
-                    <T> T newInstance(Class<T> c) {
-                        try {
-                            return (T) allocateInstance.invoke(unsafe, c);
-                        } catch (Exception e) {
-                            throw new RuntimeException("Cannot allocate " + c, e);
-                        }
-                    }
-                };
-            } catch (Exception ignored) {
+    /**
+     * 设置字段值，自动处理 final 字段（使用 Unsafe 绕过）
+     */
+    @SuppressWarnings("removal")
+    private static void setFieldValue(Object instance, Field field, Object value) throws Exception {
+        if (UNSAFE != null && Modifier.isFinal(field.getModifiers())) {
+            long offset = UNSAFE.objectFieldOffset(field);
+            Class<?> type = field.getType();
+            if (type == boolean.class) {
+                UNSAFE.putBoolean(instance, offset, (Boolean) value);
+            } else if (type == byte.class) {
+                UNSAFE.putByte(instance, offset, (Byte) value);
+            } else if (type == short.class) {
+                UNSAFE.putShort(instance, offset, (Short) value);
+            } else if (type == int.class) {
+                UNSAFE.putInt(instance, offset, (Integer) value);
+            } else if (type == long.class) {
+                UNSAFE.putLong(instance, offset, (Long) value);
+            } else if (type == float.class) {
+                UNSAFE.putFloat(instance, offset, (Float) value);
+            } else if (type == double.class) {
+                UNSAFE.putDouble(instance, offset, (Double) value);
+            } else if (type == char.class) {
+                UNSAFE.putChar(instance, offset, (Character) value);
+            } else {
+                UNSAFE.putObject(instance, offset, value);
             }
-            // 2. ReflectionFactory (可能需要 --add-opens)
-            try {
-                Class<?> rfClass = Class.forName("jdk.internal.reflect.ReflectionFactory");
-                Method getReflectionFactory = rfClass.getDeclaredMethod("getReflectionFactory");
-                Object rf = getReflectionFactory.invoke(null);
-                Method newConstructorForSerialization = rfClass.getDeclaredMethod(
-                        "newConstructorForSerialization", Class.class, Constructor.class);
-                return new InternalUnsafeAllocator() {
-                    @Override
-                    @SuppressWarnings("unchecked")
-                    <T> T newInstance(Class<T> c) {
-                        try {
-                            Constructor<?> objConstr = Object.class.getDeclaredConstructor();
-                            Constructor<?> intConstr = (Constructor<?>) newConstructorForSerialization.invoke(rf, c,
-                                    objConstr);
-                            intConstr.setAccessible(true);
-                            return (T) intConstr.newInstance();
-                        } catch (Exception e) {
-                            throw new RuntimeException("Cannot allocate " + c, e);
-                        }
-                    }
-                };
-            } catch (Exception ignored) {
-            }
-            // 3. 最后尝试无参构造（一般不会走到这里）
-            return new InternalUnsafeAllocator() {
-                @Override
-                <T> T newInstance(Class<T> c) {
-                    try {
-                        return c.getDeclaredConstructor().newInstance();
-                    } catch (Exception e) {
-                        throw new RuntimeException("Unable to create instance of " + c.getName(), e);
-                    }
-                }
-            };
+        } else {
+            field.set(instance, value);
         }
     }
 
@@ -145,22 +146,7 @@ public final class NbtSerializer {
         return instance;
     }
 
-    // ========== 字段访问工具（关键：去除 final 修饰符）==========
-    private static void makeAccessible(Field field) {
-        field.setAccessible(true);
-        if (Modifier.isFinal(field.getModifiers())) {
-            try {
-                Field modifiersField = Field.class.getDeclaredField("modifiers");
-                modifiersField.setAccessible(true);
-                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                // 如果失败，忽略（极少数严格 JVM 上可能禁止修改）
-                LOGGER.log(Level.FINE, "Could not remove final modifier from field " + field.getName(), e);
-            }
-        }
-    }
-
-    // ========== 序列化 ==========
+    // ========== 序列化逻辑 ==========
     @Nullable
     private Tag serializeObject(Object obj) {
         if (obj == null)
@@ -324,7 +310,7 @@ public final class NbtSerializer {
         for (Field field : getFields(clazz)) {
             if (!fieldFilter.test(field))
                 continue;
-            makeAccessible(field);
+            field.setAccessible(true);
             try {
                 Object value = field.get(obj);
                 Tag t = serializeObject(value);
@@ -336,7 +322,7 @@ public final class NbtSerializer {
         }
     }
 
-    // ========== 反序列化 ==========
+    // ========== 反序列化逻辑 ==========
     @Nullable
     private Object deserializeObjectByType(Tag tag, Type type, Field field) throws Exception {
         if (type instanceof Class)
@@ -547,12 +533,12 @@ public final class NbtSerializer {
             String name = field.getName();
             if (!container.contains(name))
                 continue;
-            makeAccessible(field); // <-- 关键：去除 final 修饰符
+            field.setAccessible(true); // 仍需 setAccessible 以便 Unsafe.objectFieldOffset 正常工作
             try {
                 Tag tag = container.get(name);
                 Object value = deserializeObjectByType(tag, field.getGenericType(), field);
                 if (value != null) {
-                    field.set(instance, value);
+                    setFieldValue(instance, field, value); // 关键：使用 Unsafe 设置 final 字段
                 }
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING,
