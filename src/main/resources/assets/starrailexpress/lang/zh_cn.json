@@ -2612,7 +2612,7 @@
     "sre.map_helper.settings.weather.clear": "晴天",
     "sre.map_helper.settings.weather.rain": "降雨",
     "sre.map_helper.settings.weather.thunder": "雷暴",
-    "sre.map_helper.settings.gravityModifier": "重力倍率",
+    "sre.map_helper.settings.gravityModifier": "额外重力参数",
     "sre.map_helper.settings.gravityModifier.@tooltip": "额外附加的重力加速度（0 为正常重力，正值加重，负值减轻）",
     "sre.map_helper.settings.mobEffects": "场景药水效果",
     "sre.map_helper.settings.mobEffects.@tooltip": "每一项的格式：\n药水ID,等级",

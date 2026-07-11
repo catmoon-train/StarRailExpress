@@ -4,7 +4,6 @@ import net.exmo.sre.repair.role.*;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.*;
 import io.wifi.starrailexpress.client.SREClient;
@@ -18,7 +17,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
@@ -33,6 +31,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -44,10 +43,10 @@ import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.init.RoleInitialItems;
 import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.utils.FlagUtils;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.joml.Matrix4f;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -1193,124 +1192,112 @@ public class RoleIntroduceScreen extends Screen {
             if (!(selectedRole instanceof AreasSettings settings))
                 return;
 
+            int dashCount = textW / Math.max(1, font.width("─"));
+            String dashesStr = "─".repeat(dashCount);
+            Component dashes = Component.literal(dashesStr).withStyle(ChatFormatting.DARK_GRAY);
             List<Component> rawLines = new ArrayList<>();
-            generateDescriptionTree(settings, true, 0, rawLines);
+            rawLines.add(Component.translatable("screen.roleintroduce.detail.map_areas_settings")
+                    .withStyle(ChatFormatting.GREEN));
+            rawLines.add(dashes);
+            {
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_boolean",
+                        Component.translatable(getDisplayNameKey("canJump")),
+                        Component.translatable("screen.detail.areas_settings." + (settings.canJump ? "yes" : "no"))));
+            }
+            {
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_boolean",
+                        Component.translatable(getDisplayNameKey("canSwim")),
+                        Component.translatable("screen.detail.areas_settings."
+                                + (settings.canSwim
+                                        && settings.canSimpleSwim
+                                        && settings.canUnderWater ? "yes" : "no"))));
+            }
+            {
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_boolean",
+                        Component.translatable(getDisplayNameKey("canInLava")),
+                        Component.translatable("screen.detail.areas_settings."
+                                + (settings.canInLava ? "yes" : "no"))));
+            }
+            {
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_boolean",
+                        Component.translatable(getDisplayNameKey("enableOxygenDrowning")),
+                        Component.translatable("screen.detail.areas_settings."
+                                + (settings.enableOxygenDrowning ? "yes" : "no"))));
+            }
+            {
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_enum",
+                        Component.translatable(getDisplayNameKey("mapStatusBar")),
+                        getEnumDisplayName("mapStatusBar", settings.mapStatusBar.name())));
+            }
 
+            {
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_str",
+                        Component.translatable(getDisplayNameKey("fallToDeathHeight")),
+                        settings.fallToDeathHeight > 0 ? Component.literal("" + settings.fallToDeathHeight)
+                                : Component.translatable("screen.detail.areas_settings.none")));
+            }
+
+            {
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_str",
+                        Component.translatable(getDisplayNameKey("gravityModifier")),
+                        settings.gravityModifier != 0 ? Component.literal("" + settings.gravityModifier)
+                                : Component.translatable("screen.detail.areas_settings.none")));
+            }
+            {
+
+                {
+                    rawLines.add(Component.translatable("screen.detail.areas_settings.warp_boolean",
+                            Component.translatable(getDisplayNameKey("minigameQuestEnabled")),
+                            Component.translatable("screen.detail.areas_settings."
+                                    + (settings.minigameQuestEnabled
+                                            ? "yes"
+                                            : "no"))));
+                }
+            }
+            {
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_boolean",
+                        Component.translatable(getDisplayNameKey("meetingEnabled")),
+                        Component.translatable("screen.detail.areas_settings."
+                                + (settings.meetingEnabled
+                                        ? "yes"
+                                        : "no"))));
+            }
+            {
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_boolean",
+                        Component.translatable(getDisplayNameKey("bellMeetingEnabled")),
+                        Component.translatable("screen.detail.areas_settings."
+                                + (settings.meetingEnabled && settings.bellMeetingEnabled
+                                        ? "yes"
+                                        : "no"))));
+            }
+            if (!settings.bannedBlock.isEmpty()) {
+                rawLines.add(dashes);
+                rawLines.add(Component.translatable("screen.detail.areas_settings.warp_str",
+                        Component.translatable(getDisplayNameKey("bannedBlock")),
+                        Component.literal("")));
+                for (var info : settings.bannedBlock) {
+                    var block = MCItemsUtils.getItemById(info.blockId()).orElse(null);
+                    if (block != null) {
+                        Component.translatable("screen.detail.areas_settings.banned_blocks", block.getDescription(),
+                                info.deathTimeForKillers(), info.deathTimeForInnocent());
+                    }
+                }
+            }
             for (Component line : rawLines) {
                 lines.addAll(font.split(line, textW));
             }
         }
 
-        // ── 递归生成树形描述 ─────────────────────────────────────────
-        private void generateDescriptionTree(Object obj, boolean isRoot, int depth, List<Component> out) {
-            if (obj == null)
-                return;
-
-            List<Field> visibleFields = getVisibleFields(obj.getClass());
-            if (visibleFields.isEmpty())
-                return;
-
-            for (int i = 0; i < visibleFields.size(); i++) {
-                Field field = visibleFields.get(i);
-                field.setAccessible(true);
-
-                // 获取当前字段值
-                Object value = getFieldValue(field, obj);
-                boolean isLast = (i == visibleFields.size() - 1);
-
-                // 字段显示名
-                String displayNameKey = getDisplayNameKey(field, obj, isRoot);
-                String displayName = I18n.exists(displayNameKey)
-                        ? Component.translatable(displayNameKey).getString()
-                        : field.getName();
-
-                // 字段描述（tooltip）
-                String tooltipKey = displayNameKey + ".@tooltip";
-                String description = I18n.exists(tooltipKey) ? I18n.get(tooltipKey) : "";
-
-                // 构建缩进与树线
-                String indent = "  ".repeat(depth); // 每级两个空格
-                String prefix = indent + (isLast ? "└─ " : "├─ ");
-
-                // 字段名行
-                out.add(Component.literal(prefix + displayName).withStyle(ChatFormatting.WHITE));
-
-                // 描述行（如果有）
-                if (!description.isEmpty()) {
-                    String descIndent = indent + (isLast ? "   " : "│  ") + "  "; // 对齐描述
-                    out.add(Component.literal(descIndent + description).withStyle(ChatFormatting.GRAY));
-                }
-
-                // 判断是否需要递归展开子字段（遵循 shouldExpandObject 逻辑）
-                if (shouldExpandObject(value)) {
-                    // 递归时传入此对象，并更新深度，后续的前缀由 generateDescriptionTree 内部的 indent 处理，
-                    // 但我们需要确保子项整体缩进到该字段的下方。
-                    // 这里用稍多一层缩进来表现层级关系。
-                    generateDescriptionTree(value, false, depth + 1, out);
-                }
-            }
+        private String getDisplayNameKey(String path) {
+            return "sre.map_helper.settings." + path;
         }
 
-        // ── 辅助方法 ─────────────────────────────────────────────────
-        private List<Field> getVisibleFields(Class<?> clazz) {
-            List<Field> result = new ArrayList<>();
-            for (Field field : clazz.getDeclaredFields()) {
-                if (java.lang.reflect.Modifier.isStatic(field.getModifiers()))
-                    continue;
-                if (field.isSynthetic())
-                    continue;
-                if (!shouldShowField(field))
-                    continue;
-                result.add(field);
-            }
-            return result;
+        private Component getEnumDisplayName(String path, String enumName) {
+            return Component.translatableWithFallback(getEnumDisplayNameKey(path, enumName), enumName);
         }
 
-        private boolean shouldShowField(Field field) {
-            if (field.isAnnotationPresent(ConfigSync.class)) {
-                ConfigSync expose = field.getAnnotation(ConfigSync.class);
-                return expose.shouldSync();
-            }
-            return true;
-        }
-
-        private Object getFieldValue(Field field, Object target) {
-            try {
-                return field.get(target);
-            } catch (IllegalAccessException e) {
-                return null;
-            }
-        }
-
-        private String getDisplayNameKey(Field field, Object parentObj, boolean isRoot) {
-            if (isRoot) {
-                // 根对象（AreasSettings）的直接字段
-                return "sre.map_helper.settings." + field.getName();
-            } else {
-                // 嵌套类字段
-                String className = field.getDeclaringClass().getSimpleName();
-                return "sre.map_helper.settings.class." + className + "." + field.getName();
-            }
-        }
-
-        /**
-         * 判断对象是否应展开显示子字段。
-         * 对应 AllSettingsModule 中的 shouldExpandObject 逻辑：
-         * 排除 null、基本类型、枚举、字符串、Map、Number、Boolean、集合等。
-         */
-        private boolean shouldExpandObject(Object obj) {
-            if (obj == null)
-                return false;
-            Class<?> clazz = obj.getClass();
-            if (Collection.class.isAssignableFrom(clazz))
-                return false;
-            if (Map.class.isAssignableFrom(clazz))
-                return false;
-            return !clazz.isPrimitive()
-                    && !clazz.isEnum()
-                    && clazz != String.class
-                    && !Number.class.isAssignableFrom(clazz)
-                    && !Boolean.class.isAssignableFrom(clazz);
+        private String getEnumDisplayNameKey(String path, String enumName) {
+            return "sre.map_helper.settings." + path + "." + enumName;
         }
     }
 
@@ -1823,6 +1810,9 @@ public class RoleIntroduceScreen extends Screen {
         if (role instanceof Item it) {
             iconOk = true;
             g.renderItem(it.getDefaultInstance(), iconX + 5, iconY + 5);
+        } else if (role instanceof AreasSettings) {
+            iconOk = true;
+            g.renderItem(Items.MAP.getDefaultInstance(), iconX + 5, iconY + 5);
         } else {
             try {
                 g.blit(getTypeIcon(role), iconX, iconY, 0f, 0f, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);

@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.content.command;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.annotations.Expose;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -12,7 +13,9 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -35,6 +38,7 @@ public class MapManagerSettingsCommand {
     dispatcher.register(
         Commands.literal("sre:area_manager")
             .requires(source -> source.hasPermission(2))
+            .then(Commands.literal("info_screen").executes(ctx -> showMapConfigInNewspaper(ctx)))
             // set 直接赋值
             .then(Commands.literal("set")
                 .then(Commands.argument("path", StringArgumentType.string())
@@ -79,7 +83,149 @@ public class MapManagerSettingsCommand {
                             IntegerArgumentType.getInteger(ctx, "page")))))));
   }
 
-  // ============ 执行方法 ============
+  /**
+   * 生成 AreasSettings 配置树的描述 Component，显示每个字段的本地化名称和当前值，
+   * 使用树形缩进（├─ / └─），字段间以换行分隔。
+   *
+   * @param settings 要展示的配置对象
+   * @return 可渲染的 Component，内部包含 \n 换行，适用于 AbstractTextTab 的 lines 拆分
+   */
+  public static Component getAreasSettingsDescriptionComponent(AreasSettings settings) {
+    return buildDescriptionComponent(settings, true, 0);
+  }
+
+  /**
+   * 递归构建描述 Component（纯客户端方法，所有文本均通过 Component.translatable 获取本地化值）
+   */
+  private static Component buildDescriptionComponent(Object obj, boolean isRoot, int depth) {
+    if (obj == null)
+      return Component.empty();
+    List<Field> fields = getVisibleFields(obj.getClass());
+    if (fields.isEmpty())
+      return Component.empty();
+
+    MutableComponent result = Component.empty();
+    for (int i = 0; i < fields.size(); i++) {
+      Field field = fields.get(i);
+      field.setAccessible(true);
+      Object value = getFieldValue(field, obj);
+      boolean isLast = (i == fields.size() - 1);
+
+      // 构建树形前缀
+      String indent = "  ".repeat(depth);
+      String prefix = indent + (isLast ? "└─ " : "├─ ");
+
+      // 字段显示名（翻译键，若缺失则回退为字段名）
+      String displayNameKey = getDisplayNameKey(field, obj, isRoot);
+      Component nameComponent = Component.translatableWithFallback(displayNameKey, field.getName());
+
+      // 字段值
+      Component valueComponent = formatValueComponent(value);
+
+      // 拼装一行：前缀 + 名称 + ": " + 值 + 换行
+      MutableComponent line = Component.literal(prefix)
+          .append(nameComponent)
+          .append(": ")
+          .append(valueComponent)
+          .append("\n");
+
+      result.append(line);
+
+      // 如果值是自定义对象，递归展开
+      if (shouldExpandObject(value)) {
+        result.append(buildDescriptionComponent(value, false, depth + 1));
+      }
+    }
+    return result;
+  }
+
+  // ═══════════════════════ 辅助方法（与 AllSettingsModule 一致） ═══════════════════════
+
+  private static List<Field> getVisibleFields(Class<?> clazz) {
+    List<Field> result = new ArrayList<>();
+    for (Field field : clazz.getDeclaredFields()) {
+      if (java.lang.reflect.Modifier.isStatic(field.getModifiers()))
+        continue;
+      if (field.isSynthetic())
+        continue;
+      if (!shouldShowField(field))
+        continue;
+      result.add(field);
+    }
+    return result;
+  }
+
+  private static boolean shouldShowField(Field field) {
+    if (field.isAnnotationPresent(Expose.class)) {
+      Expose expose = field.getAnnotation(Expose.class);
+      return expose.serialize() && expose.deserialize();
+    }
+    return true;
+  }
+
+  private static Object getFieldValue(Field field, Object target) {
+    try {
+      return field.get(target);
+    } catch (IllegalAccessException e) {
+      return null;
+    }
+  }
+
+  private static String getDisplayNameKey(Field field, Object parentObj, boolean isRoot) {
+    if (isRoot) {
+      return "sre.map_helper.settings." + field.getName();
+    } else {
+      String className = field.getDeclaringClass().getSimpleName();
+      return "sre.map_helper.settings.class." + className + "." + field.getName();
+    }
+  }
+
+  private static boolean shouldExpandObject(Object obj) {
+    if (obj == null)
+      return false;
+    Class<?> clazz = obj.getClass();
+    if (Collection.class.isAssignableFrom(clazz))
+      return false;
+    if (Map.class.isAssignableFrom(clazz))
+      return false;
+    return !clazz.isPrimitive()
+        && !clazz.isEnum()
+        && clazz != String.class
+        && !Number.class.isAssignableFrom(clazz)
+        && !Boolean.class.isAssignableFrom(clazz);
+  }
+
+  /**
+   * 将字段值格式化为 Component（客户端可直接渲染）
+   * 枚举使用翻译键显示，其他类型使用简单字符串
+   */
+  private static Component formatValueComponent(Object value) {
+    if (value == null)
+      return Component.literal("null");
+    if (value instanceof String)
+      return Component.literal("\"" + value + "\"");
+    if (value instanceof Enum<?> e) {
+      String enumKey = "sre.map_helper.settings." + e.getDeclaringClass().getSimpleName() + "." + e.name();
+      return Component.translatableWithFallback(enumKey, e.name());
+    }
+    if (value instanceof Collection)
+      return Component.literal("Collection[" + ((Collection<?>) value).size() + "]");
+    if (value instanceof Map)
+      return Component.literal("Map[" + ((Map<?, ?>) value).size() + "]");
+    return Component.literal(value.toString());
+  }
+
+  private static int showMapConfigInNewspaper(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    final var player = ctx.getSource().getPlayerOrException();
+    final var areas = AreasWorldComponent.KEY.get(player.level());
+    SRENetworkMessageUtils.sendNewspaper(player, (getAreasSettingsDescriptionComponent(areas.areasSettings)),
+        Optional
+            .of(Component.translatable("AreasSettings of %s", areas.mapName != null ? areas.mapName : "[UNSAVED MAP]")),
+        Optional.of(Component.literal("Server")));
+    ctx.getSource().sendSuccess(
+        () -> Component.translatable("Successfully showed config settings screen to %s.", player.getName()), true);
+    return 1;
+  }
 
   private static int executeSetDirect(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
     return executeSet(ctx, "value", false, null);
