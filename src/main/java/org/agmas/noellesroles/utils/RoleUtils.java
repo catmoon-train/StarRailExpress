@@ -3,6 +3,7 @@ package org.agmas.noellesroles.utils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.SREAbstractInfoClass;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -474,9 +475,12 @@ public class RoleUtils extends MCItemsUtils {
             return 0xff000000 | r.color();
         } else if (role instanceof SREModifier m) {
             return 0xff000000 | m.color();
-        } else {
+        } else if (role instanceof Item) {
+            return java.awt.Color.CYAN.getRGB();
+        } else if (role instanceof AreasSettings) {
             return java.awt.Color.WHITE.getRGB();
         }
+        return java.awt.Color.WHITE.getRGB();
     }
 
     public static MutableComponent getRoleOrModifierTypeName(Object role) {
@@ -503,6 +507,9 @@ public class RoleUtils extends MCItemsUtils {
     public static MutableComponent getRoleOrModifierOrItemNameWithColor(Object selectedRole) {
         if (selectedRole instanceof Item it) {
             return it.getDescription().copy().withStyle(ChatFormatting.WHITE);
+        } else if (selectedRole instanceof AreasSettings) {
+            return Component.translatable("screen.roleintroduce.detail.map_areas_settings")
+                    .withStyle(ChatFormatting.GREEN);
         } else {
             return getRoleOrModifierNameWithColor(selectedRole);
         }
@@ -527,6 +534,8 @@ public class RoleUtils extends MCItemsUtils {
     public static Component getRoleOrModifierOrItemName(Object selectedRole) {
         if (selectedRole instanceof Item it) {
             return it.getDescription().copy();
+        } else if (selectedRole instanceof AreasSettings) {
+            return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
         } else {
             return getRoleOrModifierName(selectedRole);
         }
@@ -535,6 +544,8 @@ public class RoleUtils extends MCItemsUtils {
     public static MutableComponent getRoleOrModifierOrItemTypeName(Object role) {
         if (role instanceof Item) {
             return Component.translatable("display.type.item");
+        } else if (role instanceof AreasSettings) {
+            return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
         } else {
             return getRoleOrModifierTypeName(role);
         }
