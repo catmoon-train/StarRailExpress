@@ -1183,7 +1183,7 @@ public class RoleIntroduceScreen extends Screen {
 
         @Override
         public Component getTitle() {
-            return Component.translatable("sre.map_helper.tab.descriptions");
+            return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
         }
 
         @Override
@@ -1527,13 +1527,24 @@ public class RoleIntroduceScreen extends Screen {
 
     private void onSelectionChanged(int tab) {
         buildTabs();
+        if (tab == -1) {
+            for (int i = 0; i < tabs.size(); i++) {
+                var t = tabs.get(i);
+                if (t.isVisible() && t.canSwitchTo()) {
+                    tab = i;
+                    break;
+                }
+            }
+        }
+        if (tab < 0)
+            tab = 0;
         activeTabIndex = tab;
         if (!tabs.isEmpty())
             tabs.get(activeTabIndex).onSwitchTo();
     }
 
     private void onSelectionChanged() {
-        onSelectionChanged(0);
+        onSelectionChanged(-1);
     }
 
     private static MutableComponent getFlagText(SREAbstractInfoClass flagInfoable) {
