@@ -41,6 +41,8 @@ public class SREClientBannedBlockTickEvents {
         final String blockId3 = SREGameWorldComponent.getBlockId(blockState3);
 
         for (var info : areas.areasSettings.bannedBlock) {
+            if (info.blockId() == null)
+                continue;
             if (info.blockId().equalsIgnoreCase(blockId1) || info.blockId().equalsIgnoreCase(blockId2)
                     || info.blockId().equalsIgnoreCase(blockId3)) {
 

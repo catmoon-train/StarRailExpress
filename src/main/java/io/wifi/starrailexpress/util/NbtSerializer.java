@@ -1,8 +1,6 @@
 package io.wifi.starrailexpress.util;
 
 import com.google.gson.Gson;
-
-import io.wifi.ConfigCompact.annotation.ConfigSync;
 import net.minecraft.nbt.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,47 +17,104 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * 通用 NBT 序列化工具（灵感来自 Gson 架构）
+ * <p>
+ * 支持类型覆盖基本类型、包装类、String、枚举、数组、集合（含泛型嵌套）、Map、自定义 POJO（包括 record 和无默认构造类）、
+ * Optional 系列、原子类、UUID、日期时间等。反序列化时优先无参构造，失败则采用 Unsafe 分配实例（类似 Gson），
+ * 字段级异常不会导致对象丢失。
+ * </p>
+ *
+ * @author NbtSerializer (参照 Google Gson 设计)
+ * @version 2.3
+ */
 public final class NbtSerializer {
 
+    private static final Logger LOGGER = Logger.getLogger("NbtSerializer");
     public static final Gson GSON = new Gson();
 
-    // ========== Unsafe 分配器 ==========
-    private static final sun.misc.Unsafe UNSAFE;
+    // ========== Unsafe 分配器 (仿 Gson ConstructorConstructor) ==========
+    private static final InternalUnsafeAllocator unsafeAllocator = InternalUnsafeAllocator.create();
 
-    static {
-        sun.misc.Unsafe unsafe = null;
-        try {
-            Field f = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-            f.setAccessible(true);
-            unsafe = (sun.misc.Unsafe) f.get(null);
-        } catch (Exception e) {
-            // 如果 Unsafe 不可用，UNSAFE 保持 null
-        }
-        UNSAFE = unsafe;
+    /**
+     * 尝试分配未初始化的类实例，优先使用 {@code sun.misc.Unsafe}，失败则尝试 {@code ReflectionFactory}。
+     */
+    private static Object allocateInstance(Class<?> clazz) {
+        return unsafeAllocator.newInstance(clazz);
     }
 
-    private static Object allocateInstance(Class<?> clazz) throws Exception {
-        if (UNSAFE != null) {
-            return UNSAFE.allocateInstance(clazz);
-        }
-        // 后备：ReflectionFactory（可能需要 --add-opens）
-        try {
-            Class<?> rfClass = Class.forName("jdk.internal.reflect.ReflectionFactory");
-            Method getReflectionFactory = rfClass.getDeclaredMethod("getReflectionFactory");
-            Object rf = getReflectionFactory.invoke(null);
-            Constructor<?> objConstructor = Object.class.getDeclaredConstructor();
-            Method newConstructorForSerialization = rfClass.getDeclaredMethod(
-                    "newConstructorForSerialization", Class.class, Constructor.class);
-            Constructor<?> intConstr = (Constructor<?>) newConstructorForSerialization.invoke(rf, clazz,
-                    objConstructor);
-            intConstr.setAccessible(true);
-            return intConstr.newInstance();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Cannot create instance of " + clazz.getName() +
-                    " (Unsafe unavailable, ReflectionFactory not found). Provide a no-arg constructor or add --add-opens.");
+    // ---------- 内部 Unsafe 分配器实现 ----------
+    private abstract static class InternalUnsafeAllocator {
+        abstract <T> T newInstance(Class<T> c);
+
+        static InternalUnsafeAllocator create() {
+            // 1. 尝试 sun.misc.Unsafe
+            try {
+                Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+                Field f = unsafeClass.getDeclaredField("theUnsafe");
+                f.setAccessible(true);
+                final Object unsafe = f.get(null);
+                final Method allocateInstance = unsafeClass.getMethod("allocateInstance", Class.class);
+                return new InternalUnsafeAllocator() {
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    <T> T newInstance(Class<T> c) {
+                        try {
+                            return (T) allocateInstance.invoke(unsafe, c);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Cannot allocate " + c, e);
+                        }
+                    }
+                };
+            } catch (Exception ignored) {
+            }
+
+            // 2. 尝试 ReflectionFactory (需要 --add-opens)
+            try {
+                Class<?> rfClass = Class.forName("jdk.internal.reflect.ReflectionFactory");
+                Method getReflectionFactory = rfClass.getDeclaredMethod("getReflectionFactory");
+                Object rf = getReflectionFactory.invoke(null);
+                Method newConstructorForSerialization = rfClass.getDeclaredMethod(
+                        "newConstructorForSerialization", Class.class, Constructor.class);
+                return new InternalUnsafeAllocator() {
+                    @Override
+                    @SuppressWarnings("unchecked")
+                    <T> T newInstance(Class<T> c) {
+                        try {
+                            Constructor<?> objConstr = Object.class.getDeclaredConstructor();
+                            Constructor<?> intConstr = (Constructor<?>) newConstructorForSerialization.invoke(rf, c,
+                                    objConstr);
+                            intConstr.setAccessible(true);
+                            return (T) intConstr.newInstance();
+                        } catch (Exception e) {
+                            throw new RuntimeException("Cannot allocate " + c, e);
+                        }
+                    }
+                };
+            } catch (Exception ignored) {
+            }
+
+            // 3. 兜底：尝试无参构造 (尽管此时调用者已经知道无参构造不存在，但作为最后努力)
+            return new InternalUnsafeAllocator() {
+                @Override
+                <T> T newInstance(Class<T> c) {
+                    try {
+                        return c.getDeclaredConstructor().newInstance();
+                    } catch (Exception e) {
+                        throw new RuntimeException("Unable to create instance of " + c.getName()
+                                + "; register an InstanceCreator or add a no-arg constructor.", e);
+                    }
+                }
+            };
         }
     }
+
+    // ========== 循环引用检测 (仿 Gson 的 ThreadLocal 队列，可选) ==========
+    private final boolean detectCycles;
+    private final ThreadLocal<Set<Object>> serializingObjects;
 
     // ========== 配置 ==========
     private final Predicate<Field> fieldFilter;
@@ -71,6 +126,8 @@ public final class NbtSerializer {
         this.fieldFilter = builder.fieldFilter;
         this.serializeAdapters = builder.serializeAdapters;
         this.deserializeAdapters = builder.deserializeAdapters;
+        this.detectCycles = builder.detectCycles;
+        this.serializingObjects = detectCycles ? ThreadLocal.withInitial(HashSet::new) : null;
     }
 
     // ========== 公开 API ==========
@@ -101,144 +158,159 @@ public final class NbtSerializer {
         if (obj == null)
             return null;
 
-        Class<?> clazz = obj.getClass();
-        BiFunction<Object, NbtSerializer, Tag> adapter = serializeAdapters.get(clazz);
-        if (adapter != null)
-            return adapter.apply(obj, this);
-
-        // 基本类型与包装类
-        if (obj instanceof Boolean)
-            return ByteTag.valueOf((Boolean) obj);
-        if (obj instanceof Byte)
-            return ByteTag.valueOf((Byte) obj);
-        if (obj instanceof Short)
-            return ShortTag.valueOf((Short) obj);
-        if (obj instanceof Integer)
-            return IntTag.valueOf((Integer) obj);
-        if (obj instanceof Long)
-            return LongTag.valueOf((Long) obj);
-        if (obj instanceof Float)
-            return FloatTag.valueOf((Float) obj);
-        if (obj instanceof Double)
-            return DoubleTag.valueOf((Double) obj);
-        if (obj instanceof String)
-            return StringTag.valueOf((String) obj);
-        if (obj instanceof Enum)
-            return StringTag.valueOf(((Enum<?>) obj).name());
-
-        // 原子类
-        if (obj instanceof AtomicInteger)
-            return IntTag.valueOf(((AtomicInteger) obj).get());
-        if (obj instanceof AtomicLong)
-            return LongTag.valueOf(((AtomicLong) obj).get());
-        if (obj instanceof AtomicBoolean)
-            return ByteTag.valueOf(((AtomicBoolean) obj).get());
-
-        // Optional 系列
-        if (obj instanceof Optional) {
-            Optional<?> opt = (Optional<?>) obj;
-            CompoundTag c = new CompoundTag();
-            c.putBoolean("present", opt.isPresent());
-            if (opt.isPresent()) {
-                Tag valueTag = serializeObject(opt.get());
-                if (valueTag != null)
-                    c.put("value", valueTag);
+        // 循环引用检测
+        if (detectCycles) {
+            Set<Object> set = serializingObjects.get();
+            if (!set.add(obj)) {
+                LOGGER.warning("Cyclic reference detected, skipping: " + obj);
+                return null;
             }
-            return c;
-        }
-        if (obj instanceof OptionalInt) {
-            OptionalInt opt = (OptionalInt) obj;
-            CompoundTag c = new CompoundTag();
-            c.putBoolean("present", opt.isPresent());
-            if (opt.isPresent())
-                c.putInt("value", opt.getAsInt());
-            return c;
-        }
-        if (obj instanceof OptionalLong) {
-            OptionalLong opt = (OptionalLong) obj;
-            CompoundTag c = new CompoundTag();
-            c.putBoolean("present", opt.isPresent());
-            if (opt.isPresent())
-                c.putLong("value", opt.getAsLong());
-            return c;
-        }
-        if (obj instanceof OptionalDouble) {
-            OptionalDouble opt = (OptionalDouble) obj;
-            CompoundTag c = new CompoundTag();
-            c.putBoolean("present", opt.isPresent());
-            if (opt.isPresent())
-                c.putDouble("value", opt.getAsDouble());
-            return c;
         }
 
-        // UUID, 日期时间
-        if (obj instanceof UUID)
-            return StringTag.valueOf(obj.toString());
-        if (obj instanceof Date)
-            return LongTag.valueOf(((Date) obj).getTime());
-        if (obj instanceof Instant)
-            return LongTag.valueOf(((Instant) obj).toEpochMilli());
-        if (obj instanceof LocalDate)
-            return StringTag.valueOf(((LocalDate) obj).format(DateTimeFormatter.ISO_LOCAL_DATE));
-        if (obj instanceof LocalDateTime)
-            return StringTag.valueOf(((LocalDateTime) obj).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        try {
+            Class<?> clazz = obj.getClass();
+            BiFunction<Object, NbtSerializer, Tag> adapter = serializeAdapters.get(clazz);
+            if (adapter != null)
+                return adapter.apply(obj, this);
 
-        // 原始数组
-        if (obj instanceof int[])
-            return new IntArrayTag(Arrays.copyOf((int[]) obj, ((int[]) obj).length));
-        if (obj instanceof byte[])
-            return new ByteArrayTag(Arrays.copyOf((byte[]) obj, ((byte[]) obj).length));
-        if (obj instanceof long[])
-            return new LongArrayTag(Arrays.copyOf((long[]) obj, ((long[]) obj).length));
-        if (obj instanceof short[]) {
-            short[] arr = (short[]) obj;
-            ListTag list = new ListTag();
-            for (short v : arr)
-                list.add(ShortTag.valueOf(v));
-            return list;
-        }
-        if (obj instanceof float[]) {
-            float[] arr = (float[]) obj;
-            ListTag list = new ListTag();
-            for (float v : arr)
-                list.add(FloatTag.valueOf(v));
-            return list;
-        }
-        if (obj instanceof double[]) {
-            double[] arr = (double[]) obj;
-            ListTag list = new ListTag();
-            for (double v : arr)
-                list.add(DoubleTag.valueOf(v));
-            return list;
-        }
+            // 基本类型与包装类
+            if (obj instanceof Boolean)
+                return ByteTag.valueOf((Boolean) obj);
+            if (obj instanceof Byte)
+                return ByteTag.valueOf((Byte) obj);
+            if (obj instanceof Short)
+                return ShortTag.valueOf((Short) obj);
+            if (obj instanceof Integer)
+                return IntTag.valueOf((Integer) obj);
+            if (obj instanceof Long)
+                return LongTag.valueOf((Long) obj);
+            if (obj instanceof Float)
+                return FloatTag.valueOf((Float) obj);
+            if (obj instanceof Double)
+                return DoubleTag.valueOf((Double) obj);
+            if (obj instanceof String)
+                return StringTag.valueOf((String) obj);
+            if (obj instanceof Enum)
+                return StringTag.valueOf(((Enum<?>) obj).name());
 
-        // 集合
-        if (obj instanceof Collection) {
-            ListTag list = new ListTag();
-            for (Object item : (Collection<?>) obj) {
-                Tag t = serializeObject(item);
-                if (t != null)
-                    list.add(t);
+            // 原子类
+            if (obj instanceof AtomicInteger)
+                return IntTag.valueOf(((AtomicInteger) obj).get());
+            if (obj instanceof AtomicLong)
+                return LongTag.valueOf(((AtomicLong) obj).get());
+            if (obj instanceof AtomicBoolean)
+                return ByteTag.valueOf(((AtomicBoolean) obj).get());
+
+            // Optional 系列
+            if (obj instanceof Optional) {
+                Optional<?> opt = (Optional<?>) obj;
+                CompoundTag c = new CompoundTag();
+                c.putBoolean("present", opt.isPresent());
+                if (opt.isPresent()) {
+                    Tag valueTag = serializeObject(opt.get());
+                    if (valueTag != null)
+                        c.put("value", valueTag);
+                }
+                return c;
             }
-            return list;
-        }
-
-        // Map
-        if (obj instanceof Map) {
-            CompoundTag mapTag = new CompoundTag();
-            for (Map.Entry<?, ?> e : ((Map<?, ?>) obj).entrySet()) {
-                String key = e.getKey().toString();
-                Tag value = serializeObject(e.getValue());
-                if (value != null)
-                    mapTag.put(key, value);
+            if (obj instanceof OptionalInt) {
+                OptionalInt opt = (OptionalInt) obj;
+                CompoundTag c = new CompoundTag();
+                c.putBoolean("present", opt.isPresent());
+                if (opt.isPresent())
+                    c.putInt("value", opt.getAsInt());
+                return c;
             }
-            return mapTag;
-        }
+            if (obj instanceof OptionalLong) {
+                OptionalLong opt = (OptionalLong) obj;
+                CompoundTag c = new CompoundTag();
+                c.putBoolean("present", opt.isPresent());
+                if (opt.isPresent())
+                    c.putLong("value", opt.getAsLong());
+                return c;
+            }
+            if (obj instanceof OptionalDouble) {
+                OptionalDouble opt = (OptionalDouble) obj;
+                CompoundTag c = new CompoundTag();
+                c.putBoolean("present", opt.isPresent());
+                if (opt.isPresent())
+                    c.putDouble("value", opt.getAsDouble());
+                return c;
+            }
 
-        // 自定义 POJO
-        CompoundTag compound = new CompoundTag();
-        serializeFields(obj, clazz, compound);
-        return compound;
+            // UUID, 日期时间
+            if (obj instanceof UUID)
+                return StringTag.valueOf(obj.toString());
+            if (obj instanceof Date)
+                return LongTag.valueOf(((Date) obj).getTime());
+            if (obj instanceof Instant)
+                return LongTag.valueOf(((Instant) obj).toEpochMilli());
+            if (obj instanceof LocalDate)
+                return StringTag.valueOf(((LocalDate) obj).format(DateTimeFormatter.ISO_LOCAL_DATE));
+            if (obj instanceof LocalDateTime)
+                return StringTag.valueOf(((LocalDateTime) obj).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+            // 原始数组
+            if (obj instanceof int[])
+                return new IntArrayTag(Arrays.copyOf((int[]) obj, ((int[]) obj).length));
+            if (obj instanceof byte[])
+                return new ByteArrayTag(Arrays.copyOf((byte[]) obj, ((byte[]) obj).length));
+            if (obj instanceof long[])
+                return new LongArrayTag(Arrays.copyOf((long[]) obj, ((long[]) obj).length));
+            if (obj instanceof short[]) {
+                short[] arr = (short[]) obj;
+                ListTag list = new ListTag();
+                for (short v : arr)
+                    list.add(ShortTag.valueOf(v));
+                return list;
+            }
+            if (obj instanceof float[]) {
+                float[] arr = (float[]) obj;
+                ListTag list = new ListTag();
+                for (float v : arr)
+                    list.add(FloatTag.valueOf(v));
+                return list;
+            }
+            if (obj instanceof double[]) {
+                double[] arr = (double[]) obj;
+                ListTag list = new ListTag();
+                for (double v : arr)
+                    list.add(DoubleTag.valueOf(v));
+                return list;
+            }
+
+            // 集合
+            if (obj instanceof Collection) {
+                ListTag list = new ListTag();
+                for (Object item : (Collection<?>) obj) {
+                    Tag t = serializeObject(item);
+                    if (t != null)
+                        list.add(t);
+                }
+                return list;
+            }
+
+            // Map
+            if (obj instanceof Map) {
+                CompoundTag mapTag = new CompoundTag();
+                for (Map.Entry<?, ?> e : ((Map<?, ?>) obj).entrySet()) {
+                    String key = e.getKey().toString();
+                    Tag value = serializeObject(e.getValue());
+                    if (value != null)
+                        mapTag.put(key, value);
+                }
+                return mapTag;
+            }
+
+            // 自定义 POJO
+            CompoundTag compound = new CompoundTag();
+            serializeFields(obj, clazz, compound);
+            return compound;
+        } finally {
+            if (detectCycles) {
+                serializingObjects.get().remove(obj);
+            }
+        }
     }
 
     private void serializeFields(Object obj, Class<?> clazz, CompoundTag container) {
@@ -251,7 +323,8 @@ public final class NbtSerializer {
                 Tag t = serializeObject(value);
                 if (t != null)
                     container.put(field.getName(), t);
-            } catch (IllegalAccessException ignored) {
+            } catch (IllegalAccessException e) {
+                LOGGER.log(Level.WARNING, "Failed to access field " + field.getName(), e);
             }
         }
     }
@@ -283,7 +356,7 @@ public final class NbtSerializer {
         if (adapter != null)
             return adapter.apply(tag);
 
-        // Gson 后备数据（如果之前用 Gson 序列化过）
+        // Gson 后备
         if (tag instanceof CompoundTag) {
             CompoundTag c = (CompoundTag) tag;
             if (c.contains("_gson_data")) {
@@ -322,9 +395,10 @@ public final class NbtSerializer {
             String name = tag.getAsString();
             if (name == null)
                 return null;
-            for (Object c : targetType.getEnumConstants())
-                if (((Enum<?>) c).name().equals(name))
-                    return c;
+            for (Object constant : targetType.getEnumConstants()) {
+                if (((Enum<?>) constant).name().equals(name))
+                    return constant;
+            }
             return null;
         }
 
@@ -336,7 +410,7 @@ public final class NbtSerializer {
         if (targetType == AtomicBoolean.class)
             return new AtomicBoolean(((NumericTag) tag).getAsByte() != 0);
 
-        // Optional
+        // Optional 系列
         if (targetType == Optional.class && tag instanceof CompoundTag) {
             CompoundTag c = (CompoundTag) tag;
             if (!c.getBoolean("present"))
@@ -357,7 +431,7 @@ public final class NbtSerializer {
             return c.getBoolean("present") ? OptionalDouble.of(c.getDouble("value")) : OptionalDouble.empty();
         }
 
-        // UUID, 日期
+        // UUID, 日期时间
         if (targetType == UUID.class)
             return UUID.fromString(tag.getAsString());
         if (targetType == Date.class)
@@ -398,7 +472,7 @@ public final class NbtSerializer {
             return arr;
         }
 
-        // 集合（增加异常捕获）
+        // 集合 (仿 Gson 的 CollectionTypeAdapterFactory)
         if (List.class.isAssignableFrom(targetType) || Set.class.isAssignableFrom(targetType)) {
             if (!(tag instanceof ListTag))
                 return null;
@@ -414,14 +488,13 @@ public final class NbtSerializer {
                     if (item != null)
                         coll.add(item);
                 } catch (Exception e) {
-                    // 单个元素反序列化失败，记录日志并跳过
-                    // LOGGER.warn("Skipping invalid collection element: {}", e.getMessage());
+                    LOGGER.log(Level.WARNING, "Skipping invalid collection element", e);
                 }
             }
             return coll;
         }
 
-        // Map（增加异常捕获）
+        // Map (仿 Gson 的 MapTypeAdapterFactory)
         if (Map.class.isAssignableFrom(targetType)) {
             if (!(tag instanceof CompoundTag))
                 return null;
@@ -434,13 +507,13 @@ public final class NbtSerializer {
                     if (val != null)
                         map.put(key, val);
                 } catch (Exception e) {
-                    // 跳过损坏的值
+                    LOGGER.log(Level.WARNING, "Skipping invalid map value for key " + key, e);
                 }
             }
             return map;
         }
 
-        // 自定义 POJO
+        // 自定义 POJO (仿 Gson 的 ReflectiveTypeAdapterFactory + ConstructorConstructor)
         if (tag instanceof CompoundTag) {
             CompoundTag ct = (CompoundTag) tag;
             if (targetType.isInterface() || Modifier.isAbstract(targetType.getModifiers()))
@@ -455,6 +528,7 @@ public final class NbtSerializer {
             deserializeFields(ct, instance);
             return instance;
         }
+
         return null;
     }
 
@@ -474,9 +548,8 @@ public final class NbtSerializer {
                     field.set(instance, value);
                 }
             } catch (Exception e) {
-                // 单个字段设置失败，记录日志，字段保持默认值
-                // LOGGER.warn("Failed to deserialize field '{}' of {}: {}", name,
-                // clazz.getSimpleName(), e.getMessage());
+                LOGGER.log(Level.WARNING,
+                        "Failed to set field " + name + " on " + clazz.getSimpleName() + ", using default value.", e);
             }
         }
     }
@@ -549,12 +622,10 @@ public final class NbtSerializer {
     }
 
     public static class Builder {
-        private Predicate<Field> fieldFilter = field -> {
-            ConfigSync ann = field.getAnnotation(ConfigSync.class);
-            return ann == null || ann.shouldSync();
-        };
+        private Predicate<Field> fieldFilter = field -> true;
         private final Map<Class<?>, BiFunction<Object, NbtSerializer, Tag>> serializeAdapters = new HashMap<>();
         private final Map<Class<?>, Function<Tag, Object>> deserializeAdapters = new HashMap<>();
+        private boolean detectCycles = false;
 
         public Builder fieldFilter(Predicate<Field> filter) {
             this.fieldFilter = filter;
@@ -563,10 +634,18 @@ public final class NbtSerializer {
 
         @SuppressWarnings("unchecked")
         public <T> Builder addAdapter(Class<T> clazz,
-                BiFunction<T, NbtSerializer, Tag> ser,
-                Function<Tag, T> deser) {
-            serializeAdapters.put(clazz, (o, ctx) -> ser.apply((T) o, ctx));
-            deserializeAdapters.put(clazz, t -> deser.apply(t));
+                BiFunction<T, NbtSerializer, Tag> serializer,
+                Function<Tag, T> deserializer) {
+            this.serializeAdapters.put(clazz, (obj, ctx) -> serializer.apply((T) obj, ctx));
+            this.deserializeAdapters.put(clazz, tag -> deserializer.apply(tag));
+            return this;
+        }
+
+        /**
+         * 启用循环引用检测（序列化时如果同一对象出现两次将跳过，避免死循环）
+         */
+        public Builder detectCycles(boolean detect) {
+            this.detectCycles = detect;
             return this;
         }
 
