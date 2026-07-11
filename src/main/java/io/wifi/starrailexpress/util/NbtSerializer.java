@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 通用 NBT 序列化工具（JDK 21+ 兼容）
@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  */
 public final class NbtSerializer {
 
-    private static final Logger LOGGER = Logger.getLogger("NbtSerializer");
+    private static final Logger LOGGER = LoggerFactory.getLogger(NbtSerializer.class);
     private static final Gson GSON = new Gson();
 
     // ========== Unsafe 实例（所有 JDK 21+ 操作的基础）==========
@@ -49,7 +49,7 @@ public final class NbtSerializer {
             f.setAccessible(true);
             unsafe = (sun.misc.Unsafe) f.get(null);
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "sun.misc.Unsafe is not available, falling back to reflection", e);
+            LOGGER.warn("sun.misc.Unsafe is not available, falling back to reflection", e);
         }
         UNSAFE = unsafe;
     }
@@ -155,7 +155,7 @@ public final class NbtSerializer {
         if (detectCycles) {
             Set<Object> set = serializingObjects.get();
             if (!set.add(obj)) {
-                LOGGER.warning("Cyclic reference detected, skipping: " + obj);
+                LOGGER.warn("Cyclic reference detected, skipping: " + obj);
                 return null;
             }
         }
@@ -317,7 +317,7 @@ public final class NbtSerializer {
                 if (t != null)
                     container.put(field.getName(), t);
             } catch (IllegalAccessException e) {
-                LOGGER.log(Level.WARNING, "Failed to access field " + field.getName(), e);
+                LOGGER.warn("Failed to access field " + field.getName(), e);
             }
         }
     }
@@ -481,7 +481,7 @@ public final class NbtSerializer {
                     if (item != null)
                         coll.add(item);
                 } catch (Exception e) {
-                    LOGGER.log(Level.WARNING, "Skipping invalid collection element", e);
+                    LOGGER.warn("Skipping invalid collection element", e);
                 }
             }
             return coll;
@@ -500,18 +500,24 @@ public final class NbtSerializer {
                     if (val != null)
                         map.put(key, val);
                 } catch (Exception e) {
-                    LOGGER.log(Level.WARNING, "Skipping invalid map value for key " + key, e);
+                    LOGGER.warn("Skipping invalid map value for key " + key, e);
                 }
             }
             return map;
         }
 
-        // 自定义 POJO (包括 record)
+        // ----- 自定义 POJO (包括 record) -----
         if (tag instanceof CompoundTag) {
             CompoundTag ct = (CompoundTag) tag;
             if (targetType.isInterface() || Modifier.isAbstract(targetType.getModifiers()))
                 return null;
 
+            // record 特殊处理：使用规范构造器
+            if (targetType.isRecord()) {
+                return deserializeRecord(ct, targetType);
+            }
+
+            // 非 record 类：原有逻辑（Unsafe 分配 + 字段设置）
             Object instance;
             try {
                 instance = targetType.getDeclaredConstructor().newInstance();
@@ -523,6 +529,55 @@ public final class NbtSerializer {
         }
 
         return null;
+    }
+
+    // 新增 deserializeRecord 方法
+    private Object deserializeRecord(CompoundTag tag, Class<?> recordClass) throws Exception {
+        RecordComponent[] components = recordClass.getRecordComponents();
+        Object[] args = new Object[components.length];
+        for (int i = 0; i < components.length; i++) {
+            RecordComponent component = components[i];
+            String name = component.getName();
+            Type genericType = component.getGenericType();
+            Tag fieldTag = tag.get(name);
+            Object value = null;
+            if (fieldTag != null) {
+                try {
+                    value = deserializeObjectByType(fieldTag, genericType, null);
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to deserialize record component " + name, e);
+                }
+            }
+            // 如果反序列化失败或 tag 缺失，保留默认值（基本类型默认0/false，对象null）
+            if (value == null && component.getType().isPrimitive()) {
+                // 基本类型必须提供默认值，否则构造器调用会抛异常
+                Class<?> type = component.getType();
+                if (type == int.class)
+                    value = 0;
+                else if (type == long.class)
+                    value = 0L;
+                else if (type == short.class)
+                    value = (short) 0;
+                else if (type == byte.class)
+                    value = (byte) 0;
+                else if (type == float.class)
+                    value = 0.0f;
+                else if (type == double.class)
+                    value = 0.0d;
+                else if (type == char.class)
+                    value = '\u0000';
+                else if (type == boolean.class)
+                    value = false;
+            }
+            args[i] = value;
+        }
+        // 获取规范构造器
+        Class<?>[] paramTypes = Arrays.stream(components)
+                .map(RecordComponent::getType)
+                .toArray(Class<?>[]::new);
+        Constructor<?> constructor = recordClass.getDeclaredConstructor(paramTypes);
+        constructor.setAccessible(true);
+        return constructor.newInstance(args);
     }
 
     private void deserializeFields(CompoundTag container, Object instance) {
@@ -541,7 +596,7 @@ public final class NbtSerializer {
                     setFieldValue(instance, field, value); // 关键：使用 Unsafe 设置 final 字段
                 }
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING,
+                LOGGER.warn(
                         "Failed to set field " + name + " on " + clazz.getSimpleName() + ", using default value.", e);
             }
         }
