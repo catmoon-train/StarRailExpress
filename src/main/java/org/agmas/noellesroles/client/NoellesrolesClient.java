@@ -1181,14 +1181,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 }
             }
             if (showHelpDisplay.consumeClick()) {
-                isShowHelpDisplay = !isShowHelpDisplay;
-                if (isShowHelpDisplay) {
-                    client.player.displayClientMessage(Component.translatable("message.tip.show_help_display_enable")
-                            .withStyle(ChatFormatting.GREEN), true);
-                } else {
-                    client.player.displayClientMessage(Component.translatable("message.tip.show_help_display_disable")
-                            .withStyle(ChatFormatting.RED), true);
-                }
+                showHelpDisplayClicked(client);
             }
             if (client == null || client.player == null)
                 return;
@@ -1628,6 +1621,17 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         // 注册客户端命令
         registerCommands();
+    }
+
+    public static void showHelpDisplayClicked(Minecraft client) {
+        isShowHelpDisplay = !isShowHelpDisplay;
+        if (isShowHelpDisplay) {
+            client.player.displayClientMessage(Component.translatable("message.tip.show_help_display_enable")
+                    .withStyle(ChatFormatting.GREEN), true);
+        } else {
+            client.player.displayClientMessage(Component.translatable("message.tip.show_help_display_disable")
+                    .withStyle(ChatFormatting.RED), true);
+        }
     }
 
     private void registerCommands() {

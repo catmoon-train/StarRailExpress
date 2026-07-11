@@ -20,6 +20,8 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -603,7 +605,10 @@ public abstract class LimitedHandledScreen<T extends AbstractContainerMenu> exte
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
+        if (NoellesrolesClient.showHelpDisplay.matches(keyCode, scanCode)) {
+            NoellesrolesClient.showHelpDisplayClicked(this.minecraft);
+            return true;
+        } else if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         } else if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
             this.onClose();

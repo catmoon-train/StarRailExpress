@@ -105,7 +105,7 @@ public class CommonClientHudRenderer {
     int width = guiGraphics.guiWidth();
     int lineHeight = client.font.lineHeight + 4;
     if (!inventory && !SREClientConfig.instance().showInfoLinesInHud) {
-      final var text = Component.literal("残月列车团队");
+      final var text = Component.literal("改版作者：残月列车团队").withStyle(ChatFormatting.AQUA);
       guiGraphics.drawString(client.font, text,
           width - 10 - client.font.width(text), y,
           java.awt.Color.WHITE.getRGB());
