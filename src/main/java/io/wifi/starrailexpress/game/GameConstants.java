@@ -208,6 +208,7 @@ public class GameConstants {
         public static ResourceLocation POISON = SRE.id("poison");
         public static ResourceLocation SELF_EXPLOSION = SRE.id("self_explosion");
         public static ResourceLocation FELL_OUT_OF_TRAIN = SRE.id("fell_out_of_train");
+        public static ResourceLocation TOUCH_INCORRECT = SRE.id("touch_incorrect");
         public static ResourceLocation CANNOT_SWIM = SRE.id("cant_swim_drowned");
         public static ResourceLocation LAVA = SRE.id("swim_in_lava");
         public static ResourceLocation ARROW = SRE.id("arrow");

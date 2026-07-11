@@ -9,6 +9,7 @@ import org.agmas.noellesroles.client.hud.roles.*;
 public class OtherRolesRegister {
 
     public static void registerSons() {
+        BannedBlockWarrningHud.register();
         CuckooHud.register();
         ShitSplitHud.register();
         VoteHud.register();

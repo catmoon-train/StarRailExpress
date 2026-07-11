@@ -34,9 +34,9 @@ import io.wifi.starrailexpress.game.data.MapStatusBarType;
  * 从 {@code "=== 地图设置开始 ===":""}，后面开始写，直到 {@code "== 地图设置末尾 END ==": ""}<br/>
  * field的翻译：{@code "sre.map_helper.settings." + field名称}<br/>
  * 分类的翻译：{@code "sre.map_helper.settings.category." + 分类名称}<br/>
- * 如果有注释（可选）则写：{@code "sre.map_helper.settings." + field名称 + ".tooltip"}<br/>
+ * 如果有注释（可选）则写：{@code "sre.map_helper.settings." + field名称 + ".@tooltip"}<br/>
  * 枚举（Enum）则写：{@code "sre.map_helper.settings." + field名称 + "." + enum.name()}<br/>
- * Enum的注释（可选）则写{@code "sre.map_helper.settings." + field名称 + "." + enum.name() + ".tooltip"}
+ * Enum的注释（可选）则写{@code "sre.map_helper.settings." + field名称 + "." + enum.name() + ".@tooltip"}
  * 
  */
 
@@ -70,7 +70,7 @@ public class AreasSettings {
     public boolean noReset = false;
     @Category("map")
     public boolean mustCopy = false;
-    
+
     /** 是否可跳跃 */
     @Category("action")
     // 默认为 true，此处只是为了占位
@@ -82,6 +82,19 @@ public class AreasSettings {
     /** 在禁用跳跃时，是否允许在水下时使用空格键 */
     @Category("action")
     public boolean canSwim = false;
+
+    /**
+     * MapBlockedSetting
+     * 
+     * @param blockId              方块ID
+     * @param deathTimeForInnocent 平民站上去的死亡时间。-1禁用。0立刻。
+     * @param deathTimeForKillers  杀手站上去的死亡时间。-1禁用。0立刻。
+     */
+    public static record MapBlockedBlockSetting(String blockId, int deathTimeForInnocent, int deathTimeForKillers) {
+    }
+
+    @Category("action")
+    public ArrayList<MapBlockedBlockSetting> bannedBlock = new ArrayList<>();
     /**
      * 水下检测，设置为false则需要玩家位置：
      * <li>水</li>
