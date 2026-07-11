@@ -947,7 +947,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         PlayerBannedBlockTimeInfo nowInfo = gameCCA.playerBannedBlockTime.getOrDefault(player.getUUID(), null);
         for (var info : areas.areasSettings.bannedBlock) {
             var res = ResourceLocation.tryParse(info.blockId());
-            if(res==null) continue;
+            if (res == null)
+                continue;
             var infoBlockId = res.toString();
             if (infoBlockId.equalsIgnoreCase(blockId1) || infoBlockId.equalsIgnoreCase(blockId2)
                     || infoBlockId.equalsIgnoreCase(blockId3)) {
