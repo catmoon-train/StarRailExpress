@@ -1277,8 +1277,10 @@ public class RoleIntroduceScreen extends Screen {
                 for (var info : settings.bannedBlock) {
                     var block = MCItemsUtils.getBlockById(info.blockId()).orElse(null);
                     if (block != null) {
+                        rawLines.add(Component.empty());
                         rawLines.add(
-                                Component.translatable("screen.detail.areas_settings.banned_blocks", block.getName(),
+                                Component.translatable("screen.detail.areas_settings.banned_blocks",
+                                        block.getName().withStyle(ChatFormatting.AQUA),
                                         info.deathTimeForKillers(), info.deathTimeForInnocent()));
                     }
                 }

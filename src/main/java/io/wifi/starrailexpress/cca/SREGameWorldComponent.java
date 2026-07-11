@@ -957,8 +957,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 if (nowInfo == null || nowInfo.standonTick <= 0) {
                     gameCCA.playerBannedBlockTime.put(player.getUUID(),
                             new PlayerBannedBlockTimeInfo(infoBlockId, level.getGameTime()));
-                } else if (nowInfo.blockId.equalsIgnoreCase(infoBlockId)) {
-                    if (SREGameWorldComponent.isKillerTeamRoleStatic(role)) {
+                } else if (infoBlockId.equalsIgnoreCase(infoBlockId)) {
+                    if (isKillerTeamRoleStatic(role)) {
                         if (level.getGameTime() - nowInfo.standonTick > info.deathTimeForKillers()) {
                             GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.TOUCH_INCORRECT);
                             if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))

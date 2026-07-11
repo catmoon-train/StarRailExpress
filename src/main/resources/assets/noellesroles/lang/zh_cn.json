@@ -1486,7 +1486,7 @@
   "screen.detail.areas_settings.yes": "是",
   "screen.detail.areas_settings.no": "否",
   "screen.detail.areas_settings.none": "无",
-  "screen.detail.areas_settings.banned_blocks": " - %s:\n | 杀手死亡时间：%s\n | 非杀手死亡时间：%s",
+  "screen.detail.areas_settings.banned_blocks": " - %s:\n |- 杀手死亡时间：%s\n |- 非杀手死亡时间：%s",
   "screen.detail.areas_settings.warp_boolean": "%s: %s",
   "screen.detail.areas_settings.warp_enum": "%s: %s",
   "screen.detail.areas_settings.warp_str": "%s: %s",
