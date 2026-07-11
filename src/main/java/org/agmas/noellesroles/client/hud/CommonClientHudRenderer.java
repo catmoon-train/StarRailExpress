@@ -91,7 +91,7 @@ public class CommonClientHudRenderer {
    * 绘制金币下方的信息行（右对齐）。返回最后一行之后的 y，供状态效果图标接续排布。
    */
   public static int renderMessagesBelowMoney(Minecraft client, FakeGuiGraphics guiGraphics,
-      DeltaTracker deltaTracker) {
+      DeltaTracker deltaTracker, boolean inventory) {
     MutableComponentResult texts = OnMessageBelowMoneyRenderer.EVENT.invoker().onRenderer(client, guiGraphics,
         deltaTracker);
     java.util.List<MessageDetail> infoLines = texts.mutipleContent;
@@ -104,6 +104,14 @@ public class CommonClientHudRenderer {
     int y = INFO_LINES_TOP_Y;
     int width = guiGraphics.guiWidth();
     int lineHeight = client.font.lineHeight + 4;
+    if (!inventory && !SREClientConfig.instance().showInfoLinesInHud) {
+      final var text = Component.literal("残月列车团队");
+      guiGraphics.drawString(client.font, text,
+          width - 10 - client.font.width(text), y,
+          java.awt.Color.WHITE.getRGB());
+      y += lineHeight;
+      return y;
+    }
     for (var line : infoLines) {
       if (!expanded && !line.briefly())
         continue;
@@ -166,10 +174,9 @@ public class CommonClientHudRenderer {
       }
       {
         if (client.screen == null) {
-          // 开启 showInfoLinesInInventory 时信息行改由 LimitedInventoryScreen 绘制，HUD 上不再显示
-          effectStartY = SREClientConfig.instance().showInfoLinesInInventory
-              ? INFO_LINES_TOP_Y
-              : renderMessagesBelowMoney(client, guiGraphics, deltaTracker);
+          // 开启 showInfoLinesInInventory 时信息行改由 LimitedInventoryScreen 绘制，HUD
+          // 上不再显示，但一定显示credit信息
+          effectStartY = renderMessagesBelowMoney(client, guiGraphics, deltaTracker, false);
         }
       }
       {

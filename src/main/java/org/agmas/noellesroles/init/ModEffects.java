@@ -26,10 +26,16 @@ import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistBackworldEf
 import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithDimensionEffectSync;
 
 public class ModEffects {
+    /** 禁止商店购买 */
     public static final Holder<MobEffect> SHOP_BANNED = register("shop_banned",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    /** 仅禁止CCA/职业执行tick */
+    public static final Holder<MobEffect> CCA_FREEZED = register("cca_freezed",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    /** 禁止CCA/职业执行tick与禁止技能使用 */
     public static final Holder<MobEffect> SKILL_FREEZED = register("skill_freezed",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFFFFF));
+    /** 禁止技能使用 */
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
     public static final Holder<MobEffect> INVENTORY_BANED = register("inventory_baned",
@@ -53,7 +59,8 @@ public class ModEffects {
                 public boolean applyEffectTick(LivingEntity livingEntity, int i) {
 
                     if (livingEntity instanceof ServerPlayer serverPlayer) {
-                        GhostStateComponent ghostStateComponent = GhostStateComponent.KEY.get(serverPlayer);
+                        GhostStateComponent ghostStateComponent = GhostStateComponent.KEY
+                                .get(serverPlayer);
                         if (!ghostStateComponent.isGhostState()) {
                             ghostStateComponent.isGhost = true;
                             ghostStateComponent.sync();
@@ -127,8 +134,10 @@ public class ModEffects {
                 public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
                     if (livingEntity.level() instanceof ServerLevel serverLevel) {
                         BlockPos blockPos = livingEntity.blockPosition().above(1);
-                        serverLevel.sendParticles(DustParticleOptions.REDSTONE, (double) blockPos.getX(),
-                                (double) blockPos.getY(), (double) blockPos.getZ(), 14, (double) 0.6F, (double) 0.6F,
+                        serverLevel.sendParticles(DustParticleOptions.REDSTONE,
+                                (double) blockPos.getX(),
+                                (double) blockPos.getY(), (double) blockPos.getZ(), 14,
+                                (double) 0.6F, (double) 0.6F,
                                 (double) 0.6F, 0.4d);
                     }
                     if (livingEntity.level().getGameTime() % 20 == 0)
@@ -355,7 +364,8 @@ public class ModEffects {
      * 2D camera distance. Amplifier 0 keeps the legacy distance, each extra level
      * moves farther away.
      */
-    public static final Holder<MobEffect> TWO_DIMENSIONAL_CAMERA_DISTANCE = register("two_dimensional_camera_distance",
+    public static final Holder<MobEffect> TWO_DIMENSIONAL_CAMERA_DISTANCE = register(
+            "two_dimensional_camera_distance",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xB3E5FC));
 
     /**

@@ -55,9 +55,15 @@ public class FakeGuiGraphics {
 
     // ── Wrapped real GuiGraphics ───────────────────────────────────────────────
     private final GuiGraphics real;
+    private boolean noOptimizing = false;
 
     public FakeGuiGraphics(GuiGraphics real) {
         this.real = real;
+    }
+
+    public FakeGuiGraphics(GuiGraphics real, boolean noOptimizing) {
+        this.real = real;
+        this.noOptimizing = noOptimizing;
     }
 
     /** Access the wrapped real GuiGraphics when you need to escape the fake. */

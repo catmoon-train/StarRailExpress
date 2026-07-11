@@ -105,7 +105,9 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     private int waitingMenuPage = 0;
     private int waitingMenuPages = 1;
 
-    /** 复用同一个包装实例绘制信息行；界面渲染时不在 Gui.render 帧内，FakeGuiGraphics 会直接透传给真实 GuiGraphics。 */
+    /**
+     * 复用同一个包装实例绘制信息行；界面渲染时不在 Gui.render 帧内，FakeGuiGraphics 会直接透传给真实 GuiGraphics。
+     */
     private FakeGuiGraphics fakeGraphics = null;
 
     // 右上角：参与 / 不参与本局游戏切换按钮
@@ -569,9 +571,9 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         // 金币下方的信息行：开启配置后只在本界面显示（HUD 上不再绘制），位置与 HUD 上一致
         if (SREClientConfig.instance().showInfoLinesInInventory && this.minecraft != null) {
             if (fakeGraphics == null || fakeGraphics.getDefaultGuiGraphics() != context) {
-                fakeGraphics = new FakeGuiGraphics(context);
+                fakeGraphics = new FakeGuiGraphics(context, true);
             }
-            CommonClientHudRenderer.renderMessagesBelowMoney(this.minecraft, fakeGraphics, DeltaTracker.ONE);
+            CommonClientHudRenderer.renderMessagesBelowMoney(this.minecraft, fakeGraphics, DeltaTracker.ONE, true);
         }
     }
 

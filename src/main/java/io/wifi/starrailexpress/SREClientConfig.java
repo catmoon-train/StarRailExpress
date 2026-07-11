@@ -44,8 +44,12 @@ public class SREClientConfig implements ConfigData {
 
     @Category("style")
     @ConfigEntry.Gui.Tooltip
-    public boolean showInfoLinesInInventory = true; // 金币下方的信息行改为在物品栏界面中显示，不再显示在HUD上
+    public boolean showInfoLinesInInventory = false; // 金币下方的信息行改为在物品栏界面中显示，不再显示在HUD上
 
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    public boolean showInfoLinesInHud = true; // 金币下方的信息行改为在物品栏界面中显示，不再显示在HUD上
+    
     @Category("style")
     @ConfigEntry.Gui.Tooltip
     public boolean useLegacyMapSelector = false; // 使用旧版地图投票界面（卡片墙）
