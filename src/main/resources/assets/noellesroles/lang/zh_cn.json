@@ -76,7 +76,6 @@
   "announcement.star.goals.custom_pending": "按下技能键在角色池选择你的职业！",
   "announcement.star.role.hide_and_seek_seeker": "寻找者",
   "announcement.star.goals.hide_and_seek_seeker": "在安全时间结束后，寻找地图中的躲藏者！",
-  
   "announcement.star.modifier.wifi.tnt_tagged": "烫手的山芋",
   "announcement.star.role.cat_necromancer": "猫娘召唤师",
   "announcement.star.goals.cat_necromancer": "召唤一次性猫娘~",
@@ -1458,7 +1457,7 @@
   "display.type.role": "职业",
   "screen.roleintroduce.category.all": "所有",
   "screen.roleintroduce.category.item": "物品",
-  "screen.roleintroduce.category.sponsor": "支持者",
+  "screen.roleintroduce.category.other": "其他",
   "block.noellesroles.custom_player_plush": "自定义玩家玩偶",
   "tooltip.sre.custom_player_plush.player": "玩家：%s",
   "tooltip.sre.custom_player_plush.texture": "材质：%s",
@@ -1479,6 +1478,7 @@
   "screen.roleintroduce.detail.name.id.warp": " (%s)",
   "screen.roleintroduce.detail.simple_description": "介绍",
   "screen.roleintroduce.detail.description": "详细介绍",
+  "screen.roleintroduce.detail.map_areas_settings": "地图信息",
   "screen.roleintroduce.disabled": "已禁用",
   "screen.roleintroduce.select_hint": "← 从左侧选择一个项目",
   "screen.roleintroduce.view_detail": "查看详情",
@@ -2140,7 +2140,6 @@
   "item.noellesroles.guest_ghost.stop_raining.tooltip1": "立刻关闭里世界且全图好人恢复 20 SAN",
   "item.noellesroles.guest_ghost.taomuding": "桃木钉",
   "item.noellesroles.taomuding": "桃木钉",
-
   "item.noellesroles.guest_ghost.taomuding.tooltip1": "让鬼的鬼术进入冷却，持续 30 秒",
   "==================== 布袋鬼（诡舍·缚灵）角色 ====================": "",
   "announcement.role.ma_chen_xu": "布袋鬼",

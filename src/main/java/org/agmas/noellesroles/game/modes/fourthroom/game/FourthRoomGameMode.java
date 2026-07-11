@@ -20,7 +20,7 @@ public final class FourthRoomGameMode extends GameMode {
     }
 
     @Override
-    public boolean enforcesPlayAreaElimination() {
+    public boolean enablePlayAreaDetections() {
         return false;
     }
 

@@ -1,7 +1,10 @@
 package org.agmas.noellesroles.client.screen;
 
 import net.exmo.sre.repair.role.*;
+
 import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.*;
 import io.wifi.starrailexpress.client.SREClient;
@@ -15,6 +18,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
@@ -43,6 +47,7 @@ import org.agmas.noellesroles.utils.FlagUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.joml.Matrix4f;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -130,9 +135,10 @@ public class RoleIntroduceScreen extends Screen {
                 item -> item instanceof SREModifier));
         CATEGORIES
                 .add(new RoleCategory("screen.roleintroduce.category.item", 0x55FF22BB, item -> item instanceof Item));
-        CATEGORIES.add(new RoleCategory("screen.roleintroduce.category.sponsor", 0xFFFF66AA,
-                item -> item instanceof Item it
-                        && io.wifi.starrailexpress.client.data.ClientSponsorCache.isSponsorPlush(it)));
+        CATEGORIES.add(new RoleCategory("screen.roleintroduce.category.other", 0xFFFF66AA,
+                item -> (item instanceof Item it
+                        && io.wifi.starrailexpress.client.data.ClientSponsorCache.isSponsorPlush(it))
+                        || item instanceof AreasSettings));
     }
 
     private static final int MAX_USABLE_WIDTH = 700;
@@ -372,6 +378,13 @@ public class RoleIntroduceScreen extends Screen {
                     || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(item);
         }
+        if (currentMode.equals(IntroductionGameMode.CURRENT)) {
+
+            if (SREClient.areaComponent != null && SREClient.areaComponent.areasSettings != null) {
+                if (cat.filter.test(SREClient.areaComponent.areasSettings))
+                    filteredItems.add(SREClient.areaComponent.areasSettings);
+            }
+        }
         for (Item item : io.wifi.starrailexpress.client.data.ClientSponsorCache.getPlushItems()) {
             if (!cat.filter.test(item))
                 continue;
@@ -468,7 +481,7 @@ public class RoleIntroduceScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     // 标签页系统
     // ══════════════════════════════════════════════════════════════════
-    private interface DetailTab {
+    public interface DetailTab {
         Component getTitle();
 
         default boolean mouseClicked(double mouseX, double mouseY, int button,
@@ -502,7 +515,7 @@ public class RoleIntroduceScreen extends Screen {
         }
     }
 
-    private abstract class AbstractTextTab implements DetailTab {
+    public abstract class AbstractTextTab implements DetailTab {
         protected List<FormattedCharSequence> lines = new ArrayList<>();
         protected int scrollOffset = 0;
         protected int maxScroll = 0;
@@ -550,6 +563,15 @@ public class RoleIntroduceScreen extends Screen {
         public void onSwitchTo() {
             prepareLines();
             scrollOffset = 0;
+        }
+
+        @Override
+        public boolean isVisible() {
+            if (selectedRole == null)
+                return false;
+            if ((selectedRole instanceof AreasSettings))
+                return false;
+            return true;
         }
 
         protected abstract void prepareLines();
@@ -1152,22 +1174,156 @@ public class RoleIntroduceScreen extends Screen {
         }
     }
 
+    public class AreasSettingsDescriptionTab extends AbstractTextTab {
+
+        @Override
+        public boolean isVisible() {
+            return selectedRole instanceof AreasSettings;
+        }
+
+        @Override
+        public Component getTitle() {
+            return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
+        }
+
+        @Override
+        protected void prepareLines() {
+            lines.clear();
+            int textW = rightW - PANEL_PAD * 2 - SCROLL_W - 4;
+            if (!(selectedRole instanceof AreasSettings settings))
+                return;
+
+            List<Component> rawLines = new ArrayList<>();
+            generateDescriptionTree(settings, true, 0, rawLines);
+
+            for (Component line : rawLines) {
+                lines.addAll(font.split(line, textW));
+            }
+        }
+
+        // ── 递归生成树形描述 ─────────────────────────────────────────
+        private void generateDescriptionTree(Object obj, boolean isRoot, int depth, List<Component> out) {
+            if (obj == null)
+                return;
+
+            List<Field> visibleFields = getVisibleFields(obj.getClass());
+            if (visibleFields.isEmpty())
+                return;
+
+            for (int i = 0; i < visibleFields.size(); i++) {
+                Field field = visibleFields.get(i);
+                field.setAccessible(true);
+
+                // 获取当前字段值
+                Object value = getFieldValue(field, obj);
+                boolean isLast = (i == visibleFields.size() - 1);
+
+                // 字段显示名
+                String displayNameKey = getDisplayNameKey(field, obj, isRoot);
+                String displayName = I18n.exists(displayNameKey)
+                        ? Component.translatable(displayNameKey).getString()
+                        : field.getName();
+
+                // 字段描述（tooltip）
+                String tooltipKey = displayNameKey + ".@tooltip";
+                String description = I18n.exists(tooltipKey) ? I18n.get(tooltipKey) : "";
+
+                // 构建缩进与树线
+                String indent = "  ".repeat(depth); // 每级两个空格
+                String prefix = indent + (isLast ? "└─ " : "├─ ");
+
+                // 字段名行
+                out.add(Component.literal(prefix + displayName).withStyle(ChatFormatting.WHITE));
+
+                // 描述行（如果有）
+                if (!description.isEmpty()) {
+                    String descIndent = indent + (isLast ? "   " : "│  ") + "  "; // 对齐描述
+                    out.add(Component.literal(descIndent + description).withStyle(ChatFormatting.GRAY));
+                }
+
+                // 判断是否需要递归展开子字段（遵循 shouldExpandObject 逻辑）
+                if (shouldExpandObject(value)) {
+                    // 递归时传入此对象，并更新深度，后续的前缀由 generateDescriptionTree 内部的 indent 处理，
+                    // 但我们需要确保子项整体缩进到该字段的下方。
+                    // 这里用稍多一层缩进来表现层级关系。
+                    generateDescriptionTree(value, false, depth + 1, out);
+                }
+            }
+        }
+
+        // ── 辅助方法 ─────────────────────────────────────────────────
+        private List<Field> getVisibleFields(Class<?> clazz) {
+            List<Field> result = new ArrayList<>();
+            for (Field field : clazz.getDeclaredFields()) {
+                if (java.lang.reflect.Modifier.isStatic(field.getModifiers()))
+                    continue;
+                if (field.isSynthetic())
+                    continue;
+                if (!shouldShowField(field))
+                    continue;
+                result.add(field);
+            }
+            return result;
+        }
+
+        private boolean shouldShowField(Field field) {
+            if (field.isAnnotationPresent(ConfigSync.class)) {
+                ConfigSync expose = field.getAnnotation(ConfigSync.class);
+                return expose.shouldSync();
+            }
+            return true;
+        }
+
+        private Object getFieldValue(Field field, Object target) {
+            try {
+                return field.get(target);
+            } catch (IllegalAccessException e) {
+                return null;
+            }
+        }
+
+        private String getDisplayNameKey(Field field, Object parentObj, boolean isRoot) {
+            if (isRoot) {
+                // 根对象（AreasSettings）的直接字段
+                return "sre.map_helper.settings." + field.getName();
+            } else {
+                // 嵌套类字段
+                String className = field.getDeclaringClass().getSimpleName();
+                return "sre.map_helper.settings.class." + className + "." + field.getName();
+            }
+        }
+
+        /**
+         * 判断对象是否应展开显示子字段。
+         * 对应 AllSettingsModule 中的 shouldExpandObject 逻辑：
+         * 排除 null、基本类型、枚举、字符串、Map、Number、Boolean、集合等。
+         */
+        private boolean shouldExpandObject(Object obj) {
+            if (obj == null)
+                return false;
+            Class<?> clazz = obj.getClass();
+            if (Collection.class.isAssignableFrom(clazz))
+                return false;
+            if (Map.class.isAssignableFrom(clazz))
+                return false;
+            return !clazz.isPrimitive()
+                    && !clazz.isEnum()
+                    && clazz != String.class
+                    && !Number.class.isAssignableFrom(clazz)
+                    && !Boolean.class.isAssignableFrom(clazz);
+        }
+    }
+
     private void buildTabs() {
         tabs.clear();
         if (selectedRole == null)
             return;
         int textW = rightW - PANEL_PAD * 2 - SCROLL_W - 4;
-
         // 简介
         tabs.add(new AbstractTextTab() {
             @Override
             public Component getTitle() {
                 return Component.translatable("screen.roleintroduce.detail.intro");
-            }
-
-            @Override
-            public boolean isVisible() {
-                return true;
             }
 
             @Override
@@ -1253,11 +1409,6 @@ public class RoleIntroduceScreen extends Screen {
             }
 
             @Override
-            public boolean isVisible() {
-                return true;
-            }
-
-            @Override
             protected void prepareLines() {
                 lines.clear();
                 if (selectedRole != null) {
@@ -1282,6 +1433,8 @@ public class RoleIntroduceScreen extends Screen {
             @Override
             public boolean isVisible() {
                 if (selectedRole == null)
+                    return false;
+                if ((selectedRole instanceof AreasSettings))
                     return false;
                 String key = "star.story." + getObjectType(selectedRole) + "." + getObjectPath(selectedRole);
                 return Language.getInstance().has(key);
@@ -1366,17 +1519,32 @@ public class RoleIntroduceScreen extends Screen {
                                 .withStyle(ChatFormatting.WHITE), textW));
             }
         });
+
+        // 地图介绍
+        tabs.add(new AreasSettingsDescriptionTab());
+
     }
 
     private void onSelectionChanged(int tab) {
         buildTabs();
+        if (tab == -1) {
+            for (int i = 0; i < tabs.size(); i++) {
+                var t = tabs.get(i);
+                if (t.isVisible() && t.canSwitchTo()) {
+                    tab = i;
+                    break;
+                }
+            }
+        }
+        if (tab < 0)
+            tab = 0;
         activeTabIndex = tab;
         if (!tabs.isEmpty())
             tabs.get(activeTabIndex).onSwitchTo();
     }
 
     private void onSelectionChanged() {
-        onSelectionChanged(0);
+        onSelectionChanged(-1);
     }
 
     private static MutableComponent getFlagText(SREAbstractInfoClass flagInfoable) {

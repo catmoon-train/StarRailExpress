@@ -7,12 +7,15 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.SREPlayerUtils;
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +23,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
@@ -31,6 +35,7 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 import java.util.*;
 
@@ -56,6 +61,36 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     // 通用物证（第4批·拖痕）：被葬仪曳柩拖动过的尸体（按尸体主人UUID记录），同步给客户端供尸检显示
     private Set<UUID> draggedCorpseOwners = new HashSet<>();
+
+    public static class PlayerBannedBlockTimeInfo {
+        public long standonTick = 0;
+        public String blockId = null;
+
+        public PlayerBannedBlockTimeInfo(String blockId, long standonTick) {
+            this.standonTick = standonTick;
+            this.blockId = blockId;
+        }
+    }
+
+    // 用于检测站在违禁方块上
+    // 服务端存储
+    public HashMap<UUID, PlayerBannedBlockTimeInfo> playerBannedBlockTime = new HashMap<>();
+
+    @Override
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        CompoundTag tag = new CompoundTag();
+        this.writeToNbt(tag, buf.registryAccess());
+        buf.writeNbt(tag);
+    }
+
+    @CheckEnvironment(EnvType.CLIENT)
+    @Override
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        CompoundTag tag = buf.readNbt();
+        if (tag != null) {
+            this.readFromNbt(tag, buf.registryAccess());
+        }
+    }
 
     /**
      * 获取玩家本局击杀数
@@ -760,8 +795,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                             continue;
                         }
 
-                        if (gameMode.enforcesPlayAreaElimination()) {
-                            isPlayerOutGameAreas(player, areas);
+                        if (gameMode.enablePlayAreaDetections()) {
+                            isPlayerOutGameAreas(player, areas, this);
                         }
 
                         // put players with no role in spectator mode
@@ -795,13 +830,15 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         }
     }
 
-    public static void isPlayerOutGameAreas(ServerPlayer player, AreasWorldComponent areas) {
+    public static void isPlayerOutGameAreas(ServerPlayer player, AreasWorldComponent areas,
+            SREGameWorldComponent gameCCA) {
         if (player.isSpectator() || player.isCreative())
             return;
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent.gameMode == SREGameModes.REPAIR_ESCAPE_MODE)
             return;
         if (!(player.getZ() >= 19000)) {
+            checkPlayerBannedBlocks(player, areas, gameCCA);
             if (checkPlayerIsOutOfAreas(player, areas)) {
                 GameUtils.killPlayer(player, false,
                         player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
@@ -813,7 +850,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                             GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
                 }
             }
-
             if (!areas.areasSettings.canUnderWater) {
                 if (player.isUnderWater()) {
                     GameUtils.killPlayer(player, false,
@@ -868,6 +904,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             }
 
         } else {
+            gameCCA.playerBannedBlockTime.remove(player.getUUID());
             if (!TarotAssemblyManager.havingMeeting) {
                 GameUtils.killPlayer(player, false,
                         player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
@@ -882,6 +919,73 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     }
 
+    private static void checkPlayerBannedBlocks(ServerPlayer player, AreasWorldComponent areas,
+            SREGameWorldComponent gameCCA) {
+        final var level = player.level();
+        if (level.getGameTime() % 2 != 0) // 2tick 检测一次
+            return;
+        if (player.isSpectator()) {
+            if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
+                gameCCA.playerBannedBlockTime.remove(player.getUUID());
+            return;
+        }
+        var role = RoleUtils.getPlayerRole(player);
+        if (role == null) {
+            if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
+                gameCCA.playerBannedBlockTime.remove(player.getUUID());
+            return;
+        }
+        final var pos1 = player.blockPosition();
+        final var pos2 = pos1.below();
+        final var pos3 = pos2.below();
+        final var blockState1 = level.getBlockState(pos1);
+        final var blockState2 = level.getBlockState(pos2);
+        final var blockState3 = level.getBlockState(pos3);
+        final String blockId1 = getBlockId(blockState1);
+        final String blockId2 = getBlockId(blockState2);
+        final String blockId3 = getBlockId(blockState3);
+        PlayerBannedBlockTimeInfo nowInfo = gameCCA.playerBannedBlockTime.getOrDefault(player.getUUID(), null);
+        for (var info : areas.areasSettings.bannedBlock) {
+            if (info.blockId().equalsIgnoreCase(blockId1) || info.blockId().equalsIgnoreCase(blockId2)
+                    || info.blockId().equalsIgnoreCase(blockId3)) {
+                if (nowInfo == null || nowInfo.standonTick <= 0) {
+                    gameCCA.playerBannedBlockTime.put(player.getUUID(),
+                            new PlayerBannedBlockTimeInfo(info.blockId(), level.getGameTime()));
+                } else if (nowInfo.blockId.equalsIgnoreCase(info.blockId())) {
+                    if (SREGameWorldComponent.isKillerTeamRoleStatic(role)) {
+                        if (level.getGameTime() - nowInfo.standonTick > info.deathTimeForKillers()) {
+                            GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.TOUCH_INCORRECT);
+                            if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
+                                gameCCA.playerBannedBlockTime.remove(player.getUUID());
+                        }
+                    } else {
+                        if (level.getGameTime() - nowInfo.standonTick > info.deathTimeForInnocent()) {
+                            GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.TOUCH_INCORRECT);
+                            if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
+                                gameCCA.playerBannedBlockTime.remove(player.getUUID());
+                        }
+                    }
+
+                } else {
+                    gameCCA.playerBannedBlockTime.put(player.getUUID(),
+                            new PlayerBannedBlockTimeInfo(info.blockId(), level.getGameTime()));
+                }
+                return;
+            }
+        }
+        if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
+            gameCCA.playerBannedBlockTime.remove(player.getUUID());
+    }
+
+    public static String getBlockId(BlockState state) {
+        if (state == null || state.getBlock() == null)
+            return "";
+        final var res = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+        if (res == null)
+            return "";
+        return res.toString();
+    }
+
     private static boolean checkPlayerIsInLava(ServerPlayer player, AreasWorldComponent areas) {
         if (player.isInLava()) {
             return true;
@@ -890,7 +994,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     private static boolean checkPlayerIsOutOfAreas(ServerPlayer player, AreasWorldComponent areas) {
-        if (player.getY() < areas.playArea.minY) {
+        if (player.getY() < areas.playArea.minY || player.getY() > areas.playArea.maxY) {
             return true;
         }
         return false;

@@ -3,12 +3,14 @@ package org.agmas.noellesroles.utils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.SREAbstractInfoClass;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -16,7 +18,9 @@ import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import io.wifi.starrailexpress.stats.PlayerStats;
 import io.wifi.starrailexpress.stats.PlayerStatsManager;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -474,9 +478,12 @@ public class RoleUtils extends MCItemsUtils {
             return 0xff000000 | r.color();
         } else if (role instanceof SREModifier m) {
             return 0xff000000 | m.color();
-        } else {
+        } else if (role instanceof Item) {
+            return java.awt.Color.CYAN.getRGB();
+        } else if (role instanceof AreasSettings) {
             return java.awt.Color.WHITE.getRGB();
         }
+        return java.awt.Color.WHITE.getRGB();
     }
 
     public static MutableComponent getRoleOrModifierTypeName(Object role) {
@@ -503,6 +510,9 @@ public class RoleUtils extends MCItemsUtils {
     public static MutableComponent getRoleOrModifierOrItemNameWithColor(Object selectedRole) {
         if (selectedRole instanceof Item it) {
             return it.getDescription().copy().withStyle(ChatFormatting.WHITE);
+        } else if (selectedRole instanceof AreasSettings) {
+            return Component.translatable("screen.roleintroduce.detail.map_areas_settings")
+                    .withStyle(ChatFormatting.GREEN);
         } else {
             return getRoleOrModifierNameWithColor(selectedRole);
         }
@@ -519,6 +529,14 @@ public class RoleUtils extends MCItemsUtils {
     public static ResourceLocation getRoleOrModifierOrItemIdentifier(Object selectedRole) {
         if (selectedRole instanceof Item it) {
             return BuiltInRegistries.ITEM.getKey(it);
+        } else if (selectedRole instanceof AreasSettings) {
+            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+                String a = SREClient.areaComponent.mapName;
+                if (a == null)
+                    a = "null";
+                return ResourceLocation.fromNamespaceAndPath("areas", a);
+            }
+            return ResourceLocation.fromNamespaceAndPath("areas", "areas_settings");
         } else {
             return getRoleOrModifierIdentifier(selectedRole);
         }
@@ -527,6 +545,8 @@ public class RoleUtils extends MCItemsUtils {
     public static Component getRoleOrModifierOrItemName(Object selectedRole) {
         if (selectedRole instanceof Item it) {
             return it.getDescription().copy();
+        } else if (selectedRole instanceof AreasSettings) {
+            return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
         } else {
             return getRoleOrModifierName(selectedRole);
         }
@@ -535,6 +555,8 @@ public class RoleUtils extends MCItemsUtils {
     public static MutableComponent getRoleOrModifierOrItemTypeName(Object role) {
         if (role instanceof Item) {
             return Component.translatable("display.type.item");
+        } else if (role instanceof AreasSettings) {
+            return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
         } else {
             return getRoleOrModifierTypeName(role);
         }

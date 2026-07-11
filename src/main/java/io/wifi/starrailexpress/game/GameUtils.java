@@ -606,7 +606,7 @@ public class GameUtils {
 
         // 发放地图初始物品
         distributeMapInitialItems(serverWorld, readyPlayerList);
-
+        gameComponent.playerBannedBlockTime.clear();
         OnGameStarted.EVENT.invoker().onGameStarted(serverWorld);
         // --- 结束新增统计数据更新逻辑 ---
         OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveInited(serverWorld);
@@ -1039,6 +1039,8 @@ public class GameUtils {
     public static final Set<ChunkPos> chunksToClearEntities = new HashSet<>();
 
     public static void finalizeGame(ServerLevel world) {
+        SREGameWorldComponent.getInstance(world).playerBannedBlockTime.clear();
+
         SRE.LOGGER.info("-".repeat(20));
 
         SRE.LOGGER.info("Game Stopped!");

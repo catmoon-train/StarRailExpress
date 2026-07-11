@@ -180,7 +180,7 @@ public abstract class GameMode {
      * 
      * @return
      */
-    public boolean enforcesPlayAreaElimination() {
+    public boolean enablePlayAreaDetections() {
         return true;
     }
 
