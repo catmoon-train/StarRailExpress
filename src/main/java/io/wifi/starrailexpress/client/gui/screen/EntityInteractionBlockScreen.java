@@ -481,6 +481,11 @@ public class EntityInteractionBlockScreen extends Screen {
                     action.stringValue != null ? action.stringValue : "*").getString();
             case TRIGGER_FAKE_POISON -> Component.translatable("action.trigger_fake_poison",
                     (int) action.value).getString();
+            case TRIGGER_MEETING -> Component.translatable("action.trigger_meeting",
+                    Component.translatable(action.meetingEmergency ?
+                            "gui.entity_interaction_block.meeting_emergency" :
+                            "gui.entity_interaction_block.meeting_normal"),
+                    action.stringValue != null && !action.stringValue.isEmpty() ? action.stringValue : "*").getString();
         };
 
         return baseText + teleportSuffix + teamSuffix;
@@ -1238,6 +1243,7 @@ public class EntityInteractionBlockScreen extends Screen {
         private boolean clearTasks = true; // ADD_CUSTOM_TASK是否清空当前任务
         private EntityInteractionBlockEntity.TeamType selectedTeam = EntityInteractionBlockEntity.TeamType.ALL; // 阵营过滤
         private int teleportTarget = 0; // 传送目标：0=触发玩家，1=随机玩家，2=所有玩家
+        private boolean meetingEmergency = false; // 触发会议：true=紧急会议，false=普通会议
         private int scrollY = 0;
         private static final int SCROLL_STEP = 15;
 
@@ -1853,6 +1859,27 @@ public class EntityInteractionBlockScreen extends Screen {
                             Component.translatable("gui.entity_interaction_block.fake_poison_desc"), b -> {})
                             .bounds(centerX - 100, y, 200, 15).build());
                 }
+                case TRIGGER_MEETING -> {
+                    // 会议类型选择（普通 / 紧急），点击按钮切换
+                    addRenderableWidget(Button.builder(
+                            Component.translatable("gui.entity_interaction_block.meeting_type",
+                                    Component.translatable(meetingEmergency ?
+                                            "gui.entity_interaction_block.meeting_emergency" :
+                                            "gui.entity_interaction_block.meeting_normal")),
+                            b -> {
+                                meetingEmergency = !meetingEmergency;
+                                this.init();
+                            }).bounds(centerX - 100, y, 200, 20).build());
+                    y += 28;
+                    // 可选：死者 / 主题名
+                    addRenderableWidget(new EditBox(this.font, centerX - 100, y, 200, 20,
+                            Component.translatable("gui.entity_interaction_block.meeting_victim_hint")));
+                    stringInput = findAndAttachInput(Component.translatable("gui.entity_interaction_block.meeting_victim_hint"));
+                    y += 22;
+                    addRenderableWidget(Button.builder(
+                            Component.translatable("gui.entity_interaction_block.meeting_victim_desc"), b -> {})
+                            .bounds(centerX - 100, y, 200, 15).build());
+                }
                 // 其他类型不需要输入
             }
 
@@ -1870,7 +1897,8 @@ public class EntityInteractionBlockScreen extends Screen {
                     EntityInteractionBlockEntity.ActionType.BLOCK_COOLDOWN,
                     EntityInteractionBlockEntity.ActionType.END_BLACKOUT,
                     EntityInteractionBlockEntity.ActionType.FIX_MONITOR,
-                    EntityInteractionBlockEntity.ActionType.OUTPUT_REDSTONE
+                    EntityInteractionBlockEntity.ActionType.OUTPUT_REDSTONE,
+                    EntityInteractionBlockEntity.ActionType.TRIGGER_MEETING
             );
 
             if (!noTeamTypes.contains(selectedType)) {
@@ -2024,6 +2052,11 @@ public class EntityInteractionBlockScreen extends Screen {
             // 保存破坏任务持续时间（秒）
             if (selectedType == EntityInteractionBlockEntity.ActionType.TRIGGER_SABOTAGE && valueInput != null) {
                 try { action.sabotageDuration = Integer.parseInt(valueInput.getValue()); } catch (NumberFormatException e) {}
+            }
+
+            // 保存触发会议参数（普通 / 紧急）
+            if (selectedType == EntityInteractionBlockEntity.ActionType.TRIGGER_MEETING) {
+                action.meetingEmergency = meetingEmergency;
             }
 
             // 保存阵营过滤参数

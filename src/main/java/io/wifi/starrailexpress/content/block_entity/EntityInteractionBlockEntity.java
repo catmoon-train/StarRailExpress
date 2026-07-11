@@ -1451,6 +1451,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 int fakeTicks = (int) action.value;
                 poison.setFakePoisonTicks(Math.max(1, fakeTicks), null);
             }
+            case TRIGGER_MEETING -> {
+                // 触发会议：普通会议或紧急会议（紧急会议绕过冷却）
+                String victim = (action.stringValue != null && !action.stringValue.isEmpty()) ? action.stringValue : null;
+                net.exmo.sre.meeting.MeetingApi.startMeeting(world, player, victim, action.meetingEmergency);
+            }
         }
     }
 
@@ -2023,7 +2028,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         TRIGGER_SABOTAGE, // 触发破坏任务
         SET_TIMED_SHIELD, // 给予限时护盾
         SET_WEAK_SHIELD, // 给予弱效护盾
-        TRIGGER_FAKE_POISON // 触发假毒
+        TRIGGER_FAKE_POISON, // 触发假毒
+        TRIGGER_MEETING // 触发会议（普通会议 / 紧急会议）
     }
 
     // 条件数据类
@@ -2111,6 +2117,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         public String roleWinDescription = ""; // 获胜描述（标题）
         public String roleWinSubtitle = ""; // 获胜子标题
         public int sabotageDuration = 60; // 破坏任务持续时间（秒，用于TRIGGER_SABOTAGE）
+        public boolean meetingEmergency = false; // 是否紧急会议（true=紧急会议，绕过冷却；false=普通会议，用于TRIGGER_MEETING）
 
         public CompoundTag toNbt() {
             CompoundTag tag = new CompoundTag();
@@ -2131,6 +2138,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             tag.putString("RoleWinDescription", roleWinDescription != null ? roleWinDescription : "");
             tag.putString("RoleWinSubtitle", roleWinSubtitle != null ? roleWinSubtitle : "");
             tag.putInt("SabotageDuration", sabotageDuration);
+            tag.putBoolean("MeetingEmergency", meetingEmergency);
             return tag;
         }
 
@@ -2170,6 +2178,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             action.roleWinSubtitle = tag.getString("RoleWinSubtitle");
             if (action.roleWinSubtitle.isEmpty()) action.roleWinSubtitle = "";
             action.sabotageDuration = tag.contains("SabotageDuration") ? tag.getInt("SabotageDuration") : 60;
+            action.meetingEmergency = tag.contains("MeetingEmergency") && tag.getBoolean("MeetingEmergency");
             return action;
         }
     }
