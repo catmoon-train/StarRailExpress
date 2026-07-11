@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "minecraft:item/lapis_lazuli"
+    "layer0": "noellesroles:item/leon_blue_herb"
   }
 }

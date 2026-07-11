@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "minecraft:item/nether_wart"
+    "layer0": "noellesroles:item/leon_red_herb"
   }
 }
