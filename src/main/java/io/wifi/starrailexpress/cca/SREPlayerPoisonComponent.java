@@ -12,6 +12,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -108,6 +109,10 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
             this.poisoner = null;
             return;
         }
+        // CCA冷冻：与服务端一致冻结中毒/假毒递减预测
+        if (this.player.hasEffect(ModEffects.CCA_FREEZED)) {
+            return;
+        }
         if (this.poisonTicks > 0)
             this.poisonTicks--;
         if (this.poisonTicks > 0) {
@@ -146,6 +151,10 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void serverTick() {
+        // CCA冷冻：仅禁止CCA/职业执行tick，因此冻结中毒/假毒的递减（不减少、不失活致死）
+        if (this.player.hasEffect(ModEffects.CCA_FREEZED)) {
+            return;
+        }
         if (this.poisonTicks > 0) {
             this.poisonTicks--;
             if (this.poisonTicks == 0) {
