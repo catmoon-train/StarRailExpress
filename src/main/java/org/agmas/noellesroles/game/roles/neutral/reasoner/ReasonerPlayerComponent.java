@@ -41,7 +41,6 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
     private final Player player;
 
     private boolean compassGiven;
-    private boolean killerQuestionPushed;
     private int activeTicks;
     private UUID roleQuestionTarget;
     private UUID bodyQuestionTarget;
@@ -64,7 +63,6 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void init() {
         compassGiven = false;
-        killerQuestionPushed = false;
         activeTicks = 0;
         roleQuestionTarget = null;
         bodyQuestionTarget = null;
@@ -102,13 +100,6 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         if (!compassGiven && getElapsedTicks() >= GIVE_COMPASS_TICKS && player instanceof ServerPlayer serverPlayer) {
             giveCompass(serverPlayer);
             compassGiven = true;
-            changed = true;
-        }
-
-        // 游戏经过 3 分钟后，主动推送杀手数量问题显现
-        if (!killerQuestionPushed && !solvedKillerCount && getElapsedTicks() >= KILLER_QUESTION_TICKS && player instanceof ServerPlayer serverPlayer) {
-            killerQuestionPushed = true;
-            ServerPlayNetworking.send(serverPlayer, buildOpenScreenPacket(serverPlayer));
             changed = true;
         }
 

@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import org.agmas.noellesroles.init.ModBlocks;
+import org.agmas.noellesroles.init.ModSceneBlocks;
 
 import java.util.function.ToIntFunction;
 
@@ -341,7 +342,7 @@ public interface TMMBlocks {
     Block MIRROR = registrar.createWithItem("mirror",
             new MirrorBlock(BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.GLASS)
                     .noOcclusion().isValidSpawn(Blocks::never).pushReaction(PushReaction.BLOCK)),
-            TMMItems.DECORATION_GROUP);
+            TMMItems.DECORATION_GROUP, ModSceneBlocks.SCENE_CREATIVE_GROUP);
 
     // Stones
     Block MARBLE = registrar.createWithItem("marble",
