@@ -134,7 +134,19 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         if (this.player.hasEffect(ModEffects.SAFE_TIME)) {
             // 安全时间不准买
             this.player.displayClientMessage(
-                    Component.translatable("message.tip.purchase_failed_with_reason", Component.translatable("message.tip.purchase_failed.safe_time"))
+                    Component
+                            .translatable("message.tip.purchase_failed_with_reason",
+                                    Component.translatable("message.tip.purchase_failed.safe_time"))
+                            .withStyle(ChatFormatting.DARK_RED),
+                    true);
+            return;
+        }
+        if (this.player.hasEffect(ModEffects.SHOP_BANNED)) {
+            // 商店被禁止
+            this.player.displayClientMessage(
+                    Component
+                            .translatable("message.tip.purchase_failed_with_reason",
+                                    Component.translatable("message.tip.purchase_failed.shop_banned"))
                             .withStyle(ChatFormatting.DARK_RED),
                     true);
             return;

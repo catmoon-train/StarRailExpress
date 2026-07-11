@@ -1530,6 +1530,7 @@
     "message.tip.purchase_failed.cooldown": "冷却中",
     "message.tip.purchase_failed.derringer_full": "没有无子弹的德林加手枪",
     "message.tip.purchase_failed.not_enough_money": "金币数量不够",
+    "message.tip.purchase_failed.shop_banned": "商店被禁用",
     "minigame.starrailexpress.balance_scale": "平衡天平",
     "minigame.starrailexpress.balance_scale.target": "目标重量: %s",
     "minigame.starrailexpress.balance_scale.weight": "砝码重量: %s",

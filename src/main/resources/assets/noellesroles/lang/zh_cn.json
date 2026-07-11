@@ -239,6 +239,7 @@
   "death_reason.noellesroles.wraith_assault": "冤魂攻击",
   "effect.noellesroles.time_rewind_daze": "时空恍惚",
   "effect.noellesroles.skill_freezed": "技能冷冻",
+  "effect.noellesroles.shop_banned": "商店被禁用",
   "message.noellesroles.delayer.anchored": "时间锚点已设置，%s 秒后自动回溯……",
   "message.noellesroles.delayer.rewound": "时间回溯！你回到了锚点状态",
   "message.noellesroles.delayer.no_money": "金币不足（需要 %s）！",
