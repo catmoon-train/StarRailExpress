@@ -527,6 +527,13 @@ public class ModItems {
             new MintCandiesItem(new Item.Properties().stacksTo(16)),
             "mint_candies", SANITY_GROUP);
     /**
+     * 石粒架
+     * - 食物，食用后恢复基于体力上限 50% 的体力
+     */
+    public static final Item SHILIJIA = register(
+            new ShilijiaItem(new Item.Properties().stacksTo(16)),
+            "shilijia", CONSUMABLES_GROUP);
+    /**
      * 花圈
      * - 穿戴在头部时持续恢复san值
      * - 提供 MOOD_REGENERATION 效果

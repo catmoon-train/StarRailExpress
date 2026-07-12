@@ -52,8 +52,8 @@ public class ZiplineBlock extends Block implements EntityBlock {
     private static final int MAX_ZIPLINE_RANGE = 25;
     /** 绑定工具手动连线的最大距离，可跨高度、可斜拉 */
     public static final int MAX_LINK_DISTANCE = 64;
-    /** 上滑索消耗的体力（冲刺 tick 数）。标准体力条为 10 秒 = 200 tick */
-    private static final float RIDE_STAMINA_COST = 60f;
+    /** 上滑索消耗的体力比例（基于体力上限的百分比） */
+    private static final float RIDE_STAMINA_RATIO = 0.4f;
     private static final double ROPE_HEIGHT = 0.40;
     private static final VoxelShape CENTER_SHAPE = Block.box(6.5, 5.5, 6.5, 9.5, 8.5, 9.5);
     private static final VoxelShape NORTH_SHAPE = Block.box(6.5, 5.5, 0.0, 9.5, 8.5, 8.0);
@@ -377,7 +377,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
     }
 
     /**
-     * 游戏运行中上滑索消耗体力，体力不足返回 false（不扣）。
+     * 游戏运行中上滑索消耗当前体力的 40%，体力不足返回 false（不扣）。
      * 判定口径与 PlayerEntityMixin.tmm$limitSprint / StaminaProvider 保持一致：
      * 未开局、旁观/死亡、无限体力效果、职业不受体力限制（maxSprintTime 为负或 MAX_VALUE）都直接放行。
      */
@@ -409,10 +409,14 @@ public class ZiplineBlock extends Block implements EntityBlock {
             current = max; // -1 = 尚未初始化，视为满
         }
         current = Math.min(current, max);
-        if (current < RIDE_STAMINA_COST) {
+        // 最低体力要求：必须拥有基于体力上限 40% 的体力才允许上滑索
+        float require = max * RIDE_STAMINA_RATIO;
+        if (current < require) {
             return false;
         }
-        stamina.starrailexpress$setStamina(current - RIDE_STAMINA_COST);
+        // 消耗基于体力上限 40% 的体力，最低降至 0
+        float cost = require;
+        stamina.starrailexpress$setStamina(Math.max(0f, current - cost));
         return true;
     }
 
