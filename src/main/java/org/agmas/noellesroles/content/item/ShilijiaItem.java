@@ -37,7 +37,8 @@ public class ShilijiaItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user,
+            @NotNull InteractionHand hand) {
         ItemStack itemStack = user.getItemInHand(hand);
 
         // 检查游戏是否正在进行
@@ -58,7 +59,8 @@ public class ShilijiaItem extends Item {
     }
 
     @Override
-    public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level world, @NotNull LivingEntity user) {
+    public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level world,
+            @NotNull LivingEntity user) {
         if (user instanceof Player player) {
             if (!world.isClientSide()) {
                 // 恢复基于体力上限 50% 的体力
@@ -109,8 +111,8 @@ public class ShilijiaItem extends Item {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, net.minecraft.world.item.TooltipContext context,
-                                @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+    public void appendHoverText(@NotNull ItemStack stack, TooltipContext context,
+            @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
         tooltip.add(Component.translatable("item.noellesroles.shilijia.tooltip")
                 .withStyle(ChatFormatting.GRAY));
     }
