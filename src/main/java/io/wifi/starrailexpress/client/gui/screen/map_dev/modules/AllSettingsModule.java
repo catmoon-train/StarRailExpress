@@ -412,7 +412,7 @@ public class AllSettingsModule implements TabModule {
                     b -> {
                         String val = addInput.getValue().trim();
                         if (!val.isEmpty())
-                            ctx.sendOnly("sre:area_manager add " + entry.path + " " + ctx.quoteCommandArgument(val));
+                            ctx.sendOnly("sre:area_manager add " + entry.path + " " + (val));
                     })
                     .bounds(addBtnX, currentY, 40, 20)
                     .accentBar(AccentSide.LEFT).build();
@@ -508,7 +508,7 @@ public class AllSettingsModule implements TabModule {
                     b -> {
                         String val = deleteInput.getValue().trim();
                         if (!val.isEmpty())
-                            ctx.sendOnly("sre:area_manager remove " + entry.path + " " + ctx.quoteCommandArgument(val));
+                            ctx.sendOnly("sre:area_manager remove " + entry.path + " " + (val));
                     })
                     .bounds(deleteBtnX, currentY, 40, 20)
                     .accentBar(AccentSide.RIGHT).build();
@@ -699,7 +699,7 @@ public class AllSettingsModule implements TabModule {
                 ModernButton modifyBtn = ModernButton.builder(Component.translatable("sre.map_helper.modify"), b -> {
                     String val = input.getValue().trim();
                     if (!val.isEmpty())
-                        ctx.sendOnly("sre:area_manager set " + entry.path + " " + ctx.quoteCommandArgument(val));
+                        ctx.sendOnly("sre:area_manager set " + entry.path + " " + (val));
                 }).bounds(rightEdge - 30 - 40 - gap, y, 40, 20).accentBar(AccentSide.BOTTOM).build();
                 placements.add(new WidgetPlacement(modifyBtn, y));
                 ModernButton viewBtn = ModernButton.builder(Component.translatable("sre.map_helper.view"),
@@ -798,7 +798,7 @@ public class AllSettingsModule implements TabModule {
                 ModernButton modifyBtn = ModernButton.builder(Component.translatable("sre.map_helper.modify"), b -> {
                     String json = mapInput.getValue().trim();
                     if (!json.isEmpty())
-                        ctx.sendOnly("sre:area_manager set " + entry.path + " " + ctx.quoteCommandArgument(json));
+                        ctx.sendOnly("sre:area_manager set " + entry.path + " " + (json));
                 }).bounds(controlX + inputWidth + gap, y, 40, 20).accentBar(AccentSide.BOTTOM).build();
                 placements.add(new WidgetPlacement(modifyBtn, y));
                 ModernButton viewBtn = ModernButton.builder(Component.translatable("sre.map_helper.view"),
