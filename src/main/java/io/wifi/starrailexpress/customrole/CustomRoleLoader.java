@@ -99,11 +99,7 @@ public class CustomRoleLoader {
         }
 
         // 注册本能透视事件处理器（仅客户端，通过内部类避免服务端加载客户端类，仅首次注册）
-        if (!instinctHandlerRegistered
-                && FabricLoader.getInstance().getEnvironmentType() == net.fabricmc.api.EnvType.CLIENT) {
-            ClientInstinctHandler.register();
-            instinctHandlerRegistered = true;
-        }
+        registerClientInstinctHandler();
 
         // 处理互斥、绑定生成、地图限制等（postInit 需要所有角色已注册）
         postInit();
@@ -158,10 +154,7 @@ public class CustomRoleLoader {
         }
 
         // 注册本能透视事件处理器（客户端，仅首次）
-        if (!instinctHandlerRegistered) {
-            ClientInstinctHandler.register();
-            instinctHandlerRegistered = true;
-        }
+        registerClientInstinctHandler();
 
         postInit();
         SRE.LOGGER.info("[CustomRole-Client] Reloaded {} custom roles from local config", config.roles.size());
@@ -633,6 +626,21 @@ public class CustomRoleLoader {
      */
     public static Boolean getInstinctSameColor(String englishId) {
         return instinctSameColor.get(englishId);
+    }
+
+    /**
+     * 注册自定义职业的本能透视事件处理器（仅客户端）。
+     * <p>
+     * 必须在 {@code InstinctRenderer.registerInstinctEvents()} 之前注册，
+     * 否则通用的本能处理器会先于本处理器返回结果，导致自定义职业的
+     * 本能透视范围（instinctMaxRange）限制被忽略，玩家会超出设定范围仍被透视。
+     */
+    public static void registerClientInstinctHandler() {
+        if (!instinctHandlerRegistered
+                && FabricLoader.getInstance().getEnvironmentType() == net.fabricmc.api.EnvType.CLIENT) {
+            ClientInstinctHandler.register();
+            instinctHandlerRegistered = true;
+        }
     }
 
     /**

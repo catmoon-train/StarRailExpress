@@ -600,9 +600,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
 
         // 检查方块冷却
         long currentGameTime;
+        long remainingGameTime;
         try {
             var timeComponent = SREGameTimeComponent.KEY.get(world);
             currentGameTime = timeComponent.getResetTime() - timeComponent.getTime();
+            remainingGameTime = timeComponent.getTime();
         } catch (Exception e) {
             return;
         }
@@ -612,26 +614,69 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         long lastTrigger = lastTriggerTime.getOrDefault(player.getUUID(), 0L);
         if (currentGameTime - lastTrigger < cooldownTicks) return;
 
-        // 遍历所有条件，检查是否有 DEATH 条件匹配
-        boolean triggered = false;
-        for (TriggerCondition condition : conditions) {
-            if (condition.type == ConditionType.DEATH) {
-                // DEATH 条件的 stringValue 为要匹配的死亡原因
-                String requiredReason = condition.stringValue;
-                if (requiredReason == null || requiredReason.isEmpty()
-                        || requiredReason.equals("*")
-                        || requiredReason.equals(deathReason.toString())
-                        || requiredReason.equals(deathReason.getPath())) {
-                    triggered = true;
-                    break;
-                }
-            }
-        }
+        // 综合检查所有条件：DEATH 条件视为满足（并校验死亡原因），
+        // 其余条件（如 ROLE_IS）照常对死亡玩家求值，逻辑运算符（AND/OR/...）生效。
+        boolean triggered = checkConditionsForDeath(player, world, pos, deathReason,
+                currentGameTime, remainingGameTime, 0);
 
         if (triggered) {
             executeActions(player, world, pos, currentGameTime);
             lastTriggerTime.put(player.getUUID(), currentGameTime);
         }
+    }
+
+    /**
+     * 死亡触发时综合检查所有条件（与 tick 路径的区别：DEATH 条件在这里视为已满足，
+     * 并额外校验死亡原因是否匹配；其余条件与 tick 路径一致对玩家求值）。
+     * 使用逻辑运算符把多个条件组合起来。
+     */
+    private boolean checkConditionsForDeath(ServerPlayer player, ServerLevel world, BlockPos pos,
+            net.minecraft.resources.ResourceLocation deathReason, long elapsedGameTime, long remainingGameTime,
+            int timerTick) {
+        if (conditions.isEmpty())
+            return false;
+        if (conditions.size() == 1) {
+            return checkSingleConditionForDeath(conditions.get(0), player, world, pos, deathReason, elapsedGameTime,
+                    remainingGameTime, timerTick);
+        }
+
+        boolean result = checkSingleConditionForDeath(conditions.get(0), player, world, pos, deathReason,
+                elapsedGameTime, remainingGameTime, timerTick);
+
+        for (int i = 1; i < conditions.size(); i++) {
+            TriggerCondition currentCondition = conditions.get(i);
+            TriggerCondition previousCondition = conditions.get(i - 1);
+            boolean currentResult = checkSingleConditionForDeath(currentCondition, player, world, pos, deathReason,
+                    elapsedGameTime, remainingGameTime, timerTick);
+
+            LogicOperator operator = previousCondition.logicOperator != null ? previousCondition.logicOperator
+                    : LogicOperator.AND;
+
+            result = switch (operator) {
+                case AND -> result && currentResult;
+                case OR -> result || currentResult;
+                case NAND -> !(result && currentResult);
+                case NOR -> !(result || currentResult);
+            };
+        }
+
+        return result;
+    }
+
+    /**
+     * 死亡触发时的单条件检查。DEATH 条件在此校验死亡原因，其余条件复用 checkSingleCondition。
+     */
+    private boolean checkSingleConditionForDeath(TriggerCondition condition, ServerPlayer player, ServerLevel world,
+            BlockPos pos, net.minecraft.resources.ResourceLocation deathReason, long elapsedGameTime,
+            long remainingGameTime, int timerTick) {
+        if (condition.type == ConditionType.DEATH) {
+            String requiredReason = condition.stringValue;
+            return requiredReason == null || requiredReason.isEmpty()
+                    || requiredReason.equals("*")
+                    || requiredReason.equals(deathReason.toString())
+                    || requiredReason.equals(deathReason.getPath());
+        }
+        return checkSingleCondition(condition, player, world, pos, elapsedGameTime, remainingGameTime, timerTick);
     }
 
     // 检查条件（支持复杂逻辑运算）

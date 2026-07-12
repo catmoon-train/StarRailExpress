@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client;
 
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.customrole.CustomRoleLoader;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -67,6 +68,9 @@ import java.util.HashMap;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {
+        // 必须最先注册自定义职业的本能透视处理器，使其优先于通用本能处理器生效，
+        // 否则自定义职业设置的本能透视范围(instinctMaxRange)会被通用处理器忽略。
+        CustomRoleLoader.registerClientInstinctHandler();
         TouhouInstincts.registerEvents();
         OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {
             if (!hasInstinct || SREClient.gameComponent == null) {
