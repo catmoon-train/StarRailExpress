@@ -1134,6 +1134,8 @@
   "==================== 薄荷糖物品 ====================": "",
   "item.noellesroles.mint_candies": "Mint Candies",
   "item.noellesroles.mint_candies.tooltip": "Restores 35%% sanity when consumed",
+  "item.noellesroles.shilijia": "Shilijia",
+  "item.noellesroles.shilijia.tooltip": "Restores 50%% of max stamina when eaten",
   "item.noellesroles.alchemist_buff_potion": "Vitamins",
   "item.noellesroles.alchemist_buff_potion.tooltip": "Right-click on target to apply one random buff effect",
   "message.noellesroles.alchemist_buff_potion.applied": "You were affected by: %s",

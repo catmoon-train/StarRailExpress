@@ -1187,6 +1187,8 @@
   "==================== 薄荷糖物品 ====================": "",
   "item.noellesroles.mint_candies": "薄荷糖",
   "item.noellesroles.mint_candies.tooltip": "食用后恢复35%%的san值",
+  "item.noellesroles.shilijia": "石粒架",
+  "item.noellesroles.shilijia.tooltip": "食用后恢复50%%的体力",
   "item.noellesroles.alchemist_buff_potion": "维生素",
   "item.noellesroles.alchemist_buff_potion.tooltip": "右键对目标使用，随机施加1种增益效果",
   "message.noellesroles.alchemist_buff_potion.applied": "你被施加了效果：%s",
