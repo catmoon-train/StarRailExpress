@@ -34,7 +34,11 @@ public class ServerPlayNetworkHandlerMixin {
             if (role != null) {
                 psychoItem = role.getPsychoItem();
             }
-            if (!this.player.getInventory().getItem(packet.getSlot()).is(psychoItem))
+            // 疯魔物品不在背包中时（如 Dream：面具从不入包）不锁槽位，
+            // 否则所有选槽包被丢弃，服务端主手与客户端脱同步，导致狂暴期间打不了人
+            final Item lockItem = psychoItem;
+            if (!this.player.getInventory().getItem(packet.getSlot()).is(psychoItem)
+                    && this.player.getInventory().contains(stack -> stack.is(lockItem)))
                 return;
         }
         original.call(packet);

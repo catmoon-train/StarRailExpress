@@ -18,7 +18,6 @@ import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.roles.innocence.jade_general.JadeGeneralPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
@@ -263,28 +262,8 @@ public class AbilityHandler {
             }
             return;
         }
-        if (gameWorldComponent.isRole(player, ModRoles.DELAYER)
-                && abilityPlayerComponent.cooldown <= 0) {
-            DelayerPlayerComponent delayer = ModComponents.DELAYER.get(player);
-            if (delayer.isAnchored()) {
-                return; // 已锚定，等待回溯
-            }
-            SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-            int cost = NoellesRolesConfig.HANDLER.instance().delayerRewindCost;
-            if (shop.balance < cost) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.delayer.no_money", cost)
-                                .withStyle(ChatFormatting.RED),
-                        true);
-                return;
-            }
-            shop.balance -= cost;
-            shop.sync();
-            abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
-                    NoellesRolesConfig.HANDLER.instance().delayerRewindCooldown);
-            delayer.anchor();
-            return;
-        }
+        // 滞时鬼（Delayer）已迁移至统一技能系统（见 ModRolesInitialEventRegister），
+        // 通过 RoleSkill.useUnified 分发并显示 HUD，此处不再单独处理。
         if (gameWorldComponent.isRole(player, ModRoles.WIZARD)) {
             WizardPlayerComponent wizard = ModComponents.WIZARD.get(player);
             wizard.castSelectedSpell();
