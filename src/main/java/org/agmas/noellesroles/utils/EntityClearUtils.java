@@ -72,6 +72,7 @@ public class EntityClearUtils {
                         entity instanceof PlayerBodyEntity ||
                         entity instanceof WheelchairEntity ||
                         entity instanceof RainbowHorseEntity ||
+                        entity instanceof CanyuesaHorseEntity ||
                         entity instanceof KuiXiPuppetEntity ||
                         entity instanceof NoteEntity ||
                         entity instanceof DevilRouletteTableEntity.TableTextDisplay ||
