@@ -536,7 +536,9 @@ public class VoteScreen extends Screen {
                 return;
             }
 
-            sortButtons();
+            if (SREClientConfig.instance().autoSortVotes) {
+                sortButtons();
+            }
             if (ClientVoteCache.isAllowReVote()) {
                 castMultiVote();
             }
