@@ -388,6 +388,17 @@ public class ModEntities {
                     .trackedUpdateRate(2)
                     .build());
 
+    /** 残月萨马实体 - 残月萨马蹄铁召唤的双人坐骑，120 秒后消失 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<CanyuesaHorseEntity> CANYUESA_HORSE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("canyuesa_horse"),
+            FabricEntityTypeBuilder.<CanyuesaHorseEntity>create(MobCategory.MISC, CanyuesaHorseEntity::new)
+                    .dimensions(EntityDimensions.fixed(1.4F, 1.6F))
+                    .trackRangeBlocks(128)
+                    .trackedUpdateRate(2)
+                    .build());
+
     /** 移动平台实体 - 可站立、往返移动 */
     @SuppressWarnings("deprecation")
     public static final EntityType<MovingPlatformEntity> MOVING_PLATFORM = Registry.register(
@@ -418,5 +429,6 @@ public class ModEntities {
         FabricDefaultAttributeRegistry.register(UNDEAD, UndeadEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(MORPHLING_KNIFE_DUMMY, MorphlingKnifeDummyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(RAINBOW_HORSE, RainbowHorseEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(CANYUESA_HORSE, CanyuesaHorseEntity.createAttributes());
     }
 }
