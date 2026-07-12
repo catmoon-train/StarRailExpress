@@ -25,6 +25,8 @@ public interface TMMModelLayers {
 
     static void initialize() {
         BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_TORCH, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_SOUL_LANTERN, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_VANILLA_LANTERN, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.WALL_TRAIN_TORCH, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_TORCH_LEVER, RenderType.cutout());
         EntityModelLayerRegistry.registerModelLayer(SMALL_DOOR, SmallDoorBlockEntityRenderer::getTexturedModelData);
