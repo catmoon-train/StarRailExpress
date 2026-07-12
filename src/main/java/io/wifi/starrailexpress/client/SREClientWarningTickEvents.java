@@ -25,12 +25,12 @@ public class SREClientWarningTickEvents {
 
     private static void checkPlayerDarkness(ClientLevel level, Player player) {
         int limit = SREClient.areaComponent.areasSettings.deadInDarknessTime;
-        if (limit <= 0) {
+        if (player.isSpectator() || player.isCreative() || limit <= 0) {
             darknessTime = 0;
             return;
         }
         var role = SREClient.getCachedPlayerRole();
-        if (player.isSpectator() || player.isCreative() || role == null) {
+        if (role == null) {
             darknessTime = 0;
             return;
         }
@@ -40,7 +40,8 @@ public class SREClientWarningTickEvents {
         }
         if (level.getBrightness(LightLayer.BLOCK, BlockPos.containing(player.getEyePosition())) < 3
                 && (level.getBrightness(LightLayer.SKY,
-                        BlockPos.containing(player.getEyePosition())) < 10 || !level.isDay())) {
+                        BlockPos.containing(player.getEyePosition())) < 10
+                        || level.getDayTime() > 13000)) {
             darknessTime++;
         } else {
             darknessTime = 0;

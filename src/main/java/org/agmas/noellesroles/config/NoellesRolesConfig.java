@@ -407,7 +407,7 @@ public class NoellesRolesConfig implements ConfigData {
 
     // ==================== Delayer (滞时鬼) ====================
     /** Delayer - Rewind skill: seconds the time anchor lasts before the automatic rewind */
-    public int delayerRewindDelaySeconds = 20;
+    public int delayerRewindDelaySeconds = 15;
     /** Delayer - Rewind skill cooldown in seconds */
     public int delayerRewindCooldown = 120;
     /** Delayer - Rewind skill coin cost */

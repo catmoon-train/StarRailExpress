@@ -3222,6 +3222,7 @@
   "announcement.star.win.dream": "",
   "effect.noellesroles.tremble": "Tremble",
   "skill.noellesroles.dream.brew": "Brew Wine",
+  "skill.noellesroles.delayer.anchor": "Time Anchor",
   "message.noellesroles.dream.mask_cooldown_simple": "Big-Screen Mask is on cooldown!",
   "message.noellesroles.dream.berserk_start": "You put on the Big-Screen Mask. The frenzy begins!",
   "message.noellesroles.dream.leather_pig_reward": "You killed the Leather Pig. $100,000 delivered! (+%s coins)",

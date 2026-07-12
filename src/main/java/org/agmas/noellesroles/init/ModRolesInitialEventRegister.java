@@ -619,6 +619,34 @@ public class ModRolesInitialEventRegister {
                 }).cooldownSeconds(NoellesRolesConfig.instance().dreamBrewCooldownSeconds)
                         .showOnHud(true).announceToSelf(true).build());
 
+        // 滞时鬼（Delayer）技能注册：【时间锚点】——消耗金币锚定当前状态，
+        // delayerRewindDelaySeconds 秒后自动沿原路平滑回溯（详见 DelayerPlayerComponent）。
+        RoleSkill.register(ModRoles.DELAYER,
+                RoleSkill.skill(SRE.id("delayer_anchor"), "skill.noellesroles.delayer.anchor", context -> {
+                    ServerPlayer player = context.player();
+                    if (player.isSpectator())
+                        return false;
+                    if (!GameUtils.isPlayerAliveAndSurvival(player))
+                        return false;
+                    var delayer = ModComponents.DELAYER.get(player);
+                    if (delayer.isAnchored())
+                        return false; // 已锚定，等待回溯
+                    SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
+                    int cost = NoellesRolesConfig.instance().delayerRewindCost;
+                    if (shop.balance < cost) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.delayer.no_money", cost)
+                                        .withStyle(ChatFormatting.RED),
+                                true);
+                        return false;
+                    }
+                    shop.balance -= cost;
+                    shop.sync();
+                    delayer.anchor();
+                    return true; // 进入冷却
+                }).cooldownSeconds(NoellesRolesConfig.instance().delayerRewindCooldown)
+                        .showOnHud(true).build());
+
         // 幻音师技能注册：花费100金币传送到30格外随机一人的身边
         RoleSkill.register(ModRoles.PHANTOM_MUSICIAN, context -> {
             ServerPlayer player = context.player();

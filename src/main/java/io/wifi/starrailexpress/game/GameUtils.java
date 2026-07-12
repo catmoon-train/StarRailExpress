@@ -30,7 +30,7 @@ import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.exmo.sre.subtitle.SubtitleS2CPayload;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.impl.util.log.Log;
@@ -472,12 +472,27 @@ public class GameUtils {
     }
 
     public static void registerEventForServerTickForDoingResetTasks() {
-        ServerChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
+        // 列车重置时同步强载的区块，其中的实体要晚几刻才由实体管理器载入世界；
+        // 在限时窗口内按区块清掉上一局的残留实体（尸体/掉落物/彩虹马等）。
+        // 注意：这里绝不能整图 resetEntities —— 旧实现的登记时序有误（getChunk 同步加载在登记之前，
+        // CHUNK_LOAD 事件先于登记触发），条目会残留到局中，之后任意一次区块重载都会把全图的
+        // 彩虹马、轮椅、掉落物等活跃实体一并误清（见"彩虹马蹄铁召唤马后其他彩虹马消失"问题）。
+        ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
             if (chunksToClearEntities.isEmpty())
                 return;
-            if (!chunksToClearEntities.remove(chunk.getPos()))
-                return; // 不在目标列表就跳过，命中则移除
-            resetEntities(world);
+            if (world.getGameTime() > chunksToClearEntitiesDeadline) {
+                chunksToClearEntities.clear();
+                return;
+            }
+            if (!chunksToClearEntities.contains(entity.chunkPosition()))
+                return;
+            if (EntityClearUtils.shouldClearOnReset(entity)) {
+                // 实体正处于入世界回调中，推迟到任务队列再移除，避免重入实体管理器
+                world.getServer().execute(() -> {
+                    if (!entity.isRemoved())
+                        entity.discard();
+                });
+            }
         });
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             if (!serverTaskQueue.isEmpty()) {
@@ -1039,6 +1054,8 @@ public class GameUtils {
 
     public static ArrayList<Predicate<Entry<Player, String>>> CustomWinnersPredicates = new ArrayList<>();
     public static final Set<ChunkPos> chunksToClearEntities = new HashSet<>();
+    /** {@link #chunksToClearEntities} 的生效截止游戏刻：只在列车重置后的短窗口内清理，过期即整体作废。 */
+    public static long chunksToClearEntitiesDeadline = 0;
 
     public static void finalizeGame(ServerLevel world) {
         SREGameWorldComponent.getInstance(world).playerBannedBlockTime.clear();

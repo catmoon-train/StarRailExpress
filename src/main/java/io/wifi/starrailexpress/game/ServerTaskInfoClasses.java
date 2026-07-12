@@ -514,10 +514,14 @@ public class ServerTaskInfoClasses {
                 }
                 for (int x = trainChunkMinX; x <= trainChunkMaxX; x++) {
                     for (int z = trainChunkMinZ; z <= trainChunkMaxZ; z++) {
-                        serverWorld.getChunk(x, z);
+                        // 必须先登记再加载：getChunk 是同步加载，实体入世界事件可能紧随其后触发
                         GameUtils.chunksToClearEntities.add(new ChunkPos(x, z));
+                        serverWorld.getChunk(x, z);
                     }
                 }
+                // 清理窗口只覆盖开局前后几秒：强载区块的实体延迟入世界时被按区块清掉；
+                // 窗口过后条目作废，避免局中区块重载时误清活跃实体（彩虹马/轮椅/掉落物等）
+                GameUtils.chunksToClearEntitiesDeadline = serverWorld.getGameTime() + 100;
 
                 if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("Train reset: Chunks loaded, attempting clear entities.");
@@ -525,6 +529,8 @@ public class ServerTaskInfoClasses {
 
                 // Continue with the reset after loading chunks
             }
+            // 立即清掉当前已加载的上一局残留实体（与 noReset 分支一致；晚入世界的由上面的窗口机制兜底）
+            GameUtils.resetEntities(serverWorld);
             if (shouldStartGame) {
                 if (SREConfig.instance().verboseTrainResetLogs) {
                     SRE.LOGGER.info("RESETING MAP FINISHED. STARTING THE GAME.");
