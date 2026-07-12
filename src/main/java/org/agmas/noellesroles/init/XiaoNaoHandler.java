@@ -26,6 +26,10 @@ public class XiaoNaoHandler {
     public static void registerEvent() {
         TeamKillViolationHandler.registerEvent();
         OnTeammateKilledTeammate.EVENT.register((victim, killer, isInnocent, deathReason) -> {
+            // 末日60秒模式：户外允许互相攻击，取消小脑（误杀）惩罚
+            if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(victim.level())) {
+                return;
+            }
             if (GameUtils.isPlayerAliveAndSurvival(killer)) {
                 if (isInnocent) {
                     SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());

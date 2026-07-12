@@ -172,6 +172,41 @@ public class ModItems {
     public static final Item A_BOTTLE_OF_WATER = register(
             new ChefWaterItem((new Item.Properties()).stacksTo(1).food(Foods.HONEY_BOTTLE)),
             "a_bottle_of_water", CONSUMABLES_GROUP);
+
+    // 末日60秒模式：小/中/高三级水（恢复口渴值）
+    public static final Item SIXTY_SECONDS_WATER_SMALL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem(
+                    new Item.Properties().stacksTo(1), "small", 15),
+            "sixty_seconds_water_small", CONSUMABLES_GROUP);
+    public static final Item SIXTY_SECONDS_WATER_MEDIUM = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem(
+                    new Item.Properties().stacksTo(1), "medium", 35),
+            "sixty_seconds_water_medium", CONSUMABLES_GROUP);
+    public static final Item SIXTY_SECONDS_WATER_HIGH = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem(
+                    new Item.Properties().stacksTo(1), "high", 60),
+            "sixty_seconds_water_high", CONSUMABLES_GROUP);
+
+    // 末日60秒模式：雨伞（污雨事件时在野外持有可免除额外污染）
+    public static final Item SIXTY_SECONDS_UMBRELLA = register(
+            new Item(new Item.Properties().stacksTo(1)),
+            "sixty_seconds_umbrella", CONSUMABLES_GROUP);
+
+    // 末日60秒模式：撬棍（强闯别队避难所+报警，一次性）/ 撬锁器（潜行进入不报警，一次性）
+    public static final Item SIXTY_SECONDS_CROWBAR = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
+                    new Item.Properties().stacksTo(1), true),
+            "sixty_seconds_crowbar", CONSUMABLES_GROUP);
+    public static final Item SIXTY_SECONDS_LOCKPICK = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
+                    new Item.Properties().stacksTo(1), false),
+            "sixty_seconds_lockpick", CONSUMABLES_GROUP);
+
+    // 末日60秒模式：药品（右键治愈生病 + 解除感染风险）
+    public static final Item SIXTY_SECONDS_MEDICINE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMedicineItem(
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_medicine", CONSUMABLES_GROUP);
     public static final Item LINGSHI = register(
             new ChefFoodItem((new Item.Properties()).stacksTo(1)), "lingshi",
             CONSUMABLES_GROUP);

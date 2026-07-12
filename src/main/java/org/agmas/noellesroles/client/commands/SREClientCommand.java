@@ -105,6 +105,17 @@ public class SREClientCommand {
                         return 1;
                       }))
 
+                  // 末日 60 秒生存模式 —— 开场演出（约 45s，黑屏+图片卡+打字机+音效）
+                  .then(ClientCommandManager.literal("intro_sixty_seconds")
+                      .executes(context -> {
+                        ClientScheduler.schedule(() -> {
+                          context.getSource().getClient()
+                              .setScreen(
+                                  new net.exmo.sre.sixtyseconds.client.SixtySecondsIntroScreen());
+                        }, 1);
+                        return 1;
+                      }))
+
                   .then(ClientCommandManager.literal("newspaper_test")
                       .then(ClientCommandManager.literal("editing").executes(context -> {
                         ClientScheduler.schedule(() -> {

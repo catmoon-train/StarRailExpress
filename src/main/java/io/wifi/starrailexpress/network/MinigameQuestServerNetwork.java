@@ -82,6 +82,14 @@ public class MinigameQuestServerNetwork {
                     level.playSound(null, pos, net.minecraft.sounds.SoundEvents.PLAYER_LEVELUP,
                             net.minecraft.sounds.SoundSource.BLOCKS, 0.8F, 1.2F);
                 }
+                // 末日60秒模式：任务点每分钟轮换，须在 20s 窗口内完成才发代币，超时不奖励
+                if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level())
+                        && player.level() instanceof net.minecraft.server.level.ServerLevel sixtyLevel
+                        && !net.exmo.sre.sixtyseconds.logic.SixtySecondsMinigameRotation.canReward(sixtyLevel, pos)) {
+                    player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
+                            "message.noellesroles.sixty_seconds.minigame_too_late"), true);
+                    return;
+                }
                 // 小游戏任务系统：若该方块正是玩家被指派的目标，则发放游戏代币
                 if (io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(player.level()).areasSettings.minigameQuestEnabled) {
                     io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent.KEY.get(player)

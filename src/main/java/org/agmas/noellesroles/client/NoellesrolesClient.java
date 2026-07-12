@@ -849,6 +849,41 @@ public class NoellesrolesClient implements ClientModInitializer {
             });
         });
 
+        // 末日60秒模式：事件/拜访门 GUI 壳 + loot 表编辑 GUI
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenSixtySecondsDoorS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.SixtySecondsDoorScreen(payload.purpose()))));
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.LootTableEditScreen(payload.table()))));
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenVisitRequestS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.VisitRequestScreen(
+                                        payload.teamIds(), payload.labels()))));
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenVisitPromptS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.VisitPromptScreen(
+                                        payload.visitor(), payload.visitorName(), payload.requestType()))));
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenVisitChatS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.VisitChatScreen(payload.partnerName()))));
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.VisitChatMessageS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> {
+                            if (context.client().screen instanceof net.exmo.sre.sixtyseconds.client.screen.VisitChatScreen chat) {
+                                chat.addMessage(payload.sender(), payload.text());
+                            }
+                        }));
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenTradeS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.TradeScreen(payload.partnerName()))));
+
         ClientPlayNetworking.registerGlobalReceiver(OpenVendingMachinesScreenS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> {
                 BlockEntity blockEntity = context.client().level.getBlockEntity(payload.blockPos());

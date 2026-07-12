@@ -238,6 +238,8 @@ public class CommonClientHudRenderer {
     UnifiedSkillHud.register();
     MurderTimeHud.register();
     RepairEscapeHud.register();
+    net.exmo.sre.sixtyseconds.client.SixtySecondsHud.register();
+    net.exmo.sre.sixtyseconds.client.SixtySecondsTooltips.register();
     registerSons();
     OtherRolesRegister.registerSons();
   }

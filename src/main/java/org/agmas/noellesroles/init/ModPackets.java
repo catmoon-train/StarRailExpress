@@ -131,6 +131,46 @@ public class ModPackets {
         ServerPlayNetworking.registerGlobalReceiver(RepairSearchBeginC2SPacket.ID, RepairSearchBeginC2SPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(RepairSearchCancelC2SPacket.ID, RepairSearchCancelC2SPacket::handle);
 
+        // 末日60秒模式：门开屏 + loot 表编辑/保存
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenSixtySecondsDoorS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenSixtySecondsDoorS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket::handle);
+
+        // 末日60秒模式：拜访请求流程
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenVisitRequestS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenVisitRequestS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenVisitPromptS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenVisitPromptS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.VisitRequestC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VisitRequestC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.VisitResponseC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VisitResponseC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.VisitRequestC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VisitRequestC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.VisitResponseC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VisitResponseC2SPacket::handle);
+        // 拜访双向对话
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenVisitChatS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenVisitChatS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.VisitChatMessageS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VisitChatMessageS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.VisitChatSendC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VisitChatSendC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.VisitChatSendC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VisitChatSendC2SPacket::handle);
+        // 拜访交易（主手对主手交换）
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenTradeS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenTradeS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.TradeActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TradeActionC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.TradeActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TradeActionC2SPacket::handle);
+
         PayloadTypeRegistry.playS2C().register(ReasonerOpenScreenS2CPacket.ID, ReasonerOpenScreenS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ReasonerSubmitC2SPacket.ID, ReasonerSubmitC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(ReasonerSubmitC2SPacket.ID, ReasonerSubmitC2SPacket::handle);

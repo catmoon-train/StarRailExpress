@@ -224,6 +224,9 @@ public class Noellesroles implements ModInitializer {
 
         // 注册鹅鸭杀模式（职业 / 游戏模式 / 破坏技能）
         net.exmo.sre.gooseduck.GooseDuckMod.init();
+
+        // 注册末日60秒生存模式（游戏模式 + 相位机 + 区域克隆 + 门 + loot 表）
+        net.exmo.sre.sixtyseconds.SixtySecondsMod.init();
     }
 
     /**

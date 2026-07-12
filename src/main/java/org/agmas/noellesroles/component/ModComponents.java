@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import net.exmo.sre.repair.component.RepairRolePlayerComponent;
+import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerPlayerComponent;
@@ -873,6 +874,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, REPAIR_ROLES)
         .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)
         .end(RepairRolePlayerComponent::new);
+
+    // 末日60秒模式生存状态组件（饥饿/口渴/san/污染/健康 + 家庭身份），随重生保留
+    registry.beginRegistration(Player.class, SixtySecondsStatsComponent.KEY)
+        .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)
+        .end(SixtySecondsStatsComponent::new);
     // 注册画家组件 - 存储绘画灵感、求索、挚友技能状态
     registry.beginRegistration(Player.class, PAINTER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)

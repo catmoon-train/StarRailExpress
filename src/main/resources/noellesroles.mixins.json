@@ -6,6 +6,8 @@
   "plugin": "org.agmas.noellesroles.client.NRMixinPlugin",
   "mixins": [
     "AbstractContainerMenuMixin",
+    "SixtySecondsConsumeMixin",
+    "SixtySecondsFoodStackMixin",
     "DecServerJoinPlayer",
     "EntityMixinForInvisible",
     "FootstepVanishMixin",

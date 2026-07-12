@@ -33,7 +33,14 @@ public class NRCommandRegister {
         RepairPresetCommand.register();
         MurderTimeCommand.register();
 
+        // 末日60秒模式：启动 + 区域配置命令
+        net.exmo.sre.sixtyseconds.command.SixtySecondsStartCommand.register();
+        net.exmo.sre.sixtyseconds.command.SixtySecondsAreaCommand.register();
+
         // 注册疫使测试指令
         org.agmas.noellesroles.commands.InfectedCommand.register();
+
+        // 基于用户名(username)的玩家白名单（可给非正版玩家开白，/namewl import 用 ; 批量导入）
+        net.exmo.sre.namewhitelist.NameWhitelistCommand.register();
     }
 }

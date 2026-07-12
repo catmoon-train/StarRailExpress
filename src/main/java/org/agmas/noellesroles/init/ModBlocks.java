@@ -84,6 +84,23 @@ public interface ModBlocks {
             BlockEntityType.Builder.of(SupplyCrateBlockEntity::new,
                     ModBlocks.SUPPLY_CRATE_BLOCK));
 
+    // 末日60秒模式：避难所门 + 物资箱
+    Block SIXTY_SECONDS_SHELTER_DOOR = registerBlock("sixty_seconds_shelter_door",
+            new net.exmo.sre.sixtyseconds.content.block.ShelterDoorBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(3.0F)));
+    Block SIXTY_SECONDS_SUPPLY_BOX = registerBlock("sixty_seconds_supply_box",
+            new net.exmo.sre.sixtyseconds.content.block.SupplyBoxBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)));
+    BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.SupplyBoxBlockEntity> SIXTY_SECONDS_SUPPLY_BOX_ENTITY =
+            blockEntityRegistrar.create("sixty_seconds_supply_box",
+                    BlockEntityType.Builder.of(
+                            net.exmo.sre.sixtyseconds.content.block_entity.SupplyBoxBlockEntity::new,
+                            ModBlocks.SIXTY_SECONDS_SUPPLY_BOX));
+    // 末日60秒模式：幸存者营地（走上/右键触发通关）
+    Block SIXTY_SECONDS_SURVIVOR_CAMP = registerBlock("sixty_seconds_survivor_camp",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsSurvivorCampBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).lightLevel(s -> 12).noOcclusion()));
+
     // 创建轮盘赌桌方块实体类型
     BlockEntityType<DevilRouletteTableEntity> DEVIL_ROULETTE_TABLE_ENTITY = blockEntityRegistrar.create(
             "devil_roulette_table",
