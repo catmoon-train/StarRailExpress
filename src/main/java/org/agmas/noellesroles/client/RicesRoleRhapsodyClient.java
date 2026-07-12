@@ -25,6 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.client.renderer.*;
 import org.agmas.noellesroles.client.screen.*;
+import org.agmas.noellesroles.content.item.AreaMapItem;
 import org.agmas.noellesroles.content.item.ConspiracyPageItem;
 import org.agmas.noellesroles.content.item.DeductionBookItem;
 import org.agmas.noellesroles.content.item.WrittenNoteItem;
@@ -136,6 +137,13 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (client.player == null)
                 return;
             client.setScreen(new DeductionBookScreen());
+        };
+        // 区域地图：右键打开全屏地图界面
+        AreaMapItem.openScreenCallback = () -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return;
+            client.setScreen(new org.agmas.noellesroles.client.screen.AreaMapScreen());
         };
         WrittenNoteItem.openScreenCallback = () -> {
             Minecraft client = Minecraft.getInstance();

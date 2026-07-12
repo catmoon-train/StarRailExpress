@@ -215,6 +215,9 @@ public class NoellesrolesClient implements ClientModInitializer {
         NoellesrolesClientAmbientSounds.register();
         // Dream（梦魇）：颤抖视角漂移 + 虚拟血量条（准星指向受伤玩家时显示）
         org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler.register();
+        // 区域地图物品：客户端扫描 playArea 生成地图纹理 + 手持时 HUD 小地图
+        org.agmas.noellesroles.client.map.AreaMapManager.register();
+        org.agmas.noellesroles.client.map.AreaMapHud.register();
         // 阿蒙终幕「阿蒙时刻」：全屏稍偏灰滤镜。
         org.agmas.noellesroles.client.event.CommonHudRenderCallback.EVENT.register((g, dt) -> {
             if (org.agmas.noellesroles.client.ClientAmonState.finaleActive) {

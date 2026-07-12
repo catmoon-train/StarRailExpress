@@ -88,6 +88,14 @@ public class SREClientCommand {
                         }, 1);
                         return 1;
                       }))
+                  .then(ClientCommandManager.literal("AreaMap")
+                      .executes(context -> {
+                        ClientScheduler.schedule(() -> {
+                          context.getSource().getClient()
+                              .setScreen(new org.agmas.noellesroles.client.screen.AreaMapScreen());
+                        }, 1);
+                        return 1;
+                      }))
                   .then(ClientCommandManager.literal("test")
                       .executes(context -> {
                         ClientScheduler.schedule(() -> {

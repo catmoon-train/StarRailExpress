@@ -279,6 +279,13 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFC0F5));
 
     /**
+     * 沉浸式滤镜效果：后室
+     * 纯视觉：VHS 录像带式后室渲染滤镜（搬运自 MinecraftFoundFootage 的 VHS 后处理），无任何玩法副作用。
+     */
+    public static final Holder<MobEffect> BACKROOMS_FILTER = register("backrooms_filter",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xD9C86B));
+
+    /**
      * 玩家隔离：看不见/听不见其他玩家
      */
     public static final Holder<MobEffect> PLAYER_ISOLATION = register("player_isolation",

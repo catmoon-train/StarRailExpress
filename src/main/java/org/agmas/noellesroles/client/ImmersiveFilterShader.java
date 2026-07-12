@@ -21,6 +21,7 @@ public class ImmersiveFilterShader {
     private static final ResourceLocation AFTERLIFE_SUPER_NOISE = ResourceLocation.withDefaultNamespace("textures/gui/shaders/super_noise.png");
     private static final ResourceLocation AFTERLIFE_DITHER = ResourceLocation.withDefaultNamespace("textures/gui/shaders/dither.png");
     private static final ResourceLocation AFTERLIFE_CONTRAST_NOISE = ResourceLocation.withDefaultNamespace("textures/gui/shaders/contrast_noise.png");
+    private static final ResourceLocation BACKROOMS_VHS_NOISE = ResourceLocation.withDefaultNamespace("textures/gui/shaders/vhs_noise.png");
 
     private PostProcessor post;
     private float totalTime = 0.0f;
@@ -52,6 +53,11 @@ public class ImmersiveFilterShader {
             bindAfterlifeTextures(mc, afterlife.getInPass());
         }
         addPass(mc, "dreamcore", ModEffects.DREAMCORE_FILTER, 0.7f);
+        var backrooms = addPass(mc, "backrooms", ModEffects.BACKROOMS_FILTER, 1.0f);
+        if (backrooms != null) {
+            backrooms.getInPass().addAuxAsset("VhsNoiseSampler",
+                    () -> mc.getTextureManager().getTexture(BACKROOMS_VHS_NOISE).getId(), 256, 256);
+        }
         addRepairEscapePass(mc);
     }
 

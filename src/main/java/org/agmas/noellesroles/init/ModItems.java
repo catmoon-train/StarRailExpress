@@ -68,6 +68,10 @@ public class ModItems {
     public static final Item REASONER_COMPASS = register(
             new ReasonerCompassItem(new Item.Properties().stacksTo(1)),
             "reasoner_compass", ROLE_ITEMS_GROUP);
+    // 区域地图 - 自动生成当前游戏区域的地图（迷宫等地图用），手持显示 HUD 小地图，右键打开全屏地图
+    public static final Item AREA_MAP = register(
+            new AreaMapItem(new Item.Properties().stacksTo(1)),
+            "area_map", TOOLS_GROUP);
     public static final Item FLARE = register(
             new FlareItem(new Item.Properties().stacksTo(8)),
             "flare", ROLE_ITEMS_GROUP);
