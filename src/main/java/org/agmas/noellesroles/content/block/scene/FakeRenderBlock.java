@@ -6,7 +6,6 @@ import org.agmas.noellesroles.init.ModSceneBlocks;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -40,11 +39,6 @@ public class FakeRenderBlock extends BreakingBridgeBlock {
 
     public MapCodec<? extends FakeRenderBlock> codec() {
         return CODEC;
-    }
-
-    @Override
-    protected boolean skipRendering(BlockState blockState, BlockState blockState2, Direction direction) {
-        return blockState2.is(this) ? true : super.skipRendering(blockState, blockState2, direction);
     }
 
     public FakeRenderBlock(Properties settings) {

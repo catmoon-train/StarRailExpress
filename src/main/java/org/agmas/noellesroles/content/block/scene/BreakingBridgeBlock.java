@@ -50,67 +50,77 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
     public static final BooleanProperty BROKEN = BooleanProperty.create("broken");
     public static final MapCodec<BreakingBridgeBlock> CODEC = simpleCodec(BreakingBridgeBlock::new);
 
+    // 使用 ThreadLocal 防止递归，每个线程独立
+    private final ThreadLocal<Boolean> recursionLock = ThreadLocal.withInitial(() -> false);
+
+    @Override
     public MapCodec<? extends BreakingBridgeBlock> codec() {
         return CODEC;
     }
 
-    public boolean securityLock = false;
-
+    @Override
     protected VoxelShape getVisualShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos,
             CollisionContext collisionContext) {
-        if (securityLock)
+        // 检测递归
+        if (recursionLock.get()) {
             return Shapes.empty();
-        securityLock = true;
-        if (!blockState.getValue(BROKEN)) {
-            BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
-            if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-                if (bbbe.displayState != null) {
-                    var result = bbbe.displayState.getVisualShape(blockGetter, blockPos, collisionContext);
-                    securityLock = false;
-                    return result;
+        }
+        recursionLock.set(true);
+        try {
+            if (!blockState.getValue(BROKEN)) {
+                BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
+                if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
+                    if (bbbe.displayState != null) {
+                        return bbbe.displayState.getVisualShape(blockGetter, blockPos, collisionContext);
+                    }
                 }
             }
+            return Shapes.empty();
+        } finally {
+            recursionLock.set(false);
         }
-        securityLock = false;
-        return Shapes.empty();
     }
 
+    @Override
     protected float getShadeBrightness(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
-
-        if (securityLock)
-            return 1F;
-        securityLock = true;
-        if (!blockState.getValue(BROKEN)) {
-            BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
-            if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-                if (bbbe.displayState != null) {
-                    var result = bbbe.displayState.getShadeBrightness(blockGetter, blockPos);
-                    securityLock = false;
-                    return result;
+        if (recursionLock.get()) {
+            return 1.0F;
+        }
+        recursionLock.set(true);
+        try {
+            if (!blockState.getValue(BROKEN)) {
+                BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
+                if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
+                    if (bbbe.displayState != null) {
+                        return bbbe.displayState.getShadeBrightness(blockGetter, blockPos);
+                    }
                 }
             }
+            return 1.0F;
+        } finally {
+            recursionLock.set(false);
         }
-        securityLock = false;
-
-        return 1.0F;
     }
 
+    @Override
     protected boolean propagatesSkylightDown(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
-        if (securityLock)
+        if (recursionLock.get()) {
             return true;
-        securityLock = true;
-        if (!blockState.getValue(BROKEN)) {
-            BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
-            if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-                if (bbbe.displayState != null) {
-                    var result = bbbe.displayState.propagatesSkylightDown(blockGetter, blockPos);
-                    securityLock = false;
-                    return result;
+        }
+        recursionLock.set(true);
+        try {
+            if (!blockState.getValue(BROKEN)) {
+                BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
+                if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
+                    if (bbbe.displayState != null) {
+                        return bbbe.displayState.propagatesSkylightDown(blockGetter, blockPos);
+                    }
                 }
             }
+            return true;
+        } finally {
+            recursionLock.set(false);
         }
-        securityLock = false;
-        return true;
     }
 
     @Override
@@ -131,30 +141,54 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        if (!state.getValue(BROKEN)) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-                if (bbbe.displayState != null)
-                    return bbbe.displayState.getShape(world, pos, context);
-            }
+        if (recursionLock.get()) {
+            // 递归时直接根据 broken 状态返回形状（保持原逻辑）
+            return state.getValue(BROKEN)
+                    ? (context.isHoldingItem(ModSceneBlocks.BREAKING_BRIDGE.asItem()) ? Shapes.block() : Shapes.empty())
+                    : super.getShape(state, world, pos, context);
         }
-        return state.getValue(BROKEN)
-                ? (context.isHoldingItem(ModSceneBlocks.BREAKING_BRIDGE.asItem()) ? Shapes.block() : Shapes.empty())
-                : super.getShape(state, world, pos, context);
+        recursionLock.set(true);
+        try {
+            if (!state.getValue(BROKEN)) {
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+                if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
+                    if (bbbe.displayState != null) {
+                        return bbbe.displayState.getShape(world, pos, context);
+                    }
+                }
+            }
+            // 未伪装或已损坏时的默认形状
+            return state.getValue(BROKEN)
+                    ? (context.isHoldingItem(ModSceneBlocks.BREAKING_BRIDGE.asItem()) ? Shapes.block() : Shapes.empty())
+                    : super.getShape(state, world, pos, context);
+        } finally {
+            recursionLock.set(false);
+        }
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos,
             CollisionContext context) {
-        if (!blockState.getValue(BROKEN)) {
-            BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
-            if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-                if (bbbe.displayState != null)
-                    return bbbe.displayState.getCollisionShape(blockGetter, blockPos, context);
-            }
+        // 同样增加递归保护（原代码未加，现统一）
+        if (recursionLock.get()) {
+            return blockState.getValue(BROKEN) ? Shapes.empty()
+                    : super.getCollisionShape(blockState, blockGetter, blockPos, context);
         }
-        return blockState.getValue(BROKEN) ? Shapes.empty()
-                : super.getCollisionShape(blockState, blockGetter, blockPos, context);
+        recursionLock.set(true);
+        try {
+            if (!blockState.getValue(BROKEN)) {
+                BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
+                if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
+                    if (bbbe.displayState != null) {
+                        return bbbe.displayState.getCollisionShape(blockGetter, blockPos, context);
+                    }
+                }
+            }
+            return blockState.getValue(BROKEN) ? Shapes.empty()
+                    : super.getCollisionShape(blockState, blockGetter, blockPos, context);
+        } finally {
+            recursionLock.set(false);
+        }
     }
 
     @Override
@@ -180,32 +214,23 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
     }
 
     @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos,
-            RandomSource random) {
-        {
-            // 恢复
-            level.setBlock(pos, state.setValue(BROKEN, false), Block.UPDATE_ALL);
-            var entity = level.getBlockEntity(pos);
-            if (entity instanceof BreakingBridgeBlockEntity bbbe) {
-                bbbe.recoveried(level, state, pos, random);
-            }
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        // 恢复
+        level.setBlock(pos, state.setValue(BROKEN, false), Block.UPDATE_ALL);
+        var entity = level.getBlockEntity(pos);
+        if (entity instanceof BreakingBridgeBlockEntity bbbe) {
+            bbbe.recoveried(level, state, pos, random);
         }
-
     }
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        // 只有当方块类型改变时（即被破坏或替换），才需要清理实体
         if (!state.is(newState.getBlock())) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof BreakingBridgeBlockEntity) {
-                // 可选：在移除前执行一些清理逻辑（比如通知配对方块解除绑定）
-                // ((RemoteRedstoneBlockEntity) blockEntity).onRemove();
-
-                // 移除方块实体
+                // 可选清理逻辑
                 level.removeBlockEntity(pos);
             }
-            // 调用父类方法，以确保正常执行其他清理（比如更新红石信号等）
             super.onRemove(state, level, pos, newState, movedByPiston);
         }
     }
@@ -253,17 +278,14 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
             if (mainhand.isEmpty()) {
                 if (!level.isClientSide) {
                     if (player.isShiftKeyDown()) {
-                        { // 仅在服务端执行
-                            BlockEntity entity = level.getBlockEntity(blockPos);
-                            if (entity instanceof BreakingBridgeBlockEntity bbbe) {
-                                bbbe.addBreakingStage();
-                                int b = bbbe.breakingStage;
-                                // 发送消息（服务端调用 sendSystemMessage 会发给客户端）
-                                player.displayClientMessage(
-                                        Component.translatable("block.noellesroles.breaking_bridge.tip", b),
-                                        true);
-                                return InteractionResult.SUCCESS;
-                            }
+                        BlockEntity entity = level.getBlockEntity(blockPos);
+                        if (entity instanceof BreakingBridgeBlockEntity bbbe) {
+                            bbbe.addBreakingStage();
+                            int b = bbbe.breakingStage;
+                            player.displayClientMessage(
+                                    Component.translatable("block.noellesroles.breaking_bridge.tip", b),
+                                    true);
+                            return InteractionResult.SUCCESS;
                         }
                     } else {
                         BlockEntity entity = level.getBlockEntity(blockPos);
@@ -277,8 +299,6 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
                         }
                     }
                 }
-
-                // 客户端只返回成功，不执行逻辑
                 return InteractionResult.SUCCESS;
             }
         }
@@ -289,21 +309,14 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
         if (stack.isEmpty() || !(stack.getItem() instanceof BlockItem blockItem)) {
             return null;
         }
-
-        // 获取默认状态
         BlockState state = blockItem.getBlock().defaultBlockState();
-
-        // 尝试读取 BlockStateTag
         BlockItemStateProperties tag = stack.get(DataComponents.BLOCK_STATE);
         if (tag != null) {
             for (var entry : tag.properties().entrySet()) {
-                // 检查该属性是否存在于当前 BlockState 中
                 String key = entry.getKey();
                 Property<?> property = state.getBlock().getStateDefinition().getProperty(key);
                 if (property != null) {
-                    // 获取值的字符串表示
                     String value = entry.getValue();
-                    // 尝试解析并设置值
                     state = setPropertyValue(state, property, value);
                 }
             }
@@ -313,16 +326,14 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
                 state = state.setValue(TYPE, slabTypeValue);
             }
         }
-
         return state;
     }
 
-    // 辅助方法：将字符串值安全地应用到属性上
     private static <T extends Comparable<T>> BlockState setPropertyValue(BlockState state, Property<T> property,
             String value) {
         return property.getValue(value)
                 .map(val -> state.setValue(property, val))
-                .orElse(state); // 解析失败则保持不变
+                .orElse(state);
     }
 
     @Override
