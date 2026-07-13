@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.game.roles.killer.hunter;
 
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -16,13 +15,10 @@ import net.minecraft.world.item.alchemy.Potions;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-public class HunterPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+public class HunterPlayerComponent implements RoleComponent {
 
     private final Player player;
-    private SREGameWorldComponent gameWorldComponent;
 
     // 杀敌计数
     public int killCount = 0;
@@ -30,7 +26,6 @@ public class HunterPlayerComponent implements RoleComponent, ServerTickingCompon
 
     public HunterPlayerComponent(Player player) {
         this.player = player;
-        this.gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
     }
 
     @Override
@@ -99,36 +94,12 @@ public class HunterPlayerComponent implements RoleComponent, ServerTickingCompon
     }
 
     @Override
-    public void serverTick() {
-        if (gameWorldComponent == null) {
-            gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        }
-    }
-
-    @Override
-    public void clientTick() {
-        if (gameWorldComponent == null) {
-            gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        }
-    }
-
-    @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("killCount", this.killCount);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.killCount = tag.getInt("killCount");
-    }
-
-    @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("killCount", this.killCount);
-    }
-
-    @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.killCount = tag.getInt("killCount");
     }
 }

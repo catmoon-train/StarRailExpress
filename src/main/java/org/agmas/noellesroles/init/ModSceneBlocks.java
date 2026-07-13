@@ -41,7 +41,8 @@ public interface ModSceneBlocks {
     // ───────────────────────── 批次A：陷阱类 ─────────────────────────
 
     Block POISON_ZONE = registerBlock("poison_zone",
-            new PoisonZoneBlock(Properties.ofFullCopy(Blocks.SLIME_BLOCK).noOcclusion().strength(-1.0F, 3600000.0F)));
+            new PoisonZoneBlock(Properties.ofFullCopy(Blocks.SLIME_BLOCK).noOcclusion().strength(-1.0F,
+                    3600000.0F)));
     Block BREAKING_BRIDGE = registerBlock("breaking_bridge",
             new BreakingBridgeBlock(Properties.ofFullCopy(Blocks.OAK_PLANKS)));
     Block SABOTAGE_BRIDGE = registerBlock("sabotage_bridge",
@@ -51,18 +52,22 @@ public interface ModSceneBlocks {
 
     BlockEntityType<PoisonZoneBlockEntity> POISON_ZONE_ENTITY = blockEntityRegistrar.create("poison_zone",
             BlockEntityType.Builder.of(PoisonZoneBlockEntity::new, POISON_ZONE));
-    BlockEntityType<SabotageBridgeBlockEntity> SABOTAGE_BRIDGE_ENTITY = blockEntityRegistrar.create("sabotage_bridge",
+    BlockEntityType<SabotageBridgeBlockEntity> SABOTAGE_BRIDGE_ENTITY = blockEntityRegistrar.create(
+            "sabotage_bridge",
             BlockEntityType.Builder.of(SabotageBridgeBlockEntity::new, SABOTAGE_BRIDGE));
 
     // ───────────────────────── 批次B：区域/通道类 ─────────────────────────
 
     Block FOG_ZONE = registerBlock("fog_zone",
-            new FogZoneBlock(Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS).strength(-1.0F, 3600000.0F)));
+            new FogZoneBlock(
+                    Properties.ofFullCopy(Blocks.WHITE_STAINED_GLASS).strength(-1.0F, 3600000.0F)));
     Block MANHOLE = registerBlock("manhole",
             new ManholeBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion()));
     Block CELLAR = registerBlock("cellar",
             new CellarBlock(Properties.ofFullCopy(Blocks.SPRUCE_PLANKS)));
-
+    BlockEntityType<BreakingBridgeBlockEntity> BREAKING_BRIDGE_ENTITY = blockEntityRegistrar.create(
+            "breaking_bridge",
+            BlockEntityType.Builder.of(BreakingBridgeBlockEntity::new, BREAKING_BRIDGE));
     BlockEntityType<FogZoneBlockEntity> FOG_ZONE_ENTITY = blockEntityRegistrar.create("fog_zone",
             BlockEntityType.Builder.of(FogZoneBlockEntity::new, FOG_ZONE));
     BlockEntityType<ManholeBlockEntity> MANHOLE_ENTITY = blockEntityRegistrar.create("manhole",
@@ -71,7 +76,8 @@ public interface ModSceneBlocks {
     // ───────────────────────── 批次C：破坏任务联动 ─────────────────────────
 
     Block SCENE_GATE = registerBlock("scene_gate",
-            new SceneGateBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion().strength(-1.0F, 3600000.0F)));
+            new SceneGateBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK).noOcclusion().strength(-1.0F,
+                    3600000.0F)));
     Block FLAMETHROWER = registerBlock("flamethrower",
             new FlamethrowerBlock(Properties.ofFullCopy(Blocks.MAGMA_BLOCK).lightLevel(s -> 7)));
 
@@ -104,7 +110,8 @@ public interface ModSceneBlocks {
             "rolling_stone_trigger",
             BlockEntityType.Builder.of(RollingStoneTriggerPlateEntity::new, ROLLING_STONE_TRIGGER));
     Block ROLLING_LOG_TRIGGER = registerBlock("rolling_log_trigger",
-            new RollingLogTriggerPlateBlock(Properties.ofFullCopy(Blocks.OAK_LOG).noOcclusion().mapColor(MapColor.WOOD)));
+            new RollingLogTriggerPlateBlock(
+                    Properties.ofFullCopy(Blocks.OAK_LOG).noOcclusion().mapColor(MapColor.WOOD)));
     BlockEntityType<RollingLogTriggerPlateEntity> ROLLING_LOG_TRIGGER_ENTITY = blockEntityRegistrar.create(
             "rolling_log_trigger",
             BlockEntityType.Builder.of(RollingLogTriggerPlateEntity::new, ROLLING_LOG_TRIGGER));
@@ -128,9 +135,11 @@ public interface ModSceneBlocks {
 
     BlockEntityType<IncineratorBlockEntity> INCINERATOR_ENTITY = blockEntityRegistrar.create("incinerator",
             BlockEntityType.Builder.of(IncineratorBlockEntity::new, INCINERATOR));
-    BlockEntityType<MovingPlatformBlockEntity> MOVING_PLATFORM_ENTITY = blockEntityRegistrar.create("moving_platform",
+    BlockEntityType<MovingPlatformBlockEntity> MOVING_PLATFORM_ENTITY = blockEntityRegistrar.create(
+            "moving_platform",
             BlockEntityType.Builder.of(MovingPlatformBlockEntity::new, MOVING_PLATFORM));
-    BlockEntityType<HurricaneDeviceBlockEntity> HURRICANE_DEVICE_ENTITY = blockEntityRegistrar.create("hurricane_device",
+    BlockEntityType<HurricaneDeviceBlockEntity> HURRICANE_DEVICE_ENTITY = blockEntityRegistrar.create(
+            "hurricane_device",
             BlockEntityType.Builder.of(HurricaneDeviceBlockEntity::new, HURRICANE_DEVICE));
     BlockEntityType<CoffinBlockEntity> COFFIN_ENTITY = blockEntityRegistrar.create("coffin",
             BlockEntityType.Builder.of(CoffinBlockEntity::new, COFFIN));

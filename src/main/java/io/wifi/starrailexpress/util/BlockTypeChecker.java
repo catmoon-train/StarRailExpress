@@ -1,7 +1,7 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.content.block.MountableBlock;
-import io.wifi.starrailexpress.content.block.TrainLightBlock;
+import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
@@ -36,6 +36,6 @@ public class BlockTypeChecker {
     }
 
     public static boolean isLightBlock(Block block) {
-        return block instanceof TrainLightBlock;
+        return block instanceof LightBlockInterface;
     }
 }

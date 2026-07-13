@@ -48,4 +48,12 @@ public interface RoleComponent extends AutoSyncedComponent {
             this.readFromSyncNbt(tag, buf.registryAccess());
         }
     }
+
+    @Override
+    default void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    default void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
 }

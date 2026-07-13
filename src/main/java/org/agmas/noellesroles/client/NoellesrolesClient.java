@@ -79,6 +79,8 @@ import org.agmas.noellesroles.client.event.OnMessageBelowMoneyRenderer;
 import org.agmas.noellesroles.client.hud.CommonClientHudRenderer;
 import net.exmo.sre.repair.client.RepairEscapeHud;
 import net.exmo.sre.repair.client.HunterCageBlockEntityRenderer;
+
+import org.agmas.noellesroles.client.renderer.BreakingBridgeBlockEntityRenderer;
 import org.agmas.noellesroles.client.renderer.SREPlushBlockEntityRenderer;
 import org.agmas.noellesroles.client.renderer.VendingMachinesBlockEntityRenderer;
 import org.agmas.noellesroles.client.screen.*;
@@ -261,6 +263,9 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 注册HUD渲染
         LimitedInventoryScreen.NotAllowItemTakePredicates.add(stack -> stack.is(ModItems.BOMB));
 
+        BlockEntityRenderers.register(
+                ModSceneBlocks.BREAKING_BRIDGE_ENTITY,
+                BreakingBridgeBlockEntityRenderer::new);
         BlockEntityRenderers.register(
                 ModBlocks.VENDING_MACHINES_BLOCK_ENTITY,
                 VendingMachinesBlockEntityRenderer::new);
