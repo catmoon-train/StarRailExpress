@@ -32,6 +32,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SlabBlock;
@@ -425,11 +426,15 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
         }
         BlockState state = blockItem.getBlock().defaultBlockState();
         try {
-            state = blockItem.getBlock()
+            var tstate = blockItem.getBlock()
                     .getStateForPlacement(
                             new BlockPlaceContext(player, interactionHand, stack, blockHitResult));
+            if (tstate != null)
+                state = tstate;
         } catch (Exception e) {
         }
+        if (state == null)
+            return Blocks.AIR.defaultBlockState();
         BlockItemStateProperties tag = stack.get(DataComponents.BLOCK_STATE);
         if (tag != null) {
             for (var entry : tag.properties().entrySet()) {
