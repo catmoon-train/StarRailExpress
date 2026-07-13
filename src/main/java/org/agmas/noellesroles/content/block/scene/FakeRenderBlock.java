@@ -43,38 +43,6 @@ public class FakeRenderBlock extends BreakingBridgeBlock {
     }
 
     @Override
-    protected VoxelShape getVisualShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos,
-            CollisionContext collisionContext) {
-        BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
-        if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-            if (bbbe.displayState != null)
-                return bbbe.displayState.getVisualShape(blockGetter, blockPos, collisionContext);
-        }
-        return Shapes.empty();
-    }
-
-    @Override
-    protected float getShadeBrightness(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
-        BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
-        if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-            if (bbbe.displayState != null)
-                return bbbe.displayState.getShadeBrightness(blockGetter, blockPos);
-        }
-        return 1.0F;
-    }
-
-    @Override
-    protected boolean propagatesSkylightDown(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
-
-        BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
-        if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-            if (bbbe.displayState != null)
-                return bbbe.displayState.propagatesSkylightDown(blockGetter, blockPos);
-        }
-        return true;
-    }
-
-    @Override
     protected boolean skipRendering(BlockState blockState, BlockState blockState2, Direction direction) {
         return blockState2.is(this) ? true : super.skipRendering(blockState, blockState2, direction);
     }

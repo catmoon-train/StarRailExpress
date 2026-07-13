@@ -54,38 +54,62 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
         return CODEC;
     }
 
+    public boolean securityLock = false;
+
     protected VoxelShape getVisualShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos,
             CollisionContext collisionContext) {
-
+        if (securityLock)
+            return Shapes.empty();
+        securityLock = true;
         if (!blockState.getValue(BROKEN)) {
             BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
             if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-                if (bbbe.displayState != null)
-                    return bbbe.displayState.getVisualShape(blockGetter, blockPos, collisionContext);
+                if (bbbe.displayState != null) {
+                    var result = bbbe.displayState.getVisualShape(blockGetter, blockPos, collisionContext);
+                    securityLock = false;
+                    return result;
+                }
             }
         }
+        securityLock = false;
         return Shapes.empty();
     }
 
     protected float getShadeBrightness(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
+
+        if (securityLock)
+            return 1F;
+        securityLock = true;
         if (!blockState.getValue(BROKEN)) {
             BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
             if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-                if (bbbe.displayState != null)
-                    return bbbe.displayState.getShadeBrightness(blockGetter, blockPos);
+                if (bbbe.displayState != null) {
+                    var result = bbbe.displayState.getShadeBrightness(blockGetter, blockPos);
+                    securityLock = false;
+                    return result;
+                }
             }
         }
+        securityLock = false;
+
         return 1.0F;
     }
 
     protected boolean propagatesSkylightDown(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
+        if (securityLock)
+            return true;
+        securityLock = true;
         if (!blockState.getValue(BROKEN)) {
             BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
             if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
-                if (bbbe.displayState != null)
-                    return bbbe.displayState.propagatesSkylightDown(blockGetter, blockPos);
+                if (bbbe.displayState != null) {
+                    var result = bbbe.displayState.propagatesSkylightDown(blockGetter, blockPos);
+                    securityLock = false;
+                    return result;
+                }
             }
         }
+        securityLock = false;
         return true;
     }
 
