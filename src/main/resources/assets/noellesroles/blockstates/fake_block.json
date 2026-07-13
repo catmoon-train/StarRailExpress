@@ -1,10 +1,10 @@
 {
   "variants": {
     "broken=false,type=double": {
-      "model": "noellesroles:block/breaking_bridge"
+      "model": "noellesroles:block/breaking_bridge_full"
     },
     "broken=false,type=top": {
-      "model": "noellesroles:block/breaking_bridge"
+      "model": "noellesroles:block/breaking_bridge_top"
     },
     "broken=false,type=bottom": {
       "model": "noellesroles:block/breaking_bridge"
