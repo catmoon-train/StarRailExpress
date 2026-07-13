@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -88,7 +89,14 @@ public class FakeRenderBlock extends BreakingBridgeBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        return (context.isHoldingItem(ModSceneBlocks.FAKE_BLOCK.asItem()) ? Shapes.block() : Shapes.empty());
+        if (context instanceof EntityCollisionContext ecc) {
+            if (ecc.getEntity() instanceof Player player) {
+                if (player.isCreative()) {
+                    return Shapes.block();
+                }
+            }
+        }
+        return Shapes.empty();
     }
 
     @Override
