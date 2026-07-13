@@ -1,19 +1,29 @@
 package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 
+import org.agmas.noellesroles.content.block.scene.BreakingBridgeBlock;
 import org.agmas.noellesroles.content.block_entity.scene.BreakingBridgeBlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class BreakingBridgeBlockEntityRenderer implements BlockEntityRenderer<BreakingBridgeBlockEntity> {
-    // 渲染距离限制（方块数的平方）
     private final BlockRenderDispatcher blockRenderer;
     private static final double MAX_RENDER_DISTANCE_SQ = 8.0 * 8.0; // 16个方块的距离
 
@@ -52,9 +62,63 @@ public class BreakingBridgeBlockEntityRenderer implements BlockEntityRenderer<Br
         if (!shouldRender(entity)) {
             return;
         }
-        BlockState stateToRender = entity.displayState != null ? entity.displayState : entity.getBlockState();
+        int setstage = entity.breakingStage; // 假设返回 0~10
+        int stage = setstage;
+        if (entity.nowTime >= 0 && entity.breakingTime > 0) {
+            float percent = (float) entity.nowTime / (float) entity.breakingTime;
+            stage = (int) ((float) setstage + percent * (10f - setstage));
+        }
+        if (stage < 0 || stage > 10) {
+            stage = 0;
+        }
+        var blockState = entity.getBlockState();
+        if (blockState.getOptionalValue(BreakingBridgeBlock.BROKEN).orElse(false)) {
+            return;
+        }
+        BlockState stateToRender = entity.displayState != null ? entity.displayState : blockState;
         if (stateToRender != null) {
-            blockRenderer.renderSingleBlock(stateToRender, matrices, vertexConsumers, light, overlay);
+
+            RenderShape renderShape = blockState.getRenderShape();
+            switch (renderShape) {
+                case MODEL:
+                    blockRenderer.renderSingleBlock(stateToRender, matrices, vertexConsumers,
+                            light, overlay);
+                    break;
+                default:
+                    BakedModel model = blockRenderer.getBlockModel(stateToRender);
+                    // 获取 VertexConsumer
+                    // 渲染破坏纹理（renderBreaking = true）
+                    long seed = stateToRender.getSeed(entity.getBlockPos());
+
+                    for (var renderType : RenderType.chunkBufferLayers())
+                        if (ItemBlockRenderTypes.getChunkRenderType(stateToRender) == renderType)
+                            blockRenderer.getModelRenderer().tesselateBlock(entity.getLevel(), model, stateToRender,
+                                    entity.getBlockPos(), matrices, vertexConsumers.getBuffer(renderType), false,
+                                    RandomSource.create(), seed, OverlayTexture.NO_OVERLAY);
+                    break;
+            }
+
+            {
+                if (stage > 0 && stage < 10) { // 0 无裂纹，10 完全破坏，可根据需要调整
+                    // 纹理索引 0~9
+                    int textureIndex = Math.min(stage, 9);
+                    RenderType crack = ModelBakery.DESTROY_TYPES.get(textureIndex);
+                    // 2.2 使用 RenderType.crack() 获得正确的 VertexConsumer（透明混合）
+                    VertexConsumer crackConsumer = vertexConsumers
+                            .getBuffer(crack);
+                    SheetedDecalTextureGenerator decalBuffer = new SheetedDecalTextureGenerator(
+                            crackConsumer,
+                            matrices.last(),
+                            1.0f);
+                    // 渲染破坏纹理（内部使用 NO_OVERLAY，纹理本身已包含破损图案）
+                    blockRenderer.renderBreakingTexture(
+                            stateToRender,
+                            entity.getBlockPos(),
+                            entity.getLevel(),
+                            matrices,
+                            decalBuffer);
+                }
+            }
         }
     }
 }

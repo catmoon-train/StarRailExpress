@@ -44,7 +44,7 @@ public interface ModSceneBlocks {
             new PoisonZoneBlock(Properties.ofFullCopy(Blocks.SLIME_BLOCK).noOcclusion().strength(-1.0F,
                     3600000.0F)));
     Block BREAKING_BRIDGE = registerBlock("breaking_bridge",
-            new BreakingBridgeBlock(Properties.ofFullCopy(Blocks.OAK_PLANKS)));
+            new BreakingBridgeBlock(Properties.ofFullCopy(Blocks.OAK_PLANKS).noOcclusion()));
     Block SABOTAGE_BRIDGE = registerBlock("sabotage_bridge",
             new SabotageBridgeBlock(Properties.ofFullCopy(Blocks.OAK_PLANKS).noOcclusion()));
     Block DRIPPING_STALACTITE = registerBlock("dripping_stalactite",

@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 
 public class TrainTorchLeverBlock extends LeverBlock implements LightBlockInterface, SimpleWaterloggedBlock {
     public static final MapCodec<LeverBlock> CODEC = simpleCodec(TrainTorchLeverBlock::new);
@@ -23,7 +25,8 @@ public class TrainTorchLeverBlock extends LeverBlock implements LightBlockInterf
 
     public TrainTorchLeverBlock(Properties properties) {
         super(properties.lightLevel(TrainTorchLeverBlock::lightBlockSupplier));
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false).setValue(WATERLOGGED, false)
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false)
+                .setValue(WATERLOGGED, false)
                 .setValue(FACE, AttachFace.WALL).setValue(LIT, true).setValue(ACTIVE, true));
     }
 
@@ -72,5 +75,11 @@ public class TrainTorchLeverBlock extends LeverBlock implements LightBlockInterf
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(new Property[] { LIT, ACTIVE, WATERLOGGED });
+    }
+
+    @Override
+    protected FluidState getFluidState(BlockState blockState) {
+        return (Boolean) blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false)
+                : super.getFluidState(blockState);
     }
 }

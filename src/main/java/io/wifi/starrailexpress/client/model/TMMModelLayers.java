@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.client.model;
 
+import org.agmas.noellesroles.init.ModSceneBlocks;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.model.entity.PlayerSkeletonEntityModel;
 import io.wifi.starrailexpress.client.render.block_entity.PlaneSmallDoorBlockEntityRenderer;
@@ -14,6 +16,7 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.RenderType;
+
 public interface TMMModelLayers {
     ModelLayerLocation SMALL_DOOR = layer("small_door");
     ModelLayerLocation PLANE_SMALL_DOOR = layer("plane_small_door");
@@ -24,6 +27,7 @@ public interface TMMModelLayers {
     ModelLayerLocation PLAYER_SKELETON = layer("player_skeleton");
 
     static void initialize() {
+        BlockRenderLayerMap.INSTANCE.putBlock(ModSceneBlocks.BREAKING_BRIDGE, RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_TORCH, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_SOUL_LANTERN, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_VANILLA_LANTERN, RenderType.cutout());

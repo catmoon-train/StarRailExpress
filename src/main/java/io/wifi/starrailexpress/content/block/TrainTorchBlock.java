@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 
 public class TrainTorchBlock extends BaseTorchBlock implements LightBlockInterface, SimpleWaterloggedBlock {
     public static SimpleParticleType flameParticle = ParticleTypes.FLAME;
@@ -63,5 +65,11 @@ public class TrainTorchBlock extends BaseTorchBlock implements LightBlockInterfa
         double f = (double) blockPos.getZ() + (double) 0.5F;
         level.addParticle(ParticleTypes.SMOKE, d, e, f, (double) 0.0F, (double) 0.0F, (double) 0.0F);
         level.addParticle(flameParticle, d, e, f, (double) 0.0F, (double) 0.0F, (double) 0.0F);
+    }
+    
+    @Override
+    protected FluidState getFluidState(BlockState blockState) {
+        return (Boolean) blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false)
+                : super.getFluidState(blockState);
     }
 }
