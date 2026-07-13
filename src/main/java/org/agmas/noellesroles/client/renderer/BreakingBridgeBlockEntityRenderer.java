@@ -26,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class BreakingBridgeBlockEntityRenderer implements BlockEntityRenderer<BreakingBridgeBlockEntity> {
     private final BlockRenderDispatcher blockRenderer;
-    private static final double MAX_RENDER_DISTANCE_SQ = 64.0 * 64.0; // 64个方块的距离
-    private static final double MAX_RENDER_DISTANCE_LQ = 32.0 * 32.0; // 32个方块的距离
+    private static final double MAX_RENDER_DISTANCE_SQ = 48.0 * 48.0; // 48个方块的距离
+    private static final double MAX_RENDER_DISTANCE_LQ = 24.0 * 24.0; // 32个方块的距离
 
     public BreakingBridgeBlockEntityRenderer(BlockEntityRendererProvider.@NotNull Context ctx) {
         ctx.getBlockEntityRenderDispatcher();

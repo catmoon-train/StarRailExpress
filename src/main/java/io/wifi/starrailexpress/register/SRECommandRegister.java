@@ -31,8 +31,8 @@ public class SRECommandRegister {
     public static void registerCommands() {
         StreamingSpectatorCommand.registerEvents();
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
-            ServerUtilsCommands.register(dispatcher,registryAccess,environment);
-			ModWhitelistCommand.registerGlobal(dispatcher);
+            ServerUtilsCommands.register(dispatcher, registryAccess, environment);
+            ModWhitelistCommand.registerGlobal(dispatcher);
             SREHelpCommand.register(dispatcher);
             SREVoteCommand.register(dispatcher, registryAccess);
             NarratorCommand.register(dispatcher, registryAccess);
@@ -73,8 +73,9 @@ public class SRECommandRegister {
             SkinsCommand.register(dispatcher);
             ProgressionCommand.register(dispatcher);
             BackpackCommand.register(dispatcher);
-            io.wifi.starrailexpress.content.command.RoleRosterCommand.register(dispatcher);
-            io.wifi.starrailexpress.content.command.PlushCommand.register(dispatcher);
+            RoleRosterCommand.register(dispatcher);
+            PlushCommand.register(dispatcher);
+            BreakingAndFakeBlockCommand.register(dispatcher, registryAccess, environment);
             PlayerInventoryCommand.register(dispatcher);
             StreamingSpectatorCommand.register(dispatcher);
             ShieldCommand.register(dispatcher);
