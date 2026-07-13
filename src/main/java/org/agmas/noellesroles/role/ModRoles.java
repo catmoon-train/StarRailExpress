@@ -232,6 +232,8 @@ public class ModRoles {
     public static ResourceLocation EXECUTIONER_ID = Noellesroles.id("executioner");
     public static ResourceLocation SHOOTING_FRENZY_ID = Noellesroles.id("shooting_frenzy");
     public static ResourceLocation GAMBLER_ID = Noellesroles.id("gambler");
+    public static ResourceLocation TAMER_ID = Noellesroles.id("tamer");
+    public static ResourceLocation HUNTER_ID = Noellesroles.id("hunter");
     public static ResourceLocation POISONER_ID = Noellesroles.id("poisoner");
     public static ResourceLocation SPELLBREAKER_ID = Noellesroles.id("spellbreaker");
 
@@ -1349,6 +1351,16 @@ public class ModRoles {
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), true))
             .setCanPickUpRevolver(true).setComponentKey(GamblerPlayerComponent.KEY).setNeutrals(true)
             .setDefaultMax(1).setHiddenForRoleRotation(true);
+    public static SRERole TAMER = TMMRoles
+            .registerRole(new NormalRole(TAMER_ID, new Color(210, 180, 140).getRGB(), true,
+                    false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setNeutrals(false).setCanSeeCoin(true)
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.HORSE).setDefaultMax(0).setCanBeRandomedByOtherRoles(false);
+    public static SRERole HUNTER = TMMRoles
+            .registerRole(new NormalRole(HUNTER_ID, new Color(160, 82, 45).getRGB(), false,
+                    true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setNeutrals(false).setCanSeeCoin(true)
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.HORSE).setDefaultMax(1).setCanBeRandomedByOtherRoles(false);
     public static SRERole POISONER = TMMRoles
             .registerRole(new NormalRole(POISONER_ID, (new Color(115, 0, 57)).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))

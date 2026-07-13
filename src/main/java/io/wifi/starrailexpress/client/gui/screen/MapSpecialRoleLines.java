@@ -36,7 +36,8 @@ public final class MapSpecialRoleLines {
             SRERole.SpecialMapRoleMap.MEETING,
             SRERole.SpecialMapRoleMap.MEETING_VOTE,
             SRERole.SpecialMapRoleMap.MINIGAME_QUEST,
-            SRERole.SpecialMapRoleMap.MAP_STATUS_BAR
+            SRERole.SpecialMapRoleMap.MAP_STATUS_BAR,
+            SRERole.SpecialMapRoleMap.HORSE
     };
 
     /**
@@ -48,15 +49,16 @@ public final class MapSpecialRoleLines {
      * @param underwaterMaps 水下地图集合
      * @param airMaps        天空地图集合
      * @param trapMaps       机关地图集合
+     * @param horseMaps      骑马地图集合
      * @param mapJson        当前地图的属性 JSON（用于判断地图属性类）
      * @return 每行一条 {@link Component}，无匹配时返回空列表
      */
     public static List<Component> build(String mapId,
             Set<String> bagMaps, Set<String> policeMaps, Set<String> underwaterMaps,
-            Set<String> airMaps, Set<String> trapMaps, JsonObject mapJson) {
+            Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, JsonObject mapJson) {
         List<Component> lines = new ArrayList<>();
         for (SRERole.SpecialMapRoleMap category : DISPLAY_ORDER) {
-            if (!isActive(category, mapId, bagMaps, policeMaps, underwaterMaps, airMaps, trapMaps, mapJson)) {
+            if (!isActive(category, mapId, bagMaps, policeMaps, underwaterMaps, airMaps, trapMaps, horseMaps, mapJson)) {
                 continue;
             }
             String names = gatherRoleNames(category);
@@ -70,13 +72,14 @@ public final class MapSpecialRoleLines {
 
     private static boolean isActive(SRERole.SpecialMapRoleMap category, String mapId,
             Set<String> bagMaps, Set<String> policeMaps, Set<String> underwaterMaps,
-            Set<String> airMaps, Set<String> trapMaps, JsonObject json) {
+            Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, JsonObject json) {
         return switch (category) {
             case QIYUCUN -> contains(bagMaps, mapId);
             case UNDERWATER -> contains(underwaterMaps, mapId);
             case BIGMAP -> contains(policeMaps, mapId);
             case FLY -> contains(airMaps, mapId);
             case TRAP -> contains(trapMaps, mapId);
+            case HORSE -> contains(horseMaps, mapId);
             case CAN_JUMP -> boolValue(json, "canJump", false);
             case MEETING -> meetingEnabled(json);
             case MEETING_VOTE -> meetingEnabled(json) && meetingVoteEnabled(json);

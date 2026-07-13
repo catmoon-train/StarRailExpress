@@ -214,6 +214,11 @@ public class NoellesRolesConfig implements ConfigData {
     public ArrayList<String> trapRolesMaps = new ArrayList<>(List.of("areas_shamo"));
 
     /**
+     * Areas that will spawn horse-riding roles (Tamer, Hunter)
+     */
+    public ArrayList<String> horseRolesMaps = new ArrayList<>(List.of("chaoshengzhilu"));
+
+    /**
      * Role - The chance of egg roles
      */
     @ConfigEntry.Category(value = "detail")
