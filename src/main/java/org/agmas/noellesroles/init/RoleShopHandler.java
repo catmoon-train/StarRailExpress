@@ -859,6 +859,41 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(ModRoles.GUARD.getIdentifier(), GUARD_SHOP);
         }
 
+        // 驯马师商店：随机彩虹马/残月萨马(各50%) - 100金币；前人留下的马铠 - 200金币；超级猪马蹄铁 - 200金币
+        {
+            var TAMER_SHOP = new java.util.ArrayList<ShopEntry>();
+            TAMER_SHOP.add(new ShopEntry(new ItemStack(Items.HORSE_SPAWN_EGG), 100, ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(Player player) {
+                    ItemStack horse = player.getRandom().nextBoolean()
+                            ? FunnyItems.RAINBOW_HORSESHOE.getDefaultInstance()
+                            : FunnyItems.CANYUESA_HORSESHOE.getDefaultInstance();
+                    return RoleUtils.insertStackInFreeSlot(player, horse);
+                }
+            });
+            TAMER_SHOP.add(new ShopEntry(ModItems.PREDECESSOR_HORSE_ARMOR.getDefaultInstance(), 200, ShopEntry.Type.TOOL));
+            TAMER_SHOP.add(new ShopEntry(FunnyItems.SUPER_PIG_HORSESHOE.getDefaultInstance(), 200, ShopEntry.Type.TOOL));
+            ShopContent.customEntries.put(ModRoles.TAMER.getIdentifier(), TAMER_SHOP);
+        }
+
+        // 猎人商店：随机马(40%彩虹/40%残月萨/20%超级猪) - 50金币；前人留下的马铠 - 185金币
+        {
+            var HUNTER_SHOP = new java.util.ArrayList<ShopEntry>();
+            HUNTER_SHOP.add(new ShopEntry(new ItemStack(Items.HORSE_SPAWN_EGG), 50, ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(Player player) {
+                    int r = player.getRandom().nextInt(100);
+                    ItemStack horse;
+                    if (r < 40) horse = FunnyItems.RAINBOW_HORSESHOE.getDefaultInstance();
+                    else if (r < 80) horse = FunnyItems.CANYUESA_HORSESHOE.getDefaultInstance();
+                    else horse = FunnyItems.SUPER_PIG_HORSESHOE.getDefaultInstance();
+                    return RoleUtils.insertStackInFreeSlot(player, horse);
+                }
+            });
+            HUNTER_SHOP.add(new ShopEntry(ModItems.PREDECESSOR_HORSE_ARMOR.getDefaultInstance(), 185, ShopEntry.Type.TOOL));
+            ShopContent.customEntries.put(ModRoles.HUNTER.getIdentifier(), HUNTER_SHOP);
+        }
+
         // 小偷商店（注释部分，保留）
         // ... (原THIEF_SHOP内容被注释，不影响)
 

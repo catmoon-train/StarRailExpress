@@ -297,6 +297,9 @@ public class InitModRolesMax {
 
         // 设置飞行员和影隼绑定生成
         RoleAssignmentManager.addOccupationRole(ModRoles.SHADOW_FALCON, ModRoles.PILOT);
+
+        // 设置猎人和驯马师绑定生成
+        RoleAssignmentManager.addOccupationRole(ModRoles.HUNTER, ModRoles.TAMER);
     }
 
     public static void registerDynamic() {
@@ -536,6 +539,7 @@ public class InitModRolesMax {
                 var areas = AreasWorldComponent.KEY.get(serverLevel);
                 yield areas != null && areas.areasSettings.mapStatusBar != MapStatusBarType.NONE;
             }
+            case HORSE -> config.horseRolesMaps.contains(currentMap);
         };
     }
 

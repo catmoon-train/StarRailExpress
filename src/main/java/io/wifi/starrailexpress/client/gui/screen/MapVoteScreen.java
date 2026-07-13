@@ -114,6 +114,7 @@ public class MapVoteScreen extends Screen {
     private final Set<String> underwaterMaps = new HashSet<>();
     private final Set<String> airMaps = new HashSet<>();
     private final Set<String> trapMaps = new HashSet<>();
+    private final Set<String> horseMaps = new HashSet<>();
     private boolean introDataReceived;
 
     private int listX;
@@ -158,11 +159,13 @@ public class MapVoteScreen extends Screen {
         underwaterMaps.clear();
         airMaps.clear();
         trapMaps.clear();
+        horseMaps.clear();
         bagMaps.addAll(payload.bagMaps());
         policeMaps.addAll(payload.policeMaps());
         underwaterMaps.addAll(payload.underwaterMaps());
         airMaps.addAll(payload.airMaps());
         trapMaps.addAll(payload.trapMaps());
+        horseMaps.addAll(payload.horseMaps());
         for (MapIntroSyncPayload.VoteMap map : payload.voteMaps()) {
             voteMaps.put(map.id(), map);
         }
@@ -281,7 +284,7 @@ public class MapVoteScreen extends Screen {
         // 特殊角色标记（按 setSpecialMapRole 动态生成）
         addSection("map_intro.section.special_roles", wrapW);
         List<Component> specialLines = MapSpecialRoleLines.build(id, bagMaps, policeMaps,
-                underwaterMaps, airMaps, trapMaps, mapJsons.get(id));
+                underwaterMaps, airMaps, trapMaps, horseMaps, mapJsons.get(id));
         if (specialLines.isEmpty()) {
             addLine(translate("map_intro.special.none").copy().withStyle(ChatFormatting.GRAY), wrapW);
         } else {
