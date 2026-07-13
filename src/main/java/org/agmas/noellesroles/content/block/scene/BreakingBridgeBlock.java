@@ -61,7 +61,7 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
     public static final MapCodec<BreakingBridgeBlock> CODEC = simpleCodec(BreakingBridgeBlock::new);
 
     // 防止形状递归锁（各线程独立）
-    private final ThreadLocal<Boolean> recursionLock = ThreadLocal.withInitial(() -> false);
+    protected final ThreadLocal<Boolean> recursionLock = ThreadLocal.withInitial(() -> false);
     // 防止红石传播递归锁（各线程独立）
     private static final ThreadLocal<Boolean> redstonePropagationLock = ThreadLocal.withInitial(() -> false);
 

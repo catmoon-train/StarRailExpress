@@ -83,6 +83,21 @@ public class FakeRenderBlock extends BreakingBridgeBlock {
             }
         }
         if (state.getValue(LIT)) {
+            if (recursionLock.get()) {
+                return Shapes.block();
+            }
+            recursionLock.set(true);
+            try {
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+                if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
+                    if (bbbe.displayState != null) {
+                        var t = bbbe.displayState.getShape(world, pos, context);
+                        return t;
+                    }
+                }
+            } finally {
+                recursionLock.set(false);
+            }
             return Shapes.block();
         }
         return Shapes.empty();
@@ -91,7 +106,22 @@ public class FakeRenderBlock extends BreakingBridgeBlock {
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         if (state.getValue(LIT)) {
-            return Shapes.block();
+            if (recursionLock.get()) {
+                return Shapes.block();
+            }
+            recursionLock.set(true);
+            try {
+                BlockEntity blockEntity = world.getBlockEntity(pos);
+                if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
+                    if (bbbe.displayState != null) {
+                        var t = bbbe.displayState.getCollisionShape(world, pos, context);
+                        return t;
+                    }
+                }
+                return Shapes.block();
+            } finally {
+                recursionLock.set(false);
+            }
         }
         return Shapes.empty();
     }
