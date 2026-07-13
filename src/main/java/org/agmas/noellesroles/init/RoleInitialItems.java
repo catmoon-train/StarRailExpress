@@ -325,6 +325,15 @@ public class RoleInitialItems {
         shadowFalconItems.add(() -> ModItems.JETPACK.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.SHADOW_FALCON, shadowFalconItems);
 
+        // 猎人初始物品 - 弓（不可破坏，附魔在HunterBowMixin中动态添加）
+        List<Supplier<ItemStack>> hunterItems = new ArrayList<>();
+        hunterItems.add(() -> {
+            ItemStack bow = Items.BOW.getDefaultInstance();
+            bow.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+            return bow;
+        });
+        INITIAL_ITEMS_MAP.put(ModRoles.HUNTER, hunterItems);
+
         // 大嗓门初始物品 - 对讲机
         List<Supplier<ItemStack>> noiseMakerItems = new ArrayList<>();
         noiseMakerItems.add(() -> ModItems.RADIO.getDefaultInstance());

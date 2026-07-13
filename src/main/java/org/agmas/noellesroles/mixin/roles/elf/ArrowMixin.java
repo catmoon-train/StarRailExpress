@@ -51,6 +51,13 @@ public class ArrowMixin {
                         isHit = true;
                         GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
                     }
+                    if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.HUNTER)) {
+                        isHit = true;
+                        GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
+                        // 猎人击杀处理：弓冷却 + 杀敌计数 + 每3杀奖励毒箭
+                        var hunterComp = org.agmas.noellesroles.component.ModComponents.HUNTER.get(serverPlayer);
+                        hunterComp.onKill();
+                    }
                 }
             }
         }

@@ -62,6 +62,7 @@ import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerCom
 import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.hunter.HunterPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
@@ -391,6 +392,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<ShadowFalconPlayerComponent> SHADOW_FALCON = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "shadow_falcon"),
       ShadowFalconPlayerComponent.class);
+
+  // 猎人组件 - 杀手阵营，弓击杀
+  public static final ComponentKey<HunterPlayerComponent> HUNTER = ComponentRegistry.getOrCreate(
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "hunter"),
+      HunterPlayerComponent.class);
 
   public static final ComponentKey<SpellbreakerPlayerComponent> SPELLBREAKER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "spellbreaker"),
@@ -846,6 +852,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, SHADOW_FALCON)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(ShadowFalconPlayerComponent::new);
+
+    // 注册猎人组件 - 存储杀敌计数
+    registry.beginRegistration(Player.class, HUNTER)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(HunterPlayerComponent::new);
 
     registry.beginRegistration(Player.class, SPELLBREAKER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)

@@ -43,6 +43,7 @@
     "roles.insanekiller.InsaneShopMixin",
     "roles.insanekiller.PlayerNoBoxMixin",
     "roles.insanekiller.ProjectileUtilMixin",
+    "roles.hunter.HunterBowMixin",
     "roles.jester.JesterItemEntityMixin",
     "roles.leather_pig.LeatherPigEyeHeightMixin",
     "roles.manipulator.PlayerControlMixin",

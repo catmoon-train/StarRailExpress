@@ -1360,7 +1360,8 @@ public class ModRoles {
             .registerRole(new NormalRole(HUNTER_ID, new Color(160, 82, 45).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setNeutrals(false).setCanSeeCoin(true)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.HORSE).setDefaultMax(1).setCanBeRandomedByOtherRoles(false);
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.HORSE).setDefaultMax(1).setCanBeRandomedByOtherRoles(false)
+            .setComponentKey(org.agmas.noellesroles.component.ModComponents.HUNTER);
     public static SRERole POISONER = TMMRoles
             .registerRole(new NormalRole(POISONER_ID, (new Color(115, 0, 57)).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))

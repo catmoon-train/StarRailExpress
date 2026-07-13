@@ -876,9 +876,10 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(ModRoles.TAMER.getIdentifier(), TAMER_SHOP);
         }
 
-        // 猎人商店：随机马(40%彩虹/40%残月萨/20%超级猪) - 50金币；前人留下的马铠 - 185金币
+        // 猎人商店：随机马(40%彩虹/40%残月萨/20%超级猪) - 50金币；前人留下的马铠 - 185金币；毒箭 - 90金币；关灯 - 配置价格；监控失灵 - 配置价格
         {
             var HUNTER_SHOP = new java.util.ArrayList<ShopEntry>();
+            // 原本的马匹相关商品
             HUNTER_SHOP.add(new ShopEntry(new ItemStack(Items.HORSE_SPAWN_EGG), 50, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(Player player) {
@@ -891,6 +892,43 @@ public class RoleShopHandler {
                 }
             });
             HUNTER_SHOP.add(new ShopEntry(ModItems.PREDECESSOR_HORSE_ARMOR.getDefaultInstance(), 185, ShopEntry.Type.TOOL));
+
+            // 毒箭 - 90金币，参考游侠毒箭模式
+            final var PoisonArrow = Items.TIPPED_ARROW.getDefaultInstance();
+            PoisonArrow.set(DataComponents.ITEM_NAME, Component.translatable("item.poison_arrow.name"));
+            PoisonArrow.set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.POISON));
+            PoisonArrow.set(DataComponents.MAX_STACK_SIZE, 1);
+
+            HUNTER_SHOP.add(new ShopEntry(PoisonArrow.copy(), 90, ShopEntry.Type.WEAPON) {
+                @Override
+                public boolean onBuy(Player player) {
+                    int itemCount = SREItemUtils.countItem(player, Items.TIPPED_ARROW);
+                    if (itemCount >= 2) {
+                        if (player instanceof ServerPlayer sp) {
+                            sp.sendSystemMessage(Component.translatable("message.noellesroles.shop.max_poison_arrow"), true);
+                        }
+                        return false;
+                    }
+                    return RoleUtils.insertStackInFreeSlot(player, PoisonArrow.copy());
+                }
+            });
+
+            // 关灯 - 配置价格
+            HUNTER_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(Player player) {
+                    return SREPlayerShopComponent.useBlackout(player);
+                }
+            });
+
+            // 监控失灵 - 配置价格
+            HUNTER_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), SREConfig.instance().monitorBrokenPrice, ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(Player player) {
+                    return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
+                }
+            });
+
             ShopContent.customEntries.put(ModRoles.HUNTER.getIdentifier(), HUNTER_SHOP);
         }
 
