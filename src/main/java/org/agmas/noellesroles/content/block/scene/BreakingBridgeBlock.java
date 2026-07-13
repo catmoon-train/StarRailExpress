@@ -153,7 +153,9 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
                 BlockEntity blockEntity = world.getBlockEntity(pos);
                 if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
                     if (bbbe.displayState != null) {
-                        return bbbe.displayState.getShape(world, pos, context);
+                        var t = bbbe.displayState.getShape(world, pos, context);
+                        if (t != Shapes.empty())
+                            return t;
                     }
                 }
             }
@@ -180,7 +182,9 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
                 BlockEntity blockEntity = blockGetter.getBlockEntity(blockPos);
                 if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
                     if (bbbe.displayState != null) {
-                        return bbbe.displayState.getCollisionShape(blockGetter, blockPos, context);
+                        var t = bbbe.displayState.getCollisionShape(blockGetter, blockPos, context);
+                        if (t != Shapes.empty())
+                            return t;
                     }
                 }
             }

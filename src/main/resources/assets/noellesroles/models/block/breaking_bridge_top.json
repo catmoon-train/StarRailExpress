@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "noellesroles:block/breaking_bridge",
+    "top": "noellesroles:block/breaking_bridge",
+    "side": "noellesroles:block/breaking_bridge"
+  }
+}
