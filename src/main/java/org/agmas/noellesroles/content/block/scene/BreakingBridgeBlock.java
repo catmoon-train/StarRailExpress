@@ -203,7 +203,8 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
             return super.useItemOn(itemStack, blockState, level, blockPos, player, interactionHand, blockHitResult);
         if (level.isClientSide)
             return ItemInteractionResult.SUCCESS;
-        if (itemStack.is(ModSceneBlocks.BREAKING_BRIDGE.asItem()))
+        if (itemStack.is(ModSceneBlocks.BREAKING_BRIDGE.asItem())
+                || itemStack.is(ModSceneBlocks.FAKE_BLOCK.asItem()))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!itemStack.isEmpty()) {
             var diState = getBlockStateFromItem(itemStack, blockState.getOptionalValue(TYPE));

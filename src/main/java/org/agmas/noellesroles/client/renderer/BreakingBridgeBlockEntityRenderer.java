@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import io.wifi.starrailexpress.SREClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -25,7 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class BreakingBridgeBlockEntityRenderer implements BlockEntityRenderer<BreakingBridgeBlockEntity> {
     private final BlockRenderDispatcher blockRenderer;
-    private static final double MAX_RENDER_DISTANCE_SQ = 8.0 * 8.0; // 16个方块的距离
+    private static final double MAX_RENDER_DISTANCE_SQ = 32.0 * 32.0; // 32个方块的距离
+    private static final double MAX_RENDER_DISTANCE_LQ = 16.0 * 16.0; // 16个方块的距离
 
     public BreakingBridgeBlockEntityRenderer(BlockEntityRendererProvider.@NotNull Context ctx) {
         ctx.getBlockEntityRenderDispatcher();
@@ -53,6 +55,9 @@ public class BreakingBridgeBlockEntityRenderer implements BlockEntityRenderer<Br
                 entity.getBlockPos().getZ() + 0.5);
 
         // 如果距离超过最大渲染距离，则不渲染
+        if (SREClientConfig.instance().ultraPerfMode) {
+            return distanceSq <= MAX_RENDER_DISTANCE_LQ;
+        }
         return distanceSq <= MAX_RENDER_DISTANCE_SQ;
     }
 
