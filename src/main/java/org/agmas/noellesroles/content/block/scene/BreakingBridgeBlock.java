@@ -9,6 +9,7 @@ import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlockItemStateProperties;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -33,7 +35,9 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -183,8 +187,14 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
                 if (blockEntity instanceof BreakingBridgeBlockEntity bbbe) {
                     if (bbbe.displayState != null) {
                         var t = bbbe.displayState.getCollisionShape(blockGetter, blockPos, context);
-                        if (t != Shapes.empty())
+                        if (t != Shapes.empty()) {
+                            if (t.max(Axis.Y) < 0.375) {
+                                // 小于这个值不会触发stepOn，大概
+                                var aabb = t.bounds();
+                                t = Shapes.box(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, 0.375, aabb.maxZ);
+                            }
                             return t;
+                        }
                     }
                 }
             }
@@ -260,7 +270,8 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
                 || itemStack.is(ModSceneBlocks.FAKE_BLOCK.asItem()))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!itemStack.isEmpty()) {
-            var diState = getBlockStateFromItem(itemStack, blockState.getOptionalValue(TYPE));
+            var diState = getBlockStateFromItem(player, interactionHand, blockHitResult, itemStack,
+                    blockState.getOptionalValue(TYPE));
             if (diState == null) {
                 return ItemInteractionResult.FAIL;
             }
@@ -309,7 +320,8 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
         return InteractionResult.PASS;
     }
 
-    public static BlockState getBlockStateFromItem(ItemStack stack, Optional<SlabType> slabType) {
+    public static BlockState getBlockStateFromItem(Player player, InteractionHand interactionHand,
+            BlockHitResult blockHitResult, ItemStack stack, Optional<SlabType> slabType) {
         if (stack.isEmpty() || !(stack.getItem() instanceof BlockItem blockItem)) {
             return null;
         }
@@ -319,6 +331,12 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
             for (var entry : tag.properties().entrySet()) {
                 String key = entry.getKey();
                 Property<?> property = state.getBlock().getStateDefinition().getProperty(key);
+                try {
+                    state = blockItem.getBlock()
+                            .getStateForPlacement(
+                                    new BlockPlaceContext(player, interactionHand, stack, blockHitResult));
+                } catch (Exception e) {
+                }
                 if (property != null) {
                     String value = entry.getValue();
                     state = setPropertyValue(state, property, value);
@@ -328,6 +346,11 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
             var slabTypeValue = slabType.orElse(null);
             if (state.hasProperty(TYPE)) {
                 state = state.setValue(TYPE, slabTypeValue);
+            }
+            if (state.hasProperty(BlockStateProperties.HALF)) {
+                if (slabTypeValue == SlabType.TOP) {
+                    state = state.setValue(BlockStateProperties.HALF, Half.TOP);
+                }
             }
         }
         return state;

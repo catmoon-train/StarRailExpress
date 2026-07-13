@@ -122,7 +122,8 @@ public class FakeRenderBlock extends BreakingBridgeBlock {
         if (itemStack.is(ModSceneBlocks.FAKE_BLOCK.asItem()) || itemStack.is(ModSceneBlocks.BREAKING_BRIDGE.asItem()))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!itemStack.isEmpty()) {
-            var diState = getBlockStateFromItem(itemStack, blockState.getOptionalValue(TYPE));
+            var diState = getBlockStateFromItem(player, interactionHand, blockHitResult, itemStack,
+                    blockState.getOptionalValue(TYPE));
             if (diState == null) {
                 return ItemInteractionResult.FAIL;
             }
