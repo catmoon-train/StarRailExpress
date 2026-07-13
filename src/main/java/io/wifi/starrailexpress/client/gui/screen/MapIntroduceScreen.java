@@ -70,6 +70,7 @@ public class MapIntroduceScreen extends Screen {
     private final Set<String> underwaterMaps = new HashSet<>();
     private final Set<String> airMaps = new HashSet<>();
     private final Set<String> trapMaps = new HashSet<>();
+    private final Set<String> horseMaps = new HashSet<>();
 
     private static final List<TabInfo> TABS = List.of(
             new TabInfo(Tab.MAP_PROPERTIES, "map_intro.tab.map_properties", 0xFF5EB7D8),
@@ -115,11 +116,13 @@ public class MapIntroduceScreen extends Screen {
         underwaterMaps.clear();
         airMaps.clear();
         trapMaps.clear();
+        horseMaps.clear();
         bagMaps.addAll(payload.bagMaps());
         policeMaps.addAll(payload.policeMaps());
         underwaterMaps.addAll(payload.underwaterMaps());
         airMaps.addAll(payload.airMaps());
         trapMaps.addAll(payload.trapMaps());
+        horseMaps.addAll(payload.horseMaps());
         for (MapIntroSyncPayload.VoteMap map : payload.voteMaps()) {
             if (map.id() != null && !map.id().isBlank()) {
                 voteMaps.put(map.id(), map);
@@ -288,7 +291,7 @@ public class MapIntroduceScreen extends Screen {
         }
         addSection("map_intro.section.special_roles", wrapW);
         List<Component> specialLines = MapSpecialRoleLines.build(map.id, bagMaps, policeMaps,
-                underwaterMaps, airMaps, trapMaps, map.json);
+                underwaterMaps, airMaps, trapMaps, horseMaps, map.json);
         if (specialLines.isEmpty()) {
             addWrapped(Component.translatable("map_intro.special.none").withStyle(ChatFormatting.GRAY), wrapW);
         } else {

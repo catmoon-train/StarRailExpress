@@ -225,6 +225,7 @@
   "text.autoconfig.noellesroles.option.swastMaps": "Maps where big-map roles spawn (e.g., Swat)",
   "text.autoconfig.noellesroles.option.underwaterRolesMaps": "Maps where underwater roles spawn (e.g., Sea King, Diver, Water Ghost)",
   "text.autoconfig.noellesroles.option.trapRolesMaps": "Maps where trap-map roles spawn (Adventurer)",
+  "text.autoconfig.noellesroles.option.horseRolesMaps": "Maps where horse-riding roles (Tamer, Hunter) spawn",
   "text.autoconfig.noellesroles.option.airRolesMaps": "Maps where flying roles spawn (e.g., Pilot, Shadow Falcon)",
   "text.autoconfig.noellesroles.option.cuckooMaps": "Cuckoo exclusive maps (leave empty for all maps, fills only spawns on specified maps)",
   "text.autoconfig.noellesroles.option.ghostMaps": "Ghost exclusive maps (leave empty for all maps, fills only spawns on specified maps)",

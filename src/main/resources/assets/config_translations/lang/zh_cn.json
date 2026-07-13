@@ -323,6 +323,7 @@
   "text.autoconfig.noellesroles.option.swastMaps": "会刷新在大图的角色（如特警）",
   "text.autoconfig.noellesroles.option.underwaterRolesMaps": "会刷新水下角色的地图（如海王、潜水员、水鬼）",
   "text.autoconfig.noellesroles.option.trapRolesMaps": "会刷机关地图角色的地图（冒险家）",
+  "text.autoconfig.noellesroles.option.horseRolesMaps": "会刷新骑马地图角色（驯马师、猎人）的地图",
   "text.autoconfig.noellesroles.option.airRolesMaps": "会刷新飞行角色的地图（如飞行员、影隼）",
   "text.autoconfig.noellesroles.option.cuckooMaps": "布谷鸟专属地图（空则不限制，填了则仅在指定地图刷新）",
   "text.autoconfig.noellesroles.option.ghostMaps": "小透明专属地图（空则不限制，填了则仅在指定地图刷新）",

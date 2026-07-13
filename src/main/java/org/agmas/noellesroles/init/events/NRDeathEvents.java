@@ -65,6 +65,7 @@ import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.role.ModRoles;
@@ -255,6 +256,44 @@ public class NRDeathEvents {
         if (!gameWorldComponent.isRole(victim, ModRoles.CAKE_MAKER))
             return;
         CakeMakerComponent.KEY.get(victim).onDeath();
+    }
+
+    /**
+     * 处理猎人死亡 - 给予其它杀手阵营（含杀手方中立）每人一匹随机的马（亡者赠礼）。
+     * 原 HunterRole.onDeath 逻辑迁移至此集中管理。
+     */
+    private static void handleHunterDeath(Player victim) {
+        if (victim == null || victim.level().isClientSide())
+            return;
+        if (!(victim instanceof ServerPlayer))
+            return;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+        if (!gameWorld.isRole(victim, ModRoles.HUNTER))
+            return;
+        for (Player p : victim.level().players()) {
+            if (p == victim)
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
+                continue;
+            if (!(p instanceof ServerPlayer sp))
+                continue;
+            SRERole role = gameWorld.getRole(p);
+            if (role != null && (role.canUseKiller() || role.isNeutralForKiller())) {
+                int r = victim.getRandom().nextInt(100);
+                ItemStack horse;
+                if (r < 40)
+                    horse = FunnyItems.RAINBOW_HORSESHOE.getDefaultInstance();
+                else if (r < 80)
+                    horse = FunnyItems.CANYUESA_HORSESHOE.getDefaultInstance();
+                else
+                    horse = FunnyItems.SUPER_PIG_HORSESHOE.getDefaultInstance();
+                RoleUtils.insertStackInFreeSlot(sp, horse);
+                sp.displayClientMessage(
+                        Component.translatable("message.noellesroles.hunter.horse_gifted", victim.getName())
+                                .withStyle(ChatFormatting.GOLD),
+                        true);
+            }
+        }
     }
 
     // ==================== 死亡惩罚 ====================
@@ -818,6 +857,7 @@ public class NRDeathEvents {
             handleDeathPenalty(victim);
             handleGlitchRobotDeath(victim);
             handleCakeMakerDeath(victim);
+            handleHunterDeath(victim);
         });
 
         // 实体交互方块 DEATH 条件触发（无击杀者场景：摔出列车等）

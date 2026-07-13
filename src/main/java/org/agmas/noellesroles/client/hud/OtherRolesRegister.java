@@ -72,6 +72,7 @@ public class OtherRolesRegister {
         VeteranHud.register();
         CakeMakerHud.register();
         LeonHud.register();
+        HunterHud.register();
         // 自定义职业HUD
         CustomRoleHud.register();
     }
