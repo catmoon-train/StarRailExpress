@@ -40,13 +40,13 @@ public class SuperPigHorseEntity extends Horse {
 
     public static AttributeSupplier.Builder createAttributes() {
         return createBaseHorseAttributes()
-                .add(Attributes.MAX_HEALTH, 9.0)
+                .add(Attributes.MAX_HEALTH, 12.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.315)
                 .add(Attributes.JUMP_STRENGTH, 0.8);
     }
 
     /** 基础生命上限（滴血）。装备前人留下的马铠后额外 +4 */
-    public static final double BASE_MAX_HEALTH = 9.0;
+    public static final double BASE_MAX_HEALTH = 12.0;
     /** 基础移动速度 */
     public static final double BASE_MOVEMENT_SPEED = 0.315;
 
