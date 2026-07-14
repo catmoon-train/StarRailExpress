@@ -11,6 +11,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 public class BreakingBridgeToolItem extends Item {
@@ -77,7 +78,10 @@ public class BreakingBridgeToolItem extends Item {
                 return InteractionResult.FAIL;
             }
             level.setBlockAndUpdate(pos, block.getStateForPlacement(new BlockPlaceContext(useOnContext))
-                    .setValue(BreakingBridgeBlock.TYPE, SlabType.DOUBLE));
+                    .setValue(BreakingBridgeBlock.TYPE,
+                            targetState.getOptionalValue(BreakingBridgeBlock.TYPE).orElse(SlabType.DOUBLE))
+                    .setValue(BlockStateProperties.WATERLOGGED,
+                            targetState.getOptionalValue(BlockStateProperties.WATERLOGGED).orElse(false)));
             if (level.getBlockEntity(pos) instanceof BreakingBridgeBlockEntity bbbe) {
                 bbbe.displayState = targetState;
                 bbbe.blockEntityTag = entityTag;
