@@ -19,7 +19,6 @@ import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 
 import org.agmas.noellesroles.content.block.scene.BreakingBridgeBlock;
 import org.agmas.noellesroles.content.block_entity.scene.BreakingBridgeBlockEntity;
@@ -102,14 +101,6 @@ public class BreakingBridgeBlockEntityRenderer implements BlockEntityRenderer<Br
                                         entity.getBlockPos(), matrices, vertexConsumers.getBuffer(renderType), false,
                                         RandomSource.create(), seed, OverlayTexture.NO_OVERLAY);
                         break;
-                }
-            }
-
-            {
-                FluidState fluidState = stateToRender.getFluidState();
-                if (fluidState != null && !fluidState.isEmpty()) {
-                    blockRenderer.renderLiquid(entity.getBlockPos(), entity.getLevel(),
-                            vertexConsumers.getBuffer(RenderType.waterMask()), blockState, fluidState);
                 }
             }
             {
