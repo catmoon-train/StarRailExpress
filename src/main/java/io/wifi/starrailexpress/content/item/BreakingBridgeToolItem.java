@@ -52,7 +52,7 @@ public class BreakingBridgeToolItem extends Item {
                     if (entity instanceof BreakingBridgeBlockEntity bbbe) {
                         if (bbbe.displayState != null) {
                             var originalTag = bbbe.blockEntityTag;
-                            level.setBlockAndUpdate(pos, bbbe.displayState);
+                            level.setBlock(pos, bbbe.displayState, Block.UPDATE_CLIENTS);
                             if (originalTag != null) {
                                 var newBlockEntity = level.getBlockEntity(pos);
                                 if (newBlockEntity != null) {
@@ -77,11 +77,12 @@ public class BreakingBridgeToolItem extends Item {
             if (targetState == null) {
                 return InteractionResult.FAIL;
             }
-            level.setBlockAndUpdate(pos, block.getStateForPlacement(new BlockPlaceContext(useOnContext))
+            level.setBlock(pos, block.getStateForPlacement(new BlockPlaceContext(useOnContext))
                     .setValue(BreakingBridgeBlock.TYPE,
                             targetState.getOptionalValue(BreakingBridgeBlock.TYPE).orElse(SlabType.DOUBLE))
                     .setValue(BlockStateProperties.WATERLOGGED,
-                            targetState.getOptionalValue(BlockStateProperties.WATERLOGGED).orElse(false)));
+                            targetState.getOptionalValue(BlockStateProperties.WATERLOGGED).orElse(false)),
+                    Block.UPDATE_CLIENTS);
             if (level.getBlockEntity(pos) instanceof BreakingBridgeBlockEntity bbbe) {
                 bbbe.displayState = targetState;
                 bbbe.blockEntityTag = entityTag;
