@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -55,13 +56,22 @@ public class SixtySecondsLootTable {
 
     /** 从某类别加权抽取一件物资；空/无效返回 {@link ItemStack#EMPTY}。 */
     public ItemStack roll(String category, RandomSource random) {
+        return roll(category, random, 1.0);
+    }
+
+    /**
+     * 带「稀有度压平」的加权抽取：有效权重 = {@code weight^exponent}（exponent∈(0,1]，
+     * 越小则低权重稀有条目相对越容易被抽中）。区域危险等级/Boss 掉落用
+     * {@code SixtySecondsAreaLevels.lootExponent} 算指数；exponent=1 与原行为一致。
+     */
+    public ItemStack roll(String category, RandomSource random, double exponent) {
         List<Entry> list = categories.get(category);
         if (list == null || list.isEmpty()) {
             return ItemStack.EMPTY;
         }
         double total = 0;
         for (Entry entry : list) {
-            total += Math.max(0, entry.weight);
+            total += entry.weight > 0 ? Math.pow(entry.weight, exponent) : 0;
         }
         if (total <= 0) {
             return ItemStack.EMPTY;
@@ -73,7 +83,7 @@ public class SixtySecondsLootTable {
             if (entry.weight <= 0) {
                 continue;
             }
-            cumulative += entry.weight;
+            cumulative += Math.pow(entry.weight, exponent);
             if (r < cumulative) {
                 return makeStack(entry);
             }
@@ -93,6 +103,10 @@ public class SixtySecondsLootTable {
             return ItemStack.EMPTY;
         }
         Item item = BuiltInRegistries.ITEM.get(rl);
+        // 未注册的 item（get 返回 AIR）也视为空，防止显示「空气」
+        if (item == Items.AIR && !entry.itemId.equals("minecraft:air")) {
+            return ItemStack.EMPTY;
+        }
         return new ItemStack(item, Math.max(1, entry.count));
     }
 

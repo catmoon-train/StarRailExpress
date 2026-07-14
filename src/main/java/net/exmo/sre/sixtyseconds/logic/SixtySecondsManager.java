@@ -215,7 +215,8 @@ public final class SixtySecondsManager {
                 SixtySecondsDailyEvents.tick(level);     // 每日事件门：抉择超时/探险结算
                 SixtySecondsMinigameRotation.tick(level);
                 SixtySecondsWhisperSystem.tick(level);   // 夜间黑暗处刷低语怪
-                SixtySecondsDefenseSystem.tick(level);   // 夜袭冲门/路障/陷阱
+                SixtySecondsDefenseSystem.tick(level);   // 夜袭冲门/路障
+                SixtySecondsPveSystem.tick(level);       // PVE：探索区游荡怪/Boss/哨戒炮/陷阱结算
                 SixtySecondsPowerSystem.tick(level);     // 发电机断电边沿
                 // 小游戏代币不再全队共享（SixtySecondsTokenShare 已移除）：
                 // SREPlayerMinigameTaskComponent.tokens 本就按玩家独立存储/同步

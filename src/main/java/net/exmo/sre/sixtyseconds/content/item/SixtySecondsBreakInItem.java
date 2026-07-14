@@ -51,9 +51,10 @@ public class SixtySecondsBreakInItem extends Item {
         if (!SixtySecondsMod.isActive(level)) {
             return InteractionResultHolder.pass(stack);
         }
-        // 打开选队界面（明确闯入目标）；不在此消耗——选定后 BreakInExecuteC2SPacket 回传，
-        // 由 SixtySecondsBreakIn.execute 按主手物品重校验并消耗
-        SixtySecondsBreakIn.openSelect(serverPlayer, alarms, tier);
+        // 不再远程开选队界面——闯入改走统一门菜单：在探索区对着别队的避难所门右键，
+        // 菜单里选「强闯/潜入」（SixtySecondsDoorMenu → SixtySecondsBreakIn.executeAtDoor）
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.sixty_seconds.breakin_use_on_door"), true);
         return InteractionResultHolder.success(stack);
     }
 

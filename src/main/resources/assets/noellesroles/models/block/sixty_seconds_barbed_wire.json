@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/pressure_plate_up",
+  "textures": {
+    "texture": "noellesroles:block/sixty_seconds_barbed_wire",
+    "particle": "noellesroles:block/sixty_seconds_barbed_wire"
+  }
+}

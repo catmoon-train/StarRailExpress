@@ -70,6 +70,13 @@ public final class SixtySecondsSearchZones {
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, EXPLORE_INVIS_TICKS, 0, false, false, true));
         // 区域地图切到本探索区；「家」点位=入口（回家的门所在）
         net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.send(player, box, spawn, false);
+        // 危险等级提示：等级越高稀有物越常见、但游荡怪更多更强（SixtySecondsAreaLevels/PveSystem）
+        int areaLevel = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.levelAt(level, safe);
+        player.displayClientMessage(Component
+                .translatable("message.noellesroles.sixty_seconds.area_level_enter", areaLevel)
+                .withStyle(areaLevel >= 4 ? net.minecraft.ChatFormatting.RED
+                        : areaLevel >= 2 ? net.minecraft.ChatFormatting.YELLOW
+                                : net.minecraft.ChatFormatting.GREEN), false);
     }
 
     /** 把玩家送回进入搜索区前的位置（受归来冷却限制：白天 45s / 晚上 5s）。 */
@@ -108,6 +115,12 @@ public final class SixtySecondsSearchZones {
 
     public static boolean isInSearchZone(ServerPlayer player) {
         return RETURNS.containsKey(player.getUUID());
+    }
+
+    /** 本次出门的探索区限制盒（PVE 游荡怪落点约束用）；不在探索区返回 null。 */
+    public static AABB confineBox(ServerPlayer player) {
+        ReturnPos pos = RETURNS.get(player.getUUID());
+        return pos == null ? null : pos.confineBox;
     }
 
     /** 本次出门的入口落点（探索区内、门口）；不在搜索区时返回 null。回家门校验用。 */

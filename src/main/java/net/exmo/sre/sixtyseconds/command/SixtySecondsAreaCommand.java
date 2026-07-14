@@ -64,6 +64,15 @@ public final class SixtySecondsAreaCommand {
                                                         .then(argument("z", IntegerArgumentType.integer())
                                                                 .executes(SixtySecondsAreaCommand::addExit)))))
                                 .then(literal("clear").executes(SixtySecondsAreaCommand::clearExits)))
+                        // 探索区危险等级：无坐标=设全局 searchzone；带坐标=设包含该点的门绑定探索区
+                        .then(literal("level")
+                                .then(argument("level", IntegerArgumentType.integer(1,
+                                        net.exmo.sre.sixtyseconds.SixtySecondsBalance.AREA_LEVEL_MAX))
+                                        .executes(SixtySecondsAreaCommand::setGlobalLevel)
+                                        .then(argument("x", IntegerArgumentType.integer())
+                                                .then(argument("y", IntegerArgumentType.integer())
+                                                        .then(argument("z", IntegerArgumentType.integer())
+                                                                .executes(SixtySecondsAreaCommand::setBindingLevel))))))
                         .then(literal("show").executes(SixtySecondsAreaCommand::show))));
     }
 
@@ -99,6 +108,54 @@ public final class SixtySecondsAreaCommand {
 
     private static SixtySecondsConfig load(ServerLevel level) {
         return SixtySecondsConfigStore.load(level).orElseGet(SixtySecondsConfig::new);
+    }
+
+    /** {@code level <n>}：设全局探索区危险等级（1..5，影响物资箱稀有度与游荡怪强度）。 */
+    private static int setGlobalLevel(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        int value = IntegerArgumentType.getInteger(ctx, "level");
+        SixtySecondsConfig cfg = load(level);
+        cfg.searchZoneLevel = value;
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] global searchzone danger level = " + value).withStyle(ChatFormatting.GREEN), true);
+        return value;
+    }
+
+    /** {@code level <n> <x y z>}：设包含该点的门绑定探索区的危险等级（0=继承全局）。 */
+    private static int setBindingLevel(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        int value = IntegerArgumentType.getInteger(ctx, "level");
+        int x = IntegerArgumentType.getInteger(ctx, "x");
+        int y = IntegerArgumentType.getInteger(ctx, "y");
+        int z = IntegerArgumentType.getInteger(ctx, "z");
+        SixtySecondsConfig cfg = load(level);
+        int matched = 0;
+        for (SixtySecondsConfig.DoorBinding binding : cfg.searchDoorBindings) {
+            if (binding.boxMin == null || binding.boxMax == null) {
+                continue;
+            }
+            if (x >= Math.min(binding.boxMin.x, binding.boxMax.x) && x <= Math.max(binding.boxMin.x, binding.boxMax.x)
+                    && y >= Math.min(binding.boxMin.y, binding.boxMax.y)
+                    && y <= Math.max(binding.boxMin.y, binding.boxMax.y)
+                    && z >= Math.min(binding.boxMin.z, binding.boxMax.z)
+                    && z <= Math.max(binding.boxMin.z, binding.boxMax.z)) {
+                binding.level = value;
+                matched++;
+            }
+        }
+        if (matched == 0) {
+            ctx.getSource().sendFailure(Component.literal(
+                    "[60s] no door-bound searchzone contains (" + x + "," + y + "," + z
+                            + "); use 'level <n>' for the global zone").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+        SixtySecondsConfigStore.save(level, cfg);
+        int count = matched;
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] danger level " + value + " set on " + count + " bound zone(s)")
+                .withStyle(ChatFormatting.GREEN), true);
+        return matched;
     }
 
     private static int setTemplate(CommandContext<CommandSourceStack> ctx) {

@@ -186,6 +186,16 @@ public class ShelterDoorScreen extends Screen {
                     : Component.translatable("gui.noellesroles.sixty_seconds.door_action.visit_chat_none");
             case SixtySecondsDoorMenu.ACTION_VISIT_LEAVE ->
                     Component.translatable("gui.noellesroles.sixty_seconds.door_action.visit_leave_desc");
+            case SixtySecondsDoorMenu.ACTION_BREAK_CROWBAR -> enabled
+                    ? Component.translatable("gui.noellesroles.sixty_seconds.door_action.break_crowbar_desc")
+                    : Component.translatable("gui.noellesroles.sixty_seconds.door_action.break_crowbar_none",
+                            option.param());
+            case SixtySecondsDoorMenu.ACTION_BREAK_LOCKPICK -> enabled
+                    ? Component.translatable("gui.noellesroles.sixty_seconds.door_action.break_lockpick_desc")
+                    : Component.translatable("gui.noellesroles.sixty_seconds.door_action.break_lockpick_none",
+                            option.param());
+            case SixtySecondsDoorMenu.ACTION_DOOR_INSPECT ->
+                    Component.translatable("gui.noellesroles.sixty_seconds.door_action.inspect_desc");
             default -> Component.empty();
         };
     }
@@ -200,6 +210,9 @@ public class ShelterDoorScreen extends Screen {
             case SixtySecondsDoorMenu.ACTION_VISIT_PROMPT -> "gui.noellesroles.sixty_seconds.door_action.visit_prompt";
             case SixtySecondsDoorMenu.ACTION_VISIT_CHAT -> "gui.noellesroles.sixty_seconds.door_action.visit_chat";
             case SixtySecondsDoorMenu.ACTION_VISIT_LEAVE -> "gui.noellesroles.sixty_seconds.door_action.visit_leave";
+            case SixtySecondsDoorMenu.ACTION_BREAK_CROWBAR -> "gui.noellesroles.sixty_seconds.door_action.break_crowbar";
+            case SixtySecondsDoorMenu.ACTION_BREAK_LOCKPICK -> "gui.noellesroles.sixty_seconds.door_action.break_lockpick";
+            case SixtySecondsDoorMenu.ACTION_DOOR_INSPECT -> "gui.noellesroles.sixty_seconds.door_action.inspect";
             default -> "gui.noellesroles.sixty_seconds.door_title";
         };
     }
@@ -214,6 +227,9 @@ public class ShelterDoorScreen extends Screen {
             case SixtySecondsDoorMenu.ACTION_VISIT_PROMPT -> GOLD;
             case SixtySecondsDoorMenu.ACTION_VISIT_CHAT -> BLUE;
             case SixtySecondsDoorMenu.ACTION_VISIT_LEAVE -> GREEN;
+            case SixtySecondsDoorMenu.ACTION_BREAK_CROWBAR -> RED;
+            case SixtySecondsDoorMenu.ACTION_BREAK_LOCKPICK -> PURPLE;
+            case SixtySecondsDoorMenu.ACTION_DOOR_INSPECT -> BLUE;
             default -> MUTED;
         };
     }

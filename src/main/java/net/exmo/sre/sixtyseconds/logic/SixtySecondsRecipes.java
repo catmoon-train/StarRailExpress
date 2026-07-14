@@ -204,6 +204,11 @@ public final class SixtySecondsRecipes {
         list.add(new Recipe("spike_trap", Station.WORKBENCH, "defense", false,
                 List.of(in(Items.IRON_INGOT, 3), in(Items.OAK_PLANKS, 2)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SPIKE_TRAP.asItem(), 1));
+        // 门陷阱：火药+引线（装家门上炸撬门贼，见 SixtySecondsDoorMenu）
+        list.add(new Recipe("door_trap", Station.WORKBENCH, "defense", false,
+                List.of(in(ModItems.SIXTY_SECONDS_GUNPOWDER_PACK, 2), in(ModItems.SIXTY_SECONDS_WIRE, 2),
+                        in(ModItems.SIXTY_SECONDS_SCRAP, 3)),
+                ModItems.SIXTY_SECONDS_DOOR_TRAP, 1));
         list.add(new Recipe("wrench", Station.WORKBENCH, "defense", false,
                 List.of(in(Items.IRON_INGOT, 3), in(ModItems.SIXTY_SECONDS_SCRAP, 3)),
                 ModItems.SIXTY_SECONDS_WRENCH, 1));
@@ -259,6 +264,10 @@ public final class SixtySecondsRecipes {
         list.add(new Recipe("lockpick3", Station.WORKBENCH, "locksmith", true,
                 List.of(in(Items.IRON_INGOT, 3), in(ModItems.SIXTY_SECONDS_SCRAP, 9)),
                 ModItems.SIXTY_SECONDS_LOCKPICK_MASTER, 1));
+        // 门锁：齿轮锁芯（装家门上提升撬锁难度，见 SixtySecondsDoorMenu）
+        list.add(new Recipe("door_lock", Station.WORKBENCH, "locksmith", false,
+                List.of(in(Items.IRON_INGOT, 2), in(ModItems.SIXTY_SECONDS_GEAR, 1)),
+                ModItems.SIXTY_SECONDS_DOOR_LOCK, 1));
         // ── 厨房灶台（kitchen）：破布+酒精 → 消毒绷带 / 简易熟食 ─────────
         list.add(new Recipe("bandage", Station.STOVE, "kitchen", false,
                 List.of(in(ModItems.SIXTY_SECONDS_RAG, 2), in(ModItems.SIXTY_SECONDS_ALCOHOL, 2)),
@@ -285,6 +294,10 @@ public final class SixtySecondsRecipes {
         list.add(new Recipe("rope", Station.WORKBENCH, "basic_tools", false,
                 List.of(in(ModItems.SIXTY_SECONDS_RAG, 3), in(ModItems.SIXTY_SECONDS_DUCT_TAPE, 2)),
                 ModItems.SIXTY_SECONDS_ROPE, 1));
+        // 雨伞：布卷撑骨架（污雨天户外持伞免额外污染，见 SixtySecondsEventSystem）
+        list.add(new Recipe("umbrella", Station.WORKBENCH, "basic_tools", false,
+                List.of(in(ModItems.SIXTY_SECONDS_CLOTH_ROLL, 1), in(Items.IRON_INGOT, 2)),
+                ModItems.SIXTY_SECONDS_UMBRELLA, 1));
         list.add(new Recipe("cloth_roll", Station.WORKBENCH, "basic_tools", false,
                 List.of(in(ModItems.SIXTY_SECONDS_RAG, 5)),
                 ModItems.SIXTY_SECONDS_CLOTH_ROLL, 1));
@@ -322,8 +335,14 @@ public final class SixtySecondsRecipes {
                 List.of(in(ModItems.SIXTY_SECONDS_JERKY, 2), in(ModItems.SIXTY_SECONDS_CHEMICALS, 2)),
                 ModItems.SIXTY_SECONDS_LURE, 1));
         list.add(new Recipe("toolbox_item", Station.WORKBENCH, "survival", false,
-                List.of(in(Items.IRON_INGOT, 5), in(Items.OAK_PLANKS, 3)),
+                List.of(in(Items.IRON_INGOT, 3), in(Items.OAK_PLANKS, 3),
+                        in(ModItems.SIXTY_SECONDS_GEAR, 1)),
                 ModItems.SIXTY_SECONDS_TOOLBOX, 1));
+        // 钩锁：绳子+齿轮卷扬机构（荡索位移，见 SixtySecondsGrapplingHookItem）
+        list.add(new Recipe("grappling_hook", Station.WORKBENCH, "survival", false,
+                List.of(in(ModItems.SIXTY_SECONDS_ROPE, 1), in(Items.IRON_INGOT, 3),
+                        in(ModItems.SIXTY_SECONDS_GEAR, 1)),
+                ModItems.SIXTY_SECONDS_GRAPPLING_HOOK, 1));
         // ── 医疗（medicine，灶台）──────────────────────────────────
         list.add(new Recipe("sedative", Station.STOVE, "medicine", false,
                 List.of(in(ModItems.SIXTY_SECONDS_CHEMICALS, 2), in(ModItems.SIXTY_SECONDS_ALCOHOL, 2)),
@@ -436,6 +455,9 @@ public final class SixtySecondsRecipes {
         list.add(new Recipe("steel_sword", Station.WORKBENCH, "metallurgy", false,
                 List.of(in(ModItems.SIXTY_SECONDS_STEEL_INGOT, 3), in(Items.OAK_PLANKS, 2)),
                 ModItems.SIXTY_SECONDS_STEEL_SWORD, 1));
+        list.add(new Recipe("steel_spear", Station.WORKBENCH, "metallurgy", false,
+                List.of(in(ModItems.SIXTY_SECONDS_STEEL_INGOT, 2), in(Items.OAK_PLANKS, 3)),
+                ModItems.SIXTY_SECONDS_STEEL_SPEAR, 1));
         list.add(new Recipe("steel_helmet", Station.WORKBENCH, "metallurgy", false,
                 List.of(in(ModItems.SIXTY_SECONDS_STEEL_INGOT, 5)),
                 ModItems.SIXTY_SECONDS_STEEL_HELMET, 1));
@@ -525,6 +547,10 @@ public final class SixtySecondsRecipes {
         list.add(new Recipe("reinforced_barricade", Station.WORKBENCH, "fortification", false,
                 List.of(in(Items.IRON_INGOT, 3), in(Items.OAK_PLANKS, 5), in(ModItems.SIXTY_SECONDS_NAILS, 6)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_REINFORCED_BARRICADE.asItem(), 1));
+        // 铁丝网：廉价版尖刺陷阱（减速为主、伤害低，电线+钉子）
+        list.add(new Recipe("barbed_wire", Station.WORKBENCH, "fortification", false,
+                List.of(in(ModItems.SIXTY_SECONDS_WIRE, 4), in(ModItems.SIXTY_SECONDS_NAILS, 2)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_BARBED_WIRE.asItem(), 2));
         list.add(new Recipe("floodlight", Station.WORKBENCH, "fortification", true,
                 List.of(in(ModItems.SIXTY_SECONDS_BATTERY, 2), in(ModItems.SIXTY_SECONDS_GLASS_SHARD, 3),
                         in(Items.IRON_INGOT, 2), in(ModItems.SIXTY_SECONDS_WIRE, 2)),

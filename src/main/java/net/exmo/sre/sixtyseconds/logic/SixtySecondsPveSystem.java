@@ -1,0 +1,537 @@
+package net.exmo.sre.sixtyseconds.logic;
+
+import io.wifi.starrailexpress.game.GameUtils;
+import net.exmo.sre.sixtyseconds.SixtySecondsBalance;
+import net.exmo.sre.sixtyseconds.SixtySecondsDayCycle;
+import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
+import net.exmo.sre.sixtyseconds.entity.SixtySecondsBossEntity;
+import net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity;
+import net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant;
+import net.exmo.sre.sixtyseconds.loot.SixtySecondsLootStore;
+import net.exmo.sre.sixtyseconds.loot.SixtySecondsLootTable;
+import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.WeakHashMap;
+
+/**
+ * 60s PVE 总控（自研怪物生态，与家门攻防 {@link SixtySecondsDefenseSystem} 互补）：
+ * <ul>
+ *   <li><b>探索区游荡怪</b>：探索区内的玩家周围按概率刷小股怪（强度/数量随天数与区域危险等级），
+ *       刷新时对附近玩家 actionbar + 音效预警；</li>
+ *   <li><b>Boss 尸潮领主</b>：每晚开始按概率（第 3/5/7 天保底）在探索区刷 Boss——
+ *       等级随天数/区域等级，刷新/击杀全服播报，死亡掉落丰厚物资（见 {@link #onBossDied}）；</li>
+ *   <li><b>哨戒炮</b>：通电时自动射击范围内的怪与<b>敌队</b>玩家（{@link #tickTurrets}）；</li>
+ *   <li><b>陷阱对玩家</b>：尖刺/铁丝网对<b>敌队</b>玩家同样生效（{@link #tickTraps}，对怪的结算也在这里统一做，
+ *       覆盖夜袭怪之外的游荡怪）。</li>
+ * </ul>
+ * 开关：按图配置 {@code pveEnabled}（默认开），{@code /sre:60s pve on|off} 切换。
+ * 全部怪物为 {@link SixtySecondsMonsterEntity} 自研实体：和平难度不被清、可正常攻击玩家。
+ */
+public final class SixtySecondsPveSystem {
+
+    /** level → 当前 Boss UUID（同一时间最多一只）。 */
+    private static final Map<ServerLevel, UUID> ACTIVE_BOSS = new WeakHashMap<>();
+    /** level → (哨戒炮位置 → 状态)。 */
+    private static final Map<ServerLevel, Map<BlockPos, Turret>> TURRETS = new WeakHashMap<>();
+    /** level → 上次游荡怪刷新判定 tick。 */
+    private static final Map<ServerLevel, Long> LAST_AMBIENT_CHECK = new WeakHashMap<>();
+    /** 已保底刷过 Boss 的游戏日（防跨晚重复保底）。 */
+    private static final Map<ServerLevel, Integer> LAST_BOSS_DAY = new WeakHashMap<>();
+
+    private static final class Turret {
+        final int teamId;
+        long nextFireTick = 0;
+
+        Turret(int teamId) {
+            this.teamId = teamId;
+        }
+    }
+
+    private SixtySecondsPveSystem() {
+    }
+
+    /** init 注册一次：游荡怪（非夜袭 tag、非 Boss）死亡掉 1~2 废料（与夜袭掉落一致的打怪奖励闭环）。 */
+    public static void register() {
+        net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AFTER_DEATH.register(
+                (entity, damageSource) -> {
+                    if (!(entity.level() instanceof ServerLevel level)
+                            || !(entity instanceof SixtySecondsMonsterEntity)
+                            || entity instanceof SixtySecondsBossEntity
+                            || entity.getTags().contains(SixtySecondsDefenseSystem.ASSAULT_TAG)) {
+                        return; // 夜袭怪掉落由 DefenseSystem 负责；Boss 掉落见 onBossDied
+                    }
+                    int count = 1 + level.getRandom().nextInt(2);
+                    ItemEntity drop = new ItemEntity(level, entity.getX(), entity.getY() + 0.3D, entity.getZ(),
+                            new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP, count));
+                    drop.setDefaultPickUpDelay();
+                    level.addFreshEntity(drop);
+                });
+    }
+
+    // ── 注册（哨戒炮方块放置/拆除时调用）─────────────────────────────────
+    public static void registerTurret(ServerLevel level, BlockPos pos, int teamId) {
+        TURRETS.computeIfAbsent(level, ignored -> new HashMap<>()).put(pos.immutable(), new Turret(teamId));
+    }
+
+    public static void unregisterTurret(ServerLevel level, BlockPos pos) {
+        Map<BlockPos, Turret> turrets = TURRETS.get(level);
+        if (turrets != null) {
+            turrets.remove(pos);
+        }
+    }
+
+    /** 按图配置 PVE 开关（默认开：游荡怪 + Boss）。 */
+    public static boolean pveEnabled(ServerLevel level) {
+        return net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .map(config -> config.pveEnabled).orElse(true);
+    }
+
+    // ── 主 tick（SixtySecondsManager DAY 相位每 tick 调）───────────────────
+    public static void tick(ServerLevel level) {
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        long now = level.getGameTime();
+        if (now % 20 == 0) {
+            tickTraps(level, data);
+            tickTurrets(level, data, now);
+        }
+        if (!pveEnabled(level)) {
+            return;
+        }
+        // 游荡怪：每 AMBIENT_CHECK_INTERVAL 对探索区里的每名玩家做一次刷新判定
+        long lastCheck = LAST_AMBIENT_CHECK.getOrDefault(level, 0L);
+        if (now - lastCheck >= SixtySecondsBalance.AMBIENT_CHECK_INTERVAL) {
+            LAST_AMBIENT_CHECK.put(level, now);
+            tickAmbientSpawns(level, data);
+        }
+        // Boss：夜晚首 tick 判定（概率 + 第 3/5/7 天保底）
+        long elapsed = SixtySecondsDayCycle.elapsed(data, now);
+        if (SixtySecondsDayCycle.isNight(data, now)
+                && elapsed == SixtySecondsDayCycle.startOf(SixtySecondsDayCycle.SubPhase.NIGHT)) {
+            tryNightBoss(level, data);
+        }
+    }
+
+    // ── 探索区游荡怪 ──────────────────────────────────────────────────────
+    private static void tickAmbientSpawns(ServerLevel level, SixtySecondsState.Data data) {
+        for (ServerPlayer player : level.players()) {
+            if (!SixtySecondsSearchZones.isInSearchZone(player)
+                    || !SixtySecondsMonsterEntity.isValidPrey(player)) {
+                continue;
+            }
+            int areaLevel = SixtySecondsAreaLevels.levelAt(level, player.blockPosition());
+            double chance = SixtySecondsBalance.AMBIENT_SPAWN_CHANCE
+                    + SixtySecondsBalance.AMBIENT_SPAWN_CHANCE_PER_AREA_LEVEL * (areaLevel - 1);
+            if (SixtySecondsDayCycle.isNight(data, level.getGameTime())) {
+                chance *= SixtySecondsBalance.AMBIENT_NIGHT_CHANCE_MULT;
+            }
+            if (level.random.nextDouble() >= chance) {
+                continue;
+            }
+            // 附近怪已达上限则不再刷（防怪海）
+            int cap = SixtySecondsBalance.AMBIENT_MAX_NEARBY + areaLevel;
+            List<SixtySecondsMonsterEntity> near = level.getEntitiesOfClass(SixtySecondsMonsterEntity.class,
+                    player.getBoundingBox().inflate(40), Entity::isAlive);
+            if (near.size() >= cap) {
+                continue;
+            }
+            AABB zone = SixtySecondsSearchZones.confineBox(player);
+            int packSize = 1 + level.random.nextInt(1 + (areaLevel + 1) / 2)
+                    + (data.dayNumber >= 4 ? 1 : 0);
+            packSize = Math.min(packSize, cap - near.size());
+            int spawned = 0;
+            for (int i = 0; i < packSize; i++) {
+                BlockPos spot = findSpawnSpot(level, player.blockPosition(),
+                        SixtySecondsBalance.AMBIENT_SPAWN_MIN_DIST,
+                        SixtySecondsBalance.AMBIENT_SPAWN_RAND_DIST, 5, 24, zone, data);
+                if (spot == null) {
+                    continue;
+                }
+                Variant variant = rollAmbientVariant(level, data.dayNumber, areaLevel);
+                SixtySecondsMonsterEntity mob = createMonster(level, spot, variant,
+                        1.0 + SixtySecondsBalance.AMBIENT_HEALTH_PER_AREA_LEVEL * (areaLevel - 1), 1.0);
+                if (mob != null) {
+                    spawned++;
+                }
+            }
+            if (spawned > 0) {
+                alertNearby(level, player.blockPosition(), 28, Component
+                        .translatable("message.noellesroles.sixty_seconds.pve_ambient_warn", spawned)
+                        .withStyle(ChatFormatting.RED));
+            }
+        }
+    }
+
+    /** 游荡怪变体权重：天数/区域等级越高，奔跑者/吐酸者/重锤兽占比越大。 */
+    private static Variant rollAmbientVariant(ServerLevel level, int day, int areaLevel) {
+        float danger = (day + areaLevel) / 12.0F; // 0.16(第1天1级) → 1.0(第7天5级)
+        float r = level.random.nextFloat();
+        if (r < 0.10F + danger * 0.15F) {
+            return Variant.BRUTE;
+        }
+        if (r < 0.30F + danger * 0.25F) {
+            return level.random.nextBoolean() ? Variant.RUNNER : Variant.SPITTER;
+        }
+        return Variant.SHAMBLER;
+    }
+
+    /** 造一只自研怪（变体装配 + 加入世界）；失败返回 null。供本系统/夜袭/召唤哨复用。 */
+    public static SixtySecondsMonsterEntity createMonster(ServerLevel level, BlockPos spawn, Variant variant,
+            double healthMult, double speedMult) {
+        SixtySecondsMonsterEntity mob = org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_MONSTER.create(level);
+        if (mob == null) {
+            return null;
+        }
+        mob.setPos(spawn.getX() + 0.5D, spawn.getY(), spawn.getZ() + 0.5D);
+        mob.applyVariant(variant, healthMult, speedMult);
+        level.addFreshEntity(mob);
+        return mob;
+    }
+
+    /** Boss 召唤小怪（也供 Boss 实体调用）：在锚点周围 2~6 格找落点。 */
+    public static void spawnMinion(ServerLevel level, BlockPos around, Variant variant) {
+        BlockPos spot = findSpawnSpot(level, around, 2, 5, 3, 12, null, null);
+        if (spot == null) {
+            spot = around;
+        }
+        createMonster(level, spot, variant, 1.0, 1.0);
+    }
+
+    // ── Boss ─────────────────────────────────────────────────────────────
+    private static void tryNightBoss(ServerLevel level, SixtySecondsState.Data data) {
+        if (LAST_BOSS_DAY.getOrDefault(level, 0) >= data.dayNumber) {
+            return;
+        }
+        UUID activeBoss = ACTIVE_BOSS.get(level);
+        if (activeBoss != null && level.getEntity(activeBoss) instanceof SixtySecondsBossEntity boss
+                && boss.isAlive()) {
+            return; // 上一只还活着
+        }
+        boolean guaranteed = data.dayNumber == 3 || data.dayNumber == 5 || data.dayNumber == 7;
+        double chance = SixtySecondsBalance.BOSS_NIGHT_CHANCE
+                + SixtySecondsBalance.BOSS_NIGHT_CHANCE_PER_DAY * data.dayNumber;
+        if (!guaranteed && level.random.nextDouble() >= chance) {
+            return;
+        }
+        // 落点：随机一个有锚点的队伍的探索区门外远处（20~36 格）；找不到落点则放弃本晚
+        List<SixtySecondsState.TeamData> candidates = new ArrayList<>();
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            if (SixtySecondsDefenseSystem.assaultAnchor(team) != null) {
+                candidates.add(team);
+            }
+        }
+        if (candidates.isEmpty()) {
+            return;
+        }
+        SixtySecondsState.TeamData team = candidates.get(level.random.nextInt(candidates.size()));
+        BlockPos anchor = SixtySecondsDefenseSystem.assaultAnchor(team);
+        BlockPos spot = findSpawnSpot(level, anchor, 20, 17, 6, 32, team.searchZoneBox, data);
+        if (spot == null) {
+            spot = findSpawnSpot(level, anchor, 8, 8, 4, 16, team.searchZoneBox, data);
+        }
+        if (spot == null) {
+            return;
+        }
+        int areaLevel = SixtySecondsAreaLevels.levelAt(level, spot);
+        int bossLevel = Mth.clamp((data.dayNumber + 1) / 2 + (areaLevel - 1) / 2, 1,
+                SixtySecondsBalance.BOSS_MAX_LEVEL);
+        spawnBoss(level, spot, bossLevel);
+        LAST_BOSS_DAY.put(level, data.dayNumber);
+    }
+
+    /** 生成 Boss（夜晚判定/管理指令 {@code /sre:60s boss} 共用）：全服播报坐标 + 音效。 */
+    public static SixtySecondsBossEntity spawnBoss(ServerLevel level, BlockPos pos, int bossLevel) {
+        SixtySecondsBossEntity boss = org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_BOSS.create(level);
+        if (boss == null) {
+            return null;
+        }
+        boss.setPos(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
+        boss.applyBossLevel(bossLevel);
+        level.addFreshEntity(boss);
+        ACTIVE_BOSS.put(level, boss.getUUID());
+        Component message = Component.translatable("message.noellesroles.sixty_seconds.boss_spawned",
+                bossLevel, pos.getX(), pos.getY(), pos.getZ()).withStyle(ChatFormatting.DARK_RED);
+        for (ServerPlayer player : level.players()) {
+            player.displayClientMessage(message, false);
+            player.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 0.7F, 0.75F);
+        }
+        return boss;
+    }
+
+    /**
+     * Boss 死亡结算（Boss 实体 die 时回调）：全服播报（含击杀者）+ 丰厚掉落——
+     * 按等级掷 {@code BOSS_LOOT_ROLLS_BASE + 每级加成} 件（高价值类别权重更高、按等级压平稀有度），
+     * 外加保底废料与概率图纸。
+     */
+    public static void onBossDied(ServerLevel level, SixtySecondsBossEntity boss, DamageSource source) {
+        ACTIVE_BOSS.remove(level);
+        String killer = source != null && source.getEntity() instanceof ServerPlayer player
+                ? player.getGameProfile().getName() : null;
+        Component message = killer == null
+                ? Component.translatable("message.noellesroles.sixty_seconds.boss_died", boss.bossLevel())
+                        .withStyle(ChatFormatting.GOLD)
+                : Component.translatable("message.noellesroles.sixty_seconds.boss_killed",
+                        boss.bossLevel(), killer).withStyle(ChatFormatting.GOLD);
+        for (ServerPlayer player : level.players()) {
+            player.displayClientMessage(message, false);
+            player.playNotifySound(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.6F, 1.0F);
+        }
+        // 掉落：加权类别 × N 件（等级越高件数越多、稀有物越容易）
+        SixtySecondsLootTable table = SixtySecondsLootStore.get(level);
+        int lvl = boss.bossLevel();
+        int rolls = SixtySecondsBalance.BOSS_LOOT_ROLLS_BASE + SixtySecondsBalance.BOSS_LOOT_ROLLS_PER_LEVEL * lvl;
+        double exponent = SixtySecondsAreaLevels.lootExponent(Math.min(lvl + 1,
+                SixtySecondsBalance.AREA_LEVEL_MAX));
+        String[] pool = { "airdrop", "airdrop", "airdrop", "weapon", "medicine", "material", "food", "water" };
+        for (int i = 0; i < rolls; i++) {
+            String category = pool[level.random.nextInt(pool.length)];
+            ItemStack stack = table.roll(category, level.random, exponent);
+            if (!stack.isEmpty()) {
+                dropAt(level, boss, stack);
+            }
+        }
+        dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP,
+                SixtySecondsBalance.BOSS_SCRAP_BASE + SixtySecondsBalance.BOSS_SCRAP_PER_LEVEL * lvl));
+        if (level.random.nextFloat() < 0.25F + 0.1F * lvl) {
+            dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BLUEPRINT));
+        }
+    }
+
+    private static void dropAt(ServerLevel level, LivingEntity source, ItemStack stack) {
+        double angle = level.random.nextDouble() * Math.PI * 2;
+        double dist = level.random.nextDouble() * 1.5;
+        ItemEntity drop = new ItemEntity(level,
+                source.getX() + Math.cos(angle) * dist, source.getY() + 0.5, source.getZ() + Math.sin(angle) * dist,
+                stack);
+        drop.setDefaultPickUpDelay();
+        level.addFreshEntity(drop);
+    }
+
+    // ── 哨戒炮：通电时自动射击范围内的怪 / 敌队玩家 ───────────────────────────
+    private static void tickTurrets(ServerLevel level, SixtySecondsState.Data data, long now) {
+        Map<BlockPos, Turret> turrets = TURRETS.get(level);
+        if (turrets == null || turrets.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<BlockPos, Turret> entry : turrets.entrySet()) {
+            Turret turret = entry.getValue();
+            if (now < turret.nextFireTick) {
+                continue;
+            }
+            SixtySecondsState.TeamData team = data.teams.get(turret.teamId);
+            if (team == null || team.powerEndTick <= now) {
+                continue; // 需供电（发电机烧燃料）
+            }
+            BlockPos pos = entry.getKey();
+            Vec3 muzzle = Vec3.atCenterOf(pos).add(0, 0.6, 0);
+            LivingEntity target = pickTurretTarget(level, turret, pos, muzzle);
+            if (target == null) {
+                continue;
+            }
+            turret.nextFireTick = now + SixtySecondsBalance.TURRET_COOLDOWN_TICKS;
+            fireTurret(level, muzzle, target, turret);
+        }
+    }
+
+    /** 目标优先级：最近的 60s 怪（含 Boss/低语怪/旧夜袭 tag）→ 最近的敌队玩家。 */
+    private static LivingEntity pickTurretTarget(ServerLevel level, Turret turret, BlockPos pos, Vec3 muzzle) {
+        double range = SixtySecondsBalance.TURRET_RANGE;
+        AABB box = new AABB(pos).inflate(range);
+        LivingEntity best = null;
+        double bestDist = range * range;
+        for (Mob mob : level.getEntitiesOfClass(Mob.class, box, m -> m.isAlive()
+                && (m instanceof SixtySecondsMonsterEntity
+                        || m.getTags().contains(SixtySecondsDefenseSystem.ASSAULT_TAG)
+                        || m.getTags().contains(SixtySecondsWhisperSystem.WHISPER_TAG)))) {
+            double dist = mob.distanceToSqr(muzzle.x, muzzle.y, muzzle.z);
+            if (dist <= bestDist && hasLineOfSight(level, muzzle, mob)) {
+                bestDist = dist;
+                best = mob;
+            }
+        }
+        if (best != null) {
+            return best;
+        }
+        for (ServerPlayer player : level.players()) {
+            if (!SixtySecondsMonsterEntity.isValidPrey(player)) {
+                continue;
+            }
+            SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+            if (stats.teamId < 0 || stats.teamId == turret.teamId) {
+                continue; // 只打敌队；无队伍（旁观等）不打
+            }
+            double dist = player.distanceToSqr(muzzle.x, muzzle.y, muzzle.z);
+            if (dist <= bestDist && hasLineOfSight(level, muzzle, player)) {
+                bestDist = dist;
+                best = player;
+            }
+        }
+        return best;
+    }
+
+    private static boolean hasLineOfSight(ServerLevel level, Vec3 from, LivingEntity target) {
+        Vec3 to = target.getEyePosition();
+        HitResult hit = level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, target));
+        return hit.getType() == HitResult.Type.MISS
+                || hit.getLocation().distanceToSqr(to) < 1.0;
+    }
+
+    private static void fireTurret(ServerLevel level, Vec3 muzzle, LivingEntity target, Turret turret) {
+        // 弹迹粒子 + 射击音
+        Vec3 to = target.getEyePosition();
+        Vec3 delta = to.subtract(muzzle);
+        int steps = Math.max(2, (int) (delta.length() * 2));
+        for (int i = 0; i <= steps; i++) {
+            Vec3 point = muzzle.add(delta.scale(i / (double) steps));
+            level.sendParticles(net.minecraft.core.particles.ParticleTypes.CRIT,
+                    point.x, point.y, point.z, 1, 0, 0, 0, 0);
+        }
+        level.playSound(null, muzzle.x, muzzle.y, muzzle.z, SoundEvents.DISPENSER_LAUNCH,
+                SoundSource.BLOCKS, 0.7F, 1.5F);
+        if (target instanceof ServerPlayer player) {
+            SixtySecondsHealthSystem.applyInjury(player, null, SixtySecondsBalance.TURRET_PLAYER_INJURY);
+        } else {
+            target.hurt(level.damageSources().generic(), SixtySecondsBalance.TURRET_MOB_DAMAGE);
+        }
+    }
+
+    // ── 陷阱（尖刺/铁丝网）统一每秒结算：怪（含游荡怪）+ 敌队玩家 ─────────────────
+    private static void tickTraps(ServerLevel level, SixtySecondsState.Data data) {
+        Map<BlockPos, Float> traps = SixtySecondsDefenseSystem.traps(level);
+        if (traps.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<BlockPos, Float> entry : traps.entrySet()) {
+            BlockPos pos = entry.getKey();
+            float damage = entry.getValue();
+            int ownerTeam = SixtySecondsDefenseSystem.trapOwner(level, pos);
+            AABB box = new AABB(pos);
+            for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, box.inflate(0.1),
+                    LivingEntity::isAlive)) {
+                if (entity instanceof ServerPlayer player) {
+                    // 对玩家：只伤敌队（放置队友免疫；未注册归属的模板陷阱伤所有非本队=-1 恒不匹配也生效）
+                    if (!SixtySecondsMonsterEntity.isValidPrey(player)) {
+                        continue;
+                    }
+                    int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+                    if (ownerTeam >= 0 && teamId == ownerTeam) {
+                        continue;
+                    }
+                    SixtySecondsHealthSystem.applyInjury(player, null,
+                            Math.max(1, Math.round(damage * SixtySecondsBalance.TRAP_PLAYER_INJURY_MULT)));
+                    player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 30, 1,
+                            false, false, false));
+                } else if (entity instanceof Mob mob
+                        && (mob instanceof SixtySecondsMonsterEntity
+                                || mob.getTags().contains(SixtySecondsDefenseSystem.ASSAULT_TAG))) {
+                    mob.hurt(level.damageSources().cactus(), damage);
+                    mob.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 30, 1,
+                            false, false, false));
+                }
+            }
+        }
+    }
+
+    /** 附近玩家预警（actionbar + 低吼音效）。 */
+    private static void alertNearby(ServerLevel level, BlockPos center, double radius, Component message) {
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(center.getX() + 0.5, center.getY() + 0.5, center.getZ() + 0.5)
+                    <= radius * radius) {
+                player.displayClientMessage(message, true);
+                player.playNotifySound(SoundEvents.ZOMBIE_AMBIENT, SoundSource.HOSTILE, 0.9F, 0.6F);
+            }
+        }
+    }
+
+    /**
+     * 锚点周围找可站立落点（与 {@code SixtySecondsDefenseSystem.findSpawnSpot} 同构）：
+     * 距离 minDist~minDist+randDist-1、垂直 ±vertRange、attempts 次尝试；
+     * zone/data 非空时约束「留在探索区盒内（XZ）、不落进任何队伍的家」。
+     */
+    static BlockPos findSpawnSpot(ServerLevel level, BlockPos anchor, int minDist, int randDist,
+            int vertRange, int attempts, AABB zone, SixtySecondsState.Data data) {
+        for (int attempt = 0; attempt < attempts; attempt++) {
+            double angle = level.getRandom().nextDouble() * Math.PI * 2;
+            int dist = minDist + level.getRandom().nextInt(Math.max(1, randDist));
+            int x = anchor.getX() + (int) Math.round(Math.cos(angle) * dist);
+            int z = anchor.getZ() + (int) Math.round(Math.sin(angle) * dist);
+            for (int dy = vertRange; dy >= -vertRange; dy--) {
+                BlockPos pos = new BlockPos(x, anchor.getY() + dy, z);
+                if (level.getBlockState(pos).isAir() && level.getBlockState(pos.above()).isAir()
+                        && level.getBlockState(pos.below()).isSolidRender(level, pos.below())
+                        && isValidSpot(data, zone, pos)) {
+                    return pos;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean isValidSpot(SixtySecondsState.Data data, AABB zone, BlockPos pos) {
+        double cx = pos.getX() + 0.5;
+        double cy = pos.getY() + 0.5;
+        double cz = pos.getZ() + 0.5;
+        if (zone != null && (cx < zone.minX || cx > zone.maxX || cz < zone.minZ || cz > zone.maxZ)) {
+            return false;
+        }
+        if (data != null) {
+            for (SixtySecondsState.TeamData team : data.teams.values()) {
+                if (insideInflated(team.residentialBox, cx, cy, cz)
+                        || insideInflated(team.shelterBox, cx, cy, cz)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean insideInflated(AABB box, double x, double y, double z) {
+        return box != null && box.inflate(1, 2, 1).contains(x, y, z);
+    }
+
+    /** 局末清理：Boss/游荡怪按 tag 全图扫掉（实体自身 isActive 自毁是一重，这里兜底），哨戒炮/计时表清空。 */
+    public static void reset(ServerLevel level) {
+        List<Entity> toRemove = new ArrayList<>();
+        for (Entity entity : level.getAllEntities()) {
+            if (entity instanceof Mob
+                    && (entity instanceof SixtySecondsMonsterEntity
+                            || entity.getTags().contains(SixtySecondsMonsterEntity.PVE_TAG))) {
+                toRemove.add(entity);
+            }
+        }
+        for (Entity entity : toRemove) {
+            if (!entity.isRemoved()) {
+                entity.discard();
+            }
+        }
+        ACTIVE_BOSS.remove(level);
+        TURRETS.remove(level);
+        LAST_AMBIENT_CHECK.remove(level);
+        LAST_BOSS_DAY.remove(level);
+    }
+}

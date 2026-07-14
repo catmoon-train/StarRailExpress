@@ -74,6 +74,11 @@ public final class SixtySecondsState {
         public int ironReinforceCount = 0;
         /** 本队避难所门（夜袭目标），首次夜袭时扫描缓存。 */
         public BlockPos doorPos;
+        /**
+         * 今晚夜袭怪实际冲击的门（运行时，随晚重算）：优先=避难所<b>物理门</b>（怪刷在门外、玩家在屋内可见可防），
+         * 门外无落点时退回探索区锚点门（旧行为）。null=按 {@code assaultAnchor} 兜底。
+         */
+        public BlockPos assaultDoorPos;
         /** 警报器：今晚夜袭者 -1（每晚一次，换日重置）。 */
         public boolean alarmTonight = false;
         /** 诱饵：今晚本队一半夜袭者被引向随机别队（每晚一次，换日重置）。 */

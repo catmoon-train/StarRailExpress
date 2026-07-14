@@ -100,6 +100,20 @@ public final class SixtySecondsStartCommand {
                                 .then(literal("on").executes(c -> setNightAssault(c.getSource(), true)))
                                 .then(literal("off").executes(c -> setNightAssault(c.getSource(), false)))
                                 .executes(c -> showNightAssault(c.getSource())))
+                        // 管理员：PVE 开关（探索区游荡怪 + 夜晚 Boss；按图配置持久化，默认开）
+                        .then(literal("pve")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("on").executes(c -> setPve(c.getSource(), true)))
+                                .then(literal("off").executes(c -> setPve(c.getSource(), false)))
+                                .executes(c -> showPve(c.getSource())))
+                        // 管理员：立即在准星/自身位置刷一只 Boss 尸潮领主（缺省等级=1）
+                        .then(literal("boss")
+                                .requires(source -> source.hasPermission(2))
+                                .then(argument("level", IntegerArgumentType.integer(1,
+                                        net.exmo.sre.sixtyseconds.SixtySecondsBalance.BOSS_MAX_LEVEL))
+                                        .executes(c -> spawnBoss(c.getSource(),
+                                                IntegerArgumentType.getInteger(c, "level"))))
+                                .executes(c -> spawnBoss(c.getSource(), 1)))
                         // 管理员：开局保底物资开关（按图配置持久化；默认关=全靠准备阶段搜刮）
                         .then(literal("starter")
                                 .requires(source -> source.hasPermission(2))
@@ -516,6 +530,44 @@ public final class SixtySecondsStartCommand {
                 ? "message.noellesroles.sixty_seconds.assault_enabled"
                 : "message.noellesroles.sixty_seconds.assault_disabled"), false);
         return 1;
+    }
+
+    /** 管理员：切换 PVE 开关（探索区游荡怪 + 夜晚 Boss，按图配置持久化，默认开）。 */
+    private static int setPve(CommandSourceStack source, boolean enabled) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.pveEnabled = enabled;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.pve_enabled"
+                : "message.noellesroles.sixty_seconds.pve_disabled").withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 管理员：查看 PVE 开关当前状态。 */
+    private static int showPve(CommandSourceStack source) {
+        boolean enabled = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
+                .map(config -> config.pveEnabled).orElse(true);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.pve_enabled"
+                : "message.noellesroles.sixty_seconds.pve_disabled"), false);
+        return 1;
+    }
+
+    /** 管理员：在自身位置立即刷指定等级 Boss（本模式进行中）。 */
+    private static int spawnBoss(CommandSourceStack source, int bossLevel) {
+        if (!SixtySecondsMod.isActive(source.getLevel())) {
+            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.not_running"));
+            return 0;
+        }
+        if (!(source.getEntity() instanceof ServerPlayer player)) {
+            source.sendFailure(Component.literal("player only"));
+            return 0;
+        }
+        var boss = net.exmo.sre.sixtyseconds.logic.SixtySecondsPveSystem.spawnBoss(
+                source.getLevel(), player.blockPosition().relative(player.getDirection(), 4), bossLevel);
+        return boss != null ? 1 : 0;
     }
 
     /** 管理员：切换「开局保底物资」（按图配置持久化，默认关）。 */

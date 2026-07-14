@@ -428,6 +428,49 @@ public class ModEntities {
                     .trackedUpdateRate(2)
                     .build());
 
+    /** 末日60秒：自研怪物（拖行者/奔跑者/重锤兽/吐酸者，变体经 SynchedEntityData 同步换贴图） */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity> SIXTY_SECONDS_MONSTER =
+            Registry.register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    Noellesroles.id("sixty_seconds_monster"),
+                    FabricEntityTypeBuilder
+                            .<net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity>create(MobCategory.MONSTER,
+                                    net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity::new)
+                            .dimensions(EntityDimensions.fixed(0.6F, 1.95F))
+                            .trackRangeBlocks(64)
+                            .trackedUpdateRate(2)
+                            .build());
+
+    /** 末日60秒：Boss 尸潮领主（带等级/技能/Boss 血条，见 SixtySecondsPveSystem） */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<net.exmo.sre.sixtyseconds.entity.SixtySecondsBossEntity> SIXTY_SECONDS_BOSS =
+            Registry.register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    Noellesroles.id("sixty_seconds_boss"),
+                    FabricEntityTypeBuilder
+                            .<net.exmo.sre.sixtyseconds.entity.SixtySecondsBossEntity>create(MobCategory.MONSTER,
+                                    net.exmo.sre.sixtyseconds.entity.SixtySecondsBossEntity::new)
+                            // 基础尺寸=僵尸；实际体型由 Attributes.SCALE 按 Boss 等级放大（碰撞箱自动跟随）
+                            .dimensions(EntityDimensions.fixed(0.6F, 1.95F))
+                            .trackRangeBlocks(96)
+                            .trackedUpdateRate(2)
+                            .build());
+
+    /** 末日60秒：吐酸者的酸液投射物 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<net.exmo.sre.sixtyseconds.entity.SixtySecondsAcidSpitEntity> SIXTY_SECONDS_ACID_SPIT =
+            Registry.register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    Noellesroles.id("sixty_seconds_acid_spit"),
+                    FabricEntityTypeBuilder
+                            .<net.exmo.sre.sixtyseconds.entity.SixtySecondsAcidSpitEntity>create(MobCategory.MISC,
+                                    net.exmo.sre.sixtyseconds.entity.SixtySecondsAcidSpitEntity::new)
+                            .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                            .trackRangeBlocks(64)
+                            .trackedUpdateRate(10)
+                            .build());
+
     /** 移动平台实体 - 可站立、往返移动 */
     @SuppressWarnings("deprecation")
     public static final EntityType<MovingPlatformEntity> MOVING_PLATFORM = Registry.register(
@@ -460,5 +503,10 @@ public class ModEntities {
         FabricDefaultAttributeRegistry.register(RAINBOW_HORSE, RainbowHorseEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(CANYUESA_HORSE, CanyuesaHorseEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(SUPER_PIG_HORSE, SuperPigHorseEntity.createAttributes());
+        // 末日60秒自研怪物/Boss：基础属性用原版僵尸表，生成时按变体/等级覆写
+        FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_MONSTER,
+                net.minecraft.world.entity.monster.Zombie.createAttributes());
+        FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_BOSS,
+                net.minecraft.world.entity.monster.Zombie.createAttributes());
     }
 }

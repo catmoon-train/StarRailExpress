@@ -409,6 +409,13 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.renderer.CanyuesaHorseRenderer::new);
         EntityRendererRegistry.register(ModEntities.SUPER_PIG_HORSE,
                 org.agmas.noellesroles.client.renderer.SuperPigHorseRenderer::new);
+        // 末日60秒自研怪物/Boss：僵尸模型 + 按变体换贴图；酸液投射物用原版掷物渲染（史莱姆球外观）
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_MONSTER,
+                org.agmas.noellesroles.client.renderer.SixtySecondsMonsterRenderer::new);
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_BOSS,
+                org.agmas.noellesroles.client.renderer.SixtySecondsMonsterRenderer::new);
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_ACID_SPIT,
+                net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);

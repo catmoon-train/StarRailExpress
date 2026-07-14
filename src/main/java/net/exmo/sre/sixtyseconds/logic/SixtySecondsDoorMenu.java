@@ -39,6 +39,12 @@ public final class SixtySecondsDoorMenu {
     public static final int ACTION_VISIT_CHAT = 6;
     /** 做客中的访客离开：安全传回自己队的避难所。 */
     public static final int ACTION_VISIT_LEAVE = 7;
+    /** 撬棍强闯（对着别队的探索区避难所门；触发报警，门锁可挡）。 */
+    public static final int ACTION_BREAK_CROWBAR = 8;
+    /** 撬锁器潜入（对着别队的探索区避难所门；不报警，可能触发门陷阱）。 */
+    public static final int ACTION_BREAK_LOCKPICK = 9;
+    /** 查看别队门情报（等级/耐久/门锁；门陷阱是暗手不透露）。 */
+    public static final int ACTION_DOOR_INSPECT = 10;
 
     /** C2S 动作合法性校验：玩家须离门 8 格以内（防远程伪造包）。 */
     private static final double MAX_USE_DISTANCE_SQR = 8 * 8;
@@ -85,6 +91,28 @@ public final class SixtySecondsDoorMenu {
                 // 回家只认本队出口门（未分配出口门则任意门可回）
                 options.add(new OpenShelterDoorS2CPacket.Option(ACTION_RETURN,
                         remain <= 0 && isOwnReturnDoor(team, pos, player), seconds));
+                // 别队的避难所门：给出闯入选项（撬棍强闯/撬锁器潜入/查看门情报），替代旧的
+                // 「物品右键任意位置远程选队闯入」——必须走到目标家门口
+                SixtySecondsState.TeamData target = SixtySecondsBreakIn.teamByDoor(data, player, pos);
+                if (target != null) {
+                    long now = level.getGameTime();
+                    boolean entryOpen = !SixtySecondsBreakIn.isHomeEntryLocked(data);
+                    ItemStack crowbar = SixtySecondsBreakIn.findBestTool(player, true);
+                    ItemStack lockpick = SixtySecondsBreakIn.findBestTool(player, false);
+                    int crowbarTier = crowbar != null && crowbar.getItem()
+                            instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem c
+                            ? c.tier() : 0;
+                    int lockpickTier = lockpick != null && lockpick.getItem()
+                            instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem l
+                            ? l.tier() : 0;
+                    options.add(new OpenShelterDoorS2CPacket.Option(ACTION_BREAK_CROWBAR,
+                            entryOpen && crowbarTier >= target.doorLevel && crowbarTier > 0
+                                    && !target.doorLockActive(now), target.doorLevel));
+                    options.add(new OpenShelterDoorS2CPacket.Option(ACTION_BREAK_LOCKPICK,
+                            entryOpen && lockpickTier >= target.doorLevel && lockpickTier > 0,
+                            target.doorLevel));
+                    options.add(new OpenShelterDoorS2CPacket.Option(ACTION_DOOR_INSPECT, true, 0));
+                }
             } else {
                 boolean hasZone = team != null
                         && (team.searchDoors.get(pos) != null || team.searchZoneSpawn != null);
@@ -164,6 +192,17 @@ public final class SixtySecondsDoorMenu {
             }
             case ACTION_VISIT_CHAT -> SixtySecondsVisitChat.openScreen(player);
             case ACTION_VISIT_LEAVE -> SixtySecondsVisiting.leave(player);
+            case ACTION_BREAK_CROWBAR -> {
+                if (data.phase == SixtySecondsPhase.DAY) {
+                    SixtySecondsBreakIn.executeAtDoor(player, pos, true);
+                }
+            }
+            case ACTION_BREAK_LOCKPICK -> {
+                if (data.phase == SixtySecondsPhase.DAY) {
+                    SixtySecondsBreakIn.executeAtDoor(player, pos, false);
+                }
+            }
+            case ACTION_DOOR_INSPECT -> SixtySecondsBreakIn.inspectDoor(player, pos);
             default -> {
             }
         }

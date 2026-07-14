@@ -14,15 +14,22 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * 尖刺陷阱：铁压板外观、无碰撞体；夜袭怪物踩入每秒受
- * {@code SixtySecondsBalance.SPIKE_TRAP_DAMAGE} 伤害并减速（{@link SixtySecondsDefenseSystem}）。
+ * 尖刺陷阱类方块（尖刺陷阱/铁丝网）：压板外观、无碰撞体；夜袭怪物踩入每秒受
+ * {@link #damage} 伤害并减速（{@link SixtySecondsDefenseSystem}，按放置时注册的伤害结算）。
  * 放在白色混凝土标记上方，扳手可拆除返还。
  */
 public class SixtySecondsSpikeTrapBlock extends Block {
     private static final VoxelShape SHAPE = Block.box(1, 0, 1, 15, 1.5, 15);
+    /** 踩入每秒伤害（尖刺={@code SPIKE_TRAP_DAMAGE}，铁丝网={@code BARBED_WIRE_DAMAGE}）。 */
+    private final float damage;
 
     public SixtySecondsSpikeTrapBlock(Properties properties) {
+        this(properties, net.exmo.sre.sixtyseconds.SixtySecondsBalance.SPIKE_TRAP_DAMAGE);
+    }
+
+    public SixtySecondsSpikeTrapBlock(Properties properties, float damage) {
         super(properties);
+        this.damage = damage;
     }
 
     @Override
@@ -40,7 +47,11 @@ public class SixtySecondsSpikeTrapBlock extends Block {
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (level instanceof ServerLevel serverLevel) {
-            SixtySecondsDefenseSystem.registerTrap(serverLevel, pos);
+            // 记录放置者队伍：对玩家结算（SixtySecondsPveSystem.tickTraps）时本队免疫、敌队受伤
+            int ownerTeam = placer instanceof net.minecraft.server.level.ServerPlayer player
+                    ? net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(player).teamId
+                    : -1;
+            SixtySecondsDefenseSystem.registerTrap(serverLevel, pos, damage, ownerTeam);
         }
     }
 

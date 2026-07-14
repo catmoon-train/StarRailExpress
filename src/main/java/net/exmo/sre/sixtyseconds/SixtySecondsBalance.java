@@ -107,15 +107,77 @@ public final class SixtySecondsBalance {
     public static final double ASSAULT_AGGRO_RANGE_SQR = 8 * 8; // 主动索敌半径：8 格内追打玩家（优先于冲门）
     public static final int ASSAULT_SPAWN_MIN_DIST = 12;      // 夜袭怪刷新点离门最近距离（远刷，给防守方反应窗口）
     public static final int ASSAULT_SPAWN_RAND_DIST = 9;      // 刷新距离随机加成 0..8（即离门 12~20 格）
+    /** 避难所物理门<b>外侧</b>刷新距离（首选模式：怪从门外压来，屋内可见可防）。 */
+    public static final int ASSAULT_DOOR_OUTSIDE_MIN = 5;
+    public static final int ASSAULT_DOOR_OUTSIDE_MAX = 12;
     public static final int ASSAULT_FORCE_CHUNK_RADIUS = 2;   // 战场常加载区块半径（需覆盖刷新距离）
     public static final int BARRICADE_HP = 60;                // 木路障耐久
     public static final int BARRICADE_HEAVY_HP = 120;         // 书柜/沙发重型路障耐久
     public static final int BARRICADE_REINFORCED_HP = 220;    // 钢筋强化路障耐久（工事强化科技）
     public static final float SPIKE_TRAP_DAMAGE = 3.0F;       // 尖刺陷阱每秒对怪伤害
+    public static final float BARBED_WIRE_DAMAGE = 1.5F;      // 铁丝网每秒对怪伤害（廉价版陷阱，减速为主）
     public static final double DOOR_BROKEN_DRAIN_MULT = 2.0;  // 门被攻破：户外消耗再 ×2（即户外 ×1.5×2=×3.0）
     /** 门锁 / 门陷阱 安装后的有效时长（6 分钟；过期自然失效，可重新安装续期）。 */
     public static final int DOOR_LOCK_DURATION_TICKS = 20 * 360;
     public static final int DOOR_TRAP_DURATION_TICKS = 20 * 360;
+
+    // ── PVE：自研怪物（SixtySecondsMonsterEntity / SixtySecondsPveSystem）──────
+    /** 非战场怪身边 64 格无人累计此时长自散（防游荡怪堆积）。 */
+    public static final int PVE_LONELY_DESPAWN_TICKS = 20 * 60;
+    /** 吐酸者吐酸冷却。 */
+    public static final int PVE_SPIT_COOLDOWN_TICKS = 20 * 3;
+    /** 酸液命中玩家的健康伤害 / 附加污染。 */
+    public static final int PVE_SPIT_INJURY = 10;
+    public static final int PVE_SPIT_POLLUTION = 5;
+
+    // ── PVE：探索区游荡怪（每 30s 对探索区玩家做一次刷新判定）──────────────────
+    public static final int AMBIENT_CHECK_INTERVAL = 20 * 30;
+    /** 每次判定的基础刷新概率（+每区域等级加成；夜间再乘倍率）。 */
+    public static final double AMBIENT_SPAWN_CHANCE = 0.30;
+    public static final double AMBIENT_SPAWN_CHANCE_PER_AREA_LEVEL = 0.08;
+    public static final double AMBIENT_NIGHT_CHANCE_MULT = 1.6;
+    /** 玩家 40 格内游荡怪数量上限（+区域等级），达到则不再刷。 */
+    public static final int AMBIENT_MAX_NEARBY = 4;
+    /** 游荡怪刷新点离玩家 10~17 格（给反应窗口又不至于看不见）。 */
+    public static final int AMBIENT_SPAWN_MIN_DIST = 10;
+    public static final int AMBIENT_SPAWN_RAND_DIST = 8;
+    /** 每区域等级的游荡怪生命加成（Lv5 = ×1.6）。 */
+    public static final double AMBIENT_HEALTH_PER_AREA_LEVEL = 0.15;
+
+    // ── PVE：区域危险等级（SixtySecondsAreaLevels）────────────────────────────
+    public static final int AREA_LEVEL_MAX = 5;
+    /** loot 权重压平系数 α：weight^(1/(1+α(level-1)))。0.35 → Lv5 时指数≈0.42，稀有物明显更常见。 */
+    public static final double AREA_LEVEL_LOOT_FLATTEN = 0.35;
+
+    // ── PVE：Boss 尸潮领主（SixtySecondsBossEntity）──────────────────────────
+    public static final int BOSS_MAX_LEVEL = 5;
+    /** 夜晚开始时的 Boss 刷新概率（+每天加成；第 3/5/7 天保底必刷）。 */
+    public static final double BOSS_NIGHT_CHANCE = 0.12;
+    public static final double BOSS_NIGHT_CHANCE_PER_DAY = 0.03;
+    public static final double BOSS_BASE_HEALTH = 300;
+    public static final double BOSS_HEALTH_PER_LEVEL = 150;
+    /** 单次受击伤害封顶：枪械 1000 伤「怪即死」对 Boss 只按此值生效（狙击=满额 100）。 */
+    public static final float BOSS_MAX_SINGLE_HIT = 100.0F;
+    public static final int BOSS_MELEE_INJURY = 24;         // 近战健康伤害（+4/级）
+    public static final int BOSS_SLAM_INJURY = 18;          // 震地 AoE 健康伤害（+4/级）
+    public static final int BOSS_ROAR_SAN_LOSS = 4;         // 咆哮扣 san（+1/级）
+    public static final int BOSS_SLAM_COOLDOWN_TICKS = 20 * 10;
+    public static final int BOSS_ROAR_COOLDOWN_TICKS = 20 * 18;
+    public static final int BOSS_SUMMON_COOLDOWN_TICKS = 20 * 25;
+    public static final int BOSS_CHARGE_COOLDOWN_TICKS = 20 * 14;
+    /** Boss 掉落：loot 掷骰件数 = BASE + PER_LEVEL×等级；保底废料 = BASE + PER_LEVEL×等级。 */
+    public static final int BOSS_LOOT_ROLLS_BASE = 6;
+    public static final int BOSS_LOOT_ROLLS_PER_LEVEL = 3;
+    public static final int BOSS_SCRAP_BASE = 6;
+    public static final int BOSS_SCRAP_PER_LEVEL = 3;
+
+    // ── PVE：哨戒炮 / 陷阱对玩家（SixtySecondsPveSystem）──────────────────────
+    public static final double TURRET_RANGE = 12.0;
+    public static final int TURRET_COOLDOWN_TICKS = 30;      // 1.5s/发
+    public static final float TURRET_MOB_DAMAGE = 8.0F;      // 对怪原版伤害/发
+    public static final int TURRET_PLAYER_INJURY = 7;        // 对敌队玩家健康伤害/发
+    /** 陷阱对敌队玩家的健康伤害 = 注册伤害 × 此倍率（尖刺 3.0→8、铁丝网 1.5→4）。 */
+    public static final float TRAP_PLAYER_INJURY_MULT = 2.5F;
 
     // ── 电力（SixtySecondsPowerSystem）───────────────────────────────────
     public static final int POWER_PER_FUEL_TICKS = 20 * 90;   // 每份燃料（废料/煤）供电 90 秒；电池=3份

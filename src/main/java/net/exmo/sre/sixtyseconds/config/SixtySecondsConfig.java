@@ -74,6 +74,20 @@ public class SixtySecondsConfig {
     @SerializedName("starterSuppliesEnabled")
     public boolean starterSuppliesEnabled = false;
 
+    /**
+     * PVE 开关（默认<b>开</b>）：探索区游荡怪 + 夜晚 Boss 尸潮领主（{@code SixtySecondsPveSystem}）。
+     * 与夜袭开关 {@link #nightAssaultEnabled} 相互独立。{@code /sre:60s pve on|off} 切换（按图持久化）。
+     */
+    @SerializedName("pveEnabled")
+    public boolean pveEnabled = true;
+
+    /**
+     * 全局探索区危险等级 1..5（{@code SixtySecondsAreaLevels}）：等级越高，物资箱稀有物越常见、
+     * 掷出件数越多，但游荡怪更多更强。{@code /sre:60s_area level <1..5>} 设置。
+     */
+    @SerializedName("searchZoneLevel")
+    public int searchZoneLevel = 1;
+
     /** 第 index（从 0 起）支队伍的网格偏移。 */
     public BlockPos teamOffset(int index) {
         return new BlockPos(teamBase.x + index * teamGridSpacing, teamBase.y, teamBase.z);
@@ -116,6 +130,9 @@ public class SixtySecondsConfig {
         public Vec boxMax;
         @SerializedName("spawn")
         public Vec spawn;
+        /** 该绑定探索区的危险等级 1..5；0=继承全局 {@code searchZoneLevel}。{@code /sre:60s_area level <n> <x y z>} 设置。 */
+        @SerializedName("level")
+        public int level = 0;
 
         public DoorBinding() {
         }

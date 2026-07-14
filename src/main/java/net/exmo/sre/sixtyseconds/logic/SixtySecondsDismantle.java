@@ -107,6 +107,14 @@ public final class SixtySecondsDismantle {
         return base;
     }
 
+    /** 可拆解的高级资源白名单：这几种加工件价值高，允许拆回初级资源（同样吃 -60% 损耗）；
+     *  电线/胶带/布卷/钉子/滤芯太便宜，拆解无意义仍不入表。 */
+    private static Set<Item> dismantlableResources() {
+        return Set.of(ModItems.SIXTY_SECONDS_GEAR, ModItems.SIXTY_SECONDS_ELECTRONICS,
+                ModItems.SIXTY_SECONDS_GUNPOWDER_PACK, ModItems.SIXTY_SECONDS_BATTERY,
+                ModItems.SIXTY_SECONDS_STEEL_INGOT);
+    }
+
     private static Map<Item, Entry> build() {
         Set<Item> base = baseResources();
         // 物品 → 产出它的第一条配方（任意合成站，用于把非基础材料展开成基础资源）
@@ -114,15 +122,18 @@ public final class SixtySecondsDismantle {
         for (SixtySecondsRecipes.Recipe recipe : SixtySecondsRecipes.all()) {
             byOutput.putIfAbsent(recipe.output(), recipe);
         }
+        Set<Item> dismantlable = dismantlableResources();
         Map<Item, Entry> result = new LinkedHashMap<>();
         for (SixtySecondsRecipes.Recipe recipe : SixtySecondsRecipes.all()) {
-            // 灶台/浴缸产物是食药水等消耗品不可拆；资源本身（电线/齿轮/钢锭…）是拆解的
-            // 「货币」不再互拆；其余（工作台/裁缝台/军械台产物）可拆
-            if (recipe.station() == SixtySecondsRecipes.Station.STOVE
+            // 白名单高级资源（齿轮/电子元件/火药包/电池/钢锭）可拆回初级资源，不受站点/资源限制；
+            // 其余：灶台/浴缸产物是食药水等消耗品不可拆，资源本身是拆解的「货币」不再互拆
+            boolean whitelisted = dismantlable.contains(recipe.output());
+            if (!whitelisted && (recipe.station() == SixtySecondsRecipes.Station.STOVE
                     || recipe.station() == SixtySecondsRecipes.Station.BATHTUB
-                    || base.contains(recipe.output())
-                    || result.containsKey(recipe.output())
-                    || isExcluded(recipe.output())) {
+                    || base.contains(recipe.output()))) {
+                continue;
+            }
+            if (result.containsKey(recipe.output()) || isExcluded(recipe.output())) {
                 continue;
             }
             Map<Item, Double> cost = new LinkedHashMap<>();

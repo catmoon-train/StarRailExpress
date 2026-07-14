@@ -755,6 +755,12 @@ public class ModItems {
                     new Item.Properties().stacksTo(1).durability(24)
                             .attributes(SwordItem.createAttributes(Tiers.IRON, 6, -2.4F)), 55),
             "sixty_seconds_steel_sword", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 钢矛：伤害低于钢剑但命中减速（长柄拒止，配合陷阱/路障放风筝）
+    public static final Item SIXTY_SECONDS_STEEL_SPEAR = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().stacksTo(1).durability(20)
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 5, -2.8F)), 45, 30),
+            "sixty_seconds_steel_spear", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 投掷武器（燃烧弹：大范围点燃 + 对玩家健康伤害）──
     public static final Item SIXTY_SECONDS_INCENDIARY_GRENADE = register(

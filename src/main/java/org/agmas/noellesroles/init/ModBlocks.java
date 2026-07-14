@@ -214,6 +214,21 @@ public interface ModBlocks {
             b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 铁丝网：廉价版尖刺陷阱（伤害低、同样减速；电线+钉子合成，见 SixtySecondsRecipes barbed_wire）
+    Block SIXTY_SECONDS_BARBED_WIRE = blockRegistrar.createWithItem("sixty_seconds_barbed_wire",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsSpikeTrapBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(1.0F).noOcclusion(),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.BARBED_WIRE_DAMAGE),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 哨戒炮：通电时自动射击范围内的怪与敌队玩家（防御科技合成；见 SixtySecondsPveSystem）
+    Block SIXTY_SECONDS_TURRET = blockRegistrar.createWithItem("sixty_seconds_turret",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsTurretBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(3.0F).noOcclusion()),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 工事强化：钢筋强化路障（更高耐久层级）+ 探照灯（供电时亮度 15）
     Block SIXTY_SECONDS_REINFORCED_BARRICADE = blockRegistrar.createWithItem("sixty_seconds_reinforced_barricade",
             new net.exmo.sre.sixtyseconds.content.block.SixtySecondsBarricadeBlock(

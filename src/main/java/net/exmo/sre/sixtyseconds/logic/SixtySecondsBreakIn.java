@@ -3,9 +3,7 @@ package net.exmo.sre.sixtyseconds.logic;
 import net.exmo.sre.sixtyseconds.arena.SixtySecondsSearchZones;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem;
-import net.exmo.sre.sixtyseconds.network.OpenBreakInSelectS2CPacket;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -15,22 +13,26 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
  * 撬棍/撬锁器闯入别队避难所：
  * <ul>
- *   <li><b>撬棍</b>（alarms=true）：强行闯入并<b>触发目标队报警</b>。</li>
- *   <li><b>撬锁器</b>（alarms=false）：<b>潜行进入不报警</b>。</li>
+ *   <li><b>撬棍</b>（alarms=true）：强行闯入并<b>触发目标队报警</b>；门锁可挡。</li>
+ *   <li><b>撬锁器</b>（alarms=false）：<b>潜行进入不报警</b>；可能触发门陷阱。</li>
  * </ul>
- * 流程：右键 → 选队界面（{@code BreakInSelectScreen}，只列门等级不高于工具等级的队）→
- * C2S 回传 → {@link #execute} 服务端按主手物品重校验后<b>消耗物品</b>并把玩家
- * <b>安全落点</b>传进目标队避难所内（旧实现随机选队 + 直传 shelterSpawn，出生点若在门/墙体方块里
- * 会窒息掉血倒地死——与 {@code SixtySecondsSearchZones.enter} 的落点校正同款修法）。
+ * 流程：在探索区<b>对着别队的避难所门</b>右键 → 统一门菜单（{@code SixtySecondsDoorMenu}）给出
+ * 「强闯 / 潜入 / 查看门情报」选项 → C2S 回传 → {@link #executeAtDoor} 服务端按门定位目标队
+ * （{@link #teamByDoor}）、从背包取<b>等级最高</b>的对应工具重校验后<b>消耗</b>并把玩家
+ * <b>安全落点</b>传进目标队避难所内（直传 shelterSpawn 落点若在门/墙体方块里会窒息掉血倒地死——
+ * 与 {@code SixtySecondsSearchZones.enter} 的落点校正同款修法）。
+ * <p>旧流程（物品右键任意位置开选队界面远程闯入）已废弃：闯入必须走到目标家门口。
  */
 public final class SixtySecondsBreakIn {
+    /** 门→队伍匹配容差：returnDoorPos 2 格（门体两格高）；searchZoneSpawn 出口落点 5 格。 */
+    private static final int DOOR_MATCH_DIST_SQR = 2 * 2;
+    private static final int SPAWN_MATCH_DIST_SQR = 5 * 5;
+
     private SixtySecondsBreakIn() {
     }
 
@@ -52,61 +54,70 @@ public final class SixtySecondsBreakIn {
     }
 
     /**
-     * 右键使用：列出可闯入的别队让玩家选择；此时<b>不消耗</b>物品（选定并成功传送才消耗）。
-     * @return 是否成功打开了选择界面。
+     * 按门定位其所属的<b>别队</b>：优先出口门绑定 {@code returnDoorPos}（2 格容差），
+     * 其次共享探索区的出口落点 {@code searchZoneSpawn}（5 格容差，出口点就在各家门旁）。
+     * 自己队 / 无避难所的队不算目标；多队命中取最近者。找不到返回 null。
      */
-    public static boolean openSelect(ServerPlayer player, boolean alarms, int tier) {
-        ServerLevel level = player.serverLevel();
-        if (SixtySecondsVisiting.isVisiting(player)) {
-            player.displayClientMessage(
-                    Component.translatable("message.noellesroles.sixty_seconds.breakin_while_visiting"), true);
-            return false;
-        }
-        SixtySecondsState.Data data = SixtySecondsState.get(level);
-        // 前两天新手保护期：不许破门闯入别人家（撬棍/撬锁器）
-        if (isHomeEntryLocked(data)) {
-            player.displayClientMessage(Component.translatable(
-                    "message.noellesroles.sixty_seconds.breakin_too_early").withStyle(ChatFormatting.RED), true);
-            return false;
-        }
+    public static SixtySecondsState.TeamData teamByDoor(SixtySecondsState.Data data, ServerPlayer player,
+            BlockPos pos) {
         int myTeam = SixtySecondsStatsComponent.KEY.get(player).teamId;
-
-        List<Integer> ids = new ArrayList<>();
-        List<String> labels = new ArrayList<>();
-        boolean anyDoorTooHigh = false;
+        SixtySecondsState.TeamData best = null;
+        double bestDist = Double.MAX_VALUE;
         for (SixtySecondsState.TeamData team : data.teams.values()) {
-            // 排除自己家：teamId + 成员名单双重判定——teamId 偶发未同步/为 -1（重连未恢复等）时仍能靠
-            // 成员名单认出自己队，杜绝「撬自己家的门」。
-            if (isOwnTeam(team, player, myTeam) || team.shelterSpawn == null) {
+            if (isOwnTeam(team, player, myTeam) || team.shelterSpawn == null || team.shelterBox == null) {
                 continue;
             }
-            if (team.doorLevel > tier) {
-                anyDoorTooHigh = true; // 门等级高于工具等级，撬不开
-                continue;
+            double dist = Double.MAX_VALUE;
+            if (team.returnDoorPos != null && pos.distSqr(team.returnDoorPos) <= DOOR_MATCH_DIST_SQR) {
+                dist = pos.distSqr(team.returnDoorPos);
+            } else if (team.searchZoneSpawn != null && pos.distSqr(team.searchZoneSpawn) <= SPAWN_MATCH_DIST_SQR) {
+                dist = pos.distSqr(team.searchZoneSpawn);
             }
-            ids.add(team.teamId);
-            labels.add("Team " + (team.teamId + 1) + " (" + team.members.size() + ")");
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = team;
+            }
         }
-        if (ids.isEmpty()) {
-            player.displayClientMessage(Component.translatable(anyDoorTooHigh
-                    ? "message.noellesroles.sixty_seconds.breakin_door_too_high"
-                    : "message.noellesroles.sixty_seconds.breakin_no_target"), true);
-            return false;
+        return best;
+    }
+
+    /** 背包内指定类型（报警=撬棍/潜行=撬锁器）中<b>等级最高</b>的一件；没有返回 null。 */
+    public static ItemStack findBestTool(ServerPlayer player, boolean alarms) {
+        ItemStack best = null;
+        int bestTier = 0;
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.getItem() instanceof SixtySecondsBreakInItem item && item.alarms() == alarms
+                    && item.tier() > bestTier) {
+                bestTier = item.tier();
+                best = stack;
+            }
         }
-        ServerPlayNetworking.send(player, new OpenBreakInSelectS2CPacket(
-                ids.stream().mapToInt(Integer::intValue).toArray(), labels.toArray(new String[0]), alarms));
-        return true;
+        return best;
+    }
+
+    /** 门菜单「查看门情报」：报门等级/耐久/门锁状态（门陷阱是暗手，不透露）。 */
+    public static void inspectDoor(ServerPlayer player, BlockPos doorPos) {
+        ServerLevel level = player.serverLevel();
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        SixtySecondsState.TeamData target = teamByDoor(data, player, doorPos);
+        if (target == null) {
+            return;
+        }
+        Component lock = Component.translatable(target.doorLockActive(level.getGameTime())
+                ? "message.noellesroles.sixty_seconds.breakin_inspect_locked"
+                : "message.noellesroles.sixty_seconds.breakin_inspect_unlocked");
+        player.displayClientMessage(Component.translatable(
+                "message.noellesroles.sixty_seconds.breakin_inspect", target.teamId + 1,
+                target.doorLevel, target.doorHp, target.doorMaxHp, lock), false);
     }
 
     /**
-     * 选队回传：按<b>主手物品</b>重校验（等级/报警属性以服务端当下持有物为准，防伪造包白嫖），
+     * 门菜单「强闯/潜入」回传：按门定位目标队（{@link #teamByDoor}，防伪造包指定任意队远程闯入），
+     * 从背包取<b>等级最高</b>的对应工具重校验（等级/报警属性以服务端当下持有物为准），
      * 成功则消耗 1 个并安全传送进目标队避难所。
      */
-    public static void execute(ServerPlayer player, int targetTeamId) {
-        ItemStack stack = player.getMainHandItem();
-        if (!(stack.getItem() instanceof SixtySecondsBreakInItem item)) {
-            return;
-        }
+    public static void executeAtDoor(ServerPlayer player, BlockPos doorPos, boolean alarms) {
         if (SixtySecondsVisiting.isVisiting(player)) {
             return;
         }
@@ -118,11 +129,14 @@ public final class SixtySecondsBreakIn {
                     "message.noellesroles.sixty_seconds.breakin_too_early").withStyle(ChatFormatting.RED), true);
             return;
         }
-        SixtySecondsState.TeamData target = data.teams.get(targetTeamId);
-        int myTeam = SixtySecondsStatsComponent.KEY.get(player).teamId;
-        // 服务端权威：绝不闯入自己家（teamId + 成员名单双重判定，防伪造包 / teamId 未同步绕过）
-        if (target == null || isOwnTeam(target, player, myTeam) || target.shelterSpawn == null
-                || target.shelterBox == null) {
+        SixtySecondsState.TeamData target = teamByDoor(data, player, doorPos);
+        if (target == null) {
+            return;
+        }
+        ItemStack stack = findBestTool(player, alarms);
+        if (stack == null || !(stack.getItem() instanceof SixtySecondsBreakInItem item)) {
+            player.displayClientMessage(Component.translatable(
+                    "message.noellesroles.sixty_seconds.breakin_no_tool").withStyle(ChatFormatting.RED), true);
             return;
         }
         if (target.doorLevel > item.tier()) {

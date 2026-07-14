@@ -49,7 +49,11 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         return !claimedToday && hasAnyLoot(level);
     }
 
-    /** 领取：每日全局一次，领取时即时加权掷骰（{@link #bonusRolls} 件）。当天已被领过返回空列表。 */
+    /**
+     * 领取：每日全局一次，领取时即时加权掷骰（{@link #bonusRolls} 件 + 区域危险等级加成件数）。
+     * 当天已被领过返回空列表。<b>区域等级</b>（{@code SixtySecondsAreaLevels.levelAt} 按箱子坐标反查）
+     * 越高：稀有（低权重）条目相对越容易被抽中（权重压平指数），且额外多掷 0~2 件。
+     */
     public List<ItemStack> claim(ServerLevel level, ServerPlayer player) {
         ensureDaily(level);
         if (claimedToday) {
@@ -58,10 +62,14 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         claimedToday = true;
         setChanged();
         SixtySecondsLootTable table = SixtySecondsLootStore.get(level);
+        int areaLevel = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.levelAt(level, worldPosition);
+        double exponent = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.lootExponent(areaLevel);
+        int rolls = Math.max(1, bonusRolls)
+                + net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.bonusRolls(areaLevel);
         List<ItemStack> out = new java.util.ArrayList<>();
-        for (int i = 0; i < Math.max(1, bonusRolls); i++) {
+        for (int i = 0; i < rolls; i++) {
             // 每件独立选类别（随机箱=每件随机一类）+ 独立掷骰
-            ItemStack stack = table.roll(chooseCategory(level, table), level.random);
+            ItemStack stack = table.roll(chooseCategory(level, table), level.random, exponent);
             if (!stack.isEmpty()) {
                 out.add(stack);
             }

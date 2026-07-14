@@ -1259,7 +1259,9 @@ public final class SixtySecondsDailyEvents {
 
     private static void give(ServerPlayer player, List<ItemStack> stacks) {
         for (ItemStack stack : stacks) {
-            player.getInventory().placeItemBackInInventory(stack);
+            // copy 后再发放，防止 placeItemBackInInventory 把原栈改空，
+            // 导致后续 itemsText() 显示「空气」
+            player.getInventory().placeItemBackInInventory(stack.copy());
         }
     }
 

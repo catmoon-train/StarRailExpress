@@ -13,10 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemStack;
@@ -57,22 +54,27 @@ public final class SixtySecondsDefenseSystem {
     /** 强度档 tag 前缀（{@link AssaultTier}，决定对门/路障的每秒伤害）。 */
     private static final String ASSAULT_TIER_TAG_PREFIX = "sixty_seconds_assault_tier_";
 
-    /** 夜袭者强度档：生命 / 移速 / 对门（路障）每秒伤害 / 头盔（防日晒）。自动刷新的为 MEDIUM。 */
+    /**
+     * 夜袭者强度档（召唤哨物品仍按档召唤）：生命 / 移速 / 对门（路障）每秒伤害 / 对应自研怪变体。
+     * 自动夜袭已改为按天数混编变体（见 {@link #rollAssaultVariant}），MEDIUM 仅作召唤哨中档与兜底。
+     */
     public enum AssaultTier {
-        WEAK(10.0, 0.20, 1, Items.LEATHER_HELMET),
-        MEDIUM(20.0, 0.23, SixtySecondsBalance.ASSAULT_MOB_DOOR_DPS, Items.LEATHER_HELMET),
-        STRONG(40.0, 0.27, 4, Items.IRON_HELMET);
+        WEAK(10.0, 0.20, 1, net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.SHAMBLER),
+        MEDIUM(20.0, 0.23, SixtySecondsBalance.ASSAULT_MOB_DOOR_DPS,
+                net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.SHAMBLER),
+        STRONG(40.0, 0.27, 4, net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.BRUTE);
 
         public final double health;
         public final double speed;
         public final int doorDps;
-        public final net.minecraft.world.item.Item helmet;
+        public final net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant variant;
 
-        AssaultTier(double health, double speed, int doorDps, net.minecraft.world.item.Item helmet) {
+        AssaultTier(double health, double speed, int doorDps,
+                net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant variant) {
             this.health = health;
             this.speed = speed;
             this.doorDps = doorDps;
-            this.helmet = helmet;
+            this.variant = variant;
         }
 
         String nameKey() {
@@ -83,8 +85,10 @@ public final class SixtySecondsDefenseSystem {
 
     /** level → (路障位置 → 剩余耐久)。 */
     private static final Map<ServerLevel, Map<BlockPos, Integer>> BARRICADE_HP = new WeakHashMap<>();
-    /** level → 尖刺陷阱位置。 */
-    private static final Map<ServerLevel, Set<BlockPos>> TRAPS = new WeakHashMap<>();
+    /** level → (尖刺陷阱/铁丝网位置 → 每秒伤害)。 */
+    private static final Map<ServerLevel, Map<BlockPos, Float>> TRAPS = new WeakHashMap<>();
+    /** level → (陷阱位置 → 放置者队伍 id)。对玩家结算时放置队免疫；-1=无归属（模板自带等）。 */
+    private static final Map<ServerLevel, Map<BlockPos, Integer>> TRAP_OWNERS = new WeakHashMap<>();
     /** level → 夜袭怪 UUID。 */
     private static final Map<ServerLevel, List<UUID>> ASSAULT_MOBS = new WeakHashMap<>();
     /** level → 夜袭期间被强制常加载的区块（ChunkPos.toLong）；清晨/结束时解除。 */
@@ -114,8 +118,25 @@ public final class SixtySecondsDefenseSystem {
         BARRICADE_HP.computeIfAbsent(level, ignored -> new HashMap<>()).put(pos.immutable(), hp);
     }
 
-    public static void registerTrap(ServerLevel level, BlockPos pos) {
-        TRAPS.computeIfAbsent(level, ignored -> new HashSet<>()).add(pos.immutable());
+    public static void registerTrap(ServerLevel level, BlockPos pos, float damage) {
+        registerTrap(level, pos, damage, -1);
+    }
+
+    /** 带放置队伍归属的陷阱注册：对玩家结算（{@code SixtySecondsPveSystem.tickTraps}）时放置队免疫。 */
+    public static void registerTrap(ServerLevel level, BlockPos pos, float damage, int ownerTeamId) {
+        TRAPS.computeIfAbsent(level, ignored -> new HashMap<>()).put(pos.immutable(), damage);
+        TRAP_OWNERS.computeIfAbsent(level, ignored -> new HashMap<>()).put(pos.immutable(), ownerTeamId);
+    }
+
+    /** 全部已登记陷阱（位置 → 每秒伤害）；供 {@code SixtySecondsPveSystem} 统一结算（怪 + 敌队玩家）。 */
+    public static Map<BlockPos, Float> traps(ServerLevel level) {
+        return TRAPS.computeIfAbsent(level, ignored -> new HashMap<>());
+    }
+
+    /** 陷阱归属队伍 id；未登记返回 -1（对所有队伍玩家生效）。 */
+    public static int trapOwner(ServerLevel level, BlockPos pos) {
+        Map<BlockPos, Integer> owners = TRAP_OWNERS.get(level);
+        return owners == null ? -1 : owners.getOrDefault(pos, -1);
     }
 
     public static void unregister(ServerLevel level, BlockPos pos) {
@@ -123,9 +144,13 @@ public final class SixtySecondsDefenseSystem {
         if (barricades != null) {
             barricades.remove(pos);
         }
-        Set<BlockPos> traps = TRAPS.get(level);
+        Map<BlockPos, Float> traps = TRAPS.get(level);
         if (traps != null) {
             traps.remove(pos);
+        }
+        Map<BlockPos, Integer> owners = TRAP_OWNERS.get(level);
+        if (owners != null) {
+            owners.remove(pos);
         }
     }
 
@@ -191,7 +216,9 @@ public final class SixtySecondsDefenseSystem {
         Map<Integer, Integer> counts = new HashMap<>();
         List<SixtySecondsState.TeamData> active = new ArrayList<>();
         for (SixtySecondsState.TeamData team : data.teams.values()) {
-            if (!hasAliveMember(level, team) || assaultAnchor(team) == null) {
+            // 有物理避难所门或探索区锚点任一即可参战（门外刷新模式不依赖探索区锚点）
+            if (!hasAliveMember(level, team)
+                    || (assaultAnchor(team) == null && doorPos(level, team) == null)) {
                 continue;
             }
             active.add(team);
@@ -219,32 +246,52 @@ public final class SixtySecondsDefenseSystem {
                     "message.noellesroles.sixty_seconds.lure_incoming").withStyle(ChatFormatting.RED), false);
         }
         for (SixtySecondsState.TeamData team : active) {
-            // 刷在探索区一侧的家门外（不是避难所里的门）；先把战场区块整夜常加载，
-            // 保证夜里探索区无人时怪仍在 tick、照常冲门
-            BlockPos door = assaultAnchor(team);
+            // 刷新位置两级策略（本次重写）：
+            // ① 首选=避难所<b>物理门外</b>（按门朝向取外侧、离门 5~12 格）——怪从门外压过来，
+            //    屋内玩家肉眼可见、可依托路障/尖刺/哨戒炮布防；
+            // ② 避难所模板门外没有可站立空间（全封闭地堡）时退回旧行为：探索区锚点门远刷 12~20 格。
+            BlockPos shelterDoor = doorPos(level, team);
+            BlockPos anchorDoor = assaultAnchor(team);
             AABB zone = normalizeZone(assaultZone(team));
-            forceChunks(level, door, SixtySecondsBalance.ASSAULT_FORCE_CHUNK_RADIUS);
             int count = counts.getOrDefault(team.teamId, 0);
             team.alarmTonight = false;
             team.lureTonight = false;
+            // 模式一次性判定：物理门外有可站立点 → 全部刷门外；否则全部走探索区锚点（不混刷两处）
+            boolean outsideMode = shelterDoor != null
+                    && findDoorOutsideSpot(level, team, shelterDoor) != null;
+            team.assaultDoorPos = outsideMode ? shelterDoor : anchorDoor;
+            if (team.assaultDoorPos == null) {
+                continue;
+            }
+            forceChunks(level, team.assaultDoorPos, SixtySecondsBalance.ASSAULT_FORCE_CHUNK_RADIUS);
+            int spawned = 0;
             for (int i = 0; i < count; i++) {
-                // 远刷（12~20 格）：怪照样经 tickAssault 寻路冲回这扇门；远处找不到落点再退回近处兜底。
-                // 落点必须留在该门对应的探索区盒内、且不得落进任何队伍的住宅/避难所
-                //（紧凑地图上门外 12~20 格可能已越进克隆的家里——「夜袭怪出现在家里」的根因）
-                BlockPos spawn = findSpawnSpot(level, door, SixtySecondsBalance.ASSAULT_SPAWN_MIN_DIST,
-                        SixtySecondsBalance.ASSAULT_SPAWN_RAND_DIST, 4, 24, zone, data);
-                if (spawn == null) {
-                    spawn = findSpawnSpot(level, door, 3, 4, 2, 12, zone, data);
+                BlockPos spawn;
+                if (outsideMode) {
+                    spawn = findDoorOutsideSpot(level, team, shelterDoor);
+                } else {
+                    // 旧行为兜底：探索区锚点门远刷（找不到再近刷）
+                    spawn = findSpawnSpot(level, anchorDoor, SixtySecondsBalance.ASSAULT_SPAWN_MIN_DIST,
+                            SixtySecondsBalance.ASSAULT_SPAWN_RAND_DIST, 4, 24, zone, data);
+                    if (spawn == null) {
+                        spawn = findSpawnSpot(level, anchorDoor, 3, 4, 2, 12, zone, data);
+                    }
                 }
                 if (spawn == null) {
                     continue;
                 }
-                createAssaultMob(level, team.teamId, spawn, AssaultTier.MEDIUM, false, mobs);
+                // 变体混编随天数升级：前期拖行者为主，后期奔跑者/吐酸者/重锤兽渐多
+                var variant = rollAssaultVariant(level, data.dayNumber);
+                createAssaultMob(level, team.teamId, spawn, variant,
+                        1.0 + 0.1 * (data.dayNumber - 1), false, mobs);
+                spawned++;
             }
             for (UUID uuid : team.members) {
                 if (level.getPlayerByUUID(uuid) instanceof ServerPlayer member) {
                     member.displayClientMessage(Component
-                            .translatable("message.noellesroles.sixty_seconds.assault_start", count)
+                            .translatable(outsideMode
+                                    ? "message.noellesroles.sixty_seconds.assault_start_door"
+                                    : "message.noellesroles.sixty_seconds.assault_start", spawned)
                             .withStyle(ChatFormatting.RED), false);
                     member.playNotifySound(SoundEvents.ZOMBIE_AMBIENT, SoundSource.HOSTILE, 1.0F, 0.7F);
                 }
@@ -252,37 +299,114 @@ public final class SixtySecondsDefenseSystem {
         }
     }
 
-    /** 造一只夜袭者（tag/名字/发光/头盔/强度属性）并登记进追踪表；创建失败返回 null。 */
-    private static Zombie createAssaultMob(ServerLevel level, int teamId, BlockPos spawn, AssaultTier tier,
-            boolean manual, List<UUID> mobs) {
-        Zombie zombie = EntityType.ZOMBIE.create(level);
-        if (zombie == null) {
+    /** 夜袭变体权重（随天数）：D1 全拖行者；D3+ 奔跑/吐酸入场；D5+ 重锤兽压阵。 */
+    private static net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant rollAssaultVariant(
+            ServerLevel level, int day) {
+        float r = level.getRandom().nextFloat();
+        if (day >= 5 && r < 0.15F) {
+            return net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.BRUTE;
+        }
+        if (day >= 3 && r < 0.40F) {
+            return level.getRandom().nextBoolean()
+                    ? net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.RUNNER
+                    : net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.SPITTER;
+        }
+        if (day >= 2 && r < 0.25F) {
+            return net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.RUNNER;
+        }
+        return net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.SHAMBLER;
+    }
+
+    /**
+     * 避难所物理门<b>外侧</b>找刷怪落点：外侧=沿门 {@code FACING} 水平四向中「离避难所出生点更远」的方向；
+     * 由近及远尝试门外 {@link SixtySecondsBalance#ASSAULT_DOOR_OUTSIDE_MIN}~MAX 格（左右 ±2 抖动、垂直 ±3 找地面）。
+     * 全封闭地堡（门外即实体墙）自然找不到点 → 返回 null 走探索区锚点兜底。
+     * 关键校验：落点必须比门<b>离避难所出生点更远</b>——保证刷在「门外」而不是屋内
+     * （「怪刷在避难所里面」的根因是旧逻辑破门后传送入内 + 锚点误配到室内门）。
+     */
+    private static BlockPos findDoorOutsideSpot(ServerLevel level, SixtySecondsState.TeamData team,
+            BlockPos door) {
+        BlockPos inside = team.shelterSpawn != null ? team.shelterSpawn : door;
+        double doorDistSqr = door.distSqr(inside);
+        // 门朝向（HORIZONTAL_FACING）；读不到则按「远离出生点」的轴向推
+        net.minecraft.core.Direction outward = null;
+        var state = level.getBlockState(door);
+        if (state.getBlock() instanceof ShelterDoorBlock
+                && state.hasProperty(ShelterDoorBlock.FACING)) {
+            net.minecraft.core.Direction facing = state.getValue(ShelterDoorBlock.FACING);
+            // 门面向的两个方向里，取远离避难所出生点的那个
+            outward = door.relative(facing, 2).distSqr(inside) >= door.relative(facing.getOpposite(), 2)
+                    .distSqr(inside) ? facing : facing.getOpposite();
+        }
+        java.util.List<net.minecraft.core.Direction> tryDirs = new ArrayList<>();
+        if (outward != null) {
+            tryDirs.add(outward);
+        }
+        for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+            if (!tryDirs.contains(dir)) {
+                tryDirs.add(dir);
+            }
+        }
+        for (net.minecraft.core.Direction dir : tryDirs) {
+            for (int dist = SixtySecondsBalance.ASSAULT_DOOR_OUTSIDE_MIN;
+                    dist <= SixtySecondsBalance.ASSAULT_DOOR_OUTSIDE_MAX; dist++) {
+                int side = level.getRandom().nextInt(5) - 2; // 左右 ±2 抖动，怪群散开
+                BlockPos base = door.relative(dir, dist).relative(dir.getClockWise(), side);
+                for (int dy = 3; dy >= -3; dy--) {
+                    BlockPos pos = base.above(dy);
+                    if (!level.getBlockState(pos).isAir() || !level.getBlockState(pos.above()).isAir()
+                            || !level.getBlockState(pos.below()).isSolidRender(level, pos.below())) {
+                        continue;
+                    }
+                    // 必须在门的「外侧」：比门离避难所出生点更远（防止绕回屋内）
+                    if (pos.distSqr(inside) > doorDistSqr + 4) {
+                        return pos;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /** 造一只夜袭者（自研怪变体 + 夜袭 tag/发光）并登记进追踪表；创建失败返回 null。 */
+    private static net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity createAssaultMob(
+            ServerLevel level, int teamId, BlockPos spawn,
+            net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant variant,
+            double healthMult, boolean manual, List<UUID> mobs) {
+        net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity mob =
+                SixtySecondsPveSystem.createMonster(level, spawn, variant, healthMult, 1.0);
+        if (mob == null) {
             return null;
         }
-        zombie.setPos(spawn.getX() + 0.5D, spawn.getY(), spawn.getZ() + 0.5D);
-        zombie.setPersistenceRequired();
-        zombie.addTag(ASSAULT_TAG);
-        zombie.addTag(ASSAULT_TEAM_TAG_PREFIX + teamId);
-        zombie.addTag(ASSAULT_TIER_TAG_PREFIX + tier.name().toLowerCase(java.util.Locale.ROOT));
+        mob.addTag(ASSAULT_TAG);
+        mob.addTag(ASSAULT_TEAM_TAG_PREFIX + teamId);
+        mob.setBattleMob(true); // 战场怪：夜里探索区/门外无人也不自散，照常冲门
+        mob.setGlowingTag(true); // 发光描边：夜战里让防守方能定位冲门的怪
+        mobs.add(mob.getUUID());
+        return mob;
+    }
+
+    /** 召唤哨强度档造怪（保留三档物品语义）：按档血量/速度覆盖变体默认值。 */
+    private static net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity createTierAssaultMob(
+            ServerLevel level, int teamId, BlockPos spawn, AssaultTier tier, boolean manual, List<UUID> mobs) {
+        double healthMult = tier.health / tier.variant.health;
+        double speedMult = tier.speed / tier.variant.speed;
+        net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity mob =
+                SixtySecondsPveSystem.createMonster(level, spawn, tier.variant, healthMult, speedMult);
+        if (mob == null) {
+            return null;
+        }
+        mob.addTag(ASSAULT_TAG);
+        mob.addTag(ASSAULT_TEAM_TAG_PREFIX + teamId);
+        mob.addTag(ASSAULT_TIER_TAG_PREFIX + tier.name().toLowerCase(java.util.Locale.ROOT));
         if (manual) {
-            zombie.addTag(ASSAULT_MANUAL_TAG);
+            mob.addTag(ASSAULT_MANUAL_TAG);
         }
-        zombie.setCustomName(Component.translatable(tier.nameKey()));
-        zombie.setGlowingTag(true); // 发光描边：夜战里让防守方能定位冲门的怪
-        zombie.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,
-                new ItemStack(tier.helmet)); // 防日光（保险）
-        var maxHealth = zombie.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
-        if (maxHealth != null) {
-            maxHealth.setBaseValue(tier.health);
-        }
-        var moveSpeed = zombie.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
-        if (moveSpeed != null) {
-            moveSpeed.setBaseValue(tier.speed);
-        }
-        zombie.setHealth((float) tier.health);
-        level.addFreshEntity(zombie);
-        mobs.add(zombie.getUUID());
-        return zombie;
+        mob.setCustomName(Component.translatable(tier.nameKey()));
+        mob.setBattleMob(true);
+        mob.setGlowingTag(true);
+        mobs.add(mob.getUUID());
+        return mob;
     }
 
     /**
@@ -310,10 +434,10 @@ public final class SixtySecondsDefenseSystem {
             return false;
         }
         List<UUID> mobs = ASSAULT_MOBS.computeIfAbsent(level, ignored -> new ArrayList<>());
-        return createAssaultMob(level, nearest.teamId, pos, tier, true, mobs) != null;
+        return createTierAssaultMob(level, nearest.teamId, pos, tier, true, mobs) != null;
     }
 
-    /** 该夜袭者对门/路障的每秒伤害（按强度档 tag；无档按 MEDIUM 常量）。 */
+    /** 该夜袭者对门/路障的每秒伤害：召唤哨按强度档 tag，自动夜袭按自研怪变体，其余按 MEDIUM 常量。 */
     private static int doorDpsOf(Zombie zombie) {
         for (String tag : zombie.getTags()) {
             if (tag.startsWith(ASSAULT_TIER_TAG_PREFIX)) {
@@ -325,40 +449,23 @@ public final class SixtySecondsDefenseSystem {
                 }
             }
         }
+        if (zombie instanceof net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity mob) {
+            return mob.getVariant().doorDps;
+        }
         return SixtySecondsBalance.ASSAULT_MOB_DOOR_DPS;
     }
 
     private static void tickAssault(ServerLevel level, SixtySecondsState.Data data, List<UUID> mobs, long now) {
         Map<BlockPos, Integer> barricades = BARRICADE_HP.computeIfAbsent(level, ignored -> new HashMap<>());
-        Set<BlockPos> traps = TRAPS.computeIfAbsent(level, ignored -> new HashSet<>());
         for (Iterator<UUID> it = mobs.iterator(); it.hasNext();) {
             Entity entity = level.getEntity(it.next());
             if (!(entity instanceof Zombie zombie) || !zombie.isAlive()) {
                 it.remove();
                 continue;
             }
-            // 尖刺陷阱：踩入反伤 + 减速
-            for (BlockPos trap : traps) {
-                if (zombie.getBoundingBox().intersects(new AABB(trap))) {
-                    zombie.hurt(level.damageSources().cactus(), SixtySecondsBalance.SPIKE_TRAP_DAMAGE);
-                    zombie.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 30, 1,
-                            false, false, false));
-                    break;
-                }
-            }
-            if (!zombie.isAlive()) {
-                it.remove();
-                continue;
-            }
-            // 近战玩家：和平难度下原版怪对玩家伤害恒为 0（Player.hurt 按难度缩放清零，
-            // ALLOW_DAMAGE 转换链不触发），贴身伤害改由这里每秒手动结算成健康伤害
-            ServerPlayer prey = nearestAttackablePlayer(level, zombie, 2.0 * 2.0);
-            if (prey != null) {
-                zombie.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
-                SixtySecondsHealthSystem.applyInjury(prey, null, SixtySecondsWeapons.MOB_DAMAGE);
-                continue;
-            }
-            // 主动索敌：附近有可攻击玩家 → 追打玩家（优先级高于工事/门；追到 2 格内由上面贴身分支结算伤害）
+            // 陷阱反伤已移至 SixtySecondsPveSystem.tickTraps 统一结算（覆盖夜袭怪 + 游荡怪 + 敌队玩家）；
+            // 贴身伤害由自研实体自身 AI（doHurtTarget → applyInjury）结算，此处不再手动扣血（防双重伤害）。
+            // 主动索敌：附近有可攻击玩家 → 追打玩家（优先级高于工事/门；命中由实体 AI 结算）
             ServerPlayer aggro = nearestAttackablePlayer(level, zombie,
                     SixtySecondsBalance.ASSAULT_AGGRO_RANGE_SQR);
             if (aggro != null) {
@@ -392,7 +499,8 @@ public final class SixtySecondsDefenseSystem {
                 }
                 continue;
             }
-            BlockPos door = assaultAnchor(team);
+            // 冲击目标门：优先今晚选定的门（物理门外模式=避难所门本体），无则退回探索区锚点
+            BlockPos door = team.assaultDoorPos != null ? team.assaultDoorPos : assaultAnchor(team);
             if (door == null) {
                 continue;
             }
@@ -492,7 +600,8 @@ public final class SixtySecondsDefenseSystem {
         return cx >= zone.minX && cx <= zone.maxX && cz >= zone.minZ && cz <= zone.maxZ;
     }
 
-    private static BlockPos assaultAnchor(SixtySecondsState.TeamData team) {
+    /** 本队探索区侧的夜袭锚点门（供本系统兜底与 {@code SixtySecondsPveSystem} Boss 落点复用）。 */
+    public static BlockPos assaultAnchor(SixtySecondsState.TeamData team) {
         Anchor anchor = resolveAnchor(team);
         return anchor == null ? null : anchor.pos();
     }
@@ -785,13 +894,37 @@ public final class SixtySecondsDefenseSystem {
         }
     }
 
-    /** 清除指定避难所内的所有敌对生物（夜袭怪/低语怪等），玩家进入避难所时调用。 */
+    /**
+     * 清除指定避难所<b>屋内</b>的敌对生物（卡进屋里的夜袭怪/低语怪等），玩家进入避难所时调用。
+     * 夜袭怪现在刷在避难所<b>门外</b>（仍在 shelterBox 模板盒内）——只清「比门更靠里」的怪，
+     * 门外正常冲门的怪不能被回家动作白嫖清掉；门已破（怪合法涌入）时也不清。
+     */
     public static void clearShelterMobs(ServerLevel level, AABB shelterBox) {
         if (shelterBox == null) return;
-        for (Entity entity : level.getEntitiesOfClass(Entity.class, shelterBox)) {
-            if (entity instanceof Mob) {
-                entity.discard();
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        SixtySecondsState.TeamData owner = null;
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            if (team.shelterBox == shelterBox || (team.shelterBox != null && team.shelterBox.equals(shelterBox))) {
+                owner = team;
+                break;
             }
+        }
+        if (owner != null && owner.doorBroken) {
+            return; // 门破怪进屋是合法状态，交给玩家处理/修门
+        }
+        BlockPos door = owner == null ? null : owner.doorPos;
+        BlockPos inside = owner == null ? null : owner.shelterSpawn;
+        double doorDistSqr = door != null && inside != null ? door.distSqr(inside) : -1;
+        for (Entity entity : level.getEntitiesOfClass(Entity.class, shelterBox)) {
+            if (!(entity instanceof Mob)) {
+                continue;
+            }
+            // 有门与出生点参照时：只清「屋内侧」（离出生点不比门远）的怪；无参照退回全清（旧行为）
+            if (doorDistSqr >= 0
+                    && entity.blockPosition().distSqr(inside) > doorDistSqr + 4) {
+                continue;
+            }
+            entity.discard();
         }
     }
 
@@ -806,5 +939,6 @@ public final class SixtySecondsDefenseSystem {
         releaseChunks(level); // despawnAll 已释放；这里兜底 mobs 列表为空的情况
         BARRICADE_HP.remove(level);
         TRAPS.remove(level);
+        TRAP_OWNERS.remove(level);
     }
 }
