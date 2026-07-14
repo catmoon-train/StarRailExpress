@@ -1,0 +1,29 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "door": "noellesroles:block/sixty_seconds_shelter_door",
+    "particle": "noellesroles:block/sixty_seconds_shelter_door"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 7],
+      "to": [16, 32, 9],
+      "faces": {
+        "north": { "uv": [7.5, 0.5, 11.5, 8.5], "texture": "#door" },
+        "south": { "uv": [12, 0.5, 16, 8.5], "texture": "#door" },
+        "west":  { "uv": [7, 0.5, 7.5, 8.5], "texture": "#door" },
+        "east":  { "uv": [11.5, 0.5, 12, 8.5], "texture": "#door" },
+        "up":    { "uv": [7.5, 0, 11.5, 0.5], "texture": "#door" },
+        "down":  { "uv": [11.5, 0, 15.5, 0.5], "texture": "#door" }
+      }
+    },
+    {
+      "from": [2, 2, 8],
+      "to": [14, 30, 8],
+      "faces": {
+        "north": { "uv": [0, 0, 3, 7], "texture": "#door" },
+        "south": { "uv": [0, 0, 3, 7], "texture": "#door" }
+      }
+    }
+  ]
+}

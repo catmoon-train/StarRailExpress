@@ -39,6 +39,20 @@ public class SixtySecondsLootTable {
         return new ArrayList<>(categories.keySet());
     }
 
+    /** 类别当前是否有可抽条目（存在正权重条目）。 */
+    public boolean canRoll(String category) {
+        List<Entry> list = categories.get(category);
+        if (list == null) {
+            return false;
+        }
+        for (Entry entry : list) {
+            if (entry.weight > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** 从某类别加权抽取一件物资；空/无效返回 {@link ItemStack#EMPTY}。 */
     public ItemStack roll(String category, RandomSource random) {
         List<Entry> list = categories.get(category);
@@ -54,13 +68,23 @@ public class SixtySecondsLootTable {
         }
         double r = random.nextDouble() * total;
         double cumulative = 0;
+        // 严格小于：r 恰落在边界（如 r=0 且首条目权重为 0）时不能选中 0 权重条目
         for (Entry entry : list) {
-            cumulative += Math.max(0, entry.weight);
-            if (r <= cumulative) {
+            if (entry.weight <= 0) {
+                continue;
+            }
+            cumulative += entry.weight;
+            if (r < cumulative) {
                 return makeStack(entry);
             }
         }
-        return makeStack(list.get(list.size() - 1));
+        // 浮点累加误差兜底：返回最后一个正权重条目
+        for (int i = list.size() - 1; i >= 0; i--) {
+            if (list.get(i).weight > 0) {
+                return makeStack(list.get(i));
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     private static ItemStack makeStack(Entry entry) {
@@ -78,16 +102,98 @@ public class SixtySecondsLootTable {
         table.categories.put("food", new ArrayList<>(List.of(
                 new Entry("minecraft:bread", 1, 3.0F),
                 new Entry("minecraft:cooked_beef", 1, 2.0F),
-                new Entry("minecraft:apple", 2, 2.0F))));
+                new Entry("minecraft:apple", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_canned_food", 1, 2.5F),
+                new Entry("noellesroles:sixty_seconds_biscuit", 2, 2.5F),
+                new Entry("noellesroles:sixty_seconds_jerky", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_instant_noodles", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_chocolate_bar", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_energy_bar", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_seeds_pack", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_dried_fruit", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_trail_mix", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_fresh_vegetables", 1, 1.2F),
+                new Entry("noellesroles:sixty_seconds_canned_soup", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_mre", 1, 0.8F),
+                new Entry("noellesroles:sixty_seconds_stew", 1, 1.0F))));
         table.categories.put("water", new ArrayList<>(List.of(
                 new Entry("minecraft:potion", 1, 3.0F),
-                new Entry("minecraft:glass_bottle", 1, 2.0F))));
+                new Entry("minecraft:glass_bottle", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_juice", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_coffee", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_sports_drink", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_water_pack", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_purified_water", 1, 1.2F),
+                new Entry("noellesroles:sixty_seconds_thermos", 1, 0.8F))));
         table.categories.put("medicine", new ArrayList<>(List.of(
                 new Entry("minecraft:golden_apple", 1, 1.0F),
-                new Entry("minecraft:honey_bottle", 1, 2.0F))));
+                new Entry("minecraft:honey_bottle", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_painkillers", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_antibiotics", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_sedative", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_vitamin", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_purification_tablet", 1, 1.2F),
+                new Entry("noellesroles:sixty_seconds_charcoal_pill", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_detox_tea", 1, 1.2F),
+                new Entry("noellesroles:sixty_seconds_medkit", 1, 0.6F),
+                new Entry("noellesroles:sixty_seconds_herbal_tea", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_blood_bag", 1, 0.8F),
+                new Entry("noellesroles:sixty_seconds_anti_pollution_serum", 1, 0.8F),
+                new Entry("noellesroles:sixty_seconds_adrenaline", 1, 0.6F))));
         table.categories.put("tool", new ArrayList<>(List.of(
-                new Entry("minecraft:torch", 4, 3.0F),
-                new Entry("minecraft:iron_ingot", 1, 1.0F))));
+                new Entry("noellesroles:sixty_seconds_torch", 2, 3.0F),
+                new Entry("minecraft:iron_ingot", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_wrench", 1, 0.5F),
+                new Entry("noellesroles:sixty_seconds_toolbox", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_compass", 1, 0.8F),
+                new Entry("noellesroles:sixty_seconds_repair_kit", 1, 0.8F),
+                new Entry("noellesroles:sixty_seconds_grappling_hook", 1, 0.6F),
+                new Entry("noellesroles:sixty_seconds_blueprint", 1, 0.4F),
+                // 专用合成台（可携带的工作台/灶台/净化台，稀有）
+                new Entry("noellesroles:sixty_seconds_workbench", 1, 0.4F),
+                new Entry("noellesroles:sixty_seconds_stove", 1, 0.3F),
+                new Entry("noellesroles:sixty_seconds_purifier", 1, 0.3F),
+                // 娱乐物品（右键给周围玩家回理智，恢复量/耐久按类型不同）
+                new Entry("noellesroles:sixty_seconds_poker", 1, 0.5F),
+                new Entry("noellesroles:sixty_seconds_chess", 1, 0.4F),
+                new Entry("noellesroles:sixty_seconds_harmonica", 1, 0.5F),
+                new Entry("noellesroles:sixty_seconds_guitar", 1, 0.3F),
+                new Entry("noellesroles:sixty_seconds_teddy_bear", 1, 0.3F))));
+        // 科技树/合成材料（废料解锁科技；破布+酒精→绷带；污染水→净化）
+        table.categories.put("material", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_scrap", 2, 4.0F),
+                new Entry("minecraft:oak_planks", 2, 2.5F),
+                new Entry("minecraft:iron_ingot", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_rag", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_alcohol", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_dirty_water", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_duct_tape", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_battery", 1, 0.8F),
+                new Entry("noellesroles:sixty_seconds_plastic", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_glass_shard", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_wire", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_chemicals", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_electronics", 1, 1.2F),
+                new Entry("noellesroles:sixty_seconds_gear", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_gunpowder_pack", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_steel_ingot", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_nails", 3, 2.0F),
+                new Entry("noellesroles:sixty_seconds_fertilizer", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_charcoal_filter", 1, 1.0F),
+                new Entry("minecraft:charcoal", 2, 1.5F),
+                new Entry("minecraft:potato", 2, 1.5F))));
+        // 枪械与弹药（稀有；命中怪物即死/玩家扣血，见 SixtySecondsGunItem）
+        table.categories.put("weapon", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_ammo", 4, 4.0F),
+                new Entry("noellesroles:sixty_seconds_pistol", 1, 1.2F),
+                new Entry("noellesroles:sixty_seconds_hunting_shotgun", 1, 0.6F),
+                new Entry("noellesroles:sixty_seconds_rifle", 1, 0.4F),
+                new Entry("noellesroles:sixty_seconds_sniper", 1, 0.25F),
+                new Entry("noellesroles:sixty_seconds_rpg", 1, 0.15F),
+                new Entry("noellesroles:sixty_seconds_hatchet", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_cleaver", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_incendiary_grenade", 1, 0.8F),
+                new Entry("noellesroles:sixty_seconds_frag_grenade", 1, 0.7F))));
         return table;
     }
 

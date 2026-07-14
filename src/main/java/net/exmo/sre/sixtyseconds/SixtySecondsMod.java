@@ -26,9 +26,48 @@ public final class SixtySecondsMod {
     }
 
     public static void init() {
+        SixtySecondsCreativeTab.register(); // 统一创造标签页（须在物品入页前注册）
         MODE = SREGameModes.registerGameMode(new SixtySecondsGameMode(MODE_ID));
+        net.exmo.sre.sixtyseconds.arena.SixtySecondsArena.registerEntityClearWindow(); // 开局清卸载区块里的残留尸体/掉落物
         net.exmo.sre.sixtyseconds.logic.SixtySecondsHealthSystem.register();
         net.exmo.sre.sixtyseconds.logic.SixtySecondsMonsterSystem.registerEvents();
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsStations.register(); // 合成台绑定（书桌/灶台/浴缸）
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsCorpseLoot.register(); // 死亡物品装入尸体箱可搜刮
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsLootSearch.register(); // 物资箱搜刮全局推进（游戏外也生效）
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.register(); // 夜袭者死亡掉废料
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsReconnect.register(); // 掉线备份/重连恢复（背包+状态）
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsRockets.register(); // RPG 火箭投射物全局推进
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsAirdrop.register(); // 指令空投下落动画全局推进
+        net.exmo.sre.sixtyseconds.content.item.SixtySecondsRopeItem.register(); // 临时绳索到期清除
+        net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrapplingHookItem.register(); // 钩锁荡索摔落保护
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsProximityChat.register(); // 邻近聊天（只有附近玩家能看到）
+        registerDropRule(); // 本模式放行丢弃物品（全局默认禁丢，见 KeyBindingMixin/DropRules）
+        registerChatHudRule(); // 本模式放行聊天栏渲染（存活玩家默认被 ChatHudMixin 隐藏）
+    }
+
+    /**
+     * 允许本模式存活玩家看到聊天栏：{@code ChatHudMixin} 默认对局内存活玩家隐藏聊天渲染
+     * （仅 {@code ChatHudRules} 放行的职业/玩家可见），而 60s 有邻近聊天玩法
+     * （{@code SixtySecondsProximityChat}），聊天栏被隐藏时消息根本看不到。
+     */
+    private static void registerChatHudRule() {
+        io.wifi.starrailexpress.rules.ChatHudRules.canUseChatHudPlayer.add(
+                player -> player != null && isActive(player.level()));
+    }
+
+    /**
+     * 允许玩家在本模式丢弃物品：全局默认禁止丢弃（{@code KeyBindingMixin} 抑制丢弃键），
+     * 这里往 {@link io.wifi.starrailexpress.rules.DropRules#canDrop} 加一条本模式放行规则。
+     * 但<b>不放行屏障占位</b>——{@code SixtySecondsInventoryLimit} 用 BARRIER 填充受限槽（准备阶段可能落到快捷栏），
+     * 否则玩家会把占位符扔进世界。
+     */
+    private static void registerDropRule() {
+        io.wifi.starrailexpress.rules.DropRules.canDrop.add(player -> {
+            if (player == null || !isActive(player.level())) {
+                return false;
+            }
+            return !player.getMainHandItem().is(net.minecraft.world.item.Items.BARRIER);
+        });
     }
 
     /** 当前世界是否正在运行本模式。 */

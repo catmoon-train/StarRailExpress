@@ -362,7 +362,7 @@ public class NRGameStateEvents {
 
             if (server.getTickCount() % 10 == 0) {
                 HashSet<UUID> toDeleted = new HashSet<>();
-                for (var p_u : RadioItem.RADIO_GROUP) {
+                for (var p_u : RadioItem.CHANNELS.keySet()) {
                     ServerPlayer p = server.getPlayerList().getPlayer(p_u);
                     if (p == null) {
                         toDeleted.add(p_u);
@@ -378,7 +378,7 @@ public class NRGameStateEvents {
                         }
                     }
                 }
-                RadioItem.RADIO_GROUP.removeAll(toDeleted);
+                RadioItem.CHANNELS.keySet().removeAll(toDeleted);
             }
         });
 

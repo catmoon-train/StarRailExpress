@@ -580,7 +580,7 @@ public class GameUtils {
         }
         isStartingGame = false;
         HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
-        RadioItem.RADIO_GROUP.clear();
+        RadioItem.clear();
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverWorld);
         gameComponent.isSkillAvailable = true;
         // AreasWorldComponent areasWorldComponent =
@@ -1113,7 +1113,7 @@ public class GameUtils {
             resetPlayerAfterGame(player);
         }
         HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
-        RadioItem.RADIO_GROUP.clear();
+        RadioItem.clear();
 
         // reset game component
         roundEnd.CustomWinnerPlayers.clear();

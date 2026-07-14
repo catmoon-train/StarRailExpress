@@ -64,23 +64,56 @@ public final class SixtySecondsVisitSystem {
         if (target == null) {
             return;
         }
+        // 前两天新手保护期：不许「进入避难所」类拜访（进别人家）；交易类不进家，照常放行
+        if (type == TYPE_ENTER && SixtySecondsBreakIn.isHomeEntryLocked(data)) {
+            visitor.displayClientMessage(Component.translatable(
+                    "message.noellesroles.sixty_seconds.visit_enter_too_early").withStyle(ChatFormatting.RED), true);
+            return;
+        }
         PENDING.put(visitor.getUUID(), new Pending(targetTeamId, type, level.getGameTime() + TIMEOUT_TICKS));
+        // 同意/拒绝在门上操作：不再直接弹窗，聊天通知目标队成员去右键家门处理（门菜单出现「处理拜访请求」）
+        Component typeText = Component.translatable(type == TYPE_ENTER
+                ? "message.noellesroles.sixty_seconds.visit_enter_btn"
+                : "message.noellesroles.sixty_seconds.visit_trade_btn");
         for (UUID uuid : target.members) {
             if (level.getPlayerByUUID(uuid) instanceof ServerPlayer member
                     && GameUtils.isPlayerAliveAndSurvival(member)) {
-                ServerPlayNetworking.send(member,
-                        new OpenVisitPromptS2CPacket(visitor.getUUID(), visitor.getGameProfile().getName(), type));
+                member.displayClientMessage(Component.translatable(
+                        "message.noellesroles.sixty_seconds.visit_request_notify",
+                        visitor.getGameProfile().getName(), typeText)
+                        .withStyle(ChatFormatting.YELLOW), false);
             }
         }
         visitor.displayClientMessage(Component.translatable("message.noellesroles.sixty_seconds.visit_sent"), true);
     }
 
+    /** 目标队当前待处理的拜访请求（已过期/发起方离线的忽略）；门菜单据此显示「处理拜访请求」。 */
+    public static PendingView pendingForTeam(ServerLevel level, int teamId) {
+        long now = level.getGameTime();
+        for (Map.Entry<UUID, Pending> entry : PENDING.entrySet()) {
+            Pending pending = entry.getValue();
+            if (pending.targetTeamId == teamId && now < pending.expireTick
+                    && level.getPlayerByUUID(entry.getKey()) instanceof ServerPlayer visitor) {
+                return new PendingView(entry.getKey(), visitor.getGameProfile().getName(), pending.type);
+            }
+        }
+        return null;
+    }
+
+    public record PendingView(UUID visitor, String visitorName, int type) {
+    }
+
     public static void respond(ServerPlayer responder, UUID visitorUuid, boolean accept) {
-        Pending pending = PENDING.remove(visitorUuid);
+        Pending pending = PENDING.get(visitorUuid);
         if (pending == null) {
             return; // 已过期 / 已响应
         }
         ServerLevel level = responder.serverLevel();
+        // 响应者必须是目标队成员（同意/拒绝走门菜单→C2S，包可伪造，服务端兜底校验）
+        if (SixtySecondsStatsComponent.KEY.get(responder).teamId != pending.targetTeamId) {
+            return;
+        }
+        PENDING.remove(visitorUuid);
         if (!(level.getPlayerByUUID(visitorUuid) instanceof ServerPlayer visitor)) {
             return;
         }
@@ -90,10 +123,23 @@ public final class SixtySecondsVisitSystem {
             return;
         }
         if (pending.type == TYPE_ENTER) {
+            // 前两天不许进别人家：服务端权威兜底（请求端已拦；防跨天/伪造包绕过）
+            if (SixtySecondsBreakIn.isHomeEntryLocked(SixtySecondsState.get(level))) {
+                visitor.displayClientMessage(Component.translatable(
+                        "message.noellesroles.sixty_seconds.visit_enter_too_early").withStyle(ChatFormatting.RED), true);
+                return;
+            }
             SixtySecondsState.TeamData target = SixtySecondsState.get(level).teams.get(pending.targetTeamId);
             if (target != null && target.shelterSpawn != null) {
-                visitor.teleportTo(level, target.shelterSpawn.getX() + 0.5D, target.shelterSpawn.getY(),
-                        target.shelterSpawn.getZ() + 0.5D, visitor.getYRot(), visitor.getXRot());
+                // 安全落点：shelterSpawn 可能在门/墙体方块里，直传会窒息倒地死
+                net.minecraft.core.BlockPos safe = net.exmo.sre.sixtyseconds.arena.SixtySecondsSearchZones
+                        .findSafeSpot(level, target.shelterSpawn);
+                visitor.teleportTo(level, safe.getX() + 0.5D, safe.getY(), safe.getZ() + 0.5D,
+                        visitor.getYRot(), visitor.getXRot());
+                // 区域地图切到主队避难所；登记做客（USED_BANED 交互限制 + 点门离开回自己家）
+                net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.send(
+                        visitor, target.shelterBox, target.shelterSpawn, true);
+                SixtySecondsVisiting.start(visitor, pending.targetTeamId);
             }
             visitor.displayClientMessage(Component.translatable("message.noellesroles.sixty_seconds.visit_enter_ok")
                     .withStyle(ChatFormatting.GREEN), false);

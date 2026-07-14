@@ -691,6 +691,9 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         // 净化弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.PURIFY_BOMB, ThrownItemRenderer::new);
 
+        // 末日60秒投掷武器（燃烧瓶/土制炸弹/闪光弹/燃烧弹/破片手雷）- 按实体自带 ItemStack 渲染成对应手雷
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_GRENADE, ThrownItemRenderer::new);
+
         // 闪光弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.FLASH_GRENADE, ThrownItemRenderer::new);
 

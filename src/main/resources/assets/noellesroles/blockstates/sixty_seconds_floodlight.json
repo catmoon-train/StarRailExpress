@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "noellesroles:block/sixty_seconds_floodlight"
+    },
+    "lit=true": {
+      "model": "noellesroles:block/sixty_seconds_floodlight_on"
+    }
+  }
+}

@@ -123,6 +123,14 @@ public class MinigameQuestBlock extends BaseEntityBlock
                     // 游戏进行中：必须有对应的待办小游戏任务，且该点位不在本玩家冷却中；
                     // 未开始游戏时：可随意打开（无任务 / 冷却限制）。
                     if (io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(sp.level()).isRunning()) {
+                        // 60s 模式：发电机断电 = 镶板停机（服务端硬门控；非 60s 恒放行）
+                        if (net.exmo.sre.sixtyseconds.logic.SixtySecondsPowerSystem.minigameBlockedByPower(sp)) {
+                            sp.displayClientMessage(
+                                    net.minecraft.network.chat.Component.translatable(
+                                            "message.noellesroles.sixty_seconds.minigame_no_power"),
+                                    true);
+                            return InteractionResult.SUCCESS;
+                        }
                         var mgComp = io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent.KEY.get(sp);
                         if (!mgComp.hasPendingTask()) {
                             // 当前没有对应的小游戏任务：拒绝使用并提示

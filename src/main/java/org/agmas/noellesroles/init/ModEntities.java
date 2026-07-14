@@ -126,6 +126,24 @@ public class ModEntities {
                     .build());
 
     /**
+     * 末日60秒投掷武器实体 - 燃烧瓶/土制炸弹/闪光弹/燃烧弹/破片手雷共用；
+     * 飞行中按自带 ItemStack 渲染，命中方块/实体时按该手雷的参数引爆。
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsGrenadeEntity>
+            SIXTY_SECONDS_GRENADE = Registry.register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "sixty_seconds_grenade"),
+                    FabricEntityTypeBuilder
+                            .<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsGrenadeEntity>create(
+                                    MobCategory.MISC,
+                                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsGrenadeEntity::new)
+                            .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                            .trackRangeBlocks(8)
+                            .trackedUpdateRate(10)
+                            .build());
+
+    /**
      * 灾厄印记实体 - 设陷者专属隐形陷阱
      */
     @SuppressWarnings("deprecation")

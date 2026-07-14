@@ -4,6 +4,8 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -57,12 +59,22 @@ public class MintCandiesItem extends Item {
     public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level world, @NotNull LivingEntity user) {
         if (user instanceof Player player) {
             if (!world.isClientSide()) {
-                // 恢复san值
+                // 恢复 san 值（通用）
                 SREPlayerMoodComponent moodComponent = SREPlayerMoodComponent.KEY.get(player);
                 float currentMood = moodComponent.getMood();
                 float newMood = Math.min(1.0f, currentMood + SANITY_RESTORE_AMOUNT);
                 moodComponent.setMood(newMood);
                 moodComponent.sync();
+                // 60s 模式：同步恢复理智值
+                if (player instanceof ServerPlayer sp
+                        && net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(world)) {
+                    var stats = SixtySecondsStatsComponent.KEY.get(sp);
+                    if (stats != null) {
+                        stats.sanity = Math.min(SixtySecondsStatsComponent.MAX,
+                                stats.sanity + 20);
+                        stats.sync();
+                    }
+                }
                 final var playerShopComponent = SREPlayerShopComponent.KEY.get(player);
                 playerShopComponent.setBalance(playerShopComponent.balance +15);
                 // 播放吃东西的音效

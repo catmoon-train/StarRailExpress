@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "minecraft:block/emerald_block"
+    "all": "noellesroles:block/sixty_seconds_survivor_camp",
+    "particle": "noellesroles:block/sixty_seconds_survivor_camp"
   }
 }

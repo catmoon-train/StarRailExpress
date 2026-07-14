@@ -75,10 +75,12 @@ public class InputHandler {
         if (client.level == null)
             return;
 
-        // 检查玩家是否持有狙击枪，如果不持有则关闭瞄准镜
+        // 检查玩家是否持有狙击枪，如果不持有则关闭瞄准镜（60s 带镜枪同样放行）
         if (ScopeOverlayRenderer.isInScopeView() && client.player != null) {
             ItemStack mainHandItem = client.player.getMainHandItem();
-            if (!mainHandItem.is(TMMItems.SNIPER_RIFLE)) {
+            boolean sixtySecondsScoped = mainHandItem.getItem()
+                    instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsGunItem gun && gun.hasScope();
+            if (!mainHandItem.is(TMMItems.SNIPER_RIFLE) && !sixtySecondsScoped) {
                 ScopeOverlayRenderer.setInScopeView(false);
             }
         }

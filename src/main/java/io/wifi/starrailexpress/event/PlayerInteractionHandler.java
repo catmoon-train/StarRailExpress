@@ -44,15 +44,19 @@ public class PlayerInteractionHandler {
             }
             SREGameWorldComponent game = SREGameWorldComponent.KEY.get(world);
 
-            if (game.isRunning() && !player.isCreative() && !player.isSpectator()) {
+            if (game.isRunning() && !player.isCreative() && !player.isSpectator()
+                    // 60s 生存模式不禁交互：箱子搜物资、家具容器（handcrafted 抽屉/柜等）都是玩法一部分；
+                    // 工作台/熔炉等由 SixtySecondsStations 自行接管
+                    && !net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(world)) {
 
                 BlockState state = world.getBlockState(hitResult.getBlockPos());
                 Block block = state.getBlock();
 
-                if (isVanillaWorkstation(block)) {
+
+                if (CantRightClickBlocks.shouldPreventInteraction(player, block, world)) {
                     return InteractionResult.FAIL;
                 }
-                if (CantRightClickBlocks.shouldPreventInteraction(player, block, world)) {
+                if (isVanillaWorkstation(block)) {
                     return InteractionResult.FAIL;
                 }
             }

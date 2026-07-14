@@ -166,9 +166,11 @@ public class ZeroOneFiveGunItem extends SkinableItem {
      * 自动开第二枪
      */
     private static void shootSecondShot(ServerPlayer shooter, ServerPlayer target) {
-        // 播放射击音效
+        // 播放射击音效（连发第二枪压低音量音高，减轻耳朵污染）
         shooter.level().playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(),
-                TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
+                TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 0.8F, 0.85F);
+        // 射击轨迹渲染
+        net.exmo.sre.sixtyseconds.logic.GunTracers.broadcast(shooter, target, 30.0D);
         
         // 发送枪口闪光给所有追踪者（包括自己）
         for (ServerPlayer tracking : PlayerLookup.tracking(shooter)) {

@@ -38,6 +38,8 @@ public final class SixtySecondsTrade {
         Session session = new Session(a.getUUID(), b.getUUID());
         SESSIONS.put(a.getUUID(), session);
         SESSIONS.put(b.getUUID(), session);
+        // 交易期间双方可聊天：复用拜访聊天的中继（交易窗内嵌聊天区），交易结束时解除
+        SixtySecondsVisitChat.startSilentSession(a, b);
         ServerPlayNetworking.send(a, new OpenTradeS2CPacket(b.getGameProfile().getName()));
         ServerPlayNetworking.send(b, new OpenTradeS2CPacket(a.getGameProfile().getName()));
     }
@@ -57,6 +59,7 @@ public final class SixtySecondsTrade {
         if (session.confirmA && session.confirmB) {
             executeSwap(a, b);
             clear(session);
+            SixtySecondsVisitChat.endPair(session.a, session.b);
             message(a, "message.noellesroles.sixty_seconds.trade_done", ChatFormatting.GREEN);
             message(b, "message.noellesroles.sixty_seconds.trade_done", ChatFormatting.GREEN);
         } else {
@@ -72,6 +75,7 @@ public final class SixtySecondsTrade {
         }
         UUID otherId = player.getUUID().equals(session.a) ? session.b : session.a;
         SESSIONS.remove(otherId);
+        SixtySecondsVisitChat.endPair(session.a, session.b);
         ServerPlayer other = player.getServer().getPlayerList().getPlayer(otherId);
         message(other, "message.noellesroles.sixty_seconds.trade_cancelled", ChatFormatting.RED);
     }

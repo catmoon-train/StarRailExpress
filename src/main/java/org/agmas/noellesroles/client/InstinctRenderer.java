@@ -20,6 +20,8 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.Color;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
+import net.exmo.sre.sixtyseconds.SixtySecondsMod;
+import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Display;
@@ -840,6 +842,17 @@ public class InstinctRenderer {
                     // 家族成员透视非家族成员 - 20格距离限制
                     if (self.distanceTo(target_player) > 20.0D) {
                         return TrueFalseAndCustomResult.disallow();
+                    }
+                }
+
+                // 60s模式：家庭成员互相透视（无距离限制）
+                if (SixtySecondsMod.isActive(self.level())) {
+                    var selfStats = SixtySecondsStatsComponent.KEY.get(self);
+                    if (selfStats != null && selfStats.teamId >= 0) {
+                        var targetStats = SixtySecondsStatsComponent.KEY.get(target_player);
+                        if (targetStats != null && targetStats.teamId == selfStats.teamId) {
+                            return TrueFalseAndCustomResult.custom(new Color(255, 215, 0).getRGB()); // 金色
+                        }
                     }
                 }
 

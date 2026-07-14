@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "noellesroles:block/sixty_seconds_generator"
+    },
+    "lit=true": {
+      "model": "noellesroles:block/sixty_seconds_generator_on"
+    }
+  }
+}

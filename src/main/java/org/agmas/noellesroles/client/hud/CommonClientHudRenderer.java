@@ -239,7 +239,11 @@ public class CommonClientHudRenderer {
     MurderTimeHud.register();
     RepairEscapeHud.register();
     net.exmo.sre.sixtyseconds.client.SixtySecondsHud.register();
+    net.exmo.sre.sixtyseconds.client.SixtySecondsSearchHud.register();
+    net.exmo.sre.sixtyseconds.client.SixtySecondsSleepOverlay.register();
+    net.exmo.sre.sixtyseconds.client.SixtySecondsBlockNameHud.register();
     net.exmo.sre.sixtyseconds.client.SixtySecondsTooltips.register();
+    net.exmo.sre.sixtyseconds.client.SixtySecondsNameTag.register();
     registerSons();
     OtherRolesRegister.registerSons();
   }

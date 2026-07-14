@@ -7,38 +7,198 @@ public final class SixtySecondsBalance {
     private SixtySecondsBalance() {
     }
 
-    // ── 每分钟状态消耗（户外基准；在家 ×{@link #HOME_DRAIN_MULT}）───────────
-    public static final int HUNGER_DRAIN_PER_MIN = 3;   // 一天(8min)约 -24，≈半条
-    public static final int THIRST_DRAIN_PER_MIN = 5;   // 一天约 -40，≈一条
+    // ── 每分钟状态消耗（在家基准；户外 ×{@link #OUTDOOR_DRAIN_MULT}）───────
+    /** 在家：~8×0.8=6.4/分钟 × 9.5分钟 ≈ 61/天；户外(×1.2)：~7.7/分钟 ≈ 73/天 */
+    public static final int HUNGER_DRAIN_PER_MIN = 8;
+    /** 在家：~10×0.8=8/分钟 × 9.5分钟 ≈ 76/天；户外(×1.2)：~9.6/分钟 ≈ 91/天 */
+    public static final int THIRST_DRAIN_PER_MIN = 10;
     public static final int SANITY_DRAIN_PER_MIN = 1;   // san 缓慢下降
     public static final int POLLUTION_GAIN_PER_MIN = 1; // 污染缓慢累积
-    public static final double HOME_DRAIN_MULT = 0.5;   // 在家各项下降/累积减半
+    /** 在家消耗倍率（基准=1.0，即上述常量即在家消耗） */
+    public static final double HOME_DRAIN_MULT = 1.0;
+    /** 户外消耗倍率（在家 ×1.2；原×1.5，-20%） */
+    public static final double OUTDOOR_DRAIN_MULT = 1.2;
+    /** 户外环境污染增速额外倍率（-60%；小数部分按概率进位结算）。 */
+    public static final double POLLUTION_OUTDOOR_MULT = 0.4;
+    /** 全局消耗倍率（所有状态降低 -20%） */
+    public static final double DRAIN_MULT_GLOBAL = 0.8;
+    /** 污染增速全局倍率（-40%，叠加在全局/位置倍率上） */
+    public static final double POLLUTION_DRAIN_MULT = 0.6;
+    /** 前两天的消耗倍率（-50%，叠加在全局/位置倍率上） */
+    public static final double DRAIN_MULT_EARLY_DAYS = 0.5;
+    /** 第三天起的消耗倍率（-20%，叠加在全局/位置倍率上） */
+    public static final double DRAIN_MULT_LATE_DAYS = 0.8;
 
     // ── 健康保护（避免多状态叠加导致掉血过快）─────────────────────────────
     /** 饥饿或口渴清空时，每秒最多扣的健康（<b>单一来源、封顶、不叠加</b>）。100 血≈100s 才死，留足反制窗口。 */
     public static final int HEALTH_LOSS_PER_SEC = 1;
+    /**
+     * 环境/自然伤害（火、岩浆、窒息、溺水、冰冻、坠落等）的无敌帧（tick）。ALLOW_DAMAGE 取消原版伤害后，
+     * 原版无敌帧 {@code invulnerableTime} 不会被设置，逐 tick 触发的环境伤害会全额连扣（卡墙/掉火里瞬间秒杀）；
+     * 这里自建无敌帧，同一玩家的环境伤害在此窗口内只结算一次（更强的一击补差额），与原版 10 tick(0.5s) 一致。
+     */
+    public static final int ENV_INVULN_TICKS = 10;
 
-    // ── 污染满的负面（不立即死亡）──────────────────────────────────────
+    // ── 高污染的负面（缓慢侵蚀健康，不立即死亡）─────────────────────────
     public static final int POLLUTION_SICK_ROLL_INTERVAL = 20 * 120; // 满污染每 2 分钟一次生病判定
-    public static final double POLLUTION_SICK_CHANCE = 0.33;
+    public static final double POLLUTION_SICK_CHANCE = 0.15;   // 从 33% 降至 15%（-50%+）
+    public static final int POLLUTION_HEALTH_THRESHOLD = 70;   // 污染 ≥70 开始侵蚀健康
+    public static final int POLLUTION_HEALTH_LOSS_HIGH = 3;    // 污染 70~99：每分钟基准 -3 健康（×下方倍率）
+    public static final int POLLUTION_HEALTH_LOSS_FULL = 5;    // 污染满(100)：每分钟基准 -5 健康（×下方倍率）
+    /** 污染侵蚀健康的整体倍率（-60%；小数部分按概率进位，实际 ≈1.2/2 每分钟）。 */
+    public static final double POLLUTION_HEALTH_LOSS_MULT = 0.4;
 
     // ── 事件系统 ──────────────────────────────────────────────────────
     public static final int EVENT_CHECK_INTERVAL = 20 * 60 * 3; // 每 3 分钟尝试触发一次事件
-    public static final double EVENT_CHANCE = 0.6;              // 触发概率
+    public static final double EVENT_CHANCE = 0.3;              // 触发概率（原 0.6，-50%）
     public static final int POLLUTION_RAIN_DURATION = 20 * 60 * 2; // 污雨持续 2 分钟
-    public static final int POLLUTION_RAIN_GAIN_PER_SEC = 2;    // 污雨中·户外·无伞：每秒额外污染
+    /** 污雨中·户外·无伞：每 10 秒额外污染（7 → 3，户外污染增速再 -60%）。 */
+    public static final int POLLUTION_RAIN_GAIN_PER_10S = 3;
 
     // ── san 归零变怪物 ────────────────────────────────────────────────
     public static final int MONSTER_DELAY_TICKS = 20 * 30;    // san 归零后 30s 变怪
     public static final int SAN_LOSS_ON_DEATH = 15;           // 目睹死亡损失的 san
     public static final double DEATH_SAN_RANGE_SQR = 24 * 24; // 目睹死亡的范围（平方）
 
-    // ── 日内子相位：早晨禁 PvP ────────────────────────────────────────
-    public static final int MORNING_TICKS = 20 * 60 * 2; // 每日前 2 分钟为早晨，禁止攻击玩家
+    // ── 杀人代价：理智上限永久扣减（SixtySecondsHealthSystem.die）───────────
+    public static final double PVP_DAMAGE_MULT = 0.61; // 玩家对玩家伤害倍率（-39%）
+    public static final int KILL_SANITY_CAP_LOSS_MIN = 8;     // 每次杀人扣理智上限下限（×1.5: 5→8）
+    public static final int KILL_SANITY_CAP_LOSS_MAX = 14;     // 每次杀人扣理智上限上限（×1.5: 9→14）
+    public static final int SANITY_CAP_FLOOR = 10;            // 理智上限最低值（防连环杀直接锁死变怪）
 
-    // ── 睡眠（每个游戏日尾声）────────────────────────────────────────────
-    public static final int NIGHT_WINDOW_TICKS = 20 * 60;      // 每日最后 1 分钟为夜晚
+    // ── 倒地系统 ──────────────────────────────────────────────────────
+    /** 倒地时的初始健康值（需被打空才会真正死亡，取代一击处决）。30 ≈ 枪械 1 击、近战 2 击。 */
+    public static final int DOWNED_MAX_HEALTH = 30;
+    /** 倒地后每秒自然流失的健康值（约 30 秒无人补刀/救起则死）。 */
+    public static final int DOWNED_BLEED_PER_SEC = 1;
+
+    // ── 日内子相位：时间轴见 {@link SixtySecondsDayCycle}（清晨1/白天6/晚上2.5分钟，末45s睡觉）──
+
+    // ── 睡眠（晚上最后 45 秒睡觉时间）─────────────────────────────────────
     public static final int SLEEP_HEAL_PER_SEC = 3;            // 在家床上睡觉每秒回血
-    public static final int NIGHT_NO_SLEEP_LOSS_PER_SEC = 1;   // 夜晚不在床/在户外每秒扣血
-    public static final double NIGHT_OUTDOOR_SICK_CHANCE = 0.2; // 户外过夜每 10s 生病判定
+    public static final int NIGHT_NO_SLEEP_LOSS_PER_SEC = 1;   // 睡觉时间不在床/在户外每秒扣血
+    public static final double NIGHT_OUTDOOR_SICK_CHANCE = 0.10; // 户外过夜每 10s 生病判定（从 20% 降至 10%）
+    /** 户外过夜生病概率受状态影响：概率 = baseChance × (1 − factor × minStat/maxStat)。
+     *  minStat=100 时概率仅剩 20%；minStat=0 时为满概率。 */
+    public static final double SICK_CHANCE_STAT_FACTOR = 0.8;
+
+    // ── 低语怪 / 黑暗惩罚（SixtySecondsWhisperSystem）──────────────────────
+    public static final int WHISPER_LIGHT_THRESHOLD = 6;      // 低于此方块亮度视为「黑暗区块」
+    public static final int WHISPER_MAX_PER_TEAM = 2;         // 每队家中同时最多低语怪数量
+    public static final int WHISPER_SPAWN_INTERVAL = 20 * 20; // 夜间每 20s 尝试在黑暗处刷一只
+    public static final int WHISPER_SAN_DRAIN_PER_SEC = 1;    // 低语怪 4 格内每秒掉 san
+    public static final double WHISPER_RANGE_SQR = 4 * 4;
+    public static final int DARK_DAWN_SAN_PENALTY = 15;       // 清晨家中仍有黑暗区块 → 全队 san -15
+    /** 手电筒右键驱散低语怪的半径（格）：比掉 san 半径(4)大，够清掉一个房间。 */
+    public static final double FLASHLIGHT_DISPEL_RADIUS = 8.0;
+    /** 每次驱散消耗的手电筒耐久（电量）。手电筒共 150 耐久 → 约可驱散 3 次，耗尽即损坏。 */
+    public static final int FLASHLIGHT_DISPEL_DURABILITY = 50;
+    /** 驱散冷却（tick），防连点。 */
+    public static final int FLASHLIGHT_DISPEL_COOLDOWN = 20 * 3;
+
+    // ── 家门攻防（SixtySecondsDefenseSystem）──────────────────────────────
+    public static final int DOOR_BASE_HP = 100;
+    public static final int DOOR_REINFORCE_PLANK = 10;        // 木板加固 +10 耐久（可超上限提升上限）
+    public static final int DOOR_REINFORCE_IRON = 25;         // 铁锭加固 +25 耐久
+    public static final int DOOR_IRON_PER_LEVEL = 3;          // 每 3 次铁锭加固门升 1 级（上限 3 级）
+    public static final int ASSAULT_BASE_COUNT = 2;           // 夜袭怪物基础数量（+当前天数）
+    public static final int ASSAULT_MOB_DOOR_DPS = 2;         // 每只怪物每秒对门伤害
+    public static final double ASSAULT_DOOR_RANGE_SQR = 2.5 * 2.5;
+    public static final double ASSAULT_AGGRO_RANGE_SQR = 8 * 8; // 主动索敌半径：8 格内追打玩家（优先于冲门）
+    public static final int ASSAULT_SPAWN_MIN_DIST = 12;      // 夜袭怪刷新点离门最近距离（远刷，给防守方反应窗口）
+    public static final int ASSAULT_SPAWN_RAND_DIST = 9;      // 刷新距离随机加成 0..8（即离门 12~20 格）
+    public static final int ASSAULT_FORCE_CHUNK_RADIUS = 2;   // 战场常加载区块半径（需覆盖刷新距离）
+    public static final int BARRICADE_HP = 60;                // 木路障耐久
+    public static final int BARRICADE_HEAVY_HP = 120;         // 书柜/沙发重型路障耐久
+    public static final int BARRICADE_REINFORCED_HP = 220;    // 钢筋强化路障耐久（工事强化科技）
+    public static final float SPIKE_TRAP_DAMAGE = 3.0F;       // 尖刺陷阱每秒对怪伤害
+    public static final double DOOR_BROKEN_DRAIN_MULT = 2.0;  // 门被攻破：户外消耗再 ×2（即户外 ×1.5×2=×3.0）
+    /** 门锁 / 门陷阱 安装后的有效时长（6 分钟；过期自然失效，可重新安装续期）。 */
+    public static final int DOOR_LOCK_DURATION_TICKS = 20 * 360;
+    public static final int DOOR_TRAP_DURATION_TICKS = 20 * 360;
+
+    // ── 电力（SixtySecondsPowerSystem）───────────────────────────────────
+    public static final int POWER_PER_FUEL_TICKS = 20 * 90;   // 每份燃料（废料/煤）供电 90 秒；电池=3份
+
+    // ── 扩展事件（SixtySecondsEventSystem）────────────────────────────────
+    public static final int SMOG_DURATION = 20 * 60 * 2;      // 浓烟持续 2 分钟
+    public static final int SMOG_POLLUTION_PER_2S = 1;        // 浓烟中·不在家：每 2 秒额外污染 1（原每秒 1，-50%；伞无效）
+    public static final int COLD_SNAP_DURATION = 20 * 60 * 2; // 寒潮持续 2 分钟
+    public static final int COLD_HUNGER_PER_10S = 1;          // 寒潮中·不在家：每 10s 额外饥饿
+    public static final int AIRDROP_ROLLS = 9;                // 空投奖励箱一次性搜出的物资件数
+
+    // ── 洗澡器（SixtySecondsShowerBlock：每人每天一次，消耗小瓶水洗去污染）───
+    public static final double SHOWER_POLLUTION_MULT = 0.5;  // 洗澡后污染 ×0.5（-50%）
+
+    // ── 培育箱（SixtySecondsPlanterBlock：种子→蔬菜的耕地系统）──────────────
+    public static final int PLANTER_GROW_STAGE_TICKS = 20 * 120; // 每生长阶段 2 分钟（共 2 段 ≈ 4 分钟成熟）
+    public static final int PLANTER_HARVEST_MIN = 1;             // 收获蔬菜下限（-40%: 2→1）
+    public static final int PLANTER_HARVEST_MAX = 2;             // 收获蔬菜上限（-40%: 3→2）
+    public static final double PLANTER_SEED_RETURN_CHANCE = 0.4; // 收获时返还 1 包种子的概率
+
+    // ── 集水器（SixtySecondsWaterCollectorBlock：被动产污染水，右键收取）─────
+    public static final int COLLECTOR_BASIC_INTERVAL = 20 * 170; // 雨水桶：170s/瓶（+35%: 260→170）
+    public static final int COLLECTOR_BASIC_CAPACITY = 2;
+    public static final int COLLECTOR_ROOF_INTERVAL = 20 * 110;  // 雨棚集水器：110s/瓶（+35%: 170→110）
+    public static final int COLLECTOR_ROOF_CAPACITY = 4;
+    public static final int COLLECTOR_CONDENSER_INTERVAL = 20 * 75; // 冷凝集水器：75s/瓶（+35%: 115→75）
+    public static final int COLLECTOR_CONDENSER_CAPACITY = 6;
+
+    // ── 娱乐物品（SixtySecondsEntertainmentItem：AoE 恢复理智）─────────────
+    public static final double ENTERTAINMENT_RADIUS = 8.0;          // 作用半径（格）
+    public static final int ENTERTAINMENT_COOLDOWN_TICKS = 20 * 45; // 使用冷却 45 秒
+
+    // ── 每日事件门（SixtySecondsDailyEvents）──────────────────────────────
+    public static final int DAILY_EVENT_DELAY_TICKS = 20 * 15;      // 开日 15s 后触发当日事件
+    public static final int DAILY_EVENT_CHOICE_TICKS = 20 * 90;     // 抉择 90s 未决按保守选项处理
+    public static final int DAILY_EVENT_EXPEDITION_TICKS = 20 * 45; // 探险出发到归来 45s
+    /** 事件产出物资数量倍率（不可堆叠物品不加量；小数部分按概率进位）。 */
+    public static final double DAILY_EVENT_LOOT_MULT = 1.5;
+    /** 事件产出中废料（sixty_seconds_scrap）的数量倍率（覆盖上面的通用倍率）。 */
+    public static final double DAILY_EVENT_SCRAP_MULT = 2.0;
+
+    // ── 隐藏通关 · 救援信标（SixtySecondsRescue）────────────────────────────
+    public static final int RESCUE_COUNTDOWN_TICKS = 20 * 120; // 信标激活后 2 分钟救援抵达
+
+    // ── 绳索（SixtySecondsRopeItem：原地向上放临时可攀爬绳索）───────────────
+    public static final int ROPE_HEIGHT = 16;            // 绳索最大向上延伸（遇非空气截断）
+    public static final int ROPE_DURATION_TICKS = 20 * 30; // 30 秒后消失
+
+    // ── 钩锁（SixtySecondsGrapplingHookItem：钩住准星落点把自己荡过去）────────
+    public static final int GRAPPLE_RANGE = 24;               // 最大射程（格）
+    public static final int GRAPPLE_COOLDOWN_TICKS = 20 * 15; // 使用冷却 15 秒
+    public static final int GRAPPLE_DURABILITY = 20;          // 耐久 20 次
+    public static final int GRAPPLE_NO_FALL_TICKS = 20 * 20;  // 荡索摔落保护窗口上限（落地即提前结束）
+
+    // ── 物资箱搜刮（搜打撤式定时搜刮进度条；见 SixtySecondsLootSearch）─────────
+    public static final int SUPPLY_SEARCH_TICKS = 20 * 3;        // 搜刮时长 3 秒
+    public static final double SUPPLY_SEARCH_MAX_DIST_SQR = 3 * 3; // 离箱超过 3 格中断搜刮
+
+    // ── 枪械（SixtySecondsGunItem：需子弹、攻击冷却、降噪枪声）──────────────
+    /** 命中玩家的健康伤害（受护甲减免；倒地者=处决，怪物=立即死亡）。 */
+    public static final int GUN_PLAYER_DAMAGE = 50;
+    /** 降噪枪声音量（原版枪声硬编码 5f 过响）。 */
+    public static final float GUN_SOUND_VOLUME = 0.9F;
+    /** 每把枪的冷却（tick）与射程（格）。 */
+    public static final int GUN_PISTOL_COOLDOWN = 20;           // 手枪 1s
+    public static final double GUN_PISTOL_RANGE = 24.0;
+    public static final int GUN_SHOTGUN_COOLDOWN = 20 * 2;      // 猎枪 2s（模板）
+    public static final double GUN_SHOTGUN_RANGE = 30.0;
+    public static final int GUN_RIFLE_COOLDOWN = 20 * 3;        // 步枪 3s
+    public static final double GUN_RIFLE_RANGE = 48.0;
+    public static final int GUN_SNIPER_COOLDOWN = 20 * 20;      // 狙击枪 20s（全枪械共享）
+    public static final double GUN_SNIPER_RANGE = 80.0;
+    public static final int GUN_SNIPER_DAMAGE = 100;            // 狙击枪一枪打空健康（直接倒地）
+    public static final int GUN_RPG_COOLDOWN = 20 * 8;          // RPG 8s
+    public static final double GUN_RPG_RANGE = 48.0;
+    public static final int GUN_RPG_AMMO_COST = 5;              // RPG 每发消耗 5 发子弹
+    public static final int GUN_RPG_DAMAGE = 80;                // RPG 玩家伤害 80（高于普通枪械的 50）
+    public static final double GUN_RPG_BLAST_RADIUS = 4.0;      // 爆炸半径（波及自己，小心近射）
+    public static final double GUN_RPG_ROCKET_SPEED = 1.6;      // 火箭飞行速度（格/tick）
+
+    // ── 觉醒职业的本模式数值修正（末日生存平衡；见 SixtySecondsRoleTweaks）───────
+    public static final double JADE_GENERAL_COOLDOWN_MULT = 2.0; // 玉将军 技能冷却×2（35s→70s）
+    public static final double FIGHTER_COOLDOWN_MULT = 3.0;      // 斗士 技能冷却×3（120s→360s）
+    public static final int BROADCASTER_BROADCAST_COST = 100;    // 广播员 每次广播消耗（原版 50）
+    public static final int REPORTER_NOTE_COUNT = 8;             // 记者 觉醒补发便签数（原版 4，×2）
 }

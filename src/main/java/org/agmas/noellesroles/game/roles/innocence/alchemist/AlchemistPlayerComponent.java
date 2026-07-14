@@ -226,6 +226,16 @@ public class AlchemistPlayerComponent implements RoleComponent, ServerTickingCom
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
+        // 末日60秒模式：禁止调制鹤顶红（避免毒杀队友破坏合作生存）
+        if (currentPotionIndex == POTION_HEDINGHONG
+                && net.exmo.sre.sixtyseconds.logic.SixtySecondsRoleTweaks.poisonCraftBanned(serverPlayer)) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.sixty_seconds.poison_banned")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
+
         // 检查当前药剂的调制次数
         if (potionCraftCounts[currentPotionIndex] >= MAX_CRAFT_COUNT) {
             serverPlayer.displayClientMessage(

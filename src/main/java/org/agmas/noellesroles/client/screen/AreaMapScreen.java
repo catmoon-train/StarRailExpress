@@ -135,10 +135,12 @@ public class AreaMapScreen extends Screen {
         renderCanvas(g, mouseX, mouseY);
         renderSidePanel(g, mouseX, mouseY);
 
-        // 底部操作提示
-        Component hint = Component.translatable(AreaMapManager.mode3d
-                ? "gui.noellesroles.area_map.hint3d"
-                : "gui.noellesroles.area_map.hint");
+        // 底部操作提示（60s 模式追加标注操作说明）
+        Component hint = Component.translatable(
+                net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.isActive() && !AreaMapManager.mode3d
+                        ? "gui.noellesroles.area_map.hint_marker"
+                        : AreaMapManager.mode3d ? "gui.noellesroles.area_map.hint3d"
+                                : "gui.noellesroles.area_map.hint");
         g.drawString(font, hint, canvasX0 + 4, height - PAD - 12, MUTED, false);
     }
 
@@ -173,24 +175,29 @@ public class AreaMapScreen extends Screen {
 
         float lift = AreaMapManager.mode3d ? (AreaMapManager.WALL_LAYERS + 1) * layerPx : 0f;
 
-        // 任务点
+        // 任务点（60s 模式不显示任务点，改为家点位 + 自定义标注）
+        boolean sixtySeconds = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.isActive();
         BlockPos hovered = null;
         AreaMapPointCategory hoveredCat = null;
-        for (Map.Entry<BlockPos, Integer> entry : NoellesrolesClient.taskBlocks.entrySet()) {
-            AreaMapPointCategory cat = AreaMapPointCategory.byTypeId(entry.getValue());
-            if (cat == null || !AreaMapManager.visibleCategories.contains(cat)) continue;
-            if (drawPoint(g, ccx, ccy, entry.getKey(), cat.color, lift, mouseX, mouseY)) {
-                hovered = entry.getKey();
-                hoveredCat = cat;
-            }
-        }
-        if (AreaMapManager.visibleCategories.contains(AreaMapPointCategory.DOOR)) {
-            for (BlockPos door : TaskBlockOverlayRenderer.RoomDoorPositions) {
-                if (drawPoint(g, ccx, ccy, door, AreaMapPointCategory.DOOR.color, lift, mouseX, mouseY)) {
-                    hovered = door;
-                    hoveredCat = AreaMapPointCategory.DOOR;
+        if (!sixtySeconds) {
+            for (Map.Entry<BlockPos, Integer> entry : NoellesrolesClient.taskBlocks.entrySet()) {
+                AreaMapPointCategory cat = AreaMapPointCategory.byTypeId(entry.getValue());
+                if (cat == null || !AreaMapManager.visibleCategories.contains(cat)) continue;
+                if (drawPoint(g, ccx, ccy, entry.getKey(), cat.color, lift, mouseX, mouseY)) {
+                    hovered = entry.getKey();
+                    hoveredCat = cat;
                 }
             }
+            if (AreaMapManager.visibleCategories.contains(AreaMapPointCategory.DOOR)) {
+                for (BlockPos door : TaskBlockOverlayRenderer.RoomDoorPositions) {
+                    if (drawPoint(g, ccx, ccy, door, AreaMapPointCategory.DOOR.color, lift, mouseX, mouseY)) {
+                        hovered = door;
+                        hoveredCat = AreaMapPointCategory.DOOR;
+                    }
+                }
+            }
+        } else {
+            renderSixtySecondsPoints(g, ccx, ccy, lift, mouseX, mouseY);
         }
 
         renderPlayerMarker(g, ccx, ccy, lift);
@@ -254,6 +261,64 @@ public class AreaMapScreen extends Screen {
         return new double[] { (dx * cos + uy * sin) / zoom, (-dx * sin + uy * cos) / zoom };
     }
 
+    /** 60s 模式：绘制「家」点位（金色房形）+ 所有避难所门（青色方块）+ 玩家自定义标注（彩色菱形）。 */
+    private void renderSixtySecondsPoints(GuiGraphics g, int ccx, int ccy, float lift, int mouseX, int mouseY) {
+        // 家点位
+        BlockPos home = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.homePos();
+        Component tooltip = null;
+        if (home != null) {
+            double[] s = cellToScreen(AreaMapManager.worldToCellX(home.getX() + 0.5),
+                    AreaMapManager.worldToCellZ(home.getZ() + 0.5), ccx, ccy, lift);
+            int sx = (int) Math.round(s[0]);
+            int sy = (int) Math.round(s[1]);
+            // 房形：金色方块 + 深色描边 + 顶部小三角
+            g.fill(sx - 4, sy - 3, sx + 4, sy + 4, 0xAA000000);
+            g.fill(sx - 3, sy - 2, sx + 3, sy + 3, GOLD);
+            g.fill(sx - 1, sy - 4, sx + 1, sy - 2, GOLD);
+            if (Math.abs(mouseX - sx) <= 4 && Math.abs(mouseY - sy) <= 4) {
+                tooltip = Component.translatable("gui.noellesroles.area_map.home_point").withStyle(ChatFormatting.GOLD);
+            }
+        }
+        // 所有避难所门（创造模式可见，青色方块）
+        for (BlockPos door : net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.shelterDoors()) {
+            double[] s = cellToScreen(AreaMapManager.worldToCellX(door.getX() + 0.5),
+                    AreaMapManager.worldToCellZ(door.getZ() + 0.5), ccx, ccy, lift);
+            int sx = (int) Math.round(s[0]);
+            int sy = (int) Math.round(s[1]);
+            if (sx < canvasX0 - 5 || sx > canvasX1 + 5 || sy < canvasY0 - 5 || sy > canvasY1 + 5) continue;
+            // 青色门图标：小方块 + 竖线（模拟门）
+            g.fill(sx - 3, sy - 3, sx + 3, sy + 3, 0xAA000000);
+            g.fill(sx - 2, sy - 2, sx + 2, sy + 2, 0xFF4AB8C0);
+            g.fill(sx - 2, sy - 2, sx - 1, sy + 2, 0xFF287880);
+            if (Math.abs(mouseX - sx) <= 4 && Math.abs(mouseY - sy) <= 4) {
+                tooltip = Component.literal("Door " + door.getX() + ", " + door.getY() + ", " + door.getZ())
+                        .withStyle(ChatFormatting.AQUA);
+            }
+        }
+        // 自定义标注
+        for (net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.Marker marker
+                : net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.markers()) {
+            double[] s = cellToScreen(AreaMapManager.worldToCellX(marker.worldX()),
+                    AreaMapManager.worldToCellZ(marker.worldZ()), ccx, ccy, lift);
+            int sx = (int) Math.round(s[0]);
+            int sy = (int) Math.round(s[1]);
+            if (sx < canvasX0 - 6 || sx > canvasX1 + 6 || sy < canvasY0 - 6 || sy > canvasY1 + 6) continue;
+            // 菱形标注
+            g.fill(sx - 1, sy - 3, sx + 1, sy + 3, 0xAA000000);
+            g.fill(sx - 3, sy - 1, sx + 3, sy + 1, 0xAA000000);
+            g.fill(sx - 1, sy - 2, sx + 1, sy + 2, marker.color());
+            g.fill(sx - 2, sy - 1, sx + 2, sy + 1, marker.color());
+            if (Math.abs(mouseX - sx) <= 4 && Math.abs(mouseY - sy) <= 4) {
+                tooltip = Component.translatable("gui.noellesroles.area_map.marker_tip",
+                        (int) marker.worldX(), (int) marker.worldZ()).withStyle(ChatFormatting.GRAY);
+            }
+        }
+        if (tooltip != null && isInRect(mouseX, mouseY, canvasX0, canvasY0,
+                canvasX1 - canvasX0, canvasY1 - canvasY0)) {
+            g.renderTooltip(font, tooltip, mouseX, mouseY);
+        }
+    }
+
     /** 绘制一个任务点，返回鼠标是否悬浮其上。 */
     private boolean drawPoint(GuiGraphics g, int ccx, int ccy, BlockPos pos, int color, float lift,
             int mouseX, int mouseY) {
@@ -310,6 +375,25 @@ public class AreaMapScreen extends Screen {
         drawToggleButton(g, x, y, sideX1 - sideX0 - 12, 14,
                 Component.translatable("gui.noellesroles.area_map.recenter"), false, mouseX, mouseY);
         y += 18;
+
+        // 60s 模式：任务点区域改为标注说明（不显示任务点分类）
+        if (net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.isActive()) {
+            g.drawString(font, Component.translatable("gui.noellesroles.area_map.markers_title")
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), x, y, GOLD, false);
+            int helpY = y + 14;
+            for (int i = 1; i <= 3; i++) {
+                for (var seq : font.split(Component.translatable(
+                        "gui.noellesroles.area_map.markers_help" + i), sideX1 - sideX0 - 12)) {
+                    g.drawString(font, seq, x, helpY, MUTED, false);
+                    helpY += 10;
+                }
+                helpY += 2;
+            }
+            g.drawString(font, Component.translatable("gui.noellesroles.area_map.markers_count",
+                    net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.markers().size()),
+                    x, helpY + 2, TEXT, false);
+            return;
+        }
 
         // 任务点标题 + 全选/清空
         g.drawString(font, Component.translatable("gui.noellesroles.area_map.points")
@@ -399,24 +483,28 @@ public class AreaMapScreen extends Screen {
             playClick();
             return true;
         }
+        // 60s 模式：无任务点分类交互（右侧是标注说明）
+        boolean sixtySecondsPanel = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.isActive();
         // 全选/清空
         int headY = y + 38;
         Component all = Component.translatable("gui.noellesroles.area_map.all");
         Component none = Component.translatable("gui.noellesroles.area_map.none");
         int noneX = sideX1 - 6 - font.width(none);
         int allX = noneX - 6 - font.width(all);
-        if (button == 0 && isInRect((int) mouseX, (int) mouseY, allX - 1, headY - 1, font.width(all) + 2, 10)) {
+        if (!sixtySecondsPanel && button == 0
+                && isInRect((int) mouseX, (int) mouseY, allX - 1, headY - 1, font.width(all) + 2, 10)) {
             AreaMapManager.visibleCategories.addAll(java.util.List.of(AreaMapPointCategory.values()));
             playClick();
             return true;
         }
-        if (button == 0 && isInRect((int) mouseX, (int) mouseY, noneX - 1, headY - 1, font.width(none) + 2, 10)) {
+        if (!sixtySecondsPanel && button == 0
+                && isInRect((int) mouseX, (int) mouseY, noneX - 1, headY - 1, font.width(none) + 2, 10)) {
             AreaMapManager.visibleCategories.clear();
             playClick();
             return true;
         }
         // 分类勾选
-        if (button == 0 && mouseX >= sideX0 + 1 && mouseX <= sideX1 - 1
+        if (!sixtySecondsPanel && button == 0 && mouseX >= sideX0 + 1 && mouseX <= sideX1 - 1
                 && mouseY >= catListY0 && mouseY < catListY1) {
             int idx = (int) ((mouseY - catListY0 + catScroll) / 13);
             AreaMapPointCategory[] cats = AreaMapPointCategory.values();
@@ -432,6 +520,15 @@ public class AreaMapScreen extends Screen {
         // 画布拖动
         if (isInRect((int) mouseX, (int) mouseY, canvasX0, canvasY0, canvasX1 - canvasX0, canvasY1 - canvasY0)) {
             if (button == 0) {
+                // 创造模式 2D 视图：左键点中 家点位/避难所门/自定义标注 → 传送过去（须在 panning 之前拦截）
+                if (!AreaMapManager.mode3d
+                        && net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.isActive()
+                        && AreaMapManager.hasData()
+                        && minecraft != null && minecraft.player != null && minecraft.player.isCreative()
+                        && tryCreativeTeleport(mouseX, mouseY)) {
+                    playClick();
+                    return true;
+                }
                 panning = true;
                 return true;
             }
@@ -439,8 +536,74 @@ public class AreaMapScreen extends Screen {
                 rotating = true;
                 return true;
             }
+            // 60s 模式 2D 视图：右键添加标注，Shift+右键删除最近标注
+            if (button == 1 && !AreaMapManager.mode3d
+                    && net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.isActive()
+                    && AreaMapManager.hasData()) {
+                int ccx = (canvasX0 + canvasX1) / 2;
+                int ccy = (canvasY0 + canvasY1) / 2;
+                double cellX = panCX + (mouseX - ccx) / zoom;
+                double cellZ = panCZ + (mouseY - ccy) / zoom;
+                double worldX = AreaMapManager.cellToWorldX(cellX);
+                double worldZ = AreaMapManager.cellToWorldZ(cellZ);
+                if (hasShiftDown()) {
+                    // 删除半径按当前缩放折算 ~6px
+                    if (net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.removeMarkerNear(
+                            worldX, worldZ, 6.0 / zoom * AreaMapManager.getStep())) {
+                        playClick();
+                    }
+                } else {
+                    net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.addMarker(worldX, worldZ);
+                    playClick();
+                }
+                return true;
+            }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    /**
+     * 创造模式点击传送：按与 {@link #renderSixtySecondsPoints} 相同的 ±4px 命中测试
+     * 依次检查 家点位 / 避难所门（带精确 Y，直接传）/ 自定义标注（只有 XZ，Y 由服务端解析），
+     * 命中则发 {@code MapTeleportC2SPacket}（服务端复核创造/OP）。@return 是否命中。
+     */
+    private boolean tryCreativeTeleport(double mouseX, double mouseY) {
+        int ccx = (canvasX0 + canvasX1) / 2;
+        int ccy = (canvasY0 + canvasY1) / 2;
+        BlockPos home = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.homePos();
+        if (home != null && hitsMapPoint(mouseX, mouseY, home.getX() + 0.5, home.getZ() + 0.5, ccx, ccy)) {
+            net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+                    new net.exmo.sre.sixtyseconds.network.MapTeleportC2SPacket(
+                            home.getX(), home.getY(), home.getZ(), true));
+            return true;
+        }
+        for (BlockPos door : net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.shelterDoors()) {
+            if (hitsMapPoint(mouseX, mouseY, door.getX() + 0.5, door.getZ() + 0.5, ccx, ccy)) {
+                net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+                        new net.exmo.sre.sixtyseconds.network.MapTeleportC2SPacket(
+                                door.getX(), door.getY(), door.getZ(), true));
+                return true;
+            }
+        }
+        for (net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.Marker marker
+                : net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.markers()) {
+            if (hitsMapPoint(mouseX, mouseY, marker.worldX(), marker.worldZ(), ccx, ccy)) {
+                // 标注只有 XZ：以玩家当前 Y 为参考，服务端上下扫可站立点
+                net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+                        new net.exmo.sre.sixtyseconds.network.MapTeleportC2SPacket(
+                                (int) Math.floor(marker.worldX()), (int) Math.floor(minecraft.player.getY()),
+                                (int) Math.floor(marker.worldZ()), false));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 地图点位命中测试（与渲染同款 ±4px；2D 视图，lift=0）。 */
+    private boolean hitsMapPoint(double mouseX, double mouseY, double worldX, double worldZ, int ccx, int ccy) {
+        double[] s = cellToScreen(AreaMapManager.worldToCellX(worldX),
+                AreaMapManager.worldToCellZ(worldZ), ccx, ccy, 0f);
+        return Math.abs(mouseX - s[0]) <= 4 && Math.abs(mouseY - s[1]) <= 4;
     }
 
     @Override

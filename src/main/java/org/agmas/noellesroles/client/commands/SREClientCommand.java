@@ -106,6 +106,7 @@ public class SREClientCommand {
                       }))
 
                   // 末日 60 秒生存模式 —— 开场演出（约 45s，黑屏+图片卡+打字机+音效）
+                  // 无参=只给自己播放；`all`=请求服务端广播给所有人（需 OP，服务端校验）
                   .then(ClientCommandManager.literal("intro_sixty_seconds")
                       .executes(context -> {
                         ClientScheduler.schedule(() -> {
@@ -114,7 +115,13 @@ public class SREClientCommand {
                                   new net.exmo.sre.sixtyseconds.client.SixtySecondsIntroScreen());
                         }, 1);
                         return 1;
-                      }))
+                      })
+                      .then(ClientCommandManager.literal("all")
+                          .executes(context -> {
+                            net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+                                net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload.INSTANCE);
+                            return 1;
+                          })))
 
                   .then(ClientCommandManager.literal("newspaper_test")
                       .then(ClientCommandManager.literal("editing").executes(context -> {

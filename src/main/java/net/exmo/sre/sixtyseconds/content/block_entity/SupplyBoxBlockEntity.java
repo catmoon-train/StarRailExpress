@@ -1,6 +1,7 @@
 package net.exmo.sre.sixtyseconds.content.block_entity;
 
 import net.exmo.sre.sixtyseconds.loot.SixtySecondsLootStore;
+import net.exmo.sre.sixtyseconds.loot.SixtySecondsLootTable;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -9,66 +10,104 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.init.ModBlocks;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * 物资箱方块实体：按自身 {@link #category} 从共享 loot 表加权抽取，每日刷新（惰性：交互时按当前游戏日刷新）、
- * 按玩家领取一次。参照 {@code org.agmas.noellesroles.content.block_entity.SupplyCrateBlockEntity}。
+ * <b>每日全局一次</b>——任何玩家领取后当天全员不可再搜。物资在领取时即时掷骰（而非刷新时缓存一份），
+ * 避免多人拿到同一份预掷结果。参照 {@code org.agmas.noellesroles.content.block_entity.SupplyCrateBlockEntity}。
  */
 public class SupplyBoxBlockEntity extends BlockEntity {
     public String category = "tool";
     private int lastRefreshDay = -1;
-    private final List<ItemStack> currentItems = new ArrayList<>();
-    private final Set<UUID> claimed = new HashSet<>();
+    /** 当天是否已被任何玩家领取（所有玩家共享一次机会）。 */
+    private boolean claimedToday = false;
+    /** 每次领取掷出的物资件数（空投奖励箱=9，普通箱=1）。 */
+    private int bonusRolls = 1;
+    /** 一次性箱（空投奖励箱）：被搜刮一次后整个方块移除，不随日刷新。 */
+    private boolean oneShot = false;
 
     public SupplyBoxBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ENTITY, pos, state);
+        this(ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ENTITY, pos, state);
     }
 
-    /** 领取：返回本箱当前物资的副本（每人每刷新周期一次）。 */
+    /** 供子类（如随机物资箱）复用同一套逻辑，仅换 {@link BlockEntityType}。 */
+    protected SupplyBoxBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
+
+    /**
+     * 本箱现在能否被搜刮（当天未被任何人领过且 loot 表有可抽条目）。用于开始搜刮前预检，避免白搜。
+     * 惰性按当前游戏日刷新——<b>不做全图扫描</b>，仅交互到的箱子在此刻按需重置。
+     */
+    public boolean hasLootFor(ServerLevel level, ServerPlayer player) {
+        ensureDaily(level);
+        return !claimedToday && hasAnyLoot(level);
+    }
+
+    /** 领取：每日全局一次，领取时即时加权掷骰（{@link #bonusRolls} 件）。当天已被领过返回空列表。 */
     public List<ItemStack> claim(ServerLevel level, ServerPlayer player) {
         ensureDaily(level);
-        if (currentItems.isEmpty() || claimed.contains(player.getUUID())) {
+        if (claimedToday) {
             return List.of();
         }
-        claimed.add(player.getUUID());
+        claimedToday = true;
         setChanged();
-        List<ItemStack> out = new ArrayList<>();
-        for (ItemStack stack : currentItems) {
-            out.add(stack.copy());
+        SixtySecondsLootTable table = SixtySecondsLootStore.get(level);
+        List<ItemStack> out = new java.util.ArrayList<>();
+        for (int i = 0; i < Math.max(1, bonusRolls); i++) {
+            // 每件独立选类别（随机箱=每件随机一类）+ 独立掷骰
+            ItemStack stack = table.roll(chooseCategory(level, table), level.random);
+            if (!stack.isEmpty()) {
+                out.add(stack);
+            }
         }
         return out;
     }
 
+    /** 配置为空投奖励箱：一次领取掷 {@code rolls} 件，搜刮一次后整箱移除。 */
+    public void setAirdropReward(int rolls) {
+        this.bonusRolls = Math.max(1, rolls);
+        this.oneShot = true;
+        setChanged();
+    }
+
+    public boolean isOneShot() {
+        return oneShot;
+    }
+
     private void ensureDaily(ServerLevel level) {
         int day = SixtySecondsState.get(level).dayNumber;
-        if (day != lastRefreshDay || currentItems.isEmpty()) {
-            refresh(level, day);
+        if (day != lastRefreshDay) {
+            lastRefreshDay = day;
+            claimedToday = false;
+            setChanged();
         }
     }
 
-    private void refresh(ServerLevel level, int day) {
-        currentItems.clear();
-        claimed.clear();
-        ItemStack stack = SixtySecondsLootStore.get(level).roll(category, level.random);
-        if (!stack.isEmpty()) {
-            currentItems.add(stack);
-        }
-        lastRefreshDay = day;
-        setChanged();
+    /** 本箱 loot 来源当前是否有可抽条目。随机物资箱覆写为任一类别可抽即可。 */
+    protected boolean hasAnyLoot(ServerLevel level) {
+        return SixtySecondsLootStore.get(level).canRoll(category);
+    }
+
+    /**
+     * 本次刷新使用哪个 loot 类别。基础物资箱固定用自身 {@link #category}；
+     * 随机物资箱（{@link RandomSupplyBoxBlockEntity}）覆写为每次刷新随机取一类。
+     */
+    protected String chooseCategory(ServerLevel level, SixtySecondsLootTable table) {
+        return category;
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putString("Category", category);
+        tag.putInt("BonusRolls", bonusRolls);
+        tag.putBoolean("OneShot", oneShot);
     }
 
     @Override
@@ -76,5 +115,7 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
         String stored = tag.getString("Category");
         category = stored.isEmpty() ? "tool" : stored;
+        bonusRolls = tag.contains("BonusRolls") ? Math.max(1, tag.getInt("BonusRolls")) : 1;
+        oneShot = tag.getBoolean("OneShot");
     }
 }

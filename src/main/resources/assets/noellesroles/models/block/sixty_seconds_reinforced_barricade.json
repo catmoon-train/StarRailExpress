@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "noellesroles:block/sixty_seconds_reinforced_barricade",
+    "end": "noellesroles:block/sixty_seconds_reinforced_barricade",
+    "particle": "noellesroles:block/sixty_seconds_reinforced_barricade"
+  }
+}

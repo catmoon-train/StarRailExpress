@@ -106,6 +106,16 @@ public class SansRenderer {
                 / (LOW_SAN_SHADER_START_MOOD - LOW_SAN_SHADER_FULL_MOOD), 0f, 1f);
     }
 
+    /**
+     * 低 san 滤镜的实际驱动值：取 min(情绪 mood, 60s理智/100)。
+     * 60s 模式复用本滤镜——60s 局内玩家无 REAL 情绪职业、mood 恒为 1（见
+     * {@code SREPlayerMoodComponent.getMood} 的职业门），故 60s 里强度完全由其理智值驱动；
+     * 其他模式下 60s 项恒为 1，行为不变。
+     */
+    private static float filterMood(float mood) {
+        return Math.min(mood, net.exmo.sre.sixtyseconds.client.SixtySecondsStateAlerts.sanityMoodScale());
+    }
+
     private static float getLowSanFinalIntensity(LocalPlayer player, float mood) {
         float baseIntensity = getLowSanBaseIntensity(mood);
         float resistance = ModEffects.getLowSanShaderResistance(player);
@@ -186,10 +196,11 @@ public class SansRenderer {
                     if (SREClient.gameComponent == null || SREClient.gameComponent.isRole(mc.player, ModRoles.MONOKUMA))
                         return false;
                 }
-                if (cap.getMood() > .35f && psychoTicks <= 0)
+                float mood = filterMood(cap.getMood());
+                if (mood > .35f && psychoTicks <= 0)
                     return false;
 
-                float finalIntensity = getLowSanFinalIntensity(mc.player, cap.getMood());
+                float finalIntensity = getLowSanFinalIntensity(mc.player, mood);
                 if (finalIntensity <= 0.001f && psychoTicks <= 0) {
                     return false;
                 }
@@ -268,10 +279,11 @@ public class SansRenderer {
         // });
         m_post.addSinglePassEntry("chromatical", pass -> {
             return processPlayer(mc.player, cap -> {
-                if (cap.getMood() > .35f)
+                float mood = filterMood(cap.getMood());
+                if (mood > .35f)
                     return false;
 
-                float finalIntensity = getLowSanFinalIntensity(mc.player, cap.getMood());
+                float finalIntensity = getLowSanFinalIntensity(mc.player, mood);
                 if (finalIntensity <= 0.001f) {
                     return false;
                 }
@@ -385,7 +397,7 @@ public class SansRenderer {
         if (m_mc.player == null || m_mc.player.isCreative() || m_mc.player.isSpectator())
             return;
 
-        float moodAlpha = getBloodTendrilsMoodAlpha(m_cap.getMood());
+        float moodAlpha = getBloodTendrilsMoodAlpha(filterMood(m_cap.getMood()));
         if (moodAlpha <= 0.001f) {
             return;
         }
@@ -448,7 +460,7 @@ public class SansRenderer {
 //            renderHint(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(),
 //                    m_mc.getWindow().getGuiScaledHeight(), context);
 //        }
-        if (m_cap != null && m_cap.getMood() <= BLOOD_TENDRILS_APPEAR_THRESHOLD) {
+        if (m_cap != null && filterMood(m_cap.getMood()) <= BLOOD_TENDRILS_APPEAR_THRESHOLD) {
             renderBloodTendrilsOverlay(new Gui(m_mc), context.pose(), dt, m_mc.getWindow().getGuiScaledWidth(),
                     m_mc.getWindow().getGuiScaledHeight());
         }

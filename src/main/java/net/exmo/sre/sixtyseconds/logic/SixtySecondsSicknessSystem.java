@@ -11,17 +11,17 @@ import org.agmas.noellesroles.init.NRSounds;
 
 /**
  * 生病/感染系统：发烧持续掉健康直至死亡（须吃药治愈），伴 {@code NRSounds.INFECTED_COUGH} 咳嗽与字幕，
- * 每分钟 3% 概率感染身边人。救起后未用医疗包者（{@code recovering}）每 2 分钟 33% 概率生病。
+ * 每分钟 2% 概率感染身边人。救起后未用医疗包者（{@code recovering}）每 2 分钟 15% 概率生病。
  * <p>
  * 治愈入口 {@link #cure}：接到“吃药/医疗包”物品使用时调用（物品接线为 TODO）。
  * “使用库中中毒的逻辑”的更强复用可切换到 {@code InfectedPlayerComponent}（已含传播）——此处为自足实现。
  */
 public final class SixtySecondsSicknessSystem {
-    public static final int FEVER_INTERVAL = 50;        // 发烧掉血间隔（约 4 分钟致死）
+    public static final int FEVER_INTERVAL = 125;        // 发烧掉血间隔（约 10 分钟致死，-60%累计）
     public static final int RECOVER_ROLL_INTERVAL = 20 * 120; // 每 2 分钟一次感染判定
-    public static final double RECOVER_SICK_CHANCE = 0.33;
+    public static final double RECOVER_SICK_CHANCE = 0.15;   // 从 33% 降至 15%
     public static final int SPREAD_INTERVAL = 20 * 60;  // 每分钟一次传播判定
-    public static final double SPREAD_CHANCE = 0.03;    // 3%
+    public static final double SPREAD_CHANCE = 0.02;    // 从 3% 降至 2%
     private static final double SPREAD_RANGE_SQR = 6.0 * 6.0;
 
     private SixtySecondsSicknessSystem() {

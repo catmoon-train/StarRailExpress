@@ -24,8 +24,44 @@ public final class SixtySecondsVisitChat {
     public static void startSession(ServerPlayer a, ServerPlayer b) {
         PARTNERS.put(a.getUUID(), b.getUUID());
         PARTNERS.put(b.getUUID(), a.getUUID());
-        ServerPlayNetworking.send(a, new OpenVisitChatS2CPacket(name(b)));
-        ServerPlayNetworking.send(b, new OpenVisitChatS2CPacket(name(a)));
+        // 不再自动弹聊天窗：对话在避难所门 GUI 里进行（右键门 → 「与对方对话」→ openScreen）
+        a.displayClientMessage(net.minecraft.network.chat.Component.translatable(
+                "message.noellesroles.sixty_seconds.visit_chat_hint", name(b)), false);
+        b.displayClientMessage(net.minecraft.network.chat.Component.translatable(
+                "message.noellesroles.sixty_seconds.visit_chat_hint", name(a)), false);
+    }
+
+    /** 交易期间的聊天会话：只建立中继伙伴关系，不发门菜单对话提示（聊天内嵌在交易窗里）。 */
+    public static void startSilentSession(ServerPlayer a, ServerPlayer b) {
+        PARTNERS.put(a.getUUID(), b.getUUID());
+        PARTNERS.put(b.getUUID(), a.getUUID());
+    }
+
+    /** 结束指定两人间的会话；若任一方已换成别的伙伴（如进入拜访对话）则不动那一侧。 */
+    public static void endPair(UUID a, UUID b) {
+        if (b.equals(PARTNERS.get(a))) {
+            PARTNERS.remove(a);
+        }
+        if (a.equals(PARTNERS.get(b))) {
+            PARTNERS.remove(b);
+        }
+    }
+
+    /** 是否有进行中的对话伙伴（门菜单据此显示「对话」选项）。 */
+    public static boolean hasPartner(ServerPlayer player) {
+        return PARTNERS.containsKey(player.getUUID());
+    }
+
+    /** 点门「与对方对话」：打开聊天窗（伙伴已离线则忽略）。 */
+    public static void openScreen(ServerPlayer player) {
+        UUID partnerId = PARTNERS.get(player.getUUID());
+        if (partnerId == null) {
+            return;
+        }
+        ServerPlayer partner = player.getServer().getPlayerList().getPlayer(partnerId);
+        if (partner != null) {
+            ServerPlayNetworking.send(player, new OpenVisitChatS2CPacket(name(partner)));
+        }
     }
 
     /** 中继一条消息给发送者与其伙伴。 */

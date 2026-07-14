@@ -6,12 +6,16 @@ import io.wifi.starrailexpress.cca.DynamicShopComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
+import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import io.wifi.starrailexpress.util.ShopEntry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.exmo.sre.sixtyseconds.SixtySecondsBalance;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -38,7 +42,8 @@ public final class SixtySecondsRoleAwakening {
             ModRoles.AGENT_ID, ModRoles.FIREFIGHTER_ID, ModRoles.BUILDER_ID, ModRoles.GLITCH_ROBOT_ID,
             ModRoles.MONITOR_ID, ModRoles.OLDMAN_ID, ModRoles.CORONER_ID, ModRoles.CAKE_MAKER_ID,
             ModRoles.JADE_GENERAL_ID, ModRoles.SUPERSTAR_ID, ModRoles.SINGER_ID, ModRoles.ATTENDANT_ID,
-            ModRoles.FIGHTER_ID, ModRoles.GREAT_DETECTIVE_ID, ModRoles.DOCTOR_ID, ModRoles.BROADCASTER_ID);
+            ModRoles.FIGHTER_ID, ModRoles.GREAT_DETECTIVE_ID, ModRoles.DOCTOR_ID, ModRoles.BROADCASTER_ID,
+            ModRoles.AWESOME_BINGLUS_ID, ModRoles.GHOST_ID);
 
     /** 隐藏中立职业池（0.1% 独立触发）。 */
     private static final List<ResourceLocation> NEUTRAL_POOL = List.of(
@@ -75,6 +80,10 @@ public final class SixtySecondsRoleAwakening {
                 continue;
             }
             RoleUtils.changeRole(player, role);
+            ServerPlayNetworking.send(player,
+                    new AnnounceWelcomePayload(role.getIdentifier().toString(), (int) 0,
+                            level.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).toList().size()));
+
             data.usedAwakenRoles.add(roleId.toString());
             applyModifiers(player, roleId);
             assigned++;
@@ -106,9 +115,15 @@ public final class SixtySecondsRoleAwakening {
     }
 
     /**
-     * 各职业数值修正。已实现：价格倍率（蛋糕师×2、医生×3，经 {@link DynamicShopComponent} 逐商品设置）。
-     * TODO(P2)：玉将军/斗士 冷却×（技能 handler / {@code SREAbilityPlayerComponent} 侧）、明星 技能无金币、
-     * 广播员 每次广播消耗 100、药剂师 禁购鹤顶红、记者 便签×2、小透明 隐身常驻（均需各职业专属钩子）。
+     * 各职业数值修正。全部已实现：
+     * <ul>
+     *   <li>蛋糕师×2、医生×3 商品价格（经 {@link DynamicShopComponent} 逐商品设置，此处）；</li>
+     *   <li>记者 便签×2：觉醒时补发 {@link SixtySecondsBalance#REPORTER_NOTE_COUNT} 张便签（此处）；</li>
+     *   <li>玉将军/斗士 冷却×、明星 技能无金币、广播员 每次消耗 100、药剂师 禁调鹤顶红：
+     *       走各职业硬编码点的单行委托，见 {@link SixtySecondsRoleTweaks}；</li>
+     *   <li>小透明 隐身技能觉醒即解锁（不等原版剩 3 分钟条件）：见
+     *       {@link SixtySecondsRoleTweaks#ghostSkillAlwaysUnlocked}；隐身本身走技能（非常驻）。</li>
+     * </ul>
      */
     private static void applyModifiers(ServerPlayer player, ResourceLocation roleId) {
         double priceMultiplier = 0;
@@ -119,6 +134,19 @@ public final class SixtySecondsRoleAwakening {
         }
         if (priceMultiplier > 0) {
             applyShopPriceMultiplier(player, roleId, priceMultiplier);
+        }
+        if (roleId.equals(ModRoles.AWESOME_BINGLUS_ID)) {
+            giveReporterNotes(player); // 记者 便签×2
+        }
+    }
+
+    /** 记者觉醒时补发便签（便签×2 = {@link SixtySecondsBalance#REPORTER_NOTE_COUNT} 张）。 */
+    private static void giveReporterNotes(ServerPlayer player) {
+        net.minecraft.world.item.ItemStack notes =
+                io.wifi.starrailexpress.index.TMMItems.NOTE.getDefaultInstance();
+        notes.setCount(SixtySecondsBalance.REPORTER_NOTE_COUNT);
+        if (!player.getInventory().add(notes)) {
+            player.drop(notes, false);
         }
     }
 

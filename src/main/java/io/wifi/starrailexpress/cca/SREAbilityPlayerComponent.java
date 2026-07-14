@@ -347,8 +347,11 @@ public class SREAbilityPlayerComponent
 
     @Override
     public void serverTick() {
-        boolean unifiedStateChanged = false;
-        boolean shouldSync = true;
+        // 冷却/持续时间客户端各自本地递减（见 clientTick），服务端只需低频纠偏：
+        // 递减期间每 400 tick（20s）同步一次 + 归零时同步一次；其余变更由显式 setter 的 sync() 承担。
+        // ★ 此处初始值必须是 false——曾因误写 true 导致每玩家每 tick 发一次 96B 全量同步
+        // （单场 136 万包 / 130MB，占全服流量 95%+），节流逻辑整段失效。
+        boolean shouldSync = false;
         if (this.cooldown > 0) {
             this.cooldown--;
 
@@ -364,16 +367,22 @@ public class SREAbilityPlayerComponent
             }
         }
         if (!skillStates.isEmpty()) {
+            boolean anyTicking = false;
+            boolean anyReachedZero = false;
             for (SkillState state : skillStates.values()) {
                 if (state.cooldown > 0) {
                     state.cooldown--;
-                    unifiedStateChanged = true;
+                    anyTicking = true;
+                    if (state.cooldown == 0) {
+                        anyReachedZero = true; // 冷却转好这一下必须同步（HUD/可用性判定对齐）
+                    }
                 }
             }
             var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
             List<RoleSkill.Definition> definitions = RoleSkill.getDefinitions(role);
             mirrorSelectedSkill(definitions);
-            if (unifiedStateChanged && (player.level().getGameTime() % 400 == 0 || cooldown == 0)) {
+            // 旧条件误用 `cooldown == 0`（统一冷却为 0 但技能状态冷却仍在走时=每 tick 同步）
+            if (anyReachedZero || (anyTicking && player.level().getGameTime() % 400 == 0)) {
                 shouldSync = true;
             }
         }

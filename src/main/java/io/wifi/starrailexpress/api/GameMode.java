@@ -372,7 +372,10 @@ public abstract class GameMode {
         // Check if victim has a role assigned - if not, skip role-dependent logic
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
         SRERole role = gameWorldComponent.getRole(victim);
-        if (role == null) {
+        // requiresAssignedRole()=false 的模式（如 60s：家庭身份不是 SRERole）允许无职业存活者，
+        // 此时不能因 role==null 静默不杀——那会让 60s 的 forceKillPlayer 变 no-op：
+        // 倒地流血死/处决全部失效，玩家 0 健康值仍存活、倒地被"清倒地"后凭空站起
+        if (role == null && requiresAssignedRole()) {
             // Player doesn't have a role (game not started or joined mid-game), don't kill
             // them
             return;
@@ -420,7 +423,7 @@ public abstract class GameMode {
                 }
             }
         }
-        if (!role.allowDeath(victim, killer, deathReason, spawnBody)) {
+        if (role != null && !role.allowDeath(victim, killer, deathReason, spawnBody)) {
             if (!forceDeath) {
                 if (victim instanceof ServerPlayer serverVictim) {
                     SRE.REPLAY_MANAGER.recordPlayerNotKilled(
@@ -547,7 +550,7 @@ public abstract class GameMode {
                 psychocca.sync();
             }
         }
-        if (!role.afterShieldAllowDeath(victim, killer, deathReason, spawnBody)) {
+        if (role != null && !role.afterShieldAllowDeath(victim, killer, deathReason, spawnBody)) {
             if (!forceDeath) {
                 if (victim instanceof ServerPlayer serverVictim) {
                     SRE.REPLAY_MANAGER.recordPlayerNotKilled(
@@ -649,7 +652,9 @@ public abstract class GameMode {
             // --- 新增统计数据更新逻辑 (受害者) ---
             if (victim instanceof ServerPlayer serverVictim) {
                 SRERole victimRole = gameWorldComponent.getRole(serverVictim);
-                victimRole.onDeath(victim, spawnBody, killer, deathReason);
+                if (victimRole != null) {
+                    victimRole.onDeath(victim, spawnBody, killer, deathReason);
+                }
                 PlayerStats victimStats = PlayerStatsManager.get(serverVictim);
                 if (shouldRecordPlayerStats()) {
                     victimStats.incrementTotalDeaths();
@@ -671,7 +676,9 @@ public abstract class GameMode {
                 }
                 if (spawnBody) {
                     PlayerBodyEntity body = GameUtils.spawnBodyEntity(victim, killer, victimRole, deathReason);
-                    victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason, body);
+                    if (victimRole != null) {
+                        victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason, body);
+                    }
                     OnDeathWithBody.EVENT.invoker().onDeathWithBody(victim, killer, deathReason, body);
                 }
             }

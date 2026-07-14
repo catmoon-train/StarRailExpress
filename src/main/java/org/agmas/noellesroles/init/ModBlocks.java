@@ -84,22 +84,168 @@ public interface ModBlocks {
             BlockEntityType.Builder.of(SupplyCrateBlockEntity::new,
                     ModBlocks.SUPPLY_CRATE_BLOCK));
 
-    // 末日60秒模式：避难所门 + 物资箱
-    Block SIXTY_SECONDS_SHELTER_DOOR = registerBlock("sixty_seconds_shelter_door",
+    // 末日60秒模式：避难所门 + 物资箱（同时入方块页与 60s 统一页）
+    Block SIXTY_SECONDS_SHELTER_DOOR = blockRegistrar.createWithItem("sixty_seconds_shelter_door",
             new net.exmo.sre.sixtyseconds.content.block.ShelterDoorBlock(
-                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(3.0F)));
-    Block SIXTY_SECONDS_SUPPLY_BOX = registerBlock("sixty_seconds_supply_box",
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(3.0F)),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_SUPPLY_BOX = blockRegistrar.createWithItem("sixty_seconds_supply_box",
             new net.exmo.sre.sixtyseconds.content.block.SupplyBoxBlock(
-                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)));
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.SupplyBoxBlockEntity> SIXTY_SECONDS_SUPPLY_BOX_ENTITY =
             blockEntityRegistrar.create("sixty_seconds_supply_box",
                     BlockEntityType.Builder.of(
                             net.exmo.sre.sixtyseconds.content.block_entity.SupplyBoxBlockEntity::new,
                             ModBlocks.SIXTY_SECONDS_SUPPLY_BOX));
+    // 末日60秒模式：随机物资箱（克隆物资箱一切，但每次刷新随机取一个 loot 类别）
+    Block SIXTY_SECONDS_RANDOM_SUPPLY_BOX = blockRegistrar.createWithItem("sixty_seconds_random_supply_box",
+            new net.exmo.sre.sixtyseconds.content.block.RandomSupplyBoxBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.RandomSupplyBoxBlockEntity> SIXTY_SECONDS_RANDOM_SUPPLY_BOX_ENTITY =
+            blockEntityRegistrar.create("sixty_seconds_random_supply_box",
+                    BlockEntityType.Builder.of(
+                            net.exmo.sre.sixtyseconds.content.block_entity.RandomSupplyBoxBlockEntity::new,
+                            ModBlocks.SIXTY_SECONDS_RANDOM_SUPPLY_BOX));
     // 末日60秒模式：幸存者营地（走上/右键触发通关）
-    Block SIXTY_SECONDS_SURVIVOR_CAMP = registerBlock("sixty_seconds_survivor_camp",
+    Block SIXTY_SECONDS_SURVIVOR_CAMP = blockRegistrar.createWithItem("sixty_seconds_survivor_camp",
             new net.exmo.sre.sixtyseconds.content.block.SixtySecondsSurvivorCampBlock(
-                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).lightLevel(s -> 12).noOcclusion()));
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).lightLevel(s -> 12).noOcclusion()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // 末日60秒模式：避难所控制面板（右键打开本队仪表盘：门耐久/电力/科技/成员）
+    Block SIXTY_SECONDS_SHELTER_PANEL = blockRegistrar.createWithItem("sixty_seconds_shelter_panel",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsShelterPanelBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // 末日60秒模式：研究台（右键打开科技树，用废料解锁配方）
+    Block SIXTY_SECONDS_RESEARCH_TABLE = blockRegistrar.createWithItem("sixty_seconds_research_table",
+            new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // 末日60秒模式：专用合成台（与原版家具合成站等价的可携带版本，右键开对应配方 GUI；
+    // 冒险模式仅可放白色混凝土标记上方，扳手可拆回）
+    Block SIXTY_SECONDS_WORKBENCH = blockRegistrar.createWithItem("sixty_seconds_workbench",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE).strength(2.5F),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.Station.WORKBENCH),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_STOVE = blockRegistrar.createWithItem("sixty_seconds_stove",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.SMOKER).strength(2.5F).lightLevel(s -> 6),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.Station.STOVE),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_PURIFIER = blockRegistrar.createWithItem("sixty_seconds_purifier",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.Station.BATHTUB),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // 末日60秒模式：功能方块（冒险模式可放置，仅限白色混凝土标记上方；扳手可拆）
+    Block SIXTY_SECONDS_GENERATOR = blockRegistrar.createWithItem("sixty_seconds_generator",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsGeneratorBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(3.0F).lightLevel(
+                            s -> s.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT)
+                                    ? 7 : 0)),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_LAMP = blockRegistrar.createWithItem("sixty_seconds_lamp",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsLampBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(0.5F).lightLevel(
+                            s -> s.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT)
+                                    ? 14 : 0)),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_BARRICADE = blockRegistrar.createWithItem("sixty_seconds_barricade",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsBarricadeBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(4.0F),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.BARRICADE_HP),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_HEAVY_BARRICADE = blockRegistrar.createWithItem("sixty_seconds_heavy_barricade",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsBarricadeBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.BOOKSHELF).strength(6.0F),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.BARRICADE_HEAVY_HP),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_SPIKE_TRAP = blockRegistrar.createWithItem("sixty_seconds_spike_trap",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsSpikeTrapBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(1.5F).noOcclusion()),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 工事强化：钢筋强化路障（更高耐久层级）+ 探照灯（供电时亮度 15）
+    Block SIXTY_SECONDS_REINFORCED_BARRICADE = blockRegistrar.createWithItem("sixty_seconds_reinforced_barricade",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsBarricadeBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK).strength(8.0F),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.BARRICADE_REINFORCED_HP),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_FLOODLIGHT = blockRegistrar.createWithItem("sixty_seconds_floodlight",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsLampBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(0.5F).lightLevel(
+                            s -> s.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT)
+                                    ? 15 : 0)),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // 末日60秒模式：简易淋浴器（每人每天一次，消耗小瓶水，污染 -50%）
+    Block SIXTY_SECONDS_SHOWER = blockRegistrar.createWithItem("sixty_seconds_shower",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsShowerBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.0F)),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 末日60秒模式：培育箱（种子→蔬菜的耕地系统；肥料加速，成熟右键收获）
+    Block SIXTY_SECONDS_PLANTER = blockRegistrar.createWithItem("sixty_seconds_planter",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsPlanterBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(1.5F).randomTicks()),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 末日60秒模式：集水器三档（被动产污染水，右键收取；见 SixtySecondsWaterCollectorBlock）
+    Block SIXTY_SECONDS_RAIN_BARREL = blockRegistrar.createWithItem("sixty_seconds_rain_barrel",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsWaterCollectorBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(1.5F).randomTicks(),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.COLLECTOR_BASIC_CAPACITY,
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.COLLECTOR_BASIC_INTERVAL),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_RAIN_COLLECTOR = blockRegistrar.createWithItem("sixty_seconds_rain_collector",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsWaterCollectorBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(1.5F).randomTicks(),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.COLLECTOR_ROOF_CAPACITY,
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.COLLECTOR_ROOF_INTERVAL),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_CONDENSER = blockRegistrar.createWithItem("sixty_seconds_condenser",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsWaterCollectorBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F).randomTicks(),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.COLLECTOR_CONDENSER_CAPACITY,
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.COLLECTOR_CONDENSER_INTERVAL),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // 创建轮盘赌桌方块实体类型
     BlockEntityType<DevilRouletteTableEntity> DEVIL_ROULETTE_TABLE_ENTITY = blockEntityRegistrar.create(

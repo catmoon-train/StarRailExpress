@@ -80,6 +80,7 @@ public final class SixtySecondsMonsterSystem {
     private static void transform(ServerLevel level, ServerPlayer player, SixtySecondsStatsComponent stats) {
         stats.monster = true;
         stats.sanZeroTick = 0;
+        stats.health = 250; // 怪物拥有 250 点健康值，需要多次攻击才能击杀
         stats.sync();
         applyMonsterEffects(player);
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.monster_transform",

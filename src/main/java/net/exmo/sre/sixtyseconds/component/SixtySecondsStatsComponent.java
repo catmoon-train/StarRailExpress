@@ -31,6 +31,8 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     public int sanity = MAX;
     public int pollution = 0;
     public int health = MAX;
+    /** 理智上限（杀人永久 -5~9，见 SixtySecondsHealthSystem.die；恢复类回san均以此为顶）。 */
+    public int sanityMax = MAX;
 
     /** 队伍（家庭）编号；-1 表示未编队。 */
     public int teamId = -1;
@@ -38,6 +40,8 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     public FamilyPosition familyPosition = null;
     /** 当前游戏日（0=准备阶段，1..7=游戏日），同步给客户端供 HUD 显示。 */
     public int dayNumber = 0;
+    /** 本日相位截止时间戳（gameTime，换日/跳时间时同步一次），客户端据此推算子相位与倒计时（HUD 时钟）。 */
+    public long phaseEndTick = 0L;
 
     public boolean sick = false;
     public boolean downed = false;
@@ -74,9 +78,11 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         sanity = MAX;
         pollution = 0;
         health = MAX;
+        sanityMax = MAX;
         teamId = -1;
         familyPosition = null;
         dayNumber = 0;
+        phaseEndTick = 0L;
         sick = false;
         downed = false;
         monster = false;
@@ -98,16 +104,91 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         KEY.sync(player);
     }
 
+    // ── 紧凑二进制同步（省流量）────────────────────────────────────────────
+    // 覆写默认的 NBT 同步：NBT 每次要写 18 个字符串键（~300+ 字节），而客户端 HUD 只需要
+    // 一小部分字段。这里改为 varint/flag 位打包（~25 字节），并且【不再同步纯服务端字段】
+    // （downedCountToday / downedFromInjury / recovering / sanZeroTick——客户端不用）。
+    // 60s 模式下还会向其他玩家发【精简变体】（队伍/家庭身份/状态位，~5 字节），
+    // 供 RoleNameRenderer 在准星处显示他人家庭关系；追踪开始时 CCA 会自动补发一次。
+
+    @Override
+    public boolean shouldSyncWith(@NotNull net.minecraft.server.level.ServerPlayer recipient) {
+        return recipient == player
+                || net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level());
+    }
+
+    @Override
+    public void writeSyncPacket(@NotNull net.minecraft.network.RegistryFriendlyByteBuf buf,
+            @NotNull net.minecraft.server.level.ServerPlayer recipient) {
+        boolean full = recipient == player;
+        buf.writeBoolean(full);
+        if (!full) {
+            buf.writeVarInt(teamId + 1);
+            buf.writeVarInt(familyPosition == null ? 0 : familyPosition.ordinal() + 1);
+            buf.writeByte((sick ? 1 : 0) | (downed ? 2 : 0) | (monster ? 4 : 0));
+            return;
+        }
+        buf.writeVarInt(hunger);
+        buf.writeVarInt(thirst);
+        buf.writeVarInt(sanity);
+        buf.writeVarInt(pollution);
+        buf.writeVarInt(health);
+        buf.writeVarInt(sanityMax);
+        buf.writeVarInt(teamId + 1);            // -1 → 0（避免负数 varint 膨胀到 5 字节）
+        buf.writeVarInt(familyPosition == null ? 0 : familyPosition.ordinal() + 1);
+        buf.writeVarInt(dayNumber);
+        buf.writeVarLong(phaseEndTick);
+        buf.writeVarLong(exploreCooldownEndTick);
+        buf.writeByte((sick ? 1 : 0) | (downed ? 2 : 0) | (monster ? 4 : 0));
+        buf.writeVarLong(bleedOutEndTick); // 倒地 HUD 流血倒计时（倒地/救起时才变化）
+
+    }
+
+    @Override
+    public void applySyncPacket(@NotNull net.minecraft.network.RegistryFriendlyByteBuf buf) {
+        if (!buf.readBoolean()) {
+            // 精简变体（他人组件）：只更新准星显示需要的字段
+            teamId = buf.readVarInt() - 1;
+            int slimFamily = buf.readVarInt();
+            familyPosition = slimFamily == 0 ? null : FamilyPosition.values()[slimFamily - 1];
+            int slimFlags = buf.readByte();
+            sick = (slimFlags & 1) != 0;
+            downed = (slimFlags & 2) != 0;
+            monster = (slimFlags & 4) != 0;
+            return;
+        }
+        hunger = buf.readVarInt();
+        thirst = buf.readVarInt();
+        sanity = buf.readVarInt();
+        pollution = buf.readVarInt();
+        health = buf.readVarInt();
+        sanityMax = buf.readVarInt();
+        teamId = buf.readVarInt() - 1;
+        int family = buf.readVarInt();
+        familyPosition = family == 0 ? null : FamilyPosition.values()[family - 1];
+        dayNumber = buf.readVarInt();
+        phaseEndTick = buf.readVarLong();
+        exploreCooldownEndTick = buf.readVarLong();
+        int flags = buf.readByte();
+        sick = (flags & 1) != 0;
+        downed = (flags & 2) != 0;
+        monster = (flags & 4) != 0;
+        bleedOutEndTick = buf.readVarLong();
+    }
+
+    /** 已被上面的紧凑二进制同步取代，仅保留以满足接口（不再被调用）。 */
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("Hunger", hunger);
         tag.putInt("Thirst", thirst);
         tag.putInt("Sanity", sanity);
+        tag.putInt("SanityMax", sanityMax);
         tag.putInt("Pollution", pollution);
         tag.putInt("Health", health);
         tag.putInt("TeamId", teamId);
         tag.putInt("Family", familyPosition == null ? -1 : familyPosition.ordinal());
         tag.putInt("Day", dayNumber);
+        tag.putLong("PhaseEndTick", phaseEndTick);
         tag.putBoolean("Sick", sick);
         tag.putBoolean("Downed", downed);
         tag.putBoolean("Monster", monster);
@@ -124,12 +205,14 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         hunger = tag.getInt("Hunger");
         thirst = tag.getInt("Thirst");
         sanity = tag.getInt("Sanity");
+        sanityMax = tag.contains("SanityMax") ? tag.getInt("SanityMax") : MAX;
         pollution = tag.getInt("Pollution");
         health = tag.getInt("Health");
         teamId = tag.getInt("TeamId");
         int family = tag.getInt("Family");
         familyPosition = family < 0 ? null : FamilyPosition.values()[family];
         dayNumber = tag.getInt("Day");
+        phaseEndTick = tag.getLong("PhaseEndTick");
         sick = tag.getBoolean("Sick");
         downed = tag.getBoolean("Downed");
         monster = tag.getBoolean("Monster");

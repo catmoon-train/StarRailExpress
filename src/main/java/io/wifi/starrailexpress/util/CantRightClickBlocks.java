@@ -78,6 +78,10 @@ public class CantRightClickBlocks {
     public static boolean shouldPreventInteraction(Player player, Block block, Level level) {
         if (SRE.isLobby)
             return false;
+        // 60s 生存模式不禁交互：箱子/家具容器（handcrafted 抽屉等）搜物资是玩法一部分；
+        // CanRightClickMixin(canInteractWithBlock) 与 PlayerInteractionHandler 共用此入口，两条路径一起放行
+        if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(level))
+            return false;
         ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
         String string = blockId.toString();
 

@@ -54,6 +54,16 @@ public final class SixtySecondsWinConditions {
         return true;
     }
 
+    /** 隐藏通关 · 救援抵达（救援信标倒计时结束，见 {@link SixtySecondsRescue}）：立即判幸存者胜。 */
+    public static void rescueArrived(ServerLevel level, SixtySecondsState.Data data) {
+        if (data.phase != SixtySecondsPhase.DAY) {
+            return;
+        }
+        broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.rescue_arrived")
+                .withStyle(ChatFormatting.GOLD));
+        endGame(level, data, true);
+    }
+
     private static boolean anySurvivorAlive(ServerLevel level) {
         for (ServerPlayer player : level.players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(player)) {

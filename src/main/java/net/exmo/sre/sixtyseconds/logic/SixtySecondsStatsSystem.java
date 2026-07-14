@@ -44,18 +44,50 @@ public final class SixtySecondsStatsSystem {
             }
             boolean changed = false;
 
-            // 每分钟消耗（在家减半）
-            if (minuteTick) {
-                double mult = isInHome(player, data, stats.teamId) ? SixtySecondsBalance.HOME_DRAIN_MULT : 1.0;
-                stats.hunger = clampDown(stats.hunger, scale(SixtySecondsBalance.HUNGER_DRAIN_PER_MIN, mult));
-                stats.thirst = clampDown(stats.thirst, scale(SixtySecondsBalance.THIRST_DRAIN_PER_MIN, mult));
-                stats.sanity = clampDown(stats.sanity, scale(SixtySecondsBalance.SANITY_DRAIN_PER_MIN, mult));
-                stats.pollution = clampUp(stats.pollution, scale(SixtySecondsBalance.POLLUTION_GAIN_PER_MIN, mult));
+            // 理智上限兜底（杀人永久降上限）：任何漏网的回 san 路径每秒都会被压回上限
+            if (stats.sanity > stats.sanityMax) {
+                stats.sanity = stats.sanityMax;
                 changed = true;
             }
 
-            // 健康保护：饥渴清空时每秒扣血（单一来源、封顶）
-            if ((stats.hunger <= 0 || stats.thirst <= 0) && stats.health > 0) {
+            // 每分钟消耗（在家基准；户外 ×1.2；门被攻破=户外×2=×2.4；前 2 天 -50%）
+            if (minuteTick) {
+                SixtySecondsState.TeamData team = data.teams.get(stats.teamId);
+                // 门被攻破 = 在家也视同户外
+                boolean sheltered = (team == null || !team.doorBroken) && isInHome(player, data, stats.teamId);
+                double mult;
+                if (team != null && team.doorBroken) {
+                    mult = SixtySecondsBalance.OUTDOOR_DRAIN_MULT * SixtySecondsBalance.DOOR_BROKEN_DRAIN_MULT;
+                } else if (sheltered) {
+                    mult = SixtySecondsBalance.HOME_DRAIN_MULT;
+                } else {
+                    mult = SixtySecondsBalance.OUTDOOR_DRAIN_MULT;
+                }
+                // 全局 -20% + 前两天 -50% + 第三天起 -20%
+                double dayMult = data.dayNumber >= 1 && data.dayNumber <= 2
+                        ? SixtySecondsBalance.DRAIN_MULT_EARLY_DAYS
+                        : SixtySecondsBalance.DRAIN_MULT_LATE_DAYS;
+                double finalMult = mult * SixtySecondsBalance.DRAIN_MULT_GLOBAL * dayMult;
+                stats.hunger = clampDown(stats.hunger, scale(SixtySecondsBalance.HUNGER_DRAIN_PER_MIN, finalMult));
+                stats.thirst = clampDown(stats.thirst, scale(SixtySecondsBalance.THIRST_DRAIN_PER_MIN, finalMult));
+                stats.sanity = clampDown(stats.sanity, scale(SixtySecondsBalance.SANITY_DRAIN_PER_MIN, finalMult));
+                // 污染增速：户外额外 -60%（POLLUTION_OUTDOOR_MULT）；防化服（胸甲位）再减半。
+                // 基数小（1/分钟），改用概率进位结算避免小倍率被四舍五入吞成 0/1 两极。
+                double pollutionMult = finalMult * SixtySecondsBalance.POLLUTION_DRAIN_MULT;
+                if (!sheltered) {
+                    pollutionMult *= SixtySecondsBalance.POLLUTION_OUTDOOR_MULT;
+                }
+                if (player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST)
+                        .is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_HAZMAT_SUIT)) {
+                    pollutionMult *= 0.5;
+                }
+                stats.pollution = clampUp(stats.pollution,
+                        scaleChance(level, SixtySecondsBalance.POLLUTION_GAIN_PER_MIN, pollutionMult));
+                changed = true;
+            }
+
+            // 健康保护：饥饿或口渴<b>低于 15</b> 时每秒扣血（单一来源、封顶；不再等到清空为 0 才掉血）
+            if ((stats.hunger < 15 || stats.thirst < 15) && stats.health > 0) {
                 stats.health = Math.max(0, stats.health - SixtySecondsBalance.HEALTH_LOSS_PER_SEC);
                 changed = true;
                 if (stats.health <= 0) {
@@ -64,12 +96,37 @@ public final class SixtySecondsStatsSystem {
                 }
             }
 
-            // 污染满：缓慢 + 概率生病（不扣健康）
+            // 高污染侵蚀健康：≥70 基准每分钟 -3、满(100) -5，整体 ×0.4（-60%，小数按概率进位 ≈1.2/2）
+            if (minuteTick && stats.pollution >= SixtySecondsBalance.POLLUTION_HEALTH_THRESHOLD
+                    && stats.health > 0) {
+                int base = stats.pollution >= MAX ? SixtySecondsBalance.POLLUTION_HEALTH_LOSS_FULL
+                        : SixtySecondsBalance.POLLUTION_HEALTH_LOSS_HIGH;
+                int loss = scaleChance(level, base, SixtySecondsBalance.POLLUTION_HEALTH_LOSS_MULT);
+                stats.health = Math.max(0, stats.health - loss);
+                changed = true;
+                if (stats.health <= 0) {
+                    SixtySecondsHealthSystem.onHealthZero(player, false, null);
+                    continue;
+                }
+            }
+
+            // 污染满：缓慢 + 概率生病
             if (stats.pollution >= MAX) {
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 0, false, false, false));
                 if (now % SixtySecondsBalance.POLLUTION_SICK_ROLL_INTERVAL == 0
                         && level.getRandom().nextDouble() < SixtySecondsBalance.POLLUTION_SICK_CHANCE) {
                     SixtySecondsSicknessSystem.makeSick(player);
+                }
+            }
+
+            // 饥饿药水效果：按等级加速饱食度消耗
+            // 等级 0→每30秒-1(2/min), 等级 1→每15秒-1(4/min), 等级 2→每10秒-1(6/min)
+            MobEffectInstance hungerEffect = player.getEffect(MobEffects.HUNGER);
+            if (hungerEffect != null && stats.hunger > 0) {
+                int interval = Math.max(1, 30 / (hungerEffect.getAmplifier() + 1));
+                if (now % (20L * interval) == 0) {
+                    stats.hunger = clampDown(stats.hunger, 1);
+                    changed = true;
                 }
             }
 
@@ -95,6 +152,16 @@ public final class SixtySecondsStatsSystem {
 
     private static int scale(int base, double mult) {
         return Math.max(0, (int) Math.round(base * mult));
+    }
+
+    /** 小倍率概率进位：整数部分照给，小数部分按概率 +1（如 0.38 → 38% 概率给 1）。 */
+    private static int scaleChance(ServerLevel level, int base, double mult) {
+        double exact = base * mult;
+        int amount = (int) exact;
+        if (level.getRandom().nextDouble() < exact - amount) {
+            amount++;
+        }
+        return amount;
     }
 
     private static int clampDown(int value, int amount) {

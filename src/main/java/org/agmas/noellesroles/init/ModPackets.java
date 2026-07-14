@@ -134,12 +134,45 @@ public class ModPackets {
         // 末日60秒模式：门开屏 + loot 表编辑/保存
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenSixtySecondsDoorS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenSixtySecondsDoorS2CPacket.CODEC);
+        // 统一避难所门菜单：S2C 开屏（携带上下文选项）+ C2S 执行选中操作
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenShelterDoorS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenShelterDoorS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.ShelterDoorActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.ShelterDoorActionC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.ShelterDoorActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.ShelterDoorActionC2SPacket::handle);
+        // 物资箱搜刮进度（搜打撤式动画）
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SupplySearchS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SupplySearchS2CPacket.CODEC);
+        // 睡觉时间强制入眠黑屏演出
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SleepBlackoutS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SleepBlackoutS2CPacket.CODEC);
+        // 60s 区域地图：当前扫描区域 + 家点位
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.CODEC);
+        // 电力面板 + 避难所控制面板
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenShelterPanelS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenShelterPanelS2CPacket.CODEC);
+        // 60s 开场演出广播：C2S=OP 请求全员播放（服务端校验），S2C=客户端开屏
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload::handle);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket::handle);
+        // 60s 枪械开火请求（客户端准星射线 → 服务端结算）
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.SixtySecondsGunShootC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsGunShootC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.SixtySecondsGunShootC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsGunShootC2SPacket::handle);
 
         // 末日60秒模式：拜访请求流程
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenVisitRequestS2CPacket.ID,
@@ -154,6 +187,13 @@ public class ModPackets {
                 net.exmo.sre.sixtyseconds.network.VisitRequestC2SPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.VisitResponseC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.VisitResponseC2SPacket::handle);
+        // 撬棍/开锁器闯入：选队界面 + 执行回传
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenBreakInSelectS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenBreakInSelectS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.BreakInExecuteC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.BreakInExecuteC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.BreakInExecuteC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.BreakInExecuteC2SPacket::handle);
         // 拜访双向对话
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenVisitChatS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenVisitChatS2CPacket.CODEC);
@@ -170,6 +210,45 @@ public class ModPackets {
                 net.exmo.sre.sixtyseconds.network.TradeActionC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.TradeActionC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.TradeActionC2SPacket::handle);
+        // 实体游戏币兑换（个人余额 → 实体币）
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.TokenExchangeC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TokenExchangeC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.TokenExchangeC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TokenExchangeC2SPacket::handle);
+        // 创造模式：区域地图点击标记点传送
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.MapTeleportC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.MapTeleportC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.MapTeleportC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.MapTeleportC2SPacket::handle);
+        // 赛前组队大厅（/sre:60s team 打开 + 创建/加入/离开操作）
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenTeamLobbyS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenTeamLobbyS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.TeamLobbyActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TeamLobbyActionC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.TeamLobbyActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TeamLobbyActionC2SPacket::handle);
+        // 对讲机频道：打开频道界面(S2C) + 接入/退出频道(C2S)
+        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.packet.OpenRadioChannelS2CPacket.ID,
+                org.agmas.noellesroles.packet.OpenRadioChannelS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.RadioChannelC2SPacket.ID,
+                org.agmas.noellesroles.packet.RadioChannelC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.RadioChannelC2SPacket.ID,
+                org.agmas.noellesroles.packet.RadioChannelC2SPacket::handle);
+        // 科技树 + 合成站 + 射击轨迹
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenTechTreeS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenTechTreeS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.TechUnlockC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TechUnlockC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.TechUnlockC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TechUnlockC2SPacket::handle);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenStationS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenStationS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket::handle);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.GunTracerS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.GunTracerS2CPacket.CODEC);
 
         PayloadTypeRegistry.playS2C().register(ReasonerOpenScreenS2CPacket.ID, ReasonerOpenScreenS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ReasonerSubmitC2SPacket.ID, ReasonerSubmitC2SPacket.CODEC);

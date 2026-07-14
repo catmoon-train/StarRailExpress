@@ -288,6 +288,9 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 水阀（镶板贴图，透明背景）使用 cutout 渲染层
         BlockRenderLayerMap.INSTANCE.putBlock(
                 org.agmas.noellesroles.init.ModSceneBlocks.WATER_VALVE, RenderType.cutout());
+        // 60s 避难所门（复用 wathe 列车钢门实体贴图，带透明窗洞）使用 cutout 渲染层
+        BlockRenderLayerMap.INSTANCE.putBlock(
+                ModBlocks.SIXTY_SECONDS_SHELTER_DOOR, RenderType.cutout());
 
         // 注册C4背部渲染
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
@@ -436,6 +439,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             TaskBlockOverlayRenderer.render(renderContext);
             TwoDimensionalTaskArrowRenderer.render(renderContext);
             PointerGuidanceRenderer.render(renderContext);
+            net.exmo.sre.sixtyseconds.client.GunTracerRenderer.render(renderContext);
+            net.exmo.sre.sixtyseconds.client.SixtySecondsDoorOverlay.render(renderContext);
         });
         InstinctRenderer.registerInstinctEvents();
 
@@ -859,6 +864,11 @@ public class NoellesrolesClient implements ClientModInitializer {
                 net.exmo.sre.sixtyseconds.network.OpenSixtySecondsDoorS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.SixtySecondsDoorScreen(payload.purpose()))));
+        // 统一避难所门菜单
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenShelterDoorS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.ShelterDoorScreen(payload))));
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
@@ -880,14 +890,108 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.VisitChatMessageS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> {
-                            if (context.client().screen instanceof net.exmo.sre.sixtyseconds.client.screen.VisitChatScreen chat) {
-                                chat.addMessage(payload.sender(), payload.text());
+                            // 无论聊天窗是否打开都记入静态历史（对话在门 GUI 中查看，重开不丢消息）
+                            net.exmo.sre.sixtyseconds.client.screen.VisitChatScreen.record(
+                                    payload.sender(), payload.text());
+                            if (!(context.client().screen
+                                    instanceof net.exmo.sre.sixtyseconds.client.screen.VisitChatScreen)
+                                    && !(context.client().screen
+                                    instanceof net.exmo.sre.sixtyseconds.client.screen.TradeScreen)
+                                    && context.client().player != null) {
+                                context.client().player.displayClientMessage(
+                                        net.minecraft.network.chat.Component.translatable(
+                                                "message.noellesroles.sixty_seconds.visit_chat_incoming"), true);
                             }
                         }));
+        // 撬棍/开锁器闯入目标选择
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenBreakInSelectS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.BreakInSelectScreen(
+                                        payload.teamIds(), payload.labels(), payload.alarms()))));
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.OpenTradeS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.TradeScreen(payload.partnerName()))));
+        // 物资箱搜刮进度：驱动搜刮 HUD 动画
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SupplySearchS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.SixtySecondsSearchHud.onPacket(payload)));
+        // 睡觉时间强制入眠：黑屏独白演出
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SleepBlackoutS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.SixtySecondsSleepOverlay.start(
+                                        payload.durationTicks())));
+        // 60s 开场演出广播：服务端通知全员播放
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.SixtySecondsIntroScreen())));
+        // 60s 区域地图：服务端推送当前扫描区域与家点位
+        net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.register();
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> {
+                            if (payload.active()) {
+                                net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.setZone(
+                                        payload.toAabb(), payload.hasHome() ? payload.home() : null,
+                                        payload.safeZone(), payload.shelterDoors());
+                            } else {
+                                net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.clearZone();
+                            }
+                        }));
+        // 60s 电力面板（右键发电机）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.PowerPanelScreen(
+                                        payload.remainingTicks()))));
+        // 60s 避难所控制面板（右键面板方块）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenShelterPanelS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.ShelterPanelScreen(payload))));
+        // 对讲机频道界面：右键对讲机时服务端请求打开
+        ClientPlayNetworking.registerGlobalReceiver(
+                org.agmas.noellesroles.packet.OpenRadioChannelS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new org.agmas.noellesroles.client.screen.RadioChannelScreen(payload.currentChannel()))));
+        // 组队大厅：命令打开（forceOpen）或页面已打开时原地刷新
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenTeamLobbyS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> {
+                            if (payload.forceOpen()) {
+                                context.client().setScreen(
+                                        new net.exmo.sre.sixtyseconds.client.screen.TeamLobbyScreen(payload));
+                            } else if (context.client().screen
+                                    instanceof net.exmo.sre.sixtyseconds.client.screen.TeamLobbyScreen lobby) {
+                                lobby.refresh(payload);
+                            }
+                        }));
+        // 科技树：打开或原地刷新
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenTechTreeS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> {
+                            if (context.client().screen
+                                    instanceof net.exmo.sre.sixtyseconds.client.screen.TechTreeScreen tech) {
+                                tech.refresh(payload);
+                            } else {
+                                context.client().setScreen(
+                                        new net.exmo.sre.sixtyseconds.client.screen.TechTreeScreen(payload));
+                            }
+                        }));
+        // 合成站界面
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenStationS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.StationCraftScreen(payload))));
+        // 枪械射击轨迹
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.GunTracerS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.GunTracerRenderer.onPacket(payload)));
 
         ClientPlayNetworking.registerGlobalReceiver(OpenVendingMachinesScreenS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> {

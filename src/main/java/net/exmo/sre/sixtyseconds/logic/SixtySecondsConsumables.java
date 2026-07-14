@@ -4,9 +4,14 @@ import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
+import org.agmas.noellesroles.content.item.ChefWaterItem;
 
 /**
  * 食物/水消耗恢复：
@@ -29,16 +34,26 @@ public final class SixtySecondsConsumables {
     public static void onConsume(ServerPlayer player, ItemStack stack) {
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
         int thirst = thirstRestoreOf(stack);
+        int hunger = 0;
         if (thirst > 0) {
             stats.thirst = Math.min(SixtySecondsStatsComponent.MAX, stats.thirst + thirst);
+            if (!(stack.getItem() instanceof SixtySecondsWaterItem)) {
+                // 非纯水物品（牛奶桶、厨师的水等）：可能同时恢复饱食度
+                hunger = hungerRestoreOf(stack);
+                if (hunger > 0) {
+                    stats.hunger = Math.min(SixtySecondsStatsComponent.MAX, stats.hunger + hunger);
+                }
+                applyNegativeEffects(player, stack);
+            }
             stats.sync();
             return;
         }
-        int hunger = hungerRestoreOf(stack);
+        hunger = hungerRestoreOf(stack);
         if (hunger > 0) {
             stats.hunger = Math.min(SixtySecondsStatsComponent.MAX, stats.hunger + hunger);
             stats.sync();
         }
+        applyNegativeEffects(player, stack);
     }
 
     /** 该物品恢复的饱食度（食物按 foodData，纯药水固定值，水返回 0）。客户端 tooltip 也用它。 */
@@ -56,7 +71,16 @@ public final class SixtySecondsConsumables {
 
     /** 该物品恢复的口渴值（非水物品返回 0）。 */
     public static int thirstRestoreOf(ItemStack stack) {
-        return stack.getItem() instanceof SixtySecondsWaterItem water ? water.thirstRestore : 0;
+        if (stack.getItem() instanceof SixtySecondsWaterItem water) {
+            return water.thirstRestore;
+        }
+        if (stack.is(Items.MILK_BUCKET)) {
+            return 15;
+        }
+        if (stack.getItem() instanceof ChefWaterItem) {
+            return 10; // 厨师的水：恢复 10 口渴 + 饱食度（走 food 组件）
+        }
+        return 0;
     }
 
     /** 食物等级（low/mid/high，按 nutrition），非食物返回 null。 */
@@ -67,5 +91,58 @@ public final class SixtySecondsConsumables {
         }
         int n = food.nutrition();
         return n <= 3 ? "low" : n <= 6 ? "mid" : "high";
+    }
+
+    /**
+     * 对原版负面食物施加 debuff（60s 模式中食用惩罚）。
+     * <table>
+     *   <tr><th>食物</th><th>效果</th></tr>
+     *   <tr><td>腐肉</td><td>饥饿 30s + 20% 中毒 5s</td></tr>
+     *   <tr><td>毒马铃薯</td><td>中毒 5s</td></tr>
+     *   <tr><td>河豚</td><td>中毒 15s(II) + 反胃 15s + 饥饿 30s(II)</td></tr>
+     *   <tr><td>蜘蛛眼</td><td>中毒 8s</td></tr>
+     *   <tr><td>生鸡肉</td><td>饥饿 20s + 30% 中毒 5s</td></tr>
+     *   <tr><td>生牛肉/猪/羊/兔</td><td>饥饿 20s + 15% 中毒 3s</td></tr>
+     * </table>
+     * 注：原版已有的食物效果（如腐肉自带饥饿、河豚自带中毒等）会与此叠加，进一步加重惩罚。
+     */
+    private static void applyNegativeEffects(ServerPlayer player, ItemStack stack) {
+        Item item = stack.getItem();
+        if (item == Items.ROTTEN_FLESH) {
+            player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 20 * 30, 0,
+                    false, true, true));
+            if (player.getRandom().nextFloat() < 0.2f) {
+                player.addEffect(new MobEffectInstance(MobEffects.POISON, 20 * 5, 0,
+                        false, true, true));
+            }
+        } else if (item == Items.POISONOUS_POTATO) {
+            player.addEffect(new MobEffectInstance(MobEffects.POISON, 20 * 5, 0,
+                    false, true, true));
+        } else if (item == Items.PUFFERFISH) {
+            player.addEffect(new MobEffectInstance(MobEffects.POISON, 20 * 15, 1,
+                    false, true, true));
+            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 20 * 15, 0,
+                    false, true, true));
+            player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 20 * 30, 1,
+                    false, true, true));
+        } else if (item == Items.SPIDER_EYE) {
+            player.addEffect(new MobEffectInstance(MobEffects.POISON, 20 * 8, 0,
+                    false, true, true));
+        } else if (item == Items.CHICKEN) {
+            player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 20 * 20, 0,
+                    false, true, true));
+            if (player.getRandom().nextFloat() < 0.3f) {
+                player.addEffect(new MobEffectInstance(MobEffects.POISON, 20 * 5, 0,
+                        false, true, true));
+            }
+        } else if (item == Items.BEEF || item == Items.PORKCHOP
+                || item == Items.MUTTON || item == Items.RABBIT) {
+            player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 20 * 20, 0,
+                    false, true, true));
+            if (player.getRandom().nextFloat() < 0.15f) {
+                player.addEffect(new MobEffectInstance(MobEffects.POISON, 20 * 3, 0,
+                        false, true, true));
+            }
+        }
     }
 }

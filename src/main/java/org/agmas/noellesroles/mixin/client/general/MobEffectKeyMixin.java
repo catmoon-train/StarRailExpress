@@ -53,6 +53,10 @@ public abstract class MobEffectKeyMixin {
                 if (player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD) && isLookingAtBlock(instance)) {
                     return false;
                 }
+                // 60s 做客：访客带 USED_BANED，但离开/对话都要在避难所门上操作——准星指向避难所门时放行
+                if (isLookingAtShelterDoor(instance)) {
+                    return false;
+                }
                 return true;
             }
         }
@@ -63,6 +67,15 @@ public abstract class MobEffectKeyMixin {
     private boolean isLookingAtBlock(Minecraft instance) {
         final HitResult hit = instance.hitResult;
         return hit != null && hit.getType() == HitResult.Type.BLOCK;
+    }
+
+    @Unique
+    private boolean isLookingAtShelterDoor(Minecraft instance) {
+        return instance.level != null
+                && instance.hitResult instanceof net.minecraft.world.phys.BlockHitResult blockHit
+                && instance.hitResult.getType() == HitResult.Type.BLOCK
+                && instance.level.getBlockState(blockHit.getBlockPos())
+                        .getBlock() instanceof net.exmo.sre.sixtyseconds.content.block.ShelterDoorBlock;
     }
 
     @ModifyReturnValue(method = "consumeClick", at = @At("RETURN"))

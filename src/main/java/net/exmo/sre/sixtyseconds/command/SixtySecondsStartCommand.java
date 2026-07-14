@@ -2,6 +2,7 @@ package net.exmo.sre.sixtyseconds.command;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -10,11 +11,15 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+
+import java.util.List;
+import java.util.UUID;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
-/** {@code /sre:60s start [minutes]} 启动末日60秒模式（也可 {@code /tmm:start sre:sixty_seconds}）。 */
+/** {@code /sre:60s start [minutes]} 启动末日60秒模式（也可 {@code /tmm:start sre:sixty_seconds}）。同时包含 sick/cure 调试指令。 */
 public final class SixtySecondsStartCommand {
     private SixtySecondsStartCommand() {
     }
@@ -24,16 +29,306 @@ public final class SixtySecondsStartCommand {
                 literal("sre:60s")
                         .then(literal("start")
                                 .requires(source -> source.hasPermission(SREConfig.instance().startGameRequiredPermission))
+                                // sre:60s start force_all_players [minutes] — 强制所有参与中的玩家加入，无视位置
+                                .then(literal("force_all_players")
+                                        .then(argument("minutes", IntegerArgumentType.integer(1))
+                                                .executes(context -> start(context.getSource(),
+                                                        IntegerArgumentType.getInteger(context, "minutes"), true)))
+                                        .executes(context -> start(context.getSource(), -1, true)))
+                                // sre:60s start [minutes] — 常规启动，仅准备区域内的玩家加入
                                 .then(argument("minutes", IntegerArgumentType.integer(1))
                                         .executes(context -> start(context.getSource(),
-                                                IntegerArgumentType.getInteger(context, "minutes"))))
-                                .executes(context -> start(context.getSource(), -1)))
+                                                IntegerArgumentType.getInteger(context, "minutes"), false)))
+                                .executes(context -> start(context.getSource(), -1, false)))
+                        // 赛前组队大厅（对所有玩家开放；游戏进行中不可用）
+                        .then(literal("team").executes(context -> openTeamLobby(context.getSource())))
+                        // 科技树（对所有玩家开放；仅本模式进行中可用）
+                        .then(literal("tech").executes(context -> openTechTree(context.getSource())))
+                        // 队伍信息汇总（家门/供电/科技/共享代币/成员状态）
+                        .then(literal("info").executes(context -> showInfo(context.getSource())))
+                        // 管理指令：跳到指定游戏日 / 跳到日内指定时间（清晨/白天/晚上/睡觉）
+                        .then(literal("day")
+                                .requires(source -> source.hasPermission(2))
+                                .then(argument("day", IntegerArgumentType.integer(1, 7))
+                                        .executes(context -> setDay(context.getSource(),
+                                                IntegerArgumentType.getInteger(context, "day")))))
+                        .then(literal("time")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("morning").executes(c -> setTime(c.getSource(), "morning")))
+                                .then(literal("daytime").executes(c -> setTime(c.getSource(), "daytime")))
+                                .then(literal("night").executes(c -> setTime(c.getSource(), "night")))
+                                .then(literal("sleep").executes(c -> setTime(c.getSource(), "sleep"))))
+                        // 管理指令：直接设置玩家的生存状态值 / 状态位
+                        // /sre:60s set <player> health|hunger|thirst|sanity|pollution <0..100>
+                        // /sre:60s set <player> downed|monster|sick <true|false>
+                        // /sre:60s set <player> revive — 救起倒地玩家（等价 downed false）
+                        .then(buildSetCommand())
                         // 自我解脱：san 归零变怪倒计时中，玩家可牺牲以换队伍安全（对所有玩家开放）
                         .then(literal("sacrifice").executes(context -> sacrifice(context.getSource())))
                         // 抵达幸存者阵营（触发点为后续设计；此命令供 OP 触发/测试）
                         .then(literal("reach_survivors")
                                 .requires(source -> source.hasPermission(2))
-                                .executes(context -> reachSurvivors(context.getSource())))));
+                                .executes(context -> reachSurvivors(context.getSource())))
+                        // 玩家NPC 敲门喊话：/sre:60s ask <文字>（创造模式，先右键敲避难所门）
+                        .then(literal("ask")
+                                .then(argument("text", com.mojang.brigadier.arguments.StringArgumentType.greedyString())
+                                        .executes(context -> npcAsk(context.getSource(),
+                                                com.mojang.brigadier.arguments.StringArgumentType
+                                                        .getString(context, "text")))))
+                        // 末日日报：点击聊天栏提醒打开当日报纸
+                        .then(literal("newspaper").executes(context -> openNewspaper(context.getSource())))
+                        // 每日事件门：玩家点击聊天栏选项（/sre:60s event <token> <option>）+ 管理员强制触发
+                        .then(literal("event")
+                                .then(literal("force")
+                                        .requires(source -> source.hasPermission(2))
+                                        .then(argument("id", com.mojang.brigadier.arguments.StringArgumentType.word())
+                                                .suggests((context, builder) -> net.minecraft.commands
+                                                        .SharedSuggestionProvider.suggest(
+                                                                net.exmo.sre.sixtyseconds.logic
+                                                                        .SixtySecondsDailyEvents.eventIds(), builder))
+                                                .executes(context -> forceEvent(context.getSource(),
+                                                        com.mojang.brigadier.arguments.StringArgumentType
+                                                                .getString(context, "id")))))
+                                .then(argument("token", IntegerArgumentType.integer(1))
+                                        .then(argument("option", IntegerArgumentType.integer(1, 2))
+                                                .executes(context -> chooseEvent(context.getSource(),
+                                                        IntegerArgumentType.getInteger(context, "token"),
+                                                        IntegerArgumentType.getInteger(context, "option"))))))
+                        // 管理员：晚上是否自动刷新夜袭者（按图配置持久化；默认关。关闭时可用召唤哨手动放怪）
+                        .then(literal("assault")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("on").executes(c -> setNightAssault(c.getSource(), true)))
+                                .then(literal("off").executes(c -> setNightAssault(c.getSource(), false)))
+                                .executes(c -> showNightAssault(c.getSource())))
+                        // 管理员：投放空投（缺省=探索区内随机；带坐标=指定 x z）
+                        .then(literal("airdrop")
+                                .requires(source -> source.hasPermission(2))
+                                .then(argument("x", IntegerArgumentType.integer())
+                                        .then(argument("z", IntegerArgumentType.integer())
+                                                .executes(context -> airdrop(context.getSource(),
+                                                        IntegerArgumentType.getInteger(context, "x"),
+                                                        IntegerArgumentType.getInteger(context, "z")))))
+                                .executes(context -> airdropRandom(context.getSource())))
+                        // 管理员：列出所有队伍的家（住宅/避难所/探索区）坐标，点击一键传送
+                        .then(literal("homes")
+                                .requires(source -> source.hasPermission(2))
+                                .executes(context -> listHomes(context.getSource())))
+                        // 管理员：强制给予/移除生病状态（给指定玩家施加/解除疾病）
+                        .then(literal("sick")
+                                .requires(source -> source.hasPermission(2))
+                                .then(argument("player", net.minecraft.commands.arguments.EntityArgument.player())
+                                        .executes(context -> forceSick(context.getSource(),
+                                                net.minecraft.commands.arguments.EntityArgument
+                                                        .getPlayer(context, "player")))))
+                        .then(literal("cure")
+                                .requires(source -> source.hasPermission(2))
+                                .then(argument("player", net.minecraft.commands.arguments.EntityArgument.player())
+                                        .executes(context -> forceCure(context.getSource(),
+                                                net.minecraft.commands.arguments.EntityArgument
+                                                        .getPlayer(context, "player")))))
+                        // 掉线备份：手动 保存/恢复/查看（掉线-重连时会自动触发，见 SixtySecondsReconnect）
+                        .then(literal("backup")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("save")
+                                        .then(argument("player", net.minecraft.commands.arguments.EntityArgument.player())
+                                                .executes(context -> backupSave(context.getSource(),
+                                                        net.minecraft.commands.arguments.EntityArgument
+                                                                .getPlayer(context, "player")))))
+                                .then(literal("restore")
+                                        .then(argument("player", net.minecraft.commands.arguments.EntityArgument.player())
+                                                .executes(context -> backupRestore(context.getSource(),
+                                                        net.minecraft.commands.arguments.EntityArgument
+                                                                .getPlayer(context, "player")))))
+                                .then(literal("list").executes(context -> backupList(context.getSource()))))));
+    }
+
+    /** 玩家NPC 敲门喊话（创造模式；需先右键敲过一扇避难所门）。 */
+    private static int npcAsk(CommandSourceStack source, String text) {
+        if (!(source.getEntity() instanceof ServerPlayer player) || !SixtySecondsMod.isActive(player.level())) {
+            return 0;
+        }
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcKnock.ask(player, text);
+        return 1;
+    }
+
+    /** 末日日报：打开当日报纸（对所有玩家开放）。 */
+    private static int openNewspaper(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof ServerPlayer player) || !SixtySecondsMod.isActive(player.level())) {
+            return 0;
+        }
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.open(player);
+        return 1;
+    }
+
+    /** 每日事件门：玩家点击聊天栏选项（仅由 ClickEvent 触发）。 */
+    private static int chooseEvent(CommandSourceStack source, int token, int option) {
+        if (!(source.getEntity() instanceof ServerPlayer player) || !SixtySecondsMod.isActive(player.level())) {
+            return 0;
+        }
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsDailyEvents.choose(player, token, option);
+        return 1;
+    }
+
+    /** 管理员：给自己所在队强制触发指定每日事件（测试用）。 */
+    private static int forceEvent(CommandSourceStack source, String eventId) {
+        if (!(source.getEntity() instanceof ServerPlayer player)) {
+            source.sendFailure(Component.literal("Only a player can force a daily event"));
+            return 0;
+        }
+        if (!SixtySecondsMod.isActive(player.level())
+                || !net.exmo.sre.sixtyseconds.logic.SixtySecondsDailyEvents.force(player, eventId)) {
+            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.devent.force_fail"));
+            return 0;
+        }
+        return 1;
+    }
+
+    private static int airdrop(CommandSourceStack source, int x, int z) {
+        if (net.exmo.sre.sixtyseconds.logic.SixtySecondsAirdrop.drop(source.getLevel(), x, z)) {
+            return 1;
+        }
+        source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.airdrop_no_ground"));
+        return 0;
+    }
+
+    private static int airdropRandom(CommandSourceStack source) {
+        if (net.exmo.sre.sixtyseconds.logic.SixtySecondsAirdrop.dropRandom(source.getLevel())) {
+            return 1;
+        }
+        source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.airdrop_no_zone"));
+        return 0;
+    }
+
+    /** 管理员：列出所有队伍的 住宅/避难所/探索区 出生点坐标；点击坐标一键传送（悬浮显示提示）。 */
+    private static int listHomes(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) {
+            source.sendFailure(Component.literal("Only a player can use this"));
+            return 0;
+        }
+        net.exmo.sre.sixtyseconds.state.SixtySecondsState.Data data =
+                net.exmo.sre.sixtyseconds.state.SixtySecondsState.get(player.serverLevel());
+        if (data.teams.isEmpty()) {
+            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.homes_empty"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("message.noellesroles.sixty_seconds.homes_header",
+                data.teams.size()).withStyle(ChatFormatting.GOLD), false);
+        for (net.exmo.sre.sixtyseconds.state.SixtySecondsState.TeamData team : data.teams.values()) {
+            // 成员名列表
+            StringBuilder members = new StringBuilder();
+            for (java.util.UUID uuid : team.members) {
+                var member = player.getServer().getPlayerList().getPlayer(uuid);
+                if (members.length() > 0) {
+                    members.append(", ");
+                }
+                members.append(member != null ? member.getGameProfile().getName() : "?");
+            }
+            net.minecraft.network.chat.MutableComponent line = Component.literal("§e#" + (team.teamId + 1) + " §7[")
+                    .append(Component.literal(members.toString()).withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal("§7] "));
+            line.append(tpLink("message.noellesroles.sixty_seconds.homes_residential",
+                    team.residentialSpawn, ChatFormatting.GREEN));
+            line.append(tpLink("message.noellesroles.sixty_seconds.homes_shelter",
+                    team.shelterSpawn, ChatFormatting.AQUA));
+            line.append(tpLink("message.noellesroles.sixty_seconds.homes_search",
+                    team.searchZoneSpawn, ChatFormatting.LIGHT_PURPLE));
+            source.sendSuccess(() -> line, false);
+        }
+        return data.teams.size();
+    }
+
+    /** 一段可点击的传送链接：`名称(x,y,z)`，点击执行 /tp，悬浮显示提示；坐标缺失显示灰色占位。 */
+    private static Component tpLink(String nameKey, net.minecraft.core.BlockPos pos, ChatFormatting color) {
+        if (pos == null) {
+            return Component.literal(" ").append(
+                    Component.translatable(nameKey).withStyle(ChatFormatting.DARK_GRAY))
+                    .append(Component.literal("(-)").withStyle(ChatFormatting.DARK_GRAY));
+        }
+        String coords = pos.getX() + " " + pos.getY() + " " + pos.getZ();
+        return Component.literal(" ").append(Component.translatable(nameKey)
+                .append(Component.literal("(" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + ")"))
+                .withStyle(style -> style.withColor(color)
+                        .withClickEvent(new net.minecraft.network.chat.ClickEvent(
+                                net.minecraft.network.chat.ClickEvent.Action.RUN_COMMAND, "/tp @s " + coords))
+                        .withHoverEvent(new net.minecraft.network.chat.HoverEvent(
+                                net.minecraft.network.chat.HoverEvent.Action.SHOW_TEXT,
+                                Component.translatable("message.noellesroles.sixty_seconds.homes_click_tp")))));
+    }
+
+    private static int backupSave(CommandSourceStack source, net.minecraft.server.level.ServerPlayer target) {
+        if (net.exmo.sre.sixtyseconds.logic.SixtySecondsReconnect.save(target)) {
+            source.sendSuccess(() -> Component.translatable(
+                    "message.noellesroles.sixty_seconds.backup_saved", target.getGameProfile().getName()), true);
+            return 1;
+        }
+        source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.backup_no_team"));
+        return 0;
+    }
+
+    private static int backupRestore(CommandSourceStack source, net.minecraft.server.level.ServerPlayer target) {
+        if (net.exmo.sre.sixtyseconds.logic.SixtySecondsReconnect.restore(target)) {
+            source.sendSuccess(() -> Component.translatable(
+                    "message.noellesroles.sixty_seconds.backup_restored", target.getGameProfile().getName()), true);
+            return 1;
+        }
+        source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.backup_none"));
+        return 0;
+    }
+
+    private static int backupList(CommandSourceStack source) {
+        source.sendSuccess(() -> Component.translatable("message.noellesroles.sixty_seconds.backup_count",
+                net.exmo.sre.sixtyseconds.logic.SixtySecondsReconnect.backupCount()), false);
+        return 1;
+    }
+
+    private static int showInfo(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) {
+            source.sendFailure(Component.literal("Only a player can view team info"));
+            return 0;
+        }
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsTeamInfo.send(player);
+        return 1;
+    }
+
+    private static int openTechTree(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) {
+            source.sendFailure(Component.literal("Only a player can open the tech tree"));
+            return 0;
+        }
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsTechTree.open(player);
+        return 1;
+    }
+
+    private static int setDay(CommandSourceStack source, int day) {
+        if (!SixtySecondsMod.isActive(source.getLevel())) {
+            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.cmd_not_running"));
+            return 0;
+        }
+        if (!net.exmo.sre.sixtyseconds.logic.SixtySecondsManager.forceDay(source.getLevel(), day)) {
+            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.cmd_not_running"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("message.noellesroles.sixty_seconds.cmd_day_set", day), true);
+        return 1;
+    }
+
+    private static int setTime(CommandSourceStack source, String timeName) {
+        if (!SixtySecondsMod.isActive(source.getLevel())
+                || !net.exmo.sre.sixtyseconds.logic.SixtySecondsManager.forceTime(source.getLevel(), timeName)) {
+            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.cmd_not_running"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("message.noellesroles.sixty_seconds.cmd_time_set", timeName), true);
+        return 1;
+    }
+
+    private static int openTeamLobby(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) {
+            source.sendFailure(Component.literal("Only a player can open the team lobby"));
+            return 0;
+        }
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsTeamLobby.open(player);
+        return 1;
     }
 
     private static int reachSurvivors(CommandSourceStack source) {
@@ -42,6 +337,101 @@ public final class SixtySecondsStartCommand {
             return 0;
         }
         return net.exmo.sre.sixtyseconds.logic.SixtySecondsWinConditions.reachSurvivorCamp(player) ? 1 : 0;
+    }
+
+    /** 数值状态字段（0..100）。 */
+    private static final String[] NUMERIC_FIELDS = { "health", "hunger", "thirst", "sanity", "pollution" };
+    /** 布尔状态字段。 */
+    private static final String[] FLAG_FIELDS = { "downed", "monster", "sick" };
+
+    /**
+     * {@code /sre:60s set <player> <field> <value>} 管理指令树：
+     * 五个数值状态（0..100）+ 三个状态位（downed/monster/sick）+ revive 快捷救起。
+     */
+    private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> buildSetCommand() {
+        var playerNode = argument("player", net.minecraft.commands.arguments.EntityArgument.player());
+        for (String field : NUMERIC_FIELDS) {
+            playerNode.then(literal(field)
+                    .then(argument("value", IntegerArgumentType.integer(0, 100))
+                            .executes(context -> setNumericStat(context.getSource(),
+                                    net.minecraft.commands.arguments.EntityArgument.getPlayer(context, "player"),
+                                    field, IntegerArgumentType.getInteger(context, "value")))));
+        }
+        for (String field : FLAG_FIELDS) {
+            playerNode.then(literal(field)
+                    .then(argument("value", com.mojang.brigadier.arguments.BoolArgumentType.bool())
+                            .executes(context -> setFlagStat(context.getSource(),
+                                    net.minecraft.commands.arguments.EntityArgument.getPlayer(context, "player"),
+                                    field, com.mojang.brigadier.arguments.BoolArgumentType.getBool(context, "value")))));
+        }
+        playerNode.then(literal("revive").executes(context -> setFlagStat(context.getSource(),
+                net.minecraft.commands.arguments.EntityArgument.getPlayer(context, "player"), "downed", false)));
+        return literal("set")
+                .requires(source -> source.hasPermission(2))
+                .then(playerNode);
+    }
+
+    private static int setNumericStat(CommandSourceStack source, ServerPlayer target, String field, int value) {
+        if (!SixtySecondsMod.isActive(source.getLevel())) {
+            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.cmd_not_running"));
+            return 0;
+        }
+        var stats = net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(target);
+        switch (field) {
+            case "health" -> stats.health = value;
+            case "hunger" -> stats.hunger = value;
+            case "thirst" -> stats.thirst = value;
+            case "sanity" -> stats.sanity = value;
+            case "pollution" -> stats.pollution = value;
+            default -> {
+                return 0;
+            }
+        }
+        stats.sync();
+        // health 设 0 按正常受伤归零流程走（首次倒地 / 当日第二次直接死亡）
+        if ("health".equals(field) && value <= 0 && !stats.downed && !stats.monster) {
+            net.exmo.sre.sixtyseconds.logic.SixtySecondsHealthSystem.onHealthZero(target, true, null);
+        }
+        source.sendSuccess(() -> Component.translatable("message.noellesroles.sixty_seconds.cmd_stat_set",
+                target.getGameProfile().getName(), field, value), true);
+        return 1;
+    }
+
+    private static int setFlagStat(CommandSourceStack source, ServerPlayer target, String field, boolean value) {
+        if (!SixtySecondsMod.isActive(source.getLevel())) {
+            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.cmd_not_running"));
+            return 0;
+        }
+        var stats = net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(target);
+        switch (field) {
+            case "downed" -> {
+                if (value) {
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsHealthSystem.forceDown(target);
+                } else if (stats.downed) {
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsHealthSystem.revive(target, stats);
+                }
+            }
+            case "monster" -> {
+                stats.monster = value;
+                if (!value) {
+                    stats.sanZeroTick = 0;
+                }
+                stats.sync();
+            }
+            case "sick" -> {
+                if (value) {
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsSicknessSystem.makeSick(target);
+                } else {
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsSicknessSystem.cure(target);
+                }
+            }
+            default -> {
+                return 0;
+            }
+        }
+        source.sendSuccess(() -> Component.translatable("message.noellesroles.sixty_seconds.cmd_stat_set",
+                target.getGameProfile().getName(), field, value), true);
+        return 1;
     }
 
     private static int sacrifice(CommandSourceStack source) {
@@ -55,7 +445,7 @@ public final class SixtySecondsStartCommand {
         return net.exmo.sre.sixtyseconds.logic.SixtySecondsMonsterSystem.sacrifice(player) ? 1 : 0;
     }
 
-    private static int start(CommandSourceStack source, int minutes) {
+    private static int start(CommandSourceStack source, int minutes, boolean forceAll) {
         if (SixtySecondsMod.MODE == null) {
             source.sendFailure(Component.literal("60s mode not initialized"));
             return 0;
@@ -64,10 +454,62 @@ public final class SixtySecondsStartCommand {
             source.sendFailure(Component.translatable("game.start_error.game_running"));
             return 0;
         }
+
+        // force_all_players: 将所有参与中的玩家（未 opt-out）强制纳入就绪列表，
+        // 使其无论身处何地都能加入游戏
+        if (forceAll) {
+            ParticipationComponent participation = ParticipationComponent.KEY.get(source.getLevel());
+            List<ServerPlayer> allPlayers = source.getLevel().getServer().getPlayerList().getPlayers();
+            List<UUID> forcedReady = allPlayers.stream()
+                    .filter(participation::isParticipating)
+                    .map(ServerPlayer::getUUID)
+                    .toList();
+            GameUtils.setForcedReadyPlayers(forcedReady);
+        }
+
         int resolved = minutes >= 0 ? minutes : SixtySecondsMod.MODE.defaultStartTime;
         GameUtils.startGame(source.getLevel(), SixtySecondsMod.MODE, GameConstants.getInTicks(resolved, 0));
         source.sendSuccess(() -> Component.translatable("commands.sre.start",
                 SixtySecondsMod.MODE.toString(), resolved).withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 管理员：切换「晚上自动刷新夜袭者」（按图配置持久化，默认关）。 */
+    private static int setNightAssault(CommandSourceStack source, boolean enabled) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.nightAssaultEnabled = enabled;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.assault_enabled"
+                : "message.noellesroles.sixty_seconds.assault_disabled").withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 管理员：查看「晚上自动刷新夜袭者」当前状态。 */
+    private static int showNightAssault(CommandSourceStack source) {
+        boolean enabled = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
+                .map(config -> config.nightAssaultEnabled).orElse(false);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.assault_enabled"
+                : "message.noellesroles.sixty_seconds.assault_disabled"), false);
+        return 1;
+    }
+
+    /** 管理员：强制给予指定玩家生病状态。 */
+    private static int forceSick(CommandSourceStack source, ServerPlayer target) {
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsSicknessSystem.makeSick(target);
+        source.sendSuccess(() -> Component.literal("已对 " + target.getGameProfile().getName() + " 施加生病状态")
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 管理员：强制治愈指定玩家（清除生病和感染风险）。 */
+    private static int forceCure(CommandSourceStack source, ServerPlayer target) {
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsSicknessSystem.cure(target);
+        source.sendSuccess(() -> Component.literal("已治愈 " + target.getGameProfile().getName())
+                .withStyle(ChatFormatting.GREEN), true);
         return 1;
     }
 }

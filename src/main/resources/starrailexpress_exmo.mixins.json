@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "io.wifi.starrailexpress.mixin.SREMixinPlugin",
   "mixins": [
+
   ],
   "injectors": {
     "defaultRequire": 1

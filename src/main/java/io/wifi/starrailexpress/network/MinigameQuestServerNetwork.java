@@ -82,16 +82,18 @@ public class MinigameQuestServerNetwork {
                     level.playSound(null, pos, net.minecraft.sounds.SoundEvents.PLAYER_LEVELUP,
                             net.minecraft.sounds.SoundSource.BLOCKS, 0.8F, 1.2F);
                 }
-                // 末日60秒模式：任务点每分钟轮换，须在 20s 窗口内完成才发代币，超时不奖励
+                // 末日60秒模式：任务点每 1.5 分钟刷新，须在 20s 窗口内完成、且本队本轮尚未完成过才发代币
+                //（超时/本队已完成的提示由 tryReward 内部按原因发出）
                 if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level())
                         && player.level() instanceof net.minecraft.server.level.ServerLevel sixtyLevel
-                        && !net.exmo.sre.sixtyseconds.logic.SixtySecondsMinigameRotation.canReward(sixtyLevel, pos)) {
-                    player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
-                            "message.noellesroles.sixty_seconds.minigame_too_late"), true);
+                        && !net.exmo.sre.sixtyseconds.logic.SixtySecondsMinigameRotation
+                                .tryReward(sixtyLevel, pos, player)) {
                     return;
                 }
                 // 小游戏任务系统：若该方块正是玩家被指派的目标，则发放游戏代币
-                if (io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(player.level()).areasSettings.minigameQuestEnabled) {
+                // 末日60秒模式不依赖地图的 minigameQuestEnabled 开关（任务由 SixtySecondsMinigameRotation 自维护），一并放行
+                if (io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(player.level()).areasSettings.minigameQuestEnabled
+                        || net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level())) {
                     io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent.KEY.get(player)
                             .onMinigameBlockCompleted(player, pos,
                                     io.wifi.starrailexpress.game.GameConstants.MINIGAME_TASK_TOKEN_REWARD,

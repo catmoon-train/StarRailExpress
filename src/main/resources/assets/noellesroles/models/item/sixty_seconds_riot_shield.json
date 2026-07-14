@@ -1,0 +1,50 @@
+{
+  "format_version": "1.9.0",
+  "credit": "Made with Blockbench",
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "particle": "noellesroles:item/riot_shield",
+    "layer0": "noellesroles:item/riot_shield"
+  },
+  "overrides": [
+    {"predicate": {"blocking": 1}, "model": "noellesroles:item/riot_shield_blocking"}
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [0, 90, 0],
+      "translation": [2.5, 2, 1.25]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [0, 90, 0],
+      "translation": [2.5, 2, 1.25]
+    },
+    "firstperson_righthand": {
+      "rotation": [180, 0, 168.25],
+      "translation": [7.25, -1, -8],
+      "scale": [1.25, 1.25, 1.25]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, -180, -8],
+      "translation": [7, -1, -8],
+      "scale": [1.25, 1.25, 1.25]
+    },
+    "ground": {
+      "scale": [4, 4, 4]
+    },
+    "gui": {
+      "rotation": [15, -25, -5],
+      "translation": [0.25, 0.25, 0],
+      "scale": [0.65, 0.65, 0.65]
+    },
+    "head": {
+      "rotation": [90, 0, 0],
+      "translation": [0, -7, 0],
+      "scale": [4, 4, 4]
+    },
+    "fixed": {
+      "rotation": [0, -180, 0],
+      "translation": [-4.5, 4.5, -5],
+      "scale": [0.55, 0.55, 0.55]
+    }
+  }
+}

@@ -100,16 +100,22 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
             return;
         }
 
-        // 检查技能解锁（当游戏剩余3分钟时解锁）
+        // 检查技能解锁（当游戏剩余3分钟时解锁；末日60秒模式觉醒即解锁——
+        // 60s 全程 7 天，SREGameTimeComponent 剩余时间基本不会低到 3 分钟）
         if (!abilityUnlocked) {
-            // 获取游戏剩余时间
-            SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
-            if (gameTime != null) {
-                long remainingTicks = gameTime.getTime();
-                // 当剩余时间 <= 3分钟时解锁
-                if (remainingTicks <= UNLOCK_REMAINING_TICKS) {
-                    abilityUnlocked = true;
-                    sync();
+            if (net.exmo.sre.sixtyseconds.logic.SixtySecondsRoleTweaks.ghostSkillAlwaysUnlocked(player)) {
+                abilityUnlocked = true;
+                sync();
+            } else {
+                // 获取游戏剩余时间
+                SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
+                if (gameTime != null) {
+                    long remainingTicks = gameTime.getTime();
+                    // 当剩余时间 <= 3分钟时解锁
+                    if (remainingTicks <= UNLOCK_REMAINING_TICKS) {
+                        abilityUnlocked = true;
+                        sync();
+                    }
                 }
             }
         }

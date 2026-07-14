@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "purpose=search,facing=north": { "model": "noellesroles:block/sixty_seconds_shelter_door" },
+    "purpose=search,facing=south": { "model": "noellesroles:block/sixty_seconds_shelter_door", "y": 180 },
+    "purpose=search,facing=west":  { "model": "noellesroles:block/sixty_seconds_shelter_door", "y": 270 },
+    "purpose=search,facing=east":  { "model": "noellesroles:block/sixty_seconds_shelter_door", "y": 90 },
+    "purpose=event,facing=north":  { "model": "noellesroles:block/sixty_seconds_shelter_door" },
+    "purpose=event,facing=south":  { "model": "noellesroles:block/sixty_seconds_shelter_door", "y": 180 },
+    "purpose=event,facing=west":   { "model": "noellesroles:block/sixty_seconds_shelter_door", "y": 270 },
+    "purpose=event,facing=east":   { "model": "noellesroles:block/sixty_seconds_shelter_door", "y": 90 },
+    "purpose=visit,facing=north":  { "model": "noellesroles:block/sixty_seconds_shelter_door" },
+    "purpose=visit,facing=south":  { "model": "noellesroles:block/sixty_seconds_shelter_door", "y": 180 },
+    "purpose=visit,facing=west":   { "model": "noellesroles:block/sixty_seconds_shelter_door", "y": 270 },
+    "purpose=visit,facing=east":   { "model": "noellesroles:block/sixty_seconds_shelter_door", "y": 90 }
+  }
+}

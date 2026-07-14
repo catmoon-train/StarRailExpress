@@ -126,6 +126,16 @@ public final class AreaMapManager {
         return (worldZ - originZ) / step;
     }
 
+    /** 纹理格坐标 → 世界 X 坐标（{@link #worldToCellX} 的逆变换，自定义标注用）。 */
+    public static double cellToWorldX(double cellX) {
+        return originX + cellX * step;
+    }
+
+    /** 纹理格坐标 → 世界 Z 坐标。 */
+    public static double cellToWorldZ(double cellZ) {
+        return originZ + cellZ * step;
+    }
+
     /** 底图纹理（自动按需上传显存）。 */
     public static ResourceLocation getBaseTexture() {
         uploadIfDirty();
@@ -149,10 +159,17 @@ public final class AreaMapManager {
         var areas = SREClient.areaComponent;
         if (areas == null) return;
         AABB area = areas.getPlayArea();
+        String mapKey = areas.mapName;
+        // 末日60秒模式：改扫服务端推送的当前区域（住宅/避难所/探索区），而非全图 playArea
+        AABB zone = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.activeZone();
+        if (zone != null) {
+            area = zone;
+            mapKey = "60s:" + (int) zone.minX + "," + (int) zone.minZ + "," + (int) zone.maxX + "," + (int) zone.maxZ;
+        }
         if (area == null || area.getXsize() < 2 || area.getZsize() < 2) return;
 
-        if (!area.equals(scannedArea) || !Objects.equals(areas.mapName, scannedMap)) {
-            reinit(mc, area, areas.mapName);
+        if (!area.equals(scannedArea) || !Objects.equals(mapKey, scannedMap)) {
+            reinit(mc, area, mapKey);
         }
         if (baseTexture == null) return;
 

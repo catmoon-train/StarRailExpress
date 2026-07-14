@@ -1,6 +1,9 @@
 package net.exmo.sre.sixtyseconds.content.item;
 
 import io.wifi.starrailexpress.content.item.CocktailItem;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 /**
  * 末日60秒模式的水物品（小/中/高三级）。继承 {@code CocktailItem} 获得饮用动画/音效；
@@ -16,5 +19,13 @@ public class SixtySecondsWaterItem extends CocktailItem {
         super(properties);
         this.tier = tier;
         this.thirstRestore = thirstRestore;
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
+        super.finishUsingItem(stack, world, user);
+        // CocktailItem 不消耗、水又无 FOOD 组件（原版也不消耗），须在此扣减，否则可无限饮用
+        stack.consume(1, user);
+        return stack;
     }
 }

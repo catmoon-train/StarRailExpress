@@ -177,36 +177,624 @@ public class ModItems {
     public static final Item SIXTY_SECONDS_WATER_SMALL = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem(
                     new Item.Properties().stacksTo(1), "small", 15),
-            "sixty_seconds_water_small", CONSUMABLES_GROUP);
+            "sixty_seconds_water_small", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_WATER_MEDIUM = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem(
                     new Item.Properties().stacksTo(1), "medium", 35),
-            "sixty_seconds_water_medium", CONSUMABLES_GROUP);
+            "sixty_seconds_water_medium", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_WATER_HIGH = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem(
                     new Item.Properties().stacksTo(1), "high", 60),
-            "sixty_seconds_water_high", CONSUMABLES_GROUP);
+            "sixty_seconds_water_high", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // 末日60秒模式：雨伞（污雨事件时在野外持有可免除额外污染）
     public static final Item SIXTY_SECONDS_UMBRELLA = register(
             new Item(new Item.Properties().stacksTo(1)),
-            "sixty_seconds_umbrella", CONSUMABLES_GROUP);
+            "sixty_seconds_umbrella", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // 末日60秒模式：撬棍（强闯别队避难所+报警，一次性）/ 撬锁器（潜行进入不报警，一次性）
     public static final Item SIXTY_SECONDS_CROWBAR = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
                     new Item.Properties().stacksTo(1), true),
-            "sixty_seconds_crowbar", CONSUMABLES_GROUP);
+            "sixty_seconds_crowbar", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_LOCKPICK = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
                     new Item.Properties().stacksTo(1), false),
-            "sixty_seconds_lockpick", CONSUMABLES_GROUP);
+            "sixty_seconds_lockpick", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // 末日60秒模式：门锁（右键门安装，抵御一天撬棍） / 门陷阱（开锁器入室触发警报）
+    public static final Item SIXTY_SECONDS_DOOR_LOCK = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsDoorLockItem(
+                    new Item.Properties().stacksTo(4)),
+            "sixty_seconds_door_lock", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_DOOR_TRAP = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsDoorTrapItem(
+                    new Item.Properties().stacksTo(4)),
+            "sixty_seconds_door_trap", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // 末日60秒模式：区域绑定工具（管理员搭图用：把避难所门绑定到独立探索区，三步右键）
+    public static final Item SIXTY_SECONDS_AREA_WAND = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsAreaWandItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_area_wand", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // 末日60秒模式：救援信标（隐藏通关——工程学合成，户外激活呼叫救援）
+    public static final Item SIXTY_SECONDS_RESCUE_BEACON = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsRescueBeaconItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_rescue_beacon", CONSUMABLES_GROUP);
 
     // 末日60秒模式：药品（右键治愈生病 + 解除感染风险）
     public static final Item SIXTY_SECONDS_MEDICINE = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMedicineItem(
                     new Item.Properties().stacksTo(16)),
-            "sixty_seconds_medicine", CONSUMABLES_GROUP);
+            "sixty_seconds_medicine", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：科技树/合成材料 ─────────────────────────────────
+    public static final Item SIXTY_SECONDS_SCRAP = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_scrap", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_RAG = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_rag", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_ALCOHOL = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_alcohol", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_DIRTY_WATER = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_dirty_water", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_BANDAGE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBandageItem(
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_bandage", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：照明/工具 ──────────────────────────────────────
+    public static final Item SIXTY_SECONDS_TORCH = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsTorchItem(
+                    new Item.Properties().stacksTo(1).durability(200)),
+            "sixty_seconds_torch", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_CLOCK = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsClockItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_clock", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_WRENCH = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsWrenchItem(
+                    new Item.Properties().stacksTo(1).durability(20)),
+            "sixty_seconds_wrench", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：近战武器（左键按武器扣健康值，见 SixtySecondsWeapons；durability=可挥砍次数）──
+    public static final Item SIXTY_SECONDS_PIPE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().durability(12)
+                            .attributes(SwordItem.createAttributes(Tiers.STONE, 3, -2.4F)), 25),
+            "sixty_seconds_pipe", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_SPIKED_BAT = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().durability(14)
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 4, -2.6F)), 30),
+            "sixty_seconds_spiked_bat", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_MACHETE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().durability(20)
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 5, -2.2F)), 40),
+            "sixty_seconds_machete", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：夜袭者召唤哨（对地面右键生成对应强度的夜袭者；见 SixtySecondsAssaultSpawnItem）──
+    public static final Item SIXTY_SECONDS_ASSAULT_SPAWNER_WEAK = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsAssaultSpawnItem(
+                    new Item.Properties().stacksTo(16),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.AssaultTier.WEAK),
+            "sixty_seconds_assault_spawner_weak", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_ASSAULT_SPAWNER_MEDIUM = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsAssaultSpawnItem(
+                    new Item.Properties().stacksTo(16),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.AssaultTier.MEDIUM),
+            "sixty_seconds_assault_spawner_medium", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_ASSAULT_SPAWNER_STRONG = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsAssaultSpawnItem(
+                    new Item.Properties().stacksTo(16),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.AssaultTier.STRONG),
+            "sixty_seconds_assault_spawner_strong", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：实体游戏币（1枚=1游戏币；E背包兑出、右键存回余额；见 SixtySecondsCoinItem）──
+    public static final Item SIXTY_SECONDS_COIN = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsCoinItem(
+                    new Item.Properties().stacksTo(64)),
+            "sixty_seconds_coin", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：枪械（右键开火，需子弹，命中怪物即死/玩家扣50血；见 SixtySecondsGunItem）──
+    public static final Item SIXTY_SECONDS_AMMO = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_ammo", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_PISTOL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGunItem(
+                    new Item.Properties().durability(10),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.GUN_PISTOL_COOLDOWN,
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.GUN_PISTOL_RANGE,30,1),
+            "sixty_seconds_pistol", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_HUNTING_SHOTGUN = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGunItem(
+                    new Item.Properties().durability(6),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.GUN_SHOTGUN_COOLDOWN,
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.GUN_SHOTGUN_RANGE,40,1),
+            "sixty_seconds_hunting_shotgun", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_RIFLE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGunItem(
+                    new Item.Properties().durability(12),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.GUN_RIFLE_COOLDOWN,
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.GUN_RIFLE_RANGE,50,1),
+            "sixty_seconds_rifle", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 狙击枪：超远射程、一枪打空健康（直接倒地）、20s 冷却（与全部枪械共享）、带瞄准镜（右键开镜→再右键射击）
+    public static final Item SIXTY_SECONDS_SNIPER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGunItem(
+                    new Item.Properties().durability(4),
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.GUN_SNIPER_COOLDOWN,
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.GUN_SNIPER_RANGE,
+                    net.exmo.sre.sixtyseconds.SixtySecondsBalance.GUN_SNIPER_DAMAGE, 3, true),
+            "sixty_seconds_sniper", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // RPG：范围爆炸（含自伤）、每发耗 5 子弹、8s 冷却（与全部枪械共享）
+    public static final Item SIXTY_SECONDS_RPG = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsRpgItem(
+                    new Item.Properties().durability(4)),
+            "sixty_seconds_rpg", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：护甲（按件百分比减免健康伤害，见 SixtySecondsWeapons）──
+    public static final Item SIXTY_SECONDS_SCRAP_HELMET = register(
+            new ArmorItem(ArmorMaterials.LEATHER, ArmorItem.Type.HELMET,
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_scrap_helmet", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_SCRAP_CHESTPLATE = register(
+            new ArmorItem(ArmorMaterials.LEATHER, ArmorItem.Type.CHESTPLATE,
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_scrap_chestplate", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_IRON_HELMET = register(
+            new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.HELMET,
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_iron_helmet", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_IRON_CHESTPLATE = register(
+            new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.CHESTPLATE,
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_iron_chestplate", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：背包（小9格/中18格/大27格，内容存 CONTAINER 组件）───
+    public static final Item SIXTY_SECONDS_BACKPACK_SMALL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBackpackItem(
+                    new Item.Properties().stacksTo(1), 1),
+            "sixty_seconds_backpack_small", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_BACKPACK_MEDIUM = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBackpackItem(
+                    new Item.Properties().stacksTo(1), 2),
+            "sixty_seconds_backpack_medium", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_BACKPACK_LARGE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBackpackItem(
+                    new Item.Properties().stacksTo(1), 3),
+            "sixty_seconds_backpack_large", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：更多基础资源/工具 ────────────────────────────────
+    public static final Item SIXTY_SECONDS_DUCT_TAPE = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_duct_tape", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_BATTERY = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_battery", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 手电筒：手持时夜间免疫低语怪掉san并获得夜视（见 SixtySecondsWhisperSystem）；
+    // 右键用强光驱散周围低语怪，每次耗 50 耐久（电量），150 耐久 ≈ 3 次
+    public static final Item SIXTY_SECONDS_FLASHLIGHT = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsFlashlightItem(
+                    new Item.Properties().stacksTo(1).durability(150)),
+            "sixty_seconds_flashlight", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：娱乐物品（右键给周围玩家恢复理智；恢复量/耐久按类型不同）──
+    public static final Item SIXTY_SECONDS_POKER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
+                    new Item.Properties().stacksTo(1).durability(7),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.POKER, 8),
+            "sixty_seconds_poker", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_CHESS = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
+                    new Item.Properties().stacksTo(1).durability(10),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.CHESS, 10),
+            "sixty_seconds_chess", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_HARMONICA = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
+                    new Item.Properties().stacksTo(1).durability(15),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.HARMONICA, 6),
+            "sixty_seconds_harmonica", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_GUITAR = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
+                    new Item.Properties().stacksTo(1).durability(6),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.GUITAR, 12),
+            "sixty_seconds_guitar", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_TEDDY_BEAR = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
+                    new Item.Properties().stacksTo(1).durability(4),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.TEDDY_BEAR, 15),
+            "sixty_seconds_teddy_bear", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：合成材料（loot/工具箱获得，供科技树与配方消耗）──────
+    public static final Item SIXTY_SECONDS_PLASTIC = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_plastic", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_GLASS_SHARD = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_glass_shard", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_WIRE = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_wire", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_GEAR = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_gear", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_FUEL_CAN = register(
+            new Item(new Item.Properties().stacksTo(8)),
+            "sixty_seconds_fuel_can", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_CLOTH_ROLL = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_cloth_roll", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 绳索：右键原地放一条向上延伸的临时可攀爬绳索（30s 后消失），消耗一根
+    public static final Item SIXTY_SECONDS_ROPE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsRopeItem(
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_rope", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 钩锁：右键钩住准星落点把自己荡过去（20 耐久 / 15s 冷却 / 荡索落地无摔落伤害）
+    public static final Item SIXTY_SECONDS_GRAPPLING_HOOK = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrapplingHookItem(
+                    new Item.Properties().stacksTo(1)
+                            .durability(net.exmo.sre.sixtyseconds.SixtySecondsBalance.GRAPPLE_DURABILITY)),
+            "sixty_seconds_grappling_hook", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_CHEMICALS = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_chemicals", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_ELECTRONICS = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_electronics", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_GUNPOWDER_PACK = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_gunpowder_pack", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：食物（带 FoodProperties，自动接入饱食恢复=营养×5）────
+    public static final Item SIXTY_SECONDS_CANNED_FOOD = register(
+            new Item(new Item.Properties().stacksTo(8).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(8).saturationModifier(0.6F).build())),
+            "sixty_seconds_canned_food", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_MRE = register(
+            new Item(new Item.Properties().stacksTo(4).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(12).saturationModifier(0.8F).build())),
+            "sixty_seconds_mre", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_BISCUIT = register(
+            new Item(new Item.Properties().stacksTo(8).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(6).saturationModifier(0.5F).build())),
+            "sixty_seconds_biscuit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_JERKY = register(
+            new Item(new Item.Properties().stacksTo(8).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(5).saturationModifier(0.6F).build())),
+            "sixty_seconds_jerky", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_INSTANT_NOODLES = register(
+            new Item(new Item.Properties().stacksTo(4).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(7).saturationModifier(0.6F).build())),
+            "sixty_seconds_instant_noodles", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_CHOCOLATE_BAR = register(
+            new Item(new Item.Properties().stacksTo(8).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(4).saturationModifier(0.4F).fast().build())),
+            "sixty_seconds_chocolate_bar", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_ENERGY_BAR = register(
+            new Item(new Item.Properties().stacksTo(8).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(5).saturationModifier(0.7F).fast().build())),
+            "sixty_seconds_energy_bar", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_SEEDS_PACK = register(
+            new Item(new Item.Properties().stacksTo(16).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(2).saturationModifier(0.3F).fast().build())),
+            "sixty_seconds_seeds_pack", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：饮品/药品（SixtySecondsStatItem 统一恢复逻辑）────────
+    public static final Item SIXTY_SECONDS_WATER_PACK = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem(
+                    new Item.Properties().stacksTo(4), "pack", 45),
+            "sixty_seconds_water_pack", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 饮品：2-3 秒（40-60 ticks），DRINK 动画
+    public static final Item SIXTY_SECONDS_JUICE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(4), 0, 10, 25, 0, 0, false, null,
+                    50, UseAnim.DRINK),
+            "sixty_seconds_juice", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_COFFEE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(4), 0, 0, 10, 10, 0, false, null,
+                    40, UseAnim.DRINK),
+            "sixty_seconds_coffee", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_SEDATIVE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 0, 0, 30, 0, false, null,
+                    60, UseAnim.DRINK),
+            "sixty_seconds_sedative", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 治疗类：5-10 秒（100-200 ticks），EAT / BOW 动画
+    public static final Item SIXTY_SECONDS_ANTIBIOTICS = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 10, 0, 0, 0, 0, true, null,
+                    140, UseAnim.EAT),
+            "sixty_seconds_antibiotics", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_PAINKILLERS = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 15, 0, 0, 0, 0, false, null,
+                    100, UseAnim.EAT),
+            "sixty_seconds_painkillers", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 非治疗类：2-3 秒（40-60 ticks）
+    public static final Item SIXTY_SECONDS_PURIFICATION_TABLET = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 0, 0, 0, 40, false, null,
+                    60, UseAnim.EAT),
+            "sixty_seconds_purification_tablet", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_VITAMIN = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 10, 10, 5, 0, false, null,
+                    50, UseAnim.EAT),
+            "sixty_seconds_vitamin", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 额外的消除污染消耗品（补充 purification_tablet(-40)/anti_pollution_serum(-60+治愈) 的档位与吃法）
+    // 活性炭片：常见、便宜，污染 -20（EAT）
+    public static final Item SIXTY_SECONDS_CHARCOAL_PILL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(16), 0, 0, 0, 0, 20, false, null,
+                    40, UseAnim.EAT),
+            "sixty_seconds_charcoal_pill", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 排毒草茶：污染 -30，兼回理智 +8（DRINK）
+    public static final Item SIXTY_SECONDS_DETOX_TEA = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 0, 0, 8, 30, false, null,
+                    50, UseAnim.DRINK),
+            "sixty_seconds_detox_tea", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 纯净水：污染 -20，兼解渴 +35（DRINK）——净化过的水既解渴又冲刷污染
+    public static final Item SIXTY_SECONDS_PURIFIED_WATER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 0, 35, 0, 20, false, null,
+                    40, UseAnim.DRINK),
+            "sixty_seconds_purified_water", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 治疗类：医疗包 10 秒（200 ticks），BOW 动画（包扎动作）
+    public static final Item SIXTY_SECONDS_MEDKIT = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(4), 60, 0, 0, 0, 0, true, null,
+                    200, UseAnim.BOW),
+            "sixty_seconds_medkit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 肾上腺素：3 秒（60 ticks），DRINK 动画（微量回血+速度效果）
+    public static final Item SIXTY_SECONDS_ADRENALINE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(4), 5, 0, 0, 0, 0, false,
+                    () -> new net.minecraft.world.effect.MobEffectInstance(
+                            net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED, 20 * 30, 1, false, false, true),
+                    60, UseAnim.DRINK),
+            "sixty_seconds_adrenaline", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：更多武器（近战按对应健康值扣血；投掷 AoE）─────────────
+    public static final Item SIXTY_SECONDS_KNIFE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().durability(10)
+                            .attributes(SwordItem.createAttributes(Tiers.STONE, 2, -2.0F)), 20),
+            "sixty_seconds_knife", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_SLEDGEHAMMER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().durability(22)
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 6, -3.0F)), 45),
+            "sixty_seconds_sledgehammer", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_CHAINSAW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().durability(24)
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 7, -2.8F)), 50),
+            "sixty_seconds_chainsaw", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_FIRE_AXE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().durability(18)
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 5, -2.8F)), 35),
+            "sixty_seconds_fire_axe", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_STUN_BATON = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().durability(12)
+                            .attributes(SwordItem.createAttributes(Tiers.STONE, 2, -2.0F)), 15, 20 * 3),
+            "sixty_seconds_stun_baton", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_MOLOTOV = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrenadeItem(
+                    new Item.Properties().stacksTo(4), 3.0D, 15.0F, 0, true, false),
+            "sixty_seconds_molotov", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_PIPE_BOMB = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrenadeItem(
+                    new Item.Properties().stacksTo(4), 4.0D, 40.0F, 30, false, false),
+            "sixty_seconds_pipe_bomb", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_FLASHBANG = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrenadeItem(
+                    new Item.Properties().stacksTo(4), 5.0D, 5.0F, 0, false, true),
+            "sixty_seconds_flashbang", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：更多装备（护甲减伤见 SixtySecondsWeapons）────────────
+    public static final Item SIXTY_SECONDS_SCRAP_LEGGINGS = register(
+            new ArmorItem(ArmorMaterials.LEATHER, ArmorItem.Type.LEGGINGS, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_scrap_leggings", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_SCRAP_BOOTS = register(
+            new ArmorItem(ArmorMaterials.LEATHER, ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_scrap_boots", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_IRON_LEGGINGS = register(
+            new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.LEGGINGS, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_iron_leggings", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_IRON_BOOTS = register(
+            new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_iron_boots", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 防毒面具：佩戴时污雨/浓烟污染免疫（SixtySecondsEventSystem）
+    public static final Item SIXTY_SECONDS_GAS_MASK = register(
+            new ArmorItem(ArmorMaterials.LEATHER, ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_gas_mask", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 防化服：佩戴时污染累积减半（SixtySecondsStatsSystem）
+    public static final Item SIXTY_SECONDS_HAZMAT_SUIT = register(
+            new ArmorItem(ArmorMaterials.LEATHER, ArmorItem.Type.CHESTPLATE, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_hazmat_suit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 夜视镜：夜间佩戴获得夜视（SixtySecondsWhisperSystem）
+    public static final Item SIXTY_SECONDS_NIGHT_GOGGLES = register(
+            new ArmorItem(ArmorMaterials.LEATHER, ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_night_goggles", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 防暴盾：手持（主/副手）时受到的健康伤害 ×0.75（SixtySecondsWeapons）
+    public static final Item SIXTY_SECONDS_RIOT_SHIELD = register(
+            new Item(new Item.Properties().stacksTo(1)),
+            "sixty_seconds_riot_shield", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：科技/功能道具 ────────────────────────────────────
+    public static final Item SIXTY_SECONDS_RADIO = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem(
+                    new Item.Properties().stacksTo(1),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem.Type.RADIO),
+            "sixty_seconds_radio", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_COMPASS = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem(
+                    new Item.Properties().stacksTo(1),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem.Type.COMPASS),
+            "sixty_seconds_compass", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_REPAIR_KIT = register(
+            new Item(new Item.Properties().stacksTo(4)),
+            "sixty_seconds_repair_kit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_SOLAR_PANEL = register(
+            new Item(new Item.Properties().stacksTo(4)),
+            "sixty_seconds_solar_panel", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_ALARM = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem(
+                    new Item.Properties().stacksTo(4),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem.Type.ALARM),
+            "sixty_seconds_alarm", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_LURE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem(
+                    new Item.Properties().stacksTo(4),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem.Type.LURE),
+            "sixty_seconds_lure", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_TOOLBOX = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem(
+                    new Item.Properties().stacksTo(4),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem.Type.TOOLBOX),
+            "sixty_seconds_toolbox", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_BLUEPRINT = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem(
+                    new Item.Properties().stacksTo(4),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem.Type.BLUEPRINT),
+            "sixty_seconds_blueprint", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：高等级撬棍/开锁器（对应门等级 2/3）─────────────────
+    public static final Item SIXTY_SECONDS_CROWBAR_STEEL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
+                    new Item.Properties().stacksTo(1), true, 2),
+            "sixty_seconds_crowbar_steel", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_CROWBAR_HYDRAULIC = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
+                    new Item.Properties().stacksTo(1), true, 3),
+            "sixty_seconds_crowbar_hydraulic", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_LOCKPICK_PRO = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
+                    new Item.Properties().stacksTo(1), false, 2),
+            "sixty_seconds_lockpick_pro", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_LOCKPICK_MASTER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
+                    new Item.Properties().stacksTo(1), false, 3),
+            "sixty_seconds_lockpick_master", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // ══ 末日60秒模式：扩充批次（冶金 / 农业 / 工事强化）══════════════════════
+    // ── 合成材料（loot material 类别 + 配方消耗）──
+    public static final Item SIXTY_SECONDS_STEEL_INGOT = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_steel_ingot", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_NAILS = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_nails", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_FERTILIZER = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_fertilizer", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_CHARCOAL_FILTER = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_charcoal_filter", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 食物（FoodProperties 自动接入饱食恢复=营养×5）──
+    public static final Item SIXTY_SECONDS_DRIED_FRUIT = register(
+            new Item(new Item.Properties().stacksTo(16).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(4).saturationModifier(0.4F).fast().build())),
+            "sixty_seconds_dried_fruit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_TRAIL_MIX = register(
+            new Item(new Item.Properties().stacksTo(16).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(6).saturationModifier(0.6F).build())),
+            "sixty_seconds_trail_mix", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_FRESH_VEGETABLES = register(
+            new Item(new Item.Properties().stacksTo(16).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(5).saturationModifier(0.5F).build())),
+            "sixty_seconds_fresh_vegetables", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 饮品/药品（SixtySecondsStatItem 统一恢复：health,hunger,thirst,san,pollutionReduce,cure,effect）──
+    public static final Item SIXTY_SECONDS_CANNED_SOUP = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 20, 20, 0, 0, false, null),
+            "sixty_seconds_canned_soup", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_SPORTS_DRINK = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 0, 30, 5, 0, false,
+                    () -> new net.minecraft.world.effect.MobEffectInstance(
+                            net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED, 20 * 20, 0, false, false, true)),
+            "sixty_seconds_sports_drink", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_HERBAL_TEA = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 0, 15, 20, 0, true, null),
+            "sixty_seconds_herbal_tea", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_BLOOD_BAG = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(4), 45, 0, 0, 0, 0, false, null),
+            "sixty_seconds_blood_bag", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_ANTI_POLLUTION_SERUM = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 0, 0, 0, 60, true, null),
+            "sixty_seconds_anti_pollution_serum", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 近战武器（左键按对应健康值扣血；见 SixtySecondsWeapons）──
+    public static final Item SIXTY_SECONDS_HATCHET = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().stacksTo(1).durability(12)
+                            .attributes(SwordItem.createAttributes(Tiers.STONE, 2, -2.2F)), 25),
+            "sixty_seconds_hatchet", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_CLEAVER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().stacksTo(1).durability(15)
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 4, -2.4F)), 35),
+            "sixty_seconds_cleaver", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_STEEL_SWORD = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
+                    new Item.Properties().stacksTo(1).durability(24)
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 6, -2.4F)), 55),
+            "sixty_seconds_steel_sword", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 投掷武器（燃烧弹：大范围点燃 + 对玩家健康伤害）──
+    public static final Item SIXTY_SECONDS_INCENDIARY_GRENADE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrenadeItem(
+                    new Item.Properties().stacksTo(4), 4.0D, 25.0F, 20, true, false),
+            "sixty_seconds_incendiary_grenade", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 破片手雷：不点燃不致盲，纯爆炸伤害更高（军械工坊科技合成）
+    public static final Item SIXTY_SECONDS_FRAG_GRENADE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrenadeItem(
+                    new Item.Properties().stacksTo(4), 3.5D, 30.0F, 35, false, false),
+            "sixty_seconds_frag_grenade", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 保温壶：大量回口渴 + 少量理智（炊事进阶科技合成）
+    public static final Item SIXTY_SECONDS_THERMOS = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(4), 0, 0, 40, 3, 0, false, null),
+            "sixty_seconds_thermos", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 末日乱炖：高饱食 + 汤水 + 热乎的幸福感（炊事进阶科技合成）
+    public static final Item SIXTY_SECONDS_STEW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 35, 10, 5, 0, false, null),
+            "sixty_seconds_stew", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 钢制护甲套 + 防弹背心（减伤登记见 SixtySecondsWeapons.armorTable）──
+    public static final Item SIXTY_SECONDS_STEEL_HELMET = register(
+            new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_steel_helmet", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_STEEL_CHESTPLATE = register(
+            new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.CHESTPLATE, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_steel_chestplate", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_STEEL_LEGGINGS = register(
+            new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.LEGGINGS, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_steel_leggings", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_STEEL_BOOTS = register(
+            new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_steel_boots", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 防弹背心：胸甲位，最高单件减伤（换取无钢套护腿/靴/头协同）
+    public static final Item SIXTY_SECONDS_BALLISTIC_VEST = register(
+            new ArmorItem(ArmorMaterials.IRON, ArmorItem.Type.CHESTPLATE, new Item.Properties().stacksTo(1)),
+            "sixty_seconds_ballistic_vest", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
     public static final Item LINGSHI = register(
             new ChefFoodItem((new Item.Properties()).stacksTo(1)), "lingshi",
             CONSUMABLES_GROUP);

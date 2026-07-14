@@ -20,8 +20,8 @@ import static net.minecraft.commands.Commands.literal;
  * <p>
  * 用法：
  * <ul>
- *   <li>{@code /sre:60s_area template <residential|shelter|searchzone> <minX> <minY> <minZ> <sizeX> <sizeY> <sizeZ>}</li>
- *   <li>{@code /sre:60s_area spawn <residential|shelter|searchzone> <x> <y> <z>}</li>
+ *   <li>{@code /sre:60s_area template <residential|shelter|searchzone> <x1> <y1> <z1> <x2> <y2> <z2>}（两个对角的绝对坐标，顺序随意）</li>
+ *   <li>{@code /sre:60s_area spawn <residential|shelter|searchzone> <x> <y> <z>}（模板内绝对坐标）</li>
  *   <li>{@code /sre:60s_area grid <baseX> <baseY> <baseZ> <spacing>}</li>
  *   <li>{@code /sre:60s_area show}</li>
  * </ul>
@@ -36,12 +36,12 @@ public final class SixtySecondsAreaCommand {
                         .requires(source -> source.hasPermission(2))
                         .then(literal("template")
                                 .then(argument("kind", StringArgumentType.word())
-                                        .then(argument("minX", IntegerArgumentType.integer())
-                                                .then(argument("minY", IntegerArgumentType.integer())
-                                                        .then(argument("minZ", IntegerArgumentType.integer())
-                                                                .then(argument("sizeX", IntegerArgumentType.integer(1))
-                                                                        .then(argument("sizeY", IntegerArgumentType.integer(1))
-                                                                                .then(argument("sizeZ", IntegerArgumentType.integer(1))
+                                        .then(argument("x1", IntegerArgumentType.integer())
+                                                .then(argument("y1", IntegerArgumentType.integer())
+                                                        .then(argument("z1", IntegerArgumentType.integer())
+                                                                .then(argument("x2", IntegerArgumentType.integer())
+                                                                        .then(argument("y2", IntegerArgumentType.integer())
+                                                                                .then(argument("z2", IntegerArgumentType.integer())
                                                                                         .executes(SixtySecondsAreaCommand::setTemplate))))))))
                         )
                         .then(literal("spawn")
@@ -56,7 +56,45 @@ public final class SixtySecondsAreaCommand {
                                                 .then(argument("baseZ", IntegerArgumentType.integer())
                                                         .then(argument("spacing", IntegerArgumentType.integer(1))
                                                                 .executes(SixtySecondsAreaCommand::setGrid))))))
+                        // 每队出口点：探索区共用一片，各队从不同位置出去（按队轮转分配）
+                        .then(literal("exit")
+                                .then(literal("add")
+                                        .then(argument("x", IntegerArgumentType.integer())
+                                                .then(argument("y", IntegerArgumentType.integer())
+                                                        .then(argument("z", IntegerArgumentType.integer())
+                                                                .executes(SixtySecondsAreaCommand::addExit)))))
+                                .then(literal("clear").executes(SixtySecondsAreaCommand::clearExits)))
                         .then(literal("show").executes(SixtySecondsAreaCommand::show))));
+    }
+
+    private static int addExit(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        if (cfg.searchExitPoints == null) {
+            cfg.searchExitPoints = new java.util.ArrayList<>();
+        }
+        cfg.searchExitPoints.add(new SixtySecondsConfig.Vec(
+                IntegerArgumentType.getInteger(ctx, "x"),
+                IntegerArgumentType.getInteger(ctx, "y"),
+                IntegerArgumentType.getInteger(ctx, "z")));
+        SixtySecondsConfigStore.save(level, cfg);
+        int count = cfg.searchExitPoints.size();
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] exit point #" + count + " added (teams rotate through " + count + " exit(s))")
+                .withStyle(ChatFormatting.GREEN), true);
+        return count;
+    }
+
+    private static int clearExits(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        int had = cfg.searchExitPoints == null ? 0 : cfg.searchExitPoints.size();
+        cfg.searchExitPoints = new java.util.ArrayList<>();
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] cleared " + had + " exit point(s); all teams fall back to searchzone spawn")
+                .withStyle(ChatFormatting.YELLOW), true);
+        return 1;
     }
 
     private static SixtySecondsConfig load(ServerLevel level) {
@@ -67,10 +105,10 @@ public final class SixtySecondsAreaCommand {
         ServerLevel level = ctx.getSource().getLevel();
         String kind = StringArgumentType.getString(ctx, "kind").toLowerCase();
         SixtySecondsConfig.Region region = new SixtySecondsConfig.Region(
-                new SixtySecondsConfig.Vec(IntegerArgumentType.getInteger(ctx, "minX"),
-                        IntegerArgumentType.getInteger(ctx, "minY"), IntegerArgumentType.getInteger(ctx, "minZ")),
-                new SixtySecondsConfig.Vec(IntegerArgumentType.getInteger(ctx, "sizeX"),
-                        IntegerArgumentType.getInteger(ctx, "sizeY"), IntegerArgumentType.getInteger(ctx, "sizeZ")));
+                new SixtySecondsConfig.Vec(IntegerArgumentType.getInteger(ctx, "x1"),
+                        IntegerArgumentType.getInteger(ctx, "y1"), IntegerArgumentType.getInteger(ctx, "z1")),
+                new SixtySecondsConfig.Vec(IntegerArgumentType.getInteger(ctx, "x2"),
+                        IntegerArgumentType.getInteger(ctx, "y2"), IntegerArgumentType.getInteger(ctx, "z2")));
         SixtySecondsConfig cfg = load(level);
         switch (kind) {
             case "residential" -> cfg.residentialTemplate = region;
@@ -82,7 +120,10 @@ public final class SixtySecondsAreaCommand {
             }
         }
         SixtySecondsConfigStore.save(level, cfg);
-        ctx.getSource().sendSuccess(() -> Component.literal("[60s] template " + kind + " set")
+        var box = region.toBox();
+        ctx.getSource().sendSuccess(() -> Component.literal("[60s] template " + kind + " set: ("
+                + box.minX() + "," + box.minY() + "," + box.minZ() + ") ~ ("
+                + box.maxX() + "," + box.maxY() + "," + box.maxZ() + ")")
                 .withStyle(ChatFormatting.GREEN), true);
         return 1;
     }
@@ -120,10 +161,12 @@ public final class SixtySecondsAreaCommand {
     }
 
     private static int show(CommandContext<CommandSourceStack> ctx) {
-        SixtySecondsConfig cfg = load(ctx.getSource().getLevel());
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
         ctx.getSource().sendSuccess(() -> Component.literal(
                 "[60s] complete=" + cfg.isComplete() + " grid=" + cfg.teamBase.x + "," + cfg.teamBase.y + ","
-                        + cfg.teamBase.z + " spacing=" + cfg.teamGridSpacing), false);
+                        + cfg.teamBase.z + " spacing=" + cfg.teamGridSpacing
+                        + " file=" + SixtySecondsConfigStore.describe(level)), false);
         return 1;
     }
 

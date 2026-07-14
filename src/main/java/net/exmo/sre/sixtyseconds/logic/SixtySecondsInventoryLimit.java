@@ -8,6 +8,10 @@ import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -21,6 +25,8 @@ import net.minecraft.world.item.Items;
 public final class SixtySecondsInventoryLimit {
     /** 游戏日可用槽位数（快捷栏 + 主背包第一排）。 */
     public static final int DAY_ALLOWED_SLOTS = 18;
+    /** 游戏日非父亲成员的可用槽位数（13 格）。 */
+    public static final int NON_FATHER_DAY_SLOTS = 13;
     public static final int LAST_MAIN_SLOT = 35;
 
     private SixtySecondsInventoryLimit() {
@@ -36,7 +42,14 @@ public final class SixtySecondsInventoryLimit {
             if (GameUtils.isPlayerSpectatingOrCreative(player)) {
                 continue;
             }
-            int allowed = prep ? carryLimit(player) : DAY_ALLOWED_SLOTS;
+            int allowed;
+            if (prep) {
+                allowed = carryLimit(player);
+            } else {
+                // 游戏日：父亲 18 格，其他成员 13 格
+                FamilyPosition position = SixtySecondsStatsComponent.KEY.get(player).familyPosition;
+                allowed = (position == FamilyPosition.FATHER) ? DAY_ALLOWED_SLOTS : NON_FATHER_DAY_SLOTS;
+            }
             enforce(player, allowed);
         }
     }
@@ -48,6 +61,12 @@ public final class SixtySecondsInventoryLimit {
 
     private static void enforce(ServerPlayer player, int firstRestrictedSlot) {
         Inventory inventory = player.getInventory();
+        // 放行范围扩大时（准备 2/8 格 → 游戏日 18 格）清掉旧屏障，否则玩家仍只剩一排可用
+        for (int slot = 0; slot < firstRestrictedSlot && slot <= LAST_MAIN_SLOT; slot++) {
+            if (isBarrier(inventory.getItem(slot))) {
+                inventory.setItem(slot, ItemStack.EMPTY);
+            }
+        }
         for (int slot = firstRestrictedSlot; slot <= LAST_MAIN_SLOT; slot++) {
             ItemStack current = inventory.getItem(slot);
             if (isBarrier(current)) {
@@ -76,6 +95,26 @@ public final class SixtySecondsInventoryLimit {
                 }
             }
         }
+    }
+
+    /**
+     * 屏障占位槽不可点击/快速移动（LimitedInventoryScreen 与任何含玩家背包槽位的容器界面统一生效）。
+     * 由 {@code AbstractContainerMenuMixin.doClick} 在两端 HEAD 调用，返回 true 则取消本次点击
+     * （QUICK_MOVE/THROW/SWAP 都从 doClick 进入，一并覆盖；数字键/副手键换入屏障槽也拦截）。
+     */
+    public static boolean shouldBlockClick(AbstractContainerMenu menu, int slotIndex, int button,
+            ClickType clickType, Player player) {
+        if (GameUtils.isPlayerSpectatingOrCreative(player)) {
+            return false;
+        }
+        if (slotIndex >= 0 && slotIndex < menu.slots.size()) {
+            Slot slot = menu.slots.get(slotIndex);
+            if (slot.container == player.getInventory() && isBarrier(slot.getItem())) {
+                return true;
+            }
+        }
+        return clickType == ClickType.SWAP && button >= 0 && button < player.getInventory().getContainerSize()
+                && isBarrier(player.getInventory().getItem(button));
     }
 
     private static ItemStack barrier() {

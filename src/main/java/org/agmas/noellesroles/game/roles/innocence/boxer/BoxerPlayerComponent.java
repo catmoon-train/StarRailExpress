@@ -125,8 +125,9 @@ public class BoxerPlayerComponent implements RoleComponent, ServerTickingCompone
         this.isInvulnerable = true;
         this.invulnerabilityTicks = INVULNERABILITY_DURATION;
         
-        // 设置冷却
-        this.cooldown = ABILITY_COOLDOWN;
+        // 设置冷却（末日60秒模式：技能冷却×，其余模式返回原值）
+        this.cooldown = net.exmo.sre.sixtyseconds.logic.SixtySecondsRoleTweaks
+                .fighterCooldown(player, ABILITY_COOLDOWN);
         
         // 发送消息
         if (player instanceof ServerPlayer serverPlayer) {

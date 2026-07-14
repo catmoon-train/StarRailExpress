@@ -193,7 +193,10 @@ public class SuperStarPlayerComponent implements RoleComponent, ServerTickingCom
         if (balanceAwardCount >= 150) {
             balanceAwardCount = 150;
         }
-        SREPlayerShopComponent.KEY.get(serverPlayer).addToBalance(balanceAwardCount);
+        // 末日60秒模式：技能不再奖励金币（末日经济收紧）
+        if (!net.exmo.sre.sixtyseconds.logic.SixtySecondsRoleTweaks.starSkillCoinRewardDisabled(serverPlayer)) {
+            SREPlayerShopComponent.KEY.get(serverPlayer).addToBalance(balanceAwardCount);
+        }
         // 发送消息给明星玩家
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.star.ability_used", affectedCount)

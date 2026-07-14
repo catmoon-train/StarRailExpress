@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "noellesroles:item/a_bottle_of_water"
+    "layer0": "noellesroles:item/sixty_seconds_water_small"
   }
 }

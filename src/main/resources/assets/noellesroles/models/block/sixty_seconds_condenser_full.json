@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "noellesroles:block/sixty_seconds_condenser_top_full",
+    "side": "noellesroles:block/sixty_seconds_condenser_side",
+    "bottom": "noellesroles:block/sixty_seconds_condenser_side",
+    "particle": "noellesroles:block/sixty_seconds_condenser_side"
+  }
+}

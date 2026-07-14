@@ -144,6 +144,9 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             return;
         if (gameWorldComponent.getGameMode().identifier.equals(SREGameModes.DAY_NIGHT_FIGHT_ID))
             return;
+        // 60s 模式运行中不刷新任务，也不显示任务字幕
+        if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(this.player.level()))
+            return;
         boolean shouldSync = false;
         this.nextTaskTimer--;
         if (this.nextTaskTimer <= 0) {

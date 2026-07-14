@@ -1,15 +1,9 @@
 package net.exmo.sre.sixtyseconds.content.block;
 
 import net.exmo.sre.sixtyseconds.SixtySecondsPhase;
-import net.exmo.sre.sixtyseconds.arena.SixtySecondsSearchZones;
-import net.exmo.sre.sixtyseconds.component.FamilyPosition;
-import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
-import net.exmo.sre.sixtyseconds.network.OpenSixtySecondsDoorS2CPacket;
+import net.exmo.sre.sixtyseconds.logic.SixtySecondsDoorMenu;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
-import net.minecraft.world.item.Items;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -25,93 +19,94 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * 避难所的门（交互中枢）。用 blockstate 属性 {@link #PURPOSE} 区分三类用途：
+ * 避难所的门（<b>通用交互中枢</b>）：右键打开统一门菜单 {@link SixtySecondsDoorMenu}，
+ * 由服务端按玩家上下文给出操作选项（存物资 / 外出探索 / 返回住所 / 门外事件 / 拜访别队）。
+ * 同一扇门对所有玩家可用——搜索区里的门、别队门口的门都走同一套菜单，各自拿到各自的选项。
+ * <p>快捷路径（不开菜单）：
  * <ul>
- *   <li>SEARCH：进/出本队搜索区（{@link SixtySecondsSearchZones}）。</li>
- *   <li>EVENT：打开事件 GUI 壳（商人/污雨/浓烟…，业务留 TODO）。</li>
- *   <li>VISIT：打开拜访 GUI 壳（选别队玩家→交易/？？？，业务留 TODO）。</li>
+ *   <li>手持区域绑定工具：选中此门为「待绑定门」（管理员搭图）。</li>
+ *   <li>游戏日手持木板/铁锭/修理包：直接加固家门（{@code SixtySecondsDefenseSystem}）。</li>
+ *   <li>准备阶段<b>潜行</b>右键：快速存入物资（60 秒抢时间用，免开菜单）。</li>
  * </ul>
- * 管理员在创造模式下 <b>潜行+右键</b> 循环切换门的用途；玩家右键触发对应行为。
- * 参照 {@code RepairExitGateBlock} / {@code RepairStationBlock}。
+ * 旧的 {@link DoorPurpose} 分工已废弃；{@link #PURPOSE} 属性仅为旧存档兼容保留，逻辑不再读取。
  */
 public class ShelterDoorBlock extends Block {
+    /** @deprecated 门已通用化，属性仅为旧存档 blockstate 兼容保留。 */
+    @Deprecated
     public static final EnumProperty<DoorPurpose> PURPOSE = EnumProperty.create("purpose", DoorPurpose.class);
+    /** 门板朝向（模型为复刻列车钢门的平面门板，需随门洞方向旋转；旧存档缺省=north）。 */
+    public static final net.minecraft.world.level.block.state.properties.DirectionProperty FACING =
+            net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
     public ShelterDoorBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(PURPOSE, DoorPurpose.SEARCH));
+        registerDefaultState(stateDefinition.any().setValue(PURPOSE, DoorPurpose.SEARCH)
+                .setValue(FACING, net.minecraft.core.Direction.NORTH));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(PURPOSE);
+        builder.add(PURPOSE, FACING);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(net.minecraft.world.item.context.BlockPlaceContext context) {
+        return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hitResult) {
-        useDoor(state, level, pos, player);
+        useDoor(level, pos, player);
         return ItemInteractionResult.SUCCESS;
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hitResult) {
-        useDoor(state, level, pos, player);
+        useDoor(level, pos, player);
         return InteractionResult.SUCCESS;
     }
 
-    private void useDoor(BlockState state, Level level, BlockPos pos, Player player) {
-        if (!(level instanceof ServerLevel) || !(player instanceof ServerPlayer serverPlayer)) {
+    private void useDoor(Level level, BlockPos pos, Player player) {
+        if (!(level instanceof ServerLevel serverLevel) || !(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        DoorPurpose purpose = state.getValue(PURPOSE);
-        // 创造模式潜行右键：循环切换门用途（管理员配置）
-        if (serverPlayer.isCreative() && serverPlayer.isShiftKeyDown()) {
-            DoorPurpose next = purpose.next();
-            level.setBlock(pos, state.setValue(PURPOSE, next), Block.UPDATE_ALL);
-            serverPlayer.displayClientMessage(
-                    Component.literal("[60s] door -> " + next.getSerializedName()), true);
+        // 手持区域绑定工具：选中此门为「待绑定门」（管理员搭图用；见 SixtySecondsAreaWandItem）
+        if (serverPlayer.getMainHandItem().getItem()
+                == org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_AREA_WAND) {
+            net.exmo.sre.sixtyseconds.content.item.SixtySecondsAreaWandItem.selectDoor(serverPlayer, pos);
             return;
         }
-        // 准备阶段：右键地下室门把携带的物资记录进本队库存
-        SixtySecondsState.Data data = SixtySecondsState.get((ServerLevel) level);
+        // 玩家NPC（创造 + 未编队）：右键门 = 敲门喊话（不开门菜单，见 SixtySecondsNpcKnock）
+        if (net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcKnock.tryKnock(serverLevel, serverPlayer, pos)) {
+            return;
+        }
+        // 手持门锁/门陷阱：直接安装（方块 useItemOn 先于物品 useOn 执行并吞掉交互，
+        // 不在这里短路的话这两个物品对着门永远只会打开门菜单——「门锁装不上」根因）
+        ItemStack held = serverPlayer.getMainHandItem();
+        if (held.getItem() instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsDoorLockItem) {
+            net.exmo.sre.sixtyseconds.content.item.SixtySecondsDoorLockItem
+                    .install(serverPlayer, serverLevel, pos, held);
+            return;
+        }
+        if (held.getItem() instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsDoorTrapItem) {
+            net.exmo.sre.sixtyseconds.content.item.SixtySecondsDoorTrapItem
+                    .install(serverPlayer, serverLevel, pos, held);
+            return;
+        }
+        SixtySecondsState.Data data = SixtySecondsState.get(serverLevel);
         if (data.phase == SixtySecondsPhase.PREPARATION) {
-            depositSupplies((ServerLevel) level, serverPlayer, data);
+            // 准备阶段潜行右键：快速存入（60 秒抢时间的免菜单通道）
+            if (serverPlayer.isShiftKeyDown()) {
+                SixtySecondsDoorMenu.depositSupplies(serverPlayer, data);
+                return;
+            }
+        } else if (net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.reinforce(
+                serverLevel, serverPlayer, pos, serverPlayer.getMainHandItem())) {
+            // 手持木板/铁锭/修理包：加固家门（耐久+等级，见 SixtySecondsDefenseSystem）
             return;
         }
-        switch (purpose) {
-            case SEARCH -> {
-                if (SixtySecondsSearchZones.isInSearchZone(serverPlayer)) {
-                    SixtySecondsSearchZones.returnPlayer(serverPlayer);
-                } else {
-                    SixtySecondsSearchZones.enter(serverPlayer);
-                }
-            }
-            case EVENT -> ServerPlayNetworking.send(serverPlayer,
-                    new OpenSixtySecondsDoorS2CPacket(DoorPurpose.EVENT.ordinal(), pos));
-            case VISIT -> net.exmo.sre.sixtyseconds.logic.SixtySecondsVisitSystem.openRequestScreen(serverPlayer);
-        }
-    }
-
-    /** 准备阶段：把玩家携带槽（0..携带上限-1）里的物资转入本队库存，清空这些槽以便继续搜集。 */
-    private void depositSupplies(ServerLevel level, ServerPlayer player, SixtySecondsState.Data data) {
-        SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
-        SixtySecondsState.TeamData team = data.teams.get(stats.teamId);
-        if (team == null) {
-            return;
-        }
-        int carry = stats.familyPosition == null ? FamilyPosition.MOTHER.carryLimit : stats.familyPosition.carryLimit;
-        int deposited = 0;
-        for (int slot = 0; slot < carry && slot <= 35; slot++) {
-            ItemStack current = player.getInventory().getItem(slot);
-            if (!current.isEmpty() && !current.is(Items.BARRIER)) {
-                team.storedSupplies.add(current.copy());
-                deposited += current.getCount();
-                player.getInventory().setItem(slot, ItemStack.EMPTY);
-            }
-        }
-        player.displayClientMessage(
-                Component.translatable("message.noellesroles.sixty_seconds.supplies_recorded", deposited), true);
+        SixtySecondsDoorMenu.open(serverPlayer, pos);
     }
 }

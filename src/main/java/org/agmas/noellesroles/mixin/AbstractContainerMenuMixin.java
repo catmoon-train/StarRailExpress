@@ -20,9 +20,13 @@ public class AbstractContainerMenuMixin {
     public void doClick(int i, int j, ClickType clickType, Player player, CallbackInfo ci) {
         if (SRE.isLobby)
             return;
-        // 末日60秒模式：解锁容器操作（生存玩法需要用箱子/容器）
-        if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level()))
+        // 末日60秒模式：解锁容器操作（生存玩法需要用箱子/容器），但屏障占位槽不可点击/快速移动
+        if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level())) {
+            if (net.exmo.sre.sixtyseconds.logic.SixtySecondsInventoryLimit.shouldBlockClick(
+                    (AbstractContainerMenu) (Object) this, i, j, clickType, player))
+                ci.cancel();
             return;
+        }
         final var instance1 = (AbstractContainerMenu) (Object) this;
         if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;

@@ -1,0 +1,158 @@
+package net.exmo.sre.sixtyseconds.content.item;
+
+import net.exmo.sre.sixtyseconds.SixtySecondsMod;
+import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
+import net.exmo.sre.sixtyseconds.logic.SixtySecondsSicknessSystem;
+import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+
+import java.util.List;
+import java.util.function.Supplier;
+
+/**
+ * 通用状态恢复消耗品（药品/饮品/针剂…）：需按住右键使用，使用完成后按参数恢复
+ * 健康/饱食/口渴/理智、降低污染、治愈生病与感染风险，并可附加药水效果。
+ * tooltip 自动列出全部效果。仅 60s 模式可用。
+ */
+public class SixtySecondsStatItem extends Item {
+    private final int health;
+    private final int hunger;
+    private final int thirst;
+    private final int sanity;
+    private final int pollutionReduce;
+    private final boolean cure;
+    private final Supplier<MobEffectInstance> effect;
+    /** 使用时间（tick），治疗类 100-200（5-10秒），非治疗类 40-60（2-3秒） */
+    private final int useDuration;
+    /** 使用动画类型 */
+    private final UseAnim useAnim;
+
+    public SixtySecondsStatItem(Properties properties, int health, int hunger, int thirst, int sanity,
+            int pollutionReduce, boolean cure, Supplier<MobEffectInstance> effect,
+            int useDuration, UseAnim useAnim) {
+        super(properties);
+        this.health = health;
+        this.hunger = hunger;
+        this.thirst = thirst;
+        this.sanity = sanity;
+        this.pollutionReduce = pollutionReduce;
+        this.cure = cure;
+        this.effect = effect;
+        this.useDuration = useDuration;
+        this.useAnim = useAnim;
+    }
+
+    /** 兼容旧构造（无 useDuration 的默认为 40 ticks = 2 秒 DRINK 动画） */
+    public SixtySecondsStatItem(Properties properties, int health, int hunger, int thirst, int sanity,
+            int pollutionReduce, boolean cure, Supplier<MobEffectInstance> effect) {
+        this(properties, health, hunger, thirst, sanity, pollutionReduce, cure, effect, 40, UseAnim.DRINK);
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack, LivingEntity user) {
+        return useDuration;
+    }
+
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return useAnim;
+    }
+
+    @Override
+    public SoundEvent getEatingSound() {
+        return useAnim == UseAnim.DRINK ? SoundEvents.GENERIC_DRINK : SoundEvents.GENERIC_EAT;
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+        if (!SixtySecondsMod.isActive(world)) {
+            return InteractionResultHolder.pass(user.getItemInHand(hand));
+        }
+        return ItemUtils.startUsingInstantly(world, user, hand);
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
+        if (!(user instanceof ServerPlayer serverPlayer)) {
+            return stack;
+        }
+        if (!SixtySecondsMod.isActive(level)) {
+            return stack;
+        }
+        SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(serverPlayer);
+        int max = SixtySecondsStatsComponent.MAX;
+        stats.health = Math.min(max, stats.health + health);
+        stats.hunger = Math.min(max, stats.hunger + hunger);
+        stats.thirst = Math.min(max, stats.thirst + thirst);
+        stats.sanity = Math.min(stats.sanityMax, stats.sanity + sanity); // 理智以个人上限为顶（杀人会永久降上限）
+        stats.pollution = Math.max(0, stats.pollution - pollutionReduce);
+        stats.sync();
+        if (cure) {
+            SixtySecondsSicknessSystem.cure(serverPlayer);
+        }
+        if (effect != null) {
+            serverPlayer.addEffect(effect.get());
+        }
+        if (!serverPlayer.isCreative()) {
+            stack.shrink(1);
+        }
+        level.playSound(null, user.getX(), user.getY(), user.getZ(),
+                SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS, 0.7F, 1.1F);
+        CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, stack);
+        serverPlayer.awardStat(Stats.ITEM_USED.get(this));
+        return stack;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
+        // 显示使用时间
+        float seconds = useDuration / 20.0F;
+        tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.use_time",
+                String.format("%.1f", seconds)).withStyle(ChatFormatting.GRAY));
+        if (health > 0) {
+            tooltip.add(line("stat_health", health, ChatFormatting.RED));
+        }
+        if (hunger > 0) {
+            tooltip.add(line("stat_hunger", hunger, ChatFormatting.GOLD));
+        }
+        if (thirst > 0) {
+            tooltip.add(line("stat_thirst", thirst, ChatFormatting.AQUA));
+        }
+        if (sanity > 0) {
+            tooltip.add(line("stat_sanity", sanity, ChatFormatting.LIGHT_PURPLE));
+        }
+        if (pollutionReduce > 0) {
+            tooltip.add(line("stat_pollution", pollutionReduce, ChatFormatting.GREEN));
+        }
+        if (cure) {
+            tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_cure")
+                    .withStyle(ChatFormatting.GREEN));
+        }
+        if (effect != null) {
+            tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_effect")
+                    .withStyle(ChatFormatting.YELLOW));
+        }
+    }
+
+    private static Component line(String key, int value, ChatFormatting color) {
+        return Component.translatable("tooltip.noellesroles.sixty_seconds." + key, value).withStyle(color);
+    }
+}

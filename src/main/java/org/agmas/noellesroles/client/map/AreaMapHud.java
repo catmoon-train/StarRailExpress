@@ -76,15 +76,32 @@ public final class AreaMapHud {
                     1f, 1f, 1f, 1f);
         }
 
-        // 任务点（仅画已勾选分类、且在视野内的）
-        for (Map.Entry<BlockPos, Integer> entry : NoellesrolesClient.taskBlocks.entrySet()) {
-            AreaMapPointCategory cat = AreaMapPointCategory.byTypeId(entry.getValue());
-            if (cat == null || !AreaMapManager.visibleCategories.contains(cat)) continue;
-            drawPoint(g, x, y, pcx, pcz, halfCells, pxPerCell, entry.getKey(), cat.color);
-        }
-        if (AreaMapManager.visibleCategories.contains(AreaMapPointCategory.DOOR)) {
-            for (BlockPos door : TaskBlockOverlayRenderer.RoomDoorPositions) {
-                drawPoint(g, x, y, pcx, pcz, halfCells, pxPerCell, door, AreaMapPointCategory.DOOR.color);
+        // 任务点（仅画已勾选分类、且在视野内的）；60s 模式改画家点位与自定义标注
+        boolean sixtySeconds = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.isActive();
+        if (!sixtySeconds) {
+            for (Map.Entry<BlockPos, Integer> entry : NoellesrolesClient.taskBlocks.entrySet()) {
+                AreaMapPointCategory cat = AreaMapPointCategory.byTypeId(entry.getValue());
+                if (cat == null || !AreaMapManager.visibleCategories.contains(cat)) continue;
+                drawPoint(g, x, y, pcx, pcz, halfCells, pxPerCell, entry.getKey(), cat.color);
+            }
+            if (AreaMapManager.visibleCategories.contains(AreaMapPointCategory.DOOR)) {
+                for (BlockPos door : TaskBlockOverlayRenderer.RoomDoorPositions) {
+                    drawPoint(g, x, y, pcx, pcz, halfCells, pxPerCell, door, AreaMapPointCategory.DOOR.color);
+                }
+            }
+        } else {
+            BlockPos home = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.homePos();
+            if (home != null) {
+                drawPoint(g, x, y, pcx, pcz, halfCells, pxPerCell, home, 0xFFD4AF37);
+            }
+            // 所有避难所门（创造模式可见，青色小点）
+            for (BlockPos door : net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.shelterDoors()) {
+                drawPoint(g, x, y, pcx, pcz, halfCells, pxPerCell, door, 0xFF4AB8C0);
+            }
+            for (net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.Marker marker
+                    : net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.markers()) {
+                drawPoint(g, x, y, pcx, pcz, halfCells, pxPerCell,
+                        BlockPos.containing(marker.worldX(), 0, marker.worldZ()), marker.color());
             }
         }
 

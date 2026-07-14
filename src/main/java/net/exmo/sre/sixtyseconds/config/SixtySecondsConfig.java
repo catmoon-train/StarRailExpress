@@ -30,7 +30,10 @@ public class SixtySecondsConfig {
     @SerializedName("searchZoneTemplate")
     public Region searchZoneTemplate;
 
-    /** 以下均为“模板内的绝对坐标”，每队 = 该坐标 + 网格偏移。 */
+    /**
+     * 以下出生点写<b>模板内的绝对坐标</b>——建图时自动换算成相对模板 min 的偏移量套到每队克隆区
+     * （见 {@code SixtySecondsArena.spawnFor}）；不在模板盒内的值按“相对模板 min 的偏移”兼容（旧写法）。
+     */
     @SerializedName("residentialSpawn")
     public Vec residentialSpawn;
 
@@ -39,6 +42,29 @@ public class SixtySecondsConfig {
 
     @SerializedName("searchZoneSpawn")
     public Vec searchZoneSpawn;
+
+    /**
+     * 共用探索区内的<b>每队出口点</b>列表（模板绝对坐标，不随队偏移）：第 index 支队伍出门落在
+     * {@code searchExitPoints[index % size]}——每个避难所对应探索区的不同位置。为空则全部用 {@link #searchZoneSpawn}。
+     * 用 {@code /sre:60s_area exit add <x y z>} 登记。
+     */
+    @SerializedName("searchExitPoints")
+    public java.util.List<Vec> searchExitPoints = new java.util.ArrayList<>();
+
+    /**
+     * 避难所门 → 专属探索区 的绑定列表（用绑定工具 {@code sixty_seconds_area_wand} 生成）。
+     * 每条把一扇 SEARCH 门（模板绝对坐标）绑到一个独立探索区（盒 + 出生点，均模板绝对坐标）；
+     * 开局按队叠加网格偏移克隆。为空时该门回退到全局 {@link #searchZoneSpawn}/{@code searchZoneTemplate}。
+     */
+    @SerializedName("searchDoorBindings")
+    public java.util.List<DoorBinding> searchDoorBindings = new java.util.ArrayList<>();
+
+    /**
+     * 晚上是否自动刷新夜袭者冲门（默认<b>关</b>）。关闭时仍可用「夜袭者召唤哨」
+     * （{@code sixty_seconds_assault_spawner_*}）手动放怪。{@code /sre:60s assault on|off} 切换（按图持久化）。
+     */
+    @SerializedName("nightAssaultEnabled")
+    public boolean nightAssaultEnabled = false;
 
     /** 第 index（从 0 起）支队伍的网格偏移。 */
     public BlockPos teamOffset(int index) {
@@ -72,26 +98,48 @@ public class SixtySecondsConfig {
         }
     }
 
+    /** 一扇避难所门与其专属探索区的绑定（坐标均为模板绝对坐标，克隆时叠加网格偏移）。 */
+    public static class DoorBinding {
+        @SerializedName("door")
+        public Vec door;
+        @SerializedName("boxMin")
+        public Vec boxMin;
+        @SerializedName("boxMax")
+        public Vec boxMax;
+        @SerializedName("spawn")
+        public Vec spawn;
+
+        public DoorBinding() {
+        }
+
+        public DoorBinding(Vec door, Vec boxMin, Vec boxMax, Vec spawn) {
+            this.door = door;
+            this.boxMin = boxMin;
+            this.boxMax = boxMax;
+            this.spawn = spawn;
+        }
+    }
+
     public static class Region {
         @SerializedName("min")
         public Vec min = new Vec();
-        /** 尺寸（各轴方块数，>=1）。 */
-        @SerializedName("size")
-        public Vec size = new Vec(1, 1, 1);
+        /**
+         * 第二个对角（<b>绝对坐标</b>，含端点；与 min 自动取正序，两角顺序随意）。
+         * 旧存档字段名 {@code size} 兼容读取——旧“各轴方块数”语义已废弃，若加载出的区域异常请用命令重新登记。
+         */
+        @SerializedName(value = "max", alternate = {"size"})
+        public Vec max = new Vec();
 
         public Region() {
         }
 
-        public Region(Vec min, Vec size) {
+        public Region(Vec min, Vec max) {
             this.min = min;
-            this.size = size;
+            this.max = max;
         }
 
         public BoundingBox toBox() {
-            int sx = Math.max(1, size.x);
-            int sy = Math.max(1, size.y);
-            int sz = Math.max(1, size.z);
-            return new BoundingBox(min.x, min.y, min.z, min.x + sx - 1, min.y + sy - 1, min.z + sz - 1);
+            return BoundingBox.fromCorners(min.toBlockPos(), max.toBlockPos());
         }
     }
 }

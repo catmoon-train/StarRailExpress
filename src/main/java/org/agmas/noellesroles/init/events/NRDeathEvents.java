@@ -1265,7 +1265,7 @@ public class NRDeathEvents {
             return true;
         });
 
-        // 生死状 - 明星反伤
+        // 生死状 - 明星抵挡死亡 + 目标半血半状态恢复
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (gameWorldComponent.isRole(player, ModRoles.SUPERSTAR))
@@ -1289,7 +1289,21 @@ public class NRDeathEvents {
                                     "hud.noellesroles.star.dead.life_and_death_shape.victim", p.getName())
                                     .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), true);
                             MCItemsUtils.clearItem(player, ModItems.LIFE_AND_DEATH_SHAPE, 1);
-                            GameUtils.killPlayer(p, true, killer, deathReason);
+                            // 目标半血恢复
+                            player.setHealth(player.getMaxHealth() / 2f);
+                            // 60s 模式：所有生存状态调至 50%
+                            if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level())) {
+                                var stats = net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(player);
+                                if (stats != null) {
+                                    int half = net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.MAX / 2;
+                                    stats.health = half;
+                                    stats.hunger = half;
+                                    stats.thirst = half;
+                                    stats.sanity = half;
+                                    stats.pollution = half;
+                                    stats.sync();
+                                }
+                            }
                             return false;
                         }
                     }

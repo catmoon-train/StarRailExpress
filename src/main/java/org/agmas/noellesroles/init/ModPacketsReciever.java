@@ -791,7 +791,10 @@ public class ModPacketsReciever {
               comp.setStoredStr(message);
               return;
             }
-            if (playerShopComponent.balance < 50) {
+            // 末日60秒模式：每次广播消耗提高（其余模式为原版 50）
+            int broadcastCost = net.exmo.sre.sixtyseconds.logic.SixtySecondsRoleTweaks
+                .broadcastCost(context.player());
+            if (playerShopComponent.balance < broadcastCost) {
               context.player().displayClientMessage(
                   Component.translatable("message.noellesroles.insufficient_funds"),
                   true);
@@ -811,7 +814,7 @@ public class ModPacketsReciever {
             if (comp != null) {
               comp.setStoredStr("");
             }
-            playerShopComponent.balance -= 50;
+            playerShopComponent.balance -= broadcastCost;
             playerShopComponent.sync();
 
             // 记录广播员发送的消息

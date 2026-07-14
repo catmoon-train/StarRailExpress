@@ -10,10 +10,13 @@ import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.BossEvent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
@@ -42,73 +45,288 @@ public final class SixtySecondsHealthSystem {
 
     /** 倒地玩家 UUID → 已累计救援 tick。 */
     private static final Map<UUID, Integer> REVIVE_PROGRESS = new HashMap<>();
+    /** 倒地玩家 UUID → 救援进度 BossBar（倒地者和救援者可见）。 */
+    private static final Map<UUID, ServerBossEvent> REVIVE_BOSS_BARS = new HashMap<>();
 
     private SixtySecondsHealthSystem() {
     }
 
     public static void register() {
         // 只在带 killer 的事件里拦截（总在 AllowPlayerDeath 之后触发，可拿到击杀者）
-        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> handleLethal(victim, killer));
+        AllowPlayerDeathWithKiller.EVENT.register(SixtySecondsHealthSystem::handleLethal);
+        // 放行原版物品左键攻击：PlayerEntityMixin.attack 默认吞掉非 LeftClickHurtable 的近战攻击，
+        // 60s 里任何物品都可攻击——放行后原版伤害链会被下面的 ALLOW_DAMAGE 转成健康伤害（数值按武器映射）
+        io.wifi.starrailexpress.event.AllowPlayerPunching.EVENT.register(
+                player -> net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level()));
+        // 兜底拦截漏网的原版致死（/kill、虚空、瞬间大额伤害等）：改走本系统死亡（原地变旁观），
+        // 否则原版死亡→重生把玩家送回世界出生点（表现为「出现在世界边缘」）
+        ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
+            if (entity instanceof ServerPlayer player && SixtySecondsMod.isActive(player.level())
+                    && GameUtils.isPlayerAliveAndSurvival(player)) {
+                player.setHealth(1.0F);
+                ServerPlayer attacker = source.getEntity() instanceof ServerPlayer sp ? sp : null;
+                die(player, attacker);
+                return false;
+            }
+            return true;
+        });
         // 原版环境伤害（坠落/火/生物等）改为健康值伤害
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (entity instanceof ServerPlayer player && SixtySecondsMod.isActive(player.level())
                     && GameUtils.isPlayerAliveAndSurvival(player)) {
                 ServerPlayer attacker = source.getEntity() instanceof ServerPlayer sp ? sp : null;
-                // 早晨/准备阶段：玩家对玩家攻击无效，且不转成健康伤害（怪物攻击不受限）
-                if (attacker != null && !SixtySecondsStatsComponent.KEY.get(attacker).monster
-                        && player.level() instanceof ServerLevel serverLevel && isPvpBlocked(serverLevel)) {
-                    attacker.displayClientMessage(
-                            Component.translatable("message.noellesroles.sixty_seconds.pvp_blocked"), true);
+                // 环境/自然伤害 = 无实体攻击者、也非生物攻击（火/岩浆/窒息/溺水/冰冻/坠落等）。这类伤害逐 tick
+                // 触发，而 ALLOW_DAMAGE 取消原版伤害后原版无敌帧从不设置 → 每 tick 全额连扣，卡墙/掉火里瞬间秒杀。
+                boolean environmental = attacker == null
+                        && !(source.getEntity() instanceof net.minecraft.world.entity.LivingEntity);
+                // 窒息（卡进方块）走非受伤致死：归零直接死亡、不进倒地——卡在墙里倒地既无法被救援
+                // 也无法被处决（环境伤害对倒地者无效），是永久卡死状态；倒地者也一并放行处理。
+                // 同样吃环境无敌帧，否则卡墙里逐 tick 直接秒。
+                if (source.is(net.minecraft.world.damagesource.DamageTypes.IN_WALL)) {
+                    int dmg = envInvulnEffective(player, Math.max(5, Math.round(amount * 5.0F)));
+                    if (dmg <= 0) {
+                        return false; // 无敌帧内：取消原版伤害但不扣健康
+                    }
+                    SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+                    stats.health = Math.max(0, stats.health - dmg);
+                    stats.sync();
+                    if (stats.health <= 0) {
+                        die(player, null);
+                    }
                     return false;
                 }
-                applyInjury(player, attacker);
+                // 玩家对玩家攻击受限（时段禁 PvP + 跨队一律禁）时无效，且不转成健康伤害（怪化玩家攻防不受限）
+                if (attacker != null && player.level() instanceof ServerLevel serverLevel
+                        && isPvpBlocked(serverLevel, attacker, player)) {
+                    attacker.displayClientMessage(
+                            Component.translatable("message.noellesroles.sixty_seconds.pvp_blocked."
+                                    + pvpBlockedReason(serverLevel)), true);
+                    return false;
+                }
+                // 伤害按来源分级：玩家武器查表（非武器物品/徒手=满蓄力 5，按攻击间隔充能削减）/ 怪物 20 /
+                // 环境按原版伤害量比例映射（护甲统一减伤）。
+                // 环境映射 amount×5（clamp 5..50）：火焰 tick(1)→5、10 格坠落(≈8)→40——健康值完全替代原版生命值，
+                // 原版环境危害按强度换算而非一律 50（否则站进火里一秒就倒地）。
+                int base = attacker != null ? SixtySecondsWeapons.injuryDamage(attacker, amount)
+                        : source.getEntity() instanceof net.minecraft.world.entity.LivingEntity
+                                ? SixtySecondsWeapons.MOB_DAMAGE
+                                : Math.min(SixtySecondsWeapons.DEFAULT_DAMAGE,
+                                        Math.max(5, Math.round(amount * 5.0F)));
+                // 环境伤害：套无敌帧，只结算窗口外的一击（或窗口内更强一击的差额），杜绝逐 tick 秒杀
+                if (environmental) {
+                    int effective = envInvulnEffective(player, base);
+                    if (effective <= 0) {
+                        return false;
+                    }
+                    applyInjury(player, null, effective);
+                    return false;
+                }
+                applyInjury(player, attacker, base);
                 return false;
             }
             return true;
         });
     }
 
-    private static boolean handleLethal(Player victim, Player killer) {
+    /** 玩家 UUID → 上次环境伤害的 (游戏刻, 结算伤害额)，用于自建环境无敌帧。 */
+    private static final Map<UUID, long[]> LAST_ENV_HURT = new HashMap<>();
+
+    /**
+     * 环境无敌帧结算：返回本次应实际扣除的健康值（0 = 处于无敌帧内且非更强的一击，应跳过）。
+     * 仿原版 {@code invulnerableTime}：{@link SixtySecondsBalance#ENV_INVULN_TICKS} 窗口内，
+     * 同强度/更弱的重复 tick 被完全吸收；只有「更强的一击」结算其超出上次的差额（防止一次小火 tick
+     * 把随后的致命坠落也一并免掉）。窗口过期则全额结算并重置计时与基准。
+     */
+    private static int envInvulnEffective(ServerPlayer player, int base) {
+        if (base <= 0) {
+            return 0;
+        }
+        long now = player.level().getGameTime();
+        UUID id = player.getUUID();
+        long[] last = LAST_ENV_HURT.get(id);
+        if (last != null && now - last[0] < SixtySecondsBalance.ENV_INVULN_TICKS) {
+            int prev = (int) last[1];
+            if (base <= prev) {
+                return 0;
+            }
+            last[1] = base; // 更强一击：只补差额，不重置计时（同源持续伤害仍受节流）
+            return base - prev;
+        }
+        LAST_ENV_HURT.put(id, new long[] { now, base });
+        return base;
+    }
+
+    private static boolean handleLethal(Player victim, Player killer, ResourceLocation deathReason) {
         if (!SixtySecondsMod.isActive(victim.level()) || !(victim instanceof ServerPlayer player)) {
             return true;
         }
+        // 本系统 die() 走 forceKillPlayer 会再次触发本事件（forceDeath 只忽略否决、不跳过监听器），
+        // 放行自己的死因，否则 handleLethal→applyInjury→die 无限递归爆栈
+        if (DEATH_REASON.equals(deathReason)) {
+            return true;
+        }
         ServerPlayer serverKiller = killer instanceof ServerPlayer sk ? sk : null;
-        // 早晨/准备阶段：玩家对玩家攻击无效（环境伤害仍生效；怪物攻击不受限）
-        if (serverKiller != null && !SixtySecondsStatsComponent.KEY.get(serverKiller).monster
-                && victim.level() instanceof ServerLevel serverLevel && isPvpBlocked(serverLevel)) {
+        // 玩家对玩家攻击受限（时段禁 PvP + 跨队一律禁）时无效（环境伤害仍生效；怪化玩家攻防不受限）
+        if (serverKiller != null && victim.level() instanceof ServerLevel serverLevel
+                && isPvpBlocked(serverLevel, serverKiller, player)) {
             serverKiller.displayClientMessage(
-                    Component.translatable("message.noellesroles.sixty_seconds.pvp_blocked"), true);
+                    Component.translatable("message.noellesroles.sixty_seconds.pvp_blocked."
+                            + pvpBlockedReason(serverLevel)), true);
             return false;
         }
         applyInjury(player, serverKiller);
         return false; // 否决模组默认死亡，改由本系统接管
     }
 
-    /** 准备阶段 / 每日早晨（前 {@link SixtySecondsBalance#MORNING_TICKS}）禁止玩家互相攻击。 */
+    /**
+     * PvP 判定（含队伍规则）：创造模式（管理员/未参与旁观）攻击一律放行；怪化玩家参与的攻防不受限
+     * （怪是全场威胁，双向都要能打）；<b>拜访做客</b>全程 PvP 豁免（除了拜访——客人与主人互不伤害）；
+     * <b>破门闯入别队避难所</b>默认开 PvP（绕过时段禁令，主人可随时反击）；其余未变怪玩家之间——
+     * <b>只禁同队友伤</b>（家人互不伤害、可互救），跨队及无队伍一律放行，同队/野外还受时段限制
+     * （{@link #isPvpBlocked(ServerLevel)}）。所有玩家伤害口子（原版链/枪/近战/手雷/RPG）统一走这里。
+     */
+    public static boolean isPvpBlocked(ServerLevel level, @Nullable ServerPlayer attacker,
+            @Nullable ServerPlayer victim) {
+        if (attacker == null || attacker == victim) {
+            return false;
+        }
+        // 创造模式攻击不受任何限制：无队伍/时段门控（修复未参与游戏的创造玩家打不了人）
+        if (attacker.isCreative()) {
+            return false;
+        }
+        if (SixtySecondsStatsComponent.KEY.get(attacker).monster) {
+            return false;
+        }
+        if (victim != null && SixtySecondsStatsComponent.KEY.get(victim).monster) {
+            return false;
+        }
+        // 拜访做客豁免（「除了拜访」）：交战任一方是做客中的访客 → 一律禁 PvP。拜访是和平的：
+        // 客人不能被打、也不能打主人（破门闯入才是敌对进入，见下）。
+        if (SixtySecondsVisiting.isVisiting(attacker)
+                || (victim != null && SixtySecondsVisiting.isVisiting(victim))) {
+            return true;
+        }
+        // 「进别人家默认开 PvP」：交战任一方身处<b>别队</b>避难所盒内（=有人破门闯入了别人家），
+        // 绕过时段禁令（清晨/新手保护期）——闯入是侵略行为，主人要能随时反击、闯入者也要担风险。
+        // 纯野外/自己家的交战仍受时段禁令约束。
+        boolean intrusion = victim != null
+                && (isInsideForeignShelter(level, attacker) || isInsideForeignShelter(level, victim));
+        if (!intrusion && isPvpBlocked(level)) {
+            return true;
+        }
+        if (victim == null) {
+            return false;
+        }
+        int attackerTeam = SixtySecondsStatsComponent.KEY.get(attacker).teamId;
+        int victimTeam = SixtySecondsStatsComponent.KEY.get(victim).teamId;
+        // 只在双方同属一支真实队伍时禁止（家人友伤关闭）；跨队 / 任一方无队伍（-1，含重连未恢复/旁观）一律放行。
+        // 旧逻辑 attackerTeam<0||victimTeam<0||attackerTeam!=victimTeam 恰好反了：把跨队禁掉、把无队伍禁掉，
+        // 导致「打不了别队的人」「重连后打不了人」「无队伍旁观打不了人」。
+        return attackerTeam >= 0 && attackerTeam == victimTeam;
+    }
+
+    /** 玩家是否身处「非本队」的避难所盒内（= 破门闯入了别人家）。 */
+    private static boolean isInsideForeignShelter(ServerLevel level, ServerPlayer player) {
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        int myTeam = SixtySecondsStatsComponent.KEY.get(player).teamId;
+        double x = player.getX(), y = player.getY(), z = player.getZ();
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            if (team.teamId != myTeam && team.shelterBox != null && team.shelterBox.contains(x, y, z)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 准备阶段 / 前四天全天 / 每日清晨（{@link net.exmo.sre.sixtyseconds.SixtySecondsDayCycle#MORNING_TICKS}）禁止玩家互相攻击。
+     * 前四天为新手保护期，全天禁 PvP。
+     */
     public static boolean isPvpBlocked(ServerLevel level) {
         SixtySecondsState.Data data = SixtySecondsState.get(level);
         if (data.phase != SixtySecondsPhase.DAY) {
             return true; // 准备/结算阶段一律禁 PvP
         }
-        long dayStart = data.phaseEndTick - SixtySecondsManager.DAY_TICKS;
-        return level.getGameTime() - dayStart < SixtySecondsBalance.MORNING_TICKS;
+        // 前四天全天禁 PvP（新手保护期）
+        if (data.dayNumber <= 4) {
+            return true;
+        }
+        return net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.subPhase(data, level.getGameTime())
+                == net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.SubPhase.MORNING;
     }
 
-    /** 一次受伤：扣 50 健康；对倒地者受伤=处决。 */
+    /**
+     * 返回 PvP 被阻止的具体原因，用于向攻击者展示不同的提示文本。
+     * 仅在 {@link #isPvpBlocked(ServerLevel)} 已返回 true 后调用。
+     */
+    private static String pvpBlockedReason(ServerLevel level) {
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        if (data.phase != SixtySecondsPhase.DAY) {
+            return "not_day";
+        }
+        if (data.dayNumber <= 4) {
+            return "early_days";
+        }
+        return "morning";
+    }
+
+    /** 一次受伤（伤害按攻击者武器查表，见 {@link SixtySecondsWeapons}）；对倒地者受伤=处决。 */
     public static void applyInjury(ServerPlayer victim, @Nullable ServerPlayer attacker) {
+        applyInjury(victim, attacker, SixtySecondsWeapons.injuryDamage(attacker));
+    }
+
+    /** 一次受伤：扣 baseDamage（经护甲减伤）点健康；怪物玩家不受护甲减免。 */
+    public static void applyInjury(ServerPlayer victim, @Nullable ServerPlayer attacker, int baseDamage) {
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(victim);
+        // PvP 伤害减免 -60%（怪物攻防不受限）
+        if (attacker != null && !stats.monster) {
+            baseDamage = (int) Math.max(1, baseDamage * SixtySecondsBalance.PVP_DAMAGE_MULT);
+        }
         if (stats.monster) {
-            die(victim, attacker); // 怪物被击即死
+            // 怪物玩家：正常扣血（250 血），不受护甲减免，健康扣完即死
+            hurtFeedback(victim, attacker);
+            stats.health = Math.max(0, stats.health - baseDamage);
+            stats.sync();
+            if (stats.health <= 0) {
+                die(victim, attacker);
+            }
             return;
         }
         if (stats.downed) {
-            die(victim, attacker);
+            // 倒地者：仅玩家攻击有效（补刀），扣减倒地健康值，归零才死
+            if (attacker != null) {
+                stats.health = Math.max(0, stats.health - SixtySecondsWeapons.reduceByArmor(victim, baseDamage));
+                stats.sync();
+                hurtFeedback(victim, attacker);
+                if (stats.health <= 0) {
+                    die(victim, attacker);
+                }
+            }
             return;
         }
-        stats.health = Math.max(0, stats.health - INJURY_DAMAGE);
+        hurtFeedback(victim, attacker);
+        stats.health = Math.max(0, stats.health - SixtySecondsWeapons.reduceByArmor(victim, baseDamage));
         stats.sync();
         if (stats.health <= 0) {
             onHealthZero(victim, true, attacker);
+        }
+    }
+
+    /**
+     * 受击反馈：ALLOW_DAMAGE 取消原版伤害后没有任何表现（无红闪/音效/击退，打人像打空气）——
+     * 这里手动补齐：受击动画广播 + 受伤音效 + 来自攻击者方向的击退。
+     */
+    private static void hurtFeedback(ServerPlayer victim, @Nullable ServerPlayer attacker) {
+        ServerLevel level = victim.serverLevel();
+        level.broadcastDamageEvent(victim, attacker != null
+                ? victim.damageSources().playerAttack(attacker)
+                : victim.damageSources().generic());
+        level.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
+                net.minecraft.sounds.SoundEvents.PLAYER_HURT,
+                net.minecraft.sounds.SoundSource.PLAYERS, 1.0F, 1.0F);
+        if (attacker != null && attacker != victim) {
+            victim.knockback(0.4D, attacker.getX() - victim.getX(), attacker.getZ() - victim.getZ());
+            victim.hurtMarked = true; // 强制同步击退速度到客户端
         }
     }
 
@@ -126,37 +344,109 @@ public final class SixtySecondsHealthSystem {
         setDowned(victim, stats);
     }
 
+    /** 管理指令：强制倒地（不增加当日倒地计数的语义不变——按正常倒地流程走）。 */
+    public static void forceDown(ServerPlayer player) {
+        SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+        if (!stats.downed) {
+            setDowned(player, stats);
+        }
+    }
+
     private static void setDowned(ServerPlayer victim, SixtySecondsStatsComponent stats) {
         stats.downed = true;
         stats.downedFromInjury = true;
         stats.downedCountToday++;
-        stats.health = 0;
-        stats.bleedOutEndTick = victim.serverLevel().getGameTime() + BLEED_OUT_TICKS;
+        stats.health = SixtySecondsBalance.DOWNED_MAX_HEALTH;
+        stats.bleedOutEndTick = 0L; // 不再使用定时流血，改为健康值自然流失
         stats.sync();
         REVIVE_PROGRESS.remove(victim.getUUID());
+        // 即时禁止移动和攻击/使用物品
+        victim.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 40, 0, false, false, false));
+        victim.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 40, 0, false, false, false));
         victim.displayClientMessage(Component.translatable("message.noellesroles.sixty_seconds.downed"), false);
     }
 
     public static void die(ServerPlayer victim, @Nullable ServerPlayer killer) {
+        applyKillSanityCapLoss(victim, killer);
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(victim);
         stats.downed = false;
         stats.bleedOutEndTick = 0L;
         stats.sync();
+        victim.setSwimming(false);
         REVIVE_PROGRESS.remove(victim.getUUID());
+        ServerBossEvent bar = REVIVE_BOSS_BARS.remove(victim.getUUID());
+        if (bar != null) {
+            bar.removeAllPlayers();
+            bar.setVisible(false);
+        }
         GameUtils.forceKillPlayer(victim, true, killer, DEATH_REASON);
     }
 
+    /**
+     * 杀人代价：击杀者理智上限<b>永久</b>随机扣 {@link SixtySecondsBalance#KILL_SANITY_CAP_LOSS_MIN}~
+     * {@link SixtySecondsBalance#KILL_SANITY_CAP_LOSS_MAX}（本局内不可恢复；恢复类回 san 以新上限为顶）。
+     * 上限保底 {@link SixtySecondsBalance#SANITY_CAP_FLOOR}，防连环杀直接锁死到 0 变怪。自杀/无击杀者不扣。
+     */
+    private static void applyKillSanityCapLoss(ServerPlayer victim, @Nullable ServerPlayer killer) {
+        if (killer == null || killer == victim
+                || !(killer.level() instanceof ServerLevel level)) {
+            return;
+        }
+        SixtySecondsStatsComponent killerStats = SixtySecondsStatsComponent.KEY.get(killer);
+        int loss = SixtySecondsBalance.KILL_SANITY_CAP_LOSS_MIN + level.getRandom().nextInt(
+                SixtySecondsBalance.KILL_SANITY_CAP_LOSS_MAX - SixtySecondsBalance.KILL_SANITY_CAP_LOSS_MIN + 1);
+        int before = killerStats.sanityMax;
+        killerStats.sanityMax = Math.max(SixtySecondsBalance.SANITY_CAP_FLOOR, killerStats.sanityMax - loss);
+        if (killerStats.sanityMax == before) {
+            return; // 已到保底
+        }
+        if (killerStats.sanity > killerStats.sanityMax) {
+            killerStats.sanity = killerStats.sanityMax;
+        }
+        killerStats.sync();
+        killer.displayClientMessage(Component.translatable(
+                "message.noellesroles.sixty_seconds.kill_sanity_cap",
+                before - killerStats.sanityMax, killerStats.sanityMax)
+                .withStyle(net.minecraft.ChatFormatting.DARK_RED), false);
+    }
+
     public static void tick(ServerLevel level) {
+        boolean second = level.getGameTime() % 20 == 0;
         for (ServerPlayer player : level.players()) {
             SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+            // 健康值完全替代原版生命值：每秒把原版血/饥饿钉满——伤害已被 ALLOW_DAMAGE 全量拦截转为健康伤害，
+            // 这里兜底药水/中毒/原版饥饿等漏网掉血路径，保证原版层永不致死、原版饥饿不再干扰（60s 有自己的饥饿）。
+            if (second && GameUtils.isPlayerAliveAndSurvival(player)) {
+                if (player.getHealth() < player.getMaxHealth()) {
+                    player.setHealth(player.getMaxHealth());
+                }
+                if (player.getFoodData().getFoodLevel() < 20) {
+                    player.getFoodData().setFoodLevel(20);
+                }
+                // 看门狗：0 健康却既不倒地也没死的"幽灵存活"状态（历史上由 killPlayer 对无职业
+                // 玩家静默不杀造成）——兜底补一次死亡，防状态卡死
+                // 倒地玩家健康值 > 0，不触发此兜底
+                if (stats.health <= 0 && !stats.downed && !stats.monster) {
+                    die(player, null);
+                    continue;
+                }
+            }
             if (!stats.downed) {
                 continue;
             }
-            // 倒地定身
+            // 倒地定身 + 禁止攻击/使用物品 + 趴下姿势
             player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 40, 0, false, false, false));
-            if (level.getGameTime() >= stats.bleedOutEndTick) {
-                die(player, null);
-                continue;
+            player.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 40, 0, false, false, false));
+            player.setSwimming(true);
+            player.setPose(net.minecraft.world.entity.Pose.SWIMMING);
+            // 每秒流失倒地健康值，归零死亡（替代原来的定时流血机制）
+            if (second && stats.health > 0) {
+                stats.health = Math.max(0, stats.health - SixtySecondsBalance.DOWNED_BLEED_PER_SEC);
+                stats.sync();
+                if (stats.health <= 0) {
+                    die(player, null);
+                    continue;
+                }
             }
             tickRevive(level, player, stats);
         }
@@ -164,22 +454,39 @@ public final class SixtySecondsHealthSystem {
 
     private static void tickRevive(ServerLevel level, ServerPlayer downed, SixtySecondsStatsComponent stats) {
         boolean rescuerNear = false;
+        ServerPlayer rescuer = null;
         for (ServerPlayer other : level.players()) {
             if (other == downed || GameUtils.isPlayerEliminated(other)) {
                 continue;
             }
             SixtySecondsStatsComponent otherStats = SixtySecondsStatsComponent.KEY.get(other);
-            if (otherStats.downed || stats.teamId < 0 || otherStats.teamId != stats.teamId) {
+            // 倒地/0 血/已变怪的队友不能充当救援者（倒地者互相贴身不该彼此救起）
+            if (otherStats.downed || otherStats.health <= 0 || otherStats.monster
+                    || stats.teamId < 0 || otherStats.teamId != stats.teamId) {
                 continue;
             }
             if (other.distanceToSqr(downed) <= REVIVE_RANGE_SQR) {
                 rescuerNear = true;
+                rescuer = other;
                 break;
             }
         }
         UUID id = downed.getUUID();
-        if (rescuerNear) {
+        if (rescuerNear && rescuer != null) {
             int progress = REVIVE_PROGRESS.merge(id, 1, Integer::sum);
+            // 救援进度 BossBar：倒地者和救援者可见
+            ServerBossEvent bar = REVIVE_BOSS_BARS.computeIfAbsent(id, k -> {
+                ServerBossEvent b = new ServerBossEvent(
+                        Component.translatable("message.noellesroles.sixty_seconds.revive_bar",
+                                downed.getGameProfile().getName()),
+                        BossEvent.BossBarColor.RED, BossEvent.BossBarOverlay.PROGRESS);
+                b.setVisible(true);
+                return b;
+            });
+            bar.setProgress(Math.min(1.0F, (float) progress / REVIVE_TICKS));
+            // 确保倒地者和救援者都在观众列表中
+            if (!bar.getPlayers().contains(downed)) bar.addPlayer(downed);
+            if (!bar.getPlayers().contains(rescuer)) bar.addPlayer(rescuer);
             if (progress % 20 == 0) {
                 downed.displayClientMessage(Component.translatable("message.noellesroles.sixty_seconds.reviving",
                         progress / 20, REVIVE_TICKS / 20), true);
@@ -189,6 +496,12 @@ public final class SixtySecondsHealthSystem {
             }
         } else {
             REVIVE_PROGRESS.remove(id);
+            // 救援者走开→移除 BossBar
+            ServerBossEvent bar = REVIVE_BOSS_BARS.remove(id);
+            if (bar != null) {
+                bar.removeAllPlayers();
+                bar.setVisible(false);
+            }
         }
     }
 
@@ -205,12 +518,36 @@ public final class SixtySecondsHealthSystem {
         stats.recovering = true;
         stats.sync();
         REVIVE_PROGRESS.remove(player.getUUID());
+        ServerBossEvent bar = REVIVE_BOSS_BARS.remove(player.getUUID());
+        if (bar != null) {
+            bar.removeAllPlayers();
+            bar.setVisible(false);
+        }
+        player.setSwimming(false);
         player.removeEffect(ModEffects.MOVE_BANED);
+        player.removeEffect(ModEffects.USED_BANED);
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20 * 20, 1, false, false, true));
         player.displayClientMessage(Component.translatable("message.noellesroles.sixty_seconds.revived"), false);
     }
 
-    public static void reset() {
+    public static void reset(ServerLevel level) {
         REVIVE_PROGRESS.clear();
+        LAST_ENV_HURT.clear();
+        for (ServerBossEvent bar : REVIVE_BOSS_BARS.values()) {
+            bar.removeAllPlayers();
+            bar.setVisible(false);
+        }
+        REVIVE_BOSS_BARS.clear();
+        // 清除所有玩家的倒地姿态和效果（防止游戏结束时趴下状态残留）
+        for (ServerPlayer player : level.players()) {
+            SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+            stats.downed = false;
+            stats.bleedOutEndTick = 0L;
+            stats.sync();
+            player.setSwimming(false);
+            player.setPose(Pose.STANDING);
+            player.removeEffect(ModEffects.MOVE_BANED);
+            player.removeEffect(ModEffects.USED_BANED);
+        }
     }
 }

@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "water=0": { "model": "noellesroles:block/sixty_seconds_condenser" },
+    "water=1": { "model": "noellesroles:block/sixty_seconds_condenser_full" },
+    "water=2": { "model": "noellesroles:block/sixty_seconds_condenser_full" },
+    "water=3": { "model": "noellesroles:block/sixty_seconds_condenser_full" },
+    "water=4": { "model": "noellesroles:block/sixty_seconds_condenser_full" },
+    "water=5": { "model": "noellesroles:block/sixty_seconds_condenser_full" },
+    "water=6": { "model": "noellesroles:block/sixty_seconds_condenser_full" }
+  }
+}

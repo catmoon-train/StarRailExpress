@@ -67,13 +67,16 @@ public record ZeroOneFiveShootPayload(int target, boolean isAutoSecondShot) impl
 //                PacketTracker.sendToClient(player, new ZeroOneFiveSecondShotPayload(player.getId()));
 //            }
 
-            // 播放音效
+            // 播放音效（连发枪降低音量+压低音高，减轻刺耳感/耳朵污染）
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
                     TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.PLAYERS, 0.5f,
                     1f + player.getRandom().nextFloat() * .1f - .05f);
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
-                    TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5f,
-                    1f + player.getRandom().nextFloat() * .1f - .05f);
+                    TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 1.5f,
+                    0.9f + player.getRandom().nextFloat() * .1f - .05f);
+            // 射击轨迹渲染
+            net.exmo.sre.sixtyseconds.logic.GunTracers.broadcast(player,
+                    payload.target() >= 0 ? player.serverLevel().getEntity(payload.target()) : null, 30.0D);
 
             // 发送枪口闪光给所有追踪者
             for (ServerPlayer tracking : PlayerLookup.tracking(player)) {

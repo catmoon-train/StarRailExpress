@@ -10,8 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -92,18 +90,7 @@ public class SupplyBoxBlock extends BaseEntityBlock {
             ServerPlayNetworking.send(serverPlayer, new OpenLootTableEditS2CPacket(table));
             return;
         }
-        // 生存：领取
-        List<ItemStack> items = box.claim(serverLevel, serverPlayer);
-        if (items.isEmpty()) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.sixty_seconds.supply_empty"), true);
-            return;
-        }
-        for (ItemStack item : items) {
-            if (!serverPlayer.getInventory().add(item)) {
-                serverPlayer.drop(item, false);
-            }
-        }
-        serverLevel.playSound(null, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 0.7F, 1.0F);
+        // 生存：开始「搜刮」定时（搜打撤式），完成才发放物资（见 SixtySecondsLootSearch）
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsLootSearch.start(serverLevel, serverPlayer, box, pos);
     }
 }
