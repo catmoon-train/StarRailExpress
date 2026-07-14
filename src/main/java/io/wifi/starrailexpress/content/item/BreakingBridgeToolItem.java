@@ -66,7 +66,8 @@ public class BreakingBridgeToolItem extends Item {
                 bbbe.displayState = targetState;
                 bbbe.sync();
                 player.displayClientMessage(
-                        Component.translatable("block.noellesroles.breaking_bridge.info",
+                        Component.translatable("block.noellesroles.breaking_bridge.info_tool",
+                                block.getName(),
                                 bbbe.displayState.getBlock().getName(),
                                 bbbe.breakingStage, bbbe.breakingTime, bbbe.restoringTime),
                         true);

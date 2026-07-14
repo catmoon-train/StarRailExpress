@@ -11,6 +11,7 @@ import org.agmas.noellesroles.init.ModSceneBlocks;
 
 import com.mojang.serialization.MapCodec;
 
+import io.wifi.starrailexpress.index.DevItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -168,6 +169,9 @@ public class BreakingBridgeBlock extends SlabBlock implements EntityBlock {
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         if (context instanceof EntityCollisionContext ecc) {
             if (ecc.getEntity() instanceof Player player) {
+                if (ecc.isHoldingItem(DevItems.BREAKING_BRIDGE_TOOL)) {
+                    return Shapes.block();
+                }
                 if (player.isCreative()) {
                     return super.getShape(state, world, pos, context);
                 }

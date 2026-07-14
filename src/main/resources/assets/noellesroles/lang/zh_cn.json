@@ -1711,6 +1711,7 @@
   "block.noellesroles.breaking_bridge.tip": "当前裂缝显示：%s",
   "block.noellesroles.breaking_bridge.set_to": "设定方块为 %s",
   "block.noellesroles.breaking_bridge.info": "设定方块：%s，裂缝显示：%s，设定破坏时间：%st，设定恢复时间：%st",
+  "block.noellesroles.breaking_bridge.info_tool": "设定 %s 为方块 %s，裂缝显示：%s，设定破坏时间：%st，设定恢复时间：%st",
   "block.noellesroles.dripping_stalactite": "滴水石椎",
   "block.noellesroles.fog_zone": "迷雾区域",
   "block.noellesroles.manhole": "井盖",
