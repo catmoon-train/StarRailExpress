@@ -247,6 +247,13 @@ public class ModPackets {
                 net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket::handle);
+        // 拆解台：打开界面(S2C) + 拆解请求(C2S)
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenDismantleS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenDismantleS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.DismantleC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.DismantleC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.DismantleC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.DismantleC2SPacket::handle);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.GunTracerS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.GunTracerS2CPacket.CODEC);
 

@@ -1,6 +1,6 @@
 package net.exmo.sre.sixtyseconds.logic;
 
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.exmo.sre.sixtyseconds.SixtySecondsBalance;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
@@ -63,7 +63,8 @@ public final class SixtySecondsDailyEvents {
         CHOICE(ChatFormatting.GOLD),
         TRADE(ChatFormatting.AQUA),
         EXPEDITION(ChatFormatting.LIGHT_PURPLE),
-        RAID(ChatFormatting.DARK_RED);
+        RAID(ChatFormatting.DARK_RED),
+        MODIFIER(ChatFormatting.BLUE);
 
         final ChatFormatting color;
 
@@ -318,6 +319,8 @@ public final class SixtySecondsDailyEvents {
                     SoundSource.AMBIENT, 0.5F, 1.4F);
             case TRADE -> player.playNotifySound(SoundEvents.VILLAGER_TRADE,
                     SoundSource.AMBIENT, 0.8F, 1.0F);
+            case MODIFIER -> player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME,
+                    SoundSource.AMBIENT, 0.6F, 1.1F);
             default -> player.playNotifySound(SoundEvents.UI_BUTTON_CLICK.value(),
                     SoundSource.AMBIENT, 0.6F, 0.9F);
         }
@@ -373,6 +376,24 @@ public final class SixtySecondsDailyEvents {
 
     private static void choice(String id, Type type, int weight, ChoiceEffect effect) {
         put(new EventDef(id, type, weight, null, effect));
+    }
+
+    // ══════════════════════════ 日级修正事件辅助 ══════════════════════════
+
+    /** 为队伍设置日级修正倍率，并在结果播报中注明效果。 */
+    private static void applyModifier(SixtySecondsState.TeamData team, String key, double value) {
+        team.dailyModifiers.put(key, value);
+    }
+
+    /** 注册一条修正类事件（瞬发，施加日级 buff/debuff）。 */
+    private static void modifierEvent(String id, Type type, int weight, String modKey, double modVal,
+            InstantEffect extra) {
+        instant(id, type, weight, (level, team) -> {
+            applyModifier(team, modKey, modVal);
+            if (extra != null) {
+                extra.run(level, team);
+            }
+        });
     }
 
     private static void registerAll() {
@@ -549,9 +570,9 @@ public final class SixtySecondsDailyEvents {
             giveToTeam(level, team, gained);
             result(level, team, "scrap_pile", itemsText(gained));
         });
-        // 35. 救济金：每名在线成员 +30 金币
+        // 35. 救济金：每名在线成员 +5 代币
         instant("relief_fund", Type.FORTUNE, 8, (level, team) -> {
-            forEachMember(level, team, p -> SREPlayerShopComponent.KEY.get(p).addToBalance(30));
+            forEachMember(level, team, p -> SREPlayerMinigameTaskComponent.KEY.get(p).addTokens(5));
             result(level, team, "relief_fund");
         });
 
@@ -592,17 +613,17 @@ public final class SixtySecondsDailyEvents {
             }
             return true;
         });
-        // 25. 电台竞猜：押 30 金币，50% 赢 90 / 50% 打水漂（san -3）；不参与无事
+        // 25. 电台竞猜：押 5 代币，50% 赢 15 / 50% 打水漂（san -3）；不参与无事
         choice("radio_gamble", Type.CHOICE, 8, (level, team, clicker, option) -> {
             if (option == 1) {
-                SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(clicker);
-                if (shop.balance < 30) {
-                    fail(clicker, "no_coins", 30);
+                SREPlayerMinigameTaskComponent tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+                if (tokens.getTokens() < 5) {
+                    fail(clicker, "no_coins", 5);
                     return false;
                 }
-                shop.addToBalance(-30);
+                tokens.addTokens(-5);
                 if (level.getRandom().nextBoolean()) {
-                    shop.addToBalance(90);
+                    tokens.addTokens(15);
                     result(level, team, "radio_gamble.r1_win",
                             Component.literal(clicker.getGameProfile().getName()));
                 } else {
@@ -652,15 +673,15 @@ public final class SixtySecondsDailyEvents {
             }
             return true;
         });
-        // 37. 神秘商人：花 40 金币买惊喜袋，60% 药+武器各 1 / 40% 一块破布（san -5）
+        // 37. 神秘商人：花 7 代币买惊喜袋，60% 药+武器各 1 / 40% 一块破布（san -5）
         choice("mystery_bag", Type.CHOICE, 8, (level, team, clicker, option) -> {
             if (option == 1) {
-                SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(clicker);
-                if (shop.balance < 40) {
-                    fail(clicker, "no_coins", 40);
+                SREPlayerMinigameTaskComponent tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+                if (tokens.getTokens() < 7) {
+                    fail(clicker, "no_coins", 7);
                     return false;
                 }
-                shop.addToBalance(-40);
+                tokens.addTokens(-7);
                 if (level.getRandom().nextFloat() < 0.6F) {
                     List<ItemStack> gained = rollLoot(level, 1, "medicine", "weapon");
                     give(clicker, gained);
@@ -680,15 +701,15 @@ public final class SixtySecondsDailyEvents {
         });
 
         // ── 交易（3 条）──────────────────────────────────────────────────
-        // 19. 商队来访：60 金币 → 食物/水/药品各 1
+        // 19. 商队来访：10 代币 → 食物/水/药品各 1
         choice("trade_caravan", Type.TRADE, 10, (level, team, clicker, option) -> {
             if (option == 1) {
-                SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(clicker);
-                if (shop.balance < 60) {
-                    fail(clicker, "no_coins", 60);
+                SREPlayerMinigameTaskComponent tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+                if (tokens.getTokens() < 10) {
+                    fail(clicker, "no_coins", 10);
                     return false;
                 }
-                shop.addToBalance(-60);
+                tokens.addTokens(-10);
                 List<ItemStack> gained = rollLoot(level, 1, "food");
                 gained.addAll(rollLoot(level, 1, "water"));
                 gained.addAll(rollLoot(level, 1, "medicine"));
@@ -715,15 +736,15 @@ public final class SixtySecondsDailyEvents {
             }
             return true;
         });
-        // 38. 军火贩子：50 金币 → 8 发子弹 + 1 件武器类物资
+        // 38. 军火贩子：8 代币 → 8 发子弹 + 1 件武器类物资
         choice("ammo_trader", Type.TRADE, 8, (level, team, clicker, option) -> {
             if (option == 1) {
-                SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(clicker);
-                if (shop.balance < 50) {
-                    fail(clicker, "no_coins", 50);
+                SREPlayerMinigameTaskComponent tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+                if (tokens.getTokens() < 8) {
+                    fail(clicker, "no_coins", 8);
                     return false;
                 }
-                shop.addToBalance(-50);
+                tokens.addTokens(-8);
                 List<ItemStack> gained = new ArrayList<>();
                 gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_AMMO, 8)));
                 gained.addAll(rollLoot(level, 1, "weapon"));
@@ -803,6 +824,245 @@ public final class SixtySecondsDailyEvents {
             }
             return true;
         });
+
+        // ── 修正（MODIFIER，4 条，施加日级 buff/debuff）─────────────────
+        // 41. 士气高涨：今日 san 消耗 -50%
+        modifierEvent("morale_boost", Type.MODIFIER, 10, "drain_sanity", 0.5, (level, team) -> {
+            result(level, team, "morale_boost");
+        });
+        // 42. 加固防线：今晚门受伤 -30%，门耐久 +15
+        modifierEvent("fortified_defense", Type.MODIFIER, 8, "door_damage", 0.7, (level, team) -> {
+            team.doorHp = Math.min(team.doorMaxHp, team.doorHp + 15);
+            result(level, team, "fortified_defense");
+        });
+        // 43. 墙垣松动：今晚门受伤 +40%，门耐久 -15
+        modifierEvent("weakened_defense", Type.MODIFIER, 8, "door_damage", 1.4, (level, team) -> {
+            team.doorHp = Math.max(1, team.doorHp - 15);
+            result(level, team, "weakened_defense");
+        });
+        // 44. 毒雾弥漫：今日污染增速 +50%，san -5
+        modifierEvent("toxic_haze", Type.MODIFIER, 8, "drain_pollution", 1.5, (level, team) -> {
+            teamSanity(level, team, -5);
+            result(level, team, "toxic_haze");
+        });
+        // 45. 节约口粮：今日饥饿消耗 -30%
+        modifierEvent("rationing_food", Type.MODIFIER, 8, "drain_hunger", 0.7, (level, team) -> {
+            result(level, team, "rationing_food");
+        });
+        // 46. 配给用水：今日口渴消耗 -30%
+        modifierEvent("rationing_water", Type.MODIFIER, 8, "drain_thirst", 0.7, (level, team) -> {
+            result(level, team, "rationing_water");
+        });
+
+        // ── 不幸新增（3 条）────────────────────────────────────────────
+        // 47. 疫鼠群：丢 2 食物，随机一人可能生病
+        instant("plague_rats", Type.MISFORTUNE, 8, (level, team) -> {
+            List<ItemStack> lost = loseFromHome(level, team, 2, foodFilter(level));
+            ServerPlayer victim = randomMember(level, team);
+            if (victim != null && level.getRandom().nextFloat() < 0.4F) {
+                SixtySecondsSicknessSystem.makeSick(victim);
+                teamSanity(level, team, -5);
+                result(level, team, "plague_rats.sick",
+                        Component.literal(victim.getGameProfile().getName()), lostText(level, lost));
+            } else {
+                teamSanity(level, team, -3);
+                result(level, team, "plague_rats.clean", lostText(level, lost));
+            }
+        });
+        // 48. 燃料泄漏：丢 2 废料，断电
+        instant("fuel_leak", Type.MISFORTUNE, 8, (level, team) -> {
+            List<ItemStack> lost = loseFromHome(level, team, 2,
+                    stack -> stack.is(ModItems.SIXTY_SECONDS_SCRAP));
+            team.powerEndTick = Math.min(team.powerEndTick, level.getGameTime());
+            result(level, team, "fuel_leak", lostText(level, lost));
+        });
+        // 49. 谣言四起：全队 san -12，今日 san 消耗 +30%
+        modifierEvent("evil_rumors", Type.MISFORTUNE, 6, "drain_sanity", 1.3, (level, team) -> {
+            teamSanity(level, team, -12);
+            result(level, team, "evil_rumors");
+        });
+
+        // ── 机遇新增（3 条）────────────────────────────────────────────
+        // 50. 幸存者藏宝：获得 3 件随机物资，san +5
+        instant("survivor_cache", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 1, "food");
+            gained.addAll(rollLoot(level, 1, "water"));
+            gained.addAll(rollLoot(level, 1, "material"));
+            giveToTeam(level, team, gained);
+            teamSanity(level, team, 5);
+            result(level, team, "survivor_cache", itemsText(gained));
+        });
+        // 51. 净化之雨：全队污染 -30，口渴 +10
+        instant("purifying_rain", Type.FORTUNE, 8, (level, team) -> {
+            forEachMember(level, team, p -> {
+                addPollution(p, -30);
+                addThirst(p, 10);
+            });
+            result(level, team, "purifying_rain");
+        });
+        // 52. 遗弃快递：获得 2 件随机物资
+        instant("abandoned_package", Type.FORTUNE, 10, (level, team) -> {
+            String[] cats = { "food", "water", "medicine", "material", "tool" };
+            String cat = cats[level.getRandom().nextInt(cats.length)];
+            List<ItemStack> gained = rollLoot(level, 2, cat);
+            giveToTeam(level, team, gained);
+            result(level, team, "abandoned_package", itemsText(gained));
+        });
+
+        // ── 抉择新增（3 条）────────────────────────────────────────────
+        // 53. 流浪医生：花 30 金币 → 治愈全队所有病人 + 每人回 20 健康
+        choice("wandering_doctor", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option == 1) {
+                SREPlayerMinigameTaskComponent tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+                if (tokens.getTokens() < 5) {
+                    fail(clicker, "no_coins", 5);
+                    return false;
+                }
+                tokens.addTokens(-5);
+                int cured = 0;
+                for (ServerPlayer p : onlineMembers(level, team)) {
+                    SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(p);
+                    if (stats.sick) {
+                        stats.sick = false;
+                        stats.health = Math.min(SixtySecondsStatsComponent.MAX,
+                                stats.health + 20);
+                        stats.sync();
+                        cured++;
+                    } else if (stats.health < SixtySecondsStatsComponent.MAX) {
+                        stats.health = Math.min(SixtySecondsStatsComponent.MAX,
+                                stats.health + 20);
+                        stats.sync();
+                    }
+                }
+                if (cured > 0) {
+                    teamSanity(level, team, 8);
+                }
+                result(level, team, "wandering_doctor.r1",
+                        Component.literal(clicker.getGameProfile().getName()),
+                        Component.literal(String.valueOf(cured)));
+            } else {
+                result(level, team, "wandering_doctor.r2");
+            }
+            return true;
+        });
+        // 54. 逃兵交易：花 5 代币 → 1 武器 + 4 子弹 + san -3（来路不明）
+        choice("deserters_offer", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option == 1) {
+                SREPlayerMinigameTaskComponent tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+                if (tokens.getTokens() < 5) {
+                    fail(clicker, "no_coins", 5);
+                    return false;
+                }
+                tokens.addTokens(-5);
+                List<ItemStack> gained = rollLoot(level, 1, "weapon");
+                gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_AMMO, 4)));
+                give(clicker, gained);
+                addSanity(clicker, -3);
+                result(level, team, "deserters_offer.r1", itemsText(gained),
+                        Component.literal(clicker.getGameProfile().getName()));
+            } else {
+                result(level, team, "deserters_offer.r2");
+            }
+            return true;
+        });
+        // 55. 地图碎片：二选一 → 出发探险（3 件物资 污染+8 15%受伤）或卖掉（+20 金币）
+        choice("map_fragment", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option == 1) {
+                if (!hasFlashlight(clicker)) {
+                    fail(clicker, "need_flashlight");
+                    return false;
+                }
+                LevelState st = STATE.computeIfAbsent(level, ignored -> new LevelState());
+                st.expeditions.add(new Expedition(team.teamId, clicker.getUUID(), "map_fragment",
+                        level.getGameTime() + SixtySecondsBalance.DAILY_EVENT_EXPEDITION_TICKS));
+                result(level, team, "map_fragment.depart",
+                        Component.literal(clicker.getGameProfile().getName()));
+            } else {
+                SREPlayerMinigameTaskComponent tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+                tokens.addTokens(3);
+                result(level, team, "map_fragment.r2",
+                        Component.literal(clicker.getGameProfile().getName()));
+            }
+            return true;
+        });
+
+        // ── 探险新增（2 条）────────────────────────────────────────────
+        // 56. 废弃医院：3 药 + 2 随机，污染 +12，30% 受伤 -20，20% 生病
+        choice("abandoned_hospital", Type.EXPEDITION, 8,
+                (level, team, clicker, option) -> depart(level, team, clicker, option, "abandoned_hospital"));
+        // 57. 军械库废墟：2 武器 + 4 子弹，污染 +8，25% 受伤 -25
+        choice("armory_ruins", Type.EXPEDITION, 7,
+                (level, team, clicker, option) -> depart(level, team, clicker, option, "armory_ruins"));
+
+        // ── 交易新增（2 条）────────────────────────────────────────────
+        // 58. 废品商：6 废料 → 2 食物 + 1 水
+        choice("scrap_dealer", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option == 1) {
+                ItemStack taken = takeFromInventory(clicker,
+                        stack -> stack.is(ModItems.SIXTY_SECONDS_SCRAP) && stack.getCount() >= 6);
+                if (taken == null) {
+                    fail(clicker, "no_scrap");
+                    return false;
+                }
+                taken.shrink(5); // 已拿走 1 个，再拿走 5 个 = 共 6
+                List<ItemStack> gained = rollLoot(level, 2, "food");
+                gained.addAll(rollLoot(level, 1, "water"));
+                give(clicker, gained);
+                result(level, team, "scrap_dealer.r1", itemsText(gained));
+            } else {
+                result(level, team, "scrap_dealer.r2");
+            }
+            return true;
+        });
+        // 59. 水贩：4 代币 → 3 瓶水
+        choice("water_peddler", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option == 1) {
+                SREPlayerMinigameTaskComponent tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+                if (tokens.getTokens() < 4) {
+                    fail(clicker, "no_coins", 4);
+                    return false;
+                }
+                tokens.addTokens(-4);
+                List<ItemStack> gained = rollLoot(level, 3, "water");
+                give(clicker, gained);
+                result(level, team, "water_peddler.r1", itemsText(gained));
+            } else {
+                result(level, team, "water_peddler.r2");
+            }
+            return true;
+        });
+
+        // ── 劫掠新增（1 条）────────────────────────────────────────────
+        // 60. 偷粮队：从邻队偷 2 件食物，全队 san -12，受害队 san -5
+        choice("steal_rations", Type.RAID, 7, (level, team, clicker, option) -> {
+            if (option != 1) {
+                result(level, team, "steal_rations.r2");
+                return true;
+            }
+            SixtySecondsState.TeamData victim = randomOtherTeam(level, team);
+            if (victim == null) {
+                result(level, team, "steal_rations.r1_empty");
+                teamSanity(level, team, -8);
+                return true;
+            }
+            List<ItemStack> stolen = loseFromHome(level, victim, 2, foodFilter(level));
+            teamSanity(level, team, -12);
+            if (stolen.isEmpty()) {
+                result(level, team, "steal_rations.r1_empty");
+            } else {
+                giveToTeam(level, team, copyAll(stolen));
+                result(level, team, "steal_rations.r1", itemsText(stolen));
+            }
+            Component note = Component.translatable(LANG + "steal_rations.victim",
+                    stolen.isEmpty() ? Component.translatable(LANG + "nothing") : itemsText(stolen))
+                    .withStyle(ChatFormatting.RED);
+            for (ServerPlayer p : onlineMembers(level, victim)) {
+                p.displayClientMessage(note, false);
+                addSanity(p, -5);
+                p.playNotifySound(SoundEvents.VILLAGER_NO, SoundSource.AMBIENT, 0.8F, 0.6F);
+            }
+            return true;
+        });
     }
 
     // ══════════════════════════ 探险（出发 → 延迟结算） ══════════════════════════
@@ -837,6 +1097,14 @@ public final class SixtySecondsDailyEvents {
             // 屋顶水塔：定向产出水+材料，低风险
             case "water_tower" -> new ExpeditionProfile(0,
                     new String[] { "water", "water", "material", "material" }, 5, 0.2F, -15, 0F);
+            // 废弃医院：药品为主 + 随机，中高风险
+            case "abandoned_hospital" -> new ExpeditionProfile(2,
+                    new String[] { "medicine", "medicine", "medicine" }, 12, 0.3F, -20, 0.2F);
+            // 军械库废墟：武器弹药定向，中风险
+            case "armory_ruins" -> new ExpeditionProfile(0,
+                    new String[] { "weapon", "weapon" }, 8, 0.25F, -25, 0F);
+            // 地图碎片：小规模探险
+            case "map_fragment" -> new ExpeditionProfile(3, new String[0], 8, 0.15F, -15, 0F);
             // 隐秘地窖：均衡
             default -> new ExpeditionProfile(3, new String[0], 10, 0.25F, -20, 0F);
         };
@@ -860,6 +1128,10 @@ public final class SixtySecondsDailyEvents {
             gained.addAll(rollLoot(level, 1, categories[random.nextInt(categories.length)]));
         }
         gained.addAll(rollLoot(level, 1, profile.fixedCategories));
+        // 军械库废墟额外弹药
+        if ("armory_ruins".equals(exp.eventId)) {
+            gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_AMMO, 4)));
+        }
         give(explorer, gained);
         addPollution(explorer, profile.pollution);
         result(level, team, exp.eventId + ".r1_loot",

@@ -94,7 +94,7 @@ public class SixtySecondsUtilityItem extends Item {
             SixtySecondsState.TeamData team =
                     data.teams.get(SixtySecondsStatsComponent.KEY.get(player).teamId);
             if (team != null) {
-                BlockPos home = SixtySecondsDefenseSystem.doorPos(level, team);
+                BlockPos home = team.returnDoorPos;
                 if (home == null) {
                     home = team.shelterSpawn;
                 }
@@ -132,7 +132,7 @@ public class SixtySecondsUtilityItem extends Item {
                     Component.translatable("message.noellesroles.sixty_seconds.info_no_team"), true);
             return false;
         }
-        BlockPos home = SixtySecondsDefenseSystem.doorPos(player.serverLevel(), team);
+        BlockPos home = team.returnDoorPos;
         if (home == null) {
             home = team.shelterSpawn;
         }

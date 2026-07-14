@@ -58,6 +58,7 @@
     "client.CustomHeadLayerMixin",
     "client.DefaultPlayerSkinMixin",
     "client.DisconnectedScreenMixin",
+    "client.effects.HideArmorOnInvisible",
     "client.EntityRendererDispatchMixin",
     "client.GameNarratorMixin",
     "client.GameRendererMixin",

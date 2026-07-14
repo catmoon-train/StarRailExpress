@@ -10,6 +10,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 
 /**
  * 末日60秒模式物品/方块的 tooltip：
@@ -41,6 +42,13 @@ public final class SixtySecondsTooltips {
                 lines.add(Component.translatable("tooltip.noellesroles.sixty_seconds.hunger", hunger)
                         .withStyle(ChatFormatting.GOLD));
             }
+            // 负面食物标注中毒风险
+            String poisonKey = poisonKeyOf(stack);
+            if (poisonKey != null) {
+                lines.add(Component.translatable("tooltip.noellesroles.sixty_seconds.poison_label")
+                        .withStyle(ChatFormatting.RED));
+                lines.add(Component.translatable(poisonKey).withStyle(ChatFormatting.DARK_RED));
+            }
         });
     }
 
@@ -71,5 +79,19 @@ public final class SixtySecondsTooltips {
         if (cur.length() > 0) {
             lines.add(Component.literal(cur.toString()).withStyle(ChatFormatting.GRAY));
         }
+    }
+
+    /** 返回该食物在 60s 模式中的中毒风险 tooltip 翻译键（无中毒返回 null）。 */
+    private static String poisonKeyOf(net.minecraft.world.item.ItemStack stack) {
+        var item = stack.getItem();
+        if (item == Items.ROTTEN_FLESH) return "tooltip.noellesroles.sixty_seconds.poison.rotten_flesh";
+        if (item == Items.POISONOUS_POTATO) return "tooltip.noellesroles.sixty_seconds.poison.poisonous_potato";
+        if (item == Items.PUFFERFISH) return "tooltip.noellesroles.sixty_seconds.poison.pufferfish";
+        if (item == Items.SPIDER_EYE) return "tooltip.noellesroles.sixty_seconds.poison.spider_eye";
+        if (item == Items.CHICKEN) return "tooltip.noellesroles.sixty_seconds.poison.chicken";
+        if (item == Items.BEEF || item == Items.PORKCHOP
+                || item == Items.MUTTON || item == Items.RABBIT)
+            return "tooltip.noellesroles.sixty_seconds.poison.raw_meat";
+        return null;
     }
 }

@@ -63,6 +63,11 @@ public final class SixtySecondsHealthSystem {
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
             if (entity instanceof ServerPlayer player && SixtySecondsMod.isActive(player.level())
                     && GameUtils.isPlayerAliveAndSurvival(player)) {
+                // 游戏未开始（非DAY阶段）禁止伤害和倒地
+                if (SixtySecondsState.get(player.serverLevel()).phase != SixtySecondsPhase.DAY) {
+                    player.setHealth(player.getMaxHealth());
+                    return false;
+                }
                 player.setHealth(1.0F);
                 ServerPlayer attacker = source.getEntity() instanceof ServerPlayer sp ? sp : null;
                 die(player, attacker);
@@ -74,6 +79,10 @@ public final class SixtySecondsHealthSystem {
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (entity instanceof ServerPlayer player && SixtySecondsMod.isActive(player.level())
                     && GameUtils.isPlayerAliveAndSurvival(player)) {
+                // 游戏未开始（非DAY阶段）禁止任何伤害
+                if (SixtySecondsState.get(player.serverLevel()).phase != SixtySecondsPhase.DAY) {
+                    return false;
+                }
                 ServerPlayer attacker = source.getEntity() instanceof ServerPlayer sp ? sp : null;
                 // 环境/自然伤害 = 无实体攻击者、也非生物攻击（火/岩浆/窒息/溺水/冰冻/坠落等）。这类伤害逐 tick
                 // 触发，而 ALLOW_DAMAGE 取消原版伤害后原版无敌帧从不设置 → 每 tick 全额连扣，卡墙/掉火里瞬间秒杀。
@@ -159,6 +168,11 @@ public final class SixtySecondsHealthSystem {
     private static boolean handleLethal(Player victim, Player killer, ResourceLocation deathReason) {
         if (!SixtySecondsMod.isActive(victim.level()) || !(victim instanceof ServerPlayer player)) {
             return true;
+        }
+        // 游戏未开始（非DAY阶段）禁止伤害和倒地
+        if (SixtySecondsState.get(player.serverLevel()).phase != SixtySecondsPhase.DAY) {
+            player.setHealth(player.getMaxHealth());
+            return false;
         }
         // 本系统 die() 走 forceKillPlayer 会再次触发本事件（forceDeath 只忽略否决、不跳过监听器），
         // 放行自己的死因，否则 handleLethal→applyInjury→die 无限递归爆栈

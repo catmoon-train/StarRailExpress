@@ -874,6 +874,11 @@ public class NoellesrolesClient implements ClientModInitializer {
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.LootTableEditScreen(payload.table()))));
         ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenAirdropEditS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen
+                                        .AirdropLootEditScreen(payload.table()))));
+        ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.OpenVisitRequestS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.VisitRequestScreen(
@@ -987,6 +992,11 @@ public class NoellesrolesClient implements ClientModInitializer {
                 net.exmo.sre.sixtyseconds.network.OpenStationS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.StationCraftScreen(payload))));
+        // 拆解台界面
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenDismantleS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.DismantleScreen(payload))));
         // 枪械射击轨迹
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.GunTracerS2CPacket.ID, (payload, context) ->

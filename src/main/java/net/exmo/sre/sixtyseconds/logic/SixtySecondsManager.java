@@ -1,7 +1,7 @@
 package net.exmo.sre.sixtyseconds.logic;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.PacketTracker;
 import net.exmo.sre.camera.AdvancedCameraCommand;
@@ -46,8 +46,9 @@ public final class SixtySecondsManager {
     /** 每游戏日 9.5 分钟：清晨 1 + 白天 6 + 晚上 2.5（含末尾 45s 睡觉时间），见 {@link net.exmo.sre.sixtyseconds.SixtySecondsDayCycle}。 */
     public static final int DAY_TICKS = net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.DAY_TOTAL_TICKS;
     public static final int TOTAL_DAYS = 7;
-    public static final int COINS_PER_DAY = 80;            // 每天 80 金币
-    public static final int COINS_PER_MINUTE = 3;          // 每分钟 3 金币
+    /** 每天发放避难所代币（随机 10~18）。 */
+    public static final int DAILY_TOKENS_MIN = 10;
+    public static final int DAILY_TOKENS_MAX = 18;
     /** 准备阶段结束 → 第 1 天开始前的过渡动画时长（tick）。期间播放运镜 + 字幕 + 音效。 */
     private static final int PREP_TRANSITION_TICKS = 100;
     /** 记录各维度准备→Day 过渡动画的结束时间戳（gameTime）；null=不在过渡中。 */
@@ -225,7 +226,6 @@ public final class SixtySecondsManager {
                 SixtySecondsRescue.tick(level, data);    // 隐藏通关：救援信标倒计时
                 tickSubPhaseNotify(level, data);         // 清晨/白天/晚上/睡觉 切换提示
                 tickTimeWarning(level, data);           // 提前预警：夜晚/睡觉将至（聊天栏）
-                tickMinuteCoins(level, data);
                 SixtySecondsWinConditions.tick(level, data); // 无存活幸存者→提前结束
                 // 若已被 WinConditions 提前结束(相位变 FINISHED)则跳过换日/结算
                 if (data.phase == SixtySecondsPhase.DAY && level.getGameTime() >= data.phaseEndTick) {
@@ -322,6 +322,10 @@ public final class SixtySecondsManager {
             SixtySecondsWhisperSystem.applyDawnDarkPenalty(level, data);
         }
         // 物资箱每日刷新为惰性：交互时按当前 dayNumber 自动重掷（见 SupplyBoxBlockEntity）。
+        // 清空前日的日级修正（每日事件 buff/debuff 仅持续一天）
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            team.clearDailyModifiers();
+        }
         SixtySecondsDailyEvents.onDayStart(level); // 每日事件门：清晨为每队抽当日剧情事件
         SixtySecondsNewspaper.publish(level, data); // 末日日报：每日一期，聊天栏点击阅读
         SixtySecondsRoleAwakening.awaken(level, data);
@@ -418,7 +422,7 @@ public final class SixtySecondsManager {
         }
     }
 
-    /** 换日：重置本日倒地次数，发放每日 80 金币。 */
+    /** 换日：重置本日倒地次数，发放每日避难所代币（每人随机 10~18）。 */
     private static void dailyPlayerUpdates(ServerLevel level, SixtySecondsState.Data data) {
         for (SixtySecondsState.TeamData team : data.teams.values()) {
             for (UUID uuid : team.members) {
@@ -426,36 +430,62 @@ public final class SixtySecondsManager {
                     SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
                     stats.downedCountToday = 0;
                     stats.sync();
-                    SREPlayerShopComponent.KEY.get(player).addToBalance(COINS_PER_DAY);
+                    int todayTokens = DAILY_TOKENS_MIN + level.getRandom().nextInt(
+                            DAILY_TOKENS_MAX - DAILY_TOKENS_MIN + 1);
+                    SREPlayerMinigameTaskComponent.KEY.get(player).addTokens(todayTokens);
                 }
             }
         }
     }
 
-    /** 每分钟给存活玩家发放 3 金币。 */
-    private static void tickMinuteCoins(ServerLevel level, SixtySecondsState.Data data) {
-        if (level.getGameTime() % (20 * 60) != 0) {
-            return;
-        }
-        for (SixtySecondsState.TeamData team : data.teams.values()) {
-            for (UUID uuid : team.members) {
-                if (level.getPlayerByUUID(uuid) instanceof ServerPlayer player
-                        && GameUtils.isPlayerAliveAndSurvival(player)) {
-                    SREPlayerShopComponent.KEY.get(player).addToBalance(COINS_PER_MINUTE);
-                }
-            }
-        }
-    }
-
-    /** 准备结束：在各队避难所出生点旁放置箱子，装入本队记录的物资。 */
+    /** 准备结束：在各队避难所出生点旁放置箱子，装入 开局保底物资（按图开关，默认关）+ 本队搜刮记录的物资。 */
     private static void placeSupplyChests(ServerLevel level, SixtySecondsState.Data data) {
+        // 保底物资开关：按图配置 starterSuppliesEnabled（/sre:60s starter on|off，默认关=全靠搜刮）
+        boolean starterEnabled = SixtySecondsConfigStore.current(level)
+                .map(config -> config.starterSuppliesEnabled).orElse(false);
         for (SixtySecondsState.TeamData team : data.teams.values()) {
-            if (team.shelterSpawn == null || team.storedSupplies.isEmpty()) {
+            if (team.shelterSpawn == null) {
                 continue;
             }
-            fillSuppliesIntoChests(level, team.shelterSpawn.offset(1, 0, 0), team.shelterSpawn,
-                    team.storedSupplies);
+            // 保底物资在前（开启时搜刮再差也有第一天的底子），搜刮所得在后
+            List<ItemStack> supplies = starterEnabled
+                    ? starterSupplies(team.members.size()) : new java.util.ArrayList<>();
+            supplies.addAll(team.storedSupplies);
+            if (supplies.isEmpty()) {
+                continue;
+            }
+            fillSuppliesIntoChests(level, team.shelterSpawn.offset(1, 0, 0), team.shelterSpawn, supplies);
         }
+    }
+
+    /**
+     * 开局保底物资（数值见 {@link net.exmo.sre.sixtyseconds.SixtySecondsBalance} STARTER_*）：
+     * 人均 水/罐头/绷带 + 每队 废料/破布/火把/污染水。消耗品逐件入箱——本模式食物/水
+     * 不可堆叠（见 {@code SixtySecondsMod.RUNNING} 的不可堆叠 mixin），合并堆叠会出怪。
+     */
+    private static List<ItemStack> starterSupplies(int memberCount) {
+        List<ItemStack> list = new java.util.ArrayList<>();
+        for (int i = 0; i < memberCount; i++) {
+            for (int n = 0; n < net.exmo.sre.sixtyseconds.SixtySecondsBalance.STARTER_WATER_PER_MEMBER; n++) {
+                list.add(new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_WATER_SMALL));
+            }
+            for (int n = 0; n < net.exmo.sre.sixtyseconds.SixtySecondsBalance.STARTER_FOOD_PER_MEMBER; n++) {
+                list.add(new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_CANNED_FOOD));
+            }
+            for (int n = 0; n < net.exmo.sre.sixtyseconds.SixtySecondsBalance.STARTER_BANDAGE_PER_MEMBER; n++) {
+                list.add(new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BANDAGE));
+            }
+        }
+        list.add(new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP,
+                net.exmo.sre.sixtyseconds.SixtySecondsBalance.STARTER_SCRAP_PER_TEAM));
+        list.add(new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_RAG,
+                net.exmo.sre.sixtyseconds.SixtySecondsBalance.STARTER_RAG_PER_TEAM));
+        list.add(new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_TORCH,
+                net.exmo.sre.sixtyseconds.SixtySecondsBalance.STARTER_TORCH_PER_TEAM));
+        for (int n = 0; n < net.exmo.sre.sixtyseconds.SixtySecondsBalance.STARTER_DIRTY_WATER_PER_TEAM; n++) {
+            list.add(new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_DIRTY_WATER));
+        }
+        return list;
     }
 
     /**

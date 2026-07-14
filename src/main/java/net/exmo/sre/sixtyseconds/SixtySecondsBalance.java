@@ -61,7 +61,7 @@ public final class SixtySecondsBalance {
     public static final double DEATH_SAN_RANGE_SQR = 24 * 24; // 目睹死亡的范围（平方）
 
     // ── 杀人代价：理智上限永久扣减（SixtySecondsHealthSystem.die）───────────
-    public static final double PVP_DAMAGE_MULT = 0.61; // 玩家对玩家伤害倍率（-39%）
+    public static final double PVP_DAMAGE_MULT = 0.8; // 玩家对玩家伤害倍率（-20%）
     public static final int KILL_SANITY_CAP_LOSS_MIN = 8;     // 每次杀人扣理智上限下限（×1.5: 5→8）
     public static final int KILL_SANITY_CAP_LOSS_MAX = 14;     // 每次杀人扣理智上限上限（×1.5: 9→14）
     public static final int SANITY_CAP_FLOOR = 10;            // 理智上限最低值（防连环杀直接锁死变怪）
@@ -169,6 +169,26 @@ public final class SixtySecondsBalance {
     public static final int GRAPPLE_COOLDOWN_TICKS = 20 * 15; // 使用冷却 15 秒
     public static final int GRAPPLE_DURABILITY = 20;          // 耐久 20 次
     public static final int GRAPPLE_NO_FALL_TICKS = 20 * 20;  // 荡索摔落保护窗口上限（落地即提前结束）
+
+    // ── 开局保底物资（准备阶段结束随搜刮所得一起装进避难所补给箱；见 SixtySecondsManager.placeSupplyChests）──
+    /** 人均份：小瓶水（消耗品不可堆叠，逐件入箱）。 */
+    public static final int STARTER_WATER_PER_MEMBER = 2;
+    /** 人均份：罐头食品。 */
+    public static final int STARTER_FOOD_PER_MEMBER = 1;
+    /** 人均份：绷带。 */
+    public static final int STARTER_BANDAGE_PER_MEMBER = 1;
+    /** 每队固定份：废料（第一晚照明/解锁基础科技的底子）。 */
+    public static final int STARTER_SCRAP_PER_TEAM = 6;
+    /** 每队固定份：破布。 */
+    public static final int STARTER_RAG_PER_TEAM = 4;
+    /** 每队固定份：火把。 */
+    public static final int STARTER_TORCH_PER_TEAM = 2;
+    /** 每队固定份：污染水（配合净化链）。 */
+    public static final int STARTER_DIRTY_WATER_PER_TEAM = 2;
+
+    // ── 拆解台（SixtySecondsDismantle：把可合成物品拆回基础资源）──────────────
+    /** 拆解返还率：按配方展开成基础资源后 ×0.4（即 -60%），向下取整；全为 0 时保底返还占比最高的 1 件。 */
+    public static final double DISMANTLE_RETURN_RATE = 0.4;
 
     // ── 物资箱搜刮（搜打撤式定时搜刮进度条；见 SixtySecondsLootSearch）─────────
     public static final int SUPPLY_SEARCH_TICKS = 20 * 3;        // 搜刮时长 3 秒

@@ -66,6 +66,14 @@ public class SixtySecondsConfig {
     @SerializedName("nightAssaultEnabled")
     public boolean nightAssaultEnabled = false;
 
+    /**
+     * 是否发放开局保底物资（人均水/罐头/绷带 + 每队废料/破布/火把/污染水，随搜刮所得装进
+     * 避难所补给箱；见 {@code SixtySecondsManager.starterSupplies}）。默认<b>关</b>——
+     * 全靠准备阶段搜刮。{@code /sre:60s starter on|off} 切换（按图持久化）。
+     */
+    @SerializedName("starterSuppliesEnabled")
+    public boolean starterSuppliesEnabled = false;
+
     /** 第 index（从 0 起）支队伍的网格偏移。 */
     public BlockPos teamOffset(int index) {
         return new BlockPos(teamBase.x + index * teamGridSpacing, teamBase.y, teamBase.z);

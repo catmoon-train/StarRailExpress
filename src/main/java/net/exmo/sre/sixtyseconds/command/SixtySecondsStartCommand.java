@@ -100,6 +100,12 @@ public final class SixtySecondsStartCommand {
                                 .then(literal("on").executes(c -> setNightAssault(c.getSource(), true)))
                                 .then(literal("off").executes(c -> setNightAssault(c.getSource(), false)))
                                 .executes(c -> showNightAssault(c.getSource())))
+                        // 管理员：开局保底物资开关（按图配置持久化；默认关=全靠准备阶段搜刮）
+                        .then(literal("starter")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("on").executes(c -> setStarterSupplies(c.getSource(), true)))
+                                .then(literal("off").executes(c -> setStarterSupplies(c.getSource(), false)))
+                                .executes(c -> showStarterSupplies(c.getSource())))
                         // 管理员：投放空投（缺省=探索区内随机；带坐标=指定 x z）
                         .then(literal("airdrop")
                                 .requires(source -> source.hasPermission(2))
@@ -109,6 +115,10 @@ public final class SixtySecondsStartCommand {
                                                         IntegerArgumentType.getInteger(context, "x"),
                                                         IntegerArgumentType.getInteger(context, "z")))))
                                 .executes(context -> airdropRandom(context.getSource())))
+                        // 管理员：打开空投物资自定义编辑 GUI（创造模式）
+                        .then(literal("airdrop_edit")
+                                .requires(source -> source.hasPermission(2))
+                                .executes(context -> openAirdropEdit(context.getSource())))
                         // 管理员：列出所有队伍的家（住宅/避难所/探索区）坐标，点击一键传送
                         .then(literal("homes")
                                 .requires(source -> source.hasPermission(2))
@@ -197,6 +207,17 @@ public final class SixtySecondsStartCommand {
         }
         source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.airdrop_no_zone"));
         return 0;
+    }
+
+    /** 打开空投资源自定义编辑 GUI（创造模式）。 */
+    private static int openAirdropEdit(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof ServerPlayer player)) {
+            return 0;
+        }
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player,
+                new net.exmo.sre.sixtyseconds.network.OpenAirdropEditS2CPacket(
+                        net.exmo.sre.sixtyseconds.loot.SixtySecondsLootStore.get(player.serverLevel())));
+        return 1;
     }
 
     /** 管理员：列出所有队伍的 住宅/避难所/探索区 出生点坐标；点击坐标一键传送（悬浮显示提示）。 */
@@ -494,6 +515,29 @@ public final class SixtySecondsStartCommand {
         source.sendSuccess(() -> Component.translatable(enabled
                 ? "message.noellesroles.sixty_seconds.assault_enabled"
                 : "message.noellesroles.sixty_seconds.assault_disabled"), false);
+        return 1;
+    }
+
+    /** 管理员：切换「开局保底物资」（按图配置持久化，默认关）。 */
+    private static int setStarterSupplies(CommandSourceStack source, boolean enabled) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.starterSuppliesEnabled = enabled;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.starter_enabled"
+                : "message.noellesroles.sixty_seconds.starter_disabled").withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 管理员：查看「开局保底物资」当前状态。 */
+    private static int showStarterSupplies(CommandSourceStack source) {
+        boolean enabled = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
+                .map(config -> config.starterSuppliesEnabled).orElse(false);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.starter_enabled"
+                : "message.noellesroles.sixty_seconds.starter_disabled"), false);
         return 1;
     }
 

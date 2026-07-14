@@ -541,6 +541,28 @@ public class InstinctRenderer {
             return TrueFalseAndCustomResult.custom(ModRoles.PHANTOM_MUSICIAN.color());
         });
 
+        // 60s模式：家庭成员互相透视（不受直觉开关限制，无距离限制）
+        // 注册在通用逻辑之前，确保60s模式下家庭成员始终可见，且非家庭成员不可被直觉透视
+        OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {
+            if (!(target instanceof Player targetPlayer) || SREClient.gameComponent == null) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            if (!SixtySecondsMod.isActive(self.level())) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            var selfStats = SixtySecondsStatsComponent.KEY.get(self);
+            if (selfStats == null || selfStats.teamId < 0) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            var targetStats = SixtySecondsStatsComponent.KEY.get(targetPlayer);
+            if (targetStats != null && targetStats.teamId == selfStats.teamId) {
+                // 同一家庭成员：金色高亮，无距离限制
+                return TrueFalseAndCustomResult.custom(new Color(255, 215, 0).getRGB());
+            }
+            // 非家庭成员：不可被直觉透视
+            return TrueFalseAndCustomResult.disallow();
+        });
+
         // 通用逻辑
         OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {
             if (SREClient.gameComponent == null) {
@@ -842,17 +864,6 @@ public class InstinctRenderer {
                     // 家族成员透视非家族成员 - 20格距离限制
                     if (self.distanceTo(target_player) > 20.0D) {
                         return TrueFalseAndCustomResult.disallow();
-                    }
-                }
-
-                // 60s模式：家庭成员互相透视（无距离限制）
-                if (SixtySecondsMod.isActive(self.level())) {
-                    var selfStats = SixtySecondsStatsComponent.KEY.get(self);
-                    if (selfStats != null && selfStats.teamId >= 0) {
-                        var targetStats = SixtySecondsStatsComponent.KEY.get(target_player);
-                        if (targetStats != null && targetStats.teamId == selfStats.teamId) {
-                            return TrueFalseAndCustomResult.custom(new Color(255, 215, 0).getRGB()); // 金色
-                        }
                     }
                 }
 

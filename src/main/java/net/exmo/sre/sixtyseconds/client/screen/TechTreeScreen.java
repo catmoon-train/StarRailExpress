@@ -46,9 +46,11 @@ public class TechTreeScreen extends Screen {
 
     // ── 布局 ──────────────────────────────────────────────────────
     private static final int CARD_W = 130;
-    private static final int CARD_H = 44;
+    private static final int CARD_H = 62;
     private static final int ROW_GAP = 10;
     private static final int COL_GAP = 210;
+    /** 卡片中部解锁物品图标行：最多显示个数 */
+    private static final int CARD_MAX_ICONS = 6;
 
     // ── 缩放限制 ──────────────────────────────────────────────────
     private static final float ZOOM_MIN = 0.35f;
@@ -75,9 +77,16 @@ public class TechTreeScreen extends Screen {
     private long lastRightClickTime;
     private static final long DOUBLE_CLICK_MS = 300;
 
+    /** 科技 → 该科技解锁的配方产物（展示用），按配方表顺序。 */
+    private final Map<String, List<ItemStack>> techUnlocks = new HashMap<>();
+
     public TechTreeScreen(OpenTechTreeS2CPacket data) {
         super(Component.translatable("message.noellesroles.sixty_seconds.tech_title"));
         this.unlocked = new HashSet<>(Arrays.asList(data.unlockedIds()));
+        for (var recipe : net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.all()) {
+            techUnlocks.computeIfAbsent(recipe.techId(), k -> new ArrayList<>())
+                    .add(net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.outputStack(recipe));
+        }
     }
 
     public void refresh(OpenTechTreeS2CPacket data) {
@@ -423,6 +432,27 @@ public class TechTreeScreen extends Screen {
             g.drawString(this.font, ellipsize(name, sw - 8), sx + 4, sy + 4, nameColor);
         }
 
+        // 中部：该科技解锁的配方产物图标行（缩得太小就不画，避免糊成一团）
+        List<ItemStack> outputs = techUnlocks.get(node.id());
+        if (outputs != null && zoom > 0.45f) {
+            int shown = Math.min(outputs.size(), CARD_MAX_ICONS);
+            var pose = g.pose();
+            for (int i = 0; i < shown; i++) {
+                pose.pushPose();
+                pose.translate(toScreenX(wr[0] + 4 + i * 19), toScreenY(wr[1] + 18), 0);
+                pose.scale(zoom, zoom, 1);
+                g.renderFakeItem(outputs.get(i), 0, 0);
+                pose.popPose();
+            }
+            if (outputs.size() > shown) {
+                pose.pushPose();
+                pose.translate(toScreenX(wr[0] + 4 + shown * 19), toScreenY(wr[1] + 22), 0);
+                pose.scale(zoom, zoom, 1);
+                g.drawString(this.font, "+" + (outputs.size() - shown), 0, 0, MUTED);
+                pose.popPose();
+            }
+        }
+
         // 底部状态
         Component status;
         int statusColor;
@@ -473,6 +503,27 @@ public class TechTreeScreen extends Screen {
         if (!unlocked.contains(hovered.id())) {
             lines.add(Component.translatable("message.noellesroles.sixty_seconds.tech_cost", hovered.scrapCost())
                     .withStyle(ChatFormatting.YELLOW));
+        }
+        // 解锁配方清单（产物名 ×数量）
+        List<ItemStack> outputs = techUnlocks.get(hovered.id());
+        if (outputs != null && !outputs.isEmpty()) {
+            lines.add(Component.empty());
+            lines.add(Component.translatable("message.noellesroles.sixty_seconds.tech_unlocks")
+                    .withStyle(ChatFormatting.GOLD));
+            int shown = Math.min(outputs.size(), 10);
+            for (int i = 0; i < shown; i++) {
+                ItemStack stack = outputs.get(i);
+                MutableComponent line = Component.literal("• ").withStyle(ChatFormatting.DARK_GRAY)
+                        .append(stack.getHoverName().copy().withStyle(ChatFormatting.WHITE));
+                if (stack.getCount() > 1) {
+                    line.append(Component.literal(" ×" + stack.getCount()).withStyle(ChatFormatting.GRAY));
+                }
+                lines.add(line);
+            }
+            if (outputs.size() > shown) {
+                lines.add(Component.translatable("message.noellesroles.sixty_seconds.tech_unlocks_more",
+                        outputs.size() - shown).withStyle(ChatFormatting.DARK_GRAY));
+            }
         }
         g.renderComponentTooltip(this.font, lines, sx + 10, sy + 10);
     }

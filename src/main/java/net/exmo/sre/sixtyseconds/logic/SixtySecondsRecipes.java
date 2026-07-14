@@ -12,17 +12,37 @@ import java.util.List;
 
 /**
  * 合成台绑定配方表（两端共享的静态定义）：物品必须拿到<b>对应家具</b>才能合成——
- * 书桌/工作台=简易工作台、厨房灶台=熔炉/烟熏炉/营火、浴缸=炼药锅。
+ * 书桌/工作台=简易工作台、厨房灶台=熔炉/烟熏炉/营火、浴缸=炼药锅、
+ * 裁缝台=织布机（护甲/装备）、军械台=锻造台/砂轮/铁砧（武器/弹药）。
  * 配方受科技树（{@link SixtySecondsTechTree}）门控，部分需要供电（{@link SixtySecondsPowerSystem}）。
  */
 public final class SixtySecondsRecipes {
 
-    /** 合成站类型（由方块判定，见 {@link #stationOf}）。 */
+    /** 合成站类型（由方块判定，见 {@link #stationOf}）。新值只能追加在末尾（网络包按 ordinal 传输）。 */
     public enum Station {
-        WORKBENCH, STOVE, BATHTUB;
+        WORKBENCH, STOVE, BATHTUB, TAILOR, ARSENAL;
 
         public String translationKey() {
             return "station.noellesroles.sixty_seconds." + name().toLowerCase(java.util.Locale.ROOT);
+        }
+    }
+
+    /**
+     * 配方产物的展示分类（合成 GUI 顶部标签栏）。由 {@link #categoryOf} 按产物物品类型自动判定，
+     * 少数歧义配方用 {@link #CATEGORY_OVERRIDES} 指定。
+     */
+    public enum Category {
+        TOOLS(0xFFC9A84C), BUILD(0xFF72C17B), WEAPONS(0xFFE06B65), ARMOR(0xFF5EB7D8),
+        MEDICAL(0xFFB18AE6), FOOD(0xFFE0AD5B), COMFORT(0xFFFF66AA), MATERIALS(0xFF9AAAB8);
+
+        public final int color;
+
+        Category(int color) {
+            this.color = color;
+        }
+
+        public String translationKey() {
+            return "category.noellesroles.sixty_seconds." + name().toLowerCase(java.util.Locale.ROOT);
         }
     }
 
@@ -81,7 +101,72 @@ public final class SixtySecondsRecipes {
         if (state.is(Blocks.CAULDRON) || state.is(Blocks.WATER_CAULDRON)) {
             return Station.BATHTUB; // 浴缸
         }
+        if (state.is(Blocks.LOOM)) {
+            return Station.TAILOR; // 织布机 → 裁缝台（护甲/装备）
+        }
+        if (state.is(Blocks.SMITHING_TABLE) || state.is(Blocks.GRINDSTONE) || state.is(Blocks.ANVIL)
+                || state.is(Blocks.CHIPPED_ANVIL) || state.is(Blocks.DAMAGED_ANVIL)) {
+            return Station.ARSENAL; // 锻造台/砂轮/铁砧 → 军械台（武器弹药）
+        }
         return null;
+    }
+
+    // ── 展示分类 ─────────────────────────────────────────────────
+
+    /** 按产物类型难以判定的少数配方：配方 id → 分类。 */
+    private static final java.util.Map<String, Category> CATEGORY_OVERRIDES = java.util.Map.of(
+            "riot_shield", Category.ARMOR,   // 普通 Item，但属于护具
+            "fuel_can", Category.TOOLS,      // 化学科技产物，但是燃料材料
+            "wrench", Category.TOOLS,        // 防御科技产物，但是拆装工具
+            "charcoal_pill", Category.MEDICAL); // 净化科技产物，但是清污药品
+
+    /** 各科技的默认分类（产物类型判定不出时的兜底）。 */
+    private static Category categoryOfTech(String techId) {
+        return switch (techId) {
+            case "defense", "fortification", "rainwater" -> Category.BUILD;
+            case "weapons", "gunsmith" -> Category.WEAPONS;
+            case "armor" -> Category.ARMOR;
+            case "medicine", "chemistry" -> Category.MEDICAL;
+            case "kitchen", "agriculture", "gourmet", "brewing", "filtration" -> Category.FOOD;
+            case "comfort" -> Category.COMFORT;
+            default -> Category.TOOLS; // basic_tools/survival/locksmith/power/engineering/metallurgy
+        };
+    }
+
+    /** 配方 → 展示分类：先看覆盖表，再判资源（初级/高级），再按产物物品类型，最后按科技兜底。 */
+    public static Category categoryOf(Recipe recipe) {
+        Category override = CATEGORY_OVERRIDES.get(recipe.id());
+        if (override != null) {
+            return override;
+        }
+        Item out = recipe.output();
+        if (SixtySecondsResources.isResource(out)) {
+            return Category.MATERIALS; // 资源加工配方（电线/齿轮/电子元件/钢锭…）统一进「资源」页
+        }
+        if (out instanceof net.minecraft.world.item.BlockItem) {
+            return Category.BUILD;
+        }
+        if (out instanceof net.minecraft.world.item.ArmorItem
+                || out instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsBackpackItem) {
+            return Category.ARMOR;
+        }
+        if (out instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem
+                || out instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsGunItem
+                || out instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrenadeItem
+                || out instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsRpgItem) {
+            return Category.WEAPONS;
+        }
+        if (out instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsMedicineItem
+                || out instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsBandageItem) {
+            return Category.MEDICAL;
+        }
+        if (out instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem) {
+            return Category.FOOD;
+        }
+        if (out instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem) {
+            return Category.COMFORT;
+        }
+        return categoryOfTech(recipe.techId());
     }
 
     public static ItemStack outputStack(Recipe recipe) {
@@ -95,7 +180,8 @@ public final class SixtySecondsRecipes {
                 List.of(in(ModItems.SIXTY_SECONDS_SCRAP, 3), in(Items.OAK_PLANKS, 2)),
                 ModItems.SIXTY_SECONDS_TORCH, 2));
         list.add(new Recipe("clock", Station.WORKBENCH, "basic_tools", false,
-                List.of(in(ModItems.SIXTY_SECONDS_SCRAP, 5), in(Items.IRON_INGOT, 2)),
+                List.of(in(ModItems.SIXTY_SECONDS_SCRAP, 3), in(ModItems.SIXTY_SECONDS_GEAR, 1),
+                        in(Items.IRON_INGOT, 1)),
                 ModItems.SIXTY_SECONDS_CLOCK, 1));
         // ── 背包（basic_tools；材料独立，避免消耗装了东西的低级背包）─────
         list.add(new Recipe("backpack_small", Station.WORKBENCH, "basic_tools", false,
@@ -123,17 +209,19 @@ public final class SixtySecondsRecipes {
                 ModItems.SIXTY_SECONDS_WRENCH, 1));
         // ── 电力（power）─────────────────────────────────────────────
         list.add(new Recipe("generator", Station.WORKBENCH, "power", false,
-                List.of(in(ModItems.SIXTY_SECONDS_SCRAP, 14), in(Items.IRON_INGOT, 5)),
+                List.of(in(ModItems.SIXTY_SECONDS_SCRAP, 10), in(Items.IRON_INGOT, 3),
+                        in(ModItems.SIXTY_SECONDS_GEAR, 2)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_GENERATOR.asItem(), 1));
         list.add(new Recipe("lamp", Station.WORKBENCH, "power", false,
-                List.of(in(ModItems.SIXTY_SECONDS_SCRAP, 5), in(Items.IRON_INGOT, 2)),
+                List.of(in(ModItems.SIXTY_SECONDS_SCRAP, 4), in(Items.IRON_INGOT, 1),
+                        in(ModItems.SIXTY_SECONDS_WIRE, 1)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_LAMP.asItem(), 1));
         list.add(new Recipe("battery", Station.WORKBENCH, "power", false,
                 List.of(in(ModItems.SIXTY_SECONDS_SCRAP, 8), in(Items.IRON_INGOT, 2)),
                 ModItems.SIXTY_SECONDS_BATTERY, 1));
         list.add(new Recipe("flashlight", Station.WORKBENCH, "power", false,
-                List.of(in(ModItems.SIXTY_SECONDS_BATTERY, 2), in(ModItems.SIXTY_SECONDS_SCRAP, 5),
-                        in(Items.IRON_INGOT, 2)),
+                List.of(in(ModItems.SIXTY_SECONDS_BATTERY, 2), in(ModItems.SIXTY_SECONDS_SCRAP, 4),
+                        in(ModItems.SIXTY_SECONDS_WIRE, 1)),
                 ModItems.SIXTY_SECONDS_FLASHLIGHT, 1));
         // ── 武器（weapons）───────────────────────────────────────────
         list.add(new Recipe("pipe_club", Station.WORKBENCH, "weapons", false,
@@ -200,6 +288,24 @@ public final class SixtySecondsRecipes {
         list.add(new Recipe("cloth_roll", Station.WORKBENCH, "basic_tools", false,
                 List.of(in(ModItems.SIXTY_SECONDS_RAG, 5)),
                 ModItems.SIXTY_SECONDS_CLOTH_ROLL, 1));
+        // ── 资源加工（高级资源=初级资源加工出的中间件，见 SixtySecondsResources；
+        //    电池/钢锭/钉子/滤芯已有配方，此处补齐 电线/胶带/齿轮/电子元件/火药包 的合成闭环）──
+        list.add(new Recipe("wire", Station.WORKBENCH, "basic_tools", false,
+                List.of(in(Items.IRON_INGOT, 1), in(ModItems.SIXTY_SECONDS_SCRAP, 2)),
+                ModItems.SIXTY_SECONDS_WIRE, 2));
+        list.add(new Recipe("duct_tape", Station.WORKBENCH, "basic_tools", false,
+                List.of(in(ModItems.SIXTY_SECONDS_PLASTIC, 1), in(ModItems.SIXTY_SECONDS_RAG, 2)),
+                ModItems.SIXTY_SECONDS_DUCT_TAPE, 2));
+        list.add(new Recipe("gear", Station.WORKBENCH, "power", false,
+                List.of(in(Items.IRON_INGOT, 2), in(ModItems.SIXTY_SECONDS_SCRAP, 3)),
+                ModItems.SIXTY_SECONDS_GEAR, 2));
+        list.add(new Recipe("electronics", Station.WORKBENCH, "power", false,
+                List.of(in(ModItems.SIXTY_SECONDS_WIRE, 2), in(ModItems.SIXTY_SECONDS_PLASTIC, 1),
+                        in(ModItems.SIXTY_SECONDS_SCRAP, 3)),
+                ModItems.SIXTY_SECONDS_ELECTRONICS, 1));
+        list.add(new Recipe("gunpowder_pack", Station.WORKBENCH, "chemistry", false,
+                List.of(in(ModItems.SIXTY_SECONDS_CHEMICALS, 2), in(Items.CHARCOAL, 1)),
+                ModItems.SIXTY_SECONDS_GUNPOWDER_PACK, 1));
         // ── 野外生存（survival）─────────────────────────────────────
         list.add(new Recipe("compass", Station.WORKBENCH, "survival", false,
                 List.of(in(Items.IRON_INGOT, 2), in(ModItems.SIXTY_SECONDS_WIRE, 2)),
@@ -421,7 +527,7 @@ public final class SixtySecondsRecipes {
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_REINFORCED_BARRICADE.asItem(), 1));
         list.add(new Recipe("floodlight", Station.WORKBENCH, "fortification", true,
                 List.of(in(ModItems.SIXTY_SECONDS_BATTERY, 2), in(ModItems.SIXTY_SECONDS_GLASS_SHARD, 3),
-                        in(Items.IRON_INGOT, 3)),
+                        in(Items.IRON_INGOT, 2), in(ModItems.SIXTY_SECONDS_WIRE, 2)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_FLOODLIGHT.asItem(), 1));
 
         // ══ 扩充批次二：心理慰藉 / 炊事进阶 / 高级净化 / 军械工坊 ══════════════════
@@ -502,6 +608,40 @@ public final class SixtySecondsRecipes {
                 List.of(in(Items.IRON_INGOT, 3), in(ModItems.SIXTY_SECONDS_PLASTIC, 3),
                         in(ModItems.SIXTY_SECONDS_SCRAP, 5)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_PURIFIER.asItem(), 1));
+        // 裁缝台（护甲/背包等装备类配方在此制作；原版对应家具：织布机）
+        list.add(new Recipe("station_tailor", Station.WORKBENCH, "basic_tools", false,
+                List.of(in(Items.OAK_PLANKS, 4), in(ModItems.SIXTY_SECONDS_RAG, 4),
+                        in(ModItems.SIXTY_SECONDS_SCRAP, 4)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_TAILOR_TABLE.asItem(), 1));
+        // 军械台（近战武器/枪械/弹药/投掷物在此制作；原版对应家具：锻造台/砂轮/铁砧）
+        list.add(new Recipe("station_arsenal", Station.WORKBENCH, "defense", false,
+                List.of(in(Items.IRON_INGOT, 5), in(Items.OAK_PLANKS, 4),
+                        in(ModItems.SIXTY_SECONDS_SCRAP, 6)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_ARSENAL_TABLE.asItem(), 1));
+        // 拆解台（右键把装备/功能方块按 -60% 拆回基础资源；见 SixtySecondsDismantle）
+        list.add(new Recipe("station_dismantler", Station.WORKBENCH, "basic_tools", false,
+                List.of(in(Items.OAK_PLANKS, 4), in(Items.IRON_INGOT, 2),
+                        in(ModItems.SIXTY_SECONDS_SCRAP, 6)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_DISMANTLER.asItem(), 1));
+
+        // ── 站点重分配：护甲/装备 → 裁缝台，武器/弹药 → 军械台 ─────────────
+        //    只迁移原本在工作台的配方（灶台冶炼等保持原站）；分类即 GUI 标签，二者保持一致。
+        for (int i = 0; i < list.size(); i++) {
+            Recipe recipe = list.get(i);
+            if (recipe.station() != Station.WORKBENCH) {
+                continue;
+            }
+            Category category = categoryOf(recipe);
+            Station moved = switch (category) {
+                case ARMOR -> Station.TAILOR;
+                case WEAPONS -> Station.ARSENAL;
+                default -> null;
+            };
+            if (moved != null) {
+                list.set(i, new Recipe(recipe.id(), moved, recipe.techId(), recipe.needsPower(),
+                        recipe.inputs(), recipe.output(), recipe.outputCount()));
+            }
+        }
         return list;
     }
 

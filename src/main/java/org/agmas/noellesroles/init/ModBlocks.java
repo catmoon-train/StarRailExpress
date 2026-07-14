@@ -129,6 +129,14 @@ public interface ModBlocks {
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
+    // 末日60秒模式：拆解台（右键打开拆解界面，把可合成物品按 -60% 拆回基础资源；
+    // 冒险模式仅可放白色混凝土标记上方，扳手可拆回）
+    Block SIXTY_SECONDS_DISMANTLER = blockRegistrar.createWithItem("sixty_seconds_dismantler",
+            new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
     // 末日60秒模式：专用合成台（与原版家具合成站等价的可携带版本，右键开对应配方 GUI；
     // 冒险模式仅可放白色混凝土标记上方，扳手可拆回）
     Block SIXTY_SECONDS_WORKBENCH = blockRegistrar.createWithItem("sixty_seconds_workbench",
@@ -149,6 +157,22 @@ public interface ModBlocks {
             new net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock(
                     BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F),
                     net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.Station.BATHTUB),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 裁缝台：护甲/背包等装备类配方（原版对应家具：织布机）
+    Block SIXTY_SECONDS_TAILOR_TABLE = blockRegistrar.createWithItem("sixty_seconds_tailor_table",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.LOOM).strength(2.5F),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.Station.TAILOR),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 军械台：近战武器/枪械/弹药/投掷物配方（原版对应家具：锻造台/砂轮/铁砧）
+    Block SIXTY_SECONDS_ARSENAL_TABLE = blockRegistrar.createWithItem("sixty_seconds_arsenal_table",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.Station.ARSENAL),
             b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);

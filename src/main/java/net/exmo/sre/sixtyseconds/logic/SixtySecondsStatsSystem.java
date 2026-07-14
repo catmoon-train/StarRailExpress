@@ -68,9 +68,20 @@ public final class SixtySecondsStatsSystem {
                         ? SixtySecondsBalance.DRAIN_MULT_EARLY_DAYS
                         : SixtySecondsBalance.DRAIN_MULT_LATE_DAYS;
                 double finalMult = mult * SixtySecondsBalance.DRAIN_MULT_GLOBAL * dayMult;
-                stats.hunger = clampDown(stats.hunger, scale(SixtySecondsBalance.HUNGER_DRAIN_PER_MIN, finalMult));
-                stats.thirst = clampDown(stats.thirst, scale(SixtySecondsBalance.THIRST_DRAIN_PER_MIN, finalMult));
-                stats.sanity = clampDown(stats.sanity, scale(SixtySecondsBalance.SANITY_DRAIN_PER_MIN, finalMult));
+                // 每日事件日级修正：各属性分别 × 事件修正倍率
+                double hungerMod = 1.0, thirstMod = 1.0, sanityMod = 1.0, polluteMod = 1.0;
+                if (team != null) {
+                    hungerMod = team.modifier("drain_hunger");
+                    thirstMod = team.modifier("drain_thirst");
+                    sanityMod = team.modifier("drain_sanity");
+                    polluteMod = team.modifier("drain_pollution");
+                }
+                stats.hunger = clampDown(stats.hunger,
+                        scale(SixtySecondsBalance.HUNGER_DRAIN_PER_MIN, finalMult * hungerMod));
+                stats.thirst = clampDown(stats.thirst,
+                        scale(SixtySecondsBalance.THIRST_DRAIN_PER_MIN, finalMult * thirstMod));
+                stats.sanity = clampDown(stats.sanity,
+                        scale(SixtySecondsBalance.SANITY_DRAIN_PER_MIN, finalMult * sanityMod));
                 // 污染增速：户外额外 -60%（POLLUTION_OUTDOOR_MULT）；防化服（胸甲位）再减半。
                 // 基数小（1/分钟），改用概率进位结算避免小倍率被四舍五入吞成 0/1 两极。
                 double pollutionMult = finalMult * SixtySecondsBalance.POLLUTION_DRAIN_MULT;
@@ -82,7 +93,7 @@ public final class SixtySecondsStatsSystem {
                     pollutionMult *= 0.5;
                 }
                 stats.pollution = clampUp(stats.pollution,
-                        scaleChance(level, SixtySecondsBalance.POLLUTION_GAIN_PER_MIN, pollutionMult));
+                        scaleChance(level, SixtySecondsBalance.POLLUTION_GAIN_PER_MIN, pollutionMult * polluteMod));
                 changed = true;
             }
 

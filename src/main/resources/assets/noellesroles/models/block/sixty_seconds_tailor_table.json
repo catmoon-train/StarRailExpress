@@ -1,0 +1,4 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": { "all": "noellesroles:block/sixty_seconds_tailor_table", "particle": "noellesroles:block/sixty_seconds_tailor_table" }
+}

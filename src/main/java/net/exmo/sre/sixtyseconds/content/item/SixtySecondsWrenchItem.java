@@ -59,6 +59,7 @@ public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
                 || block instanceof SixtySecondsSpikeTrapBlock
                 || block instanceof SixtySecondsGeneratorBlock
                 || block instanceof SixtySecondsLampBlock
-                || block instanceof net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock;
+                || block instanceof net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock
+                || state.is(org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_DISMANTLER);
     }
 }

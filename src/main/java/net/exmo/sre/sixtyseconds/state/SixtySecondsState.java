@@ -91,6 +91,20 @@ public final class SixtySecondsState {
             return now < doorTrapEndTick;
         }
 
+        // ── 每日事件日级修正（键 → 倍率；换日清空）──────────────────────
+        /** 事件施加的日级修正：键=修正名，值=倍率（1.0=不变，>1=恶化，<1=改善）。 */
+        public final java.util.Map<String, Double> dailyModifiers = new java.util.HashMap<>();
+
+        /** 读取修正倍率，无记录返回 1.0。 */
+        public double modifier(String key) {
+            return dailyModifiers.getOrDefault(key, 1.0);
+        }
+
+        /** 换日时清空所有日级修正。 */
+        public void clearDailyModifiers() {
+            dailyModifiers.clear();
+        }
+
         public TeamData(int teamId) {
             this.teamId = teamId;
         }

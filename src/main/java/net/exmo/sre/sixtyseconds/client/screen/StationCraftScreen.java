@@ -9,21 +9,31 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
- * 合成站界面：列出该站（书桌/灶台/浴缸）的全部配方；材料/科技/供电不满足则按钮置灰。
- * 服务端最终校验，客户端置灰只是提示。
+ * 合成站界面（网格版）：顶部分类标签栏 + 搜索框，左侧物品网格（<b>可合成置顶</b>、
+ * 缺料变灰、科技未解锁加锁标），hover 显示 介绍/材料 tooltip；右侧详情面板展示
+ * 物品介绍、材料 have/need 与 合成×1/×5 按钮。服务端最终校验，客户端置灰只是提示。
  *
  * <p>风格参考 {@code docs/ui_style.md}：深棕渐变面板 + 棕褐描边 + 金色装饰线。</p>
  */
@@ -37,26 +47,45 @@ public class StationCraftScreen extends Screen {
     private static final int GOLD = 0xFFD4AF37;
     private static final int TEXT = 0xFFFFF4DC;
     private static final int MUTED = 0xFF9E8B6E;
+    private static final int BODY = 0xFFC8B898;
     private static final int GREEN = 0xFF72C17B;
     private static final int RED = 0xFFE06B65;
+    private static final int AQUA = 0xFF5EB7D8;
     private static final int HOVER_BG = 0x22FFFFFF;
     private static final int ROW_SEPARATOR = 0x20FFFFFF;
 
     // ── 布局常量 ─────────────────────────────────────────────────
     private static final int PAD = 10;
-    private static final int ROW_H = 36;
-    private static final int HEADER_H = 52;
+    private static final int CELL = 26;
+    private static final int HEADER_H = 24;
+    private static final int TAB_H = 16;
+
+    /** 网格条目的三档状态（排序键：可合成置顶 → 缺料 → 科技未解锁）。 */
+    private enum EntryState { CRAFTABLE, MISSING, LOCKED }
+
+    private record Entry(SixtySecondsRecipes.Recipe recipe, EntryState state) {
+    }
 
     private final SixtySecondsRecipes.Station station;
     private final BlockPos pos;
     private final Set<String> unlockedTech;
     private final boolean powered;
     private final List<SixtySecondsRecipes.Recipe> recipes;
+    private final List<SixtySecondsRecipes.Category> tabs = new ArrayList<>();
 
-    private int scrollOffset;
+    /** null = 全部 */
+    private SixtySecondsRecipes.Category activeTab;
+    private String search = "";
+    private final List<Entry> entries = new ArrayList<>();
+    private String selectedId;
+
+    private int scrollRow;
     private int panelX, panelY, panelW, panelH;
-    private int listTop, listBottom;
-    private int hoveredRow = -1;
+    private int gridX, gridTop, gridBottom, gridCols;
+    private int detailX, detailW;
+
+    private EditBox searchBox;
+    private Button craftBtn, craft5Btn;
 
     public StationCraftScreen(OpenStationS2CPacket data) {
         super(Component.translatable(
@@ -66,25 +95,46 @@ public class StationCraftScreen extends Screen {
         this.unlockedTech = new HashSet<>(Arrays.asList(data.unlockedTech()));
         this.powered = data.powered();
         this.recipes = SixtySecondsRecipes.forStation(station);
+        // 本站出现过的分类才生成标签（按枚举声明序）
+        Set<SixtySecondsRecipes.Category> present = new LinkedHashSet<>();
+        for (SixtySecondsRecipes.Category c : SixtySecondsRecipes.Category.values()) {
+            for (SixtySecondsRecipes.Recipe r : recipes) {
+                if (SixtySecondsRecipes.categoryOf(r) == c) {
+                    present.add(c);
+                    break;
+                }
+            }
+        }
+        tabs.addAll(present);
     }
 
     // ── 布局计算 ──────────────────────────────────────────────────
 
     private void computeLayout() {
-        panelW = Mth.clamp((int) (this.width * 0.78f), 420, 700);
-        panelH = Mth.clamp((int) (this.height * 0.76f), 280, 460);
+        panelW = Mth.clamp((int) (this.width * 0.86f), 480, 760);
+        panelH = Mth.clamp((int) (this.height * 0.82f), 300, 480);
         panelX = (this.width - panelW) / 2;
         panelY = (this.height - panelH) / 2;
-        listTop = panelY + HEADER_H + PAD;
-        listBottom = panelY + panelH - PAD - 28;
+
+        detailW = Mth.clamp((int) (panelW * 0.36f), 180, 250);
+        detailX = panelX + panelW - PAD - detailW;
+
+        gridX = panelX + PAD;
+        gridTop = panelY + HEADER_H + TAB_H + 8;
+        gridBottom = panelY + panelH - PAD;
+        gridCols = Math.max(1, (detailX - 8 - gridX - 6) / CELL); // 右侧留滚动条位
     }
 
-    private int visibleRows() {
-        return Math.max(1, (listBottom - listTop) / ROW_H);
+    private int visibleRowCount() {
+        return Math.max(1, (gridBottom - gridTop) / CELL);
     }
 
-    private int maxScroll() {
-        return Math.max(0, recipes.size() - visibleRows());
+    private int totalRows() {
+        return (entries.size() + gridCols - 1) / gridCols;
+    }
+
+    private int maxScrollRow() {
+        return Math.max(0, totalRows() - visibleRowCount());
     }
 
     // ── 初始化 ────────────────────────────────────────────────────
@@ -92,253 +142,506 @@ public class StationCraftScreen extends Screen {
     @Override
     protected void init() {
         computeLayout();
-        scrollOffset = Mth.clamp(scrollOffset, 0, maxScroll());
 
-        final int btnY = panelY + panelH - PAD - 22;
-        // 关闭按钮 —— 右上角
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
-                .bounds(panelX + panelW - 52, btnY, 42, 20).build());
-        rebuildCraftButtons();
+        // 搜索框：标签栏右侧
+        int searchW = Mth.clamp(panelW / 5, 90, 130);
+        searchBox = new EditBox(this.font, panelX + panelW - PAD - searchW, panelY + HEADER_H + 1,
+                searchW, TAB_H - 2,
+                Component.translatable("message.noellesroles.sixty_seconds.craft_search"));
+        searchBox.setHint(Component.translatable("message.noellesroles.sixty_seconds.craft_search")
+                .withStyle(ChatFormatting.DARK_GRAY));
+        searchBox.setBordered(false);
+        searchBox.setValue(search);
+        searchBox.setResponder(text -> {
+            search = text;
+            scrollRow = 0;
+            rebuildEntries();
+        });
+        addRenderableWidget(searchBox);
+
+        // 关闭按钮：右上角
+        addRenderableWidget(Button.builder(Component.literal("✕"), b -> onClose())
+                .bounds(panelX + panelW - 18, panelY + 3, 15, 14).build());
+
+        // 合成按钮：详情面板底部
+        int btnY = panelY + panelH - PAD - 20;
+        int half = (detailW - 4) / 2;
+        craftBtn = Button.builder(
+                Component.translatable("message.noellesroles.sixty_seconds.craft_btn"),
+                b -> sendCraft(1)).bounds(detailX, btnY, half, 20).build();
+        craft5Btn = Button.builder(
+                Component.translatable("message.noellesroles.sixty_seconds.craft_x5"),
+                b -> sendCraft(5)).bounds(detailX + half + 4, btnY, half, 20).build();
+        addRenderableWidget(craftBtn);
+        addRenderableWidget(craft5Btn);
+
+        rebuildEntries();
     }
 
-    private void rebuildCraftButtons() {
-        clearWidgets();
-        computeLayout();
-        scrollOffset = Mth.clamp(scrollOffset, 0, maxScroll());
-        final int btnY = panelY + panelH - PAD - 22;
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
-                .bounds(panelX + panelW - 52, btnY, 42, 20).build());
-
-        int visible = visibleRows();
-        for (int row = 0; row < visible; row++) {
-            int index = scrollOffset + row;
-            if (index >= recipes.size()) break;
-            SixtySecondsRecipes.Recipe recipe = recipes.get(index);
-            boolean canCraft = canCraft(recipe);
-            int btnX = panelX + panelW - PAD - 64;
-            int btnRowY = listTop + row * ROW_H + 4;
-            Button craft = Button.builder(
-                    Component.translatable("message.noellesroles.sixty_seconds.craft_btn"),
-                    b -> ClientPlayNetworking.send(new StationCraftC2SPacket(recipe.id(), pos)))
-                    .bounds(btnX, btnRowY, 54, 20).build();
-            craft.active = canCraft;
-            addRenderableWidget(craft);
+    private void sendCraft(int count) {
+        SixtySecondsRecipes.Recipe recipe = selected();
+        if (recipe != null) {
+            ClientPlayNetworking.send(new StationCraftC2SPacket(recipe.id(), pos, count));
         }
     }
 
-    // ── 材料检查 ──────────────────────────────────────────────────
+    private SixtySecondsRecipes.Recipe selected() {
+        return selectedId == null ? null : SixtySecondsRecipes.byId(selectedId);
+    }
 
-    private boolean canCraft(SixtySecondsRecipes.Recipe recipe) {
-        if (!unlockedTech.contains(recipe.techId())) return false;
-        if (recipe.needsPower() && !powered) return false;
-        Minecraft client = Minecraft.getInstance();
-        if (client.player == null) return false;
-        for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-            int have = 0;
-            for (int slot = 0; slot < client.player.getInventory().getContainerSize(); slot++) {
-                ItemStack stack = client.player.getInventory().getItem(slot);
-                if (stack.is(input.item())) have += stack.getCount();
+    // ── 条目构建：过滤（标签+搜索）→ 状态 → 可合成置顶 ─────────────
+
+    private void rebuildEntries() {
+        entries.clear();
+        String query = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
+        for (SixtySecondsRecipes.Recipe recipe : recipes) {
+            if (activeTab != null && SixtySecondsRecipes.categoryOf(recipe) != activeTab) {
+                continue;
             }
-            if (have < input.count()) return false;
+            if (!query.isEmpty()) {
+                String name = SixtySecondsRecipes.outputStack(recipe).getHoverName()
+                        .getString().toLowerCase(Locale.ROOT);
+                if (!name.contains(query)) {
+                    continue;
+                }
+            }
+            entries.add(new Entry(recipe, stateOf(recipe)));
         }
-        return true;
+        // 稳定排序：CRAFTABLE < MISSING < LOCKED，同档保持配方表顺序
+        entries.sort(java.util.Comparator.comparingInt(e -> e.state().ordinal()));
+        scrollRow = Mth.clamp(scrollRow, 0, maxScrollRow());
     }
 
-    // ── 滚动 ──────────────────────────────────────────────────────
+    private EntryState stateOf(SixtySecondsRecipes.Recipe recipe) {
+        if (!unlockedTech.contains(recipe.techId())) {
+            return EntryState.LOCKED;
+        }
+        if (recipe.needsPower() && !powered) {
+            return EntryState.MISSING;
+        }
+        for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
+            if (countInInventory(input.item()) < input.count()) {
+                return EntryState.MISSING;
+            }
+        }
+        return EntryState.CRAFTABLE;
+    }
+
+    /** 背包变化（合成扣料/捡东西）会改变置灰与排序，每 tick 重算一次（配方量小，开销可忽略）。 */
+    @Override
+    public void tick() {
+        super.tick();
+        rebuildEntries();
+    }
+
+    // ── 鼠标事件 ──────────────────────────────────────────────────
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (super.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        // 分类标签
+        int tabX = panelX + PAD;
+        int tabY = panelY + HEADER_H;
+        for (int i = -1; i < tabs.size(); i++) {
+            SixtySecondsRecipes.Category tab = i < 0 ? null : tabs.get(i);
+            int w = tabWidth(tab);
+            if (mouseX >= tabX && mouseX < tabX + w && mouseY >= tabY && mouseY < tabY + TAB_H) {
+                if (activeTab != tab) {
+                    activeTab = tab;
+                    scrollRow = 0;
+                    rebuildEntries();
+                    playClick();
+                }
+                return true;
+            }
+            tabX += w + 4;
+        }
+        // 网格
+        int index = gridIndexAt(mouseX, mouseY);
+        if (index >= 0 && index < entries.size()) {
+            Entry entry = entries.get(index);
+            String id = entry.recipe().id();
+            if (!id.equals(selectedId)) {
+                selectedId = id;
+                playClick();
+            } else if (hasShiftDown() && entry.state() == EntryState.CRAFTABLE) {
+                sendCraft(1); // 已选中时 Shift+点击 快速合成
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /** 屏幕坐标 → 网格条目下标；不在网格内返回 -1。 */
+    private int gridIndexAt(double mouseX, double mouseY) {
+        if (mouseX < gridX || mouseX >= gridX + gridCols * CELL
+                || mouseY < gridTop || mouseY >= gridBottom) {
+            return -1;
+        }
+        int col = (int) ((mouseX - gridX) / CELL);
+        int row = scrollRow + (int) ((mouseY - gridTop) / CELL);
+        return row * gridCols + col;
+    }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        int max = maxScroll();
-        int next = Mth.clamp(scrollOffset - (int) Math.signum(scrollY), 0, max);
-        if (next != scrollOffset) {
-            scrollOffset = next;
-            rebuildCraftButtons();
+        int next = Mth.clamp(scrollRow - (int) Math.signum(scrollY), 0, maxScrollRow());
+        if (next != scrollRow) {
+            scrollRow = next;
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
-    @Override
-    public void mouseMoved(double mouseX, double mouseY) {
-        super.mouseMoved(mouseX, mouseY);
-        int old = hoveredRow;
-        hoveredRow = -1;
-        if (isInPanel(mouseX, mouseY)) {
-            int relY = (int) mouseY - listTop;
-            int row = relY / ROW_H;
-            int idx = scrollOffset + row;
-            if (row >= 0 && row < visibleRows() && idx < recipes.size()) {
-                int contentX0 = panelX + PAD;
-                int contentX1 = panelX + panelW - PAD - 72;
-                if (mouseX >= contentX0 && mouseX < contentX1) {
-                    hoveredRow = row;
-                }
-            }
-        }
-        if (hoveredRow != old) {
-            rebuildCraftButtons();
-        }
-    }
-
-    private boolean isInPanel(double mx, double my) {
-        return mx >= panelX && mx < panelX + panelW && my >= panelY && my < panelY + panelH;
+    private void playClick() {
+        Minecraft.getInstance().getSoundManager()
+                .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     // ── 绘制 ──────────────────────────────────────────────────────
 
     @Override
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.render(g, mouseX, mouseY, partialTick);
-        drawPanel(g);
-        drawHeader(g);
-        drawRecipeList(g, mouseX, mouseY);
+    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(g, mouseX, mouseY, partialTick);
+        computeLayout();
+        // 深棕渐变面板 + 描边 + 装饰线（§3 范式）
+        g.fillGradient(panelX, panelY, panelX + panelW, panelY + panelH, BG_TOP, BG_BOTTOM);
+        g.renderOutline(panelX, panelY, panelW, panelH, BORDER);
+        g.fill(panelX + 1, panelY + 1, panelX + panelW - 1, panelY + 2, DECORATION_LINE);
+        // 详情分栏底色
+        g.fill(detailX - 4, gridTop - TAB_H - 8, detailX - 3, panelY + panelH - PAD, ROW_SEPARATOR);
     }
 
     @Override
-    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.renderBackground(g, mouseX, mouseY, partialTick);
+    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        SixtySecondsRecipes.Recipe sel = selected();
+        boolean canCraftSel = false;
+        if (sel != null) {
+            canCraftSel = stateOf(sel) == EntryState.CRAFTABLE;
+        }
+        craftBtn.visible = craft5Btn.visible = sel != null;
+        craftBtn.active = craft5Btn.active = canCraftSel;
+
+        super.render(g, mouseX, mouseY, partialTick);
+        drawHeader(g);
+        drawTabs(g, mouseX, mouseY);
+        drawGrid(g, mouseX, mouseY);
+        drawDetail(g, sel);
+        drawGridTooltip(g, mouseX, mouseY);
     }
 
-    /** 绘制深棕渐变面板 + 边框 + 装饰线（§3 范式）。 */
-    private void drawPanel(GuiGraphics g) {
-        // 上下渐变背景
-        g.fillGradient(panelX, panelY, panelX + panelW, panelY + panelH, BG_TOP, BG_BOTTOM);
-        // 棕褐色描边
-        g.renderOutline(panelX, panelY, panelW, panelH, BORDER);
-        // 上边缘装饰线（内侧 1px）
-        g.fill(panelX + 1, panelY + 1, panelX + panelW - 1, panelY + 2, DECORATION_LINE);
-    }
-
-    /** 绘制标题栏（标题 + 电力状态）。 */
     private void drawHeader(GuiGraphics g) {
-        // 标题：金色粗体
-        g.drawCenteredString(this.font, this.title,
-                panelX + panelW / 2, panelY + PAD + 2, GOLD);
-
-        // 供电状态
-        MutableComponent powerLine = Component.translatable(powered
+        g.drawString(this.font, this.title.copy().withStyle(ChatFormatting.BOLD),
+                panelX + PAD, panelY + 8, GOLD);
+        Component powerLine = Component.translatable(powered
                 ? "message.noellesroles.sixty_seconds.station_powered"
-                : "message.noellesroles.sixty_seconds.station_unpowered")
-                .withStyle(powered ? ChatFormatting.GREEN : ChatFormatting.GRAY);
-        g.drawCenteredString(this.font, powerLine,
-                panelX + panelW / 2, panelY + PAD + 16, powered ? GREEN : MUTED);
-
-        // 标题下方分隔线
-        int sepY = panelY + HEADER_H;
-        g.fill(panelX + PAD, sepY, panelX + panelW - PAD, sepY + 1, ROW_SEPARATOR);
+                : "message.noellesroles.sixty_seconds.station_unpowered");
+        int w = this.font.width(powerLine);
+        g.drawString(this.font, powerLine, panelX + panelW - PAD - w - 14, panelY + 8,
+                powered ? GREEN : MUTED);
+        g.fill(panelX + PAD, panelY + HEADER_H - 2, panelX + panelW - PAD,
+                panelY + HEADER_H - 1, ROW_SEPARATOR);
     }
 
-    /** 绘制配方列表（scissor 裁剪 + hover 高亮）。 */
-    private void drawRecipeList(GuiGraphics g, int mouseX, int mouseY) {
-        int visible = visibleRows();
-        if (visible <= 0) return;
+    private int tabWidth(SixtySecondsRecipes.Category tab) {
+        return this.font.width(tabLabel(tab)) + 10;
+    }
 
-        // scissor 裁剪区域
+    private Component tabLabel(SixtySecondsRecipes.Category tab) {
+        return tab == null
+                ? Component.translatable("category.noellesroles.sixty_seconds.all")
+                : Component.translatable(tab.translationKey());
+    }
+
+    private void drawTabs(GuiGraphics g, int mouseX, int mouseY) {
+        int tabX = panelX + PAD;
+        int tabY = panelY + HEADER_H;
+        for (int i = -1; i < tabs.size(); i++) {
+            SixtySecondsRecipes.Category tab = i < 0 ? null : tabs.get(i);
+            int w = tabWidth(tab);
+            boolean active = activeTab == tab;
+            boolean hover = mouseX >= tabX && mouseX < tabX + w
+                    && mouseY >= tabY && mouseY < tabY + TAB_H;
+            int color = tab == null ? GOLD : tab.color;
+            if (active) {
+                g.fill(tabX, tabY, tabX + w, tabY + TAB_H, blendColors(0xFF1A1008, color, 0.55f));
+            } else if (hover) {
+                g.fill(tabX, tabY, tabX + w, tabY + TAB_H, blendColors(0xFF1A1008, color, 0.25f));
+            }
+            g.drawString(this.font, tabLabel(tab), tabX + 5, tabY + 4,
+                    active ? TEXT : (hover ? BODY : MUTED));
+            if (active) {
+                g.fill(tabX, tabY + TAB_H - 1, tabX + w, tabY + TAB_H, color);
+            }
+            tabX += w + 4;
+        }
+        // 搜索框底线
+        g.fill(searchBox.getX(), searchBox.getY() + searchBox.getHeight(),
+                searchBox.getX() + searchBox.getWidth(),
+                searchBox.getY() + searchBox.getHeight() + 1, 0x44FFE8C0);
+    }
+
+    private void drawGrid(GuiGraphics g, int mouseX, int mouseY) {
+        double scale = Minecraft.getInstance().getWindow().getGuiScale();
         RenderSystem.enableScissor(
-                (int) (panelX * Minecraft.getInstance().getWindow().getGuiScale()),
-                (int) (Minecraft.getInstance().getWindow().getHeight()
-                        - (listBottom) * Minecraft.getInstance().getWindow().getGuiScale()),
-                (int) ((panelW - PAD * 2) * Minecraft.getInstance().getWindow().getGuiScale()),
-                (int) ((listBottom - listTop) * Minecraft.getInstance().getWindow().getGuiScale()));
+                (int) (gridX * scale),
+                (int) (Minecraft.getInstance().getWindow().getHeight() - gridBottom * scale),
+                (int) (gridCols * CELL * scale),
+                (int) ((gridBottom - gridTop) * scale));
 
-        for (int row = 0; row < visible; row++) {
-            int index = scrollOffset + row;
-            if (index >= recipes.size()) break;
-
-            SixtySecondsRecipes.Recipe recipe = recipes.get(index);
-            int y = listTop + row * ROW_H;
-
-            // hover 高亮
-            if (row == hoveredRow) {
-                g.fill(panelX + PAD, y, panelX + panelW - PAD, y + ROW_H - 2, HOVER_BG);
-            }
-
-            boolean techOk = unlockedTech.contains(recipe.techId());
-            boolean canCraft = techOk && (!recipe.needsPower() || powered);
-
-            // 输出物品图标 + 名称
-            ItemStack output = SixtySecondsRecipes.outputStack(recipe);
-            g.renderFakeItem(output, panelX + PAD + 2, y + (ROW_H - 18) / 2);
-
-            MutableComponent outputName = Component.empty()
-                    .append(output.getHoverName().copy())
-                    .append(Component.literal(" x" + recipe.outputCount()));
-            int nameColor = canCraft ? TEXT : MUTED;
-            g.drawString(this.font, outputName,
-                    panelX + PAD + 24, y + 3, nameColor);
-
-            // 材料行
-            MutableComponent inputs = Component.literal("← ").withStyle(ChatFormatting.DARK_GRAY);
-            for (int i = 0; i < recipe.inputs().size(); i++) {
-                SixtySecondsRecipes.Ingredient input = recipe.inputs().get(i);
-                if (i > 0) inputs.append(Component.literal(" + ").withStyle(ChatFormatting.DARK_GRAY));
-
-                // 检查该材料是否足够
-                int have = countInInventory(input);
-                boolean enough = have >= input.count();
-                int matColor = enough ? 0xFFC8B898 : RED;
-
-                inputs.append(Component.literal("" + input.count() + "x ")
-                        .withStyle(enough ? ChatFormatting.WHITE : ChatFormatting.RED))
-                        .append(input.item().getDescription().copy());
-            }
-
-            // 条件标签：供电 / 科技未解锁
-            if (recipe.needsPower()) {
-                inputs.append(Component.literal(" ")
-                        .append(Component.translatable("message.noellesroles.sixty_seconds.needs_power")
-                                .withStyle(ChatFormatting.AQUA)));
-            }
-            if (!techOk) {
-                inputs.append(Component.literal(" [")
-                        .append(Component.translatable("tech.noellesroles.sixty_seconds." + recipe.techId()))
-                        .append(Component.literal("]")).withStyle(ChatFormatting.RED));
-            }
-
-            g.drawString(this.font, inputs, panelX + PAD + 24, y + 17, MUTED);
-
-            // 行间分隔线
-            if (row < visible - 1 && index < recipes.size() - 1) {
-                g.fill(panelX + PAD + 4, y + ROW_H - 1,
-                        panelX + panelW - PAD - 76, y + ROW_H, ROW_SEPARATOR);
+        int hovering = gridIndexAt(mouseX, mouseY);
+        int visibleRows = visibleRowCount();
+        for (int row = 0; row < visibleRows; row++) {
+            for (int col = 0; col < gridCols; col++) {
+                int index = (scrollRow + row) * gridCols + col;
+                if (index >= entries.size()) {
+                    break;
+                }
+                Entry entry = entries.get(index);
+                int x = gridX + col * CELL;
+                int y = gridTop + row * CELL;
+                drawCell(g, entry, x, y, index == hovering);
             }
         }
-
         RenderSystem.disableScissor();
-
-        // 滚动条
         drawScrollBar(g);
+
+        if (entries.isEmpty()) {
+            g.drawCenteredString(this.font,
+                    Component.translatable("message.noellesroles.sixty_seconds.craft_empty"),
+                    gridX + gridCols * CELL / 2, gridTop + 24, MUTED);
+        }
     }
 
-    /** 绘制右侧复古滚动条（§4 样式）。 */
+    private void drawCell(GuiGraphics g, Entry entry, int x, int y, boolean hover) {
+        boolean selectedCell = entry.recipe().id().equals(selectedId);
+        int bg;
+        int edge;
+        switch (entry.state()) {
+            case CRAFTABLE -> {
+                bg = 0x2ED4AF37;
+                edge = 0xAAD4AF37;
+            }
+            case MISSING -> {
+                bg = 0x16FFFFFF;
+                edge = 0x335A4530;
+            }
+            default -> {
+                bg = 0x28000000;
+                edge = 0x33443322;
+            }
+        }
+        g.fill(x + 1, y + 1, x + CELL - 1, y + CELL - 1, bg);
+        if (hover) {
+            g.fill(x + 1, y + 1, x + CELL - 1, y + CELL - 1, HOVER_BG);
+        }
+        g.renderOutline(x + 1, y + 1, CELL - 2, CELL - 2, selectedCell ? 0xFFFFF4DC : edge);
+        if (selectedCell) {
+            g.renderOutline(x, y, CELL, CELL, GOLD);
+        }
+
+        ItemStack output = SixtySecondsRecipes.outputStack(entry.recipe());
+        g.renderFakeItem(output, x + 5, y + 5);
+        if (entry.recipe().outputCount() > 1) {
+            g.drawString(this.font, "" + entry.recipe().outputCount(),
+                    x + CELL - 4 - this.font.width("" + entry.recipe().outputCount()),
+                    y + CELL - 10, TEXT);
+        }
+        // 需供电：右上角蓝点
+        if (entry.recipe().needsPower()) {
+            g.fill(x + CELL - 5, y + 2, x + CELL - 2, y + 5, powered ? AQUA : RED);
+        }
+        if (entry.state() == EntryState.LOCKED) {
+            // 暗化 + 迷你挂锁（右下角）
+            g.fill(x + 1, y + 1, x + CELL - 1, y + CELL - 1, 0x90140E08);
+            g.fill(x + CELL - 9, y + CELL - 8, x + CELL - 3, y + CELL - 3, 0xFF9E8B6E); // 锁体
+            g.renderOutline(x + CELL - 8, y + CELL - 11, 4, 4, 0xFF9E8B6E);             // 锁梁
+        }
+    }
+
     private void drawScrollBar(GuiGraphics g) {
-        int max = maxScroll();
-        if (max <= 0) return;
-
-        int trackX = panelX + panelW - PAD - 70;
-        int trackW = 4;
-        int trackH = listBottom - listTop;
-        int trackY = listTop;
-
-        // 轨道
-        g.fill(trackX, trackY, trackX + trackW, trackY + trackH, 0x20FFFFFF);
-
-        // thumb
-        int thumbH = Math.max(20, trackH * visibleRows() / recipes.size());
-        int thumbY = trackY + (trackH - thumbH) * scrollOffset / max;
-        g.fill(trackX, thumbY, trackX + trackW, thumbY + thumbH, GOLD);
+        int max = maxScrollRow();
+        if (max <= 0) {
+            return;
+        }
+        int trackX = gridX + gridCols * CELL + 2;
+        int trackH = gridBottom - gridTop;
+        g.fill(trackX, gridTop, trackX + 3, gridBottom, 0x20FFFFFF);
+        int thumbH = Math.max(18, trackH * visibleRowCount() / totalRows());
+        int thumbY = gridTop + (trackH - thumbH) * scrollRow / max;
+        g.fill(trackX, thumbY, trackX + 3, thumbY + thumbH, GOLD);
     }
 
-    /** 统计背包中某物品的总数。 */
-    private int countInInventory(SixtySecondsRecipes.Ingredient input) {
+    // ── 右侧详情面板 ──────────────────────────────────────────────
+
+    private void drawDetail(GuiGraphics g, SixtySecondsRecipes.Recipe recipe) {
+        int x = detailX;
+        int top = gridTop - TAB_H - 4;
+        if (recipe == null) {
+            int hintY = gridTop + 20;
+            for (var line : this.font.split(Component.translatable(
+                    "message.noellesroles.sixty_seconds.craft_select_hint"), detailW)) {
+                g.drawString(this.font, line, x, hintY, MUTED);
+                hintY += this.font.lineHeight + 1;
+            }
+            return;
+        }
+        ItemStack output = SixtySecondsRecipes.outputStack(recipe);
+
+        // 大图标（2x）+ 名称
+        var pose = g.pose();
+        pose.pushPose();
+        pose.translate(x, top, 0);
+        pose.scale(2f, 2f, 1f);
+        g.renderFakeItem(output, 0, 0);
+        pose.popPose();
+
+        MutableComponent name = output.getHoverName().copy().withStyle(ChatFormatting.BOLD);
+        int textX = x + 38;
+        int y = top + 4;
+        for (var line : this.font.split(name, detailW - 38)) {
+            g.drawString(this.font, line, textX, y, TEXT);
+            y += this.font.lineHeight + 1;
+        }
+        if (recipe.outputCount() > 1) {
+            g.drawString(this.font, "×" + recipe.outputCount(), textX, y, GOLD);
+        }
+        y = Math.max(y, top + 34) + 2;
+
+        // 介绍（与物品 tooltip 相同的翻译键）
+        String descKey = descriptionKey(output);
+        if (descKey != null) {
+            for (var line : this.font.split(
+                    Component.literal(I18n.get(descKey)), detailW)) {
+                if (y > panelY + panelH - 116) { // 给材料区留空间
+                    break;
+                }
+                g.drawString(this.font, line, x, y, BODY);
+                y += this.font.lineHeight + 1;
+            }
+        }
+        y += 3;
+        g.fill(x, y, x + detailW, y + 1, ROW_SEPARATOR);
+        y += 5;
+
+        // 材料需求
+        g.drawString(this.font, Component.translatable(
+                        "message.noellesroles.sixty_seconds.craft_materials")
+                .withStyle(ChatFormatting.BOLD), x, y, GOLD);
+        y += this.font.lineHeight + 3;
+        for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
+            int have = countInInventory(input.item());
+            boolean enough = have >= input.count();
+            g.renderFakeItem(new ItemStack(input.item()), x, y - 4);
+            g.drawString(this.font, input.item().getDescription(), x + 20, y, enough ? TEXT : MUTED);
+            String count = have + "/" + input.count();
+            g.drawString(this.font, count, x + detailW - this.font.width(count), y,
+                    enough ? GREEN : RED);
+            y += 15;
+        }
+
+        // 条件行：供电 / 科技
+        if (recipe.needsPower()) {
+            g.drawString(this.font,
+                    Component.translatable("message.noellesroles.sixty_seconds.needs_power"),
+                    x, y, powered ? AQUA : RED);
+            y += this.font.lineHeight + 2;
+        }
+        if (!unlockedTech.contains(recipe.techId())) {
+            for (var line : this.font.split(Component.translatable(
+                            "message.noellesroles.sixty_seconds.tech_requires",
+                            Component.translatable("tech.noellesroles.sixty_seconds." + recipe.techId())),
+                    detailW)) {
+                g.drawString(this.font, line, x, y, RED);
+                y += this.font.lineHeight + 1;
+            }
+        }
+    }
+
+    // ── 网格 tooltip：名称 + 介绍 + 材料 ──────────────────────────
+
+    private void drawGridTooltip(GuiGraphics g, int mouseX, int mouseY) {
+        int index = gridIndexAt(mouseX, mouseY);
+        if (index < 0 || index >= entries.size()) {
+            return;
+        }
+        Entry entry = entries.get(index);
+        SixtySecondsRecipes.Recipe recipe = entry.recipe();
+        ItemStack output = SixtySecondsRecipes.outputStack(recipe);
+
+        List<Component> lines = new ArrayList<>();
+        MutableComponent name = output.getHoverName().copy();
+        if (recipe.outputCount() > 1) {
+            name.append(Component.literal(" ×" + recipe.outputCount()).withStyle(ChatFormatting.GOLD));
+        }
+        lines.add(name);
+        SixtySecondsRecipes.Category category = SixtySecondsRecipes.categoryOf(recipe);
+        lines.add(Component.translatable(category.translationKey())
+                .withStyle(style -> style.withColor(category.color & 0xFFFFFF)));
+        String descKey = descriptionKey(output);
+        if (descKey != null) {
+            for (var seg : this.font.getSplitter().splitLines(
+                    I18n.get(descKey), 200, net.minecraft.network.chat.Style.EMPTY)) {
+                lines.add(Component.literal(seg.getString()).withStyle(ChatFormatting.GRAY));
+            }
+        }
+        lines.add(Component.empty());
+        for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
+            int have = countInInventory(input.item());
+            boolean enough = have >= input.count();
+            lines.add(Component.literal("• ")
+                    .withStyle(ChatFormatting.DARK_GRAY)
+                    .append(input.item().getDescription().copy()
+                            .withStyle(enough ? ChatFormatting.WHITE : ChatFormatting.RED))
+                    .append(Component.literal("  " + have + "/" + input.count())
+                            .withStyle(enough ? ChatFormatting.GREEN : ChatFormatting.RED)));
+        }
+        if (recipe.needsPower()) {
+            lines.add(Component.translatable("message.noellesroles.sixty_seconds.needs_power")
+                    .withStyle(powered ? ChatFormatting.AQUA : ChatFormatting.RED));
+        }
+        if (entry.state() == EntryState.LOCKED) {
+            lines.add(Component.translatable("message.noellesroles.sixty_seconds.tech_requires",
+                            Component.translatable("tech.noellesroles.sixty_seconds." + recipe.techId()))
+                    .withStyle(ChatFormatting.RED));
+        }
+        g.renderComponentTooltip(this.font, lines, mouseX, mouseY);
+    }
+
+    /** 物品介绍翻译键（与 {@code SixtySecondsTooltips} 一致）；未定义返回 null。 */
+    private static String descriptionKey(ItemStack stack) {
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        if (!"noellesroles".equals(id.getNamespace()) || !id.getPath().startsWith("sixty_seconds_")) {
+            return null;
+        }
+        String key = "tooltip.noellesroles." + id.getPath();
+        return I18n.exists(key) ? key : null;
+    }
+
+    // ── 工具方法 ──────────────────────────────────────────────────
+
+    private int countInInventory(net.minecraft.world.item.Item item) {
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null) return 0;
+        if (client.player == null) {
+            return 0;
+        }
         int have = 0;
         for (int slot = 0; slot < client.player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = client.player.getInventory().getItem(slot);
-            if (stack.is(input.item())) have += stack.getCount();
+            if (stack.is(item)) {
+                have += stack.getCount();
+            }
         }
         return have;
+    }
+
+    private static int blendColors(int c1, int c2, float t) {
+        int a1 = c1 >>> 24, r1 = (c1 >> 16) & 0xFF, g1 = (c1 >> 8) & 0xFF, b1 = c1 & 0xFF;
+        int a2 = c2 >>> 24, r2 = (c2 >> 16) & 0xFF, g2 = (c2 >> 8) & 0xFF, b2 = c2 & 0xFF;
+        return ((int) (a1 + (a2 - a1) * t) << 24) | ((int) (r1 + (r2 - r1) * t) << 16)
+                | ((int) (g1 + (g2 - g1) * t) << 8) | (int) (b1 + (b2 - b1) * t);
     }
 
     @Override

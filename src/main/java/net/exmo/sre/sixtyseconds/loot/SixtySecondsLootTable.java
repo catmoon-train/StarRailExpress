@@ -194,6 +194,27 @@ public class SixtySecondsLootTable {
                 new Entry("noellesroles:sixty_seconds_cleaver", 1, 1.0F),
                 new Entry("noellesroles:sixty_seconds_incendiary_grenade", 1, 0.8F),
                 new Entry("noellesroles:sixty_seconds_frag_grenade", 1, 0.7F))));
+        // 空投专属（高价值物资，各队争抢焦点）：枪械/高级材料/药品/食物混编
+        table.categories.put("airdrop", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_ammo", 8, 5.0F),
+                new Entry("noellesroles:sixty_seconds_rifle", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_sniper", 1, 0.6F),
+                new Entry("noellesroles:sixty_seconds_rpg", 1, 0.3F),
+                new Entry("noellesroles:sixty_seconds_hunting_shotgun", 1, 1.2F),
+                new Entry("noellesroles:sixty_seconds_frag_grenade", 2, 1.5F),
+                new Entry("noellesroles:sixty_seconds_steel_ingot", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_electronics", 2, 1.5F),
+                new Entry("noellesroles:sixty_seconds_gear", 2, 1.5F),
+                new Entry("noellesroles:sixty_seconds_gunpowder_pack", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_charcoal_filter", 2, 1.2F),
+                new Entry("noellesroles:sixty_seconds_canned_soup", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_mre", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_purified_water", 2, 1.5F),
+                new Entry("noellesroles:sixty_seconds_bandage", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_medicine", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_anti_pollution_serum", 1, 0.8F),
+                new Entry("minecraft:golden_apple", 1, 0.6F),
+                new Entry("noellesroles:sixty_seconds_fertilizer", 2, 1.5F))));
         return table;
     }
 

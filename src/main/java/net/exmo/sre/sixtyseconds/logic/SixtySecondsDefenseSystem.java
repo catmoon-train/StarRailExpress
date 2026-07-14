@@ -401,7 +401,9 @@ public final class SixtySecondsDefenseSystem {
                 zombie.getNavigation().moveTo(door.getX() + 0.5, door.getY(), door.getZ() + 0.5, 1.0D);
                 continue;
             }
-            team.doorHp -= doorDpsOf(zombie);
+            int rawDps = doorDpsOf(zombie);
+            int actualDps = Math.max(1, (int) Math.round(rawDps * team.modifier("door_damage")));
+            team.doorHp -= actualDps;
             level.playSound(null, door, SoundEvents.ZOMBIE_ATTACK_IRON_DOOR, SoundSource.HOSTILE, 0.6F, 0.9F);
             if (team.doorHp <= 0) {
                 breakDoor(level, team);

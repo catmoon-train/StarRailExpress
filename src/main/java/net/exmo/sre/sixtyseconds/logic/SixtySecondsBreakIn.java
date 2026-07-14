@@ -138,11 +138,17 @@ public final class SixtySecondsBreakIn {
                             .withStyle(ChatFormatting.RED), true);
             return;
         }
+        // 落点安全校正前先确保目标区块已加载——未加载时 getBlockState 返回空气假值，
+        // findSafeSpot/hasSafeShelterLanding 会误判为安全落点，传送后区块加载才露出真地形，导致
+        // 被卡进方块窒息或掉进虚空弹回世界出生点（「撬门被传送到未知地方」根因）。
+        level.getChunk(target.shelterSpawn);
         // 落点安全校正 + 校验（须在消耗物品/触发陷阱之前）：shelterSpawn 可能在门/墙体里（会窒息），
         // 更糟的是该「房间」可能根本没建成庇护所、出生点悬在虚空——传过去会掉进虚空摔死，死亡再把玩家
         // 弹回世界出生点（「潜入没有庇护所的房间传到世界边境而死」根因）。落点脚下无地面=没有真正的庇护所，直接禁止。
         BlockPos safe = SixtySecondsSearchZones.findSafeSpot(level, target.shelterSpawn);
-        if (!hasSafeShelterLanding(level, safe)) {
+        // 落点必须仍在目标队避难所盒内——findSafeSpot 可能搜到盒外，传送过去完全不认识
+        if (!target.shelterBox.contains(safe.getX() + 0.5, safe.getY(), safe.getZ() + 0.5)
+                || !hasSafeShelterLanding(level, safe)) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.sixty_seconds.breakin_no_shelter")
                             .withStyle(ChatFormatting.RED), true);

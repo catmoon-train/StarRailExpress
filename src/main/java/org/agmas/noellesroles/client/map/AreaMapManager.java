@@ -19,6 +19,8 @@ import org.agmas.noellesroles.client.screen.AreaMapScreen;
 import org.agmas.noellesroles.content.item.AreaMapItem;
 
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -73,6 +75,18 @@ public final class AreaMapManager {
     private static int sliceY = Integer.MIN_VALUE;
     private static boolean firstPassDone = false;
     private static boolean anyColumnScanned = false;
+
+    /** 区域记忆：节省过的 zone 纹理状态，切回老区域时复用（不用重新扫描）。 */
+    private static final Map<String, ZoneState> ZONE_CACHE = new LinkedHashMap<>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, ZoneState> eldest) {
+            return size() > 16; // 最多缓存 16 个 zone
+        }
+    };
+
+    private record ZoneState(DynamicTexture baseTexture, DynamicTexture[] wallTextures,
+            boolean anyColumnScanned, boolean firstPassDone, int cursor, int sliceY) {
+    }
 
     private AreaMapManager() {
     }
@@ -169,7 +183,14 @@ public final class AreaMapManager {
         if (area == null || area.getXsize() < 2 || area.getZsize() < 2) return;
 
         if (!area.equals(scannedArea) || !Objects.equals(mapKey, scannedMap)) {
-            reinit(mc, area, mapKey);
+            // 先存当前 zone 的扫描进度（未完成时下次回来可以续扫）
+            if (scannedArea != null && scannedMap != null && anyColumnScanned) {
+                saveCurrentZone();
+            }
+            // 再切到目标 zone：有缓存则恢复，无则新扫
+            if (!restoreZone(mc, area, mapKey)) {
+                reinit(mc, area, mapKey);
+            }
         }
         if (baseTexture == null) return;
 
@@ -358,5 +379,81 @@ public final class AreaMapManager {
         for (DynamicTexture tex : wallTextures) {
             if (tex != null) tex.upload();
         }
+    }
+
+    /** 保存当前 zone 的纹理和扫描进度到缓存（换 zone 前调用）。 */
+    private static void saveCurrentZone() {
+        if (scannedMap == null || baseTexture == null) return;
+        DynamicTexture[] wallsCopy = new DynamicTexture[WALL_LAYERS];
+        System.arraycopy(wallTextures, 0, wallsCopy, 0, WALL_LAYERS);
+        ZONE_CACHE.put(scannedMap, new ZoneState(
+                baseTexture, wallsCopy, anyColumnScanned, firstPassDone, cursor, sliceY));
+    }
+
+    /**
+     * 从缓存恢复 zone。成功返回 true。
+     * <p>调用前本 zone 的纹理/扫描状态已经通过 {@link #saveCurrentZone()} 存入缓存，
+     * 此时可以安全地替换 {@link #baseTexture} 等引用（旧纹理由缓存持有，不会被 GC）。</p>
+     */
+    private static boolean restoreZone(Minecraft mc, AABB area, String mapKey) {
+        ZoneState cached = ZONE_CACHE.get(mapKey);
+        if (cached == null) return false;
+        // 校验缓存中的纹理尺寸与新 zone 尺寸一致（地图模板没变）
+        int newOriginX = Mth.floor(area.minX);
+        int newOriginZ = Mth.floor(area.minZ);
+        int wx = Math.max(1, Mth.ceil(area.maxX) - newOriginX);
+        int wz = Math.max(1, Mth.ceil(area.maxZ) - newOriginZ);
+        int s = 1;
+        while ((long) Mth.positiveCeilDiv(wx, s) * Mth.positiveCeilDiv(wz, s) > MAX_CELLS) s++;
+        int sx = Mth.positiveCeilDiv(wx, s);
+        int sz = Mth.positiveCeilDiv(wz, s);
+        NativeImage cachedPixels = cached.baseTexture.getPixels();
+        if (cachedPixels == null || cachedPixels.getWidth() != sx || cachedPixels.getHeight() != sz) {
+            ZONE_CACHE.remove(mapKey);
+            return false; // 尺寸变了，重新扫
+        }
+
+        // 释放当前纹理（如果已经注册过），用缓存中的替换
+        releaseTexturesLight(mc);
+        baseTexture = cached.baseTexture;
+        System.arraycopy(cached.wallTextures, 0, wallTextures, 0, WALL_LAYERS);
+        // 重新注册到 TextureManager
+        mc.getTextureManager().register(BASE_TEX, baseTexture);
+        for (int i = 0; i < WALL_LAYERS; i++) {
+            if (wallTextures[i] != null) {
+                mc.getTextureManager().register(WALL_TEX[i], wallTextures[i]);
+            }
+        }
+        texturesRegistered = true;
+
+        originX = newOriginX;
+        originZ = newOriginZ;
+        minY = Mth.floor(area.minY);
+        maxY = Mth.ceil(area.maxY);
+        step = s;
+        sizeX = sx;
+        sizeZ = sz;
+        totalCells = sizeX * sizeZ;
+
+        scannedArea = area;
+        scannedMap = mapKey;
+        cursor = Math.min(cached.cursor, totalCells - 1);
+        sliceY = cached.sliceY;
+        firstPassDone = cached.firstPassDone;
+        anyColumnScanned = cached.anyColumnScanned;
+        dirty = true; // 提醒上传（纹理内容可能在另一帧被 GPU 回收过）
+        return true;
+    }
+
+    /** 轻量释放：仅注销 TextureManager 注册，不 close 纹理（缓存持有引用）。 */
+    private static void releaseTexturesLight(Minecraft mc) {
+        if (!texturesRegistered) return;
+        mc.getTextureManager().release(BASE_TEX);
+        for (ResourceLocation loc : WALL_TEX) {
+            mc.getTextureManager().release(loc);
+        }
+        baseTexture = null;
+        java.util.Arrays.fill(wallTextures, null);
+        texturesRegistered = false;
     }
 }

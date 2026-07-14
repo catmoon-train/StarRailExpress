@@ -387,27 +387,27 @@ public class ModItems {
     // ── 末日60秒模式：娱乐物品（右键给周围玩家恢复理智；恢复量/耐久按类型不同）──
     public static final Item SIXTY_SECONDS_POKER = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
-                    new Item.Properties().stacksTo(1).durability(7),
+                    new Item.Properties().stacksTo(1).durability(3),
                     net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.POKER, 8),
             "sixty_seconds_poker", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_CHESS = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
-                    new Item.Properties().stacksTo(1).durability(10),
+                    new Item.Properties().stacksTo(1).durability(2),
                     net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.CHESS, 10),
             "sixty_seconds_chess", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_HARMONICA = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
-                    new Item.Properties().stacksTo(1).durability(15),
+                    new Item.Properties().stacksTo(1).durability(3),
                     net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.HARMONICA, 6),
             "sixty_seconds_harmonica", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_GUITAR = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
-                    new Item.Properties().stacksTo(1).durability(6),
+                    new Item.Properties().stacksTo(1).durability(2),
                     net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.GUITAR, 12),
             "sixty_seconds_guitar", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_TEDDY_BEAR = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem(
-                    new Item.Properties().stacksTo(1).durability(4),
+                    new Item.Properties().stacksTo(1).durability(2),
                     net.exmo.sre.sixtyseconds.content.item.SixtySecondsEntertainmentItem.Kind.TEDDY_BEAR, 15),
             "sixty_seconds_teddy_bear", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 

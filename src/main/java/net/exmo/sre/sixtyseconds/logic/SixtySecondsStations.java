@@ -47,6 +47,16 @@ public final class SixtySecondsStations {
                 }
                 return InteractionResult.PASS;
             }
+            // 拆解台：右键打开拆解界面（可合成物品按 -60% 拆回基础资源）
+            if (level.getBlockState(hitResult.getBlockPos())
+                    .is(org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_DISMANTLER)) {
+                if (GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
+                    ServerPlayNetworking.send(serverPlayer, new net.exmo.sre.sixtyseconds.network
+                            .OpenDismantleS2CPacket(hitResult.getBlockPos()));
+                    return InteractionResult.SUCCESS;
+                }
+                return InteractionResult.PASS;
+            }
             SixtySecondsRecipes.Station station =
                     SixtySecondsRecipes.stationOf(level.getBlockState(hitResult.getBlockPos()));
             if (station == null || !GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
@@ -63,8 +73,8 @@ public final class SixtySecondsStations {
         });
     }
 
-    /** C2S 合成请求。 */
-    public static void handleCraft(ServerPlayer player, String recipeId, BlockPos stationPos) {
+    /** C2S 合成请求：尝试合成 count 次（clamp 1..64），材料不够时能合几次合几次。 */
+    public static void handleCraft(ServerPlayer player, String recipeId, BlockPos stationPos, int count) {
         if (!SixtySecondsMod.isActive(player.level()) || !GameUtils.isPlayerAliveAndSurvival(player)) {
             return;
         }
@@ -92,32 +102,46 @@ public final class SixtySecondsStations {
                     Component.translatable("message.noellesroles.sixty_seconds.craft_no_power"), true);
             return;
         }
-        // 材料校验：先全量检查再统一扣除，避免扣一半
-        for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-            int have = 0;
-            for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-                ItemStack stack = player.getInventory().getItem(slot);
-                if (stack.is(input.item())) {
-                    have += stack.getCount();
+        int crafted = 0;
+        int want = net.minecraft.util.Mth.clamp(count, 1, 64);
+        for (int round = 0; round < want; round++) {
+            // 材料校验：先全量检查再统一扣除，避免扣一半
+            SixtySecondsRecipes.Ingredient missing = null;
+            for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
+                int have = 0;
+                for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+                    ItemStack stack = player.getInventory().getItem(slot);
+                    if (stack.is(input.item())) {
+                        have += stack.getCount();
+                    }
+                }
+                if (have < input.count()) {
+                    missing = input;
+                    break;
                 }
             }
-            if (have < input.count()) {
-                player.displayClientMessage(Component.translatable(
-                        "message.noellesroles.sixty_seconds.craft_missing",
-                        input.item().getDescription(), input.count()), true);
-                return;
+            if (missing != null) {
+                if (crafted == 0) {
+                    player.displayClientMessage(Component.translatable(
+                            "message.noellesroles.sixty_seconds.craft_missing",
+                            missing.item().getDescription(), missing.count()), true);
+                    return;
+                }
+                break;
             }
-        }
-        for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-            SixtySecondsTechTree.consume(player, input.item(), input.count());
-        }
-        ItemStack output = SixtySecondsRecipes.outputStack(recipe);
-        if (!player.getInventory().add(output)) {
-            player.drop(output, false);
+            for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
+                SixtySecondsTechTree.consume(player, input.item(), input.count());
+            }
+            ItemStack output = SixtySecondsRecipes.outputStack(recipe);
+            if (!player.getInventory().add(output)) {
+                player.drop(output, false);
+            }
+            crafted++;
         }
         player.playNotifySound(SoundEvents.VILLAGER_WORK_TOOLSMITH, SoundSource.PLAYERS, 0.8F, 1.1F);
+        ItemStack shown = SixtySecondsRecipes.outputStack(recipe);
+        shown.setCount(shown.getCount() * crafted);
         player.displayClientMessage(Component.translatable(
-                "message.noellesroles.sixty_seconds.craft_done",
-                SixtySecondsRecipes.outputStack(recipe).getHoverName()), true);
+                "message.noellesroles.sixty_seconds.craft_done", shown.getHoverName()), true);
     }
 }
