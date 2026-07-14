@@ -164,6 +164,8 @@ public class ModPackets {
                 net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload::handle);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenAirdropEditS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenAirdropEditS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.ID,
