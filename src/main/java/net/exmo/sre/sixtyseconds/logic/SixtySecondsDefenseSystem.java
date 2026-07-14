@@ -420,7 +420,11 @@ public final class SixtySecondsDefenseSystem {
         SixtySecondsState.TeamData nearest = null;
         double best = Double.MAX_VALUE;
         for (SixtySecondsState.TeamData team : data.teams.values()) {
+            // 锚点：探索区侧门；没有则退回避难所物理门（门外刷新模式的图可能没配探索区锚点）
             BlockPos anchor = assaultAnchor(team);
+            if (anchor == null) {
+                anchor = doorPos(level, team);
+            }
             if (anchor == null) {
                 continue;
             }

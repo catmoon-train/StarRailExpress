@@ -39,6 +39,8 @@ public class SixtySecondsGunTargetMixin {
                         || entity instanceof PigeonEntity
                         || entity instanceof MorphlingKnifeDummyEntity
                         || entity instanceof UndeadEntity
+                        // 60s 自研怪（游荡怪/夜袭者/Boss）：客户端 instanceof 判定（tag 不随实体同步到客户端）
+                        || entity instanceof net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity
                         || entity.getTags().contains(SixtySecondsWhisperSystem.WHISPER_TAG)
                         || entity.getTags().contains(SixtySecondsDefenseSystem.ASSAULT_TAG),
                 20f);

@@ -43,11 +43,13 @@ public abstract class SixtySecondsGunTracerMixin {
         }
         Entity hit = payload.target() >= 0 ? player.serverLevel().getEntity(payload.target()) : null;
         GunTracers.broadcast(player, hit, 30.0D);
-        // 60s 模式：枪击低语怪/夜袭者 → 立即击杀（doc §6「射击怪物→立即死亡」）
+        // 60s 模式：枪击低语怪/夜袭者/自研怪 → 立即击杀（doc §6「射击怪物→立即死亡」）；
+        // Boss（SixtySecondsBossEntity）在自身 hurt 中对单次伤害封顶，不会被一枪秒
         if (hit instanceof net.minecraft.world.entity.Mob mob
                 && net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level())
                 && mob.distanceToSqr(player) < 30 * 30
-                && (mob.getTags().contains(net.exmo.sre.sixtyseconds.logic.SixtySecondsWhisperSystem.WHISPER_TAG)
+                && (mob instanceof net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity
+                        || mob.getTags().contains(net.exmo.sre.sixtyseconds.logic.SixtySecondsWhisperSystem.WHISPER_TAG)
                         || mob.getTags().contains(
                                 net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.ASSAULT_TAG))) {
             mob.hurt(player.damageSources().playerAttack(player), 1000.0F);

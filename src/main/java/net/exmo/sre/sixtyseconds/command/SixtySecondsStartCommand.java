@@ -558,7 +558,7 @@ public final class SixtySecondsStartCommand {
     /** 管理员：在自身位置立即刷指定等级 Boss（本模式进行中）。 */
     private static int spawnBoss(CommandSourceStack source, int bossLevel) {
         if (!SixtySecondsMod.isActive(source.getLevel())) {
-            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.not_running"));
+            source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.cmd_not_running"));
             return 0;
         }
         if (!(source.getEntity() instanceof ServerPlayer player)) {

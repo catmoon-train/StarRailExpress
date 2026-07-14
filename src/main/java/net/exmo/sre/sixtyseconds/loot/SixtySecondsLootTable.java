@@ -164,6 +164,7 @@ public class SixtySecondsLootTable {
                 new Entry("noellesroles:sixty_seconds_grappling_hook", 1, 0.6F),
                 new Entry("noellesroles:sixty_seconds_blueprint", 1, 0.4F),
                 // 专用合成台（可携带的工作台/灶台/净化台，稀有）
+                new Entry("noellesroles:sixty_seconds_turret", 1, 0.25F),
                 new Entry("noellesroles:sixty_seconds_workbench", 1, 0.4F),
                 new Entry("noellesroles:sixty_seconds_stove", 1, 0.3F),
                 new Entry("noellesroles:sixty_seconds_purifier", 1, 0.3F),

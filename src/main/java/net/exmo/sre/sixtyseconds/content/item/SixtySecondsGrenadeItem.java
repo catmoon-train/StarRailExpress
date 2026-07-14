@@ -84,7 +84,8 @@ public class SixtySecondsGrenadeItem extends Item {
         // getEntities(thrower, area)：thrower 非 null 时自动排除投掷者自己
         for (net.minecraft.world.entity.Entity entity : serverLevel.getEntities(thrower, area)) {
             if (entity instanceof Mob mob
-                    && (mob.getTags().contains(SixtySecondsWhisperSystem.WHISPER_TAG)
+                    && (mob instanceof net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity
+                            || mob.getTags().contains(SixtySecondsWhisperSystem.WHISPER_TAG)
                             || mob.getTags().contains(SixtySecondsDefenseSystem.ASSAULT_TAG))) {
                 mob.hurt(thrower != null ? serverLevel.damageSources().playerAttack(thrower)
                         : serverLevel.damageSources().generic(), mobDamage);

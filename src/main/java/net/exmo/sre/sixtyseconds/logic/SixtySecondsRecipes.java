@@ -555,6 +555,12 @@ public final class SixtySecondsRecipes {
                 List.of(in(ModItems.SIXTY_SECONDS_BATTERY, 2), in(ModItems.SIXTY_SECONDS_GLASS_SHARD, 3),
                         in(Items.IRON_INGOT, 2), in(ModItems.SIXTY_SECONDS_WIRE, 2)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_FLOODLIGHT.asItem(), 1));
+        // 哨戒炮：通电时自动射击范围内的怪与敌队玩家（需供电合成 + 运行时也吃全队电力）
+        list.add(new Recipe("turret", Station.WORKBENCH, "fortification", true,
+                List.of(in(ModItems.SIXTY_SECONDS_ELECTRONICS, 2), in(ModItems.SIXTY_SECONDS_GEAR, 2),
+                        in(Items.IRON_INGOT, 4), in(ModItems.SIXTY_SECONDS_GUNPOWDER_PACK, 2),
+                        in(ModItems.SIXTY_SECONDS_WIRE, 2)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_TURRET.asItem(), 1));
 
         // ══ 扩充批次二：心理慰藉 / 炊事进阶 / 高级净化 / 军械工坊 ══════════════════
         // ── 心理慰藉（comfort）：娱乐物品（右键给周围玩家回理智，见 SixtySecondsEntertainmentItem）──
