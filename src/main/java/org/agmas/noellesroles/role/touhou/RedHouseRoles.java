@@ -43,15 +43,15 @@ public class RedHouseRoles {
   public static final ResourceLocation HOAN_MEIRIN_ID = id("hoan_meirin");
   // 小恶魔
   public static SRERole KOAKUMA = TMMRoles.registerRole(
-      new TouhouRole(KOAKUMA_ID, new Color(175,94,83).getRGB(),
+      new TouhouRole(KOAKUMA_ID, new Color(175, 94, 83).getRGB(),
           false, false, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true),
-      "th_redhouse").setNeutralForKiller(true).addTwoWayOpposingRole(ModRoles.PRANKSTER);
+      "th_redhouse").setNeutralForKiller(true).addTwoWayOpposingRole(ModRoles.PRANKSTER).setCanUseInstinct(true);
   // 大妖精
   public static SRERole DAIYOUSEI = TMMRoles.registerRole(
       new TouhouRole(DAIYOUSEI_ID, new Color(171, 216, 167).getRGB(),
           true, false, SRERole.MoodType.FAKE,
-         TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, true) {
+          TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false) {
         @Override
         public InteractionResult onDropItem(Player player, ItemStack item) {
           if (item.is(ModItems.CALMING_TEA))
