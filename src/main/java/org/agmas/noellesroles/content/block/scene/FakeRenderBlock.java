@@ -163,7 +163,8 @@ public class FakeRenderBlock extends BreakingBridgeBlock {
                     if (curHasSignal && !hasSignal) {
                         hasSignal = curHasSignal;
                     }
-                    level.setBlock(cur, curState.setValue(LIT, hasSignal), Block.UPDATE_CLIENTS);
+                    if (curState.getValue(LIT) != hasSignal)
+                        level.setBlock(cur, curState.setValue(LIT, hasSignal), Block.UPDATE_CLIENTS);
                 }
 
                 if (dist >= maxDist)
