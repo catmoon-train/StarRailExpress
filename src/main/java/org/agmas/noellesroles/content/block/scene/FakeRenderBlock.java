@@ -159,6 +159,10 @@ public class FakeRenderBlock extends BreakingBridgeBlock {
                 BlockState curState = level.getBlockState(cur);
                 if (curState.getBlock() instanceof FakeRenderBlock) {
                     // 关键修改：使用 Block.UPDATE_CLIENTS，避免触发邻居更新
+                    boolean curHasSignal = level.hasNeighborSignal(cur);
+                    if (curHasSignal && !hasSignal) {
+                        hasSignal = curHasSignal;
+                    }
                     level.setBlock(cur, curState.setValue(LIT, hasSignal), Block.UPDATE_CLIENTS);
                 }
 
