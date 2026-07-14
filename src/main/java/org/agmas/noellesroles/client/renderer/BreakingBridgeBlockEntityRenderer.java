@@ -107,7 +107,7 @@ public class BreakingBridgeBlockEntityRenderer implements BlockEntityRenderer<Br
 
             {
                 FluidState fluidState = stateToRender.getFluidState();
-                if (fluidState != null && fluidState.isEmpty()) {
+                if (fluidState != null && !fluidState.isEmpty()) {
                     blockRenderer.renderLiquid(entity.getBlockPos(), entity.getLevel(),
                             vertexConsumers.getBuffer(RenderType.waterMask()), blockState, fluidState);
                 }
