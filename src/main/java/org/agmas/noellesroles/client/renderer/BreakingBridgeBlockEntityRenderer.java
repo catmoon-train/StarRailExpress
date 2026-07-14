@@ -19,6 +19,7 @@ import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 
 import org.agmas.noellesroles.content.block.scene.BreakingBridgeBlock;
 import org.agmas.noellesroles.content.block_entity.scene.BreakingBridgeBlockEntity;
@@ -82,27 +83,35 @@ public class BreakingBridgeBlockEntityRenderer implements BlockEntityRenderer<Br
         }
         BlockState stateToRender = entity.displayState != null ? entity.displayState : blockState;
         if (stateToRender != null) {
+            {
+                RenderShape renderShape = blockState.getRenderShape();
+                switch (renderShape) {
+                    case MODEL:
+                        blockRenderer.renderSingleBlock(stateToRender, matrices, vertexConsumers,
+                                light, overlay);
+                        break;
+                    default:
+                        BakedModel model = blockRenderer.getBlockModel(stateToRender);
+                        // 获取 VertexConsumer
+                        // 渲染破坏纹理（renderBreaking = true）
+                        long seed = stateToRender.getSeed(entity.getBlockPos());
 
-            RenderShape renderShape = blockState.getRenderShape();
-            switch (renderShape) {
-                case MODEL:
-                    blockRenderer.renderSingleBlock(stateToRender, matrices, vertexConsumers,
-                            light, overlay);
-                    break;
-                default:
-                    BakedModel model = blockRenderer.getBlockModel(stateToRender);
-                    // 获取 VertexConsumer
-                    // 渲染破坏纹理（renderBreaking = true）
-                    long seed = stateToRender.getSeed(entity.getBlockPos());
-
-                    for (var renderType : RenderType.chunkBufferLayers())
-                        if (ItemBlockRenderTypes.getChunkRenderType(stateToRender) == renderType)
-                            blockRenderer.getModelRenderer().tesselateBlock(entity.getLevel(), model, stateToRender,
-                                    entity.getBlockPos(), matrices, vertexConsumers.getBuffer(renderType), false,
-                                    RandomSource.create(), seed, OverlayTexture.NO_OVERLAY);
-                    break;
+                        for (var renderType : RenderType.chunkBufferLayers())
+                            if (ItemBlockRenderTypes.getChunkRenderType(stateToRender) == renderType)
+                                blockRenderer.getModelRenderer().tesselateBlock(entity.getLevel(), model, stateToRender,
+                                        entity.getBlockPos(), matrices, vertexConsumers.getBuffer(renderType), false,
+                                        RandomSource.create(), seed, OverlayTexture.NO_OVERLAY);
+                        break;
+                }
             }
 
+            {
+                FluidState fluidState = stateToRender.getFluidState();
+                if (fluidState != null && fluidState.isEmpty()) {
+                    blockRenderer.renderLiquid(entity.getBlockPos(), entity.getLevel(),
+                            vertexConsumers.getBuffer(RenderType.waterMask()), blockState, fluidState);
+                }
+            }
             {
                 if (stage > 0 && stage < 10) { // 0 无裂纹，10 完全破坏，可根据需要调整
                     // 纹理索引 0~9
