@@ -29,6 +29,7 @@ public class BreakingBridgeBlockEntity extends BlockEntity {
     public int breakingTime = 10;
     public int restoringTime = 80;
     public BlockState displayState = null;
+    public CompoundTag blockEntityTag = null;
 
     public BreakingBridgeBlockEntity(BlockPos pos, BlockState state) {
         super(ModSceneBlocks.BREAKING_BRIDGE_ENTITY, pos, state);
@@ -39,6 +40,9 @@ public class BreakingBridgeBlockEntity extends BlockEntity {
         super.saveAdditional(tag, provider);
         if (displayState != null) {
             tag.put("BlockState", NbtUtils.writeBlockState(displayState));
+        }
+        if (blockEntityTag != null) {
+            tag.put("BlockEntityTag", blockEntityTag);
         }
         tag.putInt("now_time", nowTime);
         tag.putInt("breaking_stage", breakingStage);
@@ -62,6 +66,10 @@ public class BreakingBridgeBlockEntity extends BlockEntity {
         if (tag.contains("BlockState")) {
             displayState = NbtUtils.readBlockState(provider.lookup(Registries.BLOCK).orElseThrow(),
                     tag.getCompound("BlockState"));
+        }
+
+        if (tag.contains("BlockEntityTag")) {
+            blockEntityTag = tag.getCompound("BlockEntityTag");
         }
         if (tag.contains("breaking_stage")) {
             this.breakingStage = tag.getInt("breaking_stage");

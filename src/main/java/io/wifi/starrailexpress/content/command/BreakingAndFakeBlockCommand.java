@@ -10,6 +10,7 @@ import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.commands.arguments.blocks.BlockStateArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -90,17 +91,23 @@ public final class BreakingAndFakeBlockCommand {
                       BlockPos blockPos = BlockPosArgument.getBlockPos(ctx, "pos");
                       BlockPos fromBlockPos = BlockPosArgument.getBlockPos(ctx, "from_pos");
                       BlockState state = level.getBlockState(fromBlockPos);
-                      if (state.getBlock() instanceof BreakingBridgeBlock) {
-                        BlockEntity entity = level.getBlockEntity(fromBlockPos);
-                        if (entity instanceof BreakingBridgeBlockEntity bbbe) {
-                          if (bbbe.displayState != null)
-                            state = bbbe.displayState;
+                      BlockEntity fromEntity = level.getBlockEntity(fromBlockPos);
+                      CompoundTag fromEntityTag = null;
+                      if (fromEntity instanceof BreakingBridgeBlockEntity bbbe) {
+                        if (bbbe.displayState != null) {
+                          state = bbbe.displayState;
+                          fromEntityTag = bbbe.blockEntityTag;
+                          fromEntity = null;
                         }
+                      }
+                      if (fromEntity != null) {
+                        fromEntityTag = fromEntity.saveCustomOnly(level.registryAccess());
                       }
                       final var finalState = state;
                       {
                         BlockEntity entity = level.getBlockEntity(blockPos);
                         if (entity instanceof BreakingBridgeBlockEntity bbbe) {
+                          bbbe.blockEntityTag = fromEntityTag;
                           bbbe.setDisplayState(finalState);
                           source.sendSuccess(() -> Component.translatable("block.noellesroles.breaking_bridge.set_to",
                               finalState.getBlock().getName()), true);

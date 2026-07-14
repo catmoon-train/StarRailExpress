@@ -1311,7 +1311,7 @@
     "item.starrailexpress.limited_inventory.cooldown": "§7冷却: %s 秒",
     "item.starrailexpress.breaking_bridge_tool": "断桥生成工具",
     "item.starrailexpress.fake_block_tool": "假方块生成工具",
-    "item.starrailexpress.fake_block_tool.restore": "已将方块恢复为原始方块 [%s]（不保留blockEntity数据）",
+    "item.starrailexpress.fake_block_tool.restore": "已将方块恢复为原始方块 [%s]",
     "item.starrailexpress.fake_block_tool.clear": "已将该方块的显示数据清除。",
     "item.starrailexpress.map_tool": "地图工具",
     "item.starrailexpress.map_tool.tooltip": "右键方块打开UI",

@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.content.item;
 import org.agmas.noellesroles.content.block.scene.BreakingBridgeBlock;
 import org.agmas.noellesroles.content.block_entity.scene.BreakingBridgeBlockEntity;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -39,6 +40,7 @@ public class BreakingBridgeToolItem extends Item {
                     var entity = level.getBlockEntity(pos);
                     if (entity instanceof BreakingBridgeBlockEntity bbbe) {
                         bbbe.displayState = null;
+                        bbbe.blockEntityTag = null;
                         bbbe.sync();
                         player.displayClientMessage(
                                 Component.translatable("item.starrailexpress.fake_block_tool.clear"),
@@ -48,7 +50,14 @@ public class BreakingBridgeToolItem extends Item {
                     var entity = level.getBlockEntity(pos);
                     if (entity instanceof BreakingBridgeBlockEntity bbbe) {
                         if (bbbe.displayState != null) {
+                            var originalTag = bbbe.blockEntityTag;
                             level.setBlockAndUpdate(pos, bbbe.displayState);
+                            if (originalTag != null) {
+                                var newBlockEntity = level.getBlockEntity(pos);
+                                if (newBlockEntity != null) {
+                                    newBlockEntity.loadCustomOnly(originalTag, level.registryAccess());
+                                }
+                            }
                             player.displayClientMessage(
                                     Component.translatable("item.starrailexpress.fake_block_tool.restore",
                                             bbbe.displayState.getBlock().getName()),
@@ -59,6 +68,11 @@ public class BreakingBridgeToolItem extends Item {
             }
         } else {
             var targetState = level.getBlockState(pos);
+            var fromEntity = level.getBlockEntity(pos);
+            CompoundTag entityTag = null;
+            if (fromEntity != null) {
+                entityTag = fromEntity.saveCustomOnly(level.registryAccess());
+            }
             if (targetState == null) {
                 return InteractionResult.FAIL;
             }
@@ -66,6 +80,7 @@ public class BreakingBridgeToolItem extends Item {
                     .setValue(BreakingBridgeBlock.TYPE, SlabType.DOUBLE));
             if (level.getBlockEntity(pos) instanceof BreakingBridgeBlockEntity bbbe) {
                 bbbe.displayState = targetState;
+                bbbe.blockEntityTag = entityTag;
                 bbbe.sync();
                 player.displayClientMessage(
                         Component.translatable("block.noellesroles.breaking_bridge.info_tool",
