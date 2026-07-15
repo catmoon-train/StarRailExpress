@@ -653,7 +653,7 @@ public class SREMurderGameMode extends GameMode {
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         super.tickServerGameLoop(serverWorld, gameWorldComponent);
         GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
-
+        
         boolean civilianAlive = false;
         for (ServerPlayer player : serverWorld.players()) {
             // passive money

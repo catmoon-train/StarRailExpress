@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.util.SREPlayerUtils;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
@@ -786,6 +787,14 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
         {
             if (this.gameStatus == GameStatus.ACTIVE) {
+                var alivePlayers = new ArrayList<>(serverWorld.players());
+                alivePlayers.removeIf(p -> !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p));
+                if (alivePlayers.size() <= 0) {
+                    SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(),
+                            WinStatus.NO_PLAYER);
+                    GameUtils.stopGame(serverWorld);
+                    return;
+                }
                 for (ServerPlayer player : serverWorld.players()) {
                     if (!GameUtils.isPlayerAliveAndSurvival(player) && isBound()
                             && !player.isCreative()) {
