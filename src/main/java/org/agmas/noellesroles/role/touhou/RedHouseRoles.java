@@ -57,8 +57,9 @@ public class RedHouseRoles {
           if (item.is(ModItems.CALMING_TEA))
             return InteractionResult.SUCCESS;
           return InteractionResult.PASS;
+
         }
-      }, "th_redhouse").setCanAcrossFog(true);
+      }, "th_redhouse").setCanAcrossFog(true).setMoodColor((t) -> new Color(t.getColor()));
   // 杀手：蕾米莉亚
   public static SRERole REMILIA = TMMRoles.registerRole(
       new TouhouRole(REMILIA_ID, new Color(113, 98, 121).getRGB(),

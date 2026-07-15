@@ -304,6 +304,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
     };
 
     public int getMoodColor() {
+        if (moodColor != null)
+            return moodColor.getRGB();
         if (moodType == MoodType.FAKE) {
             return Color.red.getRGB();
         }
@@ -1031,6 +1033,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean bodyKillerVisibility = false;
     public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
     protected boolean bodyNameVisibility = false;
+    protected Color moodColor = null;
 
     /**
      * 设置是否允许看到尸体的名字
@@ -1498,5 +1501,15 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public Component getGoal() {
         return Component.translatable("announcement.star.goals." + this.identifier().getPath());
+    }
+
+    public SRERole setMoodColor(Color color) {
+        this.moodColor = color;
+        return this;
+    }
+
+    public SRERole setMoodColor(Function<SRERole, Color> func) {
+        this.moodColor = func.apply(this);
+        return this;
     }
 }
