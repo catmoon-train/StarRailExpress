@@ -53,6 +53,17 @@ public class ModEntities {
                     .trackedUpdateRate(10)
                     .build());
 
+    /** 飞斧实体 - 强盗投掷武器：直线飞行、穿透击杀 2 名玩家、撞墙钉住 5 秒后消失 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<ThrowingAxeEntity> THROWING_AXE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "throwing_axe"),
+            FabricEntityTypeBuilder.<ThrowingAxeEntity>create(MobCategory.MISC, ThrowingAxeEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
+
     /**
      * 氯气弹实体 - 可投掷物品，落地时使范围内玩家中毒
      */

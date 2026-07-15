@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
- * 箱庭视野：sodium（0.6.x，section 快照类为 LevelSlice）区块网格构建路径的方块剔除
+ * 箱庭视野：sodium（0.6.x/0.8.x，section 快照类为 LevelSlice）区块网格构建路径的方块剔除
  * （对应 vanilla 的 {@code HakoniwaRenderChunkRegionMixin}）。切割盒内的方块被视为空气。
  */
 @Mixin(LevelSlice.class)

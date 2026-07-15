@@ -2,6 +2,7 @@ package org.agmas.noellesroles.game.roles.killer.manipulator;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -26,6 +27,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -137,40 +139,67 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
     }
 
     /**
-     * 注册操纵师操控的死亡限制（优先用 API 事件实现）：
-     * 被操控者因被拖入危险区/陷阱（水、岩浆、坠车/虚空、摔落）而死时，否决其死亡并弹回安全落点。
+     * 被操控者不应因此致死的「环境 / 陷阱 / 自然伤害」死因集合。
      *
-     * <p>在否决监听器内先 {@link #bounceToSafe()} 把目标传送回干燥落点，因此即便随后的
-     * {@code forceKillPlayer} 会绕过否决事件，其"仍在水中/岩浆中"的二次判定也会因目标已被弹出而不成立，
-     * 从而彻底避免操纵师借环境把被操控者害死。
+     * <p>覆盖：列车碾压（坠车/出界）、摔落、溺水/深水、岩浆、冻结、黑暗、下水道窒息、
+     * 钟乳石穿刺、滚石/滚木碾压、焚化炉推入、喷火装置、口渴/饥饿/脱水、迷失、远古啃咬。
+     * 操控期间目标的移动完全由操纵师驱动，因此任何环境致死都视为操纵师所为，一律否决并回溯。
+     */
+    public static final Set<ResourceLocation> HAZARD_DEATHS = Set.of(
+            GameConstants.DeathReasons.FELL_OUT_OF_TRAIN,
+            GameConstants.DeathReasons.FALL_DAMAGE,
+            GameConstants.DeathReasons.CANNOT_SWIM,
+            GameConstants.DeathReasons.DROWNED,
+            GameConstants.DeathReasons.LAVA,
+            GameConstants.DeathReasons.FROZEN,
+            GameConstants.DeathReasons.DEATH_IN_DARKNESS,
+            GameConstants.DeathReasons.MANHOLE_SUFFOCATION,
+            GameConstants.DeathReasons.STALACTITE_IMPALE,
+            GameConstants.DeathReasons.BOULDER_CRUSH,
+            GameConstants.DeathReasons.LOG_CRUSH,
+            GameConstants.DeathReasons.INCINERATOR_PUSHED,
+            GameConstants.DeathReasons.FLAMETHROWER_BURNED,
+            GameConstants.DeathReasons.THIRST,
+            GameConstants.DeathReasons.STARVED,
+            GameConstants.DeathReasons.DRY_DEATH,
+            GameConstants.DeathReasons.SELF_LOST,
+            GameConstants.DeathReasons.ANCIENT_BITE);
+
+    /**
+     * 注册操纵师操控的死亡限制（优先用 API 事件实现）：
+     * 被操控者因被拖入危险区/陷阱（水、岩浆、坠车/虚空、摔落、碾压等）而死时，否决其死亡并回溯到安全落点。
+     *
+     * <p>该事件只拦截「非强制」死亡；场景陷阱多走 {@code forceKillPlayer}（强制死亡）会绕过此事件，
+     * 那部分由 {@code ManipulatorControlledDeathImmunityMixin} 在 {@link GameUtils#killPlayer} 入口兜底。
      */
     public static void registerEvents() {
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             if (!(victim instanceof ServerPlayer)) {
                 return true;
             }
-            InControlCCA cca = KEY.maybeGet(victim).orElse(null);
-            if (cca == null || !cca.isControlling) {
-                return true;
-            }
-            if (!isHazardDeath(deathReason)) {
-                return true;
-            }
-            cca.bounceToSafe();
-            return false;
+            return !blockHazardDeathIfControlled(victim, deathReason);
         });
     }
 
-    /** 判断是否为"被操控者不应因此致死"的环境/陷阱死因。 */
-    private static boolean isHazardDeath(ResourceLocation reason) {
-        if (reason == null) {
+    /**
+     * 若 {@code victim} 正被操控且死因属于环境/陷阱，则把它回溯到安全落点并返回 {@code true}
+     * （表示应阻止此次死亡）。供否决事件与强制死亡拦截 mixin 共用。
+     */
+    public static boolean blockHazardDeathIfControlled(Player victim, ResourceLocation deathReason) {
+        if (victim == null || !isHazardDeath(deathReason)) {
             return false;
         }
-        String path = reason.getPath();
-        return path.equals("cant_swim_drowned")
-                || path.equals("swim_in_lava")
-                || path.equals("fell_out_of_train")
-                || path.equals("fall_damage");
+        InControlCCA cca = KEY.maybeGet(victim).orElse(null);
+        if (cca == null || !cca.isControlling) {
+            return false;
+        }
+        cca.bounceToSafe();
+        return true;
+    }
+
+    /** 判断是否为"被操控者不应因此致死"的环境/陷阱死因。 */
+    public static boolean isHazardDeath(ResourceLocation reason) {
+        return reason != null && HAZARD_DEATHS.contains(reason);
     }
 
     @Override
@@ -257,6 +286,14 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
      * 由操纵师输入驱动目标移动；包含重力/跳跃与防虚空弹回。
      */
     private void driveMovement(ServerPlayer sp) {
+        // 兜底：控制刚开始、还没记录过任何安全落点时，先用当前位置作为初始回溯点，
+        // 保证「回溯到受到伤害之前的位置」在任何时刻都有可用目标（随后会被更严格的判定刷新）。
+        if (!hasSafePos) {
+            hasSafePos = true;
+            safeX = sp.getX();
+            safeY = sp.getY();
+            safeZ = sp.getZ();
+        }
         // 记录最近安全落点（在干燥地面、高于虚空阈值、且不在水/岩浆中）
         if (sp.onGround() && sp.getY() > sp.level().getMinBuildHeight() + 1
                 && !sp.isInWater() && !sp.isUnderWater() && !sp.isInLava()) {

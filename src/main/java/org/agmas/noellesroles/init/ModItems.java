@@ -754,6 +754,10 @@ public class ModItems {
     public static final Item THROWING_KNIFE = register(
             new ThrowingKnife((new Item.Properties()).stacksTo(1)), "throwing_knife",
             WEAPONS_GROUP);
+    // 飞斧 - 强盗的可投掷武器：直线飞行、穿透击杀 2 名玩家、撞墙钉住 5 秒后消失
+    public static final Item THROWING_AXE = register(
+            new ThrowingAxeItem((new Item.Properties()).stacksTo(1)), "throwing_axe",
+            WEAPONS_GROUP);
 
     // ==================== Dream（梦魇）专属 ====================
     /**

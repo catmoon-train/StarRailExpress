@@ -45,6 +45,7 @@
     "roles.jester.JesterItemEntityMixin",
     "roles.leather_pig.LeatherPigEyeHeightMixin",
     "roles.manipulator.PlayerControlMixin",
+    "roles.manipulator.ManipulatorControlledDeathImmunityMixin",
     "roles.mercenary.MercenaryConfirmMixin",
     "roles.photographer.PhotographerMixin",
     "roles.photographer.PhotographFrameItemMixin",

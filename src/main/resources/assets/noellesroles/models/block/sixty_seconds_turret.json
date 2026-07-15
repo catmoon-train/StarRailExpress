@@ -1,0 +1,46 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "noellesroles:block/sixty_seconds_turret",
+    "bottom": "noellesroles:block/sixty_seconds_turret_top",
+    "top": "noellesroles:block/sixty_seconds_turret_top",
+    "particle": "noellesroles:block/sixty_seconds_turret"
+  },
+  "elements": [
+    {
+      "from": [3, 0, 3],
+      "to": [13, 6, 13],
+      "faces": {
+        "north": {"texture": "#side"},
+        "south": {"texture": "#side"},
+        "east": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "up": {"texture": "#top"},
+        "down": {"texture": "#bottom"}
+      }
+    },
+    {
+      "from": [5, 6, 5],
+      "to": [11, 12, 11],
+      "faces": {
+        "north": {"texture": "#side"},
+        "south": {"texture": "#side"},
+        "east": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "up": {"texture": "#top"}
+      }
+    },
+    {
+      "from": [7, 8, 0],
+      "to": [9, 10, 6],
+      "faces": {
+        "north": {"texture": "#top"},
+        "south": {"texture": "#side"},
+        "east": {"texture": "#side"},
+        "west": {"texture": "#side"},
+        "up": {"texture": "#side"},
+        "down": {"texture": "#side"}
+      }
+    }
+  ]
+}

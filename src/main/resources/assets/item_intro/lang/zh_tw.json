@@ -117,6 +117,7 @@
   "item.noellesroles.toxin.desc": "一次性用品，遠程武器，右鍵對玩家使用，可以使瞄準的玩家中毒。",
   "item.noellesroles.catalyst.desc": "毒師職業專屬道具，右鍵使所有進入中毒狀態的玩家死亡。",
   "item.noellesroles.bandit_revolver.desc": "強盜和劊子手使用的手槍，射程更近。",
+  "item.noellesroles.throwing_axe.desc": "強盜的可投擲武器。右鍵投擲，飛斧直線飛行，最多穿透並擊殺2名玩家；隨後飛行至牆壁釘住，5秒後消失。投擲後進入3秒冷卻，武器本身留在手中可反覆使用。",
   "item.noellesroles.stalker_knife.desc": "潛行者職業二階段專屬武器。右鍵蓄力刺擊擊殺目標，擊殺後增加二階段進度。蹲下右鍵可快速蓄力。具有10秒攻擊冷卻。",
   "item.noellesroles.stalker_knife_offhand.desc": "潛行者職業二階段專屬武器。右鍵蓄力刺擊擊殺目標，擊殺後增加二階段進度。蹲下右鍵可快速蓄力。具有10秒攻擊冷卻。",
   "item.stupid_express.jerry_can.desc": "縱火犯職業專屬道具，右鍵使玩家澆上汽油。",

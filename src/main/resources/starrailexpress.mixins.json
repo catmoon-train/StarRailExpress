@@ -103,7 +103,6 @@
     "compat.carpet.FixClientReturnCrash",
     "compat.sodium.HakoniwaLevelSliceMixin",
     "compat.sodium.SodiumWorldRendererMixin",
-    "compat.sodium_extra.SodiumExtraDisableOptionMixin",
     "compat.sodium_extra.SodiumExtraLoadedMixin",
     "entity.player.LocalPlayerMixin",
     "gui.ScreenDrawableGetMixin",

@@ -4,10 +4,10 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -17,7 +17,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
@@ -324,7 +323,8 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                         // 使用心脏麻痹死因（隐藏真实原因）
                         ResourceLocation deathReason = Noellesroles.id("heart_attack");
                         GameUtils.killPlayer(target, true, player, deathReason);
-                        markConspiratorEvidence(target);
+                        // 猜人不指向凶手：不在尸体上留下阴谋家证据，只在死亡处播放匿名的紫色特效
+                        spawnPurpleDeathEffect(target);
 
                         this.hasKilled = true;
 
@@ -355,26 +355,25 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
         }
     }
 
-    private void markConspiratorEvidence(Player target) {
-        AABB searchBox = target.getBoundingBox().inflate(4.0D);
-        PlayerBodyEntity closestBody = null;
-        double closestDistance = Double.MAX_VALUE;
-        for (PlayerBodyEntity body : target.level().getEntitiesOfClass(PlayerBodyEntity.class, searchBox)) {
-            if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
-                continue;
-            }
-            if (!target.getUUID().equals(body.getPlayerUuid())) {
-                continue;
-            }
-            double distance = body.distanceToSqr(target);
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestBody = body;
-            }
+    /**
+     * 在目标死亡处播放紫色特效。
+     *
+     * 这是匿名的诡异特效——只表明"此人死于诅咒"，不透露凶手是谁，
+     * 因此不会在尸体上留下指向阴谋家的证据。
+     */
+    private void spawnPurpleDeathEffect(Player target) {
+        if (!(target.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return;
         }
-        if (closestBody != null) {
-            closestBody.getComponent().setConspiratorEvidenceUuid(player.getUUID());
-        }
+        double x = target.getX();
+        double y = target.getY() + 1.0;
+        double z = target.getZ();
+        // 紫色巫术粒子爆发
+        serverLevel.sendParticles(ParticleTypes.WITCH, x, y, z, 60, 0.5D, 0.8D, 0.5D, 0.15D);
+        serverLevel.sendParticles(ParticleTypes.PORTAL, x, y, z, 40, 0.4D, 0.8D, 0.4D, 0.6D);
+        serverLevel.sendParticles(ParticleTypes.DRAGON_BREATH, x, y, z, 30, 0.4D, 0.5D, 0.4D, 0.05D);
+        // 低沉神秘音效，营造诅咒氛围（不指向凶手）
+        serverLevel.playSound(null, x, y, z, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.MASTER, 0.7F, 0.5F);
     }
 
     // ==================== NBT 序列化 ====================

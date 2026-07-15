@@ -11,7 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ShaderLoader.class)
 public class ShaderLoaderMixin {
-    private static final int SRE_OFFSET_COUNT = 1793;
+    // _draw_id 是 section 在 region 内的本地索引（0..255），数组按它下标；
+    // 须与 SodiumTransformerMixin 及 DefaultChunkRendererMixin 上传的缓冲大小一致
+    private static final int SRE_OFFSET_COUNT = 256;
 
     @Inject(method = "getShaderSource", at = @At("RETURN"), cancellable = true)
     private static void wathe$addVertexOffset(ResourceLocation name, CallbackInfoReturnable<String> cir) {

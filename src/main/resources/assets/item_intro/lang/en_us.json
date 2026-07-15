@@ -119,6 +119,7 @@
   "item.noellesroles.toxin.desc": "Single-use item, ranged weapon. Right-click to poison the targeted player.",
   "item.noellesroles.catalyst.desc": "Exclusive item for Poisoner. Right-click to kill all poisoned players instantly.",
   "item.noellesroles.bandit_revolver.desc": "Pistol used by Bandit and Executioner. Shorter range.",
+  "item.noellesroles.throwing_axe.desc": "The Bandit's throwable weapon. Right-click to throw: the axe flies straight, piercing and killing up to 2 players, then sticks into the wall it hits and vanishes after 5 seconds. 3-second cooldown after each throw; the weapon itself stays in your hand for repeated use.",
   "item.noellesroles.stalker_knife.desc": "Exclusive weapon for Stalker Phase 2. Hold right-click to charge a stab that kills the target, increasing Phase 2 progress on kill. Crouch and right-click to charge faster. 10-second attack cooldown.",
   "item.noellesroles.stalker_knife_offhand.desc": "Exclusive off-hand weapon for Stalker Phase 2. Hold right-click to charge a stab that kills the target, increasing Phase 2 progress on kill. Crouch and right-click to charge faster. 10-second attack cooldown.",
   "item.stupid_express.jerry_can.desc": "Exclusive item for Arsonist. Right-click to douse a player with gasoline.",

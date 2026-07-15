@@ -61,10 +61,15 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         return player;
     }
 
-//    @Override
-//    public boolean shouldSyncWith(ServerPlayer target) {
-//        return target.level() == player.level();
-//    }
+    /**
+     * 同步给同世界的所有玩家（默认只同步给本人）。
+     * 翻身动画由旁观者客户端读取本组件的 {@link #flipTicks}/{@link #side} 等状态渲染假尸体，
+     * 因此必须让别人也收到，否则「别人看不见咸鱼翻身动画」。
+     */
+    @Override
+    public boolean shouldSyncWith(ServerPlayer target) {
+        return target.level() == player.level();
+    }
 
     public void sync() {
         KEY.sync(player);
@@ -157,7 +162,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         }
 
         updateSunYaw(sp.serverLevel());
-        updateFakeBodyRotation(sp.serverLevel());
+        updateFakeBody(sp.serverLevel());
         applyRestraints();
         stopHorizontalMotion(sp);
 
@@ -171,7 +176,9 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
             return;
         }
 
-        if (elapsed % 20 == 0 || flipTicks == FLIP_TICKS - 1 || flipTicks == 0) {
+        // 每秒做一次纠偏同步即可；翻身的离散状态改变已在 startFlip/finishActive 里各同步一次，
+        // 客户端 clientTick 会自行递减 flipTicks 播放动画。切勿每 tick 同步（会造成广播风暴）。
+        if (elapsed % 20 == 0) {
             sync();
         }
     }
@@ -192,6 +199,8 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         flipTicks = FLIP_TICKS;
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.SLIME_BLOCK_STEP, SoundSource.PLAYERS, 1.0f,
                 1.35f);
+        // 立即同步翻身的离散状态改变，确保所有旁观者客户端从同一起点播放翻身动画
+        sync();
     }
 
     private void finishActive(ServerPlayer sp) {
@@ -233,6 +242,8 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
             return;
         }
         body.setPlayerUuid(sp.getUUID());
+        // 关闭重力：位置每 tick 由 updateFakeBody 同步到本体，避免假尸体因自身重力下落而与本体分离。
+        body.setNoGravity(true);
         body.moveTo(sp.getX(), sp.getY(), sp.getZ(), sunYaw, 0.0f);
         body.setYRot(sunYaw);
         body.setYHeadRot(sunYaw);
@@ -255,16 +266,22 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
         return null;
     }
 
-    private void updateFakeBodyRotation(ServerLevel level) {
+    private void updateFakeBody(ServerLevel level) {
         PlayerBodyEntity body = getFakeBody(level);
         if (body == null) {
             return;
         }
+        // 位置：每 tick 跟随本体，避免本体被推动/下落/传送后假尸体留在原地而分离。
+        // 用 setPos 而非 moveTo，保留客户端插值，跟随更平滑。
+        body.setPos(player.getX(), player.getY(), player.getZ());
+        body.setDeltaMovement(0.0, 0.0, 0.0);
+        // 朝向：始终对准太阳方向
         body.setYRot(sunYaw);
         body.setYHeadRot(sunYaw);
         body.setYBodyRot(sunYaw);
         body.yBodyRot = sunYaw;
         body.yBodyRotO = sunYaw;
+        body.setXRot(0.0f);
     }
 
     private void discardFakeBody() {

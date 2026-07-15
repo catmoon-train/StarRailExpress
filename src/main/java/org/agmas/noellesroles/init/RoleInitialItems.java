@@ -253,7 +253,7 @@ public class RoleInitialItems {
 
         // 强盗初始物品
         List<Supplier<ItemStack>> banditItems = new ArrayList<>();
-        banditItems.add(() -> ModItems.BANDIT_REVOLVER.getDefaultInstance());
+        banditItems.add(() -> ModItems.THROWING_AXE.getDefaultInstance());
         banditItems.add(() -> TMMItems.CROWBAR.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.BANDIT, banditItems);
 
