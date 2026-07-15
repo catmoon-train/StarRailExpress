@@ -650,7 +650,7 @@ public class ModRoles {
      * 期间播放神秘追杀音效（Dream带带带！）
      */
     public static SRERole LEATHER_PIG = TMMRoles.registerRole(
-            new NormalRole(LEATHER_PIG_ID, new Color(255, 158, 170).getRGB(),
+            new EggRole(LEATHER_PIG_ID, new Color(255, 158, 170).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     // registerRole 在此刻读取 componentKey 填 TMMRoles.COMPONENT_KEYS，
@@ -659,7 +659,8 @@ public class ModRoles {
                             org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent.KEY))
             .setCanSeeCoin(true)
             .setDefaultMax(1)
-            .setDefaultEnableChance(5000);
+            .setDefaultEnableChance(5000)
+            .setCanBeRandomedByOtherRoles(false);
 
     // 忍者
     public static final SRERole NINJA = TMMRoles.registerRole(
@@ -1785,7 +1786,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 标准冲刺时间
             true // 隐藏计分板
-    ).setComponentKey(ConspiratorPlayerComponent.KEY));
+    ).setComponentKey(ConspiratorPlayerComponent.KEY)).setCanBeRandomedByOtherRoles(false);
 
     /**
      * 设陷者角色
