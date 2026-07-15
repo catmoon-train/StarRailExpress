@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.content.block.*;
 import io.wifi.starrailexpress.content.block.api.AutoResetBlockInterface;
+import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.LecternBlock;
@@ -107,6 +108,8 @@ public class MapResetManager {
                     } else if (blockState.getBlock() instanceof NeonPillarBlock) {
                         GameUtils.resetPoints.add(blockPos6);
                     } else if (blockState.getBlock() instanceof NeonTubeBlock) {
+                        GameUtils.resetPoints.add(blockPos6);
+                    } else if (blockState.getBlock() instanceof LightBlockInterface) {
                         GameUtils.resetPoints.add(blockPos6);
                     } else if (blockState.getBlock() instanceof ToggleableFacingLightBlock) {
                         GameUtils.resetPoints.add(blockPos6);
