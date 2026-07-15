@@ -23,7 +23,7 @@ public class EggRole extends NormalRole {
     @Override
     public boolean canBeRandomed() {
         if (InitModRolesMax.isEggEnabled)
-            return super.canBeRandomed;
+            return super.canBeRandomed();
         return false;
     }
 }

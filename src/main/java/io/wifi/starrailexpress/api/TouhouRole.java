@@ -23,7 +23,7 @@ public class TouhouRole extends NormalRole {
     @Override
     public boolean canBeRandomed() {
         if (InitModRolesMax.isTouhouEnabled)
-            return super.canBeRandomed;
+            return super.canBeRandomed();
         return false;
     }
 }
