@@ -1299,6 +1299,7 @@
     "item.starrailexpress.open_light_tool": "开灯工具",
     "item.starrailexpress.open_light_tool.tooltip": "用于打开范围半径 %s 的灯！潜行右键可更改范围。",
     "message.starrailexpress.open_light_tool.cahnge_distance": "半径更改为 %s",
+    "message.starrailexpress.banned_blocks.warning": "你站在了违禁方块上，将在大概 %ss 后死亡。",
     "message.starrailexpress.darkness_warn.warning": "你目前处于黑暗之中，将在大概 %ss 后死亡。",
     "item.starrailexpress.binding_tool.tooltip": "用于连接摄像头，或者无线红石。\n右键点击摄像头/无线红石保存位置，再右键点击监控器/无线红石进行绑定\n潜行右键取消无线红石中的绑定信息",
     "item.starrailexpress.broken_gun": "破损的枪",
