@@ -154,8 +154,7 @@ public class MapManagerCommand {
                 .then(setDisabledTasks())
                 .then(setDisabledRoles())
                 .then(setDisabledModifiers())
-                .then(setEnableSceneTask())
-                .then(setInitialItems()))
+                .then(setEnableSceneTask()))
             .then(Commands.literal("get")
                 .requires(source -> source.hasPermission(2))
                 .then(getSpawnPos())
@@ -168,8 +167,6 @@ public class MapManagerCommand {
                 .then(getPlayAreaOffset())
                 .then(getRoomCount())
                 .then(getRoomPositions())
-                .then(buildGetSimple("initialItems",
-                    a -> a.initialItems.isEmpty() ? "(none)" : String.join(", ", a.initialItems)))
                 .then(getDisabledTasks())
                 .then(getDisabledRoles())
                 .then(getDisabledModifiers())
@@ -427,25 +424,6 @@ public class MapManagerCommand {
     }
   }
 
-  // 16. initialItems
-  private static void setInitialItems(CommandSourceStack source, String value) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    areas.initialItems = new java.util.ArrayList<>();
-    if (!value.isEmpty()) {
-      // 支持逗号分隔，格式如 "minecraft:diamond,2,minecraft:stick,1"
-      String[] parts = value.split(",");
-      for (int i = 0; i < parts.length; i += 2) {
-        if (i + 1 < parts.length) {
-          String itemId = parts[i].trim();
-          String countStr = parts[i + 1].trim();
-          areas.initialItems.add(itemId + ";" + countStr);
-        }
-      }
-    }
-    areas.sync();
-    sendSetFeedback(source, "initialItems", "\"" + value + "\"");
-  }
-
   // ======================== list 子命令实现 ========================
 
   private static int executeList(CommandSourceStack source) {
@@ -464,9 +442,6 @@ public class MapManagerCommand {
     sb.append("roomCount: ").append(areas.getRoomCount()).append("\n");
     sb.append("roomPositions: ").append(formatRoomPositions(areas.getRoomPositions())).append("\n");
     sb.append("mapName: \"").append(areas.mapName).append("\"\n");
-
-    sb.append("initialItems: ").append(areas.initialItems.isEmpty() ? "(none)" : String.join(", ", areas.initialItems))
-        .append("\n");
     sb.append("disabledTasks: ").append(formatDisabledTasks(areas.disabledTasks)).append("\n");
     sb.append("disabledRoles: ").append(formatDisabledTasks(areas.disabledRoles)).append("\n");
     sb.append("disabledModifiers: ").append(formatDisabledTasks(areas.disabledModifiers)).append("\n");
@@ -696,15 +671,6 @@ public class MapManagerCommand {
                   setAABBMax(areas, setter, getter, max, src, name);
                   return 1;
                 })));
-  }
-
-  private static LiteralArgumentBuilder<CommandSourceStack> setInitialItems() {
-    return Commands.literal("initialItems")
-        .then(Commands.argument("value", StringArgumentType.string())
-            .executes(ctx -> {
-              setInitialItems(ctx.getSource(), StringArgumentType.getString(ctx, "value"));
-              return 1;
-            }));
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setReadyArea() {

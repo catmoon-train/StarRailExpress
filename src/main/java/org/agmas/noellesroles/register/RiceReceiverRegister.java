@@ -818,79 +818,12 @@ public class RiceReceiverRegister {
             }
         });
 
-        // 处理卡池信息请求包：返回缺失的卡池
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_POOLS_INFO_REQUEST_PACKET, (payload, context) -> {
-            List<LotteryManager.LotteryPool> missingPools = new ArrayList<>();
-            for (int poolID : payload.poolIds()) {
-                LotteryManager.LotteryPool lotteryPool = LotteryManager.getInstance().getLotteryPool(poolID);
-                if (lotteryPool != null)
-                    missingPools.add(lotteryPool);
-            }
-            ServerPlayNetworking.send(context.player(), new LootPoolsInfoS2CPacket(missingPools));
-        });
-
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_POOLS_INFO_CHECK_CLIENT_PACKET, (payload, context) -> {
-            ServerPlayNetworking.send(context.player(), new LootPoolsInfoCheckS2CPacket(
-                    LotteryManager.getInstance().getPoolIDs()));
-        });
-
-        // 处理抽奖请求包
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_REQUIRE_PACKET, (payload, context) -> {
-            ServerPlayer player = context.player();
-            if (player == null)
-                return;
-            if (LotteryManager.getInstance().getLotteryPool(payload.poolID()) != null
-                    && LotteryManager.getInstance().canRoll(player)) {
-                Pair<Integer, Integer> rollID = LotteryManager.getInstance().getLotteryPool(payload.poolID())
-                        .rollOnce(player);
-                if (rollID.first != -1) {
-                    ServerPlayNetworking.send(player,
-                            new LootResultS2CPacket(payload.poolID(), rollID.first, rollID.second));
-                    // 抽一次减一次抽奖机会
-                    LotteryManager.getInstance().addOrDegreeLotteryChance(player, -1);
-                }
-            } else {
-                // 抽奖次数 = 0 或 卡池是否存在 限制
-                player.sendSystemMessage(Component.translatable("message.noellesroles.loot.limit", payload.poolID()));
-            }
-        });
-
-        // 处理五连抽请求包
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_MULTI_REQUIRE_PACKET, (payload, context) -> {
-            ServerPlayer player = context.player();
-            if (player == null)
-                return;
-            int count = payload.count();
-            if (count < 1 || count > 5)
-                return;
-            LotteryManager.LotteryPool pool = LotteryManager.getInstance().getLotteryPool(payload.poolID());
-            if (pool == null) {
-                player.sendSystemMessage(Component.translatable("message.noellesroles.loot.limit", payload.poolID()));
-                return;
-            }
-            java.util.List<int[]> results = new java.util.ArrayList<>();
-            for (int i = 0; i < count; ++i) {
-                if (!LotteryManager.getInstance().canRoll(player))
-                    break;
-                Pair<Integer, Integer> rollID = pool.rollOnce(player);
-                if (rollID.first != -1) {
-                    results.add(new int[]{rollID.first, rollID.second});
-                    LotteryManager.getInstance().addOrDegreeLotteryChance(player, -1);
-                }
-            }
-            if (!results.isEmpty()) {
-                ServerPlayNetworking.send(player, new LootMultiResultS2CPacket(payload.poolID(), results));
-            } else {
-                player.sendSystemMessage(Component.translatable("message.noellesroles.loot.limit", payload.poolID()));
-            }
-        });
-
-        // 处理更新抽卡数据请求包
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_DATA_REFRESH_CLIENT_PACKET, (payload, context) -> {
-            ServerPlayNetworking.send(context.player(), new LootDataRefreshS2CPacket(
-                    ItemSkinManager.getCoinNum(context.player()), ItemSkinManager.getLootChance(context.player()))
-            );
-        });
+        // 抽奖/抽卡功能已禁用 —— 以下所有 Loot C2S 包处理器均为空操作
+        ServerPlayNetworking.registerGlobalReceiver(LOOT_POOLS_INFO_REQUEST_PACKET, (payload, context) -> {});
+        ServerPlayNetworking.registerGlobalReceiver(LOOT_POOLS_INFO_CHECK_CLIENT_PACKET, (payload, context) -> {});
+        ServerPlayNetworking.registerGlobalReceiver(LOOT_REQUIRE_PACKET, (payload, context) -> {});
+        ServerPlayNetworking.registerGlobalReceiver(LOOT_MULTI_REQUIRE_PACKET, (payload, context) -> {});
+        ServerPlayNetworking.registerGlobalReceiver(LOOT_DATA_REFRESH_CLIENT_PACKET, (payload, context) -> {});
     }
 
     private static void handleVeteranDash(ServerPlayer player) {

@@ -49,8 +49,7 @@ public class WallTrainTorchBlock extends TrainTorchBlock {
         super(properties);
         properties.lightLevel(WallTrainTorchBlock::lightBlockSupplier);
         this.registerDefaultState(
-                this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIT, true).setValue(ACTIVE,
-                        true));
+                this.defaultBlockState().setValue(FACING, Direction.NORTH));
     }
 
     public String getDescriptionId() {

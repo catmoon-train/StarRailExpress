@@ -25,8 +25,8 @@ import org.jetbrains.annotations.NotNull;
  * 飞斧 —— 强盗的蓄力投掷武器。
  *
  * <p>按住右键蓄力 {@link #CHARGE_TICKS}（0.8 秒），松手投掷一柄 {@link FlyingAxeEntity}：
- * 直线飞行、最多穿透击杀 2 名玩家、撞墙后钉住 5 秒消失。武器本身留在手里（像左轮一样可反复使用），
- * 投掷后进入 {@link #COOLDOWN_TICKS} 冷却；蓄力不足 0.8 秒松手则不发射。
+ * 直线飞行、最多穿透击杀 2 名玩家、撞墙后钉住 5 秒消失。非创造模式下投掷即消耗（物品被移除），
+ * 创造模式下不消耗；蓄力不足 0.8 秒松手则不发射。
  */
 public class ThrowingAxeItem extends Item {
 
@@ -98,6 +98,7 @@ public class ThrowingAxeItem extends Item {
 
             if (!user.isCreative()) {
                 user.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+                stack.shrink(1);
             }
         }
 

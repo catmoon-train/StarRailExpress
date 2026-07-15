@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.util.SREPlayerUtils;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
@@ -786,6 +787,14 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
         {
             if (this.gameStatus == GameStatus.ACTIVE) {
+                var alivePlayers = new ArrayList<>(serverWorld.players());
+                alivePlayers.removeIf(p -> !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p));
+                if (alivePlayers.size() <= 0) {
+                    SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(),
+                            WinStatus.NO_PLAYER);
+                    GameUtils.stopGame(serverWorld);
+                    return;
+                }
                 for (ServerPlayer player : serverWorld.players()) {
                     if (!GameUtils.isPlayerAliveAndSurvival(player) && isBound()
                             && !player.isCreative()) {
@@ -987,29 +996,42 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 continue;
             var infoBlockId = res.toString();
             if (info.blockId().equalsIgnoreCase(blockId1)) {
-                if (nowInfo == null || nowInfo.standonTick <= 0) {
-                    gameCCA.playerBannedBlockTime.put(player.getUUID(),
-                            new PlayerBannedBlockTimeInfo(infoBlockId, level.getGameTime()));
-                } else if (infoBlockId.equalsIgnoreCase(infoBlockId)) {
-                    if (isKillerTeamRoleStatic(role)) {
-                        if (level.getGameTime() - nowInfo.standonTick > info.deathTimeForKillers()) {
-                            GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.TOUCH_INCORRECT);
-                            if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
-                                gameCCA.playerBannedBlockTime.remove(player.getUUID());
-                        }
-                    } else {
-                        if (level.getGameTime() - nowInfo.standonTick > info.deathTimeForInnocent()) {
-                            GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.TOUCH_INCORRECT);
-                            if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
-                                gameCCA.playerBannedBlockTime.remove(player.getUUID());
-                        }
+                boolean canDead = true;
+                if (isKillerTeamRoleStatic(role)) {
+                    if (info.deathTimeForKillers() < 0) {
+                        canDead = false;
                     }
-
                 } else {
-                    gameCCA.playerBannedBlockTime.put(player.getUUID(),
-                            new PlayerBannedBlockTimeInfo(infoBlockId, level.getGameTime()));
+                    if (info.deathTimeForInnocent() < 0) {
+                        canDead = false;
+                    }
                 }
-                return;
+                if (canDead) {
+                    if (nowInfo == null || nowInfo.standonTick <= 0) {
+                        gameCCA.playerBannedBlockTime.put(player.getUUID(),
+                                new PlayerBannedBlockTimeInfo(infoBlockId, level.getGameTime()));
+                    } else if (infoBlockId.equalsIgnoreCase(infoBlockId)) {
+                        if (isKillerTeamRoleStatic(role)) {
+                            if (level.getGameTime() - nowInfo.standonTick > info.deathTimeForKillers()) {
+                                GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.TOUCH_INCORRECT);
+                                if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
+                                    gameCCA.playerBannedBlockTime.remove(player.getUUID());
+                            }
+                        } else {
+                            if (level.getGameTime() - nowInfo.standonTick > info.deathTimeForInnocent()) {
+                                GameUtils.forceKillPlayer(player, true, null,
+                                        GameConstants.DeathReasons.TOUCH_INCORRECT);
+                                if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
+                                    gameCCA.playerBannedBlockTime.remove(player.getUUID());
+                            }
+                        }
+
+                    } else {
+                        gameCCA.playerBannedBlockTime.put(player.getUUID(),
+                                new PlayerBannedBlockTimeInfo(infoBlockId, level.getGameTime()));
+                    }
+                    return;
+                }
             }
         }
         if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))

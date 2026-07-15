@@ -634,10 +634,10 @@ public class GameUtils {
      */
     private static void distributeMapInitialItems(ServerLevel serverWorld, List<ServerPlayer> players) {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
-        if (areas.initialItems.isEmpty()) {
+        if (areas.areasSettings.initialItems.isEmpty()) {
             return;
         }
-        for (String entry : areas.initialItems) {
+        for (String entry : areas.areasSettings.initialItems) {
             String[] parts = entry.split(";");
             if (parts.length < 2)
                 continue;

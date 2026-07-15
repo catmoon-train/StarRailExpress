@@ -87,7 +87,11 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
     @Override
     protected void init() {
         super.init();
-        this.working = ClientRoleRosterCache.snapshot();
+        // 仅首次进入时抓取缓存快照；返回随机弹窗或窗口缩放触发的重新 init 必须保留玩家已有的改动，
+        // 否则从随机抽选弹窗回来时刚抽好的名单会被重新快照覆盖掉。
+        if (this.working == null) {
+            this.working = ClientRoleRosterCache.snapshot();
+        }
 
         this.panelW = Math.min(this.width - 40, 640);
         this.panelH = Math.min(this.height - 40, 420);
@@ -108,12 +112,15 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
         int bx = panelX + PAD;
 
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.enable_all"), b -> enableAll())
-                .bounds(bx, by, 70, 20).build());
+                .bounds(bx, by, 60, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.disable_all"), b -> disableAll())
-                .bounds(bx + 74, by, 70, 20).build());
+                .bounds(bx + 64, by, 60, 20).build());
 
         toggleButton = addRenderableWidget(Button.builder(toggleLabel(), b -> toggleRosterEnabled())
-                .bounds(bx + 148, by, 80, 20).build());
+                .bounds(bx + 128, by, 60, 20).build());
+
+        addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.randomize"), b -> openRandom())
+                .bounds(bx + 192, by, 60, 20).build());
 
         addRenderableWidget(Button.builder(Component.translatable("gui.sre.role_roster.save"), b -> save())
                 .bounds(panelX + panelW - PAD - 124, by, 60, 20).build());
@@ -238,6 +245,13 @@ public class RoleRosterEditScreen extends net.minecraft.client.gui.screens.Scree
     private void disableAll() {
         working.roleCounts.clear();
         working.modifierCounts.clear();
+    }
+
+    /** 打开随机抽选弹窗；共享同一份 working，弹窗抽完返回本界面即生效，未保存前不会下发服务端。 */
+    private void openRandom() {
+        if (this.minecraft != null) {
+            this.minecraft.setScreen(new RoleRosterRandomScreen(this, working));
+        }
     }
 
     private void toggle(Item item) {

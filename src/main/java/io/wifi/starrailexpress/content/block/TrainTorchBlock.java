@@ -32,7 +32,7 @@ public class TrainTorchBlock extends BaseTorchBlock implements LightBlockInterfa
     public TrainTorchBlock(Properties properties) {
         super(properties.lightLevel(TrainTorchBlock::lightBlockSupplier));
         this.registerDefaultState(
-                this.stateDefinition.any().setValue(LIT, true).setValue(ACTIVE, true).setValue(WATERLOGGED, false));
+                this.defaultBlockState().setValue(LIT, true).setValue(ACTIVE, true).setValue(WATERLOGGED, false));
     }
 
     public static boolean isEnabled(BlockState state) {

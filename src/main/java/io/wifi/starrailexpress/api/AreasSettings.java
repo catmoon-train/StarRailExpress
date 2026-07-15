@@ -186,6 +186,8 @@ public class AreasSettings {
     public int fallToDeathHeight = 0;
     @Category("action")
     public MapStatusBarType mapStatusBar = MapStatusBarType.NONE;
+    @Category("action")
+    public java.util.List<String> initialItems = new java.util.ArrayList<>();
 
     @Category("sound")
     public boolean haveOutsideSound = false;

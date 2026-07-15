@@ -66,6 +66,7 @@ public class SREClientWarningTickEvents {
         if (role == null) {
             return;
         }
+
         final var pos1 = SREGameWorldComponent.findNearestSupportBelow(player, 3);
         if (pos1 == null)
             return;
@@ -76,14 +77,25 @@ public class SREClientWarningTickEvents {
             if (info.blockId() == null)
                 continue;
             if (info.blockId().equalsIgnoreCase(blockId1)) {
-
-                bannedBlockInfo = info;
-                if (bannedBlockPlayerInfo == null || bannedBlockPlayerInfo.standonTick <= 0) {
-                    bannedBlockPlayerInfo = new PlayerBannedBlockTimeInfo(info.blockId(), level.getGameTime());
-                } else if (!bannedBlockPlayerInfo.blockId.equalsIgnoreCase(info.blockId())) {
-                    bannedBlockPlayerInfo = (new PlayerBannedBlockTimeInfo(info.blockId(), level.getGameTime()));
+                boolean canDead = true;
+                if (SREGameWorldComponent.isKillerTeamRoleStatic(role)) {
+                    if (info.deathTimeForKillers() < 0) {
+                        canDead = false;
+                    }
+                } else {
+                    if (info.deathTimeForInnocent() < 0) {
+                        canDead = false;
+                    }
                 }
-                return;
+                if (canDead) {
+                    bannedBlockInfo = info;
+                    if (bannedBlockPlayerInfo == null || bannedBlockPlayerInfo.standonTick <= 0) {
+                        bannedBlockPlayerInfo = new PlayerBannedBlockTimeInfo(info.blockId(), level.getGameTime());
+                    } else if (!bannedBlockPlayerInfo.blockId.equalsIgnoreCase(info.blockId())) {
+                        bannedBlockPlayerInfo = (new PlayerBannedBlockTimeInfo(info.blockId(), level.getGameTime()));
+                    }
+                    return;
+                }
             }
         }
         bannedBlockPlayerInfo = null;

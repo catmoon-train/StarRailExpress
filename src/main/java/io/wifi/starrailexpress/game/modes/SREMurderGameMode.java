@@ -404,7 +404,7 @@ public class SREMurderGameMode extends GameMode {
             int forcedRoleSize, RoleAssignmentPool killerPool, RoleAssignmentPool neutralsPool,
             RoleAssignmentPool vigilantePool, RoleAssignmentPool civilianPool, boolean haveOccupationRoles) {
         return getAllRoles(killerCount, vigilanteCount, neutralsCount, playerSize, forcedRoleSize, killerPool,
-                neutralsPool, vigilantePool, civilianPool, haveOccupationRoles, 5);
+                neutralsPool, vigilantePool, civilianPool, haveOccupationRoles, 10);
     }
 
     /**
@@ -653,7 +653,7 @@ public class SREMurderGameMode extends GameMode {
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         super.tickServerGameLoop(serverWorld, gameWorldComponent);
         GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
-
+        
         boolean civilianAlive = false;
         for (ServerPlayer player : serverWorld.players()) {
             // passive money

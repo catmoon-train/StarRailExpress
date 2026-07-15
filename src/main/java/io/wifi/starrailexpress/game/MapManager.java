@@ -243,10 +243,6 @@ public class MapManager {
         // 保存支持的游戏模式列表
         jsonObject.add("gameModes", gson.toJsonTree(areas.gameModes));
 
-
-        // 保存地图初始物品
-        jsonObject.add("initialItems", gson.toJsonTree(areas.initialItems));
-
         // 写入文件
         Path temp = mapConfigPath.resolveSibling(mapConfigPath.getFileName() + ".save.tmp");
         Files.writeString(temp, prettyGson.toJson(jsonObject), StandardCharsets.UTF_8);
@@ -309,11 +305,11 @@ public class MapManager {
 
             if (jsonObject.has("noReset")) {
                 areas.areasSettings.noReset = jsonObject.get("noReset").getAsBoolean();
-            } 
+            }
 
             if (jsonObject.has("mustCopy")) {
                 areas.areasSettings.mustCopy = jsonObject.get("mustCopy").getAsBoolean();
-            } 
+            }
             if (jsonObject.has("haveOutsideSound")) {
                 areas.areasSettings.haveOutsideSound = jsonObject.get("haveOutsideSound").getAsBoolean();
             }
@@ -427,18 +423,17 @@ public class MapManager {
             // 加载小游戏任务系统开关（默认关闭）
             if (jsonObject.has("minigameQuestEnabled")) {
                 areas.areasSettings.minigameQuestEnabled = jsonObject.get("minigameQuestEnabled").getAsBoolean();
-            } 
+            }
 
             // 加载地图初始物品配置
-            areas.initialItems = new java.util.ArrayList<>();
             if (jsonObject.has("initialItems")) {
+                areas.areasSettings.initialItems = new java.util.ArrayList<>();
                 var iiElement = jsonObject.get("initialItems");
                 if (iiElement.isJsonArray()) {
                     for (var e : iiElement.getAsJsonArray()) {
-                        areas.initialItems.add(e.getAsString());
+                        areas.areasSettings.initialItems.add(e.getAsString());
                     }
                 }
-                SRE.LOGGER.info("Loaded initialItems: " + areas.initialItems);
             }
 
             // 应用配置到AreasWorldComponent，使用新的嵌套结构

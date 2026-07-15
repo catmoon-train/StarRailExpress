@@ -45,13 +45,13 @@ public class GameMenuEntries {
             minecraft.setScreen(new RoleIntroduceScreen(parent, role));
             toggleViewMenu.accept(false);
         }));
-        // 抽卡页面
-        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.loot_screen"), (btn) -> {
-            if (LotteryManager.getInstance().getLotteryPools().isEmpty())
-                ClientPlayNetworking.send(new LootPoolsInfoCheckC2SPacket());
-            minecraft.setScreen(new LootInfoScreen(0, 0, 0, parent));
-            toggleViewMenu.accept(false);
-        }));
+        // 抽卡页面 —— 已禁用
+        // entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.loot_screen"), (btn) -> {
+        //     if (LotteryManager.getInstance().getLotteryPools().isEmpty())
+        //         ClientPlayNetworking.send(new LootPoolsInfoCheckC2SPacket());
+        //     minecraft.setScreen(new LootInfoScreen(0, 0, 0, parent));
+        //     toggleViewMenu.accept(false);
+        // }));
         // 职业猜测
         entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.role_guess"), (btn) -> {
             minecraft.setScreen(new GuessRoleScreen(parent));

@@ -195,7 +195,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public java.util.List<String> gameModes = new java.util.ArrayList<>();
 
     // 地图初始物品（格式：["itemId;count", ...]，所有玩家进入地图时获得）
-    public java.util.List<String> initialItems = new java.util.ArrayList<>();
     // 0为禁用
 
     public PosWithOrientation getSpawnPos() {
@@ -504,13 +503,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
                 this.sabotageMinigameIds.add(sabotageMgList.getString(i));
             }
         }
-        this.initialItems = new ArrayList<>();
-        if (tag.contains("initialItems")) {
-            var iiList = tag.getList("initialItems", net.minecraft.nbt.Tag.TAG_STRING);
-            for (int i = 0; i < iiList.size(); i++) {
-                this.initialItems.add(iiList.getString(i));
-            }
-        }
         // this.playAreaOffset = getVec3dFromNbt(tag, "playAreaOffset");
         // this.playArea = getBoxFromNbt(tag, "playArea");
         //
@@ -624,12 +616,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // sabotageMinigameIdsList.add(net.minecraft.nbt.StringTag.valueOf(id));
         // }
         // tag.put("SabotageMinigameIds", sabotageMinigameIdsList);
-
-        var initialItemsList = new net.minecraft.nbt.ListTag();
-        for (String item : this.initialItems) {
-            initialItemsList.add(net.minecraft.nbt.StringTag.valueOf(item));
-        }
-        tag.put("initialItems", initialItemsList);
 
         // 写入额外数据
         CompoundTag settingsTag = NbtSerializer.DEFAULT.serializeToTag(areasSettings);

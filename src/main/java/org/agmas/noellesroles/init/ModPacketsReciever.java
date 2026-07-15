@@ -171,53 +171,8 @@ public class ModPacketsReciever {
         }
       });
     });
-    ServerPlayNetworking.registerGlobalReceiver(LotteryMachineDrawC2SPacket.TYPE, (payload, context) -> {
-      context.server().execute(() -> {
-        try {
-          ServerPlayer player = context.player();
-          ServerLevel serverLevel = player.serverLevel();
-          BlockEntity blockEntity = serverLevel.getBlockEntity(payload.blockPos());
-          if (!(blockEntity instanceof LotteryMachineBlockEntity lotteryMachine)) {
-            return;
-          }
-          if (!lotteryMachine.hasPrizes()) {
-            sendLotteryResult(player, payload.blockPos(), false, "noellesroles.lottery.empty", ItemStack.EMPTY);
-            playShopSound(player, false);
-            return;
-          }
-          if (!lotteryMachine.canAfford(player)) {
-            String messageKey = lotteryMachine.getDrawCurrency() == ShopEntry.Currency.MINIGAME_TOKEN
-                ? "noellesroles.not_enough_minigame_token"
-                : "noellesroles.not_enough_money";
-            sendLotteryResult(player, payload.blockPos(), false, messageKey, ItemStack.EMPTY);
-            playShopSound(player, false);
-            return;
-          }
-          Optional<ShopEntry> selected = lotteryMachine.draw(player.getRandom());
-          if (selected.isEmpty()) {
-            sendLotteryResult(player, payload.blockPos(), false, "noellesroles.lottery.empty", ItemStack.EMPTY);
-            playShopSound(player, false);
-            return;
-          }
-          ShopEntry entry = selected.get();
-          if (!entry.onBuy(player)) {
-            sendLotteryResult(player, payload.blockPos(), false, "noellesroles.cant_buy_item", ItemStack.EMPTY);
-            playShopSound(player, false);
-            return;
-          }
-          lotteryMachine.spendDrawCost(player);
-          ItemStack result = entry.stack().copy();
-          sendLotteryResult(player, payload.blockPos(), true, "noellesroles.lottery.won", result);
-          player.displayClientMessage(Component.translatable("noellesroles.lottery.won", result.getHoverName())
-              .withStyle(ChatFormatting.GREEN), true);
-          playShopSound(player, true);
-          SRE.REPLAY_MANAGER.recordStoreBuy(player.getUUID(),
-              BuiltInRegistries.ITEM.getKey(result.getItem()), result.getCount(), lotteryMachine.getDrawCost());
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      });
-    });
+    // 抽奖机功能已禁用
+    ServerPlayNetworking.registerGlobalReceiver(LotteryMachineDrawC2SPacket.TYPE, (payload, context) -> {});
     ServerPlayNetworking.registerGlobalReceiver(ProblemSetEventC2SPacket.ID, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
         return;

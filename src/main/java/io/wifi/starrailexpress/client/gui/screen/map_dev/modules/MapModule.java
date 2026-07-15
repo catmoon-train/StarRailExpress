@@ -88,22 +88,7 @@ public class MapModule implements TabModule {
                         ctx.sendOnly("sre:area_manager map name " + ctx.quoteCommandArgument(name));
                 }).bounds(leftX, row5, fullWidth, bh).accentBar(AccentSide.BOTTOM).build(), row5));
 
-        int row6 = row5 + bh + gap;
-        String currentInitialItems = "";
-        if (areas != null && !areas.initialItems.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (String item : areas.initialItems) {
-                String[] parts = item.split(";");
-                if (parts.length >= 2)
-                    sb.append(sb.length() > 0 ? "," : "").append(parts[0]).append(",").append(parts[1]);
-            }
-            currentInitialItems = sb.toString();
-        }
-        initialItemsBox = new EditBox(layout.font, leftX, row6, fullWidth, bh,
-                Component.translatable("sre.map_helper.initial_items_hint"));
-        initialItemsBox.setMaxLength(512);
-        initialItemsBox.setValue(currentInitialItems);
-        placements.add(new WidgetPlacement(initialItemsBox, row6));
+        int row6 = row5;
 
         int row7 = row6 + bh + gap;
         placements.add(new WidgetPlacement(
