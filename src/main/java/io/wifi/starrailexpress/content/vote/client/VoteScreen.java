@@ -110,9 +110,14 @@ public class VoteScreen extends Screen {
     private int tickCounter;
     private int scrollOffset;
     private int maxScroll;
+    // ===== 滚动条拖拽相关新增字段 =====
+    private boolean draggingScrollbar;
+    private double dragStartY;
+    private int dragStartOffset;
+    // =================================
 
     private final List<WidgetButton> buttons = new ArrayList<>();
-    // 文本选项（如"跳过/弃票"）单独放在左下角，不进入滚动列表
+    // 弃票选项（如"跳过/弃票"）单独放在左下角，不进入滚动列表
     private final List<Integer> abstainIndices = new ArrayList<>();
     private boolean hasVoted;
 
@@ -185,7 +190,7 @@ public class VoteScreen extends Screen {
             VoteOption opt = options.get(i);
             if (abstainIndices.isEmpty() && opt instanceof VoteOption.TextOption to
                     && (to.resultId().equals("inner.cancel") || to.resultId().equals("inner.skip"))) {
-                // 文本选项（弃票/跳过）单独显示在左下角
+                // 弃票选项（弃票/跳过）单独显示在左下角
                 abstainIndices.add(i);
             } else {
                 buttons.add(new WidgetButton(i));
@@ -487,7 +492,63 @@ public class VoteScreen extends Screen {
     }
 
     @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (draggingScrollbar) {
+            int scrollH = scrollAreaH();
+            if (maxScroll <= 0 || scrollH <= 0)
+                return true;
+
+            int total = buttons.size() * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING;
+            double ratio = (double) scrollH / total;
+            int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (scrollH * ratio));
+            int trackLength = scrollH - thumbH;
+
+            if (trackLength > 0) {
+                double delta = mouseY - dragStartY;
+                int newOffset = dragStartOffset + (int) (delta / trackLength * maxScroll);
+                scrollOffset = Mth.clamp(newOffset, 0, maxScroll);
+            }
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (draggingScrollbar) {
+            draggingScrollbar = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // ------ 滚动条拖拽检测（新增） ------
+        if (maxScroll > 0) {
+            int scrollH = scrollAreaH();
+            int sx = contentX + BUTTON_WIDTH + 7;
+            int sy = contentY;
+            if (mouseX >= sx && mouseX < sx + SCROLL_WIDTH && mouseY >= sy && mouseY < sy + scrollH) {
+                // 计算拇指参数
+                int total = buttons.size() * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING;
+                double ratio = (double) scrollH / total;
+                int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (scrollH * ratio));
+                int thumbY = sy + (int) ((scrollH - thumbH) * ((double) scrollOffset / maxScroll));
+
+                if (mouseY < thumbY || mouseY > thumbY + thumbH) {
+                    // 点击轨道：先跳转
+                    double clickFraction = (mouseY - sy - thumbH / 2.0) / (scrollH - thumbH);
+                    scrollOffset = Mth.clamp((int) (clickFraction * maxScroll), 0, maxScroll);
+                }
+
+                // 开始拖拽
+                draggingScrollbar = true;
+                dragStartY = mouseY;
+                dragStartOffset = scrollOffset;
+                return true;
+            }
+        }
         if (!abstainIndices.isEmpty()) {
             int bx = panelX + ABSTAIN_MARGIN;
             int by = panelY + panelH - ABSTAIN_MARGIN - ABSTAIN_H;
