@@ -40,7 +40,7 @@ public class DarknessWarningHud {
                 ctx.pose().pushPose();
                 ctx.pose().translate((float) (ctx.guiWidth() / 2),
                         (float) (ctx.guiHeight() - 78 - OtherRolesRegister.warningOffset), 0.0F);
-                final var text = Component.translatable("message.starrailexpress.banned_blocks.warning",
+                final var text = Component.translatable("message.starrailexpress.darkness_warn.warning",
                         Component.literal("" + (int) (leftTime / 20)).withStyle(ChatFormatting.GOLD))
                         .withStyle(ChatFormatting.RED);
                 ctx.drawCenteredString(client.font, text, 0, -4, 0xffffffff);
