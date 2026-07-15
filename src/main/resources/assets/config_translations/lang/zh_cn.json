@@ -363,7 +363,6 @@
   "text.autoconfig.noellesroles.option.recallerTeleportCooldown": "召回者传送冷却（s）",
   "text.autoconfig.noellesroles.option.phantomInvisibilityDuration": "幽灵隐身时长（s）",
   "text.autoconfig.noellesroles.option.phantomInvisibilityCooldown": "幽灵技能冷却（s）",
-  "text.autoconfig.noellesroles.option.voodooCooldown": "巫毒选择冷却（s）",
   "text.autoconfig.noellesroles.option.vultureEatCooldown": "秃鹫进食冷却（s）",
   "text.autoconfig.noellesroles.option.swapperSwapCooldown": "交换者技能冷却时长（s）",
   "text.autoconfig.noellesroles.option.manipulatorCooldown": "操纵者技能冷却（s）",

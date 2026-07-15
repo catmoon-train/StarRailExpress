@@ -299,8 +299,7 @@ public class ModPacketsReciever {
         // 巫毒/冷霄使用共享技能冷却。
         if (abilityPlayerComponent.cooldown > 0)
           return;
-        abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
-            NoellesRolesConfig.HANDLER.instance().voodooCooldown);
+        abilityPlayerComponent.cooldown = 15 * 20;
         abilityPlayerComponent.sync();
         VoodooPlayerComponent voodooPlayerComponent = (VoodooPlayerComponent) VoodooPlayerComponent.KEY
             .get(context.player());

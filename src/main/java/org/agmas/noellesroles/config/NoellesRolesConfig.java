@@ -630,11 +630,7 @@ public class NoellesRolesConfig implements ConfigData {
 
     public int phantomInvisibilityCooldown = 90;
 
-    /**
-     * Voodoo - Voodoo ritual cooldown in seconds
-     */
 
-    public int voodooCooldown = 15;
 
     /**
      * Vulture - Eat body cooldown in seconds

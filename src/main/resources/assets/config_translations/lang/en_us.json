@@ -264,7 +264,6 @@
   "text.autoconfig.noellesroles.option.recallerTeleportCooldown": "Recaller teleport cooldown (s)",
   "text.autoconfig.noellesroles.option.phantomInvisibilityDuration": "Phantom invisibility duration (s)",
   "text.autoconfig.noellesroles.option.phantomInvisibilityCooldown": "Phantom skill cooldown (s)",
-  "text.autoconfig.noellesroles.option.voodooCooldown": "Voodoo selection cooldown (s)",
   "text.autoconfig.noellesroles.option.vultureEatCooldown": "Vulture eating cooldown (s)",
   "text.autoconfig.noellesroles.option.swapperSwapCooldown": "Swapper skill cooldown (s)",
   "text.autoconfig.noellesroles.option.manipulatorCooldown": "Manipulator skill cooldown (s)",

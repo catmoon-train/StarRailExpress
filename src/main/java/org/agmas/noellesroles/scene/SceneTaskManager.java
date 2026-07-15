@@ -76,10 +76,6 @@ public final class SceneTaskManager {
         State s = new State();
         s.type = type;
         ACTIVE.put(player.getUUID(), s);
-        player.displayClientMessage(
-                Component.translatable("message.noellesroles.scene_task.assigned",
-                        Component.translatable("scene_task.noellesroles." + type.name().toLowerCase())),
-                true);
     }
 
     public static void clear(Player player) {
