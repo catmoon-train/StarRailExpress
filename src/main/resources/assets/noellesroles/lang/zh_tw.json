@@ -563,7 +563,7 @@
   "item.noellesroles.toxin": "毒針",
   "item.noellesroles.throwing_knife": "飛刀",
   "item.noellesroles.throwing_axe": "飛斧",
-  "item.noellesroles.throwing_axe.tooltip": "右鍵投擲飛斧，可穿透擊殺2人",
+  "item.noellesroles.throwing_axe.tooltip": "按住右鍵蓄力0.8秒後投擲飛斧，可穿透擊殺2人",
   "item.noellesroles.throwing_knife.tooltip": "按Q投擲飛刀",
   "item.noellesroles.adrenaline": "腎上腺素",
   "item.noellesroles.antibiotic": "抗生素",

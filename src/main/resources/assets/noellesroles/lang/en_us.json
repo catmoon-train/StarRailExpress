@@ -551,7 +551,7 @@
   "item.noellesroles.toxin": "Poison Syringe",
   "item.noellesroles.throwing_knife": "Throwing Knife",
   "item.noellesroles.throwing_axe": "Throwing Axe",
-  "item.noellesroles.throwing_axe.tooltip": "Right-click to throw; pierces and kills up to 2 players",
+  "item.noellesroles.throwing_axe.tooltip": "Hold right-click to charge 0.8s, then throw; pierces and kills up to 2 players",
   "item.noellesroles.throwing_knife.tooltip": "Press Q to throw",
   "item.noellesroles.adrenaline": "Adrenaline",
   "item.noellesroles.antibiotic": "Antibiotic",

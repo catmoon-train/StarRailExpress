@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.content.entity;
 
 import io.wifi.starrailexpress.game.GameUtils;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -21,25 +22,23 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-
 /**
- * 飞斧实体 —— 强盗投掷的飞斧。
+ * 飞斧实体 —— 强盗蓄力投掷的斧子。
  *
- * <p>行为：
+ * <p>渲染由 {@code FlyingAxeRenderer} 直接绘制飞斧「物品模型」并翻滚旋转，
+ * 因此看起来是一把真正的斧头（而非箭矢渲染器画出的「飞剑」）。
+ *
+ * <p>行为（沿用旧 ThrowingAxeEntity）：
  * <ul>
  * <li>直线飞行（无重力），最多穿透并击杀 {@link #MAX_PIERCE} 名玩家；</li>
  * <li>击杀上限后继续穿过后续玩家（不再击杀），直到撞上方块；</li>
- * <li>撞墙后钉在墙上，{@link #STICK_TICKS} tick（5 秒）后消失；</li>
- * <li>始终不会伤到投掷者本人，也不会被拾取。</li>
+ * <li>撞墙后钉在墙上，{@link #STICK_TICKS} tick（5 秒）后消失。</li>
  * </ul>
  *
  * <p>AI 提示：这里刻意不调用 {@code super.onHitEntity}，因为原版飞行物在命中被判定为
  * 无敌 / 被规则取消伤害（PvP 阵营保护）的实体时会被弹开、停飞，破坏穿透效果。
- * 我们改为完全自管：用 {@link #hitPlayers} 记录已命中实体避免重复处理，直接用
- * {@link GameUtils#killPlayer} 结算击杀，飞斧本身保持原速穿过。
  */
-public class ThrowingAxeEntity extends AbstractArrow {
+public class FlyingAxeEntity extends AbstractArrow {
 
     /** 最多穿透并击杀的玩家数量。 */
     public static final int MAX_PIERCE = 2;
@@ -48,21 +47,20 @@ public class ThrowingAxeEntity extends AbstractArrow {
     /** 从未命中任何东西时的兜底存活 tick 数。 */
     private static final int MAX_FLIGHT_TICKS = 20 * 8;
 
-    /** 本飞斧对应的物品（用于死因归属）。 */
     private ItemStack it;
-    /** 已命中过的实体 id，避免同一实体被重复处理。 */
     private final IntOpenHashSet hitPlayers = new IntOpenHashSet(4);
-    /** 已击杀的玩家数量。 */
     private int killedPlayers = 0;
+    /** 钉墙时记录的 tickCount，用于在渲染端冻结翻滚角度（-1 = 尚未钉住）。 */
+    private int stuckTick = -1;
 
-    public ThrowingAxeEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
+    public FlyingAxeEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
         super(entityType, level);
         this.it = ModItems.THROWING_AXE.getDefaultInstance();
         this.setNoGravity(true);
         this.setBaseDamage(0);
     }
 
-    public ThrowingAxeEntity(EntityType<? extends AbstractArrow> entityType, LivingEntity livingEntity, Level level,
+    public FlyingAxeEntity(EntityType<? extends AbstractArrow> entityType, LivingEntity livingEntity, Level level,
             ItemStack itemStack) {
         super(entityType, livingEntity, level, itemStack, null);
         this.it = itemStack.copy();
@@ -73,6 +71,16 @@ public class ThrowingAxeEntity extends AbstractArrow {
     @Override
     public boolean isPickable() {
         return false;
+    }
+
+    /** 是否已钉在墙上（供渲染器判断是否停止翻滚）。 */
+    public boolean isStuck() {
+        return this.inGround;
+    }
+
+    /** 钉墙瞬间的 tickCount（渲染器据此冻结翻滚角度）。 */
+    public int getStuckTick() {
+        return this.stuckTick;
     }
 
     /** 只允许命中「存活且生存模式」的玩家，且跳过已命中过的实体（配合无原版伤害实现穿透）。 */
@@ -103,7 +111,7 @@ public class ThrowingAxeEntity extends AbstractArrow {
             return;
         }
         if (!this.hitPlayers.add(target.getId())) {
-            return; // 已处理过
+            return;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(target)) {
             return;
@@ -136,16 +144,14 @@ public class ThrowingAxeEntity extends AbstractArrow {
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide && this.random.nextFloat() < 0.3f) {
-            this.level().addParticle(ParticleTypes.CRIT, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+        if (this.inGround && this.stuckTick < 0) {
+            this.stuckTick = this.tickCount; // 冻结渲染端翻滚角度
         }
         if (this.inGround) {
-            // 钉在墙上 5 秒后消失。
             if (this.inGroundTime >= STICK_TICKS) {
                 this.remove(RemovalReason.DISCARDED);
             }
         } else if (this.tickCount > MAX_FLIGHT_TICKS) {
-            // 兜底：一直没命中任何东西也要清理，避免飞斧无限存在。
             this.remove(RemovalReason.DISCARDED);
         }
     }

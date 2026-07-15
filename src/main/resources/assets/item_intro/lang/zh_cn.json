@@ -119,7 +119,7 @@
   "item.noellesroles.toxin.desc": "一次性用品，远程武器，右键对玩家使用，可以使瞄准的玩家中毒。",
   "item.noellesroles.catalyst.desc": "毒师职业专属道具，右键使所有进入中毒状态的玩家死亡。",
   "item.noellesroles.bandit_revolver.desc": "强盗和刽子手使用的手枪，射程更近。",
-  "item.noellesroles.throwing_axe.desc": "强盗的可投掷武器。右键投掷，飞斧直线飞行，最多穿透并击杀2名玩家；随后飞行至墙壁钉住，5秒后消失。投掷后进入3秒冷却，武器本身留在手中可反复使用。",
+  "item.noellesroles.throwing_axe.desc": "强盗的蓄力投掷武器。按住右键蓄力0.8秒后松手投掷，飞斧直线飞行，最多穿透并击杀2名玩家；随后飞行至墙壁钉住，5秒后消失。蓄力不足0.8秒松手则不发射。投掷后进入3秒冷却，武器本身留在手中可反复使用。",
   "item.noellesroles.stalker_knife.desc": "潜行者职业二阶段专属武器。右键蓄力刺击击杀目标，击杀后增加二阶段进度。蹲下右键可快速蓄力。具有10秒攻击冷却。",
   "item.noellesroles.stalker_knife_offhand.desc": "潜行者职业二阶段专属武器。右键蓄力刺击击杀目标，击杀后增加二阶段进度。蹲下右键可快速蓄力。具有10秒攻击冷却。",
   "item.stupid_express.jerry_can.desc": "纵火犯职业专属道具，右键使玩家浇上汽油。",

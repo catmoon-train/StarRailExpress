@@ -610,7 +610,7 @@
   "item.noellesroles.throwing_knife": "飞刀",
   "item.noellesroles.throwing_knife.tooltip": "按Q投掷飞刀",
   "item.noellesroles.throwing_axe": "飞斧",
-  "item.noellesroles.throwing_axe.tooltip": "右键投掷飞斧，可穿透击杀2人",
+  "item.noellesroles.throwing_axe.tooltip": "按住右键蓄力0.8秒后投掷飞斧，可穿透击杀2人",
   "item.noellesroles.adrenaline": "肾上腺素",
   "item.noellesroles.antibiotic": "抗生素",
   "item.noellesroles.hedinghong": "鹤顶红",
