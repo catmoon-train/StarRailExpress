@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.roles.killer.shadow_falcon;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
@@ -268,11 +269,14 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
     }
 
     /**
-     * 给予临时护盾
+     * 给予临时护盾（通过 SREArmorPlayerComponent 的限时护盾实现）
      */
     public void giveTemporaryShield() {
         if (isPredationActive && skillTicks > 0 && temporaryShield == 0 && !shieldBroken) {
             temporaryShield = 1;
+            // 通过 SRE 护盾组件给予真正的限时护盾（1层，剩余技能持续时间内有效）
+            SREArmorPlayerComponent armorComp = SREArmorPlayerComponent.KEY.get(player);
+            armorComp.addTimedArmor(1, skillTicks, false);
             if (player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.shadow_falcon.shield_gained"),
@@ -290,6 +294,9 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
         if (temporaryShield > 0) {
             temporaryShield = 0;
             shieldBroken = true;
+            // 清除 SRE 限时护盾
+            SREArmorPlayerComponent armorComp = SREArmorPlayerComponent.KEY.get(player);
+            armorComp.setTimedArmor(0, 0);
             if (player instanceof ServerPlayer serverPlayer) {
                 if (landed) {
                     serverPlayer.displayClientMessage(
@@ -389,6 +396,9 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
             // 如果护盾还在，移除护盾
             if (temporaryShield > 0 && !shieldBroken) {
                 temporaryShield = 0;
+                // 清除 SRE 限时护盾
+                SREArmorPlayerComponent armorComp = SREArmorPlayerComponent.KEY.get(player);
+                armorComp.setTimedArmor(0, 0);
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.shadow_falcon.predation_ended"),
                         true);
