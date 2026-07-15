@@ -809,9 +809,24 @@ public class NoellesrolesClient implements ClientModInitializer {
             });
         });
 
-        // 抽奖机功能已禁用
-        ClientPlayNetworking.registerGlobalReceiver(OpenLotteryMachineScreenS2CPacket.ID, (payload, context) -> {});
-        ClientPlayNetworking.registerGlobalReceiver(LotteryMachineResultS2CPacket.ID, (payload, context) -> {});
+        // 抽奖机：打开界面
+        ClientPlayNetworking.registerGlobalReceiver(OpenLotteryMachineScreenS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                BlockEntity blockEntity = context.client().level.getBlockEntity(payload.blockPos());
+                if (blockEntity instanceof LotteryMachineBlockEntity lottery) {
+                    context.client().setScreen(new LotteryMachineGui(
+                            payload.blockPos(), lottery.getShops(), lottery.getDrawCost(), lottery.getDrawCurrency()));
+                }
+            });
+        });
+        // 抽奖机：接收抽奖结果
+        ClientPlayNetworking.registerGlobalReceiver(LotteryMachineResultS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                if (context.client().screen instanceof LotteryMachineGui gui) {
+                    gui.handleResult(payload);
+                }
+            });
+        });
 
         ClientPlayNetworking.registerGlobalReceiver(ToggleInsaneSkillC2SPacket.ID, (payload, context) -> {
             if (payload.toggle()) {

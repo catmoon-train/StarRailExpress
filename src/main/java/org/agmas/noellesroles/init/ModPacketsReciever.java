@@ -171,8 +171,43 @@ public class ModPacketsReciever {
         }
       });
     });
-    // 抽奖机功能已禁用
-    ServerPlayNetworking.registerGlobalReceiver(LotteryMachineDrawC2SPacket.TYPE, (payload, context) -> {});
+    // 抽奖机：处理抽奖请求
+    ServerPlayNetworking.registerGlobalReceiver(LotteryMachineDrawC2SPacket.TYPE, (payload, context) -> {
+        ServerPlayer player = context.player();
+        BlockPos pos = payload.blockPos();
+        BlockEntity be = player.level().getBlockEntity(pos);
+        if (!(be instanceof LotteryMachineBlockEntity lottery)) {
+            return;
+        }
+        if (!lottery.hasPrizes()) {
+            ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
+                    pos, false, "noellesroles.lottery.empty", ItemStack.EMPTY));
+            return;
+        }
+        if (!lottery.canAfford(player)) {
+            ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
+                    pos, false, "noellesroles.not_enough_money", ItemStack.EMPTY));
+            return;
+        }
+        lottery.spendDrawCost(player);
+        Optional<ShopEntry> result = lottery.draw(player.getRandom());
+        if (result.isEmpty()) {
+            ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
+                    pos, false, "noellesroles.lottery.empty", ItemStack.EMPTY));
+            return;
+        }
+        ShopEntry entry = result.get();
+        ItemStack prize = entry.stack().copy();
+        if (!player.getInventory().add(prize)) {
+            player.drop(prize, false);
+        }
+        ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
+                pos, true, "noellesroles.lottery.won", prize));
+        player.connection.send(new ClientboundSoundPacket(
+                BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.PLAYER_LEVELUP),
+                SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0F, 1.2F,
+                player.getRandom().nextLong()));
+    });
     ServerPlayNetworking.registerGlobalReceiver(ProblemSetEventC2SPacket.ID, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
         return;
