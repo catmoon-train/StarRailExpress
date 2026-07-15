@@ -744,77 +744,12 @@ public class NoellesrolesClient implements ClientModInitializer {
                 }
             });
         });
-        // 注册抽奖网络包处理：接收服务器抽奖结果后播放抽奖动画
-        ClientPlayNetworking.registerGlobalReceiver(LootResultS2CPacket.ID, (payload, context) -> {
-            final var client = context.client();
-            client.execute(() -> {
-                if (client.player != null) {
-                    if (client.screen instanceof LootInfoScreen screen) {
-                        screen.setLotteryChance(screen.getLotteryChance() - 1);
-                    }
-                    client.setScreen(
-                            new LootScreen(payload.poolID(), payload.quality(), payload.ansID(), client.screen));
-                }
-            });
-        });
-        // 注册五连抽网络包处理：接收服务器五连抽结果后播放五连抽动画
-        ClientPlayNetworking.registerGlobalReceiver(LootMultiResultS2CPacket.ID, (payload, context) -> {
-            final var client = context.client();
-            client.execute(() -> {
-                if (client.player != null) {
-                    if (client.screen instanceof LootInfoScreen screen) {
-                        screen.setLotteryChance(screen.getLotteryChance() - payload.results().size());
-                    }
-                    client.setScreen(
-                            new LootMultiScreen(payload.poolID(), payload.results(), Minecraft.getInstance().screen));
-                }
-            });
-        });
-        // 检查卡池信息是否缺失，如果不缺失则打开卡池界面，否则请求
-        ClientPlayNetworking.registerGlobalReceiver(LootPoolsInfoCheckS2CPacket.ID, (payload, context) -> {
-            final var client = context.client();
-            client.execute(() -> {
-                List<Integer> requestPoolIDs = new ArrayList<>();
-                for (Integer poolID : payload.poolIDs()) {
-                    if (LotteryManager.getInstance().getLotteryPool(poolID) == null)
-                        requestPoolIDs.add(poolID);
-                }
-                if (requestPoolIDs.isEmpty() && client.player != null)
-                    LootScreenUtils.openLootInfoScreen(client);
-                else {
-                    // 缺失卡池信息，向服务器请求缺失的卡池信息
-                    ClientPlayNetworking.send(new LootPoolsInfoRequestC2SPacket(requestPoolIDs));
-                }
-            });
-        });
-        // 注册抽奖界面网络包处理：接收并保存服务器卡池信息并显示界面
-        ClientPlayNetworking.registerGlobalReceiver(LootPoolsInfoS2CPacket.ID, (payload, context) -> {
-            for (LotteryManager.LotteryPool lotteryPool : payload.pools()) {
-                if (LotteryManager.getInstance().getLotteryPool(lotteryPool.getPoolID()) == null)
-                    LotteryManager.getInstance().addLotteryPool(lotteryPool);
-                else
-                    LotteryManager.getInstance().setLotteryPoolByID(lotteryPool.getPoolID(), lotteryPool);
-            }
-            // 将卡池按 id大小排序
-            LotteryManager.getInstance().sortPools();
-            final var client = context.client();
-            client.execute(() -> {
-                if (client.player != null)
-                    LootScreenUtils.openLootInfoScreen(client);
-            });
-        });
-
-        // 处理服务器抽奖数据更新包
-        ClientPlayNetworking.registerGlobalReceiver(LootDataRefreshS2CPacket.ID, (payload, context) -> {
-            final var client = context.client();
-            client.execute(() -> {
-                Minecraft minecraft = Minecraft.getInstance();
-                if (minecraft.screen instanceof LootInfoScreen screen) {
-                    screen.setCoinNumber(payload.coinNumber());
-                    screen.setLotteryChance(payload.lootChance());
-                }
-            });
-        });
+        // 抽奖/抽卡功能已禁用 —— 以下所有 Loot/Lottery 网络包处理器均为空操作
+        ClientPlayNetworking.registerGlobalReceiver(LootResultS2CPacket.ID, (payload, context) -> {});
+        ClientPlayNetworking.registerGlobalReceiver(LootMultiResultS2CPacket.ID, (payload, context) -> {});
+        ClientPlayNetworking.registerGlobalReceiver(LootPoolsInfoCheckS2CPacket.ID, (payload, context) -> {});
+        ClientPlayNetworking.registerGlobalReceiver(LootPoolsInfoS2CPacket.ID, (payload, context) -> {});
+        ClientPlayNetworking.registerGlobalReceiver(LootDataRefreshS2CPacket.ID, (payload, context) -> {});
 
         OnRoundStartWelcomeTimmer.EVENT.register((player, timer) -> {
             if (timer == 1) {
@@ -874,25 +809,9 @@ public class NoellesrolesClient implements ClientModInitializer {
             });
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(OpenLotteryMachineScreenS2CPacket.ID, (payload, context) -> {
-            context.client().execute(() -> {
-                BlockEntity blockEntity = context.client().level.getBlockEntity(payload.blockPos());
-                if (blockEntity instanceof LotteryMachineBlockEntity lotteryMachineBlockEntity) {
-                    context.client().setScreen(new LotteryMachineGui(payload.blockPos(),
-                            lotteryMachineBlockEntity.getShops(),
-                            lotteryMachineBlockEntity.getDrawCost(),
-                            lotteryMachineBlockEntity.getDrawCurrency()));
-                }
-            });
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(LotteryMachineResultS2CPacket.ID, (payload, context) -> {
-            context.client().execute(() -> {
-                if (context.client().screen instanceof LotteryMachineGui lotteryMachineGui) {
-                    lotteryMachineGui.handleResult(payload);
-                }
-            });
-        });
+        // 抽奖机功能已禁用
+        ClientPlayNetworking.registerGlobalReceiver(OpenLotteryMachineScreenS2CPacket.ID, (payload, context) -> {});
+        ClientPlayNetworking.registerGlobalReceiver(LotteryMachineResultS2CPacket.ID, (payload, context) -> {});
 
         ClientPlayNetworking.registerGlobalReceiver(ToggleInsaneSkillC2SPacket.ID, (payload, context) -> {
             if (payload.toggle()) {

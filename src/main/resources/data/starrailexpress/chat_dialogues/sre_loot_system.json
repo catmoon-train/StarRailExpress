@@ -22,7 +22,7 @@
       "choices": [
         {
           "text": "打开战利品界面",
-          "command": "Loot:LootUI",
+          "command": "",
           "nextDialogue": "",
           "requiredRole": -1
         },
