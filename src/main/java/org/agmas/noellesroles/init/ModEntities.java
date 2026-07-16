@@ -37,7 +37,7 @@ public class ModEntities {
                                                     net.exmo.sre.sixtyseconds.content.entity
                                                             .SixtySecondsVehicleEntity.Kind.MOTORCYCLE),
                                     MobCategory.MISC)
-                            .sized(0.9f, 1.4f).build("sixty_seconds_motorcycle"));
+                            .sized(1.8f, 2.8f).build("sixty_seconds_motorcycle"));
     public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity> SIXTY_SECONDS_CAR = Registry
             .register(
                     BuiltInRegistries.ENTITY_TYPE,
@@ -49,7 +49,7 @@ public class ModEntities {
                                                     net.exmo.sre.sixtyseconds.content.entity
                                                             .SixtySecondsVehicleEntity.Kind.CAR),
                                     MobCategory.MISC)
-                            .sized(1.4f, 1.5f).build("sixty_seconds_car"));
+                            .sized(4.2f, 4.5f).build("sixty_seconds_car"));
 
     public static final EntityType<WheelchairFieldItemEntity> WHEELCHAIR_FIELD_ITEM = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,

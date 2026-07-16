@@ -124,7 +124,7 @@ public class SixtySecondsVehicleEntity extends WheelchairEntity {
         return this.getPassengers().size() < kind.seats;
     }
 
-    /** 多座位摆放：摩托前后 2 座；小汽车 2×2。 */
+    /** 多座位摆放：摩托前后 2 座；小汽车 2×2。玩家坐在载具内部。 */
     @Override
     protected void positionRider(Entity passenger, MoveFunction moveFunction) {
         int index = this.getPassengers().indexOf(passenger);
@@ -133,14 +133,17 @@ public class SixtySecondsVehicleEntity extends WheelchairEntity {
         }
         double offsetX;
         double offsetZ;
+        double offsetY;
         if (kind == Kind.CAR) {
-            offsetX = (index % 2 == 0) ? 0.35 : -0.35;
-            offsetZ = (index < 2) ? 0.4 : -0.5;
+            offsetX = (index % 2 == 0) ? 0.5 : -0.5;
+            offsetZ = (index < 2) ? 0.6 : -0.8;
+            offsetY = -1.2; // 坐在汽车内部
         } else {
             offsetX = 0.0;
-            offsetZ = (index == 0) ? 0.2 : -0.55;
+            offsetZ = (index == 0) ? 0.3 : -0.8;
+            offsetY = -0.6; // 坐在摩托车内部
         }
-        Vec3 offset = new Vec3(offsetX, -0.2, offsetZ)
+        Vec3 offset = new Vec3(offsetX, offsetY, offsetZ)
                 .yRot(-this.getYRot() * (float) Math.PI / 180.0F);
         Vec3 target = this.position().add(offset);
         moveFunction.accept(passenger, target.x, target.y, target.z);
