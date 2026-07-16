@@ -313,7 +313,12 @@ public final class SixtySecondsHealthSystem {
                 stats.sync();
                 hurtFeedback(victim, attacker);
                 if (stats.health <= 0) {
-                    die(victim, attacker);
+                    boolean saved = SixtySecondsMystic.tryUndyingTotem(victim, stats);
+                    if (!saved) {
+                        die(victim, attacker);
+                        // 处决成立：处决者的污秽玻璃罐 → 存血的玻璃罐（神秘技术）
+                        SixtySecondsMystic.onExecuteDowned(attacker);
+                    }
                 }
             }
             return;
@@ -344,15 +349,19 @@ public final class SixtySecondsHealthSystem {
         }
     }
 
-    /** 健康归零处理。fromInjury=false（饥渴等）直接死亡。 */
+    /** 健康归零处理。fromInjury=false（饥渴等）直接死亡。不死图腾（原版图腾）可拦一次死亡。 */
     public static void onHealthZero(ServerPlayer victim, boolean fromInjury, @Nullable ServerPlayer attacker) {
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(victim);
         if (!fromInjury) {
-            die(victim, null);
+            if (!SixtySecondsMystic.tryUndyingTotem(victim, stats)) {
+                die(victim, null);
+            }
             return;
         }
         if (stats.downedCountToday >= 1) {
-            die(victim, attacker);
+            if (!SixtySecondsMystic.tryUndyingTotem(victim, stats)) {
+                die(victim, attacker);
+            }
             return;
         }
         setDowned(victim, stats);

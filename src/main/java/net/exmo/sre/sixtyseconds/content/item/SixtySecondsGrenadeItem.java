@@ -87,6 +87,12 @@ public class SixtySecondsGrenadeItem extends Item {
                     && (mob instanceof net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity
                             || mob.getTags().contains(SixtySecondsWhisperSystem.WHISPER_TAG)
                             || mob.getTags().contains(SixtySecondsDefenseSystem.ASSAULT_TAG))) {
+                // 诱饵弹（零伤）：不伤怪，改为清仇恨并把范围内怪物吸引到爆点
+                if (mobDamage <= 0 && !fire && !blind) {
+                    mob.setTarget(null);
+                    mob.getNavigation().moveTo(impact.x, impact.y, impact.z, 1.25);
+                    continue;
+                }
                 mob.hurt(thrower != null ? serverLevel.damageSources().playerAttack(thrower)
                         : serverLevel.damageSources().generic(), mobDamage);
                 if (fire) {

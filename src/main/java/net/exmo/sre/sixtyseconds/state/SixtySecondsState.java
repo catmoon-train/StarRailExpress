@@ -83,8 +83,10 @@ public final class SixtySecondsState {
         public boolean alarmTonight = false;
         /** 诱饵：今晚本队一半夜袭者被引向随机别队（每晚一次，换日重置）。 */
         public boolean lureTonight = false;
-        /** 门锁有效截止 gameTime（挂锁后 6 分钟内阻断撬棍强闯；过期自然失效）。 */
+        /** 门锁有效截止 gameTime（按门锁等级 2/4/8 分钟；过期自然失效）。 */
         public long doorLockEndTick = 0L;
+        /** 当前挂锁等级：1=门锁(只挡撬棍) 2=强化门锁(挡撬棍+开锁器) 3=阻击门锁(同2,时效更长)。 */
+        public int doorLockTier = 1;
         /** 门陷阱有效截止 gameTime（6 分钟内开锁器入室触发警报并消耗；过期自然失效）。 */
         public long doorTrapEndTick = 0L;
 

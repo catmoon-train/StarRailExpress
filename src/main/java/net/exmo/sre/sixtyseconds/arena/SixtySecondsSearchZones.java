@@ -130,6 +130,27 @@ public final class SixtySecondsSearchZones {
     }
 
     /**
+     * 更换在外玩家的活动限制盒与入口点（海岛扬帆用：出门后从探索区转移到群岛海域），
+     * 返回点/冷却均保持不变——「返回住所」仍走原流程。玩家不在外时无操作。
+     */
+    public static void updateConfine(ServerPlayer player, AABB box, BlockPos entrySpawn) {
+        ReturnPos pos = RETURNS.get(player.getUUID());
+        if (pos == null) {
+            return;
+        }
+        RETURNS.put(player.getUUID(), new ReturnPos(pos.x, pos.y, pos.z, pos.yaw, pos.pitch,
+                box, entrySpawn.immutable()));
+    }
+
+    /** 无视归来冷却强制送回住所（海岛模式关闭时清场用）。 */
+    public static void forceReturn(ServerPlayer player) {
+        SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+        stats.exploreCooldownEndTick = 0;
+        stats.sync();
+        returnPlayer(player);
+    }
+
+    /**
      * 传送落点安全校正：目标格或头顶被方块（避难所门/墙）占住时，就近找一个双格净空的落脚点
      * （优先有实心地面的格子），找不到则原样返回——防止玩家被传进方块里窒息。
      * 公开给闯入（{@code SixtySecondsBreakIn}）/拜访/做客离开等所有进出避难所的传送共用。

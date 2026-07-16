@@ -56,6 +56,11 @@ public class SixtySecondsGunItem extends Item implements SREItemProperties.HeldL
     protected final int ammoPerShot;
     /** 是否带瞄准镜（狙击枪）：首次右键开镜（复用原版 ScopeOverlayRenderer），开镜后右键射击并关镜。 */
     protected final boolean hasScope;
+    /** 本枪使用的弹药物品（懒取，规避 ModItems 静态初始化顺序）；默认简制子弹。 */
+    protected final java.util.function.Supplier<Item> ammoSupplier;
+    /** 连发容量（冲锋枪）：>0 时连续打满 burstSize 发后进入 burstCooldownTicks 长冷却。 */
+    private final int burstSize;
+    private final int burstCooldownTicks;
 
     public SixtySecondsGunItem(Properties properties, int cooldownTicks, double range) {
         this(properties, cooldownTicks, range, SixtySecondsBalance.GUN_PLAYER_DAMAGE, 1, false);
@@ -68,13 +73,28 @@ public class SixtySecondsGunItem extends Item implements SREItemProperties.HeldL
 
     public SixtySecondsGunItem(Properties properties, int cooldownTicks, double range, int playerDamage,
             int ammoPerShot, boolean hasScope) {
+        this(properties, cooldownTicks, range, playerDamage, ammoPerShot, hasScope,
+                () -> ModItems.SIXTY_SECONDS_AMMO, 0, 0);
+    }
+
+    public SixtySecondsGunItem(Properties properties, int cooldownTicks, double range, int playerDamage,
+            int ammoPerShot, boolean hasScope, java.util.function.Supplier<Item> ammoSupplier,
+            int burstSize, int burstCooldownTicks) {
         super(properties);
         this.cooldownTicks = cooldownTicks;
         this.range = range;
         this.playerDamage = playerDamage;
         this.ammoPerShot = ammoPerShot;
         this.hasScope = hasScope;
+        this.ammoSupplier = ammoSupplier;
+        this.burstSize = burstSize;
+        this.burstCooldownTicks = burstCooldownTicks;
         ALL_GUNS.add(this);
+    }
+
+    /** 本枪的弹药物品。 */
+    public Item ammoItem() {
+        return ammoSupplier.get();
     }
 
     public boolean hasScope() {
@@ -138,8 +158,8 @@ public class SixtySecondsGunItem extends Item implements SREItemProperties.HeldL
             return;
         }
 
-        // 弹药：非创造须有子弹，否则空枪「咔哒」并提示
-        if (!player.isCreative() && !consumeAmmo(player, gun.ammoPerShot)) {
+        // 弹药：非创造须有对应弹药，否则空枪「咔哒」并提示
+        if (!player.isCreative() && !consumeAmmo(player, gun.ammoItem(), gun.ammoPerShot)) {
             level.playSound(null, player.getX(), player.getEyeY(), player.getZ(),
                     TMMSounds.ITEM_REVOLVER_CLICK, SoundSource.PLAYERS, 0.6F, 1.3F);
             player.displayClientMessage(
@@ -147,9 +167,14 @@ public class SixtySecondsGunItem extends Item implements SREItemProperties.HeldL
             return;
         }
 
-        // 攻击冷却：开一枪 → 全部枪械进入相同冷却（防止多枪轮换速射）
+        // 攻击冷却：开一枪 → 全部枪械进入相同冷却（防止多枪轮换速射）；
+        // 连发枪（冲锋枪）：打满 burstSize 发才进入长冷却，期间只有极短的射击间隔
+        int cooldown = gun.cooldownTicks;
+        if (gun.burstSize > 0) {
+            cooldown = gun.tickBurst(player) ? gun.burstCooldownTicks : gun.cooldownTicks;
+        }
         for (SixtySecondsGunItem other : ALL_GUNS) {
-            player.getCooldowns().addCooldown(other, gun.cooldownTicks);
+            player.getCooldowns().addCooldown(other, cooldown);
         }
 
         // 耐久：成功开火一次损耗 1 点，耗尽枪损坏（创造模式 hurtAndBreak 内部豁免）
@@ -187,12 +212,33 @@ public class SixtySecondsGunItem extends Item implements SREItemProperties.HeldL
         }
     }
 
-    /** 从背包扣 {@code count} 发子弹（先全量检查再扣，不足则不动返回 false）。 */
-    private static boolean consumeAmmo(ServerPlayer player, int count) {
+    /** 连发计数（服务端）：玩家 → {连发内已射发数, 上次射击 gameTime}。间隔超时自动重置。 */
+    private static final java.util.Map<java.util.UUID, long[]> BURST_STATE = new java.util.HashMap<>();
+    /** 两发间隔超过该值视为一轮新连发。 */
+    private static final long BURST_RESET_TICKS = 60;
+
+    /** 推进连发计数；返回 true 表示本发打满一轮、应进入长冷却。 */
+    private boolean tickBurst(ServerPlayer player) {
+        long now = player.serverLevel().getGameTime();
+        long[] state = BURST_STATE.computeIfAbsent(player.getUUID(), k -> new long[]{0, 0});
+        if (now - state[1] > BURST_RESET_TICKS) {
+            state[0] = 0;
+        }
+        state[0]++;
+        state[1] = now;
+        if (state[0] >= burstSize) {
+            state[0] = 0;
+            return true;
+        }
+        return false;
+    }
+
+    /** 从背包扣 {@code count} 发指定弹药（先全量检查再扣，不足则不动返回 false）。 */
+    private static boolean consumeAmmo(ServerPlayer player, Item ammoItem, int count) {
         int have = 0;
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack s = player.getInventory().getItem(slot);
-            if (s.is(ModItems.SIXTY_SECONDS_AMMO)) {
+            if (s.is(ammoItem)) {
                 have += s.getCount();
             }
         }
@@ -202,7 +248,7 @@ public class SixtySecondsGunItem extends Item implements SREItemProperties.HeldL
         int left = count;
         for (int slot = 0; slot < player.getInventory().getContainerSize() && left > 0; slot++) {
             ItemStack s = player.getInventory().getItem(slot);
-            if (s.is(ModItems.SIXTY_SECONDS_AMMO)) {
+            if (s.is(ammoItem)) {
                 int take = Math.min(left, s.getCount());
                 s.shrink(take);
                 left -= take;

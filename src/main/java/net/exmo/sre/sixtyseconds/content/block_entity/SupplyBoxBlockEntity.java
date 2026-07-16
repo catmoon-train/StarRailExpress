@@ -30,6 +30,8 @@ public class SupplyBoxBlockEntity extends BlockEntity {
     private int bonusRolls = 1;
     /** 一次性箱（空投奖励箱）：被搜刮一次后整个方块移除，不随日刷新。 */
     private boolean oneShot = false;
+    /** 上锁箱是否已被撬开（撬开后持续开放）。 */
+    private boolean unlocked = false;
 
     public SupplyBoxBlockEntity(BlockPos pos, BlockState state) {
         this(ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ENTITY, pos, state);
@@ -63,9 +65,16 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         setChanged();
         SixtySecondsLootTable table = SixtySecondsLootStore.get(level);
         int areaLevel = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.levelAt(level, worldPosition);
+        // 高级物资箱：视作区域等级 +2（稀有更易出）并额外多掷 2 件
+        boolean advanced = getBlockState().getBlock()
+                instanceof net.exmo.sre.sixtyseconds.content.block.SupplyBoxBlock box && box.advanced();
+        if (advanced) {
+            areaLevel = Math.min(net.exmo.sre.sixtyseconds.SixtySecondsBalance.AREA_LEVEL_MAX, areaLevel + 2);
+        }
         double exponent = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.lootExponent(areaLevel);
         int rolls = Math.max(1, bonusRolls)
-                + net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.bonusRolls(areaLevel);
+                + net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.bonusRolls(areaLevel)
+                + (advanced ? 2 : 0);
         List<ItemStack> out = new java.util.ArrayList<>();
         for (int i = 0; i < rolls; i++) {
             // 每件独立选类别（随机箱=每件随机一类）+ 独立掷骰
@@ -74,7 +83,29 @@ public class SupplyBoxBlockEntity extends BlockEntity {
                 out.add(stack);
             }
         }
+        // 野外箱（不在任何队伍的住宅/避难所盒内）：额外掷一次「野外专属」类别
+        // （废弃金属/贵金属器件/酿造器件/信号枪只能在野外搜到）
+        if (isInField(level) && level.random.nextFloat() < 0.5F) {
+            ItemStack field = table.roll("field", level.random, exponent);
+            if (!field.isEmpty()) {
+                out.add(field);
+            }
+        }
         return out;
+    }
+
+    /** 本箱是否在野外（不落在任何队伍的住宅盒/避难所盒内）。 */
+    private boolean isInField(ServerLevel level) {
+        double x = worldPosition.getX() + 0.5;
+        double y = worldPosition.getY() + 0.5;
+        double z = worldPosition.getZ() + 0.5;
+        for (SixtySecondsState.TeamData team : SixtySecondsState.get(level).teams.values()) {
+            if ((team.shelterBox != null && team.shelterBox.contains(x, y, z))
+                    || (team.residentialBox != null && team.residentialBox.contains(x, y, z))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** 配置为空投奖励箱：一次领取掷 {@code rolls} 件，搜刮一次后整箱移除。 */
@@ -86,6 +117,15 @@ public class SupplyBoxBlockEntity extends BlockEntity {
 
     public boolean isOneShot() {
         return oneShot;
+    }
+
+    public boolean isUnlocked() {
+        return unlocked;
+    }
+
+    public void setUnlocked() {
+        this.unlocked = true;
+        setChanged();
     }
 
     private void ensureDaily(ServerLevel level) {
@@ -116,6 +156,7 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         tag.putString("Category", category);
         tag.putInt("BonusRolls", bonusRolls);
         tag.putBoolean("OneShot", oneShot);
+        tag.putBoolean("Unlocked", unlocked);
     }
 
     @Override
@@ -125,5 +166,6 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         category = stored.isEmpty() ? "tool" : stored;
         bonusRolls = tag.contains("BonusRolls") ? Math.max(1, tag.getInt("BonusRolls")) : 1;
         oneShot = tag.getBoolean("OneShot");
+        unlocked = tag.getBoolean("Unlocked");
     }
 }

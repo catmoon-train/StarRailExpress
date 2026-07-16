@@ -15,8 +15,10 @@ import net.minecraft.world.entity.Entity;
 public class SixtySecondsRpgItem extends SixtySecondsGunItem {
 
     public SixtySecondsRpgItem(Properties properties) {
+        // 每发消耗 1 个火箭炮（专用弹药）
         super(properties, SixtySecondsBalance.GUN_RPG_COOLDOWN, SixtySecondsBalance.GUN_RPG_RANGE,
-                SixtySecondsBalance.GUN_RPG_DAMAGE, SixtySecondsBalance.GUN_RPG_AMMO_COST);
+                SixtySecondsBalance.GUN_RPG_DAMAGE, 1, false,
+                () -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ROCKET, 0, 0);
     }
 
     /** 不做即时命中：发射火箭投射物，命中与爆炸由 {@link SixtySecondsRockets} 逐 tick 结算。 */

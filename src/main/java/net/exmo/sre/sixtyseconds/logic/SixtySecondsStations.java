@@ -27,6 +27,8 @@ public final class SixtySecondsStations {
     }
 
     public static void register() {
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_WORLD_TICK
+                .register(SixtySecondsStations::tickSmelts); // 冶金炉延迟发放
         UseBlockCallback.EVENT.register((player, level, hand, hitResult) -> {
             if (level.isClientSide() || !(player instanceof ServerPlayer serverPlayer)
                     || !SixtySecondsMod.isActive(level)) {
@@ -105,17 +107,10 @@ public final class SixtySecondsStations {
         int crafted = 0;
         int want = net.minecraft.util.Mth.clamp(count, 1, 64);
         for (int round = 0; round < want; round++) {
-            // 材料校验：先全量检查再统一扣除，避免扣一半
+            // 材料校验：先全量检查再统一扣除，避免扣一半（组配料「任意 X」按候选合计）
             SixtySecondsRecipes.Ingredient missing = null;
             for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-                int have = 0;
-                for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-                    ItemStack stack = player.getInventory().getItem(slot);
-                    if (stack.is(input.item())) {
-                        have += stack.getCount();
-                    }
-                }
-                if (have < input.count()) {
+                if (countMatching(player, input) < input.count()) {
                     missing = input;
                     break;
                 }
@@ -124,24 +119,99 @@ public final class SixtySecondsStations {
                 if (crafted == 0) {
                     player.displayClientMessage(Component.translatable(
                             "message.noellesroles.sixty_seconds.craft_missing",
-                            missing.item().getDescription(), missing.count()), true);
+                            missing.displayName(), missing.count()), true);
                     return;
                 }
                 break;
             }
             for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-                SixtySecondsTechTree.consume(player, input.item(), input.count());
+                consumeMatching(player, input);
             }
+            crafted++;
+        }
+        if (crafted == 0) {
+            return;
+        }
+        // 冶金炉：每件 4 秒制作时间——材料已扣，延迟发放产物
+        if (recipe.station() == SixtySecondsRecipes.Station.SMELTER) {
+            PENDING_SMELTS.add(new PendingSmelt(player.getUUID(), recipe.id(), crafted,
+                    level.getGameTime() + (long) SMELT_TICKS_PER_ITEM * crafted));
+            player.playNotifySound(SoundEvents.BLASTFURNACE_FIRE_CRACKLE, SoundSource.PLAYERS, 0.8F, 1.0F);
+            player.displayClientMessage(Component.translatable(
+                    "message.noellesroles.sixty_seconds.craft_smelting",
+                    SixtySecondsRecipes.outputStack(recipe).getHoverName(), 4 * crafted), true);
+            return;
+        }
+        deliver(player, recipe, crafted);
+    }
+
+    /** 背包内可充当该配料的物品总数（组配料合计全部候选）。 */
+    private static int countMatching(ServerPlayer player, SixtySecondsRecipes.Ingredient input) {
+        int have = 0;
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (input.matches(stack)) {
+                have += stack.getCount();
+            }
+        }
+        return have;
+    }
+
+    /** 按配料扣除（组配料跨候选扣够为止；调用前须先 countMatching 校验充足）。 */
+    private static void consumeMatching(ServerPlayer player, SixtySecondsRecipes.Ingredient input) {
+        int left = input.count();
+        for (int slot = 0; slot < player.getInventory().getContainerSize() && left > 0; slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (input.matches(stack)) {
+                int take = Math.min(left, stack.getCount());
+                stack.shrink(take);
+                left -= take;
+            }
+        }
+    }
+
+    /** 发放产物 + 完成提示。 */
+    private static void deliver(ServerPlayer player, SixtySecondsRecipes.Recipe recipe, int crafted) {
+        for (int i = 0; i < crafted; i++) {
             ItemStack output = SixtySecondsRecipes.outputStack(recipe);
             if (!player.getInventory().add(output)) {
                 player.drop(output, false);
             }
-            crafted++;
         }
         player.playNotifySound(SoundEvents.VILLAGER_WORK_TOOLSMITH, SoundSource.PLAYERS, 0.8F, 1.1F);
         ItemStack shown = SixtySecondsRecipes.outputStack(recipe);
-        shown.setCount(shown.getCount() * crafted);
         player.displayClientMessage(Component.translatable(
                 "message.noellesroles.sixty_seconds.craft_done", shown.getHoverName()), true);
+    }
+
+    // ── 冶金炉制作队列（每件 4 秒；材料先扣、到点发放）────────────────────
+
+    private static final int SMELT_TICKS_PER_ITEM = 80;
+
+    private record PendingSmelt(java.util.UUID player, String recipeId, int rounds, long finishTick) {
+    }
+
+    private static final java.util.List<PendingSmelt> PENDING_SMELTS = new java.util.ArrayList<>();
+
+    /** 服务端逐 tick：到点把冶炼产物发给玩家（掉线则掉在原告知位置无从投递，改为直接丢弃该单）。 */
+    public static void tickSmelts(ServerLevel level) {
+        if (PENDING_SMELTS.isEmpty()) {
+            return;
+        }
+        long now = level.getGameTime();
+        PENDING_SMELTS.removeIf(pending -> {
+            if (now < pending.finishTick()) {
+                return false;
+            }
+            SixtySecondsRecipes.Recipe recipe = SixtySecondsRecipes.byId(pending.recipeId());
+            if (recipe != null && level.getPlayerByUUID(pending.player()) instanceof ServerPlayer player) {
+                deliver(player, recipe, pending.rounds());
+            }
+            return true;
+        });
+    }
+
+    public static void resetSmelts() {
+        PENDING_SMELTS.clear();
     }
 }

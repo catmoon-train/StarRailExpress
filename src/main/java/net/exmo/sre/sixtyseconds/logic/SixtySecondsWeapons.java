@@ -124,6 +124,16 @@ public final class SixtySecondsWeapons {
             map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_STEEL_LEGGINGS, 0.15);
             map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_STEEL_BOOTS, 0.12);
             map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BALLISTIC_VEST, 0.25);
+            // 塑料护甲套（废料与铁之间）
+            map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_PLASTIC_HELMET, 0.11);
+            map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_PLASTIC_CHESTPLATE, 0.11);
+            map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_PLASTIC_LEGGINGS, 0.09);
+            map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_PLASTIC_BOOTS, 0.07);
+            // 合金护甲套（优于钢制；原版侧另有韧性/击退抗性）
+            map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ALLOY_HELMET, 0.22);
+            map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ALLOY_CHESTPLATE, 0.22);
+            map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ALLOY_LEGGINGS, 0.18);
+            map.put(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ALLOY_BOOTS, 0.15);
             armorTable = map;
         }
         return armorTable;

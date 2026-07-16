@@ -56,6 +56,9 @@ public final class SixtySecondsAirdrop {
 
     public static void register() {
         ServerTickEvents.END_WORLD_TICK.register(SixtySecondsAirdrop::tick);
+        // 信号枪：延迟空投推进（挂同一 tick，避免多注册一个回调点）
+        ServerTickEvents.END_WORLD_TICK.register(
+                net.exmo.sre.sixtyseconds.content.item.SixtySecondsFlareGunItem::tick);
     }
 
     // ── 投放 ────────────────────────────────────────────────────────────
@@ -278,6 +281,7 @@ public final class SixtySecondsAirdrop {
     /** 游戏结束时清除所有空投遗留结构和下落中的空投。 */
     public static void reset(ServerLevel level) {
         DROPS.clear();
+        net.exmo.sre.sixtyseconds.content.item.SixtySecondsFlareGunItem.reset();
         for (Map.Entry<BlockPos, SmokeData> e : new HashMap<>(SMOKE).entrySet()) {
             BlockPos center = e.getKey();
             level.setBlock(center, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),

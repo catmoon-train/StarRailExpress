@@ -42,6 +42,9 @@ public final class SixtySecondsMod {
         net.exmo.sre.sixtyseconds.content.item.SixtySecondsRopeItem.register(); // 临时绳索到期清除
         net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrapplingHookItem.register(); // 钩锁荡索摔落保护
         net.exmo.sre.sixtyseconds.logic.SixtySecondsProximityChat.register(); // 邻近聊天（只有附近玩家能看到）
+        net.exmo.sre.sixtyseconds.content.block.SixtySecondsBaseUtilityBlock.register(); // 基地报警器/玩偶/次声波音响
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsMystic.register(); // 神秘技术：复活图腾右键尸体
+        net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.register(); // 海岛远征：收音机侦听岛屿情报
         registerDropRule(); // 本模式放行丢弃物品（全局默认禁丢，见 KeyBindingMixin/DropRules）
         registerChatHudRule(); // 本模式放行聊天栏渲染（存活玩家默认被 ChatHudMixin 隐藏）
     }

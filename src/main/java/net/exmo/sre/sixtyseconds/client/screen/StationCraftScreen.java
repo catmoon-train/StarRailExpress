@@ -220,11 +220,20 @@ public class StationCraftScreen extends Screen {
             return EntryState.MISSING;
         }
         for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-            if (countInInventory(input.item()) < input.count()) {
+            if (countIngredient(input) < input.count()) {
                 return EntryState.MISSING;
             }
         }
         return EntryState.CRAFTABLE;
+    }
+
+    /** 背包内可充当该配料的物品总数（「任意 X」组配料合计全部候选）。 */
+    private int countIngredient(SixtySecondsRecipes.Ingredient input) {
+        int total = 0;
+        for (net.minecraft.world.item.Item candidate : input.items()) {
+            total += countInInventory(candidate);
+        }
+        return total;
     }
 
     /** 背包变化（合成扣料/捡东西）会改变置灰与排序，每 tick 重算一次（配方量小，开销可忽略）。 */
@@ -532,10 +541,10 @@ public class StationCraftScreen extends Screen {
                 .withStyle(ChatFormatting.BOLD), x, y, GOLD);
         y += this.font.lineHeight + 3;
         for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-            int have = countInInventory(input.item());
+            int have = countIngredient(input);
             boolean enough = have >= input.count();
             g.renderFakeItem(new ItemStack(input.item()), x, y - 4);
-            g.drawString(this.font, input.item().getDescription(), x + 20, y, enough ? TEXT : MUTED);
+            g.drawString(this.font, input.displayName(), x + 20, y, enough ? TEXT : MUTED);
             String count = have + "/" + input.count();
             g.drawString(this.font, count, x + detailW - this.font.width(count), y,
                     enough ? GREEN : RED);
@@ -589,11 +598,11 @@ public class StationCraftScreen extends Screen {
         }
         lines.add(Component.empty());
         for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-            int have = countInInventory(input.item());
+            int have = countIngredient(input);
             boolean enough = have >= input.count();
             lines.add(Component.literal("• ")
                     .withStyle(ChatFormatting.DARK_GRAY)
-                    .append(input.item().getDescription().copy()
+                    .append(input.displayName().copy()
                             .withStyle(enough ? ChatFormatting.WHITE : ChatFormatting.RED))
                     .append(Component.literal("  " + have + "/" + input.count())
                             .withStyle(enough ? ChatFormatting.GREEN : ChatFormatting.RED)));

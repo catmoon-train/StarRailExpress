@@ -303,13 +303,23 @@ public final class SixtySecondsDefenseSystem {
     private static net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant rollAssaultVariant(
             ServerLevel level, int day) {
         float r = level.getRandom().nextFloat();
-        if (day >= 5 && r < 0.15F) {
-            return net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.BRUTE;
+        // 第 6 天起夜袭混入装甲重锤（破门最强）；第 5 天起混入精英怪
+        if (day >= 6 && r < 0.12F) {
+            return net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.JUGGERNAUT;
         }
-        if (day >= 3 && r < 0.40F) {
-            return level.getRandom().nextBoolean()
-                    ? net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.RUNNER
-                    : net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.SPITTER;
+        if (day >= 5 && r < 0.28F) {
+            return switch (level.getRandom().nextInt(3)) {
+                case 0 -> net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.BRUTE;
+                case 1 -> net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.BLOATER;
+                default -> net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.HOWLER;
+            };
+        }
+        if (day >= 3 && r < 0.45F) {
+            return switch (level.getRandom().nextInt(3)) {
+                case 0 -> net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.RUNNER;
+                case 1 -> net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.SPITTER;
+                default -> net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.STALKER;
+            };
         }
         if (day >= 2 && r < 0.25F) {
             return net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity.Variant.RUNNER;

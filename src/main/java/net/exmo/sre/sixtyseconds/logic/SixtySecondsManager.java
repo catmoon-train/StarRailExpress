@@ -145,6 +145,9 @@ public final class SixtySecondsManager {
         // 自身永不消失——「开始游戏时避难所的僵尸/突袭者不消失」根因）。须在传送玩家进家前扫。
         SixtySecondsDefenseSystem.discardTaggedMobs(level);
         teleportTeams(level, data, true);
+        // 海岛模式：清跨局解锁态，为每队默认解锁 1 级港湾岛，并把海图发给全员
+        net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.onGameStart(level);
+        net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.syncChartAll(level);
         data.phase = SixtySecondsPhase.PREPARATION;
         data.dayNumber = 0;
         data.phaseEndTick = level.getGameTime() + PREP_TICKS;
@@ -217,6 +220,7 @@ public final class SixtySecondsManager {
                 SixtySecondsWhisperSystem.tick(level);   // 夜间黑暗处刷低语怪
                 SixtySecondsDefenseSystem.tick(level);   // 夜袭冲门/路障
                 SixtySecondsPveSystem.tick(level);       // PVE：探索区游荡怪/Boss/哨戒炮/陷阱结算
+                net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.tick(level); // 海岛：登岛沿检测/报幕/解锁
                 SixtySecondsPowerSystem.tick(level);     // 发电机断电边沿
                 // 小游戏代币不再全队共享（SixtySecondsTokenShare 已移除）：
                 // SREPlayerMinigameTaskComponent.tokens 本就按玩家独立存储/同步

@@ -541,6 +541,25 @@ public final class SixtySecondsDailyEvents {
                 result(level, team, "gov_airdrop.seen");
             }
         });
+        // 16b. 电台岛屿情报：海岛模式开启时解锁一座未知岛（海图点亮）；否则/全解锁 → san +6 兜底
+        instant("island_radio_intel", Type.FORTUNE, 8, (level, team) -> {
+            if (net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.intelEvent(level, team)) {
+                result(level, team, "island_radio_intel");
+            } else {
+                teamSanity(level, team, 6);
+                result(level, team, "island_radio_intel.static");
+            }
+        });
+        // 16c. 漂流瓶海图残页：同上第二条解锁途径（权重更低）
+        instant("island_drift_bottle", Type.FORTUNE, 6, (level, team) -> {
+            if (net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.intelEvent(level, team)) {
+                result(level, team, "island_drift_bottle");
+            } else {
+                List<ItemStack> gained = rollLoot(level, 1, "material");
+                giveToTeam(level, team, gained);
+                result(level, team, "island_drift_bottle.static", itemsText(gained));
+            }
+        });
         // 17. 流浪猫：叼来 1 件食物，全队 san +5
         instant("stray_cat", Type.FORTUNE, 10, (level, team) -> {
             List<ItemStack> gained = rollLoot(level, 1, "food");

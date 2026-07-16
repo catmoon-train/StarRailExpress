@@ -105,6 +105,14 @@ public class SREClientCommand {
                         return 1;
                       }))
 
+                  // 末日 60 秒 —— 海图（海岛模式；数据由服务端海图包下发，无数据时提示）
+                  .then(ClientCommandManager.literal("sea_chart")
+                      .executes(context -> {
+                        ClientScheduler.schedule(
+                            net.exmo.sre.sixtyseconds.client.SixtySecondsClientSeaChart::open, 1);
+                        return 1;
+                      }))
+
                   // 末日 60 秒生存模式 —— 开场演出（约 45s，黑屏+图片卡+打字机+音效）
                   // 无参=只给自己播放；`all`=请求服务端广播给所有人（需 OP，服务端校验）
                   .then(ClientCommandManager.literal("intro_sixty_seconds")

@@ -18,15 +18,36 @@ import net.minecraft.world.item.context.UseOnContext;
 import java.util.List;
 
 /**
- * 门锁：挂在庇护所门上，{@link net.exmo.sre.sixtyseconds.SixtySecondsBalance#DOOR_LOCK_DURATION_TICKS 6 分钟}内
- * 阻断撬棍强闯（提示「门被锁住了」并拒绝传送）。过期自然失效，可重新挂锁续期。
- * <p>
+ * 门锁（三级）：挂在庇护所门上按等级阻断闯入，过期自然失效，可挂更高级锁替换。
+ * <ul>
+ *   <li>门锁（1 级）：只挡<b>撬棍</b>，时效 2 分钟；</li>
+ *   <li>强化门锁（2 级）：挡撬棍 + <b>开锁器</b>，时效 4 分钟；</li>
+ *   <li>阻击门锁（3 级）：同 2 级，时效 8 分钟。</li>
+ * </ul>
  * ★ 安装入口是 {@link ShelterDoorBlock} 的交互短路（{@link #install}）——门方块的 useItemOn
  * 先于物品 useOn 执行并吞掉交互（开门菜单），这里的 useOn 只是非门方块时的提示兜底。
  */
 public class SixtySecondsDoorLockItem extends Item {
+
+    /** 锁等级 1..3。 */
+    private final int tier;
+
     public SixtySecondsDoorLockItem(Properties properties) {
+        this(properties, 1);
+    }
+
+    public SixtySecondsDoorLockItem(Properties properties, int tier) {
         super(properties);
+        this.tier = tier;
+    }
+
+    public int tier() {
+        return tier;
+    }
+
+    /** 各级时效：1→2 分钟，2→4 分钟，3→8 分钟。 */
+    public static long durationTicks(int tier) {
+        return 20L * 60L * (2L << Math.max(0, Math.min(2, tier - 1)));
     }
 
     @Override
@@ -46,7 +67,7 @@ public class SixtySecondsDoorLockItem extends Item {
                 ctx.getClickedPos(), ctx.getItemInHand()) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
     }
 
-    /** 给本队挂门锁（6 分钟时效）；由 {@link ShelterDoorBlock} 交互短路调用。返回是否安装成功。 */
+    /** 给本队挂门锁（按锁等级 2/4/8 分钟时效）；由 {@link ShelterDoorBlock} 交互短路调用。返回是否安装成功。 */
     public static boolean install(ServerPlayer player, net.minecraft.server.level.ServerLevel level,
             net.minecraft.core.BlockPos pos, ItemStack stack) {
         // 用门所在维度取状态（旧代码误用 overworld——游戏跑在其他维度时 teams 为空，物品永远装不上）
@@ -55,13 +76,16 @@ public class SixtySecondsDoorLockItem extends Item {
         if (team == null) {
             return false;
         }
+        int tier = stack.getItem() instanceof SixtySecondsDoorLockItem lock ? lock.tier() : 1;
         long now = level.getGameTime();
-        if (team.doorLockActive(now)) {
+        // 已有锁：只允许换更高级的锁（顶掉旧锁），同级/低级拒绝
+        if (team.doorLockActive(now) && tier <= team.doorLockTier) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.sixty_seconds.door_lock_already"), true);
             return false;
         }
-        team.doorLockEndTick = now + net.exmo.sre.sixtyseconds.SixtySecondsBalance.DOOR_LOCK_DURATION_TICKS;
+        team.doorLockTier = tier;
+        team.doorLockEndTick = now + durationTicks(tier);
         if (!player.isCreative()) {
             stack.shrink(1);
         }

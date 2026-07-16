@@ -25,6 +25,32 @@ public class ModEntities {
                                                                                              // 高度
                     .build("wheelchair"));
 
+    // 末日60秒：载具（复用轮椅驾驶骨架；摩托 2 座 / 小汽车 4 座，需燃料）
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity> SIXTY_SECONDS_MOTORCYCLE = Registry
+            .register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    Noellesroles.id("sixty_seconds_motorcycle"),
+                    EntityType.Builder
+                            .<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity>of(
+                                    (type, world) -> new net.exmo.sre.sixtyseconds.content.entity
+                                            .SixtySecondsVehicleEntity(type, world,
+                                                    net.exmo.sre.sixtyseconds.content.entity
+                                                            .SixtySecondsVehicleEntity.Kind.MOTORCYCLE),
+                                    MobCategory.MISC)
+                            .sized(0.9f, 1.4f).build("sixty_seconds_motorcycle"));
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity> SIXTY_SECONDS_CAR = Registry
+            .register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    Noellesroles.id("sixty_seconds_car"),
+                    EntityType.Builder
+                            .<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity>of(
+                                    (type, world) -> new net.exmo.sre.sixtyseconds.content.entity
+                                            .SixtySecondsVehicleEntity(type, world,
+                                                    net.exmo.sre.sixtyseconds.content.entity
+                                                            .SixtySecondsVehicleEntity.Kind.CAR),
+                                    MobCategory.MISC)
+                            .sized(1.4f, 1.5f).build("sixty_seconds_car"));
+
     public static final EntityType<WheelchairFieldItemEntity> WHEELCHAIR_FIELD_ITEM = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("wheelchair_field_item"),
@@ -457,6 +483,20 @@ public class ModEntities {
                             .trackedUpdateRate(2)
                             .build());
 
+    /** 末日60秒：弓/弩发射的箭矢（按箭矢类型结算怪物伤害/玩家健康伤害+附加效果） */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<net.exmo.sre.sixtyseconds.entity.SixtySecondsArrowEntity> SIXTY_SECONDS_ARROW =
+            Registry.register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    Noellesroles.id("sixty_seconds_arrow"),
+                    FabricEntityTypeBuilder
+                            .<net.exmo.sre.sixtyseconds.entity.SixtySecondsArrowEntity>create(MobCategory.MISC,
+                                    net.exmo.sre.sixtyseconds.entity.SixtySecondsArrowEntity::new)
+                            .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
+                            .trackRangeBlocks(64)
+                            .trackedUpdateRate(20)
+                            .build());
+
     /** 末日60秒：吐酸者的酸液投射物 */
     @SuppressWarnings("deprecation")
     public static final EntityType<net.exmo.sre.sixtyseconds.entity.SixtySecondsAcidSpitEntity> SIXTY_SECONDS_ACID_SPIT =
@@ -489,6 +529,9 @@ public class ModEntities {
     public static void init() {
         // 轮椅
         FabricDefaultAttributeRegistry.register(WHEELCHAIR, WheelchairEntity.createAttributes());
+        // 60s 载具（属性同轮椅）
+        FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_MOTORCYCLE, WheelchairEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_CAR, WheelchairEntity.createAttributes());
         // 注册傀儡本体实体属性（LivingEntity 必须注册属性才能生成）
         FabricDefaultAttributeRegistry.register(PUPPETEER_BODY, LivingEntity.createLivingAttributes());
         FabricDefaultAttributeRegistry.register(SALTED_FISH_BODY,

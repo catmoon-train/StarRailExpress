@@ -33,7 +33,10 @@ public final class SixtySecondsResources {
                     ModItems.SIXTY_SECONDS_SCRAP, ModItems.SIXTY_SECONDS_RAG,
                     ModItems.SIXTY_SECONDS_PLASTIC, ModItems.SIXTY_SECONDS_GLASS_SHARD,
                     ModItems.SIXTY_SECONDS_CHEMICALS, ModItems.SIXTY_SECONDS_GUNPOWDER_PACK,
-                    Items.IRON_INGOT, Items.OAK_PLANKS, Items.CHARCOAL));
+                    Items.IRON_INGOT, Items.OAK_PLANKS, Items.CHARCOAL,
+                    // 野外专属原料（科技树重构批次）
+                    ModItems.SIXTY_SECONDS_SCRAP_METAL, ModItems.SIXTY_SECONDS_PRECIOUS_PARTS,
+                    ModItems.SIXTY_SECONDS_BREWING_PARTS));
         }
         return primary;
     }
@@ -46,7 +49,11 @@ public final class SixtySecondsResources {
                     ModItems.SIXTY_SECONDS_CLOTH_ROLL, ModItems.SIXTY_SECONDS_GEAR,
                     ModItems.SIXTY_SECONDS_ELECTRONICS, ModItems.SIXTY_SECONDS_BATTERY,
                     ModItems.SIXTY_SECONDS_STEEL_INGOT, ModItems.SIXTY_SECONDS_NAILS,
-                    ModItems.SIXTY_SECONDS_CHARCOAL_FILTER));
+                    ModItems.SIXTY_SECONDS_CHARCOAL_FILTER,
+                    // 冶金链中间件（科技树重构批次）
+                    ModItems.SIXTY_SECONDS_COPPER_SCRAP, ModItems.SIXTY_SECONDS_GLASS_PLATE,
+                    ModItems.SIXTY_SECONDS_PRECIOUS_METAL, ModItems.SIXTY_SECONDS_ALLOY_PLATE,
+                    ModItems.SIXTY_SECONDS_HEMP, ModItems.SIXTY_SECONDS_BATTERY_LARGE));
         }
         return advanced;
     }

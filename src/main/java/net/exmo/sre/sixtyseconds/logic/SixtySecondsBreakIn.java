@@ -145,8 +145,8 @@ public final class SixtySecondsBreakIn {
             return;
         }
         long now = level.getGameTime();
-        // 门锁：撬棍强闯被阻断（有效期内）
-        if (item.alarms() && target.doorLockActive(now)) {
+        // 门锁：1 级只挡撬棍（alarms=true）；2/3 级（强化/阻击门锁）连开锁器一起挡
+        if (target.doorLockActive(now) && (item.alarms() || target.doorLockTier >= 2)) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.sixty_seconds.breakin_door_locked")
                             .withStyle(ChatFormatting.RED), true);

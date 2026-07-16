@@ -62,6 +62,12 @@ public class TechTreeScreen extends Screen {
     private final Map<String, int[]> worldRects = new LinkedHashMap<>();
     /** 整个世界空间布局的边界 */
     private int worldW, worldH;
+    /** 当前展示的大类（{@link SixtySecondsTechTree#CATEGORIES}）。 */
+    private String activeCategory = SixtySecondsTechTree.CATEGORIES.get(0);
+    /** 大类页签屏幕矩形：category → {x, y, w, h}（init 时计算）。 */
+    private final Map<String, int[]> tabRects = new LinkedHashMap<>();
+    /** 页签栏底边 y（裁剪区顶部）。 */
+    private int tabBarBottom = 34;
 
     // ── 相机 ──────────────────────────────────────────────────────
     private float zoom = 1.0f;
@@ -95,19 +101,31 @@ public class TechTreeScreen extends Screen {
 
     // ── 布局计算（世界空间）────────────────────────────────────────
 
+    /** 当前页签下展示的节点（按大类过滤）。 */
+    private List<TechNode> visibleNodes() {
+        List<TechNode> list = new ArrayList<>();
+        for (TechNode n : SixtySecondsTechTree.NODES) {
+            if (n.category().equals(activeCategory)) {
+                list.add(n);
+            }
+        }
+        return list;
+    }
+
     private void computeWorldLayout() {
         worldRects.clear();
-        // 按深度分组
+        List<TechNode> nodes = visibleNodes();
+        // 按大类内深度分组（跨类门控父节点不计入深度）
         Map<String, Integer> depths = new HashMap<>();
         int maxDepth = 0;
-        for (TechNode n : SixtySecondsTechTree.NODES) {
+        for (TechNode n : nodes) {
             int d = depth(n);
             depths.put(n.id(), d);
             maxDepth = Math.max(maxDepth, d);
         }
         List<List<TechNode>> tiers = new ArrayList<>();
         for (int t = 0; t <= maxDepth; t++) tiers.add(new ArrayList<>());
-        for (TechNode n : SixtySecondsTechTree.NODES) tiers.get(depths.get(n.id())).add(n);
+        for (TechNode n : nodes) tiers.get(depths.get(n.id())).add(n);
 
         int cols = tiers.size();
         int maxRows = tiers.stream().mapToInt(List::size).max().orElse(1);
@@ -127,19 +145,18 @@ public class TechTreeScreen extends Screen {
             }
         }
 
-        // 首次打开时居中
-        if (zoom == 1.0f) {
-            viewX = worldW / 2.0;
-            viewY = worldH / 2.0;
-        }
+        // 打开/切页签时居中
+        viewX = worldW / 2.0;
+        viewY = worldH / 2.0;
     }
 
+    /** 大类内深度：沿 parent 链上溯，遇到跨大类的门控父节点即停（门控节点在别的页签展示）。 */
     private static int depth(TechNode node) {
         int d = 0;
         String parent = node.parentId();
         while (parent != null) {
             TechNode p = SixtySecondsTechTree.byId(parent);
-            if (p == null) break;
+            if (p == null || !p.category().equals(node.category())) break;
             d++;
             parent = p.parentId();
         }
@@ -170,6 +187,7 @@ public class TechTreeScreen extends Screen {
 
     @Override
     protected void init() {
+        computeTabRects();
         computeWorldLayout();
         // 底部信息栏
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
@@ -189,6 +207,45 @@ public class TechTreeScreen extends Screen {
         zoom = 1.0f;
         viewX = worldW / 2.0;
         viewY = worldH / 2.0;
+    }
+
+    // ── 大类页签 ──────────────────────────────────────────────────
+
+    private static final int TAB_H = 14;
+
+    private void computeTabRects() {
+        tabRects.clear();
+        List<String> cats = SixtySecondsTechTree.CATEGORIES;
+        int perRow = (cats.size() + 1) / 2; // 两行
+        int y = 34;
+        for (int row = 0; row < 2; row++) {
+            int from = row * perRow;
+            int to = Math.min(cats.size(), from + perRow);
+            int count = to - from;
+            if (count <= 0) continue;
+            int w = this.width / count;
+            for (int i = from; i < to; i++) {
+                int x = (i - from) * w;
+                tabRects.put(cats.get(i), new int[]{x, y + row * (TAB_H + 1), w - 1, TAB_H});
+            }
+        }
+        tabBarBottom = y + 2 * (TAB_H + 1) + 2;
+    }
+
+    private void drawTabs(GuiGraphics g) {
+        for (Map.Entry<String, int[]> e : tabRects.entrySet()) {
+            int[] r = e.getValue();
+            boolean active = e.getKey().equals(activeCategory);
+            g.fill(r[0], r[1], r[0] + r[2], r[1] + r[3], active ? 0xCC4A341C : 0x88221A10);
+            if (active) {
+                g.renderOutline(r[0], r[1], r[2], r[3], GOLD);
+            }
+            String label = Component.translatable(
+                    "techcat.noellesroles.sixty_seconds." + e.getKey()).getString();
+            g.drawCenteredString(this.font, ellipsize(label, r[2] - 4),
+                    r[0] + r[2] / 2, r[1] + (r[3] - this.font.lineHeight) / 2 + 1,
+                    active ? GOLD : MUTED);
+        }
     }
 
     // ── 背包废料计数 ──────────────────────────────────────────────
@@ -211,7 +268,7 @@ public class TechTreeScreen extends Screen {
     private boolean available(TechNode node, int scrap) {
         if (unlocked.contains(node.id())) return false;
         boolean parentOk = node.parentId() == null || unlocked.contains(node.parentId());
-        return parentOk && scrap >= node.scrapCost();
+        return parentOk && SixtySecondsTechTree.gateSatisfied(node, unlocked) && scrap >= node.scrapCost();
     }
 
     // ── 鼠标事件 ──────────────────────────────────────────────────
@@ -219,11 +276,23 @@ public class TechTreeScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-            // 先检查是否点在节点上
+            // 页签点击
+            for (Map.Entry<String, int[]> e : tabRects.entrySet()) {
+                int[] r = e.getValue();
+                if (mouseX >= r[0] && mouseX < r[0] + r[2] && mouseY >= r[1] && mouseY < r[1] + r[3]) {
+                    if (!e.getKey().equals(activeCategory)) {
+                        activeCategory = e.getKey();
+                        computeWorldLayout();
+                        playClick();
+                    }
+                    return true;
+                }
+            }
+            // 再检查是否点在节点上
             double wx = toWorldX(mouseX);
             double wy = toWorldY(mouseY);
             int scrap = countScrap();
-            for (TechNode node : SixtySecondsTechTree.NODES) {
+            for (TechNode node : visibleNodes()) {
                 int[] r = worldRects.get(node.id());
                 if (r != null && wx >= r[0] && wx < r[0] + r[2] && wy >= r[1] && wy < r[1] + r[3]
                         && available(node, scrap)) {
@@ -326,8 +395,8 @@ public class TechTreeScreen extends Screen {
         double worldMX = toWorldX(mouseX);
         double worldMY = toWorldY(mouseY);
 
-        // scissor: 裁剪到标题栏以下、底部按钮以上
-        int clipTop = 34;
+        // scissor: 裁剪到页签栏以下、底部按钮以上
+        int clipTop = tabBarBottom;
         int clipBottom = this.height - 30;
         RenderSystem.enableScissor(
                 (int) (0 * Minecraft.getInstance().getWindow().getGuiScale()),
@@ -343,12 +412,13 @@ public class TechTreeScreen extends Screen {
         RenderSystem.disableScissor();
 
         drawHUD(g, scrap);
+        drawTabs(g);
     }
 
     // ── 连线 ──────────────────────────────────────────────────────
 
     private void drawConnections(GuiGraphics g) {
-        for (TechNode node : SixtySecondsTechTree.NODES) {
+        for (TechNode node : visibleNodes()) {
             if (node.parentId() == null) continue;
             int[] childR = worldRects.get(node.id());
             int[] parentR = worldRects.get(node.parentId());
@@ -374,7 +444,7 @@ public class TechTreeScreen extends Screen {
 
     private void drawNodes(GuiGraphics g, int scrap, double worldMX, double worldMY) {
         TechNode hovered = null;
-        for (TechNode node : SixtySecondsTechTree.NODES) {
+        for (TechNode node : visibleNodes()) {
             int[] wr = worldRects.get(node.id());
             if (wr == null) continue;
 
@@ -393,7 +463,8 @@ public class TechTreeScreen extends Screen {
         int sh = (int) (wr[3] * zoom);
 
         boolean isUnlocked = unlocked.contains(node.id());
-        boolean parentOk = node.parentId() == null || unlocked.contains(node.parentId());
+        boolean parentOk = (node.parentId() == null || unlocked.contains(node.parentId()))
+                && SixtySecondsTechTree.gateSatisfied(node, unlocked);
         boolean canBuy = available(node, scrap);
 
         // 卡片背景
@@ -476,7 +547,7 @@ public class TechTreeScreen extends Screen {
 
     private void drawNodeTooltip(GuiGraphics g, int scrap, double worldMX, double worldMY) {
         TechNode hovered = null;
-        for (TechNode node : SixtySecondsTechTree.NODES) {
+        for (TechNode node : visibleNodes()) {
             int[] wr = worldRects.get(node.id());
             if (wr != null && worldMX >= wr[0] && worldMX < wr[0] + wr[2]
                     && worldMY >= wr[1] && worldMY < wr[1] + wr[3]) {
@@ -499,6 +570,13 @@ public class TechTreeScreen extends Screen {
             lines.add(Component.translatable("message.noellesroles.sixty_seconds.tech_requires",
                     Component.translatable("tech.noellesroles.sixty_seconds." + hovered.parentId()))
                     .withStyle(ChatFormatting.RED));
+        }
+        // 特殊门控提示（综合补剂=医疗全解锁 / 神秘技术=全树75%）
+        if (!SixtySecondsTechTree.gateSatisfied(hovered, unlocked)) {
+            String gateKey = "omni_tonic".equals(hovered.id())
+                    ? "message.noellesroles.sixty_seconds.tech_gate_medical"
+                    : "message.noellesroles.sixty_seconds.tech_gate_mystic";
+            lines.add(Component.translatable(gateKey).withStyle(ChatFormatting.RED));
         }
         if (!unlocked.contains(hovered.id())) {
             lines.add(Component.translatable("message.noellesroles.sixty_seconds.tech_cost", hovered.scrapCost())

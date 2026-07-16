@@ -187,10 +187,22 @@ public final class SixtySecondsPveSystem {
         }
     }
 
-    /** 游荡怪变体权重：天数/区域等级越高，奔跑者/吐酸者/重锤兽占比越大。 */
+    /** 游荡怪变体权重：天数/区域等级越高，精英变体（装甲重锤/潜袭者/嚎叫者/爆裂怪）占比越大。 */
     private static Variant rollAmbientVariant(ServerLevel level, int day, int areaLevel) {
         float danger = (day + areaLevel) / 12.0F; // 0.16(第1天1级) → 1.0(第7天5级)
         float r = level.random.nextFloat();
+        // 高危精英怪（越往后越常见）
+        if (danger > 0.45F && r < danger * 0.12F) {
+            return Variant.JUGGERNAUT;
+        }
+        if (danger > 0.30F && r < 0.06F + danger * 0.16F) {
+            // 潜袭者/嚎叫者/爆裂怪三选一
+            return switch (level.random.nextInt(3)) {
+                case 0 -> Variant.STALKER;
+                case 1 -> Variant.HOWLER;
+                default -> Variant.BLOATER;
+            };
+        }
         if (r < 0.10F + danger * 0.15F) {
             return Variant.BRUTE;
         }
@@ -260,25 +272,35 @@ public final class SixtySecondsPveSystem {
         int areaLevel = SixtySecondsAreaLevels.levelAt(level, spot);
         int bossLevel = Mth.clamp((data.dayNumber + 1) / 2 + (areaLevel - 1) / 2, 1,
                 SixtySecondsBalance.BOSS_MAX_LEVEL);
-        spawnBoss(level, spot, bossLevel);
+        // 第 7 天及以后的 Boss 升级为「终焉之王」终极形态
+        boolean apex = data.dayNumber >= 7;
+        spawnBoss(level, spot, bossLevel, apex);
         LAST_BOSS_DAY.put(level, data.dayNumber);
     }
 
-    /** 生成 Boss（夜晚判定/管理指令 {@code /sre:60s boss} 共用）：全服播报坐标 + 音效。 */
+    /** 生成普通尸潮领主（管理指令 {@code /sre:60s boss} 默认）。 */
     public static SixtySecondsBossEntity spawnBoss(ServerLevel level, BlockPos pos, int bossLevel) {
+        return spawnBoss(level, pos, bossLevel, false);
+    }
+
+    /** 生成 Boss（夜晚判定/管理指令共用）：全服播报坐标 + 音效。apex=终焉之王终极形态。 */
+    public static SixtySecondsBossEntity spawnBoss(ServerLevel level, BlockPos pos, int bossLevel, boolean apex) {
         SixtySecondsBossEntity boss = org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_BOSS.create(level);
         if (boss == null) {
             return null;
         }
         boss.setPos(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
-        boss.applyBossLevel(bossLevel);
+        boss.applyBossLevel(bossLevel, apex);
         level.addFreshEntity(boss);
         ACTIVE_BOSS.put(level, boss.getUUID());
-        Component message = Component.translatable("message.noellesroles.sixty_seconds.boss_spawned",
-                bossLevel, pos.getX(), pos.getY(), pos.getZ()).withStyle(ChatFormatting.DARK_RED);
+        Component message = Component.translatable(apex
+                ? "message.noellesroles.sixty_seconds.boss_apex_spawned"
+                : "message.noellesroles.sixty_seconds.boss_spawned",
+                bossLevel, pos.getX(), pos.getY(), pos.getZ())
+                .withStyle(apex ? ChatFormatting.DARK_PURPLE : ChatFormatting.DARK_RED);
         for (ServerPlayer player : level.players()) {
             player.displayClientMessage(message, false);
-            player.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 0.7F, 0.75F);
+            player.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 0.7F, apex ? 0.5F : 0.75F);
         }
         return boss;
     }

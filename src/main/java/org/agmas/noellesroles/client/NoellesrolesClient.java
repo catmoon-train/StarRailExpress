@@ -383,6 +383,17 @@ public class NoellesrolesClient implements ClientModInitializer {
         };
         EntityRendererRegistry.register(ModEntities.WHEELCHAIR, WheelchairEntityRenderer::new);
         EntityRendererRegistry.register(ModEntities.WHEELCHAIR_FIELD_ITEM, WheelchairFieldItemRenderer::new);
+        // 60s 哨戒炮：炮头旋转 BER（底座走方块 JSON 模型）
+        net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_TURRET_ENTITY,
+                net.exmo.sre.sixtyseconds.client.render.SixtySecondsTurretRenderer::new);
+        // 60s 载具：专属盒子模型（摩托/小汽车）
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_MOTORCYCLE,
+                ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsVehicleRenderer(
+                        ctx, net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity.Kind.MOTORCYCLE));
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_CAR,
+                ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsVehicleRenderer(
+                        ctx, net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity.Kind.CAR));
         EntityRendererRegistry.register(ModEntities.ROLLING_STONE,
                 org.agmas.noellesroles.client.render.RollingStoneRenderer::new);
         EntityRendererRegistry.register(ModEntities.ROLLING_LOG,
@@ -416,6 +427,9 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.renderer.SixtySecondsMonsterRenderer::new);
         EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_ACID_SPIT,
                 net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
+        // 60s 弓/弩箭矢：复用原版箭矢渲染
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_ARROW,
+                net.exmo.sre.sixtyseconds.client.render.SixtySecondsArrowRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);
@@ -954,6 +968,11 @@ public class NoellesrolesClient implements ClientModInitializer {
                                 net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.clearZone();
                             }
                         }));
+        // 60s 海图：海岛元数据 + 解锁迷雾（openScreen=true 时直接弹出海图界面）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.SixtySecondsClientSeaChart.accept(payload)));
         // 60s 电力面板（右键发电机）
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.ID, (payload, context) ->

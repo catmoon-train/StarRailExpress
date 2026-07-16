@@ -18,11 +18,19 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * 自动射击 {@code TURRET_RANGE} 内最近的 60s 怪（游荡怪/夜袭者/Boss/低语怪）或<b>敌队</b>玩家
  * （本队免疫）；结算在 {@link SixtySecondsPveSystem#tick}。放在白色混凝土标记上方，扳手可拆除返还。
  */
-public class SixtySecondsTurretBlock extends Block {
+public class SixtySecondsTurretBlock extends Block
+        implements net.minecraft.world.level.block.EntityBlock {
     private static final VoxelShape SHAPE = Block.box(3, 0, 3, 13, 12, 13);
 
     public SixtySecondsTurretBlock(Properties properties) {
         super(properties);
+    }
+
+    /** BE 只服务于客户端渲染（炮头旋转），无服务端 tick。 */
+    @Override
+    public net.minecraft.world.level.block.entity.BlockEntity newBlockEntity(
+            BlockPos pos, BlockState state) {
+        return new net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsTurretBlockEntity(pos, state);
     }
 
     @Override

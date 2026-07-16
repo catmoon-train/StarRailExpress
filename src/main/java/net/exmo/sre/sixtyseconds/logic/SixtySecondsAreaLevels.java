@@ -26,6 +26,11 @@ public final class SixtySecondsAreaLevels {
 
     /** 反查坐标所在探索区的危险等级；不在任何已登记探索区内返回 1。 */
     public static int levelAt(ServerLevel level, BlockPos pos) {
+        // 海岛模式：岛屿单元格优先——物资箱稀有度/游荡怪强度随岛等级缩放
+        int islandLevel = net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.levelAt(level, pos);
+        if (islandLevel > 0) {
+            return clamp(islandLevel);
+        }
         SixtySecondsConfig config = SixtySecondsConfigStore.current(level).orElse(null);
         if (config == null) {
             return 1;

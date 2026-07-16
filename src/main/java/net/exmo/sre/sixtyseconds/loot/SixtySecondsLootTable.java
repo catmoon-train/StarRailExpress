@@ -162,6 +162,7 @@ public class SixtySecondsLootTable {
                 new Entry("noellesroles:sixty_seconds_compass", 1, 0.8F),
                 new Entry("noellesroles:sixty_seconds_repair_kit", 1, 0.8F),
                 new Entry("noellesroles:sixty_seconds_grappling_hook", 1, 0.6F),
+                new Entry("noellesroles:sixty_seconds_claw_hook", 1, 0.5F),
                 new Entry("noellesroles:sixty_seconds_blueprint", 1, 0.4F),
                 // 专用合成台（可携带的工作台/灶台/净化台，稀有）
                 new Entry("noellesroles:sixty_seconds_turret", 1, 0.25F),
@@ -206,6 +207,11 @@ public class SixtySecondsLootTable {
                 new Entry("noellesroles:sixty_seconds_sniper", 1, 0.25F),
                 new Entry("noellesroles:sixty_seconds_rpg", 1, 0.15F),
                 new Entry("noellesroles:sixty_seconds_hatchet", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_crude_bow", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_hunting_bow", 1, 0.7F),
+                new Entry("noellesroles:sixty_seconds_hand_crossbow", 1, 0.4F),
+                new Entry("noellesroles:sixty_seconds_crude_arrow", 6, 2.5F),
+                new Entry("noellesroles:sixty_seconds_iron_arrow", 4, 1.5F),
                 new Entry("noellesroles:sixty_seconds_cleaver", 1, 1.0F),
                 new Entry("noellesroles:sixty_seconds_incendiary_grenade", 1, 0.8F),
                 new Entry("noellesroles:sixty_seconds_frag_grenade", 1, 0.7F))));
@@ -230,6 +236,14 @@ public class SixtySecondsLootTable {
                 new Entry("noellesroles:sixty_seconds_anti_pollution_serum", 1, 0.8F),
                 new Entry("minecraft:golden_apple", 1, 0.6F),
                 new Entry("noellesroles:sixty_seconds_fertilizer", 2, 1.5F))));
+        // 野外专属（只在探索区/避难所外的箱子额外掉：见 SupplyBoxBlockEntity.claim）——
+        // 冶金/酿造原料 + 信号枪，是回家科技链的关键输入
+        table.categories.put("field", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_scrap_metal", 2, 4.0F),
+                new Entry("noellesroles:sixty_seconds_precious_parts", 1, 1.2F),
+                new Entry("noellesroles:sixty_seconds_brewing_parts", 1, 1.5F),
+                new Entry("minecraft:disc_fragment_5", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_flare_gun", 1, 0.4F))));
         return table;
     }
 

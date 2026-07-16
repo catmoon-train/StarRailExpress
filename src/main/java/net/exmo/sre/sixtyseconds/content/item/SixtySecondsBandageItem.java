@@ -26,8 +26,16 @@ public class SixtySecondsBandageItem extends Item {
     /** 绷带包扎时间：8 秒 */
     private static final int USE_DURATION = 160;
 
+    /** 本绷带的回复量（简易绷带 10 / 消毒绷带 25）。 */
+    private final int heal;
+
     public SixtySecondsBandageItem(Properties properties) {
+        this(properties, HEAL);
+    }
+
+    public SixtySecondsBandageItem(Properties properties, int heal) {
         super(properties);
+        this.heal = heal;
     }
 
     @Override
@@ -71,7 +79,7 @@ public class SixtySecondsBandageItem extends Item {
             return stack;
         }
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(serverPlayer);
-        stats.health = Math.min(SixtySecondsStatsComponent.MAX, stats.health + HEAL);
+        stats.health = Math.min(SixtySecondsStatsComponent.MAX, stats.health + heal);
         stats.sync();
         if (!serverPlayer.isCreative()) {
             stack.shrink(1);

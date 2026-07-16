@@ -122,6 +122,9 @@ public class SixtySecondsBackpackItem extends Item {
             return switch (rows) {
                 case 1 -> MenuType.GENERIC_9x1;
                 case 2 -> MenuType.GENERIC_9x2;
+                case 4 -> MenuType.GENERIC_9x4; // 军用背包 36 格
+                case 5 -> MenuType.GENERIC_9x5;
+                case 6 -> MenuType.GENERIC_9x6; // 商旅背包 54 格
                 default -> MenuType.GENERIC_9x3;
             };
         }

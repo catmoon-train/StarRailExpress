@@ -44,6 +44,9 @@ import net.minecraft.world.phys.Vec3;
 public class SixtySecondsBossEntity extends SixtySecondsMonsterEntity {
     private static final EntityDataAccessor<Integer> BOSS_LEVEL =
             SynchedEntityData.defineId(SixtySecondsBossEntity.class, EntityDataSerializers.INT);
+    /** 是否为「终焉之王」终极形态（更高血量、额外酸雨技能、专属贴图与紫色血条）。 */
+    private static final EntityDataAccessor<Boolean> APEX =
+            SynchedEntityData.defineId(SixtySecondsBossEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final ServerBossEvent bossEvent = new ServerBossEvent(
             Component.translatable("entity.noellesroles.sixty_seconds_boss"),
@@ -54,6 +57,7 @@ public class SixtySecondsBossEntity extends SixtySecondsMonsterEntity {
     private long nextRoarTick = 0;
     private long nextSummonTick = 0;
     private long nextChargeTick = 0;
+    private long nextBarrageTick = 0;
 
     public SixtySecondsBossEntity(EntityType<? extends Zombie> entityType, Level level) {
         super(entityType, level);
@@ -64,26 +68,44 @@ public class SixtySecondsBossEntity extends SixtySecondsMonsterEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(BOSS_LEVEL, 1);
+        builder.define(APEX, false);
     }
 
-    /** 按 Boss 等级装配：血量/移速/体型/击退抗性 + 血条标题。 */
+    /** 按 Boss 等级装配（普通尸潮领主）。 */
     public void applyBossLevel(int level) {
+        applyBossLevel(level, false);
+    }
+
+    /**
+     * 按 Boss 等级装配：血量/移速/体型/击退抗性 + 血条标题。
+     * {@code apex=true} 为终焉之王终极形态：血量 ×1.8、体型更大、技能冷却更短、解锁酸雨、紫色血条。
+     */
+    public void applyBossLevel(int level, boolean apex) {
         int lvl = Mth.clamp(level, 1, SixtySecondsBalance.BOSS_MAX_LEVEL);
         this.entityData.set(BOSS_LEVEL, lvl);
+        this.entityData.set(APEX, apex);
         addTag(PVE_TAG);
-        setAttr(Attributes.MAX_HEALTH, SixtySecondsBalance.BOSS_BASE_HEALTH
-                + SixtySecondsBalance.BOSS_HEALTH_PER_LEVEL * (lvl - 1));
-        setAttr(Attributes.MOVEMENT_SPEED, 0.24);
+        double baseHealth = SixtySecondsBalance.BOSS_BASE_HEALTH
+                + SixtySecondsBalance.BOSS_HEALTH_PER_LEVEL * (lvl - 1);
+        setAttr(Attributes.MAX_HEALTH, apex ? baseHealth * 1.8 : baseHealth);
+        setAttr(Attributes.MOVEMENT_SPEED, apex ? 0.27 : 0.24);
         setAttr(Attributes.KNOCKBACK_RESISTANCE, 1.0);
-        setAttr(Attributes.SCALE, 1.35 + 0.15 * (lvl - 1));
+        setAttr(Attributes.SCALE, (apex ? 1.7 : 1.35) + 0.15 * (lvl - 1));
         setHealth(getMaxHealth());
-        Component name = Component.translatable("entity.noellesroles.sixty_seconds_boss_leveled", lvl)
-                .withStyle(ChatFormatting.DARK_RED);
+        Component name = Component.translatable(apex
+                ? "entity.noellesroles.sixty_seconds_boss_apex_leveled"
+                : "entity.noellesroles.sixty_seconds_boss_leveled", lvl)
+                .withStyle(apex ? ChatFormatting.DARK_PURPLE : ChatFormatting.DARK_RED);
         setCustomName(name);
         setCustomNameVisible(true);
         bossEvent.setName(name);
+        bossEvent.setColor(apex ? BossEvent.BossBarColor.PURPLE : BossEvent.BossBarColor.RED);
         setPersistenceRequired();
         setBattleMob(true); // Boss 不因身边无人自散
+    }
+
+    public boolean isApex() {
+        return this.entityData.get(APEX);
     }
 
     private void setAttr(net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> attr,
@@ -105,7 +127,9 @@ public class SixtySecondsBossEntity extends SixtySecondsMonsterEntity {
 
     @Override
     public ResourceLocation textureLocation() {
-        return ResourceLocation.fromNamespaceAndPath("noellesroles", "textures/entity/sixty_seconds_boss.png");
+        return ResourceLocation.fromNamespaceAndPath("noellesroles",
+                isApex() ? "textures/entity/sixty_seconds_boss_apex.png"
+                        : "textures/entity/sixty_seconds_boss.png");
     }
 
     // ── Boss 血条：进入可视范围的玩家自动加入 ─────────────────────────────
@@ -140,16 +164,38 @@ public class SixtySecondsBossEntity extends SixtySecondsMonsterEntity {
         }
         long now = serverLevel.getGameTime();
         int lvl = bossLevel();
+        boolean apex = isApex();
         double distSqr = distanceToSqr(target);
         if (now >= nextSlamTick && distSqr <= 5 * 5) {
             slam(serverLevel, now, lvl);
         } else if (lvl >= 2 && now >= nextRoarTick && distSqr <= 12 * 12) {
             roar(serverLevel, now, lvl);
+        } else if (apex && now >= nextBarrageTick && distSqr >= 6 * 6 && distSqr <= 30 * 30
+                && hasLineOfSight(target)) {
+            // 终焉之王专属：远程酸雨齐射（多发抛物线酸液）
+            acidBarrage(serverLevel, now, target, lvl);
         } else if (lvl >= 3 && now >= nextSummonTick) {
             summon(serverLevel, now, lvl);
         } else if (lvl >= 4 && now >= nextChargeTick && distSqr >= 8 * 8 && distSqr <= 24 * 24) {
             charge(serverLevel, now, target);
         }
+    }
+
+    /** 终焉之王酸雨：朝目标扇形齐射 4+lvl/2 发酸液（命中扣健康+污染，复用吐酸者投射物）。 */
+    private void acidBarrage(ServerLevel serverLevel, long now, LivingEntity target, int lvl) {
+        nextBarrageTick = now + SixtySecondsBalance.BOSS_ROAR_COOLDOWN_TICKS;
+        playSound(SoundEvents.LLAMA_SPIT, 1.6F, 0.5F);
+        int shots = 4 + lvl / 2;
+        for (int i = 0; i < shots; i++) {
+            SixtySecondsAcidSpitEntity spit = new SixtySecondsAcidSpitEntity(serverLevel, this);
+            double dx = target.getX() - getX() + (serverLevel.random.nextDouble() - 0.5) * 4.0;
+            double dy = target.getY(0.4) - spit.getY();
+            double dz = target.getZ() - getZ() + (serverLevel.random.nextDouble() - 0.5) * 4.0;
+            double horizontal = Math.sqrt(dx * dx + dz * dz);
+            spit.shoot(dx, dy + horizontal * 0.14, dz, 1.0F, 6.0F);
+            serverLevel.addFreshEntity(spit);
+        }
+        serverLevel.sendParticles(ParticleTypes.ITEM_SLIME, getX(), getEyeY(), getZ(), 12, 0.6, 0.4, 0.6, 0.05);
     }
 
     /** 震地猛击：5.5 格 AoE 健康伤害 + 击飞。 */
@@ -224,13 +270,14 @@ public class SixtySecondsBossEntity extends SixtySecondsMonsterEntity {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("SreBossLevel", bossLevel());
+        tag.putBoolean("SreBossApex", isApex());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("SreBossLevel")) {
-            applyBossLevel(tag.getInt("SreBossLevel"));
+            applyBossLevel(tag.getInt("SreBossLevel"), tag.getBoolean("SreBossApex"));
         }
     }
 }

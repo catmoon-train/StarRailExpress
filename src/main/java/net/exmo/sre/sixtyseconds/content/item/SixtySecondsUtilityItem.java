@@ -39,7 +39,7 @@ import java.util.UUID;
  */
 public class SixtySecondsUtilityItem extends Item {
     public enum Type {
-        RADIO, COMPASS, TOOLBOX, BLUEPRINT, ALARM, LURE
+        RADIO, COMPASS, TOOLBOX, BLUEPRINT, ALARM, LURE, MAGNET
     }
 
     private final Type type;
@@ -68,11 +68,31 @@ public class SixtySecondsUtilityItem extends Item {
             case BLUEPRINT -> blueprint(serverLevel, serverPlayer, team);
             case ALARM -> alarm(serverPlayer, team);
             case LURE -> lure(serverPlayer, team);
+            case MAGNET -> magnet(serverLevel, serverPlayer, stack);
         };
-        if (consumed && !serverPlayer.isCreative()) {
+        if (consumed && !serverPlayer.isCreative() && type != Type.MAGNET) {
             stack.shrink(1);
         }
         return InteractionResultHolder.success(stack);
+    }
+
+    /** 磁铁：把周围 12 格的掉落物吸到脚下（耗 1 点耐久，不消耗物品本体）。 */
+    private static boolean magnet(ServerLevel level, ServerPlayer player, ItemStack stack) {
+        List<net.minecraft.world.entity.item.ItemEntity> items = level.getEntitiesOfClass(
+                net.minecraft.world.entity.item.ItemEntity.class,
+                player.getBoundingBox().inflate(12.0D), e -> e.isAlive());
+        if (items.isEmpty()) {
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.sixty_seconds.magnet_nothing"), true);
+            return false;
+        }
+        for (net.minecraft.world.entity.item.ItemEntity item : items) {
+            item.teleportTo(player.getX(), player.getY() + 0.5, player.getZ());
+            item.setNoPickUpDelay();
+        }
+        stack.hurtAndBreak(1, player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+        player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.8F, 1.4F);
+        return false;
     }
 
     /**
@@ -185,7 +205,8 @@ public class SixtySecondsUtilityItem extends Item {
         List<SixtySecondsTechTree.TechNode> candidates = new ArrayList<>();
         for (SixtySecondsTechTree.TechNode node : SixtySecondsTechTree.NODES) {
             if (!team.unlockedTech.contains(node.id())
-                    && (node.parentId() == null || team.unlockedTech.contains(node.parentId()))) {
+                    && (node.parentId() == null || team.unlockedTech.contains(node.parentId()))
+                    && SixtySecondsTechTree.gateSatisfied(node, team.unlockedTech)) {
                 candidates.add(node);
             }
         }
@@ -196,9 +217,7 @@ public class SixtySecondsUtilityItem extends Item {
         }
         SixtySecondsTechTree.TechNode node = candidates.get(level.getRandom().nextInt(candidates.size()));
         team.unlockedTech.add(node.id());
-        if ("defense".equals(node.id())) {
-            team.doorLevel = Math.min(3, team.doorLevel + 1);
-        }
+        SixtySecondsTechTree.applyUnlockSideEffects(team, node.id());
         Component name = Component.translatable("tech.noellesroles.sixty_seconds." + node.id());
         for (UUID uuid : team.members) {
             if (level.getPlayerByUUID(uuid) instanceof ServerPlayer member) {

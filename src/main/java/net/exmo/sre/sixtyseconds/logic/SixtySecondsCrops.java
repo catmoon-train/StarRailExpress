@@ -1,0 +1,113 @@
+package net.exmo.sre.sixtyseconds.logic;
+
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.init.ModItems;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 培育箱作物注册表（两端共享静态定义）：种子 → 产物/数量/允许的培育箱/科技门控。
+ * <ul>
+ *   <li>普通培育箱（BASIC）：常规作物；高级培育箱（ADVANCED）：常规作物 2 阶段速生 +
+ *       专属作物（工业麻/火把花/瓶子草）；菌丝箱（MUSHROOM）：只种蘑菇。</li>
+ *   <li>种植门控用科技 id（{@link SixtySecondsTechTree}）：农业-I 小麦、农业-II 常规作物与野米/野茶、
+ *       农业-III 工业麻/火把花/瓶子草、烟草科技种烟草。</li>
+ * </ul>
+ * 队伍收获加成（野谷/野茶/工业麻/烟草种子概率）见 PlanterBlock 收获结算。
+ */
+public final class SixtySecondsCrops {
+
+    /** 培育箱等级。 */
+    public enum Tier {
+        BASIC, ADVANCED, MUSHROOM
+    }
+
+    /**
+     * 作物定义：{@code techId} 为 null 表示无门控；{@code advancedOnly} 的作物只能种高级培育箱；
+     * {@code mushroom} 的作物只能种菌丝箱；{@code fullStagesInAdvanced} 在高级培育箱也要走满 3 阶段
+     * （工业麻/火把花/瓶子草）。
+     */
+    public record Crop(String id, Item seed, Item product, int minCount, int maxCount,
+            String techId, boolean advancedOnly, boolean mushroom, boolean fullStagesInAdvanced) {
+    }
+
+    private static List<Crop> crops;
+
+    private SixtySecondsCrops() {
+    }
+
+    /** 懒构建（保证 ModItems 已完成注册）。 */
+    public static synchronized List<Crop> all() {
+        if (crops == null) {
+            crops = build();
+        }
+        return crops;
+    }
+
+    /** 按手持种子物品找作物；找不到返回 null。 */
+    public static Crop bySeed(Item seed) {
+        for (Crop crop : all()) {
+            if (crop.seed() == seed) {
+                return crop;
+            }
+        }
+        return null;
+    }
+
+    public static Crop byId(String id) {
+        for (Crop crop : all()) {
+            if (crop.id().equals(id)) {
+                return crop;
+            }
+        }
+        return null;
+    }
+
+    /** 该作物能否种进指定等级的培育箱。 */
+    public static boolean allowedIn(Crop crop, Tier tier) {
+        if (crop.mushroom()) {
+            return tier == Tier.MUSHROOM;
+        }
+        if (crop.advancedOnly()) {
+            return tier == Tier.ADVANCED;
+        }
+        return tier == Tier.BASIC || tier == Tier.ADVANCED;
+    }
+
+    private static List<Crop> build() {
+        List<Crop> list = new ArrayList<>();
+        // 基础：新鲜蔬菜（无门控，沿用旧培育箱闭环）
+        list.add(new Crop("vegetables", ModItems.SIXTY_SECONDS_SEEDS_PACK,
+                ModItems.SIXTY_SECONDS_FRESH_VEGETABLES, 1, 2, null, false, false, false));
+        // 农业-I：小麦
+        list.add(new Crop("wheat", Items.WHEAT_SEEDS, Items.WHEAT, 1, 2, "agri_1", false, false, false));
+        // 农业-II：野米/野茶 + 常规作物
+        list.add(new Crop("wild_rice", ModItems.SIXTY_SECONDS_WILD_RICE_SEEDS,
+                ModItems.SIXTY_SECONDS_WILD_RICE, 2, 2, "agri_2", false, false, false));
+        list.add(new Crop("wild_tea", ModItems.SIXTY_SECONDS_WILD_TEA_SEED,
+                ModItems.SIXTY_SECONDS_WILD_TEA_LEAF, 2, 2, "agri_2", false, false, false));
+        list.add(new Crop("potato", Items.POTATO, Items.POTATO, 2, 2, "agri_2", false, false, false));
+        list.add(new Crop("carrot", Items.CARROT, Items.CARROT, 2, 2, "agri_2", false, false, false));
+        list.add(new Crop("beetroot", Items.BEETROOT_SEEDS, Items.BEETROOT, 2, 2, "agri_2", false, false, false));
+        list.add(new Crop("melon", Items.MELON_SEEDS, Items.MELON, 2, 2, "agri_2", false, false, false));
+        list.add(new Crop("pumpkin", Items.PUMPKIN_SEEDS, Items.PUMPKIN, 2, 2, "agri_2", false, false, false));
+        // 农业-III：工业麻（仅高级培育箱）+ 火把花/瓶子草（仅高级培育箱，满 3 阶段，收 1 个）
+        list.add(new Crop("hemp", ModItems.SIXTY_SECONDS_HEMP_SEEDS,
+                ModItems.SIXTY_SECONDS_HEMP, 2, 2, "agri_3", true, false, true));
+        list.add(new Crop("torchflower", Items.TORCHFLOWER_SEEDS, Items.TORCHFLOWER,
+                1, 1, "agri_3", true, false, true));
+        list.add(new Crop("pitcher", Items.PITCHER_POD, Items.PITCHER_PLANT,
+                1, 1, "agri_3", true, false, true));
+        // 菌丝箱：红/棕蘑菇（种 1 收 2）
+        list.add(new Crop("red_mushroom", Items.RED_MUSHROOM, Items.RED_MUSHROOM,
+                2, 2, null, false, true, false));
+        list.add(new Crop("brown_mushroom", Items.BROWN_MUSHROOM, Items.BROWN_MUSHROOM,
+                2, 2, null, false, true, false));
+        // 烟草科技：烟草
+        list.add(new Crop("tobacco", ModItems.SIXTY_SECONDS_TOBACCO_SEEDS,
+                ModItems.SIXTY_SECONDS_TOBACCO, 1, 2, "tobacco", false, false, false));
+        return List.copyOf(list);
+    }
+}

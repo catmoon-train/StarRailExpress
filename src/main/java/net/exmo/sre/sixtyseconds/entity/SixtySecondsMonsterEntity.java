@@ -6,6 +6,7 @@ import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.logic.SixtySecondsHealthSystem;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -43,7 +44,7 @@ public class SixtySecondsMonsterEntity extends Zombie {
     private static final EntityDataAccessor<Integer> VARIANT =
             SynchedEntityData.defineId(SixtySecondsMonsterEntity.class, EntityDataSerializers.INT);
 
-    /** 变体：生命 / 移速 / 对玩家健康伤害 / 对门（路障）每秒伤害 / 贴图名。 */
+    /** 变体：生命 / 移速 / 对玩家健康伤害 / 对门（路障）每秒伤害 / 贴图名。新值只能追加在末尾（id 网络同步）。 */
     public enum Variant {
         /** 拖行者：基础近战怪，中速中血。 */
         SHAMBLER(0, 24.0, 0.21, 16, 2, "sixty_seconds_shambler"),
@@ -52,7 +53,16 @@ public class SixtySecondsMonsterEntity extends Zombie {
         /** 重锤兽：慢速高血高伤，破门主力。 */
         BRUTE(2, 60.0, 0.18, 30, 5, "sixty_seconds_brute"),
         /** 吐酸者：中距吐酸（酸液投射物，命中扣健康+污染），近战弱。 */
-        SPITTER(3, 18.0, 0.22, 8, 1, "sixty_seconds_spitter");
+        SPITTER(3, 18.0, 0.22, 8, 1, "sixty_seconds_spitter"),
+        // ── 扩充批次（勿插队/重排）────────────────────────────────────
+        /** 潜袭者：极快、血薄，远离目标时隐身潜行、贴近才现形（见 {@link #tickStalker}）。 */
+        STALKER(4, 16.0, 0.34, 14, 2, "sixty_seconds_stalker"),
+        /** 嚎叫者：定期嚎叫，给周围怪加速光环（见 {@link #tickHowler}），本体近战弱。 */
+        HOWLER(5, 28.0, 0.22, 8, 2, "sixty_seconds_howler"),
+        /** 爆裂怪：慢速，死亡时自爆造成范围健康伤害+击飞（见 {@link #explodeOnDeath}）。 */
+        BLOATER(6, 30.0, 0.16, 6, 3, "sixty_seconds_bloater"),
+        /** 装甲重锤：极高血、单次受击封顶（枪械也无法一枪即死），破门最强。 */
+        JUGGERNAUT(7, 120.0, 0.15, 34, 9, "sixty_seconds_juggernaut");
 
         public final int id;
         public final double health;
@@ -183,6 +193,27 @@ public class SixtySecondsMonsterEntity extends Zombie {
         return getVariant().injury;
     }
 
+    /**
+     * 装甲重锤：单次受击封顶（枪械 1000「即死」对它只按封顶生效，需连打几发）；
+     * 其余变体照常（普通怪一枪即死）。Boss 另有自己的 hurt 封顶覆写。
+     */
+    @Override
+    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+        if (getVariant() == Variant.JUGGERNAUT) {
+            return super.hurt(source, Math.min(amount, JUGGERNAUT_MAX_SINGLE_HIT));
+        }
+        return super.hurt(source, amount);
+    }
+
+    /** 装甲重锤单次受击封顶（约需 3~4 发枪打死满血 120）。 */
+    private static final float JUGGERNAUT_MAX_SINGLE_HIT = 35.0F;
+    /** 爆裂怪自爆参数。 */
+    private static final double BLOATER_RADIUS = 4.0;
+    private static final int BLOATER_INJURY = 22;
+    /** 嚎叫者光环刷新间隔与半径。 */
+    private static final int HOWLER_AURA_INTERVAL = 40;
+    private static final double HOWLER_AURA_RADIUS = 12.0;
+
     @Override
     public void tick() {
         super.tick();
@@ -201,8 +232,12 @@ public class SixtySecondsMonsterEntity extends Zombie {
         if (spitCooldown > 0) {
             spitCooldown--;
         }
-        if (getVariant() == Variant.SPITTER) {
-            tickSpit(serverLevel);
+        switch (getVariant()) {
+            case SPITTER -> tickSpit(serverLevel);
+            case STALKER -> tickStalker(serverLevel);
+            case HOWLER -> tickHowler(serverLevel);
+            default -> {
+            }
         }
         // 非战场怪：身边 64 格无人累计 1 分钟自散（防探索区游荡怪越攒越多）
         if (!battleMob && tickCount % 20 == 0) {
@@ -233,6 +268,75 @@ public class SixtySecondsMonsterEntity extends Zombie {
         spit.shoot(dx, dy + horizontal * 0.12, dz, 1.1F, 4.0F);
         playSound(SoundEvents.LLAMA_SPIT, 1.0F, 0.7F);
         serverLevel.addFreshEntity(spit);
+    }
+
+    /**
+     * 潜袭者：目标较远（>10 格）或无目标时给自己套隐身（潜行逼近），贴近（≤6 格）立即现形。
+     * 隐身用短时效果每 tick 续期，一旦贴近就清掉，让玩家近身才发现。
+     */
+    private void tickStalker(ServerLevel serverLevel) {
+        if (tickCount % 10 != 0) {
+            return;
+        }
+        LivingEntity target = getTarget();
+        double distSqr = target == null ? Double.MAX_VALUE : distanceToSqr(target);
+        if (distSqr > 6 * 6) {
+            addEffect(new MobEffectInstance(net.minecraft.world.effect.MobEffects.INVISIBILITY, 20, 0,
+                    false, false, false));
+        } else {
+            removeEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY);
+            if (tickCount % 20 == 0) {
+                serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SMOKE,
+                        getX(), getY() + 1.0, getZ(), 3, 0.2, 0.4, 0.2, 0.01);
+            }
+        }
+    }
+
+    /** 嚎叫者：定期给光环内的其它 60s 怪加速（不叠自己），并播嚎叫特效。 */
+    private void tickHowler(ServerLevel serverLevel) {
+        if (tickCount % HOWLER_AURA_INTERVAL != 0) {
+            return;
+        }
+        boolean buffed = false;
+        for (SixtySecondsMonsterEntity other : serverLevel.getEntitiesOfClass(SixtySecondsMonsterEntity.class,
+                getBoundingBox().inflate(HOWLER_AURA_RADIUS))) {
+            if (other == this || !other.isAlive()) {
+                continue;
+            }
+            other.addEffect(new MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED,
+                    HOWLER_AURA_INTERVAL + 20, 0, false, false, false));
+            buffed = true;
+        }
+        if (buffed) {
+            playSound(SoundEvents.WOLF_HOWL, 1.2F, 0.6F);
+            serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.ANGRY_VILLAGER,
+                    getX(), getEyeY(), getZ(), 6, 0.6, 0.4, 0.6, 0.02);
+        }
+    }
+
+    /** 爆裂怪死亡自爆：范围内活着的猎物扣健康 + 击飞（不伤怪，避免连锁引爆混乱）。 */
+    private void explodeOnDeath(ServerLevel serverLevel) {
+        serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION,
+                getX(), getY() + 0.5, getZ(), 8, 1.2, 0.4, 1.2, 0);
+        playSound(SoundEvents.GENERIC_EXPLODE.value(), 1.2F, 0.9F);
+        for (ServerPlayer player : serverLevel.players()) {
+            if (!isValidPrey(player) || distanceToSqr(player) > BLOATER_RADIUS * BLOATER_RADIUS) {
+                continue;
+            }
+            SixtySecondsHealthSystem.applyInjury(player, null, BLOATER_INJURY);
+            net.minecraft.world.phys.Vec3 away = player.position().subtract(position()).normalize();
+            player.setDeltaMovement(away.x * 0.8, 0.5, away.z * 0.8);
+            player.hurtMarked = true;
+        }
+    }
+
+    @Override
+    public void die(net.minecraft.world.damagesource.DamageSource cause) {
+        if (getVariant() == Variant.BLOATER && level() instanceof ServerLevel serverLevel
+                && SixtySecondsMod.isActive(serverLevel)) {
+            explodeOnDeath(serverLevel);
+        }
+        super.die(cause);
     }
 
     /** 可被追击/伤害的玩家：存活生存、未倒地、未变怪。 */

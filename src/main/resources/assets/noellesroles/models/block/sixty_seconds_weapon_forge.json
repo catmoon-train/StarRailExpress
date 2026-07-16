@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "noellesroles:block/sixty_seconds_weapon_forge",
+    "particle": "noellesroles:block/sixty_seconds_weapon_forge"
+  }
+}

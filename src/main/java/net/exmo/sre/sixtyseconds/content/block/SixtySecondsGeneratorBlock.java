@@ -72,17 +72,19 @@ public class SixtySecondsGeneratorBlock extends Block {
         int units = 0;
         if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BATTERY)) {
             units = 3; // 电池 = 3 份燃料（270s）
+        } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BATTERY_LARGE)) {
+            units = 12; // 大型电池 = 电池 ×4（1080s）
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_FUEL_CAN)) {
             units = 5; // 燃料罐 = 5 份（450s）
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SOLAR_PANEL)) {
-            // 太阳能板：仅白天（清晨/白天子相位）可用，= 2 份
+            // 太阳能板：仅白天（清晨/白天子相位）可用，= 大型电池 ×3（3240s）
             SixtySecondsState.Data solarData = SixtySecondsState.get(serverLevel);
             if (net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.isNight(solarData, serverLevel.getGameTime())) {
                 serverPlayer.displayClientMessage(Component.translatable(
                         "message.noellesroles.sixty_seconds.solar_no_sun"), true);
                 return ItemInteractionResult.SUCCESS;
             }
-            units = 2;
+            units = 36;
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP)
                 || stack.is(Items.COAL) || stack.is(Items.CHARCOAL)) {
             units = 1;

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "noellesroles:block/sixty_seconds_vault_large",
+    "particle": "noellesroles:block/sixty_seconds_vault_large"
+  }
+}

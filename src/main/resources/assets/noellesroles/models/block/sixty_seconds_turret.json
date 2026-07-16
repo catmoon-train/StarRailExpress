@@ -1,0 +1,70 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "t": "noellesroles:block/sixty_seconds_turret",
+    "particle": "noellesroles:block/sixty_seconds_turret"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        3,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#t"
+        },
+        "south": {
+          "texture": "#t"
+        },
+        "west": {
+          "texture": "#t"
+        },
+        "east": {
+          "texture": "#t"
+        },
+        "up": {
+          "texture": "#t"
+        },
+        "down": {
+          "texture": "#t"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        3,
+        5
+      ],
+      "to": [
+        11,
+        12,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#t"
+        },
+        "south": {
+          "texture": "#t"
+        },
+        "west": {
+          "texture": "#t"
+        },
+        "east": {
+          "texture": "#t"
+        },
+        "up": {
+          "texture": "#t"
+        }
+      }
+    }
+  ]
+}

@@ -150,6 +150,9 @@ public class ModPackets {
         // 60s 区域地图：当前扫描区域 + 家点位
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.CODEC);
+        // 60s 海图：海岛元数据 + 解锁迷雾
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.CODEC);
         // 电力面板 + 避难所控制面板
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.CODEC);
