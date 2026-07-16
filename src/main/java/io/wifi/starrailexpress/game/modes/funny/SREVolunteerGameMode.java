@@ -181,12 +181,14 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
                 // runAssignment 内部会设置 phase = RESULT
                 broadcastSync(world);
             }
-            // 不再有定时广播
-        }
-
-        // RESULT 阶段
-        if (draftState.getPhase() == VolunteerDraftState.Phase.RESULT) {
-            completeDraft(world, gameComp);
+        } else if (draftState.getPhase() == VolunteerDraftState.Phase.RESULT) {
+            long elapsed = world.getGameTime() - draftState.getPhaseStartTime();
+            if (elapsed >= draftState.getResultTimeLimit()) {
+                completeDraft(world, gameComp);
+                completeResult(world, gameComp);
+            } else if (elapsed == 0) { // 刚进入 RESULT，立即广播一次
+                broadcastSync(world);
+            }
         }
 
         super.tickServerGameLoop(world, gameComp);
@@ -199,10 +201,7 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
         for (int i = 0; i < count; i++)
             indices.add(i);
         Collections.shuffle(indices);
-        // 可选：随机插入 -1 随机志愿
-        if (player.getRandom().nextBoolean()) {
-            indices.add(player.getRandom().nextInt(indices.size() + 1), -1);
-        }
+        // 不加入随机志愿，直接提交具体顺序
         draftState.submitPreference(player.getUUID(), indices);
     }
 
@@ -220,13 +219,19 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
         completeDraft(world, gameComp);
     }
 
+    private void completeResult(ServerLevel world, SREGameWorldComponent gameComp) {
+        draftState = null;
+        for (ServerPlayer p : world.players()) {
+            ServerPlayNetworking.send(p, new CloseUiPayload());
+        }
+    }
+
     private void completeDraft(ServerLevel world, SREGameWorldComponent gameComp) {
         if (!isInDraftPhase)
             return;
         isInDraftPhase = false;
 
         Map<UUID, SRERole> finalRoles = new HashMap<>(draftState.getFinalAssignment());
-        draftState = null;
 
         SRERoleWorldComponent roleComp = SRERoleWorldComponent.KEY.get(world);
         for (ServerPlayer p : world.players()) {
@@ -264,10 +269,9 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
                 }
                 ModdedRoleAssigned.EVENT.invoker().assignModdedRole(p, role);
             }
-            ServerPlayNetworking.send(p, new CloseUiPayload());
         }
 
-        int safeTime = SREConfig.instance().safeTimeCooldown * 20;
+        int safeTime = SREConfig.instance().safeTimeCooldown * 20 + draftState.getResultTimeLimit();
         GameUtils.addItemCooldowns(world, safeTime);
 
         int modifierCount = (int) (alive.size() * HarpyModLoaderConfig.HANDLER.instance().modifierMultiplier);

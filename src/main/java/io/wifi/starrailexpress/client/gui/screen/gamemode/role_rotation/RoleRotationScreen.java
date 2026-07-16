@@ -10,7 +10,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -99,7 +98,6 @@ public class RoleRotationScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
-        renderBackground(g, mouseX, mouseY, partialTick);
         computeLayout();
         calculateScroll();
         hoveredCardIndex = -1;
@@ -368,17 +366,7 @@ public class RoleRotationScreen extends Screen {
     }
 
     private List<FormattedCharSequence> getRoleIntroLines(SRERole role, int wrapW) {
-        String key = "info.screen.roleid." + role.identifier().getPath();
-        String raw = Language.getInstance().getOrDefault(key);
-        if (raw.equals(key) || raw.isBlank()) {
-            return font.split(RoleUtils.getRoleDescription(role), wrapW);
-        }
-        List<FormattedCharSequence> lines = new ArrayList<>();
-        for (String part : raw.split("\\\\n|\\n")) {
-            lines.addAll(font.split(Component.literal(part), wrapW));
-            lines.add(FormattedCharSequence.EMPTY);
-        }
-        return lines;
+        return font.split(RoleUtils.getRoleDescription(role), wrapW);
     }
 
     private int detailIndexForSelected(String selectedPath, List<String> candidates) {

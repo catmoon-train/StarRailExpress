@@ -7,7 +7,6 @@ import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.content.vote.client.VolunteerCache;
 import io.wifi.starrailexpress.game.modes.funny.volunteer.VolunteerDraftState.Phase;
 import io.wifi.starrailexpress.network.packet.VolunteerCommitC2SPacket;
-import io.wifi.starrailexpress.network.packet.VolunteerDraftSyncS2CPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -15,14 +14,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
-
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.utils.RoleUtils;
-
 import java.util.*;
 
 public class VolunteerDraftScreen extends Screen {
@@ -32,6 +28,8 @@ public class VolunteerDraftScreen extends Screen {
     private static final int CARD_W = 160;
     private static final int CARD_H = 48;
     private static final int ARROW_BTN_SIZE = 16;
+    private static final int VIEWPORT_TOP = 70; // 卡片可视区域顶部 Y
+    private static final int VIEWPORT_BOTTOM_PAD = 70; // 提交按钮上方保留空间
 
     private static final int BG_TOP = 0xF018120A;
     private static final int BG_BOTTOM = 0xF0061018;
@@ -42,17 +40,21 @@ public class VolunteerDraftScreen extends Screen {
     private static final int TEXT = 0xFFFFF4DC;
     private static final int MUTED = 0xFF9E8B6E;
     private static final int BLUE = 0xFF5EB7D8;
-    private static final int GREEN = 0xFF72C17B;
     private static final int RED = 0xFFE06B65;
 
-    private List<String> currentOrder; // 当前排序的职业 ID 列表
+    private List<String> currentOrder;
     private int volunteerCount;
-    private Button[][] moveButtons; // [志愿位][0=上,1=下,2=随机]
+    private Button[][] moveButtons;
     private Button submitButton;
 
     // 拖拽状态
     private int draggingIndex = -1;
     private int dragOffsetX, dragOffsetY;
+    private boolean submitted = false;
+
+    // 滚动状态
+    private double scrollY = 0;
+    private double maxScrollY = 0;
 
     // 结果阶段数据
     private Map<UUID, String> finalRoles = Map.of();
@@ -62,7 +64,6 @@ public class VolunteerDraftScreen extends Screen {
         super(Component.translatable("gui.sre.volunteer.title").withStyle(ChatFormatting.GOLD));
     }
 
-    // ========== 初始化 ==========
     @Override
     protected void init() {
         super.init();
@@ -77,6 +78,7 @@ public class VolunteerDraftScreen extends Screen {
         if (VolunteerCache.getPhase() == Phase.COMMIT) {
             buildCommitWidgets();
         }
+        updateScrollLimits();
     }
 
     private void buildCommitWidgets() {
@@ -98,15 +100,30 @@ public class VolunteerDraftScreen extends Screen {
         submitButton = Button.builder(Component.translatable("gui.sre.volunteer.submit"), btn -> onSubmit())
                 .bounds(width / 2 - 50, height - 40, 100, 20).build();
         addRenderableWidget(submitButton);
+
+        // 如果已经提交过，保持按钮禁用状态
+        if (submitted) {
+            submitButton.active = false;
+            for (Button[] row : moveButtons) {
+                for (Button btn : row)
+                    btn.active = false;
+            }
+        }
+    }
+
+    private void updateScrollLimits() {
+        int contentHeight = volunteerCount * (CARD_H + GAP);
+        int viewportHeight = height - VIEWPORT_TOP - VIEWPORT_BOTTOM_PAD;
+        maxScrollY = Math.max(0, contentHeight - viewportHeight);
+        scrollY = Math.max(0, Math.min(scrollY, maxScrollY));
     }
 
     private void updateButtonPositions() {
         if (moveButtons == null)
             return;
-        int startY = 70;
         int startX = width / 2 - CARD_W / 2;
         for (int i = 0; i < volunteerCount; i++) {
-            int y = startY + i * (CARD_H + GAP);
+            int y = VIEWPORT_TOP + i * (CARD_H + GAP) - (int) scrollY;
             moveButtons[i][0].setPosition(startX + CARD_W + 4, y);
             moveButtons[i][0].visible = i > 0;
             moveButtons[i][1].setPosition(startX + CARD_W + 4, y + CARD_H - ARROW_BTN_SIZE);
@@ -125,19 +142,31 @@ public class VolunteerDraftScreen extends Screen {
         }
     }
 
-    // ========== 每帧更新 ==========
     @Override
     public void tick() {
         super.tick();
         if (VolunteerCache.getPhase() == Phase.COMMIT) {
             updateButtonPositions();
+            updateScrollLimits();
+            // 拖拽自动滚动
+            if (draggingIndex >= 0) {
+                int mouseY = (int) Minecraft.getInstance().mouseHandler.ypos() * height
+                        / Minecraft.getInstance().getWindow().getHeight();
+                int scrollThreshold = 30;
+                if (mouseY < VIEWPORT_TOP + scrollThreshold) {
+                    scrollY = Math.max(0, scrollY - 5);
+                } else if (mouseY > height - VIEWPORT_BOTTOM_PAD - scrollThreshold) {
+                    scrollY = Math.min(maxScrollY, scrollY + 5);
+                }
+            }
         } else if (VolunteerCache.getPhase() == Phase.RESULT && finalRoles.isEmpty()) {
             updateResult();
         }
     }
 
-    // ========== 交互逻辑 ==========
     private void onSubmit() {
+        if (submitted)
+            return;
         List<Integer> prefs = new ArrayList<>();
         List<String> originals = VolunteerCache.getMyCandidates();
         for (String id : currentOrder) {
@@ -149,6 +178,7 @@ public class VolunteerDraftScreen extends Screen {
             }
         }
         ClientPlayNetworking.send(new VolunteerCommitC2SPacket(prefs));
+        submitted = true;
         submitButton.active = false;
         if (moveButtons != null) {
             for (Button[] row : moveButtons) {
@@ -159,39 +189,46 @@ public class VolunteerDraftScreen extends Screen {
     }
 
     private void moveUp(int index) {
-        if (index > 0 && index < volunteerCount) {
+        if (index > 0 && !submitted)
             Collections.swap(currentOrder, index, index - 1);
-        }
     }
 
     private void moveDown(int index) {
-        if (index < volunteerCount - 1) {
+        if (index < volunteerCount - 1 && !submitted)
             Collections.swap(currentOrder, index, index + 1);
-        }
     }
 
     private void toggleRandom(int index) {
+        if (submitted)
+            return;
         if (currentOrder.get(index).equals("random")) {
             List<String> originals = VolunteerCache.getMyCandidates();
-            if (index < originals.size()) {
+            if (index < originals.size())
                 currentOrder.set(index, originals.get(index));
-            }
         } else {
             currentOrder.set(index, "random");
         }
     }
 
+    @Override
+    public void renderBackground(GuiGraphics g, int i, int j, float f) {
+        g.fillGradient(0, 0, width, height, BG_TOP, BG_BOTTOM);
+        g.fillGradient(0, 0, width, 34, 0xAA000000, 0x22000000);
+        // guiGraphics.fill(0, 0, width, height, java.awt.Color.black.getRGB());
+
+    }
+
     // ========== 渲染 ==========
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        renderBackground(g, mouseX, mouseY, partialTick);
         super.render(g, mouseX, mouseY, partialTick);
         drawTitleBar(g);
 
         Phase phase = VolunteerCache.getPhase();
         if (phase == Phase.COMMIT) {
             drawTimer(g);
-            drawCards(g, mouseX, mouseY);
+            drawCardsInViewport(g, mouseX, mouseY);
+            drawScrollbar(g);
             if (draggingIndex >= 0)
                 drawDraggedCard(g, mouseX, mouseY);
         } else if (phase == Phase.ADJUST) {
@@ -213,53 +250,86 @@ public class VolunteerDraftScreen extends Screen {
         String timeStr = String.format("%d:%02d", seconds / 60, seconds % 60);
         int color = seconds <= 10 ? RED : seconds <= 30 ? 0xFFFFAA33 : BLUE;
         Component timer = Component.literal(timeStr).withStyle(style -> style.withColor(color).withBold(true));
-        g.drawCenteredString(font, timer, width / 2, 38, color);
+        g.drawCenteredString(font, timer, width / 2, VIEWPORT_TOP - 32, color);
     }
 
-    private void drawCards(GuiGraphics g, int mouseX, int mouseY) {
-        int startY = 70;
+    private void drawCardsInViewport(GuiGraphics g, int mouseX, int mouseY) {
         int startX = width / 2 - CARD_W / 2;
+        int viewportTop = VIEWPORT_TOP;
+        int viewportBottom = height - VIEWPORT_BOTTOM_PAD;
+        g.enableScissor(0, viewportTop, width, viewportBottom - viewportTop);
         for (int i = 0; i < volunteerCount; i++) {
-            if (i == draggingIndex)
+            int y = viewportTop + i * (CARD_H + GAP) - (int) scrollY;
+            if (y + CARD_H < viewportTop || y > viewportBottom)
                 continue;
-            int y = startY + i * (CARD_H + GAP);
-            boolean hover = inside(mouseX, mouseY, startX, y, CARD_W, CARD_H);
-            drawCard(g, startX, y, CARD_W, CARD_H, i, hover);
+            if (i == draggingIndex) {
+                drawCard(g, startX, y, CARD_W, CARD_H, i, false, true);
+            } else {
+                boolean hover = inside(mouseX, mouseY, startX, y, CARD_W, CARD_H) && !submitted;
+                drawCard(g, startX, y, CARD_W, CARD_H, i, hover, false);
+            }
         }
+        g.disableScissor();
     }
 
-    private void drawCard(GuiGraphics g, int x, int y, int w, int h, int index, boolean hover) {
-        int border = hover ? GOLD : 0xFF5A4530;
-        int bgTop = hover ? 0xFF2B2112 : 0xFF1A1008;
-        int bgBottom = hover ? 0xFF112536 : 0xFF0B1722;
+    private void drawCard(GuiGraphics g, int x, int y, int w, int h, int index, boolean hover, boolean ghost) {
+        int border, bgTop, bgBottom;
+        if (ghost) {
+            border = 0x88FFFFFF;
+            bgTop = 0x442B2112;
+            bgBottom = 0x44112536;
+        } else {
+            border = hover ? GOLD : 0xFF5A4530;
+            bgTop = hover ? 0xFF2B2112 : 0xFF1A1008;
+            bgBottom = hover ? 0xFF112536 : 0xFF0B1722;
+        }
         g.fillGradient(x, y, x + w, y + h, bgTop, bgBottom);
         g.renderOutline(x, y, w, h, border);
-        g.fill(x + 1, y + 1, x + w - 1, y + 3, hover ? GOLD : 0x33FFE8C0);
+        if (!ghost) {
+            g.fill(x + 1, y + 1, x + w - 1, y + 3, hover ? GOLD : 0x33FFE8C0);
+        }
 
         String roleId = currentOrder.get(index);
         if (roleId.equals("random")) {
+            int color = ghost ? (GOLD & 0x00FFFFFF) | 0x88000000 : GOLD;
             g.drawCenteredString(font, Component.translatable("gui.sre.volunteer.random"), x + w / 2, y + h / 2 - 4,
-                    GOLD);
+                    color);
         } else {
             SRERole role = getRoleByPath(roleId);
             if (role != null) {
+                int nameColor = ghost ? ((role.getColor() & 0x00FFFFFF) | 0x88000000) : (role.getColor() | 0xFF000000);
                 Component name = RoleUtils.getRoleName(role).withColor(role.getColor());
-                g.drawCenteredString(font, name, x + w / 2, y + 8, role.getColor() | 0xFF000000);
+                g.drawCenteredString(font, name, x + w / 2, y + 8, nameColor);
                 Component faction = getFactionText(role);
-                g.drawCenteredString(font, faction, x + w / 2, y + 24,
-                        faction.getStyle().getColor() != null ? faction.getStyle().getColor().getValue() : TEXT);
+                int factionColor = ghost ? (faction.getStyle().getColor().getValue() & 0x00FFFFFF) | 0x88000000
+                        : faction.getStyle().getColor().getValue();
+                g.drawCenteredString(font, faction, x + w / 2, y + 24, factionColor);
             } else {
-                g.drawCenteredString(font, roleId, x + w / 2, y + h / 2 - 4, TEXT);
+                int color = ghost ? (TEXT & 0x00FFFFFF) | 0x88000000 : TEXT;
+                g.drawCenteredString(font, roleId, x + w / 2, y + h / 2 - 4, color);
             }
         }
         Component pos = Component.literal("#" + (index + 1)).withStyle(ChatFormatting.GRAY);
-        g.drawString(font, pos, x + 4, y + 4, GOLD);
+        g.drawString(font, pos, x + 4, y + 4, ghost ? MUTED : GOLD);
     }
 
     private void drawDraggedCard(GuiGraphics g, int mouseX, int mouseY) {
         int x = mouseX - dragOffsetX;
         int y = mouseY - dragOffsetY;
-        drawCard(g, x, y, CARD_W, CARD_H, draggingIndex, true);
+        drawCard(g, x, y, CARD_W, CARD_H, draggingIndex, true, false);
+    }
+
+    private void drawScrollbar(GuiGraphics g) {
+        if (maxScrollY <= 0)
+            return;
+        int barX = width / 2 + CARD_W / 2 + 10;
+        int barY = VIEWPORT_TOP;
+        int barH = (height - VIEWPORT_TOP - VIEWPORT_BOTTOM_PAD);
+        int barW = 4;
+        int thumbH = Math.max(18, (int) (barH * barH / (float) (maxScrollY + barH)));
+        int thumbY = barY + (int) ((barH - thumbH) * (scrollY / maxScrollY));
+        g.fill(barX, barY, barX + barW, barY + barH, 0x661A1008);
+        g.fill(barX, thumbY, barX + barW, thumbY + thumbH, GOLD);
     }
 
     private void drawWaiting(GuiGraphics g) {
@@ -272,74 +342,74 @@ public class VolunteerDraftScreen extends Screen {
     }
 
     private void drawResult(GuiGraphics g, int mouseX, int mouseY) {
-        // 左侧玩家列表
-        int leftX = PAD;
-        int leftY = PAD + 22;
-        int panelW = Math.max(160, (int) (width * 0.25));
-        int panelH = height - leftY - PAD;
-        g.fillGradient(leftX, leftY, leftX + panelW, leftY + panelH, PANEL_BG_TOP, PANEL_BG_BOTTOM);
-        g.renderOutline(leftX, leftY, panelW, panelH, BORDER);
-        g.drawString(font, Component.translatable("gui.sre.volunteer.result_list"), leftX + PAD, leftY + PAD, GOLD);
-        int y = leftY + PAD + 20;
-        for (Map.Entry<UUID, String> e : finalRoles.entrySet()) {
-            String name = e.getKey().toString().substring(0, 8);
-            SRERole r = getRoleByPath(e.getValue());
-            String roleName = r != null ? RoleUtils.getRoleName(r).getString() : e.getValue();
-            g.drawString(font, name + ": " + roleName, leftX + PAD, y, TEXT);
-            y += 12;
-        }
-
-        // 右侧自己的职业详情
         SRERole myRole = getRoleByPath(myFinalRoleId);
-        if (myRole != null) {
-            int rightX = leftX + panelW + GAP;
-            int rightW = width - rightX - PAD;
-            int detailY = leftY;
-            int detailH = panelH;
-            g.fillGradient(rightX, detailY, rightX + rightW, detailY + detailH, PANEL_BG_TOP, PANEL_BG_BOTTOM);
-            g.renderOutline(rightX, detailY, rightW, detailH, BORDER);
-
-            Component name = RoleUtils.getRoleName(myRole).withColor(myRole.getColor());
-            g.drawString(font, name, rightX + PAD, detailY + PAD, myRole.getColor() | 0xFF000000);
-            Component faction = getFactionText(myRole);
-            g.drawString(font, faction, rightX + rightW - PAD - font.width(faction), detailY + PAD,
-                    faction.getStyle().getColor() != null ? faction.getStyle().getColor().getValue() : TEXT);
-
-            int descY = detailY + PAD + 20;
-            int descW = rightW - PAD * 2;
-            List<FormattedCharSequence> lines = getRoleIntroLines(myRole, descW);
-            for (int i = 0; i < Math.min(lines.size(), 12); i++) {
-                g.drawString(font, lines.get(i), rightX + PAD, descY + i * 12, TEXT);
-            }
+        if (myRole == null) {
+            g.drawCenteredString(font, Component.translatable("gui.sre.volunteer.waiting"), width / 2, height / 2,
+                    TEXT);
+            return;
         }
+
+        // 面板占据中央偏右的大部分区域（可根据需要调整）
+        int panelX = width / 4;
+        int panelY = 40;
+        int panelW = width / 2;
+        int panelH = height - 80;
+        g.fillGradient(panelX, panelY, panelX + panelW, panelY + panelH, PANEL_BG_TOP, PANEL_BG_BOTTOM);
+        g.renderOutline(panelX, panelY, panelW, panelH, BORDER);
+
+        // 职业名称与阵营
+        Component name = RoleUtils.getRoleName(myRole).withColor(myRole.getColor());
+        g.drawCenteredString(font, name, panelX + panelW / 2, panelY + 15, myRole.getColor() | 0xFF000000);
+        Component faction = getFactionText(myRole);
+        g.drawCenteredString(font, faction, panelX + panelW / 2, panelY + 30,
+                faction.getStyle().getColor() != null ? faction.getStyle().getColor().getValue() : TEXT);
+
+        // 介绍文本（带剪裁，防止过长溢出）
+        int descY = panelY + 48;
+        int descW = panelW - PAD * 2;
+        List<FormattedCharSequence> lines = getRoleIntroLines(myRole, descW);
+        g.enableScissor(panelX + PAD, descY, panelX + panelW - PAD, panelY + panelH - PAD);
+        for (int i = 0; i < lines.size(); i++) {
+            int lineY = descY + i * 12;
+            if (lineY + 12 > panelY + panelH - PAD)
+                break;
+            g.drawString(font, lines.get(i), panelX + PAD, lineY, TEXT);
+        }
+        g.disableScissor();
+
+        // 底部提示
+        Component hint = Component.translatable("gui.sre.volunteer.result_hint").withStyle(ChatFormatting.GRAY);
+        g.drawCenteredString(font, hint, width / 2, height - 20, MUTED);
     }
 
     private List<FormattedCharSequence> getRoleIntroLines(SRERole role, int wrapW) {
-        String key = "info.screen.roleid." + role.identifier().getPath();
-        String raw = Language.getInstance().getOrDefault(key);
-        if (raw.equals(key) || raw.isBlank()) {
-            return font.split(RoleUtils.getRoleDescription(role), wrapW);
-        }
-        List<FormattedCharSequence> lines = new ArrayList<>();
-        for (String part : raw.split("\\\\n|\\n")) {
-            lines.addAll(font.split(Component.literal(part), wrapW));
-            lines.add(FormattedCharSequence.EMPTY);
-        }
-        return lines;
+        return font.split(RoleUtils.getRoleDescription(role), wrapW);
     }
 
     // ========== 鼠标事件 ==========
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
+        if (submitted)
+            return super.mouseClicked(mx, my, button);
         if (button == 0 && VolunteerCache.getPhase() == Phase.COMMIT) {
-            int startY = 70;
             int startX = width / 2 - CARD_W / 2;
             for (int i = 0; i < volunteerCount; i++) {
-                int y = startY + i * (CARD_H + GAP);
+                int y = VIEWPORT_TOP + i * (CARD_H + GAP) - (int) scrollY;
                 if (inside(mx, my, startX, y, CARD_W, CARD_H)) {
                     draggingIndex = i;
                     dragOffsetX = (int) (mx - startX);
                     dragOffsetY = (int) (my - y);
+                    return true;
+                }
+            }
+            // 滚动条拖拽
+            if (maxScrollY > 0) {
+                int barX = width / 2 + CARD_W / 2 + 10;
+                int barY = VIEWPORT_TOP;
+                int barH = (height - VIEWPORT_TOP - VIEWPORT_BOTTOM_PAD);
+                if (inside(mx, my, barX, barY, 8, barH)) {
+                    float ratio = (float) ((my - barY) / barH);
+                    scrollY = Math.max(0, Math.min(maxScrollY, ratio * maxScrollY));
                     return true;
                 }
             }
@@ -350,12 +420,11 @@ public class VolunteerDraftScreen extends Screen {
     @Override
     public boolean mouseReleased(double mx, double my, int button) {
         if (draggingIndex >= 0) {
-            int startY = 70;
             int startX = width / 2 - CARD_W / 2;
             int targetIndex = -1;
             double minDist = Double.MAX_VALUE;
             for (int i = 0; i < volunteerCount; i++) {
-                int y = startY + i * (CARD_H + GAP);
+                int y = VIEWPORT_TOP + i * (CARD_H + GAP) - (int) scrollY;
                 double cx = startX + CARD_W / 2.0;
                 double cy = y + CARD_H / 2.0;
                 double dist = Math.sqrt(Math.pow(mx - cx, 2) + Math.pow(my - cy, 2));
@@ -376,6 +445,15 @@ public class VolunteerDraftScreen extends Screen {
     @Override
     public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
         return draggingIndex >= 0 || super.mouseDragged(mx, my, btn, dx, dy);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mx, double my, double scrollX, double scrollY) {
+        if (VolunteerCache.getPhase() == Phase.COMMIT && maxScrollY > 0) {
+            scrollY = Math.max(0, Math.min(maxScrollY, scrollY - scrollY * 10));
+            return true;
+        }
+        return super.mouseScrolled(mx, my, scrollX, scrollY);
     }
 
     private boolean inside(double mx, double my, int x, int y, int w, int h) {
@@ -416,7 +494,7 @@ public class VolunteerDraftScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 256) {
-            minecraft.setScreen(new WithParentScreenPauseScreen(this, true));
+            minecraft.setScreen(new WithParentScreenPauseScreen(this, false));
             return true;
         }
         if (NoellesrolesClient.roleIntroClientBind.matches(keyCode, scanCode)) {

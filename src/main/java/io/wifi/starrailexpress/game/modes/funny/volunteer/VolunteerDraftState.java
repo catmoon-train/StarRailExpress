@@ -32,8 +32,9 @@ public class VolunteerDraftState {
     public Phase phase = Phase.WAITING;
     public long phaseStartTime;
     private int commitTimeLimit = 60 * 20;
-
-    private int adjustTimeLimit = 5 * 20; // 5秒调整期
+    // 新增字段
+    private int resultTimeLimit = 5 * 20; // 结果展示 10 秒
+    private int adjustTimeLimit = 1 * 20; // 5秒调整期
     private final Random random;
     private final ServerLevel world;
 
@@ -166,112 +167,133 @@ public class VolunteerDraftState {
 
     public void runAssignment() {
         List<UUID> remaining = new ArrayList<>(submittedPlayers);
-        Map<SRERole, Integer> capacity = new HashMap<>();
+        Map<String, Integer> capacity = new HashMap<>(); // 改用 String ID
         for (SRERole role : globalRolePool) {
-            capacity.merge(role, 1, Integer::sum);
+            capacity.merge(role.identifier().toString(), 1, Integer::sum);
         }
 
-        int maxRounds = 0;
-        for (UUID pid : remaining) {
-            List<Integer> prefs = submittedPreferences.get(pid);
-            if (prefs != null)
-                maxRounds = Math.max(maxRounds, prefs.size());
-        }
+        int maxRounds = submittedPreferences.values().stream()
+                .mapToInt(List::size).max().orElse(0);
 
         for (int round = 0; round < maxRounds; round++) {
             if (remaining.isEmpty())
                 break;
-            List<UUID> roundPlayers = new ArrayList<>();
+
+            // 本轮玩家及其志愿
             Map<UUID, Integer> roundChoices = new HashMap<>();
-            for (UUID pid : remaining) {
+            for (UUID pid : new ArrayList<>(remaining)) {
                 List<Integer> prefs = submittedPreferences.get(pid);
                 if (prefs != null && round < prefs.size()) {
-                    roundPlayers.add(pid);
                     roundChoices.put(pid, prefs.get(round));
                 }
             }
 
-            Map<SRERole, List<UUID>> byRole = new HashMap<>();
+            // 分离具体志愿与随机志愿
+            Map<String, List<UUID>> byRole = new LinkedHashMap<>(); // key: role ID
             List<UUID> randomPickPlayers = new ArrayList<>();
-            for (UUID pid : roundPlayers) {
+            for (UUID pid : roundChoices.keySet()) {
                 int choice = roundChoices.get(pid);
                 if (choice == -1) {
                     randomPickPlayers.add(pid);
                 } else {
-                    SRERole targetRole = candidatePool.get(pid).get(choice);
-                    byRole.computeIfAbsent(targetRole, k -> new ArrayList<>()).add(pid);
+                    SRERole target = candidatePool.get(pid).get(choice);
+                    String rid = target.identifier().toString();
+                    byRole.computeIfAbsent(rid, k -> new ArrayList<>()).add(pid);
                 }
             }
 
-            for (Map.Entry<SRERole, List<UUID>> entry : byRole.entrySet()) {
-                SRERole role = entry.getKey();
+            // 先分配具体志愿
+            for (Map.Entry<String, List<UUID>> entry : byRole.entrySet()) {
+                String rid = entry.getKey();
                 List<UUID> applicants = entry.getValue();
+                // 按权重排序
                 applicants.sort((a, b) -> {
-                    int w1 = getWeight(a, role);
-                    int w2 = getWeight(b, role);
+                    SRERole roleA = candidatePool.get(a).stream()
+                            .filter(r -> r.identifier().toString().equals(rid)).findFirst().orElse(null);
+                    SRERole roleB = candidatePool.get(b).stream()
+                            .filter(r -> r.identifier().toString().equals(rid)).findFirst().orElse(null);
+                    int w1 = roleA != null ? getWeight(a, roleA) : 0;
+                    int w2 = roleB != null ? getWeight(b, roleB) : 0;
                     if (w1 != w2)
                         return Integer.compare(w2, w1);
-                    return Integer.compare(
-                            Objects.hash(a, random.nextInt()),
-                            Objects.hash(b, random.nextInt()));
+                    return Integer.compare(Objects.hash(a, random.nextInt()), Objects.hash(b, random.nextInt()));
                 });
 
-                int slots = capacity.getOrDefault(role, 0);
+                int slots = capacity.getOrDefault(rid, 0);
                 Iterator<UUID> iter = applicants.iterator();
                 while (slots > 0 && iter.hasNext()) {
                     UUID winner = iter.next();
-                    finalAssignment.put(winner, role);
-                    remaining.remove(winner);
-                    slots--;
+                    SRERole winnerRole = candidatePool.get(winner).stream()
+                            .filter(r -> r.identifier().toString().equals(rid)).findFirst().orElse(null);
+                    if (winnerRole != null) {
+                        finalAssignment.put(winner, winnerRole);
+                        capacity.merge(rid, -1, Integer::sum);
+                        remaining.remove(winner);
+                        slots--;
+                    }
                 }
-                capacity.put(role, slots);
             }
 
+            // 再处理随机志愿
             for (UUID pid : randomPickPlayers) {
                 if (finalAssignment.containsKey(pid))
                     continue;
-                List<SRERole> availableRoles = capacity.entrySet().stream()
-                        .filter(e -> e.getValue() > 0)
-                        .map(Map.Entry::getKey)
-                        .collect(Collectors.toList());
-                if (!availableRoles.isEmpty()) {
-                    SRERole picked = availableRoles.get(random.nextInt(availableRoles.size()));
+                List<SRERole> available = getAvailableRolesForPlayer(pid, capacity);
+                if (!available.isEmpty()) {
+                    SRERole picked = available.get(random.nextInt(available.size()));
                     finalAssignment.put(pid, picked);
-                    capacity.merge(picked, -1, Integer::sum);
+                    capacity.merge(picked.identifier().toString(), -1, Integer::sum);
                     remaining.remove(pid);
                 }
             }
         }
 
-        // 最终兜底：按权重随机分配剩余职业
-        for (UUID pid : remaining) {
-            List<SRERole> availableRoles = capacity.entrySet().stream()
-                    .filter(e -> e.getValue() > 0)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-            if (!availableRoles.isEmpty()) {
-                // 按权重降序排序，取权重最高的几个，然后随机选一个（或直接取最高）
-                availableRoles.sort(Comparator.comparingInt(r -> -getWeight(pid, r)));
-                // 取前三分之一或直接最高？这里简单取权重最高的一个
-                SRERole chosen = availableRoles.get(0);
+        // 最终兜底
+        for (UUID pid : new ArrayList<>(remaining)) {
+            List<SRERole> available = getAvailableRolesForPlayer(pid, capacity);
+            if (!available.isEmpty()) {
+                available.sort(Comparator.comparingInt(r -> -getWeight(pid, r)));
+                SRERole chosen = available.get(0);
                 finalAssignment.put(pid, chosen);
-                capacity.merge(chosen, -1, Integer::sum);
+                capacity.merge(chosen.identifier().toString(), -1, Integer::sum);
             } else {
                 finalAssignment.put(pid, TMMRoles.CIVILIAN);
             }
         }
 
         phase = Phase.RESULT;
+        phaseStartTime = world.getGameTime();
+    }
+
+    public int getResultTimeLimit() {
+        return resultTimeLimit;
+    }
+
+    private List<SRERole> getAvailableRolesForPlayer(UUID playerId, Map<String, Integer> capacity) {
+        ServerPlayer player = players.stream().filter(p -> p.getUUID().equals(playerId)).findFirst().orElse(null);
+        if (player == null)
+            return List.of();
+        List<SRERole> factionPool = getFactionPool(player);
+        List<SRERole> available = new ArrayList<>();
+        for (SRERole role : factionPool) {
+            if (capacity.getOrDefault(role.identifier().toString(), 0) > 0) {
+                available.add(role);
+            }
+        }
+        if (available.isEmpty()) {
+            // 回退到全池剩余
+            for (SRERole role : globalRolePool) {
+                if (capacity.getOrDefault(role.identifier().toString(), 0) > 0) {
+                    available.add(role);
+                }
+            }
+        }
+        return available;
     }
 
     private int getWeight(UUID playerId, SRERole role) {
-        ServerPlayer player = players.stream()
-                .filter(p -> p.getUUID().equals(playerId))
-                .findFirst().orElse(null);
-        if (player == null)
-            return 0;
         int type = PlayerRoleWeightManager.getRoleType(role);
-        return (int) (PlayerRoleWeightManager.getRoleWeightPercent(player, type) * 100);
+        return (int) (PlayerRoleWeightManager.getRoleWeightPercent(playerId, type) * 100);
     }
 
     // Getters
