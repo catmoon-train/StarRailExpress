@@ -492,7 +492,7 @@ public class VolunteerDraftScreen extends Screen {
         if (role.isNeutrals())
             return Component.translatable("display.type.role.neutral_special").withStyle(s -> s.withColor(0xFFCCAA22));
         if (role.isVigilanteTeam())
-            return Component.translatable("display.type.role.vigilante").withStyle(s -> s.withColor(0xFF1B8AE5));
+            return Component.translatable("display.type.role.vigilante").withStyle(s -> s.withColor(0xFF22BBCC));
         return Component.literal("?").withStyle(ChatFormatting.GRAY);
     }
 
