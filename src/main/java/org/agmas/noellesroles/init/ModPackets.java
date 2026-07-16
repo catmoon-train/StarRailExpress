@@ -404,5 +404,9 @@ public class ModPackets {
         ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket::handle);
         PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailReplyC2SPacket::handle);
+
+        // 60s 载具摄像机切换（汽车上车切第三人称）
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.VehicleCameraS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VehicleCameraS2CPacket.CODEC);
     }
 }

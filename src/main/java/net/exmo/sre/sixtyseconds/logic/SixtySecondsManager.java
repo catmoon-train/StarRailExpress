@@ -577,7 +577,7 @@ public final class SixtySecondsManager {
         if (previous < 0) {
             return; // 开日初始化，由 startDay 的 SubtitleHUD 负责播报
         }
-        // 傍晚切换（白天→晚上）：检测妹妹外出事件状态
+        // 傍晚切换（白天→晚上）：检测妹妹外出事件状态（仅通知该队成员）
         if (previous == 1 && stage == 2) {
             for (SixtySecondsState.TeamData team : data.teams.values()) {
                 if (!team.sisterOutside || team.sisterUUID == null) continue;
@@ -589,7 +589,7 @@ public final class SixtySecondsManager {
                 }
                 if (sister == null) {
                     // 妹妹不在线（离线或死了）
-                    broadcast(level, Component.translatable(
+                    teamBroadcast(level, team, Component.translatable(
                             "message.noellesroles.sixty_seconds.devent.sister_outside.never_return",
                             team.teamId).withStyle(ChatFormatting.DARK_RED));
                     team.sisterOutside = false;
@@ -600,7 +600,7 @@ public final class SixtySecondsManager {
                         net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(sister);
                 if (stats.downed || stats.monster) {
                     // 妹妹倒地或已变怪
-                    broadcast(level, Component.translatable(
+                    teamBroadcast(level, team, Component.translatable(
                             "message.noellesroles.sixty_seconds.devent.sister_outside.never_return",
                             team.teamId).withStyle(ChatFormatting.DARK_RED));
                     team.sisterOutside = false;
@@ -621,7 +621,7 @@ public final class SixtySecondsManager {
                         stats.sync();
                         sister.setHealth(1.0F); // 原版血量同步，确保一击即死
                         net.exmo.sre.sixtyseconds.logic.SixtySecondsMonsterSystem.applyMonsterEffects(sister);
-                        broadcast(level, Component.translatable(
+                        teamBroadcast(level, team, Component.translatable(
                                 "message.noellesroles.sixty_seconds.devent.sister_outside.back_but_changed",
                                 sister.getGameProfile().getName(), team.teamId)
                                 .withStyle(ChatFormatting.DARK_RED));
@@ -630,7 +630,7 @@ public final class SixtySecondsManager {
                     team.sisterUUID = null;
                 } else {
                     // 还没回来，播报等待
-                    broadcast(level, Component.translatable(
+                    teamBroadcast(level, team, Component.translatable(
                             "message.noellesroles.sixty_seconds.devent.sister_outside.still_waiting",
                             team.teamId).withStyle(ChatFormatting.GOLD));
                 }
@@ -853,6 +853,15 @@ public final class SixtySecondsManager {
     private static void broadcast(ServerLevel level, Component message) {
         for (ServerPlayer player : level.players()) {
             player.displayClientMessage(message, false);
+        }
+    }
+
+    /** 仅向指定队伍的在线成员发送消息。 */
+    private static void teamBroadcast(ServerLevel level, SixtySecondsState.TeamData team, Component message) {
+        for (UUID uuid : team.members) {
+            if (level.getPlayerByUUID(uuid) instanceof ServerPlayer member) {
+                member.displayClientMessage(message, false);
+            }
         }
     }
 }

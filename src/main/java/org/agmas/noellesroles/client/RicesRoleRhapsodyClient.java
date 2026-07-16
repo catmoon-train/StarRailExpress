@@ -103,6 +103,11 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         // // 慕恋者持续按键检测（窥视）
         // handleAdmirerContinuousInput(client);
         // });
+
+        // 60s 载具摄像机切换
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.VehicleCameraS2CPacket.ID,
+                new net.exmo.sre.sixtyseconds.network.VehicleCameraS2CPacket.ClientReceiver());
     }
 
     /**
