@@ -1743,13 +1743,13 @@ public class ModItems {
 
     /**
      * 消防斧
-     * - 3点耐久
+     * - 10点耐久
      * - Shift+右键：直接撬开门，消耗1点耐久，30秒冷却
      * - 直接右键：像刀一样举起，蓄力2秒，可击杀一名玩家，消耗3点耐久（需满耐久）
      * - 击杀玩家会触发误杀惩罚
      */
     public static final Item FIRE_AXE = register(
-            new FireAxeItem(new Item.Properties().stacksTo(1).durability(3)),
+            new FireAxeItem(new Item.Properties().stacksTo(1).durability(10)),
             "fire_axe", WEAPONS_GROUP);
     public static final Item THROWING_KNIFE = register(
             new ThrowingKnife((new Item.Properties()).stacksTo(1)), "throwing_knife",

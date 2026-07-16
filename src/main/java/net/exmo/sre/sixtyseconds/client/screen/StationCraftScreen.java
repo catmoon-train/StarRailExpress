@@ -20,14 +20,22 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.BarrelBlockEntity;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -66,6 +74,11 @@ public class StationCraftScreen extends Screen {
     private record Entry(SixtySecondsRecipes.Recipe recipe, EntryState state) {
     }
 
+    /** 客户端扫描附近容器的半径（需与服务端 CONTAINER_SCAN_RADIUS 一致）。 */
+    private static final int CONTAINER_SCAN_RADIUS = 16;
+    /** 容器列表缓存刷新间隔（tick）。 */
+    private static final int CONTAINER_CACHE_TICKS = 20;
+
     private final SixtySecondsRecipes.Station station;
     private final BlockPos pos;
     private final Set<String> unlockedTech;
@@ -86,6 +99,10 @@ public class StationCraftScreen extends Screen {
 
     private EditBox searchBox;
     private Button craftBtn, craft5Btn;
+
+    /** 附近容器缓存（物品 → 总数量），每 20 tick 刷新一次。 */
+    private Map<net.minecraft.world.item.Item, Integer> containerItemCache = new HashMap<>();
+    private int containerCacheTimer;
 
     public StationCraftScreen(OpenStationS2CPacket data) {
         super(Component.translatable(
@@ -142,6 +159,10 @@ public class StationCraftScreen extends Screen {
     @Override
     protected void init() {
         computeLayout();
+
+        // 打开 GUI 时立即扫描一次附近容器
+        refreshContainerCache();
+        containerCacheTimer = 0;
 
         // 搜索框：标签栏右侧
         int searchW = Mth.clamp(panelW / 5, 90, 130);
@@ -236,10 +257,16 @@ public class StationCraftScreen extends Screen {
         return total;
     }
 
-    /** 背包变化（合成扣料/捡东西）会改变置灰与排序，每 tick 重算一次（配方量小，开销可忽略）。 */
+    /** 背包变化（合成扣料/捡东西）会改变置灰与排序，每 tick 重算一次（配方量小，开销可忽略）。
+     *  同时每隔 20 tick 刷新附近容器缓存。 */
     @Override
     public void tick() {
         super.tick();
+        containerCacheTimer++;
+        if (containerCacheTimer >= CONTAINER_CACHE_TICKS) {
+            containerCacheTimer = 0;
+            refreshContainerCache();
+        }
         rebuildEntries();
     }
 
@@ -631,6 +658,67 @@ public class StationCraftScreen extends Screen {
 
     // ── 工具方法 ──────────────────────────────────────────────────
 
+    /** 扫描附近方块容器并缓存物品数量。 */
+    private void refreshContainerCache() {
+        Map<net.minecraft.world.item.Item, Integer> cache = new HashMap<>();
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null || client.level == null) {
+            containerItemCache = cache;
+            return;
+        }
+        BlockPos playerPos = client.player.blockPosition();
+        int r = CONTAINER_SCAN_RADIUS;
+        int rSqr = r * r;
+
+        int minCX = (playerPos.getX() - r) >> 4;
+        int maxCX = (playerPos.getX() + r) >> 4;
+        int minCZ = (playerPos.getZ() - r) >> 4;
+        int maxCZ = (playerPos.getZ() + r) >> 4;
+
+        for (int cx = minCX; cx <= maxCX; cx++) {
+            for (int cz = minCZ; cz <= maxCZ; cz++) {
+                LevelChunk chunk = client.level.getChunkSource().getChunkNow(cx, cz);
+                if (chunk == null) {
+                    continue;
+                }
+                for (BlockEntity be : chunk.getBlockEntities().values()) {
+                    if (!(be instanceof Container container)) {
+                        continue;
+                    }
+                    // 跳过功能性方块
+                    if (be instanceof net.minecraft.world.level.block.entity.FurnaceBlockEntity
+                            || be instanceof net.minecraft.world.level.block.entity.BrewingStandBlockEntity
+                            || be instanceof net.minecraft.world.level.block.entity.HopperBlockEntity
+                            || be instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
+                        continue;
+                    }
+                    // 检查距离
+                    BlockPos bePos = be.getBlockPos();
+                    double dx = bePos.getX() + 0.5 - playerPos.getX();
+                    double dy = bePos.getY() + 0.5 - playerPos.getY();
+                    double dz = bePos.getZ() + 0.5 - playerPos.getZ();
+                    if (dx * dx + dy * dy + dz * dz > rSqr) {
+                        continue;
+                    }
+                    // 只纳入存储类容器
+                    if (be instanceof ChestBlockEntity
+                            || be instanceof BarrelBlockEntity
+                            || be instanceof ShulkerBoxBlockEntity
+                            || be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsVaultBlockEntity) {
+                        for (int slot = 0; slot < container.getContainerSize(); slot++) {
+                            ItemStack stack = container.getItem(slot);
+                            if (!stack.isEmpty()) {
+                                cache.merge(stack.getItem(), stack.getCount(), Integer::sum);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        containerItemCache = cache;
+    }
+
+    /** 背包 + 附近容器内某物品的总数量。 */
     private int countInInventory(net.minecraft.world.item.Item item) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) {
@@ -643,6 +731,8 @@ public class StationCraftScreen extends Screen {
                 have += stack.getCount();
             }
         }
+        // 加上附近容器中的数量
+        have += containerItemCache.getOrDefault(item, 0);
         return have;
     }
 

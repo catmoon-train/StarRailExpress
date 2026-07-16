@@ -3,6 +3,7 @@ package net.exmo.sre.sixtyseconds.logic;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
+import net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsVaultBlockEntity;
 import net.exmo.sre.sixtyseconds.network.OpenStationS2CPacket;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -13,8 +14,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 合成台交互：60s 模式内右键 书桌(工作台/讲台)/灶台(熔炉族/营火)/浴缸(炼药锅) →
@@ -22,6 +29,9 @@ import net.minecraft.world.item.ItemStack;
  */
 public final class SixtySecondsStations {
     private static final double CRAFT_RANGE_SQR = 6.0 * 6.0;
+
+    /** 合成时扫描附近容器的半径（格）。 */
+    private static final int CONTAINER_SCAN_RADIUS = 16;
 
     private SixtySecondsStations() {
     }
@@ -145,27 +155,106 @@ public final class SixtySecondsStations {
         deliver(player, recipe, crafted);
     }
 
-    /** 背包内可充当该配料的物品总数（组配料合计全部候选）。 */
+    /**
+     * 收集避难所内所有可用容器（玩家背包 + 附近方块容器）。
+     * 保险库按队伍归属过滤；其他容器（箱子/木桶/基地箱等）只要在范围内即纳入。
+     * 返回的列表第一个元素始终是玩家背包（优先扣除）。
+     */
+    private static List<Container> findNearbyContainers(ServerPlayer player) {
+        List<Container> containers = new ArrayList<>();
+        // 玩家背包优先
+        containers.add(player.getInventory());
+
+        ServerLevel level = player.serverLevel();
+        BlockPos playerPos = player.blockPosition();
+        int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+        int r = CONTAINER_SCAN_RADIUS;
+        int rSqr = r * r;
+
+        // 按 chunk 遍历（比 BlockPos.betweenClosed 更高效）
+        int minCX = (playerPos.getX() - r) >> 4;
+        int maxCX = (playerPos.getX() + r) >> 4;
+        int minCZ = (playerPos.getZ() - r) >> 4;
+        int maxCZ = (playerPos.getZ() + r) >> 4;
+
+        for (int cx = minCX; cx <= maxCX; cx++) {
+            for (int cz = minCZ; cz <= maxCZ; cz++) {
+                LevelChunk chunk = level.getChunkSource().getChunkNow(cx, cz);
+                if (chunk == null) {
+                    continue;
+                }
+                for (BlockEntity be : chunk.getBlockEntities().values()) {
+                    if (!(be instanceof Container container)) {
+                        continue;
+                    }
+                    // 跳过功能性方块实体（熔炉、酿造台、投掷器等）
+                    if (be instanceof net.minecraft.world.level.block.entity.FurnaceBlockEntity
+                            || be instanceof net.minecraft.world.level.block.entity.BrewingStandBlockEntity
+                            || be instanceof net.minecraft.world.level.block.entity.HopperBlockEntity
+                            || be instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
+                        continue;
+                    }
+                    // 检查距离
+                    BlockPos bePos = be.getBlockPos();
+                    double dx = bePos.getX() + 0.5 - playerPos.getX();
+                    double dy = bePos.getY() + 0.5 - playerPos.getY();
+                    double dz = bePos.getZ() + 0.5 - playerPos.getZ();
+                    if (dx * dx + dy * dy + dz * dz > rSqr) {
+                        continue;
+                    }
+                    // 保险库/基地箱子：检查队伍归属
+                    if (be instanceof SixtySecondsVaultBlockEntity vault) {
+                        if (vault.ownerTeamId >= 0 && vault.ownerTeamId != teamId) {
+                            continue; // 别队的保险库不能取
+                        }
+                        containers.add(container);
+                        continue;
+                    }
+                    // 原版箱子、木桶、潜影盒等
+                    if (be instanceof net.minecraft.world.level.block.entity.ChestBlockEntity
+                            || be instanceof net.minecraft.world.level.block.entity.BarrelBlockEntity
+                            || be instanceof net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity) {
+                        containers.add(container);
+                    }
+                }
+            }
+        }
+        return containers;
+    }
+
+    /** 所有可用容器中可充当该配料的物品总数（背包 + 避难所容器）。 */
     private static int countMatching(ServerPlayer player, SixtySecondsRecipes.Ingredient input) {
         int have = 0;
-        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-            ItemStack stack = player.getInventory().getItem(slot);
-            if (input.matches(stack)) {
-                have += stack.getCount();
+        for (Container container : findNearbyContainers(player)) {
+            for (int slot = 0; slot < container.getContainerSize(); slot++) {
+                ItemStack stack = container.getItem(slot);
+                if (input.matches(stack)) {
+                    have += stack.getCount();
+                }
             }
         }
         return have;
     }
 
-    /** 按配料扣除（组配料跨候选扣够为止；调用前须先 countMatching 校验充足）。 */
+    /**
+     * 按配料扣除（优先扣玩家背包，再扣容器；组配料跨候选扣够为止；
+     * 调用前须先 countMatching 校验充足）。
+     */
     private static void consumeMatching(ServerPlayer player, SixtySecondsRecipes.Ingredient input) {
         int left = input.count();
-        for (int slot = 0; slot < player.getInventory().getContainerSize() && left > 0; slot++) {
-            ItemStack stack = player.getInventory().getItem(slot);
-            if (input.matches(stack)) {
-                int take = Math.min(left, stack.getCount());
-                stack.shrink(take);
-                left -= take;
+        List<Container> containers = findNearbyContainers(player);
+        for (Container container : containers) {
+            for (int slot = 0; slot < container.getContainerSize() && left > 0; slot++) {
+                ItemStack stack = container.getItem(slot);
+                if (input.matches(stack)) {
+                    int take = Math.min(left, stack.getCount());
+                    stack.shrink(take);
+                    left -= take;
+                }
+            }
+            // 方块实体容器需标记脏数据以同步
+            if (container instanceof BlockEntity be) {
+                be.setChanged();
             }
         }
     }

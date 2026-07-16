@@ -291,6 +291,13 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 60s 避难所门（复用 wathe 列车钢门实体贴图，带透明窗洞）使用 cutout 渲染层
         BlockRenderLayerMap.INSTANCE.putBlock(
                 ModBlocks.SIXTY_SECONDS_SHELTER_DOOR, RenderType.cutout());
+        // 60s 基地门 1/2/3（继承避难所门的 2 格高薄门模型，必须用 cutout 否则下部分被遮挡透视）
+        BlockRenderLayerMap.INSTANCE.putBlock(
+                ModBlocks.SIXTY_SECONDS_BASE_DOOR_1, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(
+                ModBlocks.SIXTY_SECONDS_BASE_DOOR_2, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(
+                ModBlocks.SIXTY_SECONDS_BASE_DOOR_3, RenderType.cutout());
 
         // 注册C4背部渲染
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register(

@@ -36,14 +36,14 @@ import java.util.List;
 /**
  * 消防斧
  * <p>
- * - 3点耐久
+ * - 10点耐久
  * - Shift+右键：直接撬开门，消耗1点耐久，30秒冷却
  * - 直接右键：像刀一样举起，蓄力2秒，可击杀一名玩家，消耗3点耐久（需满耐久）
  * - 击杀玩家会触发误杀惩罚
  * </p>
  */
 public class FireAxeItem extends Item implements AdventureUsable {
-    private static final int MAX_DURABILITY = 3;
+    private static final int MAX_DURABILITY = 10;
     private static final int PRY_COOLDOWN = 30 * 20; // 30秒
     private static final int CHARGE_TIME = 2 * 20; // 2秒
     @SuppressWarnings("unused")
