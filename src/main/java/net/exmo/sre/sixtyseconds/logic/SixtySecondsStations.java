@@ -21,17 +21,20 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 合成台交互：60s 模式内右键 书桌(工作台/讲台)/灶台(熔炉族/营火)/浴缸(炼药锅) →
  * 打开该站配方界面（拦截原版 GUI）；C2S 合成请求在服务端校验 科技/供电/材料 后成交。
+ * <p>
+ * 合成材料从<b>队伍避难所范围盒（shelterBox + residentialBox）</b>内的所有容器中自动取用，
+ * 不再限于玩家背包。
  */
 public final class SixtySecondsStations {
     private static final double CRAFT_RANGE_SQR = 6.0 * 6.0;
-
-    /** 合成时扫描附近容器的半径（格）。 */
-    private static final int CONTAINER_SCAN_RADIUS = 16;
 
     private SixtySecondsStations() {
     }
@@ -156,76 +159,84 @@ public final class SixtySecondsStations {
     }
 
     /**
-     * 收集避难所内所有可用容器（玩家背包 + 附近方块容器）。
-     * 保险库按队伍归属过滤；其他容器（箱子/木桶/基地箱等）只要在范围内即纳入。
-     * 返回的列表第一个元素始终是玩家背包（优先扣除）。
+     * 收集避难所内所有可用容器（玩家背包 + 队伍 shelterBox & residentialBox 内的方块容器）。
+     * 玩家背包始终排第一位（优先扣除）；保险库按队伍归属过滤。
      */
-    private static List<Container> findNearbyContainers(ServerPlayer player) {
+    private static List<Container> findShelterContainers(ServerPlayer player) {
         List<Container> containers = new ArrayList<>();
         // 玩家背包优先
         containers.add(player.getInventory());
 
         ServerLevel level = player.serverLevel();
-        BlockPos playerPos = player.blockPosition();
         int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
-        int r = CONTAINER_SCAN_RADIUS;
-        int rSqr = r * r;
+        SixtySecondsState.TeamData team = SixtySecondsState.get(level).teams.get(teamId);
+        if (team == null) {
+            return containers;
+        }
 
-        // 按 chunk 遍历（比 BlockPos.betweenClosed 更高效）
-        int minCX = (playerPos.getX() - r) >> 4;
-        int maxCX = (playerPos.getX() + r) >> 4;
-        int minCZ = (playerPos.getZ() - r) >> 4;
-        int maxCZ = (playerPos.getZ() + r) >> 4;
+        Set<BlockEntity> seen = new HashSet<>();
+        scanAABBContainers(level, team.shelterBox, teamId, containers, seen);
+        scanAABBContainers(level, team.residentialBox, teamId, containers, seen);
+        return containers;
+    }
 
-        for (int cx = minCX; cx <= maxCX; cx++) {
-            for (int cz = minCZ; cz <= maxCZ; cz++) {
+    /** 扫描单个 AABB 范围内的所有存储类 BlockEntity 容器。 */
+    private static void scanAABBContainers(ServerLevel level, net.minecraft.world.phys.AABB box,
+            int teamId, List<Container> out, Set<BlockEntity> seen) {
+        if (box == null) {
+            return;
+        }
+        int minCx = net.minecraft.core.SectionPos.blockToSectionCoord(
+                net.minecraft.util.Mth.floor(box.minX));
+        int maxCx = net.minecraft.core.SectionPos.blockToSectionCoord(
+                net.minecraft.util.Mth.floor(box.maxX));
+        int minCz = net.minecraft.core.SectionPos.blockToSectionCoord(
+                net.minecraft.util.Mth.floor(box.minZ));
+        int maxCz = net.minecraft.core.SectionPos.blockToSectionCoord(
+                net.minecraft.util.Mth.floor(box.maxZ));
+        for (int cx = minCx; cx <= maxCx; cx++) {
+            for (int cz = minCz; cz <= maxCz; cz++) {
                 LevelChunk chunk = level.getChunkSource().getChunkNow(cx, cz);
                 if (chunk == null) {
                     continue;
                 }
-                for (BlockEntity be : chunk.getBlockEntities().values()) {
-                    if (!(be instanceof Container container)) {
+                for (Map.Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet()) {
+                    BlockPos pos = entry.getKey();
+                    BlockEntity be = entry.getValue();
+                    // 必须在 AABB 内、是容器、且未重复
+                    if (!box.contains(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)
+                            || !(be instanceof Container container)
+                            || !seen.add(be)) {
                         continue;
                     }
-                    // 跳过功能性方块实体（熔炉、酿造台、投掷器等）
-                    if (be instanceof net.minecraft.world.level.block.entity.FurnaceBlockEntity
-                            || be instanceof net.minecraft.world.level.block.entity.BrewingStandBlockEntity
-                            || be instanceof net.minecraft.world.level.block.entity.HopperBlockEntity
-                            || be instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
-                        continue;
-                    }
-                    // 检查距离
-                    BlockPos bePos = be.getBlockPos();
-                    double dx = bePos.getX() + 0.5 - playerPos.getX();
-                    double dy = bePos.getY() + 0.5 - playerPos.getY();
-                    double dz = bePos.getZ() + 0.5 - playerPos.getZ();
-                    if (dx * dx + dy * dy + dz * dz > rSqr) {
+                    // 排除世界搜刮物资箱
+                    if (be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SupplyBoxBlockEntity
+                            || be instanceof net.exmo.sre.sixtyseconds.content.block_entity.RandomSupplyBoxBlockEntity) {
                         continue;
                     }
                     // 保险库/基地箱子：检查队伍归属
                     if (be instanceof SixtySecondsVaultBlockEntity vault) {
                         if (vault.ownerTeamId >= 0 && vault.ownerTeamId != teamId) {
-                            continue; // 别队的保险库不能取
+                            continue;
                         }
-                        containers.add(container);
+                        out.add(container);
                         continue;
                     }
-                    // 原版箱子、木桶、潜影盒等
+                    // 原版箱子、木桶、潜影盒等存储容器
                     if (be instanceof net.minecraft.world.level.block.entity.ChestBlockEntity
                             || be instanceof net.minecraft.world.level.block.entity.BarrelBlockEntity
                             || be instanceof net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity) {
-                        containers.add(container);
+                        out.add(container);
                     }
                 }
             }
         }
-        return containers;
     }
 
     /** 所有可用容器中可充当该配料的物品总数（背包 + 避难所容器）。 */
     private static int countMatching(ServerPlayer player, SixtySecondsRecipes.Ingredient input) {
         int have = 0;
-        for (Container container : findNearbyContainers(player)) {
+        for (Container container : findShelterContainers(player)) {
             for (int slot = 0; slot < container.getContainerSize(); slot++) {
                 ItemStack stack = container.getItem(slot);
                 if (input.matches(stack)) {
@@ -242,7 +253,7 @@ public final class SixtySecondsStations {
      */
     private static void consumeMatching(ServerPlayer player, SixtySecondsRecipes.Ingredient input) {
         int left = input.count();
-        List<Container> containers = findNearbyContainers(player);
+        List<Container> containers = findShelterContainers(player);
         for (Container container : containers) {
             for (int slot = 0; slot < container.getContainerSize() && left > 0; slot++) {
                 ItemStack stack = container.getItem(slot);

@@ -11,7 +11,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.UUID;
 
@@ -202,6 +204,13 @@ public final class SixtySecondsBreakIn {
         // 区域地图切到目标队避难所（否则小地图仍显示自己家，闯入后完全摸不着方向）
         net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.send(
                 player, target.shelterBox, target.shelterSpawn, true);
+
+        // 闯入者标记：给玩家施加 BREAK_IN_INTRUDER 药水效果，标记其处于破门闯入状态。
+        // 效果用于豁免新手保护期（前四天）的 PvP 时段禁令——闯入是侵略行为，闯入者要担风险
+        // 而主人也需要能随时反击（见 SixtySecondsHealthSystem.isPvpBlocked）。
+        // 效果在返回住所（returnPlayer）时自动移除；超长持续时间兜底防丢包掉落。
+        player.addEffect(new MobEffectInstance(ModEffects.BREAK_IN_INTRUDER,
+                20 * 60 * 30, 0, false, false, false));
 
         if (item.alarms() || triggeredTrap) {
             for (UUID uuid : target.members) {

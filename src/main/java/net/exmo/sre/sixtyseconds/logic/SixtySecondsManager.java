@@ -84,6 +84,7 @@ public final class SixtySecondsManager {
         SixtySecondsDoorHighlight.reset(level);
         SixtySecondsLootSearch.reset();
         SixtySecondsReconnect.reset();
+        SixtySecondsAutoJoin.reset(); // 清「本局已进过游戏」名单 + 待入队队列
         SixtySecondsRescue.reset();
         SixtySecondsRockets.reset();
         SixtySecondsAirdrop.reset();
@@ -359,6 +360,7 @@ public final class SixtySecondsManager {
             player.setPose(net.minecraft.world.entity.Pose.STANDING);
             player.removeEffect(ModEffects.MOVE_BANED);
             player.removeEffect(ModEffects.USED_BANED);
+            player.removeEffect(ModEffects.BREAK_IN_INTRUDER);
         }
         // 第7天结束：有存活幸存者→幸存者胜，否则败（详见 SixtySecondsWinConditions）。
         SixtySecondsWinConditions.finish(level, data);
@@ -390,6 +392,8 @@ public final class SixtySecondsManager {
                     continue;
                 }
                 team.members.add(player.getUUID());
+                // 登记「本局已进过游戏」：这些玩家退服再进也不会被中途自动入队（见 SixtySecondsAutoJoin）
+                SixtySecondsAutoJoin.markPlayed(player.getUUID());
                 SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
                 stats.init();
                 stats.teamId = team.teamId;
@@ -612,9 +616,10 @@ public final class SixtySecondsManager {
                     // 回家了：立即变异
                     if (!stats.monster) {
                         stats.monster = true;
-                        stats.health = 250;
+                        stats.health = 1;
                         stats.sanity = 0;
                         stats.sync();
+                        sister.setHealth(1.0F); // 原版血量同步，确保一击即死
                         net.exmo.sre.sixtyseconds.logic.SixtySecondsMonsterSystem.applyMonsterEffects(sister);
                         broadcast(level, Component.translatable(
                                 "message.noellesroles.sixty_seconds.devent.sister_outside.back_but_changed",

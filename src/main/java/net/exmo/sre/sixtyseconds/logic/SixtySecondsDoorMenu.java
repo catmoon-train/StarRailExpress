@@ -45,6 +45,8 @@ public final class SixtySecondsDoorMenu {
     public static final int ACTION_BREAK_LOCKPICK = 9;
     /** 查看别队门情报（等级/耐久/门锁；门陷阱是暗手不透露）。 */
     public static final int ACTION_DOOR_INSPECT = 10;
+    /** 闯入者离开：身处别队避难所内的破门闯入者，点门安全传回自己的避难所。 */
+    public static final int ACTION_INTRUDER_LEAVE = 11;
 
     /** C2S 动作合法性校验：玩家须离门 8 格以内（防远程伪造包）。 */
     private static final double MAX_USE_DISTANCE_SQR = 8 * 8;
@@ -68,6 +70,13 @@ public final class SixtySecondsDoorMenu {
             options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT_LEAVE, true, 0));
             options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT_CHAT,
                     SixtySecondsVisitChat.hasPartner(player), 0));
+            ServerPlayNetworking.send(player, new OpenShelterDoorS2CPacket(pos, false, 0, 0, 0, false, 0, options));
+            return;
+        }
+        // 闯入者：身处别队避难所内（非做客、非本队），点是别人家的门或自己所在的门——
+        // 门菜单只给「溜回自己的避难所」。闯入者是侵略行为，不能享受做客的和平对话通道。
+        if (isInsideForeignShelter(player, data)) {
+            options.add(new OpenShelterDoorS2CPacket.Option(ACTION_INTRUDER_LEAVE, true, 0));
             ServerPlayNetworking.send(player, new OpenShelterDoorS2CPacket(pos, false, 0, 0, 0, false, 0, options));
             return;
         }
@@ -203,6 +212,7 @@ public final class SixtySecondsDoorMenu {
             }
             case ACTION_VISIT_CHAT -> SixtySecondsVisitChat.openScreen(player);
             case ACTION_VISIT_LEAVE -> SixtySecondsVisiting.leave(player);
+            case ACTION_INTRUDER_LEAVE -> intruderLeave(player);
             case ACTION_BREAK_CROWBAR -> {
                 if (data.phase == SixtySecondsPhase.DAY) {
                     SixtySecondsBreakIn.executeAtDoor(player, pos, true);
@@ -237,6 +247,32 @@ public final class SixtySecondsDoorMenu {
         return team == null || team.returnDoorPos == null || pos.distSqr(team.returnDoorPos) <= 2 * 2;
     }
 
+    /**
+     * 闯入者点门「溜回自己的避难所」：移除闯入标记 + 清除搜索区状态 + 安全传回本队避难所。
+     * 与 {@link SixtySecondsVisiting#leave} 对称：客人与闯入者都是安全的「离开」路径。
+     */
+    private static void intruderLeave(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        // 移除闯入者标记（PvP 豁免药水效果）
+        player.removeEffect(org.agmas.noellesroles.init.ModEffects.BREAK_IN_INTRUDER);
+        // 清除搜索区 RETURNS 记录——闯入者在别队避难所时，RETURNS 的 confine 指向别队避难所盒，
+        // 不清掉会导致后续 tick 仍把玩家往别队避难所拽
+        SixtySecondsSearchZones.clearReturnEntry(player);
+        SixtySecondsState.TeamData home = SixtySecondsState.get(level).teams
+                .get(SixtySecondsStatsComponent.KEY.get(player).teamId);
+        if (home != null && home.shelterSpawn != null) {
+            BlockPos safe = SixtySecondsSearchZones.findSafeSpot(level, home.shelterSpawn);
+            player.teleportTo(level, safe.getX() + 0.5D, safe.getY(), safe.getZ() + 0.5D,
+                    player.getYRot(), player.getXRot());
+            net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.send(
+                    player, home.shelterBox, home.shelterSpawn, true);
+            // 回家时清除避难所内的怪物
+            SixtySecondsDefenseSystem.clearShelterMobs(level, home.shelterBox);
+        }
+        player.displayClientMessage(
+                Component.translatable("message.noellesroles.sixty_seconds.intruder_left"), false);
+    }
+
     /** 准备阶段：把玩家携带槽（0..携带上限-1）里的物资转入本队库存，清空这些槽以便继续搜集。 */
     public static void depositSupplies(ServerPlayer player, SixtySecondsState.Data data) {
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
@@ -256,6 +292,21 @@ public final class SixtySecondsDoorMenu {
         }
         player.displayClientMessage(
                 Component.translatable("message.noellesroles.sixty_seconds.supplies_recorded", deposited), true);
+    }
+
+    /**
+     * 坐标判定玩家是否身处别队的避难所或住宅内（= 破门闯入别人家，非做客）。
+     */
+    private static boolean isInsideForeignShelter(ServerPlayer player, SixtySecondsState.Data data) {
+        int myTeam = SixtySecondsStatsComponent.KEY.get(player).teamId;
+        double x = player.getX(), y = player.getY(), z = player.getZ();
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            if (team.teamId != myTeam && (team.shelterBox != null && team.shelterBox.contains(x, y, z)
+                    || team.residentialBox != null && team.residentialBox.contains(x, y, z))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +69,8 @@ public final class SixtySecondsSearchZones {
         stats.exploreCooldownEndTick = now + (night ? RETURN_COOLDOWN_NIGHT_TICKS : RETURN_COOLDOWN_TICKS);
         stats.sync();
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, EXPLORE_INVIS_TICKS, 0, false, false, true));
+        // 出门探索后移除闯入者标记——已离开别人的避难所
+        player.removeEffect(ModEffects.BREAK_IN_INTRUDER);
         // 区域地图切到本探索区；「家」点位=入口（回家的门所在）
         net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.send(player, box, spawn, false);
         // 危险等级提示：等级越高稀有物越常见、但游荡怪更多更强（SixtySecondsAreaLevels/PveSystem）
@@ -110,11 +113,18 @@ public final class SixtySecondsSearchZones {
                 // 回家时清除避难所内的怪物
                 net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.clearShelterMobs(level, team.shelterBox);
             }
+            // 回家后移除闯入者标记（破门闯入的 PvP 豁免效果）
+            player.removeEffect(ModEffects.BREAK_IN_INTRUDER);
         }
     }
 
     public static boolean isInSearchZone(ServerPlayer player) {
         return RETURNS.containsKey(player.getUUID());
+    }
+
+    /** 清除玩家的搜索区状态（闯入者离开别队避难所用——解除 RETURNS 中的别队避难所盒限制）。 */
+    public static void clearReturnEntry(ServerPlayer player) {
+        RETURNS.remove(player.getUUID());
     }
 
     /** 本次出门的探索区限制盒（PVE 游荡怪落点约束用）；不在探索区返回 null。 */

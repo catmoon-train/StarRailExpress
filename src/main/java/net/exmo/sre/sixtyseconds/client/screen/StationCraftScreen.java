@@ -74,8 +74,8 @@ public class StationCraftScreen extends Screen {
     private record Entry(SixtySecondsRecipes.Recipe recipe, EntryState state) {
     }
 
-    /** 客户端扫描附近容器的半径（需与服务端 CONTAINER_SCAN_RADIUS 一致）。 */
-    private static final int CONTAINER_SCAN_RADIUS = 16;
+    /** 扫描范围：无 zone 时退化为玩家附近半径扫描的格数。 */
+    private static final int FALLBACK_SCAN_RADIUS = 16;
     /** 容器列表缓存刷新间隔（tick）。 */
     private static final int CONTAINER_CACHE_TICKS = 20;
 
@@ -658,7 +658,9 @@ public class StationCraftScreen extends Screen {
 
     // ── 工具方法 ──────────────────────────────────────────────────
 
-    /** 扫描附近方块容器并缓存物品数量。 */
+    /** 扫描队伍避难所区域内的方块容器并缓存物品数量。
+     *  优先使用 {@code SixtySecondsClientMapZone.activeZone()} 的 AABB，
+     *  不可用时退化为玩家附近半径扫描。 */
     private void refreshContainerCache() {
         Map<net.minecraft.world.item.Item, Integer> cache = new HashMap<>();
         Minecraft client = Minecraft.getInstance();
@@ -666,38 +668,60 @@ public class StationCraftScreen extends Screen {
             containerItemCache = cache;
             return;
         }
-        BlockPos playerPos = client.player.blockPosition();
-        int r = CONTAINER_SCAN_RADIUS;
-        int rSqr = r * r;
 
-        int minCX = (playerPos.getX() - r) >> 4;
-        int maxCX = (playerPos.getX() + r) >> 4;
-        int minCZ = (playerPos.getZ() - r) >> 4;
-        int maxCZ = (playerPos.getZ() + r) >> 4;
+        // 优先用服务端推送的安全区 AABB（精确限定避难所/住宅范围）
+        net.minecraft.world.phys.AABB zone = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.activeZone();
+        int minCx, maxCx, minCz, maxCz;
+        boolean useZone = zone != null;
 
-        for (int cx = minCX; cx <= maxCX; cx++) {
-            for (int cz = minCZ; cz <= maxCZ; cz++) {
+        if (useZone) {
+            minCx = net.minecraft.core.SectionPos.blockToSectionCoord(
+                    net.minecraft.util.Mth.floor(zone.minX));
+            maxCx = net.minecraft.core.SectionPos.blockToSectionCoord(
+                    net.minecraft.util.Mth.floor(zone.maxX));
+            minCz = net.minecraft.core.SectionPos.blockToSectionCoord(
+                    net.minecraft.util.Mth.floor(zone.minZ));
+            maxCz = net.minecraft.core.SectionPos.blockToSectionCoord(
+                    net.minecraft.util.Mth.floor(zone.maxZ));
+        } else {
+            BlockPos playerPos = client.player.blockPosition();
+            int r = FALLBACK_SCAN_RADIUS;
+            minCx = (playerPos.getX() - r) >> 4;
+            maxCx = (playerPos.getX() + r) >> 4;
+            minCz = (playerPos.getZ() - r) >> 4;
+            maxCz = (playerPos.getZ() + r) >> 4;
+        }
+
+        for (int cx = minCx; cx <= maxCx; cx++) {
+            for (int cz = minCz; cz <= maxCz; cz++) {
                 LevelChunk chunk = client.level.getChunkSource().getChunkNow(cx, cz);
                 if (chunk == null) {
                     continue;
                 }
-                for (BlockEntity be : chunk.getBlockEntities().values()) {
+                for (java.util.Map.Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet()) {
+                    BlockPos pos = entry.getKey();
+                    BlockEntity be = entry.getValue();
                     if (!(be instanceof Container container)) {
                         continue;
+                    }
+                    // 用 AABB 或距离过滤
+                    if (useZone) {
+                        if (!zone.contains(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)) {
+                            continue;
+                        }
+                    } else {
+                        double dx = pos.getX() + 0.5 - client.player.getX();
+                        double dy = pos.getY() + 0.5 - client.player.getY();
+                        double dz = pos.getZ() + 0.5 - client.player.getZ();
+                        if (dx * dx + dy * dy + dz * dz > FALLBACK_SCAN_RADIUS * FALLBACK_SCAN_RADIUS) {
+                            continue;
+                        }
                     }
                     // 跳过功能性方块
                     if (be instanceof net.minecraft.world.level.block.entity.FurnaceBlockEntity
                             || be instanceof net.minecraft.world.level.block.entity.BrewingStandBlockEntity
                             || be instanceof net.minecraft.world.level.block.entity.HopperBlockEntity
                             || be instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
-                        continue;
-                    }
-                    // 检查距离
-                    BlockPos bePos = be.getBlockPos();
-                    double dx = bePos.getX() + 0.5 - playerPos.getX();
-                    double dy = bePos.getY() + 0.5 - playerPos.getY();
-                    double dz = bePos.getZ() + 0.5 - playerPos.getZ();
-                    if (dx * dx + dy * dy + dz * dz > rSqr) {
                         continue;
                     }
                     // 只纳入存储类容器

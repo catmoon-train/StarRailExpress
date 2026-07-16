@@ -1639,6 +1639,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                     }
                     return 1.0F;
                 });
+        // ── 60s 弓/弩：注册 pull / pulling 属性（驱动模型 pulling 动画 overrides）──────────────
+        registerSixtySecondsBowProperties();
         // 当前游戏模式
         OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {
             if (SREClient.gameComponent != null && minecraft != null && minecraft.player != null) {
@@ -1885,5 +1887,35 @@ public class NoellesrolesClient implements ClientModInitializer {
             repairHeldSearchTarget = pos;
             ClientPlayNetworking.send(new RepairSearchBeginC2SPacket(pos));
         }
+    }
+
+    /** 为 60s 弓/弩注册 pull / pulling ItemProperties，驱动模型 overrides 的 pulling 动画。 */
+    private static void registerSixtySecondsBowProperties() {
+        // ── 弓（crude=24tick / hunting=20tick / recurve=20tick / compound=18tick）──────────────
+        registerBowPull(ModItems.SIXTY_SECONDS_CRUDE_BOW, 24);
+        registerBowPull(ModItems.SIXTY_SECONDS_HUNTING_BOW, 20);
+        registerBowPull(ModItems.SIXTY_SECONDS_RECURVE_BOW, 20);
+        registerBowPull(ModItems.SIXTY_SECONDS_COMPOUND_BOW, 18);
+        // ── 弩（hand=14tick / heavy=26tick；60s 弩同用弓式拉弦，无需 charged/firework）──────────────
+        registerBowPull(ModItems.SIXTY_SECONDS_HAND_CROSSBOW, 14);
+        registerBowPull(ModItems.SIXTY_SECONDS_HEAVY_CROSSBOW, 26);
+    }
+
+    private static void registerBowPull(net.minecraft.world.item.Item item, int maxDrawTicks) {
+        net.minecraft.client.renderer.item.ItemProperties.register(item,
+                org.agmas.noellesroles.Noellesroles.id("pulling"),
+                (stack, world, entity, seed) -> entity != null && entity.isUsingItem()
+                        && entity.getUseItem() == stack ? 1.0F : 0.0F);
+        net.minecraft.client.renderer.item.ItemProperties.register(item,
+                org.agmas.noellesroles.Noellesroles.id("pull"),
+                (stack, world, entity, seed) -> {
+                    if (entity == null) {
+                        return 0.0F;
+                    }
+                    // 1.21.1：ItemStack.getUseDuration 需要 LivingEntity 参数
+                    return entity.getUseItem() != stack ? 0.0F
+                            : (float) (stack.getUseDuration(entity) - entity.getUseItemRemainingTicks())
+                                    / (float) maxDrawTicks;
+                });
     }
 }
