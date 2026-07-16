@@ -236,6 +236,82 @@ public class SixtySecondsLootTable {
                 new Entry("noellesroles:sixty_seconds_anti_pollution_serum", 1, 0.8F),
                 new Entry("minecraft:golden_apple", 1, 0.6F),
                 new Entry("noellesroles:sixty_seconds_fertilizer", 2, 1.5F))));
+        // ══ 高级物资箱专属（advanced_* 类别，与普通物资箱完全分开）══════════════
+        // 高级食品：更稀有、更高价值的食物
+        table.categories.put("advanced_food", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_mre", 1, 3.0F),
+                new Entry("noellesroles:sixty_seconds_stew", 1, 2.5F),
+                new Entry("noellesroles:sixty_seconds_canned_soup", 1, 2.5F),
+                new Entry("noellesroles:sixty_seconds_canned_food", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_jerky", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_biscuit", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_doomsday_cake", 1, 0.8F),
+                new Entry("noellesroles:sixty_seconds_sushi", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_rice_soup", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_fresh_vegetables", 2, 1.5F))));
+        // 高级材料：更稀有材料、电子元件、齿轮等
+        table.categories.put("advanced_material", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_scrap", 3, 4.0F),
+                new Entry("noellesroles:sixty_seconds_steel_ingot", 1, 2.5F),
+                new Entry("noellesroles:sixty_seconds_electronics", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_gear", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_gunpowder_pack", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_wire", 3, 2.0F),
+                new Entry("noellesroles:sixty_seconds_plastic", 3, 2.0F),
+                new Entry("noellesroles:sixty_seconds_chemicals", 2, 1.5F),
+                new Entry("noellesroles:sixty_seconds_glass_plate", 2, 1.5F),
+                new Entry("noellesroles:sixty_seconds_fertilizer", 2, 1.5F),
+                new Entry("noellesroles:sixty_seconds_battery", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_battery_large", 1, 0.5F),
+                new Entry("noellesroles:sixty_seconds_fuel_can", 1, 0.6F))));
+        // 高级药品：更好的医疗物品
+        table.categories.put("advanced_medicine", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_medkit", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_antibiotics", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_painkillers", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_sedative", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_purification_tablet", 2, 2.0F),
+                new Entry("noellesroles:sixty_seconds_anti_pollution_serum", 1, 1.2F),
+                new Entry("noellesroles:sixty_seconds_adrenaline", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_blood_bag", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_omni_tonic", 1, 0.4F))));
+        // 高级工具：更稀有的工具和武器
+        table.categories.put("advanced_tool", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_toolbox", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_blueprint", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_repair_kit", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_grappling_hook", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_chainsaw", 1, 0.6F),
+                new Entry("noellesroles:sixty_seconds_stun_baton", 1, 0.6F),
+                new Entry("noellesroles:sixty_seconds_radio", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_compass", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_solar_panel", 1, 0.5F),
+                new Entry("noellesroles:sixty_seconds_gas_mask", 1, 0.6F),
+                new Entry("noellesroles:sixty_seconds_hazmat_suit", 1, 0.4F),
+                new Entry("noellesroles:sixty_seconds_night_goggles", 1, 0.5F),
+                new Entry("noellesroles:sixty_seconds_flashbang", 1, 0.5F),
+                new Entry("noellesroles:sixty_seconds_molotov", 1, 0.5F))));
+        // 高级武器：稀有枪械和弹药
+        table.categories.put("advanced_weapon", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_ammo", 6, 4.0F),
+                new Entry("noellesroles:sixty_seconds_pistol", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_hunting_shotgun", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_rifle", 1, 0.8F),
+                new Entry("noellesroles:sixty_seconds_sniper", 1, 0.4F),
+                new Entry("noellesroles:sixty_seconds_rpg", 1, 0.2F),
+                new Entry("noellesroles:sixty_seconds_frag_grenade", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_incendiary_grenade", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_hunting_bow", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_iron_arrow", 6, 2.0F))));
+        // 高级稀有：极小概率出极品
+        table.categories.put("advanced_rare", new ArrayList<>(List.of(
+                new Entry("noellesroles:sixty_seconds_sniper", 1, 1.0F),
+                new Entry("noellesroles:sixty_seconds_rpg", 1, 0.5F),
+                new Entry("noellesroles:sixty_seconds_omni_tonic", 1, 2.0F),
+                new Entry("noellesroles:sixty_seconds_blueprint", 1, 3.0F),
+                new Entry("noellesroles:sixty_seconds_battery_large", 2, 2.5F),
+                new Entry("noellesroles:sixty_seconds_diesel_can", 1, 1.5F),
+                new Entry("noellesroles:sixty_seconds_alloy_plate", 1, 1.5F))));
         // 野外专属（只在探索区/避难所外的箱子额外掉：见 SupplyBoxBlockEntity.claim）——
         // 冶金/酿造原料 + 信号枪，是回家科技链的关键输入
         table.categories.put("field", new ArrayList<>(List.of(

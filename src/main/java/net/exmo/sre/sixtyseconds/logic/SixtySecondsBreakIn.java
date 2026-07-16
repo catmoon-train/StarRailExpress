@@ -145,15 +145,28 @@ public final class SixtySecondsBreakIn {
             return;
         }
         long now = level.getGameTime();
-        // 门锁：按锁等级抵挡对应等级的闯入工具
-        //   门锁(1级)：仅挡普通撬棍(alarms && tier==1)，时效 2 分钟
-        //   强化门锁(2级)：挡撬棍+强化撬棍+开锁器+精制开锁器(tier<=2)，时效 4 分钟
-        //   阻击门锁(3级)：挡所有闯入工具(tier<=3)，时效 8 分钟
-        if (target.doorLockActive(now) && item.tier() <= target.doorLockTier) {
-            player.displayClientMessage(
-                    Component.translatable("message.noellesroles.sixty_seconds.breakin_door_locked")
-                            .withStyle(ChatFormatting.RED), true);
-            return;
+        // 门锁：按锁等级抵挡对应等级和类型的闯入工具
+        //   开锁器 tier 从 2 起步（撬锁器=2/精制=3/大师=4），撬棍 tier 从 1 起步（普通=1/强化=2/液压=3）
+        //   门锁(1级)：仅挡普通撬棍(alarms=true && tier==1)，不挡任何开锁器(tier>=2)，时效 2 分钟
+        //   强化门锁(2级)：挡撬棍+强化撬棍(tier<=2) + 撬锁器(tier<=2)，不挡精制开锁器(tier=3)，时效 4 分钟
+        //   阻击门锁(3级)：挡所有撬棍(tier<=3) + 撬锁器+精制开锁器(tier<=3)，不挡大师开锁器(tier=4)，时效 8 分钟
+        //   合金门锁(4级)：挡所有闯入工具(tier<=4)，时效 16 分钟
+        if (target.doorLockActive(now)) {
+            int lockTier = target.doorLockTier;
+            boolean blocked = false;
+            if (lockTier == 1) {
+                // 1级门锁：仅挡普通撬棍(alarms=true && tier==1)，开锁器最小tier=2不会被挡
+                blocked = item.alarms() && item.tier() == 1;
+            } else {
+                // 2/3/4级门锁：挡对应tier范围内的所有工具（撬棍+开锁器）
+                blocked = item.tier() <= lockTier;
+            }
+            if (blocked) {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.sixty_seconds.breakin_door_locked")
+                                .withStyle(ChatFormatting.RED), true);
+                return;
+            }
         }
         // 落点安全校正前先确保目标区块已加载——未加载时 getBlockState 返回空气假值，
         // findSafeSpot/hasSafeShelterLanding 会误判为安全落点，传送后区块加载才露出真地形，导致

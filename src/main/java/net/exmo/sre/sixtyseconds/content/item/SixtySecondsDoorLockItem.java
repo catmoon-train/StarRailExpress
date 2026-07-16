@@ -19,11 +19,12 @@ import java.util.List;
 
 /**
  * 门锁（四级）：挂在庇护所门上按等级阻断闯入，过期自然失效，可挂更高级锁替换。
+ * <p>开锁器 tier 从 2 起步，撬棍 tier 从 1 起步，1 级锁自然不挡任何开锁器。</p>
  * <ul>
- *   <li>门锁（1 级）：仅挡<b>普通撬棍</b>，时效 2 分钟；</li>
- *   <li>强化门锁（2 级）：挡开锁器 + 撬棍 + 强化撬棍，时效 4 分钟；</li>
- *   <li>阻击门锁（3 级）：挡开锁器 + 精致开锁器 + 撬棍 + 强化撬棍 + 液压撬棍，时效 8 分钟；</li>
- *   <li>合金门锁（4 级）：挡所有闯入工具，时效 16 分钟，通电。</li>
+ *   <li>门锁（1 级）：仅挡<b>普通撬棍</b>（tier=1，不挡任何开锁器），时效 2 分钟；</li>
+ *   <li>强化门锁（2 级）：挡撬棍 + 强化撬棍 + 撬锁器（tier≤2），时效 4 分钟；</li>
+ *   <li>阻击门锁（3 级）：挡所有撬棍 + 撬锁器 + 精制开锁器（tier≤3），时效 8 分钟；</li>
+ *   <li>合金门锁（4 级）：挡所有闯入工具（tier≤4），时效 16 分钟，通电。</li>
  * </ul>
  * ★ 安装入口是 {@link ShelterDoorBlock} 的交互短路（{@link #install}）——门方块的 useItemOn
  * 先于物品 useOn 执行并吞掉交互（开门菜单），这里的 useOn 只是非门方块时的提示兜底。
@@ -68,7 +69,7 @@ public class SixtySecondsDoorLockItem extends Item {
                 ctx.getClickedPos(), ctx.getItemInHand()) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
     }
 
-    /** 给本队挂门锁（按锁等级 2/4/8 分钟时效）；由 {@link ShelterDoorBlock} 交互短路调用。返回是否安装成功。 */
+    /** 给本队挂门锁（按锁等级 2/4/8/16 分钟时效）；由 {@link ShelterDoorBlock} 交互短路调用。返回是否安装成功。 */
     public static boolean install(ServerPlayer player, net.minecraft.server.level.ServerLevel level,
             net.minecraft.core.BlockPos pos, ItemStack stack) {
         // 用门所在维度取状态（旧代码误用 overworld——游戏跑在其他维度时 teams 为空，物品永远装不上）

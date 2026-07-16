@@ -199,7 +199,7 @@ public class ModItems {
             "sixty_seconds_crowbar", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_LOCKPICK = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
-                    new Item.Properties().stacksTo(1), false),
+                    new Item.Properties().stacksTo(1), false, 2),
             "sixty_seconds_lockpick", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // 末日60秒模式：门锁（右键门安装，抵御一天撬棍） / 门陷阱（开锁器入室触发警报）
@@ -743,11 +743,11 @@ public class ModItems {
             "sixty_seconds_crowbar_hydraulic", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_LOCKPICK_PRO = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
-                    new Item.Properties().stacksTo(1), false, 2),
+                    new Item.Properties().stacksTo(1), false, 3),
             "sixty_seconds_lockpick_pro", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_LOCKPICK_MASTER = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
-                    new Item.Properties().stacksTo(1), false, 3),
+                    new Item.Properties().stacksTo(1), false, 4),
             "sixty_seconds_lockpick_master", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // ══ 末日60秒模式：扩充批次（冶金 / 农业 / 工事强化）══════════════════════
     // ── 合成材料（loot material 类别 + 配方消耗）──
@@ -1135,15 +1135,15 @@ public class ModItems {
             new ArmorItem(ArmorMaterials.NETHERITE, ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)),
             "sixty_seconds_alloy_boots", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
-    // ── 基地扩容钥匙（车床）：对应等级基地门 ─────────────────────────────
+    // ── 基地扩容钥匙（车床）：对应等级基地门，一次性消耗 ─────────────────
     public static final Item SIXTY_SECONDS_EXPANSION_KEY_1 = register(
-            new Item(new Item.Properties().stacksTo(4)),
+            new Item(new Item.Properties().stacksTo(1)),
             "sixty_seconds_expansion_key_1", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_EXPANSION_KEY_2 = register(
-            new Item(new Item.Properties().stacksTo(4)),
+            new Item(new Item.Properties().stacksTo(1)),
             "sixty_seconds_expansion_key_2", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_EXPANSION_KEY_3 = register(
-            new Item(new Item.Properties().stacksTo(4)),
+            new Item(new Item.Properties().stacksTo(1)),
             "sixty_seconds_expansion_key_3", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 交通：柴油罐 / 载具（摩托车2座、小汽车4座，见 SixtySecondsVehicleItem）──
