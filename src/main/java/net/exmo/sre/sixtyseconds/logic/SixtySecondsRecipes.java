@@ -449,7 +449,7 @@ public final class SixtySecondsRecipes {
         add(list, "rope", Station.WORKBENCH, "tools_2", false,
                 List.of(in(tape, 1), in(Items.STRING, 2), in(clothRoll, 1)), ModItems.SIXTY_SECONDS_ROPE, 1);
         add(list, "magnet", Station.WORKBENCH, "tools_2", true,
-                List.of(in(iron, 2), in(copper, 2)), ModItems.SIXTY_SECONDS_MAGNET, 1);
+                List.of(in(iron, 2), in(copper, 2)), ModItems.MAGNET, 1);
         add(list, "fishing_rod", Station.WORKBENCH, "tools_2", true,
                 List.of(in(Items.STICK, 3), in(tape, 1), in(rag, 3)), Items.FISHING_ROD, 1);
         add(list, "box_pry", Station.WORKBENCH, "tools_2", false,
