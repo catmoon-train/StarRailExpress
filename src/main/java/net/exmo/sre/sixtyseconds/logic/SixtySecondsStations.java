@@ -84,8 +84,49 @@ public final class SixtySecondsStations {
             boolean powered = SixtySecondsPowerSystem.isPowered(serverPlayer.serverLevel(), team);
             ServerPlayNetworking.send(serverPlayer,
                     new OpenStationS2CPacket(station.ordinal(), hitResult.getBlockPos(), unlocked, powered));
+            // 合成终端：把「家里容器」的库存快照一并下发（客户端读不到容器内容，GUI 判定全靠它）
+            sendStock(serverPlayer, station);
             return InteractionResult.SUCCESS;
         });
+    }
+
+    /**
+     * 下发该站可用的「家里容器」库存快照给客户端 GUI。
+     * <p><b>为什么必须服务端下发</b>：原版<b>不</b>把箱子/木桶等容器的内容同步给未打开它的客户端，
+     * 客户端自己扫容器只会读到空 → GUI 永远显示材料不足。故由服务端算好（{@link #findShelterContainers}
+     * 里除玩家背包外的那些容器）再发；客户端把它与自己背包相加即得真实可用量。
+     * 只含本站配方用到的配料物品，包体很小。发送时机：打开合成台、每次合成后。
+     */
+    private static void sendStock(ServerPlayer player, SixtySecondsRecipes.Station station) {
+        java.util.Set<net.minecraft.world.item.Item> interested = ingredientItems(station);
+        java.util.Map<net.minecraft.world.item.Item, Integer> stock = new java.util.HashMap<>();
+        if (!interested.isEmpty()) {
+            for (Container container : findShelterContainers(player)) {
+                if (container == player.getInventory()) {
+                    continue; // 自己背包客户端本就知道，不必下发（也避免重复计数）
+                }
+                for (int slot = 0; slot < container.getContainerSize(); slot++) {
+                    ItemStack stack = container.getItem(slot);
+                    if (!stack.isEmpty() && interested.contains(stack.getItem())) {
+                        stock.merge(stack.getItem(), stack.getCount(), Integer::sum);
+                    }
+                }
+            }
+        }
+        ServerPlayNetworking.send(player,
+                new net.exmo.sre.sixtyseconds.network.SixtySecondsStationStockS2CPacket(stock));
+    }
+
+    /** 某合成站全部配方用到的配料物品集合（含「任意 X」组的每个候选）。 */
+    private static java.util.Set<net.minecraft.world.item.Item> ingredientItems(
+            SixtySecondsRecipes.Station station) {
+        java.util.Set<net.minecraft.world.item.Item> items = new java.util.HashSet<>();
+        for (SixtySecondsRecipes.Recipe recipe : SixtySecondsRecipes.forStation(station)) {
+            for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
+                items.addAll(input.items());
+            }
+        }
+        return items;
     }
 
     /** C2S 合成请求：尝试合成 count 次（clamp 1..64），材料不够时能合几次合几次。 */
@@ -119,11 +160,15 @@ public final class SixtySecondsStations {
         }
         int crafted = 0;
         int want = net.minecraft.util.Mth.clamp(count, 1, 64);
+        // 取料池（背包 + 家里容器）只扫一次：findShelterContainers 要遍历家范围盒所有区块的方块实体，
+        // 放在「每配料 × 每次合成」里调用会让「合成 ×64」触发上百次全屋扫描（明显卡顿）。
+        // 容器对象是活引用，循环内扣料后再次统计自然反映余量，无需重扫。
+        List<Container> pool = findShelterContainers(player);
         for (int round = 0; round < want; round++) {
             // 材料校验：先全量检查再统一扣除，避免扣一半（组配料「任意 X」按候选合计）
             SixtySecondsRecipes.Ingredient missing = null;
             for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-                if (countMatching(player, input) < input.count()) {
+                if (countMatching(pool, input) < input.count()) {
                     missing = input;
                     break;
                 }
@@ -133,18 +178,21 @@ public final class SixtySecondsStations {
                     player.displayClientMessage(Component.translatable(
                             "message.noellesroles.sixty_seconds.craft_missing",
                             missing.displayName(), missing.count()), true);
+                    sendStock(player, recipe.station()); // 材料不足也刷新一次，纠正客户端过期快照
                     return;
                 }
                 break;
             }
             for (SixtySecondsRecipes.Ingredient input : recipe.inputs()) {
-                consumeMatching(player, input);
+                consumeMatching(pool, input);
             }
             crafted++;
         }
         if (crafted == 0) {
             return;
         }
+        // 材料已从背包/家里容器扣除 → 把新的家里库存快照下发，GUI 立刻反映余量
+        sendStock(player, recipe.station());
         // 冶金炉：每件 4 秒制作时间——材料已扣，延迟发放产物
         if (recipe.station() == SixtySecondsRecipes.Station.SMELTER) {
             PENDING_SMELTS.add(new PendingSmelt(player.getUUID(), recipe.id(), crafted,
@@ -233,10 +281,10 @@ public final class SixtySecondsStations {
         }
     }
 
-    /** 所有可用容器中可充当该配料的物品总数（背包 + 避难所容器）。 */
-    private static int countMatching(ServerPlayer player, SixtySecondsRecipes.Ingredient input) {
+    /** 取料池中可充当该配料的物品总数（背包 + 避难所容器；池由调用方扫一次传入）。 */
+    private static int countMatching(List<Container> pool, SixtySecondsRecipes.Ingredient input) {
         int have = 0;
-        for (Container container : findShelterContainers(player)) {
+        for (Container container : pool) {
             for (int slot = 0; slot < container.getContainerSize(); slot++) {
                 ItemStack stack = container.getItem(slot);
                 if (input.matches(stack)) {
@@ -251,10 +299,9 @@ public final class SixtySecondsStations {
      * 按配料扣除（优先扣玩家背包，再扣容器；组配料跨候选扣够为止；
      * 调用前须先 countMatching 校验充足）。
      */
-    private static void consumeMatching(ServerPlayer player, SixtySecondsRecipes.Ingredient input) {
+    private static void consumeMatching(List<Container> pool, SixtySecondsRecipes.Ingredient input) {
         int left = input.count();
-        List<Container> containers = findShelterContainers(player);
-        for (Container container : containers) {
+        for (Container container : pool) {
             for (int slot = 0; slot < container.getContainerSize() && left > 0; slot++) {
                 ItemStack stack = container.getItem(slot);
                 if (input.matches(stack)) {

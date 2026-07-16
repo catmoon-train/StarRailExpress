@@ -1025,6 +1025,12 @@ public class NoellesrolesClient implements ClientModInitializer {
                 net.exmo.sre.sixtyseconds.network.OpenStationS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.StationCraftScreen(payload))));
+        // 合成台「家里容器」库存快照：交给已打开的合成界面刷新可用材料数
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsStationStockS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.screen.StationCraftScreen
+                                        .updateHomeStock(payload.stock())));
         // 拆解台界面
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.OpenDismantleS2CPacket.ID, (payload, context) ->
