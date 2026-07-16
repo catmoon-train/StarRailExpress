@@ -65,7 +65,7 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         setChanged();
         SixtySecondsLootTable table = SixtySecondsLootStore.get(level);
         int areaLevel = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.levelAt(level, worldPosition);
-        // 高级物资箱：视作区域等级 +2（稀有更易出）并额外多掷 2 件
+        // 高级物资箱：使用独立的 advanced_* 战利品类别，与普通物资箱完全分开
         boolean advanced = getBlockState().getBlock()
                 instanceof net.exmo.sre.sixtyseconds.content.block.SupplyBoxBlock box && box.advanced();
         if (advanced) {
@@ -78,14 +78,22 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         List<ItemStack> out = new java.util.ArrayList<>();
         for (int i = 0; i < rolls; i++) {
             // 每件独立选类别（随机箱=每件随机一类）+ 独立掷骰
+            // 高级物资箱：从 advanced_* 类别抽取
             ItemStack stack = table.roll(chooseCategory(level, table), level.random, exponent);
             if (!stack.isEmpty()) {
                 out.add(stack);
             }
         }
+        // 高级物资箱：额外掷一次「稀有」类别
+        if (advanced && level.random.nextFloat() < 0.4F) {
+            ItemStack rare = table.roll("advanced_rare", level.random, exponent);
+            if (!rare.isEmpty()) {
+                out.add(rare);
+            }
+        }
         // 野外箱（不在任何队伍的住宅/避难所盒内）：额外掷一次「野外专属」类别
         // （废弃金属/贵金属器件/酿造器件/信号枪只能在野外搜到）
-        if (isInField(level) && level.random.nextFloat() < 0.5F) {
+        if (!advanced && isInField(level) && level.random.nextFloat() < 0.5F) {
             ItemStack field = table.roll("field", level.random, exponent);
             if (!field.isEmpty()) {
                 out.add(field);
@@ -144,9 +152,18 @@ public class SupplyBoxBlockEntity extends BlockEntity {
 
     /**
      * 本次刷新使用哪个 loot 类别。基础物资箱固定用自身 {@link #category}；
+     * 高级物资箱使用 {@code advanced_} 前缀的独立类别；
      * 随机物资箱（{@link RandomSupplyBoxBlockEntity}）覆写为每次刷新随机取一类。
      */
     protected String chooseCategory(ServerLevel level, SixtySecondsLootTable table) {
+        boolean advanced = getBlockState().getBlock()
+                instanceof net.exmo.sre.sixtyseconds.content.block.SupplyBoxBlock box && box.advanced();
+        if (advanced) {
+            String advCategory = "advanced_" + category;
+            if (table.canRoll(advCategory)) {
+                return advCategory;
+            }
+        }
         return category;
     }
 
