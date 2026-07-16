@@ -105,10 +105,16 @@ public final class SixtySecondsState {
             return dailyModifiers.getOrDefault(key, 1.0);
         }
 
-        /** 换日时清空所有日级修正。 */
+        /** 换日时清空所有日级修正（保留持久标记如 sisterOutside）。 */
         public void clearDailyModifiers() {
             dailyModifiers.clear();
         }
+
+        // ── 妹妹外出事件持久标记 ──────────────────────────────────────
+        /** 该队的妹妹是否已外出（标记后换日存活则变异）。换日不清空，仅在外出被阻止/变怪后重置。 */
+        public boolean sisterOutside = false;
+        /** 外出妹妹的玩家 UUID（仅 sisterOutside=true 时有效），换日检测存活用。 */
+        public java.util.UUID sisterUUID = null;
 
         public TeamData(int teamId) {
             this.teamId = teamId;

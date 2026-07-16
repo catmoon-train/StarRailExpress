@@ -566,6 +566,64 @@ public final class SixtySecondsManager {
         if (previous < 0) {
             return; // 开日初始化，由 startDay 的 SubtitleHUD 负责播报
         }
+        // 傍晚切换（白天→晚上）：检测妹妹外出事件状态
+        if (previous == 1 && stage == 2) {
+            for (SixtySecondsState.TeamData team : data.teams.values()) {
+                if (!team.sisterOutside || team.sisterUUID == null) continue;
+                // 妹妹是否在庇护所内（即已回家）
+                net.minecraft.server.level.ServerPlayer sister = null;
+                if (level.getPlayerByUUID(team.sisterUUID) instanceof net.minecraft.server.level.ServerPlayer sp
+                        && !GameUtils.isPlayerEliminated(sp)) {
+                    sister = sp;
+                }
+                if (sister == null) {
+                    // 妹妹不在线（离线或死了）
+                    broadcast(level, Component.translatable(
+                            "message.noellesroles.sixty_seconds.devent.sister_outside.never_return",
+                            team.teamId).withStyle(ChatFormatting.DARK_RED));
+                    team.sisterOutside = false;
+                    team.sisterUUID = null;
+                    continue;
+                }
+                net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent stats =
+                        net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(sister);
+                if (stats.downed || stats.monster) {
+                    // 妹妹倒地或已变怪
+                    broadcast(level, Component.translatable(
+                            "message.noellesroles.sixty_seconds.devent.sister_outside.never_return",
+                            team.teamId).withStyle(ChatFormatting.DARK_RED));
+                    team.sisterOutside = false;
+                    team.sisterUUID = null;
+                    continue;
+                }
+                // 妹妹还活着——检查是否回到了庇护所（坐标判定）
+                boolean backHome = false;
+                double sx = sister.getX(), sy = sister.getY(), sz = sister.getZ();
+                if (team.shelterBox != null && team.shelterBox.contains(sx, sy, sz)) backHome = true;
+                if (!backHome && team.residentialBox != null && team.residentialBox.contains(sx, sy, sz)) backHome = true;
+                if (backHome) {
+                    // 回家了：立即变异
+                    if (!stats.monster) {
+                        stats.monster = true;
+                        stats.health = 250;
+                        stats.sanity = 0;
+                        stats.sync();
+                        net.exmo.sre.sixtyseconds.logic.SixtySecondsMonsterSystem.applyMonsterEffects(sister);
+                        broadcast(level, Component.translatable(
+                                "message.noellesroles.sixty_seconds.devent.sister_outside.back_but_changed",
+                                sister.getGameProfile().getName(), team.teamId)
+                                .withStyle(ChatFormatting.DARK_RED));
+                    }
+                    team.sisterOutside = false;
+                    team.sisterUUID = null;
+                } else {
+                    // 还没回来，播报等待
+                    broadcast(level, Component.translatable(
+                            "message.noellesroles.sixty_seconds.devent.sister_outside.still_waiting",
+                            team.teamId).withStyle(ChatFormatting.GOLD));
+                }
+            }
+        }
         String key = switch (stage) {
             case 0 -> "message.noellesroles.sixty_seconds.stage_morning";
             case 1 -> "message.noellesroles.sixty_seconds.stage_daytime";

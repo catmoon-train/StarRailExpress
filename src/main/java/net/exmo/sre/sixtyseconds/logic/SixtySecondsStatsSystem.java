@@ -42,6 +42,10 @@ public final class SixtySecondsStatsSystem {
             if (stats.downed) {
                 continue;
             }
+            // 怪物/变异者：不消耗饥饿/口渴/san，不累积污染
+            if (stats.monster) {
+                continue;
+            }
             boolean changed = false;
 
             // 理智上限兜底（杀人永久降上限）：任何漏网的回 san 路径每秒都会被压回上限

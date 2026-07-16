@@ -87,7 +87,8 @@ public final class SixtySecondsMonsterSystem {
                 player.getGameProfile().getName()).withStyle(ChatFormatting.DARK_RED));
     }
 
-    private static void applyMonsterEffects(ServerPlayer player) {
+    /** 给玩家施加怪物视觉/移动效果（公开供妹妹变异等外部调用）。 */
+    public static void applyMonsterEffects(ServerPlayer player) {
         player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 60, 0, false, false, true));
         player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 60, 0, false, false, false));
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, 0, false, false, false));

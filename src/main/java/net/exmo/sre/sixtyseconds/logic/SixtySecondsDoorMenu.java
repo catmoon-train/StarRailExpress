@@ -168,6 +168,17 @@ public final class SixtySecondsDoorMenu {
                                 "message.noellesroles.sixty_seconds.wrong_return_door"), true);
                         return;
                     }
+                    // 妹妹外出事件：只有晚上（Night）才能回家
+                    if (team != null && team.sisterOutside
+                            && team.sisterUUID != null
+                            && team.sisterUUID.equals(player.getUUID())) {
+                        var subPhase = net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.subPhase(data, level.getGameTime());
+                        if (subPhase != net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.SubPhase.NIGHT) {
+                            player.displayClientMessage(Component.translatable(
+                                    "message.noellesroles.sixty_seconds.devent.sister_outside.cant_return_yet"), true);
+                            return;
+                        }
+                    }
                     SixtySecondsSearchZones.returnPlayer(player);
                 }
             }
