@@ -180,7 +180,7 @@ public final class SixtySecondsBalance {
     public static final float TRAP_PLAYER_INJURY_MULT = 2.5F;
 
     // ── 电力（SixtySecondsPowerSystem）───────────────────────────────────
-    public static final int POWER_PER_FUEL_TICKS = 20 * 90;   // 每份燃料（废料/煤）供电 90 秒；电池=3份
+    public static final int POWER_PER_FUEL_TICKS = 20 * 10;   // 每份燃料基础 10 秒；发电机内部按倍率换算
 
     // ── 扩展事件（SixtySecondsEventSystem）────────────────────────────────
     public static final int SMOG_DURATION = 20 * 60 * 2;      // 浓烟持续 2 分钟
