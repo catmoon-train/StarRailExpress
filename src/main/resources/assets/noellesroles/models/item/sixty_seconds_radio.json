@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:block/note_block"
+    "layer0": "noellesroles:item/sixty_seconds_radio"
   }
 }

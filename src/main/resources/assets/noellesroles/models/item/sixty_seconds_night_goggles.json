@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:block/tinted_glass"
+    "layer0": "noellesroles:item/sixty_seconds_night_goggles"
   }
 }
