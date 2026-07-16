@@ -412,5 +412,8 @@ public class ModPackets {
         // 60s 载具摄像机切换（汽车上车切第三人称）
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.VehicleCameraS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.VehicleCameraS2CPacket.CODEC);
+        // 电话拨号网络包
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.PhoneDialC2SPacket.TYPE,
+                net.exmo.sre.sixtyseconds.network.PhoneDialC2SPacket.CODEC);
     }
 }

@@ -421,6 +421,12 @@ public final class SixtySecondsRecipes {
                 List.of(in(iron, 2), in(scrap, 3)), ModItems.SIXTY_SECONDS_GEAR, 1);
         add(list, "wire", Station.WORKBENCH, "materials_2", false,
                 List.of(in(iron, 1), in(scrap, 2)), ModItems.SIXTY_SECONDS_WIRE, 1);
+        // 纸：野米×2，不通电
+        add(list, "paper_materials", Station.WORKBENCH, "materials_2", false,
+                List.of(in(rice, 2)), Items.PAPER, 3);
+        // 皮革：任意蘑菇×2，通电
+        add(list, "leather_materials", Station.WORKBENCH, "materials_2", true,
+                List.of(any("mushroom", 2, mushrooms())), Items.LEATHER, 1);
         // ── 材料工艺-III ──────────────────────────────────────────────
         add(list, "station_dismantler", Station.WORKBENCH, "materials_3", true,
                 List.of(in(plastic, 3), in(wire, 6), in(scrap, 6)),
@@ -457,6 +463,12 @@ public final class SixtySecondsRecipes {
                 List.of(in(Items.STICK, 3), in(tape, 1), in(rag, 3)), Items.FISHING_ROD, 1);
         add(list, "box_pry", Station.WORKBENCH, "tools_2", false,
                 List.of(in(Items.STICK, 3), in(iron, 2), in(scrap, 3)), ModItems.SIXTY_SECONDS_BOX_PRY, 1);
+        // 电话：电子元件×2 + 电线×2 + 铁锭×3，通电
+        add(list, "phone", Station.WORKBENCH, "tools_2", true,
+                List.of(in(elec, 2), in(wire, 2), in(iron, 3)), ModItems.SIXTY_SECONDS_PHONE, 1);
+        // 快递包裹：皮革×1 + 胶带×1，通电
+        add(list, "express_package", Station.WORKBENCH, "tools_2", true,
+                List.of(in(Items.LEATHER, 1), in(tape, 1)), ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE, 1);
         // ── 工具-III ─────────────────────────────────────────────────
         add(list, "grappling_hook", Station.WORKBENCH, "tools_3", true,
                 List.of(in(Items.STICK, 2), in(iron, 1), in(hemp, 2)),
@@ -482,6 +494,9 @@ public final class SixtySecondsRecipes {
         add(list, "backpack_military", Station.TAILOR, "backpack_4", true,
                 List.of(in(plastic, 5), in(Items.LEATHER, 4), in(hemp, 4)),
                 ModItems.SIXTY_SECONDS_BACKPACK_MILITARY, 1);
+        // 收纳袋（原版Bundle，裁缝台）：皮革×5 + 线×2，通电
+        add(list, "bundle", Station.TAILOR, "backpack_4", true,
+                List.of(in(Items.LEATHER, 5), in(Items.STRING, 2)), Items.BUNDLE, 1);
         add(list, "backpack_traveler", Station.TAILOR, "backpack_5", true,
                 List.of(in(steel, 1), in(Items.LEATHER, 5), in(hemp, 6)),
                 ModItems.SIXTY_SECONDS_BACKPACK_TRAVELER, 1);

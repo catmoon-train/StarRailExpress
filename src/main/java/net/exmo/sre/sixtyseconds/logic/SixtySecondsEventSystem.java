@@ -88,63 +88,26 @@ public final class SixtySecondsEventSystem {
             case POLLUTION_RAIN -> {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.POLLUTION_RAIN_DURATION));
                 level.setWeatherParameters(0, SixtySecondsBalance.POLLUTION_RAIN_DURATION, true, false);
-                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_pollution_rain_start")
-                        .withStyle(ChatFormatting.DARK_GREEN));
-                subtitleAll(level, "message.noellesroles.sixty_seconds.event_pollution_rain_name",
-                        "message.noellesroles.sixty_seconds.event_pollution_rain_start", ChatFormatting.DARK_GREEN);
             }
             case SMOG -> {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.SMOG_DURATION));
-                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_smog_start")
-                        .withStyle(ChatFormatting.DARK_GRAY));
-                subtitleAll(level, "message.noellesroles.sixty_seconds.event_smog_name",
-                        "message.noellesroles.sixty_seconds.event_smog_start", ChatFormatting.GRAY);
             }
             case COLD_SNAP -> {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.COLD_SNAP_DURATION));
-                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_cold_start")
-                        .withStyle(ChatFormatting.AQUA));
-                subtitleAll(level, "message.noellesroles.sixty_seconds.event_cold_name",
-                        "message.noellesroles.sixty_seconds.event_cold_start", ChatFormatting.AQUA);
             }
             case ACID_FOG -> {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.EVENT_BASE_DURATION));
-                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_acid_fog_start")
-                        .withStyle(ChatFormatting.GREEN));
-                subtitleAll(level, "message.noellesroles.sixty_seconds.event_acid_fog_name",
-                        "message.noellesroles.sixty_seconds.event_acid_fog_start", ChatFormatting.GREEN);
             }
             case ELECTROMAGNETIC_STORM -> {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.EVENT_BASE_DURATION));
-                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_em_storm_start")
-                        .withStyle(ChatFormatting.LIGHT_PURPLE));
-                subtitleAll(level, "message.noellesroles.sixty_seconds.event_em_storm_name",
-                        "message.noellesroles.sixty_seconds.event_em_storm_start", ChatFormatting.LIGHT_PURPLE);
             }
             case SWARM -> {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.EVENT_BASE_DURATION));
-                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_swarm_start")
-                        .withStyle(ChatFormatting.DARK_RED));
-                subtitleAll(level, "message.noellesroles.sixty_seconds.event_swarm_name",
-                        "message.noellesroles.sixty_seconds.event_swarm_start", ChatFormatting.DARK_RED);
             }
             case HEAT_WAVE -> {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.EVENT_BASE_DURATION));
-                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_heat_wave_start")
-                        .withStyle(ChatFormatting.RED));
-                subtitleAll(level, "message.noellesroles.sixty_seconds.event_heat_wave_name",
-                        "message.noellesroles.sixty_seconds.event_heat_wave_start", ChatFormatting.RED);
             }
             case AIRDROP -> airdrop(level); // 瞬发，不进 ACTIVE
-        }
-    }
-
-    /** 事件开始的 SubtitleHUD TOP 播报：大字=事件名，小字=事件描述（与聊天栏广播并行）。 */
-    private static void subtitleAll(ServerLevel level, String nameKey, String descKey, ChatFormatting color) {
-        for (ServerPlayer player : level.players()) {
-            net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(player,
-                    Component.translatable(nameKey).withStyle(color),
-                    Component.translatable(descKey), 80, false);
         }
     }
 
@@ -251,16 +214,10 @@ public final class SixtySecondsEventSystem {
         }
     }
 
-    /**
-     * 空投：走 {@link SixtySecondsAirdrop} 在共用探索区内可见下落一个<b>一次性奖励箱</b>
-     * （一次搜出 {@link SixtySecondsBalance#AIRDROP_ROLLS} 件），落地广播具体坐标。
-     */
     private static void airdrop(ServerLevel level) {
         if (SixtySecondsAirdrop.dropRandom(level)) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_airdrop")
                     .withStyle(ChatFormatting.GOLD));
-            subtitleAll(level, "message.noellesroles.sixty_seconds.event_airdrop_name",
-                    "message.noellesroles.sixty_seconds.event_airdrop", ChatFormatting.GOLD);
         }
     }
 

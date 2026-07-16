@@ -7,13 +7,9 @@ import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -135,18 +131,6 @@ public final class SixtySecondsNewspaper {
             List<Component> content = buildPaperContent(level, data, teamId, team, picked);
             deliverToTeamMailbox(level, teamId, content, picked);
         }
-
-        Component reminder = Component.literal("【")
-                .append(Component.translatable(LANG + "reminder", data.dayNumber))
-                .append(Component.literal("】"))
-                .withStyle(style -> style.withColor(ChatFormatting.AQUA)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/sre:60s newspaper"))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable(LANG + "reminder_hint"))));
-        for (ServerPlayer player : level.players()) {
-            player.displayClientMessage(reminder, false);
-            player.playNotifySound(SoundEvents.BOOK_PAGE_TURN, SoundSource.AMBIENT, 0.7F, 1.0F);
-        }
     }
 
     private static List<Component> buildPaperContent(ServerLevel level, SixtySecondsState.Data data,
@@ -154,7 +138,7 @@ public final class SixtySecondsNewspaper {
         List<Component> lines = new ArrayList<>();
 
         // 1. 末日日报新闻
-        lines.add(Component.literal("≡≡ 末日日报 ≡≡").withStyle(ChatFormatting.DARK_RED));
+        lines.add(Component.translatable(LANG + "section_headline").withStyle(ChatFormatting.DARK_RED));
         lines.add(Component.empty());
         for (int n : picked) {
             lines.add(Component.literal("◆ ").append(Component.translatable(LANG + "n" + n)));
@@ -162,7 +146,7 @@ public final class SixtySecondsNewspaper {
         }
 
         // 2. 天气播报
-        lines.add(Component.literal("━━ 天气播报 ━━").withStyle(ChatFormatting.GOLD));
+        lines.add(Component.translatable(LANG + "section_weather").withStyle(ChatFormatting.GOLD));
         lines.add(Component.empty());
         String weatherKey = SixtySecondsEventSystem.activeEventKey(level);
         if (weatherKey != null) {
@@ -174,7 +158,7 @@ public final class SixtySecondsNewspaper {
         lines.add(Component.empty());
 
         // 3. 全区动态
-        lines.add(Component.literal("━━ 全区动态 ━━").withStyle(ChatFormatting.DARK_AQUA));
+        lines.add(Component.translatable(LANG + "section_zone").withStyle(ChatFormatting.DARK_AQUA));
         lines.add(Component.empty());
         // 死亡通报（基于存活玩家数量）
         long aliveCount = level.players().stream()
@@ -195,7 +179,7 @@ public final class SixtySecondsNewspaper {
         lines.add(Component.empty());
 
         // 4. 生存小贴士
-        lines.add(Component.literal("━━ 生存小贴士 ━━").withStyle(ChatFormatting.GREEN));
+        lines.add(Component.translatable(LANG + "section_tips").withStyle(ChatFormatting.GREEN));
         lines.add(Component.empty());
         String tipKey = TIPS[level.getRandom().nextInt(TIPS.length)];
         lines.add(Component.translatable("message.noellesroles.sixty_seconds." + tipKey));
@@ -203,7 +187,7 @@ public final class SixtySecondsNewspaper {
 
         // 5. PVP紧急播报
         if (data.dayNumber >= 5) {
-            lines.add(Component.literal("⚠ 紧急播报 ⚠").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            lines.add(Component.translatable(LANG + "section_emergency").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
             lines.add(Component.empty());
             lines.add(Component.translatable("message.noellesroles.sixty_seconds.pvp_broadcast_"
                     + (data.dayNumber == 5 ? "day5" : "ongoing"))
@@ -213,7 +197,7 @@ public final class SixtySecondsNewspaper {
 
         // 6. 特殊通报（50%概率）
         if (level.getRandom().nextDouble() < 0.5) {
-            lines.add(Component.literal("━━ 特别报道 ━━").withStyle(ChatFormatting.LIGHT_PURPLE));
+            lines.add(Component.translatable(LANG + "section_report").withStyle(ChatFormatting.LIGHT_PURPLE));
             lines.add(Component.empty());
             int reportType = level.getRandom().nextInt(3);
             switch (reportType) {
@@ -234,20 +218,40 @@ public final class SixtySecondsNewspaper {
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
             if (!allDrafts.isEmpty()) {
-                lines.add(Component.literal("━━ 幸存者投稿 ━━").withStyle(ChatFormatting.YELLOW));
+                lines.add(Component.translatable(LANG + "section_drafts").withStyle(ChatFormatting.YELLOW));
                 lines.add(Component.empty());
                 int idx = 1;
                 for (String draft : allDrafts) {
                     String preview = draft.length() > 40 ? draft.substring(0, 40) + "…" : draft;
-                    lines.add(Component.literal("§7[" + idx + "] §f" + preview));
+                    lines.add(Component.translatable(LANG + "draft_entry", idx, preview));
                     idx++;
                 }
                 lines.add(Component.empty());
             }
         }
 
-        lines.add(Component.literal("━━━━━━━━━━━").withStyle(ChatFormatting.GRAY));
-        lines.add(Component.translatable("message.noellesroles.sixty_seconds.news.footer", data.dayNumber)
+        // 8. 市民热线栏目（60%概率出现，最多2条）
+        List<SixtySecondsHotlineSystem.HotlineEntry> hotlines = SixtySecondsHotlineSystem.getDailyHotlines(level);
+        if (!hotlines.isEmpty() && level.getRandom().nextDouble() < 0.6) {
+            int count = Math.min(hotlines.size(), 1 + level.getRandom().nextInt(2));
+            lines.add(Component.translatable("message.noellesroles.sixty_seconds.news.hotline_header")
+                    .withStyle(ChatFormatting.AQUA));
+            lines.add(Component.empty());
+            for (int i = 0; i < count; i++) {
+                SixtySecondsHotlineSystem.HotlineEntry entry = hotlines.get(i);
+                String typeKey = switch (entry.type()) {
+                    case EXPRESS -> "message.noellesroles.sixty_seconds.hotline_type_express";
+                    case SHOP -> "message.noellesroles.sixty_seconds.hotline_type_shop";
+                    case RESCUE -> "message.noellesroles.sixty_seconds.hotline_type_rescue";
+                };
+                lines.add(Component.translatable("message.noellesroles.sixty_seconds.news.hotline_entry",
+                        Component.translatable(typeKey), entry.number()));
+            }
+            lines.add(Component.empty());
+        }
+
+        lines.add(Component.translatable(LANG + "section_divider").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable(LANG + "footer", data.dayNumber)
                 .withStyle(ChatFormatting.DARK_GRAY));
         return lines;
     }

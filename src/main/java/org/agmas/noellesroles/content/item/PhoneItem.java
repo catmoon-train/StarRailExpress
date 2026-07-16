@@ -13,11 +13,11 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * 稿纸 - 可以书写内容，放入邮箱后下一天会在报纸上刊登
+ * 电话 - 右键打开拨号页面，拨打热线号码
  */
-public class DraftPaperItem extends Item {
+public class PhoneItem extends Item {
 
-    public DraftPaperItem(Properties properties) {
+    public PhoneItem(Properties properties) {
         super(properties);
     }
 
@@ -25,8 +25,8 @@ public class DraftPaperItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide) {
-            Minecraft.getInstance().setScreen(new org.agmas.noellesroles.client.screen.DraftPaperScreen(
-                    stack, hand));
+            Minecraft.getInstance().setScreen(
+                    new org.agmas.noellesroles.client.screen.PhoneDialScreen(stack, hand));
         }
         return InteractionResultHolder.success(stack);
     }
@@ -34,15 +34,6 @@ public class DraftPaperItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds_draft_paper"));
-        // 读取自定义数据中的预览文本
-        var tag = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
-        if (tag != null) {
-            String saved = tag.copyTag().getString("DraftText");
-            if (!saved.isEmpty()) {
-                String preview = saved.length() > 30 ? saved.substring(0, 30) + "..." : saved;
-                tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds_draft_paper.preview", preview));
-            }
-        }
+        tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds_phone"));
     }
 }

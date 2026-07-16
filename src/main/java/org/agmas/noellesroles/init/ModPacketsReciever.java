@@ -1489,6 +1489,37 @@ public class ModPacketsReciever {
                 Component.translatable("message.noellesroles.skincrawler.no_body").withStyle(ChatFormatting.RED), true);
           }
         });
+
+        // 电话拨号处理
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.PhoneDialC2SPacket.TYPE,
+            (packet, ctx) -> {
+                ServerPlayer player = ctx.player();
+                ctx.server().execute(() -> {
+                    String result = net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleDial(player, packet.number());
+                    switch (result) {
+                        case "connected_express" -> {
+                            player.displayClientMessage(
+                                Component.translatable("message.noellesroles.hotline.express.greeting").withStyle(ChatFormatting.GOLD), false);
+                        }
+                        case "connected_shop" -> {
+                            player.displayClientMessage(
+                                Component.translatable("message.noellesroles.hotline.shop.greeting").withStyle(ChatFormatting.GOLD), false);
+                        }
+                        case "connected_rescue" -> {
+                            player.displayClientMessage(
+                                Component.translatable("message.noellesroles.hotline.rescue.greeting").withStyle(ChatFormatting.GOLD), false);
+                        }
+                        case "already_dialed" -> {
+                            player.displayClientMessage(
+                                Component.translatable("message.noellesroles.hotline.already_dialed").withStyle(ChatFormatting.RED), true);
+                        }
+                        default -> {
+                            player.displayClientMessage(
+                                Component.translatable("message.noellesroles.hotline.invalid_number").withStyle(ChatFormatting.RED), true);
+                        }
+                    }
+                });
+            });
   }
 
   private static boolean isChefCookableFood(ItemStack food) {

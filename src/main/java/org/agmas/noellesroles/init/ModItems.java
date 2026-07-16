@@ -794,6 +794,17 @@ public class ModItems {
                     new Item.Properties().stacksTo(16)),
             "sixty_seconds_draft_paper", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
+    // ── 电话（右键拨号，拨打热线号码）────────────────────────────
+    public static final Item SIXTY_SECONDS_PHONE = register(
+            new org.agmas.noellesroles.content.item.PhoneItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_phone", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // ── 快递包裹（放入邮箱，1格存储空间）─────────────────────────
+    public static final Item SIXTY_SECONDS_EXPRESS_PACKAGE = register(
+            new org.agmas.noellesroles.content.item.ExpressPackageItem(
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_express_package", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
     // ── 饮品/药品（SixtySecondsStatItem 统一恢复：health,hunger,thirst,san,pollutionReduce,cure,effect）──
     public static final Item SIXTY_SECONDS_CANNED_SOUP = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(

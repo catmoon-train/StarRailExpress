@@ -5659,6 +5659,7 @@
 
   "item.noellesroles.sixty_seconds_draft_paper": "稿纸",
   "tooltip.noellesroles.sixty_seconds_draft_paper": "可以书写内容，放入邮箱后次日刊登在报纸上。",
+  "tooltip.noellesroles.sixty_seconds_draft_paper.preview": "§7%s",
   "item.noellesroles.sixty_seconds_bagged_dried_fruit": "袋装果干",
   "tooltip.noellesroles.sixty_seconds_bagged_dried_fruit": "便携包装的果干，一袋就能顶一顿饭。",
   "item.noellesroles.sixty_seconds_bagged_biscuit": "袋装压缩饼干",
@@ -5712,5 +5713,51 @@
   "message.noellesroles.sixty_seconds.event_swarm_end": "虫潮退去了，地面留下一层黑色的残骸。",
   "message.noellesroles.sixty_seconds.event_heat_wave_name": "热浪",
   "message.noellesroles.sixty_seconds.event_heat_wave_start": "极端热浪席卷全城！全员虚弱，口渴加速！",
-  "message.noellesroles.sixty_seconds.event_heat_wave_end": "热浪过去了，温度终于降了下来。"
+  "message.noellesroles.sixty_seconds.event_heat_wave_end": "热浪过去了，温度终于降了下来。",
+
+  "message.noellesroles.sixty_seconds.news.section_headline": "≡≡ 末日日报 ≡≡",
+  "message.noellesroles.sixty_seconds.news.section_weather": "━━ 天气播报 ━━",
+  "message.noellesroles.sixty_seconds.news.section_zone": "━━ 全区动态 ━━",
+  "message.noellesroles.sixty_seconds.news.section_tips": "━━ 生存小贴士 ━━",
+  "message.noellesroles.sixty_seconds.news.section_emergency": "⚠ 紧急播报 ⚠",
+  "message.noellesroles.sixty_seconds.news.section_report": "━━ 特别报道 ━━",
+  "message.noellesroles.sixty_seconds.news.section_drafts": "━━ 幸存者投稿 ━━",
+  "message.noellesroles.sixty_seconds.news.section_divider": "━━━━━━━━━━━",
+  "message.noellesroles.sixty_seconds.news.draft_entry": "§7[%s] §f%s",
+  "message.noellesroles.sixty_seconds.news.hotline_header": "━━ 市民热线 ━━",
+  "message.noellesroles.sixty_seconds.news.hotline_entry": "§b☎ %s：§f%s",
+  "message.noellesroles.sixty_seconds.hotline_type_express": "快递热线",
+  "message.noellesroles.sixty_seconds.hotline_type_shop": "购物热线",
+  "message.noellesroles.sixty_seconds.hotline_type_rescue": "救援热线",
+
+  "item.noellesroles.sixty_seconds_phone": "电话",
+  "tooltip.noellesroles.sixty_seconds_phone": "右键打开拨号界面，拨打热线号码。",
+  "item.noellesroles.sixty_seconds_express_package": "快递包裹",
+  "tooltip.noellesroles.sixty_seconds_express_package": "可以存放一件物资。放入邮箱后，快递员会取走配送。",
+
+  "screen.noellesroles.phone_dial": "电话拨号",
+  "gui.noellesroles.phone_dial.call": "拨号",
+  "gui.noellesroles.phone_dial.hangup": "挂断",
+
+  "message.noellesroles.phone.dialing": "正在拨号 %s……",
+  "message.noellesroles.hotline.already_dialed": "这个号码今天已经拨打过了。",
+  "message.noellesroles.hotline.invalid_number": "§c你拨打的号码是空号。",
+
+  "message.noellesroles.hotline.express.greeting": "§6[快递热线] §e你好，这里是末日快递服务。你想寄送什么物资吗？但需要自己提供快递包裹。",
+  "message.noellesroles.hotline.express.send": "我想寄送一些物资",
+  "message.noellesroles.hotline.express.cancel": "不了，谢谢",
+  "message.noellesroles.hotline.express.bye": "§6[快递热线] §e好的，有需要再联系。",
+  "message.noellesroles.hotline.express.select_team": "§6[快递热线] §e你想寄送给几号队伍？",
+  "message.noellesroles.hotline.express.instructions": "§6[快递热线] §e请将要寄送的物资放到快递包裹里，并将快递包裹放入你的邮箱。明天早上快递员会取走您的包裹，运送包裹需要一天时间。",
+  "message.noellesroles.hotline.express.arrived": "§a你收到了一份快递包裹！",
+
+  "message.noellesroles.hotline.shop.greeting": "§6[购物热线] §e欢迎光临末日商城！今天想买点什么？",
+  "message.noellesroles.hotline.shop.buy": "确认购买",
+  "message.noellesroles.hotline.shop.cancel": "取消购买",
+  "message.noellesroles.hotline.shop.insufficient": "§c邮箱里没有放入足够的货币，送货员带着货物离开了。",
+
+  "message.noellesroles.hotline.rescue.greeting": "§6[救援热线] §e这里是救援中心，有什么可以帮你的？",
+  "message.noellesroles.hotline.rescue.request": "需要物资支援",
+  "message.noellesroles.hotline.rescue.bye": "§6[救援热线] §e好的，救援物资明天送达，请注意查收。",
+  "message.noellesroles.hotline.rescue.arrived": "§a救援物资已送达你的邮箱！"
 }

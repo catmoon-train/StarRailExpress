@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class SixtySecondsMailboxBlockEntity extends BlockEntity implements Container {
 
-    protected NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
+    protected NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
     public int ownerTeamId = -1;
 
     public SixtySecondsMailboxBlockEntity(BlockPos pos, BlockState state) {
@@ -22,7 +22,7 @@ public class SixtySecondsMailboxBlockEntity extends BlockEntity implements Conta
 
     @Override
     public int getContainerSize() {
-        return 9;
+        return 27;
     }
 
     @Override
@@ -66,15 +66,18 @@ public class SixtySecondsMailboxBlockEntity extends BlockEntity implements Conta
         items.clear();
     }
 
-    /** 只允许放入稿纸 */
+    /** 只允许放入稿纸、实体游戏币、快递包裹 */
     public boolean canPlaceItem(int slot, ItemStack stack) {
-        return stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_DRAFT_PAPER);
+        return stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_DRAFT_PAPER)
+                || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_COIN)
+                || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE)
+                || stack.is(net.minecraft.world.item.Items.GOLD_NUGGET);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        items = NonNullList.withSize(9, ItemStack.EMPTY);
+        items = NonNullList.withSize(27, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, items, registries);
         ownerTeamId = tag.getInt("OwnerTeam");
     }
