@@ -32,6 +32,7 @@ import net.minecraft.world.phys.BlockHitResult;
  *   <li>废料 = 2 份（20 秒）</li>
  *   <li>煤炭/木炭 = 6 份（60 秒）</li>
  *   <li>电池 = 12 份（120 秒）</li>
+ *   <li>燃料罐 = 45 份（450 秒）</li>
  *   <li>柴油罐 = 90 份（900 秒）</li>
  *   <li>大型电池 = 36 份（360 秒，= 电池 ×3）</li>
  *   <li>太阳能板 = 108 份（1080 秒，= 大型电池 ×3，仅白天）</li>
@@ -85,6 +86,8 @@ public class SixtySecondsGeneratorBlock extends Block {
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BATTERY_LARGE)) {
             units = 36; // 大型电池 = 电池 ×3 = 360 秒
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_FUEL_CAN)) {
+            units = 45; // 燃料罐 = 450 秒
+        } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_DIESEL_CAN)) {
             units = 90; // 柴油罐 = 900 秒
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SOLAR_PANEL)) {
             // 太阳能板：仅白天（清晨/白天子相位）可用，= 大型电池 ×3 = 1080 秒

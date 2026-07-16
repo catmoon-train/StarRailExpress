@@ -199,7 +199,7 @@ public class ModItems {
             "sixty_seconds_crowbar", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_LOCKPICK = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
-                    new Item.Properties().stacksTo(1), false),
+                    new Item.Properties().stacksTo(1), false, 2),
             "sixty_seconds_lockpick", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // 末日60秒模式：门锁（右键门安装，抵御一天撬棍） / 门陷阱（开锁器入室触发警报）
@@ -743,11 +743,11 @@ public class ModItems {
             "sixty_seconds_crowbar_hydraulic", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_LOCKPICK_PRO = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
-                    new Item.Properties().stacksTo(1), false, 2),
+                    new Item.Properties().stacksTo(1), false, 3),
             "sixty_seconds_lockpick_pro", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_LOCKPICK_MASTER = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem(
-                    new Item.Properties().stacksTo(1), false, 3),
+                    new Item.Properties().stacksTo(1), false, 4),
             "sixty_seconds_lockpick_master", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // ══ 末日60秒模式：扩充批次（冶金 / 农业 / 工事强化）══════════════════════
     // ── 合成材料（loot material 类别 + 配方消耗）──
