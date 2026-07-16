@@ -66,6 +66,7 @@ public final class SixtySecondsSleepSystem {
         if (remaining == SixtySecondsDayCycle.SLEEP_WINDOW_TICKS - FORCED_SLEEP_DELAY_TICKS) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.sleep_forced", 15)
                     .withStyle(ChatFormatting.RED));
+            SixtySecondsDailyEvents.autoRejectAll(level); // 睡觉前自动拒绝未决事件
             startForcedSleep(level, now);
         }
         boolean forced = isForcedSleeping(level, now);

@@ -334,7 +334,7 @@ public final class SixtySecondsManager {
         for (SixtySecondsState.TeamData team : data.teams.values()) {
             team.clearDailyModifiers();
         }
-        SixtySecondsDailyEvents.onDayStart(level); // 每日事件门：清晨为每队抽当日剧情事件
+        SixtySecondsDailyEvents.onDayStart(level); // 每日事件门：重置隔日状态（事件在傍晚触发）
         SixtySecondsNewspaper.publish(level, data); // 末日日报：每日一期，聊天栏点击阅读
         SixtySecondsRoleAwakening.awaken(level, data);
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.day_start", day, TOTAL_DAYS));
@@ -577,8 +577,13 @@ public final class SixtySecondsManager {
         if (previous < 0) {
             return; // 开日初始化，由 startDay 的 SubtitleHUD 负责播报
         }
-        // 傍晚切换（白天→晚上）：检测妹妹外出事件状态（仅通知该队成员）
+        // 傍晚切换（白天→晚上）：播报家庭状态 + 触发每日事件 + 检测妹妹外出
         if (previous == 1 && stage == 2) {
+            // 1. 先播报家庭成员状态
+            SixtySecondsDailyEvents.broadcastFamilyStatus(level);
+            // 2. 触发每日事件
+            SixtySecondsDailyEvents.fireEveningEvents(level);
+            // 3. 检测妹妹外出事件状态
             for (SixtySecondsState.TeamData team : data.teams.values()) {
                 if (!team.sisterOutside || team.sisterUUID == null) continue;
                 // 妹妹是否在庇护所内（即已回家）

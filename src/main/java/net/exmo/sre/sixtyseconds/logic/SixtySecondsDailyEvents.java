@@ -132,6 +132,10 @@ public final class SixtySecondsDailyEvents {
         final Map<Integer, String> lastEvent = new HashMap<>();
         /** 政府空投事件的当日全局去重（多队同日抽到只投一次）。 */
         int airdropDay = 0;
+        /** teamId → 当日已触发的事件定义（供回家补发）。 */
+        final Map<Integer, EventDef> todayEvent = new HashMap<>();
+        /** 已看到事件的玩家 UUID（避免重复推送）。 */
+        final Set<UUID> seenPlayers = new HashSet<>();
     }
 
     private static final Map<ServerLevel, LevelState> STATE = new WeakHashMap<>();
@@ -150,12 +154,12 @@ public final class SixtySecondsDailyEvents {
         STATE.remove(level);
     }
 
-    /** 换日（含第 1 天）：清掉隔日残留的待决/探险，定时在清晨触发当日事件。 */
+    /** 换日（含第 1 天）：清掉隔日残留的待决/探险。事件在傍晚由 Manager 触发。 */
     public static void onDayStart(ServerLevel level) {
         LevelState st = STATE.computeIfAbsent(level, ignored -> new LevelState());
         st.pending.clear();
         st.expeditions.clear();
-        st.triggerTick = level.getGameTime() + SixtySecondsBalance.DAILY_EVENT_DELAY_TICKS;
+        st.triggerTick = 0L; // 不再清晨触发，等傍晚
     }
 
     public static void tick(ServerLevel level) {
@@ -168,24 +172,9 @@ public final class SixtySecondsDailyEvents {
             st.triggerTick = 0L;
             fireAll(level, st);
         }
-        // 抉择超时：按保守选项（2）自动结算
-        if (!st.pending.isEmpty()) {
-            Iterator<Map.Entry<Integer, Pending>> it = st.pending.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<Integer, Pending> entry = it.next();
-                if (now < entry.getValue().expireTick) {
-                    continue;
-                }
-                it.remove();
-                SixtySecondsState.TeamData team = SixtySecondsState.get(level).teams.get(entry.getKey());
-                EventDef def = EVENTS.get(entry.getValue().eventId);
-                if (team != null && def != null && def.choice != null) {
-                    msgTeam(level, team, Component.translatable(LANG + "timeout")
-                            .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
-                    def.choice.choose(level, team, null, 2);
-                }
-            }
-        }
+        // 抉择超时：不再按时间超时，改为在睡觉阶段自动拒绝（见 autoRejectAll）
+        // 检测玩家回家：补发未看到的事件给刚回家的成员
+        tickReturnHome(level, st);
         // 探险归来结算
         if (!st.expeditions.isEmpty()) {
             Iterator<Expedition> it = st.expeditions.iterator();
@@ -202,8 +191,170 @@ public final class SixtySecondsDailyEvents {
 
     // ══════════════════════════ 触发与展示 ══════════════════════════
 
+    /** 傍晚触发：为所有队伍抽取并展示当日事件。由 SixtySecondsManager 调用。 */
+    public static void fireEveningEvents(ServerLevel level) {
+        LevelState st = STATE.computeIfAbsent(level, ignored -> new LevelState());
+        fireAll(level, st);
+    }
+
+    /** 检测玩家从室外进入庇护所时补发当日事件。 */
+    private static void tickReturnHome(ServerLevel level, LevelState st) {
+        if (st.todayEvent.isEmpty()) return;
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            EventDef def = st.todayEvent.get(team.teamId);
+            if (def == null) continue;
+            for (ServerPlayer member : onlineMembers(level, team)) {
+                if (st.seenPlayers.contains(member.getUUID())) continue;
+                if (!isPlayerInShelter(member, data, team)) continue;
+                st.seenPlayers.add(member.getUUID());
+                MutableComponent tag = Component.literal("[")
+                        .append(Component.translatable(def.type.tagKey()))
+                        .append(Component.literal("]"))
+                        .withStyle(def.type.color);
+                MutableComponent eventTitle = Component.translatable(LANG + def.id + ".title");
+                net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(member,
+                        Component.translatable(LANG + "evening_title")
+                                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+                        Component.translatable(LANG + "evening_subtitle", data.dayNumber)
+                                .withStyle(ChatFormatting.YELLOW),
+                        80, false);
+                member.displayClientMessage(Component.translatable(LANG + "header", data.dayNumber)
+                        .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
+                member.displayClientMessage(Component.empty().append(tag).append(" ")
+                        .append(eventTitle.copy().withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD)), false);
+                member.displayClientMessage(Component.translatable(LANG + def.id + ".story")
+                        .withStyle(ChatFormatting.GRAY), false);
+                playTypeSound(member, def.type);
+                // 如果是抉择事件，也补发选项
+                Pending pending = st.pending.get(team.teamId);
+                if (pending != null && def.choice != null) {
+                    MutableComponent options = Component.empty();
+                    for (int i = 1; i <= 2; i++) {
+                        String cmd = "/sre:60s event " + pending.token + " " + i;
+                        options.append(Component.literal("【")
+                                .append(Component.translatable(LANG + def.id + ".opt" + i))
+                                .append(Component.literal("】"))
+                                .withStyle(style -> style
+                                        .withColor(ChatFormatting.YELLOW)
+                                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd))
+                                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                Component.translatable(LANG + "click_hint")))));
+                        options.append(Component.literal("  "));
+                    }
+                    member.displayClientMessage(options, false);
+                    member.displayClientMessage(Component.translatable(LANG + "choose_hint_until_sleep")
+                            .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC), false);
+                }
+            }
+        }
+    }
+
+    /** 强制睡觉时自动拒绝所有未决抉择事件。 */
+    public static void autoRejectAll(ServerLevel level) {
+        LevelState st = STATE.get(level);
+        if (st == null || st.pending.isEmpty()) {
+            return;
+        }
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        Iterator<Map.Entry<Integer, Pending>> it = st.pending.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Integer, Pending> entry = it.next();
+            it.remove();
+            SixtySecondsState.TeamData team = data.teams.get(entry.getKey());
+            EventDef def = EVENTS.get(entry.getValue().eventId);
+            if (team != null && def != null && def.choice != null) {
+                msgTeam(level, team, Component.translatable(LANG + "auto_rejected",
+                        Component.translatable(LANG + def.id + ".title"))
+                        .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+                def.choice.choose(level, team, null, 2);
+            }
+        }
+    }
+
+    /** 傍晚播报家庭成员状态（在事件之前）。 */
+    public static void broadcastFamilyStatus(ServerLevel level) {
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            List<ServerPlayer> members = onlineMembers(level, team);
+            if (members.isEmpty()) continue;
+            List<Component> lines = new ArrayList<>();
+            lines.add(Component.translatable(LANG + "family_status")
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+            for (ServerPlayer member : members) {
+                SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(member);
+                String name = member.getGameProfile().getName();
+                int max = SixtySecondsStatsComponent.MAX;
+                // 饥饿
+                if (stats.hunger < max * 0.3) {
+                    lines.add(Component.translatable(LANG + "status_hunger_critical", name)
+                            .withStyle(ChatFormatting.RED));
+                } else if (stats.hunger < max * 0.6) {
+                    lines.add(Component.translatable(LANG + "status_hunger_low", name)
+                            .withStyle(ChatFormatting.GOLD));
+                }
+                // 口渴
+                if (stats.thirst < max * 0.3) {
+                    lines.add(Component.translatable(LANG + "status_thirst_critical", name)
+                            .withStyle(ChatFormatting.RED));
+                } else if (stats.thirst < max * 0.6) {
+                    lines.add(Component.translatable(LANG + "status_thirst_low", name)
+                            .withStyle(ChatFormatting.AQUA));
+                }
+                // 理智
+                int sanMax = stats.sanityMax > 0 ? stats.sanityMax : max;
+                if (stats.sanity < sanMax * 0.3) {
+                    lines.add(Component.translatable(LANG + "status_sanity_critical", name)
+                            .withStyle(ChatFormatting.DARK_PURPLE));
+                } else if (stats.sanity < sanMax * 0.6) {
+                    lines.add(Component.translatable(LANG + "status_sanity_low", name)
+                            .withStyle(ChatFormatting.LIGHT_PURPLE));
+                }
+                // 污染
+                if (stats.pollution > 60) {
+                    lines.add(Component.translatable(LANG + "status_pollution_high", name)
+                            .withStyle(ChatFormatting.DARK_GREEN));
+                } else if (stats.pollution > 30) {
+                    lines.add(Component.translatable(LANG + "status_pollution_low", name)
+                            .withStyle(ChatFormatting.GREEN));
+                }
+                // 生病
+                if (stats.sick) {
+                    lines.add(Component.translatable(LANG + "status_sick", name)
+                            .withStyle(ChatFormatting.YELLOW));
+                }
+            }
+            // 死亡成员
+            for (UUID uuid : team.members) {
+                if (level.getPlayerByUUID(uuid) == null && !isMemberOnline(level, team, uuid)) {
+                    // 检查是否曾经是该队成员但现在死了
+                }
+            }
+            // 只发给在庇护所的成员
+            for (ServerPlayer member : members) {
+                if (!isPlayerInShelter(member, data, team)) continue;
+                for (Component line : lines) {
+                    member.displayClientMessage(line, false);
+                }
+            }
+        }
+    }
+
+    private static boolean isPlayerInShelter(ServerPlayer player, SixtySecondsState.Data data,
+            SixtySecondsState.TeamData team) {
+        double x = player.getX(), y = player.getY(), z = player.getZ();
+        return (team.shelterBox != null && team.shelterBox.contains(x, y, z))
+                || (team.residentialBox != null && team.residentialBox.contains(x, y, z));
+    }
+
+    private static boolean isMemberOnline(ServerLevel level, SixtySecondsState.TeamData team, UUID uuid) {
+        return level.getPlayerByUUID(uuid) instanceof ServerPlayer p && !GameUtils.isPlayerEliminated(p);
+    }
+
     private static void fireAll(ServerLevel level, LevelState st) {
         SixtySecondsState.Data data = SixtySecondsState.get(level);
+        st.todayEvent.clear();
+        st.seenPlayers.clear();
         for (SixtySecondsState.TeamData team : data.teams.values()) {
             if (onlineMembers(level, team).isEmpty()) {
                 continue;
@@ -213,6 +364,7 @@ public final class SixtySecondsDailyEvents {
                 continue;
             }
             st.lastEvent.put(team.teamId, def.id);
+            st.todayEvent.put(team.teamId, def);
             trigger(level, st, team, def);
         }
     }
@@ -263,23 +415,30 @@ public final class SixtySecondsDailyEvents {
         return EVENTS.keySet();
     }
 
-    /** 播报剧情（标题字幕 + 聊天栏故事）；抉择事件再挂上待决状态与可点击选项。 */
+    /** 播报剧情（title + 聊天栏故事）；抉择事件再挂上待决状态与可点击选项。只显示给在庇护所的成员。 */
     private static void trigger(ServerLevel level, LevelState st, SixtySecondsState.TeamData team, EventDef def) {
         SixtySecondsState.Data data = SixtySecondsState.get(level);
         MutableComponent tag = Component.literal("[")
                 .append(Component.translatable(def.type.tagKey()))
                 .append(Component.literal("]"))
                 .withStyle(def.type.color);
-        MutableComponent title = Component.translatable(LANG + def.id + ".title");
+        MutableComponent eventTitle = Component.translatable(LANG + def.id + ".title");
         for (ServerPlayer member : onlineMembers(level, team)) {
+            if (!isPlayerInShelter(member, data, team)) continue;
+            st.seenPlayers.add(member.getUUID());
+            // title 提示
+            net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(member,
+                    Component.translatable(LANG + "evening_title")
+                            .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+                    Component.translatable(LANG + "evening_subtitle", data.dayNumber)
+                            .withStyle(ChatFormatting.YELLOW),
+                    80, false);
             member.displayClientMessage(Component.translatable(LANG + "header", data.dayNumber)
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
             member.displayClientMessage(Component.empty().append(tag).append(" ")
-                    .append(title.copy().withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD)), false);
+                    .append(eventTitle.copy().withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD)), false);
             member.displayClientMessage(Component.translatable(LANG + def.id + ".story")
                     .withStyle(ChatFormatting.GRAY), false);
-            net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(member, title,
-                    Component.translatable(def.type.tagKey()), 80, false);
             playTypeSound(member, def.type);
         }
         if (def.choice == null) {
@@ -287,8 +446,7 @@ public final class SixtySecondsDailyEvents {
             return;
         }
         int token = 1 + level.getRandom().nextInt(Integer.MAX_VALUE - 1);
-        st.pending.put(team.teamId, new Pending(token, def.id,
-                level.getGameTime() + SixtySecondsBalance.DAILY_EVENT_CHOICE_TICKS));
+        st.pending.put(team.teamId, new Pending(token, def.id, Long.MAX_VALUE)); // 在睡觉前一直有效
         MutableComponent options = Component.empty();
         for (int i = 1; i <= 2; i++) {
             String cmd = "/sre:60s event " + token + " " + i;
@@ -302,10 +460,10 @@ public final class SixtySecondsDailyEvents {
                                     Component.translatable(LANG + "click_hint")))));
             options.append(Component.literal("  "));
         }
-        Component hint = Component.translatable(LANG + "choose_hint",
-                SixtySecondsBalance.DAILY_EVENT_CHOICE_TICKS / 20)
+        Component hint = Component.translatable(LANG + "choose_hint_until_sleep")
                 .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC);
         for (ServerPlayer member : onlineMembers(level, team)) {
+            if (!isPlayerInShelter(member, data, team)) continue;
             member.displayClientMessage(options, false);
             member.displayClientMessage(hint, false);
         }

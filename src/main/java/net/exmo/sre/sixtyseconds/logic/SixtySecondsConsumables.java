@@ -1,5 +1,6 @@
 package net.exmo.sre.sixtyseconds.logic;
 
+import io.wifi.starrailexpress.content.item.CocktailItem;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.content.item.SixtySecondsWaterItem;
 import net.minecraft.core.component.DataComponents;
@@ -16,9 +17,10 @@ import org.agmas.noellesroles.content.item.ChefWaterItem;
 /**
  * 食物/水消耗恢复：
  * <ul>
- *   <li><b>食物</b>（含 {@code FOOD}/foodData 组件，涵盖普通食物与药水/蜂蜜等可食物品）→ 恢复饱食度，
+ *   <li><b>食物</b>（含 {@code FOOD}/foodData 组件，涵盖普通食物等）→ 恢复饱食度，
  *       量 = {@code nutrition × }{@link #HUNGER_PER_NUTRITION}。</li>
  *   <li><b>水</b>（{@link SixtySecondsWaterItem} 小/中/高三级）→ 恢复口渴值 {@code thirstRestore}。</li>
+ *   <li><b>饮品</b>（{@link CocktailItem} 及其子类）→ 恢复 15 口渴值。</li>
  * </ul>
  * 由 {@code org.agmas.noellesroles.mixin.SixtySecondsConsumeMixin}（{@code Item.finishUsingItem} HEAD）驱动，
  * 参照 {@code MapStatusBarRuntime.onFinishUsingItem}。
@@ -38,7 +40,7 @@ public final class SixtySecondsConsumables {
         if (thirst > 0) {
             stats.thirst = Math.min(SixtySecondsStatsComponent.MAX, stats.thirst + thirst);
             if (!(stack.getItem() instanceof SixtySecondsWaterItem)) {
-                // 非纯水物品（牛奶桶、厨师的水等）：可能同时恢复饱食度
+                // 非纯水饮品（CocktailItem/牛奶桶/厨师的水）：同时恢复饱食度
                 hunger = hungerRestoreOf(stack);
                 if (hunger > 0) {
                     stats.hunger = Math.min(SixtySecondsStatsComponent.MAX, stats.hunger + hunger);
@@ -56,10 +58,11 @@ public final class SixtySecondsConsumables {
         applyNegativeEffects(player, stack);
     }
 
-    /** 该物品恢复的饱食度（食物按 foodData，纯药水固定值，水返回 0）。客户端 tooltip 也用它。 */
+    /** 该物品恢复的饱食度（食物按 foodData，纯药水固定值，水/饮品返回 0）。客户端 tooltip 也用它。 */
     public static int hungerRestoreOf(ItemStack stack) {
-        if (stack.getItem() instanceof SixtySecondsWaterItem) {
-            return 0; // 水只恢复口渴
+        if (stack.getItem() instanceof SixtySecondsWaterItem
+                || stack.getItem() instanceof CocktailItem) {
+            return 0; // 水和饮品只恢复口渴
         }
         FoodProperties food = stack.get(DataComponents.FOOD);
         if (food != null) {
@@ -69,16 +72,19 @@ public final class SixtySecondsConsumables {
         return stack.getItem() instanceof PotionItem ? POTION_HUNGER : 0;
     }
 
-    /** 该物品恢复的口渴值（非水物品返回 0）。 */
+    /** 该物品恢复的口渴值。 */
     public static int thirstRestoreOf(ItemStack stack) {
         if (stack.getItem() instanceof SixtySecondsWaterItem water) {
             return water.thirstRestore;
+        }
+        if (stack.getItem() instanceof CocktailItem) {
+            return 15; // 饮品：+15 口渴
         }
         if (stack.is(Items.MILK_BUCKET)) {
             return 15;
         }
         if (stack.getItem() instanceof ChefWaterItem) {
-            return 10; // 厨师的水：恢复 10 口渴 + 饱食度（走 food 组件）
+            return 10;
         }
         return 0;
     }
