@@ -439,6 +439,18 @@ public interface ModBlocks {
                             net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsTurretBlockEntity::new,
                             ModBlocks.SIXTY_SECONDS_TURRET));
 
+    // ── 邮箱（60秒模式：9格容器，每日自动投递报纸）────────────────────────
+    Block SIXTY_SECONDS_MAILBOX = blockRegistrar.createWithItem("sixty_seconds_mailbox",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsMailboxBlock(),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity> SIXTY_SECONDS_MAILBOX_ENTITY =
+            blockEntityRegistrar.create("sixty_seconds_mailbox",
+                    BlockEntityType.Builder.of(
+                            net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity::new,
+                            ModBlocks.SIXTY_SECONDS_MAILBOX));
+
     // ── 基地设施：报警器/玩偶/次声波音响 + 基地门（扩容钥匙开启，搭图用）──────
     Block SIXTY_SECONDS_BASE_ALARM = blockRegistrar.createWithItem("sixty_seconds_base_alarm",
             new net.exmo.sre.sixtyseconds.content.block.SixtySecondsBaseUtilityBlock(

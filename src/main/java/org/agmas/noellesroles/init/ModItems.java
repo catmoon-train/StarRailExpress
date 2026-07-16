@@ -777,6 +777,22 @@ public class ModItems {
             new Item(new Item.Properties().stacksTo(16).food(
                     new net.minecraft.world.food.FoodProperties.Builder().nutrition(5).saturationModifier(0.5F).build())),
             "sixty_seconds_fresh_vegetables", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 袋装果干：3果干+1纸，恢复60饥饿（营养12×5）
+    public static final Item SIXTY_SECONDS_BAGGED_DRIED_FRUIT = register(
+            new Item(new Item.Properties().stacksTo(8).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(12).saturationModifier(0.8F).build())),
+            "sixty_seconds_bagged_dried_fruit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 袋装压缩饼干：2饼干+1纸，恢复60饥饿（营养12×5）
+    public static final Item SIXTY_SECONDS_BAGGED_BISCUIT = register(
+            new Item(new Item.Properties().stacksTo(8).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(12).saturationModifier(0.8F).build())),
+            "sixty_seconds_bagged_biscuit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 稿纸（邮箱专用：书写后放入邮箱，次日刊登至报纸）────────────────────
+    public static final Item SIXTY_SECONDS_DRAFT_PAPER = register(
+            new org.agmas.noellesroles.content.item.DraftPaperItem(
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_draft_paper", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 饮品/药品（SixtySecondsStatItem 统一恢复：health,hunger,thirst,san,pollutionReduce,cure,effect）──
     public static final Item SIXTY_SECONDS_CANNED_SOUP = register(

@@ -436,7 +436,10 @@ public final class SixtySecondsRecipes {
         add(list, "clock", Station.WORKBENCH, "tools_1", false,
                 List.of(in(plastic, 2), in(wire, 2)), ModItems.SIXTY_SECONDS_CLOCK, 1);
         add(list, "note", Station.WORKBENCH, "tools_1", false,
-                List.of(in(Items.PAPER, 3)), ModItems.WRITTEN_NOTE, 1);
+                List.of(in(Items.PAPER, 2), in(Items.LEATHER, 1)), Items.WRITABLE_BOOK, 1);
+        add(list, "trainmurdermystery_note", Station.WORKBENCH, "tools_1", false,
+                List.of(in(Items.PAPER, 2)),
+                BuiltInRegistries.ITEM.get(ResourceLocation.tryBuild("trainmurdermystery", "note")), 1);
         add(list, "radio", Station.WORKBENCH, "tools_1", false,
                 List.of(in(elec, 2), in(wire, 3), in(battery, 2)), ModItems.SIXTY_SECONDS_RADIO, 1);
         add(list, "compass", Station.WORKBENCH, "tools_1", false,
@@ -464,6 +467,9 @@ public final class SixtySecondsRecipes {
                 List.of(in(Items.STICK, 2), in(steel, 2), in(hemp, 1)), ModItems.SIXTY_SECONDS_PLIERS, 1);
         add(list, "claw_hook", Station.WORKBENCH, "tools_3", true,
                 List.of(in(iron, 3), in(gear, 1), in(hemp, 3)), ModItems.SIXTY_SECONDS_CLAW_HOOK, 1);
+        // 稿纸：Paper*5 + 木炭*1，需通电
+        add(list, "draft_paper", Station.WORKBENCH, "tools_3", true,
+                List.of(in(Items.PAPER, 5), in(Items.CHARCOAL, 1)), ModItems.SIXTY_SECONDS_DRAFT_PAPER, 1);
 
         // ── 背包（裁缝台）─────────────────────────────────────────────
         add(list, "backpack_small", Station.TAILOR, "backpack_1", false,
@@ -605,6 +611,13 @@ public final class SixtySecondsRecipes {
                 List.of(in(ModItems.SIXTY_SECONDS_WILD_RICE, 3), any("mushroom", 2, mushrooms()),
                         in(Items.SUGAR, 2)),
                 ModItems.SIXTY_SECONDS_CATMOONCAKE, 1);
+        // ── 袋装食品（灶台，无需通电）────────────────────────────────────
+        add(list, "bagged_dried_fruit", Station.STOVE, "cooking_2", false,
+                List.of(in(ModItems.SIXTY_SECONDS_DRIED_FRUIT, 3), in(Items.PAPER, 1)),
+                ModItems.SIXTY_SECONDS_BAGGED_DRIED_FRUIT, 1);
+        add(list, "bagged_biscuit", Station.STOVE, "cooking_2", false,
+                List.of(in(ModItems.SIXTY_SECONDS_BISCUIT, 2), in(Items.PAPER, 1)),
+                ModItems.SIXTY_SECONDS_BAGGED_BISCUIT, 1);
 
         // ══ 电力（简易工作台）═══════════════════════════════════════════
         add(list, "battery", Station.WORKBENCH, "power_1", false,

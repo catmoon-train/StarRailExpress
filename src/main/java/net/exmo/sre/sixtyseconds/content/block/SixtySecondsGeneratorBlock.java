@@ -102,6 +102,17 @@ public class SixtySecondsGeneratorBlock extends Block {
             units = 2; // 废料 = 20 秒
         } else if (stack.is(Items.COAL) || stack.is(Items.CHARCOAL)) {
             units = 6; // 煤炭/木炭 = 60 秒
+        } else if (stack.is(org.agmas.noellesroles.init.ModItems.NEWSPAPER)) {
+            // 报纸：发电约 15 秒（1.5 份）
+            if (!serverPlayer.isCreative()) {
+                stack.shrink(1);
+            }
+            team.powerEndTick = Math.max(team.powerEndTick, level.getGameTime()) + 20 * 15;
+            serverLevel.playSound(null, pos, SoundEvents.BLAZE_SHOOT, SoundSource.BLOCKS, 0.6F, 0.6F);
+            serverPlayer.displayClientMessage(Component.translatable(
+                    "message.noellesroles.sixty_seconds.generator_fueled",
+                    Math.max(0, (team.powerEndTick - level.getGameTime()) / 20)), true);
+            return ItemInteractionResult.SUCCESS;
         }
         if (units > 0) {
             if (!serverPlayer.isCreative()) {

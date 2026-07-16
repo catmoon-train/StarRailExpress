@@ -240,6 +240,8 @@ public final class SixtySecondsBalance {
     public static final int COLD_SNAP_DURATION = 20 * 60 * 2; // 寒潮持续 2 分钟
     public static final int COLD_HUNGER_PER_10S = 1;          // 寒潮中·不在家：每 10s 额外饥饿
     public static final int AIRDROP_ROLLS = 9;                // 空投奖励箱一次性搜出的物资件数
+    /** 新天气事件的通用持续时间（酸雾/电磁风暴/虫潮/热浪 = 1.5分钟） */
+    public static final int EVENT_BASE_DURATION = 20 * 60 * 3 / 2;
 
     // ── 洗澡器（SixtySecondsShowerBlock：每人每天一次，消耗小瓶水洗去污染）───
     public static final double SHOWER_POLLUTION_MULT = 0.5;  // 洗澡后污染 ×0.5（-50%）

@@ -27,7 +27,15 @@ import java.util.WeakHashMap;
  */
 public final class SixtySecondsEventSystem {
     public enum EventType {
-        POLLUTION_RAIN, SMOG, COLD_SNAP, AIRDROP
+        POLLUTION_RAIN, SMOG, COLD_SNAP, AIRDROP,
+        /** 酸雾：户外中毒 + 持续扣血 */
+        ACID_FOG,
+        /** 电磁风暴：全队虚弱 + 怪物强化 + 理智下降 */
+        ELECTROMAGNETIC_STORM,
+        /** 虫潮：户外缓慢 + 持续受击掉血 */
+        SWARM,
+        /** 热浪：全队虚弱 + 口渴消耗加速 */
+        HEAT_WAVE
     }
 
     private static final Map<ServerLevel, Active> ACTIVE = new WeakHashMap<>();
@@ -48,6 +56,10 @@ public final class SixtySecondsEventSystem {
             case POLLUTION_RAIN -> "message.noellesroles.sixty_seconds.event_pollution_rain_start";
             case SMOG -> "message.noellesroles.sixty_seconds.event_smog_start";
             case COLD_SNAP -> "message.noellesroles.sixty_seconds.event_cold_start";
+            case ACID_FOG -> "message.noellesroles.sixty_seconds.event_acid_fog_start";
+            case ELECTROMAGNETIC_STORM -> "message.noellesroles.sixty_seconds.event_em_storm_start";
+            case SWARM -> "message.noellesroles.sixty_seconds.event_swarm_start";
+            case HEAT_WAVE -> "message.noellesroles.sixty_seconds.event_heat_wave_start";
             default -> null;
         };
     }
@@ -95,6 +107,34 @@ public final class SixtySecondsEventSystem {
                 subtitleAll(level, "message.noellesroles.sixty_seconds.event_cold_name",
                         "message.noellesroles.sixty_seconds.event_cold_start", ChatFormatting.AQUA);
             }
+            case ACID_FOG -> {
+                ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.EVENT_BASE_DURATION));
+                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_acid_fog_start")
+                        .withStyle(ChatFormatting.GREEN));
+                subtitleAll(level, "message.noellesroles.sixty_seconds.event_acid_fog_name",
+                        "message.noellesroles.sixty_seconds.event_acid_fog_start", ChatFormatting.GREEN);
+            }
+            case ELECTROMAGNETIC_STORM -> {
+                ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.EVENT_BASE_DURATION));
+                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_em_storm_start")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE));
+                subtitleAll(level, "message.noellesroles.sixty_seconds.event_em_storm_name",
+                        "message.noellesroles.sixty_seconds.event_em_storm_start", ChatFormatting.LIGHT_PURPLE);
+            }
+            case SWARM -> {
+                ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.EVENT_BASE_DURATION));
+                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_swarm_start")
+                        .withStyle(ChatFormatting.DARK_RED));
+                subtitleAll(level, "message.noellesroles.sixty_seconds.event_swarm_name",
+                        "message.noellesroles.sixty_seconds.event_swarm_start", ChatFormatting.DARK_RED);
+            }
+            case HEAT_WAVE -> {
+                ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.EVENT_BASE_DURATION));
+                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_heat_wave_start")
+                        .withStyle(ChatFormatting.RED));
+                subtitleAll(level, "message.noellesroles.sixty_seconds.event_heat_wave_name",
+                        "message.noellesroles.sixty_seconds.event_heat_wave_start", ChatFormatting.RED);
+            }
             case AIRDROP -> airdrop(level); // 瞬发，不进 ACTIVE
         }
     }
@@ -121,6 +161,7 @@ public final class SixtySecondsEventSystem {
             if (stats.downed || stats.monster) {
                 continue;
             }
+            boolean inHome = isInHome(player, data, stats.teamId);
             switch (active.type) {
                 case POLLUTION_RAIN -> {
                     if (!SixtySecondsSearchZones.isInSearchZone(player) || hasUmbrella(player)
@@ -133,7 +174,7 @@ public final class SixtySecondsEventSystem {
                     }
                 }
                 case SMOG -> {
-                    if (isInHome(player, data, stats.teamId) || hasGasMask(player)) {
+                    if (inHome || hasGasMask(player)) {
                         continue; // 防毒面具：浓烟免疫（雨伞对浓烟无效）
                     }
                     // 浓烟视野限制：15 级失明，每秒刷新（离开浓烟/事件结束后约 1 秒自动消退）
@@ -146,13 +187,61 @@ public final class SixtySecondsEventSystem {
                     }
                 }
                 case COLD_SNAP -> {
-                    if (isInHome(player, data, stats.teamId)) {
+                    if (inHome) {
                         continue;
                     }
                     player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 30, 0,
                             false, false, false));
                     if (now % (20 * 10) == 0) {
                         stats.hunger = Math.max(0, stats.hunger - SixtySecondsBalance.COLD_HUNGER_PER_10S);
+                        stats.sync();
+                    }
+                }
+                case ACID_FOG -> {
+                    // 酸雾：户外中毒效果 + 持续扣血
+                    if (inHome && hasGasMask(player)) {
+                        continue;
+                    }
+                    if (!inHome) {
+                        player.addEffect(new MobEffectInstance(MobEffects.POISON, 40, 0, false, false, false));
+                        if (now % (20 * 5) == 0) {
+                            player.hurt(player.damageSources().magic(), 1.0F);
+                        }
+                    }
+                    if (now % (20 * 10) == 0) {
+                        addPollution(stats, 2);
+                    }
+                }
+                case ELECTROMAGNETIC_STORM -> {
+                    // 电磁风暴：全员虚弱 + 理智下降 + 怪物获得强化
+                    if (!player.hasEffect(MobEffects.WEAKNESS)) {
+                        player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 80, 0, false, false, false));
+                    }
+                    if (now % (20 * 15) == 0) {
+                        stats.sanity = Math.max(0, stats.sanity - 3);
+                        stats.sync();
+                    }
+                }
+                case SWARM -> {
+                    // 虫潮：户外缓慢 + 持续受击
+                    player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 30, 0,
+                            false, false, false));
+                    if (!inHome && now % (20 * 8) == 0) {
+                        player.hurt(player.damageSources().generic(), 0.5F);
+                    }
+                    if (now % (20 * 10) == 0) {
+                        stats.sanity = Math.max(0, stats.sanity - 2);
+                        stats.sync();
+                    }
+                }
+                case HEAT_WAVE -> {
+                    // 热浪：全员虚弱 + 口渴消耗加速
+                    if (!player.hasEffect(MobEffects.WEAKNESS)) {
+                        player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 80, 0, false, false, false));
+                    }
+                    // 每 5 秒额外消耗口渴
+                    if (now % (20 * 5) == 0) {
+                        stats.thirst = Math.max(0, stats.thirst - 1);
                         stats.sync();
                     }
                 }
@@ -191,6 +280,29 @@ public final class SixtySecondsEventSystem {
             }
             case COLD_SNAP -> broadcast(level, Component.translatable(
                     "message.noellesroles.sixty_seconds.event_cold_end").withStyle(ChatFormatting.GRAY));
+            case ACID_FOG -> {
+                for (ServerPlayer p : level.players()) {
+                    p.removeEffect(MobEffects.POISON);
+                }
+                broadcast(level, Component.translatable(
+                        "message.noellesroles.sixty_seconds.event_acid_fog_end").withStyle(ChatFormatting.GRAY));
+            }
+            case ELECTROMAGNETIC_STORM -> {
+                for (ServerPlayer p : level.players()) {
+                    p.removeEffect(MobEffects.WEAKNESS);
+                }
+                broadcast(level, Component.translatable(
+                        "message.noellesroles.sixty_seconds.event_em_storm_end").withStyle(ChatFormatting.GRAY));
+            }
+            case SWARM -> broadcast(level, Component.translatable(
+                    "message.noellesroles.sixty_seconds.event_swarm_end").withStyle(ChatFormatting.GRAY));
+            case HEAT_WAVE -> {
+                for (ServerPlayer p : level.players()) {
+                    p.removeEffect(MobEffects.WEAKNESS);
+                }
+                broadcast(level, Component.translatable(
+                        "message.noellesroles.sixty_seconds.event_heat_wave_end").withStyle(ChatFormatting.GRAY));
+            }
             default -> {
             }
         }

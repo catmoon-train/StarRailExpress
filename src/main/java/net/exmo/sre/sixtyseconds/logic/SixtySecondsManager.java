@@ -350,6 +350,8 @@ public final class SixtySecondsManager {
             team.clearDailyModifiers();
         }
         SixtySecondsDailyEvents.onDayStart(level); // 每日事件门：重置隔日状态（事件在傍晚触发）
+        // 收集稿纸投稿 + 发布末日日报（含邮箱投递）
+        SixtySecondsNewspaper.collectDrafts(level, data);
         SixtySecondsNewspaper.publish(level, data); // 末日日报：每日一期，聊天栏点击阅读
         SixtySecondsRoleAwakening.awaken(level, data);
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.day_start", day, totalDays(level)));
