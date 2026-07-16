@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:block/smithing_table_front"
+    "layer0": "noellesroles:item/sixty_seconds_toolbox"
   }
 }

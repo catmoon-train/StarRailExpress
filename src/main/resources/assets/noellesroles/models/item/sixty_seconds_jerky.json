@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/cooked_porkchop"
+    "layer0": "noellesroles:item/sixty_seconds_jerky"
   }
 }

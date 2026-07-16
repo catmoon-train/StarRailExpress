@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:block/daylight_detector_top"
+    "layer0": "noellesroles:item/sixty_seconds_solar_panel"
   }
 }

@@ -3468,6 +3468,8 @@
   "message.noellesroles.sixty_seconds.flare_fired": "§cSomeone fired a flare at (%s, %s)! Supplies will be airdropped in one minute...",
   "message.noellesroles.sixty_seconds.potion_cleansed": "Your potion effects have been cleansed",
   "message.noellesroles.sixty_seconds.magnet_nothing": "No dropped items nearby",
+  "message.noellesroles.sixty_seconds.vehicle_fueled": "Refueled — remaining drive time: %s seconds",
+  "message.noellesroles.sixty_seconds.vehicle_no_fuel": "Out of fuel! Cannot drive. Refuel to continue.",
   "message.noellesroles.sixty_seconds.supply_box_locked": "The box is locked — you need %s to pry it open",
   "message.noellesroles.sixty_seconds.supply_box_unlocked": "The lock has been pried open!",
   "message.noellesroles.sixty_seconds.vault_locked": "This vault belongs to another team — you need a Vault Lockpick Kit to open it",
