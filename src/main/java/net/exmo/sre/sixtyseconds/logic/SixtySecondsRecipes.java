@@ -1064,6 +1064,9 @@ public final class SixtySecondsRecipes {
                 List.of(in(alloy, 10), in(steel, 15), in(glassPlate, 4), in(elec, 20), in(gear, 20),
                         in(wire, 20), in(battery, 6), in(hemp, 32)),
                 ModItems.SIXTY_SECONDS_CAR, 1);
+        add(list, "vehicle_repair_tool", Station.LATHE, "vehicle_repair", true,
+                List.of(in(steel, 2), in(wire, 3), in(glassPlate, 1)),
+                ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_TOOL, 1);
 
         // ══ 神秘技术 ═══════════════════════════════════════════════════
         // 祭坛本体在高级工作台合成；其余在祭坛合成

@@ -116,7 +116,7 @@ public final class SixtySecondsTechTree {
         // ── 交通工具（需「更好的工作环境-IV」）──────────────────────────
         chain(list, "transport", "work_env_4", "fuel_1", "fuel_2");
         chain(list, "transport", "work_env_4", "horse_1", "horse_2");
-        chain(list, "transport", "work_env_4", "vehicle_1", "vehicle_2", "vehicle_3");
+        chain(list, "transport", "work_env_4", "vehicle_1", "vehicle_2", "vehicle_3", "vehicle_repair");
         // ── 神秘技术（全树 75% 门控，见 gateSatisfied）───────────────────
         chain(list, "mystic", null, "sacrifice_1", "sacrifice_2");
         chain(list, "mystic", "sacrifice_1", "undying_totem");

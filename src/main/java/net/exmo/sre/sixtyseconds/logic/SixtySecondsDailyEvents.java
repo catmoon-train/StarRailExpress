@@ -323,12 +323,20 @@ public final class SixtySecondsDailyEvents {
                     lines.add(Component.translatable(LANG + "status_sick", name)
                             .withStyle(ChatFormatting.YELLOW));
                 }
-            }
-            // 死亡成员
-            for (UUID uuid : team.members) {
-                if (level.getPlayerByUUID(uuid) == null && !isMemberOnline(level, team, uuid)) {
-                    // 检查是否曾经是该队成员但现在死了
+                // 已变异
+                if (stats.monster) {
+                    lines.add(Component.translatable(LANG + "status_monster", name)
+                            .withStyle(ChatFormatting.DARK_RED));
                 }
+            }
+            // 死亡/离线成员
+            for (UUID uuid : team.members) {
+                if (level.getPlayerByUUID(uuid) instanceof ServerPlayer p
+                        && !GameUtils.isPlayerEliminated(p)) continue;
+                String name = level.getServer().getProfileCache()
+                        .get(uuid).map(p -> p.getName()).orElse("???");
+                lines.add(Component.translatable(LANG + "status_dead", name)
+                        .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
             }
             // 只发给在庇护所的成员
             for (ServerPlayer member : members) {
@@ -1362,6 +1370,14 @@ public final class SixtySecondsDailyEvents {
         });
         // ── 抉择：妹妹外出 ────────────────────────────────────────────
         choice("sister_outside", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            // 前置检查：如果点击者已经变异/倒地/被淘汰，拒绝
+            if (clicker != null) {
+                SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(clicker);
+                if (stats.monster || stats.downed || GameUtils.isPlayerEliminated(clicker)) {
+                    fail(clicker, "sister_outside.cannot");
+                    return false;
+                }
+            }
             if (option == 1) {
                 if (team.shelterSpawn != null) {
                     BlockPos door = team.doorPos != null ? team.doorPos : team.shelterSpawn;

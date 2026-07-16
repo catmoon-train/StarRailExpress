@@ -1160,6 +1160,11 @@ public class ModItems {
                     new Item.Properties().stacksTo(1),
                     () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_CAR),
             "sixty_seconds_car", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 载具修理工具（车床，载具修理科技）：右键载具恢复 15 血量
+    public static final Item SIXTY_SECONDS_VEHICLE_REPAIR_TOOL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsVehicleRepairItem(
+                    new Item.Properties().stacksTo(4)),
+            "sixty_seconds_vehicle_repair_tool", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 神秘技术：污秽玻璃罐/存血的玻璃罐/复活图腾（不死图腾=原版图腾）──────
     public static final Item SIXTY_SECONDS_FILTHY_JAR = register(
