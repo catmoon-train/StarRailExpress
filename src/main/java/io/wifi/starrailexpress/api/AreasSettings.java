@@ -147,9 +147,9 @@ public class AreasSettings {
     @Category("visual")
     public boolean fogEnabled = true;
 
-    // 雾气可见范围（fogEnd，默认200），仅在 fogEnabled 启用时生效
+    // 雾气可见范围（fogEnd，默认100），仅在 fogEnabled 启用时生效
     @Category("visual")
-    public float fogEnd = 200.0f;
+    public float fogEnd = 100.0f;
 
     public static enum FogShape {
         SPHERE, CYLINDER
