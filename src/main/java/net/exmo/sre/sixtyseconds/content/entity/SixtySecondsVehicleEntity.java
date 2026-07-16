@@ -185,7 +185,7 @@ public class SixtySecondsVehicleEntity extends WheelchairEntity {
         } else {
             offsetX = 0.0;
             offsetZ = (index == 0) ? 0.3 : -0.8;
-            offsetY = 1.3;
+            offsetY = 2.3;
         }
         Vec3 offset = new Vec3(offsetX, offsetY, offsetZ)
                 .yRot(-this.getYRot() * (float) Math.PI / 180.0F);
