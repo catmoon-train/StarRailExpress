@@ -338,4 +338,66 @@ public final class SixtySecondsBalance {
     public static final double FIGHTER_COOLDOWN_MULT = 3.0;      // 斗士 技能冷却×3（120s→360s）
     public static final int BROADCASTER_BROADCAST_COST = 100;    // 广播员 每次广播消耗（原版 50）
     public static final int REPORTER_NOTE_COUNT = 8;             // 记者 觉醒补发便签数（原版 4，×2）
+
+    // ── NPC（商人/军人/强盗/旅者；见 SixtySecondsNpcEntity）──────────────────────
+    public static final double NPC_HEALTH_MERCHANT = 40.0;
+    public static final double NPC_HEALTH_SOLDIER = 80.0;
+    public static final double NPC_HEALTH_BANDIT = 50.0;
+    public static final double NPC_HEALTH_TRAVELER = 40.0;
+    public static final double NPC_SPEED_MERCHANT = 0.22;
+    public static final double NPC_SPEED_SOLDIER = 0.26;
+    public static final double NPC_SPEED_BANDIT = 0.28;
+    public static final double NPC_SPEED_TRAVELER = 0.24;
+    /** 近战命中玩家扣的健康值（与自研怪同量纲：拖行者 16 / 重锤兽 30）。 */
+    public static final int NPC_INJURY_BANDIT = 18;
+    public static final int NPC_INJURY_SOLDIER = 22;
+    public static final int NPC_INJURY_TRAVELER = 8;
+    /** 强盗对家门/路障每秒伤害（夜袭时由 DefenseSystem 结算；介于拖行者 2 与重锤兽 5 之间）。 */
+    public static final int NPC_BANDIT_DOOR_DPS = 3;
+    /** NPC 单次受击封顶：防枪械「即死」伤害（狙击 100）一枪清场，强制多打几发。 */
+    public static final float NPC_MAX_SINGLE_HIT = 40.0F;
+    /** 记仇传染半径（军人抱团 / 旅者互相通气）。 */
+    public static final double NPC_ALERT_RADIUS = 16.0;
+    /** 非战场 NPC 身边 64 格无人多久自散（2 分钟，比自研怪的 1 分钟宽，NPC 更该等玩家来）。 */
+    public static final int NPC_LONELY_DESPAWN_TICKS = 20 * 120;
+    /** 商人被打后多久消失（不掉货）。 */
+    public static final int NPC_MERCHANT_FLEE_TICKS = 20 * 5;
+
+    // 商店
+    /** 商人交易/对话的最大距离平方（服务端重校验，防伪造包隔空买）。 */
+    public static final double NPC_USE_DISTANCE_SQR = 8 * 8;
+
+    // 生成
+    /** 每个搜刮区每日基础 NPC 数（实际 = 本值 + 天数/2，上限 NPC_ZONE_CAP）。 */
+    public static final int NPC_DAILY_PER_ZONE_BASE = 2;
+    /** 单个搜刮区 NPC 数上限（防 NPC 海）。 */
+    public static final int NPC_ZONE_CAP = 8;
+    /** 白天刷新时旅者占比（其余为商人）。 */
+    public static final float NPC_DAY_TRAVELER_RATIO = 0.6F;
+    /** 搜刮区绑定门门口刷 NPC 的概率（每队每门每日）。 */
+    public static final float NPC_DOOR_SPAWN_CHANCE = 0.30F;
+    /** 夜袭混入强盗：最低天数 + 概率。 */
+    public static final int NPC_ASSAULT_BANDIT_MIN_DAY = 3;
+    public static final float NPC_ASSAULT_BANDIT_CHANCE = 0.35F;
+
+    // 雇佣
+    /** 雇佣军人的代币价格与时长。 */
+    public static final int NPC_HIRE_COST = 12;
+    public static final int NPC_HIRE_TICKS = 20 * 180;           // 3 分钟
+
+    // 偷窃（见 SixtySecondsNpcTheft）
+    /** 偷窃频道时长（复用搜刮 HUD 进度条）。 */
+    public static final int NPC_STEAL_TICKS = 20 * 3;
+    /** 偷窃/抢劫的理智代价：san 直接扣，理智上限永久扣 MIN~MAX（保底 SANITY_CAP_FLOOR）。 */
+    public static final int NPC_STEAL_SANITY_LOSS = 30;
+    public static final int NPC_STEAL_SANITY_CAP_MIN = 1;
+    public static final int NPC_STEAL_SANITY_CAP_MAX = 3;
+    /** 偷窃成功率：基础 + NPC 未看向玩家的加成 - 玩家在其正面近处的惩罚，最后 clamp。 */
+    public static final float NPC_STEAL_BASE_CHANCE = 0.55F;
+    public static final float NPC_STEAL_BEHIND_BONUS = 0.15F;
+    public static final float NPC_STEAL_FRONT_PENALTY = 0.20F;
+    public static final float NPC_STEAL_MIN_CHANCE = 0.10F;
+    public static final float NPC_STEAL_MAX_CHANCE = 0.90F;
+    /** 偷窃中断距离（超过即取消频道）。 */
+    public static final double NPC_STEAL_MAX_DISTANCE_SQR = 3 * 3;
 }

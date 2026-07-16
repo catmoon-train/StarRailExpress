@@ -121,6 +121,7 @@ public class SixtySecondsGameMode extends GameMode {
         net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrapplingHookItem.reset();
         net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.reset(world);
         net.exmo.sre.sixtyseconds.logic.SixtySecondsPveSystem.reset(world);
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcSystem.reset(world); // 清偷窃会话 + 全图清 NPC
         net.exmo.sre.sixtyseconds.logic.SixtySecondsPowerSystem.reset(world);
         net.exmo.sre.sixtyseconds.logic.SixtySecondsWhisperSystem.clear(world);
         SixtySecondsSearchZones.reset(world);

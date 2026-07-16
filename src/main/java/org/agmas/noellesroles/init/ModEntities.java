@@ -511,6 +511,21 @@ public class ModEntities {
                             .trackedUpdateRate(10)
                             .build());
 
+    /** 末日60秒：NPC（商人/军人/强盗/旅者，变体经 SynchedEntityData 同步换贴图）。
+     *  用 CREATURE 而非 MONSTER：本模式全程 PEACEFUL，CREATURE 天然不吃 checkDespawn 的和平清除 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity> SIXTY_SECONDS_NPC =
+            Registry.register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    Noellesroles.id("sixty_seconds_npc"),
+                    FabricEntityTypeBuilder
+                            .<net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity>create(MobCategory.CREATURE,
+                                    net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity::new)
+                            .dimensions(EntityDimensions.fixed(0.6F, 1.95F))
+                            .trackRangeBlocks(64)
+                            .trackedUpdateRate(2)
+                            .build());
+
     /** 移动平台实体 - 可站立、往返移动 */
     @SuppressWarnings("deprecation")
     public static final EntityType<MovingPlatformEntity> MOVING_PLATFORM = Registry.register(
@@ -551,5 +566,8 @@ public class ModEntities {
                 net.minecraft.world.entity.monster.Zombie.createAttributes());
         FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_BOSS,
                 net.minecraft.world.entity.monster.Zombie.createAttributes());
+        // 末日60秒 NPC：生命/移速在 applyVariant 里按变体覆写
+        FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_NPC,
+                net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity.createAttributes());
     }
 }

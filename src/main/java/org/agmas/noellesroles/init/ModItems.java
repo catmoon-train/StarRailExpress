@@ -218,6 +218,12 @@ public class ModItems {
                     new Item.Properties().stacksTo(1)),
             "sixty_seconds_area_wand", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
+    // 末日60秒模式：NPC 放置器（管理员搭图用：潜行右键空气切变体，右键方块登记生成点并落盘）
+    public static final Item SIXTY_SECONDS_NPC_PLACER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsNpcPlacerItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_npc_placer", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
     // 末日60秒模式：救援信标（隐藏通关——工程学合成，户外激活呼叫救援）
     public static final Item SIXTY_SECONDS_RESCUE_BEACON = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsRescueBeaconItem(

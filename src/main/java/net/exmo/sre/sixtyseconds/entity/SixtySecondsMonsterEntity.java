@@ -37,7 +37,7 @@ import net.minecraft.world.level.Level;
  * 继承 {@link Zombie}：夜袭系统（{@code SixtySecondsDefenseSystem}）按 Zombie 类型追踪冲门/打路障，
  * 自研怪可无缝接入原有冲门/掉落/召唤哨逻辑。
  */
-public class SixtySecondsMonsterEntity extends Zombie {
+public class SixtySecondsMonsterEntity extends Zombie implements SixtySecondsDoorBreaker {
     /** 所有 60s 自研怪共用 tag（枪械/手雷/清场兜底按它识别；实体自身逻辑用 instanceof）。 */
     public static final String PVE_TAG = "sixty_seconds_pve_monster";
 
@@ -194,6 +194,12 @@ public class SixtySecondsMonsterEntity extends Zombie {
     /** 本次近战命中扣的健康值（Boss 覆写为按等级缩放）。 */
     protected int meleeInjury() {
         return getVariant().injury;
+    }
+
+    /** 对家门/路障每秒伤害（夜袭时由 DefenseSystem 按 {@link SixtySecondsDoorBreaker} 取值）。 */
+    @Override
+    public int doorDps() {
+        return getVariant().doorDps;
     }
 
     /**

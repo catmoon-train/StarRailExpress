@@ -105,6 +105,15 @@ public class SixtySecondsConfig {
     @SerializedName("searchZoneLevel")
     public int searchZoneLevel = 1;
 
+    /**
+     * 手动放置的 NPC 生成点（用 NPC 放置器 {@code sixty_seconds_npc_placer} 登记，模板绝对坐标）。
+     * 建图时（{@code SixtySecondsNpcSpawner.spawnConfigured}）：点落在住宅/避难所模板盒内 → <b>每队各克隆一份</b>
+     * （叠加队伍网格偏移）；落在搜索区/野外 → <b>只生成一份</b>（全队共用，不克隆）。
+     * <p>Gson 默认值保证旧存档读进来是空表。
+     */
+    @SerializedName("npcSpawns")
+    public java.util.List<NpcSpawn> npcSpawns = new java.util.ArrayList<>();
+
     /** 第 index（从 0 起）支队伍的网格偏移。 */
     public BlockPos teamOffset(int index) {
         return new BlockPos(teamBase.x + index * teamGridSpacing, teamBase.y, teamBase.z);
@@ -134,6 +143,32 @@ public class SixtySecondsConfig {
 
         public BlockPos toBlockPos() {
             return new BlockPos(x, y, z);
+        }
+    }
+
+    /** 一个手动登记的 NPC 生成点（坐标为模板绝对坐标）。 */
+    public static class NpcSpawn {
+        /** 变体 id，对齐 {@code SixtySecondsNpcEntity.Variant.id}（0=商人 1=军人 2=强盗 3=旅者）。 */
+        @SerializedName("variant")
+        public int variant;
+        @SerializedName("pos")
+        public Vec pos;
+        @SerializedName("yaw")
+        public float yaw;
+        /** 商人的货架档案名（对应 {@code sixty_seconds_npc_shop.json} 的键）；非商人忽略。 */
+        @SerializedName("profile")
+        public String profile = "default";
+        /** 驻守半径（军人巡逻 / 商人摊位活动范围）。 */
+        @SerializedName("garrisonRadius")
+        public int garrisonRadius = 8;
+
+        public NpcSpawn() {
+        }
+
+        public NpcSpawn(int variant, Vec pos, float yaw) {
+            this.variant = variant;
+            this.pos = pos;
+            this.yaw = yaw;
         }
     }
 

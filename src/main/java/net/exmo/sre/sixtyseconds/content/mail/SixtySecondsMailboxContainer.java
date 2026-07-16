@@ -21,7 +21,7 @@ public class SixtySecondsMailboxContainer extends AbstractContainerMenu {
                 addSlot(new Slot(mailbox, row * 9 + col, 8 + col * 18, 17 + row * 18) {
                     @Override
                     public boolean mayPlace(ItemStack stack) {
-                        return mailbox.canPlaceItem(getSlotIndex(), stack);
+                        return mailbox.canPlaceItem(getContainerSlot(), stack);
                     }
                 });
             }

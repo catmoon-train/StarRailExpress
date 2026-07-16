@@ -173,6 +173,25 @@ public class ModPackets {
                 net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket::handle);
+        // 60s NPC：对话菜单 / 商人购买 / 创造模式货架编辑（S2C 开屏 → C2S 动作 → 服务端重校验 → 重推 S2C）
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenNpcDialogueS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenNpcDialogueS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.NpcDialogueActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.NpcDialogueActionC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.NpcDialogueActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.NpcDialogueActionC2SPacket::handle);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenNpcShopS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenNpcShopS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.NpcShopBuyC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.NpcShopBuyC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.NpcShopBuyC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.NpcShopBuyC2SPacket::handle);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenNpcShopEditS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenNpcShopEditS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.NpcShopSaveC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.NpcShopSaveC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.NpcShopSaveC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.NpcShopSaveC2SPacket::handle);
         // 60s 枪械开火请求（客户端准星射线 → 服务端结算）
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.SixtySecondsGunShootC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsGunShootC2SPacket.CODEC);

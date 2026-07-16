@@ -48,7 +48,8 @@ import java.util.WeakHashMap;
 public final class SixtySecondsDefenseSystem {
     public static final String ASSAULT_TAG = "sixty_seconds_assault";
     /** 夜袭怪归属队伍 tag 前缀（破门后按队把怪送进对应避难所）。 */
-    private static final String ASSAULT_TEAM_TAG_PREFIX = "sixty_seconds_assault_team_";
+    /** 夜袭者归属队 tag 前缀（{@code SixtySecondsNpcSpawner} 生成混入的强盗时也要挂）。 */
+    public static final String ASSAULT_TEAM_TAG_PREFIX = "sixty_seconds_assault_team_";
     /** 手动生成的夜袭者（召唤哨物品）：不随清晨消散、白天也持续冲门。 */
     public static final String ASSAULT_MANUAL_TAG = "sixty_seconds_assault_manual";
     /** 强度档 tag 前缀（{@link AssaultTier}，决定对门/路障的每秒伤害）。 */
@@ -289,6 +290,14 @@ public final class SixtySecondsDefenseSystem {
                         1.0 + 0.1 * (data.dayNumber - 1), false, mobs);
                 spawned++;
             }
+            // 混入 NPC 强盗（第 3 天起按概率）：挂上 ASSAULT_TAG 后，冲门/破门涌入/清晨消散/
+            // 死亡掉落/兜底清扫全部复用本系统既有逻辑，无需另写一套
+            if (data.dayNumber >= SixtySecondsBalance.NPC_ASSAULT_BANDIT_MIN_DAY
+                    && level.getRandom().nextFloat() < SixtySecondsBalance.NPC_ASSAULT_BANDIT_CHANCE) {
+                int bandits = 1 + level.getRandom().nextInt(1 + data.dayNumber / 3);
+                SixtySecondsNpcSpawner.spawnAssaultBandits(level, team, team.assaultDoorPos, bandits, mobs);
+                spawned += bandits;
+            }
             for (UUID uuid : team.members) {
                 if (level.getPlayerByUUID(uuid) instanceof ServerPlayer member) {
                     member.displayClientMessage(Component
@@ -454,9 +463,9 @@ public final class SixtySecondsDefenseSystem {
         return createTierAssaultMob(level, nearest.teamId, pos, tier, true, mobs) != null;
     }
 
-    /** 该夜袭者对门/路障的每秒伤害：召唤哨按强度档 tag，自动夜袭按自研怪变体，其余按 MEDIUM 常量。 */
-    private static int doorDpsOf(Zombie zombie) {
-        for (String tag : zombie.getTags()) {
+    /** 该夜袭者对门/路障的每秒伤害：召唤哨按强度档 tag，自研怪/强盗按各自实现，其余按 MEDIUM 常量。 */
+    private static int doorDpsOf(Mob mob) {
+        for (String tag : mob.getTags()) {
             if (tag.startsWith(ASSAULT_TIER_TAG_PREFIX)) {
                 try {
                     return AssaultTier.valueOf(tag.substring(ASSAULT_TIER_TAG_PREFIX.length())
@@ -466,8 +475,9 @@ public final class SixtySecondsDefenseSystem {
                 }
             }
         }
-        if (zombie instanceof net.exmo.sre.sixtyseconds.entity.SixtySecondsMonsterEntity mob) {
-            return mob.getVariant().doorDps;
+        // 按接口取值：自研怪与 NPC 强盗都 implements SixtySecondsDoorBreaker，一处覆盖两类
+        if (mob instanceof net.exmo.sre.sixtyseconds.entity.SixtySecondsDoorBreaker breaker) {
+            return breaker.doorDps();
         }
         return SixtySecondsBalance.ASSAULT_MOB_DOOR_DPS;
     }
@@ -476,24 +486,26 @@ public final class SixtySecondsDefenseSystem {
         Map<BlockPos, Integer> barricades = BARRICADE_HP.computeIfAbsent(level, ignored -> new HashMap<>());
         for (Iterator<UUID> it = mobs.iterator(); it.hasNext();) {
             Entity entity = level.getEntity(it.next());
-            if (!(entity instanceof Zombie zombie) || !zombie.isAlive()) {
+            // 按 Mob 而非 Zombie 判定：夜袭队伍里除自研怪（Zombie 系）外还有 NPC 强盗
+            //（PathfinderMob）。判 Zombie 会把强盗每 tick 踢出追踪表 → 刷得出来但不冲门、清晨不消散。
+            if (!(entity instanceof Mob mob) || !mob.isAlive()) {
                 it.remove();
                 continue;
             }
             // 陷阱反伤已移至 SixtySecondsPveSystem.tickTraps 统一结算（覆盖夜袭怪 + 游荡怪 + 敌队玩家）；
             // 贴身伤害由自研实体自身 AI（doHurtTarget → applyInjury）结算，此处不再手动扣血（防双重伤害）。
             // 主动索敌：附近有可攻击玩家 → 追打玩家（优先级高于工事/门；命中由实体 AI 结算）
-            ServerPlayer aggro = nearestAttackablePlayer(level, zombie,
+            ServerPlayer aggro = nearestAttackablePlayer(level, mob,
                     SixtySecondsBalance.ASSAULT_AGGRO_RANGE_SQR);
             if (aggro != null) {
-                zombie.setTarget(aggro);
-                zombie.getNavigation().moveTo(aggro, 1.1D);
+                mob.setTarget(aggro);
+                mob.getNavigation().moveTo(aggro, 1.1D);
                 continue;
             }
             // 冲击工事：优先打最近路障，其次打家门
-            BlockPos nearBarricade = nearestInRange(barricades.keySet(), zombie);
+            BlockPos nearBarricade = nearestInRange(barricades.keySet(), mob);
             if (nearBarricade != null) {
-                int hp = barricades.merge(nearBarricade, -doorDpsOf(zombie), Integer::sum);
+                int hp = barricades.merge(nearBarricade, -doorDpsOf(mob), Integer::sum);
                 level.playSound(null, nearBarricade, SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR,
                         SoundSource.HOSTILE, 0.5F, 1.0F);
                 if (hp <= 0) {
@@ -503,16 +515,16 @@ public final class SixtySecondsDefenseSystem {
                 continue;
             }
             // 按归属队攻门：近门扣耐久；离门远则主动寻路冲门（原逻辑只被动等怪晃到门边）
-            SixtySecondsState.TeamData team = data.teams.get(teamIdOf(zombie));
+            SixtySecondsState.TeamData team = data.teams.get(teamIdOf(mob));
             if (team == null) {
                 continue;
             }
             if (team.doorBroken) {
                 // 门已破：怪已被送进避难所（见 breakDoor），追猎最近的本队存活成员
-                ServerPlayer hunt = nearestAliveMember(level, team, zombie);
+                ServerPlayer hunt = nearestAliveMember(level, team, mob);
                 if (hunt != null) {
-                    zombie.setTarget(hunt);
-                    zombie.getNavigation().moveTo(hunt, 1.0D);
+                    mob.setTarget(hunt);
+                    mob.getNavigation().moveTo(hunt, 1.0D);
                 }
                 continue;
             }
@@ -521,12 +533,12 @@ public final class SixtySecondsDefenseSystem {
             if (door == null) {
                 continue;
             }
-            if (zombie.distanceToSqr(door.getX() + 0.5, door.getY() + 0.5, door.getZ() + 0.5)
+            if (mob.distanceToSqr(door.getX() + 0.5, door.getY() + 0.5, door.getZ() + 0.5)
                     > SixtySecondsBalance.ASSAULT_DOOR_RANGE_SQR) {
-                zombie.getNavigation().moveTo(door.getX() + 0.5, door.getY(), door.getZ() + 0.5, 1.0D);
+                mob.getNavigation().moveTo(door.getX() + 0.5, door.getY(), door.getZ() + 0.5, 1.0D);
                 continue;
             }
-            int rawDps = doorDpsOf(zombie);
+            int rawDps = doorDpsOf(mob);
             int actualDps = Math.max(1, (int) Math.round(rawDps * team.modifier("door_damage")));
             team.doorHp -= actualDps;
             level.playSound(null, door, SoundEvents.ZOMBIE_ATTACK_IRON_DOOR, SoundSource.HOSTILE, 0.6F, 0.9F);
@@ -558,13 +570,14 @@ public final class SixtySecondsDefenseSystem {
         }
         String teamTag = ASSAULT_TEAM_TAG_PREFIX + team.teamId;
         for (UUID uuid : mobs) {
-            if (level.getEntity(uuid) instanceof Zombie zombie && zombie.isAlive()
-                    && zombie.getTags().contains(teamTag)) {
+            // Mob 而非 Zombie：混入夜袭的 NPC 强盗也要随破门涌进避难所
+            if (level.getEntity(uuid) instanceof Mob mob && mob.isAlive()
+                    && mob.getTags().contains(teamTag)) {
                 BlockPos spot = findSpawnSpot(level, inside);
                 if (spot == null) {
                     spot = inside;
                 }
-                zombie.teleportTo(spot.getX() + 0.5D, spot.getY(), spot.getZ() + 0.5D);
+                mob.teleportTo(spot.getX() + 0.5D, spot.getY(), spot.getZ() + 0.5D);
             }
         }
     }
@@ -672,9 +685,9 @@ public final class SixtySecondsDefenseSystem {
         return box != null && box.inflate(1, 2, 1).contains(x, y, z);
     }
 
-    /** 从队伍 tag 解析夜袭怪归属队伍 id；无 tag 返回 -1。 */
-    private static int teamIdOf(Zombie zombie) {
-        for (String tag : zombie.getTags()) {
+    /** 从队伍 tag 解析夜袭者归属队伍 id；无 tag 返回 -1。 */
+    private static int teamIdOf(Mob mob) {
+        for (String tag : mob.getTags()) {
             if (tag.startsWith(ASSAULT_TEAM_TAG_PREFIX)) {
                 try {
                     return Integer.parseInt(tag.substring(ASSAULT_TEAM_TAG_PREFIX.length()));
@@ -688,7 +701,7 @@ public final class SixtySecondsDefenseSystem {
 
     /** 破门后追猎目标：本队最近的存活未变怪成员。 */
     private static ServerPlayer nearestAliveMember(ServerLevel level, SixtySecondsState.TeamData team,
-            Zombie zombie) {
+            Mob mob) {
         ServerPlayer best = null;
         double bestDist = Double.MAX_VALUE;
         for (UUID uuid : team.members) {
@@ -697,7 +710,7 @@ public final class SixtySecondsDefenseSystem {
                     || SixtySecondsStatsComponent.KEY.get(member).monster) {
                 continue;
             }
-            double dist = zombie.distanceToSqr(member);
+            double dist = mob.distanceToSqr(member);
             if (dist < bestDist) {
                 bestDist = dist;
                 best = member;
@@ -829,8 +842,8 @@ public final class SixtySecondsDefenseSystem {
         return null;
     }
 
-    /** 指定范围内离夜袭怪最近的可攻击玩家；倒地者由 applyInjury 自行豁免，变怪玩家不打。 */
-    private static ServerPlayer nearestAttackablePlayer(ServerLevel level, Zombie zombie, double maxDistSqr) {
+    /** 指定范围内离夜袭者最近的可攻击玩家；倒地者由 applyInjury 自行豁免，变怪玩家不打。 */
+    private static ServerPlayer nearestAttackablePlayer(ServerLevel level, Mob mob, double maxDistSqr) {
         ServerPlayer best = null;
         double bestDist = maxDistSqr;
         for (ServerPlayer player : level.players()) {
@@ -838,7 +851,7 @@ public final class SixtySecondsDefenseSystem {
                     || SixtySecondsStatsComponent.KEY.get(player).monster) {
                 continue;
             }
-            double dist = zombie.distanceToSqr(player);
+            double dist = mob.distanceToSqr(player);
             if (dist <= bestDist) {
                 bestDist = dist;
                 best = player;

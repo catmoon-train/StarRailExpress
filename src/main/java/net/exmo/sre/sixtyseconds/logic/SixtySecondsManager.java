@@ -239,6 +239,7 @@ public final class SixtySecondsManager {
                 SixtySecondsWhisperSystem.tick(level);   // 夜间黑暗处刷低语怪
                 SixtySecondsDefenseSystem.tick(level);   // 夜袭冲门/路障
                 SixtySecondsPveSystem.tick(level);       // PVE：探索区游荡怪/Boss/哨戒炮/陷阱结算
+                SixtySecondsNpcSystem.tick(level);       // NPC：搜刮区每日刷新 + 偷窃会话推进
                 net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.tick(level); // 海岛：登岛沿检测/报幕/解锁
                 SixtySecondsPowerSystem.tick(level);     // 发电机断电边沿
                 // 小游戏代币不再全队共享（SixtySecondsTokenShare 已移除）：
@@ -351,6 +352,7 @@ public final class SixtySecondsManager {
             team.clearDailyModifiers();
         }
         SixtySecondsDailyEvents.onDayStart(level); // 每日事件门：重置隔日状态（事件在傍晚触发）
+        SixtySecondsNpcSystem.onDayStart(level, data); // NPC：首日按配置落位 + 每日门口概率刷
         // 生成当日热线号码
         SixtySecondsHotlineSystem.generateDailyHotlines(level);
         // 收集稿纸投稿 + 发布末日日报（含邮箱投递）

@@ -66,7 +66,11 @@ public final class SixtySecondsArena {
                 CLEAR_ZONES.clear();
                 return;
             }
-            if (!(entity instanceof PlayerBodyEntity) && !(entity instanceof ItemEntity)) {
+            // NPC 也要清：其 removeWhenFarAway=false + requiresCustomPersistence=true 会让它在卸载区块里
+            // 长存，stopGame 的按类清扫只扫得到已加载实体——不放行这一类，上一局的 NPC 会在新局玩家
+            // 进场加载区块时冒出来
+            if (!(entity instanceof PlayerBodyEntity) && !(entity instanceof ItemEntity)
+                    && !(entity instanceof net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity)) {
                 return;
             }
             for (AABB zone : CLEAR_ZONES) {

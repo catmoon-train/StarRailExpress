@@ -437,6 +437,9 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 60s 弓/弩箭矢：复用原版箭矢渲染
         EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_ARROW,
                 net.exmo.sre.sixtyseconds.client.render.SixtySecondsArrowRenderer::new);
+        // 60s NPC（商人/军人/强盗/旅者）：原版人形模型 + 按变体换贴图（无自有 ModelLayer）
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_NPC,
+                org.agmas.noellesroles.client.renderer.SixtySecondsNpcRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);
@@ -897,6 +900,19 @@ public class NoellesrolesClient implements ClientModInitializer {
                 net.exmo.sre.sixtyseconds.network.OpenShelterDoorS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.ShelterDoorScreen(payload))));
+        // 60s NPC：对话 / 购买 / 货架编辑（购买屏在每次成交后由服务端重推本包整屏替换）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenNpcDialogueS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.NpcDialogueScreen(payload))));
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenNpcShopS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.NpcShopScreen(payload))));
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenNpcShopEditS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.NpcShopEditScreen(payload))));
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
