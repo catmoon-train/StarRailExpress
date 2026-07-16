@@ -38,8 +38,13 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     public int teamId = -1;
     /** 家庭身份；null 表示未分配。 */
     public FamilyPosition familyPosition = null;
-    /** 当前游戏日（0=准备阶段，1..7=游戏日），同步给客户端供 HUD 显示。 */
+    /** 当前游戏日（0=准备阶段，1..totalDays=游戏日），同步给客户端供 HUD 显示。 */
     public int dayNumber = 0;
+    /**
+     * 本局总游戏日数（可按图配置，见 {@code SixtySecondsManager.totalDays}）。
+     * 客户端 HUD 读不到服务端配置，故随 dayNumber 一起<b>按玩家同步</b>过来显示「第 X/N 天」。
+     */
+    public int totalDays = net.exmo.sre.sixtyseconds.logic.SixtySecondsManager.DEFAULT_TOTAL_DAYS;
     /** 本日相位截止时间戳（gameTime，换日/跳时间时同步一次），客户端据此推算子相位与倒计时（HUD 时钟）。 */
     public long phaseEndTick = 0L;
 
@@ -137,6 +142,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         buf.writeVarInt(teamId + 1);            // -1 → 0（避免负数 varint 膨胀到 5 字节）
         buf.writeVarInt(familyPosition == null ? 0 : familyPosition.ordinal() + 1);
         buf.writeVarInt(dayNumber);
+        buf.writeVarInt(totalDays);
         buf.writeVarLong(phaseEndTick);
         buf.writeVarLong(exploreCooldownEndTick);
         buf.writeByte((sick ? 1 : 0) | (downed ? 2 : 0) | (monster ? 4 : 0));
@@ -167,6 +173,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         int family = buf.readVarInt();
         familyPosition = family == 0 ? null : FamilyPosition.values()[family - 1];
         dayNumber = buf.readVarInt();
+        totalDays = buf.readVarInt();
         phaseEndTick = buf.readVarLong();
         exploreCooldownEndTick = buf.readVarLong();
         int flags = buf.readByte();
@@ -188,6 +195,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         tag.putInt("TeamId", teamId);
         tag.putInt("Family", familyPosition == null ? -1 : familyPosition.ordinal());
         tag.putInt("Day", dayNumber);
+        tag.putInt("TotalDays", totalDays);
         tag.putLong("PhaseEndTick", phaseEndTick);
         tag.putBoolean("Sick", sick);
         tag.putBoolean("Downed", downed);
@@ -212,6 +220,9 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         int family = tag.getInt("Family");
         familyPosition = family < 0 ? null : FamilyPosition.values()[family];
         dayNumber = tag.getInt("Day");
+        if (tag.contains("TotalDays")) {
+            totalDays = tag.getInt("TotalDays");
+        }
         phaseEndTick = tag.getLong("PhaseEndTick");
         sick = tag.getBoolean("Sick");
         downed = tag.getBoolean("Downed");

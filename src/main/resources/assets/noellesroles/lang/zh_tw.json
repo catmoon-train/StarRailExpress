@@ -3029,6 +3029,8 @@
   "message.noellesroles.sixty_seconds.autojoin_shelter_title": "撤入避難所",
   "message.noellesroles.sixty_seconds.autojoin_shelter_sub": "準備時間結束，你已與隊伍會合",
   "message.noellesroles.sixty_seconds.autojoin_no_room": "§c所有隊伍都已滿四人，你將繼續觀戰",
+  "message.noellesroles.sixty_seconds.days_set": "§a本局總遊戲日數已設為 %s 天（撐過最後一天即倖存者勝利；終極 Boss 固定在最後一天降臨）",
+  "message.noellesroles.sixty_seconds.days_show": "目前總遊戲日數：%s 天",
   "item.noellesroles.sixty_seconds_assault_spawner_weak": "夜襲者召喚哨（弱）",
   "item.noellesroles.sixty_seconds_assault_spawner_medium": "夜襲者召喚哨（中等）",
   "item.noellesroles.sixty_seconds_assault_spawner_strong": "夜襲者召喚哨（強）",

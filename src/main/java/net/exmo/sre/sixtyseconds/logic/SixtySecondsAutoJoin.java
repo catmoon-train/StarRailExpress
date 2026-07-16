@@ -190,6 +190,7 @@ public final class SixtySecondsAutoJoin {
         stats.familyPosition = FamilyPosition.byIndex(team.members.indexOf(player.getUUID()));
         // 按玩家的 60s 准备倒计时：HUD 的准备条判定就是 dayNumber==0 && phaseEndTick-now>0（都是按玩家同步）
         stats.dayNumber = 0;
+        stats.totalDays = SixtySecondsManager.totalDays(level); // HUD「第 X/N 天」的 N
         stats.phaseEndTick = now + SixtySecondsManager.PREP_TICKS;
         stats.sync();
 
@@ -226,6 +227,7 @@ public final class SixtySecondsAutoJoin {
             return;
         }
         stats.dayNumber = data.dayNumber;
+        stats.totalDays = SixtySecondsManager.totalDays(level);
         stats.phaseEndTick = data.phaseEndTick;
         stats.sync();
         teleport(player, level, team.shelterSpawn, team.shelterBox, team.shelterSpawn);

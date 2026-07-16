@@ -46,7 +46,10 @@ public final class SixtySecondsManager {
     public static final int PREP_TICKS = 20 * 60;          // 60s 准备
     /** 每游戏日 9.5 分钟：清晨 1 + 白天 6 + 晚上 2.5（含末尾 45s 睡觉时间），见 {@link net.exmo.sre.sixtyseconds.SixtySecondsDayCycle}。 */
     public static final int DAY_TICKS = net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.DAY_TOTAL_TICKS;
-    public static final int TOTAL_DAYS = 7;
+    /** 总游戏日数的默认值；实际值可按图配置，读 {@link #totalDays(ServerLevel)}。 */
+    public static final int DEFAULT_TOTAL_DAYS = 7;
+    /** 可配置总日数的上限（防手滑配成天文数字）。 */
+    public static final int MAX_TOTAL_DAYS = 30;
     /** 每天发放避难所代币（随机 6~12，原 10~18 的 -35%）。 */
     public static final int DAILY_TOKENS_MIN = 6;
     public static final int DAILY_TOKENS_MAX = 12;
@@ -59,6 +62,18 @@ public final class SixtySecondsManager {
     private static final Map<ServerLevel, Set<String>> warnedTimeAlerts = new WeakHashMap<>();
 
     private SixtySecondsManager() {
+    }
+
+    /**
+     * 本局总游戏日数（按图配置 {@code totalDays}，缺省 {@value #DEFAULT_TOTAL_DAYS}，
+     * clamp 到 1..{@value #MAX_TOTAL_DAYS}）。撑过第 totalDays 天即幸存者胜。
+     * <p>客户端 HUD 不读本方法（拿不到服务端配置），改用<b>按玩家同步</b>的
+     * {@code SixtySecondsStatsComponent.totalDays}（见 {@link #syncDayNumber}）。
+     */
+    public static int totalDays(ServerLevel level) {
+        int configured = SixtySecondsConfigStore.current(level)
+                .map(config -> config.totalDays).orElse(DEFAULT_TOTAL_DAYS);
+        return Math.max(1, Math.min(MAX_TOTAL_DAYS, configured));
     }
 
     /** 开局：先分队槽位 → 异步建图（聊天栏广播进度）→ 建完分配家庭身份 → 传住宅 → 进 PREPARATION。 */
@@ -237,7 +252,7 @@ public final class SixtySecondsManager {
                 SixtySecondsWinConditions.tick(level, data); // 无存活幸存者→提前结束
                 // 若已被 WinConditions 提前结束(相位变 FINISHED)则跳过换日/结算
                 if (data.phase == SixtySecondsPhase.DAY && level.getGameTime() >= data.phaseEndTick) {
-                    if (data.dayNumber >= TOTAL_DAYS) {
+                    if (data.dayNumber >= totalDays(level)) {
                         finish(level, data);
                     } else {
                         startDay(level, data, data.dayNumber + 1);
@@ -249,13 +264,13 @@ public final class SixtySecondsManager {
         }
     }
 
-    /** 管理指令：跳到指定游戏日（1..{@link #TOTAL_DAYS}），按新日重置相位计时。 */
+    /** 管理指令：跳到指定游戏日（1..{@link #totalDays}），按新日重置相位计时。 */
     public static boolean forceDay(ServerLevel level, int day) {
         SixtySecondsState.Data data = SixtySecondsState.get(level);
         if (data.phase != SixtySecondsPhase.DAY && data.phase != SixtySecondsPhase.PREPARATION) {
             return false;
         }
-        startDay(level, data, Math.max(1, Math.min(TOTAL_DAYS, day)));
+        startDay(level, data, Math.max(1, Math.min(totalDays(level), day)));
         return true;
     }
 
@@ -308,7 +323,7 @@ public final class SixtySecondsManager {
             for (ServerPlayer player : level.players()) {
                 AdvancedCameraCommand.sendIntro(player, 80, 30.0, 10.0);
                 net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(player,
-                        Component.translatable("message.noellesroles.sixty_seconds.day_start", 1, TOTAL_DAYS),
+                        Component.translatable("message.noellesroles.sixty_seconds.day_start", 1, totalDays(level)),
                         Component.translatable("message.noellesroles.sixty_seconds.prep_end_sub"),
                         80, false);
             }
@@ -317,7 +332,7 @@ public final class SixtySecondsManager {
             for (ServerPlayer player : level.players()) {
                 String subKey = "message.noellesroles.sixty_seconds.day_start_sub_" + day;
                 net.exmo.sre.subtitle.SubtitleCommand.sendToPlayerTop(player,
-                        Component.translatable("message.noellesroles.sixty_seconds.day_start", day, TOTAL_DAYS),
+                        Component.translatable("message.noellesroles.sixty_seconds.day_start", day, totalDays(level)),
                         Component.translatable(subKey),
                         60, false);
                 player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.AMBIENT, 0.5F, 1.2F);
@@ -337,14 +352,14 @@ public final class SixtySecondsManager {
         SixtySecondsDailyEvents.onDayStart(level); // 每日事件门：清晨为每队抽当日剧情事件
         SixtySecondsNewspaper.publish(level, data); // 末日日报：每日一期，聊天栏点击阅读
         SixtySecondsRoleAwakening.awaken(level, data);
-        broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.day_start", day, TOTAL_DAYS));
+        broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.day_start", day, totalDays(level)));
         // PvP 状态聊天栏广播
         if (day <= 4) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.pvp_peace_early",
-                    TOTAL_DAYS).withStyle(ChatFormatting.GREEN));
+                    totalDays(level)).withStyle(ChatFormatting.GREEN));
         } else if (day == 5) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.pvp_peace_over",
-                    TOTAL_DAYS).withStyle(ChatFormatting.RED));
+                    totalDays(level)).withStyle(ChatFormatting.RED));
         }
     }
 
@@ -774,16 +789,36 @@ public final class SixtySecondsManager {
         }
     }
 
-    /** 换日时把 dayNumber + phaseEndTick 同步给各队成员，供客户端 HUD 本地推算时钟（每日一次，低频）。 */
+    /**
+     * 换日时把 dayNumber + totalDays + phaseEndTick 同步给各队成员，供客户端 HUD 本地推算时钟
+     * （每日一次，低频）。totalDays 随之下发——客户端读不到服务端配置，HUD 的「第 X/N 天」靠它。
+     */
     private static void syncDayNumber(ServerLevel level, SixtySecondsState.Data data, int day) {
+        int total = totalDays(level);
         for (SixtySecondsState.TeamData team : data.teams.values()) {
             for (UUID uuid : team.members) {
                 if (level.getPlayerByUUID(uuid) instanceof ServerPlayer player) {
                     SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
                     stats.dayNumber = day;
+                    stats.totalDays = total;
                     stats.phaseEndTick = data.phaseEndTick;
                     stats.sync();
                 }
+            }
+        }
+    }
+
+    /**
+     * 局中用 {@code /sre:60s days <n>} 改总日数后，把新值补发给全场玩家（HUD 的「第 X/N 天」立即更新）。
+     * 不改 dayNumber/phaseEndTick——只刷总数；是否已到最终日由 tick 里的 {@code dayNumber >= totalDays(level)} 自然判定。
+     */
+    public static void resyncTotalDays(ServerLevel level) {
+        int total = totalDays(level);
+        for (ServerPlayer player : level.players()) {
+            SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+            if (stats.totalDays != total) {
+                stats.totalDays = total;
+                stats.sync();
             }
         }
     }

@@ -3088,6 +3088,8 @@
   "message.noellesroles.sixty_seconds.autojoin_shelter_title": "Into the Shelter",
   "message.noellesroles.sixty_seconds.autojoin_shelter_sub": "Prep time is over—you have joined your team",
   "message.noellesroles.sixty_seconds.autojoin_no_room": "§cEvery team is already full at four—you stay a spectator",
+  "message.noellesroles.sixty_seconds.days_set": "§aTotal days set to %s (survive the final day to win; the Apex boss always arrives on the last day)",
+  "message.noellesroles.sixty_seconds.days_show": "Current total days: %s",
   "item.noellesroles.sixty_seconds_assault_spawner_weak": "Night Raider Whistle (Weak)",
   "item.noellesroles.sixty_seconds_assault_spawner_medium": "Night Raider Whistle (Medium)",
   "item.noellesroles.sixty_seconds_assault_spawner_strong": "Night Raider Whistle (Strong)",
