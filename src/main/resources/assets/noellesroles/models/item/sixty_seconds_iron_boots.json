@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/iron_boots"
+    "layer0": "noellesroles:item/sixty_seconds_iron_boots"
   }
 }
