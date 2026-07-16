@@ -10,6 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.monster.Vex;
 
 /**
  * 睡眠结算：晚上（{@link SixtySecondsDayCycle} NIGHT 3.5 分钟）最后
@@ -60,6 +61,7 @@ public final class SixtySecondsSleepSystem {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.sleep_time", 30)
                     .withStyle(ChatFormatting.DARK_PURPLE));
             healBedOccupancy(level, data); // 自由上床时间前先自愈脏 OCCUPIED（漏清/中断残留）
+            checkWhisperSanityLoss(level, data); // 低语怪在身边 → 扣一半理智
         }
         if (remaining == SixtySecondsDayCycle.SLEEP_WINDOW_TICKS - FORCED_SLEEP_DELAY_TICKS) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.sleep_forced", 15)
@@ -100,11 +102,14 @@ public final class SixtySecondsSleepSystem {
                     stats.sync();
                 }
             } else {
-                stats.health = Math.max(0, stats.health - SixtySecondsBalance.NIGHT_NO_SLEEP_LOSS_PER_SEC);
-                stats.sync();
-                if (stats.health <= 0) {
-                    SixtySecondsHealthSystem.onHealthZero(player, false, null);
-                    continue;
+                // 前 30s 自由上床时间不扣血，最后 15s 强制入眠期间不在床上才扣血
+                if (remaining <= FORCED_SLEEP_TICKS) {
+                    stats.health = Math.max(0, stats.health - SixtySecondsBalance.NIGHT_NO_SLEEP_LOSS_PER_SEC);
+                    stats.sync();
+                    if (stats.health <= 0) {
+                        SixtySecondsHealthSystem.onHealthZero(player, false, null);
+                        continue;
+                    }
                 }
                 // 户外过夜生病：基础 10%，但状态好 → 概率大幅降低
                 // sickChance = baseChance × (1 − SICK_CHANCE_STAT_FACTOR × minStat / MAX)
@@ -325,6 +330,40 @@ public final class SixtySecondsSleepSystem {
         double z = player.getZ();
         return (team.residentialBox != null && team.residentialBox.contains(x, y, z))
                 || (team.shelterBox != null && team.shelterBox.contains(x, y, z));
+    }
+
+    /**
+     * 睡眠窗口开始时检测：若玩家周围 20 格内有低语怪（sixty_seconds_whisper），
+     * 扣除当前理智的一半（向下取整），并弹出提示。
+     */
+    private static void checkWhisperSanityLoss(ServerLevel level, SixtySecondsState.Data data) {
+        for (ServerPlayer player : level.players()) {
+            if (GameUtils.isPlayerEliminated(player)) {
+                continue;
+            }
+            SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+            if (stats.downed || stats.monster) {
+                continue;
+            }
+            // 检查周围 20 格内是否有低语怪
+            boolean hasWhisperNearby = !level.getEntitiesOfClass(Vex.class,
+                    player.getBoundingBox().inflate(20),
+                    vex -> vex.getTags().contains(SixtySecondsWhisperSystem.WHISPER_TAG))
+                    .isEmpty();
+            if (!hasWhisperNearby) {
+                continue;
+            }
+            int loss = stats.sanity / 2; // 当前理智的一半
+            if (loss <= 0) {
+                continue;
+            }
+            stats.sanity = Math.max(0, stats.sanity - loss);
+            stats.sync();
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.sixty_seconds.whisper_sanity_loss", loss)
+                            .withStyle(ChatFormatting.DARK_PURPLE),
+                    false);
+        }
     }
 
     private static void broadcast(ServerLevel level, Component message) {

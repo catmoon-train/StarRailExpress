@@ -37,6 +37,7 @@ public final class SixtySecondsMod {
         net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.register(); // 夜袭者死亡掉废料
         net.exmo.sre.sixtyseconds.logic.SixtySecondsPveSystem.register(); // PVE 游荡怪死亡掉废料
         net.exmo.sre.sixtyseconds.logic.SixtySecondsReconnect.register(); // 掉线备份/重连恢复（背包+状态）
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsAutoJoin.register(); // 中途新玩家自动补入未满队伍
         net.exmo.sre.sixtyseconds.logic.SixtySecondsRockets.register(); // RPG 火箭投射物全局推进
         net.exmo.sre.sixtyseconds.logic.SixtySecondsAirdrop.register(); // 指令空投下落动画全局推进
         net.exmo.sre.sixtyseconds.content.item.SixtySecondsRopeItem.register(); // 临时绳索到期清除

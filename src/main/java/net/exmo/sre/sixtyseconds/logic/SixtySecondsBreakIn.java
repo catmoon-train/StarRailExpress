@@ -178,6 +178,11 @@ public final class SixtySecondsBreakIn {
 
         player.teleportTo(level, safe.getX() + 0.5D, safe.getY(), safe.getZ() + 0.5D,
                 player.getYRot(), player.getXRot());
+        // 把「在外活动限制盒」从（出门时记的）本队探索区改到<b>目标队避难所盒</b>——
+        // 否则 SixtySecondsSearchZones.tick 每 tick 用 limitPlayerToBox 把玩家从别队避难所拽回
+        // 探索区盒边缘（离闯入点很远），表现为「撬门/开锁门后被传送到未知位置」（本次要修的 BUG）。
+        // updateConfine 保留 RETURNS 记录（回坐标/冷却不变），故门菜单「返回住所」仍可用（回本队避难所）。
+        SixtySecondsSearchZones.updateConfine(player, target.shelterBox, safe);
         // 区域地图切到目标队避难所（否则小地图仍显示自己家，闯入后完全摸不着方向）
         net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.send(
                 player, target.shelterBox, target.shelterSpawn, true);

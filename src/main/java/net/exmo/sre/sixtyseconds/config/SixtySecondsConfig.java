@@ -82,6 +82,15 @@ public class SixtySecondsConfig {
     public boolean pveEnabled = true;
 
     /**
+     * 中途自动入队开关（默认<b>开</b>）：游戏进行中新加入服务器（且无重连备份）的玩家，
+     * 自动补入一支<b>在线不满 {@link net.exmo.sre.sixtyseconds.logic.SixtySecondsTeamAllocator#TEAM_SIZE 四人}</b>
+     * 的队伍（选在线人数最少的未满队），传送到该队住宅并发身份。所有队伍都满则留观战。
+     * {@code /sre:60s autojoin on|off} 切换（按图持久化）。见 {@code SixtySecondsAutoJoin}。
+     */
+    @SerializedName("autoJoinEnabled")
+    public boolean autoJoinEnabled = true;
+
+    /**
      * 全局探索区危险等级 1..5（{@code SixtySecondsAreaLevels}）：等级越高，物资箱稀有物越常见、
      * 掷出件数越多，但游荡怪更多更强。{@code /sre:60s_area level <1..5>} 设置。
      */

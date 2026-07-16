@@ -143,6 +143,32 @@ public final class SixtySecondsBalance {
     public static final int AMBIENT_SPAWN_RAND_DIST = 8;
     /** 每区域等级的游荡怪生命加成（Lv5 = ×1.6）。 */
     public static final double AMBIENT_HEALTH_PER_AREA_LEVEL = 0.15;
+    /** 感染体（游荡怪/夜袭怪）掉落废料的基础概率（-35%，原 100% 必掉）。 */
+    public static final double MONSTER_SCRAP_DROP_CHANCE = 0.65;
+
+    /**
+     * 游荡怪刷新概率的天数倍率（前期压低、逐步爬升）：
+     * 第1天 25%、第2天 35%、第3天 55%、第4天 75%、第5天 90%、第6~7天 100%。
+     */
+    public static double ambientSpawnDayMult(int day) {
+        if (day <= 1) return 0.25;
+        if (day == 2) return 0.35;
+        if (day == 3) return 0.55;
+        if (day == 4) return 0.75;
+        if (day == 5) return 0.90;
+        return 1.0;
+    }
+
+    /**
+     * Boss 刷新概率的天数倍率（仅影响非保底日：第1/2/4/6天）。
+     * 第1天 40%、第2天 55%、第4天 80%、第6天 100%（第3/5/7天保底不受影响）。
+     */
+    public static double bossSpawnDayMult(int day) {
+        if (day <= 1) return 0.40;
+        if (day == 2) return 0.55;
+        if (day == 4) return 0.80;
+        return 1.0;
+    }
 
     // ── PVE：区域危险等级（SixtySecondsAreaLevels）────────────────────────────
     public static final int AREA_LEVEL_MAX = 5;
@@ -165,11 +191,11 @@ public final class SixtySecondsBalance {
     public static final int BOSS_ROAR_COOLDOWN_TICKS = 20 * 18;
     public static final int BOSS_SUMMON_COOLDOWN_TICKS = 20 * 25;
     public static final int BOSS_CHARGE_COOLDOWN_TICKS = 20 * 14;
-    /** Boss 掉落：loot 掷骰件数 = BASE + PER_LEVEL×等级；保底废料 = BASE + PER_LEVEL×等级。 */
-    public static final int BOSS_LOOT_ROLLS_BASE = 6;
-    public static final int BOSS_LOOT_ROLLS_PER_LEVEL = 3;
-    public static final int BOSS_SCRAP_BASE = 6;
-    public static final int BOSS_SCRAP_PER_LEVEL = 3;
+    /** Boss 掉落：loot 掷骰件数 = BASE + PER_LEVEL×等级；保底废料 = BASE + PER_LEVEL×等级（+50%）。 */
+    public static final int BOSS_LOOT_ROLLS_BASE = 9;
+    public static final int BOSS_LOOT_ROLLS_PER_LEVEL = 5;
+    public static final int BOSS_SCRAP_BASE = 9;
+    public static final int BOSS_SCRAP_PER_LEVEL = 5;
 
     // ── PVE：哨戒炮 / 陷阱对玩家（SixtySecondsPveSystem）──────────────────────
     public static final double TURRET_RANGE = 12.0;
@@ -193,7 +219,8 @@ public final class SixtySecondsBalance {
     public static final double SHOWER_POLLUTION_MULT = 0.5;  // 洗澡后污染 ×0.5（-50%）
 
     // ── 培育箱（SixtySecondsPlanterBlock：种子→蔬菜的耕地系统）──────────────
-    public static final int PLANTER_GROW_STAGE_TICKS = 20 * 120; // 每生长阶段 2 分钟（共 2 段 ≈ 4 分钟成熟）
+    /** 每生长阶段 3 分 5 秒（-35%，原 2 分钟；共 2 段 ≈ 6 分 10 秒成熟）。 */
+    public static final int PLANTER_GROW_STAGE_TICKS = 20 * 185;
     public static final int PLANTER_HARVEST_MIN = 1;             // 收获蔬菜下限（-40%: 2→1）
     public static final int PLANTER_HARVEST_MAX = 2;             // 收获蔬菜上限（-40%: 3→2）
     public static final double PLANTER_SEED_RETURN_CHANCE = 0.4; // 收获时返还 1 包种子的概率

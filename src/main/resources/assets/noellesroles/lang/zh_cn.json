@@ -3039,6 +3039,7 @@
   "message.noellesroles.sixty_seconds.cmd_stat_set": "已设置 %1$s 的 %2$s 为 %3$s",
   "message.noellesroles.sixty_seconds.sleep_time": "睡觉时间到！%1$s秒内回家上床，否则会掉健康……",
   "message.noellesroles.sixty_seconds.sleep_forced": "强制入眠！最后%1$s秒，全员趴下无法行动……",
+  "message.noellesroles.sixty_seconds.whisper_sanity_loss": "☠ 低语萦绕在耳边... 理智 -%1$s（低语怪在附近！快用火把/手电筒驱散它们！）",
   "entity.noellesroles.sixty_seconds_whisper": "低语怪",
   "entity.noellesroles.sixty_seconds_assault": "夜袭者",
   "entity.noellesroles.sixty_seconds_assault_weak": "虚弱的夜袭者",
@@ -3150,6 +3151,10 @@
   "message.noellesroles.sixty_seconds.boss_roar": "骇人的咆哮震撼着你的心智……",
   "message.noellesroles.sixty_seconds.pve_enabled": "PVE：开（探索区游荡感染体 + 夜晚尸潮领主）",
   "message.noellesroles.sixty_seconds.pve_disabled": "PVE：关（不再刷新游荡感染体与尸潮领主）",
+  "message.noellesroles.sixty_seconds.autojoin_enabled": "§a中途自动入队已开启：新玩家会自动补入未满四人的队伍",
+  "message.noellesroles.sixty_seconds.autojoin_disabled": "§c中途自动入队已关闭：新玩家将保持观战",
+  "message.noellesroles.sixty_seconds.autojoin_welcome": "你已加入第 %s 队！传送到队伍住宅，快熟悉环境吧",
+  "message.noellesroles.sixty_seconds.autojoin_teammate": "§b新队友 %s 中途加入了你们的队伍！",
   "item.noellesroles.sixty_seconds_assault_spawner_weak": "夜袭者召唤哨（弱）",
   "item.noellesroles.sixty_seconds_assault_spawner_medium": "夜袭者召唤哨（中等）",
   "item.noellesroles.sixty_seconds_assault_spawner_strong": "夜袭者召唤哨（强）",
@@ -5285,10 +5290,8 @@
   "message.noellesroles.sixty_seconds.devent.steal_rations.r1_empty": "厨房翻了个遍，连一口剩饭都没有。白担了这身贼名。全队理智下降。",
   "message.noellesroles.sixty_seconds.devent.steal_rations.r2": "深吸一口气，把手从窗户上收了回来。有些底线不该破。",
   "message.noellesroles.sixty_seconds.devent.steal_rations.victim": "有人趁你们不在翻进了厨房！粮食被偷了：%s。（全队理智 -5）",
-
   "message.noellesroles.sixty_seconds.devent.no_alcohol": "你没有酒精。",
   "message.noellesroles.sixty_seconds.devent.no_item": "你没有 %s。",
-
   "message.noellesroles.sixty_seconds.devent.smoker.title": "烟鬼",
   "message.noellesroles.sixty_seconds.devent.smoker.story": "一个胡子拉碴的中年人蹲在墙根，看见你们眼睛一亮：『兄弟……有烟吗？一根就行，我用东西换。』",
   "message.noellesroles.sixty_seconds.devent.smoker.opt1": "递给他一根香烟",
@@ -5297,7 +5300,6 @@
   "message.noellesroles.sixty_seconds.devent.smoker.r1": "他接过香烟深深吸了一口，眼眶泛红：『末日里还能抽上一口……谢了。』他从怀里掏出一些东西塞给你。获得了：%s。",
   "message.noellesroles.sixty_seconds.devent.smoker.r2": "『雪茄？！』他眼睛瞪得溜圆，『好家伙，你这是救了我的命啊！』他翻遍了所有口袋，把攒的好东西都堆在了你面前。获得了：%s。",
   "message.noellesroles.sixty_seconds.devent.smoker.r3": "他叹了口气，把空烟盒揉成一团扔进泥里。『也是……这年头烟比命贵。』",
-
   "message.noellesroles.sixty_seconds.devent.gambler.title": "赌徒",
   "message.noellesroles.sixty_seconds.devent.gambler.story": "一个穿着破旧马甲的瘦削男人靠在墙边，手里飞快地转着三枚骰子：『来一局？我用我的存粮赌你的存粮——公平起见，各出三份。』",
   "message.noellesroles.sixty_seconds.devent.gambler.opt1": "接受赌局",
@@ -5305,7 +5307,6 @@
   "message.noellesroles.sixty_seconds.devent.gambler.r1_win": "骰子落定——你赢了！赌徒苦笑着把赢来的物资推了过来：获得了 %s。",
   "message.noellesroles.sixty_seconds.devent.gambler.r1_lose": "骰子落定——你输了。%s 眼睁睁看着自己的存粮被对方拿走。愿赌服输，但心里堵得慌，理智 -5。",
   "message.noellesroles.sixty_seconds.devent.gambler.r2": "你摆了摆手。赌徒耸耸肩收起骰子：『谨慎的人活得久。』",
-
   "message.noellesroles.sixty_seconds.devent.drunkard.title": "酒疯子",
   "message.noellesroles.sixty_seconds.devent.drunkard.story": "门外传来砸门声和一个含糊不清的叫骂：『开门！我知道你们有酒——不给老子就拆了这破门！』",
   "message.noellesroles.sixty_seconds.devent.drunkard.opt1": "递出一瓶酒精",
@@ -5314,7 +5315,6 @@
   "message.noellesroles.sixty_seconds.devent.drunkard.r1_shards": "他接过酒瓶，醉醺醺地非要『回礼』——他在门口留下了一些碎掉的酒瓶：获得了 %s。",
   "message.noellesroles.sixty_seconds.devent.drunkard.r1_snack": "酒疯子灌了几口，忽然看见桌上的剩饭，一把抓过去下酒：失去了 %s。",
   "message.noellesroles.sixty_seconds.devent.drunkard.r2": "砸门声越来越响，最后轰的一声——门框裂了半边，他没能进来，但门已经快散架了。家门耐久 -50%。",
-
   "message.noellesroles.sixty_seconds.devent.sister_outside.title": "妹妹外出",
   "message.noellesroles.sixty_seconds.devent.sister_outside.story": "妹妹站在门口，手里攥着一个小布包：『让我出去找找物资吧。我跑得快，天黑前就回来。』她的眼神很坚定，但末日的外面……谁知道呢。",
   "message.noellesroles.sixty_seconds.devent.sister_outside.opt1": "让她出去",
@@ -5325,7 +5325,6 @@
   "message.noellesroles.sixty_seconds.devent.sister_outside.back_but_changed": "%s 活着回来了——但她浑身颤抖，眼神涣散，皮肤下有什么在蠕动……妹妹已经不再是从前的妹妹了。",
   "message.noellesroles.sixty_seconds.devent.sister_outside.never_return": "我们再也没有看到妹妹回来。",
   "message.noellesroles.sixty_seconds.devent.sister_outside.still_waiting": "妹妹还没有回来……夜幕降临，每个人都盯着那扇门。",
-
   "message.noellesroles.sixty_seconds.devent.bear_trap.title": "生锈捕兽夹",
   "message.noellesroles.sixty_seconds.devent.bear_trap.story": "翻找废弃棚屋时脚下传来金属的咔嗒声——低头一看，一个锈迹斑斑的捕兽夹已经咬住了你的靴子。",
   "message.noellesroles.sixty_seconds.devent.bear_trap.opt1": "用力掰开",
@@ -5333,7 +5332,6 @@
   "message.noellesroles.sixty_seconds.devent.bear_trap.r1_free": "%s 咬牙掰开了捕兽夹，小腿鲜血直流（健康 -15），但总算是自由了。",
   "message.noellesroles.sixty_seconds.devent.bear_trap.r1_stuck": "越挣扎夹得越紧！%s 好不容易才脱身，腿上多了几个深可见骨的伤口（健康 -30，污染 +5）。",
   "message.noellesroles.sixty_seconds.devent.bear_trap.r2": "你小心翼翼地一点点把脚抽出来——靴子被刮破了，但人没事。",
-
   "message.noellesroles.sixty_seconds.devent.radio_tower.title": "废弃广播塔",
   "message.noellesroles.sixty_seconds.devent.radio_tower.story": "山坡上矗立着一座锈蚀的广播塔，避雷针还在，攀爬梯摇摇欲坠。塔顶的机房里说不定还有能用的零件。",
   "message.noellesroles.sixty_seconds.devent.radio_tower.opt1": "爬上去搜索",
@@ -5341,7 +5339,6 @@
   "message.noellesroles.sixty_seconds.devent.radio_tower.r1_good": "塔顶的机箱里翻出了能用的零件：%s。站在高处看到了远方的灯光——还有人活着。全队理智 +8。",
   "message.noellesroles.sixty_seconds.devent.radio_tower.r1_bad": "爬到一半梯子断了！%s 摔了下来，幸亏被中途的钢缆挂了一下（健康 -20）。",
   "message.noellesroles.sixty_seconds.devent.radio_tower.r2": "你仰望了一眼高塔，转身走了。这种高度摔下来可不是闹着玩的。",
-
   "message.noellesroles.sixty_seconds.devent.fix_transformer.title": "抢修变压器",
   "message.noellesroles.sixty_seconds.devent.fix_transformer.story": "街角的变压器冒着青烟，电线噼啪作响。如果能修好它，也许能偷接上一会儿电——但需要 3 个废料当保险丝。",
   "message.noellesroles.sixty_seconds.devent.fix_transformer.opt1": "花 3 个废料尝试修复",
@@ -5349,7 +5346,6 @@
   "message.noellesroles.sixty_seconds.devent.fix_transformer.r1_good": "你换上了废料搓成的保险丝，变压器嗡的一声恢复了运转！供电续了 120 秒。",
   "message.noellesroles.sixty_seconds.devent.fix_transformer.r1_bad": "线路接反了——一阵蓝光闪过，%s 被电击弹飞出去（健康 -15）。废料也白费了。",
   "message.noellesroles.sixty_seconds.devent.fix_transformer.r2": "高压电不是闹着玩的。你把工具箱收了回去。",
-
   "message.noellesroles.sixty_seconds.devent.bloody_trail.title": "血脚印",
   "message.noellesroles.sixty_seconds.devent.bloody_trail.story": "清晨开门，门口延伸着一串暗红色的脚印，通向街角那条漆黑的小巷。脚印还很新鲜。",
   "message.noellesroles.sixty_seconds.devent.bloody_trail.opt1": "沿着血脚印追查",
@@ -5357,21 +5353,18 @@
   "message.noellesroles.sixty_seconds.devent.bloody_trail.r1_good": "巷子尽头倒着一个受伤的幸存者，身边散落着一些物资。你们帮他包扎后，他千恩万谢地把东西塞给了你：获得了 %s。全队理智 +5。",
   "message.noellesroles.sixty_seconds.devent.bloody_trail.r1_bad": "那不是人血——是一只变异生物的诱饵陷阱！%s 拼了命才逃回来（健康 -25，污染 +8）。",
   "message.noellesroles.sixty_seconds.devent.bloody_trail.r2": "门关上了，但那一串血脚印一直印在脑海里，挥之不去。",
-
   "message.noellesroles.sixty_seconds.devent.tool_smith.title": "工具匠",
   "message.noellesroles.sixty_seconds.devent.tool_smith.story": "一个满脸机油的男人在街边支了个小摊，身边堆着各式各样的工具：『3 个废料换一把趁手的家伙——末日里，好工具比枪管用。』",
   "message.noellesroles.sixty_seconds.devent.tool_smith.opt1": "花 3 个废料换一件工具",
   "message.noellesroles.sixty_seconds.devent.tool_smith.opt2": "不换",
   "message.noellesroles.sixty_seconds.devent.tool_smith.r1": "挑了一把好用的：获得了 %s。工具匠拍了拍你的肩膀：『省着用。』",
   "message.noellesroles.sixty_seconds.devent.tool_smith.r2": "工具匠耸耸肩，继续打磨他的扳手去了。",
-
   "message.noellesroles.sixty_seconds.devent.medicine_dealer.title": "药贩子",
   "message.noellesroles.sixty_seconds.devent.medicine_dealer.story": "一个穿白大褂（虽然已经脏得看不出颜色）的女人推着一辆医用推车：『8 代币三盒药——退烧的、消炎的、止血的，末日医疗套餐。』",
   "message.noellesroles.sixty_seconds.devent.medicine_dealer.opt1": "花 8 代币买药",
   "message.noellesroles.sixty_seconds.devent.medicine_dealer.opt2": "不买",
   "message.noellesroles.sixty_seconds.devent.medicine_dealer.r1": "她麻利地从推车里拣出几盒药递过来：获得了 %s。『省着点用，下一批货不知道什么时候能到。』",
   "message.noellesroles.sixty_seconds.devent.medicine_dealer.r2": "她推着车走了，摇铃在空荡的街道上叮当作响。",
-
   "message.noellesroles.sixty_seconds.devent.chemical_plant.title": "化工厂废墟",
   "message.noellesroles.sixty_seconds.devent.chemical_plant.story": "废弃的化工厂像一头趴着的钢铁巨兽，锈蚀的管道里还在滴着不明液体。仓库门半掩着，里面可能有化学原料和工具。",
   "message.noellesroles.sixty_seconds.devent.chemical_plant.opt1": "带上手电筒潜入化工厂",
@@ -5381,7 +5374,6 @@
   "message.noellesroles.sixty_seconds.devent.chemical_plant.r1_hurt": "一截锈蚀的管道突然脱落，%s 被砸中了肩膀（健康 -25）。",
   "message.noellesroles.sixty_seconds.devent.chemical_plant.r1_sick": "化工厂里的有毒气体还是渗进了防具里，%s 回来后就病倒了。",
   "message.noellesroles.sixty_seconds.devent.chemical_plant.r2": "化工厂上空盘旋着几只食腐鸟。这种地方还是少靠近为妙。",
-
   "message.noellesroles.sixty_seconds.devent.subway_station.title": "地铁站台",
   "message.noellesroles.sixty_seconds.devent.subway_station.story": "坍塌的地铁入口露出一截向下延伸的楼梯，闸机早就锈成了废铁。黑暗深处隐约能看见自动贩卖机的轮廓。",
   "message.noellesroles.sixty_seconds.devent.subway_station.opt1": "带上手电筒下去搜索",
@@ -5391,47 +5383,36 @@
   "message.noellesroles.sixty_seconds.devent.subway_station.r1_hurt": "黑暗中踩到了一截裸露的电线，%s 被电了一下（健康 -18）。",
   "message.noellesroles.sixty_seconds.devent.subway_station.r1_sick": "地铁隧道里的霉菌孢子太重了，%s 开始咳嗽不止——生病了。",
   "message.noellesroles.sixty_seconds.devent.subway_station.r2": "地铁入口的黑暗像一张大嘴。你决定不去喂它。",
-
   "message.noellesroles.sixty_seconds.devent.ammo_cache.title": "弹药补给箱",
   "message.noellesroles.sixty_seconds.devent.ammo_cache.story": "巡逻时在废弃哨所的床底下踢出一个铁皮箱——撬开一看，整整齐齐码着几排子弹，保存得还不错。",
   "message.noellesroles.sixty_seconds.devent.ammo_cache.result": "获得了：%s。又能多开几枪了。",
-
   "message.noellesroles.sixty_seconds.devent.wild_herbs.title": "野生药草",
   "message.noellesroles.sixty_seconds.devent.wild_herbs.story": "后院墙根的裂缝里长出了一簇簇不知名的绿色植物——有个识货的人说这是战前就绝迹的野生草药。",
   "message.noellesroles.sixty_seconds.devent.wild_herbs.result": "煮了一锅草药汤，每人灌了一碗。全队理智 +8，健康 +10。",
-
   "message.noellesroles.sixty_seconds.devent.dud_shell.title": "未爆弹拆解",
   "message.noellesroles.sixty_seconds.devent.dud_shell.story": "田里半埋着一枚未爆炸的炮弹，弹体上锈迹斑斑但引信还在——拆得好是宝贝，拆不好……",
   "message.noellesroles.sixty_seconds.devent.dud_shell.result": "小心翼翼地拆开了弹壳：获得了 %s。运气不错，没有炸。",
-
   "message.noellesroles.sixty_seconds.devent.ceiling_leak.title": "天花板渗漏",
   "message.noellesroles.sixty_seconds.devent.ceiling_leak.story": "天花板上洇开了一大片深色的水渍，终于——哗啦一声，灰泥塌了一块，浑浊的液体顺着墙壁淌下来。",
   "message.noellesroles.sixty_seconds.devent.ceiling_leak.result": "全队污染 +6；泡坏的 %s 只能扔掉。",
-
   "message.noellesroles.sixty_seconds.devent.roach_infest.title": "沙虫入侵",
   "message.noellesroles.sixty_seconds.devent.roach_infest.story": "储物柜背后窸窸窣窣的声音越来越大——拉开一看，密密麻麻的沙虫正在你的储备粮上开派对。",
   "message.noellesroles.sixty_seconds.devent.roach_infest.result": "被糟蹋了：%s。全队理智 -4。",
-
   "message.noellesroles.sixty_seconds.devent.foundation_crack.title": "地基塌陷",
   "message.noellesroles.sixty_seconds.devent.foundation_crack.story": "地面传来一声闷响，整间屋子猛地沉了一下——墙角出现了一道手指宽的裂缝，能看见地下室的水泥地面都裂了。",
   "message.noellesroles.sixty_seconds.devent.foundation_crack.result": "门框变形了：门耐久 -15；%s 被掉落的瓦片砸伤（健康 -10）。",
-
   "message.noellesroles.sixty_seconds.devent.sanitize.title": "消毒防疫",
   "message.noellesroles.sixty_seconds.devent.sanitize.story": "翻出一瓶过期的消毒液和几卷纱布——趁今天有空，把屋里屋外彻底消杀了一遍。",
   "message.noellesroles.sixty_seconds.devent.sanitize.result": "每个角落都喷了消毒水，空气里弥漫着刺鼻的安心感。今日生病概率 -50%。",
-
   "message.noellesroles.sixty_seconds.devent.ammo_discipline.title": "弹药管制",
   "message.noellesroles.sixty_seconds.devent.ammo_discipline.story": "一个退伍老兵路过，看了一眼你们的射击姿势直摇头——他花了一个上午纠正你们的手法。",
   "message.noellesroles.sixty_seconds.devent.ammo_discipline.result": "老兵的指点立竿见影：今日全队射击冷却 -20%。",
-
   "message.noellesroles.sixty_seconds.devent.fuel_shortage.title": "燃料稀缺",
   "message.noellesroles.sixty_seconds.devent.fuel_shortage.story": "供暖站的烟囱今天没有冒烟——工作人员在门口贴了张告示：『燃料配额削减，敬请谅解。』",
   "message.noellesroles.sixty_seconds.devent.fuel_shortage.result": "没有暖气，身体消耗得更快了。今日饥饿/口渴消耗 +25%。",
-
   "message.noellesroles.sixty_seconds.devent.heavy_fog.title": "大雾笼罩",
   "message.noellesroles.sixty_seconds.devent.heavy_fog.story": "浓雾像一床湿棉被一样压了下来，五米之外什么都看不见。空气中的颗粒物浓度明显超标。",
   "message.noellesroles.sixty_seconds.devent.heavy_fog.result": "今天的雾霾里混着工业粉尘：外出污染增速 +40%。",
-
   "message.noellesroles.sixty_seconds.devent.underground_fight.title": "地下拳场",
   "message.noellesroles.sixty_seconds.devent.underground_fight.story": "避难所下方传来阵阵欢呼——有人在废弃锅炉房搭了个简易擂台。看客们押着代币，拳手们用命换粮。",
   "message.noellesroles.sixty_seconds.devent.underground_fight.opt1": "上台打一场",
@@ -5440,7 +5421,6 @@
   "message.noellesroles.sixty_seconds.devent.underground_fight.r1_lose": "%s 被一拳打下擂台，躺了半条命（健康 -25，理智 -5）。",
   "message.noellesroles.sixty_seconds.devent.underground_fight.r1_critical": "%s 伤得太重了，被抬下去时已经不省人事（健康 -40，理智 -10，还染上了破伤风）。",
   "message.noellesroles.sixty_seconds.devent.underground_fight.r2": "擂台上又倒下去一个。你摸了摸自己还没断的肋骨，转身走了。",
-
   "message.noellesroles.sixty_seconds.devent.blackmarket_info.title": "黑市情报",
   "message.noellesroles.sixty_seconds.devent.blackmarket_info.story": "一个戴兜帽的人影在巷子里朝你勾了勾手指——『听说你在找军火？6 个代币，我给你画张路线图。』",
   "message.noellesroles.sixty_seconds.devent.blackmarket_info.opt1": "花 6 代币买情报",
@@ -5448,7 +5428,6 @@
   "message.noellesroles.sixty_seconds.devent.blackmarket_info.r1_good": "情报是真的！你在标记地点找到了一个隐藏武器库：获得了 %s。",
   "message.noellesroles.sixty_seconds.devent.blackmarket_info.r1_bad": "那是个陷阱——情报指向了一个空箱子，里面只塞了一堆破布。理智 -3。获得了：%s。",
   "message.noellesroles.sixty_seconds.devent.blackmarket_info.r2": "兜帽人冷笑一声，消失在阴影里。",
-
   "message.noellesroles.sixty_seconds.devent.sewer_passage.title": "下水道暗道",
   "message.noellesroles.sixty_seconds.devent.sewer_passage.story": "铁栅栏井盖被什么东西从下面顶开了，露出一个黑洞洞的入口。水声隐约传来，下水道也许能通到一些被遗忘的仓库。",
   "message.noellesroles.sixty_seconds.devent.sewer_passage.opt1": "钻进下水道探索",
@@ -5456,7 +5435,6 @@
   "message.noellesroles.sixty_seconds.devent.sewer_passage.r1_good": "下水道果然通向了一个废弃仓库！翻出了不少好东西：%s。（污染 +15）",
   "message.noellesroles.sixty_seconds.devent.sewer_passage.r1_bad": "下水道里住着什么东西——%s 被咬了，拼命爬回来时浑身恶臭（健康 -20，污染 +10，理智 -5，还感染了）。",
   "message.noellesroles.sixty_seconds.devent.sewer_passage.r2": "井盖严丝合缝地盖了回去。里面传来的水声……还是不要去想比较好。",
-
   "message.noellesroles.sixty_seconds.devent.scavenger_camp.title": "拾荒者营地",
   "message.noellesroles.sixty_seconds.devent.scavenger_camp.story": "一个用废铁皮和帆布搭起来的临时营地里，几个拾荒者正围着一堆拆散的零件忙活。看见你手里的食物，他们眼睛亮了。",
   "message.noellesroles.sixty_seconds.devent.scavenger_camp.opt1": "给 1 件食物，看他们能拼出什么",
@@ -5464,14 +5442,12 @@
   "message.noellesroles.sixty_seconds.devent.scavenger_camp.r1_good": "拾荒者们七手八脚地从零件堆里拼出了好东西塞给你：获得了 %s。",
   "message.noellesroles.sixty_seconds.devent.scavenger_camp.r1_bad": "领头的一把抢过食物，其他人围上来把你们赶走了。%s 在推搡中受了伤（健康 -15）。",
   "message.noellesroles.sixty_seconds.devent.scavenger_camp.r2": "拾荒者们埋头干活，没注意到你。",
-
   "message.noellesroles.sixty_seconds.devent.pianist.title": "流浪钢琴师",
   "message.noellesroles.sixty_seconds.devent.pianist.story": "街角传来断断续续的钢琴声——一个穿着破旧燕尾服的人正坐在一台从废墟里拖出来的立式钢琴前，冻僵的手指还在坚持按着琴键。",
   "message.noellesroles.sixty_seconds.devent.pianist.opt1": "给 1 件食物，请他弹一曲",
   "message.noellesroles.sixty_seconds.devent.pianist.opt2": "静静走开",
   "message.noellesroles.sixty_seconds.devent.pianist.r1": "他接过食物，郑重地点了点头。然后——肖邦的《夜曲》在废墟间流淌开来。所有人都安静了。全队理智 +12。",
   "message.noellesroles.sixty_seconds.devent.pianist.r2": "琴声在身后渐渐模糊。末日里还能听到钢琴，也算一种奢侈了。",
-
   "message.noellesroles.sixty_seconds.devent.military_truck.title": "废弃军车",
   "message.noellesroles.sixty_seconds.devent.military_truck.story": "路边翻倒着一辆军用卡车，车厢锁得严严实实。车身上印着生物危险标志，但锁头已经锈得发脆了。",
   "message.noellesroles.sixty_seconds.devent.military_truck.opt1": "砸开锁搜刮",
@@ -5479,21 +5455,18 @@
   "message.noellesroles.sixty_seconds.devent.military_truck.r1_good": "车厢里是军方的应急储备！获得了 %s。",
   "message.noellesroles.sixty_seconds.devent.military_truck.r1_bad": "车厢里装的不是物资——是一个诱饵装置！警报响起，%s 被赶来的变异生物围堵（健康 -20，污染 +5，理智 -8）。",
   "message.noellesroles.sixty_seconds.devent.military_truck.r2": "军车上的标志让人不安。你转身离开了。",
-
   "message.noellesroles.sixty_seconds.devent.seed_merchant.title": "种子商",
   "message.noellesroles.sixty_seconds.devent.seed_merchant.story": "一个戴着草帽的老头在街角摆了个小摊，摊上摆着几排小纸包：『5 代币一包——野米种子、药品、还有两天的口粮。末日里，能种地才能活。』",
   "message.noellesroles.sixty_seconds.devent.seed_merchant.opt1": "花 5 代币买一包",
   "message.noellesroles.sixty_seconds.devent.seed_merchant.opt2": "不买",
   "message.noellesroles.sixty_seconds.devent.seed_merchant.r1": "老头把纸包递给你：获得了 %s。『好好种，来年就不愁吃了。』",
   "message.noellesroles.sixty_seconds.devent.seed_merchant.r2": "老头继续摆弄他的纸包。",
-
   "message.noellesroles.sixty_seconds.devent.battery_dealer.title": "电池商",
   "message.noellesroles.sixty_seconds.devent.battery_dealer.story": "一个戴护目镜的年轻人蹲在发电机旁边，脚边摆着一排旧电池：『4 个废料换两块电池加一点配件——手电、收音机，哪个不需要电？』",
   "message.noellesroles.sixty_seconds.devent.battery_dealer.opt1": "花 4 废料换电池",
   "message.noellesroles.sixty_seconds.devent.battery_dealer.opt2": "不换",
   "message.noellesroles.sixty_seconds.devent.battery_dealer.r1": "年轻人麻利地拆下电池递给你：获得了 %s。『省着用，充一次电不容易。』",
   "message.noellesroles.sixty_seconds.devent.battery_dealer.r2": "年轻人继续捣鼓他的发电机。",
-
   "message.noellesroles.sixty_seconds.devent.ruined_supermarket.title": "超市废墟",
   "message.noellesroles.sixty_seconds.devent.ruined_supermarket.story": "一家大型超市的玻璃门早就碎光了，货架东倒西歪。但仓库区的门还锁着——里面可能还有没被搬空的存货。",
   "message.noellesroles.sixty_seconds.devent.ruined_supermarket.opt1": "带上手电筒搜超市仓库",
@@ -5503,7 +5476,6 @@
   "message.noellesroles.sixty_seconds.devent.ruined_supermarket.r1_hurt": "货架突然倒塌，%s 被砸了个正着（健康 -15）。",
   "message.noellesroles.sixty_seconds.devent.ruined_supermarket.r1_sick": "仓库里发霉的粮食散发出有毒的孢子，%s 回来后就咳嗽不止。",
   "message.noellesroles.sixty_seconds.devent.ruined_supermarket.r2": "超市里一片狼藉，连老鼠都懒得来。",
-
   "message.noellesroles.sixty_seconds.devent.police_station.title": "警察局",
   "message.noellesroles.sixty_seconds.devent.police_station.story": "警察局的铁门半开着，门口的警车被烧成了空壳。地下室的武器库应该还有几把没被收走的枪——如果没被撬开的话。",
   "message.noellesroles.sixty_seconds.devent.police_station.opt1": "带上手电筒潜入警察局",
@@ -5513,7 +5485,6 @@
   "message.noellesroles.sixty_seconds.devent.police_station.r1_hurt": "黑暗中踩到了碎玻璃，%s 的脚被割伤了（健康 -20）。",
   "message.noellesroles.sixty_seconds.devent.police_station.r1_sick": "——",
   "message.noellesroles.sixty_seconds.devent.police_station.r2": "警察局门口挂着半截警戒线。你不想知道里面有什么。",
-
   "message.noellesroles.sixty_seconds.devent.underground_garage.title": "地下车库",
   "message.noellesroles.sixty_seconds.devent.underground_garage.story": "商场地下一层的车库入口被几辆报废的车堵了大半，但侧面的消防通道还能挤进去。车库里说不定有工具箱和备用零件。",
   "message.noellesroles.sixty_seconds.devent.underground_garage.opt1": "带上手电筒钻进车库",
@@ -5523,31 +5494,24 @@
   "message.noellesroles.sixty_seconds.devent.underground_garage.r1_hurt": "一扇生锈的引擎盖突然弹开，砸在了 %s 的胳膊上（健康 -12）。",
   "message.noellesroles.sixty_seconds.devent.underground_garage.r1_sick": "——",
   "message.noellesroles.sixty_seconds.devent.underground_garage.r2": "车库入口散发着霉味和汽油味。你决定换个地方碰运气。",
-
   "message.noellesroles.sixty_seconds.devent.beehive.title": "蜂箱",
   "message.noellesroles.sixty_seconds.devent.beehive.story": "废弃农场的屋檐下挂着一个野蜂巢，蜜蜂还在忙碌地进进出出。蜂蜜可是末日里难得的天然抗生素和糖分来源。",
   "message.noellesroles.sixty_seconds.devent.beehive.result": "用烟熏走了蜜蜂，割下了一大块蜂巢。获得了 %s。全队理智 +5。",
-
   "message.noellesroles.sixty_seconds.devent.solar_panel.title": "太阳能板",
   "message.noellesroles.sixty_seconds.devent.solar_panel.story": "一座废弃科研站的屋顶上架着几块完好的太阳能板，虽然积满了灰，但应该还能用。",
   "message.noellesroles.sixty_seconds.devent.solar_panel.result": "拆下了太阳能板和配套的电路：获得了 %s。",
-
   "message.noellesroles.sixty_seconds.devent.old_letters.title": "旧书信",
   "message.noellesroles.sixty_seconds.devent.old_letters.story": "在阁楼的旧箱子里翻出了一叠信，用红绳扎着——是一个母亲写给远方孩子的信，从战前一直写到停电的那一天。",
   "message.noellesroles.sixty_seconds.devent.old_letters.result": "读着这些温暖又心碎的文字，仿佛回到了那个还有电话和邮差的时代。全队理智 +10。",
-
   "message.noellesroles.sixty_seconds.devent.water_cut.title": "断水",
   "message.noellesroles.sixty_seconds.devent.water_cut.story": "水管里发出几声空响，然后——彻底没水了。蓄水池里的存水也在昨天用完了。",
   "message.noellesroles.sixty_seconds.devent.water_cut.result": "全队口渴 -15；储存的 %s 也变质了。",
-
   "message.noellesroles.sixty_seconds.devent.vent_break.title": "通风管道破裂",
   "message.noellesroles.sixty_seconds.devent.vent_break.story": "头顶传来一声闷响，通风管道的接口处崩开了——外面的灰霾正从裂缝里灌进来。",
   "message.noellesroles.sixty_seconds.devent.vent_break.result": "全队污染 +10，理智 -4。赶紧找东西堵上吧。",
-
   "message.noellesroles.sixty_seconds.devent.tool_theft.title": "工具箱失窃",
   "message.noellesroles.sixty_seconds.devent.tool_theft.story": "墙角那个装着扳手、螺丝刀和钳子的旧工具箱——它还在，但打开一看，里面空了大半。",
   "message.noellesroles.sixty_seconds.devent.tool_theft.result": "被偷走了：%s。全队理智 -5。",
-
   "message.noellesroles.sixty_seconds.devent.steal_medicine.title": "偷药",
   "message.noellesroles.sixty_seconds.devent.steal_medicine.story": "邻居家的医疗箱就放在窗台边——深夜撬开窗户，顺几盒药就走。末日里，药就是命。",
   "message.noellesroles.sixty_seconds.devent.steal_medicine.opt1": "撬窗偷药",
@@ -5556,19 +5520,15 @@
   "message.noellesroles.sixty_seconds.devent.steal_medicine.r1_empty": "医疗箱里只剩几卷过期绷带。白跑一趟。全队理智下降。",
   "message.noellesroles.sixty_seconds.devent.steal_medicine.r2": "把手从窗台收了回来。有些药不能乱吃，有些事不能乱做。",
   "message.noellesroles.sixty_seconds.devent.steal_medicine.victim": "有人翻窗进来偷了你们的药！药品被偷了：%s。（全队理智 -5）",
-
   "message.noellesroles.sixty_seconds.devent.shift_guard.title": "轮班哨",
   "message.noellesroles.sixty_seconds.devent.shift_guard.story": "今晚安排了双岗轮哨，每人少睡两个小时，但至少能提前发现靠近的危险。",
   "message.noellesroles.sixty_seconds.devent.shift_guard.result": "今晚夜袭概率 -40%。安全第一。",
-
   "message.noellesroles.sixty_seconds.devent.heavy_rain.title": "暴雨",
   "message.noellesroles.sixty_seconds.devent.heavy_rain.story": "天空像破了个口子，暴雨倾盆而下。雨滴砸在铁皮屋顶上像敲鼓一样，浑浊的水流漫进了门槛。",
   "message.noellesroles.sixty_seconds.devent.heavy_rain.result": "全队理智 -4；门在风雨中吱嘎作响，今晚门受到的伤害 +25%。",
-
   "message.noellesroles.sixty_seconds.devent.supply_levy.title": "物资征集",
   "message.noellesroles.sixty_seconds.devent.supply_levy.story": "一个自称『幸存者联合委员会』的代表敲开了你们的门——『每家每户都要上交一份口粮作为公共储备。这是规定。』",
   "message.noellesroles.sixty_seconds.devent.supply_levy.result": "被征走了：%s。今日饥饿/口渴消耗 +15%。",
-
   "message.noellesroles.sixty_seconds.devent.decon_drill.title": "防毒培训",
   "message.noellesroles.sixty_seconds.devent.decon_drill.story": "一个前防化兵路过，看了你们一眼：『你们这防毒面具戴得不对。来，我教你们正确的穿戴和消杀流程。』",
   "message.noellesroles.sixty_seconds.devent.decon_drill.result": "今天的训练很扎实：外出污染增速 -40%。",
