@@ -892,7 +892,7 @@ public final class SixtySecondsRecipes {
         add(list, "ballistic_vest", Station.ARMOR_FORGE, "func_armor_2", true,
                 List.of(in(steel, 3), in(plastic, 3), in(clothRoll, 3)), ModItems.SIXTY_SECONDS_BALLISTIC_VEST, 1);
         add(list, "horse_armor_relic", Station.ARMOR_FORGE, "func_armor_2", true,
-                List.of(in(steel, 2), in(plastic, 3)), Items.IRON_HORSE_ARMOR, 1);
+                List.of(in(steel, 2), in(plastic, 3)), ModItems.PREDECESSOR_HORSE_ARMOR, 1);
         add(list, "riot_shield", Station.ARMOR_FORGE, "func_armor_2", true,
                 List.of(in(iron, 8), in(oak, 3)), ModItems.SIXTY_SECONDS_RIOT_SHIELD, 1);
         // ── 冷兵器（武器锻造台）────────────────────────────────────────

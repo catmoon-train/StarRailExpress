@@ -140,10 +140,10 @@ public class SixtySecondsVehicleEntity extends WheelchairEntity {
             offsetZ = (index < 2) ? 0.6 : -0.8;
             offsetY = 0.5;
         } else {
-            // 摩托车 2x 放大，坐垫约在实体上方 0.5 格
+            // 摩托车 2x 放大，坐垫约在实体上方 1.5 格
             offsetX = 0.0;
             offsetZ = (index == 0) ? 0.3 : -0.8;
-            offsetY = 0.3;
+            offsetY = 1.3;
         }
         Vec3 offset = new Vec3(offsetX, offsetY, offsetZ)
                 .yRot(-this.getYRot() * (float) Math.PI / 180.0F);
@@ -187,6 +187,11 @@ public class SixtySecondsVehicleEntity extends WheelchairEntity {
                     player.displayClientMessage(Component.translatable(
                             "message.noellesroles.sixty_seconds.vehicle_no_fuel")
                             .withStyle(ChatFormatting.RED), true);
+                }
+                // 汽车：通知客户端切换第三人称
+                if (kind == Kind.CAR && player instanceof net.minecraft.server.level.ServerPlayer sp) {
+                    net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(sp,
+                            new net.exmo.sre.sixtyseconds.network.VehicleCameraS2CPacket(true));
                 }
             }
             return InteractionResult.SUCCESS;
