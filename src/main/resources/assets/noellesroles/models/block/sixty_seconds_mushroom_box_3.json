@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "noellesroles:block/sixty_seconds_mushroom_box_top_3",
+    "side": "noellesroles:block/sixty_seconds_mushroom_box_side",
+    "bottom": "noellesroles:block/sixty_seconds_mushroom_box_side",
+    "particle": "noellesroles:block/sixty_seconds_mushroom_box_side"
+  }
+}

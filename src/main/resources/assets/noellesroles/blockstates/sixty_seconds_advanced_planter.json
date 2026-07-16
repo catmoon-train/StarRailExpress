@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "noellesroles:block/sixty_seconds_advanced_planter"
-    }
+    "age=0": { "model": "noellesroles:block/sixty_seconds_advanced_planter_0" },
+    "age=1": { "model": "noellesroles:block/sixty_seconds_advanced_planter_1" },
+    "age=2": { "model": "noellesroles:block/sixty_seconds_advanced_planter_2" },
+    "age=3": { "model": "noellesroles:block/sixty_seconds_advanced_planter_3" }
   }
 }

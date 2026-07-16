@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "noellesroles:block/sixty_seconds_advanced_planter_top_1",
+    "side": "noellesroles:block/sixty_seconds_advanced_planter_side",
+    "bottom": "noellesroles:block/sixty_seconds_advanced_planter_side",
+    "particle": "noellesroles:block/sixty_seconds_advanced_planter_side"
+  }
+}
