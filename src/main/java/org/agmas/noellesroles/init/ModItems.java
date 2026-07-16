@@ -1012,6 +1012,18 @@ public class ModItems {
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
                     new Item.Properties().stacksTo(8), 0, 60, 5, 0, 0, false, null),
             "sixty_seconds_bone_soup", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 手打怪物肉丸：饱食 +75 / 理智 +15（变废为宝-IV）
+    public static final Item SIXTY_SECONDS_HAIMAN_MEATBALL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 75, 0, 15, 0, false, null,
+                    50, net.minecraft.world.item.UseAnim.EAT),
+            "sixty_seconds_haiman_meatball", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 月饼：饱食 +75 / 污染 -15（变废为宝-IV）
+    public static final Item SIXTY_SECONDS_CATMOONCAKE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 75, 0, 0, 15, false, null,
+                    50, net.minecraft.world.item.UseAnim.EAT),
+            "sixty_seconds_catmooncake", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 安神茶：理智 +25 / 口渴 +15（茶艺）
     public static final Item SIXTY_SECONDS_SOOTHING_TEA = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(

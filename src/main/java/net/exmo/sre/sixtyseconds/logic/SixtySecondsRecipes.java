@@ -596,6 +596,15 @@ public final class SixtySecondsRecipes {
                 List.of(any("vegetable", 1, vegetables()), any("monster_drop", 2, monsterDrops()),
                         in(Items.BOWL, 1)),
                 ModItems.SIXTY_SECONDS_BONE_SOUP, 1);
+        // ── 变废为宝-IV ──────────────────────────────────────────────
+        add(list, "haiman_meatball", Station.STOVE, "waste_4", true,
+                List.of(any("monster_drop", 3, monsterDrops()), in(Items.POISONOUS_POTATO, 1),
+                        any("raw_meat", 1, rawMeat())),
+                ModItems.SIXTY_SECONDS_HAIMAN_MEATBALL, 1);
+        add(list, "catmooncake", Station.STOVE, "waste_4", true,
+                List.of(in(ModItems.SIXTY_SECONDS_WILD_RICE, 3), any("mushroom", 2, mushrooms()),
+                        in(Items.SUGAR, 2)),
+                ModItems.SIXTY_SECONDS_CATMOONCAKE, 1);
 
         // ══ 电力（简易工作台）═══════════════════════════════════════════
         add(list, "battery", Station.WORKBENCH, "power_1", false,

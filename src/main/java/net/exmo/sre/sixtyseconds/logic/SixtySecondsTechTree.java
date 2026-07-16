@@ -73,7 +73,7 @@ public final class SixtySecondsTechTree {
         chain(list, "agriculture", null, "tobacco");
         // ── 炊事 ────────────────────────────────────────────────────
         chain(list, "cooking", null, "cooking_1", "cooking_2", "cooking_3", "cooking_4");
-        chain(list, "cooking", null, "waste_1", "waste_2", "waste_3");
+        chain(list, "cooking", null, "waste_1", "waste_2", "waste_3", "waste_4");
         // ── 电力 ────────────────────────────────────────────────────
         chain(list, "power", null, "power_1", "power_2", "power_3");
         // ── 净化 ────────────────────────────────────────────────────
