@@ -236,7 +236,7 @@ public final class SixtySecondsNewspaper {
                     int topKiller = -1, maxKills = 0;
                     for (Map.Entry<Integer, SixtySecondsState.TeamData> te : data.teams.entrySet()) {
                         int kills = 0;
-                        for (UUID mid : te.members) {
+                        for (UUID mid : te.getValue().members) {
                             ServerPlayer mp = level.getServer().getPlayerList().getPlayer(mid);
                             if (mp != null) {
                                 SixtySecondsStatsComponent s = SixtySecondsStatsComponent.KEY.get(mp);

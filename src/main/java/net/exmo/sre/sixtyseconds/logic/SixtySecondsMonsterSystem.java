@@ -96,9 +96,14 @@ public final class SixtySecondsMonsterSystem {
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 60, 0, false, false, false));
     }
 
-    /** 自我解脱：仅在 san 归零变怪倒计时中可用；牺牲（不变怪）。 */
+    /** 自我解脱：仅在 san 归零变怪倒计时中可用；牺牲（不变怪）。旁观（已死亡/被淘汰）不可用。 */
     public static boolean sacrifice(ServerPlayer player) {
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+        if (GameUtils.isPlayerEliminated(player)) {
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.sixty_seconds.sacrifice_unavailable"), true);
+            return false;
+        }
         if (stats.monster || stats.sanZeroTick == 0) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.sixty_seconds.sacrifice_unavailable"), true);

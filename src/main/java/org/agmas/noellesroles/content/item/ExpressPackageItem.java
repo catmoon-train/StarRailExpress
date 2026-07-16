@@ -81,7 +81,9 @@ public class ExpressPackageItem extends Item {
     public static void setContent(ItemStack stack, ItemStack content) {
         CompoundTag tag = new CompoundTag();
         if (!content.isEmpty()) {
-            tag = content.saveOptional();
+            tag = (CompoundTag) content.saveOptional(
+                    net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(
+                            net.minecraft.core.registries.BuiltInRegistries.REGISTRY));
         }
         CompoundTag data = new CompoundTag();
         data.put("PackageContent", tag);

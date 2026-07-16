@@ -64,6 +64,8 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     public boolean recovering = false;
     /** san 归零开始变怪倒计时的时间戳（gameTime）；0=未开始。san 恢复>0 则清零。 */
     public long sanZeroTick = 0L;
+    /** 本局击杀数（用于报纸报道等统计）。 */
+    public int playerKills = 0;
 
     private final Player player;
 
@@ -97,6 +99,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         exploreCooldownEndTick = 0L;
         recovering = false;
         sanZeroTick = 0L;
+        playerKills = 0;
         sync();
     }
 
@@ -145,6 +148,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         buf.writeVarInt(totalDays);
         buf.writeVarLong(phaseEndTick);
         buf.writeVarLong(exploreCooldownEndTick);
+        buf.writeVarInt(playerKills);
         buf.writeByte((sick ? 1 : 0) | (downed ? 2 : 0) | (monster ? 4 : 0));
         buf.writeVarLong(bleedOutEndTick); // 倒地 HUD 流血倒计时（倒地/救起时才变化）
 
@@ -176,6 +180,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         totalDays = buf.readVarInt();
         phaseEndTick = buf.readVarLong();
         exploreCooldownEndTick = buf.readVarLong();
+        playerKills = buf.readVarInt();
         int flags = buf.readByte();
         sick = (flags & 1) != 0;
         downed = (flags & 2) != 0;
@@ -206,6 +211,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         tag.putLong("ExploreCooldownEndTick", exploreCooldownEndTick);
         tag.putBoolean("Recovering", recovering);
         tag.putLong("SanZeroTick", sanZeroTick);
+        tag.putInt("PlayerKills", playerKills);
     }
 
     @Override
@@ -233,6 +239,9 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         exploreCooldownEndTick = tag.getLong("ExploreCooldownEndTick");
         recovering = tag.getBoolean("Recovering");
         sanZeroTick = tag.getLong("SanZeroTick");
+        if (tag.contains("PlayerKills")) {
+            playerKills = tag.getInt("PlayerKills");
+        }
     }
 
     @Override

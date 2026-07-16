@@ -1495,12 +1495,11 @@ public class ModPacketsReciever {
             (packet, ctx) -> {
                 ServerPlayer player = ctx.player();
                 ctx.server().execute(() -> {
-                    var sys = net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem;
-                    String result = sys.handleDial(player, packet.number());
+                    String result = net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleDial(player, packet.number());
                     switch (result) {
-                        case "connected_express" -> sys.handleExpressGreeting(player);
-                        case "connected_shop" -> sys.handleShopGreeting(player);
-                        case "connected_rescue" -> sys.handleRescueGreeting(player);
+                        case "connected_express" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleExpressGreeting(player);
+                        case "connected_shop" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleShopGreeting(player);
+                        case "connected_rescue" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleRescueGreeting(player);
                         case "already_dialed" -> player.displayClientMessage(
                             Component.translatable("message.noellesroles.hotline.already_dialed").withStyle(ChatFormatting.RED), true);
                         default -> player.displayClientMessage(

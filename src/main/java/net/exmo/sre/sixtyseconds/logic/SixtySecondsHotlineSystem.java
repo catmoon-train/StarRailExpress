@@ -5,12 +5,10 @@ import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -42,7 +40,7 @@ public final class SixtySecondsHotlineSystem {
         data.activeCall = null;
         data.shopItems.clear();
 
-        Random rand = level.getRandom();
+        var  rand = level.getRandom();
         data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.EXPRESS));
         data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.SHOP));
         if (rand.nextDouble() < 0.3)
@@ -124,7 +122,7 @@ public final class SixtySecondsHotlineSystem {
         List<Integer> teamIds = new ArrayList<>(data.teams.keySet());
         Collections.sort(teamIds);
         for (int i = 0; i < teamIds.size(); i += 5) {
-            Component line = Component.empty();
+            var line = Component.empty();
             for (int j = i; j < Math.min(i + 5, teamIds.size()); j++) {
                 int tid = teamIds.get(j);
                 line.append(Component.literal("[" + tid + "] ")
@@ -363,7 +361,7 @@ public final class SixtySecondsHotlineSystem {
     // ═══════════════════════════════════════════════════════════
 
     private static List<ShopItem> generateShopItems(ServerLevel level) {
-        Random rand = level.getRandom();
+        RandomSource rand = level.getRandom();
         List<ShopItem> items = new ArrayList<>();
         int count = 3 + rand.nextInt(4); // 3~6
 
@@ -478,7 +476,7 @@ public final class SixtySecondsHotlineSystem {
         }
 
         // 打乱顺序
-        Collections.shuffle(items, rand);
+        Collections.shuffle(items, new java.util.Random());
         return items;
     }
 
@@ -486,7 +484,7 @@ public final class SixtySecondsHotlineSystem {
     // 辅助方法
     // ═══════════════════════════════════════════════════════════
 
-    private static Component tl(String key) {
+    private static MutableComponent tl(String key) {
         return Component.translatable("message.noellesroles." + key);
     }
 

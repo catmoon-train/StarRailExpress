@@ -504,6 +504,7 @@ public final class SixtySecondsHealthSystem {
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(victim);
         stats.downed = false;
         stats.bleedOutEndTick = 0L;
+        stats.sanZeroTick = 0; // 死后清除变怪倒计时，防止旁观者仍能自我解脱
         stats.sync();
         victim.setSwimming(false);
         REVIVE_PROGRESS.remove(victim.getUUID());
