@@ -1135,15 +1135,15 @@ public class ModItems {
             new ArmorItem(ArmorMaterials.NETHERITE, ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)),
             "sixty_seconds_alloy_boots", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
-    // ── 基地扩容钥匙（车床）：对应等级基地门 ─────────────────────────────
+    // ── 基地扩容钥匙（车床）：对应等级基地门，一次性消耗 ─────────────────
     public static final Item SIXTY_SECONDS_EXPANSION_KEY_1 = register(
-            new Item(new Item.Properties().stacksTo(4)),
+            new Item(new Item.Properties().stacksTo(1)),
             "sixty_seconds_expansion_key_1", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_EXPANSION_KEY_2 = register(
-            new Item(new Item.Properties().stacksTo(4)),
+            new Item(new Item.Properties().stacksTo(1)),
             "sixty_seconds_expansion_key_2", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_EXPANSION_KEY_3 = register(
-            new Item(new Item.Properties().stacksTo(4)),
+            new Item(new Item.Properties().stacksTo(1)),
             "sixty_seconds_expansion_key_3", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 交通：柴油罐 / 载具（摩托车2座、小汽车4座，见 SixtySecondsVehicleItem）──
