@@ -161,18 +161,10 @@ public final class SixtySecondsEventSystem {
                     }
                 }
                 case ACID_FOG -> {
-                    // 酸雾：户外中毒效果 + 持续扣血
-                    if (inHome && hasGasMask(player)) {
-                        continue;
-                    }
-                    if (!inHome) {
-                        player.addEffect(new MobEffectInstance(MobEffects.POISON, 40, 0, false, false, false));
-                        if (now % (20 * 5) == 0) {
-                            player.hurt(player.damageSources().magic(), 1.0F);
-                        }
-                    }
-                    if (now % (20 * 10) == 0) {
-                        addPollution(stats, 2);
+                    // 酸雾：每10秒掉1点健康 + 1点污染
+                    if (!inHome && now % (20 * 10) == 0) {
+                        player.hurt(player.damageSources().magic(), 1.0F);
+                        addPollution(stats, 1);
                     }
                 }
                 case ELECTROMAGNETIC_STORM -> {
