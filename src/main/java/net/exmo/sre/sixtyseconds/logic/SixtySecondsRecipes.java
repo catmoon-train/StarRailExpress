@@ -271,7 +271,7 @@ public final class SixtySecondsRecipes {
     }
 
     private static List<Item> vegetables() {
-        return List.of(Items.POTATO, Items.CARROT, Items.BEETROOT, ModItems.SIXTY_SECONDS_FRESH_VEGETABLES);
+        return List.of(Items.POTATO, Items.CARROT, Items.BEETROOT, Items.PUMPKIN, ModItems.SIXTY_SECONDS_FRESH_VEGETABLES);
     }
 
     private static List<Item> mushrooms() {
@@ -607,6 +607,10 @@ public final class SixtySecondsRecipes {
         add(list, "doomsday_cake", Station.STOVE, "cooking_4", true,
                 List.of(in(Items.PUMPKIN, 2), in(Items.SUGAR, 4), in(rice, 2), in(waterS, 1)),
                 ModItems.SIXTY_SECONDS_DOOMSDAY_CAKE, 1);
+        add(list, "luxury_stew", Station.STOVE, "cooking_4", true,
+                List.of(in(Items.BOWL, 1), any("mushroom", 4, mushrooms()), in(rice, 4),
+                        in(Items.PUMPKIN, 2), any("raw_meat", 2, rawMeat())),
+                ModItems.SIXTY_SECONDS_LUXURY_STEW, 1);
         // ── 变废为宝 ─────────────────────────────────────────────────
         add(list, "jerky", Station.STOVE, "waste_1", false,
                 List.of(in(Items.ROTTEN_FLESH, 3)), ModItems.SIXTY_SECONDS_JERKY, 1);
@@ -617,6 +621,10 @@ public final class SixtySecondsRecipes {
                 List.of(any("vegetable", 1, vegetables()), any("monster_drop", 2, monsterDrops()),
                         in(Items.BOWL, 1)),
                 ModItems.SIXTY_SECONDS_BONE_SOUP, 1);
+        add(list, "one_pot_stew", Station.STOVE, "waste_3", false,
+                List.of(in(Items.BOWL, 1), in(Items.ROTTEN_FLESH, 2), in(Items.BONE, 2),
+                        in(rice, 2)),
+                ModItems.SIXTY_SECONDS_ONE_POT_STEW, 1);
         // ── 变废为宝-IV ──────────────────────────────────────────────
         add(list, "haiman_meatball", Station.STOVE, "waste_4", true,
                 List.of(any("monster_drop", 3, monsterDrops()), in(Items.POISONOUS_POTATO, 1),

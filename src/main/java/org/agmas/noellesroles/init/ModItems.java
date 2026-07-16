@@ -1029,6 +1029,16 @@ public class ModItems {
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
                     new Item.Properties().stacksTo(4), 0, 80, 0, 40, 0, false, null),
             "sixty_seconds_doomsday_cake", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 豪华炖锅：饱食 +70 / 口渴 +50 / 理智 +70 / 污染 -30 / 治愈生病（烹饪-IV）
+    public static final Item SIXTY_SECONDS_LUXURY_STEW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(4), 0, 70, 50, 70, 30, true, null),
+            "sixty_seconds_luxury_stew", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 一锅炖：饱食 +65 / 污染 -25（变废为宝-III）
+    public static final Item SIXTY_SECONDS_ONE_POT_STEW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 0, 65, 0, 0, 25, false, null),
+            "sixty_seconds_one_pot_stew", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 寿司：饱食 +65（变废为宝-II）
     public static final Item SIXTY_SECONDS_SUSHI = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
