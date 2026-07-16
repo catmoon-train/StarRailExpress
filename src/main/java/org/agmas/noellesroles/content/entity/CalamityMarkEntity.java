@@ -119,7 +119,12 @@ public class CalamityMarkEntity extends Entity {
         }
         
         // 检测触发
-        checkTrigger();
+        try {
+            checkTrigger();
+        } catch (java.util.ConcurrentModificationException e) {
+            // 实体列表在 ticking 期间被并发修改时跳过本帧检测
+            // 参考: Minecraft issue MC-188315 - getEntitiesOfClass 在 entity tick 期间可能抛出 CME
+        }
     }
     
     /**

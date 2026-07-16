@@ -245,8 +245,20 @@ public final class ProgressionDataManager {
     }
 
     private static void flushAllBlocking(MinecraftServer server) {
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            flushBlocking(player.getUUID());
+        if (!isDatabaseEnabled()) {
+            return;
+        }
+        // 收集所有需要保存的条目，避免遍历过程中 ENTRIES 被修改
+        List<UUID> playersToFlush = server.getPlayerList().getPlayers().stream()
+                .map(ServerPlayer::getUUID)
+                .filter(uuid -> ENTRIES.containsKey(uuid))
+                .toList();
+        for (UUID uuid : playersToFlush) {
+            Entry entry = ENTRIES.get(uuid);
+            if (entry == null || !entry.dirty) {
+                continue;
+            }
+            flushBlocking(uuid);
         }
     }
 
