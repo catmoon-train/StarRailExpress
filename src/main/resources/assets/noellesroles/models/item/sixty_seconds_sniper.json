@@ -1,7 +1,7 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "noellesroles:item/sixty_seconds_sniper"
+    "layer0": "starrailexpress:item/sniper_rifle_old"
   },
   "display": {
     "thirdperson_righthand": {
