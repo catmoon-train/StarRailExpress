@@ -109,7 +109,6 @@ public class RoleAssignmentPool {
     public SRERole selectRole() {
         return selectRoleWithCountCheck();
     }
-
     /**
      * 从池中批量选择角色
      * 
@@ -131,7 +130,7 @@ public class RoleAssignmentPool {
                         selected.add(role);
                         break;
                     }
-                    if(ignoreeRoleOccupiedCount)
+                    if (ignoreeRoleOccupiedCount)
                         roleOccupiedCount = 1;
                     if (i + roleOccupiedCount <= needCount) {
                         selected.add(role);

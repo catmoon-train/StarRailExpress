@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.game.modes.funny.rotation;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
@@ -142,8 +143,10 @@ public class LightningDraftState {
                 totalPlayers + 2, 0,
                 killerPool, neutralsPool, vigilantePool, civilianPool, true);
         for (RoleInstance inst : baseRoles) {
-            if (inst.role() != null)
+            if (inst.role() != null) {
                 rolePool.add(inst.role());
+                SRE.LOGGER.info("add {} to rotation", inst.role().getName().getString());
+            }
         }
 
         initializeCardTracking();
@@ -234,7 +237,7 @@ public class LightningDraftState {
             }
         }
 
-        int need = Math.min(n, b * 3);
+        int need = Math.min(rolePool.size(), playersInThisRound * 3);
         List<SRERole> drawn = new ArrayList<>(rolePool);
         Collections.shuffle(drawn, new Random(world.getGameTime()));
         drawn = new ArrayList<>(drawn.subList(0, need));
@@ -274,9 +277,11 @@ public class LightningDraftState {
 
         List<SRERole> candidates = roundCandidates.get(playerUuid);
         SRERole chosen = null;
+        for (var i = 0; i < candidates.size(); i++) {
+            lockedCandidates.remove(candidates.get(i)); // 从锁定集移除
+        }
         if (choiceIndex >= 0 && choiceIndex < candidates.size()) {
             chosen = candidates.get(choiceIndex);
-            lockedCandidates.remove(chosen); // 从锁定集移除
         } else if (choiceIndex == 3) { // 随机
             chosen = selectRandomRole(world); // 排除锁定职业
             randomChoosers.add(playerUuid);
