@@ -5,138 +5,628 @@ import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.agmas.noellesroles.init.ModBlocks;
 import org.agmas.noellesroles.init.ModItems;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 热线电话系统 - 管理随机热线号码、通话逻辑、商品列表
+ * 热线电话系统 - 快递/购物/救援三大热线，支持多步交互、超时挂断、队列投递。
  */
 public final class SixtySecondsHotlineSystem {
     private static final Map<ServerLevel, HotlineData> HOTLINE_DATA = new WeakHashMap<>();
+    private static final long TIMEOUT_MS = 40_000L;
+    /** 待处理的快递/购物/救援队列：teamId → 待投递物品 */
+    private static final Map<ServerLevel, Map<Integer, List<ItemStack>>> PENDING_DELIVERIES = new WeakHashMap<>();
 
     private SixtySecondsHotlineSystem() {}
 
-    /** 每天清晨生成当天的热线号码 */
+    // ═══════════════════════════════════════════════════════════
+    // 每日生成
+    // ═══════════════════════════════════════════════════════════
+
     public static void generateDailyHotlines(ServerLevel level) {
         HotlineData data = HOTLINE_DATA.computeIfAbsent(level, k -> new HotlineData());
         data.dailyHotlines.clear();
         data.dialedToday.clear();
+        data.activeCall = null;
+        data.shopItems.clear();
 
         Random rand = level.getRandom();
+        data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.EXPRESS));
+        data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.SHOP));
+        if (rand.nextDouble() < 0.3)
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.RESCUE));
 
-        // 快递热线 - 每天都有
-        String expressNumber = String.format("%06d", rand.nextInt(1000000));
-        data.dailyHotlines.add(new HotlineEntry(expressNumber, HotlineType.EXPRESS));
-
-        // 购物热线 - 每天都有
-        String shopNumber = String.format("%06d", rand.nextInt(1000000));
-        data.dailyHotlines.add(new HotlineEntry(shopNumber, HotlineType.SHOP));
-
-        // 救援热线 - 小概率刊登
-        if (rand.nextDouble() < 0.3) {
-            String rescueNumber = String.format("%06d", rand.nextInt(1000000));
-            data.dailyHotlines.add(new HotlineEntry(rescueNumber, HotlineType.RESCUE));
-        }
+        // 预生成购物商品
+        data.shopItems = generateShopItems(level);
     }
 
-    /** 处理拨号 */
+    // ═══════════════════════════════════════════════════════════
+    // 拨号
+    // ═══════════════════════════════════════════════════════════
+
     public static String handleDial(ServerPlayer player, String number) {
         ServerLevel level = player.serverLevel();
         HotlineData data = HOTLINE_DATA.get(level);
         if (data == null) return "invalid";
 
-        // 检查是否已拨过
-        if (data.dialedToday.contains(number)) {
-            return "already_dialed";
-        }
+        if (data.dialedToday.contains(number)) return "already_dialed";
 
-        // 查找匹配的热线
         for (HotlineEntry entry : data.dailyHotlines) {
             if (entry.number.equals(number)) {
                 data.dialedToday.add(number);
-                data.activeCaller = new ActiveCall(player.getUUID(), entry.type, System.currentTimeMillis());
+                data.activeCall = new ActiveCall(player.getUUID(), entry.type, System.currentTimeMillis(), 0);
                 return "connected_" + entry.type.name().toLowerCase();
             }
         }
         return "invalid";
     }
 
-    /** 检查是否超时 */
-    public static boolean checkTimeout(ServerPlayer player, long timeoutMs) {
-        return System.currentTimeMillis() > timeoutMs;
-    }
+    // ═══════════════════════════════════════════════════════════
+    // 超时检查 & 挂断
+    // ═══════════════════════════════════════════════════════════
 
-    /** 检查是否已拨过 */
-    public static boolean hasDialed(ServerLevel level, String number) {
+    public static void tick(ServerLevel level) {
+        if (level.getGameTime() % 100 != 0) return; // 每5秒检查一次
         HotlineData data = HOTLINE_DATA.get(level);
-        return data != null && data.dialedToday.contains(number);
+        if (data == null || data.activeCall == null) return;
+        if (System.currentTimeMillis() - data.activeCall.startTime > TIMEOUT_MS) {
+            ServerPlayer player = level.getServer().getPlayerList().getPlayer(data.activeCall.playerId);
+            if (player != null)
+                player.displayClientMessage(tl("hotline.timeout"), false);
+            data.activeCall = null;
+        }
     }
 
-    /** 获取当天的热线列表（用于报纸） */
+    public static boolean isTimeout(ServerPlayer player) {
+        HotlineData data = HOTLINE_DATA.get(player.serverLevel());
+        if (data == null || data.activeCall == null) return true;
+        if (!data.activeCall.playerId.equals(player.getUUID())) return true;
+        return System.currentTimeMillis() - data.activeCall.startTime > TIMEOUT_MS;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 快递热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleExpressGreeting(ServerPlayer player) {
+        player.displayClientMessage(tl("hotline.express.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(
+            btn("hotline.express.send", "/sre:60s hotline express send", ChatFormatting.GREEN), false);
+        player.displayClientMessage(
+            btn("hotline.express.cancel", "/sre:60s hotline express cancel", ChatFormatting.GRAY), false);
+    }
+
+    public static void handleExpressCancel(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        player.displayClientMessage(tl("hotline.express.bye").withStyle(ChatFormatting.GOLD), false);
+        hangup(player);
+    }
+
+    public static void handleExpressSend(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        ServerLevel level = player.serverLevel();
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        player.displayClientMessage(tl("hotline.express.select_team").withStyle(ChatFormatting.GOLD), false);
+
+        // 每行5个队伍
+        List<Integer> teamIds = new ArrayList<>(data.teams.keySet());
+        Collections.sort(teamIds);
+        for (int i = 0; i < teamIds.size(); i += 5) {
+            Component line = Component.empty();
+            for (int j = i; j < Math.min(i + 5, teamIds.size()); j++) {
+                int tid = teamIds.get(j);
+                line.append(Component.literal("[" + tid + "] ")
+                    .setStyle(Style.EMPTY
+                        .withColor(ChatFormatting.AQUA)
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                            "/sre:60s hotline express team " + tid))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            Component.translatable("message.noellesroles.hotline.express.team_hover", tid)))));
+            }
+            player.displayClientMessage(line, false);
+        }
+        // 更新step
+        getData(level).activeCall = new ActiveCall(player.getUUID(), HotlineType.EXPRESS, System.currentTimeMillis(), 1);
+    }
+
+    public static void handleExpressTeam(ServerPlayer player, int targetTeam) {
+        if (isTimeout(player)) { timeout(player); return; }
+        HotlineData data = getData(player.serverLevel());
+        data.pendingCourierTeam = targetTeam;
+        player.displayClientMessage(tl("hotline.express.instructions").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(tl("hotline.express.package_reminder").withStyle(ChatFormatting.YELLOW), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 购物热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleShopGreeting(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        ServerLevel level = player.serverLevel();
+        HotlineData data = getData(level);
+        List<ShopItem> items = data.shopItems;
+
+        player.displayClientMessage(tl("hotline.shop.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(Component.translatable("message.noellesroles.hotline.shop.title")
+            .withStyle(ChatFormatting.YELLOW), false);
+
+        for (int i = 0; i < items.size(); i++) {
+            ShopItem si = items.get(i);
+            String name = si.item.getHoverName().getString();
+            Component line = Component.literal("[" + (i + 1) + "] " + name + " x" + si.item.getCount()
+                + " - " + si.price + " ").withStyle(ChatFormatting.WHITE)
+                .append(Component.translatable("message.noellesroles.hotline.shop.coin").withStyle(ChatFormatting.GOLD))
+                .append(Component.literal("  "))
+                .append(Component.translatable("message.noellesroles.hotline.shop.buy")
+                    .setStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                            "/sre:60s hotline shop buy " + i))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            Component.translatable("message.noellesroles.hotline.shop.buy_hover")))));
+            player.displayClientMessage(line, false);
+        }
+        player.displayClientMessage(
+            btn("hotline.shop.cancel", "/sre:60s hotline shop cancel", ChatFormatting.GRAY), false);
+    }
+
+    public static void handleShopBuy(ServerPlayer player, int index) {
+        if (isTimeout(player)) { timeout(player); return; }
+        HotlineData data = getData(player.serverLevel());
+        if (index < 0 || index >= data.shopItems.size()) return;
+
+        ShopItem si = data.shopItems.get(index);
+        if (data.shopPurchased.contains(index)) {
+            player.displayClientMessage(tl("hotline.shop.already_bought").withStyle(ChatFormatting.RED), false);
+            return;
+        }
+
+        // 购物商品加入队列，次日清晨扣费投递
+        data.shopPurchased.add(index);
+        data.pendingShopPurchases.computeIfAbsent(
+            SixtySecondsStatsComponent.KEY.get(player).teamId,
+            k -> new ArrayList<>()).add(si);
+
+        player.displayClientMessage(tl("hotline.shop.confirmed").withStyle(ChatFormatting.GREEN), false);
+        player.displayClientMessage(tl("hotline.shop.put_coin").withStyle(ChatFormatting.YELLOW), false);
+    }
+
+    public static void handleShopCancel(ServerPlayer player) {
+        player.displayClientMessage(tl("hotline.shop.bye").withStyle(ChatFormatting.GOLD), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 救援热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleRescueGreeting(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        player.displayClientMessage(tl("hotline.rescue.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(
+            btn("hotline.rescue.request", "/sre:60s hotline rescue request", ChatFormatting.GREEN), false);
+        player.displayClientMessage(
+            btn("hotline.rescue.cancel", "/sre:60s hotline rescue cancel", ChatFormatting.GRAY), false);
+    }
+
+    public static void handleRescueCancel(ServerPlayer player) {
+        player.displayClientMessage(tl("hotline.rescue.bye").withStyle(ChatFormatting.GOLD), false);
+        hangup(player);
+    }
+
+    public static void handleRescueRequest(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+
+        // 评估全队最差状态
+        List<ServerPlayer> teammates = new ArrayList<>();
+        for (ServerPlayer p : player.serverLevel().players()) {
+            if (SixtySecondsStatsComponent.KEY.get(p).teamId == teamId)
+                teammates.add(p);
+        }
+
+        ItemStack aid = assessRescueAid(teammates);
+        if (aid.isEmpty()) {
+            player.displayClientMessage(tl("hotline.rescue.no_need").withStyle(ChatFormatting.GRAY), false);
+            hangup(player);
+            return;
+        }
+
+        // 加入救援队列
+        getData(player.serverLevel()).pendingRescueRequests
+            .computeIfAbsent(teamId, k -> new ArrayList<>()).add(aid);
+
+        player.displayClientMessage(tl("hotline.rescue.bye").withStyle(ChatFormatting.GOLD), false);
+        hangup(player);
+    }
+
+    private static ItemStack assessRescueAid(List<ServerPlayer> teammates) {
+        if (teammates.isEmpty()) return ItemStack.EMPTY;
+
+        // 优先级：生病 > 健康 > 理智 > 污染 > 口渴 > 饥饿
+        for (ServerPlayer p : teammates) {
+            SixtySecondsStatsComponent s = SixtySecondsStatsComponent.KEY.get(p);
+            if (s.sick) return new ItemStack(ModItems.SIXTY_SECONDS_ANTIBIOTICS, 1);
+        }
+
+        // 找各维度最差的
+        int worstHealth = Integer.MAX_VALUE, worstSanity = Integer.MAX_VALUE;
+        int worstPollution = 0, worstThirst = Integer.MAX_VALUE, worstHunger = Integer.MAX_VALUE;
+        for (ServerPlayer p : teammates) {
+            SixtySecondsStatsComponent s = SixtySecondsStatsComponent.KEY.get(p);
+            worstHealth = Math.min(worstHealth, s.health);
+            worstSanity = Math.min(worstSanity, s.sanity);
+            worstPollution = Math.max(worstPollution, s.pollution);
+            worstThirst = Math.min(worstThirst, s.thirst);
+            worstHunger = Math.min(worstHunger, s.hunger);
+        }
+
+        int max = SixtySecondsStatsComponent.MAX;
+        if (worstHealth < max * 0.4) return new ItemStack(ModItems.SIXTY_SECONDS_PAINKILLERS, 2);
+        if (worstPollution > max * 0.6) return new ItemStack(ModItems.SIXTY_SECONDS_PURIFICATION_TABLET, 2);
+        if (worstSanity < max * 0.3) return new ItemStack(ModItems.SIXTY_SECONDS_SEDATIVE, 2);
+        if (worstThirst < max * 0.3) return new ItemStack(ModItems.SIXTY_SECONDS_WATER_HIGH, 2);
+        if (worstHunger < max * 0.3) return new ItemStack(ModItems.SIXTY_SECONDS_CANNED_FOOD, 2);
+
+        // 给点基础食品
+        return new ItemStack(ModItems.SIXTY_SECONDS_CANNED_FOOD, 2);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 次日清晨：处理快递/购物/救援的投递与扣费
+    // ═══════════════════════════════════════════════════════════
+
+    public static void processDeliveries(ServerLevel level, SixtySecondsState.Data stateData) {
+        HotlineData data = HOTLINE_DATA.get(level);
+        if (data == null) return;
+
+        // 1. 快递包裹投递（隔天到）
+        for (Map.Entry<Integer, SixtySecondsState.TeamData> entry : stateData.teams.entrySet()) {
+            int teamId = entry.getKey();
+            // 查找发给该队的快递
+            for (Map.Entry<Integer, List<BlockPos>> mbEntry :
+                    SixtySecondsNewspaper.getMailboxRegistry(level).entrySet()) {
+                int senderTeam = mbEntry.getKey();
+                for (BlockPos pos : mbEntry.getValue()) {
+                    BlockEntity be = level.getBlockEntity(pos);
+                    if (!(be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mb))
+                        continue;
+                    for (int i = 0; i < mb.getContainerSize(); i++) {
+                        ItemStack stack = mb.getItem(i);
+                        if (stack.is(ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE)) {
+                            // 检查是否有待处理的快递目标
+                            // 移除包裹，隔天投递给目标队
+                            mb.setItem(i, ItemStack.EMPTY);
+                            int target = data.pendingCourierTeam;
+                            if (target > 0 && target != senderTeam) {
+                                // 隔天投递到目标队邮箱
+                                scheduleDelivery(level, target, stack.copy());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. 购物投递：扣游戏币，不够则不发
+        for (Map.Entry<Integer, List<ShopItem>> entry : data.pendingShopPurchases.entrySet()) {
+            int teamId = entry.getKey();
+            int totalCost = entry.getValue().stream().mapToInt(si -> si.price).sum();
+            int coinsInBox = countCoinsInMailbox(level, teamId);
+
+            if (coinsInBox < totalCost) {
+                // 通知该队所有在线玩家
+                for (ServerPlayer p : level.players()) {
+                    if (SixtySecondsStatsComponent.KEY.get(p).teamId == teamId) {
+                        p.displayClientMessage(tl("hotline.shop.insufficient").withStyle(ChatFormatting.RED), false);
+                    }
+                }
+                continue;
+            }
+
+            // 扣币 + 投递
+            removeCoinsFromMailbox(level, teamId, totalCost);
+            for (ShopItem si : entry.getValue()) {
+                deliverToTeam(level, teamId, si.item.copy());
+            }
+        }
+
+        // 3. 救援投递
+        for (Map.Entry<Integer, List<ItemStack>> entry : data.pendingRescueRequests.entrySet()) {
+            for (ItemStack stack : entry.getValue()) {
+                deliverToTeam(level, entry.getKey(), stack.copy());
+            }
+        }
+
+        // 清理
+        data.pendingCourierTeam = 0;
+        data.pendingShopPurchases.clear();
+        data.pendingRescueRequests.clear();
+        data.activeCall = null;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 购物商品生成
+    // ═══════════════════════════════════════════════════════════
+
+    private static List<ShopItem> generateShopItems(ServerLevel level) {
+        Random rand = level.getRandom();
+        List<ShopItem> items = new ArrayList<>();
+        int count = 3 + rand.nextInt(4); // 3~6
+
+        // ── 材料池 ──
+        List<MaterialEntry> materials = Arrays.asList(
+            m(ModItems.SIXTY_SECONDS_SCRAP, 1, 3),
+            m(ModItems.SIXTY_SECONDS_PLASTIC, 1, 3),
+            m(ModItems.SIXTY_SECONDS_GLASS_SHARD, 1, 3),
+            m(Items.STRING, 1, 3),
+            m(Items.LEATHER, 1, 3),
+            m(Items.PAPER, 1, 3),
+            m(Items.OAK_PLANKS, 1, 3),
+            m(ModItems.SIXTY_SECONDS_WIRE, 1, 3),
+            m(ModItems.SIXTY_SECONDS_GEAR, 1, 3),
+            m(ModItems.SIXTY_SECONDS_DUCT_TAPE, 1, 3),
+            m(ModItems.SIXTY_SECONDS_ELECTRONICS, 1, 3),
+            m(ModItems.SIXTY_SECONDS_SCRAP_METAL, 1, 3),
+            m(ModItems.SIXTY_SECONDS_COPPER_SCRAP, 1, 3),
+            m(ModItems.SIXTY_SECONDS_RAG, 1, 3),
+            m(ModItems.SIXTY_SECONDS_CHEMICALS, 1, 3),
+            m(ModItems.SIXTY_SECONDS_GUNPOWDER_PACK, 1, 3),
+            m(ModItems.SIXTY_SECONDS_NAILS, 1, 3)
+        );
+
+        // 小概率贵金属/酿造器件
+        if (rand.nextDouble() < 0.15)
+            materials.add(m(ModItems.SIXTY_SECONDS_PRECIOUS_PARTS, 5, 8));
+        if (rand.nextDouble() < 0.08)
+            materials.add(m(ModItems.SIXTY_SECONDS_BREWING_PARTS, 4, 7));
+
+        // ── 工具池 ──
+        List<ToolEntry> tools = Arrays.asList(
+            t(ModItems.SIXTY_SECONDS_KNIFE, 3, 6),
+            t(ModItems.SIXTY_SECONDS_HARMONICA, 3, 6),
+            t(ModItems.SIXTY_SECONDS_FLASHLIGHT, 3, 6),
+            t(ModItems.SIXTY_SECONDS_ROPE, 3, 6),
+            t(Items.FISHING_ROD, 3, 6),
+            t(ModItems.SIXTY_SECONDS_CROWBAR, 3, 6),
+            t(ModItems.SIXTY_SECONDS_CLAW_HOOK, 3, 6),
+            t(ModItems.SIXTY_SECONDS_PLIERS, 3, 6),
+            t(ModItems.SIXTY_SECONDS_GRAPPLING_HOOK, 3, 6),
+            t(ModItems.SIXTY_SECONDS_UMBRELLA, 3, 6),
+            t(Items.TORCH, 3, 6),
+            t(ModItems.SIXTY_SECONDS_CLOCK, 3, 6),
+            t(ModItems.SIXTY_SECONDS_RADIO, 3, 6),
+            t(ModItems.SIXTY_SECONDS_COMPASS, 3, 6),
+            t(Items.WRITABLE_BOOK, 3, 6)
+        );
+
+        // ── 食物池（15%概率出现一项） ──
+        List<FoodEntry> foods = Arrays.asList(
+            f(ModItems.SIXTY_SECONDS_BISCUIT, 1, 3),
+            f(ModItems.SIXTY_SECONDS_MRE, 4, 6),
+            f(ModItems.SIXTY_SECONDS_CANNED_FOOD, 3, 5),
+            f(ModItems.SIXTY_SECONDS_CANNED_SOUP, 3, 5)
+        );
+
+        // ── 水（15%概率出现一项） ──
+        List<FoodEntry> waters = Arrays.asList(
+            f(ModItems.SIXTY_SECONDS_WATER_SMALL, 1, 3),
+            f(ModItems.SIXTY_SECONDS_WATER_MEDIUM, 2, 4),
+            f(ModItems.SIXTY_SECONDS_PURIFIED_WATER, 3, 5),
+            f(ModItems.SIXTY_SECONDS_THERMOS, 5, 7)
+        );
+
+        // ── 种子池（20%概率出现一项） ──
+        List<SeedEntry> seeds = new ArrayList<>(Arrays.asList(
+            s(ModItems.SIXTY_SECONDS_SEEDS_PACK, 3, 6),
+            s(ModItems.SIXTY_SECONDS_WILD_RICE_SEEDS, 3, 6),
+            s(ModItems.SIXTY_SECONDS_WILD_TEA_SEED, 3, 6),
+            s(ModItems.SIXTY_SECONDS_TOBACCO_SEEDS, 3, 6),
+            s(Items.BROWN_MUSHROOM, 3, 6),
+            s(Items.RED_MUSHROOM, 3, 6),
+            s(Items.WHEAT_SEEDS, 3, 6),
+            s(Items.CARROT, 3, 6),
+            s(Items.POTATO, 3, 6),
+            s(Items.BEETROOT_SEEDS, 3, 6),
+            s(Items.PUMPKIN_SEEDS, 3, 6),
+            s(Items.MELON_SEEDS, 3, 6)
+        ));
+        // 低概率特殊种子
+        seeds.add(s(ModItems.SIXTY_SECONDS_HEMP_SEEDS, 5, 10));
+        seeds.add(s(Items.TORCHFLOWER_SEEDS, 8, 16));
+        seeds.add(s(Items.PITCHER_POD, 9, 18));
+
+        // ── 按概率生成 ──
+        if (rand.nextDouble() < 0.15 && !foods.isEmpty()) {
+            FoodEntry fe = foods.get(rand.nextInt(foods.size()));
+            items.add(new ShopItem(new ItemStack(fe.item, 1), fe.basePrice + rand.nextInt(3)));
+        }
+        if (rand.nextDouble() < 0.15 && !waters.isEmpty()) {
+            FoodEntry we = waters.get(rand.nextInt(waters.size()));
+            items.add(new ShopItem(new ItemStack(we.item, 1), we.basePrice + rand.nextInt(3)));
+        }
+        if (rand.nextDouble() < 0.20) {
+            SeedEntry se = seeds.get(rand.nextInt(seeds.size()));
+            items.add(new ShopItem(new ItemStack(se.item, 1), se.basePrice + rand.nextInt(se.maxExtra)));
+        }
+
+        // 填充：材料和工具混排
+        while (items.size() < count) {
+            if (rand.nextBoolean()) {
+                MaterialEntry me = materials.get(rand.nextInt(materials.size()));
+                int qty = 1 + rand.nextInt(5);
+                int price = (me.basePrice + rand.nextInt(me.maxExtra + 1)) * qty;
+                items.add(new ShopItem(new ItemStack(me.item, qty), price));
+            } else {
+                ToolEntry te = tools.get(rand.nextInt(tools.size()));
+                int price = te.minPrice + rand.nextInt(te.maxPrice - te.minPrice + 1);
+                items.add(new ShopItem(new ItemStack(te.item, 1), price));
+            }
+        }
+
+        // 打乱顺序
+        Collections.shuffle(items, rand);
+        return items;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 辅助方法
+    // ═══════════════════════════════════════════════════════════
+
+    private static Component tl(String key) {
+        return Component.translatable("message.noellesroles." + key);
+    }
+
+    private static Component btn(String key, String cmd, ChatFormatting color) {
+        return Component.translatable("message.noellesroles." + key)
+            .setStyle(Style.EMPTY.withColor(color)
+                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, cmd)));
+    }
+
+    private static void timeout(ServerPlayer player) {
+        player.displayClientMessage(tl("hotline.timeout").withStyle(ChatFormatting.RED), false);
+        hangup(player);
+    }
+
+    private static void hangup(ServerPlayer player) {
+        HotlineData data = getData(player.serverLevel());
+        if (data != null) data.activeCall = null;
+    }
+
+    private static HotlineData getData(ServerLevel level) {
+        return HOTLINE_DATA.computeIfAbsent(level, k -> new HotlineData());
+    }
+
+    private static String pad6(int n) { return String.format("%06d", n); }
+
+    /** 计算邮箱中的游戏币总数 */
+    private static int countCoinsInMailbox(ServerLevel level, int teamId) {
+        Map<Integer, List<BlockPos>> map = SixtySecondsNewspaper.getMailboxRegistry(level);
+        if (map == null) return 0;
+        List<BlockPos> boxes = map.get(teamId);
+        if (boxes == null) return 0;
+        int total = 0;
+        for (BlockPos pos : boxes) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mb) {
+                for (int i = 0; i < mb.getContainerSize(); i++) {
+                    ItemStack s = mb.getItem(i);
+                    if (s.is(ModItems.SIXTY_SECONDS_COIN)) total += s.getCount();
+                }
+            }
+        }
+        return total;
+    }
+
+    private static void removeCoinsFromMailbox(ServerLevel level, int teamId, int amount) {
+        Map<Integer, List<BlockPos>> map = SixtySecondsNewspaper.getMailboxRegistry(level);
+        if (map == null) return;
+        List<BlockPos> boxes = map.get(teamId);
+        if (boxes == null) return;
+        int remaining = amount;
+        for (BlockPos pos : boxes) {
+            if (remaining <= 0) break;
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mb) {
+                for (int i = 0; i < mb.getContainerSize() && remaining > 0; i++) {
+                    ItemStack s = mb.getItem(i);
+                    if (s.is(ModItems.SIXTY_SECONDS_COIN)) {
+                        int take = Math.min(remaining, s.getCount());
+                        s.shrink(take);
+                        remaining -= take;
+                        if (s.isEmpty()) mb.setItem(i, ItemStack.EMPTY);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void scheduleDelivery(ServerLevel level, int teamId, ItemStack stack) {
+        PENDING_DELIVERIES.computeIfAbsent(level, k -> new HashMap<>())
+            .computeIfAbsent(teamId, k -> new ArrayList<>()).add(stack);
+    }
+
+    private static void deliverToTeam(ServerLevel level, int teamId, ItemStack stack) {
+        Map<Integer, List<BlockPos>> map = SixtySecondsNewspaper.getMailboxRegistry(level);
+        if (map == null) return;
+        List<BlockPos> boxes = map.get(teamId);
+        if (boxes == null || boxes.isEmpty()) return;
+        BlockEntity be = level.getBlockEntity(boxes.get(0));
+        if (!(be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mb)) return;
+        for (int i = 0; i < mb.getContainerSize(); i++) {
+            if (mb.getItem(i).isEmpty()) {
+                mb.setItem(i, stack);
+                mb.setChanged();
+                return;
+            }
+        }
+    }
+
+    public static void reset(ServerLevel level) {
+        HOTLINE_DATA.remove(level);
+        PENDING_DELIVERIES.remove(level);
+    }
+
     public static List<HotlineEntry> getDailyHotlines(ServerLevel level) {
         HotlineData data = HOTLINE_DATA.get(level);
         if (data == null) return List.of();
         return List.copyOf(data.dailyHotlines);
     }
 
-    /** 快递热线处理 */
-    public static void handleExpressHotline(ServerPlayer player) {
-        player.displayClientMessage(Component.translatable("message.noellesroles.hotline.express.greeting")
-                .withStyle(ChatFormatting.GOLD), false);
-        // 这里需要多步交互，用聊天栏按钮实现
+    public static boolean hasDialed(ServerLevel level, String number) {
+        HotlineData data = HOTLINE_DATA.get(level);
+        return data != null && data.dialedToday.contains(number);
     }
 
-    /** 购物热线处理 - 生成商品列表 */
-    public static List<ShopItem> generateShopItems(ServerLevel level) {
-        Random rand = level.getRandom();
-        List<ShopItem> items = new ArrayList<>();
-        int count = 3 + rand.nextInt(4); // 3~6个商品
-
-        // 基础材料池
-        List<ShopMaterial> materials = Arrays.asList(
-                new ShopMaterial(Items.STICK, 1, "建材"),
-                new ShopMaterial(Items.OAK_PLANKS, 1, "建材"),
-                new ShopMaterial(Items.IRON_NUGGET, 1, "金属"),
-                new ShopMaterial(ModItems.SIXTY_SECONDS_COIN, 1, "货币")
-        );
-
-        for (int i = 0; i < count; i++) {
-            int price = 1 + rand.nextInt(3);
-            ItemStack item = new ItemStack(materials.get(rand.nextInt(materials.size())).item, 1 + rand.nextInt(5));
-            items.add(new ShopItem(item, price));
-        }
-
-        return items;
-    }
-
-    public static void reset(ServerLevel level) {
-        HOTLINE_DATA.remove(level);
-    }
-
-    // ── 内部数据结构 ──
+    // ═══════════════════════════════════════════════════════════
+    // 数据结构
+    // ═══════════════════════════════════════════════════════════
 
     public record HotlineEntry(String number, HotlineType type) {}
-
     public enum HotlineType { EXPRESS, SHOP, RESCUE }
-
     public record ShopItem(ItemStack item, int price) {}
 
-    public record ShopMaterial(Item item, int basePrice, String category) {}
+    private record MaterialEntry(Item item, int basePrice, int maxExtra) {}
+    private record ToolEntry(Item item, int minPrice, int maxPrice) {}
+    private record FoodEntry(Item item, int basePrice, int maxExtra) {}
+    private record SeedEntry(Item item, int basePrice, int maxExtra) {}
 
-    private record ActiveCall(UUID playerId, HotlineType type, long startTime) {}
+    private record ActiveCall(UUID playerId, HotlineType type, long startTime, int step) {}
 
     private static class HotlineData {
         final List<HotlineEntry> dailyHotlines = new ArrayList<>();
         final Set<String> dialedToday = new HashSet<>();
-        ActiveCall activeCaller = null;
+        ActiveCall activeCall = null;
+        List<ShopItem> shopItems = new ArrayList<>();
+        Set<Integer> shopPurchased = new HashSet<>();
+        int pendingCourierTeam = 0;
+        final Map<Integer, List<ShopItem>> pendingShopPurchases = new HashMap<>();
+        final Map<Integer, List<ItemStack>> pendingRescueRequests = new HashMap<>();
+    }
+
+    private static MaterialEntry m(Item item, int base, int extra) {
+        return new MaterialEntry(item, base, extra);
+    }
+    private static ToolEntry t(Item item, int min, int max) {
+        return new ToolEntry(item, min, max);
+    }
+    private static FoodEntry f(Item item, int base, int extra) {
+        return new FoodEntry(item, base, extra);
+    }
+    private static SeedEntry s(Item item, int base, int extra) {
+        return new SeedEntry(item, base, extra);
     }
 }

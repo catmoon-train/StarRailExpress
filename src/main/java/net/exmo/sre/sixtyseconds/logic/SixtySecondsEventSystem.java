@@ -178,6 +178,8 @@ public final class SixtySecondsEventSystem {
                         stats.sanity = Math.max(0, stats.sanity - 3);
                         stats.sync();
                     }
+                    // 玩家受到的伤害 +50%（通过虚弱间接实现；直接减伤由下面怪物攻击加成覆盖）
+                    // 怪物攻击力强化：在怪物生成和攻击时由 SixtySecondsMonsterSystem 处理
                 }
                 case SWARM -> {
                     // 虫潮：户外缓慢 + 持续受击
@@ -305,6 +307,12 @@ public final class SixtySecondsEventSystem {
             player.connection.send(new ClientboundSetTitleTextPacket(title));
             player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
         }
+    }
+
+    /** 检查当前是否有增强怪物的事件（电磁风暴） */
+    public static boolean isMonsterStrengthBoosted(ServerLevel level) {
+        Active active = ACTIVE.get(level);
+        return active != null && active.type == EventType.ELECTROMAGNETIC_STORM;
     }
 
     public static void reset(ServerLevel level) {

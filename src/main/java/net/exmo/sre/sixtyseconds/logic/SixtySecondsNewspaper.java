@@ -31,6 +31,8 @@ public final class SixtySecondsNewspaper {
 
     /** 邮箱方块注册表：teamId → [pos1, pos2, ...] */
     private static final Map<ServerLevel, Map<Integer, List<BlockPos>>> MAILBOX_REGISTRY = new WeakHashMap<>();
+    /** 当天被溢出清理过物品的队伍（早上通知后清除） */
+    private static final Set<Integer> CLEARED_TEAMS = new java.util.HashSet<>();
 
     private static final String[] TIPS = {
             "tip_umbrella", "tip_gasmask", "tip_cold", "tip_door",
@@ -53,6 +55,7 @@ public final class SixtySecondsNewspaper {
     static {
         NEWS_ATTACHMENTS.put(1, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_MRE, 1));
         NEWS_ATTACHMENTS.put(7, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_MEDICINE, 1));
+        NEWS_ATTACHMENTS.put(8, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_RADIO, 1));
         NEWS_ATTACHMENTS.put(16, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SEEDS_PACK, 1));
         NEWS_ATTACHMENTS.put(18, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_RADIO, 1));
     }
@@ -66,6 +69,10 @@ public final class SixtySecondsNewspaper {
                 .add(pos);
     }
 
+    public static Map<Integer, List<BlockPos>> getMailboxRegistry(ServerLevel level) {
+        return MAILBOX_REGISTRY.get(level);
+    }
+
     public static void unregisterMailbox(ServerLevel level, BlockPos pos) {
         Map<Integer, List<BlockPos>> map = MAILBOX_REGISTRY.get(level);
         if (map == null) return;
@@ -77,6 +84,7 @@ public final class SixtySecondsNewspaper {
     public static void reset(ServerLevel level) {
         STATE.remove(level);
         MAILBOX_REGISTRY.remove(level);
+        CLEARED_TEAMS.clear();
     }
 
     /** 收集稿纸投稿内容（每天清晨由 Manager 调用预处理） */
@@ -131,6 +139,18 @@ public final class SixtySecondsNewspaper {
             List<Component> content = buildPaperContent(level, data, teamId, team, picked);
             deliverToTeamMailbox(level, teamId, content, picked);
         }
+
+        // 通知邮箱溢出被清物品的队伍
+        for (int teamId : CLEARED_TEAMS) {
+            for (ServerPlayer p : level.players()) {
+                if (!GameUtils.isPlayerEliminated(p)
+                        && SixtySecondsStatsComponent.KEY.get(p).teamId == teamId) {
+                    p.displayClientMessage(Component.translatable(
+                            "message.noellesroles.sixty_seconds.mailbox_tampered"), false);
+                }
+            }
+        }
+        CLEARED_TEAMS.clear();
     }
 
     private static List<Component> buildPaperContent(ServerLevel level, SixtySecondsState.Data data,
@@ -201,12 +221,47 @@ public final class SixtySecondsNewspaper {
             lines.add(Component.empty());
             int reportType = level.getRandom().nextInt(3);
             switch (reportType) {
-                case 0 -> lines.add(Component.translatable(
-                        "message.noellesroles.sixty_seconds.report_richest"));
-                case 1 -> lines.add(Component.translatable(
-                        "message.noellesroles.sixty_seconds.report_kills"));
-                case 2 -> lines.add(Component.translatable(
-                        "message.noellesroles.sixty_seconds.report_survivors"));
+                case 0 -> {
+                    // 物资最多的队伍
+                    int richest = -1, maxCoins = 0;
+                    for (Map.Entry<Integer, SixtySecondsState.TeamData> te : data.teams.entrySet()) {
+                        int coins = countTeamMailboxCoins(level, te.getKey());
+                        if (coins > maxCoins) { maxCoins = coins; richest = te.getKey(); }
+                    }
+                    lines.add(Component.translatable("message.noellesroles.sixty_seconds.report_richest",
+                        richest, maxCoins));
+                }
+                case 1 -> {
+                    // 击杀最多的队伍（从stats中查）
+                    int topKiller = -1, maxKills = 0;
+                    for (Map.Entry<Integer, SixtySecondsState.TeamData> te : data.teams.entrySet()) {
+                        int kills = 0;
+                        for (UUID mid : te.members) {
+                            ServerPlayer mp = level.getServer().getPlayerList().getPlayer(mid);
+                            if (mp != null) {
+                                SixtySecondsStatsComponent s = SixtySecondsStatsComponent.KEY.get(mp);
+                                kills += s.playerKills;
+                            }
+                        }
+                        if (kills > maxKills) { maxKills = kills; topKiller = te.getKey(); }
+                    }
+                    lines.add(Component.translatable("message.noellesroles.sixty_seconds.report_kills",
+                        topKiller, maxKills));
+                }
+                case 2 -> {
+                    // 存活的队伍列表
+                    List<Integer> alive = new ArrayList<>();
+                    for (Map.Entry<Integer, SixtySecondsState.TeamData> te : data.teams.entrySet()) {
+                        long online = level.players().stream()
+                            .filter(p -> SixtySecondsStatsComponent.KEY.get(p).teamId == te.getKey()
+                                && !GameUtils.isPlayerEliminated(p)).count();
+                        if (online > 0) alive.add(te.getKey());
+                    }
+                    String teams = alive.stream().map(String::valueOf)
+                        .collect(Collectors.joining(" "));
+                    lines.add(Component.translatable("message.noellesroles.sixty_seconds.report_survivors",
+                        alive.size(), teams));
+                }
             }
             lines.add(Component.empty());
         }
@@ -269,6 +324,7 @@ public final class SixtySecondsNewspaper {
             BlockEntity be = level.getBlockEntity(pos);
             if (!(be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mb)) continue;
 
+            // 先清除旧报纸和稿纸
             for (int i = 0; i < mb.getContainerSize(); i++) {
                 ItemStack stack = mb.getItem(i);
                 if (stack.is(org.agmas.noellesroles.init.ModItems.NEWSPAPER)
@@ -286,8 +342,43 @@ public final class SixtySecondsNewspaper {
                     slot++;
                 }
             }
+
+            // 如果满了（附件填满），清除非报纸的普通物品腾空间
+            if (slot >= mb.getContainerSize()) {
+                boolean clearedAny = false;
+                for (int i = 1; i < mb.getContainerSize(); i++) {
+                    ItemStack s = mb.getItem(i);
+                    if (!s.isEmpty() && !s.is(org.agmas.noellesroles.init.ModItems.NEWSPAPER)
+                            && !s.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_COIN)
+                            && !s.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE)) {
+                        mb.setItem(i, ItemStack.EMPTY);
+                        clearedAny = true;
+                    }
+                }
+                if (clearedAny) {
+                    CLEARED_TEAMS.add(teamId);
+                }
+            }
             mb.setChanged();
         }
+    }
+
+    private static int countTeamMailboxCoins(ServerLevel level, int teamId) {
+        Map<Integer, List<BlockPos>> map = MAILBOX_REGISTRY.get(level);
+        if (map == null) return 0;
+        List<BlockPos> boxes = map.get(teamId);
+        if (boxes == null) return 0;
+        int total = 0;
+        for (BlockPos pos : boxes) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mb) {
+                for (int i = 0; i < mb.getContainerSize(); i++) {
+                    ItemStack s = mb.getItem(i);
+                    if (s.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_COIN)) total += s.getCount();
+                }
+            }
+        }
+        return total;
     }
 
     /** 打开报纸界面 */

@@ -1495,28 +1495,16 @@ public class ModPacketsReciever {
             (packet, ctx) -> {
                 ServerPlayer player = ctx.player();
                 ctx.server().execute(() -> {
-                    String result = net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleDial(player, packet.number());
+                    var sys = net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem;
+                    String result = sys.handleDial(player, packet.number());
                     switch (result) {
-                        case "connected_express" -> {
-                            player.displayClientMessage(
-                                Component.translatable("message.noellesroles.hotline.express.greeting").withStyle(ChatFormatting.GOLD), false);
-                        }
-                        case "connected_shop" -> {
-                            player.displayClientMessage(
-                                Component.translatable("message.noellesroles.hotline.shop.greeting").withStyle(ChatFormatting.GOLD), false);
-                        }
-                        case "connected_rescue" -> {
-                            player.displayClientMessage(
-                                Component.translatable("message.noellesroles.hotline.rescue.greeting").withStyle(ChatFormatting.GOLD), false);
-                        }
-                        case "already_dialed" -> {
-                            player.displayClientMessage(
-                                Component.translatable("message.noellesroles.hotline.already_dialed").withStyle(ChatFormatting.RED), true);
-                        }
-                        default -> {
-                            player.displayClientMessage(
-                                Component.translatable("message.noellesroles.hotline.invalid_number").withStyle(ChatFormatting.RED), true);
-                        }
+                        case "connected_express" -> sys.handleExpressGreeting(player);
+                        case "connected_shop" -> sys.handleShopGreeting(player);
+                        case "connected_rescue" -> sys.handleRescueGreeting(player);
+                        case "already_dialed" -> player.displayClientMessage(
+                            Component.translatable("message.noellesroles.hotline.already_dialed").withStyle(ChatFormatting.RED), true);
+                        default -> player.displayClientMessage(
+                            Component.translatable("message.noellesroles.hotline.invalid_number").withStyle(ChatFormatting.RED), true);
                     }
                 });
             });

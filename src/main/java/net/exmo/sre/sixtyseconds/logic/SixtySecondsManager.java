@@ -233,6 +233,7 @@ public final class SixtySecondsManager {
                 SixtySecondsVisitSystem.tick(level);
                 SixtySecondsVisiting.tick(level);        // 做客者 USED_BANED 续期/异常解除
                 SixtySecondsEventSystem.tick(level);
+                SixtySecondsHotlineSystem.tick(level);
                 SixtySecondsDailyEvents.tick(level);     // 每日事件门：抉择超时/探险结算
                 SixtySecondsMinigameRotation.tick(level);
                 SixtySecondsWhisperSystem.tick(level);   // 夜间黑暗处刷低语怪
@@ -355,6 +356,7 @@ public final class SixtySecondsManager {
         // 收集稿纸投稿 + 发布末日日报（含邮箱投递）
         SixtySecondsNewspaper.collectDrafts(level, data);
         SixtySecondsNewspaper.publish(level, data); // 末日日报：每日一期，聊天栏点击阅读
+        SixtySecondsHotlineSystem.processDeliveries(level, data); // 处理快递/购物/救援投递
         SixtySecondsRoleAwakening.awaken(level, data);
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.day_start", day, totalDays(level)));
         // PvP 状态聊天栏广播

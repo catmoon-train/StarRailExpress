@@ -78,6 +78,24 @@ public final class SixtySecondsStartCommand {
                                                         .getString(context, "text")))))
                         // 末日日报：点击聊天栏提醒打开当日报纸
                         .then(literal("newspaper").executes(context -> openNewspaper(context.getSource())))
+                        // 热线电话：聊天栏按钮回调（/sre:60s hotline <type> <action> [args]）
+                        .then(literal("hotline")
+                                .then(literal("express")
+                                        .then(literal("send").executes(context -> hotlineExpressSend(context.getSource())))
+                                        .then(literal("cancel").executes(context -> hotlineExpressCancel(context.getSource())))
+                                        .then(literal("team")
+                                                .then(argument("team", IntegerArgumentType.integer(0))
+                                                        .executes(context -> hotlineExpressTeam(context.getSource(),
+                                                                IntegerArgumentType.getInteger(context, "team"))))))
+                                .then(literal("shop")
+                                        .then(literal("buy")
+                                                .then(argument("index", IntegerArgumentType.integer(0))
+                                                        .executes(context -> hotlineShopBuy(context.getSource(),
+                                                                IntegerArgumentType.getInteger(context, "index")))))
+                                        .then(literal("cancel").executes(context -> hotlineShopCancel(context.getSource()))))
+                                .then(literal("rescue")
+                                        .then(literal("request").executes(context -> hotlineRescueRequest(context.getSource())))
+                                        .then(literal("cancel").executes(context -> hotlineRescueCancel(context.getSource())))))
                         // 每日事件门：玩家点击聊天栏选项（/sre:60s event <token> <option>）+ 管理员强制触发
                         .then(literal("event")
                                 .then(literal("force")
@@ -852,16 +870,56 @@ public final class SixtySecondsStartCommand {
     /** 管理员：强制给予指定玩家生病状态。 */
     private static int forceSick(CommandSourceStack source, ServerPlayer target) {
         net.exmo.sre.sixtyseconds.logic.SixtySecondsSicknessSystem.makeSick(target);
-        source.sendSuccess(() -> Component.literal("已对 " + target.getGameProfile().getName() + " 施加生病状态")
-                .withStyle(ChatFormatting.GREEN), true);
+        source.sendSuccess(() -> Component.translatable("message.noellesroles.sixty_seconds.cmd_sick",
+                target.getGameProfile().getName()).withStyle(ChatFormatting.GREEN), true);
         return 1;
     }
 
     /** 管理员：强制治愈指定玩家（清除生病和感染风险）。 */
     private static int forceCure(CommandSourceStack source, ServerPlayer target) {
         net.exmo.sre.sixtyseconds.logic.SixtySecondsSicknessSystem.cure(target);
-        source.sendSuccess(() -> Component.literal("已治愈 " + target.getGameProfile().getName())
-                .withStyle(ChatFormatting.GREEN), true);
+        source.sendSuccess(() -> Component.translatable("message.noellesroles.sixty_seconds.cmd_cure",
+                target.getGameProfile().getName()).withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 热线电话命令回调
+    // ═══════════════════════════════════════════════════════════
+
+    private static int hotlineExpressSend(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleExpressSend(p);
+        return 1;
+    }
+    private static int hotlineExpressCancel(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleExpressCancel(p);
+        return 1;
+    }
+    private static int hotlineExpressTeam(CommandSourceStack src, int team) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleExpressTeam(p, team);
+        return 1;
+    }
+    private static int hotlineShopBuy(CommandSourceStack src, int index) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleShopBuy(p, index);
+        return 1;
+    }
+    private static int hotlineShopCancel(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleShopCancel(p);
+        return 1;
+    }
+    private static int hotlineRescueRequest(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleRescueRequest(p);
+        return 1;
+    }
+    private static int hotlineRescueCancel(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleRescueCancel(p);
         return 1;
     }
 }

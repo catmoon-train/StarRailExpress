@@ -5670,6 +5670,7 @@
   "tooltip.noellesroles.sixty_seconds_bagged_biscuit": "两块压缩饼干打包成一袋，方便携带又顶饱。",
   "container.noellesroles.sixty_seconds_mailbox": "邮箱",
   "message.noellesroles.sixty_seconds.mailbox_not_owner": "这是别人的邮箱。",
+  "message.noellesroles.sixty_seconds.mailbox_tampered": "§c你邮箱内的东西被偷走了一些。",
 
   "screen.noellesroles.draft_paper": "稿纸编辑",
   "gui.noellesroles.draft_paper.save": "保存",
@@ -5683,9 +5684,9 @@
   "message.noellesroles.sixty_seconds.zone_deaths": "据消息，整座城市已确认 %s 人遇难。愿逝者安息。",
   "message.noellesroles.sixty_seconds.zone_peaceful": "昨晚无人死亡——总算平安度过了一夜。",
   "message.noellesroles.sixty_seconds.zone_alive": "仍有 %s 支幸存者队伍在坚持。",
-  "message.noellesroles.sixty_seconds.report_richest": "据匿名线报，东区有一户人家的物资储备最为丰厚，具体位置无人知晓。",
-  "message.noellesroles.sixty_seconds.report_kills": "夜间巡逻队报告：南区附近发现了大量战斗痕迹，似乎有人没能撑过昨晚。",
-  "message.noellesroles.sixty_seconds.report_survivors": "搜救队传回消息：城外仍有零星的幸存者信号，愿他们能撑到救援到来的那天。",
+  "message.noellesroles.sixty_seconds.report_richest": "据本报统计，目前物资储备最丰厚的是第%s队，邮箱中有约%s枚游戏币。",
+  "message.noellesroles.sixty_seconds.report_kills": "街头警戒哨传来消息：第%s队已累计击杀%s人次，在各队中位居第一。",
+  "message.noellesroles.sixty_seconds.report_survivors": "截至发稿，仍有%s队幸存者的信号：（%s）。愿他们撑到黎明。",
   "message.noellesroles.sixty_seconds.news.footer": "—— 末日日报·第 %s 天 ——",
 
   "message.noellesroles.sixty_seconds.pvp_broadcast_day5": "⚠ 紧急通报：维持了数日的脆弱和平已被打破。从今日起，各区之间的『安全协议』正式失效。请所有幸存者提高警惕——外面的世界不再有规则了。",
@@ -5762,6 +5763,22 @@
 
   "message.noellesroles.hotline.rescue.greeting": "§6[救援热线] §e这里是救援中心，有什么可以帮你的？",
   "message.noellesroles.hotline.rescue.request": "需要物资支援",
+  "message.noellesroles.hotline.rescue.cancel": "不用了，谢谢",
   "message.noellesroles.hotline.rescue.bye": "§6[救援热线] §e好的，救援物资明天送达，请注意查收。",
-  "message.noellesroles.hotline.rescue.arrived": "§a救援物资已送达你的邮箱！"
+  "message.noellesroles.hotline.rescue.arrived": "§a救援物资已送达你的邮箱！",
+  "message.noellesroles.hotline.rescue.no_need": "§7[救援热线] 经评估，你们队的状况还算不错，暂不需要紧急支援。",
+  "message.noellesroles.hotline.timeout": "§7通话已超时，自动挂断。",
+  "message.noellesroles.hotline.express.team_hover": "寄送给%s号队伍",
+  "message.noellesroles.hotline.express.package_reminder": "§e别忘了把快递包裹放进你的邮箱哦！",
+  "message.noellesroles.hotline.shop.title": "§e今天热销：",
+  "message.noellesroles.hotline.shop.coin": "游戏币",
+  "message.noellesroles.hotline.shop.buy_hover": "点击确认购买此商品",
+  "message.noellesroles.hotline.shop.already_bought": "§c你已经购买过此商品。",
+  "message.noellesroles.hotline.shop.confirmed": "§a订购成功！请将足够的实体游戏币放入邮箱。",
+  "message.noellesroles.hotline.shop.put_coin": "§e明天早上快递员会送货上门并从邮箱中扣除对应金额。",
+  "message.noellesroles.hotline.shop.bye": "§6[购物热线] §e好的，欢迎下次光临！",
+  "message.noellesroles.sixty_seconds.cmd_sick": "已对 %s 施加生病状态",
+  "message.noellesroles.sixty_seconds.cmd_cure": "已治愈 %s",
+  "container.noellesroles.express_package": "快递包裹",
+  "tooltip.noellesroles.express_package_contains": " §7[%s x%s]"
 }
