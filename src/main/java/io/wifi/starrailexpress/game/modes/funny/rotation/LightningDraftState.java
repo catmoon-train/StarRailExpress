@@ -11,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -123,7 +124,7 @@ public class LightningDraftState {
 
         List<RoleInstance> baseRoles = SREMurderGameMode.getAllRoles(
                 killerCount, vigilanteCount, neutralsCount,
-                totalPlayers + 5, 0,
+                totalPlayers + 2, 0,
                 killerPool, neutralsPool, vigilantePool, civilianPool, true);
         for (RoleInstance inst : baseRoles) {
             if (inst.role() != null)
@@ -296,8 +297,10 @@ public class LightningDraftState {
     private void finishRound(ServerLevel world) {
         isSelecting = false;
         if (remainingRoles > 0) {
+            playSoundToAll(world, SoundEvents.NOTE_BLOCK_BELL.value(), 1.0f, 1.5f);
             startNextRound(world); // 立刻开始下一轮
         } else {
+            playSoundToAll(world, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
             startConfirmCountdown();
         }
     }
@@ -305,6 +308,13 @@ public class LightningDraftState {
     private void startConfirmCountdown() {
         isSelecting = false;
         confirmCountdown = 6 * 20;
+    }
+
+    private void playSoundToAll(ServerLevel world, SoundEvent sound, float volume, float pitch) {
+        for (ServerPlayer p : world.players()) {
+            world.playSound(null, p.getX(), p.getY(), p.getZ(),
+                    sound, SoundSource.MASTER, volume, pitch);
+        }
     }
 
     private SRERole selectRandomRole(ServerLevel world) {
