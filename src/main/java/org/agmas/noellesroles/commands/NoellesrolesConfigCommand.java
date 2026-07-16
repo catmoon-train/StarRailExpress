@@ -90,6 +90,7 @@ public class NoellesrolesConfigCommand {
                                     RoleUtils.getRoleOrModifierTypeName(role),
                                     RoleUtils.getRoleOrModifierNameWithColor(role)),
                                     true);
+                            SpawnInfoConfig.HANDLER.save();
                             return 1;
                           }))
                       .then(Commands.literal("set")
@@ -132,6 +133,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "chance", num),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   })))
                           .then(Commands.literal("max_count")
@@ -172,6 +174,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "max_count", num),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   })))
                           .then(Commands.literal("min_player")
@@ -212,6 +215,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "min_player", num),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   })))
                           .then(Commands.literal("max_player")
@@ -252,6 +256,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "max_player", num),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   })))
                           .then(Commands.literal("maps")
@@ -290,6 +295,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "map", "[EMPTY]"),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   }))
                               .then(Commands.argument("map", StringArgumentType.string())
@@ -333,6 +339,7 @@ public class NoellesrolesConfigCommand {
                                                         "map",
                                                         "+=" + num),
                                                 true);
+                                        SpawnInfoConfig.HANDLER.save();
                                         return 1;
                                       }))
                                   .then(Commands.literal("remove")
@@ -375,6 +382,7 @@ public class NoellesrolesConfigCommand {
                                                         "map",
                                                         "-=" + num),
                                                 true);
+                                        SpawnInfoConfig.HANDLER.save();
                                         return 1;
                                       }))))
 
@@ -447,6 +455,7 @@ public class NoellesrolesConfigCommand {
                                             .getRoleOrModifierNameWithColor(
                                                 role)),
                                     true);
+                            SpawnInfoConfig.HANDLER.save();
                             return 1;
                           }))
                       .then(Commands.literal("set").requires(source -> source.hasPermission(2))
@@ -488,6 +497,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "chance", num),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   })))
                           .then(Commands.literal("max_count")
@@ -528,6 +538,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "max_count", num),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   })))
                           .then(Commands.literal("min_player")
@@ -568,6 +579,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "min_player", num),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   })))
                           .then(Commands.literal("max_player")
@@ -608,6 +620,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "max_player", num),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   })))
                           .then(Commands.literal("maps")
@@ -646,6 +659,7 @@ public class NoellesrolesConfigCommand {
                                                         role),
                                                 "map", "[EMPTY]"),
                                             true);
+                                    SpawnInfoConfig.HANDLER.save();
                                     return 1;
                                   }))
                               .then(Commands.argument("map", StringArgumentType.string())
@@ -689,6 +703,7 @@ public class NoellesrolesConfigCommand {
                                                         "map",
                                                         "+=" + num),
                                                 true);
+                                        SpawnInfoConfig.HANDLER.save();
                                         return 1;
                                       }))
                                   .then(Commands.literal("remove")
@@ -731,6 +746,8 @@ public class NoellesrolesConfigCommand {
                                                         "map",
                                                         "-=" + num),
                                                 true);
+
+                                        SpawnInfoConfig.HANDLER.save();
                                         return 1;
                                       }))))
 
@@ -743,6 +760,7 @@ public class NoellesrolesConfigCommand {
               .then(Commands.literal("reload")
                   .executes(context -> {
                     SpawnInfoConfig.HANDLER.load();
+                    NoellesRolesConfig.HANDLER.load();
                     context.getSource().sendSystemMessage(
                         Component.literal("NoellesRoles configuration reloaded successfully"));
                     return 1;
@@ -751,6 +769,7 @@ public class NoellesrolesConfigCommand {
                   .executes(context -> {
                     // 创建默认配置实例
                     SpawnInfoConfig.HANDLER.reset();
+                    NoellesRolesConfig.HANDLER.reset();
                     return 1;
                   }))
               .then(Commands.literal("accidentalKillPunishment")
@@ -759,7 +778,7 @@ public class NoellesrolesConfigCommand {
                         boolean value = BoolArgumentType.getBool(context, "value");
                         NoellesRolesConfig config = NoellesRolesConfig.instance();
                         config.accidentalKillPunishment = value;
-                        SpawnInfoConfig.HANDLER.save();
+                        NoellesRolesConfig.HANDLER.save();
 
                         String statusText = value ? "Enabled" : "Disabled";
                         context.getSource().sendSystemMessage(
@@ -775,7 +794,7 @@ public class NoellesrolesConfigCommand {
                         boolean value = BoolArgumentType.getBool(context, "value");
                         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
                         config.skillEchoEventEnabled = value;
-                        SpawnInfoConfig.HANDLER.save();
+                        NoellesRolesConfig.HANDLER.save();
                         context.getSource().sendSystemMessage(
                             Component.literal("Skill Echo Event "
                                 + (value ? "Enabled" : "Disabled"))
@@ -788,7 +807,7 @@ public class NoellesrolesConfigCommand {
                         boolean value = BoolArgumentType.getBool(context, "value");
                         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
                         config.skillEchoRandomBroadcastEnabled = value;
-                        SpawnInfoConfig.HANDLER.save();
+                        NoellesRolesConfig.HANDLER.save();
                         context.getSource().sendSystemMessage(
                             Component.literal("Skill Echo Random Broadcast "
                                 + (value ? "Enabled" : "Disabled"))
