@@ -7,6 +7,8 @@ import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -210,6 +212,8 @@ public final class SixtySecondsEventSystem {
         if (SixtySecondsAirdrop.dropRandom(level)) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_airdrop")
                     .withStyle(ChatFormatting.GOLD));
+            subtitleAll(level, "message.noellesroles.sixty_seconds.event_airdrop_name",
+                    "message.noellesroles.sixty_seconds.event_airdrop", ChatFormatting.GOLD);
         }
     }
 
@@ -291,6 +295,15 @@ public final class SixtySecondsEventSystem {
     private static void broadcast(ServerLevel level, Component message) {
         for (ServerPlayer player : level.players()) {
             player.displayClientMessage(message, false);
+        }
+    }
+
+    private static void subtitleAll(ServerLevel level, String titleKey, String subtitleKey, ChatFormatting color) {
+        Component title = Component.translatable(titleKey).withStyle(color);
+        Component subtitle = Component.translatable(subtitleKey).withStyle(color);
+        for (ServerPlayer player : level.players()) {
+            player.connection.send(new ClientboundSetTitleTextPacket(title));
+            player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
         }
     }
 

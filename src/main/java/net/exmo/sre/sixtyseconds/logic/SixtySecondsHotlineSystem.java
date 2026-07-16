@@ -106,7 +106,7 @@ public final class SixtySecondsHotlineSystem {
                 new ShopMaterial(Items.STICK, 1, "建材"),
                 new ShopMaterial(Items.OAK_PLANKS, 1, "建材"),
                 new ShopMaterial(Items.IRON_NUGGET, 1, "金属"),
-                new ShopMaterial(Items.GOLD_NUGGET, 1, "金属")
+                new ShopMaterial(ModItems.SIXTY_SECONDS_COIN, 1, "货币")
         );
 
         for (int i = 0; i < count; i++) {

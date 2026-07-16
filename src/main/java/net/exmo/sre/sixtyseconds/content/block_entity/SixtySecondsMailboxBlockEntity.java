@@ -70,8 +70,7 @@ public class SixtySecondsMailboxBlockEntity extends BlockEntity implements Conta
     public boolean canPlaceItem(int slot, ItemStack stack) {
         return stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_DRAFT_PAPER)
                 || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_COIN)
-                || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE)
-                || stack.is(net.minecraft.world.item.Items.GOLD_NUGGET);
+                || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE);
     }
 
     @Override
