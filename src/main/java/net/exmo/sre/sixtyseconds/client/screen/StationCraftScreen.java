@@ -74,11 +74,6 @@ public class StationCraftScreen extends Screen {
     private record Entry(SixtySecondsRecipes.Recipe recipe, EntryState state) {
     }
 
-    /** 扫描范围：无 zone 时退化为玩家附近半径扫描的格数。 */
-    private static final int FALLBACK_SCAN_RADIUS = 16;
-    /** 容器列表缓存刷新间隔（tick）。 */
-    private static final int CONTAINER_CACHE_TICKS = 20;
-
     private final SixtySecondsRecipes.Station station;
     private final BlockPos pos;
     private final Set<String> unlockedTech;
@@ -100,9 +95,19 @@ public class StationCraftScreen extends Screen {
     private EditBox searchBox;
     private Button craftBtn, craft5Btn;
 
-    /** 附近容器缓存（物品 → 总数量），每 20 tick 刷新一次。 */
-    private Map<net.minecraft.world.item.Item, Integer> containerItemCache = new HashMap<>();
-    private int containerCacheTimer;
+    /**
+     * 「家里容器」库存快照（物品 → 总数量），<b>由服务端下发</b>
+     * （{@code SixtySecondsStationStockS2CPacket}：打开合成台时与每次合成后各发一次）。
+     * <p><b>不能在客户端自己扫容器</b>——原版不把箱子/木桶的内容同步给未打开它的客户端，
+     * 客户端扫出来恒为空，GUI 会永远显示材料不足（旧实现即此坑）。
+     * 静态字段：收包时界面可能尚未构造完（开界面包与库存包同帧先后到达）。
+     */
+    private static Map<net.minecraft.world.item.Item, Integer> homeStock = new HashMap<>();
+
+    /** 收到服务端库存快照（客户端网络线程 → 主线程调用）。 */
+    public static void updateHomeStock(Map<net.minecraft.world.item.Item, Integer> stock) {
+        homeStock = stock;
+    }
 
     public StationCraftScreen(OpenStationS2CPacket data) {
         super(Component.translatable(
@@ -160,9 +165,7 @@ public class StationCraftScreen extends Screen {
     protected void init() {
         computeLayout();
 
-        // 打开 GUI 时立即扫描一次附近容器
-        refreshContainerCache();
-        containerCacheTimer = 0;
+        // 家里容器的库存由服务端在开界面时一并下发（见 homeStock），无需客户端扫描
 
         // 搜索框：标签栏右侧
         int searchW = Mth.clamp(panelW / 5, 90, 130);
@@ -262,11 +265,7 @@ public class StationCraftScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
-        containerCacheTimer++;
-        if (containerCacheTimer >= CONTAINER_CACHE_TICKS) {
-            containerCacheTimer = 0;
-            refreshContainerCache();
-        }
+        // 背包变化每 tick 重算；家里容器库存由服务端推送（开界面/每次合成后）刷新
         rebuildEntries();
     }
 
@@ -658,91 +657,10 @@ public class StationCraftScreen extends Screen {
 
     // ── 工具方法 ──────────────────────────────────────────────────
 
-    /** 扫描队伍避难所区域内的方块容器并缓存物品数量。
-     *  优先使用 {@code SixtySecondsClientMapZone.activeZone()} 的 AABB，
-     *  不可用时退化为玩家附近半径扫描。 */
-    private void refreshContainerCache() {
-        Map<net.minecraft.world.item.Item, Integer> cache = new HashMap<>();
-        Minecraft client = Minecraft.getInstance();
-        if (client.player == null || client.level == null) {
-            containerItemCache = cache;
-            return;
-        }
-
-        // 优先用服务端推送的安全区 AABB（精确限定避难所/住宅范围）
-        net.minecraft.world.phys.AABB zone = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.activeZone();
-        int minCx, maxCx, minCz, maxCz;
-        boolean useZone = zone != null;
-
-        if (useZone) {
-            minCx = net.minecraft.core.SectionPos.blockToSectionCoord(
-                    net.minecraft.util.Mth.floor(zone.minX));
-            maxCx = net.minecraft.core.SectionPos.blockToSectionCoord(
-                    net.minecraft.util.Mth.floor(zone.maxX));
-            minCz = net.minecraft.core.SectionPos.blockToSectionCoord(
-                    net.minecraft.util.Mth.floor(zone.minZ));
-            maxCz = net.minecraft.core.SectionPos.blockToSectionCoord(
-                    net.minecraft.util.Mth.floor(zone.maxZ));
-        } else {
-            BlockPos playerPos = client.player.blockPosition();
-            int r = FALLBACK_SCAN_RADIUS;
-            minCx = (playerPos.getX() - r) >> 4;
-            maxCx = (playerPos.getX() + r) >> 4;
-            minCz = (playerPos.getZ() - r) >> 4;
-            maxCz = (playerPos.getZ() + r) >> 4;
-        }
-
-        for (int cx = minCx; cx <= maxCx; cx++) {
-            for (int cz = minCz; cz <= maxCz; cz++) {
-                LevelChunk chunk = client.level.getChunkSource().getChunkNow(cx, cz);
-                if (chunk == null) {
-                    continue;
-                }
-                for (java.util.Map.Entry<BlockPos, BlockEntity> entry : chunk.getBlockEntities().entrySet()) {
-                    BlockPos pos = entry.getKey();
-                    BlockEntity be = entry.getValue();
-                    if (!(be instanceof Container container)) {
-                        continue;
-                    }
-                    // 用 AABB 或距离过滤
-                    if (useZone) {
-                        if (!zone.contains(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)) {
-                            continue;
-                        }
-                    } else {
-                        double dx = pos.getX() + 0.5 - client.player.getX();
-                        double dy = pos.getY() + 0.5 - client.player.getY();
-                        double dz = pos.getZ() + 0.5 - client.player.getZ();
-                        if (dx * dx + dy * dy + dz * dz > FALLBACK_SCAN_RADIUS * FALLBACK_SCAN_RADIUS) {
-                            continue;
-                        }
-                    }
-                    // 跳过功能性方块
-                    if (be instanceof net.minecraft.world.level.block.entity.FurnaceBlockEntity
-                            || be instanceof net.minecraft.world.level.block.entity.BrewingStandBlockEntity
-                            || be instanceof net.minecraft.world.level.block.entity.HopperBlockEntity
-                            || be instanceof net.minecraft.world.level.block.entity.DispenserBlockEntity) {
-                        continue;
-                    }
-                    // 只纳入存储类容器
-                    if (be instanceof ChestBlockEntity
-                            || be instanceof BarrelBlockEntity
-                            || be instanceof ShulkerBoxBlockEntity
-                            || be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsVaultBlockEntity) {
-                        for (int slot = 0; slot < container.getContainerSize(); slot++) {
-                            ItemStack stack = container.getItem(slot);
-                            if (!stack.isEmpty()) {
-                                cache.merge(stack.getItem(), stack.getCount(), Integer::sum);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        containerItemCache = cache;
-    }
-
-    /** 背包 + 附近容器内某物品的总数量。 */
+    /**
+     * 某物品的可用总数 = <b>自己背包</b>（客户端本地已知）+ <b>家里容器</b>（服务端下发的 {@link #homeStock}）。
+     * 与服务端 {@code SixtySecondsStations.countMatching} 的取料范围一致，故 GUI 显示与实际可合成结果对得上。
+     */
     private int countInInventory(net.minecraft.world.item.Item item) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) {
@@ -755,8 +673,7 @@ public class StationCraftScreen extends Screen {
                 have += stack.getCount();
             }
         }
-        // 加上附近容器中的数量
-        have += containerItemCache.getOrDefault(item, 0);
+        have += homeStock.getOrDefault(item, 0);
         return have;
     }
 

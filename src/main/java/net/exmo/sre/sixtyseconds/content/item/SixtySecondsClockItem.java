@@ -72,7 +72,7 @@ public class SixtySecondsClockItem extends Item {
                 ? Component.translatable("hud.noellesroles.sixty_seconds.subphase.sleep")
                 : Component.translatable(sub.translationKey());
         return Component.translatable("message.noellesroles.sixty_seconds.clock_time",
-                data.dayNumber, SixtySecondsManager.TOTAL_DAYS, subName,
+                data.dayNumber, SixtySecondsManager.totalDays(level), subName,
                 mmss(SixtySecondsDayCycle.subPhaseRemaining(data, now)))
                 .withStyle(sub == SixtySecondsDayCycle.SubPhase.NIGHT ? ChatFormatting.BLUE : ChatFormatting.GOLD);
     }

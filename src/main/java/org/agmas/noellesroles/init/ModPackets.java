@@ -248,6 +248,10 @@ public class ModPackets {
                 net.exmo.sre.sixtyseconds.network.TechUnlockC2SPacket::handle);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenStationS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenStationS2CPacket.CODEC);
+        // 合成台「家里容器」库存快照（客户端读不到容器内容，GUI 判定靠它）
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsStationStockS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsStationStockS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.StationCraftC2SPacket.ID,

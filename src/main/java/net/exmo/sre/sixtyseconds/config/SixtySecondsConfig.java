@@ -91,6 +91,14 @@ public class SixtySecondsConfig {
     public boolean autoJoinEnabled = true;
 
     /**
+     * 本局总游戏日数（默认 {@value net.exmo.sre.sixtyseconds.logic.SixtySecondsManager#DEFAULT_TOTAL_DAYS}）：
+     * 撑过最后一天即幸存者胜利。终极 Boss「终焉之王」固定在<b>最后一天</b>降临（随本值浮动）。
+     * {@code /sre:60s days <1..30>} 设置（按图持久化）。见 {@code SixtySecondsManager.totalDays}。
+     */
+    @SerializedName("totalDays")
+    public int totalDays = 7;
+
+    /**
      * 全局探索区危险等级 1..5（{@code SixtySecondsAreaLevels}）：等级越高，物资箱稀有物越常见、
      * 掷出件数越多，但游荡怪更多更强。{@code /sre:60s_area level <1..5>} 设置。
      */

@@ -101,10 +101,10 @@ public final class SixtySecondsHud {
         int x = PANEL_X + PAD;
         int y = panelY + PAD;
 
-        // 标题：末日生存 · 第 X/7 天
+        // 标题：末日生存 · 第 X/N 天（N=本局总日数，按玩家同步过来，可按图配置）
         graphics.drawString(client.font,
                 Component.translatable("hud.noellesroles.sixty_seconds.day",
-                        Math.max(0, stats.dayNumber), SixtySecondsManager.TOTAL_DAYS),
+                        Math.max(0, stats.dayNumber), stats.totalDays),
                 x, y, COL_TITLE);
         y += 14;
 

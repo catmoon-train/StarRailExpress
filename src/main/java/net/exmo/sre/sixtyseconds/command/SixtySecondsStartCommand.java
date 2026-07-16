@@ -106,6 +106,14 @@ public final class SixtySecondsStartCommand {
                                 .then(literal("on").executes(c -> setPve(c.getSource(), true)))
                                 .then(literal("off").executes(c -> setPve(c.getSource(), false)))
                                 .executes(c -> showPve(c.getSource())))
+                        // 管理员：本局总游戏日数（默认 7，按图持久化）；不带参数=查看当前值
+                        .then(literal("days")
+                                .requires(source -> source.hasPermission(2))
+                                .then(argument("count", IntegerArgumentType.integer(1,
+                                        net.exmo.sre.sixtyseconds.logic.SixtySecondsManager.MAX_TOTAL_DAYS))
+                                        .executes(c -> setTotalDays(c.getSource(),
+                                                IntegerArgumentType.getInteger(c, "count"))))
+                                .executes(c -> showTotalDays(c.getSource())))
                         // 管理员：中途自动入队开关（新玩家自动补入未满四人的队伍；默认开，按图持久化）
                         .then(literal("autojoin")
                                 .requires(source -> source.hasPermission(2))
@@ -620,6 +628,31 @@ public final class SixtySecondsStartCommand {
         source.sendSuccess(() -> Component.translatable(enabled
                 ? "message.noellesroles.sixty_seconds.pve_enabled"
                 : "message.noellesroles.sixty_seconds.pve_disabled"), false);
+        return 1;
+    }
+
+    /**
+     * 管理员：设置本局总游戏日数（按图配置持久化，默认 7）。
+     * 已开局时立即生效：下发新的 totalDays 给客户端 HUD，并按新值重新判定是否已到最终日。
+     */
+    private static int setTotalDays(CommandSourceStack source, int days) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.totalDays = days;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        // 局中改：把新总日数补发给在场玩家，HUD 的「第 X/N 天」立刻更新
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsManager.resyncTotalDays(level);
+        source.sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.days_set", days).withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 管理员：查看本局总游戏日数。 */
+    private static int showTotalDays(CommandSourceStack source) {
+        int days = net.exmo.sre.sixtyseconds.logic.SixtySecondsManager.totalDays(source.getLevel());
+        source.sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.days_show", days), false);
         return 1;
     }
 

@@ -135,6 +135,7 @@ public final class SixtySecondsReconnect {
         if (player.level() instanceof ServerLevel level) {
             SixtySecondsState.Data data = SixtySecondsState.get(level);
             stats.dayNumber = data.dayNumber;
+            stats.totalDays = SixtySecondsManager.totalDays(level); // HUD「第 X/N 天」的 N（可配置）
             stats.phaseEndTick = data.phaseEndTick;
             // 重发区域地图范围（客户端断线时已清空）
             SixtySecondsState.TeamData team = data.teams.get(stats.teamId);
