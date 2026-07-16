@@ -164,6 +164,14 @@ java {
     // withSourcesJar()
 }
 
+tasks.register('generateSha256') {
+    dependsOn remapJar
+    doLast {
+        ant.checksum(file: remapJar.archiveFile.get().asFile, algorithm: "SHA-256", fileext: ".sha256")
+    }
+}
+build.finalizedBy(generateSha256)
+
 jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
