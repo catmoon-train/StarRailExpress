@@ -37,7 +37,7 @@ public class DecServerJoinPlayer {
         // ServerPlayNetworking.send(serverPlayer, new ShowSelectedMapUIPayload(true));
         // }
         // }
-        if (gameWorldComponent.getGameStatus() == GameStatus.ACTIVE) {
+        if (gameWorldComponent.getGameStatus() == GameStatus.ACTIVE && gameWorldComponent.getGameMode().requiresAssignedRole()) {
             if (serverPlayer.level() instanceof ServerLevel serverWorld) {
 
                     AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);

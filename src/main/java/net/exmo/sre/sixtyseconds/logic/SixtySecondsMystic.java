@@ -154,12 +154,9 @@ public final class SixtySecondsMystic {
         body.discard();
         level.playSound(null, dead.getX(), dead.getY(), dead.getZ(),
                 SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 1.2F);
-        Component msg = Component.translatable("message.noellesroles.sixty_seconds.revived",
-                reviver.getGameProfile().getName(), dead.getGameProfile().getName())
-                .withStyle(ChatFormatting.GOLD);
-        for (ServerPlayer other : level.players()) {
-            other.displayClientMessage(msg, false);
-        }
+        dead.displayClientMessage(Component.translatable(
+                "message.noellesroles.sixty_seconds.revived")
+                .withStyle(ChatFormatting.GOLD), false);
         return true;
     }
 }

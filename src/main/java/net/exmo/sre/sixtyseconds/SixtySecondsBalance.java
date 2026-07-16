@@ -191,11 +191,37 @@ public final class SixtySecondsBalance {
     public static final int BOSS_ROAR_COOLDOWN_TICKS = 20 * 18;
     public static final int BOSS_SUMMON_COOLDOWN_TICKS = 20 * 25;
     public static final int BOSS_CHARGE_COOLDOWN_TICKS = 20 * 14;
-    /** Boss 掉落：loot 掷骰件数 = BASE + PER_LEVEL×等级；保底废料 = BASE + PER_LEVEL×等级（+50%）。 */
-    public static final int BOSS_LOOT_ROLLS_BASE = 9;
-    public static final int BOSS_LOOT_ROLLS_PER_LEVEL = 5;
-    public static final int BOSS_SCRAP_BASE = 9;
-    public static final int BOSS_SCRAP_PER_LEVEL = 5;
+    /** Boss 掉落：loot 掷骰件数 = BASE + PER_LEVEL×等级；保底废料 = BASE + PER_LEVEL×等级（+40%）。 */
+    public static final int BOSS_LOOT_ROLLS_BASE = 13;
+    public static final int BOSS_LOOT_ROLLS_PER_LEVEL = 7;
+    public static final int BOSS_SCRAP_BASE = 13;
+    public static final int BOSS_SCRAP_PER_LEVEL = 7;
+    // ── Boss 变体权重（生成时随机选取；总值建议=1.0，剩余概率为 RAVAGER 破坏者）──
+    /** 巨像权重 */
+    public static final double BOSS_VARIANT_COLOSSUS_WEIGHT = 0.15;
+    /** 亡灵术士权重 */
+    public static final double BOSS_VARIANT_NECROMANCER_WEIGHT = 0.12;
+    /** 疫病者权重 */
+    public static final double BOSS_VARIANT_PLAGUEBEARER_WEIGHT = 0.12;
+    /** 鬼魅权重 */
+    public static final double BOSS_VARIANT_SPECTER_WEIGHT = 0.10;
+    /** 变体权重随天数递增倍率（第 N 天权重 × (1+递增×天数)）；0 代表不变。 */
+    public static final double BOSS_VARIANT_DAY_BONUS = 0.04;
+    // ── 新技能数值 ────────────────────────────────────────────────────
+    /** 铁壁冷却（巨像） */
+    public static final int BOSS_IRON_SKIN_COOLDOWN_TICKS = 20 * 35;
+    /** 生命汲取冷却（亡灵术士） */
+    public static final int BOSS_DRAIN_COOLDOWN_TICKS = 20 * 16;
+    /** 骨矛冷却（亡灵术士） */
+    public static final int BOSS_SPEAR_COOLDOWN_TICKS = 20 * 5;
+    /** 毒息冷却（疫病者） */
+    public static final int BOSS_BREATH_COOLDOWN_TICKS = 20 * 12;
+    /** 暗影突袭冷却（鬼魅） */
+    public static final int BOSS_SHADOW_COOLDOWN_TICKS = 20 * 10;
+    /** 剧毒新星冷却（疫病者终焉） */
+    public static final int BOSS_NOVA_COOLDOWN_TICKS = 20 * 22;
+    /** 狂怒触发血量阈值（<最大生命百分比） */
+    public static final double FRENZY_HP_THRESHOLD = 0.35;
 
     // ── PVE：哨戒炮 / 陷阱对玩家（SixtySecondsPveSystem）──────────────────────
     public static final double TURRET_RANGE = 12.0;

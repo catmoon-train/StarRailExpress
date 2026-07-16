@@ -89,6 +89,16 @@ public final class SixtySecondsDailyEvents {
      */
     @FunctionalInterface
     private interface ChoiceEffect {
+        /**
+         * 结算一条抉择事件。
+         *
+         * @param clicker <b>保证非空</b>：玩家点选时为本人；睡前自动拒绝（{@link #autoRejectAll}，option=2）
+         *                时为随机一名在线队员代表——全队离线则那边直接跳过不调用本方法。
+         *                实现里可放心解引用（发代币 / 取名字）；<b>切勿再往这里传 null</b>，
+         *                CCA 的 {@code ComponentKey.get(null)} 会 NPE 崩掉世界 tick。
+         * @param option  1 或 2（自动拒绝恒为 2）
+         * @return false = 前置不满足（已提示点击者），保持待决
+         */
         boolean choose(ServerLevel level, SixtySecondsState.TeamData team, ServerPlayer clicker, int option);
     }
 
@@ -264,10 +274,19 @@ public final class SixtySecondsDailyEvents {
             SixtySecondsState.TeamData team = data.teams.get(entry.getKey());
             EventDef def = EVENTS.get(entry.getValue().eventId);
             if (team != null && def != null && def.choice != null) {
+                // 自动拒绝没有真实「点击者」，但绝大多数 choice 处理器会直接解引用 clicker
+                // （发代币 KEY.get(clicker) / 取 clicker.getGameProfile().getName()）——
+                // 过去这里传 null 会 NPE 崩掉世界 tick（CCA 的 ComponentKey.get(null)）。
+                // 统一取一名在线队员代表本队结算；全队离线则只清掉待决事件、不结算
+                // （奖励/惩罚都必须落到具体玩家身上，无人可落时结算没有意义）。
+                ServerPlayer representative = randomMember(level, team);
+                if (representative == null) {
+                    continue;
+                }
                 msgTeam(level, team, Component.translatable(LANG + "auto_rejected",
                         Component.translatable(LANG + def.id + ".title"))
                         .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
-                def.choice.choose(level, team, null, 2);
+                def.choice.choose(level, team, representative, 2);
             }
         }
     }

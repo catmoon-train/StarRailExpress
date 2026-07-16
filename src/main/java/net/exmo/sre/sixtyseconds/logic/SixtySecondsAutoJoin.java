@@ -107,9 +107,15 @@ public final class SixtySecondsAutoJoin {
 
     /** 预告：1 分钟后入队（大字幕 + 音效 + 转旁观自由观察）。不合条件则不预告。 */
     private static void scheduleJoin(ServerPlayer player) {
-        if (!eligible(player) || pickTeam(player.serverLevel(),
-                SixtySecondsState.get(player.serverLevel())) == null) {
-            return; // 关闭/未建好/所有队伍已满四人 → 保持观战
+        if (!eligible(player)) {
+            return;
+        }
+        if (pickTeam(player.serverLevel(), SixtySecondsState.get(player.serverLevel())) == null) {
+            // 无可用队伍：显式设为旁观，防止玩家以冒险模式留在游戏世界中
+            player.setGameMode(GameType.SPECTATOR);
+            player.displayClientMessage(Component.translatable(
+                    "message.noellesroles.sixty_seconds.autojoin_no_room").withStyle(ChatFormatting.RED), false);
+            return;
         }
         UUID uuid = player.getUUID();
         long now = player.serverLevel().getGameTime();

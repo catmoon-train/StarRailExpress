@@ -10,7 +10,9 @@ import net.exmo.sre.sixtyseconds.SixtySecondsPhase;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
@@ -97,6 +99,17 @@ public final class SixtySecondsHealthSystem {
         // 60s 里任何物品都可攻击——放行后原版伤害链会被下面的 ALLOW_DAMAGE 转成健康伤害（数值按武器映射）
         io.wifi.starrailexpress.event.AllowPlayerPunching.EVENT.register(
                 player -> net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level()));
+        // 攻击时自动解除隐身：覆盖玩家攻击任意实体的所有情况（PvP / PvE / 空手 / 武器），
+        // AttackEntityCallback 在客户端/服务端双端触发，只取服务端处理。
+        AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            if (player instanceof ServerPlayer sp && !world.isClientSide()
+                    && SixtySecondsMod.isActive(sp.level())
+                    && GameUtils.isPlayerAliveAndSurvival(sp)
+                    && sp.hasEffect(MobEffects.INVISIBILITY)) {
+                sp.removeEffect(MobEffects.INVISIBILITY);
+            }
+            return InteractionResult.PASS;
+        });
         // 兜底拦截漏网的原版致死（/kill、虚空、瞬间大额伤害等）：改走本系统死亡（原地变旁观），
         // 否则原版死亡→重生把玩家送回世界出生点（表现为「出现在世界边缘」）
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {

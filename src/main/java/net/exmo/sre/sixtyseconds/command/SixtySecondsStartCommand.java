@@ -1,6 +1,7 @@
 package net.exmo.sre.sixtyseconds.command;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -182,11 +183,21 @@ public final class SixtySecondsStartCommand {
                                         .then(argument("id", IntegerArgumentType.integer(0))
                                                 .executes(c -> islandSail(c.getSource(),
                                                         IntegerArgumentType.getInteger(c, "id"))))))
-                        // 管理员：立即在准星/自身位置刷一只 Boss 尸潮领主（缺省等级=1）
+                        // 管理员：立即在准星/自身位置刷一只 Boss（缺省等级=1，可选变体）
                         .then(literal("boss")
                                 .requires(source -> source.hasPermission(2))
                                 .then(argument("level", IntegerArgumentType.integer(1,
                                         net.exmo.sre.sixtyseconds.SixtySecondsBalance.BOSS_MAX_LEVEL))
+                                        .then(argument("variant", StringArgumentType.word())
+                                                .suggests((ctx, builder) -> {
+                                                    for (var v : net.exmo.sre.sixtyseconds.entity.SixtySecondsBossEntity.BossVariant.values()) {
+                                                        builder.suggest(v.name().toLowerCase());
+                                                    }
+                                                    return builder.buildFuture();
+                                                })
+                                                .executes(c -> spawnBoss(c.getSource(),
+                                                        IntegerArgumentType.getInteger(c, "level"),
+                                                        StringArgumentType.getString(c, "variant"))))
                                         .executes(c -> spawnBoss(c.getSource(),
                                                 IntegerArgumentType.getInteger(c, "level"))))
                                 .executes(c -> spawnBoss(c.getSource(), 1)))
@@ -681,6 +692,11 @@ public final class SixtySecondsStartCommand {
 
     /** 管理员：在自身位置立即刷指定等级 Boss（本模式进行中）。 */
     private static int spawnBoss(CommandSourceStack source, int bossLevel) {
+        return spawnBoss(source, bossLevel, null);
+    }
+
+    /** 管理员：在自身位置刷指定等级+变体 Boss。variantName 为 null 或无法识别时默认破坏者。 */
+    private static int spawnBoss(CommandSourceStack source, int bossLevel, String variantName) {
         if (!SixtySecondsMod.isActive(source.getLevel())) {
             source.sendFailure(Component.translatable("message.noellesroles.sixty_seconds.cmd_not_running"));
             return 0;
@@ -689,8 +705,19 @@ public final class SixtySecondsStartCommand {
             source.sendFailure(Component.literal("player only"));
             return 0;
         }
+        var variant = net.exmo.sre.sixtyseconds.entity.SixtySecondsBossEntity.BossVariant.RAVAGER;
+        if (variantName != null) {
+            try {
+                variant = net.exmo.sre.sixtyseconds.entity.SixtySecondsBossEntity.BossVariant.valueOf(variantName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                source.sendFailure(Component.literal("未知 Boss 变体: " + variantName
+                        + "。可用: ravager, colossus, necromancer, plaguebearer, specter"));
+                return 0;
+            }
+        }
         var boss = net.exmo.sre.sixtyseconds.logic.SixtySecondsPveSystem.spawnBoss(
-                source.getLevel(), player.blockPosition().relative(player.getDirection(), 4), bossLevel);
+                source.getLevel(), player.blockPosition().relative(player.getDirection(), 4),
+                bossLevel, false, variant);
         return boss != null ? 1 : 0;
     }
 

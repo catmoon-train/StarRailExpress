@@ -288,26 +288,64 @@ public final class SixtySecondsPveSystem {
         LAST_BOSS_DAY.put(level, data.dayNumber);
     }
 
+    /**
+     * 按天数与随机权重抽取 Boss 变体。
+     * 特殊变体仅在第 3 天及之后出现；越晚越多特殊 Boss。
+     */
+    private static SixtySecondsBossEntity.BossVariant pickBossVariant(net.minecraft.util.RandomSource random, int dayNumber) {
+        if (dayNumber < 3) {
+            return SixtySecondsBossEntity.BossVariant.RAVAGER;
+        }
+        double dayBonus = SixtySecondsBalance.BOSS_VARIANT_DAY_BONUS * dayNumber;
+        double r = random.nextDouble();
+        double colW = SixtySecondsBalance.BOSS_VARIANT_COLOSSUS_WEIGHT * (1.0 + dayBonus);
+        double necW = SixtySecondsBalance.BOSS_VARIANT_NECROMANCER_WEIGHT * (1.0 + dayBonus);
+        double plaW = SixtySecondsBalance.BOSS_VARIANT_PLAGUEBEARER_WEIGHT * (1.0 + dayBonus);
+        double speW = SixtySecondsBalance.BOSS_VARIANT_SPECTER_WEIGHT * (1.0 + dayBonus);
+        if (r < speW) return SixtySecondsBossEntity.BossVariant.SPECTER;
+        if (r < speW + plaW) return SixtySecondsBossEntity.BossVariant.PLAGUEBEARER;
+        if (r < speW + plaW + necW) return SixtySecondsBossEntity.BossVariant.NECROMANCER;
+        if (r < speW + plaW + necW + colW) return SixtySecondsBossEntity.BossVariant.COLOSSUS;
+        return SixtySecondsBossEntity.BossVariant.RAVAGER;
+    }
+
     /** 生成普通尸潮领主（管理指令 {@code /sre:60s boss} 默认）。 */
     public static SixtySecondsBossEntity spawnBoss(ServerLevel level, BlockPos pos, int bossLevel) {
-        return spawnBoss(level, pos, bossLevel, false);
+        return spawnBoss(level, pos, bossLevel, false, SixtySecondsBossEntity.BossVariant.RAVAGER);
     }
 
     /** 生成 Boss（夜晚判定/管理指令共用）：全服播报坐标 + 音效。apex=终焉之王终极形态。 */
     public static SixtySecondsBossEntity spawnBoss(ServerLevel level, BlockPos pos, int bossLevel, boolean apex) {
+        return spawnBoss(level, pos, bossLevel, apex,
+                pickBossVariant(level.random, SixtySecondsState.get(level).dayNumber));
+    }
+
+    /** 生成指定变体 Boss。 */
+    public static SixtySecondsBossEntity spawnBoss(ServerLevel level, BlockPos pos, int bossLevel,
+            boolean apex, SixtySecondsBossEntity.BossVariant variant) {
         SixtySecondsBossEntity boss = org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_BOSS.create(level);
         if (boss == null) {
             return null;
         }
         boss.setPos(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
-        boss.applyBossLevel(bossLevel, apex);
+        boss.applyBossLevel(bossLevel, apex, variant);
         level.addFreshEntity(boss);
         ACTIVE_BOSS.put(level, boss.getUUID());
-        Component message = Component.translatable(apex
-                ? "message.noellesroles.sixty_seconds.boss_apex_spawned"
-                : "message.noellesroles.sixty_seconds.boss_spawned",
-                bossLevel, pos.getX(), pos.getY(), pos.getZ())
-                .withStyle(apex ? ChatFormatting.DARK_PURPLE : ChatFormatting.DARK_RED);
+        Component message;
+        if (variant == SixtySecondsBossEntity.BossVariant.RAVAGER) {
+            message = Component.translatable(apex
+                    ? "message.noellesroles.sixty_seconds.boss_apex_spawned"
+                    : "message.noellesroles.sixty_seconds.boss_spawned",
+                    bossLevel, pos.getX(), pos.getY(), pos.getZ())
+                    .withStyle(apex ? ChatFormatting.DARK_PURPLE : ChatFormatting.DARK_RED);
+        } else {
+            message = Component.translatable(apex
+                    ? "message.noellesroles.sixty_seconds.boss_variant_apex_spawned"
+                    : "message.noellesroles.sixty_seconds.boss_variant_spawned",
+                    Component.translatable(variant.nameKey()), bossLevel,
+                    pos.getX(), pos.getY(), pos.getZ())
+                    .withStyle(apex ? ChatFormatting.DARK_PURPLE : ChatFormatting.DARK_RED);
+        }
         for (ServerPlayer player : level.players()) {
             player.displayClientMessage(message, false);
             player.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 0.7F, apex ? 0.5F : 0.75F);
@@ -337,9 +375,29 @@ public final class SixtySecondsPveSystem {
         SixtySecondsLootTable table = SixtySecondsLootStore.get(level);
         int lvl = boss.bossLevel();
         int rolls = SixtySecondsBalance.BOSS_LOOT_ROLLS_BASE + SixtySecondsBalance.BOSS_LOOT_ROLLS_PER_LEVEL * lvl;
-        double exponent = SixtySecondsAreaLevels.lootExponent(Math.min(lvl + 1,
-                SixtySecondsBalance.AREA_LEVEL_MAX));
-        String[] pool = { "airdrop", "airdrop", "airdrop", "weapon", "medicine", "material", "food", "water" };
+        // 稀有度压平：Boss 掉落用 lvl+2 压得更平，比同区域物资箱更容易出稀有物
+        double exponent = SixtySecondsAreaLevels.lootExponent(
+                Math.min(lvl + 2, SixtySecondsBalance.AREA_LEVEL_MAX));
+        // 扩展掉落池：含高级类别 + 空投（权重偏向高价值）
+        String[] pool;
+        if (boss.isApex()) {
+            // 终焉之王专属池：advanced_rare 占 3/10，大量高品质掉落
+            pool = new String[] { "airdrop", "airdrop", "airdrop",
+                    "advanced_rare", "advanced_rare", "advanced_rare",
+                    "advanced_weapon", "advanced_tool", "advanced_medicine", "advanced_material" };
+        } else if (lvl >= 4) {
+            pool = new String[] { "airdrop", "airdrop", "airdrop", "airdrop",
+                    "advanced_weapon", "advanced_rare",
+                    "advanced_tool", "advanced_medicine", "advanced_material", "weapon" };
+        } else if (lvl >= 2) {
+            pool = new String[] { "airdrop", "airdrop", "airdrop",
+                    "advanced_weapon", "advanced_tool", "advanced_material",
+                    "weapon", "medicine", "material", "food" };
+        } else {
+            pool = new String[] { "airdrop", "airdrop", "airdrop",
+                    "advanced_weapon", "advanced_material",
+                    "weapon", "medicine", "material", "food", "water" };
+        }
         for (int i = 0; i < rolls; i++) {
             String category = pool[level.random.nextInt(pool.length)];
             ItemStack stack = table.roll(category, level.random, exponent);
@@ -349,7 +407,34 @@ public final class SixtySecondsPveSystem {
         }
         dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP,
                 SixtySecondsBalance.BOSS_SCRAP_BASE + SixtySecondsBalance.BOSS_SCRAP_PER_LEVEL * lvl));
-        if (level.random.nextFloat() < 0.35F + 0.15F * lvl) {
+        // ── 额外保底奖励（等级越高越多）─────────────────────────────────
+        // 弹药：4 + 4/级
+        dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_AMMO,
+                4 + 4 * lvl));
+        // 高级材料：Lv2+ 钢材 ×2/级，Lv3+ 电子元件 ×1/级，Lv4+ 齿轮 ×1/级
+        if (lvl >= 2) {
+            dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_STEEL_INGOT,
+                    2 * lvl));
+        }
+        if (lvl >= 3) {
+            dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ELECTRONICS,
+                    lvl));
+        }
+        if (lvl >= 4) {
+            dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_GEAR,
+                    lvl));
+        }
+        // 终焉之王额外：大电池 ×2、合金板 ×2、全效补药 ×1
+        if (boss.isApex()) {
+            dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BATTERY_LARGE,
+                    2));
+            dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ALLOY_PLATE,
+                    2));
+            dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_OMNI_TONIC,
+                    1));
+        }
+        // 蓝图概率：40% + 15%/级（原 35% + 15%/级；Lv1=55%, Lv3=85%, Lv5=115%）
+        if (level.random.nextFloat() < 0.40F + 0.15F * lvl) {
             dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BLUEPRINT));
         }
     }
