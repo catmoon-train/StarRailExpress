@@ -68,6 +68,8 @@ public class VolunteerDraftScreen extends Screen {
 
     public VolunteerDraftScreen() {
         super(Component.translatable("gui.sre.volunteer.title").withStyle(ChatFormatting.GOLD));
+        // super(Component.translatable("gui.sre.volunteer.subtitle.1").withStyle(ChatFormatting.GOLD));
+        // super(Component.translatable("gui.sre.volunteer.subtitle.2").withStyle(ChatFormatting.GOLD));
     }
 
     @Override
@@ -187,6 +189,11 @@ public class VolunteerDraftScreen extends Screen {
     }
 
     private void drawTitleBar(GuiGraphics g) {
+        g.drawString(font, title, PAD, 10, GOLD, false);
+        g.drawString(font, Component.translatable("gui.sre.volunteer.subtitle.1"), PAD, 20,
+                ChatFormatting.GRAY.getColor() | 0xff000000, false);
+        g.drawString(font, Component.translatable("gui.sre.volunteer.subtitle.2"), PAD, 30,
+                ChatFormatting.GRAY.getColor() | 0xff000000, false);
         g.drawString(font, title, PAD, 10, GOLD, false);
         Component hint = Component.translatable("gui.sre.volunteer.sort_hint");
         g.drawCenteredString(font, hint, width / 2, 18, MUTED);
