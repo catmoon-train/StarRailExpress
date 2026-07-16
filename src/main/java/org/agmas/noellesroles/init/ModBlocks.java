@@ -463,15 +463,15 @@ public interface ModBlocks {
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     Block SIXTY_SECONDS_BASE_DOOR_1 = blockRegistrar.createWithItem("sixty_seconds_base_door_1",
             new net.exmo.sre.sixtyseconds.content.block.SixtySecondsBaseDoorBlock(
-                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(50.0F).noLootTable(), 1),
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(50.0F).noLootTable(), 1),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     Block SIXTY_SECONDS_BASE_DOOR_2 = blockRegistrar.createWithItem("sixty_seconds_base_door_2",
             new net.exmo.sre.sixtyseconds.content.block.SixtySecondsBaseDoorBlock(
-                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(50.0F).noLootTable(), 2),
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(50.0F).noLootTable(), 2),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     Block SIXTY_SECONDS_BASE_DOOR_3 = blockRegistrar.createWithItem("sixty_seconds_base_door_3",
             new net.exmo.sre.sixtyseconds.content.block.SixtySecondsBaseDoorBlock(
-                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(50.0F).noLootTable(), 3),
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(50.0F).noLootTable(), 3),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // 创建轮盘赌桌方块实体类型

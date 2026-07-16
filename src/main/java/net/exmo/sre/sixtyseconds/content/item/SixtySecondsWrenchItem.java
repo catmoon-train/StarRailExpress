@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * 扳手：右键拆除 60s 功能方块（路障/陷阱/发电机/电灯），拆除后返还对应物品。
+ * 扳手：右键拆除 60s 功能方块（路障/陷阱/发电机/电灯/火把），拆除后返还对应物品。
  */
 public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
 
@@ -42,7 +42,13 @@ public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
         if (!isFunctionalBlock(state)) {
             return InteractionResult.PASS;
         }
-        ItemStack drop = new ItemStack(state.getBlock().asItem());
+        ItemStack drop;
+        if (state.is(net.minecraft.world.level.block.Blocks.TORCH)
+                || state.is(net.minecraft.world.level.block.Blocks.WALL_TORCH)) {
+            drop = new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_TORCH);
+        } else {
+            drop = new ItemStack(state.getBlock().asItem());
+        }
         level.removeBlock(pos, false); // onRemove 会注销登记
         if (!player.getInventory().add(drop)) {
             player.drop(drop, false);
@@ -60,6 +66,8 @@ public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
                 || block instanceof SixtySecondsGeneratorBlock
                 || block instanceof SixtySecondsLampBlock
                 || block instanceof net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock
-                || state.is(org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_DISMANTLER);
+                || state.is(org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_DISMANTLER)
+                || state.is(net.minecraft.world.level.block.Blocks.TORCH)
+                || state.is(net.minecraft.world.level.block.Blocks.WALL_TORCH);
     }
 }

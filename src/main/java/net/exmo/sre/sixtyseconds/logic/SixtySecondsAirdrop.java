@@ -21,14 +21,14 @@ import net.minecraft.world.phys.AABB;
 import java.util.*;
 
 /**
- * 空投系统：探索区避难所返回门周围 300~699 格随机投放，3x3x3 结构含 4 个物资箱，
+ * 空投系统：探索区避难所返回门周围 200~300 格随机投放，3x3x3 结构含 4 个物资箱，
  * 落地后 60s 冒烟标记。由 {@code END_WORLD_TICK} 全局推进。
  */
 public final class SixtySecondsAirdrop {
     private static final double FALL_SPEED = 0.5;
     private static final int DROP_HEIGHT = 40;
-    private static final int DISTANCE_MIN = 300;
-    private static final int DISTANCE_MAX = 699;
+    private static final int DISTANCE_MIN = 200;
+    private static final int DISTANCE_MAX = 300;
     private static final int HEIGHT_MATCH_TOLERANCE = 8;
     private static final int SMOKE_TICKS = 20 * 60; // 60 秒冒烟
 

@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.init.ModItems;
@@ -125,13 +126,31 @@ public final class SixtySecondsMystic {
         if (!reviver.isCreative()) {
             totem.shrink(1);
         }
+        // 备份尸体物品栏 → 复活后继承尸体物品，清空原有物品
+        SimpleContainer corpseInv = body.getComponent().getCorpseInventory();
+        ItemStack[] saved = new ItemStack[14]; // hotbar 0-8 + armor/offhand 9-13
+        for (int i = 0; i < 14; i++) {
+            saved[i] = corpseInv.getItem(i).copy();
+        }
+        dead.getInventory().clearContent();
         // 复活在尸体位置；重置 60s 状态到可行动水平
         GameUtils.revivePlayer(dead, body.getX(), body.getY(), body.getZ());
+        // 把尸体物品写入复活玩家的背包
+        for (int i = 0; i < 9; i++) {
+            dead.getInventory().setItem(i, saved[i]);
+        }
+        dead.getInventory().setItem(39, saved[9]);   // head
+        dead.getInventory().setItem(38, saved[10]);  // chest
+        dead.getInventory().setItem(37, saved[11]);  // legs
+        dead.getInventory().setItem(36, saved[12]);  // feet
+        dead.getInventory().setItem(40, saved[13]);  // offhand
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(dead);
         stats.downed = false;
         stats.downedFromInjury = false;
         stats.health = REVIVE_HEALTH;
         stats.sync();
+        // 清空尸体物品栏防止掉落
+        corpseInv.clearContent();
         body.discard();
         level.playSound(null, dead.getX(), dead.getY(), dead.getZ(),
                 SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 1.2F);

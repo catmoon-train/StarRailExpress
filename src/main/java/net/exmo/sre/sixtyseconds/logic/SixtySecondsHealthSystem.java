@@ -1,7 +1,9 @@
 package net.exmo.sre.sixtyseconds.logic;
 
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.exmo.sre.sixtyseconds.SixtySecondsBalance;
 import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.exmo.sre.sixtyseconds.SixtySecondsPhase;
@@ -18,12 +20,16 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -41,7 +47,40 @@ public final class SixtySecondsHealthSystem {
     public static final int BLEED_OUT_TICKS = 20 * 150;   // 倒地 2.5 分钟流血死
     public static final int REVIVE_TICKS = 20 * 15;       // 队友近身 15s 救起
     private static final double REVIVE_RANGE_SQR = 3.0 * 3.0;
-    private static final ResourceLocation DEATH_REASON = Noellesroles.id("sixty_seconds_death");
+
+    // ── 60s 模式所有可能的死亡原因（用于 handleLethal 识别自身产生的死亡）──
+    private static final Set<ResourceLocation> SIXTY_SECONDS_DEATH_REASONS = Set.of(
+            GameConstants.DeathReasons.GUN_SHOT,
+            GameConstants.DeathReasons.REVOLVER,
+            GameConstants.DeathReasons.DERRINGER,
+            GameConstants.DeathReasons.SNIPER_RIFLE,
+            GameConstants.DeathReasons.EXECUTE,
+            GameConstants.DeathReasons.ZERO_ONE_FIVE,
+            GameConstants.DeathReasons.KNIFE,
+            GameConstants.DeathReasons.BAT,
+            GameConstants.DeathReasons.FIRE_AXE,
+            GameConstants.DeathReasons.GENERAL_ATTACK,
+            GameConstants.DeathReasons.FALL_DAMAGE,
+            GameConstants.DeathReasons.STARVED,
+            GameConstants.DeathReasons.THIRST,
+            GameConstants.DeathReasons.DROWNED,
+            GameConstants.DeathReasons.LAVA,
+            GameConstants.DeathReasons.FROZEN,
+            GameConstants.DeathReasons.GENERIC,
+            GameConstants.DeathReasons.FELL_OUT_OF_TRAIN
+    );
+
+    /** 非 PvP 致死（环境/意外/自然）的死亡原因池，无击杀者时随机选取。 */
+    private static final ResourceLocation[] ENVIRONMENTAL_DEATH_REASONS = {
+            GameConstants.DeathReasons.FALL_DAMAGE,
+            GameConstants.DeathReasons.STARVED,
+            GameConstants.DeathReasons.THIRST,
+            GameConstants.DeathReasons.DROWNED,
+            GameConstants.DeathReasons.LAVA,
+            GameConstants.DeathReasons.FROZEN,
+            GameConstants.DeathReasons.GENERIC,
+            GameConstants.DeathReasons.FELL_OUT_OF_TRAIN
+    };
 
     /** 倒地玩家 UUID → 已累计救援 tick。 */
     private static final Map<UUID, Integer> REVIVE_PROGRESS = new HashMap<>();
@@ -176,7 +215,7 @@ public final class SixtySecondsHealthSystem {
         }
         // 本系统 die() 走 forceKillPlayer 会再次触发本事件（forceDeath 只忽略否决、不跳过监听器），
         // 放行自己的死因，否则 handleLethal→applyInjury→die 无限递归爆栈
-        if (DEATH_REASON.equals(deathReason)) {
+        if (SIXTY_SECONDS_DEATH_REASONS.contains(deathReason)) {
             return true;
         }
         ServerPlayer serverKiller = killer instanceof ServerPlayer sk ? sk : null;
@@ -223,9 +262,13 @@ public final class SixtySecondsHealthSystem {
         // 「进别人家默认开 PvP」：交战任一方身处<b>别队</b>避难所盒内（=有人破门闯入了别人家），
         // 绕过时段禁令（清晨/新手保护期）——闯入是侵略行为，主人要能随时反击、闯入者也要担风险。
         // 纯野外/自己家的交战仍受时段禁令约束。
+        // 此外，若任一方持有 BREAK_IN_INTRUDER 药水效果（撬锁器/开锁器闯入标记），同样豁免时段
+        // 禁令——作为 isInsideForeignShelter 坐标检测的兜底（避难所盒边界/坐标精度偶发不命中）。
         boolean intrusion = victim != null
                 && (isInsideForeignShelter(level, attacker) || isInsideForeignShelter(level, victim));
-        if (!intrusion && isPvpBlocked(level)) {
+        boolean hasIntruderEffect = attacker.hasEffect(ModEffects.BREAK_IN_INTRUDER)
+                || (victim != null && victim.hasEffect(ModEffects.BREAK_IN_INTRUDER));
+        if (!intrusion && !hasIntruderEffect && isPvpBlocked(level)) {
             return true;
         }
         if (victim == null) {
@@ -389,7 +432,61 @@ public final class SixtySecondsHealthSystem {
         victim.displayClientMessage(Component.translatable("message.noellesroles.sixty_seconds.downed"), false);
     }
 
+    /**
+     * 根据击杀者手持武器或环境类型解析死亡原因。
+     * <ul>
+     *   <li>击杀者持有枪械 → 对应枪械死因（左轮/德林加/狙击/处决/零一五）</li>
+     *   <li>击杀者持有近战武器 → 对应近战死因（刀/球棒/消防斧/普通攻击）</li>
+     *   <li>击杀者为空 → 从环境死因池随机选取（坠落/饥饿/口渴/溺水/岩浆/冰冻/未知/列车碾压）</li>
+     * </ul>
+     */
+    private static ResourceLocation resolveDeathReason(@Nullable ServerPlayer killer, ServerPlayer victim) {
+        if (killer != null && killer != victim) {
+            ItemStack weapon = killer.getMainHandItem();
+            Item item = weapon.getItem();
+
+            // ── 枪械 ──
+            if (item == TMMItems.REVOLVER || item == TMMItems.STANDARD_REVOLVER
+                    || item == ModItems.SHERIFF_REVOLVER || item == ModItems.BANDIT_REVOLVER) {
+                return GameConstants.DeathReasons.REVOLVER;
+            }
+            if (item == TMMItems.DERRINGER) {
+                return GameConstants.DeathReasons.DERRINGER;
+            }
+            if (item == TMMItems.SNIPER_RIFLE) {
+                return GameConstants.DeathReasons.SNIPER_RIFLE;
+            }
+            if (item == ModItems.EXECUTIONER_GUN) {
+                return GameConstants.DeathReasons.EXECUTE;
+            }
+            if (item == ModItems.ZERO_ONE_FIVE_GUN) {
+                return GameConstants.DeathReasons.ZERO_ONE_FIVE;
+            }
+
+            // ── 近战武器 ──
+            if (item == ModItems.SIXTY_SECONDS_KNIFE) {
+                return GameConstants.DeathReasons.KNIFE;
+            }
+            if (item == ModItems.SIXTY_SECONDS_SPIKED_BAT || item == ModItems.SIXTY_SECONDS_STUN_BATON) {
+                return GameConstants.DeathReasons.BAT;
+            }
+            if (item == ModItems.SIXTY_SECONDS_FIRE_AXE || item == ModItems.SIXTY_SECONDS_HATCHET) {
+                return GameConstants.DeathReasons.FIRE_AXE;
+            }
+            if (item instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem) {
+                return GameConstants.DeathReasons.GENERAL_ATTACK;
+            }
+
+            // 徒手/未知物品 → 普通攻击
+            return GameConstants.DeathReasons.GENERAL_ATTACK;
+        }
+
+        // 无击杀者 → 从环境死因池随机选取
+        return ENVIRONMENTAL_DEATH_REASONS[victim.getRandom().nextInt(ENVIRONMENTAL_DEATH_REASONS.length)];
+    }
+
     public static void die(ServerPlayer victim, @Nullable ServerPlayer killer) {
+        ResourceLocation deathReason = resolveDeathReason(killer, victim);
         applyKillSanityCapLoss(victim, killer);
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(victim);
         stats.downed = false;
@@ -402,7 +499,7 @@ public final class SixtySecondsHealthSystem {
             bar.removeAllPlayers();
             bar.setVisible(false);
         }
-        GameUtils.forceKillPlayer(victim, true, killer, DEATH_REASON);
+        GameUtils.forceKillPlayer(victim, true, killer, deathReason);
     }
 
     /**
@@ -571,6 +668,7 @@ public final class SixtySecondsHealthSystem {
             player.setPose(Pose.STANDING);
             player.removeEffect(ModEffects.MOVE_BANED);
             player.removeEffect(ModEffects.USED_BANED);
+            player.removeEffect(ModEffects.BREAK_IN_INTRUDER);
         }
     }
 }

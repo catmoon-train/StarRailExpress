@@ -80,9 +80,11 @@ public final class SixtySecondsMonsterSystem {
     private static void transform(ServerLevel level, ServerPlayer player, SixtySecondsStatsComponent stats) {
         stats.monster = true;
         stats.sanZeroTick = 0;
-        stats.health = 250; // 怪物拥有 250 点健康值，需要多次攻击才能击杀
+        stats.health = 1; // 怪物血量为 1，被枪一击即死（匹配设计文档：发光+力量+速度的可见威胁，脆皮高伤）
         stats.sync();
         applyMonsterEffects(player);
+        // 立即将玩家的原版生命值扣至 1，确保客户端与服务端状态一致，怪物可被一击击杀
+        player.setHealth(1.0F);
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.monster_transform",
                 player.getGameProfile().getName()).withStyle(ChatFormatting.DARK_RED));
     }

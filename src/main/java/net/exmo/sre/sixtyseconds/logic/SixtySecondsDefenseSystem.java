@@ -105,6 +105,9 @@ public final class SixtySecondsDefenseSystem {
                             || !entity.getTags().contains(ASSAULT_TAG)) {
                         return;
                     }
+                    if (level.getRandom().nextDouble() >= SixtySecondsBalance.MONSTER_SCRAP_DROP_CHANCE) {
+                        return;
+                    }
                     int count = 1 + level.getRandom().nextInt(2);
                     net.minecraft.world.entity.item.ItemEntity drop = new net.minecraft.world.entity.item.ItemEntity(
                             level, entity.getX(), entity.getY() + 0.3D, entity.getZ(),

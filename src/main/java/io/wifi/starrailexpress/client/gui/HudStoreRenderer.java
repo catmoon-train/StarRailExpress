@@ -22,10 +22,10 @@ public class HudStoreRenderer {
             float delta) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         SRERole role = gameWorldComponent.getRole(player);
-        if (role == null) {
-            return;
-        }
-        if (role.canSeeCoin()) {
+
+        // 金币：仅在有职业且职业允许时显示
+        boolean showCoin = role != null && role.canSeeCoin();
+        if (showCoin) {
             int balance = SREPlayerShopComponent.KEY.get(player).balance;
             if (view.getTarget() != balance) {
                 offsetDelta = balance > view.getTarget() ? .6f : -.6f;
@@ -43,18 +43,18 @@ public class HudStoreRenderer {
             context.pose().popPose();
             offsetDelta = Mth.lerp(delta / 16, offsetDelta, 0f);
 
-            // 小游戏代币（货币）：显示在金币左边同一水平线
+            // 小游戏代币：显示在金币左边同一水平线
             SREPlayerMinigameTaskComponent minigameTask = SREPlayerMinigameTaskComponent.KEY.get(player);
             if (minigameTask != null && minigameTask.getTokens() > 0) {
                 Component tokenText = Component.translatable("hud.sre.game_token", minigameTask.getTokens());
                 int spacing = 8;
                 int coinWidth = view.getWidth(renderer);
-                int tokenX = coinX - coinWidth - spacing - renderer.width(tokenText)+8;
+                int tokenX = coinX - coinWidth - spacing - renderer.width(tokenText) + 8;
                 int tokenY = coinY;
                 context.drawString(renderer, tokenText, tokenX, tokenY, 0xFFFFD700, false);
             }
         } else {
-            // 小游戏代币（货币）：无金币时显示在右上角
+            // 小游戏代币：无金币时（或无职业时）显示在右上角
             SREPlayerMinigameTaskComponent minigameTask = SREPlayerMinigameTaskComponent.KEY.get(player);
             if (minigameTask != null && minigameTask.getTokens() > 0) {
                 Component tokenText = Component.translatable("hud.sre.game_token", minigameTask.getTokens());

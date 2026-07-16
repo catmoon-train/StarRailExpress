@@ -315,6 +315,13 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> CHAT_BAN = register("chat_ban",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x666666));
+    /**
+     * 闯入者标记：撬锁器/开锁器破门闯入别队避难所后标记闯入者，
+     * 用于豁免新手保护期的 PvP 禁令（见 {@code SixtySecondsHealthSystem.isPvpBlocked}）。
+     * 隐身、无粒子、无图标——纯标记用途，不给被闯入方任何视觉提示（潜行进入）。
+     */
+    public static final Holder<MobEffect> BREAK_IN_INTRUDER = register("break_in_intruder",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xFF6B35));
     public static final Holder<MobEffect> MONOKUMA_FRENZY = register("monokuma_frenzy",
             new org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaFrenzyEffect());
 

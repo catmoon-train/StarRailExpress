@@ -2,6 +2,7 @@ package net.exmo.sre.sixtyseconds.logic;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.PacketTracker;
 import net.exmo.sre.camera.AdvancedCameraCommand;
@@ -46,9 +47,10 @@ public final class SixtySecondsManager {
     /** 每游戏日 9.5 分钟：清晨 1 + 白天 6 + 晚上 2.5（含末尾 45s 睡觉时间），见 {@link net.exmo.sre.sixtyseconds.SixtySecondsDayCycle}。 */
     public static final int DAY_TICKS = net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.DAY_TOTAL_TICKS;
     public static final int TOTAL_DAYS = 7;
-    /** 每天发放避难所代币（随机 10~18）。 */
-    public static final int DAILY_TOKENS_MIN = 10;
-    public static final int DAILY_TOKENS_MAX = 18;
+    /** 每天发放避难所代币（随机 6~12，原 10~18 的 -35%）。 */
+    public static final int DAILY_TOKENS_MIN = 6;
+    public static final int DAILY_TOKENS_MAX = 12;
+    public static final int COINS_PER_DAY = 80;            // 每天 80 金币
     /** 准备阶段结束 → 第 1 天开始前的过渡动画时长（tick）。期间播放运镜 + 字幕 + 音效。 */
     private static final int PREP_TRANSITION_TICKS = 100;
     /** 记录各维度准备→Day 过渡动画的结束时间戳（gameTime）；null=不在过渡中。 */
@@ -82,6 +84,7 @@ public final class SixtySecondsManager {
         SixtySecondsDoorHighlight.reset(level);
         SixtySecondsLootSearch.reset();
         SixtySecondsReconnect.reset();
+        SixtySecondsAutoJoin.reset(); // 清「本局已进过游戏」名单 + 待入队队列
         SixtySecondsRescue.reset();
         SixtySecondsRockets.reset();
         SixtySecondsAirdrop.reset();
@@ -357,6 +360,7 @@ public final class SixtySecondsManager {
             player.setPose(net.minecraft.world.entity.Pose.STANDING);
             player.removeEffect(ModEffects.MOVE_BANED);
             player.removeEffect(ModEffects.USED_BANED);
+            player.removeEffect(ModEffects.BREAK_IN_INTRUDER);
         }
         // 第7天结束：有存活幸存者→幸存者胜，否则败（详见 SixtySecondsWinConditions）。
         SixtySecondsWinConditions.finish(level, data);
@@ -388,6 +392,8 @@ public final class SixtySecondsManager {
                     continue;
                 }
                 team.members.add(player.getUUID());
+                // 登记「本局已进过游戏」：这些玩家退服再进也不会被中途自动入队（见 SixtySecondsAutoJoin）
+                SixtySecondsAutoJoin.markPlayed(player.getUUID());
                 SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
                 stats.init();
                 stats.teamId = team.teamId;
@@ -427,7 +433,7 @@ public final class SixtySecondsManager {
         }
     }
 
-    /** 换日：重置本日倒地次数，发放每日避难所代币（每人随机 10~18）。 */
+    /** 换日：重置本日倒地次数，发放每日 80 金币 + 避难所代币（每人随机 6~12）。 */
     private static void dailyPlayerUpdates(ServerLevel level, SixtySecondsState.Data data) {
         for (SixtySecondsState.TeamData team : data.teams.values()) {
             for (UUID uuid : team.members) {
@@ -435,6 +441,7 @@ public final class SixtySecondsManager {
                     SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
                     stats.downedCountToday = 0;
                     stats.sync();
+                    SREPlayerShopComponent.KEY.get(player).addToBalance(COINS_PER_DAY);
                     int todayTokens = DAILY_TOKENS_MIN + level.getRandom().nextInt(
                             DAILY_TOKENS_MAX - DAILY_TOKENS_MIN + 1);
                     SREPlayerMinigameTaskComponent.KEY.get(player).addTokens(todayTokens);
@@ -609,9 +616,10 @@ public final class SixtySecondsManager {
                     // 回家了：立即变异
                     if (!stats.monster) {
                         stats.monster = true;
-                        stats.health = 250;
+                        stats.health = 1;
                         stats.sanity = 0;
                         stats.sync();
+                        sister.setHealth(1.0F); // 原版血量同步，确保一击即死
                         net.exmo.sre.sixtyseconds.logic.SixtySecondsMonsterSystem.applyMonsterEffects(sister);
                         broadcast(level, Component.translatable(
                                 "message.noellesroles.sixty_seconds.devent.sister_outside.back_but_changed",

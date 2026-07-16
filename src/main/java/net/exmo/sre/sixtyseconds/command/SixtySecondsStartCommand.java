@@ -106,6 +106,12 @@ public final class SixtySecondsStartCommand {
                                 .then(literal("on").executes(c -> setPve(c.getSource(), true)))
                                 .then(literal("off").executes(c -> setPve(c.getSource(), false)))
                                 .executes(c -> showPve(c.getSource())))
+                        // 管理员：中途自动入队开关（新玩家自动补入未满四人的队伍；默认开，按图持久化）
+                        .then(literal("autojoin")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("on").executes(c -> setAutoJoin(c.getSource(), true)))
+                                .then(literal("off").executes(c -> setAutoJoin(c.getSource(), false)))
+                                .executes(c -> showAutoJoin(c.getSource())))
                         // 海岛远征：/sre:60s island start|stop（OP，独立于对局的地图机制开关）
                         // map=打开海图（所有玩家）、sail <id>=扬帆（海图点击触发）、home=返回住所
                         .then(literal("island")
@@ -614,6 +620,29 @@ public final class SixtySecondsStartCommand {
         source.sendSuccess(() -> Component.translatable(enabled
                 ? "message.noellesroles.sixty_seconds.pve_enabled"
                 : "message.noellesroles.sixty_seconds.pve_disabled"), false);
+        return 1;
+    }
+
+    /** 管理员：切换中途自动入队开关（新玩家自动补入未满队伍，按图配置持久化，默认开）。 */
+    private static int setAutoJoin(CommandSourceStack source, boolean enabled) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.autoJoinEnabled = enabled;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.autojoin_enabled"
+                : "message.noellesroles.sixty_seconds.autojoin_disabled").withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 管理员：查看中途自动入队开关当前状态。 */
+    private static int showAutoJoin(CommandSourceStack source) {
+        boolean enabled = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
+                .map(config -> config.autoJoinEnabled).orElse(true);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.autojoin_enabled"
+                : "message.noellesroles.sixty_seconds.autojoin_disabled"), false);
         return 1;
     }
 

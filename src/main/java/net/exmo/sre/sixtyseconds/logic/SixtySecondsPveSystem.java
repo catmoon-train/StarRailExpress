@@ -86,6 +86,9 @@ public final class SixtySecondsPveSystem {
                             || entity.getTags().contains(SixtySecondsDefenseSystem.ASSAULT_TAG)) {
                         return; // 夜袭怪掉落由 DefenseSystem 负责；Boss 掉落见 onBossDied
                     }
+                    if (level.getRandom().nextDouble() >= SixtySecondsBalance.MONSTER_SCRAP_DROP_CHANCE) {
+                        return;
+                    }
                     int count = 1 + level.getRandom().nextInt(2);
                     ItemEntity drop = new ItemEntity(level, entity.getX(), entity.getY() + 0.3D, entity.getZ(),
                             new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP, count));
@@ -147,6 +150,8 @@ public final class SixtySecondsPveSystem {
             int areaLevel = SixtySecondsAreaLevels.levelAt(level, player.blockPosition());
             double chance = SixtySecondsBalance.AMBIENT_SPAWN_CHANCE
                     + SixtySecondsBalance.AMBIENT_SPAWN_CHANCE_PER_AREA_LEVEL * (areaLevel - 1);
+            // 前期天数倍率：前两天刷新概率大幅降低，逐步爬升
+            chance *= SixtySecondsBalance.ambientSpawnDayMult(data.dayNumber);
             if (SixtySecondsDayCycle.isNight(data, level.getGameTime())) {
                 chance *= SixtySecondsBalance.AMBIENT_NIGHT_CHANCE_MULT;
             }
@@ -247,6 +252,10 @@ public final class SixtySecondsPveSystem {
         boolean guaranteed = data.dayNumber == 3 || data.dayNumber == 5 || data.dayNumber == 7;
         double chance = SixtySecondsBalance.BOSS_NIGHT_CHANCE
                 + SixtySecondsBalance.BOSS_NIGHT_CHANCE_PER_DAY * data.dayNumber;
+        // 非保底日应用天数倍率（前两天 Boss 概率大幅降低）
+        if (!guaranteed) {
+            chance *= SixtySecondsBalance.bossSpawnDayMult(data.dayNumber);
+        }
         if (!guaranteed && level.random.nextDouble() >= chance) {
             return;
         }
@@ -339,7 +348,7 @@ public final class SixtySecondsPveSystem {
         }
         dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP,
                 SixtySecondsBalance.BOSS_SCRAP_BASE + SixtySecondsBalance.BOSS_SCRAP_PER_LEVEL * lvl));
-        if (level.random.nextFloat() < 0.25F + 0.1F * lvl) {
+        if (level.random.nextFloat() < 0.35F + 0.15F * lvl) {
             dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BLUEPRINT));
         }
     }

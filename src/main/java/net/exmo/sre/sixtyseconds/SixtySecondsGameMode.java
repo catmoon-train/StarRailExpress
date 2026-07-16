@@ -113,6 +113,7 @@ public class SixtySecondsGameMode extends GameMode {
         net.exmo.sre.sixtyseconds.logic.SixtySecondsDoorHighlight.reset(world);
         net.exmo.sre.sixtyseconds.logic.SixtySecondsLootSearch.reset();
         net.exmo.sre.sixtyseconds.logic.SixtySecondsReconnect.reset();
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsAutoJoin.reset();
         net.exmo.sre.sixtyseconds.logic.SixtySecondsRescue.reset();
         net.exmo.sre.sixtyseconds.logic.SixtySecondsRockets.reset();
         net.exmo.sre.sixtyseconds.logic.SixtySecondsAirdrop.reset(world);

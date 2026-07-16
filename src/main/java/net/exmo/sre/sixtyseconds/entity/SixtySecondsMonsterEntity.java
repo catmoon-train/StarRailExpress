@@ -180,7 +180,10 @@ public class SixtySecondsMonsterEntity extends Zombie {
                 setTarget(null);
                 return false;
             }
+            // 受击无敌帧：绕过了 super.doHurtTarget → target.hurt()，需手动设置，
+            // 否则玩家没有原版 10 tick 的无敌保护，会被无间隔连击秒杀。
             swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+            player.invulnerableTime = 10;
             playSound(SoundEvents.ZOMBIE_ATTACK_IRON_DOOR, 0.3F, 1.4F);
             SixtySecondsHealthSystem.applyInjury(player, null, meleeInjury());
             return true;
@@ -213,6 +216,18 @@ public class SixtySecondsMonsterEntity extends Zombie {
     /** 嚎叫者光环刷新间隔与半径。 */
     private static final int HOWLER_AURA_INTERVAL = 40;
     private static final double HOWLER_AURA_RADIUS = 12.0;
+
+    /**
+     * 拦截 AI 寻敌：旁观/创造/倒地/变怪玩家不作为可攻击目标，
+     * 从根上防止 AI 目标选择时选中旁观者（仅靠 tick 清目标会导致选中→清空→再选中的抖动）。
+     */
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        if (target instanceof ServerPlayer player && !isValidPrey(player)) {
+            return false;
+        }
+        return super.canAttack(target);
+    }
 
     @Override
     public void tick() {
