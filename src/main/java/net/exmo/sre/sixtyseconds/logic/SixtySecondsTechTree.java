@@ -82,7 +82,7 @@ public final class SixtySecondsTechTree {
         chain(list, "purification", null, "tea");
         chain(list, "purification", null, "drinks");
         // ── 防御工事（高级工作台，需「更好的工作环境-II」）─────────────────
-        chain(list, "defense", "work_env_2", "door_1", "door_2", "door_3");
+        chain(list, "defense", "work_env_2", "door_1", "door_2", "door_3", "door_4");
         chain(list, "defense", "work_env_2", "vault_1", "vault_2", "vault_3");
         chain(list, "defense", "work_env_2", "mob_defense_1", "mob_defense_2", "mob_defense_3");
         // ── 抄家技术（高级工作台，需「更好的工作环境-II」）─────────────────
@@ -223,7 +223,7 @@ public final class SixtySecondsTechTree {
     /** 解锁附带效果（服务端；蓝图随机解锁也走这里）：房门维护每级给家门 +1 级。 */
     public static void applyUnlockSideEffects(SixtySecondsState.TeamData team, String techId) {
         switch (techId) {
-            case "door_1", "door_2", "door_3" -> team.doorLevel = Math.min(3, team.doorLevel + 1);
+            case "door_1", "door_2", "door_3", "door_4" -> team.doorLevel = Math.min(4, team.doorLevel + 1);
             default -> {
             }
         }

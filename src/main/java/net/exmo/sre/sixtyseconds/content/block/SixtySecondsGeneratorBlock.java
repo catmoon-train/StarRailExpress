@@ -24,8 +24,18 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * 发电机：手持废料/煤炭右键投喂燃料，每份为全队供电 90 秒
+ * 发电机：手持废料/煤炭右键投喂燃料，每份为全队供电
  * （{@link SixtySecondsPowerSystem}）；供电中 LIT 点亮。放置登记归属队伍，拆除注销。
+ *
+ * <h3>燃料换算表</h3>
+ * <ul>
+ *   <li>废料 = 2 份（20 秒）</li>
+ *   <li>煤炭/木炭 = 6 份（60 秒）</li>
+ *   <li>电池 = 12 份（120 秒）</li>
+ *   <li>柴油罐 = 90 份（900 秒）</li>
+ *   <li>大型电池 = 36 份（360 秒，= 电池 ×3）</li>
+ *   <li>太阳能板 = 108 份（1080 秒，= 大型电池 ×3，仅白天）</li>
+ * </ul>
  */
 public class SixtySecondsGeneratorBlock extends Block {
 
@@ -71,23 +81,24 @@ public class SixtySecondsGeneratorBlock extends Block {
         }
         int units = 0;
         if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BATTERY)) {
-            units = 3; // 电池 = 3 份燃料（270s）
+            units = 12; // 电池 = 120 秒
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BATTERY_LARGE)) {
-            units = 12; // 大型电池 = 电池 ×4（1080s）
+            units = 36; // 大型电池 = 电池 ×3 = 360 秒
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_FUEL_CAN)) {
-            units = 5; // 燃料罐 = 5 份（450s）
+            units = 90; // 柴油罐 = 900 秒
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SOLAR_PANEL)) {
-            // 太阳能板：仅白天（清晨/白天子相位）可用，= 大型电池 ×3（3240s）
+            // 太阳能板：仅白天（清晨/白天子相位）可用，= 大型电池 ×3 = 1080 秒
             SixtySecondsState.Data solarData = SixtySecondsState.get(serverLevel);
             if (net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.isNight(solarData, serverLevel.getGameTime())) {
                 serverPlayer.displayClientMessage(Component.translatable(
                         "message.noellesroles.sixty_seconds.solar_no_sun"), true);
                 return ItemInteractionResult.SUCCESS;
             }
-            units = 36;
-        } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP)
-                || stack.is(Items.COAL) || stack.is(Items.CHARCOAL)) {
-            units = 1;
+            units = 108;
+        } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP)) {
+            units = 2; // 废料 = 20 秒
+        } else if (stack.is(Items.COAL) || stack.is(Items.CHARCOAL)) {
+            units = 6; // 煤炭/木炭 = 60 秒
         }
         if (units > 0) {
             if (!serverPlayer.isCreative()) {

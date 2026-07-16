@@ -145,8 +145,11 @@ public final class SixtySecondsBreakIn {
             return;
         }
         long now = level.getGameTime();
-        // 门锁：1 级只挡撬棍（alarms=true）；2/3 级（强化/阻击门锁）连开锁器一起挡
-        if (target.doorLockActive(now) && (item.alarms() || target.doorLockTier >= 2)) {
+        // 门锁：按锁等级抵挡对应等级的闯入工具
+        //   门锁(1级)：仅挡普通撬棍(alarms && tier==1)，时效 2 分钟
+        //   强化门锁(2级)：挡撬棍+强化撬棍+开锁器+精制开锁器(tier<=2)，时效 4 分钟
+        //   阻击门锁(3级)：挡所有闯入工具(tier<=3)，时效 8 分钟
+        if (target.doorLockActive(now) && item.tier() <= target.doorLockTier) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.sixty_seconds.breakin_door_locked")
                             .withStyle(ChatFormatting.RED), true);

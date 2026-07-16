@@ -18,18 +18,19 @@ import net.minecraft.world.item.context.UseOnContext;
 import java.util.List;
 
 /**
- * 门锁（三级）：挂在庇护所门上按等级阻断闯入，过期自然失效，可挂更高级锁替换。
+ * 门锁（四级）：挂在庇护所门上按等级阻断闯入，过期自然失效，可挂更高级锁替换。
  * <ul>
- *   <li>门锁（1 级）：只挡<b>撬棍</b>，时效 2 分钟；</li>
- *   <li>强化门锁（2 级）：挡撬棍 + <b>开锁器</b>，时效 4 分钟；</li>
- *   <li>阻击门锁（3 级）：同 2 级，时效 8 分钟。</li>
+ *   <li>门锁（1 级）：仅挡<b>普通撬棍</b>，时效 2 分钟；</li>
+ *   <li>强化门锁（2 级）：挡开锁器 + 撬棍 + 强化撬棍，时效 4 分钟；</li>
+ *   <li>阻击门锁（3 级）：挡开锁器 + 精致开锁器 + 撬棍 + 强化撬棍 + 液压撬棍，时效 8 分钟；</li>
+ *   <li>合金门锁（4 级）：挡所有闯入工具，时效 16 分钟，通电。</li>
  * </ul>
  * ★ 安装入口是 {@link ShelterDoorBlock} 的交互短路（{@link #install}）——门方块的 useItemOn
  * 先于物品 useOn 执行并吞掉交互（开门菜单），这里的 useOn 只是非门方块时的提示兜底。
  */
 public class SixtySecondsDoorLockItem extends Item {
 
-    /** 锁等级 1..3。 */
+    /** 锁等级 1..4。 */
     private final int tier;
 
     public SixtySecondsDoorLockItem(Properties properties) {
@@ -45,9 +46,9 @@ public class SixtySecondsDoorLockItem extends Item {
         return tier;
     }
 
-    /** 各级时效：1→2 分钟，2→4 分钟，3→8 分钟。 */
+    /** 各级时效：1→2 分钟，2→4 分钟，3→8 分钟，4→16 分钟。 */
     public static long durationTicks(int tier) {
-        return 20L * 60L * (2L << Math.max(0, Math.min(2, tier - 1)));
+        return 20L * 60L * (2L << Math.max(0, Math.min(3, tier - 1)));
     }
 
     @Override
@@ -99,9 +100,15 @@ public class SixtySecondsDoorLockItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.door_lock")
+        String baseKey = switch (tier) {
+            case 2 -> "tooltip.noellesroles.sixty_seconds.door_lock_reinforced";
+            case 3 -> "tooltip.noellesroles.sixty_seconds.door_lock_ultimate";
+            case 4 -> "tooltip.noellesroles.sixty_seconds.door_lock_alloy";
+            default -> "tooltip.noellesroles.sixty_seconds.door_lock";
+        };
+        tooltip.add(Component.translatable(baseKey)
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.door_lock.desc")
+        tooltip.add(Component.translatable(baseKey + ".desc")
                 .withStyle(ChatFormatting.DARK_GRAY));
     }
 }

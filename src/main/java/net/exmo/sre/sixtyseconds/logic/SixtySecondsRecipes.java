@@ -436,7 +436,7 @@ public final class SixtySecondsRecipes {
         add(list, "clock", Station.WORKBENCH, "tools_1", false,
                 List.of(in(plastic, 2), in(wire, 2)), ModItems.SIXTY_SECONDS_CLOCK, 1);
         add(list, "note", Station.WORKBENCH, "tools_1", false,
-                List.of(in(Items.PAPER, 3)), ModItems.SIXTY_SECONDS_NOTE, 1);
+                List.of(in(Items.PAPER, 3)), ModItems.WRITTEN_NOTE, 1);
         add(list, "radio", Station.WORKBENCH, "tools_1", false,
                 List.of(in(elec, 2), in(wire, 3), in(battery, 2)), ModItems.SIXTY_SECONDS_RADIO, 1);
         add(list, "compass", Station.WORKBENCH, "tools_1", false,
@@ -459,7 +459,7 @@ public final class SixtySecondsRecipes {
                 List.of(in(Items.STICK, 2), in(iron, 1), in(hemp, 2)),
                 ModItems.SIXTY_SECONDS_GRAPPLING_HOOK, 1);
         add(list, "big_note", Station.WORKBENCH, "tools_3", true,
-                List.of(in(Items.PAPER, 8)), ModItems.SIXTY_SECONDS_BIG_NOTE, 1);
+                List.of(in(Items.PAPER, 8)), ModItems.GIANT_NOTE, 1);
         add(list, "pliers", Station.WORKBENCH, "tools_3", true,
                 List.of(in(Items.STICK, 2), in(steel, 2), in(hemp, 1)), ModItems.SIXTY_SECONDS_PLIERS, 1);
         add(list, "claw_hook", Station.WORKBENCH, "tools_3", true,
@@ -661,6 +661,9 @@ public final class SixtySecondsRecipes {
                 List.of(in(oak, 6), in(iron, 3), in(tape, 2)), ModItems.SIXTY_SECONDS_REPAIR_KIT, 1);
         add(list, "door_lock_ultimate", Station.ADV_WORKBENCH, "door_3", true,
                 List.of(in(alloy, 1), in(elec, 1)), ModItems.SIXTY_SECONDS_DOOR_LOCK_ULTIMATE, 1);
+        add(list, "door_lock_alloy", Station.ADV_WORKBENCH, "door_4", true,
+                List.of(in(alloy, 2), in(glassPlate, 2), in(elec, 2), in(wire, 3)),
+                ModItems.SIXTY_SECONDS_DOOR_LOCK_ALLOY, 1);
         // ── 保险库 ───────────────────────────────────────────────────
         add(list, "vault_small", Station.ADV_WORKBENCH, "vault_1", true,
                 List.of(in(iron, 4), in(elec, 1), in(gear, 2)),

@@ -972,7 +972,7 @@ public class ModItems {
             new Item(new Item.Properties().stacksTo(4)),
             "sixty_seconds_battery_large", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
-    // ── 门锁分级：强化门锁(挡开锁器+撬棍,4分钟)/阻击门锁(8分钟)────────────
+    // ── 门锁分级：强化门锁(挡开锁器+撬棍+强化撬棍,4分钟)/阻击门锁(挡所有,8分钟)/合金门锁(挡所有,16分钟,通电)──
     public static final Item SIXTY_SECONDS_DOOR_LOCK_REINFORCED = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsDoorLockItem(
                     new Item.Properties().stacksTo(4), 2),
@@ -981,6 +981,10 @@ public class ModItems {
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsDoorLockItem(
                     new Item.Properties().stacksTo(4), 3),
             "sixty_seconds_door_lock_ultimate", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_DOOR_LOCK_ALLOY = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsDoorLockItem(
+                    new Item.Properties().stacksTo(4), 4),
+            "sixty_seconds_door_lock_alloy", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 炊事新食物 ──────────────────────────────────────────────────
     // 米汤：口渴 +15 / 饥饿 +20（烹饪-II）
