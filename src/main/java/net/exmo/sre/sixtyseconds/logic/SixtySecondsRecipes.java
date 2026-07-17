@@ -635,6 +635,10 @@ public final class SixtySecondsRecipes {
                 List.of(any("vegetable", 1, vegetables()), any("monster_drop", 2, monsterDrops()),
                         in(Items.BOWL, 1)),
                 ModItems.SIXTY_SECONDS_BONE_SOUP, 1);
+        // 竹筒饭：竹子×1 + 野米×3 + 任意蔬菜×2，通电
+        add(list, "bamboo_rice", Station.STOVE, "waste_3", true,
+                List.of(in(Items.BAMBOO, 1), in(rice, 3), any("vegetable", 2, vegetables())),
+                ModItems.SIXTY_SECONDS_BAMBOO_RICE, 1);
         add(list, "one_pot_stew", Station.STOVE, "waste_3", false,
                 List.of(in(Items.BOWL, 1), in(Items.ROTTEN_FLESH, 2), in(Items.BONE, 2),
                         in(rice, 2)),

@@ -804,6 +804,12 @@ public class ModItems {
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
                     new Item.Properties().stacksTo(16), 0, 0, 0, 0, 10, false, null, 80, net.minecraft.world.item.UseAnim.EAT),
             "sixty_seconds_band_aid", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 竹筒饭：竹子×1+野米×3+任意蔬菜×2，恢复70饥饿+40健康
+    public static final Item SIXTY_SECONDS_BAMBOO_RICE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(8), 40, 70, 0, 0, 0, false, null,
+                    100, net.minecraft.world.item.UseAnim.EAT),
+            "sixty_seconds_bamboo_rice", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 袋装果干：3果干+1纸，恢复60饥饿（营养12×5）
     public static final Item SIXTY_SECONDS_BAGGED_DRIED_FRUIT = register(
             new Item(new Item.Properties().stacksTo(8).food(
