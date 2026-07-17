@@ -110,6 +110,14 @@ public class SixtySecondsConfig {
     public boolean pveEnabled = true;
 
     /**
+     * 海洋生物自然刷新开关（默认<b>开</b>）：鲨鱼/海怪在海上自然刷新。
+     * 与 PVE 开关 {@link #pveEnabled} 相互独立。
+     * {@code /sre:ocean toggle on|off} 切换（按图持久化）。
+     */
+    @SerializedName("oceanCreaturesEnabled")
+    public boolean oceanCreaturesEnabled = true;
+
+    /**
      * 中途自动入队开关（默认<b>开</b>）：游戏进行中新加入服务器（且无重连备份）的玩家，
      * 自动补入一支<b>在线不满 {@link net.exmo.sre.sixtyseconds.logic.SixtySecondsTeamAllocator#TEAM_SIZE 四人}</b>
      * 的队伍（选在线人数最少的未满队），传送到该队住宅并发身份。所有队伍都满则留观战。
@@ -117,6 +125,24 @@ public class SixtySecondsConfig {
      */
     @SerializedName("autoJoinEnabled")
     public boolean autoJoinEnabled = true;
+
+    /**
+     * 自动复活开关（默认<b>开</b>）：玩家死亡后经 {@link #autoReviveIntervalSeconds} 自动在<b>本队避难所</b>复活，
+     * 死亡处的尸体会被标注到区域地图上（复活后自动清除），HUD 显示复活倒计时。
+     * <p>
+     * 开启时「无存活幸存者 → 提前败」<b>不会</b>因为一波团灭就触发——等待复活的玩家算「未阵亡」
+     * （见 {@code SixtySecondsWinConditions}）；胜负仍由「撑到最后一天 / 救援信标 / 幸存者阵营」决定。
+     * {@code /sre:60s autorevive on|off} 切换（按图持久化）。见 {@code SixtySecondsAutoRevive}。
+     */
+    @SerializedName("autoReviveEnabled")
+    public boolean autoReviveEnabled = true;
+
+    /**
+     * 自动复活间隔（秒，默认 240=4 分钟）。{@code /sre:60s autorevive interval <秒>} 设置（按图持久化）。
+     * 局中改只影响<b>此后</b>的死亡——已在倒计时中的玩家按死亡当时的间隔走完，免得改一下把在等的人瞬间拉活或永久卡住。
+     */
+    @SerializedName("autoReviveIntervalSeconds")
+    public int autoReviveIntervalSeconds = 240;
 
     /**
      * 本局总游戏日数（默认 {@value net.exmo.sre.sixtyseconds.logic.SixtySecondsManager#DEFAULT_TOTAL_DAYS}）：

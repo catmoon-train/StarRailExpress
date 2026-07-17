@@ -64,6 +64,11 @@ public final class SixtySecondsWinConditions {
         endGame(level, data, true);
     }
 
+    /**
+     * 是否还有「存活幸存者」。<b>等待自动复活的玩家也算</b>——否则开着自动复活时，一波团灭会在
+     * 谁都还没复活的那几分钟里直接判负，复活功能形同虚设（{@code SixtySecondsAutoRevive.anyPendingRevive}
+     * 在开关关闭时恒为 false，旧行为不变）。
+     */
     private static boolean anySurvivorAlive(ServerLevel level) {
         for (ServerPlayer player : level.players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(player)) {
@@ -73,7 +78,7 @@ public final class SixtySecondsWinConditions {
                 return true;
             }
         }
-        return false;
+        return SixtySecondsAutoRevive.anyPendingRevive(level);
     }
 
     private static void endGame(ServerLevel level, SixtySecondsState.Data data, boolean survivorsWin) {

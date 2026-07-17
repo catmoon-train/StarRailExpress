@@ -123,13 +123,16 @@ public class SeaChartFullScreen extends Screen {
         // 按钮
         int btnW = 100;
         int btnH = 20;
-        returnButton = Button.builder(Component.translatable(LANG + "chart_return_home"), button -> {
-            if (canReturn()) {
-                // 发送 C2S 返回请求
-                ClientPlayNetworking.send(new SixtySecondsSeaChartReturnC2SPacket());
-            }
-        }).bounds(width - btnW - 12, 10, btnW, btnH).build();
-        addRenderableWidget(returnButton);
+        // sea_teleport 关闭时完全不显示"返回住所"按钮
+        if (data.teleportAllowed()) {
+            returnButton = Button.builder(Component.translatable(LANG + "chart_return_home"), button -> {
+                if (canReturn()) {
+                    // 发送 C2S 返回请求
+                    ClientPlayNetworking.send(new SixtySecondsSeaChartReturnC2SPacket());
+                }
+            }).bounds(width - btnW - 12, 10, btnW, btnH).build();
+            addRenderableWidget(returnButton);
+        }
 
         addRenderableWidget(Button.builder(Component.translatable("gui.close"),
                 button -> onClose()).bounds(width - btnW - 12, height - 32, btnW, btnH).build());
@@ -257,8 +260,8 @@ public class SeaChartFullScreen extends Screen {
         SixtySecondsIsland island = toIsland(entry);
         rasterize(graphics, island, entry, cx, cy, screenR, false);
 
-        // 登岛落点区域圈
-        if (cachedArrivalPos != null) {
+        // 登岛落点区域圈（仅 sea_teleport 开启时显示，表示可在此返航）
+        if (data.teleportAllowed() && cachedArrivalPos != null) {
             int distSqr = (cachedArrivalPos.getX() - entry.centerX()) * (cachedArrivalPos.getX() - entry.centerX())
                     + (cachedArrivalPos.getZ() - entry.centerZ()) * (cachedArrivalPos.getZ() - entry.centerZ());
             int r2 = (entry.radius() + 8) * (entry.radius() + 8);
@@ -482,6 +485,10 @@ public class SeaChartFullScreen extends Screen {
     private void renderReturnStatus(GuiGraphics graphics) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null) {
+            return;
+        }
+        // 按钮没有渲染（如 sea_teleport 关闭）时不显示状态文字，避免信息冗余
+        if (returnButton == null) {
             return;
         }
         // 返回状态文字

@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 
 /**
  * 通用状态恢复消耗品（药品/饮品/针剂…）：需按住右键使用，使用完成后按参数恢复
- * 健康/饱食/口渴/理智、降低污染、治愈生病与感染风险，并可附加药水效果。
+ * 健康/饱食/口渴/理智、降低污染、治愈生病与感染风险，并可附加药水效果。支持提升理智上限（sanityMaxBonus）。
  * tooltip 自动列出全部效果。仅 60s 模式可用。
  */
 public class SixtySecondsStatItem extends Item {
@@ -43,10 +43,21 @@ public class SixtySecondsStatItem extends Item {
     private final int useDuration;
     /** 使用动画类型 */
     private final UseAnim useAnim;
+    /** 理智上限永久加成（不为 0 时使用后生效，最高到 120） */
+    private final int sanityMaxBonus;
+    /** 理智上限可达到的最高值 */
+    public static final int SANITY_MAX_CAP = 120;
 
     public SixtySecondsStatItem(Properties properties, int health, int hunger, int thirst, int sanity,
             int pollutionReduce, boolean cure, Supplier<MobEffectInstance> effect,
             int useDuration, UseAnim useAnim) {
+        this(properties, health, hunger, thirst, sanity, pollutionReduce, cure, effect, useDuration, useAnim, 0);
+    }
+
+    /** 含 sanityMaxBonus 的完整构造器 */
+    public SixtySecondsStatItem(Properties properties, int health, int hunger, int thirst, int sanity,
+            int pollutionReduce, boolean cure, Supplier<MobEffectInstance> effect,
+            int useDuration, UseAnim useAnim, int sanityMaxBonus) {
         super(properties);
         this.health = health;
         this.hunger = hunger;
@@ -57,6 +68,7 @@ public class SixtySecondsStatItem extends Item {
         this.effect = effect;
         this.useDuration = useDuration;
         this.useAnim = useAnim;
+        this.sanityMaxBonus = sanityMaxBonus;
     }
 
     /** 兼容旧构造（无 useDuration 的默认为 40 ticks = 2 秒 DRINK 动画） */
@@ -102,6 +114,9 @@ public class SixtySecondsStatItem extends Item {
         stats.hunger = Math.min(max, stats.hunger + hunger);
         stats.thirst = Math.min(max, stats.thirst + thirst);
         stats.sanity = Math.min(stats.sanityMax, stats.sanity + sanity); // 理智以个人上限为顶（杀人会永久降上限）
+        if (sanityMaxBonus > 0) {
+            stats.sanityMax = Math.min(SANITY_MAX_CAP, stats.sanityMax + sanityMaxBonus);
+        }
         stats.pollution = Math.max(0, stats.pollution - pollutionReduce);
         stats.sync();
         if (cure) {
@@ -138,6 +153,10 @@ public class SixtySecondsStatItem extends Item {
         }
         if (sanity > 0) {
             tooltip.add(line("stat_sanity", sanity, ChatFormatting.LIGHT_PURPLE));
+        }
+        if (sanityMaxBonus > 0) {
+            tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_sanity_max",
+                    sanityMaxBonus, SANITY_MAX_CAP).withStyle(ChatFormatting.DARK_PURPLE));
         }
         if (pollutionReduce > 0) {
             tooltip.add(line("stat_pollution", pollutionReduce, ChatFormatting.GREEN));

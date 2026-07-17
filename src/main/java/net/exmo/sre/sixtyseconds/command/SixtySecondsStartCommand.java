@@ -138,6 +138,16 @@ public final class SixtySecondsStartCommand {
                                         .executes(c -> setTotalDays(c.getSource(),
                                                 IntegerArgumentType.getInteger(c, "count"))))
                                 .executes(c -> showTotalDays(c.getSource())))
+                        // 管理员：自动复活开关 + 复活间隔（默认开 / 240 秒，按图持久化）
+                        .then(literal("autorevive")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("on").executes(c -> setAutoRevive(c.getSource(), true)))
+                                .then(literal("off").executes(c -> setAutoRevive(c.getSource(), false)))
+                                .then(literal("interval")
+                                        .then(argument("seconds", IntegerArgumentType.integer(5, 3600))
+                                                .executes(c -> setReviveInterval(c.getSource(),
+                                                        IntegerArgumentType.getInteger(c, "seconds")))))
+                                .executes(c -> showAutoRevive(c.getSource())))
                         // 管理员：NPC 搭图指令树（与 NPC 放置器/调校器等价的键盘操作；见 buildNpcCommand）
                         .then(buildNpcCommand())
                         // 管理员：避难所直接生成在探索区出口门上（锚点=避难所锚点门↔出口门；默认开，按图持久化）
@@ -798,6 +808,50 @@ public final class SixtySecondsStartCommand {
         source.sendSuccess(() -> Component.translatable(enabled
                 ? "message.noellesroles.sixty_seconds.sea_teleport_enabled"
                 : "message.noellesroles.sixty_seconds.sea_teleport_disabled"), false);
+        return 1;
+    }
+
+    /**
+     * 管理员：切换自动复活（按图持久化，默认开）。关掉时正在等复活的人会在下一秒被
+     * {@code SixtySecondsAutoRevive.tick} 作废倒计时——不复活，也不让 HUD 一直挂着。
+     */
+    private static int setAutoRevive(CommandSourceStack source, boolean enabled) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.autoReviveEnabled = enabled;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.autorevive_enabled"
+                : "message.noellesroles.sixty_seconds.autorevive_disabled",
+                config.autoReviveIntervalSeconds).withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /**
+     * 管理员：设置复活间隔（秒，按图持久化）。只影响<b>此后</b>的死亡——已在倒计时中的按死亡当时的间隔走完，
+     * 免得改一下把在等的人瞬间拉活或永久卡住。
+     */
+    private static int setReviveInterval(CommandSourceStack source, int seconds) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.autoReviveIntervalSeconds = seconds;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.autorevive_interval_set", seconds)
+                .withStyle(ChatFormatting.GREEN), true);
+        return seconds;
+    }
+
+    /** 管理员：查看自动复活开关与间隔。 */
+    private static int showAutoRevive(CommandSourceStack source) {
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        source.sendSuccess(() -> Component.translatable(config.autoReviveEnabled
+                ? "message.noellesroles.sixty_seconds.autorevive_enabled"
+                : "message.noellesroles.sixty_seconds.autorevive_disabled",
+                config.autoReviveIntervalSeconds), false);
         return 1;
     }
 

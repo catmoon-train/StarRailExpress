@@ -375,10 +375,15 @@ public final class SixtySecondsPveSystem {
         SixtySecondsLootTable table = SixtySecondsLootStore.get(level);
         int lvl = boss.bossLevel();
         int rolls = SixtySecondsBalance.BOSS_LOOT_ROLLS_BASE + SixtySecondsBalance.BOSS_LOOT_ROLLS_PER_LEVEL * lvl;
+        // Lv1-3 掉落丰厚程度 -30%
+        if (lvl <= 3) {
+            rolls = (int) (rolls * 0.7);
+        }
         // 稀有度压平：Boss 掉落用 lvl+2 压得更平，比同区域物资箱更容易出稀有物
         double exponent = SixtySecondsAreaLevels.lootExponent(
                 Math.min(lvl + 2, SixtySecondsBalance.AREA_LEVEL_MAX));
-        // 扩展掉落池：含高级类别 + 空投（权重偏向高价值）
+        // 扩展掉落池：含高级类别 + 空投（权重偏向高价值）。
+        // Lv1-3 奖励类型较少、空投权重降低（-30% 丰厚程度）。
         String[] pool;
         if (boss.isApex()) {
             // 终焉之王专属池：advanced_rare 占 3/10，大量高品质掉落
@@ -389,14 +394,20 @@ public final class SixtySecondsPveSystem {
             pool = new String[] { "airdrop", "airdrop", "airdrop", "airdrop",
                     "advanced_weapon", "advanced_rare",
                     "advanced_tool", "advanced_medicine", "advanced_material", "weapon" };
+        } else if (lvl >= 3) {
+            // Lv3: 5 类（空投×2/高级武器/高级材料/武器/药品/材料/食品）
+            pool = new String[] { "airdrop", "airdrop",
+                    "advanced_weapon", "advanced_material",
+                    "weapon", "medicine", "material", "food" };
         } else if (lvl >= 2) {
-            pool = new String[] { "airdrop", "airdrop", "airdrop",
-                    "advanced_weapon", "advanced_tool", "advanced_material",
+            // Lv2: 5 类（空投×1/高级武器/武器/药品/材料/食品）
+            pool = new String[] { "airdrop",
+                    "advanced_weapon",
                     "weapon", "medicine", "material", "food" };
         } else {
-            pool = new String[] { "airdrop", "airdrop", "airdrop",
-                    "advanced_weapon", "advanced_material",
-                    "weapon", "medicine", "material", "food", "water" };
+            // Lv1: 4 类（空投×1/武器/药品/材料/食品）
+            pool = new String[] { "airdrop",
+                    "weapon", "medicine", "material", "food" };
         }
         for (int i = 0; i < rolls; i++) {
             String category = pool[level.random.nextInt(pool.length)];
@@ -406,19 +417,20 @@ public final class SixtySecondsPveSystem {
             }
         }
         dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP,
-                SixtySecondsBalance.BOSS_SCRAP_BASE + SixtySecondsBalance.BOSS_SCRAP_PER_LEVEL * lvl));
-        // ── 额外保底奖励（等级越高越多）─────────────────────────────────
+                (int) ((SixtySecondsBalance.BOSS_SCRAP_BASE + SixtySecondsBalance.BOSS_SCRAP_PER_LEVEL * lvl)
+                        * (lvl <= 3 ? 0.7 : 1.0))));
+        // ── 额外保底奖励（等级越高越多；Lv1-3 -30%）─────────────────
         // 弹药：4 + 4/级
         dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_AMMO,
-                4 + 4 * lvl));
+                (int) ((4 + 4 * lvl) * (lvl <= 3 ? 0.7 : 1.0))));
         // 高级材料：Lv2+ 钢材 ×2/级，Lv3+ 电子元件 ×1/级，Lv4+ 齿轮 ×1/级
         if (lvl >= 2) {
             dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_STEEL_INGOT,
-                    2 * lvl));
+                    (int) (2 * lvl * (lvl <= 3 ? 0.7 : 1.0))));
         }
         if (lvl >= 3) {
             dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ELECTRONICS,
-                    lvl));
+                    (int) (lvl * (lvl <= 3 ? 0.7 : 1.0))));
         }
         if (lvl >= 4) {
             dropAt(level, boss, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_GEAR,

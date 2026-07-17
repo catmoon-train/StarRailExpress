@@ -515,9 +515,7 @@ public final class SixtySecondsHotlineSystem {
 
     /** 计算邮箱中的游戏币总数 */
     private static int countCoinsInMailbox(ServerLevel level, int teamId) {
-        Map<Integer, List<BlockPos>> map = SixtySecondsNewspaper.getMailboxRegistry(level);
-        if (map == null) return 0;
-        List<BlockPos> boxes = map.get(teamId);
+        List<BlockPos> boxes = SixtySecondsNewspaper.getMailboxRegistry(level).get(teamId);
         if (boxes == null) return 0;
         int total = 0;
         for (BlockPos pos : boxes) {
@@ -533,9 +531,7 @@ public final class SixtySecondsHotlineSystem {
     }
 
     private static void removeCoinsFromMailbox(ServerLevel level, int teamId, int amount) {
-        Map<Integer, List<BlockPos>> map = SixtySecondsNewspaper.getMailboxRegistry(level);
-        if (map == null) return;
-        List<BlockPos> boxes = map.get(teamId);
+        List<BlockPos> boxes = SixtySecondsNewspaper.getMailboxRegistry(level).get(teamId);
         if (boxes == null) return;
         int remaining = amount;
         for (BlockPos pos : boxes) {
@@ -561,9 +557,7 @@ public final class SixtySecondsHotlineSystem {
     }
 
     private static void deliverToTeam(ServerLevel level, int teamId, ItemStack stack) {
-        Map<Integer, List<BlockPos>> map = SixtySecondsNewspaper.getMailboxRegistry(level);
-        if (map == null) return;
-        List<BlockPos> boxes = map.get(teamId);
+        List<BlockPos> boxes = SixtySecondsNewspaper.getMailboxRegistry(level).get(teamId);
         if (boxes == null || boxes.isEmpty()) return;
         BlockEntity be = level.getBlockEntity(boxes.get(0));
         if (!(be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mb)) return;

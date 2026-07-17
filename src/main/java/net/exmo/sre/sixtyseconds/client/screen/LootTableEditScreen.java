@@ -1,9 +1,13 @@
 package net.exmo.sre.sixtyseconds.client.screen;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import net.exmo.sre.sixtyseconds.loot.SixtySecondsLootTable;
 import net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -18,6 +22,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,6 +60,9 @@ public class LootTableEditScreen extends Screen {
     private static final int ROW_H = 30;
     private static final int CELL = 20;          // 背包格尺寸
     private static final int MAX_ENTRIES_PER_CATEGORY = 64;
+    /** 导出/导入文件名（保存到游戏目录下）。 */
+    private static final String EXPORT_FILE = "sixty_seconds_loot_export.json";
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     /** 类别 → 条目（可变副本，保存时重建协议对象）。 */
     private final LinkedHashMap<String, List<RowData>> categories = new LinkedHashMap<>();
@@ -408,9 +419,31 @@ public class LootTableEditScreen extends Screen {
                 weightBox.getX(), detailTop + 1, MUTED, false);
     }
 
-    /** 底部「保存 / 完成」按钮（自绘 hover 态）。 */
+    /** 底部「导出 / 导入 / 保存 / 完成」按钮（自绘 hover 态）。 */
     private void drawBottomButtons(GuiGraphics g, int mouseX, int mouseY) {
         int y = panelY + panelH - 24;
+
+        // 导出
+        int exportX = panelX + PAD;
+        boolean exportHover = isInRect(mouseX, mouseY, exportX, y, 64, 18);
+        g.fill(exportX, y, exportX + 64, y + 18,
+                exportHover ? blendColors(0xFF1A1008, GOLD, 0.35F) : 0x551A1008);
+        g.renderOutline(exportX, y, 64, 18, exportHover ? GOLD : BORDER);
+        g.drawCenteredString(this.font,
+                Component.translatable("screen.noellesroles.sixty_seconds.loot_edit.export"),
+                exportX + 32, y + 5, GOLD);
+
+        // 导入
+        int importX = exportX + 72;
+        boolean importHover = isInRect(mouseX, mouseY, importX, y, 64, 18);
+        g.fill(importX, y, importX + 64, y + 18,
+                importHover ? blendColors(0xFF1A1008, GOLD, 0.35F) : 0x551A1008);
+        g.renderOutline(importX, y, 64, 18, importHover ? GOLD : BORDER);
+        g.drawCenteredString(this.font,
+                Component.translatable("screen.noellesroles.sixty_seconds.loot_edit.import"),
+                importX + 32, y + 5, GOLD);
+
+        // 保存
         int saveX = saveButtonX();
         boolean saveHover = isInRect(mouseX, mouseY, saveX, y, 64, 18);
         g.fill(saveX, y, saveX + 64, y + 18,
@@ -420,6 +453,7 @@ public class LootTableEditScreen extends Screen {
                 Component.translatable("screen.noellesroles.sixty_seconds.loot_edit.save"),
                 saveX + 32, y + 5, GOLD);
 
+        // 完成
         int doneX = saveX + 72;
         boolean doneHover = isInRect(mouseX, mouseY, doneX, y, 64, 18);
         g.fill(doneX, y, doneX + 64, y + 18, doneHover ? HOVER_BG : 0x551A1008);
@@ -547,8 +581,17 @@ public class LootTableEditScreen extends Screen {
             }
             return true;
         }
-        // 保存 / 完成
+        // 导出 / 导入 / 保存 / 完成
         int by = panelY + panelH - 24;
+        int exportX = panelX + PAD;
+        if (isInRect(mouseX, mouseY, exportX, by, 64, 18)) {
+            exportTable();
+            return true;
+        }
+        if (isInRect(mouseX, mouseY, exportX + 72, by, 64, 18)) {
+            importTable();
+            return true;
+        }
         if (isInRect(mouseX, mouseY, saveButtonX(), by, 64, 18)) {
             ClientPlayNetworking.send(new LootTableSaveC2SPacket(buildTable()));
             clickSound();
@@ -647,6 +690,80 @@ public class LootTableEditScreen extends Screen {
         selected = row;
         listScroll = Math.max(0, rows.size() * ROW_H - (listBottom - contentTop));
         refreshEditors();
+        clickSound();
+    }
+
+    // ── 导出 / 导入 ─────────────────────────────────────────────────
+
+    /** 将当前编辑中的 loot 表导出为 JSON 文件（存到游戏目录下）。 */
+    private void exportTable() {
+        SixtySecondsLootTable table = buildTable();
+        Path path = Minecraft.getInstance().gameDirectory.toPath().resolve(EXPORT_FILE);
+        try {
+            Files.createDirectories(path.getParent());
+            try (java.io.Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+                GSON.toJson(table, writer);
+            }
+            if (this.minecraft != null && this.minecraft.player != null) {
+                this.minecraft.player.displayClientMessage(
+                        Component.literal("[60s] loot table exported to " + EXPORT_FILE)
+                                .withStyle(ChatFormatting.GREEN), false);
+            }
+        } catch (IOException e) {
+            if (this.minecraft != null && this.minecraft.player != null) {
+                this.minecraft.player.displayClientMessage(
+                        Component.literal("[60s] export failed: " + e.getMessage())
+                                .withStyle(ChatFormatting.RED), false);
+            }
+        }
+        clickSound();
+    }
+
+    /** 从游戏目录读取导出的 JSON 文件并覆盖当前编辑中的 loot 表。 */
+    private void importTable() {
+        Path path = Minecraft.getInstance().gameDirectory.toPath().resolve(EXPORT_FILE);
+        if (!Files.exists(path)) {
+            if (this.minecraft != null && this.minecraft.player != null) {
+                this.minecraft.player.displayClientMessage(
+                        Component.literal("[60s] file not found: " + EXPORT_FILE)
+                                .withStyle(ChatFormatting.RED), false);
+            }
+            return;
+        }
+        try {
+            String content = Files.readString(path, StandardCharsets.UTF_8);
+            SixtySecondsLootTable table = GSON.fromJson(content, SixtySecondsLootTable.class);
+            if (table == null || table.categories == null || table.categories.isEmpty()) {
+                throw new JsonParseException("empty or invalid loot table");
+            }
+            // 替换全部类别数据
+            categories.clear();
+            for (Map.Entry<String, List<SixtySecondsLootTable.Entry>> e : table.categories.entrySet()) {
+                List<RowData> rows = new ArrayList<>();
+                if (e.getValue() != null) {
+                    for (SixtySecondsLootTable.Entry entry : e.getValue()) {
+                        rows.add(new RowData(entry.itemId, entry.count, entry.weight));
+                    }
+                }
+                categories.put(e.getKey(), rows);
+            }
+            currentCategory = categories.keySet().iterator().next();
+            selected = null;
+            listScroll = 0;
+            refreshEditors();
+            if (this.minecraft != null && this.minecraft.player != null) {
+                this.minecraft.player.displayClientMessage(
+                        Component.literal("[60s] loot table imported from " + EXPORT_FILE
+                                + " (" + categories.size() + " categories)")
+                                .withStyle(ChatFormatting.GREEN), false);
+            }
+        } catch (IOException | JsonParseException e) {
+            if (this.minecraft != null && this.minecraft.player != null) {
+                this.minecraft.player.displayClientMessage(
+                        Component.literal("[60s] import failed: " + e.getMessage())
+                                .withStyle(ChatFormatting.RED), false);
+            }
+        }
         clickSound();
     }
 

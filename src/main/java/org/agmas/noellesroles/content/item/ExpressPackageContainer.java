@@ -15,16 +15,8 @@ public class ExpressPackageContainer implements Container {
     private ExpressPackageContainer(ItemStack stack) {
         this.packageStack = stack;
         this.items = NonNullList.withSize(1, ItemStack.EMPTY);
-        // 读取已存物品（不消耗 ServerLevel 参数）
-        var tag = ExpressPackageItem.getContents(stack);
-        if (!tag.isEmpty()) {
-            ItemStack content = ItemStack.parseOptional(
-                    net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(
-                            net.minecraft.core.registries.BuiltInRegistries.REGISTRY), tag);
-            if (!content.isEmpty()) {
-                items.set(0, content);
-            }
-        }
+        // 读取已存物品（使用 ItemContainerContents）
+        ExpressPackageItem.getContents(stack).copyInto(items);
     }
 
     public static ExpressPackageContainer create(ItemStack stack) {
@@ -33,11 +25,10 @@ public class ExpressPackageContainer implements Container {
 
     /** Read content without removing from NBT (for tooltip display) */
     public static ItemStack peekContent(ItemStack stack, HolderLookup.Provider registries) {
-        var tag = ExpressPackageItem.getContents(stack);
-        if (!tag.isEmpty()) {
-            return ItemStack.parseOptional(registries, tag);
-        }
-        return ItemStack.EMPTY;
+        var contents = ExpressPackageItem.getContents(stack);
+        var list = NonNullList.withSize(1, ItemStack.EMPTY);
+        contents.copyInto(list);
+        return list.get(0);
     }
 
     @Override public int getContainerSize() { return 1; }

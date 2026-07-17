@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.content.item;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -14,6 +13,8 @@ import java.util.List;
 
 /**
  * 电话 - 右键打开拨号页面，拨打热线号码
+ *
+ * 注意：客户端屏幕通过反射打开，避免服务端加载 client-only 类导致崩溃。
  */
 public class PhoneItem extends Item {
 
@@ -25,10 +26,21 @@ public class PhoneItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide) {
-            Minecraft.getInstance().setScreen(
-                    new org.agmas.noellesroles.client.screen.PhoneDialScreen(stack, hand));
+            openPhoneScreen(stack, hand);
         }
         return InteractionResultHolder.success(stack);
+    }
+
+    /** 通过反射打开电话拨号界面 */
+    private static void openPhoneScreen(ItemStack stack, InteractionHand hand) {
+        try {
+            Class<?> helper = Class.forName(
+                    "org.agmas.noellesroles.client.utils.ClientItemHelper");
+            helper.getMethod("openPhoneScreen", ItemStack.class, InteractionHand.class)
+                    .invoke(null, stack, hand);
+        } catch (Exception e) {
+            // 服务端 —— 静默忽略
+        }
     }
 
     @Override

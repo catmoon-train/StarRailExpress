@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.content.item;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -14,6 +13,8 @@ import java.util.List;
 
 /**
  * 稿纸 - 可以书写内容，放入邮箱后下一天会在报纸上刊登
+ *
+ * 注意：客户端屏幕通过反射打开，避免服务端加载 client-only 类导致崩溃。
  */
 public class DraftPaperItem extends Item {
 
@@ -25,10 +26,26 @@ public class DraftPaperItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide) {
-            Minecraft.getInstance().setScreen(new org.agmas.noellesroles.client.screen.DraftPaperScreen(
-                    stack, hand));
+            openDraftScreen(stack, hand);
         }
         return InteractionResultHolder.success(stack);
+    }
+
+    /** 通过反射打开稿纸书写界面，避免在服务端尝试加载 Screen / Minecraft */
+    private static void openDraftScreen(ItemStack stack, InteractionHand hand) {
+        try {
+            Class<?> screenClass = Class.forName(
+                    "org.agmas.noellesroles.client.screen.DraftPaperScreen");
+            Object screen = screenClass.getConstructor(ItemStack.class, InteractionHand.class)
+                    .newInstance(stack, hand);
+            Class<?> mcClass = Class.forName("net.minecraft.client.Minecraft");
+            Object mc = mcClass.getMethod("getInstance").invoke(null);
+            // obf name "class_437" / yarn "net.minecraft.client.gui.screens.Screen"
+            mcClass.getMethod("setScreen", Class.forName("net.minecraft.class_437"))
+                    .invoke(mc, screen);
+        } catch (Exception e) {
+            // 服务端或类路径问题 —— 静默忽略
+        }
     }
 
     @Override

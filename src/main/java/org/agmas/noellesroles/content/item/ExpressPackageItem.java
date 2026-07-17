@@ -63,6 +63,16 @@ public class ExpressPackageItem extends Item {
         }
     }
 
+    // ── 静态工具方法（供 ExpressPackageContainer 调用） ──
+
+    public static ItemContainerContents getContents(ItemStack stack) {
+        return stack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+    }
+
+    public static void setContent(ItemStack stack, ItemStack content) {
+        stack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(content)));
+    }
+
     /** 1格容器：每次变更写回物品的 CONTAINER 组件 */
     static class PackageContainer extends SimpleContainer {
         private final ItemStack packageStack;

@@ -78,6 +78,10 @@ public final class SixtySecondsHud {
         if (stats.downed) {
             renderDownedOverlay(graphics, client, player, stats);
         }
+        // 自动复活倒计时（死亡后才有值；剩余时间由本地按 gameTime 推算，零同步）
+        if (stats.reviveEndTick > 0L) {
+            renderReviveOverlay(graphics, client, player, stats);
+        }
 
         boolean hasFamily = stats.familyPosition != null;
         long gameTime = client.level.getGameTime();
@@ -176,6 +180,44 @@ public final class SixtySecondsHud {
      * 倒地覆盖层（屏幕中央准星下方）：红色脉冲大字「你已倒地」+ 剩余健康值 + 救援提示。
      * 倒地健康值随补刀/时间流失，归零死亡。
      */
+    /**
+     * 自动复活倒计时：死亡后画在屏幕中央——「距离复活 m:ss」+ 尸体已标记的提示。
+     * 剩余时间 = {@code reviveEndTick - gameTime} 本地推算，服务端只在死亡/复活时各同步一次
+     * （同 phaseEndTick 的纪律，见 ai_doc.md）。
+     */
+    private static void renderReviveOverlay(FakeGuiGraphics graphics, Minecraft client, LocalPlayer player,
+            SixtySecondsStatsComponent stats) {
+        long remainingTicks = stats.reviveEndTick - client.level.getGameTime();
+        if (remainingTicks < 0) {
+            remainingTicks = 0; // 到点了但服务端那一 tick 还没跑到：显示 0:00 而不是负数
+        }
+        int totalSeconds = (int) Math.ceil(remainingTicks / 20.0);
+        int cx = graphics.guiWidth() / 2;
+        int cy = graphics.guiHeight() / 2;
+
+        Component title = Component.translatable("hud.noellesroles.sixty_seconds.revive_title");
+        graphics.pose().pushPose();
+        graphics.pose().translate(cx, cy - 60, 0);
+        graphics.pose().scale(1.4f, 1.4f, 1f);
+        graphics.drawString(client.font, title, -client.font.width(title) / 2, 0, 0xFFE8D9A8);
+        graphics.pose().popPose();
+
+        // 倒计时数字：最后 10 秒转绿并脉冲，给「马上要活了」的预期
+        boolean soon = totalSeconds <= 10;
+        float pulse = 0.6f + 0.4f * Mth.sin(player.tickCount * 0.4f);
+        int color = soon ? ((Mth.clamp((int) (0xC0 + 0x3F * pulse), 0, 0xFF) << 24) | 0x60FF60) : 0xFFFFFFFF;
+        Component time = Component.translatable("hud.noellesroles.sixty_seconds.revive_countdown",
+                totalSeconds / 60, String.format("%02d", totalSeconds % 60));
+        graphics.pose().pushPose();
+        graphics.pose().translate(cx, cy - 40, 0);
+        graphics.pose().scale(2.0f, 2.0f, 1f);
+        graphics.drawString(client.font, time, -client.font.width(time) / 2, 0, color);
+        graphics.pose().popPose();
+
+        Component hint = Component.translatable("hud.noellesroles.sixty_seconds.revive_hint");
+        graphics.drawString(client.font, hint, cx - client.font.width(hint) / 2, cy - 16, 0xFFAAAAAA);
+    }
+
     private static void renderDownedOverlay(FakeGuiGraphics graphics, Minecraft client, LocalPlayer player,
             SixtySecondsStatsComponent stats) {
         float pulse = 0.55f + 0.45f * Mth.sin(player.tickCount * 0.35f);

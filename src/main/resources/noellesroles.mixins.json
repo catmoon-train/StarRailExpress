@@ -6,6 +6,7 @@
   "plugin": "org.agmas.noellesroles.client.NRMixinPlugin",
   "mixins": [
     "AbstractContainerMenuMixin",
+    "ClimbingBootsStepMixin",
     "SixtySecondsConsumeMixin",
     "SixtySecondsFoodStackMixin",
     "SixtySecondsDownedPoseMixin",

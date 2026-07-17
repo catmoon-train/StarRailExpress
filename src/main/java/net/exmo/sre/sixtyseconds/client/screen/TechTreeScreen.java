@@ -1,6 +1,7 @@
 package net.exmo.sre.sixtyseconds.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes;
 import net.exmo.sre.sixtyseconds.logic.SixtySecondsTechTree;
 import net.exmo.sre.sixtyseconds.logic.SixtySecondsTechTree.TechNode;
 import net.exmo.sre.sixtyseconds.network.OpenTechTreeS2CPacket;
@@ -83,15 +84,19 @@ public class TechTreeScreen extends Screen {
     private long lastRightClickTime;
     private static final long DOUBLE_CLICK_MS = 300;
 
-    /** 科技 → 该科技解锁的配方产物（展示用），按配方表顺序。 */
-    private final Map<String, List<ItemStack>> techUnlocks = new HashMap<>();
+    /** 该科技解锁的一个配方：产物 + 制作它需要的合成台。 */
+    private record Unlock(ItemStack stack, SixtySecondsRecipes.Station station) {
+    }
+
+    /** 科技 → 该科技解锁的配方（展示用），按配方表顺序。 */
+    private final Map<String, List<Unlock>> techUnlocks = new HashMap<>();
 
     public TechTreeScreen(OpenTechTreeS2CPacket data) {
         super(Component.translatable("message.noellesroles.sixty_seconds.tech_title"));
         this.unlocked = new HashSet<>(Arrays.asList(data.unlockedIds()));
-        for (var recipe : net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.all()) {
+        for (var recipe : SixtySecondsRecipes.all()) {
             techUnlocks.computeIfAbsent(recipe.techId(), k -> new ArrayList<>())
-                    .add(net.exmo.sre.sixtyseconds.logic.SixtySecondsRecipes.outputStack(recipe));
+                    .add(new Unlock(SixtySecondsRecipes.outputStack(recipe), recipe.station()));
         }
     }
 
@@ -504,7 +509,7 @@ public class TechTreeScreen extends Screen {
         }
 
         // 中部：该科技解锁的配方产物图标行（缩得太小就不画，避免糊成一团）
-        List<ItemStack> outputs = techUnlocks.get(node.id());
+        List<Unlock> outputs = techUnlocks.get(node.id());
         if (outputs != null && zoom > 0.45f) {
             int shown = Math.min(outputs.size(), CARD_MAX_ICONS);
             var pose = g.pose();
@@ -512,7 +517,7 @@ public class TechTreeScreen extends Screen {
                 pose.pushPose();
                 pose.translate(toScreenX(wr[0] + 4 + i * 19), toScreenY(wr[1] + 18), 0);
                 pose.scale(zoom, zoom, 1);
-                g.renderFakeItem(outputs.get(i), 0, 0);
+                g.renderFakeItem(outputs.get(i).stack(), 0, 0);
                 pose.popPose();
             }
             if (outputs.size() > shown) {
@@ -571,8 +576,18 @@ public class TechTreeScreen extends Screen {
                     Component.translatable("tech.noellesroles.sixty_seconds." + hovered.parentId()))
                     .withStyle(ChatFormatting.RED));
         }
+        // 额外前置（「前置：A 和 B」里的 B，parentId 之外）：未解锁的逐条列出
+        for (String extra : SixtySecondsTechTree.EXTRA_REQUIREMENTS
+                .getOrDefault(hovered.id(), List.of())) {
+            if (!unlocked.contains(extra)) {
+                lines.add(Component.translatable("message.noellesroles.sixty_seconds.tech_requires",
+                        Component.translatable("tech.noellesroles.sixty_seconds." + extra))
+                        .withStyle(ChatFormatting.RED));
+            }
+        }
         // 特殊门控提示（综合补剂=医疗全解锁 / 神秘技术=全树75%）
-        if (!SixtySecondsTechTree.gateSatisfied(hovered, unlocked)) {
+        if (!SixtySecondsTechTree.gateSatisfied(hovered, unlocked)
+                && ("omni_tonic".equals(hovered.id()) || "sacrifice_1".equals(hovered.id()))) {
             String gateKey = "omni_tonic".equals(hovered.id())
                     ? "message.noellesroles.sixty_seconds.tech_gate_medical"
                     : "message.noellesroles.sixty_seconds.tech_gate_mystic";
@@ -582,20 +597,23 @@ public class TechTreeScreen extends Screen {
             lines.add(Component.translatable("message.noellesroles.sixty_seconds.tech_cost", hovered.scrapCost())
                     .withStyle(ChatFormatting.YELLOW));
         }
-        // 解锁配方清单（产物名 ×数量）
-        List<ItemStack> outputs = techUnlocks.get(hovered.id());
+        // 解锁配方清单（产物名 ×数量 @在哪个合成台做）
+        List<Unlock> outputs = techUnlocks.get(hovered.id());
         if (outputs != null && !outputs.isEmpty()) {
             lines.add(Component.empty());
             lines.add(Component.translatable("message.noellesroles.sixty_seconds.tech_unlocks")
                     .withStyle(ChatFormatting.GOLD));
             int shown = Math.min(outputs.size(), 10);
             for (int i = 0; i < shown; i++) {
-                ItemStack stack = outputs.get(i);
+                ItemStack stack = outputs.get(i).stack();
                 MutableComponent line = Component.literal("• ").withStyle(ChatFormatting.DARK_GRAY)
                         .append(stack.getHoverName().copy().withStyle(ChatFormatting.WHITE));
                 if (stack.getCount() > 1) {
                     line.append(Component.literal(" ×" + stack.getCount()).withStyle(ChatFormatting.GRAY));
                 }
+                line.append(Component.translatable("message.noellesroles.sixty_seconds.tech_unlock_station",
+                        Component.translatable(outputs.get(i).station().translationKey()))
+                        .withStyle(ChatFormatting.AQUA));
                 lines.add(line);
             }
             if (outputs.size() > shown) {

@@ -403,6 +403,17 @@ public class NoellesrolesClient implements ClientModInitializer {
         net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_TURRET_ENTITY,
                 net.exmo.sre.sixtyseconds.client.render.SixtySecondsTurretRenderer::new);
+        // 60s 海上载具：自研盒子模型（木筏/汽艇/渔船）
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_RAFT,
+                ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsSeaVehicleRenderer(
+                        ctx, net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind.RAFT));
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_MOTORBOAT,
+                ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsSeaVehicleRenderer(
+                        ctx, net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind.MOTORBOAT));
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_FISHING_BOAT,
+                ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsSeaVehicleRenderer(
+                        ctx, net.exmo.sre.sixtyseconds.content.entity
+                                .SixtySecondsSeaVehicleEntity.Kind.FISHING_BOAT));
         // 60s 载具：专属盒子模型（摩托/小汽车）
         EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_MOTORCYCLE,
                 ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsVehicleRenderer(
@@ -449,6 +460,13 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 60s NPC（商人/军人/强盗/旅者）：原版人形模型 + 按变体换贴图（无自有 ModelLayer）
         EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_NPC,
                 org.agmas.noellesroles.client.renderer.SixtySecondsNpcRenderer::new);
+        // 海洋生物：鲨鱼 / 海怪（自研盒子模型 + 纹理解析）
+        EntityRendererRegistry.register(
+                net.exmo.sre.sixtyseconds.init.ModOceanEntities.OCEAN_SHARK,
+                net.exmo.sre.sixtyseconds.client.render.OceanSharkRenderer::new);
+        EntityRendererRegistry.register(
+                net.exmo.sre.sixtyseconds.init.ModOceanEntities.OCEAN_SEA_MONSTER,
+                net.exmo.sre.sixtyseconds.client.render.OceanSeaMonsterRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);
@@ -933,6 +951,12 @@ public class NoellesrolesClient implements ClientModInitializer {
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.LootTableEditScreen(payload.table()))));
         ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenRandomSupplyBoxConfigS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> context.client().setScreen(
+                                new net.exmo.sre.sixtyseconds.client.screen.RandomSupplyBoxConfigScreen(
+                                        payload.pos(), payload.tier(),
+                                        payload.allCategories(), payload.enabledCategories()))));
+        ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.OpenAirdropEditS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen
@@ -1016,6 +1040,17 @@ public class NoellesrolesClient implements ClientModInitializer {
                                         payload.safeZone(), payload.shelterDoors());
                             } else {
                                 net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.clearZone();
+                            }
+                        }));
+        // 60s 自动复活：尸体标记增删（区域地图上的暗红点）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsCorpseMarkS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> {
+                            if (payload.add()) {
+                                net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone
+                                        .setCorpseMarker(payload.x() + 0.5, payload.z() + 0.5);
+                            } else {
+                                net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.clearCorpseMarker();
                             }
                         }));
         // 60s 海图：海岛元数据 + 解锁迷雾（openScreen=true 时直接弹出海图界面）

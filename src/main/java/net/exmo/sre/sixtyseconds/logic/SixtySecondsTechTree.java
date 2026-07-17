@@ -58,6 +58,29 @@ public final class SixtySecondsTechTree {
     /** 静态科技表（两端共享，只发解锁状态）。 */
     public static final List<TechNode> NODES = buildNodes();
 
+    /**
+     * 额外前置（parentId 之外还要解锁的节点，两端共用，见 {@link #gateSatisfied}）：
+     * 用于「前置：A 和 B」的节点——A 走 parentId 画在主干链上，B 记在这里。
+     * 未解锁的额外前置会在科技树 tooltip 里逐条列出。
+     */
+    public static final java.util.Map<String, List<String>> EXTRA_REQUIREMENTS = java.util.Map.ofEntries(
+            java.util.Map.entry("arrow_craft_2", List.of("archery_2")),
+            // ── 枪械线 ────────────────────────────────────────────────
+            java.util.Map.entry("pistol_2", List.of("laser_sight", "sight_1")),
+            java.util.Map.entry("shotgun_1", List.of("bullets_2")),
+            java.util.Map.entry("sniper_1", List.of("shotgun_1")),
+            java.util.Map.entry("rifle_1", List.of("bullets_4")),
+            java.util.Map.entry("heavy_weapon", List.of("bullets_5")),
+            java.util.Map.entry("sniper_2", List.of("rifle_2")),
+            java.util.Map.entry("sight_2", List.of("sniper_1")),
+            java.util.Map.entry("sight_3", List.of("sniper_2")),
+            java.util.Map.entry("muzzle_3", List.of("rifle_1")),
+            java.util.Map.entry("muzzle_4", List.of("rifle_2")),
+            java.util.Map.entry("muzzle_5", List.of("sniper_2")),
+            java.util.Map.entry("stock_2", List.of("rifle_2")),
+            java.util.Map.entry("mag_2", List.of("rifle_1")),
+            java.util.Map.entry("mag_3", List.of("sniper_2")));
+
     private static List<TechNode> buildNodes() {
         List<TechNode> list = new ArrayList<>();
         // ── 生存与工具 ───────────────────────────────────────────────
@@ -94,6 +117,7 @@ public final class SixtySecondsTechTree {
         chain(list, "medical", "work_env_1", "drugs_1", "drugs_2", "drugs_3", "drugs_4", "drugs_5");
         chain(list, "medical", "work_env_1", "tonics_1", "tonics_2");
         chain(list, "medical", "work_env_1", "sanity_1", "sanity_2", "sanity_4");
+        chain(list, "medical", "sanity_4", "sanity_cap_1", "sanity_cap_2");
         chain(list, "medical", "work_env_1", "decontam_1", "decontam_2", "decontam_3");
         // 综合补剂：需医疗大类其余节点全部解锁（特殊门控，见 gateSatisfied）
         chain(list, "medical", null, "omni_tonic");
@@ -106,9 +130,26 @@ public final class SixtySecondsTechTree {
         chain(list, "military", "work_env_3", "armor_1", "armor_2", "armor_3", "armor_4");
         chain(list, "military", "work_env_3", "func_armor_1", "func_armor_2");
         chain(list, "military", "work_env_3", "melee_1", "melee_2", "melee_3");
-        chain(list, "military", "work_env_3", "bullets_1", "bullets_2", "bullets_3");
-        chain(list, "military", "work_env_3", "firearms_1", "firearms_2", "firearms_3");
         chain(list, "military", "work_env_3", "throwables_1", "throwables_2", "throwables_3");
+        // ── 枪械线（TACZ 枪/弹/配件，全部在军械台且需通电）────────────────
+        // 多前置节点的第二个前置写在 EXTRA_REQUIREMENTS，parentId 只表达主干链。
+        chain(list, "military", "work_env_3", "bullets_1", "bullets_2", "bullets_3",
+                "bullets_4", "bullets_5", "bullets_6");
+        chain(list, "military", "bullets_1", "pistol_1", "pistol_2");
+        chain(list, "military", "pistol_1", "shotgun_1", "shotgun_2");
+        chain(list, "military", "bullets_3", "sniper_1");        // + 霰弹枪-I
+        chain(list, "military", "sniper_1", "smg", "ammo_box");
+        chain(list, "military", "smg", "rifle_1");               // + 子弹-IV
+        chain(list, "military", "rifle_1", "heavy_weapon", "rifle_2"); // 重型武器 + 子弹-V
+        chain(list, "military", "bullets_6", "sniper_2");        // + 步枪-II
+        // 配件支线：瞄具/枪口/枪托/握把/扩容弹夹/激光指示器
+        chain(list, "military", "pistol_1", "laser_sight");
+        chain(list, "military", "pistol_1", "sight_1", "sight_2", "sight_3");
+        chain(list, "military", "pistol_1", "muzzle_1");
+        chain(list, "military", "shotgun_2", "muzzle_2", "muzzle_3", "muzzle_4", "muzzle_5");
+        chain(list, "military", "rifle_1", "stock_1", "stock_2");
+        chain(list, "military", "rifle_1", "grip_1", "grip_2");
+        chain(list, "military", "pistol_1", "mag_1", "mag_2", "mag_3");
         // 弓弩（军械大类，需「更好的工作环境-III」）：弓术链解锁弓/弩，箭矢工艺链解锁弹药
         chain(list, "military", "work_env_3", "archery_1", "archery_2", "archery_3");
         chain(list, "military", "archery_1", "arrow_craft_1", "arrow_craft_2");
@@ -119,6 +160,8 @@ public final class SixtySecondsTechTree {
         chain(list, "transport", "work_env_4", "fuel_1", "fuel_2");
         chain(list, "transport", "work_env_4", "horse_1", "horse_2");
         chain(list, "transport", "work_env_4", "vehicle_1", "vehicle_2", "vehicle_3", "vehicle_repair");
+        // 海上载具：木筏 → 汽艇 → 渔船，与陆上载具同为车床产物（需「更好的工作环境-IV」）
+        chain(list, "transport", "work_env_4", "boat_1", "boat_2", "boat_3");
         // ── 神秘技术（全树 75% 门控，见 gateSatisfied）───────────────────
         chain(list, "mystic", null, "sacrifice_1", "sacrifice_2");
         chain(list, "mystic", "sacrifice_1", "undying_totem");
@@ -142,6 +185,7 @@ public final class SixtySecondsTechTree {
      *   <li>工作环境（全树主干门控）：I=2 起步价，II/III/IV=8/14/20。</li>
      *   <li>常规分支按罗马级别：I=3、II=6、III=10、IV=14、V=18（按 id 尾缀 _N 判定）。</li>
      *   <li>无级别单节点（茶艺/饮料/烟草等）：4~5；药剂净化 8；综合补剂 12。</li>
+     *   <li>枪械线（子弹/枪/配件）：级别尾缀含 VI 且配件为支线，逐节点显式定价 3~26。</li>
      *   <li>神秘技术（后期目标）：献祭 16、不死图腾 24、复活图腾 30。</li>
      * </ul>
      */
@@ -155,9 +199,45 @@ public final class SixtySecondsTechTree {
             case "tobacco": return 5;
             case "potion_purify": return 8;
             case "omni_tonic": return 12;
+            case "sanity_cap_1": return 8;
+            case "sanity_cap_2": return 12;
             case "sacrifice_1", "sacrifice_2": return 16;
             case "undying_totem": return 24;
             case "revival_totem": return 30;
+            // ── 枪械线（军械大类，尾缀级别与常规分支不同，全部显式定价）──────
+            case "bullets_1": return 3;
+            case "bullets_2": return 6;
+            case "bullets_3": return 10;
+            case "bullets_4": return 14;
+            case "bullets_5": return 18;
+            case "bullets_6": return 20;
+            case "pistol_1": return 4;
+            case "pistol_2": return 8;
+            case "shotgun_1": return 7;
+            case "shotgun_2": return 10;
+            case "sniper_1": return 12;
+            case "sniper_2": return 26;
+            case "smg": return 14;
+            case "ammo_box": return 8;
+            case "rifle_1": return 16;
+            case "rifle_2": return 22;
+            case "heavy_weapon": return 20;
+            case "laser_sight": return 5;
+            case "sight_1": return 5;
+            case "sight_2": return 10;
+            case "sight_3": return 16;
+            case "muzzle_1": return 5;
+            case "muzzle_2": return 8;
+            case "muzzle_3": return 12;
+            case "muzzle_4": return 14;
+            case "muzzle_5": return 18;
+            case "stock_1": return 8;
+            case "stock_2": return 14;
+            case "grip_1": return 8;
+            case "grip_2": return 12;
+            case "mag_1": return 5;
+            case "mag_2": return 10;
+            case "mag_3": return 16;
             default:
         }
         int tier = id.charAt(id.length() - 1) - '0';
@@ -192,13 +272,14 @@ public final class SixtySecondsTechTree {
     /**
      * 特殊门控（parentId 之外的额外条件，两端共用）：
      * <ul>
+     *   <li>{@link #EXTRA_REQUIREMENTS} —— 「前置：A 和 B」里的第二个前置；</li>
      *   <li>{@code omni_tonic} —— 医疗大类其余节点全部解锁；</li>
      *   <li>神秘技术大类首节点（{@code sacrifice_1}）—— 非神秘节点解锁数 ≥ 75%。</li>
      * </ul>
      */
     public static boolean gateSatisfied(TechNode node, Set<String> unlocked) {
-        if ("arrow_craft_2".equals(node.id())) {
-            return unlocked.contains("archery_2") && unlocked.contains("arrow_craft_1");
+        if (!unlocked.containsAll(EXTRA_REQUIREMENTS.getOrDefault(node.id(), List.of()))) {
+            return false;
         }
         if ("omni_tonic".equals(node.id())) {
             for (TechNode other : NODES) {

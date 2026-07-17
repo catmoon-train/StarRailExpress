@@ -203,17 +203,13 @@ public class SixtySecondsBossEntity extends SixtySecondsMonsterEntity {
 
     @Override
     public ResourceLocation textureLocation() {
-        BossVariant v = getBossVariant();
+        // 所有变体统一使用基础纹理（变体专用纹理待后续美术产出后替换）
         if (isApex()) {
             return ResourceLocation.fromNamespaceAndPath("noellesroles",
-                    v == BossVariant.RAVAGER
-                            ? "textures/entity/sixty_seconds_boss_apex.png"
-                            : "textures/entity/" + v.textureName + "_apex.png");
+                    "textures/entity/sixty_seconds_boss_apex.png");
         }
         return ResourceLocation.fromNamespaceAndPath("noellesroles",
-                v == BossVariant.RAVAGER
-                        ? "textures/entity/sixty_seconds_boss.png"
-                        : "textures/entity/" + v.textureName + ".png");
+                "textures/entity/sixty_seconds_boss.png");
     }
 
     // ── Boss 血条 ─────────────────────────────────────────────────────

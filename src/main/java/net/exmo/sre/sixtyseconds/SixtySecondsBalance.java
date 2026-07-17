@@ -66,6 +66,15 @@ public final class SixtySecondsBalance {
     public static final int KILL_SANITY_CAP_LOSS_MAX = 14;     // 每次杀人扣理智上限上限（×1.5: 9→14）
     public static final int SANITY_CAP_FLOOR = 10;            // 理智上限最低值（防连环杀直接锁死变怪）
 
+    // ── 自动复活（SixtySecondsAutoRevive；按图开关 autoReviveEnabled，默认开）──────
+    /** 复活间隔的缺省秒数（配置缺失时的兜底；实际值见 config.autoReviveIntervalSeconds）。 */
+    public static final int AUTO_REVIVE_DEFAULT_SECONDS = 240;
+    /**
+     * 复活后各状态值恢复到上限的比例。给 50% 而非满值：复活已经免了「死了就出局」，
+     * 再送一身满状态就等于死亡零代价——出来还得先解决吃喝。
+     */
+    public static final double AUTO_REVIVE_STAT_PERCENT = 0.5;
+
     // ── 倒地系统 ──────────────────────────────────────────────────────
     /** 倒地时的初始健康值（需被打空才会真正死亡，取代一击处决）。30 ≈ 枪械 1 击、近战 2 击。 */
     public static final int DOWNED_MAX_HEALTH = 30;

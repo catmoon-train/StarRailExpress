@@ -51,6 +51,35 @@ public class ModEntities {
                                     MobCategory.MISC)
                             .sized(4.2f, 4.5f).build("sixty_seconds_car"));
 
+    // 末日60秒：海上载具（继承原版 Boat 拿水上物理，外观是自研模型；木筏/汽艇/渔船，见 SixtySecondsSeaVehicleEntity）
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>
+            SIXTY_SECONDS_RAFT = registerSeaVehicle("sixty_seconds_raft",
+                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind.RAFT,
+                    1.6F, 0.45F);
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>
+            SIXTY_SECONDS_MOTORBOAT = registerSeaVehicle("sixty_seconds_motorboat",
+                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind.MOTORBOAT,
+                    1.5F, 0.6F);
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>
+            SIXTY_SECONDS_FISHING_BOAT = registerSeaVehicle("sixty_seconds_fishing_boat",
+                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind.FISHING_BOAT,
+                    2.4F, 1.0F);
+
+    /** 三种海上载具的注册只差 Kind 与碰撞盒，抽一个工厂免得抄三遍。 */
+    private static EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>
+            registerSeaVehicle(String name,
+                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind kind,
+                    float width, float height) {
+        return Registry.register(BuiltInRegistries.ENTITY_TYPE, Noellesroles.id(name),
+                EntityType.Builder
+                        .<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>of(
+                                (type, world) -> new net.exmo.sre.sixtyseconds.content.entity
+                                        .SixtySecondsSeaVehicleEntity(type, world, kind),
+                                MobCategory.MISC)
+                        .sized(width, height)
+                        .build(name));
+    }
+
     public static final EntityType<WheelchairFieldItemEntity> WHEELCHAIR_FIELD_ITEM = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("wheelchair_field_item"),
@@ -569,5 +598,7 @@ public class ModEntities {
         // 末日60秒 NPC：生命/移速在 applyVariant 里按变体覆写
         FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_NPC,
                 net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity.createAttributes());
+        // 海洋生物：鲨鱼 / 海怪（注册基础属性，变体装配时按 id 覆写）
+        net.exmo.sre.sixtyseconds.init.ModOceanEntities.initAttributes();
     }
 }

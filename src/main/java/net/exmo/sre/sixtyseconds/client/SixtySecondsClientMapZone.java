@@ -104,6 +104,30 @@ public final class SixtySecondsClientMapZone {
         }
     }
 
+    // ── 尸体标记（自动复活；服务端经 SixtySecondsCorpseMarkS2CPacket 推送）──────────
+    /** 尸体标记的固定颜色：暗红，与玩家自定义标注的循环色明显区分。 */
+    public static final int CORPSE_COLOR = 0xFF8B1A1A;
+    /** 当前尸体标记（复用同一张标注表与渲染，只是颜色固定、由服务端增删）。 */
+    private static Marker corpseMarker = null;
+
+    /** 死亡时打上尸体标记（同时只会有一个：新的顶掉旧的）。 */
+    public static void setCorpseMarker(double worldX, double worldZ) {
+        clearCorpseMarker();
+        corpseMarker = new Marker(worldX, worldZ, CORPSE_COLOR);
+        MARKERS.add(corpseMarker);
+        if (MARKERS.size() > MAX_MARKERS) {
+            MARKERS.remove(0);
+        }
+    }
+
+    /** 复活后清除尸体标记；标注表被挤爆时它可能已被淘汰，remove 无匹配也无妨。 */
+    public static void clearCorpseMarker() {
+        if (corpseMarker != null) {
+            MARKERS.remove(corpseMarker);
+            corpseMarker = null;
+        }
+    }
+
     /** 移除离 (worldX, worldZ) 最近且距离 ≤ maxDist 的标注；返回是否移除了。 */
     public static boolean removeMarkerNear(double worldX, double worldZ, double maxDist) {
         Marker best = null;

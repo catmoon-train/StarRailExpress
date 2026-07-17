@@ -60,6 +60,12 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     public long bleedOutEndTick = 0L;
     /** 探索归来冷却结束时间戳（gameTime）。 */
     public long exploreCooldownEndTick = 0L;
+    /**
+     * 自动复活的触发 gameTime（0=未在等待复活）。死亡时由 {@code SixtySecondsAutoRevive} 写入并同步一次，
+     * 客户端 HUD 按 {@code reviveEndTick - gameTime} 自行推算倒计时——不每 tick 递减、不每 tick 同步
+     * （同 {@link #phaseEndTick}/{@link #bleedOutEndTick} 的纪律，见 ai_doc.md）。
+     */
+    public long reviveEndTick = 0L;
     /** 救起后未使用医疗包的“感染风险”状态：每 2 分钟 33% 概率生病。 */
     public boolean recovering = false;
     /** san 归零开始变怪倒计时的时间戳（gameTime）；0=未开始。san 恢复>0 则清零。 */
@@ -96,6 +102,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         downedCountToday = 0;
         downedFromInjury = false;
         bleedOutEndTick = 0L;
+        reviveEndTick = 0L;
         exploreCooldownEndTick = 0L;
         recovering = false;
         sanZeroTick = 0L;
@@ -151,6 +158,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         buf.writeVarInt(playerKills);
         buf.writeByte((sick ? 1 : 0) | (downed ? 2 : 0) | (monster ? 4 : 0));
         buf.writeVarLong(bleedOutEndTick); // 倒地 HUD 流血倒计时（倒地/救起时才变化）
+        buf.writeVarLong(reviveEndTick);   // 自动复活 HUD 倒计时（死亡/复活时才变化）
 
     }
 
@@ -186,6 +194,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         downed = (flags & 2) != 0;
         monster = (flags & 4) != 0;
         bleedOutEndTick = buf.readVarLong();
+        reviveEndTick = buf.readVarLong();
     }
 
     /** 已被上面的紧凑二进制同步取代，仅保留以满足接口（不再被调用）。 */
@@ -208,6 +217,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         tag.putInt("DownedCountToday", downedCountToday);
         tag.putBoolean("DownedFromInjury", downedFromInjury);
         tag.putLong("BleedOutEndTick", bleedOutEndTick);
+        tag.putLong("ReviveEndTick", reviveEndTick);
         tag.putLong("ExploreCooldownEndTick", exploreCooldownEndTick);
         tag.putBoolean("Recovering", recovering);
         tag.putLong("SanZeroTick", sanZeroTick);
@@ -236,6 +246,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         downedCountToday = tag.getInt("DownedCountToday");
         downedFromInjury = tag.getBoolean("DownedFromInjury");
         bleedOutEndTick = tag.getLong("BleedOutEndTick");
+        reviveEndTick = tag.getLong("ReviveEndTick");
         exploreCooldownEndTick = tag.getLong("ExploreCooldownEndTick");
         recovering = tag.getBoolean("Recovering");
         sanZeroTick = tag.getLong("SanZeroTick");

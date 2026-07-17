@@ -553,7 +553,7 @@ public final class SixtySecondsIslandGenerator {
             boolean asRandom = rng.nextFloat() < 0.5F;
             boolean locked = !asRandom && island.level >= 3 && rng.nextFloat() < 0.3F;
             placeSupplyBox(p, spot, asRandom
-                    ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_RANDOM_SUPPLY_BOX
+                    ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_LOW_TIER_RANDOM_SUPPLY_BOX
                     : (locked
                             ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_LOCKED
                             : org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX),
@@ -569,7 +569,7 @@ public final class SixtySecondsIslandGenerator {
             boolean asRandom = rng.nextFloat() < 0.5F;
             boolean advancedLocked = !asRandom && island.level >= 4;
             placeSupplyBox(p, spot, asRandom
-                    ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_RANDOM_SUPPLY_BOX
+                    ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_HIGH_TIER_RANDOM_SUPPLY_BOX
                     : (advancedLocked
                             ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED_LOCKED
                             : org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED),

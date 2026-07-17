@@ -40,10 +40,10 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 
 /**
- * 末日60秒模式相位机的编排核心：家庭分队 → 按队克隆建图 → 60s 准备 → 7 个游戏日 → 结算。
+ * 末日60秒模式相位机的编排核心：家庭分队 → 按队克隆建图 → 90s 准备 → 7 个游戏日 → 结算。
  */
 public final class SixtySecondsManager {
-    public static final int PREP_TICKS = 20 * 60;          // 60s 准备
+    public static final int PREP_TICKS = 20 * 90;          // 90s 准备
     /** 每游戏日 9.5 分钟：清晨 1 + 白天 6 + 晚上 2.5（含末尾 45s 睡觉时间），见 {@link net.exmo.sre.sixtyseconds.SixtySecondsDayCycle}。 */
     public static final int DAY_TICKS = net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.DAY_TOTAL_TICKS;
     /** 总游戏日数的默认值；实际值可按图配置，读 {@link #totalDays(ServerLevel)}。 */
@@ -154,7 +154,7 @@ public final class SixtySecondsManager {
         });
     }
 
-    /** 异步建图完成回调：清理建图过程中被顶掉的掉落物 → 传送各队到住宅出生点 → 进入 60s 准备阶段。 */
+    /** 异步建图完成回调：清理建图过程中被顶掉的掉落物 → 传送各队到住宅出生点 → 进入 90s 准备阶段。 */
     private static void onBuildComplete(ServerLevel level, SixtySecondsState.Data data) {
         // 建图克隆时会替换掉既有方块（包括容器），容器内物品会变成 ItemEntity 洒落一地。
         // 必须在传送前全图清理，否则玩家出生点四周全是上局残留掉落物。
@@ -169,7 +169,7 @@ public final class SixtySecondsManager {
         data.phase = SixtySecondsPhase.PREPARATION;
         data.dayNumber = 0;
         data.phaseEndTick = level.getGameTime() + PREP_TICKS;
-        syncDayNumber(level, data, 0); // 同步 phaseEndTick：客户端 HUD 显示 60s 准备倒计时
+        syncDayNumber(level, data, 0); // 同步 phaseEndTick：客户端 HUD 显示 90s 准备倒计时
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.prep_start"));
     }
 
@@ -241,6 +241,7 @@ public final class SixtySecondsManager {
                 SixtySecondsVisiting.tick(level);        // 做客者 USED_BANED 续期/异常解除
                 SixtySecondsEventSystem.tick(level);
                 SixtySecondsHotlineSystem.tick(level);
+                SixtySecondsAutoRevive.tick(level);      // 自动复活：到期的死者在本队避难所复活
                 SixtySecondsDailyEvents.tick(level);     // 每日事件门：抉择超时/探险结算
                 SixtySecondsMinigameRotation.tick(level);
                 SixtySecondsWhisperSystem.tick(level);   // 夜间黑暗处刷低语怪
@@ -307,7 +308,7 @@ public final class SixtySecondsManager {
         return true;
     }
 
-    /** 准备阶段 60 秒结束 → 冻结系统 100 tick 过渡 → 进入第 1 天（运镜在传送进住宅后播放）。 */
+    /** 准备阶段 90 秒结束 → 冻结系统 100 tick 过渡 → 进入第 1 天（运镜在传送进住宅后播放）。 */
     private static void startPrepTransition(ServerLevel level, SixtySecondsState.Data data) {
         long now = level.getGameTime();
         prepTransitionEnd.put(level, now + PREP_TRANSITION_TICKS);

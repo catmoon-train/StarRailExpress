@@ -76,13 +76,16 @@ public class SeaChartScreen extends Screen {
         worldMinX = minX + (spanX - mapW / scale) / 2.0;
         worldMinZ = minZ + (spanZ - mapH / scale) / 2.0;
 
-        addRenderableWidget(Button.builder(Component.translatable(LANG + "chart_home"), button -> {
-            Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.player != null) {
-                minecraft.player.connection.sendCommand("sre:60s island home");
-            }
-            onClose();
-        }).bounds(mapX, mapY + mapH + 6, 96, 20).build());
+        // sea_teleport 关闭时不显示"返回住所"按钮
+        if (data.teleportAllowed()) {
+            addRenderableWidget(Button.builder(Component.translatable(LANG + "chart_home"), button -> {
+                Minecraft minecraft = Minecraft.getInstance();
+                if (minecraft.player != null) {
+                    minecraft.player.connection.sendCommand("sre:60s island home");
+                }
+                onClose();
+            }).bounds(mapX, mapY + mapH + 6, 96, 20).build());
+        }
         addRenderableWidget(Button.builder(net.minecraft.network.chat.CommonComponents.GUI_DONE,
                 button -> onClose()).bounds(mapX + mapW - 96, mapY + mapH + 6, 96, 20).build());
     }

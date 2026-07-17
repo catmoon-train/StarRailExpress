@@ -513,7 +513,11 @@ public final class SixtySecondsHealthSystem {
             bar.removeAllPlayers();
             bar.setVisible(false);
         }
+        // 尸体处坐标要在 forceKillPlayer 之前取：那之后玩家已转旁观，位置不再是死亡点
+        net.minecraft.core.BlockPos corpsePos = victim.blockPosition();
         GameUtils.forceKillPlayer(victim, true, killer, deathReason);
+        // 自动复活（按图开关，默认开）：登记复活时刻 + 给本人打尸体标记
+        SixtySecondsAutoRevive.onDeath(victim, corpsePos);
     }
 
     /**

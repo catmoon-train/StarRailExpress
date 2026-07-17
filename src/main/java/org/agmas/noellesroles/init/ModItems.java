@@ -1135,6 +1135,19 @@ public class ModItems {
                     new Item.Properties().stacksTo(4), 0, 0, 0, 60, 0, false, null,
                     60, UseAnim.DRINK),
             "sixty_seconds_sanity_med", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 精神强化剂：理智上限 +5（最高 120），不回理智值本身（理智上限-I）
+    public static final Item SIXTY_SECONDS_MENTAL_FORTIFIER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(4), 0, 0, 0, 0, 0, false, null,
+                    100, UseAnim.DRINK, 5),
+            "sixty_seconds_mental_fortifier", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 认知强化素：理智上限 +10（最高 120）（理智上限-II）
+    public static final Item SIXTY_SECONDS_COGNITIVE_BOOSTER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(2), 0, 0, 0, 0, 0, false, null,
+                    160, UseAnim.EAT,
+                    10),
+            "sixty_seconds_cognitive_booster", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 抗感染剂：污染 -30 / 回 25 血（污染净化-II）
     public static final Item SIXTY_SECONDS_ANTI_INFECTION = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
@@ -1258,6 +1271,22 @@ public class ModItems {
                     new Item.Properties().stacksTo(1),
                     () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_CAR),
             "sixty_seconds_car", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // ── 交通：海上载具（木筏免燃料 / 汽艇燃料罐 / 渔船柴油罐+储物，见 SixtySecondsSeaVehicleEntity）──
+    public static final Item SIXTY_SECONDS_RAFT = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsSeaVehicleItem(
+                    new Item.Properties().stacksTo(1),
+                    () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_RAFT),
+            "sixty_seconds_raft", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_MOTORBOAT = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsSeaVehicleItem(
+                    new Item.Properties().stacksTo(1),
+                    () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_MOTORBOAT),
+            "sixty_seconds_motorboat", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_FISHING_BOAT = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsSeaVehicleItem(
+                    new Item.Properties().stacksTo(1),
+                    () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_FISHING_BOAT),
+            "sixty_seconds_fishing_boat", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 载具修理工具（车床，载具修理科技）：右键载具恢复 15 血量
     public static final Item SIXTY_SECONDS_VEHICLE_REPAIR_TOOL = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsVehicleRepairItem(
@@ -1340,6 +1369,16 @@ public class ModItems {
             new DivingBootsItem(ArmorMaterials.GOLD, net.minecraft.world.item.ArmorItem.Type.BOOTS,
                     (new Item.Properties()).stacksTo(1)),
             "diving_boots", EQUIPMENT_GROUP);
+
+    /**
+     * 攀登靴
+     * - 穿在脚上（渲染为皮革靴子）
+     * - 在海上时可以登上比海平面高一格的方块到达上面
+     */
+    public static final Item CLIMBING_BOOTS = register(
+            new ClimbingBootsItem(ArmorMaterials.LEATHER, net.minecraft.world.item.ArmorItem.Type.BOOTS,
+                    (new Item.Properties()).stacksTo(1)),
+            "climbing_boots", EQUIPMENT_GROUP);
 
     /**
      * 喷气背包

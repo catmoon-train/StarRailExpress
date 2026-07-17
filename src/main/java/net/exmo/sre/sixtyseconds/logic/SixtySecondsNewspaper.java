@@ -69,8 +69,13 @@ public final class SixtySecondsNewspaper {
                 .add(pos);
     }
 
+    /**
+     * 队伍 → 邮箱坐标。一个邮箱都还没注册时返回<b>空表而不是 null</b>——
+     * 开局第一天清晨 {@link SixtySecondsHotlineSystem#processDeliveries} 就会遍历它。
+     * 只读；登记邮箱走 {@link #registerMailbox}。
+     */
     public static Map<Integer, List<BlockPos>> getMailboxRegistry(ServerLevel level) {
-        return MAILBOX_REGISTRY.get(level);
+        return MAILBOX_REGISTRY.getOrDefault(level, Map.of());
     }
 
     public static void unregisterMailbox(ServerLevel level, BlockPos pos) {

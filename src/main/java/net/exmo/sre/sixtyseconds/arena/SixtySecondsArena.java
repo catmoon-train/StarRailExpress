@@ -123,6 +123,11 @@ public final class SixtySecondsArena {
         // 每队的避难所偏移：门锚定模式下 = 出口门 - 锚点门（避难所平移到探索区那扇门上），否则 = 队伍网格偏移。
         // 先整表算出来——clearArenaEntities 要按<b>实际</b>落位清残留实体，网格坐标在锚定模式下根本不是避难所所在地。
         List<BlockPos> shelterOffsets = shelterOffsets(config, data, exitDoorBindings);
+        if (!heightsFit(level, config, data, shelterOffsets)) {
+            clearArenaEntities(level, config, List.of());
+            onComplete.run();
+            return;
+        }
         clearArenaEntities(level, config, shelterOffsets);
 
         LinkedHashMap<BlockPos, Snapshot> snapshots = new LinkedHashMap<>();
@@ -199,6 +204,53 @@ public final class SixtySecondsArena {
         work.addAll(clones);
         GameUtils.serverTaskQueue.add(new BuildTask(level, snapshots, work, onComplete, teams));
         Noellesroles.LOGGER.info("[60s] 开始异步建图：{} 支队伍，{} 个子盒分批放置。", teams, work.size());
+    }
+
+    /**
+     * 建图前校验每队克隆区的 Y 是否落在世界建筑高度内。
+     * <p>
+     * {@link net.minecraft.world.level.Level#setBlock} 对超出建筑高度的坐标<b>静默返回 false</b>：
+     * 越界时建图任务照跑、进度照报，却一格都没放下，玩家随后被传送到空无一物的半空——
+     * 现象与「建图很慢」几乎无法区分。所以这里提前拦下并把该填的数算给管理员，而不是建了个寂寞。
+     * <p>
+     * 注意 {@code teamBase} 是<b>相对模板的偏移量</b>（见 {@link SixtySecondsConfig#teamBase}），
+     * 不是住宅要落到的绝对坐标——把绝对坐标填进去正是越界的常见来源。
+     */
+    private static boolean heightsFit(ServerLevel level, SixtySecondsConfig config,
+            SixtySecondsState.Data data, List<BlockPos> shelterOffsets) {
+        int minY = level.getMinBuildHeight();
+        int maxY = level.getMaxBuildHeight() - 1;
+        boolean ok = true;
+        int index = 0;
+        for (SixtySecondsState.TeamData ignored : data.teams.values()) {
+            ok &= fits(level, "住宅", config.residentialTemplate.toBox(), config.teamOffset(index),
+                    index, minY, maxY, "teamBase.y");
+            ok &= fits(level, "避难所", config.shelterTemplate.toBox(), shelterOffsets.get(index),
+                    index, minY, maxY, "shelterAnchorDoor / teamBase.y");
+            index++;
+        }
+        if (!ok) {
+            Noellesroles.LOGGER.error("[60s] 克隆区超出世界建筑高度（{}~{}），已中止建图——否则会「建图有进度但一格没生成、"
+                    + "玩家被传送到半空」。请按上面各行给出的可用范围改 sixty_seconds_config.json 后重开一局。",
+                    minY, maxY);
+        }
+        return ok;
+    }
+
+    /** 单个模板盒在给定偏移下是否放得进世界高度；越界时日志直接给出该偏移的可用区间。 */
+    private static boolean fits(ServerLevel level, String what, BoundingBox template, BlockPos offset,
+            int index, int minY, int maxY, String field) {
+        int lo = template.minY() + offset.getY();
+        int hi = template.maxY() + offset.getY();
+        if (lo >= minY && hi <= maxY) {
+            return true;
+        }
+        Noellesroles.LOGGER.error("[60s] 第 {} 队的{}克隆到 y={}~{}，超出世界建筑高度 {}~{}。"
+                        + "模板 y={}~{}（{} 格高），当前 Y 偏移 {}；{} 的可用范围是 {}~{}。",
+                index + 1, what, lo, hi, minY, maxY,
+                template.minY(), template.maxY(), template.getYSpan(), offset.getY(),
+                field, minY - template.minY(), maxY - template.maxY());
+        return false;
     }
 
     /**

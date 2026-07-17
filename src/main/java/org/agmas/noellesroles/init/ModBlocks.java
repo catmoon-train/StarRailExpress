@@ -115,16 +115,24 @@ public interface ModBlocks {
                             ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_LOCKED,
                             ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED,
                             ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED_LOCKED));
-    // 末日60秒模式：随机物资箱（克隆物资箱一切，但每次刷新随机取一个 loot 类别）
-    Block SIXTY_SECONDS_RANDOM_SUPPLY_BOX = blockRegistrar.createWithItem("sixty_seconds_random_supply_box",
+    // 末日60秒模式：低级随机物资箱（从 food/water/medicine/tool/material/field 中随机）
+    Block SIXTY_SECONDS_LOW_TIER_RANDOM_SUPPLY_BOX = blockRegistrar.createWithItem(
+            "sixty_seconds_low_tier_random_supply_box",
             new net.exmo.sre.sixtyseconds.content.block.RandomSupplyBoxBlock(
-                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)),
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F), "low"),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 末日60秒模式：高级随机物资箱（从 advanced_food/material/medicine/tool/weapon/rare 中随机）
+    Block SIXTY_SECONDS_HIGH_TIER_RANDOM_SUPPLY_BOX = blockRegistrar.createWithItem(
+            "sixty_seconds_high_tier_random_supply_box",
+            new net.exmo.sre.sixtyseconds.content.block.RandomSupplyBoxBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F), "high"),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.RandomSupplyBoxBlockEntity> SIXTY_SECONDS_RANDOM_SUPPLY_BOX_ENTITY =
             blockEntityRegistrar.create("sixty_seconds_random_supply_box",
                     BlockEntityType.Builder.of(
                             net.exmo.sre.sixtyseconds.content.block_entity.RandomSupplyBoxBlockEntity::new,
-                            ModBlocks.SIXTY_SECONDS_RANDOM_SUPPLY_BOX));
+                            ModBlocks.SIXTY_SECONDS_LOW_TIER_RANDOM_SUPPLY_BOX,
+                            ModBlocks.SIXTY_SECONDS_HIGH_TIER_RANDOM_SUPPLY_BOX));
     // 末日60秒模式：幸存者营地（走上/右键触发通关）
     Block SIXTY_SECONDS_SURVIVOR_CAMP = blockRegistrar.createWithItem("sixty_seconds_survivor_camp",
             new net.exmo.sre.sixtyseconds.content.block.SixtySecondsSurvivorCampBlock(

@@ -84,6 +84,10 @@ public final class SixtySecondsNpcSystem {
         if (now % SixtySecondsBalance.PIRATE_CHECK_INTERVAL == 0) {
             SixtySecondsNpcSpawner.spawnPirates(level, data, SixtySecondsDayCycle.isNight(data, now));
         }
+        // 海洋生物（鲨鱼/海怪）：每 OCEAN_CHECK_INTERVAL 对水上玩家做刷新判定
+        if (now % OceanCreatureSpawner.CHECK_INTERVAL == 0) {
+            OceanCreatureSpawner.tick(level);
+        }
         SixtySecondsNpcTheft.tick(level);
     }
 

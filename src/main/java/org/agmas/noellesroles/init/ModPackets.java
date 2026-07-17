@@ -150,6 +150,10 @@ public class ModPackets {
         // 60s 区域地图：当前扫描区域 + 家点位
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.CODEC);
+        // 60s 自动复活：尸体标记增删（地图标注表是纯客户端的，服务端只能推包）
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsCorpseMarkS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsCorpseMarkS2CPacket.CODEC);
         // 60s 海图：海岛元数据 + 解锁迷雾
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.CODEC);
@@ -197,6 +201,16 @@ public class ModPackets {
                 net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload::handle);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket.CODEC);
+        // 随机物资箱配置 GUI（S2C 开屏 + C2S 保存）
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.OpenRandomSupplyBoxConfigS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenRandomSupplyBoxConfigS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                net.exmo.sre.sixtyseconds.network.RandomSupplyBoxConfigSaveC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.RandomSupplyBoxConfigSaveC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.RandomSupplyBoxConfigSaveC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.RandomSupplyBoxConfigSaveC2SPacket::handle);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenAirdropEditS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenAirdropEditS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.LootTableSaveC2SPacket.ID,

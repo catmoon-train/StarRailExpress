@@ -211,9 +211,15 @@ public final class SixtySecondsRecipes {
         if (techId.startsWith("armor") || techId.startsWith("func_armor")) {
             return Category.ARMOR;
         }
-        if (techId.startsWith("melee") || techId.startsWith("bullets") || techId.startsWith("firearms")
+        if (techId.startsWith("melee") || techId.startsWith("bullets")
                 || techId.startsWith("throwables") || techId.startsWith("archery")
-                || techId.startsWith("arrow")) {
+                || techId.startsWith("arrow")
+                // 枪械线（TACZ 枪/弹/配件；产物是第三方物品，判不出类型才走到这里）
+                || techId.startsWith("pistol") || techId.startsWith("shotgun") || techId.startsWith("sniper")
+                || techId.startsWith("rifle") || techId.equals("smg") || techId.equals("heavy_weapon")
+                || techId.equals("ammo_box") || techId.equals("laser_sight")
+                || techId.startsWith("sight") || techId.startsWith("muzzle")
+                || techId.startsWith("stock") || techId.startsWith("grip") || techId.startsWith("mag_")) {
             return Category.WEAPONS;
         }
         return Category.TOOLS;
@@ -843,6 +849,15 @@ public final class SixtySecondsRecipes {
         add(list, "sanity_med", Station.STERILE, "sanity_4", true,
                 List.of(in(Items.PITCHER_PLANT, 1), in(chem, 3), in(alcohol, 1)),
                 ModItems.SIXTY_SECONDS_SANITY_MED, 1);
+        // ── 理智上限提升 ─────────────────────────────────────────────
+        add(list, "mental_fortifier", Station.STERILE, "sanity_cap_1", true,
+                List.of(in(ModItems.SIXTY_SECONDS_SOOTHING_TEA, 1), in(alcohol, 1), in(chem, 2)),
+                ModItems.SIXTY_SECONDS_MENTAL_FORTIFIER, 1);
+        add(list, "cognitive_booster", Station.STERILE, "sanity_cap_2", true,
+                List.of(in(ModItems.SIXTY_SECONDS_MENTAL_FORTIFIER, 1),
+                        in(ModItems.SIXTY_SECONDS_ADRENALINE, 1),
+                        in(ModItems.SIXTY_SECONDS_OMNI_TONIC, 1)),
+                ModItems.SIXTY_SECONDS_COGNITIVE_BOOSTER, 1);
         // ── 污染净化 ─────────────────────────────────────────────────
         add(list, "charcoal_pill", Station.STERILE, "decontam_1", false,
                 List.of(in(charcoal, 2)), ModItems.SIXTY_SECONDS_CHARCOAL_PILL, 1);
@@ -996,40 +1011,105 @@ public final class SixtySecondsRecipes {
                 List.of(in(iron, 3), in(wire, 3), in(battery, 2)), ModItems.SIXTY_SECONDS_STUN_BATON, 1);
         add(list, "steel_sword", Station.WEAPON_FORGE, "melee_3", true,
                 List.of(in(steel, 3), in(glassPlate, 1), in(Items.STICK, 2)), ModItems.SIXTY_SECONDS_STEEL_SWORD, 1);
-        // ── 子弹（军械台，全通电）──────────────────────────────────────
-        add(list, "ammo_pack", Station.ARSENAL, "bullets_1", true,
-                List.of(in(gunpowder, 2), in(scrap, 4)), ModItems.SIXTY_SECONDS_AMMO, 6);
-        add(list, "rifle_ammo", Station.ARSENAL, "bullets_2", true,
-                List.of(in(gunpowder, 4), in(scrap, 5)), ModItems.SIXTY_SECONDS_RIFLE_AMMO, 6);
-        add(list, "smg_ammo", Station.ARSENAL, "bullets_2", true,
-                List.of(in(gunpowder, 6), in(scrap, 8)), ModItems.SIXTY_SECONDS_SMG_AMMO, 12);
-        add(list, "shotgun_ammo", Station.ARSENAL, "bullets_2", true,
-                List.of(in(gunpowder, 6), in(glassShard, 2), in(scrap, 5)), ModItems.SIXTY_SECONDS_SHOTGUN_AMMO, 2);
-        add(list, "magnum_ammo", Station.ARSENAL, "bullets_3", true,
-                List.of(in(gunpowder, 12), in(steel, 4), in(copper, 8)), ModItems.SIXTY_SECONDS_MAGNUM_AMMO, 1);
-        add(list, "rocket", Station.ARSENAL, "bullets_3", true,
-                List.of(in(gunpowder, 12), in(alloy, 1)), ModItems.SIXTY_SECONDS_ROCKET, 1);
-        // ── 热兵器（军械台，全通电）────────────────────────────────────
-        add(list, "pistol", Station.ARSENAL, "firearms_1", true,
-                List.of(in(iron, 4), in(scrap, 6), in(wire, 2)), ModItems.SIXTY_SECONDS_PISTOL, 1);
-        add(list, "hunting_shotgun", Station.ARSENAL, "firearms_1", true,
-                List.of(in(iron, 8), in(ModItems.SIXTY_SECONDS_PIPE, 2), in(scrap, 8), in(tape, 1)),
-                ModItems.SIXTY_SECONDS_HUNTING_SHOTGUN, 1);
-        add(list, "rifle", Station.ARSENAL, "firearms_2", true,
-                List.of(in(iron, 12), in(ModItems.SIXTY_SECONDS_PIPE, 4), in(scrap, 16), in(plastic, 6)),
-                ModItems.SIXTY_SECONDS_RIFLE, 1);
-        add(list, "smg", Station.ARSENAL, "firearms_2", true,
-                List.of(in(steel, 10), in(ModItems.SIXTY_SECONDS_PIPE, 10), in(scrap, 20), in(glassPlate, 5)),
-                ModItems.SIXTY_SECONDS_SMG, 1);
-        add(list, "combat_shotgun", Station.ARSENAL, "firearms_2", true,
-                List.of(in(steel, 15), in(precious, 3), in(hemp, 10), in(gear, 5)),
-                ModItems.SIXTY_SECONDS_COMBAT_SHOTGUN, 1);
-        add(list, "sniper", Station.ARSENAL, "firearms_3", true,
-                List.of(in(alloy, 3), in(steel, 15), in(hemp, 8), in(oak, 10), in(gear, 5)),
-                ModItems.SIXTY_SECONDS_SNIPER, 1);
-        add(list, "rpg", Station.ARSENAL, "firearms_3", true,
-                List.of(in(alloy, 6), in(steel, 20), in(hemp, 12), in(elec, 6), in(gear, 6), in(oak, 10)),
-                ModItems.SIXTY_SECONDS_RPG, 1);
+        // ══ 枪械线（TACZ，全部在军械台且需通电；未装 TACZ 时整段跳过）══════
+        Item pipe = ModItems.SIXTY_SECONDS_PIPE;
+        // ── 子弹 ─────────────────────────────────────────────────────
+        ammo(list, "tacz_ammo_9mm", "bullets_1", "tacz:9mm", 6,
+                List.of(in(gunpowder, 2), in(scrap, 4)));
+        ammo(list, "tacz_ammo_22wmr", "bullets_1", "tacz:22wmr", 6,
+                List.of(in(gunpowder, 2), in(scrap, 5)));
+        ammo(list, "tacz_ammo_12g", "bullets_2", "tacz:12g", 3,
+                List.of(in(iron, 2), in(gunpowder, 2), in(glassShard, 2)));
+        ammo(list, "tacz_ammo_792x57", "bullets_3", "tacz:792x57", 2,
+                List.of(in(gunpowder, 4), in(chem, 2), in(copper, 2)));
+        ammo(list, "tacz_ammo_762x39", "bullets_4", "tacz:762x39", 4,
+                List.of(in(gunpowder, 4), in(steel, 1), in(glassShard, 1)));
+        ammo(list, "tacz_ammo_40mm", "bullets_5", "tacz:40mm", 1,
+                List.of(in(gunpowder, 6), in(chem, 5), in(scrap, 10)));
+        ammo(list, "tacz_ammo_338", "bullets_6", "tacz:338", 1,
+                List.of(in(gunpowder, 6), in(copper, 6), in(steel, 2), in(chem, 3)));
+        // ── 枪械 ─────────────────────────────────────────────────────
+        gun(list, "tacz_glock_17", "pistol_1", "tacz:glock_17",
+                List.of(in(iron, 4), in(scrap, 6), in(wire, 2)));
+        gun(list, "tacz_taurus943", "pistol_1", "tacz:taurus943",
+                List.of(in(iron, 2), in(pipe, 1), in(scrap, 8), in(tape, 1)));
+        gun(list, "tacz_cz75", "pistol_2", "tacz:cz75",
+                List.of(in(steel, 5), in(elec, 3), in(copper, 8), in(gear, 3)));
+        gun(list, "tacz_db_short", "shotgun_1", "tacz:db_short",
+                List.of(in(oak, 8), in(pipe, 2), in(copper, 3)));
+        gun(list, "tacz_m870", "shotgun_2", "tacz:m870",
+                List.of(in(oak, 8), in(steel, 2), in(hemp, 4), in(gear, 2)));
+        gun(list, "tacz_kar98", "sniper_1", "tacz:kar98",
+                List.of(in(oak, 10), in(steel, 4), in(precious, 1), in(pipe, 1), in(hemp, 3)));
+        gun(list, "tacz_uzi", "smg", "tacz:uzi",
+                List.of(in(alloy, 1), in(steel, 10), in(copper, 10), in(hemp, 5), in(gear, 3), in(plastic, 5)));
+        gun(list, "tacz_sks_tactical", "rifle_1", "tacz:sks_tactical",
+                List.of(in(alloy, 1), in(precious, 2), in(hemp, 6), in(steel, 8), in(pipe, 1), in(gear, 4)));
+        gun(list, "tacz_m320", "heavy_weapon", "tacz:m320",
+                List.of(in(alloy, 4), in(steel, 16), in(pipe, 1), in(plastic, 12), in(hemp, 10)));
+        gun(list, "tacz_ak47", "rifle_2", "tacz:ak47",
+                List.of(in(alloy, 10), in(steel, 26), in(hemp, 20), in(gear, 4)));
+        gun(list, "tacz_ai_awp", "sniper_2", "tacz:ai_awp",
+                List.of(in(alloy, 12), in(steel, 32), in(hemp, 26), in(gear, 10), in(elec, 8), in(copper, 16)));
+        // ── 弹药箱（无 custom_data，普通物品）──────────────────────────
+        tacz(list, "tacz_ammo_box", "ammo_box", "tacz:ammo_box", null, null, 1,
+                List.of(in(steel, 6), in(hemp, 3), in(plastic, 5)));
+        // ── 激光指示器 ────────────────────────────────────────────────
+        attachment(list, "tacz_handheldmoon_laser", "laser_sight", "handheldmoon:handheldmoon_laser",
+                List.of(in(ModItems.SIXTY_SECONDS_FLASHLIGHT, 1), in(tape, 1)));
+        attachment(list, "tacz_laser_compact", "laser_sight", "tacz:laser_compact",
+                List.of(in(elec, 2), in(wire, 3), in(copper, 2)));
+        // ── 瞄具 ─────────────────────────────────────────────────────
+        attachment(list, "tacz_sight_sro_dot", "sight_1", "tacz:sight_sro_dot",
+                List.of(in(iron, 5), in(scrap, 12), in(glassPlate, 1)));
+        attachment(list, "tacz_scope_acog_ta31", "sight_2", "tacz:scope_acog_ta31",
+                List.of(in(steel, 4), in(copper, 4), in(glassPlate, 1)));
+        attachment(list, "tacz_scope_vudu", "sight_3", "tacz:scope_vudu",
+                List.of(in(alloy, 2), in(steel, 8), in(glassPlate, 4)));
+        // ── 枪口 ─────────────────────────────────────────────────────
+        attachment(list, "tacz_muzzle_silencer_ptilopsis", "muzzle_1", "tacz:muzzle_silencer_ptilopsis",
+                List.of(in(iron, 6), in(copper, 6), in(hemp, 2)));
+        attachment(list, "tacz_muzzle_silencer_sg", "muzzle_2", "tacz:muzzle_silencer_sg",
+                List.of(in(steel, 2), in(plastic, 2), in(hemp, 2)));
+        attachment(list, "tacz_muzzle_brake_trex", "muzzle_3", "tacz:muzzle_brake_trex",
+                List.of(in(steel, 6), in(copper, 4), in(plastic, 8)));
+        attachment(list, "tacz_bayonet_6h3", "muzzle_4", "tacz:bayonet_6h3",
+                List.of(in(steel, 5), in(oak, 4)));
+        attachment(list, "tacz_muzzle_brake_cthulhu", "muzzle_4", "tacz:muzzle_brake_cthulhu",
+                List.of(in(alloy, 1), in(steel, 5), in(hemp, 4), in(elec, 4)));
+        attachment(list, "tacz_muzzle_silencer_ursus", "muzzle_5", "tacz:muzzle_silencer_ursus",
+                List.of(in(alloy, 2), in(steel, 8), in(gear, 6), in(pipe, 1), in(plastic, 6), in(tape, 2)));
+        // ── 枪托 ─────────────────────────────────────────────────────
+        attachment(list, "tacz_stock_ak12", "stock_1", "tacz:stock_ak12",
+                List.of(in(steel, 6), in(hemp, 3), in(copper, 5)));
+        attachment(list, "tacz_stock_moe", "stock_1", "tacz:stock_moe",
+                List.of(in(steel, 6), in(hemp, 3), in(elec, 2), in(plastic, 5)));
+        attachment(list, "tacz_stock_sba3", "stock_2", "tacz:stock_sba3",
+                List.of(in(alloy, 1), in(steel, 12), in(gear, 4), in(plastic, 8)));
+        // ── 握把 ─────────────────────────────────────────────────────
+        attachment(list, "tacz_grip_rk6", "grip_1", "tacz:grip_rk6",
+                List.of(in(steel, 5), in(plastic, 12), in(gear, 3)));
+        attachment(list, "tacz_grip_se_5", "grip_1", "tacz:grip_se_5",
+                List.of(in(steel, 5), in(plastic, 12), in(glassPlate, 1)));
+        attachment(list, "tacz_grip_vertical_ranger", "grip_2", "tacz:grip_vertical_ranger",
+                List.of(in(alloy, 1), in(hemp, 6), in(copper, 6), in(plastic, 6)));
+        // ── 扩容弹夹 ─────────────────────────────────────────────────
+        for (String mag : List.of("extended_mag_1", "light_extended_mag_1",
+                "shotgun_extended_mag_1", "sniper_extended_mag_1")) {
+            attachment(list, "tacz_" + mag, "mag_1", "tacz:" + mag,
+                    List.of(in(steel, 6), in(gear, 2), in(plastic, 4)));
+        }
+        for (String mag : List.of("extended_mag_2", "light_extended_mag_2",
+                "shotgun_extended_mag_2", "sniper_extended_mag_2")) {
+            attachment(list, "tacz_" + mag, "mag_2", "tacz:" + mag,
+                    List.of(in(steel, 12), in(gear, 4), in(glassPlate, 6)));
+        }
+        attachment(list, "tacz_ammo_mod_i", "mag_3", "tacz:ammo_mod_i",
+                List.of(in(alloy, 3), in(copper, 8), in(clothRoll, 6)));
+        attachment(list, "tacz_ammo_mod_slug", "mag_3", "tacz:ammo_mod_slug",
+                List.of(in(alloy, 3), in(copper, 8), in(gunpowder, 5)));
+        attachment(list, "tacz_ammo_mod_fmj", "mag_3", "tacz:ammo_mod_fmj",
+                List.of(in(alloy, 3), in(copper, 8), in(steel, 20), in(hemp, 6)));
         // ── 投掷物（军械台，全通电）────────────────────────────────────
         add(list, "molotov", Station.ARSENAL, "throwables_1", true,
                 List.of(in(alcohol, 2), in(rag, 2), in(glassShard, 2)), ModItems.SIXTY_SECONDS_MOLOTOV, 1);
@@ -1149,6 +1229,21 @@ public final class SixtySecondsRecipes {
         add(list, "vehicle_repair_tool", Station.LATHE, "vehicle_repair", true,
                 List.of(in(steel, 2), in(wire, 3), in(glassPlate, 1)),
                 ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_TOOL, 1);
+        // ── 海上载具（车床）───────────────────────────────────────────
+        // 木筏：纯木工，不吃金属也不吃电——三级里唯一不需要发动机的
+        add(list, "raft", Station.LATHE, "boat_1", true,
+                List.of(in(oak, 12), in(hemp, 8), in(nails, 4), in(scrap, 4)),
+                ModItems.SIXTY_SECONDS_RAFT, 1);
+        // 汽艇：舷外机 = 齿轮/电子/电池，比摩托略贵（水上跑得比陆上快）
+        add(list, "motorboat", Station.LATHE, "boat_2", true,
+                List.of(in(steel, 10), in(plastic, 10), in(gear, 8), in(elec, 8), in(wire, 8),
+                        in(battery, 2), in(glassPlate, 2)),
+                ModItems.SIXTY_SECONDS_MOTORBOAT, 1);
+        // 渔船：4 座 + 27 格储物 + 200 耐久，用料对齐小汽车
+        add(list, "fishing_boat", Station.LATHE, "boat_3", true,
+                List.of(in(alloy, 8), in(steel, 18), in(oak, 16), in(glassPlate, 4), in(elec, 16),
+                        in(gear, 16), in(wire, 16), in(battery, 5), in(hemp, 24)),
+                ModItems.SIXTY_SECONDS_FISHING_BOAT, 1);
 
         // ══ 神秘技术 ═══════════════════════════════════════════════════
         // 祭坛本体在高级工作台合成；其余在祭坛合成
@@ -1176,6 +1271,44 @@ public final class SixtySecondsRecipes {
     private static void add(List<Recipe> list, String id, Station station, String techId, boolean needsPower,
             List<Ingredient> inputs, Item output, int outputCount) {
         list.add(new Recipe(id, station, techId, needsPower, inputs, output, outputCount, null));
+    }
+
+    /**
+     * TACZ 枪械/弹药/配件配方（军械台，全通电）。TACZ 为软依赖：{@code itemId} 未注册时整条跳过。
+     * <p>
+     * 具体是哪把枪/哪种弹/哪个配件由 {@code custom_data} 里的一个字符串字段区分，对应
+     * {@code /give @s tacz:modern_kinetic_gun[minecraft:custom_data={GunId:"tacz:taurus943"}]}；
+     * {@code dataValue} 为 null 时产物是无 custom_data 的普通物品（如弹药箱）。
+     */
+    private static void tacz(List<Recipe> list, String id, String techId, String itemId,
+            String dataKey, String dataValue, int count, List<Ingredient> inputs) {
+        Item item = external(itemId);
+        if (item == null) {
+            return;
+        }
+        Supplier<ItemStack> factory = dataValue == null ? null : () -> {
+            ItemStack stack = new ItemStack(item, count);
+            net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+            tag.putString(dataKey, dataValue);
+            stack.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
+            return stack;
+        };
+        list.add(new Recipe(id, Station.ARSENAL, techId, true, inputs, item, count, factory));
+    }
+
+    private static void gun(List<Recipe> list, String id, String techId, String gunId, List<Ingredient> inputs) {
+        tacz(list, id, techId, "tacz:modern_kinetic_gun", "GunId", gunId, 1, inputs);
+    }
+
+    private static void ammo(List<Recipe> list, String id, String techId, String ammoId, int count,
+            List<Ingredient> inputs) {
+        tacz(list, id, techId, "tacz:ammo", "AmmoId", ammoId, count, inputs);
+    }
+
+    /** 配件 id 可以来自别的模组（如 handheldmoon 激光），但物品始终是 {@code tacz:attachment}。 */
+    private static void attachment(List<Recipe> list, String id, String techId, String attachmentId,
+            List<Ingredient> inputs) {
+        tacz(list, id, techId, "tacz:attachment", "AttachmentId", attachmentId, 1, inputs);
     }
 
     /** 酿造台药水配方（全通电，产物用工厂生成带效果的原版药水）。 */
