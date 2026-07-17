@@ -36,20 +36,24 @@ public final class SixtySecondsState {
         public final List<UUID> members = new ArrayList<>();
         /** 准备阶段右键门记录进「库存」的物资，准备结束放入避难所箱子。 */
         public final List<net.minecraft.world.item.ItemStack> storedSupplies = new ArrayList<>();
-        /** 本队住宅 / 避难所 / 搜索区出生点（已叠加网格偏移的绝对坐标）。 */
+        /** 本队住宅 / 避难所出生点（已叠加网格偏移的绝对坐标）。 */
         public BlockPos residentialSpawn;
         public BlockPos shelterSpawn;
+        /**
+         * 本队专属出口门的门口落点（绝对坐标；来自分配到的探索区出口门绑定，没分到则为 null）。
+         * 出门探索现在直接落在所点门外、全世界自由活动，本字段只剩夜袭锚点/闯入门匹配等少数兜底用途。
+         */
         public BlockPos searchZoneSpawn;
-        /** 本队搜索区限制盒（已叠加网格偏移）。 */
+        /** 本队专属出口门所在的危险区盒（已叠加网格偏移；没分到出口门或绑定盒过小则为 null）。 */
         public AABB searchZoneBox;
         /**
-         * 本队在共享搜索区里的「回家门」（绝对坐标；来自搜索区内的门绑定按队轮转分配）。
-         * 非空时只有走到这扇门才能「返回住所」；为空则任意门可回（旧行为）。
+         * 本队的「回家门」（= 分配到的探索区出口门，绝对坐标；没分到则为 null）。
+         * 非空时「返回住所」只认这扇门；为空则任意门可回。
          */
         public BlockPos returnDoorPos;
         /**
-         * 本队「避难所门坐标 → 专属探索区」映射（门坐标/盒/出生点均已叠加网格偏移）。
-         * 由绑定工具生成的 {@code searchDoorBindings} 克隆而来；未绑定的门回退到 {@link #searchZoneSpawn}/{@link #searchZoneBox}。
+         * 本队「避难所门坐标 → 该门的危险区盒/落点」映射（均已叠加网格偏移）。
+         * 由绑定工具生成的 {@code searchDoorBindings} 克隆而来，仅用于危险等级/夜袭等；不再限制玩家活动。
          */
         public final Map<BlockPos, SearchLink> searchDoors = new java.util.HashMap<>();
         /** 本队住宅 / 避难所范围盒（已叠加网格偏移，用于「在家降速」判定）。 */

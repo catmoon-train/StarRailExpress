@@ -123,9 +123,8 @@ public final class SixtySecondsDoorMenu {
                     options.add(new OpenShelterDoorS2CPacket.Option(ACTION_DOOR_INSPECT, true, 0));
                 }
             } else {
-                boolean hasZone = team != null
-                        && (team.searchDoors.get(pos) != null || team.searchZoneSpawn != null);
-                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EXPLORE, hasZone, 0));
+                // 出门探索现在只是「落到门外、全世界自由活动」，任意一扇门都能出——不再依赖探索区落点。
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EXPLORE, team != null, 0));
                 options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EVENT, true, 0));
                 options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT, data.teams.size() > 1, 0));
             }

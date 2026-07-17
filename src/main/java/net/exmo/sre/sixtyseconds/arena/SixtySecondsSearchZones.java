@@ -1,9 +1,10 @@
 package net.exmo.sre.sixtyseconds.arena;
 
-import io.wifi.starrailexpress.game.GameUtils;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
+import net.exmo.sre.sixtyseconds.content.block.ShelterDoorBlock;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,7 +13,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.init.ModEffects;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -49,19 +52,13 @@ public final class SixtySecondsSearchZones {
             player.displayClientMessage(Component.translatable("message.noellesroles.sixty_seconds.no_search_zone"), true);
             return;
         }
-        // 优先用该门绑定的独立探索区；无绑定则回退到本队默认搜索区
-        SixtySecondsState.TeamData.SearchLink link = doorPos == null ? null : team.searchDoors.get(doorPos);
-        BlockPos spawn = link != null ? link.spawn() : team.searchZoneSpawn;
-        AABB box = link != null ? link.box() : team.searchZoneBox;
-        if (spawn == null) {
-            player.displayClientMessage(Component.translatable("message.noellesroles.sixty_seconds.no_search_zone"), true);
-            return;
-        }
+        // 出门 = 直接落在<b>门外那格</b>（穿过门到玩家当前一侧的对面），不再传送到独立探索区；
+        // 出门后整片世界自由活动，没有任何限制盒。无门坐标（旧无参调用）时就近取玩家脚下安全点。
+        BlockPos safe = doorPos != null ? doorOutsideSpot(level, doorPos, player.blockPosition())
+                : findSafeSpot(level, player.blockPosition());
+        // confineBox 传 null：SearchZones.tick 不再拽人——这是「空气墙 / 被拉回探索区中心」的根因所在。
         RETURNS.put(player.getUUID(), new ReturnPos(player.getX(), player.getY(), player.getZ(),
-                player.getYRot(), player.getXRot(), box, spawn.immutable()));
-        // 落点做安全校正：绑定的出生点可能正好在避难所门/墙体方块里，直接传会窒息
-        // （窒息伤害被转成健康伤害，几秒就倒地死亡）
-        BlockPos safe = findSafeSpot(level, spawn);
+                player.getYRot(), player.getXRot(), null, safe.immutable()));
         player.teleportTo(level, safe.getX() + 0.5D, safe.getY(), safe.getZ() + 0.5D,
                 player.getYRot(), player.getXRot());
         long now = level.getGameTime();
@@ -71,8 +68,8 @@ public final class SixtySecondsSearchZones {
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, EXPLORE_INVIS_TICKS, 0, false, false, true));
         // 出门探索后移除闯入者标记——已离开别人的避难所
         player.removeEffect(ModEffects.BREAK_IN_INTRUDER);
-        // 区域地图切到本探索区；「家」点位=入口（回家的门所在）
-        net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.send(player, box, spawn, false);
+        // 出门后无探索区盒（自由活动）：清掉区域地图限制盒，小地图退回全图 playArea。
+        net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.sendClear(player);
         // 危险等级提示：等级越高稀有物越常见、但游荡怪更多更强（SixtySecondsAreaLevels/PveSystem）
         int areaLevel = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.levelAt(level, safe);
         player.displayClientMessage(Component
@@ -199,25 +196,45 @@ public final class SixtySecondsSearchZones {
                 && level.getBlockState(pos.above()).getCollisionShape(level, pos.above()).isEmpty();
     }
 
-    /** 每 tick 把搜索区内的玩家限制在本队搜索区盒里（旁观/创造/已淘汰不受限）。 */
+    /**
+     * 门外落脚点：从门穿到 {@code inside}（玩家出门前所在侧）的对面 1~3 格，就近找双格净空点。
+     * 优先按门朝向（{@link ShelterDoorBlock#FACING}）取「远离 inside」的一侧；读不到朝向时退回
+     * 水平四向里离 inside 最远者。全被墙堵死时兜底返回门口的 {@link #findSafeSpot}。
+     */
+    private static BlockPos doorOutsideSpot(ServerLevel level, BlockPos door, BlockPos inside) {
+        List<Direction> dirs = new ArrayList<>();
+        var state = level.getBlockState(door);
+        if (state.hasProperty(ShelterDoorBlock.FACING)) {
+            Direction facing = state.getValue(ShelterDoorBlock.FACING);
+            dirs.add(door.relative(facing, 2).distSqr(inside) >= door.relative(facing.getOpposite(), 2).distSqr(inside)
+                    ? facing : facing.getOpposite());
+        }
+        // 兜底方向：按「离 inside 更远」排序的水平四向（读不到门朝向 / 首选方向被堵时用）
+        Direction[] horizontals = Direction.Plane.HORIZONTAL.stream()
+                .sorted(java.util.Comparator.comparingDouble(d -> -door.relative(d, 2).distSqr(inside)))
+                .toArray(Direction[]::new);
+        for (Direction d : horizontals) {
+            if (!dirs.contains(d)) {
+                dirs.add(d);
+            }
+        }
+        for (Direction d : dirs) {
+            for (int dist = 1; dist <= 3; dist++) {
+                BlockPos safe = findSafeSpot(level, door.relative(d, dist));
+                if (isClear(level, safe)) {
+                    return safe;
+                }
+            }
+        }
+        return findSafeSpot(level, door);
+    }
+
+    /**
+     * 出门探索不再有任何活动限制盒（confineBox 恒为 null）——玩家出门后可走到天涯海角。
+     * 本方法保留为空实现：{@code RETURNS} 仍记录返回点/入口供「返回住所」与门匹配使用，
+     * 只是不再每 tick 用 {@code limitPlayerToBox} 拽人（删除「空气墙 / 被拉回探索区中心」的根因）。
+     */
     public static void tick(ServerLevel level) {
-        if (RETURNS.isEmpty()) {
-            return;
-        }
-        for (ServerPlayer player : level.players()) {
-            ReturnPos ret = RETURNS.get(player.getUUID());
-            if (ret == null) {
-                continue;
-            }
-            // 旁观/创造（观战、管理员巡查）与已淘汰玩家不做范围限制；
-            // RETURNS 记录保留——切回生存模式后恢复限制，且仍可正常「返回住所」。
-            if (player.isSpectator() || player.isCreative() || GameUtils.isPlayerEliminated(player)) {
-                continue;
-            }
-            if (ret.confineBox != null) {
-                GameUtils.limitPlayerToBox(player, ret.confineBox);
-            }
-        }
     }
 
     public static void reset(ServerLevel level) {

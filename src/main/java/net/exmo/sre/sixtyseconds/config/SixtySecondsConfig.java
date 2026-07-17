@@ -27,9 +27,6 @@ public class SixtySecondsConfig {
     @SerializedName("shelterTemplate")
     public Region shelterTemplate;
 
-    @SerializedName("searchZoneTemplate")
-    public Region searchZoneTemplate;
-
     /**
      * 以下出生点写<b>模板内的绝对坐标</b>——建图时自动换算成相对模板 min 的偏移量套到每队克隆区
      * （见 {@code SixtySecondsArena.spawnFor}）；不在模板盒内的值按“相对模板 min 的偏移”兼容（旧写法）。
@@ -40,21 +37,13 @@ public class SixtySecondsConfig {
     @SerializedName("shelterSpawn")
     public Vec shelterSpawn;
 
-    @SerializedName("searchZoneSpawn")
-    public Vec searchZoneSpawn;
-
     /**
-     * 共用探索区内的<b>每队出口点</b>列表（模板绝对坐标，不随队偏移）：第 index 支队伍出门落在
-     * {@code searchExitPoints[index % size]}——每个避难所对应探索区的不同位置。为空则全部用 {@link #searchZoneSpawn}。
-     * 用 {@code /sre:60s_area exit add <x y z>} 登记。
-     */
-    @SerializedName("searchExitPoints")
-    public java.util.List<Vec> searchExitPoints = new java.util.ArrayList<>();
-
-    /**
-     * 避难所门 → 专属探索区 的绑定列表（用绑定工具 {@code sixty_seconds_area_wand} 生成）。
-     * 每条把一扇 SEARCH 门（模板绝对坐标）绑到一个独立探索区（盒 + 出生点，均模板绝对坐标）；
-     * 开局按队叠加网格偏移克隆。为空时该门回退到全局 {@link #searchZoneSpawn}/{@code searchZoneTemplate}。
+     * 探索区出口门绑定列表（用绑定工具 {@code sixty_seconds_area_wand} 生成）。
+     * <p>
+     * 「探索区」已不再是一块要传送进去、并用空气墙圈起来的独立区域——出门探索现在直接落在<b>门外那格</b>，
+     * 之后整片世界自由活动。本列表只剩两个用途：① 每条绑定的 {@code box} 作为该片区域的<b>危险等级区</b>
+     * （{@code level}，见 {@link SixtySecondsAreaLevels}）；② 建在避难所外的出口门按队分配为各队的
+     * 回家门（{@code returnDoorPos}）与夜袭锚点。绑定盒不再限制玩家活动。
      */
     @SerializedName("searchDoorBindings")
     public java.util.List<DoorBinding> searchDoorBindings = new java.util.ArrayList<>();
@@ -153,8 +142,9 @@ public class SixtySecondsConfig {
     public int totalDays = 7;
 
     /**
-     * 全局探索区危险等级 1..5（{@code SixtySecondsAreaLevels}）：等级越高，物资箱稀有物越常见、
-     * 掷出件数越多，但游荡怪更多更强。{@code /sre:60s_area level <1..5>} 设置。
+     * 全局危险等级基线 1..5（{@code SixtySecondsAreaLevels}）：不在任何门绑定危险区、也不在岛屿上的坐标
+     * 一律取此值。等级越高，物资箱稀有物越常见、掷出件数越多，但游荡怪更多更强。
+     * {@code /sre:60s_area level <1..5>} 设置。
      */
     @SerializedName("searchZoneLevel")
     public int searchZoneLevel = 1;
@@ -174,8 +164,8 @@ public class SixtySecondsConfig {
     }
 
     public boolean isComplete() {
-        return residentialTemplate != null && shelterTemplate != null && searchZoneTemplate != null
-                && residentialSpawn != null && shelterSpawn != null && searchZoneSpawn != null;
+        return residentialTemplate != null && shelterTemplate != null
+                && residentialSpawn != null && shelterSpawn != null;
     }
 
     public static class Vec {

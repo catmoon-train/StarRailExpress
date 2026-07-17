@@ -20,8 +20,8 @@ import static net.minecraft.commands.Commands.literal;
  * <p>
  * 用法：
  * <ul>
- *   <li>{@code /sre:60s_area template <residential|shelter|searchzone> <x1> <y1> <z1> <x2> <y2> <z2>}（两个对角的绝对坐标，顺序随意）</li>
- *   <li>{@code /sre:60s_area spawn <residential|shelter|searchzone> <x> <y> <z>}（模板内绝对坐标）</li>
+ *   <li>{@code /sre:60s_area template <residential|shelter> <x1> <y1> <z1> <x2> <y2> <z2>}（两个对角的绝对坐标，顺序随意）</li>
+ *   <li>{@code /sre:60s_area spawn <residential|shelter> <x> <y> <z>}（模板内绝对坐标）</li>
  *   <li>{@code /sre:60s_area grid <baseX> <baseY> <baseZ> <spacing>}</li>
  *   <li>{@code /sre:60s_area anchor <x> <y> <z>} / {@code anchor clear}（避难所锚点门，模板内绝对坐标；
  *       配合 {@code /sre:60s shelter_at_door on} 把避难所克隆到各队探索区出口门上）</li>
@@ -58,15 +58,7 @@ public final class SixtySecondsAreaCommand {
                                                 .then(argument("baseZ", IntegerArgumentType.integer())
                                                         .then(argument("spacing", IntegerArgumentType.integer(1))
                                                                 .executes(SixtySecondsAreaCommand::setGrid))))))
-                        // 每队出口点：探索区共用一片，各队从不同位置出去（按队轮转分配）
-                        .then(literal("exit")
-                                .then(literal("add")
-                                        .then(argument("x", IntegerArgumentType.integer())
-                                                .then(argument("y", IntegerArgumentType.integer())
-                                                        .then(argument("z", IntegerArgumentType.integer())
-                                                                .executes(SixtySecondsAreaCommand::addExit)))))
-                                .then(literal("clear").executes(SixtySecondsAreaCommand::clearExits)))
-                        // 探索区危险等级：无坐标=设全局 searchzone；带坐标=设包含该点的门绑定探索区
+                        // 危险等级：无坐标=设全局基线；带坐标=设包含该点的门绑定危险区
                         .then(literal("level")
                                 .then(argument("level", IntegerArgumentType.integer(1,
                                         net.exmo.sre.sixtyseconds.SixtySecondsBalance.AREA_LEVEL_MAX))
@@ -135,36 +127,6 @@ public final class SixtySecondsAreaCommand {
         return 1;
     }
 
-    private static int addExit(CommandContext<CommandSourceStack> ctx) {
-        ServerLevel level = ctx.getSource().getLevel();
-        SixtySecondsConfig cfg = load(level);
-        if (cfg.searchExitPoints == null) {
-            cfg.searchExitPoints = new java.util.ArrayList<>();
-        }
-        cfg.searchExitPoints.add(new SixtySecondsConfig.Vec(
-                IntegerArgumentType.getInteger(ctx, "x"),
-                IntegerArgumentType.getInteger(ctx, "y"),
-                IntegerArgumentType.getInteger(ctx, "z")));
-        SixtySecondsConfigStore.save(level, cfg);
-        int count = cfg.searchExitPoints.size();
-        ctx.getSource().sendSuccess(() -> Component.literal(
-                "[60s] exit point #" + count + " added (teams rotate through " + count + " exit(s))")
-                .withStyle(ChatFormatting.GREEN), true);
-        return count;
-    }
-
-    private static int clearExits(CommandContext<CommandSourceStack> ctx) {
-        ServerLevel level = ctx.getSource().getLevel();
-        SixtySecondsConfig cfg = load(level);
-        int had = cfg.searchExitPoints == null ? 0 : cfg.searchExitPoints.size();
-        cfg.searchExitPoints = new java.util.ArrayList<>();
-        SixtySecondsConfigStore.save(level, cfg);
-        ctx.getSource().sendSuccess(() -> Component.literal(
-                "[60s] cleared " + had + " exit point(s); all teams fall back to searchzone spawn")
-                .withStyle(ChatFormatting.YELLOW), true);
-        return 1;
-    }
-
     private static SixtySecondsConfig load(ServerLevel level) {
         return SixtySecondsConfigStore.load(level).orElseGet(SixtySecondsConfig::new);
     }
@@ -229,7 +191,6 @@ public final class SixtySecondsAreaCommand {
         switch (kind) {
             case "residential" -> cfg.residentialTemplate = region;
             case "shelter" -> cfg.shelterTemplate = region;
-            case "searchzone" -> cfg.searchZoneTemplate = region;
             default -> {
                 ctx.getSource().sendFailure(unknownKind(kind));
                 return 0;
@@ -253,7 +214,6 @@ public final class SixtySecondsAreaCommand {
         switch (kind) {
             case "residential" -> cfg.residentialSpawn = vec;
             case "shelter" -> cfg.shelterSpawn = vec;
-            case "searchzone" -> cfg.searchZoneSpawn = vec;
             default -> {
                 ctx.getSource().sendFailure(unknownKind(kind));
                 return 0;
@@ -291,7 +251,7 @@ public final class SixtySecondsAreaCommand {
     }
 
     private static Component unknownKind(String kind) {
-        return Component.literal("[60s] unknown kind '" + kind + "' (residential|shelter|searchzone)")
+        return Component.literal("[60s] unknown kind '" + kind + "' (residential|shelter)")
                 .withStyle(ChatFormatting.RED);
     }
 }
