@@ -548,14 +548,27 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return setSpecialVigilante(specialVigilante);
     }
 
+    /**
+     * 是否可以刷新第二个
+     * @return
+     */
     public boolean canRefreshableSpecialVigilante() {
         return this.isSpecialVigilante() && this.refreshableSpecialVigilante;
     }
 
+    /**
+     * 刷新第二个的概率
+     * @return
+     */
     public int getRefreshableSpecialVigilanteChance() {
         return this.refreshableSpecialVigilanteChance;
     }
 
+    
+    /**
+     * 设置是否可以刷新第二个和概率
+     * @return
+     */
     public SRERole setRefreshableSpecialVigilante(int chance, boolean refreshable) {
         this.refreshableSpecialVigilanteChance = chance;
         this.refreshableSpecialVigilante = refreshable;

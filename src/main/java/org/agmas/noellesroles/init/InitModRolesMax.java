@@ -465,7 +465,7 @@ public class InitModRolesMax {
         if (limit <= 0) {
             return;
         }
-
+        Collections.shuffle(specialVigilantes);
         ArrayList<SRERole> selected = new ArrayList<>();
         for (var role : specialVigilantes) {
             if (!isSpecialMapRoleEnabled(serverLevel, role, currentMap, config)) {
@@ -482,7 +482,6 @@ public class InitModRolesMax {
                 }
             }
         }
-
         while (selected.size() > limit) {
             selected.remove(random.nextInt(selected.size()));
         }
