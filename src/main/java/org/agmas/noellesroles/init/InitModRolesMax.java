@@ -34,6 +34,7 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -456,8 +457,10 @@ public class InitModRolesMax {
             String currentMap) {
         int limit = getSpecialVigilanteLimit(playersCount, config);
         ArrayList<SRERole> specialVigilantes = new ArrayList<>();
+        var roleMaxBackup = new HashMap<>(Harpymodloader.ROLE_MAX);
         for (var role : TMMRoles.ROLES.values()) {
-            if (role.isSpecialVigilante()) {
+            if (role.isSpecialVigilante() && roleMaxBackup.get(role.identifier()) > 0) {
+                // 仅处理启用的
                 specialVigilantes.add(role);
                 Harpymodloader.setRoleMaximum(role, 0);
             }
@@ -471,8 +474,17 @@ public class InitModRolesMax {
             if (!isSpecialMapRoleEnabled(serverLevel, role, currentMap, config)) {
                 continue;
             }
-            int chance = role.spawnInfo.enableChance >= 0 ? role.spawnInfo.enableChance : role.defaultEnableChance;
+            int chance = role.spawnInfo.enableChance;
             if (chance >= 0 && random.nextInt(0, 10000) < chance) {
+                selected.add(role);
+                if (role.canRefreshableSpecialVigilante()) {
+                    int secondChance = role.getRefreshableSpecialVigilanteChance();
+                    if (secondChance >= 0 && random.nextInt(0, 10000) < secondChance) {
+                        selected.add(role);
+                    }
+                }
+            } else {
+                // 如果chance为-1则表明默认值
                 selected.add(role);
                 if (role.canRefreshableSpecialVigilante()) {
                     int secondChance = role.getRefreshableSpecialVigilanteChance();
