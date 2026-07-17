@@ -105,7 +105,7 @@ public class SixtySecondsGeneratorBlock extends Block {
             units = 6; // 煤炭/木炭 = 60 秒
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_PORTABLE_BATTERY)) {
             // 便携储蓄电池：读取储存的电量，充电到发电机
-            var customData = stack.get(net.minecraft.world.item.component.DataComponents.CUSTOM_DATA);
+            var customData = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
             if (customData != null) {
                 long stored = customData.copyTag().getLong("StoredPower");
                 if (stored > 0) {
@@ -125,7 +125,7 @@ public class SixtySecondsGeneratorBlock extends Block {
                 team.powerEndTick -= take;
                 net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
                 tag.putLong("StoredPower", take);
-                stack.set(net.minecraft.world.item.component.DataComponents.CUSTOM_DATA,
+                stack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
                         net.minecraft.world.item.component.CustomData.of(tag));
                 if (!serverPlayer.isCreative()) stack.shrink(0); // 不消耗电池
                 serverLevel.playSound(null, pos, net.minecraft.sounds.SoundEvents.AMETHYST_BLOCK_CHIME,

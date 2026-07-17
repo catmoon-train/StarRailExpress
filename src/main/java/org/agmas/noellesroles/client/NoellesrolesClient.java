@@ -965,11 +965,9 @@ public class NoellesrolesClient implements ClientModInitializer {
                             net.minecraft.client.gui.screens.Screen screen =
                                     io.wifi.starrailexpress.client.gui.screen.MinigameScreenFactory.create(
                                             "lockpick", payload.vaultPos(),
-                                            () -> {
-                                                var con = net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-                                                con.send(new net.exmo.sre.sixtyseconds.network.VaultLockpickCompleteC2SPacket(
-                                                        payload.vaultPos()));
-                                            });
+                                            () -> net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+                                                    .send(new net.exmo.sre.sixtyseconds.network.VaultLockpickCompleteC2SPacket(
+                                                            payload.vaultPos())));
                             if (screen != null) context.client().setScreen(screen);
                         }));
         ClientPlayNetworking.registerGlobalReceiver(
