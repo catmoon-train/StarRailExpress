@@ -304,6 +304,16 @@ public final class SixtySecondsRecipes {
             ItemStack stack = new ItemStack(base);
             stack.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.empty(),
                     List.of(new MobEffectInstance(effect, duration, amplifier))));
+            String langKey = effect.value().getDescriptionId();
+            String formatKey = "message.noellesroles.sixty_seconds.potion_format";
+            if (base == Items.SPLASH_POTION) {
+                formatKey = "message.noellesroles.sixty_seconds.potion_splash_format";
+            } else if (base == Items.LINGERING_POTION) {
+                formatKey = "message.noellesroles.sixty_seconds.potion_linger_format";
+            }
+            stack.set(DataComponents.ITEM_NAME,
+                    Component.translatable(formatKey,
+                            Component.translatable(langKey)));
             return stack;
         };
     }

@@ -5307,4 +5307,8 @@
   "message.noellesroles.sixty_seconds.npc.intel.6": "Bandits come with the horde at night. They go for the thin doors.",
   "message.noellesroles.sixty_seconds.npc.intel.7": "Sanity — lose all of it and you stop being a person.",
   "message.noellesroles.sixty_seconds.npc.intel.8": "Reinforce your door. Beats any lucky charm."
+,
+  "message.noellesroles.sixty_seconds.potion_format": "%s Potion",
+  "message.noellesroles.sixty_seconds.potion_splash_format": "Splash %s Potion",
+  "message.noellesroles.sixty_seconds.potion_linger_format": "Lingering %s Potion"
 }

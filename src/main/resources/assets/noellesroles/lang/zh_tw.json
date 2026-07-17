@@ -5181,4 +5181,8 @@
   "message.noellesroles.sixty_seconds.npc.intel.6": "強盜夜裡跟著屍群一起來，專挑門薄的下手。",
   "message.noellesroles.sixty_seconds.npc.intel.7": "理智這東西，掉沒了人就不是人了。",
   "message.noellesroles.sixty_seconds.npc.intel.8": "把門加固好，比什麼護身符都管用。"
+,
+  "message.noellesroles.sixty_seconds.potion_format": "%s藥水",
+  "message.noellesroles.sixty_seconds.potion_splash_format": "噴濺型%s藥水",
+  "message.noellesroles.sixty_seconds.potion_linger_format": "滯留型%s藥水"
 }

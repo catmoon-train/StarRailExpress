@@ -5693,6 +5693,9 @@
   "container.noellesroles.sixty_seconds_mailbox": "邮箱",
   "message.noellesroles.sixty_seconds.mailbox_not_owner": "这是别人的邮箱。",
   "message.noellesroles.sixty_seconds.mailbox_tampered": "§c你邮箱内的东西被偷走了一些。",
+  "message.noellesroles.sixty_seconds.potion_format": "%s药水",
+  "message.noellesroles.sixty_seconds.potion_splash_format": "喷溅型%s药水",
+  "message.noellesroles.sixty_seconds.potion_linger_format": "滞留型%s药水",
   "message.noellesroles.sixty_seconds.battery_charged": "§a已从发电机储存 %s 秒电力到便携电池。",
   "message.noellesroles.sixty_seconds.vault_picking": "§e正在尝试撬锁…完成小游戏即可打开保险库。",
 
