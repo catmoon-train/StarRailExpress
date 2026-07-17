@@ -1,1 +1,1 @@
-{"parent":"minecraft:item/generated","textures":{"layer0":"noellesroles:item/sixty_seconds_hunting_bow_pulling_0"}}
+{"parent":"noellesroles:item/sixty_seconds_hunting_bow","textures":{"layer0":"noellesroles:item/sixty_seconds_hunting_bow_pulling_0"}}

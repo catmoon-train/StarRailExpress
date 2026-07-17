@@ -1,1 +1,1 @@
-{"parent":"minecraft:item/generated","textures":{"layer0":"noellesroles:item/sixty_seconds_hand_crossbow_arrow"}}
+{"parent":"noellesroles:item/sixty_seconds_hand_crossbow","textures":{"layer0":"noellesroles:item/sixty_seconds_hand_crossbow_arrow"}}
