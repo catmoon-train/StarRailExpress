@@ -68,7 +68,7 @@ public class SREConfig implements ConfigData {
     public boolean hideRandomRoleInRoleRotation = true;
     
     @ConfigEntry.Category(value = "gamemodes")
-    public boolean roleRotationForceRoleSettings = true;
+    public boolean roleRotationForceRoleSettings = false;
     // 随机地图设置
 
     @ConfigEntry.Category(value = "commands")
