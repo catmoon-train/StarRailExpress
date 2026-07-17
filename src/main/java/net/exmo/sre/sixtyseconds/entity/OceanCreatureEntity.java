@@ -52,8 +52,12 @@ public abstract class OceanCreatureEntity extends PathfinderMob {
 
     /** 陆地窒息计时：离开水面后逐 tick 递增，达上限开始伤害（给短暂搁浅挣扎窗口）。 */
     protected int outOfWaterTicks = 0;
+    /** 变体的正常游速（{@link #applyVariant} 记下）：搁浅时移速被压到 {@link #LAND_SPEED}，回水后据此还原。 */
+    protected double swimSpeed = 0.3;
     protected static final int MAX_OUT_OF_WATER = 200; // 10秒
     protected static final int BREATH_DAMAGE_INTERVAL = 20; // 每秒扣一次
+    /** 搁浅时的爬行移速。 */
+    protected static final double LAND_SPEED = 0.04;
 
     protected OceanCreatureEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -72,6 +76,7 @@ public abstract class OceanCreatureEntity extends PathfinderMob {
     protected void applyVariant(int variantId, double health, double speed, float scale, String nameKey) {
         this.entityData.set(VARIANT_ID, variantId);
         addTag(OCEAN_TAG);
+        this.swimSpeed = speed;
         var maxHealth = getAttribute(Attributes.MAX_HEALTH);
         if (maxHealth != null) maxHealth.setBaseValue(health);
         var moveSpeed = getAttribute(Attributes.MOVEMENT_SPEED);
@@ -89,12 +94,27 @@ public abstract class OceanCreatureEntity extends PathfinderMob {
     }
 
     // ── 水下生物特性 ────────────────────────────────────────────────
-    // canBreatheUnderwater 是 LivingEntity 的 final 方法，不能 @Override
-    // 水生属性由 isPushedByFluid/canDrownInFluidType/isAffectedByFluids 共同控制
+    // canBreatheUnderwater() 在本版本（1.21.1）是 LivingEntity 的 <b>final</b> 方法，返回
+    // getType().is(EntityTypeTags.CAN_BREATHE_UNDER_WATER)——即由实体类型标签驱动，不能 @Override。
+    // 「不淹死」的<b>主修法</b>是数据标签 data/minecraft/tags/entity_type/can_breathe_under_water.json
+    // 收录 ocean_shark / ocean_sea_monster（原代码只留了这条注释却没建标签，也没做任何兜底 →
+    // 鲨鱼/海怪在水里照样每秒扣气、气尽淹死，本次修的 BUG）。
+    // 下面 decreaseAirSupply 覆写是<b>代码兜底</b>：即便数据包被覆盖/未加载，空气也永不下降，双保险。
 
     @Override
     public boolean isPushedByFluid() {
         return false;
+    }
+
+    /**
+     * 空气永不下降 = 永不淹死。{@code LivingEntity.baseTick} 只有在气量减到 -20 时才结算溺水伤害，
+     * 这里让减气恒等于「不变」，气量卡在满值，溺水判定永远走不到。
+     * <p>陆地窒息是本类在 {@link #tick} 里<b>显式</b>调 {@code hurt(drown, ...)} 造成的，不经这条路径，
+     * 覆写它不影响搁浅惩罚。
+     */
+    @Override
+    protected int decreaseAirSupply(int air) {
+        return air;
     }
 
     /** 自然恢复只在水里触发。 */
@@ -138,13 +158,19 @@ public abstract class OceanCreatureEntity extends PathfinderMob {
                             2, 0.3, 0.2, 0.3, 0);
                 }
             }
-            // 陆地极慢移速
+            // 陆地极慢移速（爬行挣扎）
             var speed = getAttribute(Attributes.MOVEMENT_SPEED);
-            if (speed != null && speed.getBaseValue() > 0.05) {
-                speed.setBaseValue(0.04);
+            if (speed != null && speed.getBaseValue() > LAND_SPEED) {
+                speed.setBaseValue(LAND_SPEED);
             }
         } else {
             outOfWaterTicks = 0;
+            // 回到水里：把被搁浅压低的移速还原成本变体的游速
+            // （原代码只在出水时压低、回水时从不恢复，搁浅一次就永久变慢——本次一并修）
+            var speed = getAttribute(Attributes.MOVEMENT_SPEED);
+            if (speed != null && speed.getBaseValue() < swimSpeed) {
+                speed.setBaseValue(swimSpeed);
+            }
         }
 
         // 模式关闭时非持久生物自毁
@@ -171,12 +197,22 @@ public abstract class OceanCreatureEntity extends PathfinderMob {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("OceanVariant", getVariantId());
+        tag.putDouble("OceanSwimSpeed", swimSpeed);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         this.entityData.set(VARIANT_ID, tag.getInt("OceanVariant"));
+        // 还原游速目标：缺字段（旧档）时退回当前移速 base，至少不会把它错误还原成默认 0.3
+        if (tag.contains("OceanSwimSpeed")) {
+            swimSpeed = tag.getDouble("OceanSwimSpeed");
+        } else {
+            var speed = getAttribute(Attributes.MOVEMENT_SPEED);
+            if (speed != null) {
+                swimSpeed = Math.max(swimSpeed, speed.getBaseValue());
+            }
+        }
     }
 
     @Override

@@ -25,6 +25,7 @@ import static net.minecraft.commands.Commands.literal;
  *   <li>{@code /sre:60s_area grid <baseX> <baseY> <baseZ> <spacing>}</li>
  *   <li>{@code /sre:60s_area anchor <x> <y> <z>} / {@code anchor clear}（避难所锚点门，模板内绝对坐标；
  *       配合 {@code /sre:60s shelter_at_door on} 把避难所克隆到各队探索区出口门上）</li>
+ *   <li>{@code /sre:60s_area clearbindings [auto]}（清门绑定/锚点：无参全清，auto=只清海岛自动生成的）</li>
  *   <li>{@code /sre:60s_area show}</li>
  * </ul>
  */
@@ -74,7 +75,38 @@ public final class SixtySecondsAreaCommand {
                                                 .then(argument("z", IntegerArgumentType.integer())
                                                         .executes(SixtySecondsAreaCommand::setAnchorDoor))))
                                 .then(literal("clear").executes(SixtySecondsAreaCommand::clearAnchorDoor)))
+                        // 清理门绑定/锚点：clearbindings=全清；clearbindings auto=只清海岛自动生成的
+                        .then(literal("clearbindings")
+                                .executes(ctx -> clearBindings(ctx, false))
+                                .then(literal("auto").executes(ctx -> clearBindings(ctx, true))))
                         .then(literal("show").executes(SixtySecondsAreaCommand::show))));
+    }
+
+    /**
+     * {@code clearbindings [auto]}：清理门绑定/锚点。无参=清掉<b>全部</b>门绑定（管理员手动 + 海岛自动）；
+     * {@code auto}=只清海岛一级岛自动生成的（{@code auto=true}）那些。
+     */
+    private static int clearBindings(CommandContext<CommandSourceStack> ctx, boolean onlyAuto) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        if (cfg.searchDoorBindings == null || cfg.searchDoorBindings.isEmpty()) {
+            ctx.getSource().sendSuccess(() -> Component.literal("[60s] no door bindings to clear")
+                    .withStyle(ChatFormatting.YELLOW), true);
+            return 0;
+        }
+        int before = cfg.searchDoorBindings.size();
+        if (onlyAuto) {
+            cfg.searchDoorBindings.removeIf(bd -> bd.auto);
+        } else {
+            cfg.searchDoorBindings.clear();
+        }
+        int removed = before - cfg.searchDoorBindings.size();
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] cleared " + removed + " door binding(s)" + (onlyAuto ? " (auto only)" : "")
+                        + ", " + cfg.searchDoorBindings.size() + " left")
+                .withStyle(ChatFormatting.GREEN), true);
+        return removed;
     }
 
     /** {@code anchor <x y z>}：登记避难所模板内的锚点门（模板绝对坐标）；须落在 shelter 模板盒内。 */

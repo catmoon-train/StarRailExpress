@@ -243,10 +243,16 @@ public final class SixtySecondsIslands {
         Noellesroles.LOGGER.info("[60s] 开始生成海岛群：{} 座，中心 ({}, {})，海平面 y={}，基准半径 {}。",
                 islands.size(), centerX, centerZ, seaY,
                 baseRadius > 0 ? baseRadius : SixtySecondsIslandGenerator.DEFAULT_BASE_RADIUS);
-        SixtySecondsIslandGenerator.queueBuild(level, islands, data.snapshots, () -> {
+        boolean placeShelterDoors = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .map(config -> config.islandShelterDoorEnabled).orElse(true);
+        SixtySecondsIslandGenerator.queueBuild(level, islands, data.snapshots, placeShelterDoors, () -> {
             data.building = false;
             data.save.enabled = true;
             save(level, data);
+            // 建造完成后把一级岛自动门登记为门绑定/锚点（此时 island.shelterDoorX/Y/Z 已由建门工作项写好）。
+            if (placeShelterDoors) {
+                registerIslandDoorBindings(level, data);
+            }
             // 全部海岛生成完毕 → 生成海图并分发（带打开提示）
             Component hint = Component.translatable(LANG + "generated", islands.size())
                     .withStyle(ChatFormatting.GOLD)
@@ -280,6 +286,8 @@ public final class SixtySecondsIslands {
                 SixtySecondsSearchZones.forceReturn(player);
             }
         }
+        // 门方块随地形回滚清除，但 config 里的自动门绑定要显式移除。
+        removeIslandDoorBindings(level);
         List<SixtySecondsIsland> islands = new ArrayList<>(data.save.islands);
         boolean canRestore = !data.snapshots.isEmpty() || !islands.isEmpty();
         if (canRestore) {
@@ -329,12 +337,68 @@ public final class SixtySecondsIslands {
         data.save.islands.clear();
         clearRuntime(data);
         save(level, data);
+        // 自动门绑定同样清除（delete 不回滚地形，门方块会留在原地，但 config 绑定不该残留）。
+        removeIslandDoorBindings(level);
 
         // 清空客户端海图
         syncChartAll(level);
 
         Noellesroles.LOGGER.info("[60s] 海岛数据已全部删除（地形方块未动）。");
         return true;
+    }
+
+    /**
+     * 把每座有自动门的一级岛登记成一条 {@code auto=true} 的门绑定/锚点，写入按图 config。
+     * 先清掉旧的自动绑定再重登，保证重复生成不残留。门 box 取门周围 ±{@value #AUTO_DOOR_BOX_RADIUS} 格，
+     * spawn=门坐标，危险等级=岛屿等级。
+     */
+    private static final int AUTO_DOOR_BOX_RADIUS = 12;
+
+    private static void registerIslandDoorBindings(ServerLevel level, Data data) {
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfig config =
+                net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                        .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        if (config.searchDoorBindings == null) {
+            config.searchDoorBindings = new ArrayList<>();
+        }
+        config.searchDoorBindings.removeIf(bd -> bd.auto);
+        int added = 0;
+        for (SixtySecondsIsland island : data.save.islands) {
+            if (!island.hasShelterDoor()) {
+                continue;
+            }
+            BlockPos door = island.shelterDoorPos();
+            net.exmo.sre.sixtyseconds.config.SixtySecondsConfig.DoorBinding bd =
+                    new net.exmo.sre.sixtyseconds.config.SixtySecondsConfig.DoorBinding(
+                            vec(door.getX(), door.getY(), door.getZ()),
+                            vec(door.getX() - AUTO_DOOR_BOX_RADIUS, door.getY() - 4, door.getZ() - AUTO_DOOR_BOX_RADIUS),
+                            vec(door.getX() + AUTO_DOOR_BOX_RADIUS, door.getY() + 8, door.getZ() + AUTO_DOOR_BOX_RADIUS),
+                            vec(door.getX(), door.getY(), door.getZ()));
+            bd.level = island.level; // 危险等级随岛（一级岛=1）
+            bd.auto = true;
+            config.searchDoorBindings.add(bd);
+            added++;
+        }
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        Noellesroles.LOGGER.info("[60s] 海岛一级岛自动门绑定：登记 {} 条（auto）。", added);
+    }
+
+    /** 清掉全部 {@code auto=true} 的门绑定（岛屿 stop/delete 用）；不动管理员手动登记的绑定。 */
+    private static void removeIslandDoorBindings(ServerLevel level) {
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level).ifPresent(config -> {
+            if (config.searchDoorBindings == null || config.searchDoorBindings.isEmpty()) {
+                return;
+            }
+            boolean removed = config.searchDoorBindings.removeIf(bd -> bd.auto);
+            if (removed) {
+                net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+                Noellesroles.LOGGER.info("[60s] 海岛自动门绑定已随岛清除。");
+            }
+        });
+    }
+
+    private static net.exmo.sre.sixtyseconds.config.SixtySecondsConfig.Vec vec(int x, int y, int z) {
+        return new net.exmo.sre.sixtyseconds.config.SixtySecondsConfig.Vec(x, y, z);
     }
 
     private static void clearRuntime(Data data) {

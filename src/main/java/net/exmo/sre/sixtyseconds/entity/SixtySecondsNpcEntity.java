@@ -525,7 +525,12 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
         double dz = target.getZ() - boat.getZ();
         double dist = Math.sqrt(dx * dx + dz * dz);
         if (dist <= SixtySecondsBalance.PIRATE_DISMOUNT_DIST) {
+            // 弃船前先记下船，下船后把船清掉（不然空船漂在那成视觉垃圾）
+            Boat riding = boat;
             stopRiding();
+            if (!riding.isRemoved() && riding.getTags().contains(PIRATE_BOAT_TAG)) {
+                riding.discard();
+            }
             return;
         }
         if (dist < 1.0E-3) {

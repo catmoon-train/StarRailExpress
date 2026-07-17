@@ -252,17 +252,22 @@ public class FourthRoomTableBlockEntityRenderer implements BlockEntityRenderer<F
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
         poseStack.pushPose();
-        poseStack.translate(0.5D + x, y, 0.5D + z);
-        poseStack.mulPose(minecraft.getEntityRenderDispatcher().cameraOrientation());
-        poseStack.scale(scale, -scale, scale);
-        Matrix4f matrix = poseStack.last().pose();
-        float xOffset = -font.width(text) / 2.0F;
-        int background = (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
-        font.drawInBatch(text, xOffset, 0.0F, 0x21000000, false, matrix, bufferSource, Font.DisplayMode.SEE_THROUGH,
-                background, LightTexture.FULL_BRIGHT);
-        font.drawInBatch(text, xOffset, 0.0F, color, false, matrix, bufferSource, Font.DisplayMode.NORMAL, 0,
-                LightTexture.FULL_BRIGHT);
-        poseStack.popPose();
+        // try/finally 保证 popPose 一定执行：ModernUI 的 SDF 文字渲染在 drawInBatch 里可能抛
+        // UnsupportedOperationException（fastutil 不可变表），未兜底会漏 pop → 帧末「Pose stack not empty」崩溃。
+        try {
+            poseStack.translate(0.5D + x, y, 0.5D + z);
+            poseStack.mulPose(minecraft.getEntityRenderDispatcher().cameraOrientation());
+            poseStack.scale(scale, -scale, scale);
+            Matrix4f matrix = poseStack.last().pose();
+            float xOffset = -font.width(text) / 2.0F;
+            int background = (int) (minecraft.options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
+            font.drawInBatch(text, xOffset, 0.0F, 0x21000000, false, matrix, bufferSource, Font.DisplayMode.SEE_THROUGH,
+                    background, LightTexture.FULL_BRIGHT);
+            font.drawInBatch(text, xOffset, 0.0F, color, false, matrix, bufferSource, Font.DisplayMode.NORMAL, 0,
+                    LightTexture.FULL_BRIGHT);
+        } finally {
+            poseStack.popPose();
+        }
     }
 
         private Vec3 tableOffset(Direction facing, double localX, double localZ) {

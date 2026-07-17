@@ -93,6 +93,7 @@ public final class SixtySecondsIslandGenerator {
     /**
      * 岛屿形状函数：>{@link #LAND_THRESHOLD} 为陆地，值越大越接近岛心/山顶。
      * 径向衰减 × 噪声扰动，岸线自然破碎。客户端海图用同一函数画轮廓。
+     * 珊瑚环礁类型：中心为潟湖（低值），环形礁盘（高值）。
      */
     public static float landValue(SixtySecondsIsland island, double worldX, double worldZ) {
         double dx = worldX - island.centerX;
@@ -102,6 +103,15 @@ public final class SixtySecondsIslandGenerator {
             return 0;
         }
         float n = fbm(island.seed, worldX * 0.02, worldZ * 0.02, 4);
+
+        if (island.type == SixtySecondsIsland.Type.CORAL) {
+            // 环礁：环形高值，中心低（潟湖），外缘快速衰减
+            // d=0 → center of lagoon (low), d≈0.55 → reef ring (peak), d>0.9 → outer slope
+            float ring = d < 0.2F ? 0.08F + 0.12F * n
+                    : d < 0.7F ? 0.35F + 0.9F * n * (float) Math.sin(d * Math.PI / 0.7F)
+                            : (float) ((1.0 - d / 1.35) * (0.3F + 0.7F * n));
+            return Math.max(0, ring);
+        }
         float radial = (float) (1.0 - Math.pow(d, 1.9));
         return radial * (0.45F + 1.1F * n);
     }
@@ -160,6 +170,8 @@ public final class SixtySecondsIslandGenerator {
             island.nameSuffix = rng.nextInt(SixtySecondsIsland.NAME_SUFFIX_COUNT);
             island.seed = rng.nextLong();
             island.seaY = seaY;
+            // ── 生态类型：按等级分布，首岛恒为热带（友好新手岛）──
+            island.type = assignType(rng, island.level, i == 0);
             // ── 半径：base×size乘数 + level加成 + 随机 ──
             SixtySecondsIsland.Size sz = island.size;
             island.radius = (int) (base * sz.radiusMult)
@@ -189,13 +201,41 @@ public final class SixtySecondsIslandGenerator {
                 }
             }
             island.dockX = island.centerX;
-            island.dockY = seaY + 1;
+            island.dockY = seaY;
             island.dockZ = island.centerZ;
         }
         return islands;
     }
 
-    // ── 异步建造 ─────────────────────────────────────────────────────────
+    /**
+     * 按等级分配生态类型。首岛强制热带（新手友好）。
+     * 等级越高越偏危险/荒凉类型。
+     */
+    private static SixtySecondsIsland.Type assignType(RandomSource rng, int level, boolean firstIsland) {
+        if (firstIsland) return SixtySecondsIsland.Type.TROPICAL;
+        float r = rng.nextFloat();
+        return switch (level) {
+            case 1 -> r < 0.50F ? SixtySecondsIsland.Type.TROPICAL
+                    : r < 0.80F ? SixtySecondsIsland.Type.MARSH
+                            : SixtySecondsIsland.Type.CORAL;
+            case 2 -> r < 0.20F ? SixtySecondsIsland.Type.FROST
+                    : r < 0.40F ? SixtySecondsIsland.Type.PLATEAU
+                            : r < 0.60F ? SixtySecondsIsland.Type.JUNGLE
+                                    : r < 0.75F ? SixtySecondsIsland.Type.TROPICAL
+                                            : r < 0.90F ? SixtySecondsIsland.Type.MARSH
+                                                    : SixtySecondsIsland.Type.CORAL;
+            case 3 -> r < 0.25F ? SixtySecondsIsland.Type.JUNGLE
+                    : r < 0.50F ? SixtySecondsIsland.Type.PLATEAU
+                            : r < 0.70F ? SixtySecondsIsland.Type.FROST
+                                    : r < 0.85F ? SixtySecondsIsland.Type.BARREN
+                                            : SixtySecondsIsland.Type.TROPICAL;
+            case 4 -> r < 0.40F ? SixtySecondsIsland.Type.VOLCANIC
+                    : r < 0.80F ? SixtySecondsIsland.Type.BARREN
+                            : SixtySecondsIsland.Type.JUNGLE;
+            default -> r < 0.70F ? SixtySecondsIsland.Type.VOLCANIC // level 5
+                    : SixtySecondsIsland.Type.BARREN;
+        };
+    }
 
     /** 快照（还原用）：仅记录我们覆盖前<b>非空气</b>的方块；还原=单元格清空后回写这些。 */
     record Snapshot(BlockState state, CompoundTag blockEntityTag) {
@@ -240,7 +280,7 @@ public final class SixtySecondsIslandGenerator {
      * 工作项顺序：每岛先地形列 patch，再装饰（树/岩）、废墟、物资箱+怪物+登岛点。
      */
     public static void queueBuild(ServerLevel level, List<SixtySecondsIsland> islands,
-            LinkedHashMap<BlockPos, Snapshot> snapshots, Runnable onComplete) {
+            LinkedHashMap<BlockPos, Snapshot> snapshots, boolean placeShelterDoors, Runnable onComplete) {
         Placer placer = new Placer(level, snapshots);
         List<Runnable> work = new ArrayList<>();
         for (SixtySecondsIsland island : islands) {
@@ -257,9 +297,50 @@ public final class SixtySecondsIslandGenerator {
             work.add(() -> decorate(placer, island));
             work.add(() -> SixtySecondsRuins.placeAll(placer, island));
             work.add(() -> populate(placer, island));
+            // 一级岛：地形建好后放一扇避难所门（走 Placer 记快照，还原时随地形自动清除）。
+            if (placeShelterDoors && island.level == 1) {
+                work.add(() -> placeShelterDoor(placer, island));
+            }
         }
         GameUtils.serverTaskQueue.add(new IslandTask(level, work,
                 "message.noellesroles.sixty_seconds.island.building", onComplete));
+    }
+
+    /**
+     * 在一级岛地表合适位置放一扇避难所门，并把门坐标写回 {@code island.shelterDoorX/Y/Z}
+     * （供 {@link net.exmo.sre.sixtyseconds.island.SixtySecondsIslands} 在建造完成后登记门绑定/锚点）。
+     * 找不到落脚点则不放门（{@code hasShelterDoor()} 保持 false）。
+     */
+    static void placeShelterDoor(Placer p, SixtySecondsIsland island) {
+        RandomSource rng = RandomSource.create(island.seed ^ 0x5D00_0DL);
+        BlockPos ground = null;
+        for (int attempt = 0; attempt < 24 && ground == null; attempt++) {
+            ground = randomGround(p.level, island, rng, 0.0, 0.45); // 靠岛心一带
+        }
+        if (ground == null) {
+            ground = scanGround(p.level, island, island.centerX, island.centerZ);
+        }
+        if (ground == null) {
+            return;
+        }
+        // 门朝向背向岛心（人从岛心侧看到门正面）；两格实心地面上放单格实心门方块。
+        net.minecraft.core.Direction facing = outwardDir(island, ground);
+        p.set(ground, org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SHELTER_DOOR
+                .defaultBlockState()
+                .setValue(net.exmo.sre.sixtyseconds.content.block.ShelterDoorBlock.FACING, facing));
+        island.shelterDoorX = ground.getX();
+        island.shelterDoorY = ground.getY();
+        island.shelterDoorZ = ground.getZ();
+    }
+
+    /** 从岛心指向该点的水平朝向（四向取最接近者）；用于门朝向背向岛心。 */
+    private static net.minecraft.core.Direction outwardDir(SixtySecondsIsland island, BlockPos pos) {
+        int dx = pos.getX() - island.centerX;
+        int dz = pos.getZ() - island.centerZ;
+        if (Math.abs(dx) >= Math.abs(dz)) {
+            return dx >= 0 ? net.minecraft.core.Direction.EAST : net.minecraft.core.Direction.WEST;
+        }
+        return dz >= 0 ? net.minecraft.core.Direction.SOUTH : net.minecraft.core.Direction.NORTH;
     }
 
     /** 把整个群岛的还原（清空+快照回写）排入任务队列。 */
@@ -328,12 +409,45 @@ public final class SixtySecondsIslandGenerator {
 
     // ── 地形 ────────────────────────────────────────────────────────────
 
-    /** 岛屿等级色板。 */
+    /** 岛屿等级+类型联合色板。type==null 回退纯 level 色板（旧存档兼容）。 */
     private record Palette(BlockState top, BlockState topAlt, BlockState under, BlockState core,
             BlockState beach, BlockState seabed) {
     }
 
-    private static Palette palette(int level) {
+    private static Palette palette(SixtySecondsIsland island) {
+        if (island.type == null) {
+            return legacyPalette(island.level);
+        }
+        return switch (island.type) {
+            case TROPICAL -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState(),
+                    Blocks.DIRT.defaultBlockState(), Blocks.STONE.defaultBlockState(),
+                    Blocks.SAND.defaultBlockState(), Blocks.SANDSTONE.defaultBlockState());
+            case MARSH -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.PODZOL.defaultBlockState(),
+                    Blocks.MUD.defaultBlockState(), Blocks.STONE.defaultBlockState(),
+                    Blocks.MUD.defaultBlockState(), Blocks.MUD.defaultBlockState());
+            case VOLCANIC -> new Palette(Blocks.BLACKSTONE.defaultBlockState(), Blocks.BASALT.defaultBlockState(),
+                    Blocks.BASALT.defaultBlockState(), Blocks.BLACKSTONE.defaultBlockState(),
+                    Blocks.BLACKSTONE.defaultBlockState(), Blocks.MAGMA_BLOCK.defaultBlockState());
+            case CORAL -> new Palette(Blocks.SAND.defaultBlockState(), Blocks.SANDSTONE.defaultBlockState(),
+                    Blocks.SANDSTONE.defaultBlockState(), Blocks.STONE.defaultBlockState(),
+                    Blocks.SAND.defaultBlockState(), Blocks.PRISMARINE.defaultBlockState());
+            case FROST -> new Palette(Blocks.SNOW_BLOCK.defaultBlockState(), Blocks.POWDER_SNOW.defaultBlockState(),
+                    Blocks.PACKED_ICE.defaultBlockState(), Blocks.STONE.defaultBlockState(),
+                    Blocks.SNOW_BLOCK.defaultBlockState(), Blocks.BLUE_ICE.defaultBlockState());
+            case PLATEAU -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.TERRACOTTA.defaultBlockState(),
+                    Blocks.STONE.defaultBlockState(), Blocks.ANDESITE.defaultBlockState(),
+                    Blocks.GRAVEL.defaultBlockState(), Blocks.STONE.defaultBlockState());
+            case JUNGLE -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.PODZOL.defaultBlockState(),
+                    Blocks.DIRT.defaultBlockState(), Blocks.MOSSY_COBBLESTONE.defaultBlockState(),
+                    Blocks.SAND.defaultBlockState(), Blocks.CLAY.defaultBlockState());
+            case BARREN -> new Palette(Blocks.COARSE_DIRT.defaultBlockState(), Blocks.GRAVEL.defaultBlockState(),
+                    Blocks.COARSE_DIRT.defaultBlockState(), Blocks.STONE.defaultBlockState(),
+                    Blocks.GRAVEL.defaultBlockState(), Blocks.TUFF.defaultBlockState());
+        };
+    }
+
+    /** 旧版纯等级色板（type==null 时使用，保持旧存档地形不变）。 */
+    private static Palette legacyPalette(int level) {
         return switch (level) {
             case 1 -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState(),
                     Blocks.DIRT.defaultBlockState(), Blocks.STONE.defaultBlockState(),
@@ -353,18 +467,56 @@ public final class SixtySecondsIslandGenerator {
         };
     }
 
-    /** 地形高度（陆地列）：等级越高山越高，双噪声（大形+细节）。 */
+    /** 地形高度（陆地列）：等级越高山越高。类型影响地形风格：高原=平顶，沼泽=低平，火山=锥形。 */
     private static int surfaceY(SixtySecondsIsland island, int x, int z, float landVal) {
         float mountain = fbm(island.seed ^ 0x5DEECE66DL, x * 0.045, z * 0.045, 3);
-        float h = (float) Math.pow(Math.max(0, landVal - LAND_THRESHOLD), 1.15)
-                * (8 + island.level * 5 + mountain * (12 + island.level * 5));
-        return island.seaY + 1 + (int) h;
+        double normLand = Math.max(0, landVal - LAND_THRESHOLD);
+
+        SixtySecondsIsland.Type type = island.type;
+        if (type == null) {
+            float h = (float) Math.pow(normLand, 1.15)
+                    * (8 + island.level * 5 + mountain * (12 + island.level * 5));
+            return island.seaY + (int) h;
+        }
+
+        float h = switch (type) {
+            case PLATEAU -> {
+                // 高原：平顶+陡崖——中心部分压缩高差，边缘急剧上升
+                double centerDist = Math.sqrt(island.distSqr(x + 0.5, z + 0.5)) / island.radius;
+                if (centerDist < 0.4) {
+                    yield (float) (10 + island.level * 4 + mountain * 4); // 平顶，稳定的高原面
+                }
+                yield (float) (Math.pow(normLand, 0.7) * (6 + island.level * 3 + mountain * 8)); // 边缘陡升
+            }
+            case MARSH -> {
+                // 沼泽：极低平，几乎不隆起
+                yield (float) (normLand * (3 + island.level * 2 + mountain * 4));
+            }
+            case VOLCANIC -> {
+                // 火山：锥形山体，中心急速拔高
+                yield (float) (Math.pow(normLand, 2.0) * (10 + island.level * 7 + mountain * 16));
+            }
+            case CORAL -> {
+                // 环礁：极低平（只是一圈沙/珊瑚礁盘露出水面）
+                yield (float) (normLand * (2 + island.level + mountain * 3));
+            }
+            case BARREN -> {
+                // 荒芜：低矮丘陵
+                yield (float) (Math.pow(normLand, 1.0) * (5 + island.level * 3 + mountain * 8));
+            }
+            default -> {
+                // 热带/冰霜/密林：标准地形
+                yield (float) (Math.pow(normLand, 1.15)
+                        * (8 + island.level * 5 + mountain * (12 + island.level * 5)));
+            }
+        };
+        return island.seaY + (int) h;
     }
 
     /** 建一个 16×16 列 patch：净空 → 海床/海水/滩涂/陆地按列成形。 */
     private static void buildPatch(Placer p, SixtySecondsIsland island, int x0, int z0, int x1, int z1) {
         int rOuter = island.radius + WATER_SKIRT;
-        Palette pal = palette(island.level);
+        Palette pal = palette(island);
         BlockState water = Blocks.WATER.defaultBlockState();
         int yMin = island.seaY - DEPTH_BELOW_SEA;
         int yMax = island.seaY + HEIGHT_ABOVE_SEA;
@@ -387,7 +539,7 @@ public final class SixtySecondsIslandGenerator {
                     }
                 }
                 if (land) {
-                    boolean beach = surface <= island.seaY + 1;
+                    boolean beach = surface <= island.seaY;
                     float topNoise = fbm(island.seed ^ 31L, x * 0.11, z * 0.11, 2);
                     for (int y = yMin; y <= surface; y++) {
                         pos.set(x, y, z);
@@ -417,31 +569,25 @@ public final class SixtySecondsIslandGenerator {
 
     private static void decorate(Placer p, SixtySecondsIsland island) {
         RandomSource rng = RandomSource.create(island.seed ^ 0xDEC0L);
-        float dm = island.size.decoMult; // 大小缩放
-        int trees = Math.max(1, (int) (dm * switch (island.level) {
-            case 1 -> 6;
-            case 2 -> 10;
-            case 3 -> 9;
-            case 4 -> 5;
-            default -> 3;
-        }));
+        float dm = island.size.decoMult;
+        SixtySecondsIsland.Type type = island.type;
+
+        // ── 树木：数量与品种因类型而异 ──
+        int treeMult = treeCountMultiplier(type, island.level);
+        int trees = Math.max(type == SixtySecondsIsland.Type.CORAL || type == SixtySecondsIsland.Type.BARREN ? 0 : 1,
+                (int) (dm * treeMult));
         for (int i = 0; i < trees + rng.nextInt(Math.max(1, (int) (dm * 4))); i++) {
             BlockPos ground = randomGround(p.level, island, rng, 0.15, 0.85);
-            if (ground == null) {
-                continue;
-            }
-            placeTree(p, island.level, ground, rng);
+            if (ground == null) continue;
+            placeTree(p, island, ground, rng);
         }
-        // 岩石堆
+
+        // ── 岩石堆 ──
         int rocks = Math.max(1, (int) (dm * (4 + island.level)));
+        BlockState rock = rockBlock(type);
         for (int i = 0; i < rocks; i++) {
             BlockPos ground = randomGround(p.level, island, rng, 0.1, 0.9);
-            if (ground == null) {
-                continue;
-            }
-            BlockState rock = island.level >= 5 ? Blocks.BLACKSTONE.defaultBlockState()
-                    : island.level >= 4 ? Blocks.ANDESITE.defaultBlockState()
-                            : Blocks.MOSSY_COBBLESTONE.defaultBlockState();
+            if (ground == null) continue;
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     if (rng.nextFloat() < 0.6F) {
@@ -453,56 +599,281 @@ public final class SixtySecondsIslandGenerator {
                 }
             }
         }
-        // 低植被
-        int flora = Math.max(1, (int) (dm * (island.level <= 3 ? 40 : 14)));
+
+        // ── 低植被 ──
+        int flora = Math.max(type == SixtySecondsIsland.Type.BARREN ? 5 : 1,
+                (int) (dm * floraCount(type, island.level)));
         for (int i = 0; i < flora; i++) {
             BlockPos ground = randomGround(p.level, island, rng, 0.1, 0.95);
-            if (ground == null) {
-                continue;
-            }
+            if (ground == null) continue;
             BlockState below = p.level.getBlockState(ground.below());
-            BlockState plant;
-            if (island.level <= 3 && (below.is(Blocks.GRASS_BLOCK) || below.is(Blocks.DIRT))) {
-                plant = rng.nextFloat() < 0.7F ? Blocks.SHORT_GRASS.defaultBlockState()
-                        : Blocks.FERN.defaultBlockState();
-            } else if (below.is(Blocks.SANDSTONE) || below.is(Blocks.COARSE_DIRT) || below.is(Blocks.TUFF)) {
-                plant = Blocks.DEAD_BUSH.defaultBlockState();
-            } else {
-                continue;
-            }
-            p.set(ground, plant);
+            BlockState plant = plantBlock(type, island.level, below, rng);
+            if (plant != null) p.set(ground, plant);
         }
-        // 5 级火山岛：山顶岩浆块堆
-        if (island.level >= 5) {
-            int lava = Math.max(1, (int) (dm * 8));
-            for (int i = 0; i < lava; i++) {
-                BlockPos ground = randomGround(p.level, island, rng, 0.0, 0.4);
-                if (ground != null) {
-                    p.set(ground.below(), Blocks.MAGMA_BLOCK.defaultBlockState());
+
+        // ── 类型特殊装饰 ──
+        typeSpecial(p, island, rng);
+    }
+
+    /** 树木数量基数（类型×等级）。 */
+    private static int treeCountMultiplier(SixtySecondsIsland.Type type, int level) {
+        if (type == null) {
+            return switch (level) { case 1 -> 6; case 2 -> 10; case 3 -> 9; case 4 -> 5; default -> 3; };
+        }
+        return switch (type) {
+            case TROPICAL -> 8 + level;
+            case MARSH -> 5;
+            case VOLCANIC -> Math.max(1, 4 - level);
+            case CORAL, BARREN -> 0;
+            case FROST -> 4 + level;
+            case PLATEAU -> 3;
+            case JUNGLE -> 12 + level * 2;
+        };
+    }
+
+    /** 岩石材质。 */
+    private static BlockState rockBlock(SixtySecondsIsland.Type type) {
+        if (type == null) return Blocks.MOSSY_COBBLESTONE.defaultBlockState();
+        return switch (type) {
+            case VOLCANIC -> Blocks.BLACKSTONE.defaultBlockState();
+            case CORAL -> Blocks.PRISMARINE.defaultBlockState();
+            case FROST -> Blocks.PACKED_ICE.defaultBlockState();
+            case PLATEAU -> Blocks.ANDESITE.defaultBlockState();
+            case BARREN -> Blocks.COBBLESTONE.defaultBlockState();
+            default -> Blocks.MOSSY_COBBLESTONE.defaultBlockState();
+        };
+    }
+
+    /** 植被数量。 */
+    private static int floraCount(SixtySecondsIsland.Type type, int level) {
+        if (type == null) return level <= 3 ? 40 : 14;
+        return switch (type) {
+            case TROPICAL -> 50 + level * 5;
+            case MARSH -> 30;
+            case VOLCANIC -> 8 + level;
+            case CORAL -> 0;
+            case FROST -> 10;
+            case PLATEAU -> 20;
+            case JUNGLE -> 55 + level * 8;
+            case BARREN -> 5;
+        };
+    }
+
+    /** 低植被品种。 */
+    private static BlockState plantBlock(SixtySecondsIsland.Type type, int level, BlockState below,
+            RandomSource rng) {
+        if (type == null) {
+            // 旧版纯等级逻辑
+            if (level <= 3 && (below.is(Blocks.GRASS_BLOCK) || below.is(Blocks.DIRT))) {
+                return rng.nextFloat() < 0.7F ? Blocks.SHORT_GRASS.defaultBlockState()
+                        : Blocks.FERN.defaultBlockState();
+            }
+            if (below.is(Blocks.SANDSTONE) || below.is(Blocks.COARSE_DIRT) || below.is(Blocks.TUFF)) {
+                return Blocks.DEAD_BUSH.defaultBlockState();
+            }
+            return null;
+        }
+        return switch (type) {
+            case TROPICAL -> (below.is(Blocks.GRASS_BLOCK) || below.is(Blocks.DIRT))
+                    ? (rng.nextFloat() < 0.6F ? Blocks.FERN.defaultBlockState()
+                            : Blocks.SHORT_GRASS.defaultBlockState())
+                    : below.is(Blocks.SAND) ? Blocks.DEAD_BUSH.defaultBlockState() : null;
+            case MARSH -> (below.is(Blocks.GRASS_BLOCK) || below.is(Blocks.MUD) || below.is(Blocks.PODZOL))
+                    ? (rng.nextFloat() < 0.5F ? Blocks.BROWN_MUSHROOM.defaultBlockState()
+                            : Blocks.RED_MUSHROOM.defaultBlockState())
+                    : null;
+            case VOLCANIC -> (below.is(Blocks.BLACKSTONE) || below.is(Blocks.BASALT))
+                    ? Blocks.DEAD_BUSH.defaultBlockState() : null;
+            case FROST -> (below.is(Blocks.SNOW_BLOCK) || below.is(Blocks.PACKED_ICE))
+                    ? (rng.nextFloat() < 0.6F ? Blocks.SHORT_GRASS.defaultBlockState() : null) : null;
+            case PLATEAU -> (below.is(Blocks.GRASS_BLOCK) || below.is(Blocks.TERRACOTTA))
+                    ? (rng.nextFloat() < 0.5F ? Blocks.SHORT_GRASS.defaultBlockState()
+                            : Blocks.DEAD_BUSH.defaultBlockState())
+                    : null;
+            case JUNGLE -> (below.is(Blocks.GRASS_BLOCK) || below.is(Blocks.PODZOL) || below.is(Blocks.DIRT))
+                    ? Blocks.FERN.defaultBlockState() : null;
+            case BARREN -> below.is(Blocks.COARSE_DIRT) || below.is(Blocks.GRAVEL)
+                    ? Blocks.DEAD_BUSH.defaultBlockState() : null;
+            default -> null;
+        };
+    }
+
+    /** 类型专属特殊装饰。 */
+    private static void typeSpecial(Placer p, SixtySecondsIsland island, RandomSource rng) {
+        SixtySecondsIsland.Type type = island.type;
+        if (type == null) {
+            // 旧版：level 5 火山岛岩浆块
+            if (island.level >= 5) {
+                float dm = island.size.decoMult;
+                int lava = Math.max(1, (int) (dm * 8));
+                for (int i = 0; i < lava; i++) {
+                    BlockPos ground = randomGround(p.level, island, rng, 0.0, 0.4);
+                    if (ground != null) p.set(ground.below(), Blocks.MAGMA_BLOCK.defaultBlockState());
+                }
+            }
+            return;
+        }
+        float dm = island.size.decoMult;
+        switch (type) {
+            case VOLCANIC -> {
+                // 山顶岩浆块 + 随机火焰
+                int lava = Math.max(1, (int) (dm * 10));
+                for (int i = 0; i < lava; i++) {
+                    BlockPos ground = randomGround(p.level, island, rng, 0.0, 0.35);
+                    if (ground != null) {
+                        p.set(ground.below(), Blocks.MAGMA_BLOCK.defaultBlockState());
+                        if (rng.nextFloat() < 0.15F) p.set(ground.above(), Blocks.FIRE.defaultBlockState());
+                    }
+                }
+            }
+            case MARSH -> {
+                // 沼泽水面随机莲叶
+                int pads = Math.max(1, (int) (dm * 6));
+                for (int i = 0; i < pads; i++) {
+                    BlockPos ground = randomGround(p.level, island, rng, 0.3, 0.9);
+                    if (ground != null && ground.getY() <= island.seaY) {
+                        p.set(ground, Blocks.LILY_PAD.defaultBlockState());
+                    }
+                }
+            }
+            case CORAL -> {
+                // 环礁潟湖/礁盘上散布珊瑚
+                int coral = Math.max(1, (int) (dm * 12));
+                for (int i = 0; i < coral; i++) {
+                    BlockPos ground = randomGround(p.level, island, rng, 0.1, 1.0);
+                    if (ground != null && ground.getY() <= island.seaY + 2) {
+                        BlockState c = rng.nextFloat() < 0.5F
+                                ? Blocks.BRAIN_CORAL_BLOCK.defaultBlockState()
+                                : rng.nextFloat() < 0.5F
+                                        ? Blocks.TUBE_CORAL_BLOCK.defaultBlockState()
+                                        : Blocks.HORN_CORAL_BLOCK.defaultBlockState();
+                        p.set(ground, c);
+                    }
+                }
+                // 海泡菜
+                int pickles = Math.max(1, (int) (dm * 8));
+                for (int i = 0; i < pickles; i++) {
+                    BlockPos ground = randomGround(p.level, island, rng, 0.5, 1.0);
+                    if (ground != null && ground.getY() <= island.seaY) {
+                        p.set(ground, Blocks.SEA_PICKLE.defaultBlockState());
+                    }
+                }
+            }
+            case FROST -> {
+                // 冰霜岛：额外积雪层
+                int snow = Math.max(1, (int) (dm * 20));
+                for (int i = 0; i < snow; i++) {
+                    BlockPos ground = randomGround(p.level, island, rng, 0.0, 0.8);
+                    if (ground != null && p.level.getBlockState(ground).isAir()
+                            && p.level.getBlockState(ground.below()).isSolidRender(p.level, ground.below())) {
+                        p.set(ground, Blocks.SNOW.defaultBlockState());
+                    }
+                }
+            }
+            case JUNGLE -> {
+                // 密林岛：藤蔓挂满树干/悬崖
+                int vines = Math.max(1, (int) (dm * 20));
+                for (int i = 0; i < vines; i++) {
+                    BlockPos ground = randomGround(p.level, island, rng, 0.0, 0.8);
+                    if (ground != null) {
+                        for (int dy = 1; dy <= 3; dy++) {
+                            BlockPos vp = ground.above(dy);
+                            if (p.level.getBlockState(vp).isAir() && rng.nextFloat() < 0.4F) {
+                                p.set(vp, Blocks.VINE.defaultBlockState());
+                            }
+                        }
+                    }
+                }
+                // 随机可可豆
+                int cocoa = Math.max(1, (int) (dm * 4));
+                for (int i = 0; i < cocoa; i++) {
+                    BlockPos ground = randomGround(p.level, island, rng, 0.1, 0.7);
+                    if (ground != null && p.level.getBlockState(ground).isAir()) {
+                        p.set(ground, Blocks.COCOA.defaultBlockState());
+                    }
+                }
+            }
+            case PLATEAU -> {
+                // 高原岛：山顶/崖边额外岩石堆
+                int extraRocks = Math.max(1, (int) (dm * 5));
+                for (int i = 0; i < extraRocks; i++) {
+                    BlockPos ground = randomGround(p.level, island, rng, 0.0, 0.3);
+                    if (ground != null) {
+                        p.set(ground.below(), Blocks.COBBLESTONE.defaultBlockState());
+                        if (rng.nextBoolean()) p.set(ground, Blocks.COBBLESTONE.defaultBlockState());
+                    }
                 }
             }
         }
     }
 
-    private static void placeTree(Placer p, int level, BlockPos ground, RandomSource rng) {
-        boolean dead = level >= 4;
-        BlockState log = switch (level) {
-            case 1 -> Blocks.OAK_LOG.defaultBlockState();
-            case 2 -> Blocks.SPRUCE_LOG.defaultBlockState();
-            case 3 -> Blocks.DARK_OAK_LOG.defaultBlockState();
-            default -> Blocks.STRIPPED_OAK_LOG.defaultBlockState();
-        };
-        BlockState leaves = switch (level) {
-            case 1 -> Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
-            case 2 -> Blocks.SPRUCE_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
-            default -> Blocks.DARK_OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
-        };
+    private static void placeTree(Placer p, SixtySecondsIsland island, BlockPos ground, RandomSource rng) {
+        SixtySecondsIsland.Type type = island.type;
+        int level = island.level;
+        boolean dead = type == SixtySecondsIsland.Type.VOLCANIC || type == SixtySecondsIsland.Type.BARREN
+                || (type == null && level >= 4);
+
+        BlockState log;
+        BlockState leaves;
         int height = 4 + rng.nextInt(3);
+
+        if (type == null) {
+            // 旧版纯等级逻辑
+            log = switch (level) {
+                case 1 -> Blocks.OAK_LOG.defaultBlockState();
+                case 2 -> Blocks.SPRUCE_LOG.defaultBlockState();
+                case 3 -> Blocks.DARK_OAK_LOG.defaultBlockState();
+                default -> Blocks.STRIPPED_OAK_LOG.defaultBlockState();
+            };
+            leaves = switch (level) {
+                case 1 -> Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+                case 2 -> Blocks.SPRUCE_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+                default -> Blocks.DARK_OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+            };
+        } else {
+            switch (type) {
+                case TROPICAL -> {
+                    log = Blocks.JUNGLE_LOG.defaultBlockState();
+                    leaves = Blocks.JUNGLE_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+                    height = 5 + rng.nextInt(5); // 热带树更高
+                }
+                case MARSH -> {
+                    log = Blocks.OAK_LOG.defaultBlockState();
+                    leaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+                    height = 3 + rng.nextInt(3);
+                }
+                case VOLCANIC -> {
+                    log = Blocks.BASALT.defaultBlockState();
+                    leaves = Blocks.AIR.defaultBlockState();
+                    dead = true;
+                    height = 2 + rng.nextInt(2);
+                }
+                case FROST -> {
+                    log = Blocks.SPRUCE_LOG.defaultBlockState();
+                    leaves = Blocks.SPRUCE_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+                    height = 5 + rng.nextInt(4);
+                }
+                case PLATEAU -> {
+                    log = Blocks.OAK_LOG.defaultBlockState();
+                    leaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+                    height = 3 + rng.nextInt(2);
+                }
+                case JUNGLE -> {
+                    log = Blocks.JUNGLE_LOG.defaultBlockState();
+                    leaves = Blocks.JUNGLE_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+                    height = 6 + rng.nextInt(6); // 密林树最高
+                }
+                default -> {
+                    log = Blocks.OAK_LOG.defaultBlockState();
+                    leaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+                }
+            }
+        }
+
         for (int y = 0; y < height; y++) {
             p.set(ground.above(y), log);
         }
         if (dead) {
-            // 枯树：无叶，随机一两根断枝
             if (rng.nextBoolean()) {
                 p.set(ground.above(height - 1).relative(
                         net.minecraft.core.Direction.Plane.HORIZONTAL.getRandomDirection(rng)), log);
@@ -510,19 +881,22 @@ public final class SixtySecondsIslandGenerator {
             return;
         }
         BlockPos top = ground.above(height - 1);
-        for (int dx = -2; dx <= 2; dx++) {
-            for (int dz = -2; dz <= 2; dz++) {
+        int leafRadius = type == SixtySecondsIsland.Type.JUNGLE ? 3 : 2;
+        for (int dx = -leafRadius; dx <= leafRadius; dx++) {
+            for (int dz = -leafRadius; dz <= leafRadius; dz++) {
                 for (int dy = 0; dy <= 2; dy++) {
                     int man = Math.abs(dx) + Math.abs(dz) + dy;
-                    if (man == 0 || man > 3 || rng.nextFloat() < 0.15F) {
-                        continue;
-                    }
+                    if (man == 0 || man > 3 || rng.nextFloat() < 0.15F) continue;
                     BlockPos leafPos = top.offset(dx, dy, dz);
                     if (p.level.getBlockState(leafPos).isAir()) {
                         p.set(leafPos, leaves);
                     }
                 }
             }
+        }
+        // 密林岛树顶额外藤蔓
+        if (type == SixtySecondsIsland.Type.JUNGLE && rng.nextFloat() < 0.4F) {
+            p.set(top.above(2), Blocks.VINE.defaultBlockState());
         }
     }
 
@@ -625,7 +999,7 @@ public final class SixtySecondsIslandGenerator {
             }
         }
         BlockPos center = scanGround(level, island, island.centerX, island.centerZ);
-        return center != null ? center : new BlockPos(island.centerX, island.seaY + 1, island.centerZ);
+        return center != null ? center : new BlockPos(island.centerX, island.seaY, island.centerZ);
     }
 
     /**

@@ -13,22 +13,25 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 海岛废墟建筑：12 个程序化模板（编号 0..11），每岛按等级抽若干个散布在地表，
+ * 海岛废墟建筑：24 个程序化模板（编号 0..23），每岛按等级抽若干个散布在地表，
  * 全部经 {@link Placer} 写入（自动快照，随海岛还原一起回滚）。
  * 每处废墟旁保底一个物资箱（高等级岛概率升级为高级箱）。
  * <ul>
  *   <li>0 坍塌石屋 · 1 瞭望塔 · 2 石环祭坛 · 3 沉船残骸(滩) · 4 废弃码头(滩) · 5 灯塔残基(滩)</li>
  *   <li>6 半埋神殿 · 7 破败仓库 · 8 水井营地 · 9 荒废墓地 · 10 前哨围墙 · 11 教堂残骸</li>
+ *   <li>12 渔夫小屋(滩) · 13 烽火台 · 14 矿洞入口 · 15 救生艇(滩) · 16 晾晒架营地 · 17 藤蔓雕像</li>
+ *   <li>18 倒塌桥梁(滩) · 19 风暴避难所 · 20 废弃温室 · 21 海盗藏宝 · 22 图腾柱 · 23 篝火圈</li>
  * </ul>
  */
 public final class SixtySecondsRuins {
 
-    public static final int TEMPLATE_COUNT = 12;
+    public static final int TEMPLATE_COUNT = 24;
     /** 滩涂系模板（选点贴近岸线、要求低海拔）。 */
     private static final boolean[] SHORE = new boolean[TEMPLATE_COUNT];
 
     static {
-        SHORE[3] = SHORE[4] = SHORE[5] = true;
+        SHORE[3] = SHORE[4] = SHORE[5] = true;   // 沉船、废弃码头、灯塔残基
+        SHORE[12] = SHORE[15] = SHORE[18] = true; // 渔夫小屋、救生艇、断桥
     }
 
     private SixtySecondsRuins() {
@@ -110,7 +113,19 @@ public final class SixtySecondsRuins {
             case 8 -> wellCamp(p, origin, rng);
             case 9 -> graveyard(p, origin, rng);
             case 10 -> outpost(p, origin, rng, islandLevel);
-            default -> chapel(p, origin, rng, islandLevel);
+            case 11 -> chapel(p, origin, rng, islandLevel);
+            case 12 -> fishermanHut(p, origin, rng, islandLevel);
+            case 13 -> signalBeacon(p, origin, rng, islandLevel);
+            case 14 -> mineEntrance(p, origin, rng, islandLevel);
+            case 15 -> lifeboat(p, origin, rng);
+            case 16 -> dryingRackCamp(p, origin, rng);
+            case 17 -> overgrownStatue(p, origin, rng, islandLevel);
+            case 18 -> collapsedBridge(p, origin, rng, islandLevel);
+            case 19 -> stormShelter(p, origin, rng, islandLevel);
+            case 20 -> greenhouse(p, origin, rng);
+            case 21 -> pirateCache(p, origin, rng);
+            case 22 -> totemPole(p, origin, rng, islandLevel);
+            default -> campfireCircle(p, origin, rng);
         }
     }
 
@@ -437,6 +452,321 @@ public final class SixtySecondsRuins {
                 p.set(origin.offset(1, 0, dz), Blocks.OAK_SLAB.defaultBlockState());
             }
         }
+    }
+
+    // ── 新增模板 12..23 ────────────────────────────────────────────────────
+
+    /** 12 渔夫小屋：临水小木棚 5×4，半塌屋顶 + 渔具杂物。 */
+    private static void fishermanHut(Placer p, BlockPos origin, RandomSource rng, int lvl) {
+        pad(p, origin, 2, 2, Blocks.OAK_PLANKS.defaultBlockState());
+        for (int dz = -2; dz <= 2; dz++) {
+            for (int dx = -2; dx <= 2; dx++) {
+                boolean edge = Math.abs(dx) == 2 || Math.abs(dz) == 2;
+                if (!edge) continue;
+                if (dz == 2 && dx == 0) continue; // 门
+                int h = 1 + rng.nextInt(3);
+                for (int y = 0; y < h; y++) {
+                    if (y >= 2 && rng.nextFloat() < 0.5F) continue;
+                    p.set(origin.offset(dx, y, dz), Blocks.OAK_PLANKS.defaultBlockState());
+                }
+            }
+        }
+        // 半边残顶
+        for (int dx = -2; dx <= 0; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                if (rng.nextFloat() < 0.65F)
+                    p.set(origin.offset(dx, 2, dz), Blocks.OAK_SLAB.defaultBlockState());
+            }
+        }
+        p.set(origin.offset(1, 0, 1), Blocks.BARREL.defaultBlockState());
+        p.set(origin.offset(-1, 0, -1), Blocks.COBWEB.defaultBlockState());
+        if (rng.nextBoolean())
+            p.set(origin.offset(0, 0, 0), Blocks.CRAFTING_TABLE.defaultBlockState());
+    }
+
+    /** 13 信号烽火台：5..8 高石柱，顶置熄灭的营火（可被玩家点燃求援）。 */
+    private static void signalBeacon(Placer p, BlockPos origin, RandomSource rng, int lvl) {
+        pad(p, origin, 1, 1, Blocks.COBBLESTONE.defaultBlockState());
+        int h = 5 + rng.nextInt(4);
+        for (int y = 0; y < h; y++) {
+            p.set(origin.above(y), brick(rng, lvl));
+            // 侧面随机缺块（风化）
+            if (y > 0 && y < h - 1 && rng.nextFloat() < 0.12F) {
+                Direction dir = randomHorizontal(rng);
+                p.set(origin.relative(dir).above(y), Blocks.AIR.defaultBlockState());
+            }
+        }
+        p.set(origin.above(h), Blocks.CAMPFIRE.defaultBlockState()
+                .setValue(net.minecraft.world.level.block.CampfireBlock.LIT, false));
+    }
+
+    /** 14 废弃矿洞入口：山体掏出的 3×3 洞口，木梁支撑，洞内一段隧道。 */
+    private static void mineEntrance(Placer p, BlockPos origin, RandomSource rng, int lvl) {
+        // 挖出入口隧道（向 -Z 方向）
+        for (int dz = 0; dz <= 4; dz++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = 0; dy <= 2; dy++) {
+                    if (dz == 0 && (Math.abs(dx) == 1 && dy <= 1)) continue; // 门框留石
+                    BlockPos tp = origin.offset(dx, dy, -dz);
+                    p.set(tp, Blocks.AIR.defaultBlockState());
+                }
+            }
+            // 木支撑框每 2 格一道
+            if (dz % 2 == 1 || dz == 4) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = 0; dy <= 2; dy++) {
+                        boolean frame = Math.abs(dx) == 1 || dy == 2;
+                        if (frame)
+                            p.set(origin.offset(dx, dy, -dz), Blocks.OAK_LOG.defaultBlockState());
+                    }
+                }
+            }
+        }
+        // 洞口上方横木
+        p.set(origin.offset(0, 2, 0), Blocks.OAK_LOG.defaultBlockState());
+        p.set(origin.offset(-1, 2, 0), Blocks.OAK_LOG.defaultBlockState());
+        p.set(origin.offset(1, 2, 0), Blocks.OAK_LOG.defaultBlockState());
+        // 矿车/铁轨残骸
+        p.set(origin.offset(0, 0, -3), Blocks.RAIL.defaultBlockState());
+        p.set(origin.offset(0, 0, -4), Blocks.RAIL.defaultBlockState());
+        if (rng.nextBoolean())
+            p.set(origin.offset(1, 0, -3), Blocks.CHEST.defaultBlockState());
+    }
+
+    /** 15 搁浅救生艇：4×2 小木船搁浅在滩头，半截入沙。 */
+    private static void lifeboat(Placer p, BlockPos origin, RandomSource rng) {
+        BlockState hull = Blocks.SPRUCE_PLANKS.defaultBlockState();
+        for (int dz = -1; dz <= 1; dz++) {
+            for (int dx = -2; dx <= 2; dx++) {
+                boolean rim = Math.abs(dx) == 2;
+                if (rim) {
+                    p.set(origin.offset(dx, 0, dz), hull);
+                    if (Math.abs(dz) <= 1 && rng.nextFloat() < 0.55F)
+                        p.set(origin.offset(dx, 1, dz), hull);
+                } else {
+                    p.set(origin.offset(dx, 0, dz), hull);
+                }
+            }
+        }
+        // 船尾板 + 断桨
+        p.set(origin.offset(0, 1, -1), Blocks.SPRUCE_SLAB.defaultBlockState());
+        p.set(origin.offset(0, 1, 1), Blocks.SPRUCE_SLAB.defaultBlockState());
+        if (rng.nextBoolean())
+            p.set(origin.offset(2, 1, 0), Blocks.OAK_FENCE.defaultBlockState()); // 残桨
+    }
+
+    /** 16 晾晒架营地：两根木柱 + 横梁 + 蛛网/线模拟晾晒物，旁有木桶。 */
+    private static void dryingRackCamp(Placer p, BlockPos origin, RandomSource rng) {
+        pad(p, origin, 3, 2, Blocks.COARSE_DIRT.defaultBlockState());
+        // 两排晾晒架
+        for (int rack = 0; rack < 2; rack++) {
+            int dz = rack * 3 - 1;
+            for (int y = 0; y < 3; y++)
+                p.set(origin.offset(-2, y, dz), Blocks.OAK_FENCE.defaultBlockState());
+            for (int y = 0; y < 3; y++)
+                p.set(origin.offset(2, y, dz), Blocks.OAK_FENCE.defaultBlockState());
+            p.set(origin.offset(-2, 2, dz), Blocks.OAK_SLAB.defaultBlockState());
+            p.set(origin.offset(2, 2, dz), Blocks.OAK_SLAB.defaultBlockState());
+            // 横绳
+            p.set(origin.offset(-1, 2, dz), Blocks.TRIPWIRE.defaultBlockState());
+            p.set(origin.offset(0, 2, dz), Blocks.TRIPWIRE.defaultBlockState());
+            p.set(origin.offset(1, 2, dz), Blocks.TRIPWIRE.defaultBlockState());
+            // 晾晒物（随机蛛网）
+            if (rng.nextFloat() < 0.5F)
+                p.set(origin.offset(0, 1, dz), Blocks.COBWEB.defaultBlockState());
+        }
+        p.set(origin.offset(0, 0, 2), Blocks.BARREL.defaultBlockState());
+    }
+
+    /** 17 藤蔓覆盖的雕像：3 高石像底座，风化残缺，挂满藤蔓。 */
+    private static void overgrownStatue(Placer p, BlockPos origin, RandomSource rng, int lvl) {
+        pad(p, origin, 1, 1, Blocks.STONE_BRICKS.defaultBlockState());
+        // 底座
+        for (int dx = -1; dx <= 1; dx++)
+            for (int dz = -1; dz <= 1; dz++)
+                p.set(origin.offset(dx, 0, dz), Blocks.STONE_BRICKS.defaultBlockState());
+        // 雕像主体
+        p.set(origin.offset(0, 1, 0), Blocks.CHISELED_STONE_BRICKS.defaultBlockState());
+        p.set(origin.offset(0, 2, 0), Blocks.STONE_BRICK_WALL.defaultBlockState());
+        // 头部（残缺）
+        if (rng.nextFloat() < 0.65F)
+            p.set(origin.offset(0, 3, 0), Blocks.PLAYER_HEAD.defaultBlockState());
+        // 藤蔓覆盖
+        for (int y = 0; y <= 3; y++) {
+            for (Direction dir : Direction.Plane.HORIZONTAL) {
+                if (rng.nextFloat() < 0.3F + lvl * 0.08F) {
+                    BlockPos vine = origin.relative(dir).above(y);
+                    if (p.level().getBlockState(vine).isAir())
+                        p.set(vine, Blocks.VINE.defaultBlockState());
+                }
+            }
+        }
+    }
+
+    /** 18 倒塌桥梁：断桥向海面伸出 8 格后断裂，木桩 + 缺板 + 水中残柱。 */
+    private static void collapsedBridge(Placer p, BlockPos origin, RandomSource rng, int lvl) {
+        // 桥面向 +X 延伸
+        for (int dx = 0; dx <= 8; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                if (dx >= 5 && rng.nextFloat() < 0.3F) continue; // 后半更破
+                if (rng.nextFloat() < 0.12F) continue; // 随机缺板
+                p.set(origin.offset(dx, 0, dz), Blocks.OAK_PLANKS.defaultBlockState());
+            }
+            // 护栏残桩
+            p.set(origin.offset(dx, 1, -2), Blocks.OAK_FENCE.defaultBlockState());
+            p.set(origin.offset(dx, 1, 2), Blocks.OAK_FENCE.defaultBlockState());
+            // 桥墩（入水）
+            if (dx % 2 == 0) {
+                for (int dy = -1; dy >= -4; dy--)
+                    p.set(origin.offset(dx, dy, -1), Blocks.OAK_LOG.defaultBlockState());
+                for (int dy = -1; dy >= -4; dy--)
+                    p.set(origin.offset(dx, dy, 1), Blocks.OAK_LOG.defaultBlockState());
+            }
+        }
+        // 断裂处残骸散落水中
+        p.set(origin.offset(8, -1, 0), Blocks.OAK_SLAB.defaultBlockState());
+        p.set(origin.offset(9, -1, -1), Blocks.OAK_PLANKS.defaultBlockState());
+    }
+
+    /** 19 风暴避难所：半地下入口 3×3 铁门 + 向下阶梯 + 铁块墙壁。 */
+    private static void stormShelter(Placer p, BlockPos origin, RandomSource rng, int lvl) {
+        // 入口框体
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 2; dy++) {
+                boolean frame = Math.abs(dx) == 1 || dy == 2;
+                if (frame)
+                    p.set(origin.offset(dx, dy, 0), Blocks.IRON_BLOCK.defaultBlockState());
+            }
+        }
+        // 向下阶梯（origin 处原为空气，向下挖）
+        for (int dy = 0; dy >= -5; dy--) {
+            p.set(origin.offset(0, dy, 1), Blocks.AIR.defaultBlockState());
+            p.set(origin.offset(1, dy, 1), Blocks.AIR.defaultBlockState());
+            p.set(origin.offset(-1, dy, 1), Blocks.AIR.defaultBlockState());
+            // 阶梯
+            p.set(origin.offset(0, dy, 2), Blocks.STONE_BRICKS.defaultBlockState());
+            p.set(origin.offset(0, dy, 0), Blocks.STONE_BRICKS.defaultBlockState());
+            p.set(origin.offset(-1, dy, 2), Blocks.STONE_BRICKS.defaultBlockState());
+            p.set(origin.offset(1, dy, 2), Blocks.STONE_BRICKS.defaultBlockState());
+        }
+        // 底部小空间
+        for (int dx = -2; dx <= 2; dx++) {
+            p.set(origin.offset(dx, -5, 2), Blocks.STONE_BRICKS.defaultBlockState());
+            if (Math.abs(dx) <= 1) p.set(origin.offset(dx, -5, 1), Blocks.AIR.defaultBlockState());
+        }
+        if (rng.nextBoolean())
+            p.set(origin.offset(0, -4, 0), Blocks.CHEST.defaultBlockState());
+    }
+
+    /** 20 废弃温室：玻璃+铁框 6×4 大棚，屋顶塌了大半，内部残存花盆。 */
+    private static void greenhouse(Placer p, BlockPos origin, RandomSource rng) {
+        pad(p, origin, 3, 2, Blocks.IRON_BLOCK.defaultBlockState());
+        // 铁框架
+        for (int dx = -3; dx <= 3; dx += 6) {
+            for (int dz = -2; dz <= 2; dz += 4) {
+                for (int y = 0; y < 3; y++)
+                    p.set(origin.offset(dx, y, dz), Blocks.IRON_BLOCK.defaultBlockState());
+            }
+        }
+        // 玻璃墙（残破）
+        for (int dz = -2; dz <= 2; dz++) {
+            for (int y = 0; y <= 2; y++) {
+                if (rng.nextFloat() < 0.35F) continue;
+                p.set(origin.offset(-3, y, dz), Blocks.GLASS_PANE.defaultBlockState());
+                p.set(origin.offset(3, y, dz), Blocks.GLASS_PANE.defaultBlockState());
+            }
+        }
+        // 半边玻璃顶
+        for (int dx = -2; dx <= 0; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                if (rng.nextFloat() < 0.4F) continue;
+                p.set(origin.offset(dx, 3, dz), Blocks.GLASS.defaultBlockState());
+            }
+        }
+        // 花盆
+        p.set(origin.offset(-1, 0, 0), Blocks.FLOWER_POT.defaultBlockState());
+        if (rng.nextBoolean())
+            p.set(origin.offset(1, 0, 0), Blocks.DEAD_BUSH.defaultBlockState());
+    }
+
+    /** 21 海盗藏宝处：岩石裂缝中埋藏的宝箱 + 散落金块/骨块。 */
+    private static void pirateCache(Placer p, BlockPos origin, RandomSource rng) {
+        // 岩石围成掩护
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                boolean edge = Math.abs(dx) >= 2 || Math.abs(dz) >= 2;
+                if (!edge) continue;
+                if (dz == -2 && dx == 0) continue; // 裂缝入口
+                for (int y = 0; y <= 1; y++) {
+                    if (rng.nextFloat() < 0.25F) continue;
+                    p.set(origin.offset(dx, y, dz), Blocks.MOSSY_COBBLESTONE.defaultBlockState());
+                }
+            }
+        }
+        // 宝箱埋在半腰
+        p.set(origin.offset(0, -1, 0), Blocks.SAND.defaultBlockState());
+        p.set(origin, Blocks.CHEST.defaultBlockState());
+        // 散落财物
+        p.set(origin.offset(1, 0, 1), Blocks.GOLD_ORE.defaultBlockState());
+        if (rng.nextFloat() < 0.4F)
+            p.set(origin.offset(-1, 0, 1), Blocks.BONE_BLOCK.defaultBlockState());
+        if (rng.nextFloat() < 0.25F)
+            p.set(origin.offset(0, 1, 0), Blocks.SKELETON_SKULL.defaultBlockState());
+    }
+
+    /** 22 图腾柱：5..7 高木柱，不同高度段交替用不同原木 + 雕刻南瓜顶。 */
+    private static void totemPole(Placer p, BlockPos origin, RandomSource rng, int lvl) {
+        pad(p, origin, 1, 1, Blocks.COBBLESTONE.defaultBlockState());
+        int h = 5 + rng.nextInt(3);
+        for (int y = 0; y < h; y++) {
+            BlockState log = switch (y % 3) {
+                case 0 -> Blocks.OAK_LOG.defaultBlockState();
+                case 1 -> Blocks.SPRUCE_LOG.defaultBlockState();
+                default -> Blocks.CHERRY_LOG.defaultBlockState();
+            };
+            p.set(origin.above(y), log);
+            // 侧面雕刻（不同方向小突起）
+            if (y % 2 == 1) {
+                Direction dir = randomHorizontal(rng);
+                BlockPos side = origin.relative(dir).above(y);
+                if (p.level().getBlockState(side).isAir())
+                    p.set(side, Blocks.OAK_FENCE.defaultBlockState());
+            }
+        }
+        // 顶饰
+        if (rng.nextFloat() < 0.5F)
+            p.set(origin.above(h), Blocks.CARVED_PUMPKIN.defaultBlockState());
+        else
+            p.set(origin.above(h), Blocks.LANTERN.defaultBlockState());
+        // 低等级岛图腾柱底部有祭品
+        if (lvl <= 2 && rng.nextBoolean())
+            p.set(origin.offset(1, 0, 0), Blocks.POPPY.defaultBlockState());
+    }
+
+    /** 23 篝火集结点：圆形原木座围绕熄灭营火，地面有踩踏痕迹。 */
+    private static void campfireCircle(Placer p, BlockPos origin, RandomSource rng) {
+        // 踩踏地面
+        for (int dx = -3; dx <= 3; dx++) {
+            for (int dz = -3; dz <= 3; dz++) {
+                double dist = Math.sqrt(dx * dx + dz * dz);
+                if (dist <= 3.5 && p.level().getBlockState(origin.offset(dx, -1, dz)).is(Blocks.GRASS_BLOCK))
+                    p.set(origin.offset(dx, -1, dz), Blocks.COARSE_DIRT.defaultBlockState());
+            }
+        }
+        // 中心营火（已熄）
+        p.set(origin, Blocks.CAMPFIRE.defaultBlockState()
+                .setValue(net.minecraft.world.level.block.CampfireBlock.LIT, false));
+        // 环绕原木坐凳
+        for (int i = 0; i < 8; i++) {
+            double angle = Math.PI * 2 * i / 8;
+            int dx = (int) Math.round(Math.cos(angle) * 2.5);
+            int dz = (int) Math.round(Math.sin(angle) * 2.5);
+            if (rng.nextFloat() < 0.8F)
+                p.set(origin.offset(dx, 0, dz), Blocks.OAK_LOG.defaultBlockState());
+        }
+        // 柴火堆
+        p.set(origin.offset(2, 0, 0), Blocks.OAK_LOG.defaultBlockState());
+        p.set(origin.offset(-2, 0, 1), Blocks.OAK_LOG.defaultBlockState());
     }
 
     /** 供枯树断枝用的水平随机方向（避免引 Direction 泛滥）。 */
