@@ -1914,6 +1914,862 @@ public final class SixtySecondsDailyEvents {
         modifierEvent("decon_drill", Type.MODIFIER, 8, "drain_pollution", 0.6, (level, team) -> {
             result(level, team, "decon_drill");
         });
+
+        // ══════════════════════════ 第三批（108-157） ══════════════════════════
+
+        // ── 机遇：废品回收站 ────────────────────────────────────────────
+        instant("junkyard_find", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 4, "material");
+            giveToTeam(level, team, gained);
+            result(level, team, "junkyard_find", itemsText(gained));
+        });
+        // ── 机遇：遗留背包 ────────────────────────────────────────────
+        instant("left_behind_bag", Type.FORTUNE, 10, (level, team) -> {
+            String[] cats = { "food", "water", "medicine", "material" };
+            String c1 = cats[level.getRandom().nextInt(cats.length)];
+            String c2 = cats[level.getRandom().nextInt(cats.length)];
+            List<ItemStack> gained = rollLoot(level, 1, c1);
+            gained.addAll(rollLoot(level, 1, c2));
+            giveToTeam(level, team, gained);
+            result(level, team, "left_behind_bag", itemsText(gained));
+        });
+        // ── 机遇：图书馆发现 ──────────────────────────────────────────
+        instant("library_find", Type.FORTUNE, 8, (level, team) -> {
+            teamSanity(level, team, 8);
+            List<ItemStack> gained = rollLoot(level, 1, "material");
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_DRAFT_PAPER, 3));
+            giveToTeam(level, team, gained);
+            result(level, team, "library_find", itemsText(gained));
+        });
+        // ── 机遇：温室残骸 ────────────────────────────────────────────
+        instant("greenhouse_remains", Type.FORTUNE, 8, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 2, "food");
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_FERTILIZER, 1));
+            giveToTeam(level, team, gained);
+            result(level, team, "greenhouse_remains", itemsText(gained));
+        });
+        // ── 机遇：工具箱 ──────────────────────────────────────────────
+        instant("toolbox_find", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 2, "tool");
+            giveToTeam(level, team, gained);
+            result(level, team, "toolbox_find", itemsText(gained));
+        });
+        // ── 机遇：急救包 ──────────────────────────────────────────────
+        instant("firstaid_kit", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 2, "medicine");
+            giveToTeam(level, team, gained);
+            result(level, team, "firstaid_kit", itemsText(gained));
+        });
+        // ── 机遇：饮用水罐 ────────────────────────────────────────────
+        instant("water_jug", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 3, "water");
+            giveToTeam(level, team, gained);
+            result(level, team, "water_jug", itemsText(gained));
+        });
+        // ── 机遇：防空地窖 ────────────────────────────────────────────
+        instant("air_raid_cellar", Type.FORTUNE, 8, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 1, "food");
+            gained.addAll(rollLoot(level, 1, "water"));
+            gained.addAll(rollLoot(level, 2, "material"));
+            giveToTeam(level, team, gained);
+            teamSanity(level, team, 5);
+            result(level, team, "air_raid_cellar", itemsText(gained));
+        });
+        // ── 机遇：药房遗存 ────────────────────────────────────────────
+        instant("pharmacy_leftover", Type.FORTUNE, 8, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 3, "medicine");
+            giveToTeam(level, team, gained);
+            result(level, team, "pharmacy_leftover", itemsText(gained));
+        });
+        // ── 机遇：布料卷 ──────────────────────────────────────────────
+        instant("cloth_roll", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 2, "material");
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_RAG, 3));
+            giveToTeam(level, team, gained);
+            result(level, team, "cloth_roll", itemsText(gained));
+        });
+        // ── 机遇：铁轨废料 ────────────────────────────────────────────
+        instant("railway_scrap", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 2, "material");
+            gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_SCRAP_METAL, 4)));
+            giveToTeam(level, team, gained);
+            result(level, team, "railway_scrap", itemsText(gained));
+        });
+        // ── 机遇：行军干粮 ────────────────────────────────────────────
+        instant("military_rations", Type.FORTUNE, 8, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_MRE, 3));
+            giveToTeam(level, team, gained);
+            result(level, team, "military_rations", itemsText(gained));
+        });
+        // ── 机遇：玻璃回收 ────────────────────────────────────────────
+        instant("glass_recycle", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_GLASS_SHARD, 5));
+            gained.addAll(rollLoot(level, 1, "material"));
+            giveToTeam(level, team, gained);
+            result(level, team, "glass_recycle", itemsText(gained));
+        });
+        // ── 机遇：废旧电线 ────────────────────────────────────────────
+        instant("old_wiring", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_WIRE, 4));
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_ELECTRONICS, 2));
+            giveToTeam(level, team, gained);
+            result(level, team, "old_wiring", itemsText(gained));
+        });
+        // ── 机遇：油桶 ────────────────────────────────────────────────
+        instant("oil_drum", Type.FORTUNE, 8, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_FUEL_CAN, 2));
+            giveToTeam(level, team, gained);
+            result(level, team, "oil_drum", itemsText(gained));
+        });
+        // ── 机遇：胶带与钉子 ──────────────────────────────────────────
+        instant("tape_and_nails", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_DUCT_TAPE, 2));
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_NAILS, 4));
+            giveToTeam(level, team, gained);
+            result(level, team, "tape_and_nails", itemsText(gained));
+        });
+        // ── 机遇：配给券 ──────────────────────────────────────────────
+        instant("ration_ticket", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 1, "food");
+            gained.addAll(rollLoot(level, 1, "water"));
+            gained.addAll(rollLoot(level, 1, "medicine"));
+            giveToTeam(level, team, gained);
+            result(level, team, "ration_ticket", itemsText(gained));
+        });
+        // ── 机遇：互助包裹 ────────────────────────────────────────────
+        instant("mutual_aid_box", Type.FORTUNE, 8, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 2, "food");
+            gained.addAll(rollLoot(level, 2, "water"));
+            gained.addAll(rollLoot(level, 2, "medicine"));
+            giveToTeam(level, team, gained);
+            teamSanity(level, team, 3);
+            result(level, team, "mutual_aid_box", itemsText(gained));
+        });
+        // ── 机遇：收音机零件 ──────────────────────────────────────────
+        instant("radio_parts", Type.FORTUNE, 8, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_ELECTRONICS, 3));
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_WIRE, 2));
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_GEAR, 1));
+            giveToTeam(level, team, gained);
+            result(level, team, "radio_parts", itemsText(gained));
+        });
+        // ── 机遇：建筑废墟 ────────────────────────────────────────────
+        instant("building_rubble", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = rollLoot(level, 3, "material");
+            gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_SCRAP, 4)));
+            giveToTeam(level, team, gained);
+            result(level, team, "building_rubble", itemsText(gained));
+        });
+        // ── 机遇：种子包 ──────────────────────────────────────────────
+        instant("seed_packet", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_SEEDS_PACK, 2));
+            giveToTeam(level, team, gained);
+            result(level, team, "seed_packet", itemsText(gained));
+        });
+        // ── 机遇：净水片 ──────────────────────────────────────────────
+        instant("water_tablets", Type.FORTUNE, 8, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_PURIFICATION_TABLET, 3));
+            gained.addAll(rollLoot(level, 1, "water"));
+            giveToTeam(level, team, gained);
+            result(level, team, "water_tablets", itemsText(gained));
+        });
+        // ── 机遇：化学品箱 ────────────────────────────────────────────
+        instant("chem_case", Type.FORTUNE, 8, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_CHEMICALS, 3));
+            gained.addAll(rollLoot(level, 1, "medicine"));
+            giveToTeam(level, team, gained);
+            result(level, team, "chem_case", itemsText(gained));
+        });
+        // ── 机遇：塑料堆 ──────────────────────────────────────────────
+        instant("plastic_heap", Type.FORTUNE, 10, (level, team) -> {
+            List<ItemStack> gained = new ArrayList<>();
+            gained.add(new ItemStack(ModItems.SIXTY_SECONDS_PLASTIC, 5));
+            gained.addAll(rollLoot(level, 1, "material"));
+            giveToTeam(level, team, gained);
+            result(level, team, "plastic_heap", itemsText(gained));
+        });
+        // ── 机遇：篝火晚会 ────────────────────────────────────────────
+        instant("campfire_night", Type.FORTUNE, 8, (level, team) -> {
+            teamSanity(level, team, 6);
+            forEachMember(level, team, p -> addHunger(p, 10));
+            result(level, team, "campfire_night");
+        });
+        // ── 机遇：太阳能充电 ──────────────────────────────────────────
+        instant("solar_charge", Type.FORTUNE, 8, (level, team) -> {
+            team.powerEndTick = Math.max(team.powerEndTick, level.getGameTime()) + 20 * 90;
+            result(level, team, "solar_charge");
+        });
+
+        // ── 不幸：下水道反味 ──────────────────────────────────────────
+        instant("sewer_stench", Type.MISFORTUNE, 10, (level, team) -> {
+            forEachMember(level, team, p -> addPollution(p, 8));
+            teamSanity(level, team, -3);
+            result(level, team, "sewer_stench");
+        });
+        // ── 不幸：失眠夜 ──────────────────────────────────────────────
+        instant("sleepless_night", Type.MISFORTUNE, 10, (level, team) -> {
+            teamSanity(level, team, -8);
+            forEachMember(level, team, p -> addHealth(p, -5));
+            result(level, team, "sleepless_night");
+        });
+        // ── 不幸：墙壁裂缝 ────────────────────────────────────────────
+        instant("wall_crack", Type.MISFORTUNE, 8, (level, team) -> {
+            team.doorHp = Math.max(1, team.doorHp - 10);
+            List<ItemStack> lost = loseFromHome(level, team, 1, categoryFilter(level, "material"));
+            result(level, team, "wall_crack", lostText(level, lost));
+        });
+        // ── 不幸：寄生虫 ──────────────────────────────────────────────
+        instant("parasite", Type.MISFORTUNE, 8, (level, team) -> {
+            ServerPlayer victim = randomMember(level, team);
+            if (victim != null) {
+                addHealth(victim, -12);
+                addHunger(victim, -15);
+            }
+            teamSanity(level, team, -5);
+            result(level, team, "parasite",
+                    victim == null ? Component.empty() : Component.literal(victim.getGameProfile().getName()));
+        });
+        // ── 不幸：酸蚀地板 ────────────────────────────────────────────
+        instant("acid_floor", Type.MISFORTUNE, 8, (level, team) -> {
+            forEachMember(level, team, p -> addPollution(p, 12));
+            List<ItemStack> lost = loseFromHome(level, team, 1, stack -> true);
+            result(level, team, "acid_floor", lostText(level, lost));
+        });
+        // ── 不幸：断电 ────────────────────────────────────────────────
+        instant("power_outage", Type.MISFORTUNE, 8, (level, team) -> {
+            team.powerEndTick = level.getGameTime();
+            teamSanity(level, team, -4);
+            result(level, team, "power_outage");
+        });
+        // ── 不幸：雷击 ────────────────────────────────────────────────
+        instant("lightning_strike", Type.MISFORTUNE, 6, (level, team) -> {
+            team.doorHp = Math.max(1, team.doorHp - 25);
+            team.powerEndTick = level.getGameTime();
+            teamSanity(level, team, -6);
+            result(level, team, "lightning_strike");
+        });
+        // ── 不幸：发霉面包 ────────────────────────────────────────────
+        instant("moldy_bread", Type.MISFORTUNE, 10, (level, team) -> {
+            List<ItemStack> lost = loseFromHome(level, team, 2, foodFilter(level));
+            result(level, team, "moldy_bread", lostText(level, lost));
+        });
+        // ── 不幸：淤泥倒灌 ────────────────────────────────────────────
+        instant("mud_backflow", Type.MISFORTUNE, 8, (level, team) -> {
+            List<ItemStack> lost = loseFromHome(level, team, 1, waterFilter(level));
+            lost.addAll(loseFromHome(level, team, 1, foodFilter(level)));
+            forEachMember(level, team, p -> addPollution(p, 8));
+            result(level, team, "mud_backflow", lostText(level, lost));
+        });
+        // ── 不幸：药过期 ──────────────────────────────────────────────
+        instant("expired_meds", Type.MISFORTUNE, 8, (level, team) -> {
+            List<ItemStack> lost = loseFromHome(level, team, 2, medicineFilter(level));
+            teamSanity(level, team, -3);
+            result(level, team, "expired_meds", lostText(level, lost));
+        });
+        // ── 不幸：飞鸟袭窗 ────────────────────────────────────────────
+        instant("bird_strike", Type.MISFORTUNE, 10, (level, team) -> {
+            team.doorHp = Math.max(1, team.doorHp - 5);
+            teamSanity(level, team, -3);
+            result(level, team, "bird_strike");
+        });
+        // ── 不幸：枪声幻觉 ────────────────────────────────────────────
+        instant("phantom_gunshots", Type.MISFORTUNE, 8, (level, team) -> {
+            teamSanity(level, team, -10);
+            result(level, team, "phantom_gunshots");
+        });
+        // ── 不幸：碎玻璃 ──────────────────────────────────────────────
+        instant("broken_glass", Type.MISFORTUNE, 10, (level, team) -> {
+            ServerPlayer victim = randomMember(level, team);
+            if (victim != null) addHealth(victim, -8);
+            teamSanity(level, team, -3);
+            result(level, team, "broken_glass",
+                    victim == null ? Component.empty() : Component.literal(victim.getGameProfile().getName()));
+        });
+        // ── 不幸：低温 ────────────────────────────────────────────────
+        instant("hypothermia", Type.MISFORTUNE, 8, (level, team) -> {
+            forEachMember(level, team, p -> {
+                addHunger(p, -20);
+                addHealth(p, -5);
+            });
+            result(level, team, "hypothermia");
+        });
+        // ── 不幸：烟囱堵塞 ────────────────────────────────────────────
+        instant("chimney_blocked", Type.MISFORTUNE, 8, (level, team) -> {
+            forEachMember(level, team, p -> addPollution(p, 6));
+            teamSanity(level, team, -4);
+            List<ItemStack> lost = loseFromHome(level, team, 1, categoryFilter(level, "tool"));
+            result(level, team, "chimney_blocked", lostText(level, lost));
+        });
+
+        // ── 日级修正：丰收 ────────────────────────────────────────────
+        modifierEvent("bountiful_harvest", Type.MODIFIER, 8, "drain_hunger", 0.8, (level, team) -> {
+            applyModifier(team, "drain_thirst", 0.8);
+            result(level, team, "bountiful_harvest");
+        });
+        // ── 日级修正：士气高涨 ────────────────────────────────────────
+        modifierEvent("high_morale", Type.MODIFIER, 8, "drain_sanity", 0.7, (level, team) -> {
+            result(level, team, "high_morale");
+        });
+        // ── 日级修正：水资源紧张 ──────────────────────────────────────
+        modifierEvent("water_ration", Type.MISFORTUNE, 8, "drain_thirst", 1.3, (level, team) -> {
+            result(level, team, "water_ration");
+        });
+
+        // ══════════════════════════ 抉择事件第四批（158-207） ═══════════
+        // 158. 流浪狗：给1件食物→san+8；赶走→san-2
+        choice("stray_pup", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option == 1) {
+                ItemStack food = takeFromInventory(clicker, foodFilter(level));
+                if (food == null) { fail(clicker, "no_food"); return false; }
+                teamSanity(level, team, 8);
+                result(level, team, "stray_pup.r1", food.getHoverName());
+            } else { teamSanity(level, team, -2); result(level, team, "stray_pup.r2"); }
+            return true;
+        });
+        // 159. 废品商ⅱ：6塑料→3材料
+        choice("plastic_trade", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "plastic_trade.r2"); return true; }
+            ItemStack p = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_PLASTIC) && s.getCount() >= 6);
+            if (p == null) { fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_plastic")); return false; }
+            p.shrink(5);
+            List<ItemStack> g = rollLoot(level, 3, "material");
+            give(clicker, g); result(level, team, "plastic_trade.r1", itemsText(g));
+            return true;
+        });
+        // 160. 捕鼠人：给3废料→1食物1水
+        choice("rat_catcher", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "rat_catcher.r2"); return true; }
+            ItemStack s1 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_SCRAP));
+            ItemStack s2 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_SCRAP));
+            ItemStack s3 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_SCRAP));
+            if (s1 == null || s2 == null || s3 == null) {
+                if (s1 != null) clicker.getInventory().placeItemBackInInventory(s1);
+                if (s2 != null) clicker.getInventory().placeItemBackInInventory(s2);
+                fail(clicker, "no_scrap"); return false;
+            }
+            List<ItemStack> g = rollLoot(level, 1, "food"); g.addAll(rollLoot(level, 1, "water"));
+            give(clicker, g); result(level, team, "rat_catcher.r1", itemsText(g));
+            return true;
+        });
+        // 161. 拾荒者竞赛：代币→50%双倍/50%丢
+        choice("scavenger_bet", Type.CHOICE, 7, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "scavenger_bet.r2"); return true; }
+            var tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+            if (tokens.getTokens() < 3) { fail(clicker, "no_coins", 3); return false; }
+            tokens.addTokens(-3);
+            if (level.getRandom().nextFloat() < 0.5) {
+                tokens.addTokens(10); result(level, team, "scavenger_bet.r1_win");
+            } else { result(level, team, "scavenger_bet.r1_lose"); }
+            return true;
+        });
+        // 162. 可疑包裹：打开→60%好/40%污染；扔掉→无事
+        choice("sus_package", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "sus_package.r2"); return true; }
+            if (level.getRandom().nextFloat() < 0.6) {
+                List<ItemStack> g = rollLoot(level, 2, "material"); g.addAll(rollLoot(level, 1, "medicine"));
+                giveToTeam(level, team, g); result(level, team, "sus_package.r1_good", itemsText(g));
+            } else {
+                forEachMember(level, team, p -> addPollution(p, 15));
+                result(level, team, "sus_package.r1_bad");
+            }
+            return true;
+        });
+        // 163. 地图碎片：花5代币→探索区标记60%成功
+        choice("map_fragment", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "map_fragment.r2"); return true; }
+            var tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+            if (tokens.getTokens() < 5) { fail(clicker, "no_coins", 5); return false; }
+            tokens.addTokens(-5);
+            if (level.getRandom().nextFloat() < 0.6) {
+                List<ItemStack> g = rollLoot(level, 3, "material");
+                giveToTeam(level, team, g); result(level, team, "map_fragment.r1_good", itemsText(g));
+            } else {
+                teamSanity(level, team, -5); result(level, team, "map_fragment.r1_bad");
+            }
+            return true;
+        });
+        // 164. 夜巡：有手电→san+5；没有→san-3
+        choice("night_patrol", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "night_patrol.r2"); return true; }
+            if (hasFlashlight(clicker)) {
+                teamSanity(level, team, 5); result(level, team, "night_patrol.r1_good");
+            } else {
+                teamSanity(level, team, -3); addHealth(clicker, -5);
+                result(level, team, "night_patrol.r1_bad");
+            }
+            return true;
+        });
+        // 165. 草药师：1化学品→2药品
+        choice("herbalist", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "herbalist.r2"); return true; }
+            ItemStack ch = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_CHEMICALS));
+            if (ch == null) { fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_chemicals")); return false; }
+            List<ItemStack> g = rollLoot(level, 2, "medicine");
+            give(clicker, g); result(level, team, "herbalist.r1", itemsText(g));
+            return true;
+        });
+        // 166. 流浪乐手：给他食物→全队san+12
+        choice("wandering_musician", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "wandering_musician.r2"); return true; }
+            ItemStack food = takeFromInventory(clicker, foodFilter(level));
+            if (food == null) { fail(clicker, "no_food"); return false; }
+            teamSanity(level, team, 12);
+            result(level, team, "wandering_musician.r1", food.getHoverName());
+            return true;
+        });
+        // 167. 祈祷者：加入→san+8 健康-5；不→无事
+        choice("prayer_circle", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "prayer_circle.r2"); return true; }
+            teamSanity(level, team, 8);
+            addHealth(clicker, -5);
+            result(level, team, "prayer_circle.r1");
+            return true;
+        });
+        // 168. 陷阱检查：40%受伤-15；60%发现2食物
+        choice("trap_check", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "trap_check.r2"); return true; }
+            if (level.getRandom().nextFloat() < 0.6) {
+                List<ItemStack> g = rollLoot(level, 2, "food");
+                give(clicker, g); result(level, team, "trap_check.r1_good", itemsText(g));
+            } else {
+                addHealth(clicker, -15); teamSanity(level, team, -3);
+                result(level, team, "trap_check.r1_bad");
+            }
+            return true;
+        });
+        // 169. 失忆者：给他1水→san+6
+        choice("amnesiac", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "amnesiac.r2"); return true; }
+            ItemStack w = takeFromInventory(clicker, waterFilter(level));
+            if (w == null) { fail(clicker, "no_water"); return false; }
+            teamSanity(level, team, 6);
+            result(level, team, "amnesiac.r1", w.getHoverName());
+            return true;
+        });
+        // 170. 信号弹：放→全队san+5；留着→无事
+        choice("flare_signal", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "flare_signal.r2"); return true; }
+            teamSanity(level, team, 5);
+            result(level, team, "flare_signal.r1");
+            return true;
+        });
+        // 171. 修补墙壁：3废料→门耐久+20
+        choice("patch_wall", Type.TRADE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "patch_wall.r2"); return true; }
+            ItemStack s1 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_SCRAP));
+            ItemStack s2 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_SCRAP));
+            ItemStack s3 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_SCRAP));
+            if (s1 == null || s2 == null || s3 == null) {
+                if (s1 != null) clicker.getInventory().placeItemBackInInventory(s1);
+                if (s2 != null) clicker.getInventory().placeItemBackInInventory(s2);
+                fail(clicker, "no_scrap"); return false;
+            }
+            team.doorHp = Math.min(team.doorMaxHp, team.doorHp + 20);
+            if (team.doorHp > 0) team.doorBroken = false;
+            result(level, team, "patch_wall.r1");
+            return true;
+        });
+        // 172. 废品艺术：1废料→san+10
+        choice("scrap_art", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "scrap_art.r2"); return true; }
+            ItemStack s = takeFromInventory(clicker, stack -> stack.is(ModItems.SIXTY_SECONDS_SCRAP));
+            if (s == null) { fail(clicker, "no_scrap"); return false; }
+            teamSanity(level, team, 10);
+            result(level, team, "scrap_art.r1");
+            return true;
+        });
+        // 173. 失踪队员搜救：去→50%找回/50% injury
+        choice("missing_search", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "missing_search.r2"); return true; }
+            if (level.getRandom().nextFloat() < 0.5) {
+                List<ItemStack> g = rollLoot(level, 1, "food"); g.addAll(rollLoot(level, 1, "medicine"));
+                giveToTeam(level, team, g); result(level, team, "missing_search.r1_good", itemsText(g));
+            } else {
+                addHealth(clicker, -20); result(level, team, "missing_search.r1_bad");
+            }
+            return true;
+        });
+        // 174. 蒸馏器：给2水→1净化水
+        choice("still_trade", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "still_trade.r2"); return true; }
+            ItemStack w1 = takeFromInventory(clicker, waterFilter(level));
+            ItemStack w2 = takeFromInventory(clicker, waterFilter(level));
+            if (w1 == null || w2 == null) {
+                if (w1 != null) clicker.getInventory().placeItemBackInInventory(w1);
+                fail(clicker, "no_water"); return false;
+            }
+            List<ItemStack> g = new ArrayList<>();
+            g.add(new ItemStack(ModItems.SIXTY_SECONDS_PURIFIED_WATER, 1));
+            give(clicker, g); result(level, team, "still_trade.r1");
+            return true;
+        });
+        // 175. 流浪孩子：给1食物→san+8；赶走→san-3
+        choice("street_kid", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "street_kid.r2"); teamSanity(level, team, -3); return true; }
+            ItemStack food = takeFromInventory(clicker, foodFilter(level));
+            if (food == null) { fail(clicker, "no_food"); return false; }
+            teamSanity(level, team, 8);
+            result(level, team, "street_kid.r1", food.getHoverName());
+            return true;
+        });
+        // 176. 酒精换药：给1净化水→2药品
+        choice("alcohol_meds", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "alcohol_meds.r2"); return true; }
+            ItemStack w = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_PURIFIED_WATER));
+            if (w == null) { fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_purified_water")); return false; }
+            List<ItemStack> g = rollLoot(level, 2, "medicine");
+            give(clicker, g); result(level, team, "alcohol_meds.r1", itemsText(g));
+            return true;
+        });
+        // 177. 废旧电池交换：1电池→5废料
+        choice("battery_scrap", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "battery_scrap.r2"); return true; }
+            ItemStack b = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_BATTERY));
+            if (b == null) { fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_battery")); return false; }
+            List<ItemStack> g = new ArrayList<>();
+            g.add(new ItemStack(ModItems.SIXTY_SECONDS_SCRAP, 5));
+            give(clicker, g); result(level, team, "battery_scrap.r1");
+            return true;
+        });
+        // 178. 分享故事：全队san+5
+        choice("story_share", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "story_share.r2"); return true; }
+            teamSanity(level, team, 5);
+            result(level, team, "story_share.r1");
+            return true;
+        });
+        // 179. 地雷警告：绕路→san-2；硬闯→70%受伤20
+        choice("minefield", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { teamSanity(level, team, -2); result(level, team, "minefield.r2"); return true; }
+            if (level.getRandom().nextFloat() < 0.7) {
+                addHealth(clicker, -20); result(level, team, "minefield.r1_bad");
+            } else {
+                List<ItemStack> g = rollLoot(level, 2, "material");
+                give(clicker, g); result(level, team, "minefield.r1_good", itemsText(g));
+            }
+            return true;
+        });
+        // 180. 蜡烛商：2废料→san+3
+        choice("candle_maker", Type.TRADE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "candle_maker.r2"); return true; }
+            ItemStack s1 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_SCRAP));
+            ItemStack s2 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_SCRAP));
+            if (s1 == null || s2 == null) {
+                if (s1 != null) clicker.getInventory().placeItemBackInInventory(s1);
+                fail(clicker, "no_scrap"); return false;
+            }
+            teamSanity(level, team, 3);
+            result(level, team, "candle_maker.r1");
+            return true;
+        });
+        // 181. 屋顶太阳能：4电子元件→电力+180秒
+        choice("roof_solar", Type.TRADE, 6, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "roof_solar.r2"); return true; }
+            int cnt = 0;
+            var inv = clicker.getInventory();
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                if (!inv.getItem(i).isEmpty() && inv.getItem(i).is(ModItems.SIXTY_SECONDS_ELECTRONICS)) cnt += inv.getItem(i).getCount();
+            }
+            if (cnt < 4) { fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_electronics")); return false; }
+            int taken = 0;
+            for (int i = 0; i < inv.getContainerSize() && taken < 4; i++) {
+                ItemStack s = inv.getItem(i);
+                if (!s.isEmpty() && s.is(ModItems.SIXTY_SECONDS_ELECTRONICS)) {
+                    int take = Math.min(s.getCount(), 4 - taken);
+                    s.shrink(take); taken += take;
+                    if (s.isEmpty()) inv.setItem(i, ItemStack.EMPTY);
+                }
+            }
+            team.powerEndTick = Math.max(team.powerEndTick, level.getGameTime()) + 20 * 180;
+            result(level, team, "roof_solar.r1");
+            return true;
+        });
+        // 182. 捡到锁：装门上→门耐久+30
+        choice("found_lock", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "found_lock.r2"); return true; }
+            team.doorHp = Math.min(team.doorMaxHp, team.doorHp + 30);
+            if (team.doorHp > 0) team.doorBroken = false;
+            result(level, team, "found_lock.r1");
+            return true;
+        });
+        // 183. 吵架调解：参加→san-3但有物资；不→san-5
+        choice("fight_mediate", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { teamSanity(level, team, -5); result(level, team, "fight_mediate.r2"); return true; }
+            addSanity(clicker, -3);
+            List<ItemStack> g = rollLoot(level, 1, "food");
+            give(clicker, g); result(level, team, "fight_mediate.r1", itemsText(g));
+            return true;
+        });
+        // 184. 挖掘掩体：花时间→门+25耐久，san-5
+        choice("dig_trench", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "dig_trench.r2"); return true; }
+            team.doorHp = Math.min(team.doorMaxHp, team.doorHp + 25);
+            if (team.doorHp > 0) team.doorBroken = false;
+            teamSanity(level, team, -5);
+            result(level, team, "dig_trench.r1");
+            return true;
+        });
+        // 185. 交换药品：2绷带→1药品
+        choice("bandage_swap", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "bandage_swap.r2"); return true; }
+            ItemStack b1 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_BANDAGE));
+            ItemStack b2 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_BANDAGE));
+            if (b1 == null || b2 == null) {
+                if (b1 != null) clicker.getInventory().placeItemBackInInventory(b1);
+                fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_bandage")); return false;
+            }
+            List<ItemStack> g = rollLoot(level, 1, "medicine");
+            give(clicker, g); result(level, team, "bandage_swap.r1", itemsText(g));
+            return true;
+        });
+        // 186. 野狗群：丢石头→50%吓退，50%受伤
+        choice("wild_dogs", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { teamSanity(level, team, -3); result(level, team, "wild_dogs.r2"); return true; }
+            if (level.getRandom().nextFloat() < 0.5) {
+                result(level, team, "wild_dogs.r1_good");
+            } else {
+                addHealth(clicker, -15); teamSanity(level, team, -5);
+                result(level, team, "wild_dogs.r1_bad");
+            }
+            return true;
+        });
+        // 187. 洗冷水澡：san-5，污染-20
+        choice("cold_bath", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "cold_bath.r2"); return true; }
+            addSanity(clicker, -5); addPollution(clicker, -20);
+            result(level, team, "cold_bath.r1");
+            return true;
+        });
+        // 188. 捡到收音机：有电池→全队san+10
+        choice("found_radio", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "found_radio.r2"); return true; }
+            boolean hasBat = false;
+            var inv = clicker.getInventory();
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                if (!inv.getItem(i).isEmpty() && inv.getItem(i).is(ModItems.SIXTY_SECONDS_BATTERY)) { hasBat = true; break; }
+            }
+            if (hasBat) {
+                teamSanity(level, team, 10); result(level, team, "found_radio.r1_work");
+            } else {
+                teamSanity(level, team, 3); result(level, team, "found_radio.r1_silent");
+            }
+            return true;
+        });
+        // 189. 神秘商人：5代币→随机1件武器（非枪械）
+        choice("mystic_merchant", Type.TRADE, 6, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "mystic_merchant.r2"); return true; }
+            var tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+            if (tokens.getTokens() < 5) { fail(clicker, "no_coins", 5); return false; }
+            tokens.addTokens(-5);
+            Item[] wp = { ModItems.SIXTY_SECONDS_KNIFE, ModItems.SIXTY_SECONDS_PIPE, ModItems.SIXTY_SECONDS_CROWBAR,
+                    ModItems.SIXTY_SECONDS_HATCHET, ModItems.SIXTY_SECONDS_SPIKED_BAT };
+            List<ItemStack> g = new ArrayList<>();
+            g.add(new ItemStack(wp[level.getRandom().nextInt(wp.length)]));
+            give(clicker, g); result(level, team, "mystic_merchant.r1", itemsText(g));
+            return true;
+        });
+        // 190. 取水任务：可能有污染→40%污染+10 60%获得2水
+        choice("fetch_water", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "fetch_water.r2"); return true; }
+            if (level.getRandom().nextFloat() < 0.6) {
+                List<ItemStack> g = rollLoot(level, 2, "water");
+                giveToTeam(level, team, g); result(level, team, "fetch_water.r1_good", itemsText(g));
+            } else {
+                forEachMember(level, team, p -> addPollution(p, 10));
+                result(level, team, "fetch_water.r1_bad");
+            }
+            return true;
+        });
+        // 191. 破布换食物：5破布→1食物
+        choice("rag_food", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "rag_food.r2"); return true; }
+            ItemStack r = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_RAG) && s.getCount() >= 5);
+            if (r == null) { fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_rag")); return false; }
+            r.shrink(4);
+            List<ItemStack> g = rollLoot(level, 1, "food");
+            give(clicker, g); result(level, team, "rag_food.r1", itemsText(g));
+            return true;
+        });
+        // 192. 弹药换食物：8弹药→2食物（注意：玩家给弹药，不是事件发弹药）
+        choice("ammo_food", Type.TRADE, 6, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "ammo_food.r2"); return true; }
+            ItemStack a = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_AMMO) && s.getCount() >= 8);
+            if (a == null) { fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_ammo")); return false; }
+            a.shrink(7);
+            List<ItemStack> g = rollLoot(level, 2, "food");
+            give(clicker, g); result(level, team, "ammo_food.r1", itemsText(g));
+            return true;
+        });
+        // 193. 用火药做陷阱：1火药→门变成陷阱
+        choice("gunpowder_trap", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "gunpowder_trap.r2"); return true; }
+            ItemStack gp = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_GUNPOWDER_PACK));
+            if (gp == null) { fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_gunpowder_pack")); return false; }
+            team.doorHp = Math.max(team.doorHp, team.doorMaxHp / 2);
+            if (team.doorHp > 0) team.doorBroken = false;
+            addHealth(clicker, -5);
+            result(level, team, "gunpowder_trap.r1");
+            return true;
+        });
+        // 194. 分享多余药品：给1药品→san+10
+        choice("share_meds", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "share_meds.r2"); return true; }
+            ItemStack m = takeFromInventory(clicker, medicineFilter(level));
+            if (m == null) { fail(clicker, "no_medicine"); return false; }
+            teamSanity(level, team, 10);
+            result(level, team, "share_meds.r1", m.getHoverName());
+            return true;
+        });
+        // 195. 燃烧瓶制作：1玻璃1布1燃油→门耐久+15
+        choice("molotov_make", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "molotov_make.r2"); return true; }
+            ItemStack gl = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_GLASS_SHARD));
+            ItemStack rg = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_RAG));
+            ItemStack fl = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_FUEL_CAN) || s.is(ModItems.SIXTY_SECONDS_DIESEL_CAN));
+            if (gl == null || rg == null || fl == null) {
+                if (gl != null) clicker.getInventory().placeItemBackInInventory(gl);
+                if (rg != null) clicker.getInventory().placeItemBackInInventory(rg);
+                fail(clicker, "no_materials"); return false;
+            }
+            team.doorHp = Math.min(team.doorMaxHp, team.doorHp + 15);
+            if (team.doorHp > 0) team.doorBroken = false;
+            addHealth(clicker, -3);
+            result(level, team, "molotov_make.r1");
+            return true;
+        });
+        // 196. 下水道探险：去→50%药/50%污染
+        choice("sewer_delve", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "sewer_delve.r2"); return true; }
+            if (level.getRandom().nextFloat() < 0.5) {
+                List<ItemStack> g = rollLoot(level, 2, "medicine"); g.addAll(rollLoot(level, 1, "material"));
+                give(clicker, g); result(level, team, "sewer_delve.r1_good", itemsText(g));
+            } else {
+                addPollution(clicker, 20); addHealth(clicker, -5);
+                result(level, team, "sewer_delve.r1_bad");
+            }
+            return true;
+        });
+        // 197. 修手表：2齿轮→电力+60秒
+        choice("fix_watch", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "fix_watch.r2"); return true; }
+            ItemStack g1 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_GEAR));
+            ItemStack g2 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_GEAR));
+            if (g1 == null || g2 == null) {
+                if (g1 != null) clicker.getInventory().placeItemBackInInventory(g1);
+                fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_gear")); return false;
+            }
+            team.powerEndTick = Math.max(team.powerEndTick, level.getGameTime()) + 20 * 60;
+            result(level, team, "fix_watch.r1");
+            return true;
+        });
+        // 198. 钓鱼竿：4线→2食物
+        choice("fishing_rod", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "fishing_rod.r2"); return true; }
+            ItemStack s = takeFromInventory(clicker, stack -> stack.is(Items.STRING) && stack.getCount() >= 4);
+            if (s == null) { fail(clicker, "no_item", Component.translatable("item.minecraft.string")); return false; }
+            s.shrink(3);
+            List<ItemStack> g = rollLoot(level, 2, "food");
+            give(clicker, g); result(level, team, "fishing_rod.r1", itemsText(g));
+            return true;
+        });
+        // 199. 加固屋顶：3木板→门耐久+10 san+3
+        choice("roof_reinforce", Type.TRADE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "roof_reinforce.r2"); return true; }
+            ItemStack p = takeFromInventory(clicker, s -> s.is(Items.OAK_PLANKS) && s.getCount() >= 3);
+            if (p == null) { fail(clicker, "no_item", Component.translatable("block.minecraft.oak_planks")); return false; }
+            p.shrink(2);
+            team.doorHp = Math.min(team.doorMaxHp, team.doorHp + 10);
+            if (team.doorHp > 0) team.doorBroken = false;
+            teamSanity(level, team, 3);
+            result(level, team, "roof_reinforce.r1");
+            return true;
+        });
+        // 200. 防毒口罩：2破布→污染-15全队
+        choice("cloth_mask", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "cloth_mask.r2"); return true; }
+            ItemStack r1 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_RAG));
+            ItemStack r2 = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_RAG));
+            if (r1 == null || r2 == null) {
+                if (r1 != null) clicker.getInventory().placeItemBackInInventory(r1);
+                fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_rag")); return false;
+            }
+            forEachMember(level, team, p -> addPollution(p, -15));
+            result(level, team, "cloth_mask.r1");
+            return true;
+        });
+        // 201. 热石头取暖：san-2，体温上升饥饿+5
+        choice("hot_stone", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "hot_stone.r2"); return true; }
+            addSanity(clicker, -2); addHunger(clicker, 5);
+            result(level, team, "hot_stone.r1");
+            return true;
+        });
+        // 202. 写日记：san+8
+        choice("write_diary", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "write_diary.r2"); return true; }
+            addSanity(clicker, 8);
+            result(level, team, "write_diary.r1");
+            return true;
+        });
+        // 203. 整理仓库：丢失1件杂物→找到2物资
+        choice("warehouse_sort", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "warehouse_sort.r2"); return true; }
+            List<ItemStack> lost = loseFromHome(level, team, 1, stack -> true);
+            List<ItemStack> g = rollLoot(level, 1, "food"); g.addAll(rollLoot(level, 1, "water"));
+            giveToTeam(level, team, g);
+            result(level, team, "warehouse_sort.r1", lostText(level, lost), itemsText(g));
+            return true;
+        });
+        // 204. 劝说邻居合作：san+8，但要消耗1水
+        choice("neighbor_coop", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "neighbor_coop.r2"); return true; }
+            ItemStack w = takeFromInventory(clicker, waterFilter(level));
+            if (w == null) { fail(clicker, "no_water"); return false; }
+            teamSanity(level, team, 8);
+            result(level, team, "neighbor_coop.r1");
+            return true;
+        });
+        // 205. 拆旧电视：1电子元件→2材料0.5概率1电子元件
+        choice("scrap_tv", Type.CHOICE, 10, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "scrap_tv.r2"); return true; }
+            ItemStack e = takeFromInventory(clicker, s -> s.is(ModItems.SIXTY_SECONDS_ELECTRONICS));
+            if (e == null) { fail(clicker, "no_item", Component.translatable("item.noellesroles.sixty_seconds_electronics")); return false; }
+            List<ItemStack> g = rollLoot(level, 2, "material");
+            if (level.getRandom().nextBoolean()) g.add(new ItemStack(ModItems.SIXTY_SECONDS_ELECTRONICS));
+            give(clicker, g); result(level, team, "scrap_tv.r1", itemsText(g));
+            return true;
+        });
+        // 206. 找草药：外出→60%药/40%生病
+        choice("herb_hunt", Type.CHOICE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "herb_hunt.r2"); return true; }
+            if (level.getRandom().nextFloat() < 0.6) {
+                List<ItemStack> g = rollLoot(level, 1, "medicine");
+                give(clicker, g); result(level, team, "herb_hunt.r1_good", itemsText(g));
+            } else {
+                SixtySecondsSicknessSystem.makeSick(clicker);
+                result(level, team, "herb_hunt.r1_bad");
+            }
+            return true;
+        });
+        // 207. 交换情报：3代币→1工具
+        choice("intel_buy", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "intel_buy.r2"); return true; }
+            var tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+            if (tokens.getTokens() < 3) { fail(clicker, "no_coins", 3); return false; }
+            tokens.addTokens(-3);
+            List<ItemStack> g = rollLoot(level, 1, "tool");
+            give(clicker, g); result(level, team, "intel_buy.r1", itemsText(g));
+            return true;
+        });
     }
 
     // ══════════════════════════ 探险（出发 → 延迟结算） ══════════════════════════
