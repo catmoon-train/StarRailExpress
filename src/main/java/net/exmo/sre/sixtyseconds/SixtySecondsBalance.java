@@ -353,19 +353,46 @@ public final class SixtySecondsBalance {
     public static final int BROADCASTER_BROADCAST_COST = 100;    // 广播员 每次广播消耗（原版 50）
     public static final int REPORTER_NOTE_COUNT = 8;             // 记者 觉醒补发便签数（原版 4，×2）
 
-    // ── NPC（商人/军人/强盗/旅者；见 SixtySecondsNpcEntity）──────────────────────
+    // ── NPC（商人/军人/强盗/旅者/海盗；见 SixtySecondsNpcEntity）────────────────────
     public static final double NPC_HEALTH_MERCHANT = 40.0;
     public static final double NPC_HEALTH_SOLDIER = 80.0;
     public static final double NPC_HEALTH_BANDIT = 50.0;
     public static final double NPC_HEALTH_TRAVELER = 40.0;
+    /** 海盗：介于强盗与军人之间——海上遭遇战没处躲，太脆没威胁、太肉逃不掉。 */
+    public static final double NPC_HEALTH_PIRATE = 55.0;
     public static final double NPC_SPEED_MERCHANT = 0.22;
     public static final double NPC_SPEED_SOLDIER = 0.26;
     public static final double NPC_SPEED_BANDIT = 0.28;
     public static final double NPC_SPEED_TRAVELER = 0.24;
+    public static final double NPC_SPEED_PIRATE = 0.27;
     /** 近战命中玩家扣的健康值（与自研怪同量纲：拖行者 16 / 重锤兽 30）。 */
     public static final int NPC_INJURY_BANDIT = 18;
     public static final int NPC_INJURY_SOLDIER = 22;
     public static final int NPC_INJURY_TRAVELER = 8;
+    public static final int NPC_INJURY_PIRATE = 20;
+
+    // ── 海盗（海上乘船随机遭遇；见 SixtySecondsNpcSpawner.spawnPirates / NpcEntity.tickPirateBoat）──
+    /** 每隔多久对每名玩家做一次海盗刷新判定。 */
+    public static final int PIRATE_CHECK_INTERVAL = 20 * 45;
+    /** 单次判定的刷新概率（夜间 ×{@link #PIRATE_NIGHT_CHANCE_MULT}）。 */
+    public static final double PIRATE_SPAWN_CHANCE = 0.35;
+    public static final double PIRATE_NIGHT_CHANCE_MULT = 1.5;
+    /** 刷新点离玩家的距离区间（格）：够远才有「远处出现一条船」的过程感，又不至于超出加载区块。 */
+    public static final int PIRATE_SPAWN_MIN_DIST = 20;
+    public static final int PIRATE_SPAWN_MAX_DIST = 44;
+    /** 玩家 {@link #PIRATE_NEARBY_RADIUS} 格内海盗数量上限，达到则不再刷（防海盗海）。 */
+    public static final int PIRATE_MAX_NEARBY = 3;
+    public static final double PIRATE_NEARBY_RADIUS = 56.0;
+    /** 一次刷出的海盗数（每人一条船）。 */
+    public static final int PIRATE_PACK_MIN = 1;
+    public static final int PIRATE_PACK_MAX = 2;
+    /** 海盗划船追击的速度（格/tick）与视野（格）。 */
+    public static final double PIRATE_BOAT_SPEED = 0.22;
+    public static final double PIRATE_SIGHT = 40.0;
+    /** 逼近到这么近就弃船跳水近战（船上够不着人）。 */
+    public static final double PIRATE_DISMOUNT_DIST = 4.0;
+    /** 海盗身边无人多久自散（连船一起清；比普通 NPC 短——海上漂着的空船是纯垃圾）。 */
+    public static final int PIRATE_LONELY_DESPAWN_TICKS = 20 * 60;
     /** 强盗对家门/路障每秒伤害（夜袭时由 DefenseSystem 结算；介于拖行者 2 与重锤兽 5 之间）。 */
     public static final int NPC_BANDIT_DOOR_DPS = 3;
     /** NPC 单次受击封顶：防枪械「即死」伤害（狙击 100）一枪清场，强制多打几发。 */

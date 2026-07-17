@@ -340,13 +340,13 @@ public final class SixtySecondsIslandGenerator {
                     Blocks.SANDSTONE.defaultBlockState(), Blocks.SANDSTONE.defaultBlockState());
             case 2 -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.PODZOL.defaultBlockState(),
                     Blocks.DIRT.defaultBlockState(), Blocks.STONE.defaultBlockState(),
-                    Blocks.SANDSTONE.defaultBlockState(), Blocks.GRAVEL.defaultBlockState());
+                    Blocks.SANDSTONE.defaultBlockState(), Blocks.TUFF.defaultBlockState());
             case 3 -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.MUD.defaultBlockState(),
                     Blocks.DIRT.defaultBlockState(), Blocks.STONE.defaultBlockState(),
-                    Blocks.GRAVEL.defaultBlockState(), Blocks.GRAVEL.defaultBlockState());
+                    Blocks.TUFF.defaultBlockState(), Blocks.TUFF.defaultBlockState());
             case 4 -> new Palette(Blocks.COARSE_DIRT.defaultBlockState(), Blocks.SOUL_SOIL.defaultBlockState(),
                     Blocks.COARSE_DIRT.defaultBlockState(), Blocks.ANDESITE.defaultBlockState(),
-                    Blocks.GRAVEL.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState());
+                    Blocks.TUFF.defaultBlockState(), Blocks.SOUL_SAND.defaultBlockState());
             default -> new Palette(Blocks.BLACKSTONE.defaultBlockState(), Blocks.BASALT.defaultBlockState(),
                     Blocks.BASALT.defaultBlockState(), Blocks.BLACKSTONE.defaultBlockState(),
                     Blocks.BASALT.defaultBlockState(), Blocks.MAGMA_BLOCK.defaultBlockState());
@@ -465,7 +465,7 @@ public final class SixtySecondsIslandGenerator {
             if (island.level <= 3 && (below.is(Blocks.GRASS_BLOCK) || below.is(Blocks.DIRT))) {
                 plant = rng.nextFloat() < 0.7F ? Blocks.SHORT_GRASS.defaultBlockState()
                         : Blocks.FERN.defaultBlockState();
-            } else if (below.is(Blocks.SANDSTONE) || below.is(Blocks.COARSE_DIRT) || below.is(Blocks.GRAVEL)) {
+            } else if (below.is(Blocks.SANDSTONE) || below.is(Blocks.COARSE_DIRT) || below.is(Blocks.TUFF)) {
                 plant = Blocks.DEAD_BUSH.defaultBlockState();
             } else {
                 continue;
@@ -542,28 +542,37 @@ public final class SixtySecondsIslandGenerator {
         island.dockZ = dock.getZ();
 
         // 普通物资箱：数量随等级+大小；1 级小岛约 6~13 个，1 级大岛 13~26 个；3 级起部分上锁
-        int normal = Math.max(2, (int) (sm * (10 + island.level * 3)) + rng.nextInt(Math.max(1, (int) (sm * 14))));
+        // 总数在+30%基础上再+20%，即 1.3×1.2=1.56 → 取整用 1.5
+        int normal = Math.max(2, (int) (sm * (10 + island.level * 3) * 1.5)
+                + rng.nextInt(Math.max(1, (int) (sm * 14 * 1.5))));
         for (int i = 0; i < normal; i++) {
             BlockPos spot = randomGround(level, island, rng, 0.05, 0.9);
             if (spot == null) {
                 continue;
             }
-            boolean locked = island.level >= 3 && rng.nextFloat() < 0.3F;
-            placeSupplyBox(p, spot, locked
-                    ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_LOCKED
-                    : org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX,
+            boolean asRandom = rng.nextFloat() < 0.5F;
+            boolean locked = !asRandom && island.level >= 3 && rng.nextFloat() < 0.3F;
+            placeSupplyBox(p, spot, asRandom
+                    ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_RANDOM_SUPPLY_BOX
+                    : (locked
+                            ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_LOCKED
+                            : org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX),
                     BOX_CATEGORIES[rng.nextInt(BOX_CATEGORIES.length)]);
         }
-        // 高级物资箱：等级-1 个（按大小缩放）；4 级起带高级锁（需钳子）
-        int advanced = Math.max(0, (int) (sm * (island.level - 1)));
+        // 高级物资箱：等级-1 个（按大小缩放，+30%）；4 级起带高级锁（需钳子）；一半刷成随机
+        int advanced = Math.max(0, (int) (sm * (island.level - 1) * 1.5));
         for (int i = 0; i < advanced; i++) {
             BlockPos spot = randomGround(level, island, rng, 0.0, 0.6);
             if (spot == null) {
                 continue;
             }
-            placeSupplyBox(p, spot, island.level >= 4
-                    ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED_LOCKED
-                    : org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED,
+            boolean asRandom = rng.nextFloat() < 0.5F;
+            boolean advancedLocked = !asRandom && island.level >= 4;
+            placeSupplyBox(p, spot, asRandom
+                    ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_RANDOM_SUPPLY_BOX
+                    : (advancedLocked
+                            ? org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED_LOCKED
+                            : org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED),
                     BOX_CATEGORIES[rng.nextInt(BOX_CATEGORIES.length)]);
         }
         // 初始驻岛怪：数量/强度随等级+大小（后续增援由 PveSystem 游荡怪按 levelAt 自动缩放）

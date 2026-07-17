@@ -1,5 +1,6 @@
 package net.exmo.sre.sixtyseconds.logic;
 
+import net.exmo.sre.sixtyseconds.SixtySecondsBalance;
 import net.exmo.sre.sixtyseconds.SixtySecondsDayCycle;
 import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity;
@@ -78,6 +79,10 @@ public final class SixtySecondsNpcSystem {
             SixtySecondsNpcSpawner.spawnDaily(level, data, false);
         } else if (elapsed == SixtySecondsDayCycle.startOf(SixtySecondsDayCycle.SubPhase.NIGHT)) {
             SixtySecondsNpcSpawner.spawnDaily(level, data, true);
+        }
+        // 海盗：每 PIRATE_CHECK_INTERVAL 对水面附近的玩家做一次遭遇判定（夜里更凶）
+        if (now % SixtySecondsBalance.PIRATE_CHECK_INTERVAL == 0) {
+            SixtySecondsNpcSpawner.spawnPirates(level, data, SixtySecondsDayCycle.isNight(data, now));
         }
         SixtySecondsNpcTheft.tick(level);
     }

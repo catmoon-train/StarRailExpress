@@ -138,6 +138,8 @@ public final class SixtySecondsStartCommand {
                                         .executes(c -> setTotalDays(c.getSource(),
                                                 IntegerArgumentType.getInteger(c, "count"))))
                                 .executes(c -> showTotalDays(c.getSource())))
+                        // 管理员：NPC 搭图指令树（与 NPC 放置器/调校器等价的键盘操作；见 buildNpcCommand）
+                        .then(buildNpcCommand())
                         // 管理员：避难所直接生成在探索区出口门上（锚点=避难所锚点门↔出口门；默认开，按图持久化）
                         .then(literal("shelter_at_door")
                                 .requires(source -> source.hasPermission(2))
@@ -161,10 +163,10 @@ public final class SixtySecondsStartCommand {
                         .then(literal("island")
                                 .then(literal("start")
                                         .requires(source -> source.hasPermission(2))
-                                        .then(argument("count", IntegerArgumentType.integer(3, 16))
+                                        .then(argument("count", IntegerArgumentType.integer(3, 100))
                                                 // start <count> radius <r> —— 只改基准半径，其余用默认
                                                 .then(literal("radius")
-                                                        .then(argument("radius", IntegerArgumentType.integer(16, 120))
+                                                        .then(argument("radius", IntegerArgumentType.integer(16, 5000))
                                                                 .executes(c -> islandStart(c.getSource(),
                                                                         IntegerArgumentType.getInteger(c, "count"),
                                                                         Integer.MIN_VALUE, Integer.MIN_VALUE,
@@ -176,7 +178,7 @@ public final class SixtySecondsStartCommand {
                                                                         .integer(-60, 300))
                                                                         // start <count> <x> <z> <seaY> [radius]
                                                                         .then(argument("radius", IntegerArgumentType
-                                                                                .integer(16, 120))
+                                                                                .integer(16, 5000))
                                                                                 .executes(c -> islandStart(c.getSource(),
                                                                                         IntegerArgumentType.getInteger(c, "count"),
                                                                                         IntegerArgumentType.getInteger(c, "centerX"),
@@ -796,6 +798,254 @@ public final class SixtySecondsStartCommand {
         source.sendSuccess(() -> Component.translatable(enabled
                 ? "message.noellesroles.sixty_seconds.sea_teleport_enabled"
                 : "message.noellesroles.sixty_seconds.sea_teleport_disabled"), false);
+        return 1;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // NPC 搭图指令（/sre:60s npc ...）——与 NPC 放置器/调校器等价的键盘操作
+    // ═══════════════════════════════════════════════════════════
+
+    private static final String NPC_LANG = "message.noellesroles.sixty_seconds.npc.";
+
+    /** 变体名 → 枚举（指令补全用）。 */
+    private static java.util.List<String> npcVariantNames() {
+        java.util.List<String> names = new java.util.ArrayList<>();
+        for (var variant : net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity.Variant.values()) {
+            names.add(variant.name().toLowerCase(java.util.Locale.ROOT));
+        }
+        return names;
+    }
+
+    /**
+     * {@code /sre:60s npc ...} 指令树（全 OP）：
+     * <ul>
+     *   <li>{@code add <variant> [profile] [radius]} —— 在脚下登记一个生成点并放预览（=放置器右键）</li>
+     *   <li>{@code list} —— 列出全部生成点（点击传送）</li>
+     *   <li>{@code remove <index>} / {@code clear} —— 删单个 / 清空</li>
+     *   <li>{@code preview} / {@code hide} —— 按配置重放全部预览 / 收起预览</li>
+     *   <li>{@code profile <index> <name>} / {@code radius <index> <n>} —— 改已登记点的货架档案/驻守半径</li>
+     *   <li>{@code pirate} —— 在准星附近海面立刻放一船海盗（测试用）</li>
+     * </ul>
+     */
+    private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> buildNpcCommand() {
+        var add = literal("add");
+        for (String name : npcVariantNames()) {
+            add.then(literal(name)
+                    .executes(c -> npcAdd(c.getSource(), name, "default", 8))
+                    .then(argument("profile", StringArgumentType.word())
+                            .executes(c -> npcAdd(c.getSource(), name,
+                                    StringArgumentType.getString(c, "profile"), 8))
+                            .then(argument("radius", IntegerArgumentType.integer(1, 64))
+                                    .executes(c -> npcAdd(c.getSource(), name,
+                                            StringArgumentType.getString(c, "profile"),
+                                            IntegerArgumentType.getInteger(c, "radius"))))));
+        }
+        return literal("npc")
+                .requires(source -> source.hasPermission(2))
+                .then(add)
+                .then(literal("list").executes(c -> npcList(c.getSource())))
+                .then(literal("remove")
+                        .then(argument("index", IntegerArgumentType.integer(1))
+                                .executes(c -> npcRemove(c.getSource(),
+                                        IntegerArgumentType.getInteger(c, "index")))))
+                .then(literal("clear").executes(c -> npcClear(c.getSource())))
+                .then(literal("preview").executes(c -> npcPreview(c.getSource())))
+                .then(literal("hide").executes(c -> npcHide(c.getSource())))
+                .then(literal("profile")
+                        .then(argument("index", IntegerArgumentType.integer(1))
+                                .then(argument("name", StringArgumentType.word())
+                                        .executes(c -> npcProfile(c.getSource(),
+                                                IntegerArgumentType.getInteger(c, "index"),
+                                                StringArgumentType.getString(c, "name"))))))
+                .then(literal("radius")
+                        .then(argument("index", IntegerArgumentType.integer(1))
+                                .then(argument("value", IntegerArgumentType.integer(1, 64))
+                                        .executes(c -> npcRadius(c.getSource(),
+                                                IntegerArgumentType.getInteger(c, "index"),
+                                                IntegerArgumentType.getInteger(c, "value"))))))
+                .then(literal("pirate").executes(c -> npcPirate(c.getSource())));
+    }
+
+    private static net.exmo.sre.sixtyseconds.config.SixtySecondsConfig npcConfig(CommandSourceStack source) {
+        return net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+    }
+
+    private static void npcSave(CommandSourceStack source,
+            net.exmo.sre.sixtyseconds.config.SixtySecondsConfig config) {
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(source.getLevel(), config);
+    }
+
+    /** {@code npc add <variant> [profile] [radius]}：在执行者脚下登记生成点 + 放一只预览立牌。 */
+    private static int npcAdd(CommandSourceStack source, String variantName, String profile, int radius) {
+        if (!(source.getEntity() instanceof ServerPlayer player)) {
+            source.sendFailure(Component.literal("Only a player can add an NPC spawn point"));
+            return 0;
+        }
+        var variant = net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity.Variant
+                .valueOf(variantName.toUpperCase(java.util.Locale.ROOT));
+        var config = npcConfig(source);
+        if (config.npcSpawns == null) {
+            config.npcSpawns = new java.util.ArrayList<>();
+        }
+        net.minecraft.core.BlockPos pos = player.blockPosition();
+        var spawn = new net.exmo.sre.sixtyseconds.config.SixtySecondsConfig.NpcSpawn(variant.id,
+                new net.exmo.sre.sixtyseconds.config.SixtySecondsConfig.Vec(pos.getX(), pos.getY(), pos.getZ()),
+                player.getYRot());
+        spawn.profile = profile;
+        spawn.garrisonRadius = radius;
+        config.npcSpawns.add(spawn);
+        npcSave(source, config);
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcSpawner.spawnPreview(source.getLevel(), pos, variant,
+                player.getYRot(), profile, radius);
+        int count = config.npcSpawns.size();
+        source.sendSuccess(() -> Component.translatable(NPC_LANG + "placed",
+                Component.translatable(variant.nameKey()), pos.getX(), pos.getY(), pos.getZ(), count)
+                .withStyle(ChatFormatting.GREEN), true);
+        return count;
+    }
+
+    /** {@code npc list}：列出全部生成点（序号 = remove/profile/radius 用的 index，点击传送）。 */
+    private static int npcList(CommandSourceStack source) {
+        var config = npcConfig(source);
+        if (config.npcSpawns == null || config.npcSpawns.isEmpty()) {
+            source.sendFailure(Component.translatable(NPC_LANG + "list_empty"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable(NPC_LANG + "list_header", config.npcSpawns.size())
+                .withStyle(ChatFormatting.GOLD), false);
+        for (int i = 0; i < config.npcSpawns.size(); i++) {
+            var spawn = config.npcSpawns.get(i);
+            var variant = net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity.Variant.byId(spawn.variant);
+            int index = i + 1;
+            var line = Component.literal("§e#" + index + " ")
+                    .append(Component.translatable(variant.nameKey()).withStyle(ChatFormatting.AQUA))
+                    .append(Component.literal(" §7[" + spawn.profile + " r=" + spawn.garrisonRadius + "]"))
+                    .append(tpLink(NPC_LANG + "list_tp",
+                            spawn.pos == null ? null : spawn.pos.toBlockPos(), ChatFormatting.LIGHT_PURPLE));
+            source.sendSuccess(() -> line, false);
+        }
+        return config.npcSpawns.size();
+    }
+
+    /** {@code npc remove <index>}：删掉第 index 个生成点（1 起）。 */
+    private static int npcRemove(CommandSourceStack source, int index) {
+        var config = npcConfig(source);
+        if (config.npcSpawns == null || index > config.npcSpawns.size()) {
+            source.sendFailure(Component.translatable(NPC_LANG + "bad_index", index));
+            return 0;
+        }
+        var removed = config.npcSpawns.remove(index - 1);
+        npcSave(source, config);
+        // 顺手清掉那附近的预览，免得配置删了立牌还杵着
+        if (removed.pos != null) {
+            net.minecraft.core.BlockPos at = removed.pos.toBlockPos();
+            for (var npc : source.getLevel().getEntitiesOfClass(
+                    net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity.class,
+                    new net.minecraft.world.phys.AABB(at).inflate(2.0),
+                    net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity::isEditorPreview)) {
+                npc.discard();
+            }
+        }
+        int left = config.npcSpawns.size();
+        source.sendSuccess(() -> Component.translatable(NPC_LANG + "removed_index", index, left)
+                .withStyle(ChatFormatting.YELLOW), true);
+        return 1;
+    }
+
+    /** {@code npc clear}：清空全部生成点 + 收起预览。 */
+    private static int npcClear(CommandSourceStack source) {
+        var config = npcConfig(source);
+        int had = config.npcSpawns == null ? 0 : config.npcSpawns.size();
+        config.npcSpawns = new java.util.ArrayList<>();
+        npcSave(source, config);
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcSpawner.clearPreviews(source.getLevel());
+        source.sendSuccess(() -> Component.translatable(NPC_LANG + "cleared", had)
+                .withStyle(ChatFormatting.YELLOW), true);
+        return had;
+    }
+
+    /** {@code npc preview}：按当前配置重放全部预览立牌（先收起旧的，避免重影）。 */
+    private static int npcPreview(CommandSourceStack source) {
+        var level = source.getLevel();
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcSpawner.clearPreviews(level);
+        var config = npcConfig(source);
+        if (config.npcSpawns == null || config.npcSpawns.isEmpty()) {
+            source.sendFailure(Component.translatable(NPC_LANG + "list_empty"));
+            return 0;
+        }
+        int shown = 0;
+        for (var spawn : config.npcSpawns) {
+            if (spawn.pos == null) {
+                continue;
+            }
+            net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcSpawner.spawnPreview(level, spawn.pos.toBlockPos(),
+                    net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity.Variant.byId(spawn.variant),
+                    spawn.yaw, spawn.profile, spawn.garrisonRadius);
+            shown++;
+        }
+        int count = shown;
+        source.sendSuccess(() -> Component.translatable(NPC_LANG + "preview_shown", count)
+                .withStyle(ChatFormatting.GREEN), true);
+        return shown;
+    }
+
+    /** {@code npc hide}：收起全部预览立牌（配置不动）。 */
+    private static int npcHide(CommandSourceStack source) {
+        int n = net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcSpawner.clearPreviews(source.getLevel());
+        source.sendSuccess(() -> Component.translatable(NPC_LANG + "preview_hidden", n)
+                .withStyle(ChatFormatting.YELLOW), true);
+        return n;
+    }
+
+    /** {@code npc profile <index> <name>}：改第 index 个生成点的商人货架档案。 */
+    private static int npcProfile(CommandSourceStack source, int index, String name) {
+        var config = npcConfig(source);
+        if (config.npcSpawns == null || index > config.npcSpawns.size()) {
+            source.sendFailure(Component.translatable(NPC_LANG + "bad_index", index));
+            return 0;
+        }
+        config.npcSpawns.get(index - 1).profile = name;
+        npcSave(source, config);
+        source.sendSuccess(() -> Component.translatable(NPC_LANG + "profile_set", index, name)
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** {@code npc radius <index> <n>}：改第 index 个生成点的驻守半径。 */
+    private static int npcRadius(CommandSourceStack source, int index, int value) {
+        var config = npcConfig(source);
+        if (config.npcSpawns == null || index > config.npcSpawns.size()) {
+            source.sendFailure(Component.translatable(NPC_LANG + "bad_index", index));
+            return 0;
+        }
+        config.npcSpawns.get(index - 1).garrisonRadius = value;
+        npcSave(source, config);
+        source.sendSuccess(() -> Component.translatable(NPC_LANG + "radius_set", index, value)
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** {@code npc pirate}：在执行者附近海面立刻放一船海盗（测试海上遭遇；不写配置）。 */
+    private static int npcPirate(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof ServerPlayer player)) {
+            source.sendFailure(Component.literal("Only a player can spawn a pirate"));
+            return 0;
+        }
+        var level = source.getLevel();
+        // 脚下得是水：否则船会摆在旱地上，看着像 bug（自动刷新走 findSeaSpot，这里是手动版的同等校验）
+        if (!level.getFluidState(player.blockPosition()).is(net.minecraft.tags.FluidTags.WATER)) {
+            source.sendFailure(Component.translatable(NPC_LANG + "pirate_fail"));
+            return 0;
+        }
+        var pirate = net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcSpawner.spawnPirateOnBoat(level,
+                player.blockPosition(), level.getRandom());
+        if (pirate == null) {
+            source.sendFailure(Component.translatable(NPC_LANG + "pirate_fail"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable(NPC_LANG + "pirate_spawned")
+                .withStyle(ChatFormatting.GREEN), true);
         return 1;
     }
 

@@ -30,9 +30,11 @@ import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -43,7 +45,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * 60s 模式 NPC 实体（商人 / 军人 / 强盗 / 旅者）：一种实体类型 + {@link Variant} 同步变体号，
+ * 60s 模式 NPC 实体（商人 / 军人 / 强盗 / 旅者 / 海盗）：一种实体类型 + {@link Variant} 同步变体号，
  * 客户端按变体换贴图（{@code SixtySecondsNpcRenderer}，复用原版人形模型，无自有 ModelLayer）。
  * <ul>
  *   <li><b>和平难度</b>：本模式全程 PEACEFUL。注册为 {@code MobCategory.CREATURE} 本就不被
@@ -82,7 +84,12 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
         /** 强盗：天生敌对，野外伏击玩家；夜袭时混入冲门。 */
         BANDIT(2, true, "sixty_seconds_npc_bandit"),
         /** 旅者：中立幸存者，可被偷窃/抢劫，会反击；死亡掉落随身物资。 */
-        TRAVELER(3, false, "sixty_seconds_npc_traveler");
+        TRAVELER(3, false, "sixty_seconds_npc_traveler"),
+        /**
+         * 海盗：天生敌对，在海上<b>乘船</b>随机遭遇（{@code SixtySecondsNpcSpawner.spawnPirates}）。
+         * 划船追击玩家，逼近后弃船跳水近战；死亡掉落随身物资（同旅者）。
+         */
+        PIRATE(4, true, "sixty_seconds_npc_pirate");
 
         public final int id;
         /** 天生敌对（生成时即置 FLAG_HOSTILE）。 */
@@ -111,6 +118,16 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
 
     /** 战场 NPC（夜袭强盗）：无人也不自散。 */
     private boolean battleMob = false;
+    /**
+     * 搭图预览 NPC（NPC 放置器 / {@code /sre:60s npc} 指令放下的样板）：<b>模式外也不自毁</b>。
+     * <p>
+     * 普通 NPC 在 {@link #tick} 里发现模式未激活就 discard——而放置器是<b>开局前</b>用的搭图工具，
+     * 预览下一 tick 就被这条规则清掉，表现为「放下来一瞬间就消失」（本次修的 BUG）。
+     * 预览挂本标记 + {@code setNoAi}，当立牌用：站在登记点、朝登记朝向、不参与任何局内逻辑
+     * （也不会因为是强盗就当场揍搭图的管理员）；开局由
+     * {@code SixtySecondsNpcSpawner.spawnConfigured} 清掉并按配置重生成正式 NPC。
+     */
+    private boolean editorPreview = false;
     /** 身边无人累计 tick（非战场 NPC 2 分钟自散）。 */
     private int lonelyTicks = 0;
     /** 商人被打后的逃跑倒计时（tick），归零即 discard。0=未触发。 */
@@ -193,6 +210,7 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
             case SOLDIER -> SixtySecondsBalance.NPC_HEALTH_SOLDIER;
             case BANDIT -> SixtySecondsBalance.NPC_HEALTH_BANDIT;
             case TRAVELER -> SixtySecondsBalance.NPC_HEALTH_TRAVELER;
+            case PIRATE -> SixtySecondsBalance.NPC_HEALTH_PIRATE;
         };
     }
 
@@ -202,6 +220,7 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
             case SOLDIER -> SixtySecondsBalance.NPC_SPEED_SOLDIER;
             case BANDIT -> SixtySecondsBalance.NPC_SPEED_BANDIT;
             case TRAVELER -> SixtySecondsBalance.NPC_SPEED_TRAVELER;
+            case PIRATE -> SixtySecondsBalance.NPC_SPEED_PIRATE;
         };
     }
 
@@ -212,6 +231,7 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
             case SOLDIER -> SixtySecondsBalance.NPC_INJURY_SOLDIER;
             case TRAVELER -> SixtySecondsBalance.NPC_INJURY_TRAVELER;
             case MERCHANT -> SixtySecondsBalance.NPC_INJURY_TRAVELER;
+            case PIRATE -> SixtySecondsBalance.NPC_INJURY_PIRATE;
         };
     }
 
@@ -277,6 +297,15 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
                 this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
                 this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(
                         this, Player.class, 10, true, false, this::isAngryAtEntity));
+            }
+            case PIRATE -> {
+                // 同强盗的敌对索敌 + 近战；差别是<b>不</b>用 WaterAvoiding 的溜达
+                // （海盗本来就在水上，避水会让它们死命往岸上挤），船上的追击由 tickPirateBoat 驱动
+                this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.25, true));
+                this.goalSelector.addGoal(5, new RandomStrollGoal(this, 0.7));
+                this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+                this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
+                        this, Player.class, 10, true, false, null));
             }
         }
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
@@ -431,6 +460,11 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
         if (!(level() instanceof ServerLevel serverLevel)) {
             return;
         }
+        // 搭图预览：当立牌用，不参与任何局内逻辑，模式外也不自毁（否则放下即消失）。
+        // 必须排在下面的「模式外自毁」之前——搭图正是在模式外做的。
+        if (editorPreview) {
+            return;
+        }
         // 模式已结束：全部自毁（免游戏外残留；reset 的按 tag 清扫是二重兜底）
         if (!SixtySecondsMod.isActive(serverLevel)) {
             discard();
@@ -452,12 +486,68 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
         if (isHired() && serverLevel.getGameTime() >= hireEndTick) {
             endHire(serverLevel);
         }
+        // 海盗：划船追击 / 逼近后弃船
+        if (getVariant() == Variant.PIRATE) {
+            tickPirateBoat(serverLevel);
+        }
         // 非战场 NPC：身边 64 格无人累计 2 分钟自散（防搜刮区 NPC 越攒越多）
         if (!battleMob && tickCount % 20 == 0) {
             lonelyTicks = serverLevel.getNearestPlayer(this, 64) == null ? lonelyTicks + 20 : 0;
-            if (lonelyTicks >= SixtySecondsBalance.NPC_LONELY_DESPAWN_TICKS) {
+            // 海盗自散更快：漂在海上的空船纯粹是垃圾
+            int limit = getVariant() == Variant.PIRATE
+                    ? SixtySecondsBalance.PIRATE_LONELY_DESPAWN_TICKS
+                    : SixtySecondsBalance.NPC_LONELY_DESPAWN_TICKS;
+            if (lonelyTicks >= limit) {
                 discard();
             }
+        }
+    }
+
+    // ── 海盗：乘船追击 ────────────────────────────────────────────────
+
+    /** 海盗船 tag：随海盗一起刷出来的道具船，人没了船也得清（见 {@link #remove}）。 */
+    public static final String PIRATE_BOAT_TAG = "sixty_seconds_pirate_boat";
+
+    /**
+     * 海盗在船上时的操舵：原版没有「怪物开船」的 AI（乘客不会驾驶载具），所以这里自己推——
+     * 每 tick 把船的水平速度指向目标玩家，逼近到 {@link SixtySecondsBalance#PIRATE_DISMOUNT_DIST}
+     * 就弃船跳水，交回普通近战 AI（船上够不着人）。没目标就随波漂着。
+     */
+    private void tickPirateBoat(ServerLevel level) {
+        if (!(getVehicle() instanceof Boat boat)) {
+            return;
+        }
+        Player nearest = level.getNearestPlayer(this, SixtySecondsBalance.PIRATE_SIGHT);
+        if (!(nearest instanceof ServerPlayer target) || !SixtySecondsMonsterEntity.isValidPrey(target)) {
+            return;
+        }
+        double dx = target.getX() - boat.getX();
+        double dz = target.getZ() - boat.getZ();
+        double dist = Math.sqrt(dx * dx + dz * dz);
+        if (dist <= SixtySecondsBalance.PIRATE_DISMOUNT_DIST) {
+            stopRiding();
+            return;
+        }
+        if (dist < 1.0E-3) {
+            return;
+        }
+        double speed = SixtySecondsBalance.PIRATE_BOAT_SPEED;
+        // 只推水平分量，竖直交给船自己的浮力，别把船按进水里
+        boat.setDeltaMovement(dx / dist * speed, boat.getDeltaMovement().y, dz / dist * speed);
+        float yaw = (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90.0);
+        boat.setYRot(yaw);
+        setYRot(yaw);
+        setYHeadRot(yaw);
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        // 先记下船再 super.remove：super 会把自己从载具上摘下来，之后 getVehicle() 就为 null 了
+        net.minecraft.world.entity.Entity vehicle = getVehicle();
+        super.remove(reason);
+        if (vehicle instanceof Boat boat && !boat.isRemoved()
+                && boat.getTags().contains(PIRATE_BOAT_TAG)) {
+            boat.discard();
         }
     }
 
@@ -538,6 +628,23 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
         this.battleMob = battleMob;
     }
 
+    public boolean isEditorPreview() {
+        return editorPreview;
+    }
+
+    /**
+     * 标记为搭图预览：连带 {@code setNoAi} 冻在原地当立牌——预览的意义是「让搭图者看清这个点会刷什么、朝哪」，
+     * 会走动反而看不出登记位；也顺带免了强盗预览当场追打管理员。
+     */
+    public void setEditorPreview(boolean editorPreview) {
+        this.editorPreview = editorPreview;
+        setNoAi(editorPreview);
+        if (editorPreview) {
+            setPersistenceRequired();
+            setCustomNameVisible(true);
+        }
+    }
+
     public void setGarrison(BlockPos pos, int radius) {
         this.garrison = pos.immutable();
         this.garrisonRadius = radius;
@@ -591,6 +698,7 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
         tag.putInt("SreNpcVariant", this.entityData.get(VARIANT));
         tag.putByte("SreNpcFlags", this.entityData.get(FLAGS));
         tag.putBoolean("SreNpcBattle", battleMob);
+        tag.putBoolean("SreNpcEditor", editorPreview);
         tag.putInt("SreNpcTeam", ownerTeamId);
         tag.putString("SreNpcShopProfile", shopProfile);
         tag.putInt("SreNpcStockDay", stockDay);
@@ -620,6 +728,8 @@ public class SixtySecondsNpcEntity extends PathfinderMob implements SixtySeconds
         this.entityData.set(VARIANT, tag.getInt("SreNpcVariant"));
         this.entityData.set(FLAGS, tag.getByte("SreNpcFlags"));
         battleMob = tag.getBoolean("SreNpcBattle");
+        // 直接写字段：不走 setEditorPreview，避免读档时覆写存档里的 NoAi
+        editorPreview = tag.getBoolean("SreNpcEditor");
         ownerTeamId = tag.contains("SreNpcTeam") ? tag.getInt("SreNpcTeam") : -1;
         shopProfile = tag.contains("SreNpcShopProfile") ? tag.getString("SreNpcShopProfile") : "default";
         stockDay = tag.contains("SreNpcStockDay") ? tag.getInt("SreNpcStockDay") : -1;
