@@ -9,30 +9,29 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 @Mixin(AbstractClientPlayer.class)
 public abstract class AbstractClientPlayerSkinMixin {
 
-    @Inject(method = "getSkin", at = @At("RETURN"), cancellable = true)
-    private void applySkinSwap(CallbackInfoReturnable<PlayerSkin> cir) {
+    @ModifyReturnValue(method = "getSkin", at = @At("RETURN"))
+    private PlayerSkin applySkinSwap(PlayerSkin originalSkin) {
         if (SRE.isLobby)
-            return;
+            return originalSkin;
         if (SREClient.isInLobby)
-            return;
+            return originalSkin;
         AbstractClientPlayer self = (AbstractClientPlayer) (Object) this;
         Minecraft client = Minecraft.getInstance();
         if (client == null || client.level == null)
-            return;
-        PlayerSkinResult result = OnGettingPlayerSkin.EVENT.invoker().onGetSkin(self, cir.getReturnValue());
+            return originalSkin;
+        PlayerSkinResult result = OnGettingPlayerSkin.EVENT.invoker().onGetSkin(self, originalSkin);
         if (result == null || result.type == 0 || result.type == -1) {
-            return;
+            return originalSkin;
         }
         if (result.type == 2 && result.playerSkin != null) {
-            cir.setReturnValue(result.playerSkin);
-            return;
+            return result.playerSkin;
         }
+        return originalSkin;
         /**
          * 此处为了某些兼容性所以删了 (result.type == 1 时)。但是材质还是会变，在 PlayerEntityRendererMixin 中。
          */
