@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "noellesroles:block/sixty_seconds_mailbox"
-    }
+    "facing=north": { "model": "noellesroles:block/sixty_seconds_mailbox", "y": 0 },
+    "facing=east":  { "model": "noellesroles:block/sixty_seconds_mailbox", "y": 90 },
+    "facing=south": { "model": "noellesroles:block/sixty_seconds_mailbox", "y": 180 },
+    "facing=west":  { "model": "noellesroles:block/sixty_seconds_mailbox", "y": 270 }
   }
 }
