@@ -243,6 +243,20 @@ public final class SixtySecondsBalance {
     /** 新天气事件的通用持续时间（酸雾/电磁风暴/虫潮/热浪 = 1.5分钟） */
     public static final int EVENT_BASE_DURATION = 20 * 60 * 3 / 2;
 
+    // ── 海岛远征：扬帆 / 返航（SixtySecondsIslands）────────────────────────────
+    /** 登岛后多久才能返航（tick）：刚上岛就撤会让海岛沦为无风险的物资自助餐。 */
+    public static final int ISLAND_LANDING_RETURN_LOCK_TICKS = 20 * 30;
+    /** 扬帆划船动画时长（tick）；返航为 {@code SixtySecondsIslands.RETURN_DURATION_TICKS}。 */
+    public static final int ISLAND_SAIL_DURATION_TICKS = 20 * 10;
+    /** 每次往返（去程/回程各算一次）固定累积的污染——海上漂一趟总要沾点脏东西。 */
+    public static final int ISLAND_TRIP_POLLUTION = 2;
+    /** 每 100 格航程消耗的饱食度 / 口渴值（按起点→终点水平距离线性折算，向上取整）。 */
+    public static final double ISLAND_TRIP_HUNGER_PER_100_BLOCKS = 3.0;
+    public static final double ISLAND_TRIP_THIRST_PER_100_BLOCKS = 4.0;
+    /** 单次航程的饱食/口渴消耗上限：群岛跨度可能上千格，不封顶一趟就能把人饿死。 */
+    public static final int ISLAND_TRIP_HUNGER_CAP = 15;
+    public static final int ISLAND_TRIP_THIRST_CAP = 20;
+
     // ── 洗澡器（SixtySecondsShowerBlock：每人每天一次，消耗小瓶水洗去污染）───
     public static final double SHOWER_POLLUTION_MULT = 0.5;  // 洗澡后污染 ×0.5（-50%）
 

@@ -133,6 +133,18 @@ public final class SixtySecondsStartCommand {
                                         .executes(c -> setTotalDays(c.getSource(),
                                                 IntegerArgumentType.getInteger(c, "count"))))
                                 .executes(c -> showTotalDays(c.getSource())))
+                        // 管理员：避难所直接生成在探索区出口门上（锚点=避难所锚点门↔出口门；默认开，按图持久化）
+                        .then(literal("shelter_at_door")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("on").executes(c -> setShelterAtDoor(c.getSource(), true)))
+                                .then(literal("off").executes(c -> setShelterAtDoor(c.getSource(), false)))
+                                .executes(c -> showShelterAtDoor(c.getSource())))
+                        // 管理员：海图扬帆传送 / 返回住所开关（默认关=玩家自己乘船去岛，按图持久化）
+                        .then(literal("sea_teleport")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("on").executes(c -> setSeaTeleport(c.getSource(), true)))
+                                .then(literal("off").executes(c -> setSeaTeleport(c.getSource(), false)))
+                                .executes(c -> showSeaTeleport(c.getSource())))
                         // 管理员：中途自动入队开关（新玩家自动补入未满四人的队伍；默认开，按图持久化）
                         .then(literal("autojoin")
                                 .requires(source -> source.hasPermission(2))
@@ -187,6 +199,9 @@ public final class SixtySecondsStartCommand {
                                 .then(literal("stop")
                                         .requires(source -> source.hasPermission(2))
                                         .executes(c -> islandStop(c.getSource())))
+                                .then(literal("delete")
+                                        .requires(source -> source.hasPermission(2))
+                                        .executes(c -> islandDelete(c.getSource())))
                                 .then(literal("map").executes(c -> islandMap(c.getSource())))
                                 .then(literal("home").executes(c -> islandHome(c.getSource())))
                                 .then(literal("list")
@@ -698,6 +713,64 @@ public final class SixtySecondsStartCommand {
         return 1;
     }
 
+    /**
+     * 管理员：切换「避难所生成在探索区出口门上」（按图配置持久化，默认开）。
+     * 下一次建图生效；未登记锚点门时给出提示（建图会回退网格克隆）。
+     */
+    private static int setShelterAtDoor(CommandSourceStack source, boolean enabled) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.shelterAtSearchDoorEnabled = enabled;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.shelter_at_door_enabled"
+                : "message.noellesroles.sixty_seconds.shelter_at_door_disabled").withStyle(ChatFormatting.GREEN), true);
+        if (enabled && config.shelterAnchorDoor == null) {
+            source.sendSuccess(() -> Component.translatable(
+                    "message.noellesroles.sixty_seconds.shelter_at_door_no_anchor")
+                    .withStyle(ChatFormatting.YELLOW), false);
+        }
+        return 1;
+    }
+
+    /** 管理员：查看「避难所生成在探索区出口门上」当前状态。 */
+    private static int showShelterAtDoor(CommandSourceStack source) {
+        boolean enabled = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
+                .map(config -> config.shelterAtSearchDoorEnabled).orElse(true);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.shelter_at_door_enabled"
+                : "message.noellesroles.sixty_seconds.shelter_at_door_disabled"), false);
+        return 1;
+    }
+
+    /**
+     * 管理员：切换「海图扬帆传送 / 返回住所」（按图配置持久化，默认关=玩家自己乘船去岛）。
+     * 立即生效；关闭时把在途的扬帆/返航倒计时一并取消，海图重发以更新客户端按钮状态。
+     */
+    private static int setSeaTeleport(CommandSourceStack source, boolean enabled) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.seaChartTeleportEnabled = enabled;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.onTeleportToggled(level, enabled);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.sea_teleport_enabled"
+                : "message.noellesroles.sixty_seconds.sea_teleport_disabled").withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 管理员：查看「海图扬帆传送 / 返回住所」当前状态。 */
+    private static int showSeaTeleport(CommandSourceStack source) {
+        boolean enabled = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
+                .map(config -> config.seaChartTeleportEnabled).orElse(false);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.sea_teleport_enabled"
+                : "message.noellesroles.sixty_seconds.sea_teleport_disabled"), false);
+        return 1;
+    }
+
     /** 管理员：查看中途自动入队开关当前状态。 */
     private static int showAutoJoin(CommandSourceStack source) {
         boolean enabled = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
@@ -766,7 +839,7 @@ public final class SixtySecondsStartCommand {
 
     /**
      * 管理员：生成海岛群（异步）。centerX/centerZ/seaY/baseRadius 传 {@code Integer.MIN_VALUE} 用默认
-     * （半径默认 {@code SixtySecondsIslandGenerator.DEFAULT_BASE_RADIUS}=34；实际半径=基准+等级×6+随机0..10）。
+     * （半径默认 {@code SixtySecondsIslandGenerator.DEFAULT_BASE_RADIUS}=340；实际半径=基准+等级×6+随机0..10）。
      */
     private static int islandStart(CommandSourceStack source, int count, int centerX, int centerZ, int seaY,
             int baseRadius) {
@@ -801,6 +874,17 @@ public final class SixtySecondsStartCommand {
         return 1;
     }
 
+    /** 管理员：强制删除所有海岛数据（不清除地形方块），允许重新生成。 */
+    private static int islandDelete(CommandSourceStack source) {
+        if (!net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.delete(source.getLevel())) {
+            source.sendFailure(Component.translatable(ISLAND_LANG + "delete_fail"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable(ISLAND_LANG + "delete_ok")
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
     /** 打开海图（服务端下发数据并令客户端弹出界面；聊天栏点击也走这里）。 */
     private static int islandMap(CommandSourceStack source) {
         if (!(source.getEntity() instanceof ServerPlayer player)) {
@@ -810,12 +894,15 @@ public final class SixtySecondsStartCommand {
         return 1;
     }
 
-    /** 海图「返回住所」按钮：走搜索区回家流程（受归来冷却限制）。 */
+    /**
+     * 海图「返回住所」：与海图按钮走同一条 {@code requestReturn} 路径——脱战/在登岛点附近/登岛冷却/
+     * sea_teleport 开关等校验全部复用，通过后启动划船动画再传送（旧实现直接 returnPlayer，绕过了这些校验）。
+     */
     private static int islandHome(CommandSourceStack source) {
         if (!(source.getEntity() instanceof ServerPlayer player) || !SixtySecondsMod.isActive(player.level())) {
             return 0;
         }
-        net.exmo.sre.sixtyseconds.arena.SixtySecondsSearchZones.returnPlayer(player);
+        net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.requestReturn(player);
         return 1;
     }
 

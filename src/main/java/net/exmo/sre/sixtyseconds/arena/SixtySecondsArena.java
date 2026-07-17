@@ -95,14 +95,12 @@ public final class SixtySecondsArena {
     public static void build(ServerLevel level, SixtySecondsState.Data data, SixtySecondsConfig config,
             Runnable onComplete) {
         restoreAll(level);
-        clearArenaEntities(level, config);
         if (config == null || !config.isComplete()) {
+            clearArenaEntities(level, config, List.of());
             Noellesroles.LOGGER.warn("[60s] 未配置完整的区域模板（sixty_seconds_config.json），跳过按队克隆建图。");
             onComplete.run();
             return;
         }
-        LinkedHashMap<BlockPos, Snapshot> snapshots = new LinkedHashMap<>();
-        ARENAS.put(level, snapshots);
 
         // 门绑定分两类：门在住宅/避难所模板内 = 该队私有探索区门（随克隆按队加偏移，进各队 searchDoors）；
         // 门在模板外（= 建在共享搜索区里的门）= 每队「出口门」，按队轮转分配——出门落在门口、回家须走自己的门
@@ -122,19 +120,33 @@ public final class SixtySecondsArena {
             }
         }
 
-        List<WorkItem> work = new ArrayList<>();
+        // 每队的避难所偏移：门锚定模式下 = 出口门 - 锚点门（避难所平移到探索区那扇门上），否则 = 队伍网格偏移。
+        // 先整表算出来——clearArenaEntities 要按<b>实际</b>落位清残留实体，网格坐标在锚定模式下根本不是避难所所在地。
+        List<BlockPos> shelterOffsets = shelterOffsets(config, data, exitDoorBindings);
+        clearArenaEntities(level, config, shelterOffsets);
+
+        LinkedHashMap<BlockPos, Snapshot> snapshots = new LinkedHashMap<>();
+        ARENAS.put(level, snapshots);
+
+        // 净空与克隆分两阶段收集，最后 clearance 全部排在 clone 之前（见下方拼接）：
+        // 工作项按列表顺序跨 tick 执行，若按队交错成「队0净空→队0克隆→队1净空→…」，锚定模式下两队的出口门若挨得比
+        // 避难所模板还近，队1的净空就会把队0<b>已经建好</b>的避难所挖出洞来。全局先净空后克隆则与顺序无关。
+        List<WorkItem> clearance = new ArrayList<>();
+        List<WorkItem> clones = new ArrayList<>();
         int index = 0;
         for (SixtySecondsState.TeamData team : data.teams.values()) {
             BlockPos offset = config.teamOffset(index);
-            // 先净空（挖开克隆区四周/上方的自然地形），再克隆——队数无上限后克隆区会排进山里
-            addClearance(level, work, config.residentialTemplate.toBox(), offset);
-            addClearance(level, work, config.shelterTemplate.toBox(), offset);
-            addChunks(work, config.residentialTemplate.toBox(), offset);
-            addChunks(work, config.shelterTemplate.toBox(), offset);
+            BlockPos shelterOffset = shelterOffsets.get(index);
+            // 先净空（挖开克隆区四周/上方的自然地形），再克隆——队数无上限后克隆区会排进山里；
+            // 锚定模式下避难所落在探索区门口，净空同样负责挖开门口的原生地形/建筑
+            addClearance(level, clearance, config.residentialTemplate.toBox(), offset);
+            addClearance(level, clearance, config.shelterTemplate.toBox(), shelterOffset);
+            addChunks(clones, config.residentialTemplate.toBox(), offset);
+            addChunks(clones, config.shelterTemplate.toBox(), shelterOffset);
             // 搜索区不克隆：所有队共用原模板区域（各队玩家会在同一片野外相遇——搜打撤对抗即来源于此）
 
             team.residentialSpawn = spawnFor(config.residentialSpawn, residentialBox, offset);
-            team.shelterSpawn = spawnFor(config.shelterSpawn, shelterBox, offset);
+            team.shelterSpawn = spawnFor(config.shelterSpawn, shelterBox, shelterOffset);
             team.searchZoneBox = boxOf(config.searchZoneTemplate.toBox(), BlockPos.ZERO);
             // 每队出口（优先级：搜索区出口门绑定 > exit 出口点 > 全局出生点；搜索区不克隆，坐标无需按队偏移）。
             // 一队一扇<b>专属</b>出口门：按队序号顺序分配、不再取模复用，保证各队拿到互不相同的探索区避难所门
@@ -161,12 +173,14 @@ public final class SixtySecondsArena {
                 team.returnDoorPos = null;
             }
             team.residentialBox = boxOf(residentialBox, offset);
-            team.shelterBox = boxOf(shelterBox, offset);
+            team.shelterBox = boxOf(shelterBox, shelterOffset);
 
             team.searchDoors.clear();
             for (SixtySecondsConfig.DoorBinding b : shelterDoorBindings) {
-                // 门在各队克隆的避难所里（加偏移）；绑定的探索区用原区域（不加偏移，全队共用）
-                BlockPos doorAbs = b.door.toBlockPos().offset(offset);
+                // 门在各队克隆的住宅/避难所里：住宅门加网格偏移、避难所门加避难所偏移（两者在锚定模式下不同）；
+                // 绑定的探索区用原区域（不加偏移，全队共用）
+                BlockPos templateDoor = b.door.toBlockPos();
+                BlockPos doorAbs = templateDoor.offset(shelterBox.isInside(templateDoor) ? shelterOffset : offset);
                 BlockPos spawnAbs = b.spawn.toBlockPos();
                 AABB boxAbs = aabbOf(b.boxMin, b.boxMax, BlockPos.ZERO);
                 team.searchDoors.put(doorAbs, new SixtySecondsState.TeamData.SearchLink(spawnAbs, boxAbs));
@@ -178,8 +192,73 @@ public final class SixtySecondsArena {
             Noellesroles.LOGGER.warn("[60s] 探索区出口门只有 {} 扇，少于 {} 支队伍：多出的队将回退到 exit 点/全局出生点，"
                     + "无法做到一队一门。建议在探索区多绑几扇出口门。", exitDoorBindings.size(), teams);
         }
+        warnOverlappingShelters(config, shelterOffsets);
+        // 全局先净空、后克隆（原因见上）
+        List<WorkItem> work = new ArrayList<>(clearance.size() + clones.size());
+        work.addAll(clearance);
+        work.addAll(clones);
         GameUtils.serverTaskQueue.add(new BuildTask(level, snapshots, work, onComplete, teams));
         Noellesroles.LOGGER.info("[60s] 开始异步建图：{} 支队伍，{} 个子盒分批放置。", teams, work.size());
+    }
+
+    /**
+     * 锚定模式下两队的出口门可能挨得太近，导致两座避难所（含净空环带）在探索区里叠在一起——
+     * 后建的会覆盖先建的，两队共用一堵墙甚至互相打通。这是地图配置问题（门该拉开到大于避难所模板尺寸），
+     * 建图不中止，但必须在日志里点名，否则现象是「某队的避难所莫名少了半间房」，极难排查。
+     */
+    private static void warnOverlappingShelters(SixtySecondsConfig config, List<BlockPos> shelterOffsets) {
+        BoundingBox template = config.shelterTemplate.toBox();
+        for (int a = 0; a < shelterOffsets.size(); a++) {
+            for (int b = a + 1; b < shelterOffsets.size(); b++) {
+                if (shelterOffsets.get(a).equals(shelterOffsets.get(b))) {
+                    continue; // 同偏移=同一份回退网格位（网格本就按队错开，不是重叠）
+                }
+                AABB boxA = boxOf(template, shelterOffsets.get(a)).inflate(CLEAR_MARGIN);
+                AABB boxB = boxOf(template, shelterOffsets.get(b)).inflate(CLEAR_MARGIN);
+                if (boxA.intersects(boxB)) {
+                    Noellesroles.LOGGER.warn("[60s] 第 {} 队与第 {} 队的避难所落位重叠（出口门挨得比避难所模板还近）："
+                            + "后建的会盖掉先建的。请把这两扇探索区出口门拉开到大于避难所模板尺寸 + {} 格净空。",
+                            a + 1, b + 1, CLEAR_MARGIN);
+                }
+            }
+        }
+    }
+
+    /**
+     * 逐队算出<b>避难所</b>的克隆偏移（住宅始终走网格，不受此影响）。
+     * <p>
+     * 门锚定模式（{@code shelterAtSearchDoorEnabled} + 已登记 {@code shelterAnchorDoor} + 该队分到了探索区出口门）：
+     * 偏移 = {@code 出口门 - 锚点门}，即把整座避难所平移到「锚点门正好压在这队那扇出口门上」——避难所就直接长在
+     * 探索区的门位置，出门即探索。其余情况（开关关 / 没登记锚点 / 门不够分）回退到队伍网格偏移 {@code teamOffset(index)}。
+     * <p>
+     * 注意锚定模式下<b>不</b>叠加网格偏移：出口门本身已是各队互不相同的世界坐标，再加网格会把避难所甩出探索区。
+     */
+    private static List<BlockPos> shelterOffsets(SixtySecondsConfig config, SixtySecondsState.Data data,
+            List<SixtySecondsConfig.DoorBinding> exitDoorBindings) {
+        boolean wantAnchor = config.shelterAtSearchDoorEnabled;
+        BlockPos anchor = config.shelterAnchorDoor == null ? null : config.shelterAnchorDoor.toBlockPos();
+        if (wantAnchor && anchor == null) {
+            Noellesroles.LOGGER.warn("[60s] shelter_at_door 已开启但未登记避难所锚点门"
+                    + "（/sre:60s_area anchor <x y z>），本局避难所回退到网格克隆。");
+        }
+        List<BlockPos> offsets = new ArrayList<>();
+        int anchored = 0;
+        for (int index = 0; index < data.teams.size(); index++) {
+            SixtySecondsConfig.DoorBinding exitDoor = index < exitDoorBindings.size()
+                    ? exitDoorBindings.get(index)
+                    : null;
+            if (wantAnchor && anchor != null && exitDoor != null) {
+                offsets.add(exitDoor.door.toBlockPos().subtract(anchor));
+                anchored++;
+            } else {
+                offsets.add(config.teamOffset(index));
+            }
+        }
+        if (wantAnchor && anchor != null && anchored < data.teams.size()) {
+            Noellesroles.LOGGER.warn("[60s] shelter_at_door 已开启，但只有 {} / {} 支队伍分到了探索区出口门，"
+                    + "其余队的避难所回退到网格克隆。请在探索区多绑几扇出口门。", anchored, data.teams.size());
+        }
+        return offsets;
     }
 
     /** 结束/重开时把所有克隆写入的方块按快照还原。 */
@@ -223,7 +302,8 @@ public final class SixtySecondsArena {
      *       让其中的残留实体在窗口内入世界被第 2 层清掉（否则要等局中首个探索者踩进去才冒出来）。</li>
      * </ol>
      */
-    private static void clearArenaEntities(ServerLevel level, SixtySecondsConfig config) {
+    private static void clearArenaEntities(ServerLevel level, SixtySecondsConfig config,
+            List<BlockPos> shelterOffsets) {
         if (config == null || !config.isComplete()) {
             return;
         }
@@ -237,6 +317,11 @@ public final class SixtySecondsArena {
             BlockPos offset = config.teamOffset(i);
             zones.add(boxOf(config.residentialTemplate.toBox(), offset));
             zones.add(boxOf(config.shelterTemplate.toBox(), offset));
+        }
+        // 本局避难所的<b>实际</b>落位：门锚定模式下不在网格上，上面那圈网格盒扫不到它——
+        // 不补这一段，长在探索区门口的避难所里会留着上一局的尸体/掉落物
+        for (BlockPos shelterOffset : shelterOffsets) {
+            zones.add(boxOf(config.shelterTemplate.toBox(), shelterOffset));
         }
 
         // 先收集再删除：遍历 getAllEntities() 途中 discard 会并发修改实体存储（迭代器可能吐 null 直接 NPE）

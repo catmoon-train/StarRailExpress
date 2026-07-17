@@ -1,6 +1,7 @@
 package net.exmo.sre.sixtyseconds.client;
 
-import net.exmo.sre.sixtyseconds.client.screen.SeaChartScreen;
+import net.exmo.sre.sixtyseconds.client.screen.SeaChartFullScreen;
+import net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartPositionsS2CPacket;
 import net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -14,6 +15,8 @@ import net.minecraft.network.chat.Component;
 public final class SixtySecondsClientSeaChart {
 
     private static SixtySecondsSeaChartS2CPacket data;
+    /** 最近一次的庇护所/队友点位（开着海图时服务端每秒推一份；关屏后停更）。 */
+    private static SixtySecondsSeaChartPositionsS2CPacket positions;
 
     private SixtySecondsClientSeaChart() {
     }
@@ -26,8 +29,17 @@ public final class SixtySecondsClientSeaChart {
         }
     }
 
+    /** 网络接收（主线程）：庇护所 + 队友点位。 */
+    public static void acceptPositions(SixtySecondsSeaChartPositionsS2CPacket packet) {
+        positions = packet;
+    }
+
     public static SixtySecondsSeaChartS2CPacket data() {
         return data;
+    }
+
+    public static SixtySecondsSeaChartPositionsS2CPacket positions() {
+        return positions;
     }
 
     /** 打开海图界面；无数据/未开启时给聊天提示。 */
@@ -41,10 +53,11 @@ public final class SixtySecondsClientSeaChart {
             }
             return;
         }
-        minecraft.setScreen(new SeaChartScreen(data));
+        minecraft.setScreen(new SeaChartFullScreen(data));
     }
 
     public static void reset() {
         data = null;
+        positions = null;
     }
 }

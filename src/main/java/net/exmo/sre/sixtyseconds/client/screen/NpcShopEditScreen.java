@@ -49,6 +49,7 @@ public class NpcShopEditScreen extends Screen {
     private static final int PAD = 8;
     private static final int TAB_H = 18;
     private static final int TAB_DEL_W = 9;      // 档案标签右侧删除「×」预留槽宽
+    private static final int TAB_ARROW_W = 10;   // 标签栏左右箭头宽度
     private static final int ROW_H = 30;
     private static final int CELL = 20;          // 背包格尺寸
     private static final int MAX_ENTRIES_PER_PROFILE = 64;
@@ -58,6 +59,7 @@ public class NpcShopEditScreen extends Screen {
     private String currentProfile;
     private RowData selected;
 
+    private int tabScroll;    // 标签页水平滚动（像素）
     private int listScroll;   // 商品列表滚动（像素）
     private int gridScroll;   // 背包网格滚动（行）
     private int openTicks;    // 入场动画计时
@@ -203,32 +205,80 @@ public class NpcShopEditScreen extends Screen {
         drawBottomButtons(g, mouseX, mouseY);
     }
 
-    /** 顶部档案标签页 + 新档案输入框。 */
+    /** 顶部档案标签页（可水平滚动）+ 新档案输入框。 */
     private void drawTabs(GuiGraphics g, int mouseX, int mouseY) {
-        int x = panelX + PAD;
+        int startX = panelX + PAD;
         int y = panelY + 22;
+        int tabAreaRight = newProfileBox.getX() - 4;
+
+        // 计算所有标签总宽度
+        int totalW = 0;
+        for (String profile : profiles.keySet()) {
+            totalW += tabWidth(profile) + 4;
+        }
+        if (totalW > 0) totalW -= 4;
+
+        int rawAreaW = tabAreaRight - startX;
+        boolean scrollable = totalW > rawAreaW;
+
+        int scrollLeft = startX;
+        int scrollRight = tabAreaRight;
+        int actualAreaW = rawAreaW;
+
+        // 可滚动时左右各留箭头位
+        if (scrollable) {
+            scrollLeft += TAB_ARROW_W;
+            scrollRight -= TAB_ARROW_W;
+            actualAreaW = scrollRight - scrollLeft;
+        }
+
+        int maxTabScroll = Math.max(0, totalW - actualAreaW);
+        tabScroll = Mth.clamp(tabScroll, 0, maxTabScroll);
+
+        g.enableScissor(scrollLeft, y, scrollRight, y + TAB_H);
+
+        int drawX = scrollLeft - tabScroll;
         for (String profile : profiles.keySet()) {
             int w = tabWidth(profile);
-            if (x + w > newProfileBox.getX() - 24) {
-                g.drawString(this.font, "…", x + 2, y + 5, MUTED, false);
+            // 跳过完全在可视区域外的标签
+            if (drawX + w <= scrollLeft) {
+                drawX += w + 4;
+                continue;
+            }
+            if (drawX >= scrollRight) {
                 break;
             }
             boolean active = profile.equals(currentProfile);
-            boolean hover = isInRect(mouseX, mouseY, x, y, w, TAB_H);
+            boolean hover = isInRect(mouseX, mouseY, drawX, y, w, TAB_H);
             int bg = active ? blendColors(0xFF1A1008, 0xFFC9A84C, 0.45F)
                     : hover ? blendColors(0xFF1A1008, 0xFFC9A84C, 0.20F) : 0x331A1008;
-            g.fill(x, y, x + w, y + TAB_H, bg);
-            g.renderOutline(x, y, w, TAB_H, active ? GOLD : IDLE_BORDER);
+            g.fill(drawX, y, drawX + w, y + TAB_H, bg);
+            g.renderOutline(drawX, y, w, TAB_H, active ? GOLD : IDLE_BORDER);
             int labelW = w - (canDeleteProfile() ? TAB_DEL_W : 0);
-            g.drawCenteredString(this.font, profile, x + labelW / 2, y + 5, active ? TEXT : MUTED);
-            // 删除该档案的「×」（档案>1 时可用；保底至少留一个）
+            g.drawCenteredString(this.font, profile, drawX + labelW / 2, y + 5, active ? TEXT : MUTED);
             if (canDeleteProfile()) {
-                boolean xHover = isInRect(mouseX, mouseY, x + w - TAB_DEL_W, y, TAB_DEL_W, TAB_H);
-                g.drawString(this.font, "×", x + w - TAB_DEL_W + 2, y + 5, xHover ? RED : MUTED, false);
+                boolean xHover = isInRect(mouseX, mouseY, drawX + w - TAB_DEL_W, y, TAB_DEL_W, TAB_H);
+                g.drawString(this.font, "×", drawX + w - TAB_DEL_W + 2, y + 5, xHover ? RED : MUTED, false);
             }
-            x += w + 4;
+            drawX += w + 4;
         }
-        // “+”按钮：把 newProfileBox 内容作为新档案
+
+        g.disableScissor();
+
+        // 可滚动时绘制左右箭头指示
+        if (scrollable) {
+            // 左箭头
+            boolean leftHover = isInRect(mouseX, mouseY, startX, y, TAB_ARROW_W, TAB_H);
+            int leftColor = tabScroll > 0 ? (leftHover ? GOLD : TEXT) : MUTED;
+            g.drawString(this.font, "<", startX + 2, y + 5, leftColor, false);
+            // 右箭头
+            int arrowRX = tabAreaRight - TAB_ARROW_W;
+            boolean rightHover = isInRect(mouseX, mouseY, arrowRX, y, TAB_ARROW_W, TAB_H);
+            int rightColor = tabScroll < maxTabScroll ? (rightHover ? GOLD : TEXT) : MUTED;
+            g.drawString(this.font, ">", arrowRX + 3, y + 5, rightColor, false);
+        }
+
+        // "+"按钮：把 newProfileBox 内容作为新档案（始终固定）
         int plusX = newProfileBox.getX() + newProfileBox.getWidth() + 2;
         boolean plusHover = isInRect(mouseX, mouseY, plusX, y, 18, TAB_H);
         g.fill(plusX, y, plusX + 18, y + TAB_H, plusHover ? HOVER_BG : 0x331A1008);
@@ -416,18 +466,45 @@ public class NpcShopEditScreen extends Screen {
         if (button != 0) {
             return false;
         }
-        // 档案标签
-        int tx = panelX + PAD;
+        // 档案标签（支持水平滚动）
         int ty = panelY + 22;
+        int tStartX = panelX + PAD;
+        int tAreaRight = newProfileBox.getX() - 4;
+
+        // 计算标签总宽，判断是否可滚动
+        int tabsTotalW = 0;
+        for (String profile : profiles.keySet()) {
+            tabsTotalW += tabWidth(profile) + 4;
+        }
+        if (tabsTotalW > 0) tabsTotalW -= 4;
+        boolean tabScrollable = tabsTotalW > (tAreaRight - tStartX);
+
+        if (tabScrollable) {
+            int sLeft = tStartX + TAB_ARROW_W;
+            int sRight = tAreaRight - TAB_ARROW_W;
+            int maxTS = Math.max(0, tabsTotalW - (sRight - sLeft));
+            // 左箭头点击
+            if (isInRect(mouseX, mouseY, tStartX, ty, TAB_ARROW_W, TAB_H) && tabScroll > 0) {
+                tabScroll = Math.max(0, tabScroll - 60);
+                clickSound();
+                return true;
+            }
+            // 右箭头点击
+            if (isInRect(mouseX, mouseY, tAreaRight - TAB_ARROW_W, ty, TAB_ARROW_W, TAB_H) && tabScroll < maxTS) {
+                tabScroll = Math.min(maxTS, tabScroll + 60);
+                clickSound();
+                return true;
+            }
+        }
+
+        int tx = tStartX + (tabScrollable ? TAB_ARROW_W : 0);
         for (String profile : profiles.keySet()) {
             int w = tabWidth(profile);
-            if (tx + w > newProfileBox.getX() - 24) {
-                break;
-            }
-            if (isInRect(mouseX, mouseY, tx, ty, w, TAB_H)) {
+            int screenX = tx - tabScroll;
+            if (isInRect(mouseX, mouseY, screenX, ty, w, TAB_H)) {
                 // 命中标签右侧「×」：删除整个档案
                 if (canDeleteProfile()
-                        && isInRect(mouseX, mouseY, tx + w - TAB_DEL_W, ty, TAB_DEL_W, TAB_H)) {
+                        && isInRect(mouseX, mouseY, screenX + w - TAB_DEL_W, ty, TAB_DEL_W, TAB_H)) {
                     deleteProfile(profile);
                     return true;
                 }
@@ -510,6 +587,25 @@ public class NpcShopEditScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        // 鼠标在标签栏区域 → 水平滚动标签
+        int tabY = panelY + 22;
+        if (mouseY >= tabY && mouseY < tabY + TAB_H) {
+            int tStartX = panelX + PAD;
+            int tAreaRight = newProfileBox.getX() - 4;
+            int tabsTotalW = 0;
+            for (String profile : profiles.keySet()) {
+                tabsTotalW += tabWidth(profile) + 4;
+            }
+            if (tabsTotalW > 0) tabsTotalW -= 4;
+            boolean scrollable = tabsTotalW > (tAreaRight - tStartX);
+            if (scrollable) {
+                int sLeft = tStartX + TAB_ARROW_W;
+                int sRight = tAreaRight - TAB_ARROW_W;
+                int maxTS = Math.max(0, tabsTotalW - (sRight - sLeft));
+                tabScroll = Mth.clamp(tabScroll - (int) (scrollY * 40), 0, maxTS);
+                return true;
+            }
+        }
         if (mouseX < rightX - PAD / 2.0) {
             listScroll -= (int) (scrollY * ROW_H);
             return true;

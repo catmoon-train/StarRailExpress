@@ -72,6 +72,10 @@ public class ModItems {
     public static final Item AREA_MAP = register(
             new AreaMapItem(new Item.Properties().stacksTo(1)),
             "area_map", TOOLS_GROUP);
+    // 海图 - 末日60秒海岛远征海图物品，右键打开全屏可拖动缩放海图
+    public static final Item SEA_CHART = register(
+            new SeaChartItem(new Item.Properties().stacksTo(1)),
+            "sea_chart", TOOLS_GROUP);
     public static final Item FLARE = register(
             new FlareItem(new Item.Properties().stacksTo(8)),
             "flare", ROLE_ITEMS_GROUP);
