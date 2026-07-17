@@ -42,8 +42,14 @@ public final class SixtySecondsIslandGenerator {
     public static final int HEIGHT_ABOVE_SEA = 72;
     /** 岸线阈值：landValue 大于它即为陆地。 */
     public static final float LAND_THRESHOLD = 0.12F;
-    /** 每 tick 处理的工作项数（每项 ≈ 16×16 柱）。 */
-    private static final int MAX_ITEMS_PER_TICK = 30;
+    /**
+     * 每 tick 建造的<b>时间预算</b>（纳秒）：onTick 一直跑工作项直到超过此预算就让出，交还本 tick 给正常逻辑。
+     * 按耗时自适应比固定项数更稳——重 patch 一 tick 少跑几项、轻项多跑几项，既不卡也不触发看门狗（60s/tick）。
+     * 一个 tick 50ms，这里留约一半给建造、一半给其余服务器逻辑。
+     */
+    private static final long TICK_BUDGET_NANOS = 25_000_000L;
+    /** 单 tick 工作项数硬上限（时间预算之外再兜一层，防止极轻工作项时空转过久）。 */
+    private static final int MAX_ITEMS_PER_TICK = 4096;
     /** 列 patch 边长。 */
     private static final int PATCH = 16;
 
@@ -262,8 +268,10 @@ public final class SixtySecondsIslandGenerator {
                 snapshots.put(pos.immutable(), new Snapshot(old, tag));
                 net.minecraft.world.Clearable.tryClear(be);
             }
+            // 不手动 checkBlock：LevelChunk.setBlockState 在不透明度/发光变化时已会自动排灯光更新，
+            // 逐块再调一次是纯冗余，也是本生成器最大的 CPU 热点（灯光引擎抖动）。灯光在后续 tick 由
+            // 灯光引擎批量结算。UPDATE_KNOWN_SHAPE 跳过邻居形状更新，进一步降开销。
             level.setBlock(pos, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-            level.getLightEngine().checkBlock(pos);
         }
 
         public void air(BlockPos pos) {
@@ -380,7 +388,6 @@ public final class SixtySecondsIslandGenerator {
                     }
                     net.minecraft.world.Clearable.tryClear(level.getBlockEntity(pos));
                     level.setBlock(pos, air, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-                    level.getLightEngine().checkBlock(pos);
                 }
             }
         }
@@ -402,7 +409,6 @@ public final class SixtySecondsIslandGenerator {
                     be.loadWithComponents(tag, level.registryAccess());
                 }
             }
-            level.getLightEngine().checkBlock(pos);
         }
         snapshots.clear();
     }
@@ -1057,11 +1063,16 @@ public final class SixtySecondsIslandGenerator {
 
         @Override
         public boolean onTick(MinecraftServer server) {
+            long deadline = System.nanoTime() + TICK_BUDGET_NANOS;
             int done = 0;
+            // 按时间预算自适应：至少跑 1 项（保证推进），超时或到硬上限即让出本 tick。
             while (index < work.size() && done < MAX_ITEMS_PER_TICK) {
                 work.get(index).run();
                 index++;
                 done++;
+                if (System.nanoTime() >= deadline) {
+                    break;
+                }
             }
             if (index < work.size() && (++tickCounter % 10) == 0) {
                 int percent = (int) (100.0 * index / Math.max(1, work.size()));

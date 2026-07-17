@@ -87,9 +87,13 @@ public final class SixtySecondsMystic {
                 stack.shrink(1);
                 stats.downed = false;
                 stats.downedFromInjury = false;
+                stats.downedCountToday = 0;
+                stats.recovering = false;
                 stats.health = TOTEM_HEALTH;
                 stats.sync();
                 victim.setSwimming(false);
+                victim.removeEffect(org.agmas.noellesroles.init.ModEffects.MOVE_BANED);
+                victim.removeEffect(org.agmas.noellesroles.init.ModEffects.USED_BANED);
                 ServerLevel level = victim.serverLevel();
                 // 原版图腾表现：全屏动画 + 音效 + 粒子
                 level.broadcastEntityEvent(victim, (byte) 35);
@@ -147,6 +151,9 @@ public final class SixtySecondsMystic {
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(dead);
         stats.downed = false;
         stats.downedFromInjury = false;
+        stats.downedCountToday = 0;
+        stats.reviveEndTick = 0L;
+        stats.sanZeroTick = 0L;
         stats.health = REVIVE_HEALTH;
         stats.sync();
         // 清空尸体物品栏防止掉落

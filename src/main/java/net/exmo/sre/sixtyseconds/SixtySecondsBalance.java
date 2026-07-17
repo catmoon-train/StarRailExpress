@@ -24,10 +24,10 @@ public final class SixtySecondsBalance {
     public static final double DRAIN_MULT_GLOBAL = 0.8;
     /** 污染增速全局倍率（-40%，叠加在全局/位置倍率上） */
     public static final double POLLUTION_DRAIN_MULT = 0.6;
-    /** 前两天的消耗倍率（-50%，叠加在全局/位置倍率上） */
-    public static final double DRAIN_MULT_EARLY_DAYS = 0.5;
-    /** 第三天起的消耗倍率（-20%，叠加在全局/位置倍率上） */
-    public static final double DRAIN_MULT_LATE_DAYS = 0.8;
+    /** 前三天的消耗倍率（-70%，叠加在全局/位置倍率上） */
+    public static final double DRAIN_MULT_EARLY_DAYS = 0.3;
+    /** 第四天起的消耗倍率（-35%，叠加在全局/位置倍率上） */
+    public static final double DRAIN_MULT_LATE_DAYS = 0.65;
 
     // ── 健康保护（避免多状态叠加导致掉血过快）─────────────────────────────
     /** 饥饿或口渴清空时，每秒最多扣的健康（<b>单一来源、封顶、不叠加</b>）。100 血≈100s 才死，留足反制窗口。 */
@@ -411,16 +411,16 @@ public final class SixtySecondsBalance {
     public static final int NPC_INJURY_PIRATE = 20;
 
     // ── 海盗（海上乘船随机遭遇；见 SixtySecondsNpcSpawner.spawnPirates / NpcEntity.tickPirateBoat）──
-    /** 每隔多久对每名玩家做一次海盗刷新判定。 */
-    public static final int PIRATE_CHECK_INTERVAL = 20 * 45;
-    /** 单次判定的刷新概率（夜间 ×{@link #PIRATE_NIGHT_CHANCE_MULT}）。 */
-    public static final double PIRATE_SPAWN_CHANCE = 0.35;
+    /** 每隔多久对每名玩家做一次海盗刷新判定（45s→60s→84s，持续降低遭遇密度）。 */
+    public static final int PIRATE_CHECK_INTERVAL = 20 * 84;
+    /** 单次判定的刷新概率（夜间 ×{@link #PIRATE_NIGHT_CHANCE_MULT}；从 35% 降至 20%）。 */
+    public static final double PIRATE_SPAWN_CHANCE = 0.20;
     public static final double PIRATE_NIGHT_CHANCE_MULT = 1.5;
     /** 刷新点离玩家的距离区间（格）：够远才有「远处出现一条船」的过程感，又不至于超出加载区块。 */
     public static final int PIRATE_SPAWN_MIN_DIST = 20;
     public static final int PIRATE_SPAWN_MAX_DIST = 44;
-    /** 玩家 {@link #PIRATE_NEARBY_RADIUS} 格内海盗数量上限，达到则不再刷（防海盗海）。 */
-    public static final int PIRATE_MAX_NEARBY = 3;
+    /** 玩家 {@link #PIRATE_NEARBY_RADIUS} 格内海盗数量上限，达到则不再刷（防海盗海；从 3 降至 2）。 */
+    public static final int PIRATE_MAX_NEARBY = 2;
     public static final double PIRATE_NEARBY_RADIUS = 56.0;
     /** 一次刷出的海盗数（每人一条船）。 */
     public static final int PIRATE_PACK_MIN = 1;

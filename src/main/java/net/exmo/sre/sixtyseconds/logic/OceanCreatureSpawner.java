@@ -41,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class OceanCreatureSpawner {
 
-    public static final int CHECK_INTERVAL = 20 * 10;
+    public static final int CHECK_INTERVAL = 20 * 14;
 
     private static final int MAX_NEARBY_SHARKS = 5;
     private static final int MAX_NEARBY_MONSTERS = 2;

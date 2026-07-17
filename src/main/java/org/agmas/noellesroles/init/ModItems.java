@@ -240,6 +240,12 @@ public class ModItems {
                     new Item.Properties().stacksTo(1)),
             "sixty_seconds_anchor_wand", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
+    // 末日60秒模式：星级区域魔杖（管理员搭图用：右键两角圈盒赋危险等级，潜行右键切星级；魔改任意区域含岛屿星级）
+    public static final Item SIXTY_SECONDS_LEVEL_WAND = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsLevelWandItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_level_wand", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
     // 末日60秒模式：救援信标（隐藏通关——工程学合成，户外激活呼叫救援）
     public static final Item SIXTY_SECONDS_RESCUE_BEACON = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsRescueBeaconItem(

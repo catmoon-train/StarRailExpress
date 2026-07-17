@@ -202,8 +202,18 @@ public final class SixtySecondsSearchZones {
      * 水平四向里离 inside 最远者。全被墙堵死时兜底返回门口的 {@link #findSafeSpot}。
      */
     private static BlockPos doorOutsideSpot(ServerLevel level, BlockPos door, BlockPos inside) {
-        List<Direction> dirs = new ArrayList<>();
         var state = level.getBlockState(door);
+        // 活板门是水平舱盖（埋地避难所的地表入口）：出门 = 爬到活板门正上方的地表，而非水平旁移。
+        if (state.getBlock() instanceof net.exmo.sre.sixtyseconds.content.block.ShelterTrapdoorBlock) {
+            for (int dy = 1; dy <= 4; dy++) {
+                BlockPos up = findSafeSpot(level, door.above(dy));
+                if (isClear(level, up)) {
+                    return up;
+                }
+            }
+            return findSafeSpot(level, door.above());
+        }
+        List<Direction> dirs = new ArrayList<>();
         if (state.hasProperty(ShelterDoorBlock.FACING)) {
             Direction facing = state.getValue(ShelterDoorBlock.FACING);
             dirs.add(door.relative(facing, 2).distSqr(inside) >= door.relative(facing.getOpposite(), 2).distSqr(inside)

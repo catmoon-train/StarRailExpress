@@ -68,7 +68,12 @@ public class ShelterDoorBlock extends Block {
         return InteractionResult.SUCCESS;
     }
 
-    private void useDoor(Level level, BlockPos pos, Player player) {
+    /**
+     * 门的统一交互入口（绑定工具/锚点工具/敲门/门锁/门陷阱/存物资/加固/开门菜单）。
+     * {@code pos} 是<b>用于判队/绑定/开菜单的门坐标</b>——活板门多方块结构的部件块会传入<b>主控块坐标</b>，
+     * 从而整座活板门当作「一扇门」在这个坐标上处理（{@link ShelterTrapdoorPartBlock}）。
+     */
+    public static void useDoor(Level level, BlockPos pos, Player player) {
         if (!(level instanceof ServerLevel serverLevel) || !(player instanceof ServerPlayer serverPlayer)) {
             return;
         }

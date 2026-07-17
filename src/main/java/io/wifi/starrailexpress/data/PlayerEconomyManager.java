@@ -239,6 +239,7 @@ public final class PlayerEconomyManager {
     }
 
     private static void flushAllBlocking(MinecraftServer server) {
+        if (server.getPlayerList() == null) return;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             flushBlocking(player.getUUID());
         }

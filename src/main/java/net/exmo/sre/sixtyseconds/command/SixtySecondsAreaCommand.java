@@ -3,13 +3,18 @@ package net.exmo.sre.sixtyseconds.command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.exmo.sre.sixtyseconds.config.SixtySecondsConfig;
 import net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -26,6 +31,9 @@ import static net.minecraft.commands.Commands.literal;
  *   <li>{@code /sre:60s_area anchor <x> <y> <z>} / {@code anchor clear}（避难所锚点门，模板内绝对坐标；
  *       配合 {@code /sre:60s shelter_at_door on} 把避难所克隆到各队探索区出口门上）</li>
  *   <li>{@code /sre:60s_area clearbindings [auto]}（清门绑定/锚点：无参全清，auto=只清海岛自动生成的）</li>
+ *   <li>{@code /sre:60s_area region add <x1 y1 z1> <x2 y2 z2> <level> [name]} / {@code region here <radius> <level> [name]}
+ *       / {@code region list|remove <index>|clear|at}（星级区域覆盖：任意盒设危险等级，优先级高于岛屿；
+ *       登记时自动撒物资箱）；{@code region autosupply on|off|count <n>}（自动撒箱开关/基准数量）</li>
  *   <li>{@code /sre:60s_area show}</li>
  * </ul>
  */
@@ -33,30 +41,53 @@ public final class SixtySecondsAreaCommand {
     private SixtySecondsAreaCommand() {
     }
 
+    /** 获取玩家瞄准的方块坐标（射线追踪，最大20格），非玩家或未命中时回退到脚下坐标 */
+    private static BlockPos getTargetedBlock(CommandSourceStack source) {
+        if (source.getEntity() instanceof ServerPlayer player
+                && player.pick(20.0D, 0.0F, false) instanceof BlockHitResult hit
+                && hit.getType() == HitResult.Type.BLOCK) {
+            return hit.getBlockPos();
+        }
+        return BlockPos.containing(source.getPosition());
+    }
+
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_TARGET_X = (ctx, builder) -> {
+        BlockPos pos = getTargetedBlock(ctx.getSource());
+        return builder.suggest(String.valueOf(pos.getX())).buildFuture();
+    };
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_TARGET_Y = (ctx, builder) -> {
+        BlockPos pos = getTargetedBlock(ctx.getSource());
+        return builder.suggest(String.valueOf(pos.getY())).buildFuture();
+    };
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_TARGET_Z = (ctx, builder) -> {
+        BlockPos pos = getTargetedBlock(ctx.getSource());
+        return builder.suggest(String.valueOf(pos.getZ())).buildFuture();
+    };
+
     public static void register() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
                 literal("sre:60s_area")
                         .requires(source -> source.hasPermission(2))
                         .then(literal("template")
                                 .then(argument("kind", StringArgumentType.word())
-                                        .then(argument("x1", IntegerArgumentType.integer())
-                                                .then(argument("y1", IntegerArgumentType.integer())
-                                                        .then(argument("z1", IntegerArgumentType.integer())
-                                                                .then(argument("x2", IntegerArgumentType.integer())
-                                                                        .then(argument("y2", IntegerArgumentType.integer())
-                                                                                .then(argument("z2", IntegerArgumentType.integer())
+                                        .then(argument("x1", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
+                                                .then(argument("y1", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
+                                                        .then(argument("z1", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
+                                                                .then(argument("x2", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
+                                                                        .then(argument("y2", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
+                                                                                .then(argument("z2", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
                                                                                         .executes(SixtySecondsAreaCommand::setTemplate))))))))
                         )
                         .then(literal("spawn")
                                 .then(argument("kind", StringArgumentType.word())
-                                        .then(argument("x", IntegerArgumentType.integer())
-                                                .then(argument("y", IntegerArgumentType.integer())
-                                                        .then(argument("z", IntegerArgumentType.integer())
+                                        .then(argument("x", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
+                                                .then(argument("y", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
+                                                        .then(argument("z", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
                                                                 .executes(SixtySecondsAreaCommand::setSpawn))))))
                         .then(literal("grid")
-                                .then(argument("baseX", IntegerArgumentType.integer())
-                                        .then(argument("baseY", IntegerArgumentType.integer())
-                                                .then(argument("baseZ", IntegerArgumentType.integer())
+                                .then(argument("baseX", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
+                                        .then(argument("baseY", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
+                                                .then(argument("baseZ", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
                                                         .then(argument("spacing", IntegerArgumentType.integer(1))
                                                                 .executes(SixtySecondsAreaCommand::setGrid))))))
                         // 危险等级：无坐标=设全局基线；带坐标=设包含该点的门绑定危险区
@@ -64,22 +95,197 @@ public final class SixtySecondsAreaCommand {
                                 .then(argument("level", IntegerArgumentType.integer(1,
                                         net.exmo.sre.sixtyseconds.SixtySecondsBalance.AREA_LEVEL_MAX))
                                         .executes(SixtySecondsAreaCommand::setGlobalLevel)
-                                        .then(argument("x", IntegerArgumentType.integer())
-                                                .then(argument("y", IntegerArgumentType.integer())
-                                                        .then(argument("z", IntegerArgumentType.integer())
+                                        .then(argument("x", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
+                                                .then(argument("y", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
+                                                        .then(argument("z", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
                                                                 .executes(SixtySecondsAreaCommand::setBindingLevel))))))
                         // 避难所锚点门：开关 shelter_at_door 打开时，避难所整体平移到「本队出口门 - 锚点门」处
                         .then(literal("anchor")
-                                .then(argument("x", IntegerArgumentType.integer())
-                                        .then(argument("y", IntegerArgumentType.integer())
-                                                .then(argument("z", IntegerArgumentType.integer())
+                                .then(argument("x", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
+                                        .then(argument("y", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
+                                                .then(argument("z", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
                                                         .executes(SixtySecondsAreaCommand::setAnchorDoor))))
                                 .then(literal("clear").executes(SixtySecondsAreaCommand::clearAnchorDoor)))
                         // 清理门绑定/锚点：clearbindings=全清；clearbindings auto=只清海岛自动生成的
                         .then(literal("clearbindings")
                                 .executes(ctx -> clearBindings(ctx, false))
                                 .then(literal("auto").executes(ctx -> clearBindings(ctx, true))))
+                        // 星级区域覆盖：任意盒 → 危险等级，优先级高于岛屿（魔改某片区域星级用）
+                        .then(literal("region")
+                                .then(literal("add")
+                                        .then(argument("x1", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
+                                                .then(argument("y1", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
+                                                        .then(argument("z1", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
+                                                                .then(argument("x2", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
+                                                                        .then(argument("y2", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
+                                                                                .then(argument("z2", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
+                                                                                        .then(argument("level", IntegerArgumentType.integer(1,
+                                                                                                net.exmo.sre.sixtyseconds.SixtySecondsBalance.AREA_LEVEL_MAX))
+                                                                                                .executes(ctx -> addRegion(ctx, false))
+                                                                                                .then(argument("name", StringArgumentType.greedyString())
+                                                                                                        .executes(ctx -> addRegion(ctx, true)))))))))))
+                                .then(literal("here")
+                                        .then(argument("radius", IntegerArgumentType.integer(0))
+                                                .then(argument("level", IntegerArgumentType.integer(1,
+                                                        net.exmo.sre.sixtyseconds.SixtySecondsBalance.AREA_LEVEL_MAX))
+                                                        .executes(ctx -> addRegionHere(ctx, false))
+                                                        .then(argument("name", StringArgumentType.greedyString())
+                                                                .executes(ctx -> addRegionHere(ctx, true))))))
+                                .then(literal("autosupply")
+                                        .then(literal("on").executes(ctx -> setRegionAutoSupply(ctx, true)))
+                                        .then(literal("off").executes(ctx -> setRegionAutoSupply(ctx, false)))
+                                        .then(literal("count")
+                                                .then(argument("count", IntegerArgumentType.integer(0, 512))
+                                                        .executes(SixtySecondsAreaCommand::setRegionSupplyCount))))
+                                .then(literal("list").executes(SixtySecondsAreaCommand::listRegions))
+                                .then(literal("remove")
+                                        .then(argument("index", IntegerArgumentType.integer(0))
+                                                .executes(SixtySecondsAreaCommand::removeRegion)))
+                                .then(literal("clear").executes(SixtySecondsAreaCommand::clearRegions))
+                                .then(literal("at").executes(SixtySecondsAreaCommand::regionAt)))
                         .then(literal("show").executes(SixtySecondsAreaCommand::show))));
+    }
+
+    // ── 星级区域覆盖 ─────────────────────────────────────────────
+
+    private static int addRegionBox(CommandContext<CommandSourceStack> ctx, ServerLevel level,
+            int x1, int y1, int z1, int x2, int y2, int z2, int lv, String name) {
+        SixtySecondsConfig cfg = load(level);
+        if (cfg.areaLevelOverrides == null) {
+            cfg.areaLevelOverrides = new java.util.ArrayList<>();
+        }
+        int minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+        int minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+        int minZ = Math.min(z1, z2), maxZ = Math.max(z1, z2);
+        net.minecraft.core.BlockPos min = new net.minecraft.core.BlockPos(minX, minY, minZ);
+        net.minecraft.core.BlockPos max = new net.minecraft.core.BlockPos(maxX, maxY, maxZ);
+        cfg.areaLevelOverrides.add(new SixtySecondsConfig.LevelRegion(
+                new SixtySecondsConfig.Vec(minX, minY, minZ), new SixtySecondsConfig.Vec(maxX, maxY, maxZ), lv, name));
+        SixtySecondsConfigStore.save(level, cfg);
+        int idx = cfg.areaLevelOverrides.size() - 1;
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] star region #" + idx + (name == null ? "" : " \"" + name + "\"") + " added: ("
+                        + minX + "," + minY + "," + minZ + ") ~ (" + maxX + "," + maxY + "," + maxZ + ") level " + lv)
+                .withStyle(ChatFormatting.GREEN), true);
+        // 自动撒物资箱（开关开时）：低级随机 / 上锁高级 / 高级随机，数量按等级缩放
+        if (cfg.regionAutoSupplyEnabled) {
+            int placed = net.exmo.sre.sixtyseconds.logic.SixtySecondsRegionSupply.spawn(
+                    level, min, max, lv, cfg.regionSupplyBoxBaseCount);
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                    "[60s] auto-scattered " + placed + " supply box(es) (level " + lv + ")")
+                    .withStyle(ChatFormatting.AQUA), true);
+        }
+        return 1;
+    }
+
+    /** {@code region add <x1 y1 z1> <x2 y2 z2> <level> [name]}：登记一块星级区域覆盖（可带名字）。 */
+    private static int addRegion(CommandContext<CommandSourceStack> ctx, boolean named) {
+        return addRegionBox(ctx, ctx.getSource().getLevel(),
+                IntegerArgumentType.getInteger(ctx, "x1"), IntegerArgumentType.getInteger(ctx, "y1"),
+                IntegerArgumentType.getInteger(ctx, "z1"), IntegerArgumentType.getInteger(ctx, "x2"),
+                IntegerArgumentType.getInteger(ctx, "y2"), IntegerArgumentType.getInteger(ctx, "z2"),
+                IntegerArgumentType.getInteger(ctx, "level"),
+                named ? StringArgumentType.getString(ctx, "name").replace('&', '§') : null);
+    }
+
+    /** {@code region here <radius> <level> [name]}：以执行者所在位置为中心登记一块 ±radius 的星级区域覆盖。 */
+    private static int addRegionHere(CommandContext<CommandSourceStack> ctx, boolean named) {
+        net.minecraft.core.BlockPos c = net.minecraft.core.BlockPos.containing(ctx.getSource().getPosition());
+        int r = IntegerArgumentType.getInteger(ctx, "radius");
+        int lv = IntegerArgumentType.getInteger(ctx, "level");
+        return addRegionBox(ctx, ctx.getSource().getLevel(),
+                c.getX() - r, c.getY() - r, c.getZ() - r, c.getX() + r, c.getY() + r, c.getZ() + r, lv,
+                named ? StringArgumentType.getString(ctx, "name").replace('&', '§') : null);
+    }
+
+    /** {@code region autosupply on|off}：切换区域登记时自动撒物资箱。 */
+    private static int setRegionAutoSupply(CommandContext<CommandSourceStack> ctx, boolean enabled) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        cfg.regionAutoSupplyEnabled = enabled;
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] region auto-supply " + (enabled ? "ON" : "OFF")).withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** {@code region autosupply count <n>}：设置区域自动撒箱的基准数量（1 级区域箱数）。 */
+    private static int setRegionSupplyCount(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        cfg.regionSupplyBoxBaseCount = IntegerArgumentType.getInteger(ctx, "count");
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] region supply base count = " + cfg.regionSupplyBoxBaseCount
+                        + " (level N → " + net.exmo.sre.sixtyseconds.logic.SixtySecondsRegionSupply
+                                .boxCountFor(1, cfg.regionSupplyBoxBaseCount) + ".."
+                        + net.exmo.sre.sixtyseconds.logic.SixtySecondsRegionSupply.boxCountFor(
+                                net.exmo.sre.sixtyseconds.SixtySecondsBalance.AREA_LEVEL_MAX,
+                                cfg.regionSupplyBoxBaseCount) + ")")
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    private static int listRegions(CommandContext<CommandSourceStack> ctx) {
+        SixtySecondsConfig cfg = load(ctx.getSource().getLevel());
+        java.util.List<SixtySecondsConfig.LevelRegion> regs = cfg.areaLevelOverrides;
+        if (regs == null || regs.isEmpty()) {
+            ctx.getSource().sendSuccess(() -> Component.literal("[60s] no star regions")
+                    .withStyle(ChatFormatting.YELLOW), false);
+            return 0;
+        }
+        ctx.getSource().sendSuccess(() -> Component.literal("[60s] " + regs.size() + " star region(s):")
+                .withStyle(ChatFormatting.GOLD), false);
+        for (int i = 0; i < regs.size(); i++) {
+            SixtySecondsConfig.LevelRegion reg = regs.get(i);
+            String box = reg.min == null || reg.max == null ? "?"
+                    : "(" + reg.min.x + "," + reg.min.y + "," + reg.min.z + ") ~ ("
+                            + reg.max.x + "," + reg.max.y + "," + reg.max.z + ")";
+            final int idx = i;
+            String label = reg.name == null || reg.name.isEmpty() ? "" : "  \"" + reg.name + "\"";
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                    "  #" + idx + "  Lv." + reg.level + label + "  " + box).withStyle(ChatFormatting.GRAY), false);
+        }
+        return regs.size();
+    }
+
+    private static int removeRegion(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        int idx = IntegerArgumentType.getInteger(ctx, "index");
+        if (cfg.areaLevelOverrides == null || idx < 0 || idx >= cfg.areaLevelOverrides.size()) {
+            ctx.getSource().sendFailure(Component.literal("[60s] no star region #" + idx)
+                    .withStyle(ChatFormatting.RED));
+            return 0;
+        }
+        cfg.areaLevelOverrides.remove(idx);
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] removed star region #" + idx + ", " + cfg.areaLevelOverrides.size() + " left")
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    private static int clearRegions(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        int had = cfg.areaLevelOverrides == null ? 0 : cfg.areaLevelOverrides.size();
+        cfg.areaLevelOverrides = new java.util.ArrayList<>();
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.literal("[60s] cleared " + had + " star region(s)")
+                .withStyle(ChatFormatting.YELLOW), true);
+        return 1;
+    }
+
+    /** {@code region at}：显示执行者所在坐标的最终危险等级（含覆盖/岛屿/门绑定/全局的综合结果）。 */
+    private static int regionAt(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        net.minecraft.core.BlockPos pos = net.minecraft.core.BlockPos.containing(ctx.getSource().getPosition());
+        int lv = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.levelAt(level, pos);
+        ctx.getSource().sendSuccess(() -> Component.literal("[60s] danger level @ ("
+                + pos.getX() + "," + pos.getY() + "," + pos.getZ() + ") = Lv." + lv)
+                .withStyle(ChatFormatting.AQUA), false);
+        return lv;
     }
 
     /**
@@ -214,11 +420,15 @@ public final class SixtySecondsAreaCommand {
     private static int setTemplate(CommandContext<CommandSourceStack> ctx) {
         ServerLevel level = ctx.getSource().getLevel();
         String kind = StringArgumentType.getString(ctx, "kind").toLowerCase();
+        int x1 = IntegerArgumentType.getInteger(ctx, "x1");
+        int y1 = IntegerArgumentType.getInteger(ctx, "y1");
+        int z1 = IntegerArgumentType.getInteger(ctx, "z1");
+        int x2 = IntegerArgumentType.getInteger(ctx, "x2");
+        int y2 = IntegerArgumentType.getInteger(ctx, "y2");
+        int z2 = IntegerArgumentType.getInteger(ctx, "z2");
         SixtySecondsConfig.Region region = new SixtySecondsConfig.Region(
-                new SixtySecondsConfig.Vec(IntegerArgumentType.getInteger(ctx, "x1"),
-                        IntegerArgumentType.getInteger(ctx, "y1"), IntegerArgumentType.getInteger(ctx, "z1")),
-                new SixtySecondsConfig.Vec(IntegerArgumentType.getInteger(ctx, "x2"),
-                        IntegerArgumentType.getInteger(ctx, "y2"), IntegerArgumentType.getInteger(ctx, "z2")));
+                new SixtySecondsConfig.Vec(Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2)),
+                new SixtySecondsConfig.Vec(Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2)));
         SixtySecondsConfig cfg = load(level);
         switch (kind) {
             case "residential" -> cfg.residentialTemplate = region;

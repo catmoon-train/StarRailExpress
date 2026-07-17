@@ -87,6 +87,14 @@ public class SixtySecondsConfig {
     public boolean islandShelterDoorEnabled = true;
 
     /**
+     * 避难所模板里放了<b>活板门</b>（{@code ShelterTrapdoorBlock}）时，是否让整座避难所在建图时按地表<b>智能下沉埋地</b>
+     * （默认<b>开</b>）：下沉到「活板门顶层刚好齐地表」，只露出地表的活板门舱盖，其余埋在地下——避免旧的净空逻辑
+     * 把地表挖成坑、暴露庇护所基地。模板里没有活板门则不下沉（普通竖直门=地表避难所，照旧）。
+     */
+    @SerializedName("shelterBuryEnabled")
+    public boolean shelterBuryEnabled = true;
+
+    /**
      * 晚上是否自动刷新夜袭者冲门（默认<b>关</b>）。关闭时仍可用「夜袭者召唤哨」
      * （{@code sixty_seconds_assault_spawner_*}）手动放怪。{@code /sre:60s assault on|off} 切换（按图持久化）。
      */
@@ -158,6 +166,30 @@ public class SixtySecondsConfig {
      */
     @SerializedName("searchZoneLevel")
     public int searchZoneLevel = 1;
+
+    /**
+     * <b>星级区域覆盖</b>：任意盒 → 危险等级 1..5，独立于门绑定，可放在世界任何地方（含岛屿上，用来「魔改」
+     * 某片区域的星级）。{@link SixtySecondsAreaLevels#levelAt} 里<b>优先级最高</b>——覆盖岛屿等级与门绑定区。
+     * 重叠时取列表中<b>靠后</b>那条（后加的覆盖先加的）。用 {@code /sre:60s_area region ...} 或星级区域魔杖
+     * （{@code sixty_seconds_level_wand}）编辑。
+     */
+    @SerializedName("areaLevelOverrides")
+    public java.util.List<LevelRegion> areaLevelOverrides = new java.util.ArrayList<>();
+
+    /**
+     * 用 {@code /sre:60s_area region add/here} 登记星级区域时，是否在区域内<b>自动撒随机物资箱</b>
+     * （低级随机 / 上锁高级 / 高级随机；数量按区域等级缩放，默认<b>开</b>）。
+     * {@code /sre:60s_area region autosupply on|off} 切换。
+     */
+    @SerializedName("regionAutoSupplyEnabled")
+    public boolean regionAutoSupplyEnabled = true;
+
+    /**
+     * 区域自动撒箱的<b>基准数量</b>（1 级区域的箱子数；更高等级按 {@code base + (level-1)*max(1,base/2)} 缩放）。
+     * {@code /sre:60s_area region autosupply count <n>} 设置。
+     */
+    @SerializedName("regionSupplyBoxBaseCount")
+    public int regionSupplyBoxBaseCount = 6;
 
     /**
      * 手动放置的 NPC 生成点（用 NPC 放置器 {@code sixty_seconds_npc_placer} 登记，模板绝对坐标）。
@@ -254,6 +286,43 @@ public class SixtySecondsConfig {
             this.boxMin = boxMin;
             this.boxMax = boxMax;
             this.spawn = spawn;
+        }
+    }
+
+    /** 一块「星级区域覆盖」：世界绝对坐标盒（两角，含端点、自动取正序）+ 危险等级 1..5 + 可选名字。 */
+    public static class LevelRegion {
+        @SerializedName("min")
+        public Vec min;
+        @SerializedName("max")
+        public Vec max;
+        @SerializedName("level")
+        public int level = 1;
+        /** 区域名字（可选；{@code region add ... <name>} 登记，仅用于 list 展示，旧存档缺省 null）。 */
+        @SerializedName("name")
+        public String name;
+
+        public LevelRegion() {
+        }
+
+        public LevelRegion(Vec min, Vec max, int level) {
+            this.min = min;
+            this.max = max;
+            this.level = level;
+        }
+
+        public LevelRegion(Vec min, Vec max, int level, String name) {
+            this(min, max, level);
+            this.name = name;
+        }
+
+        /** 坐标是否落在本盒内（两角自动取正序，含端点）。 */
+        public boolean contains(int x, int y, int z) {
+            if (min == null || max == null) {
+                return false;
+            }
+            return x >= Math.min(min.x, max.x) && x <= Math.max(min.x, max.x)
+                    && y >= Math.min(min.y, max.y) && y <= Math.max(min.y, max.y)
+                    && z >= Math.min(min.z, max.z) && z <= Math.max(min.z, max.z);
         }
     }
 

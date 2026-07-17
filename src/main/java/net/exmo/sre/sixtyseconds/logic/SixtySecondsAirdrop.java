@@ -31,9 +31,11 @@ public final class SixtySecondsAirdrop {
     private static final int DISTANCE_MAX = 300;
     private static final int HEIGHT_MATCH_TOLERANCE = 8;
     private static final int SMOKE_TICKS = 20 * 60; // 60 秒冒烟
+    /** 空投落地后存活时长：360 秒（=7200 tick）后整座空投结构自动消失。 */
+    private static final int DESPAWN_TICKS = 20 * 360;
 
     private static final List<Drop> DROPS = new ArrayList<>();
-    /** 已落地的空投结构：中心坐标 → 剩余冒烟 tick。 */
+    /** 已落地的空投结构：中心坐标 → 冒烟/消失倒计时。 */
     private static final Map<BlockPos, SmokeData> SMOKE = new HashMap<>();
 
     private SixtySecondsAirdrop() {}
@@ -45,11 +47,13 @@ public final class SixtySecondsAirdrop {
     }
 
     private static final class SmokeData {
-        int remaining;
+        int smokeRemaining;   // 冒烟剩余 tick（0 后不再冒烟，但结构仍在）
+        int despawnRemaining; // 结构存活剩余 tick（0 后整座空投消失）
         final BlockPos[] crateBoxes; // 四个物资箱位置，游戏结束时清除
 
-        SmokeData(int remaining, BlockPos[] crateBoxes) {
-            this.remaining = remaining;
+        SmokeData(int smokeRemaining, int despawnRemaining, BlockPos[] crateBoxes) {
+            this.smokeRemaining = smokeRemaining;
+            this.despawnRemaining = despawnRemaining;
             this.crateBoxes = crateBoxes;
         }
     }
@@ -178,7 +182,19 @@ public final class SixtySecondsAirdrop {
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.airdrop_landed",
                 center.getX(), center.getY(), center.getZ()).withStyle(ChatFormatting.GREEN));
 
-        SMOKE.put(center.immutable(), new SmokeData(SMOKE_TICKS, crates));
+        SMOKE.put(center.immutable(), new SmokeData(SMOKE_TICKS, DESPAWN_TICKS, crates));
+    }
+
+    /** 清掉一座空投结构（中心残骸 + 两层 8 个物资箱）。与 {@link #land} 的 offsets 一致。 */
+    private static void clearStructure(ServerLevel level, BlockPos center) {
+        BlockState air = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+        level.setBlock(center, air, Block.UPDATE_ALL);
+        int[][] offs = {{1, 0, 0}, {-1, 0, 0}, {0, 0, 1}, {0, 0, -1}};
+        for (int[] off : offs) {
+            for (int dy = 0; dy < 2; dy++) {
+                level.setBlock(center.offset(off[0], dy, off[2]), air, Block.UPDATE_ALL);
+            }
+        }
     }
 
     // ── 冒烟 tick ────────────────────────────────────────────────────────
@@ -188,21 +204,24 @@ public final class SixtySecondsAirdrop {
             Map.Entry<BlockPos, SmokeData> entry = it.next();
             BlockPos pos = entry.getKey();
             SmokeData data = entry.getValue();
-            if (!level.dimension().location().equals(level.dimension().location()) ||
-                    !level.getChunkSource().hasChunk(pos.getX() >> 4, pos.getZ() >> 4)) {
-                // 跨维度/区块不在范围内，跳过（保留数据）
+            if (!level.getChunkSource().hasChunk(pos.getX() >> 4, pos.getZ() >> 4)) {
+                // 区块不在范围内，跳过（保留数据；倒计时也暂停到区块再加载）
                 continue;
             }
-            // 冒烟：中央柱状 + 底座扩散
-            level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                    pos.getX() + 0.5, pos.getY() + 2.5, pos.getZ() + 0.5,
-                    3, 0.15, 0.9, 0.15, 0.02);
-            level.sendParticles(ParticleTypes.LARGE_SMOKE,
-                    pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5,
-                    2, 0.5, 0.4, 0.5, 0.01);
-            data.remaining--;
-            if (data.remaining <= 0) {
-                // 冒烟结束：可以在这里额外效果（如结构自毁），目前仅停止冒烟
+            // 冒烟：中央柱状 + 底座扩散（仅前 SMOKE_TICKS 内冒）
+            if (data.smokeRemaining > 0) {
+                level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                        pos.getX() + 0.5, pos.getY() + 2.5, pos.getZ() + 0.5,
+                        3, 0.15, 0.9, 0.15, 0.02);
+                level.sendParticles(ParticleTypes.LARGE_SMOKE,
+                        pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5,
+                        2, 0.5, 0.4, 0.5, 0.01);
+                data.smokeRemaining--;
+            }
+            // 存活倒计时：到点整座空投自动消失（生成 360 秒后）
+            data.despawnRemaining--;
+            if (data.despawnRemaining <= 0) {
+                clearStructure(level, pos);
                 it.remove();
             }
         }
@@ -282,17 +301,8 @@ public final class SixtySecondsAirdrop {
     public static void reset(ServerLevel level) {
         DROPS.clear();
         net.exmo.sre.sixtyseconds.content.item.SixtySecondsFlareGunItem.reset();
-        for (Map.Entry<BlockPos, SmokeData> e : new HashMap<>(SMOKE).entrySet()) {
-            BlockPos center = e.getKey();
-            level.setBlock(center, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),
-                    Block.UPDATE_ALL);
-            int[][] offs = {{1, 0, 0}, {-1, 0, 0}, {0, 0, 1}, {0, 0, -1}};
-            for (int[] off : offs) {
-                for (int dy = 0; dy < 2; dy++) {
-                    level.setBlock(center.offset(off[0], dy, off[2]),
-                            net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-                }
-            }
+        for (BlockPos center : new HashMap<>(SMOKE).keySet()) {
+            clearStructure(level, center);
         }
         SMOKE.clear();
     }

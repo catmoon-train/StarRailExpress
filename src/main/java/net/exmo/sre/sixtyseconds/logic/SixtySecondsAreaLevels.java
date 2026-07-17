@@ -23,18 +23,36 @@ public final class SixtySecondsAreaLevels {
     private SixtySecondsAreaLevels() {
     }
 
-    /** 反查坐标所在探索区的危险等级；不在任何已登记探索区内返回 1。 */
+    /**
+     * 反查坐标的危险等级。优先级（从高到低）：
+     * <ol>
+     *   <li><b>星级区域覆盖</b>（{@code areaLevelOverrides}，管理员魔改用，可盖住岛屿）——重叠取靠后一条；</li>
+     *   <li>岛屿单元格等级；</li>
+     *   <li>门绑定危险区（{@code searchDoorBindings} 的 box + level）；</li>
+     *   <li>全局基线 {@code searchZoneLevel}。</li>
+     * </ol>
+     */
     public static int levelAt(ServerLevel level, BlockPos pos) {
-        // 海岛模式：岛屿单元格优先——物资箱稀有度/游荡怪强度随岛等级缩放
+        SixtySecondsConfig config = SixtySecondsConfigStore.current(level).orElse(null);
+        // 1) 星级区域覆盖：最高优先级，可盖岛屿/门绑定；重叠时后加的覆盖先加的（倒序遍历取第一条命中）。
+        if (config != null && config.areaLevelOverrides != null) {
+            for (int i = config.areaLevelOverrides.size() - 1; i >= 0; i--) {
+                SixtySecondsConfig.LevelRegion reg = config.areaLevelOverrides.get(i);
+                if (reg != null && reg.contains(pos.getX(), pos.getY(), pos.getZ())) {
+                    return clamp(reg.level);
+                }
+            }
+        }
+        // 2) 海岛模式：岛屿单元格——物资箱稀有度/游荡怪强度随岛等级缩放
         int islandLevel = net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.levelAt(level, pos);
         if (islandLevel > 0) {
             return clamp(islandLevel);
         }
-        SixtySecondsConfig config = SixtySecondsConfigStore.current(level).orElse(null);
         if (config == null) {
             return 1;
         }
         int global = clamp(config.searchZoneLevel);
+        // 3) 门绑定危险区
         for (SixtySecondsConfig.DoorBinding binding : config.searchDoorBindings) {
             if (binding.boxMin == null || binding.boxMax == null) {
                 continue;
@@ -43,7 +61,7 @@ public final class SixtySecondsAreaLevels {
                 return binding.level > 0 ? clamp(binding.level) : global;
             }
         }
-        // 不在任何门绑定危险区、也不在岛屿上：一律取全局基线（searchZoneLevel）。
+        // 4) 全局基线
         return global;
     }
 

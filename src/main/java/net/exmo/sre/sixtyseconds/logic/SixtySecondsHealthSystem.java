@@ -47,7 +47,7 @@ import java.util.UUID;
 public final class SixtySecondsHealthSystem {
     public static final int INJURY_DAMAGE = 50;
     public static final int BLEED_OUT_TICKS = 20 * 150;   // 倒地 2.5 分钟流血死
-    public static final int REVIVE_TICKS = 20 * 15;       // 队友近身 15s 救起
+    public static final int REVIVE_TICKS = 20 * 10;       // 队友近身 10s 救起
     private static final double REVIVE_RANGE_SQR = 3.0 * 3.0;
 
     // ── 60s 模式所有可能的死亡原因（用于 handleLethal 识别自身产生的死亡）──
@@ -577,8 +577,9 @@ public final class SixtySecondsHealthSystem {
             player.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 40, 0, false, false, false));
             player.setSwimming(true);
             player.setPose(net.minecraft.world.entity.Pose.SWIMMING);
-            // 每秒流失倒地健康值，归零死亡（替代原来的定时流血机制）
-            if (second && stats.health > 0) {
+            tickRevive(level, player, stats);
+            // 每秒流失倒地健康值（有队友在救援范围内则不流血），归零死亡
+            if (second && stats.health > 0 && !REVIVE_PROGRESS.containsKey(player.getUUID())) {
                 stats.health = Math.max(0, stats.health - SixtySecondsBalance.DOWNED_BLEED_PER_SEC);
                 stats.sync();
                 if (stats.health <= 0) {
@@ -586,7 +587,6 @@ public final class SixtySecondsHealthSystem {
                     continue;
                 }
             }
-            tickRevive(level, player, stats);
         }
     }
 

@@ -54,7 +54,7 @@ public final class SixtySecondsStatsSystem {
                 changed = true;
             }
 
-            // 每分钟消耗（在家基准；户外 ×1.2；门被攻破=户外×2=×2.4；前 2 天 -50%）
+            // 每分钟消耗（在家基准；户外 ×1.2；门被攻破=户外×2=×2.4；前 3 天 -70%）
             if (minuteTick) {
                 SixtySecondsState.TeamData team = data.teams.get(stats.teamId);
                 // 门被攻破 = 在家也视同户外
@@ -67,8 +67,8 @@ public final class SixtySecondsStatsSystem {
                 } else {
                     mult = SixtySecondsBalance.OUTDOOR_DRAIN_MULT;
                 }
-                // 全局 -20% + 前两天 -50% + 第三天起 -20%
-                double dayMult = data.dayNumber >= 1 && data.dayNumber <= 2
+                // 全局 -20% + 前三天 -70% + 第四天起 -35%
+                double dayMult = data.dayNumber >= 1 && data.dayNumber <= 3
                         ? SixtySecondsBalance.DRAIN_MULT_EARLY_DAYS
                         : SixtySecondsBalance.DRAIN_MULT_LATE_DAYS;
                 double finalMult = mult * SixtySecondsBalance.DRAIN_MULT_GLOBAL * dayMult;

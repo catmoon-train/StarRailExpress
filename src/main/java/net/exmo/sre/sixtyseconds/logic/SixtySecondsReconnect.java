@@ -49,6 +49,7 @@ public final class SixtySecondsReconnect {
         long exploreCooldownEndTick;
         boolean recovering;
         long sanZeroTick;
+        long reviveEndTick;
     }
 
     /** 模组初始化时注册一次。 */
@@ -99,6 +100,7 @@ public final class SixtySecondsReconnect {
         s.exploreCooldownEndTick = stats.exploreCooldownEndTick;
         s.recovering = stats.recovering;
         s.sanZeroTick = stats.sanZeroTick;
+        s.reviveEndTick = stats.reviveEndTick;
         BACKUPS.put(player.getUUID(), s);
         return true;
     }
@@ -131,6 +133,7 @@ public final class SixtySecondsReconnect {
         stats.exploreCooldownEndTick = s.exploreCooldownEndTick;
         stats.recovering = s.recovering;
         stats.sanZeroTick = s.sanZeroTick;
+        stats.reviveEndTick = s.reviveEndTick;
         // 换日相关用当前值刷新，避免离线期间过期
         if (player.level() instanceof ServerLevel level) {
             SixtySecondsState.Data data = SixtySecondsState.get(level);

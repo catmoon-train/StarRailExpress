@@ -123,6 +123,8 @@ public final class SixtySecondsArena {
         // 每队的避难所偏移：门锚定模式下 = 出口门 - 锚点门（避难所平移到探索区那扇门上），否则 = 队伍网格偏移。
         // 先整表算出来——clearArenaEntities 要按<b>实际</b>落位清残留实体，网格坐标在锚定模式下根本不是避难所所在地。
         List<BlockPos> shelterOffsets = shelterOffsets(config, data, exitDoorBindings);
+        // 模板含活板门 → 按地表智能下沉埋地（把每队避难所偏移的 Y 压到让活板门齐地表）。
+        boolean buried = applyShelterBurial(level, config, shelterOffsets);
         if (!heightsFit(level, config, data, shelterOffsets)) {
             clearArenaEntities(level, config, List.of());
             onComplete.run();
@@ -145,7 +147,11 @@ public final class SixtySecondsArena {
             // 先净空（挖开克隆区四周/上方的自然地形），再克隆——队数无上限后克隆区会排进山里；
             // 锚定模式下避难所落在探索区门口，净空同样负责挖开门口的原生地形/建筑
             addClearance(level, clearance, config.residentialTemplate.toBox(), offset);
-            addClearance(level, clearance, config.shelterTemplate.toBox(), shelterOffset);
+            // 下沉埋地模式<b>不</b>给避难所净空：copyLayer 直接把埋在地下的模板体（含内部空气）搬过去，
+            // 上方地形保留覆盖、只露活板门——净空会把地表挖成坑、暴露基地（本功能要避免的正是这个）。
+            if (!buried) {
+                addClearance(level, clearance, config.shelterTemplate.toBox(), shelterOffset);
+            }
             addChunks(clones, config.residentialTemplate.toBox(), offset);
             addChunks(clones, config.shelterTemplate.toBox(), shelterOffset);
             // 搜索区不克隆：所有队共用原模板区域（各队玩家会在同一片野外相遇——搜打撤对抗即来源于此）
@@ -305,6 +311,59 @@ public final class SixtySecondsArena {
                     + "其余队的避难所回退到网格克隆。请在探索区多绑几扇出口门。", anchored, data.teams.size());
         }
         return offsets;
+    }
+
+    /**
+     * 智能下沉埋地：避难所模板里若放了活板门（{@link net.exmo.sre.sixtyseconds.content.block.ShelterTrapdoorBlock}），
+     * 把每队 {@code shelterOffset} 的 Y 压低，让活板门顶层落在<b>该队落位处的实际地表</b>——避难所埋进地里、只露活板门。
+     * 返回是否发生了下沉（供 {@code build} 跳过避难所净空，避免挖坑暴露基地）。模板没活板门/开关关则不动、返回 false。
+     */
+    private static boolean applyShelterBurial(ServerLevel level, SixtySecondsConfig config, List<BlockPos> offsets) {
+        if (!config.shelterBuryEnabled) {
+            return false;
+        }
+        BlockPos trapdoor = findShelterTrapdoor(level, config);
+        if (trapdoor == null) {
+            return false;
+        }
+        BoundingBox tpl = config.shelterTemplate.toBox();
+        int minY = level.getMinBuildHeight();
+        for (int i = 0; i < offsets.size(); i++) {
+            BlockPos off = offsets.get(i);
+            int wx = trapdoor.getX() + off.getX();
+            int wz = trapdoor.getZ() + off.getZ();
+            level.getChunk(wx >> 4, wz >> 4); // 强载该列，getHeight 需要区块已加载
+            // 地表最高实心块的 Y（getHeight 返回其上方第一格空气的 y，减 1 即顶面）
+            int surfaceTop = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    wx, wz) - 1;
+            int curTrapY = trapdoor.getY() + off.getY();
+            int newY = off.getY() + (surfaceTop - curTrapY); // 让活板门顶层 = 地表顶面
+            // 防击穿世界底：避难所模板最低层不能低于世界底
+            if (tpl.minY() + newY < minY) {
+                newY = minY - tpl.minY();
+            }
+            offsets.set(i, new BlockPos(off.getX(), newY, off.getZ()));
+        }
+        Noellesroles.LOGGER.info("[60s] 避难所含活板门 → 智能下沉埋地（{} 支队伍按各自地表对齐活板门）。", offsets.size());
+        return true;
+    }
+
+    /** 扫描避难所模板盒，找第一块活板门主控块（模板绝对坐标）；没有返回 null。 */
+    private static BlockPos findShelterTrapdoor(ServerLevel level, SixtySecondsConfig config) {
+        BoundingBox box = config.shelterTemplate.toBox();
+        BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+        for (int y = box.minY(); y <= box.maxY(); y++) {
+            for (int x = box.minX(); x <= box.maxX(); x++) {
+                for (int z = box.minZ(); z <= box.maxZ(); z++) {
+                    p.set(x, y, z);
+                    if (level.getBlockState(p).getBlock()
+                            instanceof net.exmo.sre.sixtyseconds.content.block.ShelterTrapdoorBlock) {
+                        return p.immutable();
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /** 结束/重开时把所有克隆写入的方块按快照还原。 */

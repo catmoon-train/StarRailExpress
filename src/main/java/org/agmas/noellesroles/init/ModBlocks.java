@@ -89,6 +89,17 @@ public interface ModBlocks {
             new net.exmo.sre.sixtyseconds.content.block.ShelterDoorBlock(
                     BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(3.0F)),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 末日60秒模式：避难所活板门（避难所门变体，3×3×2 多方块；主控块继承 ShelterDoorBlock 自动被所有门逻辑识别）
+    Block SIXTY_SECONDS_SHELTER_TRAPDOOR = blockRegistrar.createWithItem("sixty_seconds_shelter_trapdoor",
+            new net.exmo.sre.sixtyseconds.content.block.ShelterTrapdoorBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(3.0F)),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 活板门部件块（由主控块自动铺设，不进创造页——仅入方块页备用）
+    Block SIXTY_SECONDS_SHELTER_TRAPDOOR_PART = blockRegistrar.createWithItem("sixty_seconds_shelter_trapdoor_part",
+            new net.exmo.sre.sixtyseconds.content.block.ShelterTrapdoorPartBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).noOcclusion().strength(3.0F)),
+            BLOCK_CREATIVE_GROUP);
+
     Block SIXTY_SECONDS_SUPPLY_BOX = blockRegistrar.createWithItem("sixty_seconds_supply_box",
             new net.exmo.sre.sixtyseconds.content.block.SupplyBoxBlock(
                     BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F)),
@@ -127,12 +138,19 @@ public interface ModBlocks {
             new net.exmo.sre.sixtyseconds.content.block.RandomSupplyBoxBlock(
                     BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F), "high"),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 旧版兼容：sixty_seconds_random_supply_box 映射为低级随机物资箱，确保旧存档方块正常加载
+    Block SIXTY_SECONDS_RANDOM_SUPPLY_BOX = blockRegistrar.createWithItem(
+            "sixty_seconds_random_supply_box",
+            new net.exmo.sre.sixtyseconds.content.block.RandomSupplyBoxBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.5F), "low"),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.RandomSupplyBoxBlockEntity> SIXTY_SECONDS_RANDOM_SUPPLY_BOX_ENTITY =
             blockEntityRegistrar.create("sixty_seconds_random_supply_box",
                     BlockEntityType.Builder.of(
                             net.exmo.sre.sixtyseconds.content.block_entity.RandomSupplyBoxBlockEntity::new,
                             ModBlocks.SIXTY_SECONDS_LOW_TIER_RANDOM_SUPPLY_BOX,
-                            ModBlocks.SIXTY_SECONDS_HIGH_TIER_RANDOM_SUPPLY_BOX));
+                            ModBlocks.SIXTY_SECONDS_HIGH_TIER_RANDOM_SUPPLY_BOX,
+                            ModBlocks.SIXTY_SECONDS_RANDOM_SUPPLY_BOX));
     // 末日60秒模式：幸存者营地（走上/右键触发通关）
     Block SIXTY_SECONDS_SURVIVOR_CAMP = blockRegistrar.createWithItem("sixty_seconds_survivor_camp",
             new net.exmo.sre.sixtyseconds.content.block.SixtySecondsSurvivorCampBlock(

@@ -704,8 +704,8 @@ public final class SixtySecondsHotlineSystem {
         List<ShopItem> items = new ArrayList<>();
         int count = 3 + rand.nextInt(4); // 3~6
 
-        // ── 材料池 ──
-        List<MaterialEntry> materials = Arrays.asList(
+        // ── 材料池 ──（用可变 ArrayList：下方按概率 add 贵金属/酿造器件；Arrays.asList 定长会 UOE 崩服）
+        List<MaterialEntry> materials = new ArrayList<>(Arrays.asList(
             m(ModItems.SIXTY_SECONDS_SCRAP, 1, 3),
             m(ModItems.SIXTY_SECONDS_PLASTIC, 1, 3),
             m(ModItems.SIXTY_SECONDS_GLASS_SHARD, 1, 3),
@@ -723,7 +723,7 @@ public final class SixtySecondsHotlineSystem {
             m(ModItems.SIXTY_SECONDS_CHEMICALS, 1, 3),
             m(ModItems.SIXTY_SECONDS_GUNPOWDER_PACK, 1, 3),
             m(ModItems.SIXTY_SECONDS_NAILS, 1, 3)
-        );
+        ));
 
         // 小概率贵金属/酿造器件
         if (rand.nextDouble() < 0.15)

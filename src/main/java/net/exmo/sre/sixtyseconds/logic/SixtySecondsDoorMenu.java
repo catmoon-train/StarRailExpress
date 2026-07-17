@@ -122,9 +122,10 @@ public final class SixtySecondsDoorMenu {
                             target.doorLevel));
                     options.add(new OpenShelterDoorS2CPacket.Option(ACTION_DOOR_INSPECT, true, 0));
                 }
-            } else {
-                // 出门探索现在只是「落到门外、全世界自由活动」，任意一扇门都能出——不再依赖探索区落点。
-                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EXPLORE, team != null, 0));
+            } else if (isInOwnShelterOrResidential(player, team)) {
+                // 出门探索/门外事件/拜访都是「在自己家门口」的动作：必须身处本队避难所或住宅盒内才提供。
+                // 否则（乘船上岛、野外乱逛等「在外面但没有探索记录」的情况）会误显示外出探索——本次要修的 BUG。
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EXPLORE, true, 0));
                 options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EVENT, true, 0));
                 options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT, data.teams.size() > 1, 0));
             }
@@ -306,6 +307,16 @@ public final class SixtySecondsDoorMenu {
             }
         }
         return false;
+    }
+
+    /** 坐标判定玩家是否身处<b>本队</b>避难所或住宅盒内（在自己家里）。team 为空返回 false。 */
+    private static boolean isInOwnShelterOrResidential(ServerPlayer player, SixtySecondsState.TeamData team) {
+        if (team == null) {
+            return false;
+        }
+        double x = player.getX(), y = player.getY(), z = player.getZ();
+        return (team.shelterBox != null && team.shelterBox.contains(x, y, z))
+                || (team.residentialBox != null && team.residentialBox.contains(x, y, z));
     }
 
     /**
