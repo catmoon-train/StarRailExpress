@@ -51,10 +51,12 @@ public class SeaChartFullScreen extends Screen {
     private static final int COLOR_MATE = 0xFF4FD4E0;
     private static final int COLOR_MATE_DOWNED = 0xFFE05555;
 
-    /** 返回按钮有效/无效色 */
-    private static final int BUTTON_ACTIVE = 0xFF4A90D9;
-    private static final int BUTTON_DISABLED = 0xFF555555;
-    private static final int BUTTON_ANIM = 0xFFD94040;
+    /** 最大渲染像素预算/岛（超过则提步长）。 */
+    private static final int MAX_PIXELS_PER_ISLAND = 80_000;
+    /** 岛屿栅格最小步长（放大到极致也不逐像素算，否则显卡冒烟）。 */
+    private static final int MIN_RASTER_STEP = 2;
+    /** 圆圈最大屏幕半径（再大就降采样）。 */
+    private static final int MAX_CIRCLE_RADIUS = 160;
 
     private final SixtySecondsSeaChartS2CPacket data;
 
@@ -231,8 +233,14 @@ public class SeaChartFullScreen extends Screen {
         int cx = toScreenX(entry.centerX());
         int cy = toScreenY(entry.centerZ());
         int screenR = Math.max(8, (int) (entry.radius() * scale));
-        int clickR = Math.max(screenR, 16); // 点击判定至少 16px
 
+        // 视锥剔除：岛完全在屏幕外就跳过，省掉整个 rasterize
+        if (cx + screenR < -32 || cx - screenR > width + 32
+                || cy + screenR < -32 || cy - screenR > height + 32) {
+            return;
+        }
+
+        int clickR = Math.max(Math.min(screenR, 48), 16); // 点击判定不超过48px
         boolean hovered = (mouseX - cx) * (mouseX - cx) + (mouseY - cy) * (mouseY - cy)
                 <= (clickR + 4) * (clickR + 4);
         if (hovered) {
@@ -240,60 +248,73 @@ public class SeaChartFullScreen extends Screen {
         }
 
         if (!entry.unlocked()) {
-            // 迷雾岛
             SixtySecondsIsland island = toIsland(entry);
             rasterize(graphics, island, entry, cx, cy, screenR, true);
-            labels.add(() -> {
-                graphics.drawCenteredString(font, "?", cx, cy - 5, 0xFF6C7A88);
-            });
+            labels.add(() -> graphics.drawCenteredString(font, "?", cx, cy - 5, 0xFF6C7A88));
             return;
         }
 
         SixtySecondsIsland island = toIsland(entry);
         rasterize(graphics, island, entry, cx, cy, screenR, false);
 
-        // 登岛落点区域圈（如果当前在此岛附近）
-        if (cachedArrivalPos != null && entry.centerX() == entry.centerX()) {
+        // 登岛落点区域圈
+        if (cachedArrivalPos != null) {
             int distSqr = (cachedArrivalPos.getX() - entry.centerX()) * (cachedArrivalPos.getX() - entry.centerX())
                     + (cachedArrivalPos.getZ() - entry.centerZ()) * (cachedArrivalPos.getZ() - entry.centerZ());
             int r2 = (entry.radius() + 8) * (entry.radius() + 8);
             if (distSqr <= r2) {
-                // 在岛上画返回区域圈
                 int arrivalSx = toScreenX(cachedArrivalPos.getX());
                 int arrivalSy = toScreenY(cachedArrivalPos.getZ());
-                int returnR = Math.max(10, (int) (16 * scale)); // 16 格返回范围
-                // 半透明圈
+                final int returnR = Math.max(10, Math.min((int) (16 * scale), MAX_CIRCLE_RADIUS));
                 drawCircle(graphics, arrivalSx, arrivalSy, returnR, COLOR_RETURN_AREA);
                 drawCircleBorder(graphics, arrivalSx, arrivalSy, returnR, COLOR_RETURN_AREA_BORDER);
-                labels.add(() -> {
-                    graphics.drawCenteredString(font,
-                            Component.translatable(LANG + "chart_arrival_point").withStyle(ChatFormatting.YELLOW),
-                            arrivalSx, arrivalSy - returnR - 10, 0xFFFFD700);
-                });
+                labels.add(() -> graphics.drawCenteredString(font,
+                        Component.translatable(LANG + "chart_arrival_point").withStyle(ChatFormatting.YELLOW),
+                        arrivalSx, arrivalSy - returnR - 10, 0xFFFFD700));
             }
         }
 
         int color = LEVEL_COLORS[Mth.clamp(entry.level(), 1, 5) - 1];
         String label = islandName(entry).getString() + " Lv." + entry.level()
                 + (entry.visited() ? " " + Component.translatable(LANG + "chart_visited").getString() : "");
+        int labelR = Math.min(screenR, MAX_CIRCLE_RADIUS);
         labels.add(() -> {
-            graphics.drawCenteredString(font, label, cx, cy + screenR + 3, color);
+            graphics.drawCenteredString(font, label, cx, cy + labelR + 3, color);
             if (hoveredIsland == entry.id()) {
-                // 悬浮高亮框
-                graphics.fill(cx - screenR - 3, cy - screenR - 3, cx + screenR + 3, cy - screenR - 2, 0xFFFFFFFF);
-                graphics.fill(cx - screenR - 3, cy + screenR + 2, cx + screenR + 3, cy + screenR + 3, 0xFFFFFFFF);
-                graphics.fill(cx - screenR - 3, cy - screenR - 2, cx - screenR - 2, cy + screenR + 2, 0xFFFFFFFF);
-                graphics.fill(cx + screenR + 2, cy - screenR - 2, cx + screenR + 3, cy + screenR + 2, 0xFFFFFFFF);
+                int hr = Math.min(screenR, MAX_CIRCLE_RADIUS);
+                graphics.fill(cx - hr - 3, cy - hr - 3, cx + hr + 3, cy - hr - 2, 0xFFFFFFFF);
+                graphics.fill(cx - hr - 3, cy + hr + 2, cx + hr + 3, cy + hr + 3, 0xFFFFFFFF);
+                graphics.fill(cx - hr - 3, cy - hr - 2, cx - hr - 2, cy + hr + 2, 0xFFFFFFFF);
+                graphics.fill(cx + hr + 2, cy - hr - 2, cx + hr + 3, cy + hr + 2, 0xFFFFFFFF);
             }
         });
     }
 
     private void rasterize(GuiGraphics graphics, SixtySecondsIsland island,
             SixtySecondsSeaChartS2CPacket.Entry entry, int cx, int cy, int screenR, boolean fog) {
-        int step = Math.max(1, (int) (1.0 / Math.max(0.25, scale)));
+        // 计算步长：保证每个岛像素总量不超过预算
+        int diameter = screenR * 2;
+        double rawStep = Math.max(1.0, 1.0 / Math.max(0.25, scale));
+        int step = (int) rawStep;
+        // 像素预算校准：如果按当前步长算出来的像素数超过上限，加大步长
+        int roughPixels = (diameter / step) * (diameter / step);
+        while (roughPixels > MAX_PIXELS_PER_ISLAND && step < diameter / 4) {
+            step = Math.min(step * 2, diameter / 4);
+            roughPixels = (diameter / step) * (diameter / step);
+        }
+        step = Math.max(step, MIN_RASTER_STEP);
+
+        // 裁剪到屏幕可视区域再渲染
+        int startX = Math.max(cx - screenR, -step);
+        int endX = Math.min(cx + screenR, width + step);
+        int startY = Math.max(cy - screenR, -step);
+        int endY = Math.min(cy + screenR, height + step);
+
         int mainColor = fog ? COLOR_FOG : LEVEL_COLORS[Mth.clamp(entry.level(), 1, 5) - 1];
-        for (int px = cx - screenR; px <= cx + screenR; px += step) {
-            for (int py = cy - screenR; py <= cy + screenR; py += step) {
+        int size = Math.max(1, step);
+
+        for (int px = startX; px <= endX; px += step) {
+            for (int py = startY; py <= endY; py += step) {
                 if (px < 0 || px >= width || py < 0 || py >= height) {
                     continue;
                 }
@@ -311,7 +332,6 @@ public class SeaChartFullScreen extends Screen {
                 } else {
                     color = landVal > 0.55F ? darken(mainColor) : mainColor;
                 }
-                int size = Math.max(1, step);
                 graphics.fill(px, py, px + size, py + size, color);
             }
         }
@@ -324,15 +344,15 @@ public class SeaChartFullScreen extends Screen {
         }
         int px = toScreenX(minecraft.player.getX());
         int py = toScreenY(minecraft.player.getZ());
-        // 自身位置：白底红心
-        graphics.fill(px - 3, py - 3, px + 3, py + 3, 0xFFFFFFFF);
-        graphics.fill(px - 2, py - 2, px + 2, py + 2, 0xFFCC3333);
-        // 箭头指示器
+        // 自身位置：小点
+        graphics.fill(px - 1, py - 1, px + 1, py + 1, 0xFFFFFFFF);
+        // 方向箭头：白底红心的大点，沿朝向偏移
         float yaw = minecraft.player.getYRot();
         double rad = Math.toRadians(yaw);
-        int ax = px + (int) (Math.sin(rad) * 8);
-        int ay = py - (int) (Math.cos(rad) * 8);
-        graphics.fill(ax - 1, ay - 1, ax + 1, ay + 1, 0xFFFFFFFF);
+        int ax = px + (int) (Math.sin(rad) * 10);
+        int ay = py - (int) (Math.cos(rad) * 10);
+        graphics.fill(ax - 3, ay - 3, ax + 3, ay + 3, 0xFFFFFFFF);
+        graphics.fill(ax - 2, ay - 2, ax + 2, ay + 2, 0xFFCC3333);
     }
 
     /**
@@ -416,13 +436,13 @@ public class SeaChartFullScreen extends Screen {
         }
         int ax = toScreenX(cachedArrivalPos.getX());
         int ay = toScreenY(cachedArrivalPos.getZ());
-        if (ax < 0 || ax >= width || ay < 0 || ay >= height) {
+        if (ax < -32 || ax > width + 32 || ay < -32 || ay > height + 32) {
             return;
         }
-        int r = Math.max(8, (int) (16 * scale));
+        int r = Math.min((int) (16 * scale), MAX_CIRCLE_RADIUS);
+        r = Math.max(8, r);
         drawCircle(graphics, ax, ay, r, COLOR_ARRIVAL);
         drawCircleBorder(graphics, ax, ay, r, COLOR_ARRIVAL_BORDER);
-        // 锚标记
         graphics.drawCenteredString(font,
                 Component.translatable(LANG + "chart_arrival_marker").withStyle(ChatFormatting.AQUA),
                 ax, ay - r - 12, 0xFF00CCFF);
@@ -540,13 +560,15 @@ public class SeaChartFullScreen extends Screen {
     }
 
     private void drawCircle(GuiGraphics graphics, int cx, int cy, int r, int color) {
-        for (int dx = -r; dx <= r; dx++) {
-            for (int dy = -r; dy <= r; dy++) {
+        // 大圈降采样
+        int step = r > 100 ? 2 : 1;
+        for (int dx = -r; dx <= r; dx += step) {
+            for (int dy = -r; dy <= r; dy += step) {
                 if (dx * dx + dy * dy <= r * r) {
                     int px = cx + dx;
                     int py = cy + dy;
                     if (px >= 0 && px < width && py >= 0 && py < height) {
-                        graphics.fill(px, py, px + 1, py + 1, color);
+                        graphics.fill(px, py, px + step, py + step, color);
                     }
                 }
             }

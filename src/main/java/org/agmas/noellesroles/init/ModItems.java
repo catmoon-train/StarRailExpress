@@ -228,6 +228,18 @@ public class ModItems {
                     new Item.Properties().stacksTo(1)),
             "sixty_seconds_npc_placer", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
+    // 末日60秒模式：NPC 调校器（管理员搭图用：右键已登记的生成点切货架档案，潜行右键调驻守半径）
+    public static final Item SIXTY_SECONDS_NPC_TUNER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsNpcTunerItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_npc_tuner", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // 末日60秒模式：锚点绑定工具（管理员搭图用：右键模板内的门=设避难所锚点，右键探索区出口门=预演落位）
+    public static final Item SIXTY_SECONDS_ANCHOR_WAND = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsAnchorWandItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_anchor_wand", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
     // 末日60秒模式：救援信标（隐藏通关——工程学合成，户外激活呼叫救援）
     public static final Item SIXTY_SECONDS_RESCUE_BEACON = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsRescueBeaconItem(

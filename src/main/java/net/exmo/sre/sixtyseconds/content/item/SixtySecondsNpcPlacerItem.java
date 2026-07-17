@@ -109,8 +109,9 @@ public class SixtySecondsNpcPlacerItem extends Item {
         config.npcSpawns.add(spawn);
         // 显式落盘：CCA sync 只同步不持久化，配置改动必须自己写文件
         SixtySecondsConfigStore.save(level, config);
-        // 立刻生成一只预览，让搭图者当场看到效果（开局时会按配置重新生成）
-        SixtySecondsNpcSpawner.spawnAt(level, pos, variant, yaw, spawn.profile, spawn.garrisonRadius, -1);
+        // 立刻生成一只预览立牌，让搭图者当场看到效果（开局时会被清掉并按配置重新生成正式 NPC）。
+        // 必须走 spawnPreview 而非 spawnAt：普通 NPC 在模式未激活时会自毁，而搭图正是在开局前做的
+        SixtySecondsNpcSpawner.spawnPreview(level, pos, variant, yaw, spawn.profile, spawn.garrisonRadius);
         player.displayClientMessage(Component.translatable(
                 "message.noellesroles.sixty_seconds.npc.placed",
                 Component.translatable(variant.nameKey()), pos.getX(), pos.getY(), pos.getZ(),

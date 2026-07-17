@@ -78,6 +78,12 @@ public class ShelterDoorBlock extends Block {
             net.exmo.sre.sixtyseconds.content.item.SixtySecondsAreaWandItem.selectDoor(serverPlayer, pos);
             return;
         }
+        // 手持锚点绑定工具：模板内的门=设为避难所锚点门，探索区的门=预演落位（见 SixtySecondsAnchorWandItem）
+        if (serverPlayer.getMainHandItem().getItem()
+                == org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ANCHOR_WAND) {
+            net.exmo.sre.sixtyseconds.content.item.SixtySecondsAnchorWandItem.selectDoor(serverPlayer, pos);
+            return;
+        }
         // 玩家NPC（创造 + 未编队）：右键门 = 敲门喊话（不开门菜单，见 SixtySecondsNpcKnock）
         if (net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcKnock.tryKnock(serverLevel, serverPlayer, pos)) {
             return;

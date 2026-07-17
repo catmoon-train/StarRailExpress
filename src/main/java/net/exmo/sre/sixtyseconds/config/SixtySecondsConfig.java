@@ -176,7 +176,7 @@ public class SixtySecondsConfig {
 
     /** 一个手动登记的 NPC 生成点（坐标为模板绝对坐标）。 */
     public static class NpcSpawn {
-        /** 变体 id，对齐 {@code SixtySecondsNpcEntity.Variant.id}（0=商人 1=军人 2=强盗 3=旅者）。 */
+        /** 变体 id，对齐 {@code SixtySecondsNpcEntity.Variant.id}（0=商人 1=军人 2=强盗 3=旅者 4=海盗）。 */
         @SerializedName("variant")
         public int variant;
         @SerializedName("pos")

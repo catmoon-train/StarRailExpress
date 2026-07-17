@@ -60,6 +60,39 @@ public final class SixtySecondsNpcSpawner {
         return npc;
     }
 
+    /**
+     * 搭图预览生成（NPC 放置器 / {@code /sre:60s npc} 指令）：立在登记点当立牌，
+     * 模式外不自毁、不自散、不参与局内逻辑；开局由 {@link #spawnConfigured} 清掉并按配置重生成。
+     */
+    public static SixtySecondsNpcEntity spawnPreview(ServerLevel level, BlockPos pos,
+            SixtySecondsNpcEntity.Variant variant, float yaw, String profile, int garrisonRadius) {
+        SixtySecondsNpcEntity npc = spawnAt(level, pos, variant, yaw, profile, garrisonRadius, -1);
+        if (npc != null) {
+            npc.setEditorPreview(true);
+        }
+        return npc;
+    }
+
+    /**
+     * 清掉全世界的搭图预览 NPC。开局前调用（{@link #spawnConfigured}）——预览会按 config.npcSpawns
+     * 重新生成为正式 NPC，不清就会和正式的重成两份。
+     *
+     * @return 清掉的数量
+     */
+    public static int clearPreviews(ServerLevel level) {
+        // 先收集再删除：遍历 getAllEntities() 途中 discard 会并发修改实体存储
+        List<SixtySecondsNpcEntity> previews = new ArrayList<>();
+        for (net.minecraft.world.entity.Entity entity : level.getAllEntities()) {
+            if (entity instanceof SixtySecondsNpcEntity npc && npc.isEditorPreview()) {
+                previews.add(npc);
+            }
+        }
+        for (SixtySecondsNpcEntity npc : previews) {
+            npc.discard();
+        }
+        return previews.size();
+    }
+
     /** 旅者随身物资（被偷抽一格、被杀全掉）：2~4 件常见物资。 */
     private static void fillCarry(ServerLevel level, SixtySecondsNpcEntity npc) {
         RandomSource random = level.getRandom();
@@ -87,6 +120,11 @@ public final class SixtySecondsNpcSpawner {
      * 否则（搜索区/野外）→ <b>只生成一份</b>（全队共用，不克隆）。
      */
     public static void spawnConfigured(ServerLevel level, SixtySecondsState.Data data) {
+        // 搭图期留下的预览立牌先清掉：下面会按同一份 config 重新生成正式 NPC，不清就是两份
+        int cleared = clearPreviews(level);
+        if (cleared > 0) {
+            org.agmas.noellesroles.Noellesroles.LOGGER.info("[60s] 清理搭图预览 NPC {} 只，按配置重新生成。", cleared);
+        }
         SixtySecondsConfig config = SixtySecondsConfigStore.current(level).orElse(null);
         if (config == null || config.npcSpawns == null || config.npcSpawns.isEmpty()) {
             return;
@@ -205,6 +243,122 @@ public final class SixtySecondsNpcSpawner {
                 spawnAt(level, spot, variant, random.nextFloat() * 360.0F, "default", 6, -1);
             }
         }
+    }
+
+    // ── 路径 6：海盗（海上乘船随机遭遇）────────────────────────────────────
+
+    /**
+     * 海盗刷新：对每名<b>在水面附近</b>的玩家做一次判定，在其 20~44 格外的开阔水面刷 1~2 名海盗，
+     * <b>每人一条船</b>。判定只看「玩家周围能不能找到像样的海面」——这样群岛海域与探索区的
+     * 河/海自然都覆盖到，不用分两套系统。船靠 {@code SixtySecondsNpcEntity.tickPirateBoat} 划向玩家。
+     */
+    public static void spawnPirates(ServerLevel level, SixtySecondsState.Data data, boolean night) {
+        RandomSource random = level.getRandom();
+        double chance = SixtySecondsBalance.PIRATE_SPAWN_CHANCE
+                * (night ? SixtySecondsBalance.PIRATE_NIGHT_CHANCE_MULT : 1.0);
+        for (net.minecraft.server.level.ServerPlayer player : level.players()) {
+            if (player.isSpectator() || player.isCreative()
+                    || io.wifi.starrailexpress.game.GameUtils.isPlayerEliminated(player)) {
+                continue;
+            }
+            // 只找<b>出了门</b>的人：在家的玩家哪怕住在水边也不该被海盗堵门，那是夜袭的活。
+            // 这条同时把「扬帆去海岛」的玩家收进来——出海本来就走的是探索区状态。
+            if (!net.exmo.sre.sixtyseconds.arena.SixtySecondsSearchZones.isInSearchZone(player)) {
+                continue;
+            }
+            if (random.nextDouble() >= chance) {
+                continue;
+            }
+            // 附近海盗已够多就不再刷（防海盗海）
+            AABB near = player.getBoundingBox().inflate(SixtySecondsBalance.PIRATE_NEARBY_RADIUS);
+            int existing = 0;
+            for (SixtySecondsNpcEntity npc : level.getEntitiesOfClass(SixtySecondsNpcEntity.class, near)) {
+                if (npc.getVariant() == SixtySecondsNpcEntity.Variant.PIRATE) {
+                    existing++;
+                }
+            }
+            if (existing >= SixtySecondsBalance.PIRATE_MAX_NEARBY) {
+                continue;
+            }
+            int pack = SixtySecondsBalance.PIRATE_PACK_MIN + random.nextInt(
+                    SixtySecondsBalance.PIRATE_PACK_MAX - SixtySecondsBalance.PIRATE_PACK_MIN + 1);
+            pack = Math.min(pack, SixtySecondsBalance.PIRATE_MAX_NEARBY - existing);
+            int spawned = 0;
+            for (int i = 0; i < pack; i++) {
+                BlockPos sea = findSeaSpot(level, player.blockPosition(), random);
+                if (sea == null) {
+                    break; // 这名玩家周围没海面，直接放弃（不是海边就不该有海盗）
+                }
+                if (spawnPirateOnBoat(level, sea, random) != null) {
+                    spawned++;
+                }
+            }
+            if (spawned > 0) {
+                player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
+                        "message.noellesroles.sixty_seconds.npc.pirate_sighted")
+                        .withStyle(net.minecraft.ChatFormatting.RED), true);
+                player.playNotifySound(net.minecraft.sounds.SoundEvents.BOAT_PADDLE_WATER,
+                        net.minecraft.sounds.SoundSource.HOSTILE, 0.7F, 0.8F);
+            }
+        }
+    }
+
+    /** 造一条船 + 船上一名海盗。船挂 {@code PIRATE_BOAT_TAG}，海盗死/散时随之清掉。 */
+    @Nullable
+    public static SixtySecondsNpcEntity spawnPirateOnBoat(ServerLevel level, BlockPos waterPos,
+            RandomSource random) {
+        net.minecraft.world.entity.vehicle.Boat boat = new net.minecraft.world.entity.vehicle.Boat(
+                net.minecraft.world.entity.EntityType.BOAT, level);
+        boat.setVariant(net.minecraft.world.entity.vehicle.Boat.Type.DARK_OAK);
+        boat.setPos(waterPos.getX() + 0.5, waterPos.getY() + 0.5, waterPos.getZ() + 0.5);
+        boat.setYRot(random.nextFloat() * 360.0F);
+        boat.addTag(SixtySecondsNpcEntity.PIRATE_BOAT_TAG);
+        if (!level.addFreshEntity(boat)) {
+            return null;
+        }
+        SixtySecondsNpcEntity pirate = spawnAt(level, waterPos, SixtySecondsNpcEntity.Variant.PIRATE,
+                boat.getYRot(), "default", 8, -1);
+        if (pirate == null) {
+            boat.discard();
+            return null;
+        }
+        fillCarry(level, pirate); // 海盗身上也有货：打赢了有得捞
+        pirate.startRiding(boat, true);
+        return pirate;
+    }
+
+    /**
+     * 在玩家周围 {@code PIRATE_SPAWN_MIN_DIST}~{@code MAX_DIST} 找一处开阔水面（水面格：本格是水、
+     * 上方两格空气、下方也是水=有深度，不刷在一格水洼里）。找不到返回 null——玩家不在海边就不该冒出海盗。
+     * 搜索半径控制在加载区块内，不会触发同步区块加载。
+     */
+    @Nullable
+    private static BlockPos findSeaSpot(ServerLevel level, BlockPos near, RandomSource random) {
+        int min = SixtySecondsBalance.PIRATE_SPAWN_MIN_DIST;
+        int max = SixtySecondsBalance.PIRATE_SPAWN_MAX_DIST;
+        for (int attempt = 0; attempt < 16; attempt++) {
+            double angle = random.nextDouble() * Math.PI * 2.0;
+            double dist = min + random.nextDouble() * (max - min);
+            int x = near.getX() + (int) (Math.cos(angle) * dist);
+            int z = near.getZ() + (int) (Math.sin(angle) * dist);
+            if (!level.hasChunkAt(new BlockPos(x, near.getY(), z))) {
+                continue; // 区块没加载：跳过而不是强载，免得刷海盗把主线程拖住
+            }
+            for (int y = near.getY() + 8; y >= near.getY() - 16; y--) {
+                BlockPos pos = new BlockPos(x, y, z);
+                if (!level.getFluidState(pos).is(net.minecraft.tags.FluidTags.WATER)) {
+                    continue;
+                }
+                boolean surface = level.getBlockState(pos.above()).isAir()
+                        && level.getBlockState(pos.above(2)).isAir();
+                boolean deep = level.getFluidState(pos.below()).is(net.minecraft.tags.FluidTags.WATER);
+                if (surface && deep) {
+                    return pos;
+                }
+                break; // 撞到水但不合格（浅水/被盖住）：这一列不用再往下找了
+            }
+        }
+        return null;
     }
 
     // ── 路径 3/4：夜袭强盗 ───────────────────────────────────────────────
