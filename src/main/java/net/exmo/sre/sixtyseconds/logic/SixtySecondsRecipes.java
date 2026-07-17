@@ -543,6 +543,10 @@ public final class SixtySecondsRecipes {
                 List.of(in(org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_PLANTER.asItem(), 1),
                         in(glassPlate, 1), in(nails, 2)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_ADVANCED_PLANTER.asItem(), 1);
+        // 园丁培育箱：橡木木板x4 + 铁锭x2 + 电子元件x1 + 废料x3
+        add(list, "gardener_planter", Station.WORKBENCH, "planter_3", false,
+                List.of(in(oak, 4), in(iron, 2), in(elec, 1), in(scrap, 3)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_GARDENER_PLANTER.asItem(), 1);
         // ── 肥料 ─────────────────────────────────────────────────────
         add(list, "fertilizer", Station.WORKBENCH, "fertilizer_1", false,
                 List.of(in(Items.ROTTEN_FLESH, 1), in(Items.BONE_MEAL, 1)), ModItems.SIXTY_SECONDS_FERTILIZER, 1);

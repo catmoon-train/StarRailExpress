@@ -21,7 +21,7 @@ public final class SixtySecondsCrops {
 
     /** 培育箱等级。 */
     public enum Tier {
-        BASIC, ADVANCED, MUSHROOM
+        BASIC, ADVANCED, MUSHROOM, GARDENER
     }
 
     /**
@@ -30,7 +30,7 @@ public final class SixtySecondsCrops {
      * （工业麻/火把花/瓶子草）。
      */
     public record Crop(String id, Item seed, Item product, int minCount, int maxCount,
-            String techId, boolean advancedOnly, boolean mushroom, boolean fullStagesInAdvanced) {
+            String techId, boolean advancedOnly, boolean mushroom, boolean fullStagesInAdvanced, boolean gardenerOnly) {
     }
 
     private static List<Crop> crops;
@@ -73,6 +73,9 @@ public final class SixtySecondsCrops {
         if (crop.advancedOnly()) {
             return tier == Tier.ADVANCED;
         }
+        if (crop.gardenerOnly()) {
+            return tier == Tier.GARDENER;
+        }
         return tier == Tier.BASIC || tier == Tier.ADVANCED;
     }
 
@@ -80,34 +83,41 @@ public final class SixtySecondsCrops {
         List<Crop> list = new ArrayList<>();
         // 基础：新鲜蔬菜（无门控，沿用旧培育箱闭环）
         list.add(new Crop("vegetables", ModItems.SIXTY_SECONDS_SEEDS_PACK,
-                ModItems.SIXTY_SECONDS_FRESH_VEGETABLES, 1, 2, null, false, false, false));
+                ModItems.SIXTY_SECONDS_FRESH_VEGETABLES, 1, 2, null, false, false, false, false));
         // 农业-I：小麦
-        list.add(new Crop("wheat", Items.WHEAT_SEEDS, Items.WHEAT, 1, 2, "agri_1", false, false, false));
+        list.add(new Crop("wheat", Items.WHEAT_SEEDS, Items.WHEAT, 1, 2, "agri_1", false, false, false, false));
         // 农业-II：野米/野茶 + 常规作物
         list.add(new Crop("wild_rice", ModItems.SIXTY_SECONDS_WILD_RICE_SEEDS,
-                ModItems.SIXTY_SECONDS_WILD_RICE, 2, 2, "agri_2", false, false, false));
+                ModItems.SIXTY_SECONDS_WILD_RICE, 2, 2, "agri_2", false, false, false, false));
         list.add(new Crop("wild_tea", ModItems.SIXTY_SECONDS_WILD_TEA_SEED,
-                ModItems.SIXTY_SECONDS_WILD_TEA_LEAF, 2, 2, "agri_2", false, false, false));
-        list.add(new Crop("potato", Items.POTATO, Items.POTATO, 2, 2, "agri_2", false, false, false));
-        list.add(new Crop("carrot", Items.CARROT, Items.CARROT, 2, 2, "agri_2", false, false, false));
-        list.add(new Crop("beetroot", Items.BEETROOT_SEEDS, Items.BEETROOT, 2, 2, "agri_2", false, false, false));
-        list.add(new Crop("melon", Items.MELON_SEEDS, Items.MELON, 2, 2, "agri_2", false, false, false));
-        list.add(new Crop("pumpkin", Items.PUMPKIN_SEEDS, Items.PUMPKIN, 2, 2, "agri_2", false, false, false));
+                ModItems.SIXTY_SECONDS_WILD_TEA_LEAF, 2, 2, "agri_2", false, false, false, false));
+        list.add(new Crop("potato", Items.POTATO, Items.POTATO, 2, 2, "agri_2", false, false, false, false));
+        list.add(new Crop("carrot", Items.CARROT, Items.CARROT, 2, 2, "agri_2", false, false, false, false));
+        list.add(new Crop("beetroot", Items.BEETROOT_SEEDS, Items.BEETROOT, 2, 2, "agri_2", false, false, false, false));
+        list.add(new Crop("melon", Items.MELON_SEEDS, Items.MELON, 2, 2, "agri_2", false, false, false, false));
+        list.add(new Crop("pumpkin", Items.PUMPKIN_SEEDS, Items.PUMPKIN, 2, 2, "agri_2", false, false, false, false));
         // 农业-III：工业麻（仅高级培育箱）+ 火把花/瓶子草（仅高级培育箱，满 3 阶段，收 1 个）
         list.add(new Crop("hemp", ModItems.SIXTY_SECONDS_HEMP_SEEDS,
-                ModItems.SIXTY_SECONDS_HEMP, 2, 2, "agri_3", true, false, true));
+                ModItems.SIXTY_SECONDS_HEMP, 2, 2, "agri_3", true, false, true, false));
         list.add(new Crop("torchflower", Items.TORCHFLOWER_SEEDS, Items.TORCHFLOWER,
-                1, 1, "agri_3", true, false, true));
+                1, 1, "agri_3", true, false, true, false));
         list.add(new Crop("pitcher", Items.PITCHER_POD, Items.PITCHER_PLANT,
-                1, 1, "agri_3", true, false, true));
+                1, 1, "agri_3", true, false, true, false));
         // 菌丝箱：红/棕蘑菇（种 1 收 2）
         list.add(new Crop("red_mushroom", Items.RED_MUSHROOM, Items.RED_MUSHROOM,
-                2, 2, null, false, true, false));
+                2, 2, null, false, true, false, false));
         list.add(new Crop("brown_mushroom", Items.BROWN_MUSHROOM, Items.BROWN_MUSHROOM,
-                2, 2, null, false, true, false));
+                2, 2, null, false, true, false, false));
         // 烟草科技：烟草
         list.add(new Crop("tobacco", ModItems.SIXTY_SECONDS_TOBACCO_SEEDS,
-                ModItems.SIXTY_SECONDS_TOBACCO, 1, 2, "tobacco", false, false, false));
+                ModItems.SIXTY_SECONDS_TOBACCO, 1, 2, "tobacco", false, false, false, false));
+        // 园丁培育箱：竹子/浆果/发光浆果（种1收2）
+        list.add(new Crop("bamboo", Items.BAMBOO, Items.BAMBOO,
+                2, 2, "planter_3", false, false, false, true));
+        list.add(new Crop("sweet_berries", Items.SWEET_BERRIES, Items.SWEET_BERRIES,
+                2, 2, "planter_3", false, false, false, true));
+        list.add(new Crop("glow_berries", Items.GLOW_BERRIES, Items.GLOW_BERRIES,
+                2, 2, "planter_3", false, false, false, true));
         return List.copyOf(list);
     }
 }

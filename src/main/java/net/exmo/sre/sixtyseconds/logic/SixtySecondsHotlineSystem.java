@@ -440,7 +440,10 @@ public final class SixtySecondsHotlineSystem {
             s(Items.POTATO, 3, 6),
             s(Items.BEETROOT_SEEDS, 3, 6),
             s(Items.PUMPKIN_SEEDS, 3, 6),
-            s(Items.MELON_SEEDS, 3, 6)
+            s(Items.MELON_SEEDS, 3, 6),
+            s(Items.BAMBOO, 3, 6),
+            s(Items.SWEET_BERRIES, 3, 6),
+            s(Items.GLOW_BERRIES, 3, 6)
         ));
         // 低概率特殊种子
         seeds.add(s(ModItems.SIXTY_SECONDS_HEMP_SEEDS, 5, 10));

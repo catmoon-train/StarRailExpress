@@ -383,13 +383,21 @@ public interface ModBlocks {
             b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_GARDENER_PLANTER = blockRegistrar.createWithItem("sixty_seconds_gardener_planter",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsPlanterBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(1.5F).randomTicks(),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsCrops.Tier.GARDENER),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsPlanterBlockEntity> SIXTY_SECONDS_PLANTER_ENTITY =
             blockEntityRegistrar.create("sixty_seconds_planter",
                     BlockEntityType.Builder.of(
                             net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsPlanterBlockEntity::new,
                             ModBlocks.SIXTY_SECONDS_PLANTER,
                             ModBlocks.SIXTY_SECONDS_ADVANCED_PLANTER,
-                            ModBlocks.SIXTY_SECONDS_MUSHROOM_BOX));
+                            ModBlocks.SIXTY_SECONDS_MUSHROOM_BOX,
+                            ModBlocks.SIXTY_SECONDS_GARDENER_PLANTER));
 
     // ── 保险库（对外队上锁的真实容器）+ 基地箱子（普通容器）─────────────────
     Block SIXTY_SECONDS_VAULT_SMALL = blockRegistrar.createWithItem("sixty_seconds_vault_small",

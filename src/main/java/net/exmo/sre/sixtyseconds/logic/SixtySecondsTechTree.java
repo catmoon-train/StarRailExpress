@@ -68,7 +68,7 @@ public final class SixtySecondsTechTree {
         chain(list, "survival", "work_env_1", "backpack_1", "backpack_2", "backpack_3", "backpack_4", "backpack_5");
         // ── 农业 ────────────────────────────────────────────────────
         chain(list, "agriculture", null, "agri_1", "agri_2", "agri_3");
-        chain(list, "agriculture", null, "planter_1", "planter_2");
+        chain(list, "agriculture", null, "planter_1", "planter_2", "planter_3");
         chain(list, "agriculture", null, "fertilizer_1", "fertilizer_2");
         chain(list, "agriculture", null, "tobacco");
         // ── 炊事 ────────────────────────────────────────────────────
