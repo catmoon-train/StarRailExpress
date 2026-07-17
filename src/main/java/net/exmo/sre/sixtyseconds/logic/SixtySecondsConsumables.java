@@ -39,8 +39,9 @@ public final class SixtySecondsConsumables {
         int hunger = 0;
         if (thirst > 0) {
             stats.thirst = Math.min(SixtySecondsStatsComponent.MAX, stats.thirst + thirst);
-            if (!(stack.getItem() instanceof SixtySecondsWaterItem)) {
-                // 非纯水饮品（CocktailItem/牛奶桶/厨师的水）：同时恢复饱食度
+            if (!(stack.getItem() instanceof SixtySecondsWaterItem)
+                    && !(stack.getItem() instanceof PotionItem)) {
+                // 非纯水饮品和药水：同时恢复饱食度
                 hunger = hungerRestoreOf(stack);
                 if (hunger > 0) {
                     stats.hunger = Math.min(SixtySecondsStatsComponent.MAX, stats.hunger + hunger);
@@ -61,8 +62,9 @@ public final class SixtySecondsConsumables {
     /** 该物品恢复的饱食度（食物按 foodData，纯药水固定值，水/饮品返回 0）。客户端 tooltip 也用它。 */
     public static int hungerRestoreOf(ItemStack stack) {
         if (stack.getItem() instanceof SixtySecondsWaterItem
-                || stack.getItem() instanceof CocktailItem) {
-            return 0; // 水和饮品只恢复口渴
+                || stack.getItem() instanceof CocktailItem
+                || stack.getItem() instanceof PotionItem) {
+            return 0; // 水、饮品、药水只恢复口渴
         }
         FoodProperties food = stack.get(DataComponents.FOOD);
         if (food != null) {
@@ -85,6 +87,9 @@ public final class SixtySecondsConsumables {
         }
         if (stack.getItem() instanceof ChefWaterItem) {
             return 10;
+        }
+        if (stack.getItem() instanceof PotionItem) {
+            return 15; // 原版药水：+15 口渴
         }
         return 0;
     }

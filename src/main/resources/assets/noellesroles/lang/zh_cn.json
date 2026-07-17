@@ -5807,7 +5807,9 @@
   "item.noellesroles.sixty_seconds_phone": "电话",
   "tooltip.noellesroles.sixty_seconds_phone": "右键打开拨号界面，拨打热线号码。",
   "item.noellesroles.sixty_seconds_express_package": "快递包裹",
-  "tooltip.noellesroles.sixty_seconds_express_package": "可以存放一件物资。放入邮箱后，快递员会取走配送。",
+  "tooltip.noellesroles.sixty_seconds_express_package": "§7右键打开，可存放一件物资。放入邮箱后，快递员会取走配送。",
+  "tooltip.noellesroles.sixty_seconds_express_package.filled": "§a✔ 已存放物资",
+  "tooltip.noellesroles.sixty_seconds_express_package.empty": "§7空包裹",
 
   "screen.noellesroles.phone_dial": "电话拨号",
   "gui.noellesroles.phone_dial.call": "拨号",
