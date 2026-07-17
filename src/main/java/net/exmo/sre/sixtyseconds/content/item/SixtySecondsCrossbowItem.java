@@ -12,7 +12,7 @@ import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-/** 60s 手弩/重弩 — 继承原版 CrossbowItem 获得装填/瞄准动画，使用60s箭矢 */
+/** 60s 手弩/重弩 — 继承原版 CrossbowItem，使用60s箭矢 */
 public class SixtySecondsCrossbowItem extends CrossbowItem {
 
     private final float powerMult;
@@ -29,10 +29,8 @@ public class SixtySecondsCrossbowItem extends CrossbowItem {
         ItemStack stack = player.getItemInHand(hand);
         if (!SixtySecondsMod.isActive(level))
             return InteractionResultHolder.pass(stack);
-        // 有箭才能拉弦
         if (!player.isCreative() && findArrowSlot(player) < 0)
             return InteractionResultHolder.fail(stack);
-        // 用原版弩的充能逻辑（底层处理 charged 状态）
         return super.use(level, player, hand);
     }
 
@@ -41,26 +39,19 @@ public class SixtySecondsCrossbowItem extends CrossbowItem {
         return drawTicks > 0 ? drawTicks : 25;
     }
 
-    /**
-     * 发射时由原版 performShooting 调用，此处仅 override 以用 60s 箭矢。
-     * 实际上我们 hook 在 super.use() 的充能完成后由原版 CrossbowItem 内部自动发射。
-     * 为了让弩在服务端正确发射60s箭矢，重写 tryLoadProjectiles 或 createProjectile。
-     * 但由于原版 CrossbowItem 内部逻辑复杂，采用最简方式：在 use() 时只做检查，
-     * 发射后在服务端替换为60s箭矢逻辑——通过 LivingEntityUseItemTick 或 EntityTick 事件。
-     *
-     * 最终采用：拦截 setCharged 后的首次 use() 执行60s箭矢发射。
-     */
     @Override
     public void releaseUsing(ItemStack stack, Level level, net.minecraft.world.entity.LivingEntity entity, int timeLeft) {
         if (!(entity instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)
                 || !SixtySecondsMod.isActive(level)) {
+            super.releaseUsing(stack, level, entity, timeLeft);
             return;
         }
-        // 仅已装填(charged=true)时才发射60s箭
-        if (!CrossbowItem.isCharged(stack))
+        // 已装填则发射60s箭
+        if (!CrossbowItem.isCharged(stack)) {
+            super.releaseUsing(stack, level, entity, timeLeft);
             return;
+        }
 
-        // 取60s箭矢
         ArrowType arrowType = ArrowType.CRUDE;
         int slot = findArrowSlot(player);
         if (slot >= 0) {
@@ -83,10 +74,12 @@ public class SixtySecondsCrossbowItem extends CrossbowItem {
         arrow.pickup = net.minecraft.world.entity.projectile.AbstractArrow.Pickup.DISALLOWED;
         serverLevel.addFreshEntity(arrow);
 
-        // 卸下charged状态，设置冷却
-        CrossbowItem.setCharged(stack, false);
-        stack.hurtAndBreak(1, player, net.minecraft.world.entity.LivingEntity.getSlotForHand(player.getUsedItemHand()));
+        stack.hurtAndBreak(1, player,
+                net.minecraft.world.entity.LivingEntity.getSlotForHand(player.getUsedItemHand()));
         player.getCooldowns().addCooldown(this, drawTicks);
+
+        // 让原版 CrossbowItem 清空 charged 状态
+        super.releaseUsing(stack, level, entity, timeLeft);
     }
 
     private static int findArrowSlot(Player player) {

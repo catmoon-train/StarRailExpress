@@ -478,11 +478,11 @@ public class ModItems {
             "sixty_seconds_compound_bow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_HAND_CROSSBOW = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsCrossbowItem(
-                    new Item.Properties().stacksTo(1).durability(320), 1.25F, 14),
+                    new Item.Properties().stacksTo(1).durability(320), 1.25F, 25),
             "sixty_seconds_hand_crossbow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_HEAVY_CROSSBOW = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsCrossbowItem(
-                    new Item.Properties().stacksTo(1).durability(520), 1.7F, 26),
+                    new Item.Properties().stacksTo(1).durability(520), 1.7F, 25),
             "sixty_seconds_heavy_crossbow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // ── 箭矢（弓/弩弹药，携带 ArrowType）─────────────────────────────────
     public static final Item SIXTY_SECONDS_CRUDE_ARROW = register(

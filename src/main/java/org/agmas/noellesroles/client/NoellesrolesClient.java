@@ -1931,8 +1931,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         registerBowPull(ModItems.SIXTY_SECONDS_RECURVE_BOW, 20);
         registerBowPull(ModItems.SIXTY_SECONDS_COMPOUND_BOW, 18);
         // ── 弩（hand=14tick / heavy=26tick；60s 弩同用弓式拉弦，无需 charged/firework）──────────────
-        registerBowPull(ModItems.SIXTY_SECONDS_HAND_CROSSBOW, 14);
-        registerBowPull(ModItems.SIXTY_SECONDS_HEAVY_CROSSBOW, 26);
+        registerBowPull(ModItems.SIXTY_SECONDS_HAND_CROSSBOW, 25);
+        registerBowPull(ModItems.SIXTY_SECONDS_HEAVY_CROSSBOW, 25);
     }
 
     private static void registerBowPull(net.minecraft.world.item.Item item, int maxDrawTicks) {
