@@ -113,11 +113,11 @@ public final class SixtySecondsCrops {
                 ModItems.SIXTY_SECONDS_TOBACCO, 1, 2, "tobacco", false, false, false, false));
         // 园丁培育箱：竹子/浆果/发光浆果（种1收2）
         list.add(new Crop("bamboo", Items.BAMBOO, Items.BAMBOO,
-                2, 2, "planter_3", false, false, false, true));
+                2, 2, "misc_planter_2", false, false, false, true));
         list.add(new Crop("sweet_berries", Items.SWEET_BERRIES, Items.SWEET_BERRIES,
-                2, 2, "planter_3", false, false, false, true));
+                2, 2, "misc_planter_2", false, false, false, true));
         list.add(new Crop("glow_berries", Items.GLOW_BERRIES, Items.GLOW_BERRIES,
-                2, 2, "planter_3", false, false, false, true));
+                2, 2, "misc_planter_2", false, false, false, true));
         return List.copyOf(list);
     }
 }

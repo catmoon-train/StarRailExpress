@@ -5806,8 +5806,10 @@
 
   "block.noellesroles.sixty_seconds_gardener_planter": "园丁培育箱",
   "tooltip.noellesroles.sixty_seconds_gardener_planter": "§7专为浆果和竹子设计的培育箱。种1收2。",
-  "tech.noellesroles.sixty_seconds.planter_3": "园丁培育箱",
-  "tech.noellesroles.sixty_seconds.planter_3.desc": "制作园丁培育箱，种植浆果与竹子。",
+  "tech.noellesroles.sixty_seconds.misc_planter_1": "种点别的-I",
+  "tech.noellesroles.sixty_seconds.misc_planter_1.desc": "制作菌丝箱，在室内也能安心种蘑菇。",
+  "tech.noellesroles.sixty_seconds.misc_planter_2": "种点别的-II",
+  "tech.noellesroles.sixty_seconds.misc_planter_2.desc": "制作园丁培育箱，种植浆果与竹子。",
   "message.noellesroles.sixty_seconds.planter.crop.bamboo": "竹子",
   "message.noellesroles.sixty_seconds.planter.crop.sweet_berries": "甜浆果",
   "message.noellesroles.sixty_seconds.planter.crop.glow_berries": "发光浆果",

@@ -536,7 +536,7 @@ public final class SixtySecondsRecipes {
         add(list, "planter", Station.WORKBENCH, "planter_1", false,
                 List.of(in(oak, 4), in(scrap, 2)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_PLANTER.asItem(), 1);
-        add(list, "mushroom_box", Station.WORKBENCH, "planter_1", false,
+        add(list, "mushroom_box", Station.WORKBENCH, "misc_planter_1", false,
                 List.of(in(oak, 2), any("mushroom", 1, mushrooms()), in(scrap, 2)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_MUSHROOM_BOX.asItem(), 1);
         add(list, "advanced_planter", Station.WORKBENCH, "planter_2", false,
@@ -544,7 +544,7 @@ public final class SixtySecondsRecipes {
                         in(glassPlate, 1), in(nails, 2)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_ADVANCED_PLANTER.asItem(), 1);
         // 园丁培育箱：橡木木板x4 + 铁锭x2 + 电子元件x1 + 废料x3
-        add(list, "gardener_planter", Station.WORKBENCH, "planter_3", false,
+        add(list, "gardener_planter", Station.WORKBENCH, "misc_planter_2", true,
                 List.of(in(oak, 4), in(iron, 2), in(elec, 1), in(scrap, 3)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_GARDENER_PLANTER.asItem(), 1);
         // ── 肥料 ─────────────────────────────────────────────────────
