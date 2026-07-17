@@ -22,9 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.List;
 
-/**
- * 快递包裹 - 可放入邮箱，右键打开1格存储空间（使用箱子菜单限制1行1列）
- */
+/** 快递包裹 - 可放入邮箱，右键打开1格存储空间 */
 public class ExpressPackageItem extends Item {
 
     public ExpressPackageItem(Properties properties) {
@@ -39,7 +37,6 @@ public class ExpressPackageItem extends Item {
         if (be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity) {
             return InteractionResult.PASS;
         }
-        // 右键其他方块也打开包裹
         if (!level.isClientSide && context.getPlayer() instanceof ServerPlayer sp) {
             openPackageScreen(sp, context.getItemInHand());
         }
@@ -49,14 +46,14 @@ public class ExpressPackageItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!level.isClientSide && player instanceof ServerPlayer sp) {
+        if (stack.is(this) && !level.isClientSide && player instanceof ServerPlayer sp) {
             openPackageScreen(sp, stack);
         }
         return InteractionResultHolder.success(stack);
     }
 
     private void openPackageScreen(ServerPlayer player, ItemStack packageStack) {
-        var contents = ExpressPackageContainer.create(packageStack);
+        var contents = ExpressPackageContainer.create(packageStack, player.serverLevel());
         player.openMenu(new SimpleMenuProvider(
                 (id, inv, p) -> new ChestMenu(
                         net.minecraft.world.inventory.MenuType.GENERIC_9x1, id, inv, contents, 1),
@@ -67,45 +64,37 @@ public class ExpressPackageItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds_express_package"));
-        CompoundTag contents = getContents(stack);
-        if (!contents.isEmpty()) {
-            ItemStack inner = ItemStack.parseOptional(context.registries(), contents);
-            if (!inner.isEmpty()) {
-                tooltip.add(Component.translatable("tooltip.noellesroles.express_package_contains",
-                        inner.getHoverName().getString(), inner.getCount()));
-            }
+        ItemStack inner = ExpressPackageContainer.peekContent(stack, context.registries());
+        if (!inner.isEmpty()) {
+            tooltip.add(Component.literal(" §7[" + inner.getHoverName().getString() + " x" + inner.getCount() + "]"));
         }
     }
 
-    /** 设置包裹内的物品 */
     public static void setContent(ItemStack stack, ItemStack content) {
-        CompoundTag tag = new CompoundTag();
-        if (!content.isEmpty()) {
-            tag = (CompoundTag) content.saveOptional(
-                    net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(
-                            net.minecraft.core.registries.BuiltInRegistries.REGISTRY));
+        if (content.isEmpty()) {
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(new CompoundTag()));
+            return;
         }
+        CompoundTag itemTag = (CompoundTag) content.save(
+                net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(
+                        net.minecraft.core.registries.BuiltInRegistries.REGISTRY));
         CompoundTag data = new CompoundTag();
-        data.put("PackageContent", tag);
+        data.put("PackageContent", itemTag);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
     }
 
-    /** 获取包裹内的物品 */
     public static CompoundTag getContents(ItemStack stack) {
-        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-        if (customData != null) {
-            return customData.copyTag().getCompound("PackageContent");
-        }
+        CustomData cd = stack.get(DataComponents.CUSTOM_DATA);
+        if (cd != null) return cd.copyTag().getCompound("PackageContent");
         return new CompoundTag();
     }
 
-    /** 提取包裹内物品 */
     public static ItemStack extractContent(ItemStack stack, ServerLevel level) {
         CompoundTag tag = getContents(stack);
         if (!tag.isEmpty()) {
-            ItemStack content = ItemStack.parseOptional(level.registryAccess(), tag);
-            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(new CompoundTag()));
-            return content;
+            ItemStack result = ItemStack.parseOptional(level.registryAccess(), tag);
+            setContent(stack, ItemStack.EMPTY);
+            return result;
         }
         return ItemStack.EMPTY;
     }
