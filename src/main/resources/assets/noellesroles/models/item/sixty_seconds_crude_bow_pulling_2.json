@@ -1,6 +1,1 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "noellesroles:item/sixty_seconds_crude_bow"
-  }
-}
+{"parent":"minecraft:item/generated","textures":{"layer0":"noellesroles:item/sixty_seconds_crude_bow_pulling_2"}}

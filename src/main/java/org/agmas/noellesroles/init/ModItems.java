@@ -462,23 +462,23 @@ public class ModItems {
     // ── 弓/弩（拉弓蓄力发射 60s 箭矢；powerMult / drawTicks / 是否弩）──────────────
     public static final Item SIXTY_SECONDS_CRUDE_BOW = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBowItem(
-                    new Item.Properties().stacksTo(1).durability(160), 0.9F, 24, false),
+                    new Item.Properties().stacksTo(1).durability(160), 0.9F, 24),
             "sixty_seconds_crude_bow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_HUNTING_BOW = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBowItem(
-                    new Item.Properties().stacksTo(1).durability(300), 1.1F, 20, false),
+                    new Item.Properties().stacksTo(1).durability(300), 1.1F, 20),
             "sixty_seconds_hunting_bow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_RECURVE_BOW = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBowItem(
-                    new Item.Properties().stacksTo(1).durability(450), 1.3F, 20, false),
+                    new Item.Properties().stacksTo(1).durability(450), 1.3F, 20),
             "sixty_seconds_recurve_bow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_COMPOUND_BOW = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBowItem(
-                    new Item.Properties().stacksTo(1).durability(600), 1.5F, 18, false),
+                    new Item.Properties().stacksTo(1).durability(600), 1.5F, 18),
             "sixty_seconds_compound_bow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_HAND_CROSSBOW = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBowItem(
-                    new Item.Properties().stacksTo(1).durability(320), 1.25F, 14, true),
+                    new Item.Properties().stacksTo(1).durability(320), 1.25F, 14),
             "sixty_seconds_hand_crossbow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_HEAVY_CROSSBOW = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBowItem(
