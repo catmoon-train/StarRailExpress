@@ -1,12 +1,1 @@
-{
-  "parent": "minecraft:block/cube",
-  "textures": {
-    "particle": "noellesroles:block/sixty_seconds_mailbox_side",
-    "down": "noellesroles:block/sixty_seconds_mailbox_bottom",
-    "up": "noellesroles:block/sixty_seconds_mailbox_top",
-    "north": "noellesroles:block/sixty_seconds_mailbox_front",
-    "south": "noellesroles:block/sixty_seconds_mailbox_side",
-    "west": "noellesroles:block/sixty_seconds_mailbox_side",
-    "east": "noellesroles:block/sixty_seconds_mailbox_side"
-  }
-}
+{"parent":"minecraft:block/cube_all","textures":{"all":"noellesroles:block/sixty_seconds_mailbox"}}

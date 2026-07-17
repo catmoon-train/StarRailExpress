@@ -331,6 +331,8 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(BloodConfigS2CPacket.ID, BloodConfigS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(BloodConfigS2CPacket.ID, BloodConfigS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(CreateClientSmokeAreaPacket.ID, CreateClientSmokeAreaPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.CreateClientMarkingAreaPacket.ID,
+                net.exmo.sre.sixtyseconds.network.CreateClientMarkingAreaPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(CreateCreeperBombAreaPacket.ID, CreateCreeperBombAreaPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(BanditRevolverShootPayload.ID,
                 BanditRevolverShootPayload.CODEC);

@@ -501,6 +501,11 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientSmokeAreaManager.createSmokeArea(context.client().level, payload.position(), payload.radius(),
                     payload.durationTicks());
         });
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.CreateClientMarkingAreaPacket.ID, (payload, context) -> {
+                    net.exmo.sre.sixtyseconds.client.ClientMarkingAreaManager.createMarkingArea(
+                            context.client().level, payload.position(), payload.radius(), payload.durationTicks());
+                });
 
         // 建筑师墙数据S2C包
         ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID,
@@ -573,6 +578,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (SREClient.gameComponent == null)
                 return;
             ClientSmokeAreaManager.tick();
+            net.exmo.sre.sixtyseconds.client.ClientMarkingAreaManager.tick();
             ClientWallManager.tick();
         });
         ClientPlayNetworking.registerGlobalReceiver(ProblemScreenOpenC2SPacket.ID, (payload, context) -> {
