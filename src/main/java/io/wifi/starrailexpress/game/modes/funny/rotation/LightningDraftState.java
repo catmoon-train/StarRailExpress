@@ -209,6 +209,17 @@ public class LightningDraftState {
     public void assignRotationOrder() {
         List<ServerPlayer> sorted = new ArrayList<>(allPlayers);
         Collections.shuffle(sorted);
+        sorted.sort((a, b) -> {
+            boolean a_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(a.getUUID());
+            boolean b_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(a.getUUID());
+            if (a_force && b_force)
+                return 0;
+            if (a_force)
+                return -1;
+            if (b_force)
+                return 1;
+            return 0;
+        });
         playerOrder.clear();
         for (ServerPlayer p : sorted) {
             playerOrder.add(p.getUUID());
@@ -244,6 +255,16 @@ public class LightningDraftState {
         // 预分配：为有强制阵营的玩家准备一个匹配职业
         Map<UUID, SRERole> preAssigned = new LinkedHashMap<>();
         Set<SRERole> usedInThisRound = new HashSet<>();
+        // 强制职业
+        for (UUID playerId : roundPlayers) {
+            if (Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(playerId)) {
+                var role = Harpymodloader.FORCED_MODDED_ROLE_FLIP.get(playerId);
+                if (!usedInThisRound.contains(role)) {
+                    usedInThisRound.add(role);
+                    preAssigned.put(playerId, role);
+                }
+            }
+        }
         for (UUID playerId : roundPlayers) {
             Integer forcedType = PlayerRoleWeightManager.ForcePlayerTeam.get(playerId);
             if (forcedType == null || forcedType < 1 || forcedType > 5)
