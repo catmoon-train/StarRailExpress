@@ -31,11 +31,6 @@ public class SixtySecondsBowItem extends BowItem {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return drawTicks;
-    }
-
-    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!SixtySecondsMod.isActive(level)) {

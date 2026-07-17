@@ -1975,18 +1975,32 @@ public class NoellesrolesClient implements ClientModInitializer {
         registerBowPull(ModItems.SIXTY_SECONDS_HUNTING_BOW, 20);
         registerBowPull(ModItems.SIXTY_SECONDS_RECURVE_BOW, 20);
         registerBowPull(ModItems.SIXTY_SECONDS_COMPOUND_BOW, 18);
-        // ── 弩（hand=14tick / heavy=26tick；60s 弩同用弓式拉弦，无需 charged/firework）──────────────
+        // ── 弩（hand=25tick / heavy=25tick；与原版弩蓄力时间一致）──────────────
         registerBowPull(ModItems.SIXTY_SECONDS_HAND_CROSSBOW, 25);
         registerBowPull(ModItems.SIXTY_SECONDS_HEAVY_CROSSBOW, 25);
+        registerCrossbowCharged(ModItems.SIXTY_SECONDS_HAND_CROSSBOW);
+        registerCrossbowCharged(ModItems.SIXTY_SECONDS_HEAVY_CROSSBOW);
+    }
+
+    private static void registerCrossbowCharged(net.minecraft.world.item.Item item) {
+        net.minecraft.resources.ResourceLocation charged =
+                net.minecraft.resources.ResourceLocation.withDefaultNamespace("charged");
+        net.minecraft.resources.ResourceLocation firework =
+                net.minecraft.resources.ResourceLocation.withDefaultNamespace("firework");
+        net.minecraft.client.renderer.item.ItemProperties.register(item, charged,
+                (stack, world, entity, seed) -> net.minecraft.world.item.CrossbowItem.isCharged(stack) ? 1.0F : 0.0F);
+        // 60s 弩不使用烟花火箭，firework 恒为 0
+        net.minecraft.client.renderer.item.ItemProperties.register(item, firework,
+                (stack, world, entity, seed) -> 0.0F);
     }
 
     private static void registerBowPull(net.minecraft.world.item.Item item, int maxDrawTicks) {
         net.minecraft.client.renderer.item.ItemProperties.register(item,
-                org.agmas.noellesroles.Noellesroles.id("pulling"),
+                net.minecraft.resources.ResourceLocation.withDefaultNamespace("pulling"),
                 (stack, world, entity, seed) -> entity != null && entity.isUsingItem()
                         && entity.getUseItem() == stack ? 1.0F : 0.0F);
         net.minecraft.client.renderer.item.ItemProperties.register(item,
-                org.agmas.noellesroles.Noellesroles.id("pull"),
+                net.minecraft.resources.ResourceLocation.withDefaultNamespace("pull"),
                 (stack, world, entity, seed) -> {
                     if (entity == null) {
                         return 0.0F;

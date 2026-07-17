@@ -16,11 +16,11 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.level.Level;
 
-/** 60s 弩 — 继承原版 CrossbowItem，使用60s箭矢 */
+/** 60s 弩 — 继承原版 CrossbowItem，使用60s箭矢，蓄力时间与原版一致 */
 public class SixtySecondsCrossbowItem extends CrossbowItem {
 
     private final float powerMult;
-    private final int drawTicks;
+    private final int drawTicks; // 蓄力时间，与原版弩一致=25
 
     public SixtySecondsCrossbowItem(Properties properties, float powerMult, int drawTicks) {
         super(properties);
@@ -30,7 +30,7 @@ public class SixtySecondsCrossbowItem extends CrossbowItem {
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        // 原版弩是无限使用时长（直到装填完成自动停止）
+        // 原版弩：72000 (无限)，蓄力进度由 drawTicks/pull 谓词控制
         return 72000;
     }
 
@@ -40,7 +40,7 @@ public class SixtySecondsCrossbowItem extends CrossbowItem {
         if (!SixtySecondsMod.isActive(level))
             return InteractionResultHolder.pass(stack);
 
-        // 已装填状态：单击发射
+        // 已装填 → 射击
         if (CrossbowItem.isCharged(stack)) {
             if (!level.isClientSide) {
                 shoot60sArrow(level, player, stack);
@@ -48,7 +48,7 @@ public class SixtySecondsCrossbowItem extends CrossbowItem {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
         }
 
-        // 未装填：需要60s箭才能开始装填
+        // 未装填 → 需要60s箭才能开始蓄力
         if (!player.isCreative() && findArrowSlot(player) < 0)
             return InteractionResultHolder.fail(stack);
 
@@ -58,29 +58,30 @@ public class SixtySecondsCrossbowItem extends CrossbowItem {
 
     @Override
     public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingTicks) {
+        if (level.isClientSide) return;
+        if (CrossbowItem.isCharged(stack)) return; // 已装填，不再处理
+
         int usedTicks = getUseDuration(stack, entity) - remainingTicks;
-        if (!level.isClientSide && usedTicks >= drawTicks && !CrossbowItem.isCharged(stack)) {
-            // 消耗一支60s箭 → 设置 charged 状态
-            if (entity instanceof ServerPlayer player) {
-                if (!player.isCreative()) {
-                    int slot = findArrowSlot(player);
-                    if (slot >= 0) {
-                        player.getInventory().getItem(slot).shrink(1);
-                    } else {
-                        player.stopUsingItem();
-                        return;
-                    }
-                }
+        if (usedTicks >= drawTicks) {
+            // 消耗一支60s箭 → 装填
+            if (entity instanceof ServerPlayer player && !player.isCreative()) {
+                int slot = findArrowSlot(player);
+                if (slot < 0) return; // 箭不够，继续蓄力等待
+                player.getInventory().getItem(slot).shrink(1);
             }
-            // 手动设置 CHARGED_PROJECTILES（使 isCharged=true 触发 charged 模型谓词）
+            // 设置 CHARGED_PROJECTILES → isCharged=true → charged 模型谓词生效
             stack.set(DataComponents.CHARGED_PROJECTILES,
                     ChargedProjectiles.of(new ItemStack(Items.ARROW)));
-            if (entity instanceof Player player) {
-                player.stopUsingItem();
-                level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                        SoundEvents.CROSSBOW_LOADING_END, SoundSource.PLAYERS, 1.0F, 1.0F);
-            }
+            // 播放装填完成音效
+            level.playSound(null, entity.getX(), entity.getY(), entity.getZ(),
+                    SoundEvents.CROSSBOW_LOADING_END, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
+    }
+
+    @Override
+    public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
+        // 弩的装填由 onUseTick 自动完成，releaseUsing 不做任何事
+        // 射击由 use() 中的 isCharged 判断触发
     }
 
     private void shoot60sArrow(Level level, Player player, ItemStack stack) {
