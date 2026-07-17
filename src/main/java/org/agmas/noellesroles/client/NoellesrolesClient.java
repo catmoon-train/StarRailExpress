@@ -1031,7 +1031,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientVoteCache.clear();
         });
 
-        ClientPlayConnectionEvents.DISCONNECT.register((a, b) -> {
+        ClientPlayConnectionEvents.DISCONNECT.register((a, client) -> {
             // 加入游戏清空信息
             currentBroadcastMessage.clear();
             ClientVoteCache.clear();
@@ -1043,6 +1043,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientEmbalmerState.clear();
             ClientAmonState.clearAll();
             ClientSkincrawlerState.clearAll();
+            // 在断开连接时，强制清理所有玩家的渲染缓存
+            
         });
         // 监听客户端断开连接：清空卡池配置信息
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {

@@ -21,6 +21,8 @@
     "ShitExposureMixin",
     "ShitExposurePatreonMixin",
     "SpawnMixin",
+    "TextureCacheAccessor",
+    "SkinManagerAccessor",
     "scene.SnowballWarmthMixin",
     "TridentMixin",
     "client.general.GhostStatePlayerRenderer",
