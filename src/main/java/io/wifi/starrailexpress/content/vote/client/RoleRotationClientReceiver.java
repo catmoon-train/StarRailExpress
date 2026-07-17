@@ -15,7 +15,7 @@ public class RoleRotationClientReceiver {
                 RoleRotationCache.updateFromPacket(payload);
 
                 if (RoleRotationCache.isSelecting() || RoleRotationCache.getConfirmCountdown() > 0) {
-                if ((mc.screen == null)) {
+                    if ((mc.screen == null)) {
                         mc.setScreen(new RoleRotationScreen());
                     }
                 } else {
