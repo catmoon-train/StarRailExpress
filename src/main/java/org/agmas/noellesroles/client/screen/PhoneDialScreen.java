@@ -33,7 +33,7 @@ public class PhoneDialScreen extends Screen {
         int cx = this.width / 2;
         int cy = this.height / 2;
 
-        // 数字按钮：3x3 + 底部一行
+        // 数字按钮：3x3 + 底部一行（留出充足间距）
         int[][] layout = {
                 {1, 2, 3},
                 {4, 5, 6},
@@ -45,35 +45,35 @@ public class PhoneDialScreen extends Screen {
             for (int col = 0; col < 3; col++) {
                 int num = layout[row][col];
                 if (num < 0) continue;
-                int bx = cx - 40 + col * 40;
-                int by = cy - 20 + row * 40;
+                int bx = cx - 45 + col * 45;
+                int by = cy - 85 + row * 45;
                 addRenderableWidget(Button.builder(
                         Component.literal(String.valueOf(num)),
                         btn -> pressNumber(num))
-                        .bounds(bx, by, 36, 36)
+                        .bounds(bx, by, 40, 40)
                         .build());
             }
         }
 
-        // 拨号按钮
+        // 拨号按钮（居中靠下）
         addRenderableWidget(Button.builder(
                 Component.translatable("gui.noellesroles.phone_dial.call"),
                 btn -> dial())
-                .bounds(cx - 60, cy + 100, 56, 20)
+                .bounds(cx - 70, cy + 110, 60, 20)
                 .build());
 
         // 退格
         addRenderableWidget(Button.builder(
                 Component.literal("<"),
                 btn -> backspace())
-                .bounds(cx + 4, cy + 100, 56, 20)
+                .bounds(cx + 10, cy + 110, 60, 20)
                 .build());
 
-        // 挂断
+        // 挂断按钮
         addRenderableWidget(Button.builder(
                 Component.translatable("gui.noellesroles.phone_dial.hangup"),
                 btn -> onClose())
-                .bounds(cx - 28, cy + 125, 56, 20)
+                .bounds(cx - 30, cy + 140, 60, 20)
                 .build());
     }
 
