@@ -18,11 +18,35 @@ public class SixtySecondsIsland {
     public static final int NAME_PREFIX_COUNT = 16;
     public static final int NAME_SUFFIX_COUNT = 4;
 
+    /** 岛屿规模：小型/中型/大型，决定半径、装饰密度、物资数量。 */
+    public enum Size {
+        SMALL(0.12F, 2, 4, 0.45F, 0.5F),
+        MEDIUM(0.35F, 4, 7, 0.75F, 0.8F),
+        LARGE(1.0F, 9, 11, 1.0F, 1.0F);
+
+        public final float radiusMult;
+        public final int levelRadiusBonus;
+        public final int radiusVariance;
+        public final float decoMult;
+        public final float supplyMult;
+
+        Size(float radiusMult, int levelRadiusBonus, int radiusVariance, float decoMult, float supplyMult) {
+            this.radiusMult = radiusMult;
+            this.levelRadiusBonus = levelRadiusBonus;
+            this.radiusVariance = radiusVariance;
+            this.decoMult = decoMult;
+            this.supplyMult = supplyMult;
+        }
+    }
+
     @SerializedName("id")
     public int id;
     /** 危险等级 1..5：决定地貌色板、废墟/物资箱/怪物的数量与质量。 */
     @SerializedName("level")
     public int level = 1;
+    /** 岛屿规模（Gson 序列化兼容旧存档：缺省→MEDIUM）。 */
+    @SerializedName("size")
+    public Size size = Size.MEDIUM;
     @SerializedName("namePrefix")
     public int namePrefix;
     @SerializedName("nameSuffix")

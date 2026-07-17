@@ -153,6 +153,36 @@ public class ModPackets {
         // 60s 海图：海岛元数据 + 解锁迷雾
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.CODEC);
+        // 60s 海图返回：C2S 请求 + S2C 启动动画 + S2C 登岛落点同步
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnC2SPacket::handle);
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnStartS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnStartS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartArrivalS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartArrivalS2CPacket.CODEC);
+        // 60s 海图返回取消
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnCancelS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnCancelS2CPacket.CODEC);
+        // 60s 海图扬帆去程动画
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartSailStartS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartSailStartS2CPacket.CODEC);
+        // 60s 海图动态点位：C2S 开屏/关屏订阅 + S2C 庇护所与队友坐标（仅对开着海图的玩家每秒推）
+        PayloadTypeRegistry.playC2S().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartWatchC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartWatchC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartWatchC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartWatchC2SPacket::handle);
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartPositionsS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartPositionsS2CPacket.CODEC);
         // 电力面板 + 避难所控制面板
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.CODEC);

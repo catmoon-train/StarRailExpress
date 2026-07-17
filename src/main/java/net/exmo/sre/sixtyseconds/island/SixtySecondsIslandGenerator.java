@@ -43,7 +43,7 @@ public final class SixtySecondsIslandGenerator {
     /** 岸线阈值：landValue 大于它即为陆地。 */
     public static final float LAND_THRESHOLD = 0.12F;
     /** 每 tick 处理的工作项数（每项 ≈ 16×16 柱）。 */
-    private static final int MAX_ITEMS_PER_TICK = 3;
+    private static final int MAX_ITEMS_PER_TICK = 30;
     /** 列 patch 边长。 */
     private static final int PATCH = 16;
 
@@ -108,17 +108,19 @@ public final class SixtySecondsIslandGenerator {
 
     // ── 群岛规划 ─────────────────────────────────────────────────────────
 
-    /** 等级分布模式（首岛恒为 1 级港湾，其余按此循环）。 */
-    private static final int[] LEVEL_PATTERN = {2, 3, 3, 2, 4, 3, 5, 4, 2, 3, 4, 5};
+    /** 等级分布模式（首岛恒为 1 级港湾，其余按此循环；偏重低等级以配合小型/中型岛）。 */
+    private static final int[] LEVEL_PATTERN = {1, 2, 1, 2, 3, 1, 2, 3, 1, 2, 4, 1, 3, 5, 1, 2, 3, 4, 2};
 
     /** 默认岛屿基准半径（{@code plan} 的 baseRadius 传 ≤0 时使用）。 */
-    public static final int DEFAULT_BASE_RADIUS = 34;
+    public static final int DEFAULT_BASE_RADIUS = 340;
 
     /**
-     * 规划一批海岛：等级分布、名字（前缀不重复）、噪声种子、互不重叠的位置。
-     * 首岛恒为 1 级（登陆港湾，海图默认解锁）。
+     * 规划一批海岛：等级分布、大小分类、名字（前缀不重复）、噪声种子、互不重叠的位置。
+     * 首岛恒为 1 级中型港湾（海图默认解锁）。
+     * 大小分布 ~45% 小型 / ~35% 中型 / ~20% 大型；
+     * 小型岛等级偏低（1-2）、大型岛偏高（2-5）、中型按模式循环。
      * {@code baseRadius} 为可编辑的基准半径（≤0 用默认 {@link #DEFAULT_BASE_RADIUS}）；
-     * 实际半径 = 基准 + 等级×6 + 随机 0..10，岛间距/布局域随之自动缩放。
+     * 实际半径 = base×size.radiusMult + level×size.levelRadiusBonus + 随机(0..variance)。
      */
     public static List<SixtySecondsIsland> plan(RandomSource rng, int count, int centerX, int centerZ, int seaY,
             int baseRadius) {
@@ -129,17 +131,40 @@ public final class SixtySecondsIslandGenerator {
         }
         Collections.shuffle(prefixes, new java.util.Random(rng.nextLong()));
         List<SixtySecondsIsland> islands = new ArrayList<>();
-        // 布局域按基准半径缩放（旧公式在 base=34 时约 130*sqrt(count)+120），放不下会自动扩域
-        int extent = (int) (2.2 * (base + WATER_SKIRT + 8) * Math.sqrt(count)) + 120;
+        // 布局域以大岛基准半径为准
+        int effBase = (int) (base * SixtySecondsIsland.Size.LARGE.radiusMult);
+        int extent = (int) (2.2 * (effBase + WATER_SKIRT + 8) * Math.sqrt(count)) + 120;
+        int patIdx = 0;
         for (int i = 0; i < count; i++) {
             SixtySecondsIsland island = new SixtySecondsIsland();
             island.id = i;
-            island.level = i == 0 ? 1 : LEVEL_PATTERN[(i - 1) % LEVEL_PATTERN.length];
+            // ── 大小分类 ──
+            if (i == 0) {
+                island.size = SixtySecondsIsland.Size.MEDIUM;
+                island.level = 1;
+            } else {
+                float r = rng.nextFloat();
+                if (r < 0.45F) {
+                    island.size = SixtySecondsIsland.Size.SMALL;
+                    island.level = 1 + rng.nextInt(2); // 1~2
+                } else if (r < 0.80F) {
+                    island.size = SixtySecondsIsland.Size.MEDIUM;
+                    island.level = LEVEL_PATTERN[patIdx % LEVEL_PATTERN.length];
+                    patIdx++;
+                } else {
+                    island.size = SixtySecondsIsland.Size.LARGE;
+                    island.level = 2 + rng.nextInt(4); // 2~5
+                }
+            }
             island.namePrefix = prefixes.get(i % prefixes.size());
             island.nameSuffix = rng.nextInt(SixtySecondsIsland.NAME_SUFFIX_COUNT);
             island.seed = rng.nextLong();
             island.seaY = seaY;
-            island.radius = base + island.level * 6 + rng.nextInt(11);
+            // ── 半径：base×size乘数 + level加成 + 随机 ──
+            SixtySecondsIsland.Size sz = island.size;
+            island.radius = (int) (base * sz.radiusMult)
+                    + island.level * sz.levelRadiusBonus
+                    + rng.nextInt(sz.radiusVariance + 1);
             // 位置：矩形域内拒绝采样，保证与已放置的岛间距足够（水裙边不相互吞并）
             for (int attempt = 0; attempt < 400; attempt++) {
                 int x = i == 0 ? centerX : centerX + rng.nextInt(extent * 2 + 1) - extent;
@@ -312,10 +337,10 @@ public final class SixtySecondsIslandGenerator {
         return switch (level) {
             case 1 -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.GRASS_BLOCK.defaultBlockState(),
                     Blocks.DIRT.defaultBlockState(), Blocks.STONE.defaultBlockState(),
-                    Blocks.SAND.defaultBlockState(), Blocks.SAND.defaultBlockState());
+                    Blocks.SANDSTONE.defaultBlockState(), Blocks.SANDSTONE.defaultBlockState());
             case 2 -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.PODZOL.defaultBlockState(),
                     Blocks.DIRT.defaultBlockState(), Blocks.STONE.defaultBlockState(),
-                    Blocks.SAND.defaultBlockState(), Blocks.GRAVEL.defaultBlockState());
+                    Blocks.SANDSTONE.defaultBlockState(), Blocks.GRAVEL.defaultBlockState());
             case 3 -> new Palette(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.MUD.defaultBlockState(),
                     Blocks.DIRT.defaultBlockState(), Blocks.STONE.defaultBlockState(),
                     Blocks.GRAVEL.defaultBlockState(), Blocks.GRAVEL.defaultBlockState());
@@ -392,14 +417,15 @@ public final class SixtySecondsIslandGenerator {
 
     private static void decorate(Placer p, SixtySecondsIsland island) {
         RandomSource rng = RandomSource.create(island.seed ^ 0xDEC0L);
-        int trees = switch (island.level) {
-            case 1 -> 10;
-            case 2 -> 16;
-            case 3 -> 14;
-            case 4 -> 8;
-            default -> 5;
-        };
-        for (int i = 0; i < trees + rng.nextInt(5); i++) {
+        float dm = island.size.decoMult; // 大小缩放
+        int trees = Math.max(1, (int) (dm * switch (island.level) {
+            case 1 -> 6;
+            case 2 -> 10;
+            case 3 -> 9;
+            case 4 -> 5;
+            default -> 3;
+        }));
+        for (int i = 0; i < trees + rng.nextInt(Math.max(1, (int) (dm * 4))); i++) {
             BlockPos ground = randomGround(p.level, island, rng, 0.15, 0.85);
             if (ground == null) {
                 continue;
@@ -407,7 +433,8 @@ public final class SixtySecondsIslandGenerator {
             placeTree(p, island.level, ground, rng);
         }
         // 岩石堆
-        for (int i = 0; i < 4 + island.level; i++) {
+        int rocks = Math.max(1, (int) (dm * (4 + island.level)));
+        for (int i = 0; i < rocks; i++) {
             BlockPos ground = randomGround(p.level, island, rng, 0.1, 0.9);
             if (ground == null) {
                 continue;
@@ -427,7 +454,7 @@ public final class SixtySecondsIslandGenerator {
             }
         }
         // 低植被
-        int flora = island.level <= 3 ? 40 : 14;
+        int flora = Math.max(1, (int) (dm * (island.level <= 3 ? 40 : 14)));
         for (int i = 0; i < flora; i++) {
             BlockPos ground = randomGround(p.level, island, rng, 0.1, 0.95);
             if (ground == null) {
@@ -438,7 +465,7 @@ public final class SixtySecondsIslandGenerator {
             if (island.level <= 3 && (below.is(Blocks.GRASS_BLOCK) || below.is(Blocks.DIRT))) {
                 plant = rng.nextFloat() < 0.7F ? Blocks.SHORT_GRASS.defaultBlockState()
                         : Blocks.FERN.defaultBlockState();
-            } else if (below.is(Blocks.SAND) || below.is(Blocks.COARSE_DIRT) || below.is(Blocks.GRAVEL)) {
+            } else if (below.is(Blocks.SANDSTONE) || below.is(Blocks.COARSE_DIRT) || below.is(Blocks.GRAVEL)) {
                 plant = Blocks.DEAD_BUSH.defaultBlockState();
             } else {
                 continue;
@@ -447,7 +474,8 @@ public final class SixtySecondsIslandGenerator {
         }
         // 5 级火山岛：山顶岩浆块堆
         if (island.level >= 5) {
-            for (int i = 0; i < 8; i++) {
+            int lava = Math.max(1, (int) (dm * 8));
+            for (int i = 0; i < lava; i++) {
                 BlockPos ground = randomGround(p.level, island, rng, 0.0, 0.4);
                 if (ground != null) {
                     p.set(ground.below(), Blocks.MAGMA_BLOCK.defaultBlockState());
@@ -506,14 +534,15 @@ public final class SixtySecondsIslandGenerator {
     private static void populate(Placer p, SixtySecondsIsland island) {
         ServerLevel level = p.level();
         RandomSource rng = RandomSource.create(island.seed ^ 0xB0B0L);
+        float sm = island.size.supplyMult;
         // 登岛点：向群岛原点一侧的滩头（找不到就用岛心地表）
         BlockPos dock = findDock(level, island);
         island.dockX = dock.getX();
         island.dockY = dock.getY();
         island.dockZ = dock.getZ();
 
-        // 普通物资箱：数量随等级；3 级起部分上锁
-        int normal = 3 + island.level * 2 + rng.nextInt(3);
+        // 普通物资箱：数量随等级+大小；1 级小岛约 6~13 个，1 级大岛 13~26 个；3 级起部分上锁
+        int normal = Math.max(2, (int) (sm * (10 + island.level * 3)) + rng.nextInt(Math.max(1, (int) (sm * 14))));
         for (int i = 0; i < normal; i++) {
             BlockPos spot = randomGround(level, island, rng, 0.05, 0.9);
             if (spot == null) {
@@ -525,8 +554,8 @@ public final class SixtySecondsIslandGenerator {
                     : org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX,
                     BOX_CATEGORIES[rng.nextInt(BOX_CATEGORIES.length)]);
         }
-        // 高级物资箱：等级-1 个；4 级起带高级锁（需钳子）
-        int advanced = Math.max(0, island.level - 1);
+        // 高级物资箱：等级-1 个（按大小缩放）；4 级起带高级锁（需钳子）
+        int advanced = Math.max(0, (int) (sm * (island.level - 1)));
         for (int i = 0; i < advanced; i++) {
             BlockPos spot = randomGround(level, island, rng, 0.0, 0.6);
             if (spot == null) {
@@ -537,8 +566,8 @@ public final class SixtySecondsIslandGenerator {
                     : org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED,
                     BOX_CATEGORIES[rng.nextInt(BOX_CATEGORIES.length)]);
         }
-        // 初始驻岛怪：数量/强度随等级（后续增援由 PveSystem 游荡怪按 levelAt 自动缩放）
-        int monsters = island.level * 2;
+        // 初始驻岛怪：数量/强度随等级+大小（后续增援由 PveSystem 游荡怪按 levelAt 自动缩放）
+        int monsters = Math.max(1, (int) (sm * island.level * 2));
         for (int i = 0; i < monsters; i++) {
             BlockPos spot = randomGround(level, island, rng, 0.1, 0.8);
             if (spot == null) {

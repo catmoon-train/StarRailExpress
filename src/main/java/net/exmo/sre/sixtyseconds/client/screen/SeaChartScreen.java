@@ -48,6 +48,11 @@ public class SeaChartScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f) {
+
+    }
+
+    @Override
     protected void init() {
         mapW = Math.min(width - 60, 420);
         mapH = Math.min(height - 80, 260);

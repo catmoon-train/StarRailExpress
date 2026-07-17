@@ -48,6 +48,7 @@ public class LootTableEditScreen extends Screen {
     private static final int PAD = 8;
     private static final int TAB_H = 18;
     private static final int TAB_DEL_W = 9;      // 类别标签右侧删除「×」预留槽宽
+    private static final int TAB_ARROW_W = 10;   // 标签栏左右箭头宽度
     private static final int ROW_H = 30;
     private static final int CELL = 20;          // 背包格尺寸
     private static final int MAX_ENTRIES_PER_CATEGORY = 64;
@@ -57,6 +58,7 @@ public class LootTableEditScreen extends Screen {
     private String currentCategory;
     private RowData selected;
 
+    private int tabScroll;    // 标签页水平滚动（像素）
     private int listScroll;   // 条目列表滚动（像素）
     private int gridScroll;   // 背包网格滚动（行）
     private int openTicks;    // 入场动画计时
@@ -190,32 +192,80 @@ public class LootTableEditScreen extends Screen {
         drawBottomButtons(g, mouseX, mouseY);
     }
 
-    /** 顶部类别标签页 + 新类别输入框。 */
+    /** 顶部类别标签页（可水平滚动）+ 新类别输入框。 */
     private void drawTabs(GuiGraphics g, int mouseX, int mouseY) {
-        int x = panelX + PAD;
+        int startX = panelX + PAD;
         int y = panelY + 22;
+        int tabAreaRight = newCatBox.getX() - 4;
+
+        // 计算所有标签总宽度
+        int totalW = 0;
+        for (String cat : categories.keySet()) {
+            totalW += tabWidth(cat) + 4;
+        }
+        if (totalW > 0) totalW -= 4;
+
+        int rawAreaW = tabAreaRight - startX;
+        boolean scrollable = totalW > rawAreaW;
+
+        int scrollLeft = startX;
+        int scrollRight = tabAreaRight;
+        int actualAreaW = rawAreaW;
+
+        // 可滚动时左右各留箭头位
+        if (scrollable) {
+            scrollLeft += TAB_ARROW_W;
+            scrollRight -= TAB_ARROW_W;
+            actualAreaW = scrollRight - scrollLeft;
+        }
+
+        int maxTabScroll = Math.max(0, totalW - actualAreaW);
+        tabScroll = Mth.clamp(tabScroll, 0, maxTabScroll);
+
+        g.enableScissor(scrollLeft, y, scrollRight, y + TAB_H);
+
+        int drawX = scrollLeft - tabScroll;
         for (String cat : categories.keySet()) {
             int w = tabWidth(cat);
-            if (x + w > newCatBox.getX() - 24) {
-                g.drawString(this.font, "…", x + 2, y + 5, MUTED, false);
+            // 跳过完全在可视区域外的标签
+            if (drawX + w <= scrollLeft) {
+                drawX += w + 4;
+                continue;
+            }
+            if (drawX >= scrollRight) {
                 break;
             }
             boolean active = cat.equals(currentCategory);
-            boolean hover = isInRect(mouseX, mouseY, x, y, w, TAB_H);
+            boolean hover = isInRect(mouseX, mouseY, drawX, y, w, TAB_H);
             int bg = active ? blendColors(0xFF1A1008, 0xFFC9A84C, 0.45F)
                     : hover ? blendColors(0xFF1A1008, 0xFFC9A84C, 0.20F) : 0x331A1008;
-            g.fill(x, y, x + w, y + TAB_H, bg);
-            g.renderOutline(x, y, w, TAB_H, active ? GOLD : IDLE_BORDER);
+            g.fill(drawX, y, drawX + w, y + TAB_H, bg);
+            g.renderOutline(drawX, y, w, TAB_H, active ? GOLD : IDLE_BORDER);
             int labelW = w - (canDeleteCategory() ? TAB_DEL_W : 0);
-            g.drawCenteredString(this.font, cat, x + labelW / 2, y + 5, active ? TEXT : MUTED);
-            // 删除该类别的「×」（类别>1 时可用；保底至少留一个）
+            g.drawCenteredString(this.font, cat, drawX + labelW / 2, y + 5, active ? TEXT : MUTED);
             if (canDeleteCategory()) {
-                boolean xHover = isInRect(mouseX, mouseY, x + w - TAB_DEL_W, y, TAB_DEL_W, TAB_H);
-                g.drawString(this.font, "×", x + w - TAB_DEL_W + 2, y + 5, xHover ? RED : MUTED, false);
+                boolean xHover = isInRect(mouseX, mouseY, drawX + w - TAB_DEL_W, y, TAB_DEL_W, TAB_H);
+                g.drawString(this.font, "×", drawX + w - TAB_DEL_W + 2, y + 5, xHover ? RED : MUTED, false);
             }
-            x += w + 4;
+            drawX += w + 4;
         }
-        // “+”按钮：把 newCatBox 内容作为新类别
+
+        g.disableScissor();
+
+        // 可滚动时绘制左右箭头指示
+        if (scrollable) {
+            // 左箭头
+            boolean leftHover = isInRect(mouseX, mouseY, startX, y, TAB_ARROW_W, TAB_H);
+            int leftColor = tabScroll > 0 ? (leftHover ? GOLD : TEXT) : MUTED;
+            g.drawString(this.font, "<", startX + 2, y + 5, leftColor, false);
+            // 右箭头
+            int arrowRX = tabAreaRight - TAB_ARROW_W;
+            boolean rightHover = isInRect(mouseX, mouseY, arrowRX, y, TAB_ARROW_W, TAB_H);
+            int rightColor = tabScroll < maxTabScroll ? (rightHover ? GOLD : TEXT) : MUTED;
+            g.drawString(this.font, ">", arrowRX + 3, y + 5, rightColor, false);
+        }
+
+        // "+"按钮：把 newCatBox 内容作为新类别（始终固定）
         int plusX = newCatBox.getX() + newCatBox.getWidth() + 2;
         boolean plusHover = isInRect(mouseX, mouseY, plusX, y, 18, TAB_H);
         g.fill(plusX, y, plusX + 18, y + TAB_H, plusHover ? HOVER_BG : 0x331A1008);
@@ -402,18 +452,45 @@ public class LootTableEditScreen extends Screen {
         if (button != 0) {
             return false;
         }
-        // 类别标签
-        int tx = panelX + PAD;
+        // 类别标签（支持水平滚动）
         int ty = panelY + 22;
+        int tStartX = panelX + PAD;
+        int tAreaRight = newCatBox.getX() - 4;
+
+        // 计算标签总宽，判断是否可滚动
+        int tabsTotalW = 0;
+        for (String cat : categories.keySet()) {
+            tabsTotalW += tabWidth(cat) + 4;
+        }
+        if (tabsTotalW > 0) tabsTotalW -= 4;
+        boolean tabScrollable = tabsTotalW > (tAreaRight - tStartX);
+
+        if (tabScrollable) {
+            int sLeft = tStartX + TAB_ARROW_W;
+            int sRight = tAreaRight - TAB_ARROW_W;
+            int maxTS = Math.max(0, tabsTotalW - (sRight - sLeft));
+            // 左箭头点击
+            if (isInRect(mouseX, mouseY, tStartX, ty, TAB_ARROW_W, TAB_H) && tabScroll > 0) {
+                tabScroll = Math.max(0, tabScroll - 60);
+                clickSound();
+                return true;
+            }
+            // 右箭头点击
+            if (isInRect(mouseX, mouseY, tAreaRight - TAB_ARROW_W, ty, TAB_ARROW_W, TAB_H) && tabScroll < maxTS) {
+                tabScroll = Math.min(maxTS, tabScroll + 60);
+                clickSound();
+                return true;
+            }
+        }
+
+        int tx = tStartX + (tabScrollable ? TAB_ARROW_W : 0);
         for (String cat : categories.keySet()) {
             int w = tabWidth(cat);
-            if (tx + w > newCatBox.getX() - 24) {
-                break;
-            }
-            if (isInRect(mouseX, mouseY, tx, ty, w, TAB_H)) {
+            int screenX = tx - tabScroll;
+            if (isInRect(mouseX, mouseY, screenX, ty, w, TAB_H)) {
                 // 命中标签右侧「×」：删除整个类别
                 if (canDeleteCategory()
-                        && isInRect(mouseX, mouseY, tx + w - TAB_DEL_W, ty, TAB_DEL_W, TAB_H)) {
+                        && isInRect(mouseX, mouseY, screenX + w - TAB_DEL_W, ty, TAB_DEL_W, TAB_H)) {
                     deleteCategory(cat);
                     return true;
                 }
@@ -496,6 +573,25 @@ public class LootTableEditScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        // 鼠标在标签栏区域 → 水平滚动标签
+        int tabY = panelY + 22;
+        if (mouseY >= tabY && mouseY < tabY + TAB_H) {
+            int tStartX = panelX + PAD;
+            int tAreaRight = newCatBox.getX() - 4;
+            int tabsTotalW = 0;
+            for (String cat : categories.keySet()) {
+                tabsTotalW += tabWidth(cat) + 4;
+            }
+            if (tabsTotalW > 0) tabsTotalW -= 4;
+            boolean scrollable = tabsTotalW > (tAreaRight - tStartX);
+            if (scrollable) {
+                int sLeft = tStartX + TAB_ARROW_W;
+                int sRight = tAreaRight - TAB_ARROW_W;
+                int maxTS = Math.max(0, tabsTotalW - (sRight - sLeft));
+                tabScroll = Mth.clamp(tabScroll - (int) (scrollY * 40), 0, maxTS);
+                return true;
+            }
+        }
         if (mouseX < rightX - PAD / 2.0) {
             listScroll -= (int) (scrollY * ROW_H);
             return true;

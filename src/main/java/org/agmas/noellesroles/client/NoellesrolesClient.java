@@ -220,6 +220,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 区域地图物品：客户端扫描 playArea 生成地图纹理 + 手持时 HUD 小地图
         org.agmas.noellesroles.client.map.AreaMapManager.register();
         org.agmas.noellesroles.client.map.AreaMapHud.register();
+        // 海图返回住所划船动画 HUD
+        net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.register();
         // 阿蒙终幕「阿蒙时刻」：全屏稍偏灰滤镜。
         org.agmas.noellesroles.client.event.CommonHudRenderCallback.EVENT.register((g, dt) -> {
             if (org.agmas.noellesroles.client.ClientAmonState.finaleActive) {
@@ -328,6 +330,13 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (client.player == null)
                 return;
             client.setScreen(new ChefStartGameScreen());
+        };
+        // 海图物品右键打开全屏海图
+        SeaChartItem.openScreenCallback = () -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return;
+            net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.openFullScreenChart();
         };
         // 场景方块客户端屏幕回调（避免服务端加载 Screen 类导致崩溃）
         org.agmas.noellesroles.content.block.scene.ReactorBlock.openReactorScreenCallback = (pos) -> {
@@ -1008,6 +1017,31 @@ public class NoellesrolesClient implements ClientModInitializer {
                 net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.ID, (payload, context) ->
                         context.client().execute(() ->
                                 net.exmo.sre.sixtyseconds.client.SixtySecondsClientSeaChart.accept(payload)));
+        // 60s 海图返回：启动 10s 划船动画
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnStartS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.onReturnStart(payload)));
+        // 60s 海图登岛落点同步：记录玩家的登岛坐标（海图显示「来时区域」）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartArrivalS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.onArrivalSync(payload)));
+        // 60s 海图返回取消：停止划船动画
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnCancelS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.cancel()));
+        // 60s 海图扬帆：启动去程划船动画（到期由服务端传送上岛）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartSailStartS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.onSailStart(payload)));
+        // 60s 海图动态点位：庇护所 + 队友坐标（仅海图开着时每秒推）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartPositionsS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.onPositions(payload)));
         // 60s 电力面板（右键发电机）
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.ID, (payload, context) ->
@@ -1587,6 +1621,11 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
 
             MonokumaSceneManager.INSTANCE.tick();
+        });
+
+        // 海图返回住所划船动画 tick
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.tick();
         });
 
         ItemTooltipCallback.EVENT.register(((itemStack, tooltipContext, tooltipType, list) -> {

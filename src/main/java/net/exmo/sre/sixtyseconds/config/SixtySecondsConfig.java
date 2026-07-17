@@ -60,6 +60,34 @@ public class SixtySecondsConfig {
     public java.util.List<DoorBinding> searchDoorBindings = new java.util.ArrayList<>();
 
     /**
+     * 避难所模板内的<b>锚点门</b>（模板绝对坐标）。{@link #shelterAtSearchDoorEnabled} 开启时，这扇门会与本队在
+     * 探索区里的<b>出口门</b>（{@link #searchDoorBindings} 中落在模板盒<b>外</b>的那类，按队序号分配）对齐——
+     * 整座避难所按 {@code 出口门 - 锚点门} 的差值平移克隆过去，玩家推门即是探索区，不再跨空间传送。
+     * 未登记时该开关失效、回退网格克隆（{@code SixtySecondsArena.build} 会告警）。
+     * 用 {@code /sre:60s_area anchor <x y z>} 登记（写模板内那扇门的绝对坐标）。
+     */
+    @SerializedName("shelterAnchorDoor")
+    public Vec shelterAnchorDoor;
+
+    /**
+     * 避难所是否直接生成在探索区登记的门位置（默认<b>开</b>）：以「避难所锚点门 ↔ 探索区出口门」为锚点平移克隆，
+     * 「外出探索」即字面意义的出门（门是实心方块，仍走门菜单传送到门外落点）。
+     * 关闭时按 {@link #teamBase} 网格克隆（旧行为）。需 {@link #shelterAnchorDoor} 与探索区出口门绑定齐备，缺一回退网格。
+     * 与 {@link #seaChartTeleportEnabled} 互不影响。{@code /sre:60s shelter_at_door on|off} 切换（按图持久化）。
+     */
+    @SerializedName("shelterAtSearchDoorEnabled")
+    public boolean shelterAtSearchDoorEnabled = true;
+
+    /**
+     * 海图是否允许<b>扬帆传送</b>与<b>返回住所</b>（默认<b>关</b>）：关闭时海图退化为纯导航图——岛屿轮廓、解锁迷雾、
+     * 庇护所与队友点位<b>照常显示</b>，但点岛不再传送、「返回住所」按钮置灰，玩家须自己乘船去岛、走门回家。
+     * 创造模式不受限。与 {@link #shelterAtSearchDoorEnabled} 互不影响。
+     * {@code /sre:60s sea_teleport on|off} 切换（按图持久化）。
+     */
+    @SerializedName("seaChartTeleportEnabled")
+    public boolean seaChartTeleportEnabled = false;
+
+    /**
      * 晚上是否自动刷新夜袭者冲门（默认<b>关</b>）。关闭时仍可用「夜袭者召唤哨」
      * （{@code sixty_seconds_assault_spawner_*}）手动放怪。{@code /sre:60s assault on|off} 切换（按图持久化）。
      */

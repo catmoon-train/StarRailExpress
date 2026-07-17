@@ -23,6 +23,8 @@ import static net.minecraft.commands.Commands.literal;
  *   <li>{@code /sre:60s_area template <residential|shelter|searchzone> <x1> <y1> <z1> <x2> <y2> <z2>}（两个对角的绝对坐标，顺序随意）</li>
  *   <li>{@code /sre:60s_area spawn <residential|shelter|searchzone> <x> <y> <z>}（模板内绝对坐标）</li>
  *   <li>{@code /sre:60s_area grid <baseX> <baseY> <baseZ> <spacing>}</li>
+ *   <li>{@code /sre:60s_area anchor <x> <y> <z>} / {@code anchor clear}（避难所锚点门，模板内绝对坐标；
+ *       配合 {@code /sre:60s shelter_at_door on} 把避难所克隆到各队探索区出口门上）</li>
  *   <li>{@code /sre:60s_area show}</li>
  * </ul>
  */
@@ -73,7 +75,64 @@ public final class SixtySecondsAreaCommand {
                                                 .then(argument("y", IntegerArgumentType.integer())
                                                         .then(argument("z", IntegerArgumentType.integer())
                                                                 .executes(SixtySecondsAreaCommand::setBindingLevel))))))
+                        // 避难所锚点门：开关 shelter_at_door 打开时，避难所整体平移到「本队出口门 - 锚点门」处
+                        .then(literal("anchor")
+                                .then(argument("x", IntegerArgumentType.integer())
+                                        .then(argument("y", IntegerArgumentType.integer())
+                                                .then(argument("z", IntegerArgumentType.integer())
+                                                        .executes(SixtySecondsAreaCommand::setAnchorDoor))))
+                                .then(literal("clear").executes(SixtySecondsAreaCommand::clearAnchorDoor)))
                         .then(literal("show").executes(SixtySecondsAreaCommand::show))));
+    }
+
+    /** {@code anchor <x y z>}：登记避难所模板内的锚点门（模板绝对坐标）；须落在 shelter 模板盒内。 */
+    private static int setAnchorDoor(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        SixtySecondsConfig.Vec vec = new SixtySecondsConfig.Vec(IntegerArgumentType.getInteger(ctx, "x"),
+                IntegerArgumentType.getInteger(ctx, "y"), IntegerArgumentType.getInteger(ctx, "z"));
+        if (cfg.shelterTemplate == null) {
+            ctx.getSource().sendFailure(Component.literal(
+                    "[60s] set the shelter template first: /sre:60s_area template shelter <x1 y1 z1> <x2 y2 z2>")
+                    .withStyle(ChatFormatting.RED));
+            return 0;
+        }
+        // 锚点门必须在避难所模板盒内——否则平移量会把整座避难所甩到离谱的地方
+        if (!cfg.shelterTemplate.toBox().isInside(vec.toBlockPos())) {
+            ctx.getSource().sendFailure(Component.literal("[60s] anchor (" + vec.x + "," + vec.y + "," + vec.z
+                    + ") is outside the shelter template box; pick the door block inside the template")
+                    .withStyle(ChatFormatting.RED));
+            return 0;
+        }
+        cfg.shelterAnchorDoor = vec;
+        SixtySecondsConfigStore.save(level, cfg);
+        // 软校验：锚点该是模板里那扇避难所门。指错了照样能存（模板可能还没搭完），但要提醒——
+        // 克隆会把锚点处的方块盖到出口门上，锚点不是门的话，探索区那扇门就被顶掉了，
+        // 而 returnDoorPos 仍指着它 → 玩家回不了家
+        if (!level.getBlockState(vec.toBlockPos()).is(org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SHELTER_DOOR)) {
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                    "[60s] warning: no sixty_seconds_shelter_door at the anchor — the exit door will be overwritten "
+                            + "by whatever block sits there. Point the anchor at the shelter's door block.")
+                    .withStyle(ChatFormatting.YELLOW), false);
+        }
+        ctx.getSource().sendSuccess(() -> Component.literal("[60s] shelter anchor door = ("
+                + vec.x + "," + vec.y + "," + vec.z + "); shelter_at_door "
+                + (cfg.shelterAtSearchDoorEnabled ? "is ON — shelters will clone onto each team's exit door"
+                        : "is OFF — enable with /sre:60s shelter_at_door on"))
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** {@code anchor clear}：清除锚点门（避难所回退网格克隆）。 */
+    private static int clearAnchorDoor(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        cfg.shelterAnchorDoor = null;
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] shelter anchor door cleared; shelters fall back to the team grid")
+                .withStyle(ChatFormatting.YELLOW), true);
+        return 1;
     }
 
     private static int addExit(CommandContext<CommandSourceStack> ctx) {
@@ -220,9 +279,13 @@ public final class SixtySecondsAreaCommand {
     private static int show(CommandContext<CommandSourceStack> ctx) {
         ServerLevel level = ctx.getSource().getLevel();
         SixtySecondsConfig cfg = load(level);
+        String anchor = cfg.shelterAnchorDoor == null ? "unset"
+                : cfg.shelterAnchorDoor.x + "," + cfg.shelterAnchorDoor.y + "," + cfg.shelterAnchorDoor.z;
         ctx.getSource().sendSuccess(() -> Component.literal(
                 "[60s] complete=" + cfg.isComplete() + " grid=" + cfg.teamBase.x + "," + cfg.teamBase.y + ","
                         + cfg.teamBase.z + " spacing=" + cfg.teamGridSpacing
+                        + " shelter_at_door=" + cfg.shelterAtSearchDoorEnabled + " anchor=" + anchor
+                        + " sea_teleport=" + cfg.seaChartTeleportEnabled
                         + " file=" + SixtySecondsConfigStore.describe(level)), false);
         return 1;
     }
