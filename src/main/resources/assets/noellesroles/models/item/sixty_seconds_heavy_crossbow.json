@@ -26,9 +26,9 @@
     }
   },
   "overrides": [
-    { "predicate": { "noellesroles:pulling": 1 }, "model": "noellesroles:item/sixty_seconds_heavy_crossbow_pulling_0" },
-    { "predicate": { "noellesroles:pulling": 1, "noellesroles:pull": 0.58 }, "model": "noellesroles:item/sixty_seconds_heavy_crossbow_pulling_1" },
-    { "predicate": { "noellesroles:pulling": 1, "noellesroles:pull": 1.0 }, "model": "noellesroles:item/sixty_seconds_heavy_crossbow_pulling_2" },
+    { "predicate": { "pulling": 1 }, "model": "noellesroles:item/sixty_seconds_heavy_crossbow_pulling_0" },
+    { "predicate": { "pulling": 1, "pull": 0.58 }, "model": "noellesroles:item/sixty_seconds_heavy_crossbow_pulling_1" },
+    { "predicate": { "pulling": 1, "pull": 1.0 }, "model": "noellesroles:item/sixty_seconds_heavy_crossbow_pulling_2" },
     { "predicate": { "charged": 1 }, "model": "noellesroles:item/sixty_seconds_heavy_crossbow_arrow" },
     { "predicate": { "charged": 1, "firework": 1 }, "model": "noellesroles:item/sixty_seconds_heavy_crossbow_firework" }
   ]
