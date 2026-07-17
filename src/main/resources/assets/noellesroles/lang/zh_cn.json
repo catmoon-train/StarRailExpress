@@ -5693,6 +5693,7 @@
   "block.noellesroles.sixty_seconds_mailbox": "邮箱",
   "container.noellesroles.sixty_seconds_mailbox": "邮箱",
   "message.noellesroles.sixty_seconds.mailbox_not_owner": "这是别人的邮箱。",
+  "message.noellesroles.sixty_seconds.newspaper_given": "已给予一份模拟日报。",
   "message.noellesroles.sixty_seconds.mailbox_tampered": "§c你邮箱内的东西被偷走了一些。",
   "message.noellesroles.sixty_seconds.potion_format": "%s药水",
   "message.noellesroles.sixty_seconds.potion_splash_format": "喷溅型%s药水",

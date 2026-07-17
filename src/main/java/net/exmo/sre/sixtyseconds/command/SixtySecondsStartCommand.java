@@ -77,7 +77,9 @@ public final class SixtySecondsStartCommand {
                                                 com.mojang.brigadier.arguments.StringArgumentType
                                                         .getString(context, "text")))))
                         // 末日日报：点击聊天栏提醒打开当日报纸
-                        .then(literal("newspaper").executes(context -> openNewspaper(context.getSource())))
+                        .then(literal("newspaper")
+                                .executes(context -> openNewspaper(context.getSource()))
+                                .then(literal("give").executes(context -> giveNewspaper(context.getSource()))))
                         // 热线电话：聊天栏按钮回调（/sre:60s hotline <type> <action> [args]）
                         .then(literal("hotline")
                                 .then(literal("express")
@@ -287,6 +289,36 @@ public final class SixtySecondsStartCommand {
         }
         net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.open(player);
         return 1;
+    }
+
+    /** 测试用：给予模拟报纸（内容中的玩家名统一为 Player） */
+    private static int giveNewspaper(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof ServerPlayer player)) return 0;
+        ServerLevel level = player.serverLevel();
+        net.exmo.sre.sixtyseconds.state.SixtySecondsState.Data data =
+                net.exmo.sre.sixtyseconds.state.SixtySecondsState.get(level);
+        if (!SixtySecondsMod.isActive(level) || data.teams.isEmpty()) {
+            // 没有对局运行时也允许测试，构造假报纸
+            ItemStack stack = buildTestNewspaper(level, 1);
+            if (!player.getInventory().add(stack)) player.drop(stack, false);
+            source.sendSuccess(() -> Component.translatable(
+                    "message.noellesroles.sixty_seconds.newspaper_given"), true);
+            return 1;
+        }
+        int teamId = net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(player).teamId;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.collectDrafts(level, data);
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.publish(level, data);
+        ItemStack stack = new ItemStack(ModItems.NEWSPAPER, 1);
+        if (!player.getInventory().add(stack)) player.drop(stack, false);
+        source.sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.newspaper_given"), true);
+        return 1;
+    }
+
+    private static ItemStack buildTestNewspaper(ServerLevel level, int day) {
+        ItemStack stack = new ItemStack(ModItems.NEWSPAPER, 1);
+        // 无需设置 NBT——报纸物品自身不携带内容，右键打开读取当日报纸缓存
+        return stack;
     }
 
     /** 每日事件门：玩家点击聊天栏选项（仅由 ClickEvent 触发）。 */
