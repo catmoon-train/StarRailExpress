@@ -3530,6 +3530,9 @@
   "tooltip.noellesroles.sixty_seconds_flare": "右键投掷，照亮周围。",
   "item.noellesroles.sixty_seconds_band_aid": "创口贴",
   "tooltip.noellesroles.sixty_seconds_band_aid": "缓慢恢复少量健康与降低污染。",
+
+  "item.noellesroles.sixty_seconds_bamboo_rice": "竹筒饭",
+  "tooltip.noellesroles.sixty_seconds_bamboo_rice": "竹子装的糯米饭，暖身又顶饱。",
   "block.noellesroles.sixty_seconds_power_battery": "蓄电池",
   "item.noellesroles.sixty_seconds_power_battery": "蓄电池",
   "tooltip.noellesroles.sixty_seconds_power_battery": "放置在发电站旁边吸收电力，最多储存300秒。",
