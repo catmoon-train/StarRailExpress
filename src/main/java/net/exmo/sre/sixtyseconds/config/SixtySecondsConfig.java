@@ -77,6 +77,16 @@ public class SixtySecondsConfig {
     public boolean seaChartTeleportEnabled = false;
 
     /**
+     * 生成海岛时是否在<b>一级岛</b>上自动放置一扇避难所门并登记为门绑定/锚点（默认<b>开</b>）：
+     * 开启后 {@code /sre:60s island start} 会给每座 1 级岛在地表合适位置建一扇 {@code ShelterDoorBlock}，
+     * 并向 {@link #searchDoorBindings} 追加一条 {@code auto=true} 的绑定（门=该门、box=门周围危险区、
+     * 等级=岛屿等级）——这样开局建图时各队避难所可锚定到岛门上。{@code island stop/delete} 会自动移除这些
+     * 绑定；门方块随地形回滚一并清除。{@code /sre:60s_area clearbindings} 可手动清掉全部门绑定。
+     */
+    @SerializedName("islandShelterDoorEnabled")
+    public boolean islandShelterDoorEnabled = true;
+
+    /**
      * 晚上是否自动刷新夜袭者冲门（默认<b>关</b>）。关闭时仍可用「夜袭者召唤哨」
      * （{@code sixty_seconds_assault_spawner_*}）手动放怪。{@code /sre:60s assault on|off} 切换（按图持久化）。
      */
@@ -229,6 +239,12 @@ public class SixtySecondsConfig {
         /** 该绑定探索区的危险等级 1..5；0=继承全局 {@code searchZoneLevel}。{@code /sre:60s_area level <n> <x y z>} 设置。 */
         @SerializedName("level")
         public int level = 0;
+        /**
+         * 是否由系统自动生成（海岛一级岛自动放门时置 true，见 {@link SixtySecondsConfig#islandShelterDoorEnabled}）。
+         * {@code island stop/delete} 只移除 {@code auto=true} 的绑定，不碰管理员手动登记的绑定。
+         */
+        @SerializedName("auto")
+        public boolean auto = false;
 
         public DoorBinding() {
         }

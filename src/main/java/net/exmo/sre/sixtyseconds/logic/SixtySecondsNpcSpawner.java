@@ -5,8 +5,13 @@ import net.exmo.sre.sixtyseconds.config.SixtySecondsConfig;
 import net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore;
 import net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +39,7 @@ public final class SixtySecondsNpcSpawner {
     private SixtySecondsNpcSpawner() {
     }
 
-    /** 通用生成入口：在 pos 造一只 NPC 并装配变体/朝向/驻守/归属队。 */
+    /** 普通生成入口：在 pos 造一只 NPC 并装配变体/朝向/驻守/归属队。 */
     public static SixtySecondsNpcEntity spawnAt(ServerLevel level, BlockPos pos,
             SixtySecondsNpcEntity.Variant variant, float yaw, String profile, int garrisonRadius,
             int ownerTeamId) {
@@ -57,6 +62,10 @@ public final class SixtySecondsNpcSpawner {
             fillCarry(level, npc);
         }
         level.addFreshEntity(npc);
+        // 强盗刷在了某队的避难所/住宅内 → 提醒该队成员
+        if (variant == SixtySecondsNpcEntity.Variant.BANDIT) {
+            shelterBanditAlert(level, pos);
+        }
         return npc;
     }
 
@@ -158,6 +167,28 @@ public final class SixtySecondsNpcSpawner {
     }
 
     // ── 路径 2：搜刮区每日刷新 ────────────────────────────────────────────
+
+    /** 强盗刷在了某队的避难所/住宅内 → 队伍全体聊天+音效提醒。 */
+    private static void shelterBanditAlert(ServerLevel level, BlockPos pos) {
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        if (data == null) return;
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            if (team.members == null || team.members.isEmpty()) continue;
+            boolean inside = (team.shelterBox != null && team.shelterBox.contains(pos.getX(), pos.getY(), pos.getZ()))
+                    || (team.residentialBox != null && team.residentialBox.contains(pos.getX(), pos.getY(), pos.getZ()));
+            if (!inside) continue;
+            Component msg = Component.translatable(
+                    "message.noellesroles.sixty_seconds.npc.bandit_in_shelter")
+                    .withStyle(ChatFormatting.DARK_RED);
+            for (java.util.UUID uuid : team.members) {
+                if (level.getPlayerByUUID(uuid) instanceof ServerPlayer member) {
+                    member.displayClientMessage(msg, false);
+                    member.playNotifySound(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR,
+                            SoundSource.HOSTILE, 1.0F, 0.8F);
+                }
+            }
+        }
+    }
 
     /** 白天刷商人/旅者，夜晚刷强盗。每个搜刮区（多队共用的去重后）各刷若干。 */
     public static void spawnDaily(ServerLevel level, SixtySecondsState.Data data, boolean night) {

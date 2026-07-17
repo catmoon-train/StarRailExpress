@@ -18,6 +18,22 @@ public class SixtySecondsIsland {
     public static final int NAME_PREFIX_COUNT = 16;
     public static final int NAME_SUFFIX_COUNT = 4;
 
+    /**
+     * 岛屿生态类型：决定色板、植被、树木品种、地形特征。
+     * 与等级（level）正交——同等级不同类型的岛外观完全不同。
+     * 旧存档缺省=null，Generator 回退到纯 level 色板。
+     */
+    public enum Type {
+        TROPICAL,   // 热带：沙+草+丛林树，高植被
+        MARSH,      // 沼泽：泥+灰化土+沼泽橡树，低平，水涝
+        VOLCANIC,   // 火山：黑石+玄武岩+岩浆，锥形山，枯树
+        CORAL,      // 珊瑚环礁：沙+海晶石，环形礁盘+中央潟湖，无树
+        FROST,      // 冰霜：雪+冰+云杉，积雪覆盖
+        PLATEAU,    // 高原：平顶+陡崖，陶瓦+石头
+        JUNGLE,     // 密林：高密度丛林树+藤蔓+可可
+        BARREN      // 荒芜：砂土+砾石+枯灌木，极稀疏
+    }
+
     /** 岛屿规模：小型/中型/大型，决定半径、装饰密度、物资数量。 */
     public enum Size {
         SMALL(0.12F, 2, 4, 0.45F, 0.5F),
@@ -44,6 +60,9 @@ public class SixtySecondsIsland {
     /** 危险等级 1..5：决定地貌色板、废墟/物资箱/怪物的数量与质量。 */
     @SerializedName("level")
     public int level = 1;
+    /** 岛屿生态类型（旧存档缺省=null → Generator 回退纯 level 色板）。 */
+    @SerializedName("type")
+    public Type type = null;
     /** 岛屿规模（Gson 序列化兼容旧存档：缺省→MEDIUM）。 */
     @SerializedName("size")
     public Size size = Size.MEDIUM;
@@ -71,11 +90,36 @@ public class SixtySecondsIsland {
     public int dockY;
     @SerializedName("dockZ")
     public int dockZ;
+    /**
+     * 自动放置的避难所门坐标（{@link net.exmo.sre.sixtyseconds.config.SixtySecondsConfig#islandShelterDoorEnabled}
+     * 开启时给一级岛在建造阶段求得并建门）。{@code shelterDoorY < 0} 表示本岛没有自动门。
+     */
+    @SerializedName("shelterDoorX")
+    public int shelterDoorX;
+    @SerializedName("shelterDoorY")
+    public int shelterDoorY = Integer.MIN_VALUE;
+    @SerializedName("shelterDoorZ")
+    public int shelterDoorZ;
 
-    /** 岛名（两段翻译键拼接，客户端/服务端同构）。 */
+    /** 本岛是否有自动放置的避难所门。 */
+    public boolean hasShelterDoor() {
+        return shelterDoorY != Integer.MIN_VALUE;
+    }
+
+    /** 自动放置的避难所门坐标（{@link #hasShelterDoor()} 为真时有效）。 */
+    public BlockPos shelterDoorPos() {
+        return new BlockPos(shelterDoorX, shelterDoorY, shelterDoorZ);
+    }
+
+    /** 岛名（两段翻译键拼接，客户端/服务端同构）。有类型时追加类型标签。 */
     public Component name() {
-        return Component.translatable(LANG + "name_prefix." + namePrefix)
+        Component base = Component.translatable(LANG + "name_prefix." + namePrefix)
                 .append(Component.translatable(LANG + "name_suffix." + nameSuffix));
+        if (type != null) {
+            return base.copy().append(Component.literal(" "))
+                    .append(Component.translatable(LANG + "type." + type.name().toLowerCase()));
+        }
+        return base;
     }
 
     public BlockPos dockPos() {

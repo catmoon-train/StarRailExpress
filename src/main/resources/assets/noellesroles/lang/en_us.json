@@ -5501,6 +5501,7 @@
   "message.noellesroles.sixty_seconds.npc.removed": "Deleted the spawn point at %1$s %2$s %3$s (%4$s left)",
   "message.noellesroles.sixty_seconds.npc.placer_none_here": "No registered NPC spawn point nearby.",
   "message.noellesroles.sixty_seconds.npc.pirate_sighted": "A sail on the horizon... pirates!",
+  "message.noellesroles.sixty_seconds.npc.bandit_in_shelter": "§4⚠ Alert: A bandit has slipped into the shelter!",
   "message.noellesroles.sixty_seconds.npc.list_empty": "No NPC spawn points registered yet.",
   "message.noellesroles.sixty_seconds.npc.list_header": "%1$s NPC spawn point(s):",
   "message.noellesroles.sixty_seconds.npc.list_tp": "at",

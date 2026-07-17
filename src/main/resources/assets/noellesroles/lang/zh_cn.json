@@ -6217,6 +6217,7 @@
   "message.noellesroles.sixty_seconds.npc.removed": "已删除 %1$s %2$s %3$s 处的生成点（剩 %4$s 个）",
   "message.noellesroles.sixty_seconds.npc.placer_none_here": "附近没有已登记的 NPC 生成点。",
   "message.noellesroles.sixty_seconds.npc.pirate_sighted": "海面上出现了帆影……海盗！",
+  "message.noellesroles.sixty_seconds.npc.bandit_in_shelter": "§4⚠ 注意：有强盗潜入了避难所！",
   "message.noellesroles.sixty_seconds.npc.list_empty": "还没有登记任何 NPC 生成点。",
   "message.noellesroles.sixty_seconds.npc.list_header": "共 %1$s 个 NPC 生成点：",
   "message.noellesroles.sixty_seconds.npc.list_tp": "位置",

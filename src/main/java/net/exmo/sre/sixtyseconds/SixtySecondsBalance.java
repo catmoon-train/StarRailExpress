@@ -424,7 +424,7 @@ public final class SixtySecondsBalance {
     public static final double PIRATE_NEARBY_RADIUS = 56.0;
     /** 一次刷出的海盗数（每人一条船）。 */
     public static final int PIRATE_PACK_MIN = 1;
-    public static final int PIRATE_PACK_MAX = 2;
+    public static final int PIRATE_PACK_MAX = 1;
     /** 海盗划船追击的速度（格/tick）与视野（格）。 */
     public static final double PIRATE_BOAT_SPEED = 0.22;
     public static final double PIRATE_SIGHT = 40.0;

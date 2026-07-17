@@ -21,24 +21,29 @@ public class HunterCageBlockEntityRenderer implements BlockEntityRenderer<Hunter
             return;
         }
         poseStack.pushPose();
-        poseStack.translate(0.5D, 2.65D, 0.5D);
-        poseStack.mulPose(Minecraft.getInstance().gameRenderer.getMainCamera().rotation());
-        poseStack.scale(-0.018F, -0.018F, 0.018F);
-        Matrix4f matrix = poseStack.last().pose();
-        int y = -18;
-        for (HunterCageBlockEntity.TrialEntry entry : entity.getTrialEntries()) {
-            float pct = Math.min(1.0F, entry.progress / (float) RepairModeState.TRIAL_EXECUTION_TICKS);
-            int barWidth = 64;
-            fill(bufferSource, matrix, -barWidth / 2, y, barWidth / 2, y + 5, 0xAA180508, packedLight);
-            fill(bufferSource, matrix, -barWidth / 2 + 1, y + 1,
-                    -barWidth / 2 + 1 + (int) ((barWidth - 2) * pct), y + 4, 0xFFE11D48, packedLight);
-            Component text = Component.translatable("hud.noellesroles.repair.trial_timer",
-                    Math.max(0, (RepairModeState.TRIAL_EXECUTION_TICKS - entry.progress) / 20));
-            Minecraft.getInstance().font.drawInBatch(text, -Minecraft.getInstance().font.width(text) / 2.0F, y - 10,
-                    0xFFFFD6D6, false, matrix, bufferSource, net.minecraft.client.gui.Font.DisplayMode.NORMAL, 0, packedLight);
-            y += 18;
+        // try/finally 保证 popPose 一定执行：ModernUI 的 SDF 文字渲染在 drawInBatch 里可能抛
+        // UnsupportedOperationException（fastutil 不可变表），未兜底会漏 pop → 帧末「Pose stack not empty」崩溃。
+        try {
+            poseStack.translate(0.5D, 2.65D, 0.5D);
+            poseStack.mulPose(Minecraft.getInstance().gameRenderer.getMainCamera().rotation());
+            poseStack.scale(-0.018F, -0.018F, 0.018F);
+            Matrix4f matrix = poseStack.last().pose();
+            int y = -18;
+            for (HunterCageBlockEntity.TrialEntry entry : entity.getTrialEntries()) {
+                float pct = Math.min(1.0F, entry.progress / (float) RepairModeState.TRIAL_EXECUTION_TICKS);
+                int barWidth = 64;
+                fill(bufferSource, matrix, -barWidth / 2, y, barWidth / 2, y + 5, 0xAA180508, packedLight);
+                fill(bufferSource, matrix, -barWidth / 2 + 1, y + 1,
+                        -barWidth / 2 + 1 + (int) ((barWidth - 2) * pct), y + 4, 0xFFE11D48, packedLight);
+                Component text = Component.translatable("hud.noellesroles.repair.trial_timer",
+                        Math.max(0, (RepairModeState.TRIAL_EXECUTION_TICKS - entry.progress) / 20));
+                Minecraft.getInstance().font.drawInBatch(text, -Minecraft.getInstance().font.width(text) / 2.0F, y - 10,
+                        0xFFFFD6D6, false, matrix, bufferSource, net.minecraft.client.gui.Font.DisplayMode.NORMAL, 0, packedLight);
+                y += 18;
+            }
+        } finally {
+            poseStack.popPose();
         }
-        poseStack.popPose();
     }
 
     private static void fill(MultiBufferSource bufferSource, Matrix4f matrix, int minX, int minY, int maxX, int maxY,

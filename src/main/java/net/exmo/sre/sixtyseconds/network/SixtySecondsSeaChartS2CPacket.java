@@ -30,9 +30,13 @@ import java.util.Set;
 public record SixtySecondsSeaChartS2CPacket(boolean enabled, boolean openScreen, boolean teleportAllowed,
         int seaY, List<Entry> islands) implements CustomPacketPayload {
 
-    /** 单岛条目：locked（未解锁）条目在客户端画成迷雾「未知海域」。 */
+    /** 单岛条目：locked（未解锁）条目在客户端画成迷雾「未知海域」。typeOrd -1=旧存档无类型。 */
     public record Entry(int id, int level, int namePrefix, int nameSuffix, int centerX, int centerZ,
-            int radius, long seed, boolean unlocked, boolean visited) {
+            int radius, long seed, boolean unlocked, boolean visited, int typeOrd) {
+        public SixtySecondsIsland.Type type() {
+            SixtySecondsIsland.Type[] values = SixtySecondsIsland.Type.values();
+            return typeOrd >= 0 && typeOrd < values.length ? values[typeOrd] : null;
+        }
     }
 
     public static final Type<SixtySecondsSeaChartS2CPacket> ID =
@@ -56,6 +60,7 @@ public record SixtySecondsSeaChartS2CPacket(boolean enabled, boolean openScreen,
                     buf.writeLong(entry.seed());
                     buf.writeBoolean(entry.unlocked());
                     buf.writeBoolean(entry.visited());
+                    buf.writeVarInt(entry.typeOrd());
                 }
             }, buf -> {
                 boolean enabled = buf.readBoolean();
@@ -67,7 +72,7 @@ public record SixtySecondsSeaChartS2CPacket(boolean enabled, boolean openScreen,
                 for (int i = 0; i < count; i++) {
                     islands.add(new Entry(buf.readVarInt(), buf.readVarInt(), buf.readVarInt(),
                             buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readVarInt(),
-                            buf.readLong(), buf.readBoolean(), buf.readBoolean()));
+                            buf.readLong(), buf.readBoolean(), buf.readBoolean(), buf.readVarInt()));
                 }
                 return new SixtySecondsSeaChartS2CPacket(enabled, openScreen, teleportAllowed, seaY, islands);
             });
@@ -93,7 +98,8 @@ public record SixtySecondsSeaChartS2CPacket(boolean enabled, boolean openScreen,
                     || (unlocked != null && unlocked.contains(island.id));
             entries.add(new Entry(island.id, island.level, island.namePrefix, island.nameSuffix,
                     island.centerX, island.centerZ, island.radius, island.seed, isUnlocked,
-                    visited != null && visited.contains(island.id)));
+                    visited != null && visited.contains(island.id),
+                    island.type == null ? -1 : island.type.ordinal()));
         }
         // 创造/旁观不受 sea_teleport 开关限制（管理员巡查/观战要能随时跳岛）
         boolean teleportAllowed = seeAll || SixtySecondsIslands.teleportAllowed(level);

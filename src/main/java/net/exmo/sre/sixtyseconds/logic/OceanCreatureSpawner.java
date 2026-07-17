@@ -70,8 +70,8 @@ public final class OceanCreatureSpawner {
 
         // 前四天额外压降 ×0.3（保证前几天几乎不刷强怪）
         double earlyDayMult = data.dayNumber <= 4 ? 0.3 : 1.0;
-        double sharkBase = (night ? 0.40 : 0.15) * dayRatio * earlyDayMult;
-        double monsterBase = (night ? 0.06 : 0.01) * dayRatio * earlyDayMult;
+        double sharkBase = (night ? 0.20 : 0.075) * dayRatio * earlyDayMult;
+        double monsterBase = (night ? 0.03 : 0.005) * dayRatio * earlyDayMult;
 
         RandomSource random = level.getRandom();
         for (ServerPlayer player : level.players()) {
