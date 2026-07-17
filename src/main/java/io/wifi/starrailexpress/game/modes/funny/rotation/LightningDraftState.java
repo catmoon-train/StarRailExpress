@@ -443,12 +443,13 @@ public class LightningDraftState {
                 break;
             }
             var p = canReplacePlayers.getFirst();
+            canReplacePlayers.removeFirst();
             var old = selectedRoles.getOrDefault(p, SpecialGameModeRoles.CUSTOM_PENDING);
             selectedRoles.put(p, r);
             var pp = serverWorld.getPlayerByUUID(p);
-            SRE.LOGGER.info("Replace {} ({})'s role with new role {} (old {})",
-                    pp == null ? "null" : pp.getName().getString(), p, r.getName().getString(),
-                    old.getName().getString());
+            SRE.LOGGER.info("Replace {}'s old role {} with new role {}",
+                    pp == null ? "null" : pp.getName().getString(), p, old.getName().getString(),
+                    r.getName().getString());
             t++;
         }
     }
