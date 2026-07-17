@@ -1,6 +1,1 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "noellesroles:item/sixty_seconds_heavy_crossbow"
-  }
-}
+{"parent":"minecraft:item/generated","textures":{"layer0":"noellesroles:item/sixty_seconds_heavy_crossbow_pulling_1"}}
