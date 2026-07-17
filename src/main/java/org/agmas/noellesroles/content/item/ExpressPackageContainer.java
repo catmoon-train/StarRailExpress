@@ -2,7 +2,6 @@ package org.agmas.noellesroles.content.item;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
@@ -13,17 +12,23 @@ public class ExpressPackageContainer implements Container {
     private final ItemStack packageStack;
     private final NonNullList<ItemStack> items;
 
-    private ExpressPackageContainer(ItemStack stack, ServerLevel level) {
+    private ExpressPackageContainer(ItemStack stack) {
         this.packageStack = stack;
         this.items = NonNullList.withSize(1, ItemStack.EMPTY);
-        ItemStack content = ExpressPackageItem.extractContent(stack, level);
-        if (!content.isEmpty()) {
-            items.set(0, content);
+        // 读取已存物品（不消耗 ServerLevel 参数）
+        var tag = ExpressPackageItem.getContents(stack);
+        if (!tag.isEmpty()) {
+            ItemStack content = ItemStack.parseOptional(
+                    net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(
+                            net.minecraft.core.registries.BuiltInRegistries.REGISTRY), tag);
+            if (!content.isEmpty()) {
+                items.set(0, content);
+            }
         }
     }
 
-    public static ExpressPackageContainer create(ItemStack stack, ServerLevel level) {
-        return new ExpressPackageContainer(stack, level);
+    public static ExpressPackageContainer create(ItemStack stack) {
+        return new ExpressPackageContainer(stack);
     }
 
     /** Read content without removing from NBT (for tooltip display) */

@@ -34,26 +34,31 @@ public class ExpressPackageItem extends Item {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockEntity be = level.getBlockEntity(pos);
+        // 点邮箱时不拦截
         if (be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity) {
             return InteractionResult.PASS;
         }
-        if (!level.isClientSide && context.getPlayer() instanceof ServerPlayer sp) {
+        if (context.getPlayer() instanceof ServerPlayer sp) {
             openPackageScreen(sp, context.getItemInHand());
+            return InteractionResult.SUCCESS;
         }
+        // client side: pass to swing hand
         return InteractionResult.SUCCESS;
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (stack.is(this) && !level.isClientSide && player instanceof ServerPlayer sp) {
+        if (!stack.is(this)) return InteractionResultHolder.pass(stack);
+
+        if (player instanceof ServerPlayer sp) {
             openPackageScreen(sp, stack);
         }
         return InteractionResultHolder.success(stack);
     }
 
     private void openPackageScreen(ServerPlayer player, ItemStack packageStack) {
-        var contents = ExpressPackageContainer.create(packageStack, player.serverLevel());
+        var contents = ExpressPackageContainer.create(packageStack);
         player.openMenu(new SimpleMenuProvider(
                 (id, inv, p) -> new ChestMenu(
                         net.minecraft.world.inventory.MenuType.GENERIC_9x1, id, inv, contents, 1),
@@ -72,7 +77,7 @@ public class ExpressPackageItem extends Item {
 
     public static void setContent(ItemStack stack, ItemStack content) {
         if (content.isEmpty()) {
-            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(new CompoundTag()));
+            stack.remove(DataComponents.CUSTOM_DATA);
             return;
         }
         CompoundTag itemTag = (CompoundTag) content.save(
@@ -83,12 +88,6 @@ public class ExpressPackageItem extends Item {
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(data));
     }
 
-    public static CompoundTag getContents(ItemStack stack) {
-        CustomData cd = stack.get(DataComponents.CUSTOM_DATA);
-        if (cd != null) return cd.copyTag().getCompound("PackageContent");
-        return new CompoundTag();
-    }
-
     public static ItemStack extractContent(ItemStack stack, ServerLevel level) {
         CompoundTag tag = getContents(stack);
         if (!tag.isEmpty()) {
@@ -97,5 +96,11 @@ public class ExpressPackageItem extends Item {
             return result;
         }
         return ItemStack.EMPTY;
+    }
+
+    public static CompoundTag getContents(ItemStack stack) {
+        CustomData cd = stack.get(DataComponents.CUSTOM_DATA);
+        if (cd != null) return cd.copyTag().getCompound("PackageContent");
+        return new CompoundTag();
     }
 }
