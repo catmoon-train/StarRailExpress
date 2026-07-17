@@ -13,6 +13,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.UUID;
@@ -313,8 +314,7 @@ public final class SixtySecondsStartCommand {
         net.exmo.sre.sixtyseconds.state.SixtySecondsState.Data data =
                 net.exmo.sre.sixtyseconds.state.SixtySecondsState.get(level);
         if (!SixtySecondsMod.isActive(level) || data.teams.isEmpty()) {
-            // 没有对局运行时也允许测试，构造假报纸
-            ItemStack stack = buildTestNewspaper(level, 1);
+            ItemStack stack = new ItemStack(ModItems.NEWSPAPER, 1);
             if (!player.getInventory().add(stack)) player.drop(stack, false);
             source.sendSuccess(() -> Component.translatable(
                     "message.noellesroles.sixty_seconds.newspaper_given"), true);
@@ -328,12 +328,6 @@ public final class SixtySecondsStartCommand {
         source.sendSuccess(() -> Component.translatable(
                 "message.noellesroles.sixty_seconds.newspaper_given"), true);
         return 1;
-    }
-
-    private static ItemStack buildTestNewspaper(ServerLevel level, int day) {
-        ItemStack stack = new ItemStack(ModItems.NEWSPAPER, 1);
-        // 无需设置 NBT——报纸物品自身不携带内容，右键打开读取当日报纸缓存
-        return stack;
     }
 
     /** 每日事件门：玩家点击聊天栏选项（仅由 ClickEvent 触发）。 */
