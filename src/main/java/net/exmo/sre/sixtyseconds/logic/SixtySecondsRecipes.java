@@ -788,7 +788,7 @@ public final class SixtySecondsRecipes {
                 List.of(in(Items.STRING, 3)), ModItems.SIXTY_SECONDS_RAG, 1);
         add(list, "cloth_roll", Station.STERILE, "med_materials_1", false,
                 List.of(in(rag, 3)), ModItems.SIXTY_SECONDS_CLOTH_ROLL, 1);
-        add(list, "band_aid", Station.STERILE, "med_materials_1", true,
+        add(list, "band_aid", Station.STERILE, "drugs_1", true,
                 List.of(in(Items.PAPER, 2), in(chem, 1), in(ModItems.SIXTY_SECONDS_RAG, 1)),
                 ModItems.SIXTY_SECONDS_BAND_AID, 1);
         add(list, "alcohol", Station.STERILE, "med_materials_2", true,

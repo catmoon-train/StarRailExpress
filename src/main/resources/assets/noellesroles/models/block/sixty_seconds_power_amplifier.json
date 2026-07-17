@@ -1,1 +1,1 @@
-{"parent":"minecraft:block/cube_all","textures":{"all":"noellesroles:block/sixty_seconds_power_amplifier"}}
+{"parent":"minecraft:block/daylight_detector","textures":{"top":"noellesroles:block/sixty_seconds_power_amplifier","side":"noellesroles:block/sixty_seconds_power_battery"}}

@@ -511,7 +511,8 @@ public interface ModBlocks {
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     Block SIXTY_SECONDS_POWER_AMPLIFIER = blockRegistrar.createWithItem("sixty_seconds_power_amplifier",
-            new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.0F).noOcclusion()),
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsPowerAmplifierBlock(
+                    BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.0F).noOcclusion()),
             b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);

@@ -76,7 +76,7 @@ public final class SixtySecondsTechTree {
         chain(list, "cooking", null, "waste_1", "waste_2", "waste_3", "waste_4");
         // ── 电力 ────────────────────────────────────────────────────
         chain(list, "power", null, "power_1", "power_2", "power_3");
-        chain(list, "power", "power_3", "power_facility_1", "power_facility_2");
+        chain(list, "power", "power_2", "power_facility_1", "power_facility_2");
         // ── 净化 ────────────────────────────────────────────────────
         chain(list, "purification", null, "water_collect_1", "water_collect_2", "water_collect_3");
         chain(list, "purification", null, "water_purify_1", "water_purify_2", "water_purify_3");
