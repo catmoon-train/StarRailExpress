@@ -1047,7 +1047,6 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 监听客户端断开连接：清空卡池配置信息
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             LotteryManager.getInstance().clearPools();
-            client.player = null;
         });
         //
         ClientTickEvents.END_WORLD_TICK.register((client) -> {
