@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public final class SixtySecondsNewspaper {
     private static final String LANG = "message.noellesroles.sixty_seconds.news.";
-    public static final int NEWS_COUNT = 20;
+    public static final int NEWS_COUNT = 100;
     public static final int NEWS_PER_DAY = 3;
     private static final int HISTORY_SHOWN = 3;
 
@@ -38,7 +38,20 @@ public final class SixtySecondsNewspaper {
             "tip_umbrella", "tip_gasmask", "tip_cold", "tip_door",
             "tip_water", "tip_planter", "tip_stove", "tip_sleep",
             "tip_search", "tip_radio", "tip_flashlight", "tip_barricade",
-            "tip_scrap", "tip_shower"
+            "tip_scrap", "tip_shower",
+            // 第二批贴士（仅描述代码中实际存在的系统）
+            "tip_antibiotics", "tip_purification", "tip_compost",
+            "tip_bandage", "tip_sanity", "tip_painkillers",
+            "tip_generator", "tip_crafting", "tip_spike_trap",
+            "tip_teamwork", "tip_monster", "tip_trade",
+            "tip_tech", "tip_planter_fertilizer", "tip_airdrop"
+    };
+
+    /** 邻里八卦池（每期随机一条） */
+    private static final String[] GOSSIP = {
+            "gossip_1", "gossip_2", "gossip_3", "gossip_4",
+            "gossip_5", "gossip_6", "gossip_7", "gossip_8",
+            "gossip_9", "gossip_10", "gossip_11", "gossip_12"
     };
 
     private record Paper(int day, List<Integer> news) {}
@@ -53,12 +66,45 @@ public final class SixtySecondsNewspaper {
 
     private static final Map<Integer, ItemStack> NEWS_ATTACHMENTS = new HashMap<>();
     static {
+        // 原有附件
         NEWS_ATTACHMENTS.put(1, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_MRE, 1));
         NEWS_ATTACHMENTS.put(7, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_MEDICINE, 1));
         NEWS_ATTACHMENTS.put(8, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_RADIO, 1));
         NEWS_ATTACHMENTS.put(16, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SEEDS_PACK, 1));
         NEWS_ATTACHMENTS.put(18, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_RADIO, 1));
+        // 第二批附件：生存/资源类新闻附带物资
+        NEWS_ATTACHMENTS.put(22, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP, 2));
+        NEWS_ATTACHMENTS.put(23, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_CANNED_FOOD, 1));
+        NEWS_ATTACHMENTS.put(24, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_WIRE, 1));
+        NEWS_ATTACHMENTS.put(25, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP, 1));
+        NEWS_ATTACHMENTS.put(27, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_CANNED_FOOD, 2));
+        NEWS_ATTACHMENTS.put(30, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SEEDS_PACK, 1));
+        NEWS_ATTACHMENTS.put(32, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_MEDICINE, 1));
+        NEWS_ATTACHMENTS.put(33, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_PLASTIC, 2));
+        NEWS_ATTACHMENTS.put(34, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_CANNED_SOUP, 1));
+        NEWS_ATTACHMENTS.put(38, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_MEDICINE, 1));
+        NEWS_ATTACHMENTS.put(39, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_PURIFICATION_TABLET, 1));
+        NEWS_ATTACHMENTS.put(40, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ELECTRONICS, 1));
+        // 社会/人性类新闻附带物资
+        NEWS_ATTACHMENTS.put(49, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_DRAFT_PAPER, 1));
+        NEWS_ATTACHMENTS.put(52, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_COIN, 3));
+        NEWS_ATTACHMENTS.put(58, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_RADIO, 1));
+        NEWS_ATTACHMENTS.put(60, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SEEDS_PACK, 1));
+        // 希望/奇闻类新闻附带物资
+        NEWS_ATTACHMENTS.put(82, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ELECTRONICS, 1));
+        NEWS_ATTACHMENTS.put(85, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_CANNED_FOOD, 2));
+        NEWS_ATTACHMENTS.put(89, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_CANNED_SOUP, 2));
+        NEWS_ATTACHMENTS.put(90, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ANTIBIOTICS, 1));
+        NEWS_ATTACHMENTS.put(94, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_HARMONICA, 1));
+        NEWS_ATTACHMENTS.put(99, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SEEDS_PACK, 1));
+        NEWS_ATTACHMENTS.put(100, new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_RADIO, 1));
     }
+
+    /**
+     * 末日日报物资发放：仅当天被选中的特定新闻 ID 会附带物资。
+     * 附件通过 NEWS_ATTACHMENTS 映射定义（放入 deliverToTeamMailbox 处理），
+     * 不是每条新闻都发物资，也不是根据天气事件发放。。
+     */
 
     private SixtySecondsNewspaper() {}
 
@@ -192,13 +238,39 @@ public final class SixtySecondsNewspaper {
                 .filter(p -> !GameUtils.isPlayerEliminated(p)).count();
         long totalPlayers = data.teams.values().stream().mapToLong(t -> t.members.size()).sum();
         long deceased = totalPlayers - aliveCount;
-        if (deceased > 0) {
+
+        // 根据天数动态变化全区动态描述
+        String zoneKey;
+        if (data.dayNumber <= 5) {
+            zoneKey = "zone_order_stable";
+        } else if (data.dayNumber <= 10) {
+            zoneKey = "zone_security_decay";
+        } else if (data.dayNumber <= 20) {
+            zoneKey = "zone_no_mans_land";
+        } else {
+            zoneKey = "zone_ecosystem_rebuild";
+        }
+
+        // 检查是否有进行中的事件覆盖
+        String activeWeatherKey = SixtySecondsEventSystem.activeEventKey(level);
+        if (activeWeatherKey != null) {
+            zoneKey = "zone_event_active";
+        }
+
+        if (deceased > 10) {
+            zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_mass_casualty").getString());
+        } else if (deceased > 0) {
             zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_deaths", Math.max(0, deceased)).getString());
         } else {
+            if (data.dayNumber >= 5 && deceased == 0) {
+                // 已过第5天但无人死亡，添加紧张氛围描述
+            }
             zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_peaceful").getString());
         }
         zone.append("\n");
         zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_alive", data.teams.size()).getString());
+        zone.append("\n");
+        zone.append(Component.translatable("message.noellesroles.sixty_seconds." + zoneKey).getString());
         sections.add(Component.literal(zone.toString()).withStyle(ChatFormatting.DARK_AQUA));
 
         // 4. 生存小贴士
@@ -286,11 +358,28 @@ public final class SixtySecondsNewspaper {
                     case EXPRESS -> "message.noellesroles.sixty_seconds.hotline_type_express";
                     case SHOP -> "message.noellesroles.sixty_seconds.hotline_type_shop";
                     case RESCUE -> "message.noellesroles.sixty_seconds.hotline_type_rescue";
+                    case INTEL -> "message.noellesroles.sixty_seconds.hotline_type_intel";
+                    case WEATHER -> "message.noellesroles.sixty_seconds.hotline_type_weather";
+                    case COUNSEL -> "message.noellesroles.sixty_seconds.hotline_type_counsel";
+                    case HIRE -> "message.noellesroles.sixty_seconds.hotline_type_hire";
+                    case BLACK_MARKET -> "message.noellesroles.sixty_seconds.hotline_type_black_market";
+                    case RECYCLE -> "message.noellesroles.sixty_seconds.hotline_type_recycle";
+                    case POVERTY_RELIEF -> "message.noellesroles.sixty_seconds.hotline_type_poverty_relief";
+                    case REPORT -> "message.noellesroles.sixty_seconds.hotline_type_report";
                 };
                 hotlineSb.append(Component.translatable("message.noellesroles.sixty_seconds.news.hotline_entry",
                         Component.translatable(typeKey), entry.number()).getString()).append("\n");
             }
             sections.add(Component.literal(hotlineSb.toString()).withStyle(ChatFormatting.AQUA));
+        }
+
+        // 9. 邻里八卦（70%概率出现，随机一条）
+        if (level.getRandom().nextDouble() < 0.7) {
+            String gossipKey = GOSSIP[level.getRandom().nextInt(GOSSIP.length)];
+            StringBuilder gossip = new StringBuilder();
+            gossip.append(Component.translatable(LANG + "section_gossip").getString()).append("\n\n");
+            gossip.append(Component.translatable("message.noellesroles.sixty_seconds." + gossipKey).getString());
+            sections.add(Component.literal(gossip.toString()).withStyle(ChatFormatting.LIGHT_PURPLE));
         }
 
         // 尾页：分隔线 + 日期
@@ -341,7 +430,8 @@ public final class SixtySecondsNewspaper {
                     ItemStack s = mb.getItem(i);
                     if (!s.isEmpty() && !s.is(org.agmas.noellesroles.init.ModItems.NEWSPAPER)
                             && !s.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_COIN)
-                            && !s.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE)) {
+                            && !s.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE)
+                            && !s.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP)) {
                         mb.setItem(i, ItemStack.EMPTY);
                         clearedAny = true;
                     }

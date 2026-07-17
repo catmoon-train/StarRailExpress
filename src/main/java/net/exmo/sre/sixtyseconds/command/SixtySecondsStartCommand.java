@@ -100,7 +100,16 @@ public final class SixtySecondsStartCommand {
                                         .then(literal("cancel").executes(context -> hotlineShopCancel(context.getSource()))))
                                 .then(literal("rescue")
                                         .then(literal("request").executes(context -> hotlineRescueRequest(context.getSource())))
-                                        .then(literal("cancel").executes(context -> hotlineRescueCancel(context.getSource())))))
+                                        .then(literal("cancel").executes(context -> hotlineRescueCancel(context.getSource()))))
+                                .then(literal("hire")
+                                        .then(literal("confirm").executes(context -> hotlineHireConfirm(context.getSource())))
+                                        .then(literal("cancel").executes(context -> hotlineHireCancel(context.getSource()))))
+                                .then(literal("black_market")
+                                        .then(literal("buy").executes(context -> hotlineBlackMarketBuy(context.getSource())))
+                                        .then(literal("cancel").executes(context -> hotlineBlackMarketCancel(context.getSource()))))
+                                .then(literal("recycle")
+                                        .then(literal("confirm").executes(context -> hotlineRecycleConfirm(context.getSource())))
+                                        .then(literal("cancel").executes(context -> hotlineRecycleCancel(context.getSource())))))
                         // 每日事件门：玩家点击聊天栏选项（/sre:60s event <token> <option>）+ 管理员强制触发
                         .then(literal("event")
                                 .then(literal("force")
@@ -1339,6 +1348,38 @@ public final class SixtySecondsStartCommand {
     private static int hotlineRescueCancel(CommandSourceStack src) {
         if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
         net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleRescueCancel(p);
+        return 1;
+    }
+
+    // ── 第二批热线 ──
+    private static int hotlineHireConfirm(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleHireConfirm(p);
+        return 1;
+    }
+    private static int hotlineHireCancel(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleHireCancel(p);
+        return 1;
+    }
+    private static int hotlineBlackMarketBuy(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleBlackMarketBuy(p);
+        return 1;
+    }
+    private static int hotlineBlackMarketCancel(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleBlackMarketCancel(p);
+        return 1;
+    }
+    private static int hotlineRecycleConfirm(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleRecycleConfirm(p);
+        return 1;
+    }
+    private static int hotlineRecycleCancel(CommandSourceStack src) {
+        if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleRecycleCancel(p);
         return 1;
     }
 }

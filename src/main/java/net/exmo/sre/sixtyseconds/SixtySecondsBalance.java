@@ -252,6 +252,36 @@ public final class SixtySecondsBalance {
     /** 新天气事件的通用持续时间（酸雾/电磁风暴/虫潮/热浪 = 1.5分钟） */
     public static final int EVENT_BASE_DURATION = 20 * 60 * 3 / 2;
 
+    // ── 扩展天气事件（第二批）───────────────────────────────────────────────
+    /** 沙尘暴持续 2 分钟 */
+    public static final int SANDSTORM_DURATION = 20 * 60 * 2;
+    /** 沙尘暴中·户外：每5秒额外口渴消耗 */
+    public static final int SANDSTORM_THIRST_PER_5S = 1;
+    /** 地震持续 15 秒（瞬发型，不进入长事件队列，但留在 ACTIVE 阻止刷其他事件） */
+    public static final int EARTHQUAKE_DURATION = 20 * 15;
+    /** 流星雨持续 2 分钟 */
+    public static final int METEOR_SHOWER_DURATION = 20 * 60 * 2;
+    /** 流星雨中·户外：每12秒有概率被火球砸中（不破坏地形，只造成伤害） */
+    public static final double METEOR_HIT_CHANCE = 0.15;
+    /** 孢子迷雾持续 2.5 分钟 */
+    public static final int SPORE_FOG_DURATION = 20 * 60 * 5 / 2;
+    /** 冰雹持续 2 分钟 */
+    public static final int HAIL_DURATION = 20 * 60 * 2;
+    /** 冰雹中·户外：每2秒微弱伤害 */
+    public static final float HAIL_DAMAGE_PER_2S = 0.5F;
+    /** 血月持续一整夜（8分钟），仅在夜间事件池中出现 */
+    public static final int BLOOD_MOON_DURATION = 20 * 60 * 8;
+    /** 辐射泄漏持续 3 分钟 */
+    public static final int RADIATION_LEAK_DURATION = 20 * 60 * 3;
+    /** 辐射泄漏中·全员：每10秒污染+1（即使在屋内也缓慢累积） */
+    public static final int RADIATION_POLLUTION_PER_10S = 1;
+    /** 浓雾持续 2 分钟 */
+    public static final int DENSE_FOG_DURATION = 20 * 60 * 2;
+    /** 瘟疫风持续 2.5 分钟 */
+    public static final int PLAGUE_WIND_DURATION = 20 * 60 * 5 / 2;
+    /** 瘟疫风中·户外：每10秒有概率感染疾病 */
+    public static final double PLAGUE_WIND_SICK_CHANCE = 0.12;
+
     // ── 海岛远征：扬帆 / 返航（SixtySecondsIslands）────────────────────────────
     /** 登岛后多久才能返航（tick）：刚上岛就撤会让海岛沦为无风险的物资自助餐。 */
     public static final int ISLAND_LANDING_RETURN_LOCK_TICKS = 20 * 30;

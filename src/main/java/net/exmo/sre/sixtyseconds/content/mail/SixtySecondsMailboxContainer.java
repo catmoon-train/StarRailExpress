@@ -54,7 +54,8 @@ public class SixtySecondsMailboxContainer extends AbstractContainerMenu {
         } else {
             if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_DRAFT_PAPER)
                     || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_COIN)
-                    || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE)) {
+                    || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE)
+                    || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP)) {
                 if (!moveItemStackTo(stack, 0, 27, false)) {
                     return ItemStack.EMPTY;
                 }

@@ -66,11 +66,12 @@ public class SixtySecondsMailboxBlockEntity extends BlockEntity implements Conta
         items.clear();
     }
 
-    /** 只允许放入稿纸、实体游戏币、快递包裹 */
+    /** 只允许放入稿纸、实体游戏币、快递包裹、废料 */
     public boolean canPlaceItem(int slot, ItemStack stack) {
         return stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_DRAFT_PAPER)
                 || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_COIN)
-                || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE);
+                || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPRESS_PACKAGE)
+                || stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SCRAP);
     }
 
     @Override

@@ -1500,6 +1500,16 @@ public class ModPacketsReciever {
                         case "connected_express" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleExpressGreeting(player);
                         case "connected_shop" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleShopGreeting(player);
                         case "connected_rescue" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleRescueGreeting(player);
+                        case "connected_intel" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleIntelGreeting(player);
+                        case "connected_weather" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleWeatherGreeting(player);
+                        case "connected_counsel" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleCounselGreeting(player);
+                        case "connected_hire" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleHireGreeting(player);
+                        case "connected_black_market" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleBlackMarketGreeting(player);
+                        case "connected_recycle" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleRecycleGreeting(player);
+                        case "connected_poverty_relief" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handlePovertyReliefGreeting(player);
+                        case "connected_report" -> net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleReportGreeting(player);
+                        case "daily_limit" -> player.displayClientMessage(
+                            Component.translatable("message.noellesroles.hotline.daily_limit").withStyle(ChatFormatting.RED), true);
                         case "already_dialed" -> player.displayClientMessage(
                             Component.translatable("message.noellesroles.hotline.already_dialed").withStyle(ChatFormatting.RED), true);
                         default -> player.displayClientMessage(

@@ -1,7 +1,9 @@
 package net.exmo.sre.sixtyseconds.logic;
 
+import io.wifi.starrailexpress.game.GameUtils;
 import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
+import net.exmo.sre.sixtyseconds.logic.SixtySecondsEventSystem;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -37,16 +39,36 @@ public final class SixtySecondsHotlineSystem {
         HotlineData data = HOTLINE_DATA.computeIfAbsent(level, k -> new HotlineData());
         data.dailyHotlines.clear();
         data.dialedToday.clear();
+        data.playersDialedToday.clear();
         data.activeCall = null;
         data.shopItems.clear();
 
-        var  rand = level.getRandom();
-        data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.EXPRESS));
-        data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.SHOP));
-        if (rand.nextDouble() < 0.3)
+        var rand = level.getRandom();
+        // 所有热线均为概率出现，没有任何热线是必出的
+        if (rand.nextDouble() < 0.45) // 快递热线 45%
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.EXPRESS));
+        if (rand.nextDouble() < 0.45) // 购物热线 45%
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.SHOP));
+        if (rand.nextDouble() < 0.25) // 救援热线 25%
             data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.RESCUE));
+        if (rand.nextDouble() < 0.55) // 情报热线 55%
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.INTEL));
+        if (rand.nextDouble() < 0.45) // 天气预报 45%
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.WEATHER));
+        if (rand.nextDouble() < 0.30) // 心理辅导 30%
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.COUNSEL));
+        if (rand.nextDouble() < 0.30) // 雇佣 30%
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.HIRE));
+        if (rand.nextDouble() < 0.20) // 黑市 20%
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.BLACK_MARKET));
+        if (rand.nextDouble() < 0.15) // 回收 15%（小概率）
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.RECYCLE));
+        if (rand.nextDouble() < 0.15) // 贫困救济 15%（小概率）
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.POVERTY_RELIEF));
+        if (rand.nextDouble() < 0.35) // 匿名举报 35%
+            data.dailyHotlines.add(new HotlineEntry(pad6(rand.nextInt(1_000_000)), HotlineType.REPORT));
 
-        // 预生成购物商品
+        // 预生成购物商品（仅在购物热线出现时才需要，但提前生成不影响性能）
         data.shopItems = generateShopItems(level);
     }
 
@@ -59,16 +81,27 @@ public final class SixtySecondsHotlineSystem {
         HotlineData data = HOTLINE_DATA.get(level);
         if (data == null) return "invalid";
 
+        // 每天只能拨打一次热线（任意号码）
+        if (data.playersDialedToday.contains(player.getUUID())) return "daily_limit";
         if (data.dialedToday.contains(number)) return "already_dialed";
 
         for (HotlineEntry entry : data.dailyHotlines) {
             if (entry.number.equals(number)) {
                 data.dialedToday.add(number);
+                data.playersDialedToday.add(player.getUUID());
                 data.activeCall = new ActiveCall(player.getUUID(), entry.type, System.currentTimeMillis(), 0);
                 return "connected_" + entry.type.name().toLowerCase();
             }
         }
         return "invalid";
+    }
+
+    /** 获取当前呼入的热线类型（用于无 state 传递时判断） */
+    public static HotlineType getActiveCallType(ServerPlayer player) {
+        HotlineData data = HOTLINE_DATA.get(player.serverLevel());
+        if (data == null || data.activeCall == null) return null;
+        if (!data.activeCall.playerId.equals(player.getUUID())) return null;
+        return data.activeCall.type;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -284,6 +317,302 @@ public final class SixtySecondsHotlineSystem {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // 情报热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleIntelGreeting(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        long aliveCount = level.players().stream()
+                .filter(p -> !GameUtils.isPlayerEliminated(p)).count();
+        String weatherKey = SixtySecondsEventSystem.activeEventKey(level);
+        String weatherDesc = weatherKey != null
+                ? Component.translatable(weatherKey).getString()
+                : Component.translatable("message.noellesroles.sixty_seconds.weather_clear").getString();
+
+        player.displayClientMessage(tl("hotline.intel.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(Component.translatable(
+                "message.noellesroles.hotline.intel.report",
+                data.dayNumber, data.teams.size(), aliveCount, weatherDesc)
+                .withStyle(ChatFormatting.YELLOW), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 天气预报热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleWeatherGreeting(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        var rand = level.getRandom();
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+
+        // 当前天气
+        String currentKey = SixtySecondsEventSystem.activeEventKey(level);
+        String currentDesc = currentKey != null
+                ? Component.translatable(currentKey).getString()
+                : Component.translatable("message.noellesroles.sixty_seconds.weather_clear").getString();
+
+        // 未来3天预报：如果尚未安排，则随机生成并存入调度系统
+        for (int i = 1; i <= 3; i++) {
+            int targetDay = data.dayNumber + i;
+            if (SixtySecondsEventSystem.getScheduledForDay(level, targetDay) == null) {
+                // 50%概率安排一个天气事件，50%概率晴朗
+                if (rand.nextDouble() < 0.5) {
+                    SixtySecondsEventSystem.EventType[] pool =
+                            SixtySecondsEventSystem.FORECASTABLE_TYPES;
+                    SixtySecondsEventSystem.EventType type =
+                            pool[rand.nextInt(pool.length)];
+                    SixtySecondsEventSystem.scheduleForDay(level, targetDay, type);
+                } else {
+                    SixtySecondsEventSystem.scheduleForDay(level, targetDay, null);
+                }
+            }
+        }
+
+        // 读取已安排的预报
+        String[] forecastNames = new String[3];
+        for (int i = 0; i < 3; i++) {
+            String key = SixtySecondsEventSystem.getScheduledEventKey(level, data.dayNumber + i + 1);
+            forecastNames[i] = key != null
+                    ? Component.translatable(key).getString()
+                    : Component.translatable("message.noellesroles.sixty_seconds.weather_clear").getString();
+        }
+
+        player.displayClientMessage(tl("hotline.weather.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(Component.translatable(
+                "message.noellesroles.hotline.weather.current", currentDesc)
+                .withStyle(ChatFormatting.YELLOW), false);
+        player.displayClientMessage(Component.translatable(
+                "message.noellesroles.hotline.weather.forecast",
+                data.dayNumber + 1, forecastNames[0],
+                data.dayNumber + 2, forecastNames[1],
+                data.dayNumber + 3, forecastNames[2])
+                .withStyle(ChatFormatting.AQUA), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 心理辅导热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleCounselGreeting(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+        HotlineData data = getData(player.serverLevel());
+        if (data.counselUsedToday.contains(player.getUUID())) {
+            player.displayClientMessage(tl("hotline.counsel.already_used").withStyle(ChatFormatting.RED), false);
+            hangup(player);
+            return;
+        }
+        stats.sanity = Math.min(stats.sanityMax, stats.sanity + 15);
+        stats.sync();
+        data.counselUsedToday.add(player.getUUID());
+        player.displayClientMessage(tl("hotline.counsel.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(tl("hotline.counsel.effect").withStyle(ChatFormatting.GREEN), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 雇佣热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleHireGreeting(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        player.displayClientMessage(tl("hotline.hire.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(
+                btn("hotline.hire.confirm", "/sre:60s hotline hire confirm", ChatFormatting.GREEN), false);
+        player.displayClientMessage(
+                btn("hotline.hire.cancel", "/sre:60s hotline hire cancel", ChatFormatting.GRAY), false);
+    }
+
+    public static void handleHireConfirm(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+        int cost = 8; // 雇佣费用8游戏币
+        int coins = countCoinsInMailbox(player.serverLevel(), teamId);
+        if (coins < cost) {
+            player.displayClientMessage(tl("hotline.hire.insufficient").withStyle(ChatFormatting.RED), false);
+            hangup(player);
+            return;
+        }
+        removeCoinsFromMailbox(player.serverLevel(), teamId, cost);
+        // 修复大门耐久15点
+        SixtySecondsState.Data stateData = SixtySecondsState.get(player.serverLevel());
+        SixtySecondsState.TeamData team = stateData.teams.get(teamId);
+        if (team != null) {
+            boolean wasBroken = team.doorHp <= 0;
+            team.doorHp = Math.min(team.doorMaxHp, team.doorHp + 15);
+            if (wasBroken && team.doorHp > 0) {
+                team.doorBroken = false;
+            }
+        }
+        // 随机一件近战武器，次日发放
+        var rand = player.serverLevel().getRandom();
+        ItemStack weapon = switch (rand.nextInt(6)) {
+            case 0 -> new ItemStack(ModItems.SIXTY_SECONDS_KNIFE, 1);
+            case 1 -> new ItemStack(ModItems.SIXTY_SECONDS_FIRE_AXE, 1);
+            case 2 -> new ItemStack(ModItems.SIXTY_SECONDS_HATCHET, 1);
+            case 3 -> new ItemStack(ModItems.SIXTY_SECONDS_SPIKED_BAT, 1);
+            case 4 -> new ItemStack(ModItems.SIXTY_SECONDS_MACHETE, 1);
+            default -> new ItemStack(ModItems.SIXTY_SECONDS_PIPE, 1);
+        };
+        scheduleDelivery(player.serverLevel(), teamId, weapon);
+        player.displayClientMessage(tl("hotline.hire.confirmed").withStyle(ChatFormatting.GREEN), false);
+        hangup(player);
+    }
+
+    public static void handleHireCancel(ServerPlayer player) {
+        player.displayClientMessage(tl("hotline.hire.bye").withStyle(ChatFormatting.GOLD), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 黑市热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleBlackMarketGreeting(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        player.displayClientMessage(tl("hotline.black_market.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(
+                btn("hotline.black_market.buy", "/sre:60s hotline black_market buy", ChatFormatting.GREEN), false);
+        player.displayClientMessage(
+                btn("hotline.black_market.cancel", "/sre:60s hotline black_market cancel", ChatFormatting.GRAY), false);
+    }
+
+    public static void handleBlackMarketBuy(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+        int cost = 8;
+        int coins = countCoinsInMailbox(player.serverLevel(), teamId);
+        if (coins < cost) {
+            player.displayClientMessage(tl("hotline.black_market.insufficient").withStyle(ChatFormatting.RED), false);
+            hangup(player);
+            return;
+        }
+        removeCoinsFromMailbox(player.serverLevel(), teamId, cost);
+        // 随机违禁品物资包，次日发放
+        ItemStack contraband;
+        var rand = player.serverLevel().getRandom();
+        if (rand.nextDouble() < 0.08) {
+            contraband = new ItemStack(ModItems.SIXTY_SECONDS_PRECIOUS_PARTS, 2);
+        } else {
+            contraband = switch (rand.nextInt(11)) {
+                case 0 -> new ItemStack(ModItems.SIXTY_SECONDS_GUNPOWDER_PACK, 4);
+                case 1 -> new ItemStack(ModItems.SIXTY_SECONDS_GEAR, 4);
+                case 2 -> new ItemStack(ModItems.SIXTY_SECONDS_CHEMICALS, 4);
+                case 3 -> new ItemStack(ModItems.SIXTY_SECONDS_ELECTRONICS, 4);
+                case 4 -> new ItemStack(ModItems.SIXTY_SECONDS_SCRAP, 6);
+                case 5 -> new ItemStack(ModItems.SIXTY_SECONDS_GLASS_SHARD, 6);
+                case 6 -> new ItemStack(ModItems.SIXTY_SECONDS_WIRE, 4);
+                case 7 -> new ItemStack(Items.BONE_MEAL, 4);
+                case 8 -> new ItemStack(ModItems.SIXTY_SECONDS_SCRAP_METAL, 6);
+                case 9 -> new ItemStack(Items.LEATHER, 4);
+                default -> new ItemStack(Items.PAPER, 4);
+            };
+        }
+        scheduleDelivery(player.serverLevel(), teamId, contraband);
+        player.displayClientMessage(tl("hotline.black_market.confirmed").withStyle(ChatFormatting.GREEN), false);
+        hangup(player);
+    }
+
+    public static void handleBlackMarketCancel(ServerPlayer player) {
+        player.displayClientMessage(tl("hotline.black_market.bye").withStyle(ChatFormatting.GOLD), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 回收热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleRecycleGreeting(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        player.displayClientMessage(tl("hotline.recycle.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(
+                btn("hotline.recycle.confirm", "/sre:60s hotline recycle confirm", ChatFormatting.GREEN), false);
+        player.displayClientMessage(
+                btn("hotline.recycle.cancel", "/sre:60s hotline recycle cancel", ChatFormatting.GRAY), false);
+    }
+
+    public static void handleRecycleConfirm(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+        // 从邮箱中回收废料，3废料 = 1游戏币
+        List<BlockPos> boxes = SixtySecondsNewspaper.getMailboxRegistry(player.serverLevel()).get(teamId);
+        if (boxes == null || boxes.isEmpty()) {
+            player.displayClientMessage(tl("hotline.recycle.no_mailbox").withStyle(ChatFormatting.RED), false);
+            hangup(player);
+            return;
+        }
+        int totalScrap = 0;
+        for (BlockPos pos : boxes) {
+            BlockEntity be = player.serverLevel().getBlockEntity(pos);
+            if (be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mb) {
+                for (int i = 0; i < mb.getContainerSize(); i++) {
+                    ItemStack s = mb.getItem(i);
+                    if (s.is(ModItems.SIXTY_SECONDS_SCRAP)) {
+                        totalScrap += s.getCount();
+                        mb.setItem(i, ItemStack.EMPTY);
+                    }
+                }
+            }
+        }
+        int coins = totalScrap / 6;
+        if (coins > 0) {
+            scheduleDelivery(player.serverLevel(), teamId,
+                    new ItemStack(ModItems.SIXTY_SECONDS_COIN, coins));
+            player.displayClientMessage(Component.translatable(
+                    "message.noellesroles.hotline.recycle.confirmed", totalScrap, coins)
+                    .withStyle(ChatFormatting.GREEN), false);
+        } else {
+            player.displayClientMessage(tl("hotline.recycle.nothing").withStyle(ChatFormatting.GRAY), false);
+        }
+        hangup(player);
+    }
+
+    public static void handleRecycleCancel(ServerPlayer player) {
+        player.displayClientMessage(tl("hotline.recycle.bye").withStyle(ChatFormatting.GOLD), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 贫困救济热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handlePovertyReliefGreeting(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+        // 次日发放救济金
+        scheduleDelivery(player.serverLevel(), teamId,
+                new ItemStack(ModItems.SIXTY_SECONDS_COIN, 5));
+        player.displayClientMessage(tl("hotline.poverty_relief.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(tl("hotline.poverty_relief.confirmed").withStyle(ChatFormatting.GREEN), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 匿名举报热线
+    // ═══════════════════════════════════════════════════════════
+
+    public static void handleReportGreeting(ServerPlayer player) {
+        if (isTimeout(player)) { timeout(player); return; }
+        HotlineData data = getData(player.serverLevel());
+        if (data.reportUsedToday.contains(player.getUUID())) {
+            player.displayClientMessage(tl("hotline.report.already_used").withStyle(ChatFormatting.RED), false);
+            hangup(player);
+            return;
+        }
+        int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+        data.reportUsedToday.add(player.getUUID());
+        // 举报奖励：次日发放3游戏币
+        scheduleDelivery(player.serverLevel(), teamId,
+                new ItemStack(ModItems.SIXTY_SECONDS_COIN, 3));
+        player.displayClientMessage(tl("hotline.report.greeting").withStyle(ChatFormatting.GOLD), false);
+        player.displayClientMessage(tl("hotline.report.reward").withStyle(ChatFormatting.GREEN), false);
+        hangup(player);
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // 次日清晨：处理快递/购物/救援的投递与扣费
     // ═══════════════════════════════════════════════════════════
 
@@ -346,6 +675,16 @@ public final class SixtySecondsHotlineSystem {
         for (Map.Entry<Integer, List<ItemStack>> entry : data.pendingRescueRequests.entrySet()) {
             for (ItemStack stack : entry.getValue()) {
                 deliverToTeam(level, entry.getKey(), stack.copy());
+            }
+        }
+
+        // 4. 通用次日投递（雇佣武器/黑市物资/回收兑换币/贫困救济金/举报奖励）
+        Map<Integer, List<ItemStack>> pending = PENDING_DELIVERIES.remove(level);
+        if (pending != null) {
+            for (Map.Entry<Integer, List<ItemStack>> entry : pending.entrySet()) {
+                for (ItemStack stack : entry.getValue()) {
+                    deliverToTeam(level, entry.getKey(), stack.copy());
+                }
             }
         }
 
@@ -591,7 +930,25 @@ public final class SixtySecondsHotlineSystem {
     // ═══════════════════════════════════════════════════════════
 
     public record HotlineEntry(String number, HotlineType type) {}
-    public enum HotlineType { EXPRESS, SHOP, RESCUE }
+    public enum HotlineType {
+        EXPRESS, SHOP, RESCUE,
+        /** 情报热线：听取全区动态播报、各队存活数 */
+        INTEL,
+        /** 天气预报热线：播报未来24小时天气预测 */
+        WEATHER,
+        /** 心理辅导热线：接听后理智值+15，每天限一次 */
+        COUNSEL,
+        /** 雇佣热线：消耗游戏币雇佣NPC守卫 */
+        HIRE,
+        /** 黑市热线：购买违禁品 */
+        BLACK_MARKET,
+        /** 回收热线：用废旧物资兑换游戏币 */
+        RECYCLE,
+        /** 贫困救济热线：小概率出现，次日发放救济金 */
+        POVERTY_RELIEF,
+        /** 匿名举报热线 */
+        REPORT
+    }
     public record ShopItem(ItemStack item, int price) {}
 
     private record MaterialEntry(Item item, int basePrice, int maxExtra) {}
@@ -604,12 +961,17 @@ public final class SixtySecondsHotlineSystem {
     private static class HotlineData {
         final List<HotlineEntry> dailyHotlines = new ArrayList<>();
         final Set<String> dialedToday = new HashSet<>();
+        final Set<UUID> playersDialedToday = new HashSet<>();
         ActiveCall activeCall = null;
         List<ShopItem> shopItems = new ArrayList<>();
         Set<Integer> shopPurchased = new HashSet<>();
         int pendingCourierTeam = 0;
         final Map<Integer, List<ShopItem>> pendingShopPurchases = new HashMap<>();
         final Map<Integer, List<ItemStack>> pendingRescueRequests = new HashMap<>();
+        /** 已使用心理辅导热线的玩家（每天重置） */
+        final Set<UUID> counselUsedToday = new HashSet<>();
+        /** 已使用匿名举报热线的玩家（每天重置） */
+        final Set<UUID> reportUsedToday = new HashSet<>();
     }
 
     private static MaterialEntry m(Item item, int base, int extra) {
