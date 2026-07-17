@@ -120,6 +120,12 @@ public class SixtySecondsGrenadeItem extends Item {
                 }
             }
         }
+        if (fire) {
+            // 创建持续火焰区域
+            int fireDuration = radius >= 5 ? 12 * 20 : 6 * 20; // 燃烧弹12秒，燃烧瓶6秒
+            org.agmas.noellesroles.content.entity.ServerFireAreaManager.createFireArea(
+                    serverLevel, impact, radius, fireDuration, true);
+        }
         serverLevel.sendParticles(fire ? ParticleTypes.FLAME : blind ? ParticleTypes.FLASH
                 : ParticleTypes.EXPLOSION, impact.x, impact.y + 0.5, impact.z,
                 fire ? 40 : 8, radius / 2, 0.5, radius / 2, 0.02);

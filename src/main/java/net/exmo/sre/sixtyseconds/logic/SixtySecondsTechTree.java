@@ -110,7 +110,7 @@ public final class SixtySecondsTechTree {
         chain(list, "military", "work_env_3", "throwables_1", "throwables_2", "throwables_3");
         // 弓弩（军械大类，需「更好的工作环境-III」）：弓术链解锁弓/弩，箭矢工艺链解锁弹药
         chain(list, "military", "work_env_3", "archery_1", "archery_2", "archery_3");
-        chain(list, "military", "work_env_3", "arrow_craft_1", "arrow_craft_2");
+        chain(list, "military", "archery_1", "arrow_craft_1", "arrow_craft_2");
         // ── 基地设施（车床，需「更好的工作环境-IV」）─────────────────────
         chain(list, "base", "work_env_4", "base_expand_1", "base_expand_2", "base_expand_3");
         chain(list, "base", "work_env_4", "base_facility_1", "base_facility_2", "base_facility_3");
@@ -196,6 +196,9 @@ public final class SixtySecondsTechTree {
      * </ul>
      */
     public static boolean gateSatisfied(TechNode node, Set<String> unlocked) {
+        if ("arrow_craft_2".equals(node.id())) {
+            return unlocked.contains("archery_2") && unlocked.contains("arrow_craft_1");
+        }
         if ("omni_tonic".equals(node.id())) {
             for (TechNode other : NODES) {
                 if ("medical".equals(other.category()) && !other.id().equals(node.id())

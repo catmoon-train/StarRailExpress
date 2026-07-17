@@ -356,6 +356,7 @@ public class NRGameStateEvents {
         // 烟雾/迷幻区域 + 塔罗 + 收音机
         ServerTickEvents.END_SERVER_TICK.register((server) -> {
             ServerSmokeAreaManager.tick();
+            org.agmas.noellesroles.content.entity.ServerFireAreaManager.tick();
             HallucinationAreaManager.tick();
             ServerLevel level = server.overworld();
             TarotAssemblyManager.serverLevelTick(level);

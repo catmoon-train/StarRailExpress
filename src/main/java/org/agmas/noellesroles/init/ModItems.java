@@ -1174,11 +1174,13 @@ public class ModItems {
             "sixty_seconds_decoy_flare", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 烟雾弹(60s版)
     public static final Item SIXTY_SECONDS_SMOKE_GRENADE = register(
-            new Item(new Item.Properties().stacksTo(16)),
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsSmokeGrenadeItem(
+                    new Item.Properties().stacksTo(16)),
             "sixty_seconds_smoke_grenade", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 标记弹
     public static final Item SIXTY_SECONDS_MARKING_GRENADE = register(
-            new Item(new Item.Properties().stacksTo(16)),
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMarkingGrenadeItem(
+                    new Item.Properties().stacksTo(16)),
             "sixty_seconds_marking_grenade", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
 
