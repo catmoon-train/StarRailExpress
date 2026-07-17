@@ -14,9 +14,8 @@ import net.minecraft.util.Mth;
  *       按等级压平权重差）且掷出件数越多；</li>
  *   <li>等级越高，周围刷出的怪更多更强（{@code SixtySecondsPveSystem}）。</li>
  * </ul>
- * 等级按<b>坐标反查</b>（探索区不克隆、全队共用，门绑定盒/全局模板盒都是世界绝对坐标）：
- * 先匹配门绑定的独立探索区（{@code DoorBinding.level}，0=继承全局），再落回全局
- * {@code searchZoneTemplate}（{@code searchZoneLevel}）；都不在则视为 1 级。
+ * 等级按<b>坐标反查</b>（门绑定危险区盒都是世界绝对坐标）：先匹配岛屿单元格，再匹配门绑定危险区
+ * （{@code DoorBinding.level}，0=继承全局），都不在则取全局基线（{@code searchZoneLevel}）。
  * 配置命令：{@code /sre:60s_area level <1..5>}（全局）、{@code /sre:60s_area level <1..5> <x y z>}（该点所在绑定区）。
  */
 public final class SixtySecondsAreaLevels {
@@ -44,10 +43,8 @@ public final class SixtySecondsAreaLevels {
                 return binding.level > 0 ? clamp(binding.level) : global;
             }
         }
-        if (config.searchZoneTemplate != null && config.searchZoneTemplate.toBox().isInside(pos)) {
-            return global;
-        }
-        return 1;
+        // 不在任何门绑定危险区、也不在岛屿上：一律取全局基线（searchZoneLevel）。
+        return global;
     }
 
     /** loot 权重压平指数：weight^(1/(1+α(level-1)))——等级越高稀有条目相对权重越大。 */

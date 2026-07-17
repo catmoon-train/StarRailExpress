@@ -39,12 +39,6 @@ public class GameOptionsMixin {
         LocalPlayer localPlayer = Minecraft.getInstance().player;
         if (!GameUtils.isGameRunning(localPlayer))
             return original;
-
-        // 末日60秒模式：冒险玩家自由切换第一/第三人称（无需职业谓词放行）
-        if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(localPlayer.level())) {
-            return original;
-        }
-
         if (GameUtils.isPlayerAliveAndSurvival(localPlayer)) {
             if (SREClient.gameComponent != null) {
                 final var role = SREClient.gameComponent.getRole(Minecraft.getInstance().player);

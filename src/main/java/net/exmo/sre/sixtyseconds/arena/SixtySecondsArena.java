@@ -152,30 +152,23 @@ public final class SixtySecondsArena {
 
             team.residentialSpawn = spawnFor(config.residentialSpawn, residentialBox, offset);
             team.shelterSpawn = spawnFor(config.shelterSpawn, shelterBox, shelterOffset);
-            team.searchZoneBox = boxOf(config.searchZoneTemplate.toBox(), BlockPos.ZERO);
-            // 每队出口（优先级：搜索区出口门绑定 > exit 出口点 > 全局出生点；搜索区不克隆，坐标无需按队偏移）。
-            // 一队一扇<b>专属</b>出口门：按队序号顺序分配、不再取模复用，保证各队拿到互不相同的探索区避难所门
-            //（旧的 index % size 会让多队共用同一扇门，回家/夜袭锚点撞在一起）。门不够分的队回退到 exit 点/全局出生点。
+            // 回家门 / 危险区盒：只认探索区出口门绑定（建在避难所外的那些门）。一队一扇<b>专属</b>门，
+            // 按队序号顺序分配、不取模复用。门不够分的队没有专属回家门（returnDoorPos 留 null）——
+            // 出门探索现在落在所点门外、全世界自由活动，本就不需要一个「探索区落点」，故不再有全局兜底。
+            team.searchZoneSpawn = null;
+            team.returnDoorPos = null;
+            team.searchZoneBox = null;
             SixtySecondsConfig.DoorBinding exitDoor = index < exitDoorBindings.size()
                     ? exitDoorBindings.get(index)
                     : null;
             if (exitDoor != null) {
-                // 出门落在自己出口门的门口（绑定的 spawn），回家只认这扇门
                 team.searchZoneSpawn = exitDoor.spawn.toBlockPos();
                 team.returnDoorPos = exitDoor.door.toBlockPos();
                 AABB bound = aabbOf(exitDoor.boxMin, exitDoor.boxMax, BlockPos.ZERO);
-                // 绑定盒太小（快速绑定点了同一格等）视为未圈定，退回全局搜索区盒
+                // 绑定盒太小（快速绑定点了同一格等）视为未圈定 → 留 null（该区无危险区盒，按全局基线算等级）
                 if (bound.getXsize() >= 8 && bound.getZsize() >= 8) {
                     team.searchZoneBox = bound;
                 }
-            } else if (config.searchExitPoints != null && !config.searchExitPoints.isEmpty()) {
-                team.searchZoneSpawn = config.searchExitPoints
-                        .get(index % config.searchExitPoints.size()).toBlockPos();
-                team.returnDoorPos = null;
-            } else {
-                team.searchZoneSpawn = spawnFor(config.searchZoneSpawn, config.searchZoneTemplate.toBox(),
-                        BlockPos.ZERO);
-                team.returnDoorPos = null;
             }
             team.residentialBox = boxOf(residentialBox, offset);
             team.shelterBox = boxOf(shelterBox, shelterOffset);
@@ -194,8 +187,9 @@ public final class SixtySecondsArena {
         }
         int teams = data.teams.size();
         if (!exitDoorBindings.isEmpty() && exitDoorBindings.size() < teams) {
-            Noellesroles.LOGGER.warn("[60s] 探索区出口门只有 {} 扇，少于 {} 支队伍：多出的队将回退到 exit 点/全局出生点，"
-                    + "无法做到一队一门。建议在探索区多绑几扇出口门。", exitDoorBindings.size(), teams);
+            Noellesroles.LOGGER.warn("[60s] 探索区出口门只有 {} 扇，少于 {} 支队伍：多出的队没有专属回家门"
+                    + "（夜袭锚点缺省、回家只能走自家避难所门）。建议在探索区多绑几扇出口门。",
+                    exitDoorBindings.size(), teams);
         }
         warnOverlappingShelters(config, shelterOffsets);
         // 全局先净空、后克隆（原因见上）
@@ -363,7 +357,6 @@ public final class SixtySecondsArena {
         // 模板源区域（玩家可能在这里死亡并留下尸体）
         zones.add(boxOf(config.residentialTemplate.toBox(), BlockPos.ZERO));
         zones.add(boxOf(config.shelterTemplate.toBox(), BlockPos.ZERO));
-        zones.add(boxOf(config.searchZoneTemplate.toBox(), BlockPos.ZERO));
         // 各队克隆区（队数无上限，沿 X 网格延伸）
         for (int i = 0; i < 15; i++) {
             BlockPos offset = config.teamOffset(i);
@@ -402,13 +395,6 @@ public final class SixtySecondsArena {
         CLEAR_ZONES.clear();
         CLEAR_ZONES.addAll(zones);
         clearZonesDeadline = Long.MAX_VALUE;
-        // 强载搜索区区块（先布防再加载：getChunk 同步加载，实体入世界事件可能紧随其后触发）
-        BoundingBox searchBox = config.searchZoneTemplate.toBox();
-        for (int cx = searchBox.minX() >> 4; cx <= searchBox.maxX() >> 4; cx++) {
-            for (int cz = searchBox.minZ() >> 4; cz <= searchBox.maxZ() >> 4; cz++) {
-                level.getChunk(cx, cz);
-            }
-        }
     }
 
     /** 建图收尾：把清理窗口收成短尾窗（覆盖玩家传送进场后的实体入世界），过期自动作废。 */
