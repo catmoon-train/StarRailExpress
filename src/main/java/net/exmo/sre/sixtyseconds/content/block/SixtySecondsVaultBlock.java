@@ -108,9 +108,13 @@ public class SixtySecondsVaultBlock extends BaseEntityBlock {
                     level.playSound(null, pos, SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 0.8F, 1.0F);
                     return InteractionResult.FAIL;
                 }
+                // 打开撬锁小游戏
                 held.hurtAndBreak(1, serverPlayer, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
                 serverPlayer.displayClientMessage(Component.translatable(
-                        "message.noellesroles.sixty_seconds.vault_picked"), true);
+                        "message.noellesroles.sixty_seconds.vault_picking"), true);
+                net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(serverPlayer,
+                        new net.exmo.sre.sixtyseconds.network.OpenVaultLockpickS2CPacket(pos));
+                return InteractionResult.SUCCESS;
             }
         }
         MenuType<?> menuType = switch (rows) {

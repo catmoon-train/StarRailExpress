@@ -504,6 +504,18 @@ public interface ModBlocks {
                     BlockEntityType.Builder.of(HotbarStorageBlockEntity::new, HOTBAR_STORAGE)
                             .build(null));
 
+    // ── 电力设施：蓄电池 / 发电增幅板 ──────────────────────────────────
+    Block SIXTY_SECONDS_POWER_BATTERY = blockRegistrar.createWithItem("sixty_seconds_power_battery",
+            new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(3.0F)),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    Block SIXTY_SECONDS_POWER_AMPLIFIER = blockRegistrar.createWithItem("sixty_seconds_power_amplifier",
+            new Block(BlockBehaviour.Properties.ofFullCopy(DARK_STEEL).strength(2.0F).noOcclusion()),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
     // Kill blocks (OP utilities)
     @SuppressWarnings("unchecked")
     Block KILL_BLOCK = blockRegistrar.createWithItem("kill_block",

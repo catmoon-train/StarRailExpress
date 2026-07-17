@@ -221,6 +221,13 @@ public final class SixtySecondsManager {
                     break;
                 }
                 SixtySecondsDoorHighlight.tick(level);
+                // 准备阶段循环播放警报音效（每 2 秒一次）
+                if (level.getGameTime() % 40 == 0) {
+                    for (net.minecraft.server.level.ServerPlayer p : level.players()) {
+                        level.playSound(null, p.getX(), p.getY(), p.getZ(),
+                                org.agmas.noellesroles.init.NRSounds.BROKEN_ALARM, net.minecraft.sounds.SoundSource.MASTER, 0.8F, 1.0F);
+                    }
+                }
                 if (level.getGameTime() >= data.phaseEndTick) {
                     startPrepTransition(level, data);
                 }

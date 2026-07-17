@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -102,6 +103,38 @@ public class SixtySecondsGeneratorBlock extends Block {
             units = 2; // 废料 = 20 秒
         } else if (stack.is(Items.COAL) || stack.is(Items.CHARCOAL)) {
             units = 6; // 煤炭/木炭 = 60 秒
+        } else if (stack.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_PORTABLE_BATTERY)) {
+            // 便携储蓄电池：读取储存的电量，充电到发电机
+            var customData = stack.get(net.minecraft.world.item.component.DataComponents.CUSTOM_DATA);
+            if (customData != null) {
+                long stored = customData.copyTag().getLong("StoredPower");
+                if (stored > 0) {
+                    team.powerEndTick = Math.max(team.powerEndTick, level.getGameTime()) + stored;
+                    if (!serverPlayer.isCreative()) stack.shrink(1);
+                    serverLevel.playSound(null, pos, SoundEvents.BLAZE_SHOOT, SoundSource.BLOCKS, 0.6F, 0.6F);
+                    serverPlayer.displayClientMessage(Component.translatable(
+                            "message.noellesroles.sixty_seconds.generator_fueled",
+                            Math.max(0, (team.powerEndTick - level.getGameTime()) / 20)), true);
+                    return ItemInteractionResult.SUCCESS;
+                }
+            }
+            // 空电池：从发电机储存电力
+            long currentPower = team.powerEndTick - level.getGameTime();
+            if (currentPower > 0) {
+                long take = Math.min(currentPower, 20 * 90); // 最多90秒
+                team.powerEndTick -= take;
+                net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+                tag.putLong("StoredPower", take);
+                stack.set(net.minecraft.world.item.component.DataComponents.CUSTOM_DATA,
+                        net.minecraft.world.item.component.CustomData.of(tag));
+                if (!serverPlayer.isCreative()) stack.shrink(0); // 不消耗电池
+                serverLevel.playSound(null, pos, net.minecraft.sounds.SoundEvents.AMETHYST_BLOCK_CHIME,
+                        SoundSource.BLOCKS, 0.6F, 1.0F);
+                serverPlayer.displayClientMessage(Component.translatable(
+                        "message.noellesroles.sixty_seconds.battery_charged", take / 20), true);
+                return ItemInteractionResult.SUCCESS;
+            }
+            units = 0; // fallthrough to open panel
         } else if (stack.is(org.agmas.noellesroles.init.ModItems.NEWSPAPER)) {
             // 报纸：发电约 15 秒（1.5 份）
             if (!serverPlayer.isCreative()) {
@@ -117,6 +150,11 @@ public class SixtySecondsGeneratorBlock extends Block {
         if (units > 0) {
             if (!serverPlayer.isCreative()) {
                 stack.shrink(1);
+            }
+            // 发电增幅板：检查发电机上方是否放置了增幅板
+            BlockState above = level.getBlockState(pos.above());
+            if (above.is(org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_POWER_AMPLIFIER)) {
+                units *= 20; // 20倍增幅（便携电池不触发此逻辑）
             }
             for (int i = 0; i < units; i++) {
                 SixtySecondsPowerSystem.addFuel(serverLevel, team);

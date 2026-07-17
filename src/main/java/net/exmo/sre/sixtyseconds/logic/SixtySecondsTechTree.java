@@ -76,6 +76,7 @@ public final class SixtySecondsTechTree {
         chain(list, "cooking", null, "waste_1", "waste_2", "waste_3", "waste_4");
         // ── 电力 ────────────────────────────────────────────────────
         chain(list, "power", null, "power_1", "power_2", "power_3");
+        chain(list, "power", "power_3", "power_facility_1", "power_facility_2");
         // ── 净化 ────────────────────────────────────────────────────
         chain(list, "purification", null, "water_collect_1", "water_collect_2", "water_collect_3");
         chain(list, "purification", null, "water_purify_1", "water_purify_2", "water_purify_3");
@@ -106,7 +107,7 @@ public final class SixtySecondsTechTree {
         chain(list, "military", "work_env_3", "melee_1", "melee_2", "melee_3");
         chain(list, "military", "work_env_3", "bullets_1", "bullets_2", "bullets_3");
         chain(list, "military", "work_env_3", "firearms_1", "firearms_2", "firearms_3");
-        chain(list, "military", "work_env_3", "throwables_1", "throwables_2");
+        chain(list, "military", "work_env_3", "throwables_1", "throwables_2", "throwables_3");
         // 弓弩（军械大类，需「更好的工作环境-III」）：弓术链解锁弓/弩，箭矢工艺链解锁弹药
         chain(list, "military", "work_env_3", "archery_1", "archery_2", "archery_3");
         chain(list, "military", "work_env_3", "arrow_craft_1", "arrow_craft_2");

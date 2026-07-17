@@ -958,6 +958,20 @@ public class NoellesrolesClient implements ClientModInitializer {
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.BreakInSelectScreen(
                                         payload.teamIds(), payload.labels(), payload.alarms()))));
+        // 保险库撬锁小游戏
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenVaultLockpickS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> {
+                            net.minecraft.client.gui.screens.Screen screen =
+                                    io.wifi.starrailexpress.client.gui.screen.MinigameScreenFactory.create(
+                                            "lockpick", payload.vaultPos(),
+                                            () -> {
+                                                var con = net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+                                                con.send(new net.exmo.sre.sixtyseconds.network.VaultLockpickCompleteC2SPacket(
+                                                        payload.vaultPos()));
+                                            });
+                            if (screen != null) context.client().setScreen(screen);
+                        }));
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.OpenTradeS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(

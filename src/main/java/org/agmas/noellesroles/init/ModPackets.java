@@ -218,6 +218,13 @@ public class ModPackets {
                 net.exmo.sre.sixtyseconds.network.BreakInExecuteC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.BreakInExecuteC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.BreakInExecuteC2SPacket::handle);
+        // 保险库撬锁小游戏
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenVaultLockpickS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenVaultLockpickS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.VaultLockpickCompleteC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VaultLockpickCompleteC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.VaultLockpickCompleteC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.VaultLockpickCompleteC2SPacket::handle);
         // 拜访双向对话
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenVisitChatS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenVisitChatS2CPacket.CODEC);

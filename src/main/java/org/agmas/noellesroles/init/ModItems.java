@@ -783,6 +783,11 @@ public class ModItems {
             new Item(new Item.Properties().stacksTo(16).food(
                     new net.minecraft.world.food.FoodProperties.Builder().nutrition(5).saturationModifier(0.5F).build())),
             "sixty_seconds_fresh_vegetables", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 创口贴：医疗-I，缓慢恢复10健康+降低10污染
+    public static final Item SIXTY_SECONDS_BAND_AID = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(16), 0, 0, 0, 0, 10, false, null, 80, net.minecraft.world.item.UseAnim.EAT),
+            "sixty_seconds_band_aid", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 袋装果干：3果干+1纸，恢复60饥饿（营养12×5）
     public static final Item SIXTY_SECONDS_BAGGED_DRIED_FRUIT = register(
             new Item(new Item.Properties().stacksTo(8).food(
@@ -927,6 +932,10 @@ public class ModItems {
     public static final Item SIXTY_SECONDS_ALLOY_PLATE = register(
             new Item(new Item.Properties().stacksTo(16)),
             "sixty_seconds_alloy_plate", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 便携储蓄电池
+    public static final Item SIXTY_SECONDS_PORTABLE_BATTERY = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_portable_battery", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 农业新作物：野米/野茶/工业麻/烟草（种植见 SixtySecondsPlanterBlock）──
     public static final Item SIXTY_SECONDS_WILD_RICE = register(
@@ -1163,6 +1172,16 @@ public class ModItems {
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrenadeItem(
                     new Item.Properties().stacksTo(4), 8.0D, 0.0F, 20, false, false),
             "sixty_seconds_decoy_flare", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 烟雾弹(60s版)
+    public static final Item SIXTY_SECONDS_SMOKE_GRENADE = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_smoke_grenade", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 标记弹
+    public static final Item SIXTY_SECONDS_MARKING_GRENADE = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "sixty_seconds_marking_grenade", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+
 
     // ── 盔甲：塑料套（废料套与铁套之间）/ 合金套（钢套之上，韧性+击退抗性）──
     public static final Item SIXTY_SECONDS_PLASTIC_HELMET = register(

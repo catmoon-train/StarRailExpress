@@ -650,6 +650,16 @@ public final class SixtySecondsRecipes {
         add(list, "solar_panel", Station.WORKBENCH, "power_3", false,
                 List.of(in(ModItems.SIXTY_SECONDS_BATTERY_LARGE, 1), in(glassPlate, 1), in(wire, 3)),
                 ModItems.SIXTY_SECONDS_SOLAR_PANEL, 1);
+        // ── 电力设施-I ──────────────────────────────────────────────────
+        add(list, "power_battery", Station.WORKBENCH, "power_facility_1", true,
+                List.of(in(elec, 3), in(ModItems.SIXTY_SECONDS_BATTERY_LARGE, 1), in(glassPlate, 2)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_POWER_BATTERY.asItem(), 1);
+        add(list, "portable_battery", Station.WORKBENCH, "power_facility_1", true,
+                List.of(in(wire, 3), in(battery, 2), in(plastic, 1)),
+                ModItems.SIXTY_SECONDS_PORTABLE_BATTERY, 1);
+        add(list, "power_amplifier", Station.WORKBENCH, "power_facility_2", true,
+                List.of(in(elec, 5), in(glassPlate, 5), in(steel, 3)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_POWER_AMPLIFIER.asItem(), 1);
 
         // ══ 净化（净化台）═══════════════════════════════════════════════
         // ── 集水装置 ─────────────────────────────────────────────────
@@ -778,6 +788,9 @@ public final class SixtySecondsRecipes {
                 List.of(in(Items.STRING, 3)), ModItems.SIXTY_SECONDS_RAG, 1);
         add(list, "cloth_roll", Station.STERILE, "med_materials_1", false,
                 List.of(in(rag, 3)), ModItems.SIXTY_SECONDS_CLOTH_ROLL, 1);
+        add(list, "band_aid", Station.STERILE, "med_materials_1", true,
+                List.of(in(Items.PAPER, 2), in(chem, 1), in(ModItems.SIXTY_SECONDS_RAG, 1)),
+                ModItems.SIXTY_SECONDS_BAND_AID, 1);
         add(list, "alcohol", Station.STERILE, "med_materials_2", true,
                 List.of(in(waterM, 1), in(Items.POTATO, 2)), ModItems.SIXTY_SECONDS_ALCOHOL, 1);
         // ── 药品 ─────────────────────────────────────────────────────
@@ -1014,6 +1027,12 @@ public final class SixtySecondsRecipes {
                 ModItems.SIXTY_SECONDS_INCENDIARY_GRENADE, 1);
         add(list, "frag_grenade", Station.ARSENAL, "throwables_2", true,
                 List.of(in(gunpowder, 3), in(scrap, 6), in(nails, 4)), ModItems.SIXTY_SECONDS_FRAG_GRENADE, 1);
+        add(list, "sixty_smoke", Station.ARSENAL, "throwables_3", true,
+                List.of(in(steel, 2), in(wire, 2), in(scrap, 10)), ModItems.SIXTY_SECONDS_SMOKE_GRENADE, 1);
+        add(list, "sixty_marking", Station.ARSENAL, "throwables_3", true,
+                List.of(in(steel, 1), in(hemp, 2), in(copper, 3)), ModItems.SIXTY_SECONDS_MARKING_GRENADE, 1);
+        add(list, "sixty_flare", Station.ARSENAL, "throwables_1", false,
+                List.of(in(Items.PAPER, 1), in(Items.CHARCOAL, 1), in(copper, 1)), org.agmas.noellesroles.init.ModItems.FLARE, 1);
         // ── 弓 / 弩（武器锻造台）──────────────────────────────────────
         add(list, "crude_bow", Station.WEAPON_FORGE, "archery_1", false,
                 List.of(in(Items.STICK, 3), in(Items.STRING, 3)), ModItems.SIXTY_SECONDS_CRUDE_BOW, 1);
