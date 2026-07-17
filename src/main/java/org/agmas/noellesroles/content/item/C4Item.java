@@ -34,6 +34,8 @@ public class C4Item extends Item {
             @NotNull LivingEntity entity, @NotNull InteractionHand hand) {
         if (entity.hasEffect(ModEffects.SAFE_TIME))
             return InteractionResult.PASS;
+        if (player.hasEffect(ModEffects.SAFE_TIME))
+            return InteractionResult.PASS;
         if (!(entity instanceof Player target))
             return InteractionResult.PASS;
         if (target == player)
@@ -50,6 +52,8 @@ public class C4Item extends Item {
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player,
             @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if (player.hasEffect(ModEffects.SAFE_TIME))
+            return InteractionResultHolder.pass(stack);
         if (stack.isEmpty())
             return InteractionResultHolder.pass(stack);
 
