@@ -217,7 +217,7 @@ public final class SixtySecondsRecipes {
                 || techId.startsWith("arrow")
                 // 枪械线（TACZ 枪/弹/配件；产物是第三方物品，判不出类型才走到这里）
                 || techId.startsWith("pistol") || techId.startsWith("shotgun") || techId.startsWith("sniper")
-                || techId.startsWith("rifle") || techId.equals("smg") || techId.equals("heavy_weapon")
+                || techId.startsWith("rifle") || techId.equals("smg") || techId.startsWith("heavy_weapon")
                 || techId.equals("ammo_box") || techId.equals("laser_sight")
                 || techId.startsWith("sight") || techId.startsWith("muzzle")
                 || techId.startsWith("stock") || techId.startsWith("grip") || techId.startsWith("mag_")) {
@@ -1053,6 +1053,8 @@ public final class SixtySecondsRecipes {
                 List.of(in(gunpowder, 6), in(chem, 5), in(scrap, 10)));
         ammo(list, "tacz_ammo_338", "bullets_6", "tacz:338", 1,
                 List.of(in(gunpowder, 6), in(copper, 6), in(steel, 2), in(chem, 3)));
+        ammo(list, "tacz_ammo_rpg_rocket", "bullets_7", "tacz:rpg_rocket", 1,
+                List.of(in(gunpowder, 10), in(alloy, 3), in(steel, 6), in(chem, 6), in(copper, 8)));
         // ── 枪械 ─────────────────────────────────────────────────────
         gun(list, "tacz_glock_17", "pistol_1", "tacz:glock_17",
                 List.of(in(iron, 4), in(scrap, 6), in(wire, 2)));
@@ -1072,6 +1074,8 @@ public final class SixtySecondsRecipes {
                 List.of(in(alloy, 1), in(precious, 2), in(hemp, 6), in(steel, 8), in(pipe, 1), in(gear, 4)));
         gun(list, "tacz_m320", "heavy_weapon", "tacz:m320",
                 List.of(in(alloy, 4), in(steel, 16), in(pipe, 1), in(plastic, 12), in(hemp, 10)));
+        gun(list, "tacz_rpg7", "heavy_weapon_2", "tacz:rpg7",
+                List.of(in(alloy, 10), in(steel, 30), in(precious, 6), in(elec, 8), in(chem, 12), in(pipe, 3)));
         gun(list, "tacz_ak47", "rifle_2", "tacz:ak47",
                 List.of(in(alloy, 10), in(steel, 26), in(hemp, 20), in(gear, 4)));
         gun(list, "tacz_ai_awp", "sniper_2", "tacz:ai_awp",

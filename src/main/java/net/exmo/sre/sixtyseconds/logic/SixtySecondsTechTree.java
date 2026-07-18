@@ -71,6 +71,7 @@ public final class SixtySecondsTechTree {
             java.util.Map.entry("sniper_1", List.of("shotgun_1")),
             java.util.Map.entry("rifle_1", List.of("bullets_4")),
             java.util.Map.entry("heavy_weapon", List.of("bullets_5")),
+            java.util.Map.entry("heavy_weapon_2", List.of("bullets_7")),
             java.util.Map.entry("sniper_2", List.of("rifle_2")),
             java.util.Map.entry("sight_2", List.of("sniper_1")),
             java.util.Map.entry("sight_3", List.of("sniper_2")),
@@ -136,7 +137,7 @@ public final class SixtySecondsTechTree {
         // ── 枪械线（TACZ 枪/弹/配件，全部在军械台且需通电）────────────────
         // 多前置节点的第二个前置写在 EXTRA_REQUIREMENTS，parentId 只表达主干链。
         chain(list, "military", "work_env_3", "bullets_1", "bullets_2", "bullets_3",
-                "bullets_4", "bullets_5", "bullets_6");
+                "bullets_4", "bullets_5", "bullets_6", "bullets_7");
         chain(list, "military", "bullets_1", "pistol_1", "pistol_2");
         chain(list, "military", "pistol_1", "shotgun_1", "shotgun_2");
         chain(list, "military", "bullets_3", "sniper_1");        // + 霰弹枪-I
@@ -144,6 +145,7 @@ public final class SixtySecondsTechTree {
         chain(list, "military", "smg", "rifle_1");               // + 子弹-IV
         chain(list, "military", "rifle_1", "heavy_weapon", "rifle_2"); // 重型武器 + 子弹-V
         chain(list, "military", "bullets_6", "sniper_2");        // + 步枪-II
+        chain(list, "military", "sniper_2", "heavy_weapon_2");    // 重型武器-II（额外前置：子弹-VII）
         // 配件支线：瞄具/枪口/枪托/握把/扩容弹夹/激光指示器
         chain(list, "military", "pistol_1", "laser_sight");
         chain(list, "military", "pistol_1", "sight_1", "sight_2", "sight_3");
@@ -218,6 +220,7 @@ public final class SixtySecondsTechTree {
             case "bullets_4": return 14;
             case "bullets_5": return 18;
             case "bullets_6": return 20;
+            case "bullets_7": return 24;
             case "pistol_1": return 4;
             case "pistol_2": return 8;
             case "shotgun_1": return 7;
@@ -229,6 +232,7 @@ public final class SixtySecondsTechTree {
             case "rifle_1": return 16;
             case "rifle_2": return 22;
             case "heavy_weapon": return 20;
+            case "heavy_weapon_2": return 30;
             case "laser_sight": return 5;
             case "sight_1": return 5;
             case "sight_2": return 10;
