@@ -413,8 +413,8 @@ public final class SixtySecondsBalance {
     // ── 海盗（海上乘船随机遭遇；见 SixtySecondsNpcSpawner.spawnPirates / NpcEntity.tickPirateBoat）──
     /** 每隔多久对每名玩家做一次海盗刷新判定（45s→60s→84s，持续降低遭遇密度）。 */
     public static final int PIRATE_CHECK_INTERVAL = 20 * 84;
-    /** 单次判定的刷新概率（夜间 ×{@link #PIRATE_NIGHT_CHANCE_MULT}；从 35% 降至 20%）。 */
-    public static final double PIRATE_SPAWN_CHANCE = 0.20;
+    /** 单次判定的刷新概率（夜间 ×{@link #PIRATE_NIGHT_CHANCE_MULT}；-60%：0.20→0.08）。 */
+    public static final double PIRATE_SPAWN_CHANCE = 0.08;
     public static final double PIRATE_NIGHT_CHANCE_MULT = 1.5;
     /** 刷新点离玩家的距离区间（格）：够远才有「远处出现一条船」的过程感，又不至于超出加载区块。 */
     public static final int PIRATE_SPAWN_MIN_DIST = 20;
@@ -448,14 +448,14 @@ public final class SixtySecondsBalance {
     public static final double NPC_USE_DISTANCE_SQR = 8 * 8;
 
     // 生成
-    /** 每个搜刮区每日基础 NPC 数（实际 = 本值 + 天数/2，上限 NPC_ZONE_CAP）。 */
-    public static final int NPC_DAILY_PER_ZONE_BASE = 2;
+    /** 每个搜刮区每日基础 NPC 数（实际 = 本值 + 天数/2，上限 NPC_ZONE_CAP）。-60%：2→1 */
+    public static final int NPC_DAILY_PER_ZONE_BASE = 1;
     /** 单个搜刮区 NPC 数上限（防 NPC 海）。 */
     public static final int NPC_ZONE_CAP = 8;
     /** 白天刷新时旅者占比（其余为商人）。 */
     public static final float NPC_DAY_TRAVELER_RATIO = 0.6F;
-    /** 搜刮区绑定门门口刷 NPC 的概率（每队每门每日）。 */
-    public static final float NPC_DOOR_SPAWN_CHANCE = 0.30F;
+    /** 搜刮区绑定门门口刷 NPC 的概率（每队每门每日）。-60%：0.30→0.12 */
+    public static final float NPC_DOOR_SPAWN_CHANCE = 0.12F;
     /** 夜袭混入强盗：最低天数 + 概率。 */
     public static final int NPC_ASSAULT_BANDIT_MIN_DAY = 3;
     public static final float NPC_ASSAULT_BANDIT_CHANCE = 0.35F;

@@ -76,6 +76,10 @@ public class ModItems {
     public static final Item SEA_CHART = register(
             new SeaChartItem(new Item.Properties().stacksTo(1)),
             "sea_chart", TOOLS_GROUP);
+    // 星图 - 星级探索地图，带迷雾/星级区域/探索缓存；手持显示 HUD 小地图，右键打开全屏星图
+    public static final Item STAR_MAP = register(
+            new StarMapItem(new Item.Properties().stacksTo(1)),
+            "star_map", TOOLS_GROUP);
     public static final Item FLARE = register(
             new FlareItem(new Item.Properties().stacksTo(8)),
             "flare", ROLE_ITEMS_GROUP);

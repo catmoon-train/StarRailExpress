@@ -28,14 +28,14 @@ import java.util.UUID;
 /**
  * 中途自动入队：游戏进行中<b>首次</b>加入服务器的玩家自动补进一支在线不满四人的队伍。
  *
- * <h3>完整流程（对齐开局体验：住宅 → 90s 准备 → 避难所）</h3>
+ * <h3>完整流程（对齐开局体验：住宅 → 65s 准备 → 避难所）</h3>
  * <ol>
  *   <li><b>预告（{@value #WARN_TICKS} tick = 1 分钟）</b>：进服即用大字幕+音效提示「1 分钟后加入」，
  *       期间转旁观自由观察（{@link #WARN_TICKS}）。</li>
  *   <li><b>进住宅</b>：到点分配队伍 → 传送到该队<b>住宅</b>（{@code residentialSpawn}）→ 冒险模式。</li>
- *   <li><b>90s 准备倒计时</b>：设 {@code stats.dayNumber=0} + {@code phaseEndTick=now+PREP_TICKS}，
- *       客户端 HUD 据此显示与开局同款的 90s 准备倒计时（两者都是<b>按玩家</b>同步的字段）。</li>
- *   <li><b>进避难所</b>：90s 到点传送到该队<b>避难所</b>（{@code shelterSpawn}）并把 dayNumber/phaseEndTick
+ *   <li><b>65s 准备倒计时</b>：设 {@code stats.dayNumber=0} + {@code phaseEndTick=now+PREP_TICKS}，
+ *       客户端 HUD 据此显示与开局同款的 65s 准备倒计时（两者都是<b>按玩家</b>同步的字段）。</li>
+ *   <li><b>进避难所</b>：65s 到点传送到该队<b>避难所</b>（{@code shelterSpawn}）并把 dayNumber/phaseEndTick
  *       恢复成全局当前值（HUD 回到正常日程）。</li>
  * </ol>
  *

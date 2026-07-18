@@ -44,6 +44,11 @@ public record SupplyCrateSaveConfigC2SPacket(
             buf.writeUtf(entry.itemId());
             buf.writeVarInt(entry.count());
             buf.writeDouble(entry.probability());
+            boolean hasNbt = entry.nbt() != null && !entry.nbt().isBlank();
+            buf.writeBoolean(hasNbt);
+            if (hasNbt) {
+                buf.writeUtf(entry.nbt());
+            }
         }
         buf.writeVarInt(refreshIntervalTicks);
         buf.writeBoolean(refreshAll);
@@ -58,7 +63,8 @@ public record SupplyCrateSaveConfigC2SPacket(
             String itemId = buf.readUtf();
             int count = buf.readVarInt();
             double prob = buf.readDouble();
-            entries.add(new SupplyCrateBlockEntity.SupplyCrateEntry(itemId, count, prob));
+            String nbt = buf.readBoolean() ? buf.readUtf() : null;
+            entries.add(new SupplyCrateBlockEntity.SupplyCrateEntry(itemId, count, prob, nbt));
         }
         int interval = buf.readVarInt();
         boolean refreshAll = buf.readBoolean();

@@ -2,10 +2,12 @@ package org.agmas.noellesroles.content.block_entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -67,10 +69,12 @@ public class SupplyCrateBlockEntity extends BlockEntity {
 
         if (configItems.isEmpty()) return;
 
+        RegistryAccess registryAccess = level.registryAccess();
+
         if (refreshAllSimultaneously) {
             // 同时刷新所有物品（无视概率）
             for (SupplyCrateEntry entry : configItems) {
-                ItemStack stack = createItemStack(entry.itemId(), entry.count());
+                ItemStack stack = createItemStack(entry.itemId(), entry.count(), entry.nbt(), registryAccess);
                 if (!stack.isEmpty()) {
                     currentItems.add(stack);
                 }
@@ -85,7 +89,7 @@ public class SupplyCrateBlockEntity extends BlockEntity {
             for (SupplyCrateEntry entry : configItems) {
                 cumulative += entry.probability();
                 if (random <= cumulative) {
-                    ItemStack stack = createItemStack(entry.itemId(), entry.count());
+                    ItemStack stack = createItemStack(entry.itemId(), entry.count(), entry.nbt(), registryAccess);
                     if (!stack.isEmpty()) {
                         currentItems.add(stack);
                     }
@@ -109,19 +113,44 @@ public class SupplyCrateBlockEntity extends BlockEntity {
     }
 
     /**
-     * 根据物品 ID 创建 ItemStack
+     * 根据物品 ID 创建 ItemStack，支持 NBT 数据组件
      */
-    private ItemStack createItemStack(String itemId, int count) {
+    private ItemStack createItemStack(String itemId, int count, @Nullable String nbtString, RegistryAccess registryAccess) {
         try {
             ResourceLocation rl = ResourceLocation.tryParse(itemId);
             if (rl == null) return ItemStack.EMPTY;
-            var item = BuiltInRegistries.ITEM.get(rl);
-            if (item == null) return ItemStack.EMPTY;
-            return new ItemStack(item, Math.max(1, count));
+
+            // 如果有 NBT，使用完整的 ItemStack.parse 来构建
+            if (nbtString != null && !nbtString.isBlank()) {
+                try {
+                    CompoundTag itemTag = new CompoundTag();
+                    itemTag.putString("id", itemId);
+                    itemTag.putInt("count", Math.max(1, count));
+                    CompoundTag componentTag = TagParser.parseTag(nbtString);
+                    if (!componentTag.isEmpty()) {
+                        itemTag.put("components", componentTag);
+                    }
+                    return ItemStack.parse(registryAccess, itemTag).orElseGet(() -> fallbackItem(itemId, count));
+                } catch (Exception e) {
+                    Noellesroles.LOGGER.warn("[SupplyCrate] NBT解析失败: {} -> {}", itemId, e.getMessage());
+                    return fallbackItem(itemId, count);
+                }
+            }
+
+            return fallbackItem(itemId, count);
         } catch (Exception e) {
             Noellesroles.LOGGER.warn("[SupplyCrate] 无法创建物品: {}", itemId);
             return ItemStack.EMPTY;
         }
+    }
+
+    /** 无 NBT 的简单物品创建 */
+    private ItemStack fallbackItem(String itemId, int count) {
+        ResourceLocation rl = ResourceLocation.tryParse(itemId);
+        if (rl == null) return ItemStack.EMPTY;
+        var item = BuiltInRegistries.ITEM.get(rl);
+        if (item == null) return ItemStack.EMPTY;
+        return new ItemStack(item, Math.max(1, count));
     }
 
     /**
@@ -204,6 +233,9 @@ public class SupplyCrateBlockEntity extends BlockEntity {
             entryTag.putString("itemId", entry.itemId());
             entryTag.putInt("count", entry.count());
             entryTag.putDouble("probability", entry.probability());
+            if (entry.nbt() != null && !entry.nbt().isBlank()) {
+                entryTag.putString("nbt", entry.nbt());
+            }
             configList.add(entryTag);
         }
         tag.put("configItems", configList);
@@ -244,7 +276,8 @@ public class SupplyCrateBlockEntity extends BlockEntity {
                 String itemId = entryTag.getString("itemId");
                 int count = entryTag.getInt("count");
                 double probability = entryTag.getDouble("probability");
-                configItems.add(new SupplyCrateEntry(itemId, count, probability));
+                String nbt = entryTag.contains("nbt", Tag.TAG_STRING) ? entryTag.getString("nbt") : null;
+                configItems.add(new SupplyCrateEntry(itemId, count, probability, nbt));
             }
         }
 
@@ -286,7 +319,13 @@ public class SupplyCrateBlockEntity extends BlockEntity {
     }
 
     /**
-     * 物资配置条目
+     * 物资配置条目，支持 NBT 数据组件
+     * @param nbt 物品组件 SNBT 字符串，如 {"minecraft:custom_name":'{"text":"特殊物品"}'}；为 null 或空时不应用 NBT
      */
-    public record SupplyCrateEntry(String itemId, int count, double probability) {}
+    public record SupplyCrateEntry(String itemId, int count, double probability, @Nullable String nbt) {
+        /** 向后兼容：无 NBT 的构造 */
+        public SupplyCrateEntry(String itemId, int count, double probability) {
+            this(itemId, count, probability, null);
+        }
+    }
 }
