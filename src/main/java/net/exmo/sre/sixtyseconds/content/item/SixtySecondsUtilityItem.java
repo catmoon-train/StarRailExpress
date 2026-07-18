@@ -95,46 +95,6 @@ public class SixtySecondsUtilityItem extends Item {
         return false;
     }
 
-    /**
-     * 每秒对手持罗盘（主/副手）的玩家在动作栏显示当前坐标 <b>(x, z)</b>（不显示 y 轴）
-     * 及回避难所的方位+距离。在 {@code SixtySecondsManager.tick} 中调用（服务端低频，无需同步）。
-     */
-    public static void tickHeldCompass(ServerLevel level) {
-        if (level.getGameTime() % 20 != 0) {
-            return;
-        }
-        SixtySecondsState.Data data = SixtySecondsState.get(level);
-        for (ServerPlayer player : level.players()) {
-            boolean holding = isCompass(player.getMainHandItem()) || isCompass(player.getOffhandItem());
-            if (!holding) {
-                continue;
-            }
-            Component text = Component.translatable("message.noellesroles.sixty_seconds.compass_pos",
-                    player.getBlockX(), player.getBlockZ()).withStyle(ChatFormatting.AQUA);
-            SixtySecondsState.TeamData team =
-                    data.teams.get(SixtySecondsStatsComponent.KEY.get(player).teamId);
-            if (team != null) {
-                BlockPos home = team.returnDoorPos;
-                if (home == null) {
-                    home = team.shelterSpawn;
-                }
-                if (home != null) {
-                    double dx = home.getX() + 0.5 - player.getX();
-                    double dz = home.getZ() + 0.5 - player.getZ();
-                    int distance = (int) Math.sqrt(dx * dx + dz * dz);
-                    text = Component.empty().append(text).append(Component.literal("  "))
-                            .append(Component.translatable("message.noellesroles.sixty_seconds.compass_home",
-                                    distance).withStyle(ChatFormatting.GRAY));
-                }
-            }
-            player.displayClientMessage(text, true);
-        }
-    }
-
-    private static boolean isCompass(ItemStack stack) {
-        return stack.getItem() instanceof SixtySecondsUtilityItem utility && utility.type == Type.COMPASS;
-    }
-
     private static boolean radio(ServerLevel level, ServerPlayer player) {
         String eventKey = SixtySecondsEventSystem.activeEventKey(level);
         Component event = eventKey == null
@@ -155,6 +115,16 @@ public class SixtySecondsUtilityItem extends Item {
         BlockPos home = team.returnDoorPos;
         if (home == null) {
             home = team.shelterSpawn;
+        }
+        // 房车模式：罗盘优先指向本队房车
+        net.minecraft.server.level.ServerLevel level = player.serverLevel();
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfig cfg =
+                net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level).orElse(null);
+        if (cfg != null && cfg.rvEnabled && team.rvEntityUuid != null) {
+            net.minecraft.world.entity.Entity rv = level.getEntity(team.rvEntityUuid);
+            if (rv != null) {
+                home = rv.blockPosition();
+            }
         }
         if (home == null) {
             player.displayClientMessage(

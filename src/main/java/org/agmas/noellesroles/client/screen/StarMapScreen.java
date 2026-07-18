@@ -174,11 +174,9 @@ public class StarMapScreen extends Screen {
         }
 
         // ===== 2. 迷雾覆盖 =====
+        StarMapManager.syncDimensions(AreaMapManager.getOriginX(), AreaMapManager.getOriginZ(),
+                texW, texH, AreaMapManager.getStep());
         if (StarMapManager.hasFogTexture()) {
-            // 对齐尺寸
-            int ox = (int) Math.floor(AreaMapManager.worldToCellX(
-                    AreaMapManager.worldToCellX(0) < 0 ? 0 : 0));
-            StarMapManager.syncDimensions(0, 0, texW, texH, AreaMapManager.getStep());
             blitMapLayer(g, StarMapManager.getFogTexture(), ccx, ccy, texW, texH, 0f);
         }
 
@@ -221,7 +219,16 @@ public class StarMapScreen extends Screen {
         }
     }
 
-    /** 绘制一层地图纹理。 */
+    /** 绘制一层地图纹理。
+     * <p>PoseStack 变换顺序（作用于顶点反序）：
+     * <ol>
+     *   <li>{@code translate(-panCX, -panCZ)} —— 纹理格坐标原点对齐到当前视图中心；</li>
+     *   <li>{@code scale(zoom)} —— 纹理随缩放等级放大/缩小（<b>原实现漏了这一步，导致纹理永远 1:1 显示、zoom 失效、地形与星级边框错位</b>）；</li>
+     *   <li>[3D] {@code rotate(Z, rotYaw)} + {@code scale(1, ISO_SQUASH)} —— 等距视角旋转与纵向压扁；</li>
+     *   <li>{@code translate(ccx, ccy - liftPx)} —— 移到画布中心。</li>
+     * </ol>
+     * 与 {@link #cellToScreen} 的计算完全一致，保证纹理像素与星级边框/标记对齐。
+     */
     private void blitMapLayer(GuiGraphics g,
             net.minecraft.resources.ResourceLocation tex,
             int ccx, int ccy, int mapW, int mapH, float liftPx) {
@@ -232,7 +239,8 @@ public class StarMapScreen extends Screen {
             pose.scale(1f, ISO_SQUASH, 1f);
             pose.mulPose(Axis.ZP.rotationDegrees(rotYaw));
         }
-        pose.translate((float) (-panCX * zoom), (float) (-panCZ * zoom), 0);
+        pose.scale(zoom, zoom, 1f);
+        pose.translate((float) (-panCX), (float) (-panCZ), 0);
         g.innerBlit(tex, 0, Math.max(1, mapW), 0, Math.max(1, mapH), 0,
                 0f, 1f, 0f, 1f, 1f, 1f, 1f, 1f);
         pose.popPose();
@@ -306,7 +314,8 @@ public class StarMapScreen extends Screen {
                 minSy = Math.min(minSy, (int) c[1]);
                 maxSy = Math.max(maxSy, (int) c[1]);
             }
-            if (maxSx > minSx && maxSy > minSy) {
+            // 填充区域半透明底色（仅 2D：3D 旋转后角点非轴对齐，fill 矩形会超出实际区域）
+            if (!mode3d && maxSx > minSx && maxSy > minSy) {
                 g.fill(minSx, minSy, maxSx, maxSy, bgColor);
             }
 

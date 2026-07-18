@@ -17,7 +17,9 @@ import java.util.List;
 
 @Mixin(SodiumTransformer.class)
 public class SodiumTransformerMixin {
-    private static final int SRE_OFFSET_COUNT = 1793;
+    // _draw_id 是 section 在 region 内的本地索引（0..255），数组按它下标；
+    // 须与 ShaderLoaderMixin 及 DefaultChunkRendererMixin 上传的缓冲大小一致
+    private static final int SRE_OFFSET_COUNT = 256;
 
     @Inject(method = "transform", at = @At("TAIL"), remap = false)
     private static void wathe$addVertexOffset(ASTParser t, TranslationUnit tree, Root root, SodiumParameters parameters, CallbackInfo ci) {

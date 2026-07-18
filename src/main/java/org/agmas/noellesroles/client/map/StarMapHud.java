@@ -11,9 +11,13 @@ import org.agmas.noellesroles.client.screen.StarMapScreen;
 /**
  * 手持星级地图物品时，在屏幕右侧显示的 HUD 小地图。
  *
- * <p>北向朝上、以玩家为中心的固定视野小地图。已探索区域显示地形，
- * 未探索区域覆盖深色迷雾。叠加玩家朝向标记、家居位置和星级区域指示。
- * 数据来自 {@link AreaMapManager}（地形）和 {@link StarMapManager}（迷雾/星级）。
+ * <p>北向朝上、以玩家为中心的固定视野小地图。已探索区域显示真实地形（来自
+ * {@link AreaMapManager}），未探索区域覆盖深色迷雾（来自 {@link StarMapManager}）。
+ * 视野内的星级区域以彩色边框标注（参考海图岛屿描边），玩家所在区域在顶部显示
+ * 星级符号。叠加玩家朝向标记与家居位置。
+ *
+ * <p>与 {@link StarMapScreen} 全屏界面共享 {@link StarMapManager} 的星级区域数据，
+ * 该数据由服务端通过 {@code SixtySecondsStarMapS2CPacket} 同步。
  */
 public final class StarMapHud {
 
@@ -60,6 +64,7 @@ public final class StarMapHud {
         double pcz = AreaMapManager.worldToCellZ(player.getZ());
         double halfCells = VIEW_BLOCKS / 2.0 / step;
         double pxPerCell = SIZE / (halfCells * 2);
+        int cx = x + SIZE / 2, cy = y + SIZE / 2;
 
         // 先绘制地形（与 AreaMapHud 相同）
         double u0 = pcx - halfCells, v0 = pcz - halfCells;
@@ -76,14 +81,21 @@ public final class StarMapHud {
                     1f, 1f, 1f, 1f);
 
             // 迷雾覆盖层
+            // 原点必须与地形纹理一致（AreaMapManager 的世界坐标原点），
+            // 否则迷雾按世界坐标 (0,0) 起算，与玩家附近的地形窗口错位，导致位置看不准。
             if (StarMapManager.hasFogTexture()) {
-                StarMapManager.syncDimensions(0, 0, texW, texH, step);
+                StarMapManager.syncDimensions(
+                        AreaMapManager.getOriginX(), AreaMapManager.getOriginZ(),
+                        texW, texH, step);
                 g.innerBlit(StarMapManager.getFogTexture(), sx0, sx1, sy0, sy1, 0,
                         (float) (cu0 / texW), (float) (cu1 / texW),
                         (float) (cv0 / texH), (float) (cv1 / texH),
                         0.75f, 0.75f, 0.75f, 1f);
             }
         }
+
+        // 视野内星级区域边框（参考海图岛屿描边）
+        drawStarRegions(g, x, y, pcx, pcz, pxPerCell);
 
         // 家居位置标记
         if (StarMapManager.homePos != null) {
@@ -93,16 +105,14 @@ public final class StarMapHud {
         // 玩家在星级区域时，上方显示星级
         StarRegion region = StarMapManager.getRegionAt(player.getX(), player.getZ());
         if (region != null) {
-            int cx = x + SIZE / 2;
             String starStr = region.starSymbol();
             g.drawCenteredString(mc.font, starStr, cx, y + 1, region.color);
         } else {
             // 北向指示
-            g.drawCenteredString(mc.font, "N", x + SIZE / 2, y + 1, 0xFFD4AF37);
+            g.drawCenteredString(mc.font, "N", cx, y + 1, 0xFFD4AF37);
         }
 
         // 玩家标记
-        int cx = x + SIZE / 2, cy = y + SIZE / 2;
         g.fill(cx - 2, cy - 2, cx + 2, cy + 2, 0xFF000000);
         g.fill(cx - 1, cy - 1, cx + 1, cy + 1, 0xFFFFFFFF);
         double yawRad = Math.toRadians(player.getYRot());
@@ -113,7 +123,63 @@ public final class StarMapHud {
         // 探索进度
         if (StarMapManager.exploredChunkCount() > 0) {
             String progress = StarMapManager.exploredChunkCount() + " chunks";
-            g.drawCenteredString(mc.font, progress, x + SIZE / 2, y + SIZE - 2, 0x449E8B6E);
+            g.drawCenteredString(mc.font, progress, cx, y + SIZE - 2, 0x449E8B6E);
+        }
+    }
+
+    /**
+     * 在 HUD 小地图上绘制视野内的星级区域边框。
+     * <p>将区域的世界 AABB 转成格坐标再投影到屏幕，裁剪到 HUD 矩形后画 1px 边框。
+     * 玩家当前所在区域用 2px 高亮边框。区域过大或完全在视野外则跳过。
+     */
+    private static void drawStarRegions(FakeGuiGraphics g, int x, int y,
+            double pcx, double pcz, double pxPerCell) {
+        for (StarRegion region : StarMapManager.getStarRegions()) {
+            double minCx = AreaMapManager.worldToCellX(region.bounds.minX);
+            double maxCx = AreaMapManager.worldToCellX(region.bounds.maxX);
+            double minCz = AreaMapManager.worldToCellZ(region.bounds.minZ);
+            double maxCz = AreaMapManager.worldToCellZ(region.bounds.maxZ);
+
+            // 格坐标 → 相对玩家的屏幕偏移
+            int sx0 = x + (int) Math.round((minCx - pcx) * pxPerCell) + SIZE / 2;
+            int sy0 = y + (int) Math.round((minCz - pcz) * pxPerCell) + SIZE / 2;
+            int sx1 = x + (int) Math.round((maxCx - pcx) * pxPerCell) + SIZE / 2;
+            int sy1 = y + (int) Math.round((maxCz - pcz) * pxPerCell) + SIZE / 2;
+
+            // 视锥剔除：完全在 HUD 外则跳过
+            if (sx1 < x || sx0 > x + SIZE || sy1 < y || sy0 > y + SIZE) {
+                continue;
+            }
+
+            // 裁剪到 HUD 矩形
+            int csx0 = Math.max(sx0, x);
+            int csy0 = Math.max(sy0, y);
+            int csx1 = Math.min(sx1, x + SIZE);
+            int csy1 = Math.min(sy1, y + SIZE);
+
+            // 半透明填充（裁剪后）
+            int bg = (region.color & 0x00FFFFFF) | 0x33000000;
+            if (csx1 > csx0 && csy1 > csy0) {
+                g.fill(csx0, csy0, csx1, csy1, bg);
+            }
+
+            // 边框：只画在 HUD 内的部分（用裁剪后的角点判断每条边是否可见）
+            // 上边
+            if (sy0 >= y && sy0 <= y + SIZE) {
+                g.fill(Math.max(sx0, x), sy0, Math.min(sx1, x + SIZE), sy0 + 1, region.color);
+            }
+            // 下边
+            if (sy1 >= y && sy1 <= y + SIZE) {
+                g.fill(Math.max(sx0, x), sy1, Math.min(sx1, x + SIZE), sy1 + 1, region.color);
+            }
+            // 左边
+            if (sx0 >= x && sx0 <= x + SIZE) {
+                g.fill(sx0, Math.max(sy0, y), sx0 + 1, Math.min(sy1, y + SIZE), region.color);
+            }
+            // 右边
+            if (sx1 >= x && sx1 <= x + SIZE) {
+                g.fill(sx1, Math.max(sy0, y), sx1 + 1, Math.min(sy1, y + SIZE), region.color);
+            }
         }
     }
 

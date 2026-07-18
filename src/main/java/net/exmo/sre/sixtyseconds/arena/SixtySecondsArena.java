@@ -287,6 +287,13 @@ public final class SixtySecondsArena {
      */
     private static List<BlockPos> shelterOffsets(SixtySecondsConfig config, SixtySecondsState.Data data,
             List<SixtySecondsConfig.DoorBinding> exitDoorBindings) {
+        if (config.rvEnabled) {
+            List<BlockPos> offsets = new ArrayList<>();
+            for (int index = 0; index < data.teams.size(); index++) {
+                offsets.add(config.teamOffset(index));
+            }
+            return offsets;
+        }
         boolean wantAnchor = config.shelterAtSearchDoorEnabled;
         BlockPos anchor = config.shelterAnchorDoor == null ? null : config.shelterAnchorDoor.toBlockPos();
         if (wantAnchor && anchor == null) {

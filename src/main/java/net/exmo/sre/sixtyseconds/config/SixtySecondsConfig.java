@@ -21,6 +21,19 @@ public class SixtySecondsConfig {
     @SerializedName("teamGridSpacing")
     public int teamGridSpacing = 512;
 
+    /**
+     * 房车模式：每队生成一辆常驻房车，并让避难所与住宅一样按 {@link #teamBase} 网格克隆，
+     * 不再依赖探索区出口门或避难所锚点。由 {@code /sre:60s_area rv} 配置。
+     */
+    @SerializedName("rvEnabled")
+    public boolean rvEnabled = false;
+
+    /**
+     * 按队伍序号排列的房车刷新点（世界绝对坐标）。条目不足时，系统会在该队住宅出生点旁找安全位置作为兼容回退。
+     */
+    @SerializedName("rvSpawnPoints")
+    public java.util.List<Vec> rvSpawnPoints = new java.util.ArrayList<>();
+
     @SerializedName("residentialTemplate")
     public Region residentialTemplate;
 

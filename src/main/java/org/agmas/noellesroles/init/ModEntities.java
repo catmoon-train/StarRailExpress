@@ -50,6 +50,16 @@ public class ModEntities {
                                                             .SixtySecondsVehicleEntity.Kind.CAR),
                                     MobCategory.MISC)
                             .sized(4.2f, 4.5f).build("sixty_seconds_car"));
+    /** 每队常驻房车；由 SixtySecondsRvSystem 生成和恢复，不能作为普通载具收回。 */
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity> SIXTY_SECONDS_RV = Registry
+            .register(
+                    BuiltInRegistries.ENTITY_TYPE,
+                    Noellesroles.id("sixty_seconds_rv"),
+                    EntityType.Builder
+                            .<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity>of(
+                                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity::new,
+                                    MobCategory.MISC)
+                            .sized(4.8f, 3.2f).build("sixty_seconds_rv"));
 
     // 末日60秒：海上载具（继承原版 Boat 拿水上物理，外观是自研模型；木筏/汽艇/渔船，见 SixtySecondsSeaVehicleEntity）
     public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>
@@ -576,6 +586,7 @@ public class ModEntities {
         // 60s 载具（属性同轮椅）
         FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_MOTORCYCLE, WheelchairEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_CAR, WheelchairEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_RV, WheelchairEntity.createAttributes());
         // 注册傀儡本体实体属性（LivingEntity 必须注册属性才能生成）
         FabricDefaultAttributeRegistry.register(PUPPETEER_BODY, LivingEntity.createLivingAttributes());
         FabricDefaultAttributeRegistry.register(SALTED_FISH_BODY,

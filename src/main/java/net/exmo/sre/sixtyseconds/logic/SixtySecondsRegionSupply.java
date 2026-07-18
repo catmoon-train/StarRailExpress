@@ -1,6 +1,5 @@
 package net.exmo.sre.sixtyseconds.logic;
 
-import net.exmo.sre.sixtyseconds.content.block.RandomSupplyBoxBlock;
 import net.exmo.sre.sixtyseconds.content.block_entity.RandomSupplyBoxBlockEntity;
 import net.exmo.sre.sixtyseconds.content.block_entity.SupplyBoxBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -77,8 +76,8 @@ public final class SixtySecondsRegionSupply {
     private static boolean placeBox(ServerLevel level, BlockPos pos, int areaLevel, RandomSource rng) {
         float r = rng.nextFloat();
         Block block;
-        if (r < 0.15f * areaLevel) {
-            block = ModBlocks.SIXTY_SECONDS_HIGH_TIER_RANDOM_SUPPLY_BOX;         // 高级随机箱
+        if (areaLevel >= 3 && r < 0.15f * areaLevel) {
+            block = ModBlocks.SIXTY_SECONDS_HIGH_TIER_RANDOM_SUPPLY_BOX;         // 高级随机箱（仅 3-5 星刷新）
         } else if (areaLevel >= 3 && r < 0.15f * areaLevel + 0.15f) {
             block = ModBlocks.SIXTY_SECONDS_SUPPLY_BOX_ADVANCED_LOCKED;          // 上锁高级箱
         } else {
@@ -86,9 +85,9 @@ public final class SixtySecondsRegionSupply {
         }
         level.setBlock(pos, block.defaultBlockState(), Block.UPDATE_ALL);
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof RandomSupplyBoxBlockEntity rb && block instanceof RandomSupplyBoxBlock rbb) {
-            rb.initTierIfNeeded(rbb.tier());
-        } else if (be instanceof SupplyBoxBlockEntity sb) {
+        // 随机箱类别配置由全局配置（SixtySecondsRandomBoxConfigStore）管理，无需 per-crate 初始化
+        if (be instanceof SupplyBoxBlockEntity sb
+                && !(be instanceof RandomSupplyBoxBlockEntity)) {
             sb.category = LOCKED_CATEGORIES[rng.nextInt(LOCKED_CATEGORIES.length)];
             sb.setChanged();
         }

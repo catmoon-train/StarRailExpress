@@ -2,6 +2,7 @@ package org.agmas.noellesroles.client.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -180,6 +181,22 @@ public class AreaMapScreen extends Screen {
         BlockPos hovered = null;
         AreaMapPointCategory hoveredCat = null;
         if (!sixtySeconds) {
+            // 绘制出生点（家的金色房形）
+            BlockPos spawn = getSpawnPos();
+            if (spawn != null) {
+                double[] s = cellToScreen(AreaMapManager.worldToCellX(spawn.getX() + 0.5),
+                        AreaMapManager.worldToCellZ(spawn.getZ() + 0.5), ccx, ccy, lift);
+                int sx = (int) Math.round(s[0]);
+                int sy = (int) Math.round(s[1]);
+                g.fill(sx - 4, sy - 3, sx + 4, sy + 4, 0xAA000000);
+                g.fill(sx - 3, sy - 2, sx + 3, sy + 3, GOLD);
+                g.fill(sx - 1, sy - 4, sx + 1, sy - 2, GOLD);
+                if (Math.abs(mouseX - sx) <= 4 && Math.abs(mouseY - sy) <= 4) {
+                    g.renderTooltip(font,
+                            Component.translatable("gui.noellesroles.area_map.home_point").withStyle(ChatFormatting.GOLD),
+                            mouseX, mouseY);
+                }
+            }
             for (Map.Entry<BlockPos, Integer> entry : NoellesrolesClient.taskBlocks.entrySet()) {
                 AreaMapPointCategory cat = AreaMapPointCategory.byTypeId(entry.getValue());
                 if (cat == null || !AreaMapManager.visibleCategories.contains(cat)) continue;
@@ -658,6 +675,14 @@ public class AreaMapScreen extends Screen {
     }
 
     // ==================== 工具 ====================
+
+    /** 获取非 60s 模式的出生点（家）位置，无可返回 null。 */
+    private static BlockPos getSpawnPos() {
+        var area = SREClient.areaComponent;
+        if (area == null) return null;
+        var spawn = area.getSpawnPos();
+        return spawn != null ? BlockPos.containing(spawn.pos) : null;
+    }
 
     private static boolean isInRect(int mx, int my, int x, int y, int w, int h) {
         return mx >= x && mx < x + w && my >= y && my < y + h;

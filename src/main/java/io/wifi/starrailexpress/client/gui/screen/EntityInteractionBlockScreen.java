@@ -343,7 +343,6 @@ public class EntityInteractionBlockScreen extends Screen {
                     Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
             case IS_PSYCHO -> Component.translatable("condition.is_psycho").getString();
             case IS_POISONED -> Component.translatable("condition.is_poisoned").getString();
-            case IS_INFECTED -> Component.translatable("condition.is_infected").getString();
             case ARMOR_AMOUNT -> Component.translatable("condition.armor_amount", (int) condition.value,
                     Component.translatable("comparison." + condition.comparison.name().toLowerCase())).getString();
             case HAS_TASK -> Component.translatable("condition.has_task").getString();
@@ -464,7 +463,6 @@ public class EntityInteractionBlockScreen extends Screen {
                     Component.translatable(action.narratorInterrupt ?
                             "gui.entity_interaction_block.narrator_interrupt" :
                             "gui.entity_interaction_block.narrator_queue")).getString();
-            case INFECT -> Component.translatable("action.infect", (int) action.value).getString();
             case OUTPUT_REDSTONE -> Component.translatable("action.output_redstone", (int) action.value).getString();
             case ADD_MODIFIER -> Component.translatable("action.add_modifier",
                     action.stringValue != null ? action.stringValue : "?").getString();
@@ -1748,22 +1746,6 @@ public class EntityInteractionBlockScreen extends Screen {
                     y += 25;
                     addRenderableWidget(Button.builder(
                             Component.translatable("gui.entity_interaction_block.narrator_desc"), b -> {})
-                            .bounds(centerX - 100, y, 200, 15).build());
-                }
-                case INFECT -> {
-                    // 感染tick数输入
-                    addRenderableWidget(new EditBox(this.font, centerX - 50, y, 100, 20,
-                            Component.translatable("gui.entity_interaction_block.infect_ticks_hint")));
-                    valueInput = findAndAttachInput(Component.translatable("gui.entity_interaction_block.infect_ticks_hint"));
-                    if (valueInput != null) {
-                        valueInput.setFilter(s -> s.matches("[0-9]*"));
-                        valueInput.setValue("3600"); // 默认180秒 (180*20=3600 tick)
-                    }
-                    y += 22;
-                    addRenderableWidget(Button.builder(Component.translatable("gui.entity_interaction_block.ticks"), b -> {})
-                            .bounds(centerX + 55, y - 22, 30, 20).build());
-                    addRenderableWidget(Button.builder(
-                            Component.translatable("gui.entity_interaction_block.infect_desc"), b -> {})
                             .bounds(centerX - 100, y, 200, 15).build());
                 }
                 case OUTPUT_REDSTONE -> {

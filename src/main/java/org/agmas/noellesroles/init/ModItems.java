@@ -12,6 +12,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
 import net.minecraft.world.item.*;
@@ -408,6 +409,20 @@ public class ModItems {
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBackpackItem(
                     new Item.Properties().stacksTo(1), 3),
             "sixty_seconds_backpack_large", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 末日60秒模式：背包扩容模块（右键解锁额外背包槽位，最多额外 18 格）───
+    public static final Item SIXTY_SECONDS_UNLOCK_SLOTS_SMALL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsUnlockItem(
+                    new Item.Properties().stacksTo(1), 1),
+            "sixty_seconds_unlock_slots_small", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_UNLOCK_SLOTS_MEDIUM = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsUnlockItem(
+                    new Item.Properties().stacksTo(1), 2),
+            "sixty_seconds_unlock_slots_medium", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_UNLOCK_SLOTS_LARGE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsUnlockItem(
+                    new Item.Properties().stacksTo(1), 3),
+            "sixty_seconds_unlock_slots_large", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 末日60秒模式：更多基础资源/工具 ────────────────────────────────
     public static final Item SIXTY_SECONDS_DUCT_TAPE = register(
@@ -1326,6 +1341,31 @@ public class ModItems {
                     new Item.Properties().stacksTo(4)),
             "sixty_seconds_vehicle_repair_tool", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
+    // ── 房车：刷新点工具 + 20 种可装配配件（模块对应 SixtySecondsRvPart 枚举）──────
+    /** 管理员搭图工具：登记每队房车刷新点。 */
+    public static final Item SIXTY_SECONDS_RV_SPAWN_TOOL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsRvSpawnToolItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_rv_spawn_tool", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    /** 配件枚举 → 对应物品；房车管理界面按此安装/返还。注册在类加载期完成（同其它 register 字段）。 */
+    public static final java.util.Map<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvPart, Item> RV_PART_ITEMS =
+            registerRvParts();
+
+    private static java.util.Map<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvPart, Item> registerRvParts() {
+        java.util.EnumMap<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvPart, Item> map =
+                new java.util.EnumMap<>(net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvPart.class);
+        for (net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvPart part
+                : net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvPart.values()) {
+            Item item = register(
+                    new net.exmo.sre.sixtyseconds.content.item.SixtySecondsRvPartItem(part,
+                            new Item.Properties().stacksTo(16)),
+                    "sixty_seconds_rv_" + part.id(),
+                    net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+            map.put(part, item);
+        }
+        return map;
+    }
+
     // ── 神秘技术：污秽玻璃罐/存血的玻璃罐/复活图腾（不死图腾=原版图腾）──────
     public static final Item SIXTY_SECONDS_FILTHY_JAR = register(
             new Item(new Item.Properties().stacksTo(1)),
@@ -1336,6 +1376,65 @@ public class ModItems {
     public static final Item SIXTY_SECONDS_REVIVAL_TOTEM = register(
             new Item(new Item.Properties().stacksTo(1)),
             "sixty_seconds_revival_totem", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ══ 农牧业：诱饵、捕捉笼产出动物物品 ═══════════════════════════════
+    // 简易诱饵（捕兽笼用）
+    public static final Item SIXTY_SECONDS_SIMPLE_BAIT = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_simple_bait", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 飘香诱饵（捕兽笼用）
+    public static final Item SIXTY_SECONDS_FRAGRANT_BAIT = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_fragrant_bait", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 精致诱饵（捕兽笼用）
+    public static final Item SIXTY_SECONDS_REFINED_BAIT = register(
+            new Item(new Item.Properties().stacksTo(64)),
+            "sixty_seconds_refined_bait", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 鸡（右键生成）
+    public static final Item SIXTY_SECONDS_CHICKEN = register(
+            new net.exmo.sre.sixtyseconds.content.item.TrapCageAnimalItem(EntityType.CHICKEN,
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_chicken", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 猪（右键生成）
+    public static final Item SIXTY_SECONDS_PIG = register(
+            new net.exmo.sre.sixtyseconds.content.item.TrapCageAnimalItem(EntityType.PIG,
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_pig", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 羊（右键生成）
+    public static final Item SIXTY_SECONDS_SHEEP = register(
+            new net.exmo.sre.sixtyseconds.content.item.TrapCageAnimalItem(EntityType.SHEEP,
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_sheep", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 兔子（右键生成）
+    public static final Item SIXTY_SECONDS_RABBIT = register(
+            new net.exmo.sre.sixtyseconds.content.item.TrapCageAnimalItem(EntityType.RABBIT,
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_rabbit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 牛（右键生成）
+    public static final Item SIXTY_SECONDS_COW = register(
+            new net.exmo.sre.sixtyseconds.content.item.TrapCageAnimalItem(EntityType.COW,
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_cow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 狼（右键生成）
+    public static final Item SIXTY_SECONDS_WOLF = register(
+            new net.exmo.sre.sixtyseconds.content.item.TrapCageAnimalItem(EntityType.WOLF,
+                    new Item.Properties().stacksTo(16)),
+            "sixty_seconds_wolf", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 马（右键生成）
+    public static final Item SIXTY_SECONDS_HORSE = register(
+            new net.exmo.sre.sixtyseconds.content.item.TrapCageAnimalItem(EntityType.HORSE,
+                    new Item.Properties().stacksTo(8)),
+            "sixty_seconds_horse", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 驴（右键生成）
+    public static final Item SIXTY_SECONDS_DONKEY = register(
+            new net.exmo.sre.sixtyseconds.content.item.TrapCageAnimalItem(EntityType.DONKEY,
+                    new Item.Properties().stacksTo(8)),
+            "sixty_seconds_donkey", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 骆驼（右键生成）
+    public static final Item SIXTY_SECONDS_CAMEL = register(
+            new net.exmo.sre.sixtyseconds.content.item.TrapCageAnimalItem(EntityType.CAMEL,
+                    new Item.Properties().stacksTo(8)),
+            "sixty_seconds_camel", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     public static final Item LINGSHI = register(
             new ChefFoodItem((new Item.Properties()).stacksTo(1)), "lingshi",

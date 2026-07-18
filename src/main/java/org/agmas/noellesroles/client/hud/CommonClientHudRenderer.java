@@ -239,6 +239,8 @@ public class CommonClientHudRenderer {
     MurderTimeHud.register();
     RepairEscapeHud.register();
     net.exmo.sre.sixtyseconds.client.SixtySecondsHud.register();
+    net.exmo.sre.sixtyseconds.client.SixtySecondsCombatHud.register();
+    net.exmo.sre.sixtyseconds.client.SixtySecondsRvHud.register();
     net.exmo.sre.sixtyseconds.client.SixtySecondsSearchHud.register();
     net.exmo.sre.sixtyseconds.client.SixtySecondsSleepOverlay.register();
     net.exmo.sre.sixtyseconds.client.SixtySecondsBlockNameHud.register();

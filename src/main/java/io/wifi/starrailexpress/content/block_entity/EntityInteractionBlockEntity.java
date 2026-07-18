@@ -31,8 +31,6 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.modifiers.SREModifier;
-import org.agmas.noellesroles.component.InfectedPlayerComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -993,11 +991,6 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 SREPlayerPoisonComponent poison = SREPlayerPoisonComponent.KEY.get(player);
                 yield poison.getPoisonTicks() > 0;
             }
-            case IS_INFECTED -> {
-                // 是否感染
-                InfectedPlayerComponent infected = ModComponents.INFECTED.get(player);
-                yield infected != null && infected.infectedTicks > 0;
-            }
             case ARMOR_AMOUNT -> {
                 // 护盾值（普通护盾 + 限时护盾 + 弱效护盾叠加层数）
                 SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
@@ -1157,7 +1150,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 ActionType.GIVE_EFFECT, ActionType.SHOW_TITLE, ActionType.ITEM_COOLDOWN, ActionType.SET_MOOD,
                 ActionType.CURE_PSYCHO,
                 ActionType.CLEAR_TASKS, ActionType.COMPLETE_TASK, ActionType.ADD_CUSTOM_TASK, ActionType.ADD_EXTRA_TASK,
-                ActionType.COMPLETE_CUSTOM_TASK, ActionType.NARRATOR, ActionType.INFECT,
+                ActionType.COMPLETE_CUSTOM_TASK, ActionType.NARRATOR,
                 ActionType.ADD_MODIFIER, ActionType.REMOVE_MODIFIER,
                 ActionType.SEND_WELCOME, ActionType.SET_TIMED_SHIELD, ActionType.SET_WEAK_SHIELD,
                 ActionType.TRIGGER_FAKE_POISON);
@@ -1309,19 +1302,6 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 SREPlayerPsychoComponent psycho = SREPlayerPsychoComponent.KEY.get(player);
                 if (psycho.getPsychoTicks() > 0) {
                     psycho.stopPsychoAndSync();
-                }
-            }
-            case INFECT -> {
-                // 进入感染状态：使用 TriggerAction 的 value 字段表示感染 tick 数
-                int infectionTicks = (int) action.value;
-                if (infectionTicks <= 0) {
-                    infectionTicks = GameConstants.getInTicks(3, 0); // 默认180秒
-                }
-                InfectedPlayerComponent infectedComp = ModComponents.INFECTED.get(player);
-                if (infectedComp != null) {
-                    infectedComp.infectedTicks = infectionTicks;
-                    infectedComp.infector = null; // 没有特定的感染源
-                    infectedComp.sync();
                 }
             }
             case CLEAR_TASKS -> {
@@ -1970,7 +1950,6 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         MOOD_VALUE, // 心情值
         IS_PSYCHO, // 是否处于疯狂模式
         IS_POISONED, // 是否中毒
-        IS_INFECTED, // 是否感染
         ARMOR_AMOUNT, // 护盾值
         HAS_TASK, // 是否有任务
         TASK_STREAK, // 连续完成任务数
@@ -2064,7 +2043,6 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         ADD_EXTRA_TASK, // 额外添加任务（不清空当前任务，支持random随机任务）
         COMPLETE_CUSTOM_TASK, // 完成自定义任务
         NARRATOR, // 语音播报
-        INFECT, // 进入感染
         OUTPUT_REDSTONE, // 输出红石信号
         ADD_MODIFIER, // 为玩家添加修饰符
         REMOVE_MODIFIER, // 为玩家移除修饰符

@@ -34,7 +34,8 @@ public class SixtySecondsVehicleEntity extends WheelchairEntity {
     /** 载具类型参数：座位数 / 速度倍率 / 血量。 */
     public enum Kind {
         MOTORCYCLE(2, 1.6F, 80),
-        CAR(4, 2.2F, 160);
+        CAR(4, 2.2F, 160),
+        RV(4, 0.825F, 200);
 
         public final int seats;
         public final float speedMult;
@@ -77,8 +78,8 @@ public class SixtySecondsVehicleEntity extends WheelchairEntity {
         return this.entityData.get(DATA_FUEL);
     }
 
-    private void setFuelTicks(int ticks) {
-        this.entityData.set(DATA_FUEL, Math.max(0, ticks));
+    protected void setFuelTicks(int ticks) {
+        this.entityData.set(DATA_FUEL, Math.max(0, Math.min(maxFuelTicks(), ticks)));
     }
 
     public int vehicleHealth() {
@@ -86,11 +87,16 @@ public class SixtySecondsVehicleEntity extends WheelchairEntity {
     }
 
     public void setVehicleHealth(int hp) {
-        this.entityData.set(DATA_HEALTH, Math.max(0, Math.min(kind.maxHp, hp)));
+        this.entityData.set(DATA_HEALTH, Math.max(0, Math.min(maxVehicleHealth(), hp)));
     }
 
     public int maxVehicleHealth() {
         return kind.maxHp;
+    }
+
+    /** 载具可储存的最大燃料 tick 数；普通载具保持原来的不设上限行为。 */
+    public int maxFuelTicks() {
+        return Integer.MAX_VALUE;
     }
 
     public Kind kind() {
@@ -98,7 +104,7 @@ public class SixtySecondsVehicleEntity extends WheelchairEntity {
     }
 
     private Item fuelItem() {
-        return kind == Kind.CAR ? ModItems.SIXTY_SECONDS_DIESEL_CAN : ModItems.SIXTY_SECONDS_FUEL_CAN;
+        return kind == Kind.MOTORCYCLE ? ModItems.SIXTY_SECONDS_FUEL_CAN : ModItems.SIXTY_SECONDS_DIESEL_CAN;
     }
 
     private Item vehicleItem() {

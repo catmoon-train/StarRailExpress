@@ -47,6 +47,10 @@ public final class SixtySecondsDoorMenu {
     public static final int ACTION_DOOR_INSPECT = 10;
     /** 闯入者离开：身处别队避难所内的破门闯入者，点门安全传回自己的避难所。 */
     public static final int ACTION_INTRUDER_LEAVE = 11;
+    /** 房车专属：驾驶（上车，自动第三人称）。 */
+    public static final int ACTION_RV_DRIVE = 12;
+    /** 房车专属：打开配件/燃料/升级控制台。 */
+    public static final int ACTION_RV_MANAGE = 13;
 
     /** C2S 动作合法性校验：玩家须离门 8 格以内（防远程伪造包）。 */
     private static final double MAX_USE_DISTANCE_SQR = 8 * 8;
@@ -60,8 +64,6 @@ public final class SixtySecondsDoorMenu {
         SixtySecondsState.Data data = SixtySecondsState.get(level);
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
         SixtySecondsState.TeamData team = data.teams.get(stats.teamId);
-        boolean inSearch = SixtySecondsSearchZones.isInSearchZone(player)
-                && !isInAnyShelterOrResidential(player, data);
 
         List<OpenShelterDoorS2CPacket.Option> options = new ArrayList<>();
         // 做客中的访客：门只提供「回自己的避难所」与「与主人对话」（USED_BANED 抑制了其他交互，
@@ -94,7 +96,14 @@ public final class SixtySecondsDoorMenu {
                     ? FamilyPosition.MOTHER.carryLimit : stats.familyPosition.carryLimit;
             options.add(new OpenShelterDoorS2CPacket.Option(ACTION_DEPOSIT, true, carry));
         } else if (data.phase == SixtySecondsPhase.DAY) {
-            if (inSearch) {
+            if (isInOwnShelterOrResidential(player, team)) {
+                // 在庇护所/住宅内 → 出门探索 / 门外事件 / 拜访：判定改为「是否身处本队庇护所/住宅」，
+                // 不再依赖出门状态标记，避免乘船上岛/野外乱逛等在外但无探索记录时误显示。
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EXPLORE, true, 0));
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EVENT, true, 0));
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT, data.teams.size() > 1, 0));
+            } else {
+                // 不在庇护所内（探索区/野外/海岛等「在外」状态）→ 返回住所
                 long remain = stats.exploreCooldownEndTick - level.getGameTime();
                 int seconds = (int) Math.ceil(Math.max(0, remain) / 20.0D);
                 // 回家只认本队出口门（未分配出口门则任意门可回）
@@ -122,12 +131,6 @@ public final class SixtySecondsDoorMenu {
                             target.doorLevel));
                     options.add(new OpenShelterDoorS2CPacket.Option(ACTION_DOOR_INSPECT, true, 0));
                 }
-            } else if (isInOwnShelterOrResidential(player, team)) {
-                // 出门探索/门外事件/拜访都是「在自己家门口」的动作：必须身处本队避难所或住宅盒内才提供。
-                // 否则（乘船上岛、野外乱逛等「在外面但没有探索记录」的情况）会误显示外出探索——本次要修的 BUG。
-                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EXPLORE, true, 0));
-                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EVENT, true, 0));
-                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT, data.teams.size() > 1, 0));
             }
         }
         if (options.isEmpty()) {
@@ -164,14 +167,15 @@ public final class SixtySecondsDoorMenu {
             }
             case ACTION_EXPLORE -> {
                 if (data.phase == SixtySecondsPhase.DAY && !SixtySecondsSearchZones.isInSearchZone(player)) {
-                    SixtySecondsSearchZones.enter(player, pos);
+                    // 房车模式：从避难所门外出探索时，落点改到本队房车处（从房车旁下车），而非门外
+                    SixtySecondsSearchZones.enter(player, rvExitPos(level, data, player, pos));
                 }
             }
             case ACTION_RETURN -> {
-                if (SixtySecondsSearchZones.isInSearchZone(player)
-                        && !isInAnyShelterOrResidential(player, data)) {
-                    SixtySecondsState.TeamData team = data.teams
-                            .get(SixtySecondsStatsComponent.KEY.get(player).teamId);
+                SixtySecondsState.TeamData team = data.teams
+                        .get(SixtySecondsStatsComponent.KEY.get(player).teamId);
+                // 判定改为「是否身处本队庇护所/住宅」：在庇护所内不能返回，在外（探索区/野外）才可回家。
+                if (!isInOwnShelterOrResidential(player, team)) {
                     if (!isOwnReturnDoor(team, pos, player)) {
                         player.displayClientMessage(Component.translatable(
                                 "message.noellesroles.sixty_seconds.wrong_return_door"), true);
@@ -333,5 +337,226 @@ public final class SixtySecondsDoorMenu {
             }
         }
         return false;
+    }
+
+    // ══ 房车作为「移动的门」：与门菜单同一套操作，按队伍（而非门坐标）判定 ══════════════
+
+    /** 房车模式下外出探索的落点：本队房车所在处（从房车旁下车）；未开启或无房车则回退到门坐标。 */
+    private static BlockPos rvExitPos(ServerLevel level, SixtySecondsState.Data data, ServerPlayer player,
+            BlockPos doorPos) {
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level).orElse(null);
+        if (config == null || !config.rvEnabled) {
+            return doorPos;
+        }
+        SixtySecondsState.TeamData team = data.teams.get(SixtySecondsStatsComponent.KEY.get(player).teamId);
+        var rv = SixtySecondsRvSystem.getTeamRv(level, team);
+        return rv != null ? rv.blockPosition() : doorPos;
+    }
+
+    /** 右键房车：按玩家上下文（本队/别队房车）构建门菜单选项 + 驾驶/配件，走 rvEntityId 回传路径。 */
+    public static void openForRv(ServerPlayer player,
+            net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity rv) {
+        ServerLevel level = player.serverLevel();
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+        SixtySecondsState.TeamData team = data.teams.get(stats.teamId);
+        List<OpenShelterDoorS2CPacket.Option> options = new ArrayList<>();
+
+        // 做客中的访客 / 别队避难所内的闯入者：与门一致，只给离开（+对话）
+        if (SixtySecondsVisiting.isVisiting(player)) {
+            options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT_LEAVE, true, 0));
+            options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT_CHAT,
+                    SixtySecondsVisitChat.hasPartner(player), 0));
+            sendRv(player, rv, team, options);
+            return;
+        }
+        if (isInsideForeignShelter(player, data)) {
+            options.add(new OpenShelterDoorS2CPacket.Option(ACTION_INTRUDER_LEAVE, true, 0));
+            sendRv(player, rv, team, options);
+            return;
+        }
+
+        boolean own = rv.teamId() >= 0 && rv.teamId() == stats.teamId;
+        if (own) {
+            if (data.phase == SixtySecondsPhase.DAY
+                    && SixtySecondsVisitSystem.pendingForTeam(level, stats.teamId) != null) {
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT_PROMPT, true, 0));
+            }
+            if (SixtySecondsVisitChat.hasPartner(player)) {
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT_CHAT, true, 0));
+            }
+            if (data.phase == SixtySecondsPhase.PREPARATION) {
+                int carry = stats.familyPosition == null
+                        ? FamilyPosition.MOTHER.carryLimit : stats.familyPosition.carryLimit;
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_DEPOSIT, true, carry));
+            } else if (data.phase == SixtySecondsPhase.DAY) {
+                boolean out = SixtySecondsSearchZones.isInSearchZone(player)
+                        && !isInAnyShelterOrResidential(player, data);
+                if (out) {
+                    long remain = stats.exploreCooldownEndTick - level.getGameTime();
+                    int seconds = (int) Math.ceil(Math.max(0, remain) / 20.0D);
+                    options.add(new OpenShelterDoorS2CPacket.Option(ACTION_RETURN, remain <= 0, seconds));
+                } else {
+                    // 在家侧（房车停在住宅旁）：出门探索 = 从自己的房车旁下车进入野外
+                    options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EXPLORE, true, 0));
+                    options.add(new OpenShelterDoorS2CPacket.Option(ACTION_EVENT, true, 0));
+                    options.add(new OpenShelterDoorS2CPacket.Option(ACTION_VISIT, data.teams.size() > 1, 0));
+                }
+            }
+            // 房车专属：驾驶（准备阶段/停机时不可）+ 配件管理
+            options.add(new OpenShelterDoorS2CPacket.Option(ACTION_RV_DRIVE,
+                    !rv.isDisabled() && data.phase != SixtySecondsPhase.PREPARATION, 0));
+            options.add(new OpenShelterDoorS2CPacket.Option(ACTION_RV_MANAGE, true, 0));
+        } else if (data.phase == SixtySecondsPhase.DAY) {
+            // 别队房车：撬棍强闯 / 撬锁潜入 / 查看情报（目标队 = 房车所属队）
+            SixtySecondsState.TeamData target = data.teams.get(rv.teamId());
+            if (target != null) {
+                long now = level.getGameTime();
+                boolean entryOpen = !SixtySecondsBreakIn.isHomeEntryLocked(data);
+                ItemStack crowbar = SixtySecondsBreakIn.findBestTool(player, true);
+                ItemStack lockpick = SixtySecondsBreakIn.findBestTool(player, false);
+                int crowbarTier = crowbar != null && crowbar.getItem()
+                        instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem c ? c.tier() : 0;
+                int lockpickTier = lockpick != null && lockpick.getItem()
+                        instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsBreakInItem l ? l.tier() : 0;
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_BREAK_CROWBAR,
+                        entryOpen && crowbarTier >= target.doorLevel && crowbarTier > 0
+                                && !target.doorLockActive(now), target.doorLevel));
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_BREAK_LOCKPICK,
+                        entryOpen && lockpickTier >= target.doorLevel && lockpickTier > 0, target.doorLevel));
+                options.add(new OpenShelterDoorS2CPacket.Option(ACTION_DOOR_INSPECT, true, 0));
+            }
+        }
+
+        if (options.isEmpty()) {
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.sixty_seconds.door_no_action"), true);
+            return;
+        }
+        sendRv(player, rv, team, options);
+    }
+
+    private static void sendRv(ServerPlayer player,
+            net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity rv,
+            SixtySecondsState.TeamData ownTeam, List<OpenShelterDoorS2CPacket.Option> options) {
+        boolean ownDoor = ownTeam != null && rv.teamId() == ownTeam.teamId;
+        int doorHp = ownTeam == null ? 0 : ownTeam.doorHp;
+        int doorMaxHp = ownTeam == null ? 0 : ownTeam.doorMaxHp;
+        int doorLevel = ownTeam == null ? 0 : ownTeam.doorLevel;
+        boolean doorBroken = ownTeam != null && ownTeam.doorBroken;
+        int stored = ownTeam == null ? 0 : ownTeam.storedSupplies.size();
+        ServerPlayNetworking.send(player, new OpenShelterDoorS2CPacket(rv.blockPosition(), ownDoor,
+                doorHp, doorMaxHp, doorLevel, doorBroken, stored, options, rv.getId()));
+    }
+
+    /** 房车菜单动作回传：门坐标校验换成「实体存活 + 距离 + 队伍归属」。 */
+    public static void handleRvAction(ServerPlayer player,
+            net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity rv, int action) {
+        ServerLevel level = player.serverLevel();
+        if (rv.isRemoved() || player.distanceToSqr(rv) > MAX_USE_DISTANCE_SQR) {
+            return;
+        }
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        boolean own = rv.canUse(player);
+        switch (action) {
+            case ACTION_DEPOSIT -> {
+                if (own && data.phase == SixtySecondsPhase.PREPARATION) {
+                    depositSupplies(player, data);
+                }
+            }
+            case ACTION_EXPLORE -> {
+                if (own && data.phase == SixtySecondsPhase.DAY
+                        && !SixtySecondsSearchZones.isInSearchZone(player)) {
+                    SixtySecondsSearchZones.enter(player, rv.blockPosition());
+                }
+            }
+            case ACTION_RETURN -> {
+                if (own && SixtySecondsSearchZones.isInSearchZone(player)
+                        && !isInAnyShelterOrResidential(player, data)) {
+                    SixtySecondsState.TeamData team = data.teams
+                            .get(SixtySecondsStatsComponent.KEY.get(player).teamId);
+                    if (team != null && team.sisterOutside && team.sisterUUID != null
+                            && team.sisterUUID.equals(player.getUUID())) {
+                        var subPhase = net.exmo.sre.sixtyseconds.SixtySecondsDayCycle
+                                .subPhase(data, level.getGameTime());
+                        if (subPhase != net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.SubPhase.NIGHT) {
+                            player.displayClientMessage(Component.translatable(
+                                    "message.noellesroles.sixty_seconds.devent.sister_outside.cant_return_yet"), true);
+                            return;
+                        }
+                    }
+                    SixtySecondsSearchZones.returnPlayer(player);
+                }
+            }
+            case ACTION_EVENT -> {
+                if (own && data.phase == SixtySecondsPhase.DAY) {
+                    ServerPlayNetworking.send(player,
+                            new OpenSixtySecondsDoorS2CPacket(DoorPurpose.EVENT.ordinal(), rv.blockPosition()));
+                }
+            }
+            case ACTION_VISIT -> {
+                if (own && data.phase == SixtySecondsPhase.DAY) {
+                    SixtySecondsVisitSystem.openRequestScreen(player);
+                }
+            }
+            case ACTION_VISIT_PROMPT -> {
+                SixtySecondsVisitSystem.PendingView pending = SixtySecondsVisitSystem.pendingForTeam(
+                        level, SixtySecondsStatsComponent.KEY.get(player).teamId);
+                if (pending != null) {
+                    ServerPlayNetworking.send(player, new net.exmo.sre.sixtyseconds.network.OpenVisitPromptS2CPacket(
+                            pending.visitor(), pending.visitorName(), pending.type()));
+                }
+            }
+            case ACTION_VISIT_CHAT -> SixtySecondsVisitChat.openScreen(player);
+            case ACTION_VISIT_LEAVE -> SixtySecondsVisiting.leave(player);
+            case ACTION_INTRUDER_LEAVE -> intruderLeave(player);
+            case ACTION_BREAK_CROWBAR -> {
+                if (!own && data.phase == SixtySecondsPhase.DAY) {
+                    SixtySecondsBreakIn.executeForTeam(player, data.teams.get(rv.teamId()), true);
+                }
+            }
+            case ACTION_BREAK_LOCKPICK -> {
+                if (!own && data.phase == SixtySecondsPhase.DAY) {
+                    SixtySecondsBreakIn.executeForTeam(player, data.teams.get(rv.teamId()), false);
+                }
+            }
+            case ACTION_DOOR_INSPECT -> {
+                if (!own) {
+                    SixtySecondsBreakIn.inspectTeam(player, data.teams.get(rv.teamId()));
+                }
+            }
+            case ACTION_RV_DRIVE -> {
+                if (own) {
+                    boardRv(player, rv);
+                }
+            }
+            case ACTION_RV_MANAGE -> {
+                if (own) {
+                    ServerPlayNetworking.send(player,
+                            new net.exmo.sre.sixtyseconds.network.OpenRvConsoleS2CPacket(rv.getId()));
+                }
+            }
+            default -> {
+            }
+        }
+    }
+
+    /** 上车驾驶：自动切第三人称（{@code VehicleCameraS2CPacket}），停机不可上。 */
+    private static void boardRv(ServerPlayer player,
+            net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity rv) {
+        if (rv.isDisabled()) {
+            player.displayClientMessage(Component.translatable(
+                    "message.noellesroles.sixty_seconds.rv_disabled").withStyle(net.minecraft.ChatFormatting.RED), true);
+            return;
+        }
+        if (player.startRiding(rv, true)) {
+            ServerPlayNetworking.send(player,
+                    new net.exmo.sre.sixtyseconds.network.VehicleCameraS2CPacket(true));
+            if (rv.fuelTicks() <= 0) {
+                player.displayClientMessage(Component.translatable(
+                        "message.noellesroles.sixty_seconds.vehicle_no_fuel")
+                        .withStyle(net.minecraft.ChatFormatting.RED), true);
+            }
+        }
     }
 }

@@ -124,7 +124,10 @@ public class SixtySecondsGameMode extends GameMode {
         net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcSystem.reset(world); // 清偷窃会话 + 全图清 NPC
         net.exmo.sre.sixtyseconds.logic.SixtySecondsAutoRevive.reset(world); // 清尸体标记 + 复活倒计时
         net.exmo.sre.sixtyseconds.logic.SixtySecondsPowerSystem.reset(world);
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.reset(world);
         net.exmo.sre.sixtyseconds.logic.SixtySecondsWhisperSystem.clear(world);
+        net.exmo.sre.sixtyseconds.logic.TrapCageSystem.reset(world);
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsRvSystem.reset(world); // 房车：解除强载区块 + 清房车（须在 State.reset 前）
         SixtySecondsSearchZones.reset(world);
         SixtySecondsArena.restoreAll(world);
         SixtySecondsState.reset(world);

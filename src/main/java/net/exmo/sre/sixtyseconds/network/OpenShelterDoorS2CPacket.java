@@ -16,10 +16,16 @@ import java.util.List;
  * （存物资=携带上限、返回=剩余冷却秒数，其余为 0）。
  */
 public record OpenShelterDoorS2CPacket(BlockPos pos, boolean ownDoor, int doorHp, int doorMaxHp,
-        int doorLevel, boolean doorBroken, int storedSupplies, List<Option> options)
+        int doorLevel, boolean doorBroken, int storedSupplies, List<Option> options, int rvEntityId)
         implements CustomPacketPayload {
 
     public record Option(int action, boolean enabled, int param) {
+    }
+
+    /** 门（非房车）用：rvEntityId = -1，动作回传走门坐标路径。 */
+    public OpenShelterDoorS2CPacket(BlockPos pos, boolean ownDoor, int doorHp, int doorMaxHp,
+            int doorLevel, boolean doorBroken, int storedSupplies, List<Option> options) {
+        this(pos, ownDoor, doorHp, doorMaxHp, doorLevel, doorBroken, storedSupplies, options, -1);
     }
 
     public static final Type<OpenShelterDoorS2CPacket> ID = new Type<>(Noellesroles.id("open_shelter_door"));
@@ -40,6 +46,7 @@ public record OpenShelterDoorS2CPacket(BlockPos pos, boolean ownDoor, int doorHp
             buf.writeBoolean(option.enabled);
             buf.writeVarInt(option.param);
         }
+        buf.writeInt(rvEntityId);
     }
 
     public static OpenShelterDoorS2CPacket decode(RegistryFriendlyByteBuf buf) {
@@ -55,8 +62,9 @@ public record OpenShelterDoorS2CPacket(BlockPos pos, boolean ownDoor, int doorHp
         for (int i = 0; i < count; i++) {
             options.add(new Option(buf.readVarInt(), buf.readBoolean(), buf.readVarInt()));
         }
+        int rvEntityId = buf.readInt();
         return new OpenShelterDoorS2CPacket(pos, ownDoor, doorHp, doorMaxHp, doorLevel, doorBroken,
-                storedSupplies, options);
+                storedSupplies, options, rvEntityId);
     }
 
     @Override

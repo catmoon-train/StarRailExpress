@@ -196,7 +196,8 @@ public final class SixtySecondsRecipes {
         }
         if (techId.startsWith("agri") || techId.startsWith("planter") || techId.startsWith("fertilizer")
                 || techId.startsWith("tobacco") || techId.startsWith("cooking") || techId.startsWith("waste")
-                || techId.startsWith("water_") || techId.equals("tea") || techId.startsWith("drinks")) {
+                || techId.startsWith("water_") || techId.equals("tea") || techId.startsWith("drinks")
+                || techId.equals("trap_cage") || techId.startsWith("capture_animal")) {
             return Category.FOOD;
         }
         if (techId.startsWith("door") || techId.startsWith("vault") || techId.startsWith("mob_defense")
@@ -1295,6 +1296,45 @@ public final class SixtySecondsRecipes {
                 List.of(in(ModItems.SIXTY_SECONDS_BLOOD_JAR, 1), in(alloy, 5), in(glassPlate, 5),
                         in(hemp, 10), in(chem, 10), in(scrap, 32)),
                 ModItems.SIXTY_SECONDS_REVIVAL_TOTEM, 1);
+
+        // ══ 农牧业：捕捉笼与诱饵（简易工作台）═══════════════════════════
+        // ── 捕捉笼 ─────────────────────────────────────────────────────
+        add(list, "trap_cage", Station.WORKBENCH, "trap_cage", true,
+                List.of(in(oak, 8), in(scrap, 16), in(elec, 3), in(gear, 3)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_TRAP_CAGE.asItem(), 1);
+        // ── 诱饵 ───────────────────────────────────────────────────────
+        add(list, "simple_bait", Station.WORKBENCH, "capture_animal_1", false,
+                List.of(in(Items.ROTTEN_FLESH, 3), in(Items.WHEAT_SEEDS, 2)),
+                ModItems.SIXTY_SECONDS_SIMPLE_BAIT, 2);
+        add(list, "fragrant_bait", Station.WORKBENCH, "capture_animal_2", false,
+                List.of(any("fruit", 2, fruits()), any("vegetable", 2, vegetables())),
+                ModItems.SIXTY_SECONDS_FRAGRANT_BAIT, 2);
+        add(list, "refined_bait", Station.WORKBENCH, "capture_animal_3", false,
+                List.of(in(Items.CACTUS, 3), any("mushroom", 6, mushrooms())),
+                ModItems.SIXTY_SECONDS_REFINED_BAIT, 2);
+
+        // ── 旱地培育箱 ─────────────────────────────────────────────────
+        add(list, "arid_cultivator", Station.WORKBENCH, "misc_planter_2", true,
+                List.of(in(oak, 6), in(ModItems.SIXTY_SECONDS_NUTRIENT_FERTILIZER, 2), in(chem, 2)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_ARID_CULTIVATOR.asItem(), 1);
+
+        // ── 新增配方：剪刀（工具-I）───────────────────────────────────────
+        add(list, "shears", Station.WORKBENCH, "tools_1", false,
+                List.of(in(iron, 2), in(glassShard, 1)), Items.SHEARS, 1);
+        // ── 羊毛→线（材料-I）─────────────────────────────────────────────
+        add(list, "wool_to_string", Station.WORKBENCH, "materials_1", false,
+                List.of(in(Items.WHITE_WOOL, 1)), Items.STRING, 4);
+        // ── 小麦→小麦捆+拆捆（材料-I）────────────────────────────────────
+        add(list, "wheat_to_bale", Station.WORKBENCH, "materials_1", false,
+                List.of(in(Items.WHEAT, 9)), Items.HAY_BLOCK, 1);
+        add(list, "bale_to_wheat", Station.WORKBENCH, "materials_1", false,
+                List.of(in(Items.HAY_BLOCK, 1)), Items.WHEAT, 9);
+        // ── 鞍（工具-III）───────────────────────────────────────────────
+        add(list, "saddle", Station.WORKBENCH, "tools_3", false,
+                List.of(in(Items.LEATHER, 3), in(steel, 1)), Items.SADDLE, 1);
+        // ── 铁马铠（功能性防具-I，盔甲锻造台，通电）───────────────────────
+        add(list, "iron_horse_armor", Station.ARMOR_FORGE, "func_armor_1", true,
+                List.of(in(iron, 4), in(hemp, 2)), Items.IRON_HORSE_ARMOR, 1);
 
         return list;
     }

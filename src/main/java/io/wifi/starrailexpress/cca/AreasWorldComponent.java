@@ -433,7 +433,9 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     }
 
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
-        // this.spawnPos = getPosWithOrientationFromNbt(tag, "spawnPos");
+        if (tag.contains("spawnPos")) {
+            this.spawnPos = getPosWithOrientationFromNbt(tag, "spawnPos");
+        }
         // this.spectatorSpawnPos = getPosWithOrientationFromNbt(tag,
         // "spectatorSpawnPos");
         if (tag.contains("readyArea")) {
@@ -551,7 +553,9 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     }
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
-        // writePosWithOrientationToNbt(tag, this.spawnPos, "spawnPos");
+        if (this.spawnPos != null) {
+            writePosWithOrientationToNbt(tag, this.spawnPos, "spawnPos");
+        }
         // writePosWithOrientationToNbt(tag, this.spectatorSpawnPos,
         // "spectatorSpawnPos");
         if (this.readyArea != null) {

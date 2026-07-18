@@ -60,6 +60,15 @@ public final class SixtySecondsState {
         public AABB residentialBox;
         public AABB shelterBox;
 
+        // ── 房车（SixtySecondsRvSystem）──────────────────────────────────
+        /** 本队常驻房车的实体 UUID；实体被删除/掉出世界时由系统按刷新点恢复。 */
+        public UUID rvEntityUuid;
+        /** 最近一次确认安全的房车落点，用于坠坑、虚空或卡墙时回退。 */
+        public BlockPos rvLastSafePos;
+        /** 当前被房车强制加载的区块；{@link Integer#MIN_VALUE} 表示尚未强载。 */
+        public int rvForcedChunkX = Integer.MIN_VALUE;
+        public int rvForcedChunkZ = Integer.MIN_VALUE;
+
         // ── 科技树 / 电力（SixtySecondsTechTree / SixtySecondsPowerSystem）───
         /** 本队已解锁的科技 id。 */
         public final java.util.Set<String> unlockedTech = new java.util.HashSet<>();
@@ -141,5 +150,7 @@ public final class SixtySecondsState {
         public final java.util.Set<String> usedAwakenRoles = new java.util.HashSet<>();
         /** 上次广播过的日内阶段（0=清晨 1=白天 2=晚上 3=睡觉，-1=未初始化），用于子相位切换提示。 */
         public int lastDayStage = -1;
+        /** 上次在房车门口刷过 NPC 的天数（-1=从未）；与 dayNumber 比较实现"一天只刷一次"。 */
+        public int lastNpcRvSpawnDay = -1;
     }
 }

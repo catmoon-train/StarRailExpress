@@ -309,16 +309,16 @@ public final class SixtySecondsHealthSystem {
     }
 
     /**
-     * 准备阶段 / 前四天全天 / 每日清晨（{@link net.exmo.sre.sixtyseconds.SixtySecondsDayCycle#MORNING_TICKS}）禁止玩家互相攻击。
-     * 前四天为新手保护期，全天禁 PvP。
+     * 准备阶段 / 前两天全天 / 每日清晨（{@link net.exmo.sre.sixtyseconds.SixtySecondsDayCycle#MORNING_TICKS}）禁止玩家互相攻击。
+     * 前两天为新手保护期，全天禁 PvP；第 3 天起白天/晚上允许 PvP（清晨仍禁）。
      */
     public static boolean isPvpBlocked(ServerLevel level) {
         SixtySecondsState.Data data = SixtySecondsState.get(level);
         if (data.phase != SixtySecondsPhase.DAY) {
             return true; // 准备/结算阶段一律禁 PvP
         }
-        // 前四天全天禁 PvP（新手保护期）
-        if (data.dayNumber <= 4) {
+        // 前两天全天禁 PvP（新手保护期）；第 3 天起开放 PvP
+        if (data.dayNumber <= 2) {
             return true;
         }
         return net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.subPhase(data, level.getGameTime())
@@ -334,7 +334,7 @@ public final class SixtySecondsHealthSystem {
         if (data.phase != SixtySecondsPhase.DAY) {
             return "not_day";
         }
-        if (data.dayNumber <= 4) {
+        if (data.dayNumber <= 2) {
             return "early_days";
         }
         return "morning";
@@ -348,7 +348,7 @@ public final class SixtySecondsHealthSystem {
     /** 一次受伤：扣 baseDamage（经护甲减伤）点健康；怪物玩家不受护甲减免。 */
     public static void applyInjury(ServerPlayer victim, @Nullable ServerPlayer attacker, int baseDamage) {
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(victim);
-        // PvP 伤害减免 -60%（怪物攻防不受限）
+        // PvP 伤害减免 -50%（怪物攻防不受限）
         if (attacker != null && !stats.monster) {
             baseDamage = (int) Math.max(1, baseDamage * SixtySecondsBalance.PVP_DAMAGE_MULT);
         }

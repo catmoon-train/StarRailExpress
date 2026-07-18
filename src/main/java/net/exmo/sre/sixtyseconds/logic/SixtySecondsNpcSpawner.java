@@ -3,6 +3,7 @@ package net.exmo.sre.sixtyseconds.logic;
 import net.exmo.sre.sixtyseconds.SixtySecondsBalance;
 import net.exmo.sre.sixtyseconds.config.SixtySecondsConfig;
 import net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore;
+import net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity;
 import net.exmo.sre.sixtyseconds.entity.SixtySecondsNpcEntity;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.ChatFormatting;
@@ -16,6 +17,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.Nullable;
@@ -274,6 +276,64 @@ public final class SixtySecondsNpcSpawner {
                 spawnAt(level, spot, variant, random.nextFloat() * 360.0F, "default", 6, -1);
             }
         }
+    }
+
+    // ── 路径 5b：房车门口概率刷（一天一次，早晚各判定）─────────────────────────
+
+    /**
+     * 每天早晚各判定一次：10-20% 概率在每队房车门口刷 1~3 个 NPC。<b>一天只刷一次</b>
+     * （{@code lastNpcRvSpawnDay == dayNumber} 时跳过）。早上（进白天）刷商人/旅者，
+     * 晚上（进夜晚）刷强盗。门口 = 房车朝向前方 4 格的安全点。
+     */
+    public static void spawnAtRvDoors(ServerLevel level, SixtySecondsState.Data data, boolean night) {
+        // 一天只刷一次：今天已刷过就跳过
+        if (data.lastNpcRvSpawnDay == data.dayNumber) {
+            return;
+        }
+        RandomSource random = level.getRandom();
+        // 10-20% 概率触发（每次判定随机取一个 10-20 的阈值）
+        float threshold = 0.10F + random.nextFloat() * 0.10F;
+        if (random.nextFloat() >= threshold) {
+            return;
+        }
+        // 刷 1~3 个 NPC
+        int count = 1 + random.nextInt(3);
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            SixtySecondsRvEntity rv = SixtySecondsRvSystem.getTeamRv(level, team);
+            if (rv == null) {
+                continue;
+            }
+            // 房车门口：车头前方 4 格（按房车朝向 getLookAngle）
+            Vec3 forward = rv.getLookAngle();
+            BlockPos doorPos = BlockPos.containing(
+                    rv.getX() + forward.x * 4.0,
+                    rv.getY(),
+                    rv.getZ() + forward.z * 4.0);
+            BlockPos spot = net.exmo.sre.sixtyseconds.arena.SixtySecondsSearchZones
+                    .findSafeSpot(level, doorPos);
+            if (spot == null) {
+                continue;
+            }
+            for (int i = 0; i < count; i++) {
+                SixtySecondsNpcEntity.Variant variant = night
+                        ? SixtySecondsNpcEntity.Variant.BANDIT
+                        : (random.nextFloat() < SixtySecondsBalance.NPC_DAY_TRAVELER_RATIO
+                                ? SixtySecondsNpcEntity.Variant.TRAVELER
+                                : SixtySecondsNpcEntity.Variant.MERCHANT);
+                // 在门口附近散开刷，避免 NPC 叠在一起
+                BlockPos scatter = spot.offset(
+                        random.nextInt(5) - 2,
+                        0,
+                        random.nextInt(5) - 2);
+                BlockPos safeScatter = net.exmo.sre.sixtyseconds.arena.SixtySecondsSearchZones
+                        .findSafeSpot(level, scatter);
+                if (safeScatter != null) {
+                    spawnAt(level, safeScatter, variant, random.nextFloat() * 360.0F, "default", 6, -1);
+                }
+            }
+        }
+        // 标记今天已刷
+        data.lastNpcRvSpawnDay = data.dayNumber;
     }
 
     // ── 路径 6：海盗（海上乘船随机遭遇）────────────────────────────────────

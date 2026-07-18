@@ -143,7 +143,101 @@ public final class SixtySecondsAreaCommand {
                                                 .executes(SixtySecondsAreaCommand::removeRegion)))
                                 .then(literal("clear").executes(SixtySecondsAreaCommand::clearRegions))
                                 .then(literal("at").executes(SixtySecondsAreaCommand::regionAt)))
+                        // 房车模式：开关 + 每队刷新点（按登记顺序对应队伍序号）
+                        .then(literal("rv")
+                                .then(literal("on").executes(ctx -> setRvEnabled(ctx, true)))
+                                .then(literal("off").executes(ctx -> setRvEnabled(ctx, false)))
+                                .then(literal("add")
+                                        .then(argument("x", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
+                                                .then(argument("y", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
+                                                        .then(argument("z", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
+                                                                .executes(SixtySecondsAreaCommand::addRvSpawn)))))
+                                .then(literal("list").executes(SixtySecondsAreaCommand::listRvSpawns))
+                                .then(literal("remove")
+                                        .then(argument("index", IntegerArgumentType.integer(0))
+                                                .executes(SixtySecondsAreaCommand::removeRvSpawn)))
+                                .then(literal("clear").executes(SixtySecondsAreaCommand::clearRvSpawns))
+                                .executes(SixtySecondsAreaCommand::listRvSpawns))
                         .then(literal("show").executes(SixtySecondsAreaCommand::show))));
+    }
+
+    // ── 房车模式 ─────────────────────────────────────────────────
+
+    private static int setRvEnabled(CommandContext<CommandSourceStack> ctx, boolean enabled) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        cfg.rvEnabled = enabled;
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.translatable(
+                enabled ? "message.noellesroles.sixty_seconds.rv_cmd.on"
+                        : "message.noellesroles.sixty_seconds.rv_cmd.off").withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    private static int addRvSpawn(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        if (cfg.rvSpawnPoints == null) {
+            cfg.rvSpawnPoints = new java.util.ArrayList<>();
+        }
+        int x = IntegerArgumentType.getInteger(ctx, "x");
+        int y = IntegerArgumentType.getInteger(ctx, "y");
+        int z = IntegerArgumentType.getInteger(ctx, "z");
+        cfg.rvSpawnPoints.add(new SixtySecondsConfig.Vec(x, y, z));
+        SixtySecondsConfigStore.save(level, cfg);
+        int teamNo = cfg.rvSpawnPoints.size();
+        ctx.getSource().sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.rv_cmd.added", teamNo, x, y, z)
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    private static int removeRvSpawn(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        int index = IntegerArgumentType.getInteger(ctx, "index");
+        if (cfg.rvSpawnPoints == null || index < 0 || index >= cfg.rvSpawnPoints.size()) {
+            ctx.getSource().sendFailure(Component.translatable(
+                    "message.noellesroles.sixty_seconds.rv_cmd.index_oob", index));
+            return 0;
+        }
+        cfg.rvSpawnPoints.remove(index);
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.rv_cmd.removed", index).withStyle(ChatFormatting.YELLOW), true);
+        return 1;
+    }
+
+    private static int clearRvSpawns(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        int cleared = cfg.rvSpawnPoints == null ? 0 : cfg.rvSpawnPoints.size();
+        if (cfg.rvSpawnPoints != null) {
+            cfg.rvSpawnPoints.clear();
+        }
+        SixtySecondsConfigStore.save(level, cfg);
+        ctx.getSource().sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.rv_cmd.cleared", cleared).withStyle(ChatFormatting.YELLOW), true);
+        return 1;
+    }
+
+    private static int listRvSpawns(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        int count = cfg.rvSpawnPoints == null ? 0 : cfg.rvSpawnPoints.size();
+        ctx.getSource().sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.rv_cmd.list_header",
+                cfg.rvEnabled ? "ON" : "OFF", count).withStyle(ChatFormatting.GOLD), false);
+        if (cfg.rvSpawnPoints != null) {
+            for (int i = 0; i < cfg.rvSpawnPoints.size(); i++) {
+                SixtySecondsConfig.Vec v = cfg.rvSpawnPoints.get(i);
+                int teamNo = i + 1;
+                ctx.getSource().sendSuccess(() -> Component.translatable(
+                        "message.noellesroles.sixty_seconds.rv_cmd.list_entry", teamNo, v.x, v.y, v.z)
+                        .withStyle(ChatFormatting.AQUA), false);
+            }
+        }
+        return 1;
     }
 
     // ── 星级区域覆盖 ─────────────────────────────────────────────

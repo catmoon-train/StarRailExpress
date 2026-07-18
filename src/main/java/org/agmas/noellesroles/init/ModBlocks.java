@@ -416,6 +416,16 @@ public interface ModBlocks {
             b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 注意：ARID_CULTIVATOR 必须在 SIXTY_SECONDS_PLANTER_ENTITY 之前声明，
+    // 因为后者在 BlockEntityType.Builder.of(...) 中按声明顺序引用前者；
+    // interface 静态字段按声明顺序初始化，否则 ARID_CULTIVATOR 为 null 会触发 NPE。
+    Block SIXTY_SECONDS_ARID_CULTIVATOR = blockRegistrar.createWithItem("sixty_seconds_arid_cultivator",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsPlanterBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(1.5F).randomTicks(),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsCrops.Tier.ARID),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsPlanterBlockEntity> SIXTY_SECONDS_PLANTER_ENTITY =
             blockEntityRegistrar.create("sixty_seconds_planter",
                     BlockEntityType.Builder.of(
@@ -423,7 +433,8 @@ public interface ModBlocks {
                             ModBlocks.SIXTY_SECONDS_PLANTER,
                             ModBlocks.SIXTY_SECONDS_ADVANCED_PLANTER,
                             ModBlocks.SIXTY_SECONDS_MUSHROOM_BOX,
-                            ModBlocks.SIXTY_SECONDS_GARDENER_PLANTER));
+                            ModBlocks.SIXTY_SECONDS_GARDENER_PLANTER,
+                            ModBlocks.SIXTY_SECONDS_ARID_CULTIVATOR));
 
     // ── 保险库（对外队上锁的真实容器）+ 基地箱子（普通容器）─────────────────
     Block SIXTY_SECONDS_VAULT_SMALL = blockRegistrar.createWithItem("sixty_seconds_vault_small",
@@ -550,6 +561,19 @@ public interface ModBlocks {
             b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
+    // ── 捕捉笼（18格容器，放入诱饵、每天早上产出动物） ─────────────────────
+    Block SIXTY_SECONDS_TRAP_CAGE = blockRegistrar.createWithItem("sixty_seconds_trap_cage",
+            new net.exmo.sre.sixtyseconds.content.block.TrapCageBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(2.0F)),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.TrapCageBlockEntity> TRAP_CAGE_ENTITY =
+            blockEntityRegistrar.create("sixty_seconds_trap_cage",
+                    BlockEntityType.Builder.of(
+                            net.exmo.sre.sixtyseconds.content.block_entity.TrapCageBlockEntity::new,
+                            ModBlocks.SIXTY_SECONDS_TRAP_CAGE));
 
     // Kill blocks (OP utilities)
     @SuppressWarnings("unchecked")

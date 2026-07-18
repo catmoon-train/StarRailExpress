@@ -63,6 +63,10 @@ public final class SixtySecondsPveSystem {
     private static final Map<ServerLevel, Long> LAST_AMBIENT_CHECK = new WeakHashMap<>();
     /** 已保底刷过 Boss 的游戏日（防跨晚重复保底）。 */
     private static final Map<ServerLevel, Integer> LAST_BOSS_DAY = new WeakHashMap<>();
+    /** 每玩家「每日保底刷怪」上次触发的游戏日（缺省=未触发）。每日首次进入探索区按星级保底刷怪。 */
+    private static final Map<UUID, Integer> LAST_GUARANTEED_DAY = new HashMap<>();
+    /** 每玩家待刷出的保底怪数量（分批刷：每次 tick 刷 {@link SixtySecondsBalance#GUARANTEED_BATCH_SIZE} 只直至清零）。 */
+    private static final Map<UUID, Integer> PENDING_GUARANTEED = new HashMap<>();
 
     private static final class Turret {
         final int teamId;
@@ -148,8 +152,33 @@ public final class SixtySecondsPveSystem {
                 continue;
             }
             int areaLevel = SixtySecondsAreaLevels.levelAt(level, player.blockPosition());
+            UUID uuid = player.getUUID();
+
+            // ── 每日保底刷怪（分批）：每玩家每日首次进入探索区，按星级保底刷 areaLevel 只 ──
+            // 「每天进入固定根据星级刷几只，分批刷」：5 星保底 5 只，每次 tick 最多刷 GUARANTEED_BATCH_SIZE 只。
+            int lastDay = LAST_GUARANTEED_DAY.getOrDefault(uuid, -1);
+            if (lastDay != data.dayNumber) {
+                LAST_GUARANTEED_DAY.put(uuid, data.dayNumber);
+                PENDING_GUARANTEED.put(uuid, areaLevel);
+            }
+            int pending = PENDING_GUARANTEED.getOrDefault(uuid, 0);
+            if (pending > 0) {
+                int gCap = SixtySecondsBalance.AMBIENT_MAX_NEARBY + areaLevel;
+                List<SixtySecondsMonsterEntity> gNear = level.getEntitiesOfClass(SixtySecondsMonsterEntity.class,
+                        player.getBoundingBox().inflate(40), Entity::isAlive);
+                int room = gCap - gNear.size();
+                if (room > 0) {
+                    AABB gZone = SixtySecondsSearchZones.confineBox(player);
+                    int batch = Math.min(pending, Math.min(SixtySecondsBalance.GUARANTEED_BATCH_SIZE, room));
+                    int spawned = spawnPack(level, data, player, areaLevel, batch, gZone);
+                    PENDING_GUARANTEED.put(uuid, pending - spawned);
+                }
+                continue; // 保底刷怪本 tick 不再叠加概率刷新
+            }
+
+            // ── 概率刷新：每星+5%（1星×1.05 … 5星×1.25）──
             double chance = SixtySecondsBalance.AMBIENT_SPAWN_CHANCE
-                    + SixtySecondsBalance.AMBIENT_SPAWN_CHANCE_PER_AREA_LEVEL * (areaLevel - 1);
+                    * (1.0 + SixtySecondsBalance.AMBIENT_SPAWN_CHANCE_PER_AREA_LEVEL * areaLevel);
             // 前期天数倍率：前两天刷新概率大幅降低，逐步爬升
             chance *= SixtySecondsBalance.ambientSpawnDayMult(data.dayNumber);
             if (SixtySecondsDayCycle.isNight(data, level.getGameTime())) {
@@ -169,27 +198,37 @@ public final class SixtySecondsPveSystem {
             int packSize = 1 + level.random.nextInt(1 + (areaLevel + 1) / 2)
                     + (data.dayNumber >= 4 ? 1 : 0);
             packSize = Math.min(packSize, cap - near.size());
-            int spawned = 0;
-            for (int i = 0; i < packSize; i++) {
-                BlockPos spot = findSpawnSpot(level, player.blockPosition(),
-                        SixtySecondsBalance.AMBIENT_SPAWN_MIN_DIST,
-                        SixtySecondsBalance.AMBIENT_SPAWN_RAND_DIST, 5, 24, zone, data);
-                if (spot == null) {
-                    continue;
-                }
-                Variant variant = rollAmbientVariant(level, data.dayNumber, areaLevel);
-                SixtySecondsMonsterEntity mob = createMonster(level, spot, variant,
-                        1.0 + SixtySecondsBalance.AMBIENT_HEALTH_PER_AREA_LEVEL * (areaLevel - 1), 1.0);
-                if (mob != null) {
-                    spawned++;
-                }
+            spawnPack(level, data, player, areaLevel, packSize, zone);
+        }
+    }
+
+    /**
+     * 刷出一批游荡怪（保底/概率刷新共用）：在玩家附近选点创建 count 只怪，
+     * 生命按星级加成（每星+10%：1星×1.10 … 5星×1.50），返回实际刷出数量并预警附近玩家。
+     */
+    private static int spawnPack(ServerLevel level, SixtySecondsState.Data data, ServerPlayer player,
+            int areaLevel, int count, AABB zone) {
+        int spawned = 0;
+        for (int i = 0; i < count; i++) {
+            BlockPos spot = findSpawnSpot(level, player.blockPosition(),
+                    SixtySecondsBalance.AMBIENT_SPAWN_MIN_DIST,
+                    SixtySecondsBalance.AMBIENT_SPAWN_RAND_DIST, 5, 24, zone, data);
+            if (spot == null) {
+                continue;
             }
-            if (spawned > 0) {
-                alertNearby(level, player.blockPosition(), 28, Component
-                        .translatable("message.noellesroles.sixty_seconds.pve_ambient_warn", spawned)
-                        .withStyle(ChatFormatting.RED));
+            Variant variant = rollAmbientVariant(level, data.dayNumber, areaLevel);
+            SixtySecondsMonsterEntity mob = createMonster(level, spot, variant,
+                    1.0 + SixtySecondsBalance.AMBIENT_HEALTH_PER_AREA_LEVEL * areaLevel, 1.0);
+            if (mob != null) {
+                spawned++;
             }
         }
+        if (spawned > 0) {
+            alertNearby(level, player.blockPosition(), 28, Component
+                    .translatable("message.noellesroles.sixty_seconds.pve_ambient_warn", spawned)
+                    .withStyle(ChatFormatting.RED));
+        }
+        return spawned;
     }
 
     /** 游荡怪变体权重：天数/区域等级越高，精英变体（装甲重锤/潜袭者/嚎叫者/爆裂怪）占比越大。 */

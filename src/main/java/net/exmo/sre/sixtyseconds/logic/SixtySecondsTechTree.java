@@ -96,6 +96,8 @@ public final class SixtySecondsTechTree {
         chain(list, "agriculture", "planter_1", "misc_planter_1", "misc_planter_2");
         chain(list, "agriculture", null, "fertilizer_1", "fertilizer_2");
         chain(list, "agriculture", null, "tobacco");
+        chain(list, "agriculture", "agri_2", "trap_cage");
+        chain(list, "agriculture", "trap_cage", "capture_animal_1", "capture_animal_2", "capture_animal_3");
         // ── 炊事 ────────────────────────────────────────────────────
         chain(list, "cooking", null, "cooking_1", "cooking_2", "cooking_3", "cooking_4");
         chain(list, "cooking", null, "waste_1", "waste_2", "waste_3", "waste_4");
@@ -203,6 +205,7 @@ public final class SixtySecondsTechTree {
             case "tea", "drinks_1": return 4;
             case "drinks_2": return 8;
             case "tobacco": return 5;
+            case "trap_cage": return 6;
             case "potion_purify": return 8;
             case "omni_tonic": return 12;
             case "mystic_plants": return 12;

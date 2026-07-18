@@ -108,6 +108,8 @@ public final class SixtySecondsManager {
         SixtySecondsDefenseSystem.reset(level);
         SixtySecondsPowerSystem.reset(level);
         SixtySecondsWhisperSystem.clear(level);
+        SixtySecondsAreaLevels.reset(level);
+        SixtySecondsRvSystem.reset(level); // 房车：解除上一局强载区块 + 清残留房车实体
         net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.clearAll(); // 清跨局区域记忆
         // 配置不完整 = 建不出住宅/避难所 → 直接终止开局（否则玩家原地/虚空卡死）
         var config = SixtySecondsConfigStore.current(level).orElse(null);
@@ -163,6 +165,7 @@ public final class SixtySecondsManager {
         // 自身永不消失——「开始游戏时避难所的僵尸/突袭者不消失」根因）。须在传送玩家进家前扫。
         SixtySecondsDefenseSystem.discardTaggedMobs(level);
         teleportTeams(level, data, true);
+        SixtySecondsRvSystem.onGameStart(level, data); // 房车：按队生成常驻房车（rvEnabled 时）
         // 海岛模式：清跨局解锁态，为每队默认解锁 1 级港湾岛，并把海图发给全员
         net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.onGameStart(level);
         net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.syncChartAll(level);
@@ -199,6 +202,7 @@ public final class SixtySecondsManager {
             return;
         }
         SixtySecondsSearchZones.tick(level);
+        SixtySecondsRvSystem.tick(level, data); // 房车：常驻加载/丢失重生/坠坑回退（rvEnabled 时）
         // 低频（2s）把所有队伍避难所门补发给创造模式玩家：区域包只在传送等时机下发，
         // 玩家开局后切到创造时不会自动重发门列表（「创造看不到别人的避难所门」根因）。
         if (level.getGameTime() % 40 == 0) {
@@ -249,13 +253,13 @@ public final class SixtySecondsManager {
                 SixtySecondsPveSystem.tick(level);       // PVE：探索区游荡怪/Boss/哨戒炮/陷阱结算
                 SixtySecondsNpcSystem.tick(level);       // NPC：搜刮区每日刷新 + 偷窃会话推进
                 net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.tick(level); // 海岛：登岛沿检测/报幕/解锁
+                SixtySecondsAreaLevels.tickAnnouncements(level); // 星级区域覆盖切换报幕
                 SixtySecondsPowerSystem.tick(level);     // 发电机断电边沿
                 // 小游戏代币不再全队共享（SixtySecondsTokenShare 已移除）：
                 // SREPlayerMinigameTaskComponent.tokens 本就按玩家独立存储/同步
 
                 reconcileHomeMapZones(level, data);      // 兜底：已回到家的玩家若区域地图未同步则补发（修复回来地图不显示坐标）
                 net.exmo.sre.sixtyseconds.content.item.SixtySecondsClockItem.tickHeld(level);
-                net.exmo.sre.sixtyseconds.content.item.SixtySecondsUtilityItem.tickHeldCompass(level); // 罗盘坐标
                 SixtySecondsRescue.tick(level, data);    // 隐藏通关：救援信标倒计时
                 tickSubPhaseNotify(level, data);         // 清晨/白天/晚上/睡觉 切换提示
                 tickTimeWarning(level, data);           // 提前预警：夜晚/睡觉将至（聊天栏）
@@ -361,6 +365,7 @@ public final class SixtySecondsManager {
         }
         SixtySecondsDailyEvents.onDayStart(level); // 每日事件门：重置隔日状态（事件在傍晚触发）
         SixtySecondsNpcSystem.onDayStart(level, data); // NPC：首日按配置落位 + 每日门口概率刷
+        TrapCageSystem.processDaily(level); // 捕捉笼：每天早上消耗诱饵，概率产出动物
         // 生成当日热线号码
         SixtySecondsHotlineSystem.generateDailyHotlines(level);
         // 收集稿纸投稿 + 发布末日日报（含邮箱投递）
@@ -369,11 +374,11 @@ public final class SixtySecondsManager {
         SixtySecondsHotlineSystem.processDeliveries(level, data); // 处理快递/购物/救援投递
         SixtySecondsRoleAwakening.awaken(level, data);
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.day_start", day, totalDays(level)));
-        // PvP 状态聊天栏广播
-        if (day <= 4) {
+        // PvP 状态聊天栏广播：前两天为保护期，第 3 天起开放 PvP
+        if (day <= 2) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.pvp_peace_early",
                     totalDays(level)).withStyle(ChatFormatting.GREEN));
-        } else if (day == 5) {
+        } else if (day == 3) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.pvp_peace_over",
                     totalDays(level)).withStyle(ChatFormatting.RED));
         }

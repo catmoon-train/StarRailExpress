@@ -43,6 +43,14 @@ public class StaminaRenderer {
 			// 避免和职业信息渲染冲突
 			return;
 		}
+		// 60s 模式下不显示体力条：60s 有自己的状态 HUD（健康/饥饿/口渴/理智/污染），
+		// 体力条与 60s 状态系统无关，显示出来会与物品栏上方的 60s 状态面板重复且混乱。
+		if (net.exmo.sre.sixtyseconds.SixtySecondsMod.MODE != null
+				&& SREClient.gameComponent != null
+				&& SREClient.gameComponent.isRunning()
+				&& SREClient.gameComponent.getGameMode() == net.exmo.sre.sixtyseconds.SixtySecondsMod.MODE) {
+			return;
+		}
 		ProgressProvider stamina = null;
 		ProgressProvider itemCharge = null;
 		final var mainHandStack = player.getMainHandItem();

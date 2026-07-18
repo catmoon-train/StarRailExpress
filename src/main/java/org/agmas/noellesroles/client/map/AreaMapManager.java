@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.client.map;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import io.wifi.starrailexpress.client.SREClient;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
@@ -16,32 +15,32 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.screen.AreaMapScreen;
+import org.agmas.noellesroles.client.screen.StarMapScreen;
 import org.agmas.noellesroles.content.item.AreaMapItem;
 
 import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * 区域地图数据管理器（纯客户端）。
  *
- * <p>按需（手持地图物品或打开地图界面时）以 {@code AreasWorldComponent.playArea}
- * 为边界，在客户端本地逐列扫描方块生成俯视地图纹理，无任何网络同步。
+ * <p>按需（手持地图物品或打开地图界面时）围绕玩家的客户端渲染距离，在客户端本地逐列扫描
+ * 已加载方块生成俯视地图纹理，无任何网络同步。
  * 扫描以玩家所在高度为切片：切片处有碰撞体的列视为「墙」，否则向下找地板取
  * {@link MapColor}。每 tick 限量扫描避免卡顿，扫完一遍后循环重扫保持地图鲜活
  * （门开关、方块变化会逐步反映）。
  *
  * <p>产出 1 张底图纹理 + {@value #WALL_LAYERS} 张墙体层纹理（3D 视图逐层抬升
- * 绘制形成体素效果）。纹理尺寸 = 区域尺寸/step，超过上限时自动增大采样步长。
+ * 绘制形成体素效果）。旧区域纹理不做缓存，进入新范围后重新采样，保证地形更新会反映到地图上。
  */
 public final class AreaMapManager {
 
     /** 3D 视图的墙体层数（也是墙高采样上限，单位：方块）。 */
     public static final int WALL_LAYERS = 4;
-    private static final int MAX_CELLS = 512 * 512;
     private static final int SCAN_BUDGET_PER_TICK = 800;
     private static final long UPLOAD_INTERVAL_MS = 500;
+    private static final int MIN_RENDER_RADIUS_BLOCKS = 32;
+    /** 玩家 Y 坐标变化超过此阈值才更新地形切片高度，避免上下几格就重扫全图。 */
+    private static final int Y_SLICE_THRESHOLD = 16;
 
     private static final ResourceLocation BASE_TEX = Noellesroles.id("area_map/base");
     private static final ResourceLocation[] WALL_TEX = new ResourceLocation[WALL_LAYERS];
@@ -67,7 +66,6 @@ public final class AreaMapManager {
     private static long lastUploadMs = 0;
 
     private static AABB scannedArea = null;
-    private static String scannedMap = null;
     private static int originX, originZ, minY, maxY;
     private static int sizeX, sizeZ, step = 1;
     private static int totalCells = 0;
@@ -75,18 +73,6 @@ public final class AreaMapManager {
     private static int sliceY = Integer.MIN_VALUE;
     private static boolean firstPassDone = false;
     private static boolean anyColumnScanned = false;
-
-    /** 区域记忆：节省过的 zone 纹理状态，切回老区域时复用（不用重新扫描）。 */
-    private static final Map<String, ZoneState> ZONE_CACHE = new LinkedHashMap<>() {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<String, ZoneState> eldest) {
-            return size() > 16; // 最多缓存 16 个 zone
-        }
-    };
-
-    private record ZoneState(DynamicTexture baseTexture, DynamicTexture[] wallTextures,
-            boolean anyColumnScanned, boolean firstPassDone, int cursor, int sliceY) {
-    }
 
     private AreaMapManager() {
     }
@@ -130,6 +116,16 @@ public final class AreaMapManager {
         return step;
     }
 
+    /** 当前地形窗口的世界 X 起点，星级地图迷雾纹理与地形纹理对齐时使用。 */
+    public static int getOriginX() {
+        return originX;
+    }
+
+    /** 当前地形窗口的世界 Z 起点，星级地图迷雾纹理与地形纹理对齐时使用。 */
+    public static int getOriginZ() {
+        return originZ;
+    }
+
     /** 世界 X 坐标 → 纹理格坐标（浮点）。 */
     public static double worldToCellX(double worldX) {
         return (worldX - originX) / step;
@@ -170,44 +166,47 @@ public final class AreaMapManager {
             return;
         }
         if (!needsData(mc)) return;
-        var areas = SREClient.areaComponent;
-        if (areas == null) return;
-        AABB area = areas.getPlayArea();
-        String mapKey = areas.mapName;
-        // 末日60秒模式：改扫服务端推送的当前区域（住宅/避难所/探索区），而非全图 playArea
-        AABB zone = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.activeZone();
-        if (zone != null) {
-            area = zone;
-            mapKey = "60s:" + (int) zone.minX + "," + (int) zone.minZ + "," + (int) zone.maxX + "," + (int) zone.maxZ;
-        }
-        if (area == null || area.getXsize() < 2 || area.getZsize() < 2) return;
-
-        if (!area.equals(scannedArea) || !Objects.equals(mapKey, scannedMap)) {
-            // 先存当前 zone 的扫描进度（未完成时下次回来可以续扫）
-            if (scannedArea != null && scannedMap != null && anyColumnScanned) {
-                saveCurrentZone();
-            }
-            // 再切到目标 zone：有缓存则恢复，无则新扫
-            if (!restoreZone(mc, area, mapKey)) {
-                reinit(mc, area, mapKey);
-            }
+        AABB area = surroundingArea(mc);
+        if (!area.equals(scannedArea)) {
+            reinit(mc, area);
         }
         if (baseTexture == null) return;
 
         int slice = Mth.clamp(mc.player.blockPosition().getY(), minY + 1, Math.max(minY + 1, maxY - 1));
-        if (sliceY == Integer.MIN_VALUE || Math.abs(slice - sliceY) >= 2) {
+        if (sliceY == Integer.MIN_VALUE || Math.abs(slice - sliceY) >= Y_SLICE_THRESHOLD) {
             sliceY = slice;
-            cursor = 0;
-            firstPassDone = false;
+            // 不重置 cursor / firstPassDone：连续扫描会逐步用新切片高度覆盖旧数据，
+            // 地图保持可见不闪烁，避免「高了一格就重新加载」的问题。
         }
         scanSome(mc.level, SCAN_BUDGET_PER_TICK);
     }
 
     private static boolean needsData(Minecraft mc) {
-        return mc.screen instanceof AreaMapScreen || isHoldingMap(mc.player);
+        return mc.screen instanceof AreaMapScreen || mc.screen instanceof StarMapScreen
+                || isHoldingMap(mc.player) || StarMapManager.isHoldingStarMap(mc.player);
     }
 
-    private static void reinit(Minecraft mc, AABB area, String mapName) {
+    /**
+     * 返回覆盖客户端当前渲染距离的扫描窗口。玩家离上次中心超过半径的一半才移动窗口，
+     * 避免每走一格都重建纹理，同时不会再被地图配置或 60s 区域盒限制。
+     */
+    private static AABB surroundingArea(Minecraft mc) {
+        int radius = Math.max(MIN_RENDER_RADIUS_BLOCKS, mc.options.renderDistance().get() * 16);
+        int centerX = Mth.floor(mc.player.getX());
+        int centerZ = Mth.floor(mc.player.getZ());
+        if (scannedArea != null) {
+            int previousCenterX = Mth.floor((scannedArea.minX + scannedArea.maxX) * 0.5D);
+            int previousCenterZ = Mth.floor((scannedArea.minZ + scannedArea.maxZ) * 0.5D);
+            if (Math.abs(centerX - previousCenterX) < radius / 2
+                    && Math.abs(centerZ - previousCenterZ) < radius / 2) {
+                return scannedArea;
+            }
+        }
+        return new AABB(centerX - radius, mc.level.getMinBuildHeight(), centerZ - radius,
+                centerX + radius, mc.level.getMaxBuildHeight(), centerZ + radius);
+    }
+
+    private static void reinit(Minecraft mc, AABB area) {
         releaseTextures(mc);
         originX = Mth.floor(area.minX);
         originZ = Mth.floor(area.minZ);
@@ -216,9 +215,6 @@ public final class AreaMapManager {
         int wx = Math.max(1, Mth.ceil(area.maxX) - originX);
         int wz = Math.max(1, Mth.ceil(area.maxZ) - originZ);
         step = 1;
-        while ((long) Mth.positiveCeilDiv(wx, step) * Mth.positiveCeilDiv(wz, step) > MAX_CELLS) {
-            step++;
-        }
         sizeX = Mth.positiveCeilDiv(wx, step);
         sizeZ = Mth.positiveCeilDiv(wz, step);
         totalCells = sizeX * sizeZ;
@@ -230,9 +226,7 @@ public final class AreaMapManager {
             mc.getTextureManager().register(WALL_TEX[i], wallTextures[i]);
         }
         texturesRegistered = true;
-
         scannedArea = area;
-        scannedMap = mapName;
         cursor = 0;
         sliceY = Integer.MIN_VALUE;
         firstPassDone = false;
@@ -243,7 +237,6 @@ public final class AreaMapManager {
     private static void reset() {
         releaseTextures(Minecraft.getInstance());
         scannedArea = null;
-        scannedMap = null;
         totalCells = 0;
         cursor = 0;
         sliceY = Integer.MIN_VALUE;
@@ -381,79 +374,4 @@ public final class AreaMapManager {
         }
     }
 
-    /** 保存当前 zone 的纹理和扫描进度到缓存（换 zone 前调用）。 */
-    private static void saveCurrentZone() {
-        if (scannedMap == null || baseTexture == null) return;
-        DynamicTexture[] wallsCopy = new DynamicTexture[WALL_LAYERS];
-        System.arraycopy(wallTextures, 0, wallsCopy, 0, WALL_LAYERS);
-        ZONE_CACHE.put(scannedMap, new ZoneState(
-                baseTexture, wallsCopy, anyColumnScanned, firstPassDone, cursor, sliceY));
-    }
-
-    /**
-     * 从缓存恢复 zone。成功返回 true。
-     * <p>调用前本 zone 的纹理/扫描状态已经通过 {@link #saveCurrentZone()} 存入缓存，
-     * 此时可以安全地替换 {@link #baseTexture} 等引用（旧纹理由缓存持有，不会被 GC）。</p>
-     */
-    private static boolean restoreZone(Minecraft mc, AABB area, String mapKey) {
-        ZoneState cached = ZONE_CACHE.get(mapKey);
-        if (cached == null) return false;
-        // 校验缓存中的纹理尺寸与新 zone 尺寸一致（地图模板没变）
-        int newOriginX = Mth.floor(area.minX);
-        int newOriginZ = Mth.floor(area.minZ);
-        int wx = Math.max(1, Mth.ceil(area.maxX) - newOriginX);
-        int wz = Math.max(1, Mth.ceil(area.maxZ) - newOriginZ);
-        int s = 1;
-        while ((long) Mth.positiveCeilDiv(wx, s) * Mth.positiveCeilDiv(wz, s) > MAX_CELLS) s++;
-        int sx = Mth.positiveCeilDiv(wx, s);
-        int sz = Mth.positiveCeilDiv(wz, s);
-        NativeImage cachedPixels = cached.baseTexture.getPixels();
-        if (cachedPixels == null || cachedPixels.getWidth() != sx || cachedPixels.getHeight() != sz) {
-            ZONE_CACHE.remove(mapKey);
-            return false; // 尺寸变了，重新扫
-        }
-
-        // 释放当前纹理（如果已经注册过），用缓存中的替换
-        releaseTexturesLight(mc);
-        baseTexture = cached.baseTexture;
-        System.arraycopy(cached.wallTextures, 0, wallTextures, 0, WALL_LAYERS);
-        // 重新注册到 TextureManager
-        mc.getTextureManager().register(BASE_TEX, baseTexture);
-        for (int i = 0; i < WALL_LAYERS; i++) {
-            if (wallTextures[i] != null) {
-                mc.getTextureManager().register(WALL_TEX[i], wallTextures[i]);
-            }
-        }
-        texturesRegistered = true;
-
-        originX = newOriginX;
-        originZ = newOriginZ;
-        minY = Mth.floor(area.minY);
-        maxY = Mth.ceil(area.maxY);
-        step = s;
-        sizeX = sx;
-        sizeZ = sz;
-        totalCells = sizeX * sizeZ;
-
-        scannedArea = area;
-        scannedMap = mapKey;
-        cursor = Math.min(cached.cursor, totalCells - 1);
-        sliceY = cached.sliceY;
-        firstPassDone = cached.firstPassDone;
-        anyColumnScanned = cached.anyColumnScanned;
-        dirty = true; // 提醒上传（纹理内容可能在另一帧被 GPU 回收过）
-        return true;
-    }
-
-    /** 轻量释放：仅注销 TextureManager 注册，不 close 纹理（缓存持有引用）。 */
-    private static void releaseTexturesLight(Minecraft mc) {
-        if (!texturesRegistered) return;
-        mc.getTextureManager().release(BASE_TEX);
-        for (ResourceLocation loc : WALL_TEX) {
-            mc.getTextureManager().release(loc);
-        }
-        baseTexture = null;
-        java.util.Arrays.fill(wallTextures, null);
-        texturesRegistered = false;
-    }
 }

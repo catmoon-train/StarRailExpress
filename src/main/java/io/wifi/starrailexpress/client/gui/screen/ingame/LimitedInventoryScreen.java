@@ -41,9 +41,11 @@ import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 @Environment(EnvType.CLIENT)
 public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> {
@@ -579,6 +581,61 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 fakeGraphics = new FakeGuiGraphics(context, true);
             }
             CommonClientHudRenderer.renderMessagesBelowMoney(this.minecraft, fakeGraphics, DeltaTracker.ONE, true);
+        }
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // 60s 模式热键：快速转移 / 快速丢弃屏障区非屏障物品
+        if (isGameActive() && minecraft != null && minecraft.player != null) {
+            if (org.agmas.noellesroles.client.NoellesrolesClient.sixtySecondsQuickTransferBind
+                    .matches(keyCode, scanCode)) {
+                quickTransferFromBarrierArea();
+                return true;
+            }
+            if (org.agmas.noellesroles.client.NoellesrolesClient.sixtySecondsQuickDropBind
+                    .matches(keyCode, scanCode)) {
+                quickDropFromBarrierArea();
+                return true;
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    /** 找到背包中第一个屏障占位槽的索引（0-35），没有则返回 36。 */
+    private int findFirstBarrierSlot() {
+        for (int i = 0; i <= 35; i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.is(Items.BARRIER)) {
+                return i;
+            }
+        }
+        return 36;
+    }
+
+    /** 快速转移：将屏障区中非屏障物品快速移入可用槽位。 */
+    private void quickTransferFromBarrierArea() {
+        int firstBarrier = findFirstBarrierSlot();
+        if (firstBarrier > 35) return;
+        for (int i = firstBarrier; i <= 35; i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (!stack.isEmpty() && !stack.is(Items.BARRIER)) {
+                this.minecraft.gameMode.handleInventoryMouseClick(
+                        this.handler.containerId, i, 0, ClickType.QUICK_MOVE, this.minecraft.player);
+            }
+        }
+    }
+
+    /** 快速丢弃：将屏障区中非屏障物品丢弃到地面。 */
+    private void quickDropFromBarrierArea() {
+        int firstBarrier = findFirstBarrierSlot();
+        if (firstBarrier > 35) return;
+        for (int i = firstBarrier; i <= 35; i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (!stack.isEmpty() && !stack.is(Items.BARRIER)) {
+                this.minecraft.gameMode.handleInventoryMouseClick(
+                        this.handler.containerId, i, 0, ClickType.THROW, this.minecraft.player);
+            }
         }
     }
 

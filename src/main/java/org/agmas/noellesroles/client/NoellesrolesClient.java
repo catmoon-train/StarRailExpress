@@ -142,6 +142,14 @@ public class NoellesrolesClient implements ClientModInitializer {
     public static KeyMapping foolPrayerBind = KeyBindingHelper
             .registerKeyBinding(new KeyMapping("key.noellesroles.fool_prayer",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, "category.starrailexpress.keybinds"));
+    /** 60s 模式背包界面：快速将屏障区非屏障物品转入可用槽位。 */
+    public static KeyMapping sixtySecondsQuickTransferBind = KeyBindingHelper
+            .registerKeyBinding(new KeyMapping("key.noellesroles.sixty_seconds_quick_transfer",
+                    InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_BRACKET, "category.starrailexpress.keybinds"));
+    /** 60s 模式背包界面：快速丢弃屏障区非屏障物品。 */
+    public static KeyMapping sixtySecondsQuickDropBind = KeyBindingHelper
+            .registerKeyBinding(new KeyMapping("key.noellesroles.sixty_seconds_quick_drop",
+                    InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_BRACKET, "category.starrailexpress.keybinds"));
     public static boolean isTaskInstinctEnabled = false;
     // 记录被触发启用透视的任务路标位置
     public static Set<BlockPos> enabledTaskMarkerPositions = new HashSet<>();
@@ -353,6 +361,9 @@ public class NoellesrolesClient implements ClientModInitializer {
                 return;
             // 加载已探索数据
             org.agmas.noellesroles.client.map.StarMapManager.loadExploredChunks();
+            // 请求服务端刷新星级区域配置（管理员可能刚改过，保证看到最新）
+            net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+                    .send(new net.exmo.sre.sixtyseconds.network.SixtySecondsStarMapRequestC2SPacket());
             client.setScreen(new org.agmas.noellesroles.client.screen.StarMapScreen());
         };
         // 场景方块客户端屏幕回调（避免服务端加载 Screen 类导致崩溃）
@@ -438,6 +449,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_CAR,
                 ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsVehicleRenderer(
                         ctx, net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity.Kind.CAR));
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_RV,
+                net.exmo.sre.sixtyseconds.client.render.SixtySecondsRvRenderer::new);
         EntityRendererRegistry.register(ModEntities.ROLLING_STONE,
                 org.agmas.noellesroles.client.render.RollingStoneRenderer::new);
         EntityRendererRegistry.register(ModEntities.ROLLING_LOG,
@@ -1070,11 +1083,22 @@ public class NoellesrolesClient implements ClientModInitializer {
                                 net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.clearCorpseMarker();
                             }
                         }));
+        // 60s 玩家血量广播：存入客户端缓存供战斗HUD读取
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.PlayerHealthS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.network.PlayerHealthS2CPacket.CLIENT_HEALTH
+                                        .put(payload.playerId(), new int[]{payload.health(), payload.healthMax()})));
         // 60s 海图：海岛元数据 + 解锁迷雾（openScreen=true 时直接弹出海图界面）
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.ID, (payload, context) ->
                         context.client().execute(() ->
                                 net.exmo.sre.sixtyseconds.client.SixtySecondsClientSeaChart.accept(payload)));
+        // 60s 星图：星级区域同步（注入 StarMapManager，全屏星图与 HUD 据此绘制星级边框）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsStarMapS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                net.exmo.sre.sixtyseconds.client.SixtySecondsClientStarMap.accept(payload)));
         // 60s 海图返回：启动 10s 划船动画
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnStartS2CPacket.ID, (payload, context) ->
@@ -1111,6 +1135,17 @@ public class NoellesrolesClient implements ClientModInitializer {
                 net.exmo.sre.sixtyseconds.network.OpenShelterPanelS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> context.client().setScreen(
                                 new net.exmo.sre.sixtyseconds.client.screen.ShelterPanelScreen(payload))));
+        // 60s 房车控制台（潜行右键房车）
+        ClientPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.OpenRvConsoleS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> {
+                            if (context.client().level != null
+                                    && context.client().level.getEntity(payload.entityId())
+                                            instanceof net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity rv) {
+                                context.client().setScreen(
+                                        new net.exmo.sre.sixtyseconds.client.screen.SixtySecondsRvScreen(rv));
+                            }
+                        }));
         // 对讲机频道界面：右键对讲机时服务端请求打开
         ClientPlayNetworking.registerGlobalReceiver(
                 org.agmas.noellesroles.packet.OpenRadioChannelS2CPacket.ID, (payload, context) ->

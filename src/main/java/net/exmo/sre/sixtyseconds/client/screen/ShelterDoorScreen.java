@@ -196,6 +196,11 @@ public class ShelterDoorScreen extends Screen {
                             option.param());
             case SixtySecondsDoorMenu.ACTION_DOOR_INSPECT ->
                     Component.translatable("gui.noellesroles.sixty_seconds.door_action.inspect_desc");
+            case SixtySecondsDoorMenu.ACTION_RV_DRIVE -> enabled
+                    ? Component.translatable("gui.noellesroles.sixty_seconds.door_action.rv_drive_desc")
+                    : Component.translatable("gui.noellesroles.sixty_seconds.door_action.rv_drive_none");
+            case SixtySecondsDoorMenu.ACTION_RV_MANAGE ->
+                    Component.translatable("gui.noellesroles.sixty_seconds.door_action.rv_manage_desc");
             default -> Component.empty();
         };
     }
@@ -213,6 +218,8 @@ public class ShelterDoorScreen extends Screen {
             case SixtySecondsDoorMenu.ACTION_BREAK_CROWBAR -> "gui.noellesroles.sixty_seconds.door_action.break_crowbar";
             case SixtySecondsDoorMenu.ACTION_BREAK_LOCKPICK -> "gui.noellesroles.sixty_seconds.door_action.break_lockpick";
             case SixtySecondsDoorMenu.ACTION_DOOR_INSPECT -> "gui.noellesroles.sixty_seconds.door_action.inspect";
+            case SixtySecondsDoorMenu.ACTION_RV_DRIVE -> "gui.noellesroles.sixty_seconds.door_action.rv_drive";
+            case SixtySecondsDoorMenu.ACTION_RV_MANAGE -> "gui.noellesroles.sixty_seconds.door_action.rv_manage";
             default -> "gui.noellesroles.sixty_seconds.door_title";
         };
     }
@@ -230,6 +237,8 @@ public class ShelterDoorScreen extends Screen {
             case SixtySecondsDoorMenu.ACTION_BREAK_CROWBAR -> RED;
             case SixtySecondsDoorMenu.ACTION_BREAK_LOCKPICK -> PURPLE;
             case SixtySecondsDoorMenu.ACTION_DOOR_INSPECT -> BLUE;
+            case SixtySecondsDoorMenu.ACTION_RV_DRIVE -> ORANGE;
+            case SixtySecondsDoorMenu.ACTION_RV_MANAGE -> GOLD;
             default -> MUTED;
         };
     }
@@ -254,7 +263,8 @@ public class ShelterDoorScreen extends Screen {
                 if (isEnabled(option) && isInRect((int) mouseX, (int) mouseY, x, y, w, ROW_H)) {
                     Minecraft.getInstance().getSoundManager().play(
                             SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                    ClientPlayNetworking.send(new ShelterDoorActionC2SPacket(data.pos(), option.action()));
+                    ClientPlayNetworking.send(new ShelterDoorActionC2SPacket(data.pos(), option.action(),
+                            data.rvEntityId()));
                     onClose();
                     return true;
                 }

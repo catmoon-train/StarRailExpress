@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.mixin.client.restrictions;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.rules.RoleVisibilityRules;
@@ -23,6 +24,14 @@ public class GameOptionsMixin {
             return original;
         if (Minecraft.getInstance().player == null)
             return original;
+
+        // 乘骑载具时自动切换为第三人称视角（座椅方块除外）。
+        // 放在角色白名单判定之前，确保所有载具（摩托车/汽车/房车/船/马/滑索等）
+        // 统一生效，下车后自动恢复角色原本的视角规则。
+        LocalPlayer passenger = Minecraft.getInstance().player;
+        if (passenger.isPassenger() && !(passenger.getVehicle() instanceof SeatEntity)) {
+            return CameraType.THIRD_PERSON_BACK;
+        }
 
         var camera = AllowOtherCameraType.EVENT.invoker().onGetCameraType(original, Minecraft.getInstance().player);
         if (camera != AllowOtherCameraType.ReturnCameraType.NO_CHANGE) {

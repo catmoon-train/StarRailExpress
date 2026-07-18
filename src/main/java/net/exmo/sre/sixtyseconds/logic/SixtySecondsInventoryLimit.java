@@ -20,6 +20,8 @@ import net.minecraft.world.item.Items;
  * <ul>
  *   <li><b>准备阶段</b>：按家庭身份携带上限——父亲 8 格、其余 2 格（{@link FamilyPosition#carryLimit}），其余槽位屏障覆盖。</li>
  *   <li><b>游戏日</b>：可用两排（0–17），其余屏障覆盖。</li>
+ *   <li><b>背包扩容</b>：玩家可使用扩容模块解锁额外槽位（最多 {@link #MAX_EXTRA_UNLOCK} 格），
+ *       存储在 {@link SixtySecondsStatsComponent#extraUnlockedSlots}。</li>
  * </ul>
  */
 public final class SixtySecondsInventoryLimit {
@@ -28,6 +30,8 @@ public final class SixtySecondsInventoryLimit {
     /** 游戏日非父亲成员的可用槽位数（13 格）。 */
     public static final int NON_FATHER_DAY_SLOTS = 13;
     public static final int LAST_MAIN_SLOT = 35;
+    /** 扩容模块最多可解锁的额外槽位数。 */
+    public static final int MAX_EXTRA_UNLOCK = 18;
 
     private SixtySecondsInventoryLimit() {
     }
@@ -50,6 +54,9 @@ public final class SixtySecondsInventoryLimit {
                 FamilyPosition position = SixtySecondsStatsComponent.KEY.get(player).familyPosition;
                 allowed = (position == FamilyPosition.FATHER) ? DAY_ALLOWED_SLOTS : NON_FATHER_DAY_SLOTS;
             }
+            // 加上已解锁的额外槽位（最多 18 格额外解锁，总计不超过 36 格）
+            int extra = SixtySecondsStatsComponent.KEY.get(player).extraUnlockedSlots;
+            allowed = Math.min(allowed + extra, LAST_MAIN_SLOT + 1);
             enforce(player, allowed);
         }
     }

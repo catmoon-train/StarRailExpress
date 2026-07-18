@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.util.Scheduler;
+import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -116,6 +117,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             return;
         }
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(this.level());
+        // 60s 模式不启用体力系统
+        if (SixtySecondsMod.MODE != null && gameComponent != null && gameComponent.getGameMode() == SixtySecondsMod.MODE) {
+            return;
+        }
         final var player = (Player) (Object) this;
         if (GameUtils.isPlayerAliveAndSurvival(player) && gameComponent != null && gameComponent.isRunning()) {
             SRERole role = gameComponent.getRole(player);

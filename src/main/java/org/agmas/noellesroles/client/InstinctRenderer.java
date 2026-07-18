@@ -563,6 +563,21 @@ public class InstinctRenderer {
             return TrueFalseAndCustomResult.disallow();
         });
 
+        // 60s房车模式：本队房车对同队队员始终透视高亮（青色），方便远处找回房车
+        OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {
+            if (SREClient.gameComponent == null || !SixtySecondsMod.isActive(self.level())) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            if (!(target instanceof net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity rv)) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            var selfStats = SixtySecondsStatsComponent.KEY.get(self);
+            if (selfStats != null && selfStats.teamId >= 0 && rv.teamId() == selfStats.teamId) {
+                return TrueFalseAndCustomResult.custom(new Color(80, 210, 170).getRGB());
+            }
+            return TrueFalseAndCustomResult.pass();
+        });
+
         // 通用逻辑
         OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {
             if (SREClient.gameComponent == null) {

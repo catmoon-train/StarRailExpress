@@ -80,6 +80,8 @@ public final class StarMapManager {
     // ── 家居位置 ──────────────────────────────────────────────────
     /** 家居位置（世界坐标），由服务端同步或客户端在登岛时设置。 */
     public static BlockPos homePos = null;
+    /** 是否已向服务端请求过星级区域数据（断线重连后重置，避免反复发包）。 */
+    private static boolean serverDataRequested = false;
 
     private StarMapManager() {
     }
@@ -100,6 +102,13 @@ public final class StarMapManager {
         // 仅在手持星图或打开星图界面时跟踪探索
         if (!needsData(mc))
             return;
+
+        // 首次需要数据时向服务端请求星级区域配置（HUD 小地图也要显示星级指示）
+        if (!serverDataRequested) {
+            serverDataRequested = true;
+            net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+                    .send(new net.exmo.sre.sixtyseconds.network.SixtySecondsStarMapRequestC2SPacket());
+        }
 
         // 跟踪玩家所在区块
         int cx = mc.player.blockPosition().getX() >> 4;
@@ -333,6 +342,7 @@ public final class StarMapManager {
         lastChunkX = Integer.MAX_VALUE;
         lastChunkZ = Integer.MAX_VALUE;
         homePos = null;
+        serverDataRequested = false;
         savePath = null;
         if (fogTexture != null) {
             Minecraft.getInstance().getTextureManager().release(FOG_TEX);

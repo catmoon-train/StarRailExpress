@@ -154,9 +154,20 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(
                 net.exmo.sre.sixtyseconds.network.SixtySecondsCorpseMarkS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsCorpseMarkS2CPacket.CODEC);
+        // 60s 玩家血量广播：血量变化时推给同维度其他玩家（供战斗HUD显示他人血量）
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.PlayerHealthS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.PlayerHealthS2CPacket.CODEC);
         // 60s 海图：海岛元数据 + 解锁迷雾
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartS2CPacket.CODEC);
+        // 60s 星图：星级区域同步（S2C 推送 + C2S 请求刷新）
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.SixtySecondsStarMapS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsStarMapS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsStarMapRequestC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsStarMapRequestC2SPacket.CODEC);
+        net.exmo.sre.sixtyseconds.network.SixtySecondsStarMapRequestC2SPacket.registerServerReceiver();
         // 60s 海图返回：C2S 请求 + S2C 启动动画 + S2C 登岛落点同步
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnC2SPacket.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsSeaChartReturnC2SPacket.CODEC);
@@ -192,6 +203,13 @@ public class ModPackets {
                 net.exmo.sre.sixtyseconds.network.OpenPowerPanelS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenShelterPanelS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.OpenShelterPanelS2CPacket.CODEC);
+        // 房车控制台：S2C 开屏 + C2S 安装/卸下/升级
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.sixtyseconds.network.OpenRvConsoleS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.OpenRvConsoleS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.RvConsoleActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.RvConsoleActionC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.sixtyseconds.network.RvConsoleActionC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.RvConsoleActionC2SPacket::handle);
         // 60s 开场演出广播：C2S=OP 请求全员播放（服务端校验），S2C=客户端开屏
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsIntroPayload.CODEC);

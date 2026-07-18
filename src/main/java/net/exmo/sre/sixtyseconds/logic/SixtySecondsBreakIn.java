@@ -102,10 +102,15 @@ public final class SixtySecondsBreakIn {
     public static void inspectDoor(ServerPlayer player, BlockPos doorPos) {
         ServerLevel level = player.serverLevel();
         SixtySecondsState.Data data = SixtySecondsState.get(level);
-        SixtySecondsState.TeamData target = teamByDoor(data, player, doorPos);
+        inspectTeam(player, teamByDoor(data, player, doorPos));
+    }
+
+    /** 直接对某支目标队查看门情报（房车路径：目标 = 房车所属队）。 */
+    public static void inspectTeam(ServerPlayer player, SixtySecondsState.TeamData target) {
         if (target == null) {
             return;
         }
+        ServerLevel level = player.serverLevel();
         Component lock = Component.translatable(target.doorLockActive(level.getGameTime())
                 ? "message.noellesroles.sixty_seconds.breakin_inspect_locked"
                 : "message.noellesroles.sixty_seconds.breakin_inspect_unlocked");
@@ -120,6 +125,17 @@ public final class SixtySecondsBreakIn {
      * 成功则消耗 1 个并安全传送进目标队避难所。
      */
     public static void executeAtDoor(ServerPlayer player, BlockPos doorPos, boolean alarms) {
+        ServerLevel level = player.serverLevel();
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        executeForTeam(player, teamByDoor(data, player, doorPos), alarms);
+    }
+
+    /**
+     * 直接对某支目标队执行闯入（房车路径：目标 = 房车所属队；房车做「移动的门」）。
+     * 与 {@link #executeAtDoor} 同一套校验（做客中禁止 / 新手保护期 / 不能闯自己队 / 目标须有避难所），
+     * 之后消耗工具并安全传送进目标避难所。
+     */
+    public static void executeForTeam(ServerPlayer player, SixtySecondsState.TeamData target, boolean alarms) {
         if (SixtySecondsVisiting.isVisiting(player)) {
             return;
         }
@@ -131,8 +147,11 @@ public final class SixtySecondsBreakIn {
                     "message.noellesroles.sixty_seconds.breakin_too_early").withStyle(ChatFormatting.RED), true);
             return;
         }
-        SixtySecondsState.TeamData target = teamByDoor(data, player, doorPos);
-        if (target == null) {
+        if (target == null || target.shelterSpawn == null || target.shelterBox == null) {
+            return;
+        }
+        // 不能闯自己队（房车路径下 canUse 已挡，这里双保险）
+        if (isOwnTeam(target, player, SixtySecondsStatsComponent.KEY.get(player).teamId)) {
             return;
         }
         ItemStack stack = findBestTool(player, alarms);

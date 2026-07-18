@@ -143,6 +143,13 @@ public class NRRulePredicateEvents {
 
         // 傀儡身体不可被推动
         CollisionRules.cantPushableBy.add(entity -> (entity instanceof io.wifi.starrailexpress.content.entity.NoteEntity));
+
+        // 房车不可被推动（双保险，SixtySecondsRvEntity.isPushable() 已返回 false）
+        CollisionRules.cantPushableBy.add(entity ->
+                entity instanceof net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity);
+        // 房车可与玩家碰撞（防止穿模进车体内部）
+        CollisionRules.canCollideEntity.add(entity ->
+                entity instanceof net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity);
     }
 
     // --- DropRules ---

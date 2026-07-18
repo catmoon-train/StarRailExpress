@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client.map;
 
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -79,6 +80,11 @@ public final class AreaMapHud {
         // 任务点（仅画已勾选分类、且在视野内的）；60s 模式改画家点位与自定义标注
         boolean sixtySeconds = net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.isActive();
         if (!sixtySeconds) {
+            // 绘制出生点（家，金色）
+            BlockPos spawn = getSpawnPos();
+            if (spawn != null) {
+                drawPoint(g, x, y, pcx, pcz, halfCells, pxPerCell, spawn, 0xFFD4AF37);
+            }
             for (Map.Entry<BlockPos, Integer> entry : NoellesrolesClient.taskBlocks.entrySet()) {
                 AreaMapPointCategory cat = AreaMapPointCategory.byTypeId(entry.getValue());
                 if (cat == null || !AreaMapManager.visibleCategories.contains(cat)) continue;
@@ -116,6 +122,14 @@ public final class AreaMapHud {
 
         // 北向指示
         g.drawCenteredString(mc.font, "N", x + SIZE / 2, y + 1, 0xFFD4AF37);
+    }
+
+    /** 获取非 60s 模式的出生点（家）位置，无可返回 null。 */
+    private static BlockPos getSpawnPos() {
+        var area = SREClient.areaComponent;
+        if (area == null) return null;
+        var spawn = area.getSpawnPos();
+        return spawn != null ? BlockPos.containing(spawn.pos) : null;
     }
 
     private static void drawPoint(FakeGuiGraphics g, int x, int y, double pcx, double pcz,

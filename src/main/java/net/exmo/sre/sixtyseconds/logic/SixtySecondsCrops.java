@@ -21,7 +21,7 @@ public final class SixtySecondsCrops {
 
     /** 培育箱等级。 */
     public enum Tier {
-        BASIC, ADVANCED, MUSHROOM, GARDENER
+        BASIC, ADVANCED, MUSHROOM, GARDENER, ARID
     }
 
     /**
@@ -83,6 +83,13 @@ public final class SixtySecondsCrops {
         if (crop.gardenerOnly()) {
             return tier == Tier.GARDENER;
         }
+        // ARID 培育箱仅种旱地作物（目前只有仙人掌）
+        if (tier == Tier.ARID) {
+            return "cactus".equals(crop.id());
+        }
+        if ("cactus".equals(crop.id())) {
+            return tier == Tier.ARID;
+        }
         return tier == Tier.BASIC || tier == Tier.ADVANCED;
     }
 
@@ -140,6 +147,9 @@ public final class SixtySecondsCrops {
         // 园丁培育箱：紫颂花（种1收1紫颂花+1紫颂果，生长2倍时间）
         list.add(new Crop("chorus_flower", Items.CHORUS_FLOWER, Items.CHORUS_FLOWER,
                 1, 1, "misc_planter_2", false, false, false, true, 2.0F));
+        // 旱地培育箱：仙人掌（种一收二）
+        list.add(new Crop("cactus", Items.CACTUS, Items.CACTUS,
+                2, 2, "misc_planter_2", false, false, false, false));
         return List.copyOf(list);
     }
 }

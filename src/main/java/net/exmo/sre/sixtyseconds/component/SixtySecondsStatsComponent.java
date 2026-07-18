@@ -27,16 +27,20 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     public static final int MAX = 100;
     /** 永久增益可达到的最高上限 */
     public static final int MAX_CAP = 120;
+    /** 血量专属初始上限（x1.5） */
+    public static final int HEALTH_MAX = 150;
+    /** 血量专属永久增益上限（x1.5） */
+    public static final int HEALTH_MAX_CAP = 180;
 
     public int hunger = MAX;
     public int thirst = MAX;
     public int sanity = MAX;
     public int pollution = 0;
-    public int health = MAX;
+    public int health = HEALTH_MAX;
     /** 理智上限（杀人永久 -5~9，见 SixtySecondsHealthSystem.die；恢复类回san均以此为顶）。 */
     public int sanityMax = MAX;
-    /** 永久增益后的个人上限（健康/饱食/口渴/污染，默认 100，最高 120）。 */
-    public int healthMax = MAX;
+    /** 永久增益后的个人上限（血量 150，其他 100，最高 180/120）。 */
+    public int healthMax = HEALTH_MAX;
     public int hungerMax = MAX;
     public int thirstMax = MAX;
     public int pollutionMax = MAX;
@@ -79,6 +83,12 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     public long sanZeroTick = 0L;
     /** 本局击杀数（用于报纸报道等统计）。 */
     public int playerKills = 0;
+    /** 已解锁的额外背包槽位数（0-18，通过扩容模块获得，总可用槽位=基础+此值）。 */
+    public int extraUnlockedSlots = 0;
+
+    /** 上次通过 PlayerHealthS2CPacket 广播的血量（-1=未发送过，下次 sync 必发）。 */
+    private transient int lastSentHealth = -1;
+    private transient int lastSentHealthMax = -1;
 
     private final Player player;
 
@@ -97,9 +107,9 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         thirst = MAX;
         sanity = MAX;
         pollution = 0;
-        health = MAX;
+        health = HEALTH_MAX;
         sanityMax = MAX;
-        healthMax = MAX;
+        healthMax = HEALTH_MAX;
         hungerMax = MAX;
         thirstMax = MAX;
         pollutionMax = MAX;
@@ -118,6 +128,9 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         recovering = false;
         sanZeroTick = 0L;
         playerKills = 0;
+        extraUnlockedSlots = 0;
+        lastSentHealth = -1;
+        lastSentHealthMax = -1;
         sync();
     }
 
@@ -128,6 +141,14 @@ public class SixtySecondsStatsComponent implements RoleComponent {
 
     public void sync() {
         KEY.sync(player);
+        // 血量变化时通过独立网络包广播给同维度其他玩家（供 SixtySecondsCombatHud 显示他人血量）。
+        // 不占用 CCA 精简变体——饥饿/口渴等变化不会触发血量包，只在 health 实际变化时才发。
+        if (player instanceof net.minecraft.server.level.ServerPlayer sp
+                && (health != lastSentHealth || healthMax != lastSentHealthMax)) {
+            net.exmo.sre.sixtyseconds.network.PlayerHealthS2CPacket.broadcast(sp, health, healthMax);
+            lastSentHealth = health;
+            lastSentHealthMax = healthMax;
+        }
     }
 
     // ── 紧凑二进制同步（省流量）────────────────────────────────────────────
@@ -136,6 +157,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     // （downedCountToday / downedFromInjury / recovering / sanZeroTick——客户端不用）。
     // 60s 模式下还会向其他玩家发【精简变体】（队伍/家庭身份/状态位，~5 字节），
     // 供 RoleNameRenderer 在准星处显示他人家庭关系；追踪开始时 CCA 会自动补发一次。
+    // 他人血量由独立的 PlayerHealthS2CPacket 推送（见 sync()），不占用精简变体。
 
     @Override
     public boolean shouldSyncWith(@NotNull net.minecraft.server.level.ServerPlayer recipient) {
@@ -174,6 +196,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         buf.writeByte((sick ? 1 : 0) | (downed ? 2 : 0) | (monster ? 4 : 0));
         buf.writeVarLong(bleedOutEndTick); // 倒地 HUD 流血倒计时（倒地/救起时才变化）
         buf.writeVarLong(reviveEndTick);   // 自动复活 HUD 倒计时（死亡/复活时才变化）
+        buf.writeVarInt(extraUnlockedSlots);
 
     }
 
@@ -214,6 +237,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         monster = (flags & 4) != 0;
         bleedOutEndTick = buf.readVarLong();
         reviveEndTick = buf.readVarLong();
+        extraUnlockedSlots = buf.readVarInt();
     }
 
     /** 已被上面的紧凑二进制同步取代，仅保留以满足接口（不再被调用）。 */
@@ -245,6 +269,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         tag.putBoolean("Recovering", recovering);
         tag.putLong("SanZeroTick", sanZeroTick);
         tag.putInt("PlayerKills", playerKills);
+        tag.putInt("ExtraUnlockedSlots", extraUnlockedSlots);
     }
 
     @Override
@@ -255,7 +280,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         sanityMax = tag.contains("SanityMax") ? tag.getInt("SanityMax") : MAX;
         pollution = tag.getInt("Pollution");
         health = tag.getInt("Health");
-        healthMax = tag.contains("HealthMax") ? tag.getInt("HealthMax") : MAX;
+        healthMax = tag.contains("HealthMax") ? tag.getInt("HealthMax") : HEALTH_MAX;
         hungerMax = tag.contains("HungerMax") ? tag.getInt("HungerMax") : MAX;
         thirstMax = tag.contains("ThirstMax") ? tag.getInt("ThirstMax") : MAX;
         pollutionMax = tag.contains("PollutionMax") ? tag.getInt("PollutionMax") : MAX;
@@ -280,6 +305,7 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         if (tag.contains("PlayerKills")) {
             playerKills = tag.getInt("PlayerKills");
         }
+        extraUnlockedSlots = tag.contains("ExtraUnlockedSlots") ? tag.getInt("ExtraUnlockedSlots") : 0;
     }
 
     @Override

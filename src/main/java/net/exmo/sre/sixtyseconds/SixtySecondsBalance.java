@@ -61,9 +61,11 @@ public final class SixtySecondsBalance {
     public static final double DEATH_SAN_RANGE_SQR = 24 * 24; // 目睹死亡的范围（平方）
 
     // ── 杀人代价：理智上限永久扣减（SixtySecondsHealthSystem.die）───────────
-    public static final double PVP_DAMAGE_MULT = 0.8; // 玩家对玩家伤害倍率（-20%）
-    public static final int KILL_SANITY_CAP_LOSS_MIN = 8;     // 每次杀人扣理智上限下限（×1.5: 5→8）
-    public static final int KILL_SANITY_CAP_LOSS_MAX = 14;     // 每次杀人扣理智上限上限（×1.5: 9→14）
+    public static final double PVP_DAMAGE_MULT = 0.5; // 玩家对玩家伤害倍率（-50%）
+    /** 弓箭伤害全局倍率（+75%，适用于所有 60s 弓类武器）。 */
+    public static final float BOW_DAMAGE_MULT = 1.75F;
+    public static final int KILL_SANITY_CAP_LOSS_MIN = 5;     // 每次杀人扣理智上限下限（-40%: 8→5）
+    public static final int KILL_SANITY_CAP_LOSS_MAX = 8;     // 每次杀人扣理智上限上限（-40%: 14→8）
     public static final int SANITY_CAP_FLOOR = 10;            // 理智上限最低值（防连环杀直接锁死变怪）
 
     // ── 自动复活（SixtySecondsAutoRevive；按图开关 autoReviveEnabled，默认开）──────
@@ -94,7 +96,7 @@ public final class SixtySecondsBalance {
     // ── 低语怪 / 黑暗惩罚（SixtySecondsWhisperSystem）──────────────────────
     public static final int WHISPER_LIGHT_THRESHOLD = 6;      // 低于此方块亮度视为「黑暗区块」
     public static final int WHISPER_MAX_PER_TEAM = 2;         // 每队家中同时最多低语怪数量
-    public static final int WHISPER_SPAWN_INTERVAL = 20 * 20; // 夜间每 20s 尝试在黑暗处刷一只
+    public static final int WHISPER_SPAWN_INTERVAL = 20 * 14; // 夜间每 14s 尝试在黑暗处刷一只（怪物刷新+40%：20s→14s）
     public static final int WHISPER_SAN_DRAIN_PER_SEC = 1;    // 低语怪 4 格内每秒掉 san
     public static final double WHISPER_RANGE_SQR = 4 * 4;
     public static final int DARK_DAWN_SAN_PENALTY = 15;       // 清晨家中仍有黑暗区块 → 全队 san -15
@@ -110,7 +112,7 @@ public final class SixtySecondsBalance {
     public static final int DOOR_REINFORCE_PLANK = 10;        // 木板加固 +10 耐久（可超上限提升上限）
     public static final int DOOR_REINFORCE_IRON = 25;         // 铁锭加固 +25 耐久
     public static final int DOOR_IRON_PER_LEVEL = 3;          // 每 3 次铁锭加固门升 1 级（上限 3 级）
-    public static final int ASSAULT_BASE_COUNT = 2;           // 夜袭怪物基础数量（+当前天数）
+    public static final int ASSAULT_BASE_COUNT = 3;           // 夜袭怪物基础数量（+当前天数；怪物刷新+40%：2→3）
     public static final int ASSAULT_MOB_DOOR_DPS = 2;         // 每只怪物每秒对门伤害
     public static final double ASSAULT_DOOR_RANGE_SQR = 2.5 * 2.5;
     public static final double ASSAULT_AGGRO_RANGE_SQR = 8 * 8; // 主动索敌半径：8 格内追打玩家（优先于冲门）
@@ -141,42 +143,45 @@ public final class SixtySecondsBalance {
 
     // ── PVE：探索区游荡怪（每 30s 对探索区玩家做一次刷新判定）──────────────────
     public static final int AMBIENT_CHECK_INTERVAL = 20 * 30;
-    /** 每次判定的基础刷新概率（+每区域等级加成；夜间再乘倍率）。 */
-    public static final double AMBIENT_SPAWN_CHANCE = 0.30;
-    public static final double AMBIENT_SPAWN_CHANCE_PER_AREA_LEVEL = 0.08;
-    public static final double AMBIENT_NIGHT_CHANCE_MULT = 1.6;
+    /** 每次判定的基础刷新概率（夜间再乘倍率；怪物刷新频率+40%：0.12→0.168）。 */
+    public static final double AMBIENT_SPAWN_CHANCE = 0.168;
+    /** 星级刷新概率乘数：刷新概率 × (1 + 本值×areaLevel)。每星+5%（1星×1.05 … 5星×1.25）。 */
+    public static final double AMBIENT_SPAWN_CHANCE_PER_AREA_LEVEL = 0.05;
+    public static final double AMBIENT_NIGHT_CHANCE_MULT = 2.24;
     /** 玩家 40 格内游荡怪数量上限（+区域等级），达到则不再刷。 */
     public static final int AMBIENT_MAX_NEARBY = 4;
-    /** 游荡怪刷新点离玩家 10~17 格（给反应窗口又不至于看不见）。 */
-    public static final int AMBIENT_SPAWN_MIN_DIST = 10;
-    public static final int AMBIENT_SPAWN_RAND_DIST = 8;
-    /** 每区域等级的游荡怪生命加成（Lv5 = ×1.6）。 */
-    public static final double AMBIENT_HEALTH_PER_AREA_LEVEL = 0.15;
+    /** 每日保底刷怪每次 tick 分批刷出的最大数量（5 星 5 只 ≈ 3 批刷完，避免一次性刷出怪海）。 */
+    public static final int GUARANTEED_BATCH_SIZE = 2;
+    /** 游荡怪刷新点离玩家 20~34 格（拉远距离，给更多反应时间）。 */
+    public static final int AMBIENT_SPAWN_MIN_DIST = 20;
+    public static final int AMBIENT_SPAWN_RAND_DIST = 14;
+    /** 星级生命乘数：生命 × (1 + 本值×areaLevel)。每星+10%（1星×1.10 … 5星×1.50）。 */
+    public static final double AMBIENT_HEALTH_PER_AREA_LEVEL = 0.10;
     /** 感染体（游荡怪/夜袭怪）掉落废料的基础概率（-35%，原 100% 必掉）。 */
     public static final double MONSTER_SCRAP_DROP_CHANCE = 0.65;
 
     /**
-     * 游荡怪刷新概率的天数倍率（前期压低、逐步爬升）：
-     * 第1天 25%、第2天 35%、第3天 55%、第4天 75%、第5天 90%、第6~7天 100%。
+     * 游荡怪刷新概率的天数倍率（前期压低、逐步爬升；怪物刷新频率+40% 后各档 ×1.4）：
+     * 第1天 35%、第2天 49%、第3天 77%、第4天 105%、第5天 126%、第6~7天 140%。
      */
     public static double ambientSpawnDayMult(int day) {
-        if (day <= 1) return 0.25;
-        if (day == 2) return 0.35;
-        if (day == 3) return 0.55;
-        if (day == 4) return 0.75;
-        if (day == 5) return 0.90;
-        return 1.0;
+        if (day <= 1) return 0.35;
+        if (day == 2) return 0.49;
+        if (day == 3) return 0.77;
+        if (day == 4) return 1.05;
+        if (day == 5) return 1.26;
+        return 1.4;
     }
 
     /**
-     * Boss 刷新概率的天数倍率（仅影响非保底日：第1/2/4/6天）。
-     * 第1天 40%、第2天 55%、第4天 80%、第6天 100%（第3/5/7天保底不受影响）。
+     * Boss 刷新概率的天数倍率（仅影响非保底日：第1/2/4/6天；怪物刷新频率+40% 后各档 ×1.4）。
+     * 第1天 56%、第2天 77%、第4天 112%、第6天 140%（第3/5/7天保底不受影响）。
      */
     public static double bossSpawnDayMult(int day) {
-        if (day <= 1) return 0.40;
-        if (day == 2) return 0.55;
-        if (day == 4) return 0.80;
-        return 1.0;
+        if (day <= 1) return 0.56;
+        if (day == 2) return 0.77;
+        if (day == 4) return 1.12;
+        return 1.4;
     }
 
     // ── PVE：区域危险等级（SixtySecondsAreaLevels）────────────────────────────
@@ -186,9 +191,9 @@ public final class SixtySecondsBalance {
 
     // ── PVE：Boss 尸潮领主（SixtySecondsBossEntity）──────────────────────────
     public static final int BOSS_MAX_LEVEL = 5;
-    /** 夜晚开始时的 Boss 刷新概率（+每天加成；第 3/5/7 天保底必刷）。 */
-    public static final double BOSS_NIGHT_CHANCE = 0.12;
-    public static final double BOSS_NIGHT_CHANCE_PER_DAY = 0.03;
+    /** 夜晚开始时的 Boss 刷新概率（+每天加成；第 3/5/7 天保底必刷；怪物刷新频率+40%：0.12→0.168）。 */
+    public static final double BOSS_NIGHT_CHANCE = 0.168;
+    public static final double BOSS_NIGHT_CHANCE_PER_DAY = 0.042;
     public static final double BOSS_BASE_HEALTH = 300;
     public static final double BOSS_HEALTH_PER_LEVEL = 150;
     /** 单次受击伤害封顶：枪械 1000 伤「怪即死」对 Boss 只按此值生效（狙击=满额 100）。 */
@@ -277,10 +282,6 @@ public final class SixtySecondsBalance {
     public static final int RADIATION_POLLUTION_PER_10S = 1;
     /** 浓雾持续 2 分钟 */
     public static final int DENSE_FOG_DURATION = 20 * 60 * 2;
-    /** 瘟疫风持续 2.5 分钟 */
-    public static final int PLAGUE_WIND_DURATION = 20 * 60 * 5 / 2;
-    /** 瘟疫风中·户外：每10秒有概率感染疾病 */
-    public static final double PLAGUE_WIND_SICK_CHANCE = 0.12;
 
     // ── 海岛远征：扬帆 / 返航（SixtySecondsIslands）────────────────────────────
     /** 登岛后多久才能返航（tick）：刚上岛就撤会让海岛沦为无风险的物资自助餐。 */
@@ -413,9 +414,9 @@ public final class SixtySecondsBalance {
     // ── 海盗（海上乘船随机遭遇；见 SixtySecondsNpcSpawner.spawnPirates / NpcEntity.tickPirateBoat）──
     /** 每隔多久对每名玩家做一次海盗刷新判定（45s→60s→84s，持续降低遭遇密度）。 */
     public static final int PIRATE_CHECK_INTERVAL = 20 * 84;
-    /** 单次判定的刷新概率（夜间 ×{@link #PIRATE_NIGHT_CHANCE_MULT}；-60%：0.20→0.08）。 */
-    public static final double PIRATE_SPAWN_CHANCE = 0.08;
-    public static final double PIRATE_NIGHT_CHANCE_MULT = 1.5;
+    /** 单次判定的刷新概率（夜间 ×{@link #PIRATE_NIGHT_CHANCE_MULT}；怪物刷新频率+40%：0.032→0.0448）。 */
+    public static final double PIRATE_SPAWN_CHANCE = 0.0448;
+    public static final double PIRATE_NIGHT_CHANCE_MULT = 2.1;
     /** 刷新点离玩家的距离区间（格）：够远才有「远处出现一条船」的过程感，又不至于超出加载区块。 */
     public static final int PIRATE_SPAWN_MIN_DIST = 20;
     public static final int PIRATE_SPAWN_MAX_DIST = 44;
@@ -454,11 +455,11 @@ public final class SixtySecondsBalance {
     public static final int NPC_ZONE_CAP = 8;
     /** 白天刷新时旅者占比（其余为商人）。 */
     public static final float NPC_DAY_TRAVELER_RATIO = 0.6F;
-    /** 搜刮区绑定门门口刷 NPC 的概率（每队每门每日）。-60%：0.30→0.12 */
-    public static final float NPC_DOOR_SPAWN_CHANCE = 0.12F;
-    /** 夜袭混入强盗：最低天数 + 概率。 */
+    /** 搜刮区绑定门门口刷 NPC 的概率（每队每门每日；怪物刷新频率+40%：0.12→0.168）。 */
+    public static final float NPC_DOOR_SPAWN_CHANCE = 0.168F;
+    /** 夜袭混入强盗：最低天数 + 概率（怪物刷新频率+40%：0.175→0.245）。 */
     public static final int NPC_ASSAULT_BANDIT_MIN_DAY = 3;
-    public static final float NPC_ASSAULT_BANDIT_CHANCE = 0.35F;
+    public static final float NPC_ASSAULT_BANDIT_CHANCE = 0.245F;
 
     // 雇佣
     /** 雇佣军人的代币价格与时长。 */

@@ -1,5 +1,6 @@
 package net.exmo.sre.sixtyseconds.content.item;
 
+import net.exmo.sre.sixtyseconds.SixtySecondsBalance;
 import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType;
 import net.exmo.sre.sixtyseconds.entity.SixtySecondsArrowEntity;
@@ -98,8 +99,8 @@ public class SixtySecondsCrossbowItem extends CrossbowItem {
             return;
         }
 
-        float monsterDamage = arrowType.monsterDamage * powerMult;
-        int playerInjury = Math.max(1, Math.round(arrowType.playerInjury * powerMult));
+        float monsterDamage = arrowType.monsterDamage * powerMult * SixtySecondsBalance.BOW_DAMAGE_MULT;
+        int playerInjury = Math.max(1, Math.round(arrowType.playerInjury * powerMult * SixtySecondsBalance.BOW_DAMAGE_MULT));
 
         SixtySecondsArrowEntity arrow = new SixtySecondsArrowEntity(serverLevel, sp,
                 new ItemStack(arrowType.item()), stack);

@@ -77,8 +77,12 @@ public final class SixtySecondsNpcSystem {
         long elapsed = SixtySecondsDayCycle.elapsed(data, now);
         if (elapsed == SixtySecondsDayCycle.startOf(SixtySecondsDayCycle.SubPhase.DAYTIME)) {
             SixtySecondsNpcSpawner.spawnDaily(level, data, false);
+            // 房车门口概率刷（早上判定一次，一天只刷一次）
+            SixtySecondsNpcSpawner.spawnAtRvDoors(level, data, false);
         } else if (elapsed == SixtySecondsDayCycle.startOf(SixtySecondsDayCycle.SubPhase.NIGHT)) {
             SixtySecondsNpcSpawner.spawnDaily(level, data, true);
+            // 房车门口概率刷（晚上判定一次，如果早上已刷则跳过）
+            SixtySecondsNpcSpawner.spawnAtRvDoors(level, data, true);
         }
         // 海盗：每 PIRATE_CHECK_INTERVAL 对水面附近的玩家做一次遭遇判定（夜里更凶）
         if (now % SixtySecondsBalance.PIRATE_CHECK_INTERVAL == 0) {

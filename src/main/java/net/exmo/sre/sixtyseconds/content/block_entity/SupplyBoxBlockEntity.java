@@ -52,9 +52,10 @@ public class SupplyBoxBlockEntity extends BlockEntity {
     }
 
     /**
-     * 领取：每日全局一次，领取时即时加权掷骰（{@link #bonusRolls} 件 + 区域危险等级加成件数）。
+     * 领取：每日全局一次，领取时即时加权掷骰（{@link #bonusRolls} 件 + 星级连锁概率额外件数）。
      * 当天已被领过返回空列表。<b>区域等级</b>（{@code SixtySecondsAreaLevels.levelAt} 按箱子坐标反查）
-     * 越高：稀有（低权重）条目相对越容易被抽中（权重压平指数），且额外多掷 0~2 件。
+     * 越高：稀有（低权重）条目相对越容易被抽中（权重压平指数），且按连锁概率额外多开出物品
+     *（{@link SixtySecondsAreaLevels#chainBonusRolls}：1星10%+1 … 5星40%/30%/5% 最多+3）。
      */
     public List<ItemStack> claim(ServerLevel level, ServerPlayer player) {
         ensureDaily(level);
@@ -73,7 +74,7 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         }
         double exponent = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.lootExponent(areaLevel);
         int rolls = Math.max(1, bonusRolls)
-                + net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.bonusRolls(areaLevel)
+                + net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.chainBonusRolls(level.random, areaLevel)
                 + (advanced ? 2 : 0);
         List<ItemStack> out = new java.util.ArrayList<>();
         for (int i = 0; i < rolls; i++) {

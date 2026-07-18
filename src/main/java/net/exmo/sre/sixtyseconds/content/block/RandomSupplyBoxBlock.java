@@ -4,11 +4,11 @@ import com.mojang.serialization.MapCodec;
 import net.exmo.sre.sixtyseconds.content.block_entity.RandomSupplyBoxBlockEntity;
 import net.exmo.sre.sixtyseconds.loot.SixtySecondsLootStore;
 import net.exmo.sre.sixtyseconds.loot.SixtySecondsLootTable;
+import net.exmo.sre.sixtyseconds.loot.SixtySecondsRandomBoxConfigStore;
 import net.exmo.sre.sixtyseconds.network.OpenLootTableEditS2CPacket;
 import net.exmo.sre.sixtyseconds.network.OpenRandomSupplyBoxConfigS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -25,7 +25,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,7 +32,10 @@ import java.util.Set;
  * 随机物资箱方块（低级/高级两个等级）。
  * 完全克隆 {@link SupplyBoxBlock} 的交互（生存搜刮领取、创造右键打开配置 GUI、
  * 潜行+右键开全局 loot 表编辑），只把方块实体换成 {@link RandomSupplyBoxBlockEntity}
- * ——每次刷新从<b>已启用的</b>类别中随机取一个 loot 类别。
+ * ——每次刷新从<b>全局已启用的</b>类别中随机取一个 loot 类别。
+ *
+ * <p>类别配置存储在 {@link SixtySecondsRandomBoxConfigStore}（按等级全局共享），
+ * 不再每箱各存 NBT。管理员在任意随机箱上编辑保存后，同等级的全部随机箱立刻生效。
  *
  * <p>等级决定默认可用类别集合：
  * <ul>
@@ -61,7 +63,7 @@ public class RandomSupplyBoxBlock extends SupplyBoxBlock {
         return tier;
     }
 
-    /** 当前等级对应的默认可用类别（首次放置时写入 NBT）。 */
+    /** 当前等级对应的默认可用类别（首次部署时供 {@link SixtySecondsRandomBoxConfigStore} 初始化用）。 */
     public static List<String> defaultCategories(String tier) {
         if ("high".equals(tier)) {
             return List.of("advanced_food", "advanced_material", "advanced_medicine",
@@ -114,20 +116,12 @@ public class RandomSupplyBoxBlock extends SupplyBoxBlock {
             return;
         }
 
-        // 创造：打开本箱的类别勾选配置 GUI
+        // 创造：打开本等级「全局类别勾选」配置 GUI
         if (serverPlayer.isCreative()) {
-            // 确保 block entity 已初始化 tier
-            box.initTierIfNeeded(tier);
+            SixtySecondsRandomBoxConfigStore.Data config = SixtySecondsRandomBoxConfigStore.get(serverLevel);
+            Set<String> enabled = config.getEnabled(tier);
             // 当前 loot 表中匹配本等级的所有类别
             List<String> all = getAvailableCategories(table);
-            Set<String> enabled = box.getEnabledCategories();
-            // 合并：如果 loot 表新增了类别，自动加到 enable 集合（兼容旧箱子）
-            for (String cat : all) {
-                if (box.isCategoryDefault(cat)) {
-                    enabled.add(cat);
-                }
-            }
-            box.setEnabledCategories(enabled);
             ServerPlayNetworking.send(serverPlayer,
                     new OpenRandomSupplyBoxConfigS2CPacket(pos, tier, all, enabled));
             return;

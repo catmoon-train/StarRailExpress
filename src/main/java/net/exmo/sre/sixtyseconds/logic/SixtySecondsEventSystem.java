@@ -56,9 +56,7 @@ public final class SixtySecondsEventSystem {
         /** 辐射泄漏：全队污染缓慢上升（屋内也受影响但减半） */
         RADIATION_LEAK,
         /** 浓雾：能见度极低 */
-        DENSE_FOG,
-        /** 瘟疫风：户外有概率感染疾病 */
-        PLAGUE_WIND
+        DENSE_FOG
     }
 
     private static final Map<ServerLevel, Active> ACTIVE = new WeakHashMap<>();
@@ -93,7 +91,6 @@ public final class SixtySecondsEventSystem {
             case BLOOD_MOON -> "message.noellesroles.sixty_seconds.event_blood_moon_start";
             case RADIATION_LEAK -> "message.noellesroles.sixty_seconds.event_radiation_leak_start";
             case DENSE_FOG -> "message.noellesroles.sixty_seconds.event_dense_fog_start";
-            case PLAGUE_WIND -> "message.noellesroles.sixty_seconds.event_plague_wind_start";
             default -> null;
         };
     }
@@ -213,11 +210,6 @@ public final class SixtySecondsEventSystem {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.DENSE_FOG_DURATION));
                 broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_dense_fog_start")
                         .withStyle(ChatFormatting.GRAY));
-            }
-            case PLAGUE_WIND -> {
-                ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.PLAGUE_WIND_DURATION));
-                broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_plague_wind_start")
-                        .withStyle(ChatFormatting.DARK_GREEN));
             }
             case AIRDROP -> airdrop(level); // 瞬发，不进 ACTIVE
         }
@@ -382,18 +374,6 @@ public final class SixtySecondsEventSystem {
                                 false, false, false));
                     }
                 }
-                case PLAGUE_WIND -> {
-                    // 瘟疫风：户外有概率感染疾病
-                    if (inHome) continue;
-                    if (now % (20 * 10) == 0
-                            && level.getRandom().nextDouble() < SixtySecondsBalance.PLAGUE_WIND_SICK_CHANCE) {
-                        stats.sick = true;
-                        stats.sync();
-                        player.displayClientMessage(
-                                Component.translatable("message.noellesroles.sixty_seconds.event_plague_wind_sick")
-                                        .withStyle(ChatFormatting.RED), false);
-                    }
-                }
                 default -> {
                 }
             }
@@ -485,8 +465,6 @@ public final class SixtySecondsEventSystem {
                 broadcast(level, Component.translatable(
                         "message.noellesroles.sixty_seconds.event_dense_fog_end").withStyle(ChatFormatting.GRAY));
             }
-            case PLAGUE_WIND -> broadcast(level, Component.translatable(
-                    "message.noellesroles.sixty_seconds.event_plague_wind_end").withStyle(ChatFormatting.GRAY));
             default -> {
             }
         }
@@ -578,7 +556,7 @@ public final class SixtySecondsEventSystem {
             EventType.ACID_FOG, EventType.ELECTROMAGNETIC_STORM, EventType.SWARM,
             EventType.HEAT_WAVE, EventType.SANDSTORM, EventType.METEOR_SHOWER,
             EventType.SPORE_FOG, EventType.HAIL, EventType.DENSE_FOG,
-            EventType.RADIATION_LEAK, EventType.PLAGUE_WIND, EventType.BLOOD_MOON
+            EventType.RADIATION_LEAK, EventType.BLOOD_MOON
     };
 
     /** 安排某天必定触发的事件（null 表示晴朗，不强制触发） */
@@ -610,7 +588,6 @@ public final class SixtySecondsEventSystem {
             case HAIL -> "message.noellesroles.sixty_seconds.event_hail_name";
             case DENSE_FOG -> "message.noellesroles.sixty_seconds.event_dense_fog_name";
             case RADIATION_LEAK -> "message.noellesroles.sixty_seconds.event_radiation_leak_name";
-            case PLAGUE_WIND -> "message.noellesroles.sixty_seconds.event_plague_wind_name";
             case BLOOD_MOON -> "message.noellesroles.sixty_seconds.event_blood_moon_name";
             default -> null;
         };
