@@ -856,6 +856,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             checkPlayerBannedBlocks(player, areas, gameCCA);
             checkPlayerDarkness(player, areas, gameCCA);
             if (checkPlayerIsOutOfAreas(player, areas)) {
+                if (org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA.bounceBackIfControlled(player)) {
+                    return;
+                }
                 GameUtils.killPlayer(player, false,
                         player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
@@ -1013,6 +1016,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     } else if (infoBlockId.equalsIgnoreCase(infoBlockId)) {
                         if (isKillerTeamRoleStatic(role)) {
                             if (level.getGameTime() - nowInfo.standonTick > info.deathTimeForKillers()) {
+                                if (org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA
+                                        .bounceBackIfControlled(player)) {
+                                    return;
+                                }
                                 GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.TOUCH_INCORRECT);
                                 if (gameCCA.playerBannedBlockTime.containsKey(player.getUUID()))
                                     gameCCA.playerBannedBlockTime.remove(player.getUUID());
