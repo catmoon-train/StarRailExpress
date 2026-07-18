@@ -196,7 +196,7 @@ public final class SixtySecondsRecipes {
         }
         if (techId.startsWith("agri") || techId.startsWith("planter") || techId.startsWith("fertilizer")
                 || techId.startsWith("tobacco") || techId.startsWith("cooking") || techId.startsWith("waste")
-                || techId.startsWith("water_") || techId.equals("tea") || techId.equals("drinks")) {
+                || techId.startsWith("water_") || techId.equals("tea") || techId.startsWith("drinks")) {
             return Category.FOOD;
         }
         if (techId.startsWith("door") || techId.startsWith("vault") || techId.startsWith("mob_defense")
@@ -205,7 +205,8 @@ public final class SixtySecondsRecipes {
         }
         if (techId.startsWith("med_") || techId.startsWith("drugs") || techId.startsWith("tonics")
                 || techId.startsWith("sanity") || techId.startsWith("decontam") || techId.equals("omni_tonic")
-                || techId.startsWith("brew") || techId.equals("potion_purify")) {
+                || techId.startsWith("brew") || techId.equals("potion_purify")
+                || techId.startsWith("permanent_boost")) {
             return Category.MEDICAL;
         }
         if (techId.startsWith("armor") || techId.startsWith("func_armor")) {
@@ -273,7 +274,8 @@ public final class SixtySecondsRecipes {
     // ── 「任意 X」配料组 ──────────────────────────────────────────
 
     private static List<Item> fruits() {
-        return List.of(Items.APPLE, Items.MELON_SLICE, Items.MELON, Items.SWEET_BERRIES, Items.GLOW_BERRIES);
+        return List.of(Items.APPLE, Items.MELON_SLICE, Items.MELON, Items.SWEET_BERRIES, Items.GLOW_BERRIES,
+                Items.CHORUS_FRUIT);
     }
 
     private static List<Item> vegetables() {
@@ -281,7 +283,8 @@ public final class SixtySecondsRecipes {
     }
 
     private static List<Item> mushrooms() {
-        return List.of(Items.RED_MUSHROOM, Items.BROWN_MUSHROOM);
+        return List.of(Items.RED_MUSHROOM, Items.BROWN_MUSHROOM,
+                Items.WARPED_FUNGUS, Items.CRIMSON_FUNGUS);
     }
 
     private static List<Item> rawMeat() {
@@ -720,11 +723,15 @@ public final class SixtySecondsRecipes {
                 List.of(in(tea, 1), in(chem, 1), in(waterS, 1)), ModItems.SIXTY_SECONDS_DETOX_TEA, 1);
         add(list, "soothing_tea", Station.BATHTUB, "tea", true,
                 List.of(in(tea, 1), in(rice, 3), in(waterS, 1)), ModItems.SIXTY_SECONDS_SOOTHING_TEA, 1);
-        // ── 饮料工艺 ─────────────────────────────────────────────────
-        add(list, "sports_drink", Station.BATHTUB, "drinks", false,
+        // ── 饮料工艺-I ───────────────────────────────────────────────
+        add(list, "sports_drink", Station.BATHTUB, "drinks_1", false,
                 List.of(in(waterS, 2), in(chem, 2)), ModItems.SIXTY_SECONDS_SPORTS_DRINK, 1);
-        add(list, "juice", Station.BATHTUB, "drinks", false,
+        add(list, "juice", Station.BATHTUB, "drinks_1", false,
                 List.of(in(waterS, 1), any("fruit", 1, fruits())), ModItems.SIXTY_SECONDS_JUICE, 1);
+        // ── 饮料工艺-II ──────────────────────────────────────────────
+        add(list, "coffee", Station.BATHTUB, "drinks_2", false,
+                List.of(in(Items.GLASS_BOTTLE, 1), in(waterS, 1), in(Items.COCOA_BEANS, 2)),
+                ModItems.SIXTY_SECONDS_COFFEE, 1);
 
         // ══ 防御工事（高级工作台）═════════════════════════════════════════
         // ── 房门维护 ─────────────────────────────────────────────────
@@ -858,6 +865,24 @@ public final class SixtySecondsRecipes {
                         in(ModItems.SIXTY_SECONDS_ADRENALINE, 1),
                         in(ModItems.SIXTY_SECONDS_OMNI_TONIC, 1)),
                 ModItems.SIXTY_SECONDS_COGNITIVE_BOOSTER, 1);
+        // ── 永久增益-I（前置：全能补剂） ──────────────────────────────
+        add(list, "mental_fortifier_2", Station.STERILE, "permanent_boost_1", true,
+                List.of(in(chem, 6), in(Items.CRIMSON_FUNGUS, 6), in(Items.GLOW_BERRIES, 4)),
+                ModItems.SIXTY_SECONDS_MENTAL_FORTIFIER, 1);
+        // ── 永久增益-II（前置：永久增益-I） ────────────────────────────
+        add(list, "cognitive_booster_2", Station.STERILE, "permanent_boost_2", true,
+                List.of(in(chem, 6), in(Items.WARPED_FUNGUS, 6), in(Items.CHORUS_FRUIT, 2)),
+                ModItems.SIXTY_SECONDS_COGNITIVE_BOOSTER, 1);
+        add(list, "health_booster", Station.STERILE, "permanent_boost_2", true,
+                List.of(in(chem, 6), in(Items.CRIMSON_FUNGUS, 3), in(Items.PITCHER_PLANT, 2),
+                        in(Items.CHORUS_FRUIT, 2)),
+                ModItems.SIXTY_SECONDS_HEALTH_BOOSTER, 1);
+        add(list, "pollution_resistance", Station.STERILE, "permanent_boost_2", true,
+                List.of(in(chem, 6), in(Items.WARPED_FUNGUS, 3), in(Items.TORCHFLOWER, 3)),
+                ModItems.SIXTY_SECONDS_POLLUTION_RESISTANCE, 1);
+        add(list, "nutrient_booster", Station.STERILE, "permanent_boost_2", true,
+                List.of(in(chem, 10), in(Items.PITCHER_PLANT, 4), in(Items.TORCHFLOWER, 4)),
+                ModItems.SIXTY_SECONDS_NUTRIENT_BOOSTER, 1);
         // ── 污染净化 ─────────────────────────────────────────────────
         add(list, "charcoal_pill", Station.STERILE, "decontam_1", false,
                 List.of(in(charcoal, 2)), ModItems.SIXTY_SECONDS_CHARCOAL_PILL, 1);
@@ -876,51 +901,51 @@ public final class SixtySecondsRecipes {
 
         // ══ 酿造（酿造台，全通电，持续 1 分半 = 1800 ticks）═══════════════════
         Item bottle = Items.GLASS_BOTTLE;
-        brew(list, "potion_strength", "brew_1", List.of(in(bottle, 1), in(waterS, 1), in(rice, 2)),
+        brew(list, "potion_strength", "brew_1", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(rice, 2)),
                 Items.POTION, potion(Items.POTION, MobEffects.DAMAGE_BOOST, 1800, 0));
-        brew(list, "potion_speed", "brew_1", List.of(in(bottle, 1), in(waterS, 1), in(Items.SUGAR, 2)),
+        brew(list, "potion_speed", "brew_1", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.SUGAR, 2)),
                 Items.POTION, potion(Items.POTION, MobEffects.MOVEMENT_SPEED, 1800, 0));
         brew(list, "potion_leaping", "brew_1",
-                List.of(in(bottle, 1), in(waterS, 1), in(ModItems.SIXTY_SECONDS_FRESH_VEGETABLES, 1)),
+                List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(ModItems.SIXTY_SECONDS_FRESH_VEGETABLES, 1)),
                 Items.POTION, potion(Items.POTION, MobEffects.JUMP, 1800, 0));
-        brew(list, "potion_regen", "brew_1", List.of(in(bottle, 1), in(waterS, 1), in(chem, 5)),
+        brew(list, "potion_regen", "brew_1", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(chem, 5)),
                 Items.POTION, potion(Items.POTION, MobEffects.REGENERATION, 1800, 0));
         brew(list, "potion_water_breathing", "brew_1",
-                List.of(in(bottle, 1), in(waterS, 1), in(Items.PUFFERFISH, 1)),
+                List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.PUFFERFISH, 1)),
                 Items.POTION, potion(Items.POTION, MobEffects.WATER_BREATHING, 1800, 0));
         brew(list, "potion_slow_falling", "brew_1",
-                List.of(in(bottle, 1), in(waterS, 1), in(Items.LILY_PAD, 1)),
+                List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.LILY_PAD, 1)),
                 Items.POTION, potion(Items.POTION, MobEffects.SLOW_FALLING, 1800, 0));
-        brew(list, "potion_night_vision", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(tea, 3)),
+        brew(list, "potion_night_vision", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(tea, 3)),
                 Items.POTION, potion(Items.POTION, MobEffects.NIGHT_VISION, 1800, 0));
-        brew(list, "splash_slowness", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(scrap, 2)),
+        brew(list, "splash_slowness", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(scrap, 2)),
                 Items.SPLASH_POTION, potion(Items.SPLASH_POTION, MobEffects.MOVEMENT_SLOWDOWN, 600, 0));
-        brew(list, "splash_harming", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(scrap, 2)),
+        brew(list, "splash_harming", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(scrap, 2)),
                 Items.SPLASH_POTION, potion(Items.SPLASH_POTION, MobEffects.HARM, 1, 0));
-        brew(list, "splash_healing", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(chem, 2)),
+        brew(list, "splash_healing", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(chem, 2)),
                 Items.SPLASH_POTION, potion(Items.SPLASH_POTION, MobEffects.HEAL, 1, 0));
-        brew(list, "splash_poison", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(Items.SPIDER_EYE, 3)),
+        brew(list, "splash_poison", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.SPIDER_EYE, 3)),
                 Items.SPLASH_POTION, potion(Items.SPLASH_POTION, MobEffects.POISON, 200, 0));
         brew(list, "splash_weakness", "brew_2",
-                List.of(in(bottle, 1), in(waterS, 1), in(Items.POISONOUS_POTATO, 1)),
+                List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.POISONOUS_POTATO, 1)),
                 Items.SPLASH_POTION, potion(Items.SPLASH_POTION, MobEffects.WEAKNESS, 600, 0));
         brew(list, "potion_invisibility", "brew_3",
-                List.of(in(bottle, 1), in(waterS, 1), in(Items.PITCHER_PLANT, 1)),
+                List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.PITCHER_PLANT, 1)),
                 Items.POTION, potion(Items.POTION, MobEffects.INVISIBILITY, 1800, 0));
-        brew(list, "lingering_slowness", "brew_3", List.of(in(bottle, 1), in(waterS, 1), in(scrap, 6)),
+        brew(list, "lingering_slowness", "brew_3", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(scrap, 6)),
                 Items.LINGERING_POTION, potion(Items.LINGERING_POTION, MobEffects.MOVEMENT_SLOWDOWN, 400, 1));
         brew(list, "lingering_blindness", "brew_3",
-                List.of(in(bottle, 1), in(waterS, 1), in(Items.TORCHFLOWER, 1)),
+                List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.TORCHFLOWER, 1)),
                 Items.LINGERING_POTION, potion(Items.LINGERING_POTION, MobEffects.BLINDNESS, 400, 0));
         brew(list, "lingering_weakness", "brew_3",
-                List.of(in(bottle, 1), in(waterS, 1), in(Items.POISONOUS_POTATO, 4)),
+                List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.POISONOUS_POTATO, 4)),
                 Items.LINGERING_POTION, potion(Items.LINGERING_POTION, MobEffects.WEAKNESS, 400, 1));
         brew(list, "lingering_poison", "brew_3",
-                List.of(in(bottle, 1), in(waterS, 1), in(Items.SPIDER_EYE, 8)),
+                List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.SPIDER_EYE, 8)),
                 Items.LINGERING_POTION, potion(Items.LINGERING_POTION, MobEffects.POISON, 400, 0));
         // ── 药剂净化 ─────────────────────────────────────────────────
         add(list, "potion_cleanser", Station.BREWING, "potion_purify", true,
-                List.of(any("fruit", 2, fruits()), in(rice, 2), in(tea, 2), in(waterS, 1)),
+                List.of(in(Items.NETHER_WART, 2), any("fruit", 2, fruits()), in(rice, 2), in(tea, 2), in(waterS, 1)),
                 ModItems.SIXTY_SECONDS_POTION_CLEANSER, 1);
 
         // ══ 冶金（冶金炉，全通电，每件 4 秒）════════════════════════════════
@@ -1251,6 +1276,10 @@ public final class SixtySecondsRecipes {
                 List.of(in(alloy, 2), in(steel, 10), in(chem, 10), in(ModItems.SIXTY_SECONDS_BREWING_PARTS, 6),
                         in(Items.LEATHER, 10)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_ALTAR.asItem(), 1);
+        add(list, "chorus_flower_altar", Station.ALTAR, "mystic_plants", true,
+                List.of(in(chem, 10), any("fruit", 5, fruits()), in(Items.CRIMSON_FUNGUS, 5),
+                        in(Items.WARPED_FUNGUS, 5)),
+                Items.CHORUS_FLOWER, 1);
         add(list, "filthy_jar", Station.ALTAR, "sacrifice_2", false,
                 List.of(in(Items.GLASS_BOTTLE, 10), in(glassPlate, 2), in(chem, 5)),
                 ModItems.SIXTY_SECONDS_FILTHY_JAR, 1);

@@ -45,8 +45,14 @@ public class SixtySecondsStatItem extends Item {
     private final UseAnim useAnim;
     /** 理智上限永久加成（不为 0 时使用后生效，最高到 120） */
     private final int sanityMaxBonus;
-    /** 理智上限可达到的最高值 */
+    /** 永久上限加成（健康/饱食/口渴/污染，最高到 120） */
+    private final int healthMaxBonus;
+    private final int hungerMaxBonus;
+    private final int thirstMaxBonus;
+    private final int pollutionMaxBonus;
+    /** 各上限可达到的最高值 */
     public static final int SANITY_MAX_CAP = 120;
+    public static final int GENERIC_MAX_CAP = 120;
 
     public SixtySecondsStatItem(Properties properties, int health, int hunger, int thirst, int sanity,
             int pollutionReduce, boolean cure, Supplier<MobEffectInstance> effect,
@@ -54,10 +60,19 @@ public class SixtySecondsStatItem extends Item {
         this(properties, health, hunger, thirst, sanity, pollutionReduce, cure, effect, useDuration, useAnim, 0);
     }
 
-    /** 含 sanityMaxBonus 的完整构造器 */
+    /** 含 sanityMaxBonus 的完整构造器（兼容旧代码） */
     public SixtySecondsStatItem(Properties properties, int health, int hunger, int thirst, int sanity,
             int pollutionReduce, boolean cure, Supplier<MobEffectInstance> effect,
             int useDuration, UseAnim useAnim, int sanityMaxBonus) {
+        this(properties, health, hunger, thirst, sanity, pollutionReduce, cure, effect,
+                useDuration, useAnim, sanityMaxBonus, 0, 0, 0, 0);
+    }
+
+    /** 含所有上限加成的完整构造器 */
+    public SixtySecondsStatItem(Properties properties, int health, int hunger, int thirst, int sanity,
+            int pollutionReduce, boolean cure, Supplier<MobEffectInstance> effect,
+            int useDuration, UseAnim useAnim, int sanityMaxBonus,
+            int healthMaxBonus, int hungerMaxBonus, int thirstMaxBonus, int pollutionMaxBonus) {
         super(properties);
         this.health = health;
         this.hunger = hunger;
@@ -69,6 +84,10 @@ public class SixtySecondsStatItem extends Item {
         this.useDuration = useDuration;
         this.useAnim = useAnim;
         this.sanityMaxBonus = sanityMaxBonus;
+        this.healthMaxBonus = healthMaxBonus;
+        this.hungerMaxBonus = hungerMaxBonus;
+        this.thirstMaxBonus = thirstMaxBonus;
+        this.pollutionMaxBonus = pollutionMaxBonus;
     }
 
     /** 兼容旧构造（无 useDuration 的默认为 40 ticks = 2 秒 DRINK 动画） */
@@ -109,13 +128,24 @@ public class SixtySecondsStatItem extends Item {
             return stack;
         }
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(serverPlayer);
-        int max = SixtySecondsStatsComponent.MAX;
-        stats.health = Math.min(max, stats.health + health);
-        stats.hunger = Math.min(max, stats.hunger + hunger);
-        stats.thirst = Math.min(max, stats.thirst + thirst);
-        stats.sanity = Math.min(stats.sanityMax, stats.sanity + sanity); // 理智以个人上限为顶（杀人会永久降上限）
+        stats.health = Math.min(stats.healthMax, stats.health + health);
+        stats.hunger = Math.min(stats.hungerMax, stats.hunger + hunger);
+        stats.thirst = Math.min(stats.thirstMax, stats.thirst + thirst);
+        stats.sanity = Math.min(stats.sanityMax, stats.sanity + sanity);
         if (sanityMaxBonus > 0) {
             stats.sanityMax = Math.min(SANITY_MAX_CAP, stats.sanityMax + sanityMaxBonus);
+        }
+        if (healthMaxBonus > 0) {
+            stats.healthMax = Math.min(GENERIC_MAX_CAP, stats.healthMax + healthMaxBonus);
+        }
+        if (hungerMaxBonus > 0) {
+            stats.hungerMax = Math.min(GENERIC_MAX_CAP, stats.hungerMax + hungerMaxBonus);
+        }
+        if (thirstMaxBonus > 0) {
+            stats.thirstMax = Math.min(GENERIC_MAX_CAP, stats.thirstMax + thirstMaxBonus);
+        }
+        if (pollutionMaxBonus > 0) {
+            stats.pollutionMax = Math.min(GENERIC_MAX_CAP, stats.pollutionMax + pollutionMaxBonus);
         }
         stats.pollution = Math.max(0, stats.pollution - pollutionReduce);
         stats.sync();
@@ -157,6 +187,22 @@ public class SixtySecondsStatItem extends Item {
         if (sanityMaxBonus > 0) {
             tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_sanity_max",
                     sanityMaxBonus, SANITY_MAX_CAP).withStyle(ChatFormatting.DARK_PURPLE));
+        }
+        if (healthMaxBonus > 0) {
+            tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_health_max",
+                    healthMaxBonus, GENERIC_MAX_CAP).withStyle(ChatFormatting.RED));
+        }
+        if (hungerMaxBonus > 0) {
+            tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_hunger_max",
+                    hungerMaxBonus, GENERIC_MAX_CAP).withStyle(ChatFormatting.GOLD));
+        }
+        if (thirstMaxBonus > 0) {
+            tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_thirst_max",
+                    thirstMaxBonus, GENERIC_MAX_CAP).withStyle(ChatFormatting.AQUA));
+        }
+        if (pollutionMaxBonus > 0) {
+            tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_pollution_max",
+                    pollutionMaxBonus, GENERIC_MAX_CAP).withStyle(ChatFormatting.GREEN));
         }
         if (pollutionReduce > 0) {
             tooltip.add(line("stat_pollution", pollutionReduce, ChatFormatting.GREEN));

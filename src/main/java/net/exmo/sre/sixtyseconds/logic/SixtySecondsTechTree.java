@@ -105,7 +105,7 @@ public final class SixtySecondsTechTree {
         chain(list, "purification", null, "water_collect_1", "water_collect_2", "water_collect_3");
         chain(list, "purification", null, "water_purify_1", "water_purify_2", "water_purify_3");
         chain(list, "purification", null, "tea");
-        chain(list, "purification", null, "drinks");
+        chain(list, "purification", null, "drinks_1", "drinks_2");
         // ── 防御工事（高级工作台，需「更好的工作环境-II」）─────────────────
         chain(list, "defense", "work_env_2", "door_1", "door_2", "door_3", "door_4");
         chain(list, "defense", "work_env_2", "vault_1", "vault_2", "vault_3");
@@ -121,6 +121,8 @@ public final class SixtySecondsTechTree {
         chain(list, "medical", "work_env_1", "decontam_1", "decontam_2", "decontam_3");
         // 综合补剂：需医疗大类其余节点全部解锁（特殊门控，见 gateSatisfied）
         chain(list, "medical", null, "omni_tonic");
+        // 永久增益（前置：全能补剂）
+        chain(list, "medical", "omni_tonic", "permanent_boost_1", "permanent_boost_2");
         // ── 酿造（酿造台，需「更好的工作环境-II」）───────────────────────
         chain(list, "brewing", "work_env_2", "brew_1", "brew_2", "brew_3");
         chain(list, "brewing", "work_env_2", "potion_purify");
@@ -165,6 +167,7 @@ public final class SixtySecondsTechTree {
         // ── 神秘技术（全树 75% 门控，见 gateSatisfied）───────────────────
         chain(list, "mystic", null, "sacrifice_1", "sacrifice_2");
         chain(list, "mystic", "sacrifice_1", "undying_totem");
+        chain(list, "mystic", "sacrifice_1", "mystic_plants");
         chain(list, "mystic", "sacrifice_2", "revival_totem");
         return List.copyOf(list);
     }
@@ -195,10 +198,14 @@ public final class SixtySecondsTechTree {
             case "work_env_2": return 8;
             case "work_env_3": return 14;
             case "work_env_4": return 20;
-            case "tea", "drinks": return 4;
+            case "tea", "drinks_1": return 4;
+            case "drinks_2": return 8;
             case "tobacco": return 5;
             case "potion_purify": return 8;
             case "omni_tonic": return 12;
+            case "mystic_plants": return 12;
+            case "permanent_boost_1": return 10;
+            case "permanent_boost_2": return 14;
             case "sanity_cap_1": return 8;
             case "sanity_cap_2": return 12;
             case "sacrifice_1", "sacrifice_2": return 16;

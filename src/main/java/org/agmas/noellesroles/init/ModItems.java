@@ -1160,6 +1160,24 @@ public class ModItems {
                     new Item.Properties().stacksTo(8), 25, 0, 0, 0, 30, false, null,
                     100, UseAnim.EAT),
             "sixty_seconds_anti_infection", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 健康强化剂：永久提升健康上限 +5（最高 120）（永久增益-II）
+    public static final Item SIXTY_SECONDS_HEALTH_BOOSTER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(2), 0, 0, 0, 0, 0, false, null,
+                    100, UseAnim.DRINK, 0, 5, 0, 0, 0),
+            "sixty_seconds_health_booster", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 抗污染强化素：永久提升污染上限 +10（最高 120）（永久增益-II）
+    public static final Item SIXTY_SECONDS_POLLUTION_RESISTANCE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(2), 0, 0, 0, 0, 0, false, null,
+                    100, UseAnim.DRINK, 0, 0, 0, 0, 10),
+            "sixty_seconds_pollution_resistance", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 补食剂：永久提升饱食上限 +5、口渴上限 +5（最高 120）（永久增益-II）
+    public static final Item SIXTY_SECONDS_NUTRIENT_BOOSTER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(2), 0, 0, 0, 0, 0, false, null,
+                    100, UseAnim.DRINK, 0, 0, 5, 5, 0),
+            "sixty_seconds_nutrient_booster", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 全能补剂：饥饿/口渴/理智/血量 +15，污染 -15（综合补剂科技）
     public static final Item SIXTY_SECONDS_OMNI_TONIC = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(

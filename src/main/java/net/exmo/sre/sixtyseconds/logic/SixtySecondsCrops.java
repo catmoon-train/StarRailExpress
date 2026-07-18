@@ -27,10 +27,17 @@ public final class SixtySecondsCrops {
     /**
      * 作物定义：{@code techId} 为 null 表示无门控；{@code advancedOnly} 的作物只能种高级培育箱；
      * {@code mushroom} 的作物只能种菌丝箱；{@code fullStagesInAdvanced} 在高级培育箱也要走满 3 阶段
-     * （工业麻/火把花/瓶子草）。
+     * （工业麻/火把花/瓶子草）；{@code growthTimeMultiplier} 默认为 1.0，紫颂花等慢生长作物使用 2.0。
      */
     public record Crop(String id, Item seed, Item product, int minCount, int maxCount,
-            String techId, boolean advancedOnly, boolean mushroom, boolean fullStagesInAdvanced, boolean gardenerOnly) {
+            String techId, boolean advancedOnly, boolean mushroom, boolean fullStagesInAdvanced,
+            boolean gardenerOnly, float growthTimeMultiplier) {
+        public Crop(String id, Item seed, Item product, int minCount, int maxCount,
+                String techId, boolean advancedOnly, boolean mushroom, boolean fullStagesInAdvanced,
+                boolean gardenerOnly) {
+            this(id, seed, product, minCount, maxCount, techId, advancedOnly, mushroom,
+                    fullStagesInAdvanced, gardenerOnly, 1.0F);
+        }
     }
 
     private static List<Crop> crops;
@@ -103,11 +110,17 @@ public final class SixtySecondsCrops {
                 1, 1, "agri_3", true, false, true, false));
         list.add(new Crop("pitcher", Items.PITCHER_POD, Items.PITCHER_PLANT,
                 1, 1, "agri_3", true, false, true, false));
-        // 菌丝箱：红/棕蘑菇（种 1 收 2）
+        // 菌丝箱：红/棕蘑菇（种 1 收 2，标准速度）；诡异菌/绯红菌（2倍生长）；下界疣（1.5倍生长）
         list.add(new Crop("red_mushroom", Items.RED_MUSHROOM, Items.RED_MUSHROOM,
                 2, 2, null, false, true, false, false));
         list.add(new Crop("brown_mushroom", Items.BROWN_MUSHROOM, Items.BROWN_MUSHROOM,
                 2, 2, null, false, true, false, false));
+        list.add(new Crop("warped_fungus", Items.WARPED_FUNGUS, Items.WARPED_FUNGUS,
+                2, 2, null, false, true, false, false, 2.0F));
+        list.add(new Crop("crimson_fungus", Items.CRIMSON_FUNGUS, Items.CRIMSON_FUNGUS,
+                2, 2, null, false, true, false, false, 2.0F));
+        list.add(new Crop("nether_wart", Items.NETHER_WART, Items.NETHER_WART,
+                2, 2, null, false, true, false, false, 1.5F));
         // 烟草科技：烟草
         list.add(new Crop("tobacco", ModItems.SIXTY_SECONDS_TOBACCO_SEEDS,
                 ModItems.SIXTY_SECONDS_TOBACCO, 1, 2, "tobacco", false, false, false, false));
@@ -118,6 +131,12 @@ public final class SixtySecondsCrops {
                 2, 2, "misc_planter_2", false, false, false, true));
         list.add(new Crop("glow_berries", Items.GLOW_BERRIES, Items.GLOW_BERRIES,
                 2, 2, "misc_planter_2", false, false, false, true));
+        // 园丁培育箱：可可豆（种1收2）
+        list.add(new Crop("cocoa_beans", Items.COCOA_BEANS, Items.COCOA_BEANS,
+                2, 2, "misc_planter_2", false, false, false, true));
+        // 园丁培育箱：紫颂花（种1收1紫颂花+1紫颂果，生长2倍时间）
+        list.add(new Crop("chorus_flower", Items.CHORUS_FLOWER, Items.CHORUS_FLOWER,
+                1, 1, "misc_planter_2", false, false, false, true, 2.0F));
         return List.copyOf(list);
     }
 }

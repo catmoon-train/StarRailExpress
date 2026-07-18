@@ -25,6 +25,8 @@ public class SixtySecondsStatsComponent implements RoleComponent {
             SixtySecondsStatsComponent.class);
 
     public static final int MAX = 100;
+    /** 永久增益可达到的最高上限 */
+    public static final int MAX_CAP = 120;
 
     public int hunger = MAX;
     public int thirst = MAX;
@@ -33,6 +35,11 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     public int health = MAX;
     /** 理智上限（杀人永久 -5~9，见 SixtySecondsHealthSystem.die；恢复类回san均以此为顶）。 */
     public int sanityMax = MAX;
+    /** 永久增益后的个人上限（健康/饱食/口渴/污染，默认 100，最高 120）。 */
+    public int healthMax = MAX;
+    public int hungerMax = MAX;
+    public int thirstMax = MAX;
+    public int pollutionMax = MAX;
 
     /** 队伍（家庭）编号；-1 表示未编队。 */
     public int teamId = -1;
@@ -92,6 +99,10 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         pollution = 0;
         health = MAX;
         sanityMax = MAX;
+        healthMax = MAX;
+        hungerMax = MAX;
+        thirstMax = MAX;
+        pollutionMax = MAX;
         teamId = -1;
         familyPosition = null;
         dayNumber = 0;
@@ -149,6 +160,10 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         buf.writeVarInt(pollution);
         buf.writeVarInt(health);
         buf.writeVarInt(sanityMax);
+        buf.writeVarInt(healthMax);
+        buf.writeVarInt(hungerMax);
+        buf.writeVarInt(thirstMax);
+        buf.writeVarInt(pollutionMax);
         buf.writeVarInt(teamId + 1);            // -1 → 0（避免负数 varint 膨胀到 5 字节）
         buf.writeVarInt(familyPosition == null ? 0 : familyPosition.ordinal() + 1);
         buf.writeVarInt(dayNumber);
@@ -181,6 +196,10 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         pollution = buf.readVarInt();
         health = buf.readVarInt();
         sanityMax = buf.readVarInt();
+        healthMax = buf.readVarInt();
+        hungerMax = buf.readVarInt();
+        thirstMax = buf.readVarInt();
+        pollutionMax = buf.readVarInt();
         teamId = buf.readVarInt() - 1;
         int family = buf.readVarInt();
         familyPosition = family == 0 ? null : FamilyPosition.values()[family - 1];
@@ -206,6 +225,10 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         tag.putInt("SanityMax", sanityMax);
         tag.putInt("Pollution", pollution);
         tag.putInt("Health", health);
+        tag.putInt("HealthMax", healthMax);
+        tag.putInt("HungerMax", hungerMax);
+        tag.putInt("ThirstMax", thirstMax);
+        tag.putInt("PollutionMax", pollutionMax);
         tag.putInt("TeamId", teamId);
         tag.putInt("Family", familyPosition == null ? -1 : familyPosition.ordinal());
         tag.putInt("Day", dayNumber);
@@ -232,6 +255,10 @@ public class SixtySecondsStatsComponent implements RoleComponent {
         sanityMax = tag.contains("SanityMax") ? tag.getInt("SanityMax") : MAX;
         pollution = tag.getInt("Pollution");
         health = tag.getInt("Health");
+        healthMax = tag.contains("HealthMax") ? tag.getInt("HealthMax") : MAX;
+        hungerMax = tag.contains("HungerMax") ? tag.getInt("HungerMax") : MAX;
+        thirstMax = tag.contains("ThirstMax") ? tag.getInt("ThirstMax") : MAX;
+        pollutionMax = tag.contains("PollutionMax") ? tag.getInt("PollutionMax") : MAX;
         teamId = tag.getInt("TeamId");
         int family = tag.getInt("Family");
         familyPosition = family < 0 ? null : FamilyPosition.values()[family];

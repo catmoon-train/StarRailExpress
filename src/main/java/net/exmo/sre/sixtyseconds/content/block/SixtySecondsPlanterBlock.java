@@ -180,6 +180,10 @@ public class SixtySecondsPlanterBlock extends Block implements EntityBlock {
         if (count > 0) {
             player.getInventory().placeItemBackInInventory(new ItemStack(crop.product(), count));
         }
+        // 紫颂花额外产出紫颂果
+        if ("chorus_flower".equals(crop.id())) {
+            player.getInventory().placeItemBackInInventory(new ItemStack(Items.CHORUS_FRUIT, 1));
+        }
         // 队伍收益（科技门控）
         boolean isVeg = "vegetables".equals(crop.id());
         boolean isRice = "wild_rice".equals(crop.id());
@@ -244,7 +248,8 @@ public class SixtySecondsPlanterBlock extends Block implements EntityBlock {
         }
         level.setBlock(pos, state.setValue(AGE, target), Block.UPDATE_ALL);
         if (target < 3) {
-            level.scheduleTick(pos, this, SixtySecondsBalance.PLANTER_GROW_STAGE_TICKS);
+            float mul = crop != null ? crop.growthTimeMultiplier() : 1.0F;
+            level.scheduleTick(pos, this, (int) (SixtySecondsBalance.PLANTER_GROW_STAGE_TICKS * mul));
         }
     }
 

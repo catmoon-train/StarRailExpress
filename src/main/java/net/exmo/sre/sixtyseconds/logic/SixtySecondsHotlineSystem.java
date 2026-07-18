@@ -774,6 +774,9 @@ public final class SixtySecondsHotlineSystem {
             s(ModItems.SIXTY_SECONDS_TOBACCO_SEEDS, 3, 6),
             s(Items.BROWN_MUSHROOM, 3, 6),
             s(Items.RED_MUSHROOM, 3, 6),
+            s(Items.WARPED_FUNGUS, 6, 10),
+            s(Items.CRIMSON_FUNGUS, 6, 10),
+            s(Items.NETHER_WART, 3, 6),
             s(Items.WHEAT_SEEDS, 3, 6),
             s(Items.CARROT, 3, 6),
             s(Items.POTATO, 3, 6),
@@ -782,7 +785,8 @@ public final class SixtySecondsHotlineSystem {
             s(Items.MELON_SEEDS, 3, 6),
             s(Items.BAMBOO, 3, 6),
             s(Items.SWEET_BERRIES, 3, 6),
-            s(Items.GLOW_BERRIES, 3, 6)
+            s(Items.GLOW_BERRIES, 3, 6),
+            s(Items.COCOA_BEANS, 3, 6)
         ));
         // 低概率特殊种子
         seeds.add(s(ModItems.SIXTY_SECONDS_HEMP_SEEDS, 5, 10));
@@ -798,7 +802,7 @@ public final class SixtySecondsHotlineSystem {
             FoodEntry we = waters.get(rand.nextInt(waters.size()));
             items.add(new ShopItem(new ItemStack(we.item, 1), we.basePrice + rand.nextInt(3)));
         }
-        if (rand.nextDouble() < 0.20) {
+        if (rand.nextDouble() < 0.65) {
             SeedEntry se = seeds.get(rand.nextInt(seeds.size()));
             items.add(new ShopItem(new ItemStack(se.item, 1), se.basePrice + rand.nextInt(se.maxExtra)));
         }
