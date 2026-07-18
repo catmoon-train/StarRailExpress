@@ -347,7 +347,8 @@ public final class SixtySecondsStartCommand {
             net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.openMock(player);
         }
 
-        ItemStack stack = new ItemStack(ModItems.NEWSPAPER, 1);
+        // 给玩家一份带真内容的报纸物品（可右键阅读）
+        ItemStack stack = net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.createMockNewspaper(level);
         if (!player.getInventory().add(stack)) player.drop(stack, false);
         source.sendSuccess(() -> Component.translatable(
                 "message.noellesroles.sixty_seconds.newspaper_given"), true);

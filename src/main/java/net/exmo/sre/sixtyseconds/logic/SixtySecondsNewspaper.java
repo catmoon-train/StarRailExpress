@@ -7,6 +7,7 @@ import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -384,7 +385,7 @@ public final class SixtySecondsNewspaper {
             sections.add(Component.literal(hotlineSb.toString()).withStyle(ChatFormatting.AQUA));
         }
 
-        // 9. 邻里八卦（70%概率出现，随机一条）
+        // 10. 邻里八卦（70%概率出现，随机一条）
         if (level.getRandom().nextDouble() < 0.7) {
             String gossipKey = GOSSIP[level.getRandom().nextInt(GOSSIP.length)];
             StringBuilder gossip = new StringBuilder();
@@ -410,6 +411,22 @@ public final class SixtySecondsNewspaper {
         if (mailboxes == null || mailboxes.isEmpty()) return;
 
         ItemStack newspaper = new ItemStack(org.agmas.noellesroles.init.ModItems.NEWSPAPER, 1);
+        // 将报纸内容写入物品组件，右键即可阅读
+        Component title = Component.translatable(LANG + "title", net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.MAX);
+        Component author = Component.translatable(LANG + "author");
+        // 合并所有板块为一个页面，用双换行分隔
+        Component fullPage = Component.empty();
+        for (int i = 0; i < paperContent.size(); i++) {
+            if (i > 0) fullPage = fullPage.copy().append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
+            fullPage = fullPage.copy().append(paperContent.get(i));
+        }
+        io.wifi.starrailexpress.content.item.component.SREWrittenBookContent bookContent =
+                new io.wifi.starrailexpress.content.item.component.SREWrittenBookContent(
+                        net.minecraft.server.network.Filterable.passThrough(title.getString()),
+                        author.getString(),
+                        List.of(net.minecraft.server.network.Filterable.passThrough(fullPage)),
+                        true);
+        newspaper.set(io.wifi.starrailexpress.index.SREDataComponentTypes.WRITTEN_BOOK_CONTENT, bookContent);
 
         for (BlockPos pos : mailboxes) {
             BlockEntity be = level.getBlockEntity(pos);
@@ -473,12 +490,10 @@ public final class SixtySecondsNewspaper {
         return total;
     }
 
-    /** 生成一份模拟报纸（不依赖游戏状态，直接打开给玩家看） */
-    public static void openMock(ServerPlayer player) {
-        ServerLevel level = player.serverLevel();
+    /** 构建模拟报纸板块列表（供 openMock 和 giveNewspaper 共用） */
+    private static List<Component> buildMockSections(ServerLevel level) {
         var rand = level.getRandom();
 
-        // 随机选取 3 条新闻 ID
         List<Integer> picked = new ArrayList<>();
         for (int i = 0; i < NEWS_PER_DAY; i++) {
             int n = 1 + rand.nextInt(NEWS_COUNT);
@@ -552,22 +567,77 @@ public final class SixtySecondsNewspaper {
                 Component.translatable("message.noellesroles.sixty_seconds.gossip_8").getString()).getString());
         sections.add(Component.literal(drafts.toString()).withStyle(ChatFormatting.YELLOW));
 
-        // 8. 邻里八卦
+        // 8. 市民热线栏目（模拟生成当日报纸时一并生成热线）
+        SixtySecondsHotlineSystem.generateDailyHotlines(level);
+        List<SixtySecondsHotlineSystem.HotlineEntry> hotlines = SixtySecondsHotlineSystem.getDailyHotlines(level);
+        if (!hotlines.isEmpty()) {
+            int count = Math.min(hotlines.size(), 1 + rand.nextInt(2));
+            StringBuilder hotlineSb = new StringBuilder();
+            hotlineSb.append(Component.translatable("message.noellesroles.sixty_seconds.news.hotline_header").getString()).append("\n\n");
+            for (int i = 0; i < count; i++) {
+                SixtySecondsHotlineSystem.HotlineEntry entry = hotlines.get(i);
+                String typeKey = switch (entry.type()) {
+                    case EXPRESS -> "message.noellesroles.sixty_seconds.hotline_type_express";
+                    case SHOP -> "message.noellesroles.sixty_seconds.hotline_type_shop";
+                    case RESCUE -> "message.noellesroles.sixty_seconds.hotline_type_rescue";
+                    case INTEL -> "message.noellesroles.sixty_seconds.hotline_type_intel";
+                    case WEATHER -> "message.noellesroles.sixty_seconds.hotline_type_weather";
+                    case COUNSEL -> "message.noellesroles.sixty_seconds.hotline_type_counsel";
+                    case HIRE -> "message.noellesroles.sixty_seconds.hotline_type_hire";
+                    case BLACK_MARKET -> "message.noellesroles.sixty_seconds.hotline_type_black_market";
+                    case RECYCLE -> "message.noellesroles.sixty_seconds.hotline_type_recycle";
+                    case POVERTY_RELIEF -> "message.noellesroles.sixty_seconds.hotline_type_poverty_relief";
+                    case REPORT -> "message.noellesroles.sixty_seconds.hotline_type_report";
+                };
+                hotlineSb.append(Component.translatable("message.noellesroles.sixty_seconds.news.hotline_entry",
+                        Component.translatable(typeKey), entry.number()).getString()).append("\n");
+            }
+            sections.add(Component.literal(hotlineSb.toString()).withStyle(ChatFormatting.AQUA));
+        }
+
+        // 10. 邻里八卦
         String gossipKey = GOSSIP[rand.nextInt(GOSSIP.length)];
         StringBuilder gossip = new StringBuilder();
         gossip.append(Component.translatable(LANG + "section_gossip").getString()).append("\n\n");
         gossip.append(Component.translatable("message.noellesroles.sixty_seconds." + gossipKey).getString());
         sections.add(Component.literal(gossip.toString()).withStyle(ChatFormatting.LIGHT_PURPLE));
 
-        // 9. 尾页
+        // 11. 尾页
         StringBuilder footer = new StringBuilder();
         footer.append(Component.translatable(LANG + "section_divider").getString()).append("\n");
         footer.append(Component.translatable(LANG + "footer", 7).getString());
         sections.add(Component.literal(footer.toString()).withStyle(ChatFormatting.DARK_GRAY));
 
+        return sections;
+    }
+
+    /** 生成一份模拟报纸（不依赖游戏状态，直接打开给玩家看） */
+    public static void openMock(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        List<Component> sections = buildMockSections(level);
         SRENetworkMessageUtils.sendNewspaper(player, sections,
                 java.util.Optional.of(Component.translatable(LANG + "title", 7)),
                 java.util.Optional.of(Component.translatable(LANG + "author")));
+    }
+
+    /** 创建一份带完整内容的模拟报纸物品 */
+    public static ItemStack createMockNewspaper(ServerLevel level) {
+        List<Component> sections = buildMockSections(level);
+        ItemStack stack = new ItemStack(org.agmas.noellesroles.init.ModItems.NEWSPAPER, 1);
+        Component fullPage = Component.empty();
+        for (int i = 0; i < sections.size(); i++) {
+            if (i > 0) fullPage = fullPage.copy().append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
+            fullPage = fullPage.copy().append(sections.get(i));
+        }
+        io.wifi.starrailexpress.content.item.component.SREWrittenBookContent bookContent =
+                new io.wifi.starrailexpress.content.item.component.SREWrittenBookContent(
+                        net.minecraft.server.network.Filterable.passThrough(
+                                Component.translatable(LANG + "title", 7).getString()),
+                        Component.translatable(LANG + "author").getString(),
+                        List.of(net.minecraft.server.network.Filterable.passThrough(fullPage)),
+                        true);
+        stack.set(io.wifi.starrailexpress.index.SREDataComponentTypes.WRITTEN_BOOK_CONTENT, bookContent);
+        return stack;
     }
 
     /** 打开报纸界面 */
