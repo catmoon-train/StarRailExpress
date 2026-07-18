@@ -952,7 +952,7 @@ public final class SixtySecondsDailyEvents {
                 }
                 tokens.addTokens(-8);
                 List<ItemStack> gained = new ArrayList<>();
-                gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_AMMO, 8)));
+                gained.add(randomTaczAmmo(level, 8, 16));
                 gained.addAll(rollLoot(level, 1, "weapon"));
                 give(clicker, gained);
                 result(level, team, "ammo_trader.r1", itemsText(gained));
@@ -1160,8 +1160,10 @@ public final class SixtySecondsDailyEvents {
                     return false;
                 }
                 tokens.addTokens(-5);
-                List<ItemStack> gained = rollLoot(level, 1, "weapon");
-                gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_AMMO, 4)));
+                List<ItemStack> gained = new ArrayList<>();
+                ItemStack gun = randomTaczGun(level);
+                if (!gun.isEmpty()) gained.add(gun);
+                gained.add(randomTaczAmmo(level, 4, 8));
                 give(clicker, gained);
                 addSanity(clicker, -3);
                 result(level, team, "deserters_offer.r1", itemsText(gained),
@@ -1558,7 +1560,7 @@ public final class SixtySecondsDailyEvents {
         // ── 机遇：弹药补给箱 ──────────────────────────────────────────
         instant("ammo_cache", Type.FORTUNE, 8, (level, team) -> {
             List<ItemStack> gained = new ArrayList<>();
-            gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_AMMO, 8)));
+            gained.add(randomTaczAmmo(level, 6, 12));
             giveToTeam(level, team, gained);
             result(level, team, "ammo_cache", itemsText(gained));
         });
@@ -1661,8 +1663,9 @@ public final class SixtySecondsDailyEvents {
                 }
                 tokens.addTokens(-6);
                 if (level.getRandom().nextFloat() < 0.6F) {
-                    List<ItemStack> gained = rollLoot(level, 2, "weapon");
-                    gained.addAll(rollLoot(level, 4, "ammo"));
+                    List<ItemStack> gained = new ArrayList<>();
+                    ItemStack gun = randomTaczGun(level); if (!gun.isEmpty()) gained.add(gun);
+                    for (int i = 0; i < 2; i++) gained.add(randomTaczAmmo(level, 3, 6));
                     give(clicker, gained);
                     result(level, team, "blackmarket_info.r1_good", itemsText(gained));
                 } else {
@@ -1742,8 +1745,9 @@ public final class SixtySecondsDailyEvents {
         choice("military_truck", Type.CHOICE, 8, (level, team, clicker, option) -> {
             if (option == 1) {
                 if (level.getRandom().nextFloat() < 0.55F) {
-                    List<ItemStack> gained = rollLoot(level, 2, "weapon");
-                    gained.addAll(rollLoot(level, 6, "ammo"));
+                    List<ItemStack> gained = new ArrayList<>();
+                    ItemStack gun = randomTaczGun(level); if (!gun.isEmpty()) gained.add(gun);
+                    for (int i = 0; i < 3; i++) gained.add(randomTaczAmmo(level, 4, 8));
                     gained.addAll(rollLoot(level, 2, "medicine"));
                     give(clicker, gained);
                     result(level, team, "military_truck.r1_good", itemsText(gained));
@@ -2772,6 +2776,20 @@ public final class SixtySecondsDailyEvents {
             give(clicker, g); result(level, team, "intel_buy.r1", itemsText(g));
             return true;
         });
+        // 208. 玩具推销员：花3代币→随机娱乐物品
+        choice("toy_salesman", Type.TRADE, 8, (level, team, clicker, option) -> {
+            if (option != 1) { result(level, team, "toy_salesman.r2"); return true; }
+            var tokens = SREPlayerMinigameTaskComponent.KEY.get(clicker);
+            if (tokens.getTokens() < 3) { fail(clicker, "no_coins", 3); return false; }
+            tokens.addTokens(-3);
+            Item[] toys = { ModItems.SIXTY_SECONDS_POKER, ModItems.SIXTY_SECONDS_CHESS,
+                    ModItems.SIXTY_SECONDS_HARMONICA, ModItems.SIXTY_SECONDS_GUITAR,
+                    ModItems.SIXTY_SECONDS_TEDDY_BEAR };
+            List<ItemStack> g = new ArrayList<>();
+            g.add(new ItemStack(toys[level.getRandom().nextInt(toys.length)]));
+            give(clicker, g); result(level, team, "toy_salesman.r1", itemsText(g));
+            return true;
+        });
     }
 
     // ══════════════════════════ 探险（出发 → 延迟结算） ══════════════════════════
@@ -2854,11 +2872,11 @@ public final class SixtySecondsDailyEvents {
         gained.addAll(rollLoot(level, 1, profile.fixedCategories));
         // 军械库废墟额外弹药
         if ("armory_ruins".equals(exp.eventId)) {
-            gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_AMMO, 4)));
+            gained.add(randomTaczAmmo(level, 4, 8));
         }
         // 警察局额外弹药
         if ("police_station".equals(exp.eventId)) {
-            gained.add(amplify(level, new ItemStack(ModItems.SIXTY_SECONDS_AMMO, 6)));
+            gained.add(randomTaczAmmo(level, 6, 12));
         }
         give(explorer, gained);
         addPollution(explorer, profile.pollution);
@@ -2999,6 +3017,47 @@ public final class SixtySecondsDailyEvents {
         if (receiver != null) {
             give(receiver, stacks);
         }
+    }
+
+    // ══════════════════════════ TACZ 弹药/枪械辅助 ══════════════════════
+    private static Item taczItem(String id) {
+        Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM
+                .get(net.minecraft.resources.ResourceLocation.tryParse(id));
+        return item == Items.AIR ? null : item;
+    }
+    private static ItemStack taczAmmo(String ammoId, int count) {
+        Item ammo = taczItem("tacz:ammo");
+        if (ammo == null) return ItemStack.EMPTY;
+        ItemStack stack = new ItemStack(ammo, count);
+        var tag = new net.minecraft.nbt.CompoundTag();
+        tag.putString("AmmoId", ammoId);
+        stack.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
+        return stack;
+    }
+    private static ItemStack taczGun(String gunId) {
+        Item gun = taczItem("tacz:modern_kinetic_gun");
+        if (gun == null) return ItemStack.EMPTY;
+        ItemStack stack = new ItemStack(gun, 1);
+        var tag = new net.minecraft.nbt.CompoundTag();
+        tag.putString("GunId", gunId);
+        stack.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
+        return stack;
+    }
+    /** 随机 TACZ 弹药（若未装 TACZ 则降级为 SIXTY_SECONDS_AMMO） */
+    private static ItemStack randomTaczAmmo(ServerLevel level, int min, int max) {
+        if (taczItem("tacz:ammo") == null) {
+            return new ItemStack(ModItems.SIXTY_SECONDS_AMMO, min + level.getRandom().nextInt(max - min + 1));
+        }
+        String[] ids = { "tacz:9mm", "tacz:22wmr", "tacz:12g", "tacz:762x39" };
+        String ammoId = ids[level.getRandom().nextInt(ids.length)];
+        int count = min + level.getRandom().nextInt(max - min + 1);
+        return taczAmmo(ammoId, count);
+    }
+    /** 随机 TACZ 枪械（若未装 TACZ 则返回空） */
+    private static ItemStack randomTaczGun(ServerLevel level) {
+        if (taczItem("tacz:modern_kinetic_gun") == null) return ItemStack.EMPTY;
+        String[] ids = { "tacz:glock_17", "tacz:taurus943", "tacz:db_short" };
+        return taczGun(ids[level.getRandom().nextInt(ids.length)]);
     }
 
     private static List<ItemStack> copyAll(List<ItemStack> stacks) {

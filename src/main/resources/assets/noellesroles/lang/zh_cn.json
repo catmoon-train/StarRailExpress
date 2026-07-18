@@ -6216,6 +6216,13 @@
   "message.noellesroles.sixty_seconds.devent.intel_buy.opt2": "不买",
   "message.noellesroles.sixty_seconds.devent.intel_buy.r1": "情报是真的——在他说的地方找到了：%1$s",
   "message.noellesroles.sixty_seconds.devent.intel_buy.r2": "情报贩子耸耸肩，继续等下一个顾客。",
+
+  "message.noellesroles.sixty_seconds.devent.toy_salesman.title": "玩具推销员",
+  "message.noellesroles.sixty_seconds.devent.toy_salesman.story": "一个推着破旧手推车的小贩吹着口哨停在门口：『3代币——从我的百宝箱里摸一件。保证是能让人笑出来的好东西。』手推车里有扑克牌、象棋、口琴、旧吉他，还有一只缝得歪歪扭扭的泰迪熊。",
+  "message.noellesroles.sixty_seconds.devent.toy_salesman.opt1": "成交（3代币）",
+  "message.noellesroles.sixty_seconds.devent.toy_salesman.opt2": "不买",
+  "message.noellesroles.sixty_seconds.devent.toy_salesman.r1": "小贩让你闭眼一摸——你抽中了：%1$s。",
+  "message.noellesroles.sixty_seconds.devent.toy_salesman.r2": "玩具在末日里确实有点奢侈。小贩耸耸肩，推着车哼着歌走了。",
   "message.noellesroles.sixty_seconds.knock.no_owner": "这扇门不属于任何家庭。",
   "message.noellesroles.sixty_seconds.knock.heard": "咚、咚、咚——有人在敲你们的门。",
   "message.noellesroles.sixty_seconds.knock.knocked": "你敲了敲 %s 号家庭的门。",
