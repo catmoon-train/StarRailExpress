@@ -135,60 +135,77 @@ public class PhantomMusicianPlayerComponent implements RoleComponent, ServerTick
             return;
         }
 
-        if (player.isSpectator()) return;
-        if (!GameUtils.isPlayerAliveAndSurvival(player)) return;
+        if (player.isSpectator())
+            return;
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return;
 
         // 传送冷却递减
         if (teleportCooldown > 0) {
             teleportCooldown--;
         }
         // 商店音效冷却递减
-        if (knifeSoundCooldown > 0) knifeSoundCooldown--;
-        if (revolverSoundCooldown > 0) revolverSoundCooldown--;
-        if (stalkerSoundCooldown > 0) stalkerSoundCooldown--;
-        if (psychoSoundCooldown > 0) psychoSoundCooldown--;
-        if (crowbarSoundCooldown > 0) crowbarSoundCooldown--;
-        if (randomSoundCooldown > 0) randomSoundCooldown--;
-        // 疯狂模式音效持续播放
-        if (psychoSoundPlayTimer > 0) {
-            player.level().playSound(null, player.blockPosition(), io.wifi.starrailexpress.index.TMMSounds.AMBIENT_PSYCHO_DRONE, SoundSource.PLAYERS, 0.5F, 1F);
-            psychoSoundPlayTimer--;
-        }
+        if (knifeSoundCooldown > 0)
+            knifeSoundCooldown--;
+        if (revolverSoundCooldown > 0)
+            revolverSoundCooldown--;
+        if (stalkerSoundCooldown > 0)
+            stalkerSoundCooldown--;
+        if (psychoSoundCooldown > 0)
+            psychoSoundCooldown--;
+        if (crowbarSoundCooldown > 0)
+            crowbarSoundCooldown--;
+        if (randomSoundCooldown > 0)
+            randomSoundCooldown--;
     }
 
     @Override
     public void clientTick() {
         // 客户端预测冷却递减（与服务端保持同步）
-        if (teleportCooldown > 1) teleportCooldown--;
-        if (knifeSoundCooldown > 1) knifeSoundCooldown--;
-        if (revolverSoundCooldown > 1) revolverSoundCooldown--;
-        if (stalkerSoundCooldown > 1) stalkerSoundCooldown--;
-        if (psychoSoundCooldown > 1) psychoSoundCooldown--;
-        if (crowbarSoundCooldown > 1) crowbarSoundCooldown--;
-        if (randomSoundCooldown > 1) randomSoundCooldown--;
+        if (teleportCooldown > 1)
+            teleportCooldown--;
+        if (knifeSoundCooldown > 1)
+            knifeSoundCooldown--;
+        if (revolverSoundCooldown > 1)
+            revolverSoundCooldown--;
+        if (stalkerSoundCooldown > 1)
+            stalkerSoundCooldown--;
+        if (psychoSoundCooldown > 1)
+            psychoSoundCooldown--;
+        if (crowbarSoundCooldown > 1)
+            crowbarSoundCooldown--;
+        if (randomSoundCooldown > 1)
+            randomSoundCooldown--;
     }
 
     /**
      * 传送技能：花费100金币传送到30格外随机一人的身边
      */
     public void useTeleport() {
-        if (teleportCooldown > 0) return;
+        if (teleportCooldown > 0)
+            return;
 
         SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-        if (shop.balance < TELEPORT_COST) return;
+        if (shop.balance < TELEPORT_COST)
+            return;
 
-        if (!(player.level() instanceof ServerLevel serverLevel)) return;
+        if (!(player.level() instanceof ServerLevel serverLevel))
+            return;
 
         // 收集30格外的存活玩家
         List<ServerPlayer> targets = new ArrayList<>();
         for (ServerPlayer p : serverLevel.players()) {
-            if (p == player) continue;
-            if (!GameUtils.isPlayerAliveAndSurvival(p)) continue;
-            if (player.distanceToSqr(p) <= TELEPORT_RANGE * TELEPORT_RANGE) continue;
+            if (p == player)
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
+                continue;
+            if (player.distanceToSqr(p) <= TELEPORT_RANGE * TELEPORT_RANGE)
+                continue;
             targets.add(p);
         }
 
-        if (targets.isEmpty()) return;
+        if (targets.isEmpty())
+            return;
 
         // 随机选择一个目标
         Collections.shuffle(targets);

@@ -1747,6 +1747,10 @@ public class RoleShopHandler {
                             return false;
                         c.psychoSoundCooldown = PhantomMusicianPlayerComponent.PSYCHO_SOUND_COOLDOWN;
                         c.psychoSoundPlayTimer = PhantomMusicianPlayerComponent.PSYCHO_SOUND_PLAY_DURATION;
+
+                        p.level().playSound(null, p.blockPosition(),
+                                io.wifi.starrailexpress.index.TMMSounds.AMBIENT_PSYCHO_DRONE, SoundSource.PLAYERS, 0.5F,
+                                1F);
                         c.sync();
                         return true;
                     }
