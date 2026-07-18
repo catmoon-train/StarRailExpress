@@ -1,10 +1,8 @@
 package net.exmo.sre.sixtyseconds.content.block;
 
 import com.mojang.serialization.MapCodec;
-import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper;
-import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -73,10 +71,7 @@ public class SixtySecondsMailboxBlock extends BaseEntityBlock {
         if (level instanceof ServerLevel serverLevel && placer instanceof ServerPlayer player) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mailbox) {
-                // 从 SixtySecondsState 取队伍 ID（权威来源，与其他模块一致）
-                int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
-                SixtySecondsState.TeamData team = SixtySecondsState.get(serverLevel).teams.get(teamId);
-                mailbox.ownerTeamId = team != null ? team.teamId : teamId;
+                mailbox.ownerTeamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
                 mailbox.setChanged();
                 SixtySecondsNewspaper.registerMailbox(serverLevel, mailbox.ownerTeamId, pos);
             }
@@ -86,61 +81,30 @@ public class SixtySecondsMailboxBlock extends BaseEntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (level.isClientSide) {
-            return ItemInteractionResult.SUCCESS;
-        }
-        if (!(player instanceof ServerPlayer serverPlayer)
-                || !SixtySecondsMod.isActive(level)) {
-            return ItemInteractionResult.SUCCESS;
-        }
-        BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mailbox)) {
-            return ItemInteractionResult.SUCCESS;
-        }
-        // 通过 SixtySecondsState 认队伍（与其他模块一致）
-        SixtySecondsState.TeamData team = SixtySecondsState.get((ServerLevel) level).teams
-                .get(SixtySecondsStatsComponent.KEY.get(serverPlayer).teamId);
-        if (team == null || team.teamId != mailbox.ownerTeamId) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.sixty_seconds.mailbox_not_owner"),
-                    true);
-            return ItemInteractionResult.SUCCESS;
-        }
-        serverPlayer.openMenu(new SimpleMenuProvider(
-                (id, inv, p) -> new net.exmo.sre.sixtyseconds.content.mail.SixtySecondsMailboxContainer(
-                        id, inv, mailbox),
-                Component.translatable("container.noellesroles.sixty_seconds_mailbox")));
+        openMailbox(level, pos, player);
         return ItemInteractionResult.SUCCESS;
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
             Player player, BlockHitResult hitResult) {
-        if (level.isClientSide) {
-            return InteractionResult.SUCCESS;
-        }
-        if (!(player instanceof ServerPlayer serverPlayer)
-                || !SixtySecondsMod.isActive(level)) {
-            return InteractionResult.SUCCESS;
+        openMailbox(level, pos, player);
+        return InteractionResult.SUCCESS;
+    }
+
+    /** 打开邮箱 GUI：不限队伍、不限游戏是否启动，所有人随时可打开。队伍绑定在放置时已完成，供报纸投递使用。 */
+    private void openMailbox(Level level, BlockPos pos, Player player) {
+        if (level.isClientSide || !(player instanceof ServerPlayer serverPlayer)) {
+            return;
         }
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mailbox)) {
-            return InteractionResult.SUCCESS;
-        }
-        // 通过 SixtySecondsState 认队伍（与其他模块一致）
-        SixtySecondsState.TeamData team = SixtySecondsState.get((ServerLevel) level).teams
-                .get(SixtySecondsStatsComponent.KEY.get(serverPlayer).teamId);
-        if (team == null || team.teamId != mailbox.ownerTeamId) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.sixty_seconds.mailbox_not_owner"),
-                    true);
-            return InteractionResult.SUCCESS;
+            return;
         }
         serverPlayer.openMenu(new SimpleMenuProvider(
                 (id, inv, p) -> new net.exmo.sre.sixtyseconds.content.mail.SixtySecondsMailboxContainer(
                         id, inv, mailbox),
                 Component.translatable("container.noellesroles.sixty_seconds_mailbox")));
-        return InteractionResult.SUCCESS;
     }
 
     @Override
