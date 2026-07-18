@@ -3435,7 +3435,7 @@
   "tech.noellesroles.sixty_seconds.omni_tonic": "综合补剂",
   "tech.noellesroles.sixty_seconds.omni_tonic.desc": "调配全能补剂，一瓶顶一个药箱。",
   "tech.noellesroles.sixty_seconds.permanent_boost_1": "永久增益-I",
-  "tech.noellesroles.sixty_seconds.permanent_boost_1.desc": "用绯红菌和发光浆果炼制精神强化剂，永久提升理智上限。",
+  "tech.noellesroles.sixty_seconds.permanent_boost_1.desc": "用绯红菌和微光浆果炼制精神强化剂，永久提升理智上限。",
   "tech.noellesroles.sixty_seconds.permanent_boost_2": "永久增益-II",
   "tech.noellesroles.sixty_seconds.permanent_boost_2.desc": "永久提升健康、污染抗性、饥饿与口渴上限的强化剂系列。",
   "tech.noellesroles.sixty_seconds.mystic_plants": "神秘植物",
@@ -3561,6 +3561,7 @@
   "item.noellesroles.sixty_seconds_band_aid": "创口贴",
   "tooltip.noellesroles.sixty_seconds_band_aid": "缓慢恢复少量健康与降低污染。",
 
+  "item.noellesroles.sixty_seconds_shimmer_berry": "微光浆果",
   "item.noellesroles.sixty_seconds_bamboo_rice": "竹筒饭",
   "tooltip.noellesroles.sixty_seconds_bamboo_rice": "竹子装的糯米饭，暖身又顶饱。",
   "block.noellesroles.sixty_seconds_power_battery": "蓄电池",
@@ -3638,6 +3639,7 @@
   "station.noellesroles.sixty_seconds.altar": "祭坛",
   "group.noellesroles.sixty_seconds.mushroom": "任意蘑菇",
   "group.noellesroles.sixty_seconds.fruit": "任意水果",
+  "group.noellesroles.sixty_seconds.glow_berry": "任意发光浆果",
   "group.noellesroles.sixty_seconds.raw_meat": "任意生肉",
   "group.noellesroles.sixty_seconds.vegetable": "任意蔬菜",
   "group.noellesroles.sixty_seconds.fish": "任意鱼类",
@@ -6566,7 +6568,7 @@
   "tech.noellesroles.sixty_seconds.misc_planter_2.desc": "制作园丁培育箱，种植浆果与竹子。",
   "message.noellesroles.sixty_seconds.planter.crop.bamboo": "竹子",
   "message.noellesroles.sixty_seconds.planter.crop.sweet_berries": "甜浆果",
-  "message.noellesroles.sixty_seconds.planter.crop.glow_berries": "发光浆果",
+  "message.noellesroles.sixty_seconds.planter.crop.glow_berries": "微光浆果",
 
   "item.noellesroles.sixty_seconds_phone": "电话",
   "tooltip.noellesroles.sixty_seconds_phone": "右键打开拨号界面，拨打热线号码。",

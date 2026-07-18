@@ -820,6 +820,11 @@ public class ModItems {
                     new Item.Properties().stacksTo(8), 40, 70, 0, 0, 0, false, null,
                     100, net.minecraft.world.item.UseAnim.EAT),
             "sixty_seconds_bamboo_rice", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 微光浆果：与原版发光浆果同参数，供60s内部食谱/作物系统使用（营养2×5=10饥饿）
+    public static final Item SIXTY_SECONDS_SHIMMER_BERRY = register(
+            new Item(new Item.Properties().stacksTo(64).food(
+                    new net.minecraft.world.food.FoodProperties.Builder().nutrition(2).saturationModifier(0.1F).alwaysEdible().build())),
+            "sixty_seconds_shimmer_berry", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 袋装果干：3果干+1纸，恢复60饥饿（营养12×5）
     public static final Item SIXTY_SECONDS_BAGGED_DRIED_FRUIT = register(
             new Item(new Item.Properties().stacksTo(8).food(

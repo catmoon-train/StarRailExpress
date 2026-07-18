@@ -274,7 +274,8 @@ public final class SixtySecondsRecipes {
     // ── 「任意 X」配料组 ──────────────────────────────────────────
 
     private static List<Item> fruits() {
-        return List.of(Items.APPLE, Items.MELON_SLICE, Items.MELON, Items.SWEET_BERRIES, Items.GLOW_BERRIES,
+        return List.of(Items.APPLE, Items.MELON_SLICE, Items.MELON, Items.SWEET_BERRIES, ModItems.SIXTY_SECONDS_SHIMMER_BERRY,
+                Items.GLOW_BERRIES,
                 Items.CHORUS_FRUIT);
     }
 
@@ -867,7 +868,8 @@ public final class SixtySecondsRecipes {
                 ModItems.SIXTY_SECONDS_COGNITIVE_BOOSTER, 1);
         // ── 永久增益-I（前置：全能补剂） ──────────────────────────────
         add(list, "mental_fortifier_2", Station.STERILE, "permanent_boost_1", true,
-                List.of(in(chem, 6), in(Items.CRIMSON_FUNGUS, 6), in(Items.GLOW_BERRIES, 4)),
+                List.of(in(chem, 6), in(Items.CRIMSON_FUNGUS, 6),
+                        any("glow_berry", 4, List.of(ModItems.SIXTY_SECONDS_SHIMMER_BERRY, Items.GLOW_BERRIES))),
                 ModItems.SIXTY_SECONDS_MENTAL_FORTIFIER, 1);
         // ── 永久增益-II（前置：永久增益-I） ────────────────────────────
         add(list, "cognitive_booster_2", Station.STERILE, "permanent_boost_2", true,

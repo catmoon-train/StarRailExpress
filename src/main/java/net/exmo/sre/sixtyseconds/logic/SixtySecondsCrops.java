@@ -129,7 +129,10 @@ public final class SixtySecondsCrops {
                 2, 2, "misc_planter_2", false, false, false, true));
         list.add(new Crop("sweet_berries", Items.SWEET_BERRIES, Items.SWEET_BERRIES,
                 2, 2, "misc_planter_2", false, false, false, true));
-        list.add(new Crop("glow_berries", Items.GLOW_BERRIES, Items.GLOW_BERRIES,
+        list.add(new Crop("glow_berries", ModItems.SIXTY_SECONDS_SHIMMER_BERRY, ModItems.SIXTY_SECONDS_SHIMMER_BERRY,
+                2, 2, "misc_planter_2", false, false, false, true));
+        // 发光浆果也可种出微光浆果（互通）
+        list.add(new Crop("glow_berries_alt", Items.GLOW_BERRIES, ModItems.SIXTY_SECONDS_SHIMMER_BERRY,
                 2, 2, "misc_planter_2", false, false, false, true));
         // 园丁培育箱：可可豆（种1收2）
         list.add(new Crop("cocoa_beans", Items.COCOA_BEANS, Items.COCOA_BEANS,

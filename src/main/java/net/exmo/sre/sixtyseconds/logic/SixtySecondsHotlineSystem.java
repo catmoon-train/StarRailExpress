@@ -785,7 +785,7 @@ public final class SixtySecondsHotlineSystem {
             s(Items.MELON_SEEDS, 3, 6),
             s(Items.BAMBOO, 3, 6),
             s(Items.SWEET_BERRIES, 3, 6),
-            s(Items.GLOW_BERRIES, 3, 6),
+            s(ModItems.SIXTY_SECONDS_SHIMMER_BERRY, 3, 6),
             s(Items.COCOA_BEANS, 3, 6)
         ));
         // 低概率特殊种子
