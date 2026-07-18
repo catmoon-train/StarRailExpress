@@ -9,6 +9,7 @@
     "ClimbingBootsStepMixin",
     "SixtySecondsBlockEntityFixMixin",
     "SixtySecondsConsumeMixin",
+    "SixtySecondsPotionConsumeMixin",
     "SixtySecondsFoodStackMixin",
     "SixtySecondsDownedPoseMixin",
     "SixtySecondsGunTracerMixin",
