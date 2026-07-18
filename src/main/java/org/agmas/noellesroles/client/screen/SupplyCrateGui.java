@@ -9,8 +9,14 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.content.block_entity.SupplyCrateBlockEntity;
 import org.agmas.noellesroles.packet.SupplyCrateSaveConfigC2SPacket;
@@ -52,8 +58,8 @@ public class SupplyCrateGui extends Screen {
     private Button saveButton;
     private Button addRowButton;
 
-    private static final int ITEM_ROW_HEIGHT = 50;
-    private static final int ITEM_ROWS_VISIBLE = 4;
+    private static final int ITEM_ROW_HEIGHT = 64;
+    private static final int ITEM_ROWS_VISIBLE = 3;
 
     public SupplyCrateGui(BlockPos blockPos, SupplyCrateBlockEntity crate) {
         super(Component.translatable("gui.noellesroles.supply_crate.title"));
@@ -62,7 +68,7 @@ public class SupplyCrateGui extends Screen {
         // 从方块实体加载现有配置
         List<SupplyCrateBlockEntity.SupplyCrateEntry> entries = crate.getConfigItems();
         for (var entry : entries) {
-            itemRows.add(new ItemConfigRow(entry.itemId(), entry.count(), entry.probability()));
+            itemRows.add(new ItemConfigRow(entry.itemId(), entry.count(), entry.probability(), entry.nbt()));
         }
         if (itemRows.isEmpty()) {
             itemRows.add(new ItemConfigRow("minecraft:apple", 1, 1.0));
@@ -203,6 +209,25 @@ public class SupplyCrateGui extends Screen {
                     btn -> removeRow(idx)
             ).bounds(x + 190, rowY, 18, 16).build();
             addRenderableWidget(delBtn);
+
+            // NBT 输入框（第二行）
+            int nbtY = rowY + 22;
+            EditBox nbtBox = new EditBox(font, x, nbtY, 165, 16,
+                    Component.translatable("gui.noellesroles.supply_crate.nbt"));
+            nbtBox.setValue(row.nbt != null ? row.nbt : "");
+            nbtBox.setResponder(val -> row.nbt = val.isBlank() ? null : val);
+            nbtBox.setTooltip(Tooltip.create(Component.literal("{\"minecraft:custom_name\":'{\"text\":\"物品名\"}'}")));
+            addRenderableWidget(nbtBox);
+            row.nbtWidget = nbtBox;
+
+            // 手持导入按钮（从玩家手/指针捕获物品+NBT）
+            final int importIdx = i;
+            Button importBtn = Button.builder(
+                    Component.literal("\uD83D\uDCE6"),
+                    btn -> importFromHand(importIdx)
+            ).bounds(x + 168, nbtY, 16, 16).build();
+            importBtn.setTooltip(Tooltip.create(Component.literal("从手持物品导入（含NBT）")));
+            addRenderableWidget(importBtn);
         }
     }
 
@@ -251,7 +276,7 @@ public class SupplyCrateGui extends Screen {
             // 重新加载物品列表
             itemRows.clear();
             for (var entry : crate.getConfigItems()) {
-                itemRows.add(new ItemConfigRow(entry.itemId(), entry.count(), entry.probability()));
+                itemRows.add(new ItemConfigRow(entry.itemId(), entry.count(), entry.probability(), entry.nbt()));
             }
             if (itemRows.isEmpty()) {
                 itemRows.add(new ItemConfigRow("minecraft:apple", 1, 1.0));
@@ -269,7 +294,8 @@ public class SupplyCrateGui extends Screen {
                 entries.add(new SupplyCrateBlockEntity.SupplyCrateEntry(
                         row.itemId,
                         Math.max(1, row.count),
-                        Math.max(0, row.probability)
+                        Math.max(0, row.probability),
+                        (row.nbt != null && !row.nbt.isBlank()) ? row.nbt : null
                 ));
             }
         }
@@ -319,6 +345,7 @@ public class SupplyCrateGui extends Screen {
         g.drawString(font, "ID", leftPanelX + 10, leftPanelY + 2, 0xAAAAAA);
         g.drawString(font, "QTY", leftPanelX + 115, leftPanelY + 2, 0xAAAAAA);
         g.drawString(font, "Prob", leftPanelX + 155, leftPanelY + 2, 0xAAAAAA);
+        g.drawString(font, "NBT", leftPanelX + 10, leftPanelY + 2 + 22, 0x777777);
 
         // 渲染滚动条
         renderScrollbar(g, mouseX, mouseY);
@@ -447,19 +474,65 @@ public class SupplyCrateGui extends Screen {
         return mx >= rx && mx < rx + rw && my >= ry && my < ry + rh;
     }
 
+    /**
+     * 从玩家手持/指针物品导入到指定行（含 NBT 组件）
+     */
+    private void importFromHand(int rowIndex) {
+        if (rowIndex < 0 || rowIndex >= itemRows.size()) return;
+        var client = Minecraft.getInstance();
+        if (client.player == null) return;
+
+        // 优先取指针上的物品（创造模式从中键/物品栏拖拽），其次主手
+        ItemStack stack = client.player.containerMenu.getCarried();
+        if (stack.isEmpty()) {
+            stack = client.player.getMainHandItem();
+        }
+        if (stack.isEmpty()) return;
+
+        ItemConfigRow row = itemRows.get(rowIndex);
+        row.itemId = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+        row.count = stack.getCount();
+
+        // 序列化组件为 SNBT
+        if (client.level != null) {
+            try {
+                var provider = client.level.registryAccess();
+                CompoundTag fullTag = (CompoundTag) stack.save(provider);
+                if (fullTag.contains("components", Tag.TAG_COMPOUND)) {
+                    CompoundTag components = fullTag.getCompound("components");
+                    row.nbt = components.isEmpty() ? null : components.toString();
+                } else {
+                    row.nbt = null;
+                }
+            } catch (Exception e) {
+                row.nbt = null;
+            }
+        }
+
+        // 刷新控件以显示更新后的值
+        rebuildItemRowWidgets();
+    }
+
     // 物品配置行
     private static class ItemConfigRow {
         String itemId;
         int count;
         double probability;
+        String nbt;
         EditBox idWidget;
         EditBox countWidget;
         EditBox probWidget;
+        EditBox nbtWidget;
 
         ItemConfigRow(String itemId, int count, double probability) {
+            this(itemId, count, probability, null);
+        }
+
+        ItemConfigRow(String itemId, int count, double probability, String nbt) {
             this.itemId = itemId;
             this.count = count;
             this.probability = probability;
+            this.nbt = nbt;
         }
     }
 }

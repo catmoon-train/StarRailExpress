@@ -220,6 +220,9 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 区域地图物品：客户端扫描 playArea 生成地图纹理 + 手持时 HUD 小地图
         org.agmas.noellesroles.client.map.AreaMapManager.register();
         org.agmas.noellesroles.client.map.AreaMapHud.register();
+        // 星级地图：迷雾探索 + 星级区域 + 探索缓存
+        org.agmas.noellesroles.client.map.StarMapManager.register();
+        org.agmas.noellesroles.client.map.StarMapHud.register();
         // 海图返回住所划船动画 HUD
         net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.register();
         // 阿蒙终幕「阿蒙时刻」：全屏稍偏灰滤镜。
@@ -342,6 +345,15 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (client.player == null)
                 return;
             net.exmo.sre.sixtyseconds.client.SeaChartReturnHud.openFullScreenChart();
+        };
+        // 星图物品右键打开全屏星图
+        StarMapItem.openScreenCallback = () -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return;
+            // 加载已探索数据
+            org.agmas.noellesroles.client.map.StarMapManager.loadExploredChunks();
+            client.setScreen(new org.agmas.noellesroles.client.screen.StarMapScreen());
         };
         // 场景方块客户端屏幕回调（避免服务端加载 Screen 类导致崩溃）
         org.agmas.noellesroles.content.block.scene.ReactorBlock.openReactorScreenCallback = (pos) -> {

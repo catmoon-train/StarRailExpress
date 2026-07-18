@@ -51,7 +51,16 @@ public final class SixtySecondsRegionSupply {
             int x = minX + rng.nextInt(maxX - minX + 1);
             int z = minZ + rng.nextInt(maxZ - minZ + 1);
             level.getChunk(x >> 4, z >> 4); // 强载，扫地表需要区块已加载
-            Integer y = scanGround(level, x, z, maxY, minY);
+            // ~50% 的概率优先尝试室内，找不到再回退到室外地表
+            Integer y;
+            if (rng.nextFloat() < 0.5f) {
+                y = scanInterior(level, x, z, maxY, minY);
+                if (y == null) {
+                    y = scanGround(level, x, z, maxY, minY);
+                }
+            } else {
+                y = scanGround(level, x, z, maxY, minY);
+            }
             if (y == null) {
                 continue;
             }
@@ -95,6 +104,42 @@ public final class SixtySecondsRegionSupply {
                     && level.getBlockState(p).getFluidState().isEmpty();
             if (solid && level.getBlockState(p.set(x, y + 1, z)).isAir()) {
                 return y + 1;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 自下而上在 [bottom,top] 找室内落脚点，要求同时满足三个条件：
+     * <ol>
+     *   <li>脚下（y-1）是实心块（地板）</li>
+     *   <li>当前位置（y）是空气（可放置箱子）</li>
+     *   <li>头顶 2~10 格内有实心块（天花板），适配低矮棚屋到高大厅堂等各种建筑</li>
+     * </ol>
+     * 返回该空气格 y；找不到返回 null。
+     */
+    private static Integer scanInterior(ServerLevel level, int x, int z, int top, int bottom) {
+        BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+        for (int y = bottom; y < top; y++) {
+            // 地板：脚下必须是实心块
+            if (y - 1 < bottom) continue;
+            p.set(x, y - 1, z);
+            boolean floorBelow = !level.getBlockState(p).isAir()
+                    && level.getBlockState(p).getFluidState().isEmpty();
+            if (!floorBelow) continue;
+
+            // 站位：当前位置必须是空气（才能放箱子）
+            p.set(x, y, z);
+            if (!level.getBlockState(p).isAir()) continue;
+
+            // 天花板：头顶 2~10 格内必须有实心块（覆盖低矮棚屋到高大厅堂）
+            int ceilingMax = Math.min(y + 10, top);
+            for (int cy = y + 2; cy <= ceilingMax; cy++) {
+                p.set(x, cy, z);
+                if (!level.getBlockState(p).isAir()
+                        && level.getBlockState(p).getFluidState().isEmpty()) {
+                    return y;
+                }
             }
         }
         return null;
