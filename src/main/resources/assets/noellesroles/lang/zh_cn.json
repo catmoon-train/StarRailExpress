@@ -6450,6 +6450,7 @@
   "message.noellesroles.sixty_seconds.tip_tech": "§e生存提示：§7科技树使用废料解锁更高级的配方，优先研究基础生存科技。",
   "message.noellesroles.sixty_seconds.tip_planter_fertilizer": "§e生存提示：§7培育箱中的作物可以用肥料右键催熟，缩短等待时间。",
   "message.noellesroles.sixty_seconds.tip_airdrop": "§e生存提示：§7空投物资通常会落在各队避难所附近，记得及时去取。",
+  "message.noellesroles.sixty_seconds.tip_hotline_seeds": "§e生存提示：§7各位幸存者能在购物热线中购买到一些特殊的种子。",
 
   "message.noellesroles.sixty_seconds.event_acid_fog_name": "酸雾",
   "message.noellesroles.sixty_seconds.event_acid_fog_start": "酸雾弥漫！在户外将受到持续伤害和中毒效果！",

@@ -44,7 +44,8 @@ public final class SixtySecondsNewspaper {
             "tip_bandage", "tip_sanity", "tip_painkillers",
             "tip_generator", "tip_crafting", "tip_spike_trap",
             "tip_teamwork", "tip_monster", "tip_trade",
-            "tip_tech", "tip_planter_fertilizer", "tip_airdrop"
+            "tip_tech", "tip_planter_fertilizer", "tip_airdrop",
+            "tip_hotline_seeds"
     };
 
     /** 邻里八卦池（每期随机一条） */

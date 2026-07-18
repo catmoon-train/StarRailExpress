@@ -5607,6 +5607,7 @@
   "message.noellesroles.sixty_seconds.tip_tech": "§eTip: §7The tech tree uses scrap to unlock advanced recipes. Prioritize basic survival tech first.",
   "message.noellesroles.sixty_seconds.tip_planter_fertilizer": "§eTip: §7Right-click crops in the planter with fertilizer to speed up their growth.",
   "message.noellesroles.sixty_seconds.tip_airdrop": "§eTip: §7Airdrop supplies usually land near team shelters. Collect them promptly.",
+  "message.noellesroles.sixty_seconds.tip_hotline_seeds": "§eTip: §7Survivors can purchase special seeds from the shopping hotline.",
 
   "message.noellesroles.sixty_seconds.event_sandstorm_name": "Sandstorm",
   "message.noellesroles.sixty_seconds.event_sandstorm_start": "A sandstorm sweeps through the city! Visibility drops sharply outdoors!",

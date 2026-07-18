@@ -5468,6 +5468,7 @@
   "message.noellesroles.sixty_seconds.tip_tech": "§e生存提示：§7科技樹使用廢料解鎖更高級的配方，優先研究基礎生存科技。",
   "message.noellesroles.sixty_seconds.tip_planter_fertilizer": "§e生存提示：§7培育箱中的作物可以用肥料右鍵催熟，縮短等待時間。",
   "message.noellesroles.sixty_seconds.tip_airdrop": "§e生存提示：§7空投物資通常會落在各隊避難所附近，記得及時去取。",
+  "message.noellesroles.sixty_seconds.tip_hotline_seeds": "§e生存提示：§7各位倖存者能在購物熱線中購買到一些特殊的種子。",
 
   "message.noellesroles.sixty_seconds.event_sandstorm_name": "沙塵暴",
   "message.noellesroles.sixty_seconds.event_sandstorm_start": "沙塵暴席捲全城！戶外能見度大降！",
