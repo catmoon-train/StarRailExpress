@@ -172,6 +172,16 @@ public final class SixtySecondsNewspaper {
     public static void publish(ServerLevel level, SixtySecondsState.Data data) {
         LevelState st = STATE.computeIfAbsent(level, ignored -> new LevelState());
         if (!st.papers.isEmpty() && st.papers.get(st.papers.size() - 1).day == data.dayNumber) return;
+        doPublish(level, data, st);
+    }
+
+    /** 强制发布（跳过当日已发布的守卫，用于测试指令） */
+    public static void forcePublish(ServerLevel level, SixtySecondsState.Data data) {
+        LevelState st = STATE.computeIfAbsent(level, ignored -> new LevelState());
+        doPublish(level, data, st);
+    }
+
+    private static void doPublish(ServerLevel level, SixtySecondsState.Data data, LevelState st) {
 
         List<Integer> picked = new ArrayList<>();
         for (int i = 0; i < NEWS_PER_DAY; i++) {
@@ -460,6 +470,103 @@ public final class SixtySecondsNewspaper {
             }
         }
         return total;
+    }
+
+    /** 生成一份模拟报纸（不依赖游戏状态，直接打开给玩家看） */
+    public static void openMock(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        var rand = level.getRandom();
+
+        // 随机选取 3 条新闻 ID
+        List<Integer> picked = new ArrayList<>();
+        for (int i = 0; i < NEWS_PER_DAY; i++) {
+            int n = 1 + rand.nextInt(NEWS_COUNT);
+            while (picked.contains(n)) n = 1 + rand.nextInt(NEWS_COUNT);
+            picked.add(n);
+        }
+
+        List<Component> sections = new ArrayList<>();
+
+        // 1. 新闻
+        var headline = new StringBuilder();
+        headline.append("≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡\n");
+        for (int n : picked) {
+            headline.append("◆ ");
+            headline.append(Component.translatable(LANG + "n" + n).getString());
+            headline.append("\n\n");
+        }
+        headline.append("≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡");
+        sections.add(Component.literal(headline.toString()).withStyle(ChatFormatting.DARK_RED));
+
+        // 2. 天气播报
+        StringBuilder weather = new StringBuilder();
+        weather.append(Component.translatable(LANG + "section_weather").getString()).append("\n\n");
+        String weatherKey = SixtySecondsEventSystem.activeEventKey(level);
+        if (weatherKey != null) {
+            weather.append(Component.translatable("message.noellesroles.sixty_seconds.weather_active").getString());
+            weather.append(Component.translatable(weatherKey).getString());
+        } else {
+            weather.append(Component.translatable("message.noellesroles.sixty_seconds.weather_clear").getString());
+        }
+        sections.add(Component.literal(weather.toString()).withStyle(ChatFormatting.GOLD));
+
+        // 3. 全区动态
+        StringBuilder zone = new StringBuilder();
+        zone.append(Component.translatable(LANG + "section_zone").getString()).append("\n\n");
+        zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_peaceful").getString());
+        zone.append("\n");
+        zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_alive", 4).getString());
+        zone.append("\n");
+        zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_order_stable").getString());
+        sections.add(Component.literal(zone.toString()).withStyle(ChatFormatting.DARK_AQUA));
+
+        // 4. 生存小贴士
+        String tipKey = TIPS[rand.nextInt(TIPS.length)];
+        StringBuilder tips = new StringBuilder();
+        tips.append(Component.translatable(LANG + "section_tips").getString()).append("\n\n");
+        tips.append(Component.translatable("message.noellesroles.sixty_seconds." + tipKey).getString());
+        sections.add(Component.literal(tips.toString()).withStyle(ChatFormatting.GREEN));
+
+        // 5. PVP紧急播报（模拟固定出现）
+        StringBuilder pvp = new StringBuilder();
+        pvp.append(Component.translatable(LANG + "section_emergency").getString()).append("\n\n");
+        pvp.append(Component.translatable("message.noellesroles.sixty_seconds.pvp_broadcast_ongoing").getString());
+        sections.add(Component.literal(pvp.toString()).withStyle(ChatFormatting.RED));
+
+        // 6. 特殊通报（随机3种之一）
+        StringBuilder report = new StringBuilder();
+        report.append(Component.translatable(LANG + "section_report").getString()).append("\n\n");
+        int reportType = rand.nextInt(3);
+        switch (reportType) {
+            case 0 -> report.append(Component.translatable("message.noellesroles.sixty_seconds.report_richest", 2, 42).getString());
+            case 1 -> report.append(Component.translatable("message.noellesroles.sixty_seconds.report_kills", 3, 5).getString());
+            case 2 -> report.append(Component.translatable("message.noellesroles.sixty_seconds.report_survivors", 4, "1 2 3 4").getString());
+        }
+        sections.add(Component.literal(report.toString()).withStyle(ChatFormatting.LIGHT_PURPLE));
+
+        // 7. 幸存者投稿（模拟一条）
+        StringBuilder drafts = new StringBuilder();
+        drafts.append(Component.translatable(LANG + "section_drafts").getString()).append("\n\n");
+        drafts.append(Component.translatable(LANG + "draft_entry", 1,
+                Component.translatable("message.noellesroles.sixty_seconds.gossip_8").getString()).getString());
+        sections.add(Component.literal(drafts.toString()).withStyle(ChatFormatting.YELLOW));
+
+        // 8. 邻里八卦
+        String gossipKey = GOSSIP[rand.nextInt(GOSSIP.length)];
+        StringBuilder gossip = new StringBuilder();
+        gossip.append(Component.translatable(LANG + "section_gossip").getString()).append("\n\n");
+        gossip.append(Component.translatable("message.noellesroles.sixty_seconds." + gossipKey).getString());
+        sections.add(Component.literal(gossip.toString()).withStyle(ChatFormatting.LIGHT_PURPLE));
+
+        // 9. 尾页
+        StringBuilder footer = new StringBuilder();
+        footer.append(Component.translatable(LANG + "section_divider").getString()).append("\n");
+        footer.append(Component.translatable(LANG + "footer", 7).getString());
+        sections.add(Component.literal(footer.toString()).withStyle(ChatFormatting.DARK_GRAY));
+
+        SRENetworkMessageUtils.sendNewspaper(player, sections,
+                java.util.Optional.of(Component.translatable(LANG + "title", 7)),
+                java.util.Optional.of(Component.translatable(LANG + "author")));
     }
 
     /** 打开报纸界面 */

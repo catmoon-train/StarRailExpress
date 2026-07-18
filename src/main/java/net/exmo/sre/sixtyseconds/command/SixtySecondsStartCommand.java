@@ -330,22 +330,23 @@ public final class SixtySecondsStartCommand {
         return 1;
     }
 
-    /** 测试用：给予模拟报纸（内容中的玩家名统一为 Player） */
+    /** 测试用：强制生成一份当日报纸并打开（即使60s未启动也能模拟） */
     private static int giveNewspaper(CommandSourceStack source) {
         if (!(source.getEntity() instanceof ServerPlayer player)) return 0;
         ServerLevel level = player.serverLevel();
         net.exmo.sre.sixtyseconds.state.SixtySecondsState.Data data =
                 net.exmo.sre.sixtyseconds.state.SixtySecondsState.get(level);
-        if (!SixtySecondsMod.isActive(level) || data.teams.isEmpty()) {
-            ItemStack stack = new ItemStack(ModItems.NEWSPAPER, 1);
-            if (!player.getInventory().add(stack)) player.drop(stack, false);
-            source.sendSuccess(() -> Component.translatable(
-                    "message.noellesroles.sixty_seconds.newspaper_given"), true);
-            return 1;
-        }
         int teamId = net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(player).teamId;
-        net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.collectDrafts(level, data);
-        net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.publish(level, data);
+
+        if (SixtySecondsMod.isActive(level) && !data.teams.isEmpty()) {
+            // 游戏活跃：强制发布真实报纸
+            net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.forcePublish(level, data);
+            net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.open(player);
+        } else {
+            // 60s 未启动或无队伍：生成模拟报纸
+            net.exmo.sre.sixtyseconds.logic.SixtySecondsNewspaper.openMock(player);
+        }
+
         ItemStack stack = new ItemStack(ModItems.NEWSPAPER, 1);
         if (!player.getInventory().add(stack)) player.drop(stack, false);
         source.sendSuccess(() -> Component.translatable(
