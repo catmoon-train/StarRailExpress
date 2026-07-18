@@ -62,6 +62,9 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.EXAMPLER)) {
+            if (abilityPlayerComponent.hasCooldown()) {
+                return;
+            }
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
             if (shop.balance < 300) {
                 player.displayClientMessage(
@@ -344,6 +347,10 @@ public class AbilityHandler {
         if (gameWorldComponent.isRole(player, ModRoles.EXAMPLER)) {
             if (targetUUID == null)
                 return;
+
+            if (abilityPlayerComponent.hasCooldown()) {
+                return;
+            }
             Player target = player.level().getPlayerByUUID(targetUUID);
             if (!(target instanceof ServerPlayer sp))
                 return;
@@ -373,7 +380,8 @@ public class AbilityHandler {
     }
 
     private static boolean isGhostEyeRole(SREGameWorldComponent gameWorldComponent, Player player) {
-        if (gameWorldComponent == null || player == null) return false;
+        if (gameWorldComponent == null || player == null)
+            return false;
         var role = gameWorldComponent.getRole(player);
         return role != null && role.identifier().equals(ModRoles.GHOST_EYE_ID);
     }
