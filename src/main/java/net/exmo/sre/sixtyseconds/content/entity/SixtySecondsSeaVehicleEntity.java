@@ -266,9 +266,9 @@ public class SixtySecondsSeaVehicleEntity extends Boat {
         } else if (kind == Kind.MOTORBOAT) {
             // 汽艇 3 人横排并列坐，整体偏左、偏前
             offsetX = switch (index) {
-                case 0 -> -1.2;
-                case 1 -> -0.5;
-                case 2 -> 0.2;
+                case 0 -> -0.2;
+                case 1 -> 0.5;
+                case 2 -> 1.2;
                 default -> 0.0;
             };
             offsetZ = 1.0;  // 全部向前移 1 格
