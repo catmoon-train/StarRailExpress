@@ -645,7 +645,7 @@ public final class SixtySecondsRecipes {
                         in(Items.BOWL, 1)),
                 ModItems.SIXTY_SECONDS_BONE_SOUP, 1);
         // 竹筒饭：竹子×1 + 野米×3 + 任意蔬菜×2，通电
-        add(list, "bamboo_rice", Station.STOVE, "waste_3", true,
+        add(list, "bamboo_rice", Station.STOVE, "waste_4", true,
                 List.of(in(Items.BAMBOO, 1), in(rice, 3), any("vegetable", 2, vegetables())),
                 ModItems.SIXTY_SECONDS_BAMBOO_RICE, 1);
         add(list, "one_pot_stew", Station.STOVE, "waste_3", false,
@@ -1084,8 +1084,6 @@ public final class SixtySecondsRecipes {
         tacz(list, "tacz_ammo_box", "ammo_box", "tacz:ammo_box", null, null, 1,
                 List.of(in(steel, 6), in(hemp, 3), in(plastic, 5)));
         // ── 激光指示器 ────────────────────────────────────────────────
-        attachment(list, "tacz_handheldmoon_laser", "laser_sight", "handheldmoon:handheldmoon_laser",
-                List.of(in(ModItems.SIXTY_SECONDS_FLASHLIGHT, 1), in(tape, 1)));
         attachment(list, "tacz_laser_compact", "laser_sight", "tacz:laser_compact",
                 List.of(in(elec, 2), in(wire, 3), in(copper, 2)));
         // ── 瞄具 ─────────────────────────────────────────────────────
