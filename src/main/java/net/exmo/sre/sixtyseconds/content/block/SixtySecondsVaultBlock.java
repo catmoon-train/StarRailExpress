@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsVaultBlockEntity;
+import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -68,7 +69,10 @@ public class SixtySecondsVaultBlock extends BaseEntityBlock {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide && placer instanceof ServerPlayer player
                 && level.getBlockEntity(pos) instanceof SixtySecondsVaultBlockEntity be) {
-            be.ownerTeamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+            // 从 SixtySecondsState 取权威 teamId（而非直接信 stats 组件）
+            int teamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+            SixtySecondsState.TeamData team = SixtySecondsState.get((net.minecraft.server.level.ServerLevel) level).teams.get(teamId);
+            be.ownerTeamId = team != null ? team.teamId : teamId;
             be.setChanged();
         }
     }
@@ -99,8 +103,9 @@ public class SixtySecondsVaultBlock extends BaseEntityBlock {
         }
         // 保险库锁：对局运行时对外队上锁，撬锁器套组可破
         if (restricted && SixtySecondsMod.isActive(level) && !serverPlayer.isCreative()) {
-            int teamId = SixtySecondsStatsComponent.KEY.get(serverPlayer).teamId;
-            if (be.ownerTeamId >= 0 && be.ownerTeamId != teamId) {
+            SixtySecondsState.TeamData playerTeam = SixtySecondsState.get((net.minecraft.server.level.ServerLevel) level)
+                    .teams.get(SixtySecondsStatsComponent.KEY.get(serverPlayer).teamId);
+            if (be.ownerTeamId >= 0 && (playerTeam == null || playerTeam.teamId != be.ownerTeamId)) {
                 ItemStack held = serverPlayer.getMainHandItem();
                 if (!held.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_VAULT_PICK_KIT)) {
                     serverPlayer.displayClientMessage(Component.translatable(
