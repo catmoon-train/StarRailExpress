@@ -127,7 +127,9 @@ public class XiaoNaoHandler {
                 || deathReason.getPath().equals("boulder_crush")
                 || deathReason.getPath().equals("wizard_fire_arrow")
                 || deathReason.getPath().equals("wizard_fireball")
-                || deathReason.getPath().equals("undead_infection");
+                || deathReason.getPath().equals("undead_infection")
+                || deathReason.getPath().equals("throwing_axe")
+                || deathReason.getPath().equals("throwing_axe_hit");
     }
 
 }

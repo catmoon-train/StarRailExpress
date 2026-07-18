@@ -1735,7 +1735,7 @@ public class RoleShopHandler {
             }
             // 疯狂模式的声音 - 350金币, 冷却5分钟, 持续播放30秒
             {
-                ItemStack s = new ItemStack(Items.NOTE_BLOCK);
+                ItemStack s = new ItemStack(io.wifi.starrailexpress.index.TMMItems.PSYCHO_MODE);
                 s.set(DataComponents.ITEM_NAME,
                         Component.translatable("item.noellesroles.phantom_musician.psycho_sound"));
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 350, ShopEntry.Type.TOOL) {
@@ -1751,6 +1751,9 @@ public class RoleShopHandler {
                         p.level().playSound(null, p.blockPosition(),
                                 io.wifi.starrailexpress.index.TMMSounds.AMBIENT_PSYCHO_DRONE, SoundSource.PLAYERS, 0.5F,
                                 1F);
+                        // 使狂暴模式物品进入对应冷却
+                        p.getCooldowns().addCooldown(io.wifi.starrailexpress.index.TMMItems.PSYCHO_MODE,
+                                PhantomMusicianPlayerComponent.PSYCHO_SOUND_COOLDOWN);
                         c.sync();
                         return true;
                     }

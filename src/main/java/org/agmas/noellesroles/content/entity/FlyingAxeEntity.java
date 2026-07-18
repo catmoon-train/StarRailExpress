@@ -186,6 +186,6 @@ public class FlyingAxeEntity extends AbstractArrow {
 
     @Override
     protected ItemStack getDefaultPickupItem() {
-        return ModItems.THROWING_AXE.getDefaultInstance();
+        return ItemStack.EMPTY; // 不生成掉落物
     }
 }
