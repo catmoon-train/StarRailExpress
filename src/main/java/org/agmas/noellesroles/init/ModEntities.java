@@ -55,15 +55,15 @@ public class ModEntities {
     public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>
             SIXTY_SECONDS_RAFT = registerSeaVehicle("sixty_seconds_raft",
                     net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind.RAFT,
-                    1.6F, 0.45F);
+                    3.2F, 0.9F);
     public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>
             SIXTY_SECONDS_MOTORBOAT = registerSeaVehicle("sixty_seconds_motorboat",
                     net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind.MOTORBOAT,
-                    1.5F, 0.6F);
+                    4.5F, 1.8F);
     public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>
             SIXTY_SECONDS_FISHING_BOAT = registerSeaVehicle("sixty_seconds_fishing_boat",
                     net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind.FISHING_BOAT,
-                    2.4F, 1.0F);
+                    9.6F, 4.0F);
 
     /** 三种海上载具的注册只差 Kind 与碰撞盒，抽一个工厂免得抄三遍。 */
     private static EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>

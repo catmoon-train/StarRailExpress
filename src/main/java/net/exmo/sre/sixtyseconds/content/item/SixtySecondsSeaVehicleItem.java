@@ -88,7 +88,9 @@ public class SixtySecondsSeaVehicleItem extends Item {
         }
         boat.setPos(hit.getLocation().x, hit.getLocation().y, hit.getLocation().z);
         boat.setYRot(player.getYRot());
-        if (!serverLevel.noCollision(boat, boat.getBoundingBox())) {
+        // 渔船碰撞盒很大（9.6×4.0），极易和岸边/玩家碰撞导致放不下去，跳过 noCollision 检查
+        if (boat.kind() != SixtySecondsSeaVehicleEntity.Kind.FISHING_BOAT
+                && !serverLevel.noCollision(boat, boat.getBoundingBox())) {
             return InteractionResultHolder.fail(stack);
         }
         serverLevel.addFreshEntity(boat);

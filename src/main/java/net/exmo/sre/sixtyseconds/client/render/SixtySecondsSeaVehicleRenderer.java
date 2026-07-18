@@ -26,6 +26,7 @@ public class SixtySecondsSeaVehicleRenderer extends EntityRenderer<SixtySecondsS
 
     private final SixtySecondsSeaVehicleModel model;
     private final ResourceLocation texture;
+    private final float modelScale;
 
     public SixtySecondsSeaVehicleRenderer(EntityRendererProvider.Context context,
             SixtySecondsSeaVehicleEntity.Kind kind) {
@@ -33,7 +34,12 @@ public class SixtySecondsSeaVehicleRenderer extends EntityRenderer<SixtySecondsS
         this.model = new SixtySecondsSeaVehicleModel(
                 SixtySecondsSeaVehicleModel.createFor(kind).bakeRoot());
         this.texture = Noellesroles.id("textures/entity/" + textureName(kind) + ".png");
-        this.shadowRadius = kind == SixtySecondsSeaVehicleEntity.Kind.FISHING_BOAT ? 1.2F : 0.8F;
+        this.modelScale = kind.scale;
+        this.shadowRadius = switch (kind) {
+            case RAFT -> 1.6F;
+            case MOTORBOAT -> 2.4F;
+            case FISHING_BOAT -> 4.8F;
+        };
     }
 
     private static String textureName(SixtySecondsSeaVehicleEntity.Kind kind) {
@@ -63,6 +69,9 @@ public class SixtySecondsSeaVehicleRenderer extends EntityRenderer<SixtySecondsS
             poseStack.mulPose(new Quaternionf().setAngleAxis(
                     bubble * (float) (Math.PI / 180.0), 1.0F, 0.0F, 0.0F));
         }
+
+        // 视觉缩放：木筏×2，汽艇×3，渔船×4
+        poseStack.scale(modelScale, modelScale, modelScale);
 
         // 与 LivingEntityRenderer 等价的收尾：翻到模型空间 + 抬到基线 y=24 对应的高度
         poseStack.scale(-1.0F, -1.0F, 1.0F);

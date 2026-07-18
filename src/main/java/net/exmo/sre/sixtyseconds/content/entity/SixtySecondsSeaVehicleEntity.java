@@ -42,8 +42,8 @@ import org.agmas.noellesroles.init.ModItems;
  *
  * <ul>
  *   <li><b>木筏</b>：不吃燃料，速度同原版船，2 座 60 耐久——开局就能下海的应急货。</li>
- *   <li><b>汽艇</b>：燃料罐，1.9 倍速，2 座 100 耐久。</li>
- *   <li><b>渔船</b>：柴油罐，1.5 倍速，4 座 200 耐久，带 27 格储物（跨岛搬运）。</li>
+ *   <li><b>汽艇</b>：燃料罐，1.9 倍速，3 座 100 耐久（三人横排，居中偏左）。</li>
+ *   <li><b>渔船</b>：柴油罐，1.5 倍速，6 座 200 耐久（前排 3 人 + 后排 3 人），带 27 格储物（跨岛搬运）。</li>
  * </ul>
  *
  * <p>交互：右键空手=上船；潜行右键=渔船开储物 / 木筏·汽艇收回；手持扳手右键=收回（三种通用，
@@ -53,20 +53,22 @@ public class SixtySecondsSeaVehicleEntity extends Boat {
 
     /** 海上载具类型参数：座位 / 速度倍率 / 耐久 / 储物格数（0=无）。 */
     public enum Kind {
-        RAFT(2, 1.0F, 60, 0),
-        MOTORBOAT(2, 1.9F, 100, 0),
-        FISHING_BOAT(4, 1.5F, 200, 27);
+        RAFT(2, 1.0F, 60, 0, 2.0F),
+        MOTORBOAT(3, 1.9F, 100, 0, 3.0F),
+        FISHING_BOAT(6, 1.5F, 200, 27, 4.0F);
 
         public final int seats;
         public final float speedMult;
         public final int maxHp;
         public final int storageSlots;
+        public final float scale;
 
-        Kind(int seats, float speedMult, int maxHp, int storageSlots) {
+        Kind(int seats, float speedMult, int maxHp, int storageSlots, float scale) {
             this.seats = seats;
             this.speedMult = speedMult;
             this.maxHp = maxHp;
             this.storageSlots = storageSlots;
+            this.scale = scale;
         }
 
         public boolean needsFuel() {
@@ -232,8 +234,8 @@ public class SixtySecondsSeaVehicleEntity extends Boat {
     }
 
     /**
-     * 多座摆放：木筏/汽艇前后 2 座；渔船 2×2。原版 Boat 只认 2 座的摆法，4 座得自己排，
-     * 否则第 3/4 名乘客会叠在船心。
+     * 多座摆放：木筏前后 2 座；汽艇 3 人横排偏左偏前；渔船 3×2（前 3 后 3）。
+     * 原版 Boat 只认 2 座的摆法，多座得自己排，否则多余乘客会叠在船心。
      */
     @Override
     protected void positionRider(Entity passenger, MoveFunction moveFunction) {
@@ -246,16 +248,38 @@ public class SixtySecondsSeaVehicleEntity extends Boat {
         }
         double offsetX;
         double offsetZ;
+        double offsetY;
+        float s = kind.scale;
         if (kind == Kind.FISHING_BOAT) {
-            offsetX = (index % 2 == 0) ? 0.55 : -0.55;
-            offsetZ = (index < 2) ? 0.7 : -0.9;
+            // 渔船 3×2：每行 3 人，共 2 行
+            int col = index % 3;  // 0=左, 1=中, 2=右
+            int row = index / 3;  // 0=前排, 1=后排
+            double sideOffset = 0.55 * s - 0.7;  // 两侧各向中间靠拢 0.7 格
+            offsetX = switch (col) {
+                case 0 -> -sideOffset;
+                case 1 -> 0.0;
+                case 2 -> sideOffset;
+                default -> 0.0;
+            };
+            offsetZ = row == 0 ? 0.7 * s : -0.9 * s;
+            offsetY = 0.3 * s - 0.5;
+        } else if (kind == Kind.MOTORBOAT) {
+            // 汽艇 3 人横排并列坐，整体偏左、偏前
+            offsetX = switch (index) {
+                case 0 -> -1.2;
+                case 1 -> -0.5;
+                case 2 -> 0.2;
+                default -> 0.0;
+            };
+            offsetZ = 1.0;  // 全部向前移 1 格
+            offsetY = 0.3 * s - 0.5;  // 向上抬 0.5 格（原 -1.0）
         } else {
+            // 木筏 2 人前后坐
             offsetX = 0.0;
-            offsetZ = (index == 0) ? 0.4 : -0.6;
+            offsetZ = (index == 0) ? 0.4 * s : -0.6 * s;
+            offsetY = 0.15 * s - 0.5;
         }
-        // 直接按「船心 + 旋转后的偏移」定位，与陆上载具 SixtySecondsVehicleEntity.positionRider 同一套写法，
-        // 不碰版本间反复改名的骑乘偏移 API
-        Vec3 offset = new Vec3(offsetX, kind == Kind.RAFT ? 0.15 : 0.3, offsetZ)
+        Vec3 offset = new Vec3(offsetX, offsetY, offsetZ)
                 .yRot(-getYRot() * (float) Math.PI / 180.0F);
         Vec3 target = this.position().add(offset);
         moveFunction.accept(passenger, target.x, target.y, target.z);
