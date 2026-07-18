@@ -90,9 +90,9 @@ public final class SixtySecondsCrops {
         List<Crop> list = new ArrayList<>();
         // 基础：新鲜蔬菜（无门控，沿用旧培育箱闭环）
         list.add(new Crop("vegetables", ModItems.SIXTY_SECONDS_SEEDS_PACK,
-                ModItems.SIXTY_SECONDS_FRESH_VEGETABLES, 1, 2, null, false, false, false, false));
+                ModItems.SIXTY_SECONDS_FRESH_VEGETABLES, 2, 2, null, false, false, false, false));
         // 农业-I：小麦
-        list.add(new Crop("wheat", Items.WHEAT_SEEDS, Items.WHEAT, 1, 2, "agri_1", false, false, false, false));
+        list.add(new Crop("wheat", Items.WHEAT_SEEDS, Items.WHEAT, 2, 2, "agri_1", false, false, false, false));
         // 农业-II：野米/野茶 + 常规作物
         list.add(new Crop("wild_rice", ModItems.SIXTY_SECONDS_WILD_RICE_SEEDS,
                 ModItems.SIXTY_SECONDS_WILD_RICE, 2, 2, "agri_2", false, false, false, false));
@@ -123,7 +123,7 @@ public final class SixtySecondsCrops {
                 2, 2, null, false, true, false, false, 1.5F));
         // 烟草科技：烟草
         list.add(new Crop("tobacco", ModItems.SIXTY_SECONDS_TOBACCO_SEEDS,
-                ModItems.SIXTY_SECONDS_TOBACCO, 1, 2, "tobacco", false, false, false, false));
+                ModItems.SIXTY_SECONDS_TOBACCO, 2, 2, "tobacco", false, false, false, false));
         // 园丁培育箱：竹子/浆果/发光浆果（种1收2）
         list.add(new Crop("bamboo", Items.BAMBOO, Items.BAMBOO,
                 2, 2, "misc_planter_2", false, false, false, true));

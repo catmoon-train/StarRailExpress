@@ -522,11 +522,11 @@ public final class SixtySecondsRecipes {
 
         // ══ 农业 ═══════════════════════════════════════════════════
         add(list, "seeds_pack", Station.WORKBENCH, "agri_1", false,
-                List.of(in(ModItems.SIXTY_SECONDS_FRESH_VEGETABLES, 1)), ModItems.SIXTY_SECONDS_SEEDS_PACK, 2);
+                List.of(in(ModItems.SIXTY_SECONDS_FRESH_VEGETABLES, 1)), ModItems.SIXTY_SECONDS_SEEDS_PACK, 1);
         add(list, "wheat_seeds", Station.WORKBENCH, "agri_1", false,
-                List.of(in(Items.WHEAT, 1)), Items.WHEAT_SEEDS, 2);
+                List.of(in(Items.WHEAT, 1)), Items.WHEAT_SEEDS, 1);
         add(list, "wild_rice_seeds", Station.WORKBENCH, "agri_2", false,
-                List.of(in(rice, 1)), ModItems.SIXTY_SECONDS_WILD_RICE_SEEDS, 2);
+                List.of(in(rice, 1)), ModItems.SIXTY_SECONDS_WILD_RICE_SEEDS, 1);
         add(list, "beetroot_seeds", Station.WORKBENCH, "agri_2", false,
                 List.of(in(Items.BEETROOT, 1)), Items.BEETROOT_SEEDS, 1);
         add(list, "melon_seeds", Station.WORKBENCH, "agri_2", false,
@@ -536,7 +536,7 @@ public final class SixtySecondsRecipes {
         add(list, "wild_tea_seed", Station.WORKBENCH, "agri_2", false,
                 List.of(in(tea, 1)), ModItems.SIXTY_SECONDS_WILD_TEA_SEED, 1);
         add(list, "hemp_seeds", Station.WORKBENCH, "agri_3", false,
-                List.of(in(hemp, 1)), ModItems.SIXTY_SECONDS_HEMP_SEEDS, 2);
+                List.of(in(hemp, 1)), ModItems.SIXTY_SECONDS_HEMP_SEEDS, 1);
         add(list, "torchflower_seeds", Station.WORKBENCH, "agri_3", false,
                 List.of(in(ModItems.SIXTY_SECONDS_WILD_RICE_SEEDS, 5), in(chem, 1)), Items.TORCHFLOWER_SEEDS, 1);
         add(list, "pitcher_pod", Station.WORKBENCH, "agri_3", false,
