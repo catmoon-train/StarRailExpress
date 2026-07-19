@@ -42,7 +42,7 @@ public class SetEnabledModifierCommand {
         }
         HarpyModLoaderConfig.HANDLER.save();
         context.getSource()
-                .sendSuccess(() -> Component.translatable("commands.setenabledrole.disable.success", "ALL"), true);
+                .sendSuccess(() -> Component.translatable("commands.setenabledmodifier.disable.success", "ALL"), true);
 
         return 1;
     }
