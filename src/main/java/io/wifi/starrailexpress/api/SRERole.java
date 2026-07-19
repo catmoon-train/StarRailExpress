@@ -1295,12 +1295,12 @@ public abstract class SRERole extends SREAbstractInfoClass {
     /**
      * 1 = 1/10000
      * 
-     * @param count
+     * @param chance
      * @return
      */
-    public SRERole setDefaultEnableChance(int count) {
-        defaultEnableChance = count;
-        this.spawnInfo.enableChance = count;
+    public SRERole setDefaultEnableChance(int chance) {
+        defaultEnableChance = chance;
+        this.spawnInfo.enableChance = chance;
         return this;
     };
 

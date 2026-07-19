@@ -4,10 +4,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.resources.ResourceLocation;
-import org.agmas.noellesroles.role.touhou.roles.THKomachiRole;
-import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
-import org.agmas.noellesroles.role.touhou.roles.THShikieikiRole;
-import org.agmas.noellesroles.role.touhou.roles.THTenshiRole;
+import org.agmas.noellesroles.role.touhou.roles.*;
 
 public class THMiscRoles {
   public static final String NAMESPACE = "th_misc";
@@ -15,7 +12,21 @@ public class THMiscRoles {
   public static ResourceLocation id(String path) {
     return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
   }
-  
+
+  // Kirisame Marisa
+  public static final ResourceLocation KIRISAME_MARISA_ID = id("kirisame_marisa");
+  public static SRERole KIRISAME_MARISA = TMMRoles
+      .registerRole(new THReimuRole(KIRISAME_MARISA_ID, new java.awt.Color(172, 154, 104).getRGB(),
+          true, false, SRERole.MoodType.REAL,
+          TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
+      .setCanSetSpawnInfoInConfig(false).setDefaultMax(0);
+  public static final ResourceLocation HAKUREI_REIMU_ID = id("hakurei_reimu");
+  public static SRERole HAKUREI_REIMU = TMMRoles
+      .registerRole(new THReimuRole(HAKUREI_REIMU_ID, new java.awt.Color(153, 82, 89).getRGB(),
+          false, true, SRERole.MoodType.FAKE,
+          Integer.MAX_VALUE, true))
+      .setCanPickUpRevolver(false)
+      .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(1000).addOccupationRole(KIRISAME_MARISA);
   // 四季映姬·夜摩仙那度 Shikieiki（有点像判官）
   // 四季映姬曾经是地藏，后来全国各地的地藏联名上书请求分担阎魔大人的工作，她也成为了阎魔。
   public static final ResourceLocation SHIKIEIKI_ID = id("shikieiki");
@@ -24,7 +35,7 @@ public class THMiscRoles {
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true), "th_hell")
       .setCanPickUpRevolver(false).setVigilanteTeam(true).setSpecialVigilante(true)
-      .setDefaultEnableNeededPlayerCount(24).setDefaultEnableChance(30);
+      .setDefaultEnableNeededPlayerCount(24).setDefaultEnableChance(3000);
   // 小野冢小町 Onozuka Komachi
   public static final ResourceLocation KOMACHI_ID = id("onozuka_komachi");
   public static SRERole KOMACHI = TMMRoles

@@ -13,6 +13,7 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.phys.AABB;
@@ -462,10 +463,12 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // this.mapStatusBar = tag.contains("mapStatusBar")
         // ? MapStatusBarType.byName(tag.getString("mapStatusBar"))
         // : MapStatusBarType.NONE;
-        // this.haveOutsideSound = tag.contains("haveOutsideSound") ? tag.getBoolean("haveOutsideSound") : false;
-        // this.sceneOutsideSound = tag.contains("sceneOutsideSound") && !tag.getString("sceneOutsideSound").isBlank()
-        //         ? tag.getString("sceneOutsideSound")
-        //         : "train";
+        // this.haveOutsideSound = tag.contains("haveOutsideSound") ?
+        // tag.getBoolean("haveOutsideSound") : false;
+        // this.sceneOutsideSound = tag.contains("sceneOutsideSound") &&
+        // !tag.getString("sceneOutsideSound").isBlank()
+        // ? tag.getString("sceneOutsideSound")
+        // : "train";
         // this.snowEnabled = tag.contains("snowEnabled") ?
         // tag.getBoolean("snowEnabled") : false;
         // this.sandEnabled = tag.contains("sandEnabled") ?
@@ -516,7 +519,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         //
         // 房间位置需要从NBT中读取（如果实现此功能）
         // 这里暂时不实现，因为NBT格式可能需要专门处理Map类型
-        
+
         if (tag.contains("AreasSettings")) {
             CompoundTag settingsTag = tag.getCompound("AreasSettings");
             try {
@@ -645,5 +648,13 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         } catch (IllegalArgumentException ignored) {
             return fallback;
         }
+    }
+
+    public static AreasWorldComponent getInstance(Level level) {
+        return AreasWorldComponent.KEY.get(level);
+    }
+
+    public static AreasWorldComponent getInstance(Player player) {
+        return AreasWorldComponent.KEY.get(player.level());
     }
 }

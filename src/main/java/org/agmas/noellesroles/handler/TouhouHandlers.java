@@ -3,6 +3,7 @@ package org.agmas.noellesroles.handler;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole.MoodType;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
@@ -34,6 +35,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.touhou.MountainRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 public class TouhouHandlers {
@@ -122,6 +124,27 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
+    RoleSkill.register(THMiscRoles.HAKUREI_REIMU,
+        RoleSkill.skill(SRE.id("reimu_flying"), "skill.noellesroles.reimu", context -> {
+          final var player = context.player();
+          final var level = player.serverLevel();
+          if (!AreasWorldComponent.KEY.get(level).areasSettings.canJump) {
+            player.displayClientMessage(
+                Component.translatable("skill.noellesroles.reimu.banned_in_map").withStyle(ChatFormatting.RED), true);
+            return false;
+          }
+          var abilityCCA = SREAbilityPlayerComponent.KEY.get(player);
+          if (abilityCCA.duration > 0) {
+            abilityCCA.duration = 0;
+            THReimuRole.stopFlying(player);
+            return true;
+          }
+
+          abilityCCA.duration = (THReimuRole.MAX_DURATION);
+          abilityCCA.setCooldown(THReimuRole.FLY_COOLDOWN);
+          THReimuRole.startFlying(player);
+          return true;
+        }).noAnnouncement().showOnHud(false).cooldownTicks(20 * 120).build());
     RoleSkill.register(RedHouseRoles.KOAKUMA,
         RoleSkill.skill(SRE.id("daiyouse"), "skill.noellesroles.koakuma", context -> {
           var targetId = context.target();
