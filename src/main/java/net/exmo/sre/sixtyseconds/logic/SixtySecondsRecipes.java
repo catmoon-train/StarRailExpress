@@ -1376,13 +1376,23 @@ public final class SixtySecondsRecipes {
                 List.of(in(Items.GLASS_BOTTLE, 10), in(glassPlate, 2), in(chem, 5)),
                 ModItems.SIXTY_SECONDS_FILTHY_JAR, 1);
         add(list, "undying_totem", Station.ALTAR, "undying_totem", true,
-                List.of(in(ModItems.SIXTY_SECONDS_FUEL_CAN, 2), in(alloy, 2), in(glassPlate, 5),
+                List.of(in(ModItems.SIXTY_SECONDS_FUEL_CAN, 2), in(steel, 10), in(glassPlate, 5),
                         in(chem, 10), in(scrap, 20)),
                 Items.TOTEM_OF_UNDYING, 1);
         add(list, "revival_totem", Station.ALTAR, "revival_totem", true,
-                List.of(in(ModItems.SIXTY_SECONDS_BLOOD_JAR, 1), in(alloy, 5), in(glassPlate, 5),
-                        in(hemp, 10), in(chem, 10), in(scrap, 32)),
+                List.of(in(ModItems.SIXTY_SECONDS_BLOOD_JAR, 1), in(alloy, 2), in(glassPlate, 5),
+                        in(hemp, 4), in(chem, 10), in(scrap, 32)),
                 ModItems.SIXTY_SECONDS_REVIVAL_TOTEM, 1);
+        // ── 神秘果实 ────────────────────────────────────────────────────
+        // 神秘果实-I：金苹果
+        add(list, "mystic_fruit_1", Station.ALTAR, "mystic_fruit_1", true,
+                List.of(in(Items.APPLE, 1), in(chem, 2), in(copper, 2), in(iron, 1), in(scrap, 20)),
+                Items.GOLDEN_APPLE, 1);
+        // 神秘果实-II：附魔金苹果
+        add(list, "mystic_fruit_2", Station.ALTAR, "mystic_fruit_2", true,
+                List.of(in(Items.GOLDEN_APPLE, 1), in(chem, 6), in(steel, 2),
+                        in(ModItems.SIXTY_SECONDS_BATTERY_LARGE, 1), in(scrap, 36)),
+                Items.ENCHANTED_GOLDEN_APPLE, 1);
 
         // ══ 农牧业：捕捉笼与诱饵（简易工作台）═══════════════════════════
         // ── 捕捉笼 ─────────────────────────────────────────────────────

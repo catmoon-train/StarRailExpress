@@ -39,7 +39,7 @@ public final class SixtySecondsTechTree {
     public static final int UNLOCK_COST = 3;
 
     /** 神秘技术入口门槛：非神秘节点解锁比例。 */
-    public static final double MYSTIC_GATE_RATIO = 0.75;
+    public static final double MYSTIC_GATE_RATIO = 0.45;
 
     /**
      * 科技节点：父节点未解锁不能解锁本节点（分支链 + 跨分支门控统一用 parentId）。
@@ -170,11 +170,13 @@ public final class SixtySecondsTechTree {
         chain(list, "transport", "work_env_4", "boat_1", "boat_2", "boat_3");
         // ── 房车装修（车床，需「更好的工作环境-IV」）─────────────────────
         chain(list, "transport", "work_env_4", "rv_upgrade_1", "rv_upgrade_2", "rv_upgrade_3");
-        // ── 神秘技术（全树 75% 门控，见 gateSatisfied）───────────────────
+        // ── 神秘技术（全树 45% 门控，见 gateSatisfied）───────────────────
         chain(list, "mystic", null, "sacrifice_1", "sacrifice_2");
         chain(list, "mystic", "sacrifice_1", "undying_totem");
         chain(list, "mystic", "sacrifice_1", "mystic_plants");
         chain(list, "mystic", "sacrifice_2", "revival_totem");
+        chain(list, "mystic", "mystic_plants", "mystic_fruit_1");
+        chain(list, "mystic", "mystic_fruit_1", "mystic_fruit_2");
         return List.copyOf(list);
     }
 
@@ -219,6 +221,8 @@ public final class SixtySecondsTechTree {
             case "sacrifice_1", "sacrifice_2": return 16;
             case "undying_totem": return 24;
             case "revival_totem": return 30;
+            case "mystic_fruit_1": return 20;
+            case "mystic_fruit_2": return 36;
             // ── 枪械线（军械大类，尾缀级别与常规分支不同，全部显式定价）──────
             case "bullets_1": return 3;
             case "bullets_2": return 6;
