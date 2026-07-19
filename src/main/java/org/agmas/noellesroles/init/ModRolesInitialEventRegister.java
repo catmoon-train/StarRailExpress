@@ -427,10 +427,11 @@ public class ModRolesInitialEventRegister {
             abilityPlayerComponent.sync();
         });
 
-        // 四季映姬离开职业时，清除德林加手枪和刀
+        // 四季映姬离开职业时，清除德林加手枪
+        // (哪来的刀)
         ModdedRoleRemoved.EVENT.register((player, role) -> {
             if (RoleUtils.compareRole(role, THMiscRoles.SHIKIEIKI)) {
-                SREItemUtils.clearItem(player, (stack) -> stack.is(TMMItems.DERRINGER) || stack.is(TMMItems.KNIFE));
+                SREItemUtils.clearItem(player, (stack) -> stack.is(TMMItems.DERRINGER));
             }
         });
     }
