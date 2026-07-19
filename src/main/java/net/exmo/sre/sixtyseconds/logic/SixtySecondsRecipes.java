@@ -1197,6 +1197,29 @@ public final class SixtySecondsRecipes {
         add(list, "explosive_arrow", Station.ARSENAL, "arrow_craft_2", true,
                 List.of(in(ModItems.SIXTY_SECONDS_STEEL_ARROW, 2), in(gunpowder, 2)),
                 ModItems.SIXTY_SECONDS_EXPLOSIVE_ARROW, 2);
+        add(list, "tained_arrow", Station.ARSENAL, "arrow_craft_2", true,
+                List.of(in(ModItems.SIXTY_SECONDS_IRON_ARROW, 4), in(Items.POISONOUS_POTATO, 1), in(chem, 1)),
+                ModItems.SIXTY_SECONDS_TAINTED_ARROW, 4);
+        add(list, "hunting_arrow", Station.ARSENAL, "arrow_craft_2", true,
+                List.of(in(ModItems.SIXTY_SECONDS_IRON_ARROW, 4), in(wire, 2), in(scrap, 3)),
+                ModItems.SIXTY_SECONDS_HUNTING_ARROW, 4);
+        // ── 箭矢工艺-III ──────────────────────────────────────────────
+        add(list, "wheel_breaker_arrow", Station.ARSENAL, "arrow_craft_3", true,
+                List.of(in(ModItems.SIXTY_SECONDS_STEEL_ARROW, 2), in(nails, 3)),
+                ModItems.SIXTY_SECONDS_WHEEL_BREAKER_ARROW, 2);
+        add(list, "armor_piercing_arrow", Station.ARSENAL, "arrow_craft_3", true,
+                List.of(in(ModItems.SIXTY_SECONDS_STEEL_ARROW, 2), in(glassShard, 5), in(rag, 3)),
+                ModItems.SIXTY_SECONDS_ARMOR_PIERCING_ARROW, 2);
+        add(list, "glowing_arrow", Station.ARSENAL, "arrow_craft_3", true,
+                List.of(in(ModItems.SIXTY_SECONDS_IRON_ARROW, 3),
+                        any("glow_berry", 2, List.of(ModItems.SIXTY_SECONDS_SHIMMER_BERRY, Items.GLOW_BERRIES))),
+                ModItems.SIXTY_SECONDS_GLOWING_ARROW, 3);
+        add(list, "blinding_arrow", Station.ARSENAL, "arrow_craft_3", true,
+                List.of(in(ModItems.SIXTY_SECONDS_STEEL_ARROW, 3), in(Items.WARPED_FUNGUS, 3), in(scrap, 3)),
+                ModItems.SIXTY_SECONDS_BLINDING_ARROW, 3);
+        add(list, "alloy_arrow", Station.ARSENAL, "arrow_craft_3", true,
+                List.of(in(Items.STICK, 2), in(alloy, 1), in(Items.FEATHER, 1)),
+                ModItems.SIXTY_SECONDS_ALLOY_ARROW, 6);
 
         // ══ 基地设施（车床，全通电）═══════════════════════════════════════
         add(list, "expansion_key_1", Station.LATHE, "base_expand_1", true,

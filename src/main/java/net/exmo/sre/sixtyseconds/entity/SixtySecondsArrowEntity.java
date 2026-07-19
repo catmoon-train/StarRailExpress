@@ -10,10 +10,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity;
+import net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
@@ -93,12 +96,31 @@ public class SixtySecondsArrowEntity extends AbstractArrow {
                     shooter.displayClientMessage(net.minecraft.network.chat.Component.translatable(
                             "message.noellesroles.sixty_seconds.pvp_blocked"), true);
                 } else {
-                    SixtySecondsHealthSystem.applyInjury(target, shooter, playerInjury);
+                    int injury = playerInjury;
+                    // 穿甲箭：对有护甲的玩家额外 +10，对无护甲 -5
+                    if (type().effect == ArrowType.Effect.ARMOR_PIERCE) {
+                        boolean hasArmor = target.getItemBySlot(EquipmentSlot.HEAD).isEmpty()
+                                && target.getItemBySlot(EquipmentSlot.CHEST).isEmpty()
+                                && target.getItemBySlot(EquipmentSlot.LEGS).isEmpty()
+                                && target.getItemBySlot(EquipmentSlot.FEET).isEmpty();
+                        injury = hasArmor ? injury - 5 : injury + 10;
+                    }
+                    SixtySecondsHealthSystem.applyInjury(target, shooter, injury);
                     applyPlayerEffect(serverLevel, target);
                 }
+            } else if (hit instanceof SixtySecondsVehicleEntity vehicle || hit instanceof SixtySecondsSeaVehicleEntity seaVehicle) {
+                // 破轮箭：对载具额外 15 伤害
+                int extra = type().effect == ArrowType.Effect.WHEEL_BREAK ? 15 : 0;
+                hit.hurt(shooter != null ? damageSources().arrow(this, shooter)
+                        : damageSources().generic(), monsterDamage + extra);
             } else if (hit instanceof LivingEntity living && !(hit instanceof net.minecraft.world.entity.player.Player)) {
+                float dmg = monsterDamage;
+                // 狩猎箭：对怪物额外 +15 伤害
+                if (type().effect == ArrowType.Effect.HUNT) {
+                    dmg += 15.0F;
+                }
                 living.hurt(shooter != null ? damageSources().arrow(this, shooter)
-                        : damageSources().generic(), monsterDamage);
+                        : damageSources().generic(), dmg);
                 applyMonsterEffect(serverLevel, living);
             }
         }
@@ -119,17 +141,18 @@ public class SixtySecondsArrowEntity extends AbstractArrow {
         super.onHitBlock(result);
     }
 
-    /** 附加效果——对怪：火=点燃、毒=中毒。 */
+    /** 附加效果——对怪。 */
     private void applyMonsterEffect(ServerLevel level, LivingEntity monster) {
         switch (type().effect) {
             case FIRE -> monster.igniteForSeconds(5);
             case POISON -> monster.addEffect(new MobEffectInstance(MobEffects.POISON, 20 * 6, 1));
-            default -> {
-            }
+            case GLOW -> monster.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 8, 0));
+            case BLIND -> monster.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 20 * 5, 0));
+            default -> {}
         }
     }
 
-    /** 附加效果——对玩家：火=额外健康伤害、毒=污染上升。 */
+    /** 附加效果——对玩家。 */
     private void applyPlayerEffect(ServerLevel level, ServerPlayer player) {
         switch (type().effect) {
             case FIRE -> player.igniteForSeconds(3);
@@ -138,8 +161,14 @@ public class SixtySecondsArrowEntity extends AbstractArrow {
                 stats.pollution = Math.min(100, stats.pollution + 8);
                 stats.sync();
             }
-            default -> {
+            case TAINT -> {
+                SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+                stats.pollution = Math.min(100, stats.pollution + 6);
+                stats.sync();
             }
+            case GLOW -> player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 8, 0));
+            case BLIND -> player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 20 * 5, 0));
+            default -> {}
         }
     }
 

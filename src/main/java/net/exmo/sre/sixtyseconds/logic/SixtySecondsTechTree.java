@@ -65,6 +65,7 @@ public final class SixtySecondsTechTree {
      */
     public static final java.util.Map<String, List<String>> EXTRA_REQUIREMENTS = java.util.Map.ofEntries(
             java.util.Map.entry("arrow_craft_2", List.of("archery_2")),
+            java.util.Map.entry("arrow_craft_3", List.of("archery_2")),
             // ── 枪械线 ────────────────────────────────────────────────
             java.util.Map.entry("pistol_2", List.of("laser_sight", "sight_1")),
             java.util.Map.entry("shotgun_1", List.of("bullets_2")),
@@ -158,7 +159,7 @@ public final class SixtySecondsTechTree {
         chain(list, "military", "pistol_1", "mag_1", "mag_2", "mag_3");
         // 弓弩（军械大类，需「更好的工作环境-III」）：弓术链解锁弓/弩，箭矢工艺链解锁弹药
         chain(list, "military", "work_env_3", "archery_1", "archery_2", "archery_3");
-        chain(list, "military", "archery_1", "arrow_craft_1", "arrow_craft_2");
+        chain(list, "military", "archery_1", "arrow_craft_1", "arrow_craft_2", "arrow_craft_3");
         // ── 基地设施（车床，需「更好的工作环境-IV」）─────────────────────
         chain(list, "base", "work_env_4", "base_expand_1", "base_expand_2", "base_expand_3");
         chain(list, "base", "work_env_4", "base_facility_1", "base_facility_2", "base_facility_3");

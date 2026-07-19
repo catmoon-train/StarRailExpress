@@ -25,9 +25,23 @@ public class SixtySecondsArrowItem extends Item {
         /** 毒箭：命中施加中毒（对玩家附加污染）。 */
         POISON(4, 12.0F, 8, Effect.POISON, "poison_arrow"),
         /** 爆炸箭：命中/落地产生小范围爆炸。 */
-        EXPLOSIVE(5, 20.0F, 14, Effect.EXPLODE, "explosive_arrow");
+        EXPLOSIVE(5, 20.0F, 14, Effect.EXPLODE, "explosive_arrow"),
+        /** 污浊箭：命中增加感染值。 */
+        TAINTED(6, 14.0F, 10, Effect.TAINT, "tained_arrow"),
+        /** 破轮箭：对载具额外伤害。 */
+        WHEEL_BREAKER(7, 24.0F, 16, Effect.WHEEL_BREAK, "wheel_breaker_arrow"),
+        /** 穿甲箭：对有护甲玩家额外伤害。 */
+        ARMOR_PIERCING(8, 20.0F, 14, Effect.ARMOR_PIERCE, "armor_piercing_arrow"),
+        /** 光灵箭：命中后目标发光。 */
+        GLOWING(9, 14.0F, 10, Effect.GLOW, "glowing_arrow"),
+        /** 失明箭：命中后目标失明。 */
+        BLINDING(10, 24.0F, 16, Effect.BLIND, "blinding_arrow"),
+        /** 合金箭：2倍钢头箭伤害。 */
+        ALLOY(11, 48.0F, 32, Effect.NONE, "alloy_arrow"),
+        /** 狩猎箭：对怪物额外伤害。 */
+        HUNTING(12, 14.0F, 10, Effect.HUNT, "hunting_arrow");
 
-        public enum Effect { NONE, FIRE, POISON, EXPLODE }
+        public enum Effect { NONE, FIRE, POISON, EXPLODE, TAINT, WHEEL_BREAK, ARMOR_PIERCE, GLOW, BLIND, HUNT }
 
         public final int id;
         public final float monsterDamage;
@@ -61,6 +75,13 @@ public class SixtySecondsArrowItem extends Item {
                 case FIRE -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_FIRE_ARROW;
                 case POISON -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_POISON_ARROW;
                 case EXPLOSIVE -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EXPLOSIVE_ARROW;
+                case TAINTED -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_TAINTED_ARROW;
+                case WHEEL_BREAKER -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_WHEEL_BREAKER_ARROW;
+                case ARMOR_PIERCING -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ARMOR_PIERCING_ARROW;
+                case GLOWING -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_GLOWING_ARROW;
+                case BLINDING -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BLINDING_ARROW;
+                case ALLOY -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ALLOY_ARROW;
+                case HUNTING -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_HUNTING_ARROW;
             };
         }
     }

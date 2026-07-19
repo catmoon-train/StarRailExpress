@@ -550,6 +550,34 @@ public class ModItems {
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
                     net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.EXPLOSIVE),
             "sixty_seconds_explosive_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_TAINTED_ARROW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.TAINTED),
+            "sixty_seconds_tained_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_WHEEL_BREAKER_ARROW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.WHEEL_BREAKER),
+            "sixty_seconds_wheel_breaker_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_ARMOR_PIERCING_ARROW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.ARMOR_PIERCING),
+            "sixty_seconds_armor_piercing_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_GLOWING_ARROW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.GLOWING),
+            "sixty_seconds_glowing_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_BLINDING_ARROW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.BLINDING),
+            "sixty_seconds_blinding_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_ALLOY_ARROW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.ALLOY),
+            "sixty_seconds_alloy_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_HUNTING_ARROW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.HUNTING),
+            "sixty_seconds_hunting_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_CHEMICALS = register(
             new Item(new Item.Properties().stacksTo(16)),
             "sixty_seconds_chemicals", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
