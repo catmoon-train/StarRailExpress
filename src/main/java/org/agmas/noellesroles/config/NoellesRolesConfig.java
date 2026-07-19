@@ -285,7 +285,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** Dream - "看到 Dream"的视线容错半径（格）：Dream 到玩家视线射线的垂距在此范围内即算看到 */
     public double dreamFearSightRadius = 4.0;
     /** Dream - 制酒技能冷却秒数 */
-    public int dreamBrewCooldownSeconds = 90;
+    public int dreamBrewCooldownSeconds = 120;
     /** Dream - 酒的隐身持续秒数（期间无法攻击、无法受伤） */
     public int dreamWineDurationSeconds = 10;
     /** Dream - 船强制乘坐半径（格） */

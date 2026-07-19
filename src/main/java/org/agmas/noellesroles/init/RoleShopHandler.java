@@ -1531,7 +1531,16 @@ public class RoleShopHandler {
         {
             var dreamConfig = NoellesRolesConfig.HANDLER.instance();
             // 铁斧 - 135金币，12耐久，第二次购买半价（动态价格，同杀手刀首购折扣）
-            DREAM_SHOP.add(new ShopEntry(ModItems.DREAM_AXE.getDefaultInstance(),
+            ItemStack axeDisplay = ModItems.DREAM_AXE.getDefaultInstance();
+            var axeLore = new ArrayList<Component>();
+            axeLore.add(Component.translatable("item.noellesroles.dream_axe.shop_lore1")
+                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
+            axeLore.add(Component.translatable("item.noellesroles.dream_axe.shop_lore2")
+                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
+            axeLore.add(Component.translatable("item.noellesroles.dream_axe.shop_lore3")
+                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
+            axeDisplay.set(DataComponents.LORE, new ItemLore(axeLore));
+            DREAM_SHOP.add(new ShopEntry(axeDisplay,
                     dreamConfig.dreamAxePrice, ShopEntry.Type.WEAPON) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
@@ -1569,10 +1578,24 @@ public class RoleShopHandler {
                 }
             });
             // 钻石镐 - 90金币（右键像开锁器一样开门；shift撬门50s冷却；无法锁门）
-            DREAM_SHOP.add(new ShopEntry(ModItems.DREAM_PICKAXE.getDefaultInstance(),
+            ItemStack pickaxeDisplay = ModItems.DREAM_PICKAXE.getDefaultInstance();
+            var pickaxeLore = new ArrayList<Component>();
+            pickaxeLore.add(Component.translatable("item.noellesroles.dream_pickaxe.shop_lore1")
+                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
+            pickaxeLore.add(Component.translatable("item.noellesroles.dream_pickaxe.shop_lore2")
+                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
+            pickaxeDisplay.set(DataComponents.LORE, new ItemLore(pickaxeLore));
+            DREAM_SHOP.add(new ShopEntry(pickaxeDisplay,
                     dreamConfig.dreamPickaxePrice, ShopEntry.Type.TOOL));
             // 船 - 100金币（强制乘坐陷阱，60s冷却）
-            DREAM_SHOP.add(new ShopEntry(ModItems.DREAM_BOAT.getDefaultInstance(),
+            ItemStack boatDisplay = ModItems.DREAM_BOAT.getDefaultInstance();
+            var boatLore = new ArrayList<Component>();
+            boatLore.add(Component.translatable("item.noellesroles.dream_boat.shop_lore1")
+                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
+            boatLore.add(Component.translatable("item.noellesroles.dream_boat.shop_lore2")
+                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
+            boatDisplay.set(DataComponents.LORE, new ItemLore(boatLore));
+            DREAM_SHOP.add(new ShopEntry(boatDisplay,
                     dreamConfig.dreamBoatPrice, ShopEntry.Type.TOOL));
             // 范围关灯 - 150金币：购买即以自己为中心熄灭半径30格的灯，冷却与普通关灯一致
             ItemStack blackoutDisplay = ModItems.DREAM_BLACKOUT.getDefaultInstance();

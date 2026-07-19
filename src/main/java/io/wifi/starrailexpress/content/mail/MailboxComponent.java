@@ -48,6 +48,11 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
     private static final int MAX_MAILS = 100;
     /** 同步间隔（ticks） */
     private static final int SYNC_INTERVAL = 20;
+    /** 定期从 MySQL 重新拉取邮箱的间隔（ticks，60秒）。
+     *  用于在玩家在线时接收管理员通过 mysql-viewer / 网站端写入的新邮件。 */
+    private static final int DB_POLL_INTERVAL = 60 * 20;
+    /** 防止 loadFromDatabase 与 saveToDatabase 同时在飞 */
+    private static final long DB_LOAD_DEBOUNCE_MS = 5000L;
 
     private final Player player;
     private final List<Mail> mails = new ArrayList<>();
@@ -57,6 +62,8 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
     private int tickCounter = 0;
     private boolean dbLoaded = false;
     private boolean databaseLoadPending = false;
+    private int dbPollCounter = 0;
+    private long lastDbLoadAt = 0L;
 
     public MailboxComponent(Player player) {
         this.player = player;
@@ -321,6 +328,19 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
             sync();
             saveToDatabase();
         }
+
+        // 定期从 MySQL 重新拉取邮箱，使在线玩家能收到管理员通过 mysql-viewer / 网站端
+        // 写入的新邮件。之前只在首次加载或保存冲突时拉取，导致在线玩家看不到新邮件。
+        dbPollCounter++;
+        if (dbPollCounter >= DB_POLL_INTERVAL) {
+            dbPollCounter = 0;
+            // 仅在没有待保存的脏数据且没有正在飞的加载时拉取，避免与本地写入冲突。
+            // 若有脏数据待保存，等下一轮保存后再拉取（保存冲突时也会自动拉取）。
+            if (!dirty && !databaseLoadPending
+                    && System.currentTimeMillis() - lastDbLoadAt > DB_LOAD_DEBOUNCE_MS) {
+                loadFromDatabase();
+            }
+        }
     }
 
     // =========================================================================
@@ -330,6 +350,7 @@ public class MailboxComponent implements AutoSyncedComponent, ServerTickingCompo
     private void loadFromDatabase() {
         if (!MysqlPlayerDataStore.isAvailable()) return;
         this.databaseLoadPending = true;
+        this.lastDbLoadAt = System.currentTimeMillis();
         MysqlPlayerDataStore.loadBatchAsync(player.getUUID(), List.of(DB_KEY))
                 .thenAccept(records -> {
                     MysqlPlayerDataStore.SyncRecord record = records.get(DB_KEY);

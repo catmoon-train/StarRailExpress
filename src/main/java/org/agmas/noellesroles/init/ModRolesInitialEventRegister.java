@@ -615,6 +615,13 @@ public class ModRolesInitialEventRegister {
                         return false;
                     if (!io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(player))
                         return false;
+                    // 已持有酒时不能再酿新的
+                    if (io.wifi.starrailexpress.util.SREItemUtils.hasItem(player, ModItems.DREAM_WINE)) {
+                        player.displayClientMessage(net.minecraft.network.chat.Component
+                                .translatable("message.noellesroles.dream.brew_already_has")
+                                .withStyle(net.minecraft.ChatFormatting.RED), true);
+                        return false;
+                    }
                     if (!io.wifi.starrailexpress.util.SREItemUtils.insertStackInFreeSlot(player,
                             ModItems.DREAM_WINE.getDefaultInstance())) {
                         player.displayClientMessage(net.minecraft.network.chat.Component

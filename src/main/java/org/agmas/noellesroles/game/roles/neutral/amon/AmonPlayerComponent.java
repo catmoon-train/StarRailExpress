@@ -100,6 +100,9 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
     public int usurpCount;
     public boolean hasUsurped;
     public int seedCap = 2;
+    /** 已控制玩家数（上限 3）；达到上限后不再走附身流程，成熟宿主直接寄生杀死。 */
+    public int controlCount;
+    public static final int MAX_CONTROL_COUNT = 3;
 
     // ===== 终幕状态 =====
     /** 是否处于「终幕·寻找阿蒙」阶段。 */
@@ -148,6 +151,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         usurpCount = 0;
         hasUsurped = false;
         seedCap = 2;
+        controlCount = 0;
         finalePhase = false;
         finaleTicks = 0;
         reserveLives = 0;
@@ -182,6 +186,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         usurpCount = 0;
         hasUsurped = false;
         seedCap = 2;
+        controlCount = 0;
         finalePhase = false;
         finaleTicks = 0;
         reserveLives = 0;
@@ -256,9 +261,18 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             int ticks = entry.getValue() + 1;
             if (ticks >= INCUBATION_TICKS) {
                 it.remove();
-                maturedHosts.add(entry.getKey());
-                amon.displayClientMessage(Component.translatable("message.noellesroles.amon.seed_matured")
-                        .withStyle(ChatFormatting.DARK_PURPLE), true);
+                // 控制名额已满（≥3）：不再走附身流程，直接寄生杀死宿主
+                if (controlCount >= MAX_CONTROL_COUNT) {
+                    Player hostPlayer = amon.level().getPlayerByUUID(entry.getKey());
+                    if (hostPlayer instanceof ServerPlayer sh && GameUtils.isPlayerAliveAndSurvival(sh)) {
+                        directParasiteKill(sh);
+                        changed = true;
+                    }
+                } else {
+                    maturedHosts.add(entry.getKey());
+                    amon.displayClientMessage(Component.translatable("message.noellesroles.amon.seed_matured")
+                            .withStyle(ChatFormatting.DARK_PURPLE), true);
+                }
                 changed = true;
             } else {
                 entry.setValue(ticks);
@@ -321,6 +335,12 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         }
         if (finalePhase || possessTarget != null)
             return false;
+        // 控制名额用完：不再允许附身，成熟宿主已在 serverTick 中自动直接寄生
+        if (controlCount >= MAX_CONTROL_COUNT) {
+            amon.displayClientMessage(Component.translatable("message.noellesroles.amon.control_limit_reached")
+                    .withStyle(ChatFormatting.RED), true);
+            return false;
+        }
         // 只能附身已成熟、仍存活的宿主。
         if (targetUuid == null || !maturedHosts.contains(targetUuid)) {
             return false;
@@ -423,6 +443,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
 
         usurpCount++;
         hasUsurped = true;
+        controlCount++;
         seeds.remove(targetUuid);
         maturedHosts.remove(targetUuid);
         possessTarget = null;
@@ -549,6 +570,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
 
         usurpCount++;
         hasUsurped = true;
+        controlCount++;
         seeds.remove(hostUuid);
         maturedHosts.remove(hostUuid);
 
@@ -556,6 +578,26 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
         sync();
         return true;
+    }
+
+    /**
+     * 控制名额已满时的直接寄生杀死：跳过附身/操控，直接令成熟宿主死亡（彻底寄生状态），
+     * 不生成宿主尸体（被寄生占据），在宿主位置生成阿蒙的寄生躯壳。
+     */
+    private void directParasiteKill(ServerPlayer target) {
+        if (!(player instanceof ServerPlayer amon) || !(amon.level() instanceof ServerLevel level))
+            return;
+        if (!GameUtils.isPlayerAliveAndSurvival(target))
+            return;
+        Vec3 targetPos = target.position();
+        float targetYRot = target.getYRot();
+        // 令宿主死亡，不生成宿主尸体（已被寄生占据）
+        GameUtils.forceKillPlayer(target, false, null, GameConstants.DeathReasons.AMON_USURP);
+        // 在宿主位置生成阿蒙的寄生躯壳
+        spawnOwnBody(amon, level, targetPos, targetYRot);
+        amon.displayClientMessage(Component.translatable("message.noellesroles.amon.direct_parasite")
+                .withStyle(ChatFormatting.DARK_PURPLE), true);
+        sync();
     }
 
     /** 在指定位置生成阿蒙自己的尸体（夺舍时抛下的旧躯壳，死因 AMON_USURP）。 */
@@ -766,11 +808,8 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
     }
 
     private void blinkAway(ServerPlayer amon) {
-        double angle = amon.getRandom().nextDouble() * Math.PI * 2;
-        double dist = 6 + amon.getRandom().nextDouble() * 4;
-        double nx = amon.getX() + Math.cos(angle) * dist;
-        double nz = amon.getZ() + Math.sin(angle) * dist;
-        amon.teleportTo(amon.serverLevel(), nx, amon.getY(), nz, amon.getYRot(), amon.getXRot());
+        // 终幕被击中时传送到随机房间，而非往旁边随机移动
+        GameUtils.teleportToRandomRoom(amon);
     }
 
     /** 窃取全场存活玩家的随机一件物品（钥匙/信件除外；枪械则复制而非夺走）。 */
@@ -855,6 +894,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         tag.putInt("UsurpCount", usurpCount);
         tag.putBoolean("HasUsurped", hasUsurped);
         tag.putInt("SeedCap", seedCap);
+        tag.putInt("ControlCount", controlCount);
         tag.putBoolean("Finale", finalePhase);
         tag.putInt("FinaleTicks", finaleTicks);
         tag.putInt("Reserve", reserveLives);
@@ -876,6 +916,7 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
         usurpCount = tag.getInt("UsurpCount");
         hasUsurped = tag.getBoolean("HasUsurped");
         seedCap = tag.getInt("SeedCap");
+        controlCount = tag.getInt("ControlCount");
         finalePhase = tag.getBoolean("Finale");
         finaleTicks = tag.getInt("FinaleTicks");
         reserveLives = tag.getInt("Reserve");
