@@ -69,10 +69,12 @@ public class RoleNameRenderer {
             if (result.equals(TrueFalseResult.FALSE))
                 return;
             if (result.equals(TrueFalseResult.PASS)) {
-                if (self.level().getBrightness(LightLayer.BLOCK, BlockPos.containing(self.getEyePosition())) < 3
-                        && self.level().getBrightness(LightLayer.SKY,
-                                BlockPos.containing(self.getEyePosition())) < 10)
-                    return;
+                if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(self)) {
+                    if (self.level().getBrightness(LightLayer.BLOCK, BlockPos.containing(self.getEyePosition())) < 3
+                            && self.level().getBrightness(LightLayer.SKY,
+                                    BlockPos.containing(self.getEyePosition())) < 10)
+                        return;
+                }
             }
         }
 
