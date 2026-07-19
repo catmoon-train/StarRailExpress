@@ -13,6 +13,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -59,6 +61,10 @@ public class TMMItemTooltips {
             addTooltipForItem(SREBlocks.TRAIN_LIGHT.asItem(), itemStack, tooltipList);
             addTooltipForItem(SREBlocks.REMOTE_REDSTONE.asItem(), itemStack, tooltipList);
             addTooltipForItem(DevItems.BINDING_TOOL, itemStack, tooltipList);
+            addTooltipForItem(ModItems.WREATH, itemStack, tooltipList);
+            addTooltipForItem(ModItems.CALMING_TEA, itemStack, tooltipList);
+            addTooltipForItem(ModItems.CHOCOLATE, itemStack, tooltipList);
+            addTooltipForItem(ModItems.TALISMAN, itemStack, tooltipList);
         });
     }
 
