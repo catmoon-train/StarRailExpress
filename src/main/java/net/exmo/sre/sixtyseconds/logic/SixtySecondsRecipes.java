@@ -915,7 +915,7 @@ public final class SixtySecondsRecipes {
                 List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(Items.LILY_PAD, 1)),
                 Items.POTION, potion(Items.POTION, MobEffects.SLOW_FALLING, 1800, 0));
         brew(list, "potion_night_vision", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(tea, 3)),
-                Items.POTION, potion(Items.POTION, MobEffects.NIGHT_VISION, 1800, 0));
+                Items.SPLASH_POTION, potion(Items.SPLASH_POTION, MobEffects.NIGHT_VISION, 1800, 0));
         brew(list, "splash_slowness", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(scrap, 2)),
                 Items.SPLASH_POTION, potion(Items.SPLASH_POTION, MobEffects.MOVEMENT_SLOWDOWN, 600, 0));
         brew(list, "splash_harming", "brew_2", List.of(in(bottle, 1), in(waterS, 1), in(Items.NETHER_WART, 2), in(scrap, 2)),
