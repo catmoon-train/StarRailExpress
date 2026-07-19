@@ -106,6 +106,8 @@ public class SupplyBoxBlock extends BaseEntityBlock {
             ServerPlayNetworking.send(serverPlayer, new OpenLootTableEditS2CPacket(table));
             return;
         }
+        // 模板克隆时 NBT 可能残留 unlocked=true；先 ensureDaily 重置，再检查锁
+        box.ensureDaily(serverLevel);
         // 上锁箱：先撬锁——普通锁用撬箱起子、高级锁用钳子（每撬耗 1 耐久，撬开后当天持续开放）
         if (locked && !box.isUnlocked()) {
             net.minecraft.world.item.Item tool = advanced

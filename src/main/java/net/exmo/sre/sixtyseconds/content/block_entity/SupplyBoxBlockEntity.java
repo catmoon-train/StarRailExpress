@@ -137,7 +137,8 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         setChanged();
     }
 
-    private void ensureDaily(ServerLevel level) {
+    /** 确保按日重置（模板克隆时 NBT 可能残留 unlocked=true，交互前调用此方法重置）。 */
+    public void ensureDaily(ServerLevel level) {
         int day = SixtySecondsState.get(level).dayNumber;
         if (day != lastRefreshDay) {
             lastRefreshDay = day;

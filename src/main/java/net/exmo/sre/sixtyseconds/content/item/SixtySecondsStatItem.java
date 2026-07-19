@@ -136,7 +136,7 @@ public class SixtySecondsStatItem extends Item {
             stats.sanityMax = Math.min(SANITY_MAX_CAP, stats.sanityMax + sanityMaxBonus);
         }
         if (healthMaxBonus > 0) {
-            stats.healthMax = Math.min(GENERIC_MAX_CAP, stats.healthMax + healthMaxBonus);
+            stats.healthMax = Math.min(SixtySecondsStatsComponent.HEALTH_MAX_CAP, stats.healthMax + healthMaxBonus);
         }
         if (hungerMaxBonus > 0) {
             stats.hungerMax = Math.min(GENERIC_MAX_CAP, stats.hungerMax + hungerMaxBonus);
@@ -190,7 +190,7 @@ public class SixtySecondsStatItem extends Item {
         }
         if (healthMaxBonus > 0) {
             tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_health_max",
-                    healthMaxBonus, GENERIC_MAX_CAP).withStyle(ChatFormatting.RED));
+                    healthMaxBonus, SixtySecondsStatsComponent.HEALTH_MAX_CAP).withStyle(ChatFormatting.RED));
         }
         if (hungerMaxBonus > 0) {
             tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.stat_hunger_max",

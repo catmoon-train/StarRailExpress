@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -220,91 +221,71 @@ public final class SixtySecondsNewspaper {
             int teamId, SixtySecondsState.TeamData team, List<Integer> picked) {
         List<Component> sections = new ArrayList<>();
 
-        // 1. 末日日报新闻
-        var headline = new StringBuilder();
-        headline.append("≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡\n");
+        // 1. 末日日报新闻（使用 translatable 保留客户端语言适配）
+        MutableComponent headline = Component.literal("≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡").append(CommonComponents.NEW_LINE);
         for (int n : picked) {
-            headline.append("◆ ");
-            headline.append(Component.translatable(LANG + "n" + n).getString());
-            headline.append("\n\n");
+            headline.append(Component.literal("◆ "));
+            headline.append(Component.translatable(LANG + "n" + n));
+            headline.append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
         }
-        headline.append("≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡");
-        sections.add(Component.literal(headline.toString()).withStyle(ChatFormatting.DARK_RED));
+        headline.append(Component.literal("≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡"));
+        sections.add(headline.withStyle(ChatFormatting.DARK_RED));
 
         // 2. 天气播报
-        StringBuilder weather = new StringBuilder();
-        weather.append(Component.translatable(LANG + "section_weather").getString()).append("\n\n");
+        MutableComponent weather = Component.translatable(LANG + "section_weather").append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
         String weatherKey = SixtySecondsEventSystem.activeEventKey(level);
         if (weatherKey != null) {
-            weather.append(Component.translatable("message.noellesroles.sixty_seconds.weather_active").getString());
-            weather.append(Component.translatable(weatherKey).getString());
+            weather.append(Component.translatable("message.noellesroles.sixty_seconds.weather_active"));
+            weather.append(Component.translatable(weatherKey));
         } else {
-            weather.append(Component.translatable("message.noellesroles.sixty_seconds.weather_clear").getString());
+            weather.append(Component.translatable("message.noellesroles.sixty_seconds.weather_clear"));
         }
-        sections.add(Component.literal(weather.toString()).withStyle(ChatFormatting.GOLD));
+        sections.add(weather.withStyle(ChatFormatting.GOLD));
 
         // 3. 全区动态
-        StringBuilder zone = new StringBuilder();
-        zone.append(Component.translatable(LANG + "section_zone").getString()).append("\n\n");
+        MutableComponent zone = Component.translatable(LANG + "section_zone").append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
         long aliveCount = level.players().stream()
                 .filter(p -> !GameUtils.isPlayerEliminated(p)).count();
         long totalPlayers = data.teams.values().stream().mapToLong(t -> t.members.size()).sum();
         long deceased = totalPlayers - aliveCount;
 
-        // 根据天数动态变化全区动态描述
         String zoneKey;
-        if (data.dayNumber <= 5) {
-            zoneKey = "zone_order_stable";
-        } else if (data.dayNumber <= 10) {
-            zoneKey = "zone_security_decay";
-        } else if (data.dayNumber <= 20) {
-            zoneKey = "zone_no_mans_land";
-        } else {
-            zoneKey = "zone_ecosystem_rebuild";
-        }
-
-        // 检查是否有进行中的事件覆盖
-        String activeWeatherKey = SixtySecondsEventSystem.activeEventKey(level);
-        if (activeWeatherKey != null) {
-            zoneKey = "zone_event_active";
-        }
+        if (data.dayNumber <= 5) zoneKey = "zone_order_stable";
+        else if (data.dayNumber <= 10) zoneKey = "zone_security_decay";
+        else if (data.dayNumber <= 20) zoneKey = "zone_no_mans_land";
+        else zoneKey = "zone_ecosystem_rebuild";
+        if (SixtySecondsEventSystem.activeEventKey(level) != null) zoneKey = "zone_event_active";
 
         if (deceased > 10) {
-            zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_mass_casualty").getString());
+            zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_mass_casualty"));
         } else if (deceased > 0) {
-            zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_deaths", Math.max(0, deceased)).getString());
+            zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_deaths", Math.max(0, deceased)));
         } else {
-            if (data.dayNumber >= 5 && deceased == 0) {
-                // 已过第5天但无人死亡，添加紧张氛围描述
-            }
-            zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_peaceful").getString());
+            zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_peaceful"));
         }
-        zone.append("\n");
-        zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_alive", data.teams.size()).getString());
-        zone.append("\n");
-        zone.append(Component.translatable("message.noellesroles.sixty_seconds." + zoneKey).getString());
-        sections.add(Component.literal(zone.toString()).withStyle(ChatFormatting.DARK_AQUA));
+        zone.append(CommonComponents.NEW_LINE);
+        zone.append(Component.translatable("message.noellesroles.sixty_seconds.zone_alive", data.teams.size()));
+        zone.append(CommonComponents.NEW_LINE);
+        zone.append(Component.translatable("message.noellesroles.sixty_seconds." + zoneKey));
+        sections.add(zone.withStyle(ChatFormatting.DARK_AQUA));
 
         // 4. 生存小贴士
         String tipKey = TIPS[level.getRandom().nextInt(TIPS.length)];
-        StringBuilder tips = new StringBuilder();
-        tips.append(Component.translatable(LANG + "section_tips").getString()).append("\n\n");
-        tips.append(Component.translatable("message.noellesroles.sixty_seconds." + tipKey).getString());
-        sections.add(Component.literal(tips.toString()).withStyle(ChatFormatting.GREEN));
+        MutableComponent tips = Component.translatable(LANG + "section_tips").append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
+        tips.append(Component.translatable("message.noellesroles.sixty_seconds." + tipKey));
+        sections.add(tips.withStyle(ChatFormatting.GREEN));
 
         // 5. PVP紧急播报
         if (data.dayNumber >= 5) {
-            StringBuilder pvp = new StringBuilder();
-            pvp.append(Component.translatable(LANG + "section_emergency").getString()).append("\n\n");
+            MutableComponent pvp = Component.translatable(LANG + "section_emergency").append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
             pvp.append(Component.translatable("message.noellesroles.sixty_seconds.pvp_broadcast_"
-                    + (data.dayNumber == 5 ? "day5" : "ongoing")).getString());
-            sections.add(Component.literal(pvp.toString()).withStyle(ChatFormatting.RED));
+                    + (data.dayNumber == 5 ? "day5" : "ongoing")));
+            sections.add(pvp.withStyle(ChatFormatting.RED));
         }
 
-        // 6. 特殊通报（50%概率）
+        // 6. 特殊通报
         if (level.getRandom().nextDouble() < 0.5) {
-            StringBuilder report = new StringBuilder();
-            report.append(Component.translatable(LANG + "section_report").getString()).append("\n\n");
+            MutableComponent report = Component.translatable(LANG + "section_report").append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
             int reportType = level.getRandom().nextInt(3);
             switch (reportType) {
                 case 0 -> {
@@ -313,7 +294,7 @@ public final class SixtySecondsNewspaper {
                         int coins = countTeamMailboxCoins(level, te.getKey());
                         if (coins > maxCoins) { maxCoins = coins; richest = te.getKey(); }
                     }
-                    report.append(Component.translatable("message.noellesroles.sixty_seconds.report_richest", richest, maxCoins).getString());
+                    report.append(Component.translatable("message.noellesroles.sixty_seconds.report_richest", richest, maxCoins));
                 }
                 case 1 -> {
                     int topKiller = -1, maxKills = 0;
@@ -325,7 +306,7 @@ public final class SixtySecondsNewspaper {
                         }
                         if (kills > maxKills) { maxKills = kills; topKiller = te.getKey(); }
                     }
-                    report.append(Component.translatable("message.noellesroles.sixty_seconds.report_kills", topKiller, maxKills).getString());
+                    report.append(Component.translatable("message.noellesroles.sixty_seconds.report_kills", topKiller, maxKills));
                 }
                 case 2 -> {
                     List<Integer> alive = new ArrayList<>();
@@ -335,10 +316,10 @@ public final class SixtySecondsNewspaper {
                         if (online > 0) alive.add(te.getKey());
                     }
                     String teams = alive.stream().map(String::valueOf).collect(Collectors.joining(" "));
-                    report.append(Component.translatable("message.noellesroles.sixty_seconds.report_survivors", alive.size(), teams).getString());
+                    report.append(Component.translatable("message.noellesroles.sixty_seconds.report_survivors", alive.size(), teams));
                 }
             }
-            sections.add(Component.literal(report.toString()).withStyle(ChatFormatting.LIGHT_PURPLE));
+            sections.add(report.withStyle(ChatFormatting.LIGHT_PURPLE));
         }
 
         // 7. 幸存者投稿
@@ -346,61 +327,63 @@ public final class SixtySecondsNewspaper {
         if (st != null && !st.drafts.isEmpty()) {
             List<String> allDrafts = st.drafts.values().stream().flatMap(List::stream).collect(Collectors.toList());
             if (!allDrafts.isEmpty()) {
-                StringBuilder drafts = new StringBuilder();
-                drafts.append(Component.translatable(LANG + "section_drafts").getString()).append("\n\n");
+                MutableComponent drafts = Component.translatable(LANG + "section_drafts").append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
                 int idx = 1;
                 for (String draft : allDrafts) {
                     String preview = draft.length() > 40 ? draft.substring(0, 40) + "…" : draft;
-                    drafts.append(Component.translatable(LANG + "draft_entry", idx, preview).getString()).append("\n");
+                    drafts.append(Component.translatable(LANG + "draft_entry", idx, preview));
+                    drafts.append(CommonComponents.NEW_LINE);
                     idx++;
                 }
-                sections.add(Component.literal(drafts.toString()).withStyle(ChatFormatting.YELLOW));
+                sections.add(drafts.withStyle(ChatFormatting.YELLOW));
             }
         }
 
-        // 8. 市民热线栏目（60%概率出现，最多2条）
+        // 8. 市民热线
         List<SixtySecondsHotlineSystem.HotlineEntry> hotlines = SixtySecondsHotlineSystem.getDailyHotlines(level);
         if (!hotlines.isEmpty() && level.getRandom().nextDouble() < 0.6) {
             int count = Math.min(hotlines.size(), 1 + level.getRandom().nextInt(2));
-            StringBuilder hotlineSb = new StringBuilder();
-            hotlineSb.append(Component.translatable("message.noellesroles.sixty_seconds.news.hotline_header").getString()).append("\n\n");
+            MutableComponent hotline = Component.translatable("message.noellesroles.sixty_seconds.news.hotline_header").append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
             for (int i = 0; i < count; i++) {
                 SixtySecondsHotlineSystem.HotlineEntry entry = hotlines.get(i);
-                String typeKey = switch (entry.type()) {
-                    case EXPRESS -> "message.noellesroles.sixty_seconds.hotline_type_express";
-                    case SHOP -> "message.noellesroles.sixty_seconds.hotline_type_shop";
-                    case RESCUE -> "message.noellesroles.sixty_seconds.hotline_type_rescue";
-                    case INTEL -> "message.noellesroles.sixty_seconds.hotline_type_intel";
-                    case WEATHER -> "message.noellesroles.sixty_seconds.hotline_type_weather";
-                    case COUNSEL -> "message.noellesroles.sixty_seconds.hotline_type_counsel";
-                    case HIRE -> "message.noellesroles.sixty_seconds.hotline_type_hire";
-                    case BLACK_MARKET -> "message.noellesroles.sixty_seconds.hotline_type_black_market";
-                    case RECYCLE -> "message.noellesroles.sixty_seconds.hotline_type_recycle";
-                    case POVERTY_RELIEF -> "message.noellesroles.sixty_seconds.hotline_type_poverty_relief";
-                    case REPORT -> "message.noellesroles.sixty_seconds.hotline_type_report";
-                };
-                hotlineSb.append(Component.translatable("message.noellesroles.sixty_seconds.news.hotline_entry",
-                        Component.translatable(typeKey), entry.number()).getString()).append("\n");
+                String typeKey = hotlineTypeKey(entry);
+                hotline.append(Component.translatable("message.noellesroles.sixty_seconds.news.hotline_entry",
+                        Component.translatable(typeKey), entry.number()));
+                hotline.append(CommonComponents.NEW_LINE);
             }
-            sections.add(Component.literal(hotlineSb.toString()).withStyle(ChatFormatting.AQUA));
+            sections.add(hotline.withStyle(ChatFormatting.AQUA));
         }
 
-        // 10. 邻里八卦（70%概率出现，随机一条）
+        // 9. 邻里八卦
         if (level.getRandom().nextDouble() < 0.7) {
             String gossipKey = GOSSIP[level.getRandom().nextInt(GOSSIP.length)];
-            StringBuilder gossip = new StringBuilder();
-            gossip.append(Component.translatable(LANG + "section_gossip").getString()).append("\n\n");
-            gossip.append(Component.translatable("message.noellesroles.sixty_seconds." + gossipKey).getString());
-            sections.add(Component.literal(gossip.toString()).withStyle(ChatFormatting.LIGHT_PURPLE));
+            MutableComponent gossip = Component.translatable(LANG + "section_gossip").append(CommonComponents.NEW_LINE).append(CommonComponents.NEW_LINE);
+            gossip.append(Component.translatable("message.noellesroles.sixty_seconds." + gossipKey));
+            sections.add(gossip.withStyle(ChatFormatting.LIGHT_PURPLE));
         }
 
-        // 尾页：分隔线 + 日期
-        StringBuilder footer = new StringBuilder();
-        footer.append(Component.translatable(LANG + "section_divider").getString()).append("\n");
-        footer.append(Component.translatable(LANG + "footer", data.dayNumber).getString());
-        sections.add(Component.literal(footer.toString()).withStyle(ChatFormatting.DARK_GRAY));
+        // 尾页
+        MutableComponent footer = Component.translatable(LANG + "section_divider").append(CommonComponents.NEW_LINE);
+        footer.append(Component.translatable(LANG + "footer", data.dayNumber));
+        sections.add(footer.withStyle(ChatFormatting.DARK_GRAY));
 
         return sections;
+    }
+
+    private static String hotlineTypeKey(SixtySecondsHotlineSystem.HotlineEntry entry) {
+        return switch (entry.type()) {
+            case EXPRESS -> "message.noellesroles.sixty_seconds.hotline_type_express";
+            case SHOP -> "message.noellesroles.sixty_seconds.hotline_type_shop";
+            case RESCUE -> "message.noellesroles.sixty_seconds.hotline_type_rescue";
+            case INTEL -> "message.noellesroles.sixty_seconds.hotline_type_intel";
+            case WEATHER -> "message.noellesroles.sixty_seconds.hotline_type_weather";
+            case COUNSEL -> "message.noellesroles.sixty_seconds.hotline_type_counsel";
+            case HIRE -> "message.noellesroles.sixty_seconds.hotline_type_hire";
+            case BLACK_MARKET -> "message.noellesroles.sixty_seconds.hotline_type_black_market";
+            case RECYCLE -> "message.noellesroles.sixty_seconds.hotline_type_recycle";
+            case POVERTY_RELIEF -> "message.noellesroles.sixty_seconds.hotline_type_poverty_relief";
+            case REPORT -> "message.noellesroles.sixty_seconds.hotline_type_report";
+        };
     }
 
     private static void deliverToTeamMailbox(ServerLevel level, int teamId,
