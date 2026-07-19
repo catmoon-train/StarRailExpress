@@ -1225,7 +1225,7 @@
     "gui.sre.role_rotation.role_adjusted": "职业调整阶段结束，职业已调整为: %s",
     "gui.sre.role_rotation.scroll_hint": "使用滚轮查看更多玩家",
     "gui.sre.role_rotation.select_title": "选择你的职业",
-    "gui.sre.role_rotation.selected": "%s号玩家选择了 %s",
+    "gui.sre.role_rotation.selected": "你选择了 %s",
     "gui.sre.role_rotation.selection_timeout_noargs": "选择超时，已随机分配职业。",
     "gui.sre.role_rotation.selection_timeout": "选择超时（%s秒），已随机分配职业: %s",
     "gui.sre.role_rotation.current_round": "第 %s 轮",
