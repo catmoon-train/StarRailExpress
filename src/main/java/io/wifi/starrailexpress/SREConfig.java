@@ -345,8 +345,6 @@ public class SREConfig implements ConfigData {
     public boolean isStatsSyncEnabled = true;
     @ConfigEntry.Category(value = "stats")
     public boolean isTeammedStatsSyncEnabled = true;
-    @ConfigEntry.Category(value = "stats")
-    public boolean isDetailedStatsSyncEnabled = false;
     @ConfigEntry.Category(value = "sync")
     public boolean mysqlPlayerSyncEnabled = false;
     @ConfigEntry.Category(value = "sync")
