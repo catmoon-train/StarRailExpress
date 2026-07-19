@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.content.command;
 
+import com.ibm.icu.text.Collator;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -32,6 +33,7 @@ public class ListRoleInRoundCommand {
         var texts = Component.literal("");
         var players = new ArrayList<>(level.players());
         var rolecca = SRERoleWorldComponent.KEY.get(level);
+        Collator collator = Collator.getInstance();
         players.sort((pa, pb) -> {
             boolean alive = GameUtils.isPlayerAliveAndSurvival(pa);
             boolean blive = GameUtils.isPlayerAliveAndSurvival(pb);
@@ -44,6 +46,9 @@ public class ListRoleInRoundCommand {
             var rb = rolecca.getRole(pb.getUUID());
             int rta = RoleUtils.getRoleType(ra);
             int rtb = RoleUtils.getRoleType(rb);
+            if (rta == rtb) {
+                return collator.compare(pa.getScoreboardName(), pb.getScoreboardName());
+            }
             return -Integer.compare(rta, rtb);
         });
         for (ServerPlayer player : players) {
