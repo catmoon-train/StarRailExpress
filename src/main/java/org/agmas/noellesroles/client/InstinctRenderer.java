@@ -56,6 +56,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -429,6 +430,23 @@ public class InstinctRenderer {
                 InsaneKillerPlayerComponent component = InsaneKillerPlayerComponent.KEY.get(targetPlayer);
                 if (component.isActive) {
                     return TrueFalseAndCustomResult.custom(ModRoles.CORONER.color());
+                }
+            }
+            return TrueFalseAndCustomResult.pass();
+        });
+
+        // 验尸官
+        OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {
+            if (SREClient.gameComponent == null) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            if (!SREClient.gameComponent.isRole(self, THMiscRoles.KIRISAME_MARISA)) {
+                return TrueFalseAndCustomResult.pass();
+            }
+
+            if (target instanceof Player targetPlayer) {
+                if (SREClient.gameComponent.isRole(targetPlayer, THMiscRoles.HAKUREI_REIMU)) {
+                    return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
                 }
             }
             return TrueFalseAndCustomResult.pass();
