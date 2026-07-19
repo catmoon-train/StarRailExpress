@@ -12,6 +12,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.agmas.noellesroles.client.NoellesrolesClient;
@@ -95,6 +96,33 @@ public class RoleRotationScreen extends Screen {
         RoleRotationCache.tickTimers(); // 客户端本地倒计时 tick
     }
 
+    private void renderOverlayMessageOnScreen(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        var message = minecraft.gui.overlayMessageString;
+        int displaytime = minecraft.gui.overlayMessageTime;
+        if (message == null || displaytime <= 0)
+            return;
+        float f = (float) displaytime - delta;
+        int i = (int) (f * 255.0F / 20.0F);
+        if (i > 255) {
+            i = 255;
+        }
+
+        if (i > 8) {
+            int j;
+            if (minecraft.gui.animateOverlayMessageColor) {
+                j = Mth.hsvToArgb(f / 50.0F, 0.7F, 0.6F, i);
+            } else {
+                j = ARGB32.color(i, -1);
+            }
+            int x = width;
+            int y = 5;
+            int twidth = font.width(message);
+            {
+                context.drawStringWithBackdrop(font, message, (x - twidth) / 2, y, twidth, j);
+            }
+        }
+    }
+
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
@@ -110,6 +138,8 @@ public class RoleRotationScreen extends Screen {
         drawTurnInfo(g);
         drawRoleArea(g, mouseX, mouseY);
         drawFooter(g);
+
+        renderOverlayMessageOnScreen(g, mouseX, mouseY, partialTick);
     }
 
     @Override

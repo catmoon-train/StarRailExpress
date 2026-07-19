@@ -93,7 +93,9 @@ public class LightningDraftState {
             return false;
 
         for (UUID uuid : offlineUnselected) {
-            roundCandidates.remove(uuid); // 从本轮候选移除
+            List<SRERole> oldCandidates = roundCandidates.remove(uuid);
+            if (oldCandidates != null)
+                lockedCandidates.removeAll(oldCandidates);
             SRERole randomRole = selectRandomRole(world);
             selectedRoles.put(uuid, randomRole);
             rolePool.remove(randomRole);
@@ -147,6 +149,7 @@ public class LightningDraftState {
                         !role.isNeutrals() &&
                         role.isInnocent() &&
                         (enableCivilianInPool || role != TMMRoles.CIVILIAN));
+        civilianPool.ignoreeRoleOccupiedCount = true;
         // 职业池总数 = 总玩家数
         // 最后几人不允许选
         int forceRoleCount = 0;
@@ -184,7 +187,18 @@ public class LightningDraftState {
                 rolePool.add(inst.role());
             }
         }
-        canReplaceRole.addAll(civilianPool.selectRoles(2));
+        ArrayList<SRERole> roles = new ArrayList<>(civilianPool.selectRoles(2,
+                (role) -> !role.hasOccupationRole()
+                        && role.opposingRoles.isEmpty()));
+        for (int i = 0; i < 2 - roles.size(); i++) {
+            roles.add(TMMRoles.CIVILIAN);
+        }
+        SRE.LOGGER.info("Replaceable role size {}", roles.size());
+        for (var r : roles) {
+            SRE.LOGGER.info("Replaceable Role {}", r.getName().getString());
+        }
+        canReplaceRole
+                .addAll(roles);
         rolePool.addAll(canReplaceRole);
         initializeCardTracking();
     }
@@ -247,13 +261,15 @@ public class LightningDraftState {
         sorted.sort((a, b) -> {
             boolean a_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(a.getUUID());
             boolean b_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(b.getUUID());
+            int a_team = PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(a.getUUID(), 0);
+            int b_team = PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(b.getUUID(), 0);
             if (a_force && b_force)
                 return 0;
             if (a_force)
                 return -1;
             if (b_force)
                 return 1;
-            return 0;
+            return -Integer.compare(a_team, b_team);
         });
         playerOrder.clear();
         for (ServerPlayer p : sorted) {
@@ -269,15 +285,14 @@ public class LightningDraftState {
             return;
         }
 
-        int n = remainingPlayerCount;
-        int b = Math.max(1, n / 3);
+        int b = Math.max(1, rolePool.size() / 3);
         playersInThisRound = b;
 
         List<UUID> roundPlayers = new ArrayList<>();
         for (UUID uuid : playerOrder) {
             if (!selectedRoles.containsKey(uuid)) {
                 roundPlayers.add(uuid);
-                if (roundPlayers.size() == b)
+                if (roundPlayers.size() >= playersInThisRound)
                     break;
             }
         }
@@ -409,7 +424,7 @@ public class LightningDraftState {
                             .withStyle(ChatFormatting.GREEN),
                     true);
         }
-        world.playSound(null, player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 1.0f, 1.2f);
+        RoleUtils.playSound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 1.0f, 1.2f);
 
         if (roundCandidates.isEmpty()) {
             finishRound(world);
@@ -423,8 +438,7 @@ public class LightningDraftState {
         if (remainingPlayerCount > 0) {
             // 一轮结束，新轮提示音
             for (ServerPlayer p : world.players()) {
-                world.playSound(null, p.getX(), p.getY(), p.getZ(),
-                        SoundEvents.NOTE_BLOCK_BELL, SoundSource.MASTER, 1.0f, 1.5f);
+                RoleUtils.playSound(p, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.MASTER, 1.0f, 1.5f);
             }
             startNextRound(world);
         } else {
@@ -456,6 +470,9 @@ public class LightningDraftState {
             return;
         List<UUID> unfinished = new ArrayList<>(roundCandidates.keySet());
         for (UUID uuid : unfinished) {
+            List<SRERole> oldCandidates = roundCandidates.remove(uuid);
+            if (oldCandidates != null)
+                lockedCandidates.removeAll(oldCandidates);
             ServerPlayer player = world.getServer().getPlayerList().getPlayer(uuid);
             SRERole randomRole = selectRandomRole(world);
             selectedRoles.put(uuid, randomRole);
@@ -464,12 +481,10 @@ public class LightningDraftState {
             randomChoosers.add(uuid);
             if (player != null) {
                 player.displayClientMessage(
-                        Component.literal("选择超时，已随机分配职业").withStyle(ChatFormatting.RED),
+                        Component.translatable("gui.sre.role_rotation.selection_timeout_noargs")
+                                .withStyle(ChatFormatting.RED),
                         true);
             }
-            List<SRERole> oldCandidates = roundCandidates.remove(uuid);
-            if (oldCandidates != null)
-                lockedCandidates.removeAll(oldCandidates);
         }
         finishRound(world);
     }

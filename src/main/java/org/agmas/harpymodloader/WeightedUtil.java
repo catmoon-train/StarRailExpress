@@ -1,14 +1,19 @@
 package org.agmas.harpymodloader;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 //by canyuesama
 public class WeightedUtil<T> {
     protected final Map<T, Float> weights;
     protected final List<T> keys;
-    protected  List<Float> cumulativeWeights;
+    protected List<Float> cumulativeWeights;
     protected float totalWeight;
     protected final Random random;
+
+    public Map<T, Float> getWeights() {
+        return weights;
+    };
 
     public WeightedUtil(Map<T, Float> weights) {
         if (weights == null) {
@@ -70,11 +75,10 @@ public class WeightedUtil<T> {
      * 合并另一个权重工具
      */
     public void merge(WeightedUtil<T> other) {
-        if (other == null) return;
+        if (other == null)
+            return;
 
-        other.weights.forEach((key, value) ->
-                this.weights.merge(key, value, Float::sum)
-        );
+        other.weights.forEach((key, value) -> this.weights.merge(key, value, Float::sum));
 
         keys.clear();
         keys.addAll(weights.keySet());
@@ -178,7 +182,8 @@ public class WeightedUtil<T> {
      * 提升所有权重值
      */
     public void increaseWeightsByRarity(int rarity) {
-        if (rarity <= 0) return;
+        if (rarity <= 0)
+            return;
 
         for (Map.Entry<T, Float> entry : weights.entrySet()) {
             float currentWeight = entry.getValue();
@@ -212,7 +217,8 @@ public class WeightedUtil<T> {
      * 归一化权重
      */
     public void normalizeWeights() {
-        if (totalWeight <= 0) return;
+        if (totalWeight <= 0)
+            return;
 
         float scale = 1.0f / totalWeight;
         weights.replaceAll((k, v) -> v * scale);
@@ -223,7 +229,8 @@ public class WeightedUtil<T> {
      * 获取权重最高的键
      */
     public T getHighestWeightKey() {
-        if (weights.isEmpty()) return null;
+        if (weights.isEmpty())
+            return null;
 
         return weights.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -235,7 +242,8 @@ public class WeightedUtil<T> {
      * 获取权重最低的键
      */
     public T getLowestWeightKey() {
-        if (weights.isEmpty()) return null;
+        if (weights.isEmpty())
+            return null;
 
         return weights.entrySet().stream()
                 .min(Map.Entry.comparingByValue())
@@ -247,12 +255,11 @@ public class WeightedUtil<T> {
      * 获取权重分布
      */
     public Map<T, Float> getWeightDistribution() {
-        if (totalWeight <= 0) return Collections.emptyMap();
+        if (totalWeight <= 0)
+            return Collections.emptyMap();
 
         Map<T, Float> distribution = new LinkedHashMap<>();
-        weights.forEach((key, weight) ->
-                distribution.put(key, weight / totalWeight)
-        );
+        weights.forEach((key, weight) -> distribution.put(key, weight / totalWeight));
         return distribution;
     }
 
@@ -271,7 +278,21 @@ public class WeightedUtil<T> {
     }
 
     /**
-     * 获取指定键的权重
+     * 获取权重
+     */
+    public WeightedUtil<T> filter(Predicate<T> filter) {
+        LinkedHashMap<T, Float> newWeights = new LinkedHashMap<>();
+        var sets = weights.entrySet();
+        for (var set : sets) {
+            if (filter.test(set.getKey())) {
+                newWeights.put(set.getKey(), set.getValue());
+            }
+        }
+        return new WeightedUtil<>(newWeights);
+    }
+
+    /**
+     * 获取权重
      */
     public Float getWeight(T key) {
         return weights.get(key);
@@ -332,7 +353,8 @@ public class WeightedUtil<T> {
 
         for (int i = 0; i < count; i++) {
             T sample = source.selectRandomKeyBasedOnWeights();
-            if (sample == null) break;
+            if (sample == null)
+                break;
 
             samples.add(sample);
             if (!withReplacement) {

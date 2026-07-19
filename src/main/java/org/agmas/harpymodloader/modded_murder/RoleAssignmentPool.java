@@ -107,8 +107,18 @@ public class RoleAssignmentPool {
      * @return 选中的角色，如果池为空则返回null
      */
     public SRERole selectRole() {
-        return selectRoleWithCountCheck();
+        return selectRole((r) -> true);
     }
+
+    /**
+     * 从池中选择一个角色
+     * 
+     * @return 选中的角色，如果池为空则返回null
+     */
+    public SRERole selectRole(Predicate<SRERole> condition) {
+        return selectRoleWithCountCheck(condition);
+    }
+
     /**
      * 从池中批量选择角色
      * 
@@ -116,12 +126,16 @@ public class RoleAssignmentPool {
      * @return 选中的角色列表
      */
     public List<SRERole> selectRoles(int count) {
+        return selectRoles(count, (r) -> true);
+    }
+
+    public List<SRERole> selectRoles(int count, Predicate<SRERole> condition) {
         final int maxTrial = 3;
         int needCount = count;
         List<SRERole> selected = new ArrayList<>();
         for (int i = 0; i < needCount; i++) {
             for (int j = 0; j < maxTrial; j++) {
-                SRERole role = selectRole();
+                SRERole role = selectRole(condition);
                 if (role != null) {
                     int roleOccupiedCount = role.getOccupiedRoleCount();
                     // 额外逻辑：occupiedRoleCount <= 0 表示不占用角色槽位（如迷失杀手）
@@ -175,12 +189,12 @@ public class RoleAssignmentPool {
     /**
      * 内部方法：根据权重和计数限制选择角色
      */
-    private SRERole selectRoleWithCountCheck() {
+    private SRERole selectRoleWithCountCheck(Predicate<SRERole> condition) {
         if (isEmpty()) {
             return null;
         }
-
-        SRERole selectedRole = roleWeights.selectRandomKeyBasedOnWeights();
+        var roleWeights2 = roleWeights.filter(condition);
+        SRERole selectedRole = roleWeights2.selectRandomKeyBasedOnWeights();
         if (selectedRole == null) {
             return null;
         }
@@ -197,7 +211,7 @@ public class RoleAssignmentPool {
             return selectedRole;
         } else {
             roleWeights.removeKey(selectedRole);
-            return selectRoleWithCountCheck();
+            return selectRoleWithCountCheck(condition);
         }
     }
 
