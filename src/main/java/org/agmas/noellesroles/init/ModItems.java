@@ -769,7 +769,7 @@ public class ModItems {
             WEAPONS_GROUP);
     // 迷你八卦炉
     public static final Item MINI_BAGUALU = register(
-            new MinibagualuItem((new Item.Properties()).stacksTo(1).durability(2)), "mini_bagualu",
+            new MinibagualuItem((new Item.Properties()).stacksTo(1).durability(1)), "mini_bagualu",
             WEAPONS_GROUP);
     // ==================== Dream（梦魇）专属 ====================
     /**
