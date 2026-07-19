@@ -91,6 +91,9 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
 
                     SniperRifleItem.consumeAmmo(mainHandStack);
 
+                    // 同步修改后的弹药数量回客户端，防止客户端和服务端 DataComponent 不一致
+                    player.inventoryMenu.broadcastChanges();
+
                     player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                             TMMSounds.ITEM_SNIPER_RIFLE_SHOOT, SoundSource.MASTER, 10f,
                             1f + player.getRandom().nextFloat() * .1f - .05f);
@@ -166,6 +169,9 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
                     // 装填子弹
                     int currentAmmo = SniperRifleItem.getAmmoCount(mainHandStack);
                     SniperRifleItem.setAmmoCount(mainHandStack, currentAmmo + 1);
+
+                    // 同步修改后的弹药数量回客户端，防止客户端和服务端 DataComponent 不一致
+                    player.inventoryMenu.broadcastChanges();
 
                     // 播放装填声音
                     player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
