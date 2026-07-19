@@ -14,6 +14,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvPart;
 import org.agmas.noellesroles.init.ModItems;
 
 import java.util.ArrayList;
@@ -1292,6 +1293,71 @@ public final class SixtySecondsRecipes {
                 List.of(in(alloy, 8), in(steel, 18), in(oak, 16), in(glassPlate, 4), in(elec, 16),
                         in(gear, 16), in(wire, 16), in(battery, 5), in(hemp, 24)),
                 ModItems.SIXTY_SECONDS_FISHING_BOAT, 1);
+        // ── 房车装修（车床，需通电）────────────────────────────────────
+        var rvp = org.agmas.noellesroles.init.ModItems.RV_PART_ITEMS;
+        // ▸ 房车装修-I (rv_upgrade_1)
+        add(list, "rv_auxiliary_tank", Station.LATHE, "rv_upgrade_1", true,
+                List.of(in(steel, 3), in(copper, 4), in(scrap, 5)),
+                rvp.get(SixtySecondsRvPart.AUXILIARY_TANK), 1);
+        add(list, "rv_reinforced_suspension", Station.LATHE, "rv_upgrade_1", true,
+                List.of(in(steel, 4), in(gear, 3), in(copper, 2)),
+                rvp.get(SixtySecondsRvPart.REINFORCED_SUSPENSION), 1);
+        add(list, "rv_winch", Station.LATHE, "rv_upgrade_1", true,
+                List.of(in(steel, 3), in(gear, 4), in(wire, 3)),
+                rvp.get(SixtySecondsRvPart.WINCH), 1);
+        add(list, "rv_skid_plate", Station.LATHE, "rv_upgrade_1", true,
+                List.of(in(iron, 4), in(steel, 2), in(nails, 3)),
+                rvp.get(SixtySecondsRvPart.SKID_PLATE), 1);
+        add(list, "rv_long_range_radio", Station.LATHE, "rv_upgrade_1", true,
+                List.of(in(elec, 3), in(wire, 2), in(copper, 3)),
+                rvp.get(SixtySecondsRvPart.LONG_RANGE_RADIO), 1);
+        add(list, "rv_extra_seats", Station.LATHE, "rv_upgrade_1", true,
+                List.of(in(hemp, 4), in(clothRoll, 3), in(scrap, 3)),
+                rvp.get(SixtySecondsRvPart.EXTRA_SEATS), 1);
+        // ▸ 房车装修-II (rv_upgrade_2)
+        add(list, "rv_reserve_tank", Station.LATHE, "rv_upgrade_2", true,
+                List.of(in(steel, 6), in(copper, 3), in(glassPlate, 1)),
+                rvp.get(SixtySecondsRvPart.RESERVE_TANK), 1);
+        add(list, "rv_all_terrain_tires", Station.LATHE, "rv_upgrade_2", true,
+                List.of(in(plastic, 4), in(hemp, 2), in(scrap, 6)),
+                rvp.get(SixtySecondsRvPart.ALL_TERRAIN_TIRES), 1);
+        add(list, "rv_armored_plating", Station.LATHE, "rv_upgrade_2", true,
+                List.of(in(steel, 8), in(gear, 2), in(glassPlate, 2)),
+                rvp.get(SixtySecondsRvPart.ARMORED_PLATING), 1);
+        add(list, "rv_emergency_armor", Station.LATHE, "rv_upgrade_2", true,
+                List.of(in(steel, 6), in(precious, 1), in(glassPlate, 1)),
+                rvp.get(SixtySecondsRvPart.EMERGENCY_ARMOR), 1);
+        add(list, "rv_solar_panel", Station.LATHE, "rv_upgrade_2", true,
+                List.of(in(elec, 6), in(glassShard, 4), in(copper, 4)),
+                rvp.get(SixtySecondsRvPart.SOLAR_PANEL), 1);
+        add(list, "rv_navigation_array", Station.LATHE, "rv_upgrade_2", true,
+                List.of(in(elec, 8), in(precious, 2), in(wire, 4)),
+                rvp.get(SixtySecondsRvPart.NAVIGATION_ARRAY), 1);
+        add(list, "rv_tool_bench", Station.LATHE, "rv_upgrade_2", true,
+                List.of(in(steel, 4), in(oak, 6), in(scrap, 6)),
+                rvp.get(SixtySecondsRvPart.TOOL_BENCH), 1);
+        // ▸ 房车装修-III (rv_upgrade_3)
+        add(list, "rv_economy_carburetor", Station.LATHE, "rv_upgrade_3", true,
+                List.of(in(alloy, 2), in(precious, 1), in(chem, 3)),
+                rvp.get(SixtySecondsRvPart.ECONOMY_CARBURETOR), 1);
+        add(list, "rv_fuel_injector", Station.LATHE, "rv_upgrade_3", true,
+                List.of(in(alloy, 3), in(gear, 4), in(chem, 4)),
+                rvp.get(SixtySecondsRvPart.FUEL_INJECTOR), 1);
+        add(list, "rv_reinforced_frame", Station.LATHE, "rv_upgrade_3", true,
+                List.of(in(alloy, 4), in(steel, 10), in(precious, 2)),
+                rvp.get(SixtySecondsRvPart.REINFORCED_FRAME), 1);
+        add(list, "rv_field_repair_kit", Station.LATHE, "rv_upgrade_3", true,
+                List.of(in(steel, 6), in(scrap, 8), in(chem, 2)),
+                rvp.get(SixtySecondsRvPart.FIELD_REPAIR_KIT), 1);
+        add(list, "rv_medical_bay", Station.LATHE, "rv_upgrade_3", true,
+                List.of(in(elec, 6), in(chem, 4), in(glassPlate, 2)),
+                rvp.get(SixtySecondsRvPart.MEDICAL_BAY), 1);
+        add(list, "rv_roof_lights", Station.LATHE, "rv_upgrade_3", true,
+                List.of(in(elec, 4), in(glassShard, 6), in(battery, 2)),
+                rvp.get(SixtySecondsRvPart.ROOF_LIGHTS), 1);
+        add(list, "rv_scouting_radar", Station.LATHE, "rv_upgrade_3", true,
+                List.of(in(elec, 10), in(precious, 3), in(alloy, 2)),
+                rvp.get(SixtySecondsRvPart.SCOUTING_RADAR), 1);
 
         // ══ 神秘技术 ═══════════════════════════════════════════════════
         // 祭坛本体在高级工作台合成；其余在祭坛合成

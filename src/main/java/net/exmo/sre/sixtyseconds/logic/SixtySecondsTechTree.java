@@ -168,6 +168,8 @@ public final class SixtySecondsTechTree {
         chain(list, "transport", "work_env_4", "vehicle_1", "vehicle_2", "vehicle_3", "vehicle_repair");
         // 海上载具：木筏 → 汽艇 → 渔船，与陆上载具同为车床产物（需「更好的工作环境-IV」）
         chain(list, "transport", "work_env_4", "boat_1", "boat_2", "boat_3");
+        // ── 房车装修（车床，需「更好的工作环境-IV」）─────────────────────
+        chain(list, "transport", "work_env_4", "rv_upgrade_1", "rv_upgrade_2", "rv_upgrade_3");
         // ── 神秘技术（全树 75% 门控，见 gateSatisfied）───────────────────
         chain(list, "mystic", null, "sacrifice_1", "sacrifice_2");
         chain(list, "mystic", "sacrifice_1", "undying_totem");
@@ -211,6 +213,9 @@ public final class SixtySecondsTechTree {
             case "mystic_plants": return 12;
             case "permanent_boost_1": return 10;
             case "permanent_boost_2": return 14;
+            case "rv_upgrade_1": return 10;
+            case "rv_upgrade_2": return 16;
+            case "rv_upgrade_3": return 24;
             case "sacrifice_1", "sacrifice_2": return 16;
             case "undying_totem": return 24;
             case "revival_totem": return 30;
