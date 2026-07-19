@@ -552,6 +552,13 @@ public final class SixtySecondsHealthSystem {
         boolean second = level.getGameTime() % 20 == 0;
         for (ServerPlayer player : level.players()) {
             SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+            // 绷带缓慢恢复：每秒恢复 1 点健康值
+            if (second && stats.bandageHealRemaining > 0
+                    && GameUtils.isPlayerAliveAndSurvival(player)) {
+                stats.health = Math.min(stats.healthMax, stats.health + 1);
+                stats.bandageHealRemaining--;
+                stats.sync();
+            }
             // 健康值完全替代原版生命值：每秒把原版血/饥饿钉满——伤害已被 ALLOW_DAMAGE 全量拦截转为健康伤害，
             // 这里兜底药水/中毒/原版饥饿等漏网掉血路径，保证原版层永不致死、原版饥饿不再干扰（60s 有自己的饥饿）。
             if (second && GameUtils.isPlayerAliveAndSurvival(player)) {

@@ -82,7 +82,11 @@ public class SixtySecondsBandageItem extends Item {
         }
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(serverPlayer);
         // 健康上限是 healthMax(150)，不是 MAX(100)——否则回复只能到 100、永远回不到 150。
-        stats.health = Math.min(stats.healthMax, stats.health + heal);
+        if (stats.health >= stats.healthMax) {
+            return stack;
+        }
+        // 绷带缓慢恢复：设置 HoT 剩余量，由 SixtySecondsHealthSystem.tick 每秒恢复 1 点
+        stats.bandageHealRemaining = Math.min(heal, stats.healthMax - stats.health);
         stats.sync();
         if (!serverPlayer.isCreative()) {
             stack.shrink(1);
@@ -90,7 +94,7 @@ public class SixtySecondsBandageItem extends Item {
         level.playSound(null, user.getX(), user.getY(), user.getZ(),
                 SoundEvents.WOOL_PLACE, SoundSource.PLAYERS, 0.8F, 1.2F);
         serverPlayer.displayClientMessage(Component.translatable(
-                "message.noellesroles.sixty_seconds.bandage_used", stats.health), true);
+                "message.noellesroles.sixty_seconds.bandage_used", stats.bandageHealRemaining), true);
         return stack;
     }
 }

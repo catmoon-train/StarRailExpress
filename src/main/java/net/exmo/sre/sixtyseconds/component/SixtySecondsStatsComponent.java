@@ -85,6 +85,8 @@ public class SixtySecondsStatsComponent implements RoleComponent {
     public int playerKills = 0;
     /** 已解锁的额外背包槽位数（0-18，通过扩容模块获得，总可用槽位=基础+此值）。 */
     public int extraUnlockedSlots = 0;
+    /** 绷带缓慢恢复剩余生命值（不使用后重置，无需持久化）。 */
+    public transient int bandageHealRemaining = 0;
 
     /** 上次通过 PlayerHealthS2CPacket 广播的血量（-1=未发送过，下次 sync 必发）。 */
     private transient int lastSentHealth = -1;

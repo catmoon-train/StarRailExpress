@@ -184,7 +184,7 @@
   "tooltip.noellesroles.sixty_seconds_dirty_water": "未净化的脏水，直接饮用有生病风险。",
   "tooltip.noellesroles.sixty_seconds_alcohol": "烈酒，可消毒伤口、也能暖身壮胆。",
   "tooltip.noellesroles.sixty_seconds_medicine": "药品，治愈疾病并解除感染风险。",
-  "tooltip.noellesroles.sixty_seconds_bandage": "绷带，止血并恢复少量健康。",
+  "tooltip.noellesroles.sixty_seconds_bandage": "绷带，包扎后每秒缓慢恢复健康。",
   "tooltip.noellesroles.sixty_seconds_rag": "破布，净化与合成的基础材料。",
   "tooltip.noellesroles.sixty_seconds_duct_tape": "强力胶带，加固与维修的通用材料。",
   "tooltip.noellesroles.sixty_seconds_battery": "电池，右键发电机供电 120 秒，也可为手电充能。",
