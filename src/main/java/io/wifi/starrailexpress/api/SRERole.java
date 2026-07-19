@@ -78,6 +78,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
 
     public ArrayList<SRERole> occupationRoles = new ArrayList<>();
+    public HashSet<SRERole> occupationedRoles = new HashSet<>();
     public HashSet<SRERole> opposingRoles = new HashSet<>();
 
     /**
@@ -89,7 +90,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole clearOccupationRole() {
         for (var i : occupationRoles) {
             removeOccupationRole(i);
-            i.removeRelatedRole(this);
         }
         return this;
     }
@@ -103,7 +103,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole removeOccupationRole(SRERole... role) {
         for (var i : role) {
             this.occupationRoles.remove(i);
-            i.removeRelatedRole(this);
+            i.occupationedRoles.remove(this);
         }
         return this;
     }
@@ -125,7 +125,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole addOccupationRoleOnce(SRERole... role) {
         for (var i : role) {
             this.occupationRoles.add(i);
-            i.addRelatedRole(this);
+            i.occupationedRoles.add(this);
         }
         // 去重。
         occupationRoles = new ArrayList<>(new LinkedHashSet<>(occupationRoles));
@@ -141,7 +141,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole addOccupationRole(SRERole... role) {
         for (var i : role) {
             this.occupationRoles.add(i);
-            i.addRelatedRole(this);
+            i.occupationedRoles.add(this);
         }
         return this;
     }
@@ -550,6 +550,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     /**
      * 是否可以刷新第二个
+     * 
      * @return
      */
     public boolean canRefreshableSpecialVigilante() {
@@ -558,15 +559,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     /**
      * 刷新第二个的概率
+     * 
      * @return
      */
     public int getRefreshableSpecialVigilanteChance() {
         return this.refreshableSpecialVigilanteChance;
     }
 
-    
     /**
      * 设置是否可以刷新第二个和概率
+     * 
      * @return
      */
     public SRERole setRefreshableSpecialVigilante(int chance, boolean refreshable) {
@@ -1505,7 +1507,11 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     public boolean hasOccupationRole() {
-        return this.occupationRoles.isEmpty();
+        return !this.occupationRoles.isEmpty();
+    }
+
+    public boolean hasOccupationedRole() {
+        return !this.occupationedRoles.isEmpty();
     }
 
     public ArrayList<SRERole> getoccupationRoles() {

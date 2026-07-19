@@ -188,9 +188,23 @@ public class LightningDraftState {
             }
         }
         ArrayList<SRERole> roles = new ArrayList<>(civilianPool.selectRoles(2,
-                (role) -> !role.hasOccupationRole()
-                        && role.opposingRoles.isEmpty()));
-        for (int i = 0; i < 2 - roles.size(); i++) {
+                (role) -> {
+                    if (role.hasOccupationRole()) {
+                        return false;
+                    }
+                    if (!role.canBeRandomed()) {
+                        return false;
+                    }
+                    if (!role.opposingRoles.isEmpty()) {
+                        return false;
+                    }
+                    if (role.hasOccupationedRole()) {
+                        return false;
+                    }
+                    return true;
+                }));
+        int size = roles.size();
+        for (int i = 0; i < 2 - size; i++) {
             roles.add(TMMRoles.CIVILIAN);
         }
         SRE.LOGGER.info("Replaceable role size {}", roles.size());

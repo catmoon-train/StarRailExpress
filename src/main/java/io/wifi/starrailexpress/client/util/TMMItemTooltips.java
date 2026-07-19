@@ -13,6 +13,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -59,12 +61,20 @@ public class TMMItemTooltips {
             addTooltipForItem(SREBlocks.TRAIN_LIGHT.asItem(), itemStack, tooltipList);
             addTooltipForItem(SREBlocks.REMOTE_REDSTONE.asItem(), itemStack, tooltipList);
             addTooltipForItem(DevItems.BINDING_TOOL, itemStack, tooltipList);
+            addTooltipForItem(ModItems.WREATH, itemStack, tooltipList);
+            addTooltipForItem(ModItems.CALMING_TEA, itemStack, tooltipList);
+            addTooltipForItem(ModItems.CHOCOLATE, itemStack, tooltipList);
+            addTooltipForItem(ModItems.TALISMAN, itemStack, tooltipList);
+            addTooltipForItem(ModItems.ENERGIZING_COFFEE, itemStack, tooltipList);
+            addTooltipForItem(ModItems.MINT_CANDIES, itemStack, tooltipList);
+            addTooltipForItem(ModItems.DOGSKIN_PLASTER, itemStack, tooltipList);
         });
     }
 
     /**
      * 当「有限耐久」模式开启时，为刀追加耐久提醒说明；若该刀已被标记耐久，则同时显示剩余耐久。
-     * When limited-durability mode is on, append a durability reminder to the knife; if the stack is a
+     * When limited-durability mode is on, append a durability reminder to the
+     * knife; if the stack is a
      * durability-stamped knife, also show the remaining points.
      */
     private static void addKnifeDurabilityHint(@NotNull ItemStack itemStack, List<Component> tooltipList) {

@@ -54,7 +54,11 @@ public class RedHouseRoles {
           TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false) {
         @Override
         public InteractionResult onDropItem(Player player, ItemStack item) {
+          if (item.is(ModItems.SHILIJIA))
+            return InteractionResult.SUCCESS;
           if (item.is(ModItems.CALMING_TEA))
+            return InteractionResult.SUCCESS;
+          if (item.is(ModItems.WREATH))
             return InteractionResult.SUCCESS;
           return InteractionResult.PASS;
 

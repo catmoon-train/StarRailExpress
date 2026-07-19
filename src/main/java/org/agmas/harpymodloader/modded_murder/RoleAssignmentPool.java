@@ -1,5 +1,6 @@
 package org.agmas.harpymodloader.modded_murder;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.minecraft.resources.ResourceLocation;
@@ -193,6 +194,8 @@ public class RoleAssignmentPool {
         if (isEmpty()) {
             return null;
         }
+                        SRE.LOGGER.info("==Filtere!==");
+
         var roleWeights2 = roleWeights.filter(condition);
         SRERole selectedRole = roleWeights2.selectRandomKeyBasedOnWeights();
         if (selectedRole == null) {

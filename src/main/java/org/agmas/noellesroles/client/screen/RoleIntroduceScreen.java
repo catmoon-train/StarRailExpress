@@ -622,24 +622,42 @@ public class RoleIntroduceScreen extends Screen {
         }
 
         private void fetchRelatedObjects() {
-            occupationRoles.clear();
-            oppositeRoles.clear();
-            otherRoles.clear();
-            relatedModifiers.clear();
-            relatedItems.clear();
-            if (selectedRole instanceof SREAbstractInfoClass abic) {
-                if (abic instanceof SRERole role) {
-                    occupationRoles.addAll(role.getoccupationRoles());
-                    oppositeRoles.addAll(role.getOpposingRoles());
+            {
+                occupationRoles.clear();
+                oppositeRoles.clear();
+                otherRoles.clear();
+                relatedModifiers.clear();
+                relatedItems.clear();
+            }
+            {
+                List<SRERole> localoccupationRoles = new ArrayList<>();
+                List<SRERole> localoppositeRoles = new ArrayList<>();
+                List<SRERole> localotherRoles = new ArrayList<>();
+                List<SREModifier> localrelatedModifiers = new ArrayList<>();
+                List<Item> localrelatedItems = new ArrayList<>();
+                if (selectedRole instanceof SREAbstractInfoClass abic) {
+                    if (abic instanceof SRERole role) {
+                        localoccupationRoles.addAll(role.getoccupationRoles());
+                        localotherRoles.addAll(role.occupationedRoles);
+                        localoppositeRoles.addAll(role.getOpposingRoles());
+                    }
+                    localotherRoles.addAll(abic.getRelatedRoles());
+                    localrelatedModifiers.addAll(abic.getRelatedModifiers());
                 }
-                otherRoles.addAll(abic.getRelatedRoles());
-                relatedModifiers.addAll(abic.getRelatedModifiers());
+                if (localoccupationRoles.isEmpty() && localoppositeRoles.isEmpty()) {
+                    otherRoleName = Component.translatable("screen.roleintroduce.related.other.only");
+                } else {
+                    otherRoleName = Component.translatable("screen.roleintroduce.related.other");
+                }
+                {
+                    occupationRoles.addAll(new LinkedHashSet<>(localoccupationRoles));
+                    oppositeRoles.addAll(new LinkedHashSet<>(localoppositeRoles));
+                    otherRoles.addAll(new LinkedHashSet<>(localotherRoles));
+                    relatedModifiers.addAll(new LinkedHashSet<>(localrelatedModifiers));
+                    relatedItems.addAll(new LinkedHashSet<>(localrelatedItems));
+                }
             }
-            if (occupationRoles.isEmpty() && oppositeRoles.isEmpty()) {
-                otherRoleName = Component.translatable("screen.roleintroduce.related.other.only");
-            } else {
-                otherRoleName = Component.translatable("screen.roleintroduce.related.other");
-            }
+
         }
 
         private void computeContentHeight() {
@@ -652,7 +670,7 @@ public class RoleIntroduceScreen extends Screen {
             contentHeight = h;
         }
 
-        private int getGroupHeight(List<?> list) {
+        private int getGroupHeight(Collection<?> list) {
             if (list.isEmpty())
                 return 0;
             return TITLE_H + GAP + list.size() * (ITEM_H + GAP);
@@ -689,7 +707,7 @@ public class RoleIntroduceScreen extends Screen {
         }
 
         private int drawGroup(GuiGraphics g, int contentX, int contentY, int contentH, int y, int w,
-                List<?> list, Component title, int mouseX, int mouseY) {
+                Collection<?> list, Component title, int mouseX, int mouseY) {
             if (list.isEmpty())
                 return y;
 

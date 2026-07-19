@@ -103,4 +103,9 @@ public abstract class SREAbstractInfoClass {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return getName().getString();
+    }
 }
