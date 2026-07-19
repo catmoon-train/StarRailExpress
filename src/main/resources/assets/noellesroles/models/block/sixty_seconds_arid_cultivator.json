@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "noellesroles:block/sixty_seconds_arid_cultivator"
-  }
-}

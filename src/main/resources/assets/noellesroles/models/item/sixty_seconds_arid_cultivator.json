@@ -1,1 +1,3 @@
-{"parent": "minecraft:item/generated", "textures": {"layer0": "noellesroles:item/sixty_seconds_arid_cultivator"}}
+{
+  "parent": "noellesroles:block/sixty_seconds_arid_cultivator_0"
+}
