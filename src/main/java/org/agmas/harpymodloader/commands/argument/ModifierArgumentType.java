@@ -67,8 +67,7 @@ public class ModifierArgumentType implements ArgumentType<SREModifier> {
         for (var modifier : HMLModifiers.MODIFIERS) {
             if (modifier == null)
                 continue;
-            if (remaining.isEmpty() || modifier.identifier().toString().startsWith(remaining)
-                    || modifier.identifier().getPath().startsWith(remaining)) {
+            if (remaining.isEmpty() || modifier.identifier().toString().contains(remaining)) {
                 builder.suggest(modifier.identifier().toString(), modifier.getDisplayName());
             }
         }

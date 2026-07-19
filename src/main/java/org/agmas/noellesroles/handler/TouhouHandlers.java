@@ -10,8 +10,7 @@ import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
-import io.wifi.starrailexpress.content.item.BatItem;
-import io.wifi.starrailexpress.content.item.KnifeItem;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
@@ -71,7 +70,7 @@ public class TouhouHandlers {
         {
           var mainhandItem = victim.getMainHandItem();
           if (victim.distanceToSqr(killer) <= 5 * 5) {
-            if (mainhandItem.getItem() instanceof BatItem || mainhandItem.getItem() instanceof KnifeItem
+            if (mainhandItem.getItem() instanceof TrainWeapon
                 || mainhandItem.is(TMMItemTags.GUNS)) {
               return true;
             }
@@ -232,7 +231,7 @@ public class TouhouHandlers {
     RoleSkill.register(THMiscRoles.SHIKIEIKI,
         RoleSkill.skill(SRE.id("shikieiki"), "skill.noellesroles.shikieiki.instinct", context -> {
           final int GAP = 15 * 20;
-          final int TIME = 30 * 20;
+          final int TIME = 60 * 20;
           final int COOLDOWN_TIME = 45 * 20;
           final var player = context.player();
           final var cca = SREAbilityPlayerComponent.KEY.get(player);

@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -28,7 +29,7 @@ import org.agmas.noellesroles.content.entity.CanyuesaHorseEntity;
 import org.agmas.noellesroles.content.entity.SuperPigHorseEntity;
 import org.jetbrains.annotations.NotNull;
 
-public class RevolverItem extends SkinableItem implements HeldLikeRevolver {
+public class RevolverItem extends SkinableItem implements HeldLikeRevolver, TrainWeapon {
     public static final ResourceLocation ITEM_ID = SRE.id("revolver");
 
     public RevolverItem(Properties settings) {

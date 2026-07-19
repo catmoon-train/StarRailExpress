@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.content.item;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.KillerKnifeDurability;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -25,7 +26,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.NotNull;
 
-public class KnifeItem extends SkinableItem {
+public class KnifeItem extends SkinableItem implements TrainWeapon {
     public KnifeItem(Properties settings) {
         super(settings);
     }

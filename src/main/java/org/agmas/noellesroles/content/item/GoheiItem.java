@@ -8,6 +8,7 @@ import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import io.wifi.starrailexpress.api.ChargeableItem;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -19,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 
-public class GoheiItem extends Item implements ChargeableItem {
+public class GoheiItem extends Item implements ChargeableItem, TrainWeapon {
 
     public static final int MAX_CHARGE = 20 * 20;
     public static final int CHARGE_TICKS = 10;

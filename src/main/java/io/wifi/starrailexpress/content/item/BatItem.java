@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.content.item;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeBat;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -11,8 +12,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public class BatItem extends SkinableItem implements HeldLikeBat {
+public class BatItem extends SkinableItem implements HeldLikeBat, TrainWeapon {
     public static final ResourceLocation ITEM_ID = SRE.id("bat");
+
     public BatItem(Properties settings) {
         super(settings);
     }

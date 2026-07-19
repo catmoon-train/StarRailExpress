@@ -2,6 +2,7 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -37,7 +38,7 @@ import java.util.List;
  * <li>右键：原地跳跃，0.2s 冷却。</li>
  * </ul>
  */
-public class DreamAxeItem extends Item implements SREItemProperties.LeftClickHurtable {
+public class DreamAxeItem extends Item implements SREItemProperties.LeftClickHurtable, TrainWeapon {
     /** 右键跳跃冷却（0.2s）。 */
     private static final int JUMP_COOLDOWN_TICKS = 4;
     /** 离地超过 3 格时跳跃失败的惩罚冷却（1.5s）。 */

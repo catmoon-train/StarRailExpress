@@ -46,6 +46,12 @@ public class SREItemProperties {
     }
 
     /**
+     * 是武器
+     */
+    
+    public interface TrainWeapon {
+    }
+    /**
      * 可以左键攻击玩家，但不会死
      */
     public interface LeftClickHurtable {

@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.api.ChargeableItem;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -30,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
  * 直线飞行、最多穿透击杀 2 名玩家、撞墙后钉住 5 秒消失。非创造模式下投掷即消耗（物品被移除），
  * 创造模式下不消耗；蓄力不足 0.8 秒松手则不发射。
  */
-public class ThrowingAxeItem extends Item implements ChargeableItem {
+public class ThrowingAxeItem extends Item implements ChargeableItem, TrainWeapon {
 
     /** 蓄力所需时长（tick）。20 tick = 1 秒，16 tick = 0.8 秒。 */
     public static final int CHARGE_TICKS = 16;
