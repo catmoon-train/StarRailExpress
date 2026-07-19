@@ -169,11 +169,40 @@ public final class SixtySecondsManager {
         // 海岛模式：清跨局解锁态，为每队默认解锁 1 级港湾岛，并把海图发给全员
         net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.onGameStart(level);
         net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.syncChartAll(level);
+        // 模板克隆用 level.setBlock() 不触发 setPlacedBy，邮箱方块不会被自动注册。
+        // 这里扫描各队避难所/住宅区内的邮箱并注册——否则每天早上报纸和物资无法投递。
+        scanAndRegisterMailboxes(level, data);
         data.phase = SixtySecondsPhase.PREPARATION;
         data.dayNumber = 0;
         data.phaseEndTick = level.getGameTime() + PREP_TICKS;
         syncDayNumber(level, data, 0); // 同步 phaseEndTick：客户端 HUD 显示 90s 准备倒计时
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.prep_start"));
+    }
+
+    /** 扫描各队避难所 / 住宅区盒内的邮箱方块并注册到报纸投递系统。模板克隆不触发 setPlacedBy，须开局补注册。 */
+    private static void scanAndRegisterMailboxes(ServerLevel level, SixtySecondsState.Data data) {
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            // 避难所 + 住宅区盒子：遍历两个盒子的并集
+            java.util.List<net.minecraft.world.phys.AABB> boxes = new java.util.ArrayList<>();
+            if (team.shelterBox != null)
+                boxes.add(team.shelterBox);
+            if (team.residentialBox != null)
+                boxes.add(team.residentialBox);
+            for (net.minecraft.world.phys.AABB box : boxes) {
+                BlockPos min = BlockPos.containing(box.minX, box.minY, box.minZ);
+                BlockPos max = BlockPos.containing(box.maxX, box.maxY, box.maxZ);
+                for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+                    if (level.getBlockEntity(pos) instanceof net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsMailboxBlockEntity mailbox) {
+                        // 补写 ownerTeamId（模板克隆时 BE 的 NBT 里可能没有 teamId）
+                        if (mailbox.ownerTeamId < 0) {
+                            mailbox.ownerTeamId = team.teamId;
+                            mailbox.setChanged();
+                        }
+                        SixtySecondsNewspaper.registerMailbox(level, team.teamId, pos.immutable());
+                    }
+                }
+            }
+        }
     }
 
     /** 清除当前世界所有掉落物实体（ItemEntity），防止建图容器替换残留。 */

@@ -6,6 +6,7 @@ import net.exmo.sre.sixtyseconds.content.block.SixtySecondsBarricadeBlock;
 import net.exmo.sre.sixtyseconds.content.block.SixtySecondsGeneratorBlock;
 import net.exmo.sre.sixtyseconds.content.block.SixtySecondsLampBlock;
 import net.exmo.sre.sixtyseconds.content.block.SixtySecondsSpikeTrapBlock;
+import net.exmo.sre.sixtyseconds.logic.SixtySecondsBuildRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,10 +18,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * 扳手：右键拆除 60s 功能方块（路障/陷阱/发电机/电灯/火把），拆除后返还对应物品。
+ * 扳手：右键拆除 60s 功能方块，拆除后返还对应物品。
+ * 蹲下 + 右键：拆除白色混凝土上方 2 格内的任意方块（掉落为物品形式）。
  */
 public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
 
@@ -39,12 +42,29 @@ public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
         }
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
+
+        // ── 蹲下 + 右键：拆卸白色混凝土上的任意方块（掉落为物品）──
+        if (player.isShiftKeyDown() && SixtySecondsBuildRules.canPlaceAt(level, pos)) {
+            // 不拆白色混凝土本身和不可破坏方块（基岩等）
+            if (state.is(Blocks.WHITE_CONCRETE) || state.getDestroySpeed(level, pos) < 0) {
+                return InteractionResult.PASS;
+            }
+            ItemStack drop = new ItemStack(state.getBlock().asItem());
+            level.removeBlock(pos, false);
+            if (!player.getInventory().add(drop)) {
+                player.drop(drop, false);
+            }
+            level.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_OPEN, SoundSource.BLOCKS, 0.6F, 1.3F);
+            context.getItemInHand().hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+            return InteractionResult.SUCCESS;
+        }
+
+        // ── 原有逻辑：右键拆卸 60s 功能方块 ──
         if (!isFunctionalBlock(state)) {
             return InteractionResult.PASS;
         }
         ItemStack drop;
-        if (state.is(net.minecraft.world.level.block.Blocks.TORCH)
-                || state.is(net.minecraft.world.level.block.Blocks.WALL_TORCH)) {
+        if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH)) {
             drop = new ItemStack(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_TORCH);
         } else {
             drop = new ItemStack(state.getBlock().asItem());
@@ -67,7 +87,7 @@ public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
                 || block instanceof SixtySecondsLampBlock
                 || block instanceof net.exmo.sre.sixtyseconds.content.block.SixtySecondsStationBlock
                 || state.is(org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_DISMANTLER)
-                || state.is(net.minecraft.world.level.block.Blocks.TORCH)
-                || state.is(net.minecraft.world.level.block.Blocks.WALL_TORCH);
+                || state.is(Blocks.TORCH)
+                || state.is(Blocks.WALL_TORCH);
     }
 }

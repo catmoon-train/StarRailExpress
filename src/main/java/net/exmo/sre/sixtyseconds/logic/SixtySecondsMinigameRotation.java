@@ -20,17 +20,17 @@ import java.util.WeakHashMap;
  * 避难所电脑（{@code MinigameQuestBlockEntity}）小游戏轮换：
  * <b>每 1.5 分钟</b>（{@link #ROTATE_INTERVAL}）重新扫描每支队伍避难所内的任务点方块，把它换成一个
  * <b>不同</b>的小游戏并同步客户端；同时清掉这些镶板的复用冷却。
- * 刷新提示只发给身处避难所内的玩家（内含 20s 限时说明）。
+ * 刷新提示只发给身处避难所内的玩家（内含 50s 限时说明）。
  * <p>
  * 奖励门控统一走 {@link #tryReward}（由 {@code MinigameQuestServerNetwork} 在完成处调用）：
  * <ol>
- *   <li>须在本轮刷新后 {@link #SUCCESS_WINDOW 20s} 内完成；</li>
+ *   <li>须在本轮刷新后 {@link #SUCCESS_WINDOW 50s} 内完成；</li>
  *   <li><b>每个刷新周期内每支队伍只能完成一次</b>——防止全队轮流刷同一块镶板刷代币。</li>
  * </ol>
  */
 public final class SixtySecondsMinigameRotation {
     public static final int ROTATE_INTERVAL = 20 * 90;   // 每 1.5 分钟刷新一次
-    public static final int SUCCESS_WINDOW = 20 * 20;    // 20s 完成窗口（提示用）
+    public static final int SUCCESS_WINDOW = 20 * 50;    // 50s 完成窗口（原 20s → 加强至 50s）
 
     private static final Map<ServerLevel, List<BlockPos>> BLOCKS = new WeakHashMap<>();
     /** 每个任务点上次轮换的 gameTime，用于 20s 奖励门控。 */

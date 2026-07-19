@@ -15,6 +15,7 @@
     "SixtySecondsGunTracerMixin",
     "SixtySecondsMobPeacefulMixin",
     "SixtySecondsSniperTracerMixin",
+    "SixtySecondsCakeBlockMixin",
     "DecServerJoinPlayer",
     "EntityMixinForInvisible",
     "FootstepVanishMixin",
