@@ -366,6 +366,7 @@ public class SREMurderGameMode extends GameMode {
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
                         !(role instanceof RepairRole) &&
+                        !role.isNeutrals() && !role.isNeutralForKiller() &&
                         role.canUseKiller() &&
                         !role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
@@ -378,7 +379,8 @@ public class SREMurderGameMode extends GameMode {
                         !role.isOtherModeRole() &&
                         !(role instanceof RepairRole) &&
                         ((!role.canUseKiller() &&
-                                !role.isInnocent()) || role.isNeutrals())
+                                !role.isInnocent())
+                                || role.isNeutrals())
                         &&
                         role != TMMRoles.CIVILIAN));
         // 平民池（只包含真正的"平民"角色，例如医生等）
@@ -417,7 +419,8 @@ public class SREMurderGameMode extends GameMode {
             int maxDepth) {
         // 第二步：创建角色池并分配角色
         // 杀手池
-
+        if (playerSize - forcedRoleSize <= 0)
+            return List.of();
         List<SRERole> assignedKillers = killerPool.selectRoles(killerCount);
 
         // 警卫池 - 使用无限重复模式，因为警卫职业数量有限
@@ -471,17 +474,19 @@ public class SREMurderGameMode extends GameMode {
         for (SRERole role : allRoles) {
             roleInstantList.add(new RoleInstance(UUID.randomUUID(), role));
         }
-        List<RoleInstance> expandedRoles = roleInstantList;
-        List<RoleInstance> newRoleInstances = RoleAssignmentManager.removeOpposingJobs(roleInstantList, killerPool,
+
+        // 不展开，仅在父级展开
+        List<RoleInstance> newRoleInstantList = RoleAssignmentManager.removeOpposingJobs(roleInstantList, killerPool,
                 neutralsPool,
-                vigilantePool, civilianPool, haveOccupationRoles, maxDepth);
+                vigilantePool, civilianPool, false, maxDepth);
+        List<RoleInstance> resultRoleInstances = newRoleInstantList;
         if (haveOccupationRoles) {
-            expandedRoles = RoleAssignmentManager.expandWithCompanionRoles(newRoleInstances);
+            resultRoleInstances = RoleAssignmentManager.expandWithCompanionRoles(newRoleInstantList);
         }
-        int needCivilian = (playerSize - forcedRoleSize) - expandedRoles.size();
+        int needCivilian = (playerSize - forcedRoleSize) - resultRoleInstances.size();
         for (int i = 0; i < needCivilian; i++)
-            expandedRoles.add(new RoleInstance(UUID.randomUUID(), TMMRoles.CIVILIAN));
-        return expandedRoles;
+            resultRoleInstances.add(new RoleInstance(UUID.randomUUID(), TMMRoles.CIVILIAN));
+        return resultRoleInstances;
     }
 
     private static Map<Player, SRERole> assignRolesToPlayers(ServerLevel serverWorld, List<ServerPlayer> players) {

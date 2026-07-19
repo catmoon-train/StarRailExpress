@@ -18,7 +18,6 @@ import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
-import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SRE;
@@ -125,9 +124,8 @@ public class LightningDraftState {
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
                         !(role instanceof RepairRole) &&
-                        role.canUseKiller() &&
+                        role.canUseKiller() && !role.isNeutrals() && !role.isNeutralForKiller() &&
                         !role.isInnocent() &&
-                        !RoleUtils.compareRole(role, ModRoles.PUPPETEER) &&
                         role != TMMRoles.CIVILIAN);
         RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
@@ -307,7 +305,7 @@ public class LightningDraftState {
 
         roundCandidates.clear();
         lockedCandidates.clear(); // 清空锁定集
-        
+
         int b = Math.max(1, rolePool.size() / 3);
         playersInThisRound = b;
 
@@ -401,7 +399,7 @@ public class LightningDraftState {
         roundStartTime = world.getGameTime();
 
         int baseTime = roundCandidates.values().stream()
-                .mapToInt(List::size).max().orElse(0) * 3 * 20;
+                .mapToInt(List::size).max().orElse(0) * SREConfig.instance().roleRotationPerPlayerPerRoleTime * 20;
         if (currentRoundIndex == 1) {
             perPlayerTimeLimit = baseTime + 60; // 第一轮多3秒缓冲
         } else {
@@ -417,11 +415,9 @@ public class LightningDraftState {
         if (!isSelecting || !roundCandidates.containsKey(playerUuid))
             return false;
 
-        List<SRERole> candidates = roundCandidates.get(playerUuid);
+        List<SRERole> candidates = roundCandidates.remove(playerUuid);
+        lockedCandidates.removeAll(candidates);
         SRERole chosen = null;
-        for (var i = 0; i < candidates.size(); i++) {
-            lockedCandidates.remove(candidates.get(i)); // 从锁定集移除
-        }
         if (choiceIndex >= 0 && choiceIndex < candidates.size()) {
             chosen = candidates.get(choiceIndex);
         } else if (choiceIndex == 3) { // 随机
@@ -434,8 +430,6 @@ public class LightningDraftState {
         selectedRoles.put(playerUuid, chosen);
         rolePool.remove(chosen);
         remainingPlayerCount--;
-
-        roundCandidates.remove(playerUuid);
 
         ServerPlayer player = world.getServer().getPlayerList().getPlayer(playerUuid);
         if (player != null) {

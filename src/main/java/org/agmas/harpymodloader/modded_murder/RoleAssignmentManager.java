@@ -8,6 +8,7 @@ import org.agmas.harpymodloader.Harpymodloader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * 管理角色对应关系和配对分配
@@ -34,10 +35,10 @@ public class RoleAssignmentManager {
 
     /**
      * 
-     * @param companion
-     * @param expandedRoles
-     * @param companionRoles
-     * @param companedRoles
+     * @param companion      当前被关联角色
+     * @param expandedRoles  被展开的职业
+     * @param companionRoles 所有关联的职业
+     * @param companedRoles  所有被关联的职业的列表
      * @param tryLevel       尝试匹配等级。0：完全相同，1：忽略中立阵营，2：包含平民，3：包括所有
      * @return
      */
@@ -96,9 +97,11 @@ public class RoleAssignmentManager {
 
         for (var role : oldRoles) {
             ArrayList<SRERole> companions = getCompanionRoles(role.role());
+            if (!companions.isEmpty()) {
+                companedRoles.add(role.role());
+            }
             for (var companion : companions) {
                 if (companion != null) {
-                    companedRoles.add(role.role());
                     {
                         if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 0)) {
                             if (!tryRemoveARole(companion, expandedRoles, companionRoles, companedRoles, 1)) {
@@ -107,6 +110,9 @@ public class RoleAssignmentManager {
                                         Harpymodloader.LOGGER
                                                 .error("Unable to remove a role to make room for linked role {}!",
                                                         role.role().identifier().toString());
+                                        Harpymodloader.LOGGER.info("{} {} {} {}", companion.toString(),
+                                                logArray(expandedRoles),
+                                                logArray(companionRoles), logArray(companedRoles));
                                     }
                                 }
                             }
@@ -121,6 +127,10 @@ public class RoleAssignmentManager {
                 companionRoles.stream().map(r -> new RoleInstance(UUID.randomUUID(), r))
                         .toList());
         return expandedRoles;
+    }
+
+    private static <T> String logArray(List<T> arr) {
+        return "[" + arr.stream().map(t -> t.toString()).collect(Collectors.joining(", ")) + "]";
     }
 
     /**
@@ -186,6 +196,8 @@ public class RoleAssignmentManager {
             return all_role_instances;
         }
         int all = killer + civilian + neutrals + neturals_for_killer + vigilante;
+        if (all == 0)
+            return all_role_instances;
         all_role_instances.addAll(SREMurderGameMode.getAllRoles(killer, vigilante, neutrals + neturals_for_killer, all,
                 0, killerPool, neutralsPool, vigilantePool, civilianPool, haveOccupationRoles, maxDepth - 1));
         return all_role_instances;

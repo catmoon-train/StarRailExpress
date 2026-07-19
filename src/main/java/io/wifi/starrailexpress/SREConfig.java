@@ -66,6 +66,8 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "gamemodes")
     @Tooltip
     public boolean hideRandomRoleInRoleRotation = true;
+    @ConfigEntry.Category(value = "gamemodes")
+    public int roleRotationPerPlayerPerRoleTime = 3;
     
     @ConfigEntry.Category(value = "gamemodes")
     public boolean roleRotationForceRoleSettings = false;
