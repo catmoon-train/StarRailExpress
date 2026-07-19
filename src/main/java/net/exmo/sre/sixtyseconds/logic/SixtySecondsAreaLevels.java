@@ -18,15 +18,18 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 
 /**
- * 探索区「危险等级」（1..{@link SixtySecondsBalance#AREA_LEVEL_MAX}）：
+ * 探索区「危险等级」（0..{@link SixtySecondsBalance#AREA_LEVEL_MAX}）：
  * <ul>
- *   <li>等级越高，物资箱抽取时<b>低权重（稀有）条目越容易出</b>（{@code SixtySecondsLootTable.roll}
+ *   <li><b>0 级 = 安全区</b>：区域内禁止一切 PvP（攻击不了别人、也不会被攻击），不刷游荡怪/Boss，
+ *       物资箱按最低档搜刮（无连锁额外件）。用星级区域魔杖或 {@code /sre:60s_area region ...} 把一块盒设为 0 级即可。</li>
+ *   <li>等级越高（1..5），物资箱抽取时<b>低权重（稀有）条目越容易出</b>（{@code SixtySecondsLootTable.roll}
  *       按等级压平权重差）且掷出件数越多；</li>
  *   <li>等级越高，周围刷出的怪更多更强（{@code SixtySecondsPveSystem}）。</li>
  * </ul>
- * 等级按<b>坐标反查</b>（门绑定危险区盒都是世界绝对坐标）：先匹配岛屿单元格，再匹配门绑定危险区
+ * 等级按<b>坐标反查</b>（门绑定危险区盒都是世界绝对坐标）：先匹配星级区域覆盖，再匹配岛屿单元格，再匹配门绑定危险区
  * （{@code DoorBinding.level}，0=继承全局），都不在则取全局基线（{@code searchZoneLevel}）。
- * 配置命令：{@code /sre:60s_area level <1..5>}（全局）、{@code /sre:60s_area level <1..5> <x y z>}（该点所在绑定区）。
+ * 配置命令：{@code /sre:60s_area level <1..5>}（全局）、{@code /sre:60s_area level <1..5> <x y z>}（该点所在绑定区）；
+ * 安全区只能通过 {@code /sre:60s_area region add ... 0} 或星级区域魔杖设 0 级实现（全局/门绑定不支持 0）。
  */
 public final class SixtySecondsAreaLevels {
     private static final Map<ServerLevel, Map<UUID, String>> LAST_ANNOUNCED_REGIONS = new WeakHashMap<>();
@@ -37,11 +40,12 @@ public final class SixtySecondsAreaLevels {
     /**
      * 反查坐标的危险等级。优先级（从高到低）：
      * <ol>
-     *   <li><b>星级区域覆盖</b>（{@code areaLevelOverrides}，管理员魔改用，可盖住岛屿）——重叠取靠后一条；</li>
+     *   <li><b>星级区域覆盖</b>（{@code areaLevelOverrides}，管理员魔改用，可盖住岛屿）——重叠取靠后一条；<b>可为 0=安全区</b>；</li>
      *   <li>岛屿单元格等级；</li>
      *   <li>门绑定危险区（{@code searchDoorBindings} 的 box + level）；</li>
      *   <li>全局基线 {@code searchZoneLevel}。</li>
      * </ol>
+     * 返回值 0 表示安全区（仅星级区域覆盖可产出 0；其余分支最低为 1）。
      */
     public static int levelAt(ServerLevel level, BlockPos pos) {
         SixtySecondsConfig config = SixtySecondsConfigStore.current(level).orElse(null);
@@ -101,13 +105,24 @@ public final class SixtySecondsAreaLevels {
                 continue;
             }
             int levelValue = levelAt(level, player.blockPosition(), config);
-            ChatFormatting color = levelValue >= 4 ? ChatFormatting.RED
-                    : levelValue >= 2 ? ChatFormatting.YELLOW : ChatFormatting.GREEN;
-            Component title = Component.translatable("message.noellesroles.sixty_seconds.area_level_enter", levelValue)
-                    .withStyle(color, ChatFormatting.BOLD);
-            Component subtitle = region.name == null || region.name.isBlank()
-                    ? Component.empty()
-                    : Component.literal(region.name).withStyle(ChatFormatting.GOLD);
+            Component title;
+            Component subtitle;
+            if (levelValue <= 0) {
+                // 安全区：绿色高亮，提示无法攻击他人、也不会被攻击
+                title = Component.translatable("message.noellesroles.sixty_seconds.area_safe_enter")
+                        .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD);
+                subtitle = region.name == null || region.name.isBlank()
+                        ? Component.empty()
+                        : Component.literal(region.name).withStyle(ChatFormatting.DARK_GREEN);
+            } else {
+                ChatFormatting color = levelValue >= 4 ? ChatFormatting.RED
+                        : levelValue >= 2 ? ChatFormatting.YELLOW : ChatFormatting.GREEN;
+                title = Component.translatable("message.noellesroles.sixty_seconds.area_level_enter", levelValue)
+                        .withStyle(color, ChatFormatting.BOLD);
+                subtitle = region.name == null || region.name.isBlank()
+                        ? Component.empty()
+                        : Component.literal(region.name).withStyle(ChatFormatting.GOLD);
+            }
             SubtitleCommand.sendToPlayerTop(player, title, subtitle, 70, false);
         }
     }
@@ -115,6 +130,14 @@ public final class SixtySecondsAreaLevels {
     /** 游戏结束时释放仅用于报幕去重的运行时记录。 */
     public static void reset(ServerLevel level) {
         LAST_ANNOUNCED_REGIONS.remove(level);
+    }
+
+    /**
+     * 该坐标是否处于<b>安全区</b>（危险等级 = 0）。安全区内禁止一切 PvP、不刷游荡怪/Boss。
+     * 仅星级区域覆盖（{@code areaLevelOverrides}）可产出 0 级；岛屿/门绑定/全局基线最低为 1。
+     */
+    public static boolean isSafeZone(ServerLevel level, BlockPos pos) {
+        return levelAt(level, pos) <= 0;
     }
 
     private static SixtySecondsConfig.LevelRegion overrideAt(SixtySecondsConfig config, BlockPos pos) {
@@ -135,13 +158,19 @@ public final class SixtySecondsAreaLevels {
                 + region.max.x + ":" + region.max.y + ":" + region.max.z + ":" + region.level;
     }
 
-    /** loot 权重压平指数：weight^(1/(1+α(level-1)))——等级越高稀有条目相对权重越大。 */
+    /** loot 权重压平指数：weight^(1/(1+α(level-1)))——等级越高稀有条目相对权重越大。0 级（安全区）按 1 级处理。 */
     public static double lootExponent(int areaLevel) {
+        if (areaLevel <= 0) {
+            return 1.0; // 安全区：与 1 级一致，物资普通
+        }
         return 1.0 / (1.0 + SixtySecondsBalance.AREA_LEVEL_LOOT_FLATTEN * (clamp(areaLevel) - 1));
     }
 
-    /** 该等级物资箱每次搜刮的额外掷骰件数（1 级 +0 … 5 级 +2）。 */
+    /** 该等级物资箱每次搜刮的额外掷骰件数（1 级 +0 … 5 级 +2）。0 级（安全区）+0。 */
     public static int bonusRolls(int areaLevel) {
+        if (areaLevel <= 0) {
+            return 0;
+        }
         return (clamp(areaLevel) - 1) / 2;
     }
 
@@ -178,8 +207,12 @@ public final class SixtySecondsAreaLevels {
         return extra;
     }
 
+    /**
+     * 等级钳制到合法区间 {@code 0..AREA_LEVEL_MAX}。0 = 安全区（仅星级区域覆盖产出）。
+     * 负值（如门绑定 {@code DoorBinding.level=0=继承全局} 的语义 0 不走此路径）会被钳到 0。
+     */
     public static int clamp(int level) {
-        return Mth.clamp(level, 1, SixtySecondsBalance.AREA_LEVEL_MAX);
+        return Mth.clamp(level, 0, SixtySecondsBalance.AREA_LEVEL_MAX);
     }
 
     private static boolean inBox(SixtySecondsConfig.DoorBinding binding, BlockPos pos) {

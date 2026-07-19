@@ -1,6 +1,7 @@
 package net.exmo.sre.sixtyseconds.logic;
 
 import io.wifi.starrailexpress.index.TMMItems;
+import net.exmo.sre.sixtyseconds.SixtySecondsBalance;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,9 +50,13 @@ public final class SixtySecondsWeapons {
 
     /**
      * 攻击者主手武器 → 基础健康伤害（带原版伤害量）：查表 / 60s 近战武器同 {@link #injuryDamage(ServerPlayer)}；
-     * 其余（原版剑斧/空手/任意非武器物品）一律满蓄力 {@link #UNARMED_DAMAGE}=5，并按攻击间隔充能等比削减——
-     * vanillaAmount 已含原版充能系数（0.2 + h²×0.8），除以满蓄力攻击力即得充能比：连点刮痧（1 点），
-     * 满蓄力才有 5 点；非武器物品不再可能两下带走 100 血的玩家。
+     * <b>持有未登记非空手物品</b>（tacz 枪/弹、原版剑/斧/弓等）按"150 健康 ≈ 50 原版HP"深度绑定换算
+     * （{@link SixtySecondsBalance#HEALTH_PER_VANILLA_HP}）——原版伤害量 ×3 即得健康伤害；
+     * <b>空手</b>仍走满蓄力 {@link #UNARMED_DAMAGE}=5，并按攻击间隔充能等比削减（连点刮痧、满蓄力 5）。
+     * <p>修复要点：tacz 子弹原版伤害量很小（如 glock≈4-5、ak47≈7-8、awp≈12-15），原兜底走
+     * {@code UNARMED_DAMAGE × (vanillaAmount/attackDamage)} 后被压成 1-2 健康伤害（攻击力默认=1），
+     * 全枪械皆"2点伤害"。改为 vanillaAmount ×3 后，glock→12-15、ak47→21-24、awp→36-45，符合
+     * "150:50"换算比例，与武器面板直观对应。
      */
     public static int injuryDamage(@Nullable ServerPlayer attacker, float vanillaAmount) {
         if (attacker == null) {
@@ -65,6 +70,12 @@ public final class SixtySecondsWeapons {
         if (held.getItem() instanceof net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem melee) {
             return melee.healthDamage();
         }
+        // 持有未登记的非空手物品（tacz 枪/弹、原版剑/斧/弓等）：按 150:50 深度绑定换算
+        if (!held.isEmpty()) {
+            return Math.max(1, Math.round(vanillaAmount * SixtySecondsBalance.HEALTH_PER_VANILLA_HP));
+        }
+        // 空手：保留"连点刮痧"机制 - vanillaAmount 已含充能系数（0.2 + h²×0.8），
+        // 除以满蓄力攻击力即得充能比；满蓄力 5、连点 1，避免徒手两下带走玩家
         double full = attacker.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
         double charge = full > 1.0E-3 ? Math.min(1.0, vanillaAmount / full) : 1.0;
         return Math.max(1, (int) Math.round(UNARMED_DAMAGE * charge));

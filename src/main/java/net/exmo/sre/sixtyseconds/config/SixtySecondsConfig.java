@@ -165,6 +165,19 @@ public class SixtySecondsConfig {
     public int autoReviveIntervalSeconds = 240;
 
     /**
+     * 本局自动复活次数上限（默认 -1=无限）。{@code /sre:60s autorevive limit <次数>} 设置（按图持久化）。
+     * <ul>
+     *   <li>{@code -1}：无限复活（默认，旧行为）。</li>
+     *   <li>{@code 0}：等同关闭自动复活（任何死亡都不复活，与 {@link #autoReviveEnabled}=off 效果一致）。</li>
+     *   <li>{@code n>0}：每名玩家本局最多自动复活 n 次；达到上限后再次死亡直接出局（不进等待、不进全灭豁免）。</li>
+     * </ul>
+     * 计数在 {@code SixtySecondsStatsComponent.reviveCount} 里，按玩家记；局末 {@code SixtySecondsAutoRevive.reset} 清零。
+     * 局中改只影响<b>此后</b>的死亡判定与已倒计时中玩家到期时是否仍能复活（已在等待但被压到上限以下的人会被作废）。
+     */
+    @SerializedName("autoReviveMaxUses")
+    public int autoReviveMaxUses = -1;
+
+    /**
      * 本局总游戏日数（默认 {@value net.exmo.sre.sixtyseconds.logic.SixtySecondsManager#DEFAULT_TOTAL_DAYS}）：
      * 撑过最后一天即幸存者胜利。终极 Boss「终焉之王」固定在<b>最后一天</b>降临（随本值浮动）。
      * {@code /sre:60s days <1..30>} 设置（按图持久化）。见 {@code SixtySecondsManager.totalDays}。
@@ -203,6 +216,14 @@ public class SixtySecondsConfig {
      */
     @SerializedName("regionSupplyBoxBaseCount")
     public int regionSupplyBoxBaseCount = 6;
+
+    /**
+     * 手动登记的 <b>Boss 刷新点</b>（世界绝对坐标，管理员搭图用）。{@code /sre:60s boss_spawn add/remove/list/clear}
+     * 或 {@code sixty_seconds_boss_wand} 物品编辑。生成 4-5 星区域固定 Boss / 1-5 星区域「伤害 Boss」时，
+     * 系统会优先在目标区域盒内寻找已登记的刷新点；找不到则在该区域随机选合理落点。
+     */
+    @SerializedName("bossSpawnPoints")
+    public java.util.List<Vec> bossSpawnPoints = new java.util.ArrayList<>();
 
     /**
      * 手动放置的 NPC 生成点（用 NPC 放置器 {@code sixty_seconds_npc_placer} 登记，模板绝对坐标）。

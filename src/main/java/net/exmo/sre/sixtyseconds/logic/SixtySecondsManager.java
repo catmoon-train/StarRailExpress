@@ -109,6 +109,8 @@ public final class SixtySecondsManager {
         SixtySecondsPowerSystem.reset(level);
         SixtySecondsWhisperSystem.clear(level);
         SixtySecondsAreaLevels.reset(level);
+        SixtySecondsAreaBossSystem.reset(level); // 区域固定Boss/伤害Boss
+        SixtySecondsRvRaidSystem.reset(level);  // 房车夜袭突袭者/尸潮
         SixtySecondsRvSystem.reset(level); // 房车：解除上一局强载区块 + 清残留房车实体
         net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.clearAll(); // 清跨局区域记忆
         // 配置不完整 = 建不出住宅/避难所 → 直接终止开局（否则玩家原地/虚空卡死）
@@ -280,6 +282,8 @@ public final class SixtySecondsManager {
                 SixtySecondsWhisperSystem.tick(level);   // 夜间黑暗处刷低语怪
                 SixtySecondsDefenseSystem.tick(level);   // 夜袭冲门/路障
                 SixtySecondsPveSystem.tick(level);       // PVE：探索区游荡怪/Boss/哨戒炮/陷阱结算
+                SixtySecondsAreaBossSystem.tick(level);  // 4-5星区域固定Boss + 1-5星伤害Boss（每局一只）
+                SixtySecondsRvRaidSystem.tick(level);    // 房车夜袭：突袭者/尸潮冲房车门（rvEnabled 时）
                 SixtySecondsNpcSystem.tick(level);       // NPC：搜刮区每日刷新 + 偷窃会话推进
                 net.exmo.sre.sixtyseconds.island.SixtySecondsIslands.tick(level); // 海岛：登岛沿检测/报幕/解锁
                 SixtySecondsAreaLevels.tickAnnouncements(level); // 星级区域覆盖切换报幕

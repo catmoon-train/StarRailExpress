@@ -251,6 +251,12 @@ public class ModItems {
                     new Item.Properties().stacksTo(1)),
             "sixty_seconds_level_wand", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
+    // 末日60秒模式：Boss 刷新点绑定魔杖（管理员搭图用：右键方块登记 Boss 刷新点，潜行右键移除最近点）
+    public static final Item SIXTY_SECONDS_BOSS_WAND = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBossWandItem(
+                    new Item.Properties().stacksTo(1)),
+            "sixty_seconds_boss_wand", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+
     // 末日60秒模式：救援信标（隐藏通关——工程学合成，户外激活呼叫救援）
     public static final Item SIXTY_SECONDS_RESCUE_BEACON = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsRescueBeaconItem(
@@ -302,17 +308,17 @@ public class ModItems {
     public static final Item SIXTY_SECONDS_PIPE = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().durability(12)
-                            .attributes(SwordItem.createAttributes(Tiers.STONE, 3, -2.4F)), 25),
+                            .attributes(SwordItem.createAttributes(Tiers.STONE, 6, -2.4F)), 23),
             "sixty_seconds_pipe", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_SPIKED_BAT = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().durability(14)
-                            .attributes(SwordItem.createAttributes(Tiers.IRON, 4, -2.6F)), 30),
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 6, -2.6F)), 27),
             "sixty_seconds_spiked_bat", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_MACHETE = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().durability(20)
-                            .attributes(SwordItem.createAttributes(Tiers.IRON, 5, -2.2F)), 35),
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 8, -2.2F)), 32),
             "sixty_seconds_machete", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 末日60秒模式：夜袭者召唤哨（对地面右键生成对应强度的夜袭者；见 SixtySecondsAssaultSpawnItem）──
@@ -704,27 +710,27 @@ public class ModItems {
     public static final Item SIXTY_SECONDS_KNIFE = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().durability(10)
-                            .attributes(SwordItem.createAttributes(Tiers.STONE, 2, -2.0F)), 20),
+                            .attributes(SwordItem.createAttributes(Tiers.STONE, 4, -2.0F)), 18),
             "sixty_seconds_knife", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_SLEDGEHAMMER = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().durability(22)
-                            .attributes(SwordItem.createAttributes(Tiers.IRON, 6, -3.0F)), 45),
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 11, -3.0F)), 41),
             "sixty_seconds_sledgehammer", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_CHAINSAW = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().durability(24)
-                            .attributes(SwordItem.createAttributes(Tiers.IRON, 7, -2.8F)), 50),
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 14, -2.8F)), 50),
             "sixty_seconds_chainsaw", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_FIRE_AXE = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().durability(18)
-                            .attributes(SwordItem.createAttributes(Tiers.IRON, 5, -2.8F)), 35),
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 8, -2.8F)), 32),
             "sixty_seconds_fire_axe", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_STUN_BATON = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().durability(12)
-                            .attributes(SwordItem.createAttributes(Tiers.STONE, 2, -2.0F)), 15, 20 * 3),
+                            .attributes(SwordItem.createAttributes(Tiers.STONE, 3, -2.0F)), 14, 20 * 3),
             "sixty_seconds_stun_baton", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_MOLOTOV = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrenadeItem(
@@ -924,23 +930,23 @@ public class ModItems {
     public static final Item SIXTY_SECONDS_HATCHET = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().stacksTo(1).durability(12)
-                            .attributes(SwordItem.createAttributes(Tiers.STONE, 2, -2.2F)), 25),
+                            .attributes(SwordItem.createAttributes(Tiers.STONE, 6, -2.2F)), 23),
             "sixty_seconds_hatchet", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_CLEAVER = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().stacksTo(1).durability(15)
-                            .attributes(SwordItem.createAttributes(Tiers.IRON, 4, -2.4F)), 35),
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 8, -2.4F)), 32),
             "sixty_seconds_cleaver", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_STEEL_SWORD = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().stacksTo(1).durability(24)
-                            .attributes(SwordItem.createAttributes(Tiers.IRON, 6, -2.4F)), 55),
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 12, -2.4F)), 45),
             "sixty_seconds_steel_sword", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 钢矛：伤害低于钢剑但命中减速（长柄拒止，配合陷阱/路障放风筝）
     public static final Item SIXTY_SECONDS_STEEL_SPEAR = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().stacksTo(1).durability(20)
-                            .attributes(SwordItem.createAttributes(Tiers.IRON, 5, -2.8F)), 45, 30),
+                            .attributes(SwordItem.createAttributes(Tiers.IRON, 11, -2.8F)), 41, 30),
             "sixty_seconds_steel_spear", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 投掷武器（燃烧弹：大范围点燃 + 对玩家健康伤害）──
@@ -1276,7 +1282,7 @@ public class ModItems {
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsMeleeWeaponItem(
                     new Item.Properties().durability(16).attributes(
                             net.minecraft.world.item.SwordItem.createAttributes(
-                                    net.minecraft.world.item.Tiers.IRON, 4, -2.2F)), 30),
+                                    net.minecraft.world.item.Tiers.IRON, 6, -2.2F)), 27),
             "sixty_seconds_saber", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 诱饵弹：无伤爆响，吸引怪物注意（投掷物-I）
     public static final Item SIXTY_SECONDS_DECOY_FLARE = register(

@@ -62,6 +62,17 @@ public final class SixtySecondsBalance {
 
     // ── 杀人代价：理智上限永久扣减（SixtySecondsHealthSystem.die）───────────
     public static final double PVP_DAMAGE_MULT = 0.5; // 玩家对玩家伤害倍率（-50%）
+    /**
+     * 原版 HP → 健康值换算的统一锚点：<b>150 健康 ≈ 50 原版HP</b>（1 原版HP = 3 健康，
+     * 1 颗心 = 6 健康）。整个 60s 伤害系统按此倍率把原版伤害深度绑定到健康值：
+     * <ul>
+     *   <li>未登记武器（tacz 枪/弹、原版剑/斧等）的 vanillaAmount × 本值 = 实际健康伤害</li>
+     *   <li>60s 近战武器面板"攻击伤害"显示值 ≈ healthDamage / 本值，让玩家直观看出"扣多少健康"</li>
+     *   <li>环境伤害的 amount×5 兜底仍保留 5（火焰/坠落是高冲击短窗口，与逐 tick 武器不同）</li>
+     * </ul>
+     * 这是"魔改所有武器伤害让其面板直观"的换算系数——改这一处即可调整全系统绑定强度。
+     */
+    public static final float HEALTH_PER_VANILLA_HP = 3.0F;
     /** 弓箭伤害全局倍率（+75%，适用于所有 60s 弓类武器）。 */
     public static final float BOW_DAMAGE_MULT = 1.75F;
     public static final int KILL_SANITY_CAP_LOSS_MIN = 5;     // 每次杀人扣理智上限下限（-40%: 8→5）
@@ -132,6 +143,31 @@ public final class SixtySecondsBalance {
     public static final int DOOR_LOCK_DURATION_TICKS = 20 * 360;
     public static final int DOOR_TRAP_DURATION_TICKS = 20 * 360;
 
+    // ── 房车夜袭（SixtySecondsRvRaidSystem；房车模式下夜晚房车周围概率刷突袭者攻门）──
+    /** 房车夜袭判定间隔（每 5 秒检查一次是否触发小股突袭；尸潮由夜晚首 tick 单独判定）。 */
+    public static final int RV_RAID_CHECK_INTERVAL = 20 * 5;
+    /** 每次小股突袭判定概率（夜里；随天数上升）。 */
+    public static final double RV_RAID_CHANCE = 0.35;
+    /** 突袭者基础数量 = 本值 + 天数×本值。越往后数量越高。 */
+    public static final int RV_RAID_BASE_COUNT = 2;
+    public static final int RV_RAID_COUNT_PER_DAY = 1;
+    /** 房车周围突袭者数量上限（防怪海；尸潮另算）。 */
+    public static final int RV_RAID_MAX_NEARBY = 8;
+    /** 突袭者离房车的刷新距离（远刷：14~22 格）。 */
+    public static final int RV_RAID_SPAWN_MIN_DIST = 14;
+    public static final int RV_RAID_SPAWN_RAND_DIST = 8;
+    /** 尸潮出现概率（夜晚首 tick 判定；第 4 天起才可能触发）。 */
+    public static final double RV_HORDE_CHANCE = 0.25;
+    public static final int RV_HORDE_MIN_DAY = 4;
+    /** 尸潮规模上限（分规模：小/中/大三档分别 10/20/30 只）。 */
+    public static final int RV_HORDE_MAX_SIZE = 30;
+    /** 尸潮分批刷出的每批数量（避免一次性刷出怪海卡顿）。 */
+    public static final int RV_HORDE_BATCH_SIZE = 4;
+    /** 突袭者冲击房车门的有效半径平方（近门才扣耐久）。 */
+    public static final double RV_RAID_DOOR_RANGE_SQR = 3.5 * 3.5;
+    /** 突袭者对房车门的每秒伤害基础值（按怪 doorDps 取，无则用此值）。 */
+    public static final int RV_RAID_DOOR_DPS_FALLBACK = 2;
+
     // ── PVE：自研怪物（SixtySecondsMonsterEntity / SixtySecondsPveSystem）──────
     /** 非战场怪身边 64 格无人累计此时长自散（防游荡怪堆积）。 */
     public static final int PVE_LONELY_DESPAWN_TICKS = 20 * 60;
@@ -153,12 +189,28 @@ public final class SixtySecondsBalance {
     /** 每日保底刷怪每次 tick 分批刷出的最大数量（5 星 5 只 ≈ 3 批刷完，避免一次性刷出怪海）。 */
     public static final int GUARANTEED_BATCH_SIZE = 2;
     /** 游荡怪刷新点离玩家 20~34 格（拉远距离，给更多反应时间）。 */
-    public static final int AMBIENT_SPAWN_MIN_DIST = 20;
-    public static final int AMBIENT_SPAWN_RAND_DIST = 14;
+    public static final int AMBIENT_SPAWN_MIN_DIST = 24;
+    public static final int AMBIENT_SPAWN_RAND_DIST = 18;
     /** 星级生命乘数：生命 × (1 + 本值×areaLevel)。每星+10%（1星×1.10 … 5星×1.50）。 */
     public static final double AMBIENT_HEALTH_PER_AREA_LEVEL = 0.10;
     /** 感染体（游荡怪/夜袭怪）掉落废料的基础概率（-35%，原 100% 必掉）。 */
     public static final double MONSTER_SCRAP_DROP_CHANCE = 0.65;
+
+    // ── 怪物整体强化（2026-07-19 追加）──────────────────────────────────
+    /** 所有自研怪（游荡怪/夜袭怪/Boss 召唤的小怪）血量全局乘数（+40%，让怪更耐打）。 */
+    public static final double MONSTER_HEALTH_GLOBAL_MULT = 1.4;
+    /** 所有自研怪刷新概率全局乘数（+30%）。叠加在原有「刷新频率+40%」之上。 */
+    public static final double MONSTER_SPAWN_FREQ_MULT = 1.3;
+
+    // ── 区域固定 Boss（4-5 星固定刷 / 1-5 星伤害 Boss 一把一只）──────────────
+    /** 4 星及以上区域固定刷新一只 Boss（1-4 级）；每晚会保证每片此类区域有一只存活 Boss。 */
+    public static final int AREA_BOSS_MIN_AREA_LEVEL = 4;
+    /** 区域固定 Boss 等级 = clamp(areaLevel - 1, 1, 本值)。4 星→Lv3，5 星→Lv4。 */
+    public static final int AREA_BOSS_MAX_LEVEL = 4;
+    /** 「伤害 Boss」固定伤害（近战命中健康伤害；护甲不减免）。每局仅一只，第 3 天夜晚降临。 */
+    public static final int DAMAGE_BOSS_MELEE_INJURY = 60;
+    /** 「伤害 Boss」降临的游戏日（≥本值那晚首 tick 触发，每局仅一次）。 */
+    public static final int DAMAGE_BOSS_SPAWN_DAY = 3;
 
     /**
      * 游荡怪刷新概率的天数倍率（前期压低、逐步爬升；怪物刷新频率+40% 后各档 ×1.4）：

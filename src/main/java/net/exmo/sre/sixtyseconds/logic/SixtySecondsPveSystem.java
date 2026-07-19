@@ -152,6 +152,10 @@ public final class SixtySecondsPveSystem {
                 continue;
             }
             int areaLevel = SixtySecondsAreaLevels.levelAt(level, player.blockPosition());
+            // 安全区（0 级）：不刷游荡怪，也不计保底刷怪
+            if (areaLevel <= 0) {
+                continue;
+            }
             UUID uuid = player.getUUID();
 
             // ── 每日保底刷怪（分批）：每玩家每日首次进入探索区，按星级保底刷 areaLevel 只 ──
@@ -184,6 +188,8 @@ public final class SixtySecondsPveSystem {
             if (SixtySecondsDayCycle.isNight(data, level.getGameTime())) {
                 chance *= SixtySecondsBalance.AMBIENT_NIGHT_CHANCE_MULT;
             }
+            // 怪物整体刷新频率 +30%（叠加在原有 +40% 之上）
+            chance *= SixtySecondsBalance.MONSTER_SPAWN_FREQ_MULT;
             if (level.random.nextDouble() >= chance) {
                 continue;
             }
@@ -278,7 +284,8 @@ public final class SixtySecondsPveSystem {
         return Variant.SHAMBLER;
     }
 
-    /** 造一只自研怪（变体装配 + 加入世界）；失败返回 null。供本系统/夜袭/召唤哨复用。 */
+    /** 造一只自研怪（变体装配 + 加入世界）；失败返回 null。供本系统/夜袭/召唤哨复用。
+     *  全局血量乘数 {@link SixtySecondsBalance#MONSTER_HEALTH_GLOBAL_MULT} 在此统一施加（让所有怪更耐打）。 */
     public static SixtySecondsMonsterEntity createMonster(ServerLevel level, BlockPos spawn, Variant variant,
             double healthMult, double speedMult) {
         SixtySecondsMonsterEntity mob = org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_MONSTER.create(level);
@@ -286,7 +293,7 @@ public final class SixtySecondsPveSystem {
             return null;
         }
         mob.setPos(spawn.getX() + 0.5D, spawn.getY(), spawn.getZ() + 0.5D);
-        mob.applyVariant(variant, healthMult, speedMult);
+        mob.applyVariant(variant, healthMult * SixtySecondsBalance.MONSTER_HEALTH_GLOBAL_MULT, speedMult);
         level.addFreshEntity(mob);
         return mob;
     }
@@ -317,6 +324,8 @@ public final class SixtySecondsPveSystem {
         if (!guaranteed) {
             chance *= SixtySecondsBalance.bossSpawnDayMult(data.dayNumber);
         }
+        // 怪物整体刷新频率 +30%（叠加在原有 +40% 之上）
+        chance *= SixtySecondsBalance.MONSTER_SPAWN_FREQ_MULT;
         if (!guaranteed && level.random.nextDouble() >= chance) {
             return;
         }
@@ -340,6 +349,10 @@ public final class SixtySecondsPveSystem {
             return;
         }
         int areaLevel = SixtySecondsAreaLevels.levelAt(level, spot);
+        // 安全区（0 级）不刷 Boss——安全区是绝对和平区
+        if (areaLevel <= 0) {
+            return;
+        }
         int bossLevel = Mth.clamp((data.dayNumber + 1) / 2 + (areaLevel - 1) / 2, 1,
                 SixtySecondsBalance.BOSS_MAX_LEVEL);
         // 最后一天（含之后）的 Boss 升级为「终焉之王」终极形态——随可配置总日数浮动，
@@ -353,6 +366,11 @@ public final class SixtySecondsPveSystem {
      * 按天数与随机权重抽取 Boss 变体。
      * 特殊变体仅在第 3 天及之后出现；越晚越多特殊 Boss。
      */
+    public static SixtySecondsBossEntity.BossVariant pickBossVariantPublic(
+            net.minecraft.util.RandomSource random, int dayNumber) {
+        return pickBossVariant(random, dayNumber);
+    }
+
     private static SixtySecondsBossEntity.BossVariant pickBossVariant(net.minecraft.util.RandomSource random, int dayNumber) {
         if (dayNumber < 3) {
             return SixtySecondsBossEntity.BossVariant.RAVAGER;
@@ -384,6 +402,16 @@ public final class SixtySecondsPveSystem {
     /** 生成指定变体 Boss。 */
     public static SixtySecondsBossEntity spawnBoss(ServerLevel level, BlockPos pos, int bossLevel,
             boolean apex, SixtySecondsBossEntity.BossVariant variant) {
+        return spawnBoss(level, pos, bossLevel, apex, variant, true);
+    }
+
+    /**
+     * 生成指定变体 Boss。{@code trackActive=true}（默认）登记进全局唯一锁 {@link #ACTIVE_BOSS}——
+     * 夜晚判定/管理指令生成的「尸潮领主」最多同时一只；{@code trackActive=false} 不登记——
+     * 供 4-5 星区域固定 Boss / 1-5 星「伤害 Boss」使用，它们可多只并存、不挤占夜晚 Boss 名额。
+     */
+    public static SixtySecondsBossEntity spawnBoss(ServerLevel level, BlockPos pos, int bossLevel,
+            boolean apex, SixtySecondsBossEntity.BossVariant variant, boolean trackActive) {
         SixtySecondsBossEntity boss = org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_BOSS.create(level);
         if (boss == null) {
             return null;
@@ -391,7 +419,9 @@ public final class SixtySecondsPveSystem {
         boss.setPos(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
         boss.applyBossLevel(bossLevel, apex, variant);
         level.addFreshEntity(boss);
-        ACTIVE_BOSS.put(level, boss.getUUID());
+        if (trackActive) {
+            ACTIVE_BOSS.put(level, boss.getUUID());
+        }
         Component message;
         if (variant == SixtySecondsBossEntity.BossVariant.RAVAGER) {
             message = Component.translatable(apex

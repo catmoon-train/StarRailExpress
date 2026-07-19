@@ -161,7 +161,7 @@ public final class SixtySecondsHealthSystem {
                         && isPvpBlocked(serverLevel, attacker, player)) {
                     attacker.displayClientMessage(
                             Component.translatable("message.noellesroles.sixty_seconds.pvp_blocked."
-                                    + pvpBlockedReason(serverLevel)), true);
+                                    + pvpBlockedReason(serverLevel, attacker, player)), true);
                     return false;
                 }
                 // 伤害按来源分级：玩家武器查表（非武器物品/徒手=满蓄力 5，按攻击间隔充能削减）/ 怪物 20 /
@@ -237,7 +237,7 @@ public final class SixtySecondsHealthSystem {
                 && isPvpBlocked(serverLevel, serverKiller, player)) {
             serverKiller.displayClientMessage(
                     Component.translatable("message.noellesroles.sixty_seconds.pvp_blocked."
-                            + pvpBlockedReason(serverLevel)), true);
+                            + pvpBlockedReason(serverLevel, serverKiller, player)), true);
             return false;
         }
         applyInjury(player, serverKiller);
@@ -259,6 +259,13 @@ public final class SixtySecondsHealthSystem {
         // 创造模式攻击不受任何限制：无队伍/时段门控（修复未参与游戏的创造玩家打不了人）
         if (attacker.isCreative()) {
             return false;
+        }
+        // 安全区（0 级星级区域）：任一方身处安全区 → 完全禁 PvP（攻击不了别人、也不会被攻击）。
+        // 怪化玩家在安全区同样被禁——安全区是绝对和平区，不因变怪而破例。
+        if (net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.isSafeZone(level, attacker.blockPosition())
+                || (victim != null
+                        && net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.isSafeZone(level, victim.blockPosition()))) {
+            return true;
         }
         if (SixtySecondsStatsComponent.KEY.get(attacker).monster) {
             return false;
@@ -327,9 +334,15 @@ public final class SixtySecondsHealthSystem {
 
     /**
      * 返回 PvP 被阻止的具体原因，用于向攻击者展示不同的提示文本。
-     * 仅在 {@link #isPvpBlocked(ServerLevel)} 已返回 true 后调用。
+     * 仅在 {@link #isPvpBlocked(ServerLevel, ServerPlayer, ServerPlayer)} 已返回 true 后调用。
+     * 安全区原因优先于时段原因（安全区是绝对和平区，无论何时都禁 PvP）。
      */
-    private static String pvpBlockedReason(ServerLevel level) {
+    private static String pvpBlockedReason(ServerLevel level, ServerPlayer attacker, ServerPlayer victim) {
+        if (net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.isSafeZone(level, attacker.blockPosition())
+                || (victim != null
+                        && net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.isSafeZone(level, victim.blockPosition()))) {
+            return "safe_zone";
+        }
         SixtySecondsState.Data data = SixtySecondsState.get(level);
         if (data.phase != SixtySecondsPhase.DAY) {
             return "not_day";

@@ -110,7 +110,7 @@ public final class SixtySecondsAreaCommand {
                         .then(literal("clearbindings")
                                 .executes(ctx -> clearBindings(ctx, false))
                                 .then(literal("auto").executes(ctx -> clearBindings(ctx, true))))
-                        // 星级区域覆盖：任意盒 → 危险等级，优先级高于岛屿（魔改某片区域星级用）
+                        // 星级区域覆盖：任意盒 → 危险等级 0..5（0=安全区），优先级高于岛屿（魔改某片区域星级用）
                         .then(literal("region")
                                 .then(literal("add")
                                         .then(argument("x1", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
@@ -119,14 +119,14 @@ public final class SixtySecondsAreaCommand {
                                                                 .then(argument("x2", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_X)
                                                                         .then(argument("y2", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Y)
                                                                                 .then(argument("z2", IntegerArgumentType.integer()).suggests(SUGGEST_TARGET_Z)
-                                                                                        .then(argument("level", IntegerArgumentType.integer(1,
+                                                                                        .then(argument("level", IntegerArgumentType.integer(0,
                                                                                                 net.exmo.sre.sixtyseconds.SixtySecondsBalance.AREA_LEVEL_MAX))
                                                                                                 .executes(ctx -> addRegion(ctx, false))
                                                                                                 .then(argument("name", StringArgumentType.greedyString())
                                                                                                         .executes(ctx -> addRegion(ctx, true)))))))))))
                                 .then(literal("here")
                                         .then(argument("radius", IntegerArgumentType.integer(0))
-                                                .then(argument("level", IntegerArgumentType.integer(1,
+                                                .then(argument("level", IntegerArgumentType.integer(0,
                                                         net.exmo.sre.sixtyseconds.SixtySecondsBalance.AREA_LEVEL_MAX))
                                                         .executes(ctx -> addRegionHere(ctx, false))
                                                         .then(argument("name", StringArgumentType.greedyString())
@@ -137,6 +137,10 @@ public final class SixtySecondsAreaCommand {
                                         .then(literal("count")
                                                 .then(argument("count", IntegerArgumentType.integer(0, 512))
                                                         .executes(SixtySecondsAreaCommand::setRegionSupplyCount))))
+                                .then(literal("rename")
+                                        .then(argument("index", IntegerArgumentType.integer(0))
+                                                .then(argument("name", StringArgumentType.greedyString())
+                                                        .executes(SixtySecondsAreaCommand::renameRegion))))
                                 .then(literal("list").executes(SixtySecondsAreaCommand::listRegions))
                                 .then(literal("remove")
                                         .then(argument("index", IntegerArgumentType.integer(0))
@@ -257,17 +261,23 @@ public final class SixtySecondsAreaCommand {
                 new SixtySecondsConfig.Vec(minX, minY, minZ), new SixtySecondsConfig.Vec(maxX, maxY, maxZ), lv, name));
         SixtySecondsConfigStore.save(level, cfg);
         int idx = cfg.areaLevelOverrides.size() - 1;
+        String levelLabel = lv == 0 ? "SAFE ZONE" : "Lv." + lv;
         ctx.getSource().sendSuccess(() -> Component.literal(
                 "[60s] star region #" + idx + (name == null ? "" : " \"" + name + "\"") + " added: ("
-                        + minX + "," + minY + "," + minZ + ") ~ (" + maxX + "," + maxY + "," + maxZ + ") level " + lv)
-                .withStyle(ChatFormatting.GREEN), true);
-        // 自动撒物资箱（开关开时）：低级随机 / 上锁高级 / 高级随机，数量按等级缩放
-        if (cfg.regionAutoSupplyEnabled) {
+                        + minX + "," + minY + "," + minZ + ") ~ (" + maxX + "," + maxY + "," + maxZ + ") " + levelLabel)
+                .withStyle(lv == 0 ? ChatFormatting.GREEN : ChatFormatting.GREEN), true);
+        // 自动撒物资箱（开关开时）：低级随机 / 上锁高级 / 高级随机，数量按等级缩放。
+        // 安全区（0 级）是和平区，不撒物资箱。
+        if (lv > 0 && cfg.regionAutoSupplyEnabled) {
             int placed = net.exmo.sre.sixtyseconds.logic.SixtySecondsRegionSupply.spawn(
                     level, min, max, lv, cfg.regionSupplyBoxBaseCount);
             ctx.getSource().sendSuccess(() -> Component.literal(
                     "[60s] auto-scattered " + placed + " supply box(es) (level " + lv + ")")
                     .withStyle(ChatFormatting.AQUA), true);
+        } else if (lv == 0) {
+            ctx.getSource().sendSuccess(() -> Component.literal(
+                    "[60s] safe zone: no supply boxes, no mob spawns, PvP disabled")
+                    .withStyle(ChatFormatting.YELLOW), true);
         }
         return 1;
     }
@@ -337,8 +347,9 @@ public final class SixtySecondsAreaCommand {
                             + reg.max.x + "," + reg.max.y + "," + reg.max.z + ")";
             final int idx = i;
             String label = reg.name == null || reg.name.isEmpty() ? "" : "  \"" + reg.name + "\"";
+            String lvLabel = reg.level == 0 ? "SAFE ZONE" : "Lv." + reg.level;
             ctx.getSource().sendSuccess(() -> Component.literal(
-                    "  #" + idx + "  Lv." + reg.level + label + "  " + box).withStyle(ChatFormatting.GRAY), false);
+                    "  #" + idx + "  " + lvLabel + label + "  " + box).withStyle(ChatFormatting.GRAY), false);
         }
         return regs.size();
     }
@@ -360,6 +371,29 @@ public final class SixtySecondsAreaCommand {
         return 1;
     }
 
+    /** {@code region rename <index> <name>}：重命名指定索引的星级区域（空字符串可清空名字）。 */
+    private static int renameRegion(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        SixtySecondsConfig cfg = load(level);
+        int idx = IntegerArgumentType.getInteger(ctx, "index");
+        if (cfg.areaLevelOverrides == null || idx < 0 || idx >= cfg.areaLevelOverrides.size()) {
+            ctx.getSource().sendFailure(Component.literal("[60s] no star region #" + idx)
+                    .withStyle(ChatFormatting.RED));
+            return 0;
+        }
+        String rawName = StringArgumentType.getString(ctx, "name");
+        String newName = rawName.replace('&', '§');
+        SixtySecondsConfig.LevelRegion reg = cfg.areaLevelOverrides.get(idx);
+        String oldLabel = reg.name == null || reg.name.isEmpty() ? "(unnamed)" : "\"" + reg.name + "\"";
+        reg.name = newName.isEmpty() ? null : newName;
+        SixtySecondsConfigStore.save(level, cfg);
+        String newLabel = reg.name == null ? "(unnamed)" : "\"" + reg.name + "\"";
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[60s] renamed star region #" + idx + ": " + oldLabel + " → " + newLabel)
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
     private static int clearRegions(CommandContext<CommandSourceStack> ctx) {
         ServerLevel level = ctx.getSource().getLevel();
         SixtySecondsConfig cfg = load(level);
@@ -376,9 +410,10 @@ public final class SixtySecondsAreaCommand {
         ServerLevel level = ctx.getSource().getLevel();
         net.minecraft.core.BlockPos pos = net.minecraft.core.BlockPos.containing(ctx.getSource().getPosition());
         int lv = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.levelAt(level, pos);
+        String label = lv == 0 ? "SAFE ZONE" : "Lv." + lv;
         ctx.getSource().sendSuccess(() -> Component.literal("[60s] danger level @ ("
-                + pos.getX() + "," + pos.getY() + "," + pos.getZ() + ") = Lv." + lv)
-                .withStyle(ChatFormatting.AQUA), false);
+                + pos.getX() + "," + pos.getY() + "," + pos.getZ() + ") = " + label)
+                .withStyle(lv == 0 ? ChatFormatting.GREEN : ChatFormatting.AQUA), false);
         return lv;
     }
 

@@ -147,7 +147,7 @@ public final class SixtySecondsStartCommand {
                                         .executes(c -> setTotalDays(c.getSource(),
                                                 IntegerArgumentType.getInteger(c, "count"))))
                                 .executes(c -> showTotalDays(c.getSource())))
-                        // 管理员：自动复活开关 + 复活间隔（默认开 / 240 秒，按图持久化）
+                        // 管理员：自动复活开关 + 复活间隔 + 次数上限（默认开 / 240 秒 / -1=无限，按图持久化）
                         .then(literal("autorevive")
                                 .requires(source -> source.hasPermission(2))
                                 .then(literal("on").executes(c -> setAutoRevive(c.getSource(), true)))
@@ -156,6 +156,11 @@ public final class SixtySecondsStartCommand {
                                         .then(argument("seconds", IntegerArgumentType.integer(5, 3600))
                                                 .executes(c -> setReviveInterval(c.getSource(),
                                                         IntegerArgumentType.getInteger(c, "seconds")))))
+                                // limit <count>：-1=无限（默认），0=禁用，n>0=每名玩家本局最多复活 n 次
+                                .then(literal("limit")
+                                        .then(argument("count", IntegerArgumentType.integer(-1, 1000))
+                                                .executes(c -> setReviveLimit(c.getSource(),
+                                                        IntegerArgumentType.getInteger(c, "count")))))
                                 .executes(c -> showAutoRevive(c.getSource())))
                         // 管理员：NPC 搭图指令树（与 NPC 放置器/调校器等价的键盘操作；见 buildNpcCommand）
                         .then(buildNpcCommand())
@@ -260,6 +265,20 @@ public final class SixtySecondsStartCommand {
                                         .executes(c -> spawnBoss(c.getSource(),
                                                 IntegerArgumentType.getInteger(c, "level"))))
                                 .executes(c -> spawnBoss(c.getSource(), 1)))
+                        // 管理员：Boss 刷新点绑定（与 Boss 魔杖物品等效；落盘 sixty_seconds_config.json）
+                        .then(literal("boss_spawn")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("add")
+                                        .then(argument("pos", net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos())
+                                                .executes(c -> bossSpawnAdd(c.getSource(),
+                                                        net.minecraft.commands.arguments.coordinates.BlockPosArgument
+                                                                .getLoadedBlockPos(c, "pos")))))
+                                .then(literal("remove")
+                                        .then(argument("index", IntegerArgumentType.integer(0))
+                                                .executes(c -> bossSpawnRemove(c.getSource(),
+                                                        IntegerArgumentType.getInteger(c, "index")))))
+                                .then(literal("clear").executes(c -> bossSpawnClear(c.getSource())))
+                                .executes(c -> bossSpawnList(c.getSource())))
                         // 管理员：开局保底物资开关（按图配置持久化；默认关=全靠准备阶段搜刮）
                         .then(literal("starter")
                                 .requires(source -> source.hasPermission(2))
@@ -855,14 +874,32 @@ public final class SixtySecondsStartCommand {
         return seconds;
     }
 
-    /** 管理员：查看自动复活开关与间隔。 */
+    /**
+     * 管理员：设置本局自动复活次数上限（-1=无限，0=禁用，n>0=每名玩家本局最多 n 次；按图持久化）。
+     * 局中改会立即影响<b>已在等待中</b>的玩家——若其 {@code reviveCount} 已 ≥ 新上限，倒计时作废、不复活。
+     */
+    private static int setReviveLimit(CommandSourceStack source, int count) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.autoReviveMaxUses = count;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.autorevive_limit_set", count)
+                .withStyle(ChatFormatting.GREEN), true);
+        return count;
+    }
+
+    /** 管理员：查看自动复活开关、间隔与次数上限。 */
     private static int showAutoRevive(CommandSourceStack source) {
         var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
                 .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
-        source.sendSuccess(() -> Component.translatable(config.autoReviveEnabled
-                ? "message.noellesroles.sixty_seconds.autorevive_enabled"
-                : "message.noellesroles.sixty_seconds.autorevive_disabled",
-                config.autoReviveIntervalSeconds), false);
+        source.sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.autorevive_status",
+                config.autoReviveEnabled ? "§aON" : "§cOFF",
+                config.autoReviveIntervalSeconds,
+                config.autoReviveMaxUses < 0 ? "∞" : String.valueOf(config.autoReviveMaxUses))
+                .withStyle(ChatFormatting.GRAY), false);
         return 1;
     }
 
@@ -1153,6 +1190,75 @@ public final class SixtySecondsStartCommand {
                 source.getLevel(), player.blockPosition().relative(player.getDirection(), 4),
                 bossLevel, false, variant);
         return boss != null ? 1 : 0;
+    }
+
+    // ── Boss 刷新点绑定（boss_spawn add/remove/list/clear）──────────────
+    private static int bossSpawnAdd(CommandSourceStack source, net.minecraft.core.BlockPos pos) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        if (config.bossSpawnPoints == null) {
+            config.bossSpawnPoints = new java.util.ArrayList<>();
+        }
+        for (var v : config.bossSpawnPoints) {
+            if (v != null && v.x == pos.getX() && v.y == pos.getY() && v.z == pos.getZ()) {
+                source.sendFailure(Component.literal("该位置已登记 Boss 刷新点"));
+                return 0;
+            }
+        }
+        config.bossSpawnPoints.add(new net.exmo.sre.sixtyseconds.config.SixtySecondsConfig.Vec(
+                pos.getX(), pos.getY(), pos.getZ()));
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.literal(
+                "已登记 Boss 刷新点 (" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()
+                        + ")，当前共 " + config.bossSpawnPoints.size() + " 个").withStyle(ChatFormatting.AQUA), false);
+        return 1;
+    }
+
+    private static int bossSpawnRemove(CommandSourceStack source, int index) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level).orElse(null);
+        if (config == null || config.bossSpawnPoints == null || index >= config.bossSpawnPoints.size()) {
+            source.sendFailure(Component.literal("索引越界"));
+            return 0;
+        }
+        var removed = config.bossSpawnPoints.remove(index);
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.literal(
+                "已移除 Boss 刷新点 #" + index + " (" + removed.x + ", " + removed.y + ", " + removed.z + ")")
+                .withStyle(ChatFormatting.GREEN), false);
+        return 1;
+    }
+
+    private static int bossSpawnList(CommandSourceStack source) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level).orElse(null);
+        if (config == null || config.bossSpawnPoints == null || config.bossSpawnPoints.isEmpty()) {
+            source.sendSuccess(() -> Component.literal("暂无 Boss 刷新点").withStyle(ChatFormatting.YELLOW), false);
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal("Boss 刷新点列表（共 " + config.bossSpawnPoints.size() + " 个）：")
+                .withStyle(ChatFormatting.AQUA), false);
+        for (int i = 0; i < config.bossSpawnPoints.size(); i++) {
+            var v = config.bossSpawnPoints.get(i);
+            final int idx = i;
+            source.sendSuccess(() -> Component.literal(
+                    "  #" + idx + " (" + v.x + ", " + v.y + ", " + v.z + ")"), false);
+        }
+        return config.bossSpawnPoints.size();
+    }
+
+    private static int bossSpawnClear(CommandSourceStack source) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        int n = config.bossSpawnPoints == null ? 0 : config.bossSpawnPoints.size();
+        config.bossSpawnPoints = new java.util.ArrayList<>();
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        final int count = n;
+        source.sendSuccess(() -> Component.literal("已清空 " + count + " 个 Boss 刷新点")
+                .withStyle(ChatFormatting.GREEN), false);
+        return 1;
     }
 
     /** 管理员：切换「开局保底物资」（按图配置持久化，默认关）。 */

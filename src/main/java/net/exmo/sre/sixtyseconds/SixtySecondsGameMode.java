@@ -121,6 +121,8 @@ public class SixtySecondsGameMode extends GameMode {
         net.exmo.sre.sixtyseconds.content.item.SixtySecondsGrapplingHookItem.reset();
         net.exmo.sre.sixtyseconds.logic.SixtySecondsDefenseSystem.reset(world);
         net.exmo.sre.sixtyseconds.logic.SixtySecondsPveSystem.reset(world);
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaBossSystem.reset(world); // 区域固定Boss/伤害Boss
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsRvRaidSystem.reset(world);    // 房车夜袭突袭者/尸潮
         net.exmo.sre.sixtyseconds.logic.SixtySecondsNpcSystem.reset(world); // 清偷窃会话 + 全图清 NPC
         net.exmo.sre.sixtyseconds.logic.SixtySecondsAutoRevive.reset(world); // 清尸体标记 + 复活倒计时
         net.exmo.sre.sixtyseconds.logic.SixtySecondsPowerSystem.reset(world);

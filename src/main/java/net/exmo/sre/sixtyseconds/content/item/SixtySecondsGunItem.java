@@ -27,11 +27,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.ChatFormatting;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * 60s 枪械模板（猎枪/手枪/步枪共用）：右键开火，须消耗背包内 {@link ModItems#SIXTY_SECONDS_AMMO 子弹}。
@@ -103,6 +107,24 @@ public class SixtySecondsGunItem extends Item implements SREItemProperties.HeldL
 
     public double range() {
         return range;
+    }
+
+    /** 命中玩家扣的健康伤害（基线值；PvP 路径会再 ×0.5）；RPG 等子类可重写。 */
+    public int playerDamage() {
+        return playerDamage;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
+        // 枪械面板没有原版"攻击伤害"属性（不是 SwordItem），统一在 tooltip 显示命中健康伤害 +
+        // PvP 后实际扣减值。与近战武器 tooltip 风格一致，便于玩家横向对比枪/刀伤害。
+        int dmg = playerDamage();
+        tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.health_damage",
+                Integer.toString(dmg)).withStyle(ChatFormatting.RED));
+        int pvpActual = Math.max(1, (int) Math.round(dmg * SixtySecondsBalance.PVP_DAMAGE_MULT));
+        tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds.pvp_damage",
+                Integer.toString(pvpActual)).withStyle(ChatFormatting.DARK_RED));
     }
 
     @Override

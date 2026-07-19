@@ -194,8 +194,15 @@ public class SixtySecondsBossEntity extends SixtySecondsMonsterEntity {
         return this.entityData.get(BOSS_LEVEL);
     }
 
+    /** 「伤害 Boss」实体 tag（每局仅一只；近战命中固定伤害、护甲不减免）。由区域 Boss 系统挂载。 */
+    public static final String DAMAGE_BOSS_TAG = "sixty_seconds_damage_boss";
+
     @Override
     protected int meleeInjury() {
+        // 伤害 Boss：固定高额伤害，无视等级/狂怒倍率
+        if (getTags().contains(DAMAGE_BOSS_TAG)) {
+            return SixtySecondsBalance.DAMAGE_BOSS_MELEE_INJURY;
+        }
         int base = SixtySecondsBalance.BOSS_MELEE_INJURY + 4 * (bossLevel() - 1);
         if (frenzied) base = (int)(base * 1.4);
         return base;

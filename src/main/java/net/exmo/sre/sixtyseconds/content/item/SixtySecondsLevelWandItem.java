@@ -23,13 +23,15 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * 管理员搭图工具：<b>星级区域魔杖</b>——在世界任意位置圈一块盒并赋一个危险等级（1..5），写入
+ * 管理员搭图工具：<b>星级区域魔杖</b>——在世界任意位置圈一块盒并赋一个危险等级（0..5），写入
  * {@code areaLevelOverrides}（{@link SixtySecondsConfig#areaLevelOverrides}）。该覆盖优先级高于岛屿等级，
  * 可用来「魔改」某片区域（含岛上）的星级——物资箱稀有度与游荡怪强度随之变化（见 {@code SixtySecondsAreaLevels}）。
  * <p>
+ * <b>0 级 = 安全区</b>：区域内禁止一切 PvP（攻击不了别人、也不会被攻击），不刷游荡怪/Boss，不自动撒物资箱。
+ * <p>
  * 操作：
  * <ol>
- *   <li><b>潜行右键</b>任意方块 = 切换待用星级（1→2→3→4→5→1），并重置已选的角点（换个星级重新开圈）。</li>
+ *   <li><b>潜行右键</b>任意方块 = 切换待用星级（0→1→2→3→4→5→0，0=安全区），并重置已选的角点（换个星级重新开圈）。</li>
  *   <li><b>右键</b>一个方块 = 设为盒角 A。</li>
  *   <li>再<b>右键</b>对角方块 = 设为盒角 B 并<b>提交</b>该星级区域，落盘。</li>
  * </ol>
@@ -71,13 +73,15 @@ public class SixtySecondsLevelWandItem extends Item {
         UUID id = player.getUUID();
         BlockPos pos = context.getClickedPos();
 
-        // 潜行右键：切换星级并重置角点（换个星级重新开圈）
+        // 潜行右键：切换星级并重置角点（换个星级重新开圈）。循环 0→1→2→3→4→5→0；0 = 安全区
         if (player.isShiftKeyDown()) {
-            int next = level(id) % SixtySecondsBalance.AREA_LEVEL_MAX + 1;
+            int next = (level(id) + 1) % (SixtySecondsBalance.AREA_LEVEL_MAX + 1);
             PENDING_LEVEL.put(id, next);
             PENDING_CORNER_A.remove(id);
-            player.displayClientMessage(
-                    Component.translatable(LANG + "level_set", next).withStyle(ChatFormatting.AQUA), true);
+            Component msg = next == 0
+                    ? Component.translatable(LANG + "level_set_safe").withStyle(ChatFormatting.GREEN)
+                    : Component.translatable(LANG + "level_set", next).withStyle(ChatFormatting.AQUA);
+            player.displayClientMessage(msg, true);
             return InteractionResult.SUCCESS;
         }
 
@@ -122,9 +126,10 @@ public class SixtySecondsLevelWandItem extends Item {
         SixtySecondsConfigStore.save(level, config);
         player.displayClientMessage(
                 Component.translatable(LANG + "added", config.areaLevelOverrides.size(), lv)
-                        .withStyle(ChatFormatting.GREEN), true);
-        // 和指令 region add 一致：开关开时按等级自动撒物资箱（低级随机/上锁高级/高级随机）
-        if (config.regionAutoSupplyEnabled) {
+                        .withStyle(lv == 0 ? ChatFormatting.GREEN : ChatFormatting.GREEN), true);
+        // 和指令 region add 一致：开关开时按等级自动撒物资箱（低级随机/上锁高级/高级随机）。
+        // 安全区（0 级）是和平区，不撒物资箱。
+        if (lv > 0 && config.regionAutoSupplyEnabled) {
             BlockPos min = new BlockPos(Math.min(a.getX(), b.getX()), Math.min(a.getY(), b.getY()),
                     Math.min(a.getZ(), b.getZ()));
             BlockPos max = new BlockPos(Math.max(a.getX(), b.getX()), Math.max(a.getY(), b.getY()),
@@ -133,6 +138,9 @@ public class SixtySecondsLevelWandItem extends Item {
                     level, min, max, lv, config.regionSupplyBoxBaseCount);
             player.displayClientMessage(Component.literal("[60s] +" + placed + " supply box(es)")
                     .withStyle(ChatFormatting.AQUA), true);
+        } else if (lv == 0) {
+            player.displayClientMessage(Component.translatable(LANG + "safe_zone_no_supply")
+                    .withStyle(ChatFormatting.YELLOW), true);
         }
     }
 }

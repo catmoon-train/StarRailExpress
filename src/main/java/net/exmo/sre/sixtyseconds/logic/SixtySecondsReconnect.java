@@ -52,6 +52,7 @@ public final class SixtySecondsReconnect {
         boolean recovering;
         long sanZeroTick;
         long reviveEndTick;
+        int reviveCount;
     }
 
     /** 模组初始化时注册一次。 */
@@ -103,6 +104,7 @@ public final class SixtySecondsReconnect {
         s.recovering = stats.recovering;
         s.sanZeroTick = stats.sanZeroTick;
         s.reviveEndTick = stats.reviveEndTick;
+        s.reviveCount = stats.reviveCount;
         BACKUPS.put(player.getUUID(), s);
         return true;
     }
@@ -136,6 +138,7 @@ public final class SixtySecondsReconnect {
         stats.recovering = s.recovering;
         stats.sanZeroTick = s.sanZeroTick;
         stats.reviveEndTick = s.reviveEndTick;
+        stats.reviveCount = s.reviveCount;
         // 换日相关用当前值刷新，避免离线期间过期
         if (player.level() instanceof ServerLevel level) {
             SixtySecondsState.Data data = SixtySecondsState.get(level);
@@ -152,13 +155,15 @@ public final class SixtySecondsReconnect {
             // 重连死亡状态处理：
             // 1. 已死亡等待复活（reviveEndTick > 0）：保持旁观者，等待自动复活到期
             // 2. 存活时掉线（reviveEndTick == 0）：视为死亡惩罚，进入旁观并等待自动复活
+            //    （但若已达本局次数上限，则不再安排复活——与正常死亡一致，直接出局）
             if (stats.reviveEndTick > 0L) {
                 player.setGameMode(GameType.SPECTATOR);
             } else if (!stats.monster) {
                 // 怪物身份的玩家已经死了（不算幸存者），不需要再判死
                 player.setGameMode(GameType.SPECTATOR);
                 TrainVoicePlugin.addPlayer(player.getUUID());
-                if (SixtySecondsAutoRevive.enabled(level)) {
+                if (SixtySecondsAutoRevive.enabled(level)
+                        && !SixtySecondsAutoRevive.reachedLimitPublic(level, stats)) {
                     stats.reviveEndTick = level.getGameTime() + SixtySecondsAutoRevive.intervalTicks(level);
                 }
             }

@@ -16,9 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 
 import java.util.HashMap;
@@ -27,20 +25,21 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 
 /**
- * 自动复活（按图开关 {@code autoReviveEnabled}，默认<b>开</b>；间隔 {@code autoReviveIntervalSeconds}，默认 4 分钟）。
+ * 自动复活（按图开关 {@code autoReviveEnabled}，默认<b>开</b>；间隔 {@code autoReviveIntervalSeconds}，默认 4 分钟；
+ * 次数上限 {@code autoReviveMaxUses}，默认 -1=无限）。
  * <ul>
- *   <li><b>死亡</b>（{@code SixtySecondsHealthSystem.die}）：登记复活时刻到
- *       {@link SixtySecondsStatsComponent#reviveEndTick}（同步一次，客户端 HUD 自己倒数），
- *       记录尸体坐标、实体 UUID 与背包快照（防止区块卸载后无法读取尸体箱），
+ *   <li><b>死亡</b>（{@code SixtySecondsHealthSystem.die}）：先检查是否已达本局次数上限——达到则不登记复活，
+ *       玩家直接出局。否则登记复活时刻到 {@link SixtySecondsStatsComponent#reviveEndTick}（同步一次，
+ *       客户端 HUD 自己倒数），记录尸体坐标与实体 UUID（用于复活后清理尸体实体，避免重复丢弃物品），
  *       并在死亡处给<b>本人</b>打一个尸体标记（区域地图上的暗红点）。</li>
  *   <li><b>到期</b>（{@link #tick}）：在<b>本队避难所</b>复活（{@code GameUtils.revivePlayer}），
- *       从快照恢复尸体背包物品、消除尸体实体，
- *       状态值恢复到 {@link SixtySecondsBalance#AUTO_REVIVE_STAT_PERCENT}。</li>
+ *       <b>物品不返还</b>——复活后玩家背包为空、尸体实体被 discard（其物品随之销毁），
+ *       状态值恢复到 {@link SixtySecondsBalance#AUTO_REVIVE_STAT_PERCENT}，{@code reviveCount} +1。</li>
  * </ul>
  *
- * <p><b>尸体物资自动继承</b>：复活时把尸体背包里的所有物品恢复到玩家身上，
- * 然后清空尸体箱并 discard 尸体实体。即使尸体所在区块被卸载，背包快照也已保存，
- * 物品不会丢失。
+ * <p><b>尸体物资不继承</b>：复活时<b>不</b>从尸体背包恢复任何物品——玩家以空背包复活，
+ * 尸体实体（若区块仍加载）也会被销毁、物品随之消失，避免物品复制或重复。死亡处的尸体在等待复活期间
+ * 仍可被队友拾取/搜刮（普通尸体箱交互），但复活时刻一到即清理。
  *
  * <p><b>复活语音组</b>：{@code GameUtils.revivePlayer} 已内置清除
  * {@code DeathPenaltyComponent}（死亡语音隔离）和 {@code TrainVoicePlugin}
@@ -52,10 +51,10 @@ import java.util.WeakHashMap;
  */
 public final class SixtySecondsAutoRevive {
 
-    /** 尸体全量记录：坐标 + 实体 UUID + 背包物品快照。 */
-    private record CorpseRecord(BlockPos pos, UUID entityUuid, ItemStack[] inventory) {}
+    /** 尸体记录：坐标 + 实体 UUID（用于复活后销毁尸体实体，避免重复丢弃物品）。不再保存背包快照——复活不返还物品。 */
+    private record CorpseRecord(BlockPos pos, UUID entityUuid) {}
 
-    /** 每世界：玩家 UUID → 尸体记录（包含背包快照，复活后清理）。 */
+    /** 每世界：玩家 UUID → 尸体记录（复活后清理）。 */
     private static final Map<ServerLevel, Map<UUID, CorpseRecord>> CORPSES = new WeakHashMap<>();
 
     private SixtySecondsAutoRevive() {
@@ -77,8 +76,33 @@ public final class SixtySecondsAutoRevive {
     }
 
     /**
+     * 按图配置：本局自动复活次数上限（-1=无限，0=禁用复活，正数=最多 N 次）。
+     * 默认 -1（无限）保持旧行为。
+     */
+    public static int maxUses(ServerLevel level) {
+        return SixtySecondsConfigStore.current(level)
+                .map(config -> config.autoReviveMaxUses)
+                .orElse(-1);
+    }
+
+    /** 玩家本局已用复活次数是否已达上限（{@code maxUses=-1} 视为无限）。供重连等外部调用判定。 */
+    public static boolean reachedLimitPublic(ServerLevel level, SixtySecondsStatsComponent stats) {
+        return reachedLimit(level, stats);
+    }
+
+    /** 玩家本局已用复活次数是否已达上限（{@code maxUses=-1} 视为无限）。 */
+    private static boolean reachedLimit(ServerLevel level, SixtySecondsStatsComponent stats) {
+        int max = maxUses(level);
+        if (max < 0) {
+            return false;
+        }
+        return stats.reviveCount >= max;
+    }
+
+    /**
      * 死亡钩子（{@code SixtySecondsHealthSystem.die} 在 forceKillPlayer 之后调）：
-     * 登记复活时刻 + 打尸体标记 + <b>记录尸体背包快照</b>（防止区块卸载丢失）。
+     * 先检查本局次数上限——达到则不登记复活（玩家直接出局）；否则登记复活时刻 + 打尸体标记 +
+     * 记录尸体实体 UUID（复活时销毁尸体实体）。
      *
      * @param corpsePos 死亡处坐标（须在 forceKillPlayer <b>之前</b>取，那之后玩家已转旁观）
      */
@@ -92,34 +116,44 @@ public final class SixtySecondsAutoRevive {
         if (stats.monster) {
             return;
         }
+        // 次数上限检查：已达上限则不登记复活，玩家直接出局（不进等待、不打尸体标记、不进全灭豁免）
+        if (reachedLimit(level, stats)) {
+            int max = maxUses(level);
+            victim.displayClientMessage(Component.translatable(
+                    "message.noellesroles.sixty_seconds.autorevive_limit_reached",
+                    stats.reviveCount, max < 0 ? "∞" : String.valueOf(max))
+                    .withStyle(ChatFormatting.RED), false);
+            return;
+        }
         long now = level.getGameTime();
         stats.reviveEndTick = now + intervalTicks(level);
         stats.sync();
 
-        // 查找尸体实体，记录实体UUID并保存背包快照（防止区块卸载后无法读取）
+        // 查找尸体实体，仅记录实体 UUID（用于复活时销毁尸体实体，避免重复丢弃物品；不再保存背包快照）
         UUID entityUuid = null;
-        ItemStack[] inventory = new ItemStack[0];
         AABB searchBox = new AABB(corpsePos).inflate(5);
         for (PlayerBodyEntity body : level.getEntitiesOfClass(PlayerBodyEntity.class, searchBox)) {
             if (victim.getUUID().equals(body.getPlayerUuid())) {
                 entityUuid = body.getUUID();
-                SimpleContainer corpseInv = body.getComponent().getCorpseInventory();
-                inventory = new ItemStack[corpseInv.getContainerSize()];
-                for (int i = 0; i < inventory.length; i++) {
-                    inventory[i] = corpseInv.getItem(i).copy();
-                }
                 break;
             }
         }
 
-        CorpseRecord record = new CorpseRecord(corpsePos.immutable(), entityUuid, inventory);
+        CorpseRecord record = new CorpseRecord(corpsePos.immutable(), entityUuid);
         CORPSES.computeIfAbsent(level, ignored -> new HashMap<>())
                 .put(victim.getUUID(), record);
         SixtySecondsCorpseMarkS2CPacket.mark(victim, corpsePos);
-        victim.displayClientMessage(Component.translatable(
-                "message.noellesroles.sixty_seconds.revive_pending",
-                intervalTicks(level) / 20, corpsePos.getX(), corpsePos.getY(), corpsePos.getZ())
-                .withStyle(ChatFormatting.GRAY), false);
+        // 提示文案同时显示剩余次数（无限时不显示）
+        int max = maxUses(level);
+        net.minecraft.network.chat.MutableComponent pending = max < 0
+                ? Component.translatable(
+                        "message.noellesroles.sixty_seconds.revive_pending",
+                        intervalTicks(level) / 20, corpsePos.getX(), corpsePos.getY(), corpsePos.getZ())
+                : Component.translatable(
+                        "message.noellesroles.sixty_seconds.revive_pending_with_remaining",
+                        intervalTicks(level) / 20, corpsePos.getX(), corpsePos.getY(), corpsePos.getZ(),
+                        Math.max(0, max - stats.reviveCount));
+        victim.displayClientMessage(pending.withStyle(ChatFormatting.GRAY), false);
     }
 
     /** DAY 相位每 tick 调（内部 20 tick 一次）：到期的玩家复活；每 5 秒清理误留在死亡语音组的非旁观玩家。 */
@@ -143,8 +177,9 @@ public final class SixtySecondsAutoRevive {
             if (stats.reviveEndTick <= 0L) {
                 continue;
             }
-            // 开关中途关掉：把在等的人的倒计时作废（不复活，也不让 HUD 一直挂着）
-            if (!enabled(level)) {
+            // 开关中途关掉，或玩家已在等待时管理员把次数上限压到当前已用次数以下：
+            // 把倒计时作废（不复活，也不让 HUD 一直挂着）
+            if (!enabled(level) || reachedLimit(level, stats)) {
                 stats.reviveEndTick = 0L;
                 stats.sync();
                 clearCorpseMark(level, player);
@@ -156,7 +191,10 @@ public final class SixtySecondsAutoRevive {
         }
     }
 
-    /** 在本队避难所复活：从快照恢复尸体背包物品、消除尸体实体、清倒计时与尸体标记、状态值恢复到半血。 */
+    /**
+     * 在本队避难所复活：<b>物品不返还</b>（玩家以空背包复活）、销毁尸体实体（其物品随之消失）、
+     * 清倒计时与尸体标记、状态值恢复到半血、{@code reviveCount} +1。
+     */
     private static void revive(ServerLevel level, ServerPlayer player, SixtySecondsStatsComponent stats) {
         SixtySecondsState.TeamData team = SixtySecondsState.get(level).teams.get(stats.teamId);
         BlockPos home = team != null ? team.shelterSpawn : null;
@@ -167,7 +205,7 @@ public final class SixtySecondsAutoRevive {
         }
         BlockPos safe = SixtySecondsSearchZones.findSafeSpot(level, home);
 
-        // 从快照中取出尸体记录（在 revivePlayer 之前取——revivePlayer 会改游戏模式）
+        // 从记录中取出尸体实体 UUID（在 revivePlayer 之前取——revivePlayer 会改游戏模式）
         Map<UUID, CorpseRecord> corpses = CORPSES.get(level);
         CorpseRecord record = corpses != null ? corpses.remove(player.getUUID()) : null;
 
@@ -175,21 +213,13 @@ public final class SixtySecondsAutoRevive {
         // + TrainVoicePlugin.resetPlayer（离开旁观语音组）→ 复活后回到正常近距离语音
         GameUtils.revivePlayer(player, safe.getX() + 0.5D, safe.getY(), safe.getZ() + 0.5D);
 
-        // 从快照恢复尸体背包物品
-        if (record != null && record.inventory.length > 0) {
-            player.getInventory().clearContent();
-            int maxSlot = Math.min(record.inventory.length, player.getInventory().getContainerSize());
-            for (int i = 0; i < maxSlot; i++) {
-                ItemStack stack = record.inventory[i];
-                if (stack != null && !stack.isEmpty()) {
-                    player.getInventory().setItem(i, stack.copy());
-                }
-            }
-        }
+        // 物品不返还：复活后玩家背包为空（revivePlayer 不动背包，这里显式清空）
+        player.getInventory().clearContent();
 
-        // 消除尸体实体（如果区块仍加载中）
-        if (record != null && record.entityUuid != null) {
-            Entity e = level.getEntity(record.entityUuid);
+        // 销毁尸体实体（其物品随之消失，避免重复丢弃/被复制）；区块已卸载则跳过——
+        // 反正玩家身上已无物品，尸体实体也找不到，物品不会回流到玩家。
+        if (record != null && record.entityUuid() != null) {
+            Entity e = level.getEntity(record.entityUuid());
             if (e instanceof PlayerBodyEntity body) {
                 body.getComponent().getCorpseInventory().clearContent();
                 body.discard();
@@ -197,6 +227,8 @@ public final class SixtySecondsAutoRevive {
         }
 
         stats.reviveEndTick = 0L;
+        // 计入本局已用次数（无限上限时也累加，供 HUD/查询显示）
+        stats.reviveCount++;
         int revived = (int) (SixtySecondsStatsComponent.MAX * SixtySecondsBalance.AUTO_REVIVE_STAT_PERCENT);
         stats.health = revived;
         stats.hunger = revived;
@@ -217,8 +249,13 @@ public final class SixtySecondsAutoRevive {
 
         clearCorpseMark(level, player);
         level.playSound(null, safe, SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 0.7F, 1.2F);
-        player.displayClientMessage(Component.translatable(
-                "message.noellesroles.sixty_seconds.revive_done").withStyle(ChatFormatting.GREEN), false);
+        // 复活完成提示同时显示剩余次数（无限时不显示）
+        int max = maxUses(level);
+        net.minecraft.network.chat.MutableComponent done = max < 0
+                ? Component.translatable("message.noellesroles.sixty_seconds.revive_done")
+                : Component.translatable("message.noellesroles.sixty_seconds.revive_done_with_remaining",
+                        Math.max(0, max - stats.reviveCount));
+        player.displayClientMessage(done.withStyle(ChatFormatting.GREEN), false);
     }
 
     /** 清掉该玩家的尸体标记（客户端地图 + 服务端记录）。 */
@@ -251,13 +288,21 @@ public final class SixtySecondsAutoRevive {
         return false;
     }
 
-    /** 局末清理（{@code SixtySecondsGameMode.stopGame}）：清尸体记录 + 抹掉所有人的复活倒计时。 */
+    /** 局末清理（{@code SixtySecondsGameMode.stopGame}）：清尸体记录 + 抹掉所有人的复活倒计时与已用次数。 */
     public static void reset(ServerLevel level) {
         CORPSES.remove(level);
         for (ServerPlayer player : level.players()) {
             SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+            boolean dirty = false;
             if (stats.reviveEndTick > 0L) {
                 stats.reviveEndTick = 0L;
+                dirty = true;
+            }
+            if (stats.reviveCount != 0) {
+                stats.reviveCount = 0;
+                dirty = true;
+            }
+            if (dirty) {
                 stats.sync();
             }
             SixtySecondsCorpseMarkS2CPacket.clear(player, BlockPos.ZERO);

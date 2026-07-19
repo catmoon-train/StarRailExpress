@@ -70,13 +70,20 @@ public final class SixtySecondsSearchZones {
         player.removeEffect(ModEffects.BREAK_IN_INTRUDER);
         // 出门后无探索区盒（自由活动）：清掉区域地图限制盒，小地图退回全图 playArea。
         net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.sendClear(player);
-        // 危险等级提示：等级越高稀有物越常见、但游荡怪更多更强（SixtySecondsAreaLevels/PveSystem）
+        // 危险等级提示：等级越高稀有物越常见、但游荡怪更多更强（SixtySecondsAreaLevels/PveSystem）。
+        // 0 级 = 安全区：无法攻击他人、也不会被攻击、不刷怪。
         int areaLevel = net.exmo.sre.sixtyseconds.logic.SixtySecondsAreaLevels.levelAt(level, safe);
-        player.displayClientMessage(Component
-                .translatable("message.noellesroles.sixty_seconds.area_level_enter", areaLevel)
-                .withStyle(areaLevel >= 4 ? net.minecraft.ChatFormatting.RED
-                        : areaLevel >= 2 ? net.minecraft.ChatFormatting.YELLOW
-                                : net.minecraft.ChatFormatting.GREEN), false);
+        if (areaLevel <= 0) {
+            player.displayClientMessage(Component
+                    .translatable("message.noellesroles.sixty_seconds.area_safe_enter")
+                    .withStyle(net.minecraft.ChatFormatting.GREEN, net.minecraft.ChatFormatting.BOLD), false);
+        } else {
+            player.displayClientMessage(Component
+                    .translatable("message.noellesroles.sixty_seconds.area_level_enter", areaLevel)
+                    .withStyle(areaLevel >= 4 ? net.minecraft.ChatFormatting.RED
+                            : areaLevel >= 2 ? net.minecraft.ChatFormatting.YELLOW
+                                    : net.minecraft.ChatFormatting.GREEN), false);
+        }
     }
 
     /** 把玩家送回进入搜索区前的位置（受归来冷却限制：白天 45s / 晚上 5s）。 */
