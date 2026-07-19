@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.api.ChargeableItem;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -24,11 +25,12 @@ import org.jetbrains.annotations.NotNull;
 /**
  * 飞斧 —— 强盗的蓄力投掷武器。
  *
- * <p>按住右键蓄力 {@link #CHARGE_TICKS}（0.8 秒），松手投掷一柄 {@link FlyingAxeEntity}：
+ * <p>
+ * 按住右键蓄力 {@link #CHARGE_TICKS}（0.8 秒），松手投掷一柄 {@link FlyingAxeEntity}：
  * 直线飞行、最多穿透击杀 2 名玩家、撞墙后钉住 5 秒消失。非创造模式下投掷即消耗（物品被移除），
  * 创造模式下不消耗；蓄力不足 0.8 秒松手则不发射。
  */
-public class ThrowingAxeItem extends Item {
+public class ThrowingAxeItem extends Item implements ChargeableItem {
 
     /** 蓄力所需时长（tick）。20 tick = 1 秒，16 tick = 0.8 秒。 */
     public static final int CHARGE_TICKS = 16;
@@ -39,6 +41,11 @@ public class ThrowingAxeItem extends Item {
 
     public ThrowingAxeItem(Item.Properties settings) {
         super(settings);
+    }
+
+    @Override
+    public int getMaxChargeTime(ItemStack stack, Player player) {
+        return CHARGE_TICKS;
     }
 
     @Override

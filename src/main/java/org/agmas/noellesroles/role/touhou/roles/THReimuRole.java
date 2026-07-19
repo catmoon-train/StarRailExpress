@@ -1,13 +1,23 @@
 package org.agmas.noellesroles.role.touhou.roles;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.agmas.noellesroles.init.ModItems;
+
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
+import io.wifi.starrailexpress.game.ShopContent;
+import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public class THReimuRole extends TouhouRole {
 
@@ -17,6 +27,22 @@ public class THReimuRole extends TouhouRole {
     public THReimuRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
+    }
+
+    /**
+     * 在HarpyModLoader中使用
+     */
+    @Override
+    public List<ItemStack> getDefaultItems() {
+        return List.of(ModItems.REIMU_GOHEI.getDefaultInstance());
+    }
+
+    @Override
+    public List<ShopEntry> getShopEntries() {
+        ArrayList<ShopEntry> SHOP = new ArrayList<>();
+        SHOP.add(new KillerKnifeShopEntry(ModItems.DANMUKU.getDefaultInstance(), SREConfig.instance().knifePrice / 2));
+        SHOP.addAll(ShopContent.getDefaultKnifeEntries());
+        return SHOP;
     }
 
     public static boolean checkPlayerIsOutOfAreas(ServerPlayer player, AreasWorldComponent areas) {

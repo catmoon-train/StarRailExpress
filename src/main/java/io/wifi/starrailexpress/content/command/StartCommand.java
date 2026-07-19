@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.GameMode;
@@ -23,8 +24,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class StartCommand {
+  public static LiteralCommandNode<CommandSourceStack> START_COMMAND_NODE;
+
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-    dispatcher.register(
+    START_COMMAND_NODE = dispatcher.register(
         Commands.literal("tmm:start")
             .requires(source -> source.hasPermission(SREConfig.instance().startGameRequiredPermission))
             .then(Commands.argument("gameMode", GameModeArgumentType.gameMode())

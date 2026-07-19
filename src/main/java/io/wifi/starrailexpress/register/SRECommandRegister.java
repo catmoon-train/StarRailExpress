@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.register;
 
+import org.agmas.noellesroles.commands.GameUtilsCommand;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.command.*;
 import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
@@ -38,9 +40,7 @@ public class SRECommandRegister {
             NarratorCommand.register(dispatcher, registryAccess);
             GiveRoomKeyCommand.register(dispatcher);
             ListRoleInRoundCommand.register(dispatcher);
-            StartCommand.register(dispatcher);
             NonOPKickCommand.register(dispatcher, registryAccess);
-            StopCommand.register(dispatcher);
             SetVisualCommand.register(dispatcher);
             ForceTeamCommand.register(dispatcher);
             SetTimerCommand.register(dispatcher);
@@ -92,6 +92,9 @@ public class SRECommandRegister {
             net.exmo.sre.subtitle.SubtitleCommand.register(dispatcher, registryAccess);
             net.exmo.sre.camera.AdvancedCameraCommand.register(dispatcher);
             // io.wifi.starrailexpress.contents.command.UnlockAllRolesCommand.register(dispatcher);
+            StartCommand.register(dispatcher);
+            StopCommand.register(dispatcher);
+            GameUtilsCommand.register(dispatcher, registryAccess);
         }));
     }
 }

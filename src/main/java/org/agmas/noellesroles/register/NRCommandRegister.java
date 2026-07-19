@@ -17,7 +17,6 @@ public class NRCommandRegister {
         VTCommand.register();
         org.agmas.noellesroles.commands.HeliumCommand.register();
         ExtraItemsManagerCommand.register();
-        GameUtilsCommand.register();
         RoomCommand.register();
         StuckCommand.register();
         DisplayItemCommand.register();

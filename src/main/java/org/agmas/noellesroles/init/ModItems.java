@@ -759,6 +759,14 @@ public class ModItems {
             new ThrowingAxeItem((new Item.Properties()).stacksTo(1)), "throwing_axe",
             WEAPONS_GROUP);
 
+    // 灵梦的御币
+    public static final Item REIMU_GOHEI = register(
+            new GoheiItem((new Item.Properties()).stacksTo(1)), "reimu_gohei",
+            WEAPONS_GROUP);
+    // 弹幕
+    public static final Item DANMUKU = register(
+            new DanmukuItem((new Item.Properties()).stacksTo(8)), "danmuku",
+            WEAPONS_GROUP);
     // ==================== Dream（梦魇）专属 ====================
     /**
      * Dream 的铁斧

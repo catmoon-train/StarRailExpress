@@ -16,7 +16,7 @@ public class THMiscRoles {
   // Kirisame Marisa
   public static final ResourceLocation KIRISAME_MARISA_ID = id("kirisame_marisa");
   public static SRERole KIRISAME_MARISA = TMMRoles
-      .registerRole(new THReimuRole(KIRISAME_MARISA_ID, new java.awt.Color(172, 154, 104).getRGB(),
+      .registerRole(new THMarisaRole(KIRISAME_MARISA_ID, new java.awt.Color(172, 154, 104).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
       .setCanSetSpawnInfoInConfig(false).setDefaultMax(0);

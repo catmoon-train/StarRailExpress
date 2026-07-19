@@ -29,8 +29,19 @@ import org.jetbrains.annotations.NotNull;
  * durability-less knife).
  */
 public class KillerKnifeShopEntry extends ShopEntry {
+    public int discount = 50;
+
     public KillerKnifeShopEntry(int price) {
-        super(TMMItems.KNIFE.getDefaultInstance(), price, ShopEntry.Type.WEAPON);
+        this(TMMItems.KNIFE.getDefaultInstance(), price);
+    }
+
+    public KillerKnifeShopEntry(ItemStack stack, int price) {
+        this(stack, price, 50);
+    }
+
+    public KillerKnifeShopEntry(ItemStack stack, int price, int discount) {
+        super(stack, price, ShopEntry.Type.WEAPON);
+        this.discount = discount;
     }
 
     @Override
@@ -39,7 +50,7 @@ public class KillerKnifeShopEntry extends ShopEntry {
         boolean durabilityMode = KillerKnifeDurability.isDurabilityModeEnabled(player.level());
 
         boolean success;
-        if (durabilityMode) {
+        if (stack().is(TMMItems.KNIFE) && durabilityMode) {
             if (KillerKnifeDurability.refreshDepletedKnives(player)) {
                 // 已有耗尽的刀 -> 原地刷新一把为满耐久，并清除其余多余的耗尽刀 / refresh one in place, clear the rest
                 success = true;
@@ -76,7 +87,7 @@ public class KillerKnifeShopEntry extends ShopEntry {
         DynamicShopComponent dynamicShop = DynamicShopComponent.KEY.get(player);
         ResourceLocation knifeId = BuiltInRegistries.ITEM.getKey(this.stack().getItem());
         if (dynamicShop.getPurchaseCount(knifeId) == 0) {
-            dynamicShop.setPercentDiscount(knifeId, 50);
+            dynamicShop.setPercentDiscount(knifeId, discount);
         }
         dynamicShop.recordPurchase(knifeId);
     }

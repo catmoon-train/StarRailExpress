@@ -675,6 +675,8 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
      */
     public static void registerEntityRenderers() {
         EntityRendererRegistry.register(ModEntities.THROWING_KNIFE, ThrowingKnifeRenderer::new);
+        EntityRendererRegistry.register(ModEntities.DANMUKU,
+                org.agmas.noellesroles.client.renderer.DanmukuRenderer::new);
         EntityRendererRegistry.register(ModEntities.FLYING_AXE,
                 org.agmas.noellesroles.client.renderer.FlyingAxeRenderer::new);
         EntityRendererRegistry.register(ModEntities.FLARE, ThrownItemRenderer::new);

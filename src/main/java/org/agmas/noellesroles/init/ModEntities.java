@@ -63,7 +63,16 @@ public class ModEntities {
                     .trackRangeBlocks(4)
                     .trackedUpdateRate(10)
                     .build());
+    @SuppressWarnings("deprecation")
 
+    public static final EntityType<DanmukuEntity> DANMUKU = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "danmuku"),
+            FabricEntityTypeBuilder.<DanmukuEntity>create(MobCategory.MISC, DanmukuEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.4F, 0.4F))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
     /**
      * 氯气弹实体 - 可投掷物品，落地时使范围内玩家中毒
      */
@@ -97,7 +106,8 @@ public class ModEntities {
     public static final EntityType<PoisonGasCloudEntity> POISON_GAS_CLOUD_ENTITY = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "poison_gas_cloud"),
-            FabricEntityTypeBuilder.<PoisonGasCloudEntity>create(MobCategory.MISC, PoisonGasCloudEntity::new)
+            FabricEntityTypeBuilder
+                    .<PoisonGasCloudEntity>create(MobCategory.MISC, PoisonGasCloudEntity::new)
                     .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
                     .trackRangeBlocks(64)
                     .trackedUpdateRate(1)
@@ -193,7 +203,8 @@ public class ModEntities {
     public static final EntityType<SaltedFishBodyEntity> SALTED_FISH_BODY = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("salted_fish_body"),
-            FabricEntityTypeBuilder.<SaltedFishBodyEntity>create(MobCategory.MISC, SaltedFishBodyEntity::new)
+            FabricEntityTypeBuilder
+                    .<SaltedFishBodyEntity>create(MobCategory.MISC, SaltedFishBodyEntity::new)
                     .dimensions(EntityDimensions.fixed(1.0F, 0.25F))
                     .trackRangeBlocks(128)
                     .trackedUpdateRate(2)
@@ -206,7 +217,8 @@ public class ModEntities {
     public static final EntityType<DoomedSinnerBodyEntity> DOOMED_SINNER_BODY = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("doomed_sinner_body"),
-            FabricEntityTypeBuilder.<DoomedSinnerBodyEntity>create(MobCategory.MISC, DoomedSinnerBodyEntity::new)
+            FabricEntityTypeBuilder
+                    .<DoomedSinnerBodyEntity>create(MobCategory.MISC, DoomedSinnerBodyEntity::new)
                     .dimensions(EntityDimensions.fixed(1.0F, 0.25F))
                     .trackRangeBlocks(128)
                     .trackedUpdateRate(2)
@@ -245,7 +257,9 @@ public class ModEntities {
     public static final EntityType<MorphlingKnifeDummyEntity> MORPHLING_KNIFE_DUMMY = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("morphling_knife_dummy"),
-            FabricEntityTypeBuilder.<MorphlingKnifeDummyEntity>create(MobCategory.MISC, MorphlingKnifeDummyEntity::new)
+            FabricEntityTypeBuilder
+                    .<MorphlingKnifeDummyEntity>create(MobCategory.MISC,
+                            MorphlingKnifeDummyEntity::new)
                     .dimensions(EntityDimensions.fixed(0.6F, 1.8F)) // 玩家尺寸
                     .trackRangeBlocks(64)
                     .trackedUpdateRate(2)
@@ -426,7 +440,8 @@ public class ModEntities {
     public static final EntityType<MovingPlatformEntity> MOVING_PLATFORM = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("moving_platform"),
-            FabricEntityTypeBuilder.<MovingPlatformEntity>create(MobCategory.MISC, MovingPlatformEntity::new)
+            FabricEntityTypeBuilder
+                    .<MovingPlatformEntity>create(MobCategory.MISC, MovingPlatformEntity::new)
                     .dimensions(EntityDimensions.fixed(1.0F, 0.2F))
                     .trackRangeBlocks(64)
                     .trackedUpdateRate(1)
@@ -447,9 +462,11 @@ public class ModEntities {
                 io.wifi.starrailexpress.content.entity.PlayerBodyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(PIGEON, PigeonEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(KUIXI_PUPPET, KuiXiPuppetEntity.createAttributes());
-        FabricDefaultAttributeRegistry.register(MUMMY, net.minecraft.world.entity.monster.Husk.createAttributes());
+        FabricDefaultAttributeRegistry.register(MUMMY,
+                net.minecraft.world.entity.monster.Husk.createAttributes());
         FabricDefaultAttributeRegistry.register(UNDEAD, UndeadEntity.createAttributes());
-        FabricDefaultAttributeRegistry.register(MORPHLING_KNIFE_DUMMY, MorphlingKnifeDummyEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MORPHLING_KNIFE_DUMMY,
+                MorphlingKnifeDummyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(RAINBOW_HORSE, RainbowHorseEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(CANYUESA_HORSE, CanyuesaHorseEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(SUPER_PIG_HORSE, SuperPigHorseEntity.createAttributes());

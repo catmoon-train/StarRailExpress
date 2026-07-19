@@ -191,6 +191,7 @@ public class GameConstants {
     }
 
     public static class DeathReasons {
+        public static ResourceLocation DANMUKU = SRE.id("danmuku");
         public static ResourceLocation FALL_DAMAGE = SRE.id("fall_damage");
         public static ResourceLocation DISCONNECT = SRE.id("disconnected");
         public static ResourceLocation DEATH_AFK = SRE.id("death_afk");

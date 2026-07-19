@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -11,8 +12,10 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.jetbrains.annotations.NotNull;
 
 public class StopCommand {
+    public static LiteralCommandNode<CommandSourceStack> STOP_COMMAND_NODE;
+
     public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("tmm:stop")
+        STOP_COMMAND_NODE = dispatcher.register(Commands.literal("tmm:stop")
                 .requires(source -> Harpymodloader.officialVerify
                         && source.hasPermission(SREConfig.instance().stopGameRequiredPermission))
                 .then(Commands.literal("force").executes(context -> {

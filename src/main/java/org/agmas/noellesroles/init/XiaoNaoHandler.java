@@ -119,6 +119,7 @@ public class XiaoNaoHandler {
                 || deathReason.getPath().equals("ninja_shuriken_kill")
                 || deathReason.getPath().equals("short_shotgun")
                 || deathReason.getPath().equals("grenade")
+                || deathReason.getPath().equals("danmuku")
                 || deathReason.getPath().equals("zero_one_five_shot")
                 || deathReason.getPath().equals("incinerator_pushed")
                 || deathReason.getPath().equals("manhole_suffocation")
