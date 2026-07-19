@@ -2,6 +2,7 @@
   "gui.close": "关闭",
   "item.tacz.ammo": "枪械子弹",
   "item.tacz.gun": "枪械",
+  "item.tacz.modern_kinetic_gun": "枪械",
   "message.noellesroles.sixty_seconds.config_incomplete": "⚠ 60s 区域配置不完整（缺模板/出生点），无法建图——已终止开局。管理员请用 /sre:60s_area show 检查。",
   "message.noellesroles.sixty_seconds.wand.quick_bound": "快速绑定完成：以出生点为中心 ±%1$s 格（垂直 -4..+16）",
   "message.noellesroles.sixty_seconds.rope_placed": "绳索已展开（%1$s 格，%2$s 秒后消失）",
