@@ -121,7 +121,6 @@ public final class SixtySecondsTechTree {
         chain(list, "medical", "work_env_1", "drugs_1", "drugs_2", "drugs_3", "drugs_4", "drugs_5");
         chain(list, "medical", "work_env_1", "tonics_1", "tonics_2");
         chain(list, "medical", "work_env_1", "sanity_1", "sanity_2", "sanity_4");
-        chain(list, "medical", "sanity_4", "sanity_cap_1", "sanity_cap_2");
         chain(list, "medical", "work_env_1", "decontam_1", "decontam_2", "decontam_3");
         // 综合补剂：需医疗大类其余节点全部解锁（特殊门控，见 gateSatisfied）
         chain(list, "medical", null, "omni_tonic");
@@ -212,8 +211,6 @@ public final class SixtySecondsTechTree {
             case "mystic_plants": return 12;
             case "permanent_boost_1": return 10;
             case "permanent_boost_2": return 14;
-            case "sanity_cap_1": return 8;
-            case "sanity_cap_2": return 12;
             case "sacrifice_1", "sacrifice_2": return 16;
             case "undying_totem": return 24;
             case "revival_totem": return 30;

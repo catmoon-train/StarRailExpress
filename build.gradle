@@ -110,7 +110,7 @@ dependencies {
 
     // implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
     modImplementation "dev.upcraft.datasync:datasync-minecraft-${project.minecraft_version}-fabric:${project.datasync_version}"
-    modImplementation "maven.modrinth:iris:${iris_version}-fabric"
+    modCompileOnly "maven.modrinth:iris:${iris_version}-fabric"
     // modImplementation files("libs/LocalizedChat-fabric-1.21.1-5.2.1.jar")
     modImplementation "maven.modrinth:simple-voice-chat:fabric-${voicechat_version}"
     // modRuntimeOnly files("libs/fzzy_config-0.7.5+1.21.jar")

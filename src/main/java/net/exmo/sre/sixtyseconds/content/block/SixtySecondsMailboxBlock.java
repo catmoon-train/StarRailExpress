@@ -11,6 +11,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -102,8 +104,7 @@ public class SixtySecondsMailboxBlock extends BaseEntityBlock {
             return;
         }
         serverPlayer.openMenu(new SimpleMenuProvider(
-                (id, inv, p) -> new net.exmo.sre.sixtyseconds.content.mail.SixtySecondsMailboxContainer(
-                        id, inv, mailbox),
+                (syncId, inventory, p) -> new ChestMenu(MenuType.GENERIC_9x3, syncId, inventory, mailbox, 3),
                 Component.translatable("container.noellesroles.sixty_seconds_mailbox")));
     }
 

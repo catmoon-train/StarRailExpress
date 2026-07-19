@@ -858,15 +858,6 @@ public final class SixtySecondsRecipes {
         add(list, "sanity_med", Station.STERILE, "sanity_4", true,
                 List.of(in(Items.PITCHER_PLANT, 1), in(chem, 3), in(alcohol, 1)),
                 ModItems.SIXTY_SECONDS_SANITY_MED, 1);
-        // ── 理智上限提升 ─────────────────────────────────────────────
-        add(list, "mental_fortifier", Station.STERILE, "sanity_cap_1", true,
-                List.of(in(ModItems.SIXTY_SECONDS_SOOTHING_TEA, 1), in(alcohol, 1), in(chem, 2)),
-                ModItems.SIXTY_SECONDS_MENTAL_FORTIFIER, 1);
-        add(list, "cognitive_booster", Station.STERILE, "sanity_cap_2", true,
-                List.of(in(ModItems.SIXTY_SECONDS_MENTAL_FORTIFIER, 1),
-                        in(ModItems.SIXTY_SECONDS_ADRENALINE, 1),
-                        in(ModItems.SIXTY_SECONDS_OMNI_TONIC, 1)),
-                ModItems.SIXTY_SECONDS_COGNITIVE_BOOSTER, 1);
         // ── 永久增益-I（前置：全能补剂） ──────────────────────────────
         add(list, "mental_fortifier_2", Station.STERILE, "permanent_boost_1", true,
                 List.of(in(chem, 6), in(Items.CRIMSON_FUNGUS, 6),
