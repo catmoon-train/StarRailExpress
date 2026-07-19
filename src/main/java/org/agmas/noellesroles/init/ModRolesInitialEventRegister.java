@@ -22,6 +22,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
+import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.RicesRoleRhapsody;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
@@ -65,6 +66,7 @@ import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
@@ -423,6 +425,13 @@ public class ModRolesInitialEventRegister {
             }
             // 如果不拦截就同步
             abilityPlayerComponent.sync();
+        });
+
+        // 四季映姬离开职业时，清除德林加手枪和刀
+        ModdedRoleRemoved.EVENT.register((player, role) -> {
+            if (RoleUtils.compareRole(role, THMiscRoles.SHIKIEIKI)) {
+                SREItemUtils.clearItem(player, (stack) -> stack.is(TMMItems.DERRINGER) || stack.is(TMMItems.KNIFE));
+            }
         });
     }
 

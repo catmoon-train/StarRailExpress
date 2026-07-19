@@ -1,9 +1,7 @@
 package org.agmas.noellesroles.mixin.roles.raven;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
@@ -13,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 渡鸦猎杀期间持刀时，完全禁止左键近战攻击。
+ * 渡鸦狩猎期间禁止左键近战攻击（包括击退）。
  * 击杀只能通过刀刺系统完成。
  */
 @Mixin(ServerPlayer.class)
@@ -28,16 +26,11 @@ public abstract class RavenKnifeLeftClickMixin {
             return;
         }
 
-        if (!attacker.getItemInHand(InteractionHand.MAIN_HAND).is(TMMItems.KNIFE)) {
-            return;
-
-        }
-
         if (!ModComponents.RAVEN.get(attacker).isHunting()) {
             return;
         }
 
-        // Hunting + holding knife → cancel any left-click melee
+        // Hunting → cancel any left-click melee
         ci.cancel();
     }
 }
