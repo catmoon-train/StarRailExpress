@@ -19,7 +19,7 @@ public class THMiscRoles {
       .registerRole(new THMarisaRole(KIRISAME_MARISA_ID, new java.awt.Color(172, 154, 104).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
-      .setCanSetSpawnInfoInConfig(false).setDefaultMax(1)
+      .setCanSetSpawnInfoInConfig(true).setDefaultMax(1)
       .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(1000);
   public static final ResourceLocation HAKUREI_REIMU_ID = id("hakurei_reimu");
   public static SRERole HAKUREI_REIMU = TMMRoles
