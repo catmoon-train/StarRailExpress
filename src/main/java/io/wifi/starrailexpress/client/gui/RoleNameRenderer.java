@@ -70,10 +70,16 @@ public class RoleNameRenderer {
                 return;
             if (result.equals(TrueFalseResult.PASS)) {
                 if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(self)) {
-                    if (self.level().getBrightness(LightLayer.BLOCK, BlockPos.containing(self.getEyePosition())) < 3
-                            && self.level().getBrightness(LightLayer.SKY,
-                                    BlockPos.containing(self.getEyePosition())) < 10)
-                        return;
+                    var role = component.getRole(self);
+                    if (role != null) {
+                        if (!(SREClient.hasInstinctNightVision() && SREClient.isInstinctEnabled())) {
+                            if (self.level().getBrightness(LightLayer.BLOCK,
+                                    BlockPos.containing(self.getEyePosition())) < 3
+                                    && self.level().getBrightness(LightLayer.SKY,
+                                            BlockPos.containing(self.getEyePosition())) < 10)
+                                return;
+                        }
+                    }
                 }
             }
         }
