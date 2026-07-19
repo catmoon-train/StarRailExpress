@@ -811,7 +811,7 @@ public class RoleShopHandler {
                     450,
                     ShopEntry.Type.WEAPON));
 
-            // 飞斧 - 首购115金币，二次起70%折扣（可穿透击杀2人、撞墙钉住5秒后消失）
+            // 飞斧 - 首购同刀价格金币，二次起70%折扣（可穿透击杀2人、撞墙钉住5秒后消失）
             BANDIT_SHOP.add(new org.agmas.noellesroles.content.item.ThrowingAxeShopEntry());
 
             // 手榴弹 - 600金币
