@@ -1,9 +1,11 @@
 package net.exmo.sre.sixtyseconds.logic;
 
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
 import net.exmo.sre.sixtyseconds.SixtySecondsBalance;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -79,6 +81,11 @@ public final class SixtySecondsStatsSystem {
                     thirstMod = team.modifier("drain_thirst");
                     sanityMod = team.modifier("drain_sanity");
                     polluteMod = team.modifier("drain_pollution");
+                }
+                // 毒雾期间（drain_pollution == 1.5），户外玩家显示绿色边框警示
+                if (polluteMod >= 1.5 && !sheltered && now % 40 == 0) {
+                    ServerPlayNetworking.send(player,
+                            new TriggerScreenEdgeEffectPayload(0x8800AA00, 2100, 0.45F));
                 }
                 stats.hunger = clampDown(stats.hunger,
                         scale(SixtySecondsBalance.HUNGER_DRAIN_PER_MIN, finalMult * hungerMod));

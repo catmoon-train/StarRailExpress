@@ -685,11 +685,11 @@ public class ModItems {
                     new Item.Properties().stacksTo(8), 0, 0, 35, 0, 20, false, null,
                     40, UseAnim.DRINK),
             "sixty_seconds_purified_water", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
-    // 治疗类：医疗包 10 秒（200 ticks），BOW 动画（包扎动作）
+    // 治疗类：医疗包 4 秒（80 ticks），BOW 动画（包扎动作）
     public static final Item SIXTY_SECONDS_MEDKIT = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
                     new Item.Properties().stacksTo(4), 60, 0, 0, 0, 0, true, null,
-                    200, UseAnim.BOW),
+                    80, UseAnim.BOW),
             "sixty_seconds_medkit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 肾上腺素：3 秒（60 ticks），DRINK 动画（微量回血+速度效果）
     public static final Item SIXTY_SECONDS_ADRENALINE = register(
