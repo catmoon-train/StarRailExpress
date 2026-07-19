@@ -1039,6 +1039,8 @@ public final class SixtySecondsRecipes {
                 List.of(in(gunpowder, 2), in(scrap, 5)));
         ammo(list, "tacz_ammo_12g", "bullets_2", "tacz:12g", 3,
                 List.of(in(iron, 2), in(gunpowder, 2), in(glassShard, 2)));
+        ammo(list, "tacz_ammo_50ae", "bullets_2", "tacz:50ae", 5,
+                List.of(in(gunpowder, 3), in(chem, 1), in(scrap, 4)));
         ammo(list, "tacz_ammo_792x57", "bullets_3", "tacz:792x57", 2,
                 List.of(in(gunpowder, 4), in(chem, 2), in(copper, 2)));
         ammo(list, "tacz_ammo_762x39", "bullets_4", "tacz:762x39", 4,
@@ -1056,6 +1058,8 @@ public final class SixtySecondsRecipes {
                 List.of(in(iron, 2), in(pipe, 1), in(scrap, 8), in(tape, 1)));
         gun(list, "tacz_cz75", "pistol_2", "tacz:cz75",
                 List.of(in(steel, 5), in(elec, 3), in(copper, 8), in(gear, 3)));
+        gun(list, "tacz_timeless50", "pistol_2", "tacz:timeless50",
+                List.of(in(steel, 4), in(elec, 6), in(gear, 5), in(hemp, 2)));
         gun(list, "tacz_db_short", "shotgun_1", "tacz:db_short",
                 List.of(in(oak, 8), in(pipe, 2), in(copper, 3)));
         gun(list, "tacz_m870", "shotgun_2", "tacz:m870",
