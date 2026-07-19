@@ -25,8 +25,10 @@ public class ProjectileUtilMixin {
         Entity closestEntity = null;
 
         for (Entity candidate : level.getEntities(entity, aABB, predicate)) {
-            // 忽略轮椅实体
-            if (candidate instanceof WheelchairEntity) {
+            // 忽略原始轮椅实体（无障碍功能），60s 载具允许被弹射物命中
+            if (candidate instanceof WheelchairEntity
+                    && !(candidate instanceof net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity)
+                    && !(candidate instanceof net.exmo.sre.sixtyseconds.content.entity.SixtySecondsRvEntity)) {
                 continue;
             }
 
