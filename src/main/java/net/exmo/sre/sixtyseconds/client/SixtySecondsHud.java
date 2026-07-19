@@ -15,10 +15,10 @@ import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 
 /**
- * 末日60秒模式 HUD：<b>物品栏上方的现代化状态面板</b> + <b>左上角时间信息</b>。
+ * 末日60秒模式 HUD：<b>血条（居中、紧贴物品栏）</b> + <b>右中下角状态竖排</b> + <b>左上角时间信息</b>。
  * <p>
  * 时间信息（第 X/N 天 · 家庭身份 · 时钟 · 警示）放在屏幕左上角，从 y=30 向下自动排列。
- * 物品栏上方面板仅显示状态条：健康独占一行（全宽）+ 饥饿/口渴/理智/污染 四条横排。
+ * 血条居中、紧贴物品栏上方；饥饿/口渴/理智/污染 移至右中下角竖排（一行一个）。
  * <ul>
  *   <li>健康值上限 = {@link SixtySecondsStatsComponent#HEALTH_MAX}（150），不再被 100 截断。</li>
  *   <li>理智上限缺口（杀人永久降上限）保留：sanityMax &lt; 100 时画暗红锁死区。</li>
@@ -44,7 +44,7 @@ public final class SixtySecondsHud {
     private static final double LOW_RATIO = 0.25;
 
     // ── 左上角信息布局 ──
-    private static final int INFO_X = 6;
+    private static final int INFO_X = 16;
     private static final int INFO_Y_START = 30;
     private static final int INFO_LINE_H = 11;
 
@@ -52,6 +52,9 @@ public final class SixtySecondsHud {
     private static final int COL_TITLE = 0xFFE8D9A8;     // 标题/状态名（浅金）
     private static final int COL_FAMILY = 0xFF5EB7D8;    // 身份（功能蓝）
     private static final int COL_VALUE = 0xFFF0F0F0;     // 数值（亮白）
+    private static final int COL_HEALTH_TRACK = 0xFF202020; // 血量背板（暗灰）
+
+    private static final int HEALTH_GAP = -20;                  // 血条额外下移 20px（从紧贴位置再向下）
 
     private SixtySecondsHud() {
     }
@@ -178,53 +181,91 @@ public final class SixtySecondsHud {
     }
 
     /**
-     * 物品栏上方状态面板（纯色简约风、无背景）：
-     * 饥饿/口渴/理智/污染 四条横排在上（数值位置保持原样），健康独占一行（全宽 + 右侧数值）在下方。
-     * 按下 Shift 时在每个状态条的数值上方显示其名称。整体下移 5px。
+     * 状态面板（纯色简约风 bar + 深色背景面板）：
+     * <ul>
+     *   <li>健康条：居中、紧贴物品栏上方；健康数值在右侧。</li>
+     *   <li>饥饿/口渴/理智/污染：移至右中下角、竖排（一行一个）；数值位置保持（bar 下方居中）。</li>
+     *   <li>按下 Shift 时在每个状态条的数值上方显示其名称。</li>
+     * </ul>
      */
     private static void renderStatusBarPanel(FakeGuiGraphics graphics, Minecraft client,
             SixtySecondsStatsComponent stats) {
         boolean shift = isShiftDown(client);
-        int statRowH = BAR_H + VALUE_GAP + VALUE_H;
-        int healthRowH = Math.max(HEALTH_BAR_H, VALUE_H);
-        int panelH = PAD + statRowH + ROW_GAP + healthRowH + PAD;
         int screenW = graphics.guiWidth();
         int screenH = graphics.guiHeight();
-        int panelX = (screenW - PANEL_W) / 2;
-        // 整体下移 5px（不显示背景，仅状态条整体下沉）
-        int panelY = screenH - HOTBAR_TOP_OFFSET - panelH - GAP_ABOVE_HOTBAR + 5;
-
-        int x = panelX + PAD;
-        int y = panelY + PAD;
         int usableW = PANEL_W - PAD * 2;
 
-        // ── 第 1 行：饥饿 / 口渴 / 理智 / 污染（4 条横排）──（数值位置不动）
-        int statW = (usableW - STAT_GAP * (STAT_COUNT - 1)) / STAT_COUNT;
-        int[] statXs = new int[STAT_COUNT];
-        for (int i = 0; i < STAT_COUNT; i++) {
-            statXs[i] = x + i * (statW + STAT_GAP);
-        }
-
-        drawStat(graphics, client, statXs[0], y, statW,
-                stats.hunger, stats.hungerMax, 0xFFE0A030, shift, false, "饥饿");
-        drawStat(graphics, client, statXs[1], y, statW,
-                stats.thirst, stats.thirstMax, 0xFF37A7E6, shift, false, "口渴");
-        drawStat(graphics, client, statXs[2], y, statW,
-                stats.sanity, Math.max(stats.sanityMax, SixtySecondsStatsComponent.MAX),
-                0xFFB06AE6, shift, false, "理智");
-        drawStat(graphics, client, statXs[3], y, statW,
-                stats.pollution, stats.pollutionMax, 0xFF74B04A, shift, true, "污染");
-
-        // ── 第 2 行：健康（全宽条 + 右侧数值），位于其他状态条下方 ──
-        y += statRowH + ROW_GAP;
+        // ── 健康条：居中、紧贴物品栏上方（含背景）──
         String healthText = String.valueOf(Mth.clamp(stats.health, 0, stats.healthMax));
         int healthTextW = client.font.width(healthText);
         int healthBarW = usableW - healthTextW - 4;
-        int healthValX = x + healthBarW + 4;
-        drawHealthBar(graphics, client, x, y, healthBarW, stats.health, stats.healthMax, 0xFFE64848);
-        graphics.drawString(client.font, healthText, healthValX, y, COL_VALUE);
+        int healthH = Math.max(HEALTH_BAR_H, VALUE_H);
+        int healthPanelH = PAD + healthH + PAD;
+        int healthPanelY = screenH - HOTBAR_TOP_OFFSET - healthPanelH - HEALTH_GAP;
+
+        int hx = (screenW - PANEL_W) / 2 + PAD;
+        int hy = healthPanelY + PAD;
+        int healthValX = hx + healthBarW + 4;
+        drawHealthBar(graphics, client, hx, hy, healthBarW, stats.health, stats.healthMax, 0xFFE64848);
+        graphics.drawString(client.font, healthText, healthValX, hy, COL_VALUE);
         if (shift) {
-            graphics.drawString(client.font, "健康", healthValX, y - VALUE_H - 1, COL_TITLE);
+            graphics.drawString(client.font, "健康", healthValX, hy - VALUE_H - 1, COL_TITLE);
+        }
+
+        // ── 其他状态条：右中下角竖排（背景面板 + 背板色条 + 文字左/数值右）──
+        int statBarW = 120; // 1.5x
+        int ROW_GAP_V = 1;  // 紧贴
+        int statsRight = 10;
+        int ROW_H = Math.max(BAR_H, VALUE_H); // 9
+
+        int[] statValues = {stats.hunger, stats.thirst, stats.sanity, stats.pollution};
+        int[] statMaxes = {stats.hungerMax, stats.thirstMax,
+                Math.max(stats.sanityMax, SixtySecondsStatsComponent.MAX), stats.pollutionMax};
+        int[] statColors = {0xFFE0A030, 0xFF37A7E6, 0xFFB06AE6, 0xFF74B04A};
+        boolean[] highIsBad = {false, false, false, true};
+        String[] statNames = {"饥饿", "口渴", "理智", "污染"};
+
+        // 计算最大文字宽
+        int nameMaxW = 0, valMaxW = 0;
+        for (String n : statNames) nameMaxW = Math.max(nameMaxW, client.font.width(n));
+        for (int v : statValues) valMaxW = Math.max(valMaxW, client.font.width(String.valueOf(v)));
+
+        int rowContentW = nameMaxW + 4 + statBarW + 4 + valMaxW;
+        int panelW = rowContentW + PAD * 2;
+        int panelH = PAD + STAT_COUNT * ROW_H + (STAT_COUNT - 1) * ROW_GAP_V + PAD;
+        int panelX = screenW - statsRight - panelW;
+        int panelY = screenH - 170;
+
+        // 背景面板
+        int colPanelBg = 0x80000000;
+        int colPanelBorder = 0xFF303030;
+        graphics.fill(panelX, panelY, panelX + panelW, panelY + panelH, colPanelBg);
+        graphics.renderOutline(panelX, panelY, panelW, panelH, colPanelBorder);
+
+        for (int i = 0; i < STAT_COUNT; i++) {
+            int ry = panelY + PAD + i * (ROW_H + ROW_GAP_V);
+            int cy = ry + (ROW_H - VALUE_H) / 2; // 文字垂直居中
+
+            // 左侧：名称
+            graphics.drawString(client.font, statNames[i], panelX + PAD, cy, COL_TITLE);
+
+            // 中间：色条（背板 + 填充）
+            int barX = panelX + PAD + nameMaxW + 4;
+            int barY = ry + (ROW_H - BAR_H) / 2;
+            graphics.fill(barX, barY, barX + statBarW, barY + BAR_H, COL_HEALTH_TRACK); // 背板
+
+            int clamped = Mth.clamp(statValues[i], 0, statMaxes[i]);
+            double ratio = statMaxes[i] > 0 ? clamped / (double) statMaxes[i] : 0;
+            boolean low = highIsBad[i] ? clamped >= statMaxes[i] : ratio <= LOW_RATIO;
+            int fill = low ? 0xFFFF6060 : statColors[i];
+            int fillW = (int) Math.round(statBarW * ratio);
+            if (fillW > 0) {
+                graphics.fill(barX, barY, barX + fillW, barY + BAR_H, fill);
+            }
+
+            // 右侧：数值
+            graphics.drawString(client.font, String.valueOf(clamped), barX + statBarW + 4, cy,
+                    low ? 0xFFFF6060 : COL_VALUE);
         }
     }
 
@@ -293,11 +334,14 @@ public final class SixtySecondsHud {
     }
 
     /**
-     * 健康条（纯色简约：仅实心填充，无轨道/边框/刻度/脉冲）：低值时整条变红。
+     * 健康条（纯色简约：暗色背板 + 实心填充）：低值时整条变红。
      * 数值由调用方绘制在右侧。
      */
     private static void drawHealthBar(FakeGuiGraphics g, Minecraft client, int x, int y, int w,
             int value, int max, int color) {
+        // ── 背板（全宽暗色轨道）──
+        g.fill(x, y, x + w, y + HEALTH_BAR_H, COL_HEALTH_TRACK);
+
         int clamped = Mth.clamp(value, 0, max);
         double ratio = max > 0 ? clamped / (double) max : 0;
         boolean low = ratio <= LOW_RATIO;
@@ -306,36 +350,6 @@ public final class SixtySecondsHud {
         int fillW = (int) Math.round(w * ratio);
         if (fillW > 0) {
             g.fill(x, y, x + fillW, y + HEALTH_BAR_H, fill);
-        }
-    }
-
-    /**
-     * 绘制单个状态值（纯色简约：仅实心填充，无轨道/边框/刻度）：色条 + 下方居中数值，
-     * 数值位置保持原样。Shift 按下时在数值上方显示名称。
-     *
-     * @param max       进度条满值（ratio 分母 + clamp 上限）
-     * @param highIsBad true=越高越坏（污染），满值视为警示
-     */
-    private static void drawStat(FakeGuiGraphics g, Minecraft client, int x, int y, int w,
-            int value, int max, int color, boolean shift, boolean highIsBad, String name) {
-        int clamped = Mth.clamp(value, 0, max);
-        double ratio = max > 0 ? clamped / (double) max : 0;
-        boolean low = highIsBad ? clamped >= max : ratio <= LOW_RATIO;
-        int fill = low ? 0xFFFF6060 : color;
-
-        int fillW = (int) Math.round(w * ratio);
-        if (fillW > 0) {
-            g.fill(x, y, x + fillW, y + BAR_H, fill);
-        }
-
-        String text = String.valueOf(clamped);
-        int tw = client.font.width(text);
-        g.drawString(client.font, text, x + (w - tw) / 2, y + BAR_H + VALUE_GAP,
-                low ? 0xFFFF6060 : COL_VALUE);
-
-        if (shift) {
-            int nameW = client.font.width(name);
-            g.drawString(client.font, name, x + (w - nameW) / 2, y - VALUE_H - 1, COL_TITLE);
         }
     }
 

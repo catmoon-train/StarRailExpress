@@ -403,11 +403,11 @@ public final class SixtySecondsManager {
         SixtySecondsHotlineSystem.processDeliveries(level, data); // 处理快递/购物/救援投递
         SixtySecondsRoleAwakening.awaken(level, data);
         broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.day_start", day, totalDays(level)));
-        // PvP 状态聊天栏广播：前两天为保护期，第 3 天起开放 PvP
-        if (day <= 2) {
+        // PvP 状态聊天栏广播：前三天为保护期，第 4 天起开放 PvP
+        if (day <= 3) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.pvp_peace_early",
                     totalDays(level)).withStyle(ChatFormatting.GREEN));
-        } else if (day == 3) {
+        } else if (day == 4) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.pvp_peace_over",
                     totalDays(level)).withStyle(ChatFormatting.RED));
         }

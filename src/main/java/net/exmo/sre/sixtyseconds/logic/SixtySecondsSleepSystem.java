@@ -97,8 +97,10 @@ public final class SixtySecondsSleepSystem {
             boolean inHome = !doorBroken && isInHome(player, data, stats.teamId);
             // 强制入眠演出期间视为已入睡：在家即回血，无需真的躺床
             if ((player.isSleeping() || forced) && inHome) {
-                if (stats.health < MAX) {
-                    stats.health = Math.min(MAX, stats.health + SixtySecondsBalance.SLEEP_HEAL_PER_SEC);
+                // 健康上限是 healthMax(150)，不是 MAX(100)——MAX 是饥饿/口渴/理智的上限。
+                // 睡眠回血必须顶到 150，否则满 100 就停、再也回不上去。
+                if (stats.health < stats.healthMax) {
+                    stats.health = Math.min(stats.healthMax, stats.health + SixtySecondsBalance.SLEEP_HEAL_PER_SEC);
                     stats.sync();
                 }
             } else {

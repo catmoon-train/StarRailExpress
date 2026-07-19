@@ -205,6 +205,7 @@ public final class SixtySecondsPveSystem {
     /**
      * 刷出一批游荡怪（保底/概率刷新共用）：在玩家附近选点创建 count 只怪，
      * 生命按星级加成（每星+10%：1星×1.10 … 5星×1.50），返回实际刷出数量并预警附近玩家。
+     * 每只怪刷出前检查落点附近是否有其他非目标玩家，有则跳过（避免怪刷在别人脸上）。
      */
     private static int spawnPack(ServerLevel level, SixtySecondsState.Data data, ServerPlayer player,
             int areaLevel, int count, AABB zone) {
@@ -214,6 +215,10 @@ public final class SixtySecondsPveSystem {
                     SixtySecondsBalance.AMBIENT_SPAWN_MIN_DIST,
                     SixtySecondsBalance.AMBIENT_SPAWN_RAND_DIST, 5, 24, zone, data);
             if (spot == null) {
+                continue;
+            }
+            // 检查落点附近（24 格）是否有其他非目标存活玩家——避免怪刷在别人脸上
+            if (hasOtherPlayerNearby(level, spot, player, 24)) {
                 continue;
             }
             Variant variant = rollAmbientVariant(level, data.dayNumber, areaLevel);
@@ -229,6 +234,23 @@ public final class SixtySecondsPveSystem {
                     .withStyle(ChatFormatting.RED));
         }
         return spawned;
+    }
+
+    /**
+     * 检查刷怪落点 {radius} 格内是否有其他存活非怪玩家（排除 targetPlayer）。
+     * 防止怪物刷在探索区里路过的其他玩家脸上。
+     */
+    private static boolean hasOtherPlayerNearby(ServerLevel level, BlockPos spot,
+            ServerPlayer targetPlayer, double radius) {
+        double radiusSq = radius * radius;
+        for (ServerPlayer p : level.players()) {
+            if (p == targetPlayer) continue;
+            if (!SixtySecondsMonsterEntity.isValidPrey(p)) continue;
+            if (p.distanceToSqr(spot.getX() + 0.5, spot.getY() + 0.5, spot.getZ() + 0.5) <= radiusSq) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** 游荡怪变体权重：天数/区域等级越高，精英变体（装甲重锤/潜袭者/嚎叫者/爆裂怪）占比越大。 */

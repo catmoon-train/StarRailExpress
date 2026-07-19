@@ -36,16 +36,15 @@ public abstract class SixtySecondsCakeBlockMixin {
         }
     }
 
-    /**
-     * 右键食用原版蛋糕方块时恢复 10 点饥饿值（原版 2 点 → 5 个鸡腿）。
-     */
-    @Inject(method = "useWithoutItem", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/food/FoodData;eat(IIF)V"))
-    private void sre$boostCakeFoodRestore(BlockState state, Level level, BlockPos pos, Player player,
-            BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
-        // 原版 eat(2, 0.1F) 只加 2 饥饿值——这里直接调用 eat(8, 0.1F) 补足差额到 10
-        // eat(2, 0.1F) 已被原版调用，再手动 eat(8, 0.1F) 合计 10
-        FoodData food = player.getFoodData();
-        food.eat(8, 0.1F);
-    }
+//    /**
+//     * 右键食用原版蛋糕方块时恢复 10 点饥饿值（原版 2 点 → 5 个鸡腿）。
+//     */
+//    @Inject(method = "useWithoutItem", at = @At(value = "INVOKE",
+//            target = "Lnet/minecraft/world/food/FoodData;eat(IIF)V"))
+//    private void sre$boostCakeFoodRestore(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
+//        // 原版 eat(2, 0.1F) 只加 2 饥饿值——这里直接调用 eat(8, 0.1F) 补足差额到 10
+//        // eat(2, 0.1F) 已被原版调用，再手动 eat(8, 0.1F) 合计 10
+//        FoodData food = player.getFoodData();
+//        food.eat(8, 0.1F);
+//    }
 }

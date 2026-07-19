@@ -142,6 +142,7 @@ public class SupplyBoxBlockEntity extends BlockEntity {
         if (day != lastRefreshDay) {
             lastRefreshDay = day;
             claimedToday = false;
+            unlocked = false;
             setChanged();
         }
     }

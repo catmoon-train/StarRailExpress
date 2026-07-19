@@ -1,5 +1,6 @@
 package net.exmo.sre.sixtyseconds.logic;
 
+import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import net.exmo.sre.sixtyseconds.SixtySecondsMod;
 import net.exmo.sre.sixtyseconds.component.FamilyPosition;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
@@ -10,6 +11,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -145,6 +147,20 @@ public final class SixtySecondsReconnect {
             if (team != null) {
                 net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.send(
                         player, team.shelterBox, team.shelterSpawn, true);
+            }
+
+            // 重连死亡状态处理：
+            // 1. 已死亡等待复活（reviveEndTick > 0）：保持旁观者，等待自动复活到期
+            // 2. 存活时掉线（reviveEndTick == 0）：视为死亡惩罚，进入旁观并等待自动复活
+            if (stats.reviveEndTick > 0L) {
+                player.setGameMode(GameType.SPECTATOR);
+            } else if (!stats.monster) {
+                // 怪物身份的玩家已经死了（不算幸存者），不需要再判死
+                player.setGameMode(GameType.SPECTATOR);
+                TrainVoicePlugin.addPlayer(player.getUUID());
+                if (SixtySecondsAutoRevive.enabled(level)) {
+                    stats.reviveEndTick = level.getGameTime() + SixtySecondsAutoRevive.intervalTicks(level);
+                }
             }
         }
         stats.sync();

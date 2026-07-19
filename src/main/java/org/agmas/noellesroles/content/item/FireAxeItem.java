@@ -176,7 +176,8 @@ public class FireAxeItem extends Item implements AdventureUsable {
         if (user.isSpectator()) {
             return;
         }
-        if (remainingUseTicks >= this.getUseDuration(stack, user) - 8 || !(user instanceof Player attacker) || !world.isClientSide)
+        // 放宽蓄力阈值：至少蓄力 4 tick（0.2s）才生效，避免误触
+        if (remainingUseTicks >= this.getUseDuration(stack, user) - 4 || !(user instanceof Player attacker) || !world.isClientSide)
             return;
             
         HitResult collision = getFireAxeTarget(attacker);
@@ -185,7 +186,7 @@ public class FireAxeItem extends Item implements AdventureUsable {
             if (SRE.REPLAY_MANAGER != null) {
                 SRE.REPLAY_MANAGER.recordItemUse(user.getUUID(), BuiltInRegistries.ITEM.getKey(this));
             }
-            ClientPlayNetworking.send(new FireAxeStabPayload(target.getId()));
+            ClientPlayNetworking.send(new FireAxeStabPayload(target.getId(), remainingUseTicks));
         }
     }
 

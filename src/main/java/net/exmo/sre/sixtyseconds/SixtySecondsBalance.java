@@ -57,7 +57,7 @@ public final class SixtySecondsBalance {
 
     // ── san 归零变怪物 ────────────────────────────────────────────────
     public static final int MONSTER_DELAY_TICKS = 20 * 30;    // san 归零后 30s 变怪
-    public static final int SAN_LOSS_ON_DEATH = 15;           // 目睹死亡损失的 san
+    public static final int SAN_LOSS_ON_DEATH = 6;            // 目睹死亡损失的 san（-60%，15→6）
     public static final double DEATH_SAN_RANGE_SQR = 24 * 24; // 目睹死亡的范围（平方）
 
     // ── 杀人代价：理智上限永久扣减（SixtySecondsHealthSystem.die）───────────

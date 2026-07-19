@@ -61,7 +61,9 @@ public class SixtySecondsBandageItem extends Item {
         }
         if (player instanceof ServerPlayer serverPlayer) {
             SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(serverPlayer);
-            if (stats.health >= SixtySecondsStatsComponent.MAX) {
+            // 健康上限是 healthMax(150)，不是 MAX(100)——MAX 是饥饿/口渴/理智的上限。
+            // 满血判定必须以 healthMax 为准，否则 100→150 这段健康永远用不了绷带。
+            if (stats.health >= stats.healthMax) {
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.sixty_seconds.bandage_full"), true);
                 return InteractionResultHolder.pass(stack);
@@ -79,7 +81,8 @@ public class SixtySecondsBandageItem extends Item {
             return stack;
         }
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(serverPlayer);
-        stats.health = Math.min(SixtySecondsStatsComponent.MAX, stats.health + heal);
+        // 健康上限是 healthMax(150)，不是 MAX(100)——否则回复只能到 100、永远回不到 150。
+        stats.health = Math.min(stats.healthMax, stats.health + heal);
         stats.sync();
         if (!serverPlayer.isCreative()) {
             stack.shrink(1);

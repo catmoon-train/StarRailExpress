@@ -142,14 +142,6 @@ public class NoellesrolesClient implements ClientModInitializer {
     public static KeyMapping foolPrayerBind = KeyBindingHelper
             .registerKeyBinding(new KeyMapping("key.noellesroles.fool_prayer",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, "category.starrailexpress.keybinds"));
-    /** 60s 模式背包界面：快速将屏障区非屏障物品转入可用槽位。 */
-    public static KeyMapping sixtySecondsQuickTransferBind = KeyBindingHelper
-            .registerKeyBinding(new KeyMapping("key.noellesroles.sixty_seconds_quick_transfer",
-                    InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_BRACKET, "category.starrailexpress.keybinds"));
-    /** 60s 模式背包界面：快速丢弃屏障区非屏障物品。 */
-    public static KeyMapping sixtySecondsQuickDropBind = KeyBindingHelper
-            .registerKeyBinding(new KeyMapping("key.noellesroles.sixty_seconds_quick_drop",
-                    InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_BRACKET, "category.starrailexpress.keybinds"));
     public static boolean isTaskInstinctEnabled = false;
     // 记录被触发启用透视的任务路标位置
     public static Set<BlockPos> enabledTaskMarkerPositions = new HashSet<>();

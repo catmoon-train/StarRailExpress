@@ -192,17 +192,45 @@ public final class SixtySecondsNpcSpawner {
         }
     }
 
-    /** 白天刷商人/旅者，夜晚刷强盗。每个搜刮区（多队共用的去重后）各刷若干。 */
+    /**
+     * 检查刷怪落点 {radius} 格内是否有存活玩家。
+     * 用于避免 NPC/强盗直接刷在玩家脸上。
+     */
+    private static boolean hasPlayerWithin(ServerLevel level, BlockPos spot, double radius) {
+        double radiusSq = radius * radius;
+        for (ServerPlayer player : level.players()) {
+            if (player.isSpectator() || player.isCreative()) continue;
+            if (player.distanceToSqr(spot.getX() + 0.5, spot.getY() + 0.5, spot.getZ() + 0.5) <= radiusSq) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 白天刷商人/旅者，夜晚刷强盗。每个搜刮区（多队共用的去重后）各刷若干。每晚每区最多 2 只强盗。 */
     public static void spawnDaily(ServerLevel level, SixtySecondsState.Data data, boolean night) {
         RandomSource random = level.getRandom();
         int base = SixtySecondsBalance.NPC_DAILY_PER_ZONE_BASE + data.dayNumber / 2;
         for (AABB zone : searchZones(data)) {
             int existing = level.getEntitiesOfClass(SixtySecondsNpcEntity.class, zone).size();
             int want = Math.min(base, SixtySecondsBalance.NPC_ZONE_CAP - existing);
+            // 夜晚刷强盗：每区最多 2 只
+            if (night) {
+                want = Math.min(want, 2);
+            }
+            int banditSpawned = 0;
             for (int i = 0; i < want; i++) {
                 BlockPos spot = findGroundSpot(level, zone, random);
                 if (spot == null) {
                     continue;
+                }
+                // 检查落点附近（24 格）是否有玩家——避免强盗刷在玩家脸上
+                if (hasPlayerWithin(level, spot, 24)) {
+                    // 重试一次：换个位置
+                    spot = findGroundSpot(level, zone, random);
+                    if (spot == null || hasPlayerWithin(level, spot, 24)) {
+                        continue;
+                    }
                 }
                 SixtySecondsNpcEntity.Variant variant = night
                         ? SixtySecondsNpcEntity.Variant.BANDIT
@@ -210,6 +238,22 @@ public final class SixtySecondsNpcSpawner {
                                 ? SixtySecondsNpcEntity.Variant.TRAVELER
                                 : SixtySecondsNpcEntity.Variant.MERCHANT);
                 spawnAt(level, spot, variant, random.nextFloat() * 360.0F, "default", 8, -1);
+                if (night) {
+                    banditSpawned++;
+                }
+            }
+            // 强盗提示：通知搜刮区内的玩家
+            if (banditSpawned > 0) {
+                Component banditMsg = Component.translatable(
+                        "message.noellesroles.sixty_seconds.npc.bandit_sighted")
+                        .withStyle(ChatFormatting.RED);
+                for (ServerPlayer player : level.players()) {
+                    if (zone.contains(player.getX(), player.getY(), player.getZ())) {
+                        player.displayClientMessage(banditMsg, true);
+                        player.playNotifySound(SoundEvents.ZOMBIE_AMBIENT,
+                                SoundSource.HOSTILE, 0.8F, 0.7F);
+                    }
+                }
             }
         }
     }
@@ -296,8 +340,8 @@ public final class SixtySecondsNpcSpawner {
         if (random.nextFloat() >= threshold) {
             return;
         }
-        // 刷 1~3 个 NPC
-        int count = 1 + random.nextInt(3);
+        // 刷 1~2 个 NPC（夜晚强盗限制最多 2 只）
+        int count = 1 + random.nextInt(2);
         for (SixtySecondsState.TeamData team : data.teams.values()) {
             SixtySecondsRvEntity rv = SixtySecondsRvSystem.getTeamRv(level, team);
             if (rv == null) {
@@ -306,14 +350,15 @@ public final class SixtySecondsNpcSpawner {
             // 房车门口：车头前方 4 格（按房车朝向 getLookAngle）
             Vec3 forward = rv.getLookAngle();
             BlockPos doorPos = BlockPos.containing(
-                    rv.getX() + forward.x * 4.0,
+                    rv.getX() + forward.x * 12.0,
                     rv.getY(),
-                    rv.getZ() + forward.z * 4.0);
+                    rv.getZ() + forward.z * 12.0);
             BlockPos spot = net.exmo.sre.sixtyseconds.arena.SixtySecondsSearchZones
                     .findSafeSpot(level, doorPos);
             if (spot == null) {
                 continue;
             }
+            int banditSpawned = 0;
             for (int i = 0; i < count; i++) {
                 SixtySecondsNpcEntity.Variant variant = night
                         ? SixtySecondsNpcEntity.Variant.BANDIT
@@ -329,6 +374,22 @@ public final class SixtySecondsNpcSpawner {
                         .findSafeSpot(level, scatter);
                 if (safeScatter != null) {
                     spawnAt(level, safeScatter, variant, random.nextFloat() * 360.0F, "default", 6, -1);
+                    if (night) {
+                        banditSpawned++;
+                    }
+                }
+            }
+            // 强盗提示：通知本队在线成员
+            if (banditSpawned > 0 && team.members != null) {
+                Component banditMsg = Component.translatable(
+                        "message.noellesroles.sixty_seconds.npc.bandit_sighted")
+                        .withStyle(ChatFormatting.RED);
+                for (java.util.UUID uuid : team.members) {
+                    if (level.getPlayerByUUID(uuid) instanceof ServerPlayer member) {
+                        member.displayClientMessage(banditMsg, true);
+                        member.playNotifySound(SoundEvents.ZOMBIE_AMBIENT,
+                                SoundSource.HOSTILE, 0.8F, 0.7F);
+                    }
                 }
             }
         }

@@ -1128,14 +1128,15 @@ public final class SixtySecondsDailyEvents {
                 int cured = 0;
                 for (ServerPlayer p : onlineMembers(level, team)) {
                     SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(p);
+                    // 健康上限是 healthMax(150)，不是 MAX(100)——MAX 是饥饿/口渴/理智的上限。
                     if (stats.sick) {
                         stats.sick = false;
-                        stats.health = Math.min(SixtySecondsStatsComponent.MAX,
+                        stats.health = Math.min(stats.healthMax,
                                 stats.health + 20);
                         stats.sync();
                         cured++;
-                    } else if (stats.health < SixtySecondsStatsComponent.MAX) {
-                        stats.health = Math.min(SixtySecondsStatsComponent.MAX,
+                    } else if (stats.health < stats.healthMax) {
+                        stats.health = Math.min(stats.healthMax,
                                 stats.health + 20);
                         stats.sync();
                     }

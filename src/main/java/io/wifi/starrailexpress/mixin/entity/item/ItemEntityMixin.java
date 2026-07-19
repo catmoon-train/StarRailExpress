@@ -81,7 +81,12 @@ public abstract class ItemEntityMixin {
             return;
         }
         // InteractionResult.PASS (默认)时走此逻辑
-        if (!MCItemsUtils.hasHotbarFreeSlot(player)) {
+        if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level())) {
+            // 60s 模式：只要背包中任意已解锁槽位有空位就能捡
+            if (!sre$hasAnyFreeInventorySlot(player)) {
+                return;
+            }
+        } else if (!MCItemsUtils.hasHotbarFreeSlot(player)) {
             // 装不下了，不准继续~
             return;
         }
@@ -127,5 +132,35 @@ public abstract class ItemEntityMixin {
         level.sendParticles(ParticleTypes.CRIT,
                 item.getX(), item.getY() + 0.1D, item.getZ(),
                 1, 0.05D, 0.03D, 0.05D, 0.02D);
+    }
+
+    /** 60s 模式：检查玩家全部已解锁背包槽位是否有空位（而非仅快捷栏）。 */
+    @Unique
+    private static boolean sre$hasAnyFreeInventorySlot(Player player) {
+        if (!(player.level() instanceof ServerLevel serverLevel)) {
+            return true; // 客户端侧不限制
+        }
+        net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent stats =
+                net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(player);
+        var phase = net.exmo.sre.sixtyseconds.state.SixtySecondsState.get(serverLevel).phase;
+        int allowed;
+        if (phase == net.exmo.sre.sixtyseconds.SixtySecondsPhase.PREPARATION) {
+            var pos = stats.familyPosition;
+            allowed = pos == null
+                    ? net.exmo.sre.sixtyseconds.component.FamilyPosition.MOTHER.carryLimit
+                    : pos.carryLimit;
+        } else {
+            allowed = stats.familyPosition == net.exmo.sre.sixtyseconds.component.FamilyPosition.FATHER
+                    ? net.exmo.sre.sixtyseconds.logic.SixtySecondsInventoryLimit.DAY_ALLOWED_SLOTS
+                    : net.exmo.sre.sixtyseconds.logic.SixtySecondsInventoryLimit.NON_FATHER_DAY_SLOTS;
+        }
+        allowed = Math.min(allowed + stats.extraUnlockedSlots,
+                net.exmo.sre.sixtyseconds.logic.SixtySecondsInventoryLimit.LAST_MAIN_SLOT + 1);
+        for (int i = 0; i < allowed; i++) {
+            if (player.getInventory().getItem(i).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

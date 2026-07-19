@@ -586,17 +586,19 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // 60s 模式热键：快速转移 / 快速丢弃屏障区非屏障物品
+        // 60s 模式：原版 Q → 屏障区批量丢弃；Shift+1~9 → 屏障区转移到对应快捷栏
         if (isGameActive() && minecraft != null && minecraft.player != null) {
-            if (org.agmas.noellesroles.client.NoellesrolesClient.sixtySecondsQuickTransferBind
-                    .matches(keyCode, scanCode)) {
-                quickTransferFromBarrierArea();
-                return true;
-            }
-            if (org.agmas.noellesroles.client.NoellesrolesClient.sixtySecondsQuickDropBind
-                    .matches(keyCode, scanCode)) {
+            if (this.minecraft.options.keyDrop.matches(keyCode, scanCode) && !hasControlDown()) {
                 quickDropFromBarrierArea();
                 return true;
+            }
+            if (hasShiftDown()) {
+                for (int i = 0; i < 9; i++) {
+                    if (this.minecraft.options.keyHotbarSlots[i].matches(keyCode, scanCode)) {
+                        transferFromBarrierToHotbar(i);
+                        return true;
+                    }
+                }
             }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -622,6 +624,21 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             if (!stack.isEmpty() && !stack.is(Items.BARRIER)) {
                 this.minecraft.gameMode.handleInventoryMouseClick(
                         this.handler.containerId, i, 0, ClickType.QUICK_MOVE, this.minecraft.player);
+            }
+        }
+    }
+
+    /** Shift+数字键：将屏障区第一个非屏障物品换入指定快捷栏（索引 0-8 → 槽位 36-44）。 */
+    private void transferFromBarrierToHotbar(int hotbarIndex) {
+        int firstBarrier = findFirstBarrierSlot();
+        if (firstBarrier > 35) return;
+        int targetSlot = 36 + hotbarIndex;
+        for (int i = firstBarrier; i <= 35; i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (!stack.isEmpty() && !stack.is(Items.BARRIER)) {
+                this.minecraft.gameMode.handleInventoryMouseClick(
+                        this.handler.containerId, i, hotbarIndex, ClickType.SWAP, this.minecraft.player);
+                return;
             }
         }
     }

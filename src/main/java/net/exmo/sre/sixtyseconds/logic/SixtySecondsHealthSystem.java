@@ -309,16 +309,16 @@ public final class SixtySecondsHealthSystem {
     }
 
     /**
-     * 准备阶段 / 前两天全天 / 每日清晨（{@link net.exmo.sre.sixtyseconds.SixtySecondsDayCycle#MORNING_TICKS}）禁止玩家互相攻击。
-     * 前两天为新手保护期，全天禁 PvP；第 3 天起白天/晚上允许 PvP（清晨仍禁）。
+     * 准备阶段 / 前三天全天 / 每日清晨（{@link net.exmo.sre.sixtyseconds.SixtySecondsDayCycle#MORNING_TICKS}）禁止玩家互相攻击。
+     * 前三天为新手保护期，全天禁 PvP；第 4 天起白天/晚上允许 PvP（清晨仍禁）。
      */
     public static boolean isPvpBlocked(ServerLevel level) {
         SixtySecondsState.Data data = SixtySecondsState.get(level);
         if (data.phase != SixtySecondsPhase.DAY) {
             return true; // 准备/结算阶段一律禁 PvP
         }
-        // 前两天全天禁 PvP（新手保护期）；第 3 天起开放 PvP
-        if (data.dayNumber <= 2) {
+        // 前三天全天禁 PvP（新手保护期）；第 4 天起开放 PvP
+        if (data.dayNumber <= 3) {
             return true;
         }
         return net.exmo.sre.sixtyseconds.SixtySecondsDayCycle.subPhase(data, level.getGameTime())
@@ -334,7 +334,7 @@ public final class SixtySecondsHealthSystem {
         if (data.phase != SixtySecondsPhase.DAY) {
             return "not_day";
         }
-        if (data.dayNumber <= 2) {
+        if (data.dayNumber <= 3) {
             return "early_days";
         }
         return "morning";

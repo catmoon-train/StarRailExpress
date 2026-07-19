@@ -931,8 +931,20 @@ public class ModPacketsReciever {
         player.getCooldowns().addCooldown(ModItems.FIRE_AXE, 60 * 20); // 60秒冷却
       }
 
-      // 执行击杀
-      GameUtils.killPlayer(target, true, player, org.agmas.noellesroles.content.item.FireAxeItem.DEATH_REASON_FIRE_AXE);
+      // 末日60秒模式：蓄力等比伤害
+      if (net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(player.level())) {
+        int chargeTime = 40; // CHARGE_TIME = 2*20 ticks
+        int chargedTicks = chargeTime - payload.remainingUseTicks();
+        float chargeRatio = Math.min(1.0f, Math.max(0.1f, chargedTicks / (float) chargeTime));
+        var targetStats = net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(target);
+        int maxHp = targetStats.healthMax;
+        // 乘以 2 抵消 PVP_DAMAGE_MULT(0.5)：满蓄力=目标满血伤害
+        int baseDamage = Math.max(1, (int) (maxHp * chargeRatio * 2.0f));
+        net.exmo.sre.sixtyseconds.logic.SixtySecondsHealthSystem.applyInjury(target, player, baseDamage);
+      } else {
+        // 非60s模式：直接击杀
+        GameUtils.killPlayer(target, true, player, org.agmas.noellesroles.content.item.FireAxeItem.DEATH_REASON_FIRE_AXE);
+      }
       target.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
       player.swing(InteractionHand.MAIN_HAND);
 

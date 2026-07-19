@@ -39,11 +39,11 @@ public final class SixtySecondsBreakIn {
     }
 
     /**
-     * 前两天（新手保护期）是否禁止<b>进入别人家</b>（破门闯入 / 拜访进入避难所共用）。
-     * {@code dayNumber<=2} 覆盖准备阶段(0)与第 1、2 天；第 3 天起才允许进别人家。
+     * 前三天（新手保护期）是否禁止<b>进入别人家</b>（破门闯入 / 拜访进入避难所共用）。
+     * {@code dayNumber<=3} 覆盖准备阶段(0)与第 1、2、3 天；第 4 天起才允许进别人家。
      */
     public static boolean isHomeEntryLocked(SixtySecondsState.Data data) {
-        return data.dayNumber <= 2;
+        return data.dayNumber <= 3;
     }
 
     /**

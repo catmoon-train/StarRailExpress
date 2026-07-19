@@ -455,67 +455,69 @@ public class SixtySecondsRvEntity extends SixtySecondsVehicleEntity {
         setYRot(oldYaw);
         yRotO = yBodyRot = yHeadRot = oldYaw;
 
-        if (this.level().isClientSide) {
-            return;
-        }
-
-        // 破坏/停机/没油：油门归零、转向回正，不响应输入
-        if (isBroken() || isDisabled() || fuelTicks() <= 0) {
-            throttleState *= 0.5F;
-            steeringState *= 0.7F;
-            setThrottle(throttleState);
-            setSteering(steeringState);
-            return;
-        }
-
+        // ── 油门/转向平滑与汽车转向必须在两端同时执行 ──
+        // 原因：getRiddenInput 返回 (0,0,throttleState) 供 Mob.travel 计算移动。
+        // 玩家控制的载具由客户端驱动移动（客户端 travel 调 getRiddenInput 后发包给服务端），
+        // 若客户端 throttleState 永远为 0（仅在服务端更新），房车将完全无法移动 / 转向。
+        // 因此平滑逻辑与 yawDelta 在客户端也必须执行；两端输入（player.zza/xxa）一致，
+        // 保证移动预测与服务端权威一致，避免回弹。setThrottle/setSteering/节油仍只在服务端。
+        boolean broken = isBroken() || isDisabled() || fuelTicks() <= 0;
         float inputThrottle = player.zza; // W=+1, S=-1
         float inputSteer = player.xxa;    // A=+1, D=-1（MC 约定）
 
-        // ── 油门平滑：加速慢（0.04/tick ≈ 2s 到满），刹车快（0.10/tick） ──
-        float accelRate = 0.04F;
-        float brakeRate = 0.10F;
-        if (inputThrottle > throttleState) {
-            throttleState = Math.min(inputThrottle, throttleState + accelRate);
-        } else if (inputThrottle < throttleState) {
-            throttleState = Math.max(inputThrottle, throttleState - brakeRate);
-        }
-        // 无输入：自然摩擦减速
-        if (Math.abs(inputThrottle) < 0.01F) {
-            throttleState *= 0.97F;
-            if (Math.abs(throttleState) < 0.01F) throttleState = 0.0F;
-        }
+        if (broken) {
+            // 破坏/停机/没油：油门归零、转向回正，不响应输入
+            throttleState *= 0.5F;
+            steeringState *= 0.7F;
+        } else {
+            // ── 油门平滑：加速慢（0.04/tick ≈ 2s 到满），刹车快（0.10/tick） ──
+            float accelRate = 0.04F;
+            float brakeRate = 0.10F;
+            if (inputThrottle > throttleState) {
+                throttleState = Math.min(inputThrottle, throttleState + accelRate);
+            } else if (inputThrottle < throttleState) {
+                throttleState = Math.max(inputThrottle, throttleState - brakeRate);
+            }
+            // 无输入：自然摩擦减速
+            if (Math.abs(inputThrottle) < 0.01F) {
+                throttleState *= 0.97F;
+                if (Math.abs(throttleState) < 0.01F) throttleState = 0.0F;
+            }
 
-        // ── 转向平滑：转向角速度 0.12/tick，回正比打方向快 ──
-        float steerRate = 0.12F;
-        if (inputSteer > steeringState) {
-            steeringState = Math.min(inputSteer, steeringState + steerRate);
-        } else if (inputSteer < steeringState) {
-            steeringState = Math.max(inputSteer, steeringState - steerRate);
-        }
-        if (Math.abs(inputSteer) < 0.01F) {
-            steeringState *= 0.85F;
-            if (Math.abs(steeringState) < 0.01F) steeringState = 0.0F;
+            // ── 转向平滑：转向角速度 0.12/tick，回正比打方向快 ──
+            float steerRate = 0.12F;
+            if (inputSteer > steeringState) {
+                steeringState = Math.min(inputSteer, steeringState + steerRate);
+            } else if (inputSteer < steeringState) {
+                steeringState = Math.max(inputSteer, steeringState - steerRate);
+            }
+            if (Math.abs(inputSteer) < 0.01F) {
+                steeringState *= 0.85F;
+                if (Math.abs(steeringState) < 0.01F) steeringState = 0.0F;
+            }
         }
 
         // ── 汽车转向：转向角 × 速度 × 转向速率 ──
         // 前进时正向转，倒车时反向转（仿真实汽车）；速度近 0 时几乎不转，避免原地打转
         float speedFactor = throttleState;
         float turnRate = 2.8F; // 最大 yaw 速率（度/tick）
-        float yawDelta = steeringState * turnRate * speedFactor;
+        float yawDelta = -steeringState * turnRate * speedFactor;
         if (Math.abs(throttleState) < 0.05F) yawDelta = 0.0F;
 
         setYRot(getYRot() + yawDelta);
         yRotO = yBodyRot = yHeadRot = getYRot();
 
-        // 同步给客户端（车轮动画 + HUD）
-        setThrottle(throttleState);
-        setSteering(steeringState);
+        // 仅服务端：同步油门/转向给客户端（车轮动画 + HUD），并处理节油配件
+        if (!this.level().isClientSide) {
+            setThrottle(throttleState);
+            setSteering(steeringState);
 
-        // 经济型化油器：行进中节油（沿用原逻辑，但用 throttleState 判断）
-        if (throttleState != 0
-                && hasPart(SixtySecondsRvPart.ECONOMY_CARBURETOR)
-                && this.level().getGameTime() % 4 == 0 && fuelTicks() > 0) {
-            setFuelTicks(fuelTicks() + 1);
+            // 经济型化油器：行进中节油（沿用原逻辑，但用 throttleState 判断）
+            if (throttleState != 0
+                    && hasPart(SixtySecondsRvPart.ECONOMY_CARBURETOR)
+                    && this.level().getGameTime() % 4 == 0 && fuelTicks() > 0) {
+                setFuelTicks(fuelTicks() + 1);
+            }
         }
     }
 

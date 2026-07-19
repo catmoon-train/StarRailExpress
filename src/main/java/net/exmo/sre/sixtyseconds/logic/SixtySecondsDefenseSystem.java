@@ -290,11 +290,11 @@ public final class SixtySecondsDefenseSystem {
                         1.0 + 0.1 * (data.dayNumber - 1), false, mobs);
                 spawned++;
             }
-            // 混入 NPC 强盗（第 3 天起按概率）：挂上 ASSAULT_TAG 后，冲门/破门涌入/清晨消散/
+            // 混入 NPC 强盗（第 3 天起按概率）：最多 2 只；挂上 ASSAULT_TAG 后，冲门/破门涌入/清晨消散/
             // 死亡掉落/兜底清扫全部复用本系统既有逻辑，无需另写一套
             if (data.dayNumber >= SixtySecondsBalance.NPC_ASSAULT_BANDIT_MIN_DAY
                     && level.getRandom().nextFloat() < SixtySecondsBalance.NPC_ASSAULT_BANDIT_CHANCE) {
-                int bandits = 1 + level.getRandom().nextInt(1 + data.dayNumber / 3);
+                int bandits = Math.min(2, 1 + level.getRandom().nextInt(1 + data.dayNumber / 3));
                 SixtySecondsNpcSpawner.spawnAssaultBandits(level, team, team.assaultDoorPos, bandits, mobs);
                 spawned += bandits;
             }

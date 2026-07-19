@@ -13,6 +13,7 @@
     "SixtySecondsFoodStackMixin",
     "SixtySecondsDownedPoseMixin",
     "SixtySecondsGunTracerMixin",
+    "SixtySecondsGlassBottleMixin",
     "SixtySecondsMobPeacefulMixin",
     "SixtySecondsSniperTracerMixin",
     "SixtySecondsCakeBlockMixin",
