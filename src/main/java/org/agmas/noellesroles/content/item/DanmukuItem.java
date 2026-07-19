@@ -59,7 +59,7 @@ public class DanmukuItem extends Item implements ChargeableItem, TrainWeapon {
             return; // 蓄力不足 0.8 秒，不发射
         }
         if (livingEntity instanceof ServerPlayer user) {
-            GoheiItem.shootDamuku(user, 1.5f, 0.5f);
+            GoheiItem.shootDamuku(user, 2f, 0.5f);
 
             if (!user.isCreative()) {
                 user.getCooldowns().addCooldown(ModItems.DANMUKU, GameConstants.getRevolverDefaultTicks());

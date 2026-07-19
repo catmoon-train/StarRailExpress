@@ -73,7 +73,7 @@ public class GoheiItem extends Item implements ChargeableItem, TrainWeapon {
         if (livingEntity instanceof ServerPlayer user) {
             if (!user.isCreative()) {
                 if (MCItemsUtils.clearItem(user, ModItems.DANMUKU, 1) > 0) {
-                    GoheiItem.shootDamuku(user, 4f, 0.5f);
+                    GoheiItem.shootDamuku(user, 3f, 0.5f);
                 }
                 user.getCooldowns().addCooldown(ModItems.DANMUKU, GameConstants.getRevolverDefaultTicks());
             } else {
