@@ -69,6 +69,7 @@ public class TMMItemTooltips {
             addTooltipForItem(ModItems.MINT_CANDIES, itemStack, tooltipList);
             addTooltipForItem(ModItems.DOGSKIN_PLASTER, itemStack, tooltipList);
             addTooltipForItem(ModItems.REIMU_GOHEI, itemStack, tooltipList);
+            addTooltipForItem(ModItems.MINI_BAGUALU, itemStack, tooltipList);
         });
     }
 

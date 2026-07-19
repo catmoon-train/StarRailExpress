@@ -633,6 +633,18 @@ public class RoleUtils extends MCItemsUtils {
         return PlayerRoleWeightManager.getRoleType(role);
     }
 
+    public static Component getRoleTypeName(SRERole role) {
+        return switch (PlayerRoleWeightManager.getRoleType(role)) {
+            case 0, 1 -> Component.translatable("display.type.role.innocent").withStyle(ChatFormatting.GREEN);
+            case 2 -> Component.translatable("display.type.role.neutral").withStyle(ChatFormatting.YELLOW);
+            case 3 -> Component.translatable("display.type.role.neutral_for_killer")
+                    .withStyle(ChatFormatting.LIGHT_PURPLE);
+            case 4 -> Component.translatable("display.type.role.killer").withStyle(ChatFormatting.RED);
+            case 5 -> Component.translatable("display.type.role.vigilante").withStyle(ChatFormatting.AQUA);
+            default -> Component.literal("UNKNOWN");
+        };
+    }
+
     public static Component getTeamNameWithoutColor(ResourceLocation roleId) {
         SRERole role = getRole(roleId);
         int roleType = PlayerRoleWeightManager.getRoleType(role);

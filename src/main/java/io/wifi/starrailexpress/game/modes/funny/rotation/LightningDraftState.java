@@ -377,7 +377,7 @@ public class LightningDraftState {
             if (count < 0)
                 count = 0;
             if (count <= 0 && preRole == null)
-                break;
+                continue;
             List<SRERole> candidates = new ArrayList<>();
             if (count > 0) {
                 candidates.addAll(drawn.subList(idx, idx + count));

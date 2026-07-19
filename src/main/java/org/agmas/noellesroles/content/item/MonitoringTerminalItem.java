@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
 import io.wifi.starrailexpress.content.block_entity.SecurityMonitorBlockEntity;
 import io.wifi.starrailexpress.util.AdventureUsable;
@@ -8,7 +7,6 @@ import io.wifi.starrailexpress.util.SRENBTUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;

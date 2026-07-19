@@ -767,6 +767,10 @@ public class ModItems {
     public static final Item DANMUKU = register(
             new DanmukuItem((new Item.Properties()).stacksTo(8)), "danmuku",
             WEAPONS_GROUP);
+    // 迷你八卦炉
+    public static final Item MINI_BAGUALU = register(
+            new MinibagualuItem((new Item.Properties()).stacksTo(1).durability(2)), "mini_bagualu",
+            WEAPONS_GROUP);
     // ==================== Dream（梦魇）专属 ====================
     /**
      * Dream 的铁斧
@@ -1000,72 +1004,54 @@ public class ModItems {
             new Item(new Item.Properties().stacksTo(64)));
 
     // 轮盘赌物品
-    public static final Item MAGNIFYING_GLASS = register(
-            new Item(new Item.Properties().stacksTo(64)) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context,
-                        List<Component> tooltip, TooltipFlag flag) {
-                    tooltip.add(Component.translatable(
-                            "noellesroles.game.devil_roulette.tooltip.magnifying_glass")
-                            .withStyle(ChatFormatting.GRAY));
-                }
-            },
-            "magnifying_glass", MISC_ITEMS_GROUP);
-    public static final Item CHEWING = register(
-            new Item(new Item.Properties().stacksTo(64)) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context,
-                        List<Component> tooltip, TooltipFlag flag) {
-                    tooltip.add(Component.translatable(
-                            "noellesroles.game.devil_roulette.tooltip.chewing")
-                            .withStyle(ChatFormatting.GRAY));
-                }
-            },
-            "chewing", MISC_ITEMS_GROUP);
-    public static final Item CLIP = register(
-            new Item(new Item.Properties().stacksTo(64)) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context,
-                        List<Component> tooltip, TooltipFlag flag) {
-                    tooltip.add(Component
-                            .translatable("noellesroles.game.devil_roulette.tooltip.clip")
-                            .withStyle(ChatFormatting.GRAY));
-                }
-            },
-            "clip", MISC_ITEMS_GROUP);
-    public static final Item STEEL_BALL = register(
-            new Item(new Item.Properties().stacksTo(64)) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context,
-                        List<Component> tooltip, TooltipFlag flag) {
-                    tooltip.add(Component.translatable(
-                            "noellesroles.game.devil_roulette.tooltip.steel_ball")
-                            .withStyle(ChatFormatting.GRAY));
-                }
-            },
-            "steel_ball", MISC_ITEMS_GROUP);
-    public static final Item REVERSING_CARD = register(
-            new Item(new Item.Properties().stacksTo(64)) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context,
-                        List<Component> tooltip, TooltipFlag flag) {
-                    tooltip.add(Component.translatable(
-                            "noellesroles.game.devil_roulette.tooltip.reversing_card")
-                            .withStyle(ChatFormatting.GRAY));
-                }
-            },
-            "reversing_card", MISC_ITEMS_GROUP);
-    public static final Item TELEPHONE = register(
-            new Item(new Item.Properties().stacksTo(64)) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context,
-                        List<Component> tooltip, TooltipFlag flag) {
-                    tooltip.add(Component.translatable(
-                            "noellesroles.game.devil_roulette.tooltip.telephone")
-                            .withStyle(ChatFormatting.GRAY));
-                }
-            },
-            "telephone", MISC_ITEMS_GROUP);
+    public static final Item MAGNIFYING_GLASS = register(new Item(new Item.Properties().stacksTo(64)) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip,
+                TooltipFlag flag) {
+            tooltip.add(Component.translatable("noellesroles.game.devil_roulette.tooltip.magnifying_glass")
+                    .withStyle(ChatFormatting.GRAY));
+        }
+    }, "magnifying_glass", MISC_ITEMS_GROUP);
+    public static final Item CHEWING = register(new Item(new Item.Properties().stacksTo(64)) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip,
+                TooltipFlag flag) {
+            tooltip.add(Component.translatable("noellesroles.game.devil_roulette.tooltip.chewing")
+                    .withStyle(ChatFormatting.GRAY));
+        }
+    }, "chewing", MISC_ITEMS_GROUP);
+    public static final Item CLIP = register(new Item(new Item.Properties().stacksTo(64)) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip,
+                TooltipFlag flag) {
+            tooltip.add(Component.translatable("noellesroles.game.devil_roulette.tooltip.clip")
+                    .withStyle(ChatFormatting.GRAY));
+        }
+    }, "clip", MISC_ITEMS_GROUP);
+    public static final Item STEEL_BALL = register(new Item(new Item.Properties().stacksTo(64)) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip,
+                TooltipFlag flag) {
+            tooltip.add(Component.translatable("noellesroles.game.devil_roulette.tooltip.steel_ball")
+                    .withStyle(ChatFormatting.GRAY));
+        }
+    }, "steel_ball", MISC_ITEMS_GROUP);
+    public static final Item REVERSING_CARD = register(new Item(new Item.Properties().stacksTo(64)) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip,
+                TooltipFlag flag) {
+            tooltip.add(Component.translatable("noellesroles.game.devil_roulette.tooltip.reversing_card")
+                    .withStyle(ChatFormatting.GRAY));
+        }
+    }, "reversing_card", MISC_ITEMS_GROUP);
+    public static final Item TELEPHONE = register(new Item(new Item.Properties().stacksTo(64)) {
+        @Override
+        public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip,
+                TooltipFlag flag) {
+            tooltip.add(Component.translatable("noellesroles.game.devil_roulette.tooltip.telephone")
+                    .withStyle(ChatFormatting.GRAY));
+        }
+    }, "telephone", MISC_ITEMS_GROUP);
 
     /**
      * C4炸药

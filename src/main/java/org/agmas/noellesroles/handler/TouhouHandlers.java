@@ -13,8 +13,10 @@ import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.content.item.BatItem;
 import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
+import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.ShouldGiveKillerBalance;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
@@ -24,6 +26,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -45,6 +48,18 @@ public class TouhouHandlers {
   }
 
   public static void registerEvents() {
+    // 魔理沙和灵梦不受到摔伤影响
+    OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, deathreason, forceKill) -> {
+      if (deathreason.equals(GameConstants.DeathReasons.FALL_DAMAGE)) {
+        if (RoleUtils.isPlayerTheJob(victim, THMiscRoles.HAKUREI_REIMU)) {
+          return TrueFalseResult.PASS;
+        }
+        if (RoleUtils.isPlayerTheJob(victim, THMiscRoles.KIRISAME_MARISA)) {
+          return TrueFalseResult.PASS;
+        }
+      }
+      return TrueFalseResult.PASS;
+    });
     // 四季
     AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
       if (killer == null)
@@ -124,6 +139,19 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
+    RoleSkill.register(THMiscRoles.KIRISAME_MARISA,
+        RoleSkill.skill(SRE.id("marisa_magic"), "skill.noellesroles.marisa_magic", context -> {
+          Player player = context.player();
+          for (var p : player.level().players()) {
+            if (GameUtils.isPlayerAliveAndSurvival(p)) {
+              if (p.distanceToSqr(player) <= 10 * 10) {
+                p.addEffect(ModEffects.of(MobEffects.MOVEMENT_SLOWDOWN, 5 * 20, 1, true, false, true));
+                p.setRemainingFireTicks(100 * 20);
+              }
+            }
+          }
+          return true;
+        }).announceToSelf(true).cooldownSeconds(60).showOnHud(true).shifted(false).build());
     RoleSkill.register(THMiscRoles.HAKUREI_REIMU,
         RoleSkill.skill(SRE.id("reimu_flying"), "skill.noellesroles.reimu", context -> {
           final var player = context.player();

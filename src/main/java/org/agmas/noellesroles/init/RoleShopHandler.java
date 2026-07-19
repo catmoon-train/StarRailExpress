@@ -2052,6 +2052,7 @@ public class RoleShopHandler {
         {
             var SHOP = new ArrayList<ShopEntry>();
             SHOP.add(new ShopEntry(FunnyItems.PROBLEM_SET.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+            SHOP.add(new ShopEntry(ModItems.DANMUKU.getDefaultInstance(), 300, ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(RedHouseRoles.BAKA.getIdentifier(), SHOP);
         }
 

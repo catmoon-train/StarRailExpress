@@ -64,7 +64,7 @@ import java.util.*;
 public class NRGameStateEvents {
 
     private static AttributeModifier noJumpingAttribute = new AttributeModifier(
-            Noellesroles.id("no_jumping"), -1.0f, AttributeModifier.Operation.ADD_VALUE);
+            Noellesroles.id("no_jumping"), -1.0f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     private static final Map<UUID, Vec3> oldmanPigRidePositions = new HashMap<>();
 
     /** 本局游戏是否已发放过年兽鞭炮（一局只能有一次） */
@@ -223,7 +223,8 @@ public class NRGameStateEvents {
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             boolean hasDio = false, hasRecorder = false, hasCandlebearer = false, hasRaven = false;
-            boolean hasNianShou = false, hasArsonist = false, hasCuckoo = false, hasPelican = false, hasGodfather = false;
+            boolean hasNianShou = false, hasArsonist = false, hasCuckoo = false, hasPelican = false,
+                    hasGodfather = false;
             final var all_players = serverLevel.players();
 
             for (var p : all_players) {
