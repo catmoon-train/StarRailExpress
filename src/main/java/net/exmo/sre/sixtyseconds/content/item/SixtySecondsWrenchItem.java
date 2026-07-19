@@ -7,7 +7,9 @@ import net.exmo.sre.sixtyseconds.content.block.SixtySecondsGeneratorBlock;
 import net.exmo.sre.sixtyseconds.content.block.SixtySecondsLampBlock;
 import net.exmo.sre.sixtyseconds.content.block.SixtySecondsSpikeTrapBlock;
 import net.exmo.sre.sixtyseconds.logic.SixtySecondsBuildRules;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -17,9 +19,12 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.List;
 
 /**
  * 扳手：右键拆除 60s 功能方块，拆除后返还对应物品。
@@ -29,6 +34,13 @@ public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
 
     public SixtySecondsWrenchItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
+        tooltip.add(Component.translatable("tooltip.noellesroles.sixty_seconds_detach_wrench")
+                .withStyle(ChatFormatting.GRAY));
     }
 
     @Override

@@ -26,7 +26,7 @@ public class PowerPanelScreen extends Screen {
     private static final int RED = 0xFFE06B65;
 
     private static final int PANEL_W = 250;
-    private static final int PANEL_H = 190;
+    private static final int PANEL_H = 210;
     /** 进度条满刻度：燃料罐一罐的量（450s），仅作可视化参照。 */
     private static final long BAR_FULL_TICKS = SixtySecondsBalance.POWER_PER_FUEL_TICKS * 5L;
 
@@ -103,9 +103,12 @@ public class PowerPanelScreen extends Screen {
                         .withStyle(ChatFormatting.BOLD), x, py + 82, GOLD);
         int rowY = py + 96;
         rowY = fuelRow(g, x, rowY, "gui.noellesroles.sixty_seconds.power_fuel_scrap");
+        rowY = fuelRow(g, x, rowY, "gui.noellesroles.sixty_seconds.power_fuel_coal");
+        rowY = fuelRow(g, x, rowY, "gui.noellesroles.sixty_seconds.power_fuel_newspaper");
         rowY = fuelRow(g, x, rowY, "gui.noellesroles.sixty_seconds.power_fuel_battery");
         rowY = fuelRow(g, x, rowY, "gui.noellesroles.sixty_seconds.power_fuel_can");
         rowY = fuelRow(g, x, rowY, "gui.noellesroles.sixty_seconds.power_fuel_solar");
+        rowY = fuelRow(g, x, rowY, "gui.noellesroles.sixty_seconds.power_fuel_amplifier");
         g.drawString(this.font,
                 Component.translatable("gui.noellesroles.sixty_seconds.power_hint"), x, rowY + 4, MUTED);
     }

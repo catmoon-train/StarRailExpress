@@ -25,19 +25,22 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * 发电机：手持废料/煤炭右键投喂燃料，每份为全队供电
+ * 发电机：手持燃料右键投喂，每份为全队供电
  * （{@link SixtySecondsPowerSystem}）；供电中 LIT 点亮。放置登记归属队伍，拆除注销。
  *
  * <h3>燃料换算表</h3>
  * <ul>
  *   <li>废料 = 2 份（20 秒）</li>
  *   <li>煤炭/木炭 = 6 份（60 秒）</li>
+ *   <li>报纸 = 1.5 份（15 秒，直接烧毁）</li>
  *   <li>电池 = 12 份（120 秒）</li>
  *   <li>燃料罐 = 45 份（450 秒）</li>
  *   <li>柴油罐 = 90 份（900 秒）</li>
  *   <li>大型电池 = 36 份（360 秒，= 电池 ×3）</li>
  *   <li>太阳能板 = 108 份（1080 秒，= 大型电池 ×3，仅白天）</li>
+ *   <li>便携储蓄电池 = 储存电量（充电/取电双向）</li>
  * </ul>
+ * <p>发电增幅板（上方）可使普通燃料增幅 20 倍（便携电池和报纸不触发增幅）。</p>
  */
 public class SixtySecondsGeneratorBlock extends Block {
 
