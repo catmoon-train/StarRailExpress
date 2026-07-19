@@ -21,11 +21,6 @@ public class THReimuHud {
 
             int x = context.guiWidth() - 10;
             int y = context.guiHeight() - 20;
-            if (SREClient.areaComponent != null && !SREClient.areaComponent.areasSettings.canJump) {
-                var text = Component.translatable("skill.noellesroles.reimu.banned_in_map");
-                context.drawString(font, text, x - font.width(text), y, 0xFFFFFF);
-                return;
-            }
             var abilityCCA = SREAbilityPlayerComponent.KEY.get(client.player);
             Component text = Component.translatable("skill.noellesroles.reimu.tip",
                     NoellesrolesClient.abilityBind.getTranslatedKeyMessage()).withStyle(ChatFormatting.GREEN);

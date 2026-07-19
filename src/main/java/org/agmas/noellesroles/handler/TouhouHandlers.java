@@ -128,12 +128,15 @@ public class TouhouHandlers {
         RoleSkill.skill(SRE.id("reimu_flying"), "skill.noellesroles.reimu", context -> {
           final var player = context.player();
           final var level = player.serverLevel();
+          var abilityCCA = SREAbilityPlayerComponent.KEY.get(player);
           if (!AreasWorldComponent.KEY.get(level).areasSettings.canJump) {
             player.displayClientMessage(
-                Component.translatable("skill.noellesroles.reimu.banned_in_map").withStyle(ChatFormatting.RED), true);
+                Component.translatable("skill.noellesroles.reimu.rush").withStyle(ChatFormatting.RED), true);
+            player.addEffect(ModEffects.of(ModEffects.NO_COLLIDE, 20, 0, true, false, false));
+            BowenBadgeItem.fowardAndKnockbackPlayerNearby(player.level(), player, 3f);
+            abilityCCA.setCooldown(THReimuRole.FLY_COOLDOWN);
             return false;
           }
-          var abilityCCA = SREAbilityPlayerComponent.KEY.get(player);
           if (abilityCCA.duration > 0) {
             abilityCCA.duration = 0;
             THReimuRole.stopFlying(player);
