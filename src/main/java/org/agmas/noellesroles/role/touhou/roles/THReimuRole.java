@@ -42,7 +42,7 @@ public class THReimuRole extends TouhouRole {
     @Override
     public List<ShopEntry> getShopEntries() {
         ArrayList<ShopEntry> SHOP = new ArrayList<>();
-        SHOP.add(new KillerKnifeShopEntry(ModItems.DANMUKU.getDefaultInstance(), SREConfig.instance().knifePrice, 20));
+        SHOP.add(new KillerKnifeShopEntry(ModItems.DANMUKU.getDefaultInstance(), SREConfig.instance().knifePrice, 40));
         SHOP.add(new KillerKnifeShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, -20));
         SHOP.add(new ShopEntry(ModItems.FAKE_REVOLVER.getDefaultInstance(),
                 100, ShopEntry.Type.WEAPON));
