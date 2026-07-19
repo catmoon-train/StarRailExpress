@@ -449,6 +449,9 @@ public final class SixtySecondsRecipes {
         // 皮革：任意蘑菇×2，通电
         add(list, "leather_materials", Station.WORKBENCH, "materials_2", true,
                 List.of(any("mushroom", 2, mushrooms())), Items.LEATHER, 1);
+        // 羽毛：破布×2 + 线×3 + 木棍×1，通电
+        add(list, "feather", Station.WORKBENCH, "materials_2", true,
+                List.of(in(rag, 2), in(Items.STRING, 3), in(Items.STICK, 1)), Items.FEATHER, 1);
         // ── 材料工艺-III ──────────────────────────────────────────────
         add(list, "station_dismantler", Station.WORKBENCH, "materials_3", true,
                 List.of(in(plastic, 3), in(wire, 6), in(scrap, 6)),
