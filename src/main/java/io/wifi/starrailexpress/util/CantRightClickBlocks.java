@@ -18,6 +18,7 @@ public class CantRightClickBlocks {
             "charta:sorghum_beer_glass",
             "supplementaries:safe",
             "supplementaries:statue",
+            "supplementaries:hourglass",
             "supplementaries:fire_pit",
             "supplementaries:item_shelf",
             "supplementaries:pedestal",
@@ -110,6 +111,9 @@ public class CantRightClickBlocks {
             return false;
         }
         if (keys.getPath().contains("shulker_box")) {
+            return false;
+        }
+        if (keys.getNamespace().equals("supplementaries")) {
             return false;
         }
         if (keys.getNamespace().equals("handcrafted")) {
