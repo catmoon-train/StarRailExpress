@@ -1,6 +1,5 @@
 package io.wifi.starrailexpress.content.command;
 
-import com.ibm.icu.text.Collator;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -14,6 +13,7 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.text.Collator;
 import java.util.ArrayList;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
