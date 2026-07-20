@@ -195,6 +195,8 @@ public final class SixtySecondsEventSystem {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.HAIL_DURATION));
                 broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.event_hail_start")
                         .withStyle(ChatFormatting.AQUA));
+                // 冰雹时设为雨天
+                level.setWeatherParameters(20 * 60 * 6, 0, true, false);
             }
             case BLOOD_MOON -> {
                 ACTIVE.put(level, new Active(type, now + SixtySecondsBalance.BLOOD_MOON_DURATION));
@@ -301,7 +303,7 @@ public final class SixtySecondsEventSystem {
                         player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 80, 0, false, false, false));
                     }
                     // 每 5 秒额外消耗口渴
-                    if (now % (20 * 5) == 0) {
+                    if (now % (20 * 10) == 0) {
                         stats.thirst = Math.max(0, stats.thirst - 1);
                         stats.sync();
                     }
@@ -342,10 +344,13 @@ public final class SixtySecondsEventSystem {
                     }
                 }
                 case HAIL -> {
-                    // 冰雹：户外持续微弱伤害
+                    // 冰雹：户外持续伤害（间隔拉大 + 碎冰音效）
                     if (inHome) continue;
-                    if (now % (20 * 2) == 0) {
+                    if (now % (20 * 10) == 0) {
                         player.hurt(player.damageSources().generic(), SixtySecondsBalance.HAIL_DAMAGE_PER_2S);
+                        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                                net.minecraft.sounds.SoundEvents.GLASS_BREAK,
+                                net.minecraft.sounds.SoundSource.WEATHER, 0.4F, 1.5F);
                     }
                 }
                 case BLOOD_MOON -> {
@@ -452,8 +457,11 @@ public final class SixtySecondsEventSystem {
                 broadcast(level, Component.translatable(
                         "message.noellesroles.sixty_seconds.event_spore_fog_end").withStyle(ChatFormatting.GRAY));
             }
-            case HAIL -> broadcast(level, Component.translatable(
-                    "message.noellesroles.sixty_seconds.event_hail_end").withStyle(ChatFormatting.GRAY));
+            case HAIL -> {
+                broadcast(level, Component.translatable(
+                        "message.noellesroles.sixty_seconds.event_hail_end").withStyle(ChatFormatting.GRAY));
+                level.setWeatherParameters(20 * 60 * 10, 0, false, false);
+            }
             case BLOOD_MOON -> broadcast(level, Component.translatable(
                     "message.noellesroles.sixty_seconds.event_blood_moon_end").withStyle(ChatFormatting.GRAY));
             case RADIATION_LEAK -> broadcast(level, Component.translatable(
