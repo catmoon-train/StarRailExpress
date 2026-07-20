@@ -159,8 +159,7 @@ public class TouhouHandlers {
                 Component.translatable("skill.noellesroles.reimu.rush").withStyle(ChatFormatting.RED), true);
             player.addEffect(ModEffects.of(ModEffects.NO_COLLIDE, 20, 0, true, false, false));
             BowenBadgeItem.fowardAndKnockbackPlayerNearby(player.level(), player, 3f);
-            abilityCCA.setCooldown(THReimuRole.FLY_COOLDOWN);
-            return false;
+            return true;
           }
           if (abilityCCA.duration > 0) {
             abilityCCA.duration = 0;
@@ -169,10 +168,9 @@ public class TouhouHandlers {
           }
 
           abilityCCA.duration = (THReimuRole.MAX_DURATION);
-          abilityCCA.setCooldown(THReimuRole.FLY_COOLDOWN);
           THReimuRole.startFlying(player);
           return true;
-        }).noAnnouncement().showOnHud(false).cooldownTicks(20 * 120).build());
+        }).noAnnouncement().showOnHud(false).cooldownTicks(THReimuRole.FLY_COOLDOWN).build());
     RoleSkill.register(RedHouseRoles.KOAKUMA,
         RoleSkill.skill(SRE.id("koakuma"), "skill.noellesroles.koakuma", context -> {
           var targetId = context.target();
