@@ -74,7 +74,7 @@ public class MapScanner {
             for (int l = trainBox.minY(); l <= trainBox.maxY(); l++) {
                 for (int m = trainBox.minX(); m <= trainBox.maxX(); m++) {
                     BlockPos blockPos6 = new BlockPos(m, l, k);
-                    testTaskBlocksAndAddToGameUtilsTaskArr(collectedMinigameIds, sabotageMinigameIds, localLevel,
+                    testTaskBlocksAndAddToGameUtils(collectedMinigameIds, sabotageMinigameIds, localLevel,
                             blockPos6);
                 }
             }
@@ -90,7 +90,7 @@ public class MapScanner {
                 GameUtils.taskBlocks.size(), collectedMinigameIds.size(), sabotageMinigameIds.size());
     }
 
-    private static void testTaskBlocksAndAddToGameUtilsTaskArr(HashSet<String> sabotageMinigameIds,
+    public static void testTaskBlocksAndAddToGameUtils(HashSet<String> sabotageMinigameIds,
             HashSet<String> collectedMinigameIds, ServerLevel level, BlockPos blockPos6) {
         var blockState = level.getBlockState(blockPos6);
         if (blockState.isAir())

@@ -183,39 +183,6 @@ public class SwitchMapCommand {
                     now, total)
                     .withStyle(ChatFormatting.AQUA),
                 false);
-            GameUtils.serverTaskQueue.addFirst(
-                new ServerTaskInfoClasses.SchedulerTask(20, () -> {
-                  playerList.broadcastSystemMessage(
-                      Component.translatable(
-                          "Scanning points...")
-                          .withStyle(ChatFormatting.YELLOW),
-                      false);
-                  MapResetManager.scanArea(serverWorld, areas);
-                  MapResetManager.saveArea(serverWorld);
-                  playerList.broadcastSystemMessage(
-                      Component
-                          .translatable(
-                              "Scanned and saved reset points for map %s ! Total %s blocks!",
-                              Component.nullToEmpty(
-                                  areas.mapName),
-                              GameUtils.resetPoints
-                                  .size())
-                          .withStyle(ChatFormatting.GRAY),
-                      false);
-                  MapScannerManager.scanAndSaveScannerArea(
-                      serverWorld, areas);
-                  HashMap<Integer, Boolean> map = new HashMap<>();
-                  for (Map.Entry<BlockPos, Integer> entry : GameUtils.taskBlocks
-                      .entrySet()) {
-                    map.putIfAbsent(entry.getValue(), true);
-                  }
-                  playerList.broadcastSystemMessage(
-                      Component.translatable(
-                          "Scanned Task points! Total %s types!",
-                          map.size())
-                          .withStyle(ChatFormatting.GRAY),
-                      false);
-                }));
             GameUtils.serverTaskQueue
                 .addFirst(new ServerTaskInfoClasses.FullTrainResetTask(
                     areas, serverWorld, null, 0,
