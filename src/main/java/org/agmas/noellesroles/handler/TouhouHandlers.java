@@ -49,10 +49,10 @@ public class TouhouHandlers {
     OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, deathreason, forceKill) -> {
       if (deathreason.equals(GameConstants.DeathReasons.FALL_DAMAGE)) {
         if (RoleUtils.isPlayerTheJob(victim, THMiscRoles.HAKUREI_REIMU)) {
-          return TrueFalseResult.PASS;
+          return TrueFalseResult.FALSE;
         }
         if (RoleUtils.isPlayerTheJob(victim, THMiscRoles.KIRISAME_MARISA)) {
-          return TrueFalseResult.PASS;
+          return TrueFalseResult.FALSE;
         }
       }
       return TrueFalseResult.PASS;
