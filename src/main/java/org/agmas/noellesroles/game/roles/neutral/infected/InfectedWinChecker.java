@@ -303,6 +303,7 @@ public class InfectedWinChecker {
                         if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
                             SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(p);
                             abilityComponent.resetAllCooldowns();
+                            abilityComponent.status = 2;
                         }
                     }
                 }
