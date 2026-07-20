@@ -49,6 +49,8 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
             detail.end(this.world);
         this.blackouts.clear();
         this.blackOutRemainingTicks = 0;
+
+        sync();
     }
 
     @Override
@@ -58,6 +60,7 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
                 return;
             }
         }
+        this.blackOutRemainingTicks = 0;
         for (int i = 0; i < this.blackouts.size(); i++) {
             BlackoutDetails detail = this.blackouts.get(i);
             detail.tick(this.world);
@@ -65,10 +68,10 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
                 detail.end(this.world);
                 this.blackouts.remove(i);
                 i--;
+            } else {
+                this.blackOutRemainingTicks = Math.max(this.blackOutRemainingTicks, detail.time);
             }
         }
-        if (this.blackOutRemainingTicks > 0)
-            this.blackOutRemainingTicks--;
     }
 
     public boolean isBlackoutActive() {
@@ -95,8 +98,6 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
             BlockState state = this.world.getBlockState(pos);
             if (!state.hasProperty(BlockStateProperties.LIT) || !state.hasProperty(TMMProperties.ACTIVE))
                 continue;
-            if (duration > this.blackOutRemainingTicks)
-                this.blackOutRemainingTicks = duration;
             int maxFloatRange = (int) ((float) duration * GameConstants.getBlackoutRandomRangePercent());
             maxFloatRange = Math.max(1, maxFloatRange);
             int randomInt = this.world.random.nextInt(0,
@@ -106,9 +107,12 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
                     state.getValue(BlockStateProperties.LIT));
             detail.init(this.world);
             this.blackouts.add(detail);
+            this.blackOutRemainingTicks = Math.max(this.blackOutRemainingTicks, detail.time);
         }
         if (haveSound)
             playBlackoutSound();
+
+        sync();
         return true;
     }
 
@@ -118,8 +122,6 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
             BlockState state = this.world.getBlockState(pos);
             if (!state.hasProperty(BlockStateProperties.LIT) || !state.hasProperty(TMMProperties.ACTIVE))
                 continue;
-            if (duration > this.blackOutRemainingTicks)
-                this.blackOutRemainingTicks = duration;
             int maxFloatRange = (int) ((float) duration * GameConstants.getBlackoutRandomRangePercent());
             maxFloatRange = Math.max(1, maxFloatRange);
             int randomInt = this.world.random.nextInt(0,
@@ -129,10 +131,16 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
                     state.getValue(BlockStateProperties.LIT));
             detail.init(this.world);
             this.blackouts.add(detail);
+            this.blackOutRemainingTicks = Math.max(this.blackOutRemainingTicks, detail.time);
         }
         if (haveSound)
             playBlackoutSound();
+        sync();
         return true;
+    }
+
+    public void sync() {
+        KEY.sync(this.world);
     }
 
     public void playBlackoutSound() {
