@@ -23,8 +23,8 @@ public class SixtySecondsFlyingVehicleRenderer
         this.texture = Noellesroles.id("textures/entity/" + textureName(kind) + ".png");
         this.modelScale = switch (kind) {
             case FLYER -> 2.0F;
-            case HELICOPTER -> 2.5F;
-            case AIRPLANE -> 3.5F;
+            case HELICOPTER -> 5.0F;
+            case AIRPLANE -> 7.0F;
         };
     }
 

@@ -32,11 +32,11 @@ public class SixtySecondsFlyingVehicleModel extends EntityModel<SixtySecondsFlyi
         };
     }
 
-    /** 飞行器：小型单人飞行平台，长方形主体 + 四个角落的旋翼支臂 */
+    /** 飞行器：小型单人飞行平台，中央框架 + 四角支撑梁 + 旋翼 */
     public static LayerDefinition createFlyer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition part = mesh.getRoot();
-        // 主体（座位平台）
+        // 主体中央框架（X形交叉梁）
         part.addOrReplaceChild("body", CubeListBuilder.create()
                 .texOffs(0, 0).addBox(-3.0F, -2.0F, -4.0F, 6.0F, 2.0F, 8.0F),
                 PartPose.offset(0.0F, 24.0F, 0.0F));
@@ -44,6 +44,17 @@ public class SixtySecondsFlyingVehicleModel extends EntityModel<SixtySecondsFlyi
         part.addOrReplaceChild("stick", CubeListBuilder.create()
                 .texOffs(28, 0).addBox(-0.5F, -6.0F, -2.5F, 1.0F, 5.0F, 1.0F),
                 PartPose.offset(0.0F, 24.0F, 0.0F));
+        // 四角连接梁（中心 → 四角，斜向结构支撑）
+        CubeListBuilder brace = CubeListBuilder.create()
+                .texOffs(0, 12).addBox(-0.5F, -1.5F, 0.0F, 1.0F, 1.0F, 5.0F);
+        part.addOrReplaceChild("brace_fl", brace,
+                PartPose.offsetAndRotation(0.0F, 24.0F, 0.0F, 0.0F, 0.785F, 0.0F));
+        part.addOrReplaceChild("brace_fr", brace,
+                PartPose.offsetAndRotation(0.0F, 24.0F, 0.0F, 0.0F, -0.785F, 0.0F));
+        part.addOrReplaceChild("brace_rl", brace,
+                PartPose.offsetAndRotation(0.0F, 24.0F, 0.0F, 0.0F, -0.785F, 0.0F));
+        part.addOrReplaceChild("brace_rr", brace,
+                PartPose.offsetAndRotation(0.0F, 24.0F, 0.0F, 0.0F, 0.785F, 0.0F));
         // 四个旋翼支臂
         CubeListBuilder arm = CubeListBuilder.create()
                 .texOffs(0, 10).addBox(-0.5F, -1.0F, -8.0F, 1.0F, 1.0F, 8.0F);
@@ -69,10 +80,10 @@ public class SixtySecondsFlyingVehicleModel extends EntityModel<SixtySecondsFlyi
         part.addOrReplaceChild("body", CubeListBuilder.create()
                 .texOffs(0, 0).addBox(-4.0F, -6.0F, -12.0F, 8.0F, 6.0F, 18.0F),
                 PartPose.offset(0.0F, 24.0F, -2.0F));
-        // 驾驶舱玻璃
+        // 驾驶舱玻璃（贴合机身顶部，不倾斜）
         part.addOrReplaceChild("cockpit", CubeListBuilder.create()
-                .texOffs(0, 24).addBox(-3.0F, -8.0F, -8.0F, 6.0F, 3.0F, 6.0F),
-                PartPose.offsetAndRotation(0.0F, 24.0F, -2.0F, -0.35F, 0.0F, 0.0F));
+                .texOffs(0, 24).addBox(-3.0F, -3.0F, -8.0F, 6.0F, 3.0F, 6.0F),
+                PartPose.offset(0.0F, 18.0F, -2.0F));
         // 尾梁
         part.addOrReplaceChild("tail_boom", CubeListBuilder.create()
                 .texOffs(34, 0).addBox(-1.0F, -3.0F, 6.0F, 2.0F, 2.0F, 14.0F),
@@ -117,10 +128,10 @@ public class SixtySecondsFlyingVehicleModel extends EntityModel<SixtySecondsFlyi
         part.addOrReplaceChild("nose", CubeListBuilder.create()
                 .texOffs(0, 10).addBox(-3.0F, -3.0F, -21.0F, 6.0F, 6.0F, 3.0F),
                 PartPose.offset(0.0F, 25.0F, 0.0F));
-        // 驾驶舱
+        // 驾驶舱（贴合机身顶部，不倾斜）
         part.addOrReplaceChild("cockpit", CubeListBuilder.create()
-                .texOffs(0, 20).addBox(-3.0F, -8.0F, -15.0F, 6.0F, 4.0F, 8.0F),
-                PartPose.offsetAndRotation(0.0F, 24.0F, 0.0F, -0.2F, 0.0F, 0.0F));
+                .texOffs(0, 20).addBox(-3.0F, -4.0F, -15.0F, 6.0F, 4.0F, 8.0F),
+                PartPose.offset(0.0F, 20.0F, 0.0F));
         // 主翼
         part.addOrReplaceChild("main_wing", CubeListBuilder.create()
                 .texOffs(0, 32).addBox(-30.0F, -2.0F, -6.0F, 60.0F, 2.0F, 8.0F),
