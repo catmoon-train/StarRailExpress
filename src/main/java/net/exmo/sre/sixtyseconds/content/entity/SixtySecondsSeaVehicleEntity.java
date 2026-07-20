@@ -293,8 +293,12 @@ public class SixtySecondsSeaVehicleEntity extends Boat {
     public InteractionResult interact(Player player, InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
 
-        // 修理
-        if (held.is(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_TOOL)) {
+        // 修理（三种修理工具，恢复量不同）
+        int repairAmount = 0;
+        if (held.is(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_TOOL)) repairAmount = SixtySecondsVehicleEntity.REPAIR_AMOUNT;
+        else if (held.is(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_ADVANCED)) repairAmount = 30;
+        else if (held.is(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_UNIVERSAL)) repairAmount = 60;
+        if (repairAmount > 0) {
             if (!this.level().isClientSide) {
                 if (vehicleHealth() >= kind.maxHp) {
                     player.displayClientMessage(Component.translatable(
@@ -302,7 +306,7 @@ public class SixtySecondsSeaVehicleEntity extends Boat {
                             .withStyle(ChatFormatting.GRAY), true);
                     return InteractionResult.SUCCESS;
                 }
-                setVehicleHealth(vehicleHealth() + SixtySecondsVehicleEntity.REPAIR_AMOUNT);
+                setVehicleHealth(vehicleHealth() + repairAmount);
                 if (!player.isCreative()) {
                     held.shrink(1);
                 }

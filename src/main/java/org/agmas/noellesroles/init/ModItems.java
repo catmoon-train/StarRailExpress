@@ -1398,11 +1398,29 @@ public class ModItems {
                     new Item.Properties().stacksTo(1),
                     () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_AIRPLANE),
             "sixty_seconds_airplane", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
-    // 载具修理工具（车床，载具修理科技）：右键载具恢复 15 血量
+    // 载具修理工具（车床，载具修理-I）：右键载具恢复 15 血量
     public static final Item SIXTY_SECONDS_VEHICLE_REPAIR_TOOL = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsVehicleRepairItem(
                     new Item.Properties().stacksTo(4)),
             "sixty_seconds_vehicle_repair_tool", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 载具维修装置（车床，载具修理-II）：右键载具恢复 30 血量
+    public static final Item SIXTY_SECONDS_VEHICLE_REPAIR_ADVANCED = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsVehicleRepairItem(
+                    new Item.Properties().stacksTo(4)),
+            "sixty_seconds_vehicle_repair_advanced", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 万用补丁（车床，载具修理-III）：右键载具恢复 60 血量
+    public static final Item SIXTY_SECONDS_VEHICLE_REPAIR_UNIVERSAL = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsVehicleRepairItem(
+                    new Item.Properties().stacksTo(2)),
+            "sixty_seconds_vehicle_repair_universal", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 小型修理包（高级工作台，房门维护-I）：右键恢复门 25% 耐久
+    public static final Item SIXTY_SECONDS_SMALL_REPAIR_KIT = register(
+            new Item(new Item.Properties().stacksTo(8)),
+            "sixty_seconds_small_repair_kit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 万用修理包（高级工作台，房门维护-III）：右键恢复门 100% 耐久
+    public static final Item SIXTY_SECONDS_UNIVERSAL_REPAIR_KIT = register(
+            new Item(new Item.Properties().stacksTo(4)),
+            "sixty_seconds_universal_repair_kit", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 房车：刷新点工具 + 20 种可装配配件（模块对应 SixtySecondsRvPart 枚举）──────
     /** 管理员搭图工具：登记每队房车刷新点。 */

@@ -407,8 +407,12 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
-        // 修理
-        if (held.is(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_TOOL)) {
+        // 修理（三种修理工具，恢复量不同）
+        int repairAmount = 0;
+        if (held.is(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_TOOL)) repairAmount = REPAIR_AMOUNT;
+        else if (held.is(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_ADVANCED)) repairAmount = 30;
+        else if (held.is(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_UNIVERSAL)) repairAmount = 60;
+        if (repairAmount > 0) {
             if (!this.level().isClientSide) {
                 int cur = vehicleHealth();
                 if (cur >= kind.maxHp) {
@@ -417,7 +421,7 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
                             .withStyle(ChatFormatting.GRAY), true);
                     return InteractionResult.SUCCESS;
                 }
-                setVehicleHealth(cur + REPAIR_AMOUNT);
+                setVehicleHealth(cur + repairAmount);
                 if (!player.isCreative()) held.shrink(1);
                 this.level().playSound(null, getX(), getY(), getZ(),
                         SoundEvents.ANVIL_USE, SoundSource.NEUTRAL, 0.6F, 1.0F);

@@ -756,6 +756,23 @@ public final class SixtySecondsDefenseSystem {
         int gain;
         if (held.is(net.minecraft.tags.ItemTags.PLANKS)) {
             gain = SixtySecondsBalance.DOOR_REINFORCE_PLANK;
+        } else if (held.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_SMALL_REPAIR_KIT)) {
+            gain = Math.max(1, team.doorMaxHp / 4); // 小型修理包：恢复 25%
+            team.doorHp = Math.min(team.doorMaxHp, team.doorHp + gain);
+            if (team.doorBroken && team.doorHp > 0) team.doorBroken = false;
+            if (!player.isCreative()) held.shrink(1);
+            player.displayClientMessage(Component.translatable(
+                    "message.noellesroles.sixty_seconds.door_repaired",
+                    team.doorHp, team.doorMaxHp).withStyle(ChatFormatting.GREEN), true);
+            return true;
+        } else if (held.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_UNIVERSAL_REPAIR_KIT)) {
+            team.doorHp = team.doorMaxHp; // 万用修理包：满血复活
+            team.doorBroken = false;
+            if (!player.isCreative()) held.shrink(1);
+            player.displayClientMessage(Component.translatable(
+                    "message.noellesroles.sixty_seconds.door_repaired",
+                    team.doorHp, team.doorMaxHp).withStyle(ChatFormatting.GREEN), true);
+            return true;
         } else if (held.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_REPAIR_KIT)) {
             gain = 50; // 修理包：一次性大修
         } else if (held.is(Items.IRON_INGOT)) {

@@ -759,6 +759,14 @@ public final class SixtySecondsRecipes {
                 List.of(in(steel, 2), in(glassPlate, 2)), ModItems.SIXTY_SECONDS_DOOR_LOCK_REINFORCED, 1);
         add(list, "repair_kit", Station.ADV_WORKBENCH, "door_2", false,
                 List.of(in(oak, 6), in(iron, 3), in(tape, 2)), ModItems.SIXTY_SECONDS_REPAIR_KIT, 1);
+        // ── 小型修理包（房门维护-I，高级工作台，通电）────────────────────
+        add(list, "small_repair_kit", Station.ADV_WORKBENCH, "door_1", true,
+                List.of(in(oak, 4), in(iron, 1), in(plastic, 3)),
+                ModItems.SIXTY_SECONDS_SMALL_REPAIR_KIT, 1);
+        // ── 万用修理包（房门维护-III，高级工作台，通电）───────────────────
+        add(list, "universal_repair_kit", Station.ADV_WORKBENCH, "door_3", true,
+                List.of(in(steel, 3), in(nails, 2), in(plastic, 5)),
+                ModItems.SIXTY_SECONDS_UNIVERSAL_REPAIR_KIT, 1);
         add(list, "door_lock_ultimate", Station.ADV_WORKBENCH, "door_3", true,
                 List.of(in(alloy, 1), in(elec, 1)), ModItems.SIXTY_SECONDS_DOOR_LOCK_ULTIMATE, 1);
         add(list, "door_lock_alloy", Station.ADV_WORKBENCH, "door_4", true,
@@ -1290,9 +1298,18 @@ public final class SixtySecondsRecipes {
                 List.of(in(alloy, 10), in(steel, 15), in(glassPlate, 4), in(elec, 20), in(gear, 20),
                         in(wire, 20), in(battery, 6), in(hemp, 32), in(plastic, 10)),
                 ModItems.SIXTY_SECONDS_CAR, 1);
+        // ── 载具修理（车床，通电）──────────────────────────────────────
         add(list, "vehicle_repair_tool", Station.LATHE, "vehicle_repair", true,
                 List.of(in(steel, 2), in(wire, 3), in(glassPlate, 1)),
                 ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_TOOL, 1);
+        add(list, "vehicle_repair_advanced", Station.LATHE, "vehicle_repair_2", true,
+                List.of(in(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_TOOL, 1), in(steel, 2),
+                        in(glassPlate, 1), in(plastic, 5)),
+                ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_ADVANCED, 1);
+        add(list, "vehicle_repair_universal", Station.LATHE, "vehicle_repair_3", true,
+                List.of(in(ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_ADVANCED, 1), in(steel, 2),
+                        in(glassPlate, 2), in(plastic, 8)),
+                ModItems.SIXTY_SECONDS_VEHICLE_REPAIR_UNIVERSAL, 1);
         // ── 海上载具（车床）───────────────────────────────────────────
         // 木筏：纯木工，不吃金属也不吃电——三级里唯一不需要发动机的
         add(list, "raft", Station.LATHE, "boat_1", true,

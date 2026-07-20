@@ -168,7 +168,8 @@ public final class SixtySecondsTechTree {
         // ── 交通工具（需「更好的工作环境-IV」）──────────────────────────
         chain(list, "transport", "work_env_4", "fuel_1", "fuel_2", "fuel_3");
         chain(list, "transport", "work_env_4", "horse_1", "horse_2");
-        chain(list, "transport", "work_env_4", "vehicle_1", "vehicle_2", "vehicle_3", "vehicle_repair");
+        chain(list, "transport", "work_env_4", "vehicle_1", "vehicle_2", "vehicle_3");
+        chain(list, "transport", "work_env_4", "vehicle_repair", "vehicle_repair_2", "vehicle_repair_3");
         // 海上载具：木筏 → 汽艇 → 渔船，与陆上载具同为车床产物（需「更好的工作环境-IV」）
         chain(list, "transport", "work_env_4", "boat_1", "boat_2", "boat_3");
         // 飞行载具：飞行器 → 直升机 → 飞机（交通大类 70% 解锁门控，见 gateSatisfied）
