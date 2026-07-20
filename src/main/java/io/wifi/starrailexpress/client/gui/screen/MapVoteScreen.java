@@ -1,11 +1,13 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.api.AreasSettings;
+import io.wifi.starrailexpress.api.AreasSettings.MinecraftWeather;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapBackdropRenderer;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import io.wifi.starrailexpress.game.data.MapConfig;
@@ -40,53 +42,54 @@ import static io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics.with
 /**
  * 新版地图投票界面 — 暗金主题。
  *
- * <p>布局（横轴）：
+ * <p>
+ * 布局（横轴）：
  * <ul>
- *   <li>顶部中央：倒计时（无背景）</li>
- *   <li>左侧上方：投票排行（名字/排名，无背景）</li>
- *   <li>左侧：分类选项卡</li>
- *   <li>左侧：竖直地图列表（序号+地图名），选中后右侧动画展开介绍面板（可滑动）</li>
- *   <li>底部中央：地图名（大字暗金色）+ "已选择: XXX"（分行）</li>
+ * <li>顶部中央：倒计时（无背景）</li>
+ * <li>左侧上方：投票排行（名字/排名，无背景）</li>
+ * <li>左侧：分类选项卡</li>
+ * <li>左侧：竖直地图列表（序号+地图名），选中后右侧动画展开介绍面板（可滑动）</li>
+ * <li>底部中央：地图名（大字暗金色）+ "已选择: XXX"（分行）</li>
  * </ul>
  */
 public class MapVoteScreen extends Screen {
-
+    private static final Gson GSON = new Gson();
     // ---- 配色（暗金主题） ----
-    private static final int TEXT       = 0xFFE4E8EE;
-    private static final int TEXT_DIM   = 0xFF8B939F;
+    private static final int TEXT = 0xFFE4E8EE;
+    private static final int TEXT_DIM = 0xFF8B939F;
     private static final int TEXT_FAINT = 0xFF5C636D;
-    private static final int ACCENT     = 0xFF8B6914;
+    private static final int ACCENT = 0xFF8B6914;
     private static final int ACCENT_BRIGHT = 0xFFC9A84C;
-    private static final int GOLD       = 0xFFD4AF37;
-    private static final int GOLD_DARK  = 0xFF6B4F14;
-    private static final int PANEL      = 0x99141820;
+    private static final int GOLD = 0xFFD4AF37;
+    private static final int GOLD_DARK = 0xFF6B4F14;
+    private static final int PANEL = 0x99141820;
     private static final int PANEL_DARK = 0xB30D1016;
-    private static final int DIVIDER    = 0x20FFFFFF;
-    private static final int CARD_TOP   = 0x59FFFFFF;
+    private static final int DIVIDER = 0x20FFFFFF;
+    private static final int CARD_TOP = 0x59FFFFFF;
     private static final int CARD_BOTTOM = 0x2EDCE2EA;
     private static final int CARD_BORDER = 0xFFF2F5F8;
     private static final int CARD_TITLE = 0xFFFFFFFF;
-    private static final int CARD_META  = 0xFFCBD2DC;
-    private static final int CARD_BODY  = 0xFFEDF0F4;
-    private static final int WARNING    = 0xFFE06B65;
+    private static final int CARD_META = 0xFFCBD2DC;
+    private static final int CARD_BODY = 0xFFEDF0F4;
+    private static final int WARNING = 0xFFE06B65;
 
     // ---- 布局常量 ----
-    private static final int PAD          = 24;
-    private static final int TABS_Y       = 64;
-    private static final int TAB_H        = 20;
-    private static final int CONTENT_TOP  = 94;
-    private static final int BOTTOM_AREA  = 44;
-    private static final int ROW_H        = 28;
-    private static final int ROW_GAP      = 2;
-    private static final int THUMB_W      = 100;
+    private static final int PAD = 24;
+    private static final int TABS_Y = 64;
+    private static final int TAB_H = 20;
+    private static final int CONTENT_TOP = 94;
+    private static final int BOTTOM_AREA = 44;
+    private static final int ROW_H = 28;
+    private static final int ROW_GAP = 2;
+    private static final int THUMB_W = 100;
     private static final int INTRO_PANEL_W = 340;
     private static final float LIST_WIDTH_SCALE = 0.6f;
 
     private final MapBackdropRenderer backdrop = new MapBackdropRenderer();
 
-    private final List<MapRow> allRows     = new ArrayList<>();
+    private final List<MapRow> allRows = new ArrayList<>();
     private final List<MapRow> visibleRows = new ArrayList<>();
-    private final List<String> tabs        = new ArrayList<>();
+    private final List<String> tabs = new ArrayList<>();
 
     private MapRow selectedRow;
     private MapRow hoveredRow;
@@ -172,7 +175,8 @@ public class MapVoteScreen extends Screen {
         for (MapIntroSyncPayload.MapJson map : payload.maps()) {
             try {
                 mapJsons.put(map.id(), JsonParser.parseString(map.json()).getAsJsonObject());
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         introDataReceived = true;
         rebuildIntroDetail();
@@ -181,7 +185,8 @@ public class MapVoteScreen extends Screen {
     private void buildRows() {
         allRows.clear();
         List<MapConfig.MapEntry> maps = MapConfig.getInstance().getMaps();
-        if (maps == null) return;
+        if (maps == null)
+            return;
         for (MapConfig.MapEntry entry : maps) {
             allRows.add(new MapRow(entry));
         }
@@ -192,9 +197,11 @@ public class MapVoteScreen extends Screen {
         tabs.add("");
         Set<String> modes = new LinkedHashSet<>();
         for (MapRow row : allRows) {
-            if (row.entry.gameModes == null) continue;
+            if (row.entry.gameModes == null)
+                continue;
             for (String mode : row.entry.gameModes) {
-                if (mode != null && !mode.isBlank()) modes.add(mode);
+                if (mode != null && !mode.isBlank())
+                    modes.add(mode);
             }
         }
         tabs.addAll(modes);
@@ -229,7 +236,8 @@ public class MapVoteScreen extends Screen {
     /** 重新构建右侧介绍面板的文本行（MapIntroduceScreen 风格）。 */
     private void rebuildIntroDetail() {
         introDetailLines.clear();
-        if (selectedRow == null) return;
+        if (selectedRow == null)
+            return;
         MapRow row = selectedRow;
         int wrapW = Math.max(80, INTRO_PANEL_W - 40);
 
@@ -306,21 +314,45 @@ public class MapVoteScreen extends Screen {
         if (json != null) {
             addSection("map_intro.section.properties", wrapW);
             addLine("map_intro.property.room_count", intValue(json, "roomCount", 1), wrapW);
-            addLine(boolValue(json, "canSwim", false) ? "map_intro.property.can_swim.true"
-                    : "map_intro.property.can_swim.false", wrapW);
-            addLine(boolValue(json, "canJump", false) ? "map_intro.property.can_jump.true"
-                    : "map_intro.property.can_jump.false", wrapW);
-            if (boolValue(json, "snowEnabled", false))
-                addLine("map_intro.property.snow", wrapW);
-            if (boolValue(json, "sandEnabled", false))
-                addLine("map_intro.property.sand", wrapW);
-            if (boolValue(json, "enableOxygenDrowning", false))
-                addLine("map_intro.property.oxygen_drowning", wrapW);
-            if (!boolValue(json, "fogEnabled", true))
-                addLine("map_intro.property.no_fog", wrapW);
-            String weather = stringValue(json, "weather", "clear");
-            if (!weather.equalsIgnoreCase("clear"))
-                addLine("map_intro.property.weather", weather, wrapW);
+            if (json.has("areasSettings")) {
+                // 新数据
+                AreasSettings areasSettings = GSON.fromJson(json.get("settings"), AreasSettings.class);
+                addLine(areasSettings.canSimpleSwim && areasSettings.canUnderWater && areasSettings.allowInDeepWater
+                        && (areasSettings.canJump || areasSettings.canSwim)
+                                ? "map_intro.property.can_swim.true"
+                                : "map_intro.property.can_swim.false",
+                        wrapW);
+                addLine(areasSettings.canJump ? "map_intro.property.can_jump.true"
+                        : "map_intro.property.can_jump.false", wrapW);
+                if (areasSettings.snowEnabled)
+                    addLine("map_intro.property.snow", wrapW);
+                if (areasSettings.sandEnabled)
+                    addLine("map_intro.property.sand", wrapW);
+                if (areasSettings.enableOxygenDrowning)
+                    addLine("map_intro.property.oxygen_drowning", wrapW);
+                if (!areasSettings.fogEnabled)
+                    addLine("map_intro.property.no_fog", wrapW);
+                var weather = areasSettings.weather;
+                if (!weather.equals(MinecraftWeather.clear))
+                    addLine("map_intro.property.weather", weather.name(), wrapW);
+            } else {
+                // 旧数据，丢转转
+                addLine(boolValue(json, "canSwim", false) ? "map_intro.property.can_swim.true"
+                        : "map_intro.property.can_swim.false", wrapW);
+                addLine(boolValue(json, "canJump", false) ? "map_intro.property.can_jump.true"
+                        : "map_intro.property.can_jump.false", wrapW);
+                if (boolValue(json, "snowEnabled", false))
+                    addLine("map_intro.property.snow", wrapW);
+                if (boolValue(json, "sandEnabled", false))
+                    addLine("map_intro.property.sand", wrapW);
+                if (boolValue(json, "enableOxygenDrowning", false))
+                    addLine("map_intro.property.oxygen_drowning", wrapW);
+                if (!boolValue(json, "fogEnabled", true))
+                    addLine("map_intro.property.no_fog", wrapW);
+                String weather = stringValue(json, "weather", "clear");
+                if (!weather.equalsIgnoreCase("clear"))
+                    addLine("map_intro.property.weather", weather, wrapW);
+            }
             if (boolValue(json, "minigameQuestEnabled", false))
                 addLine("map_intro.property.minigame_quest", wrapW);
         }
@@ -437,7 +469,8 @@ public class MapVoteScreen extends Screen {
 
     private void renderTimer(GuiGraphics g) {
         MapVotingComponent voting = votingComponent();
-        if (voting == null || !voting.isVotingActive()) return;
+        if (voting == null || !voting.isVotingActive())
+            return;
 
         int timeLeft = Math.max(0, voting.getVotingTimeLeft() / 20);
         int total = Math.max(1, voting.getTotalVotingTime() / 20);
@@ -476,19 +509,22 @@ public class MapVoteScreen extends Screen {
 
     private void renderRanking(GuiGraphics g) {
         List<Map.Entry<String, Integer>> ranking = ranking();
-        if (ranking.isEmpty()) return;
+        if (ranking.isEmpty())
+            return;
 
         int maxShow = 8;
         int count = Math.min(maxShow, ranking.size());
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < count; i++) {
-            if (i > 0) sb.append("    ");
+            if (i > 0)
+                sb.append("    ");
             Map.Entry<String, Integer> item = ranking.get(i);
             String name = displayNameOf(item.getKey());
             sb.append(name).append(" / ").append(item.getValue());
         }
         String text = sb.toString();
-        if (text.isEmpty()) return;
+        if (text.isEmpty())
+            return;
 
         int x = listX;
         int y = TABS_Y - font.lineHeight - 4;
@@ -502,7 +538,8 @@ public class MapVoteScreen extends Screen {
 
     private void renderTabs(GuiGraphics g, int mouseX, int mouseY) {
         hoveredTab = -1;
-        if (tabs.size() <= 1) return;
+        if (tabs.size() <= 1)
+            return;
         float reveal = easeOutCubic(Mth.clamp((introProgress - 0.12f) * 1.6f, 0f, 1f));
         int alpha = (int) (reveal * 255f);
         int x = listX;
@@ -510,11 +547,13 @@ public class MapVoteScreen extends Screen {
         for (int i = 0; i < tabs.size(); i++) {
             Component label = tabLabel(i);
             int w = font.width(label) + 20;
-            if (x + w > width - PAD) break;
+            if (x + w > width - PAD)
+                break;
 
             boolean active = i == activeTab;
             boolean hover = isInRect(mouseX, mouseY, x, TABS_Y, w, TAB_H);
-            if (hover) hoveredTab = i;
+            if (hover)
+                hoveredTab = i;
 
             int bg = active
                     ? withAlpha(mix(PANEL_DARK, ACCENT, 0.55f), (int) (alpha * 0.95f))
@@ -555,7 +594,8 @@ public class MapVoteScreen extends Screen {
 
             if (y + rowH > CONTENT_TOP && y < listBottom) {
                 boolean hover = mouseInList && isInRect(mouseX, mouseY, listX, y, listW, rowH);
-                if (hover && row.entry.canSelect) hoveredRow = row;
+                if (hover && row.entry.canSelect)
+                    hoveredRow = row;
                 float entrance = easeOutCubic(Mth.clamp((introProgress - 0.16f - i * 0.035f) * 2.4f, 0f, 1f));
                 drawRow(g, row, i, listX, y, listW, rowH, entrance);
             }
@@ -620,7 +660,8 @@ public class MapVoteScreen extends Screen {
 
     private void renderIntroPanel(GuiGraphics g, int mouseX, int mouseY) {
         float panelAnim = easeOutCubic(Mth.clamp(introPanelAnim, 0f, 1f));
-        if (panelAnim < 0.01f) return;
+        if (panelAnim < 0.01f)
+            return;
 
         int panelW = INTRO_PANEL_W;
         int panelH = listBottom - CONTENT_TOP;
@@ -638,7 +679,8 @@ public class MapVoteScreen extends Screen {
         drawRectBorder(g, panelX, panelY, panelW, panelH, 1,
                 withAlpha(ACCENT_BRIGHT, (int) (panelAnim * 200)));
 
-        if (introDetailLines.isEmpty()) return;
+        if (introDetailLines.isEmpty())
+            return;
 
         int pad = 10;
         int textX = panelX + pad;
@@ -724,7 +766,8 @@ public class MapVoteScreen extends Screen {
 
     private void drawScrollbar(GuiGraphics g, int contentH) {
         int viewH = listBottom - CONTENT_TOP;
-        if (contentH <= viewH) return;
+        if (contentH <= viewH)
+            return;
         int trackX = listX + listW - 3;
         g.fill(trackX, CONTENT_TOP, trackX + 3, listBottom, withAlpha(0x000000, 90));
         int thumbH = Math.max(20, viewH * viewH / contentH);
@@ -782,19 +825,36 @@ public class MapVoteScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         switch (keyCode) {
-            case 257 -> { confirm(); return true; }
-            case 256 -> { onClose(); return true; }
-            case 264 -> { moveSelection(1); return true; }
-            case 265 -> { moveSelection(-1); return true; }
-            default -> { return super.keyPressed(keyCode, scanCode, modifiers); }
+            case 257 -> {
+                confirm();
+                return true;
+            }
+            case 256 -> {
+                onClose();
+                return true;
+            }
+            case 264 -> {
+                moveSelection(1);
+                return true;
+            }
+            case 265 -> {
+                moveSelection(-1);
+                return true;
+            }
+            default -> {
+                return super.keyPressed(keyCode, scanCode, modifiers);
+            }
         }
     }
 
     private void moveSelection(int direction) {
-        if (visibleRows.isEmpty()) return;
-        int current = selectedRow == null ? (direction > 0 ? -1 : visibleRows.size()) : visibleRows.indexOf(selectedRow);
+        if (visibleRows.isEmpty())
+            return;
+        int current = selectedRow == null ? (direction > 0 ? -1 : visibleRows.size())
+                : visibleRows.indexOf(selectedRow);
         int target = Mth.clamp(current + direction, 0, visibleRows.size() - 1);
-        if (target == current) return;
+        if (target == current)
+            return;
         selectedRow = visibleRows.get(target);
         ensureVisible(selectedRow);
         rebuildIntroDetail();
@@ -804,19 +864,23 @@ public class MapVoteScreen extends Screen {
     private void ensureVisible(MapRow row) {
         int y = CONTENT_TOP;
         for (MapRow candidate : visibleRows) {
-            if (candidate == row) break;
+            if (candidate == row)
+                break;
             y += rowHeight(candidate) + ROW_GAP;
         }
         int rowTop = y - CONTENT_TOP;
         int rowBottom = rowTop + ROW_H;
         int viewH = listBottom - CONTENT_TOP;
-        if (rowTop < scrollTarget) scrollTarget = rowTop;
-        else if (rowBottom > scrollTarget + viewH) scrollTarget = rowBottom - viewH;
+        if (rowTop < scrollTarget)
+            scrollTarget = rowTop;
+        else if (rowBottom > scrollTarget + viewH)
+            scrollTarget = rowBottom - viewH;
         scrollTarget = Mth.clamp(scrollTarget, 0f, maxScroll());
     }
 
     private void confirm() {
-        if (selectedRow == null) return;
+        if (selectedRow == null)
+            return;
         if (minecraft != null && minecraft.player != null) {
             minecraft.player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 0.5f, 1f);
         }
@@ -826,11 +890,14 @@ public class MapVoteScreen extends Screen {
 
     private void submitVote(MapRow row) {
         MapVotingComponent voting = votingComponent();
-        if (voting == null || !voting.isVotingActive() || minecraft == null || minecraft.player == null) return;
-        if (!row.entry.canSelect) return;
+        if (voting == null || !voting.isVotingActive() || minecraft == null || minecraft.player == null)
+            return;
+        if (!row.entry.canSelect)
+            return;
         ClientPlayNetworking.send(new VoteForMapPayload(row.entry.getId()));
         minecraft.player.displayClientMessage(
-                Component.translatable("gui.sre.map_selector.voted_for", row.displayName()).withStyle(ChatFormatting.GREEN),
+                Component.translatable("gui.sre.map_selector.voted_for", row.displayName())
+                        .withStyle(ChatFormatting.GREEN),
                 false);
     }
 
@@ -868,7 +935,8 @@ public class MapVoteScreen extends Screen {
     }
 
     private MapVotingComponent votingComponent() {
-        if (minecraft == null || minecraft.level == null) return null;
+        if (minecraft == null || minecraft.level == null)
+            return null;
         return MapVotingComponent.KEY.get(minecraft.level);
     }
 
@@ -879,18 +947,22 @@ public class MapVoteScreen extends Screen {
 
     private int totalVotes() {
         MapVotingComponent voting = votingComponent();
-        if (voting == null) return 0;
+        if (voting == null)
+            return 0;
         int sum = 0;
-        for (int value : voting.getAllVotes().values()) sum += value;
+        for (int value : voting.getAllVotes().values())
+            sum += value;
         return sum;
     }
 
     private List<Map.Entry<String, Integer>> ranking() {
         MapVotingComponent voting = votingComponent();
         List<Map.Entry<String, Integer>> list = new ArrayList<>();
-        if (voting == null) return list;
+        if (voting == null)
+            return list;
         for (Map.Entry<String, Integer> entry : voting.getAllVotes().entrySet()) {
-            if (entry.getValue() > 0) list.add(entry);
+            if (entry.getValue() > 0)
+                list.add(entry);
         }
         list.sort(Map.Entry.<String, Integer>comparingByValue().reversed());
         return list;
@@ -898,7 +970,8 @@ public class MapVoteScreen extends Screen {
 
     private String displayNameOf(String mapId) {
         for (MapRow row : allRows) {
-            if (row.entry.getId().equals(mapId)) return row.displayName();
+            if (row.entry.getId().equals(mapId))
+                return row.displayName();
         }
         return mapId;
     }
