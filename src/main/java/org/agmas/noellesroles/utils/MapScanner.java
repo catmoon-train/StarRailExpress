@@ -74,7 +74,7 @@ public class MapScanner {
             for (int l = trainBox.minY(); l <= trainBox.maxY(); l++) {
                 for (int m = trainBox.minX(); m <= trainBox.maxX(); m++) {
                     BlockPos blockPos6 = new BlockPos(m, l, k);
-                    testTaskBlocksAndAddToGameUtils(collectedMinigameIds, sabotageMinigameIds, localLevel,
+                    testTaskBlocksAndAddToGameUtils(sabotageMinigameIds, collectedMinigameIds, localLevel,
                             blockPos6, blockPos6);
                 }
             }
