@@ -757,15 +757,15 @@ public final class SixtySecondsRecipes {
                 List.of(in(iron, 4), in(copper, 1)), ModItems.SIXTY_SECONDS_WRENCH, 1);
         add(list, "door_lock_reinforced", Station.ADV_WORKBENCH, "door_2", true,
                 List.of(in(steel, 2), in(glassPlate, 2)), ModItems.SIXTY_SECONDS_DOOR_LOCK_REINFORCED, 1);
-        add(list, "repair_kit", Station.ADV_WORKBENCH, "door_2", false,
-                List.of(in(oak, 6), in(iron, 3), in(tape, 2)), ModItems.SIXTY_SECONDS_REPAIR_KIT, 1);
+        add(list, "repair_kit", Station.ADV_WORKBENCH, "door_2", true,
+                List.of(in(scrap, 2), in(plastic, 4)), ModItems.SIXTY_SECONDS_REPAIR_KIT, 1);
         // ── 小型修理包（房门维护-I，高级工作台，通电）────────────────────
         add(list, "small_repair_kit", Station.ADV_WORKBENCH, "door_1", true,
-                List.of(in(oak, 4), in(iron, 1), in(plastic, 3)),
+                List.of(in(scrap, 1), in(plastic, 2)),
                 ModItems.SIXTY_SECONDS_SMALL_REPAIR_KIT, 1);
         // ── 万用修理包（房门维护-III，高级工作台，通电）───────────────────
         add(list, "universal_repair_kit", Station.ADV_WORKBENCH, "door_3", true,
-                List.of(in(steel, 3), in(nails, 2), in(plastic, 5)),
+                List.of(in(iron, 1), in(plastic, 4)),
                 ModItems.SIXTY_SECONDS_UNIVERSAL_REPAIR_KIT, 1);
         add(list, "door_lock_ultimate", Station.ADV_WORKBENCH, "door_3", true,
                 List.of(in(alloy, 1), in(elec, 1)), ModItems.SIXTY_SECONDS_DOOR_LOCK_ULTIMATE, 1);

@@ -3688,7 +3688,7 @@
   "tech.noellesroles.sixty_seconds.vehicle_repair_2.desc": "載具維修裝置：一次性恢復 30 點血量。",
   "tech.noellesroles.sixty_seconds.vehicle_repair_3": "載具修理-III",
   "tech.noellesroles.sixty_seconds.vehicle_repair_3.desc": "萬用補丁：一次性恢復 60 點血量。",
-  "message.noellesroles.sixty_seconds.door_repaired": "§a家門已修復！當前耐久 %1$s / %2$s。",
+  "message.noellesroles.sixty_seconds.door_repaired_detail": "§a家門已修復！當前耐久 %1$s / %2$s。",
   "message.noellesroles.sixty_seconds.vehicle_no_fuel": "燃料耗盡，無法行駛！請補充燃料",
   "message.noellesroles.sixty_seconds.boat_need_water": "海上載具只能放在水面上。",
   "message.noellesroles.sixty_seconds.boat_occupied": "船上還有人，沒法收回。",

@@ -3781,7 +3781,7 @@
   "tech.noellesroles.sixty_seconds.vehicle_repair_2.desc": "Vehicle Repair Device: restores 30 HP per use.",
   "tech.noellesroles.sixty_seconds.vehicle_repair_3": "Vehicle Repair III",
   "tech.noellesroles.sixty_seconds.vehicle_repair_3.desc": "Universal Patch: restores 60 HP per use.",
-  "message.noellesroles.sixty_seconds.door_repaired": "§aDoor repaired! Current durability: %1$s / %2$s.",
+  "message.noellesroles.sixty_seconds.door_repaired_detail": "§aDoor repaired! Current durability: %1$s / %2$s.",
   "message.noellesroles.sixty_seconds.vehicle_no_fuel": "Out of fuel! Cannot drive. Refuel to continue.",
   "message.noellesroles.sixty_seconds.boat_need_water": "Watercraft can only be placed on water.",
   "message.noellesroles.sixty_seconds.boat_occupied": "Someone's still aboard — you can't pick it up.",

@@ -862,10 +862,10 @@ public class ModItems {
             new Item(new Item.Properties().stacksTo(16).food(
                     new net.minecraft.world.food.FoodProperties.Builder().nutrition(5).saturationModifier(0.5F).build())),
             "sixty_seconds_fresh_vegetables", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
-    // 创口贴：医疗-I，缓慢恢复10健康+降低10污染
+    // 创口贴：医疗-I，缓慢恢复10健康+降低10污染（HoT 机制同绷带）
     public static final Item SIXTY_SECONDS_BAND_AID = register(
-            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
-                    new Item.Properties().stacksTo(16), 0, 0, 0, 0, 10, false, null, 80, net.minecraft.world.item.UseAnim.EAT),
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsBandageItem(
+                    new Item.Properties().stacksTo(16), 10, 10),
             "sixty_seconds_band_aid", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 竹筒饭：竹子×1+野米×3+任意蔬菜×2，恢复70饥饿+40健康
     public static final Item SIXTY_SECONDS_BAMBOO_RICE = register(
