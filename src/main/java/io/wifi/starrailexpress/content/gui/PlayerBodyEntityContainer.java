@@ -72,6 +72,8 @@ public class PlayerBodyEntityContainer extends SimpleContainer {
     }
 
     private boolean canPlayerTakeItem(Player player, Container container, int slot, ItemStack stack) {
+        if (player.isSpectator())
+            return false;
         var role = RoleUtils.getPlayerRole(player);
         if (role != null) {
             return role.canTakePlayerBodyItem(player, container, slot, stack);
