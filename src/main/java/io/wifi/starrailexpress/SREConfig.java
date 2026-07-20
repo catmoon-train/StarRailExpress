@@ -233,6 +233,7 @@ public class SREConfig implements ConfigData {
     @ConfigSync(shouldSync = true)
     public int furandoruSafeTime = 6 * 60;// 6分钟外安全
 
+    // 小游戏任务并列模式：在轮换模式启用时不影响普通任务刷新
     public boolean minigameTaskParallelMode = true;
     public int safeTimeCooldown = 30;
     public int startingMoney = 100;
