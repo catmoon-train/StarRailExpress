@@ -238,11 +238,11 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
         float inputThrottle = player.zza; // W=+1 前进, S=-1 后退
         float inputSteer = player.xxa;     // A=+1 左, D=-1 右
         float inputLift = 0.0F;
-        // 升/降控制：Ctrl(疾跑)=上升, Shift(潜行)=下降，两者均可在服务端检测
-        if (player.isSprinting()) inputLift = 1.0F;   // Ctrl 上升
-        if (player.isCrouching()) inputLift = -1.0F;  // Shift 下降
-        // S 倒车时若无上升指令则附带下降（保留原 S 下降行为兼容）
-        if (inputThrottle < -0.1F && inputLift <= 0) inputLift = -Math.abs(inputThrottle) * 0.5F;
+        // W 前进时自动攀升，S 后退时下降；速度越快升力越大
+        if (inputThrottle > 0.01F)
+            inputLift = inputThrottle;
+        else if (inputThrottle < -0.01F)
+            inputLift = inputThrottle;
 
         boolean hasFuel = fuelTicks() > 0;
 
@@ -358,17 +358,14 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
 
     @Override
     public void travel(Vec3 travelVector) {
-        // 有乘客时由 tick() 全权处理飞行物理，跳过父类 Mob.travel()
         if (!this.getPassengers().isEmpty()) {
             return;
         }
-        // 无乘客时走原版重力下落
         super.travel(travelVector);
     }
 
     @Override
     protected void tickRidden(Player player, Vec3 travelVector) {
-        // 飞行载具不用父类移动逻辑，完全自己处理 tick()
         setDeltaMovement(Vec3.ZERO);
     }
 
