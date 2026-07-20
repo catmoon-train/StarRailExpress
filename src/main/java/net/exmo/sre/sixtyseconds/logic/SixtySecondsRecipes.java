@@ -437,7 +437,7 @@ public final class SixtySecondsRecipes {
                 List.of(in(iron, 2)), ModItems.SIXTY_SECONDS_NAILS, 2);
         add(list, "electronics", Station.WORKBENCH, "materials_2", true,
                 List.of(in(wire, 2), in(plastic, 1), in(scrap, 3)), ModItems.SIXTY_SECONDS_ELECTRONICS, 1);
-        add(list, "gear", Station.WORKBENCH, "materials_2", false,
+        add(list, "gear", Station.WORKBENCH, "materials_2", true,
                 List.of(in(iron, 2), in(scrap, 3)), ModItems.SIXTY_SECONDS_GEAR, 1);
         add(list, "wire", Station.WORKBENCH, "materials_2", false,
                 List.of(in(iron, 1), in(scrap, 2)), ModItems.SIXTY_SECONDS_WIRE, 1);
