@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "age=0": { "model": "noellesroles:block/sixty_seconds_hydroponic_box_0" },
+    "age=1": { "model": "noellesroles:block/sixty_seconds_hydroponic_box_1" },
+    "age=2": { "model": "noellesroles:block/sixty_seconds_hydroponic_box_2" },
+    "age=3": { "model": "noellesroles:block/sixty_seconds_hydroponic_box_3" }
+  }
+}

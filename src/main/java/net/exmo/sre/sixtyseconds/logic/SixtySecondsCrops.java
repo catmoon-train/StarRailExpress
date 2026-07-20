@@ -21,7 +21,7 @@ public final class SixtySecondsCrops {
 
     /** 培育箱等级。 */
     public enum Tier {
-        BASIC, ADVANCED, MUSHROOM, GARDENER, ARID
+        BASIC, ADVANCED, MUSHROOM, GARDENER, ARID, HYDROPONIC
     }
 
     /**
@@ -90,6 +90,15 @@ public final class SixtySecondsCrops {
         if ("cactus".equals(crop.id())) {
             return tier == Tier.ARID;
         }
+        // 水培箱：甘蔗、海带、药用蕨、荷叶
+        if (tier == Tier.HYDROPONIC) {
+            return "sugar_cane".equals(crop.id()) || "kelp".equals(crop.id())
+                    || "medicinal_fern".equals(crop.id()) || "lily_pad".equals(crop.id());
+        }
+        if ("sugar_cane".equals(crop.id()) || "kelp".equals(crop.id())
+                || "medicinal_fern".equals(crop.id()) || "lily_pad".equals(crop.id())) {
+            return tier == Tier.HYDROPONIC;
+        }
         return tier == Tier.BASIC || tier == Tier.ADVANCED;
     }
 
@@ -150,6 +159,16 @@ public final class SixtySecondsCrops {
         // 旱地培育箱：仙人掌（种一收二）
         list.add(new Crop("cactus", Items.CACTUS, Items.CACTUS,
                 2, 2, "misc_planter_2", false, false, false, false));
+        // 水培箱：甘蔗、海带、药用蕨（种一收二）
+        list.add(new Crop("sugar_cane", Items.SUGAR_CANE, Items.SUGAR_CANE,
+                2, 2, "misc_planter_3", false, false, false, false));
+        list.add(new Crop("kelp", Items.KELP, Items.KELP,
+                2, 2, "misc_planter_3", false, false, false, false));
+        list.add(new Crop("medicinal_fern", ModItems.SIXTY_SECONDS_MEDICINAL_FERN,
+                ModItems.SIXTY_SECONDS_MEDICINAL_FERN,
+                2, 2, "misc_planter_3", false, false, false, false));
+        list.add(new Crop("lily_pad", Items.LILY_PAD, Items.LILY_PAD,
+                2, 2, "misc_planter_3", false, false, false, false));
         return List.copyOf(list);
     }
 }

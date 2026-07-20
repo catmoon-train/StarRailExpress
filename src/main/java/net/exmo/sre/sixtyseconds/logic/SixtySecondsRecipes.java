@@ -435,8 +435,6 @@ public final class SixtySecondsRecipes {
         // ── 材料工艺-II ───────────────────────────────────────────────
         add(list, "nails", Station.WORKBENCH, "materials_2", false,
                 List.of(in(iron, 2)), ModItems.SIXTY_SECONDS_NAILS, 2);
-        add(list, "gear_powered", Station.WORKBENCH, "materials_2", true,
-                List.of(in(iron, 1), in(scrap, 3)), ModItems.SIXTY_SECONDS_GEAR, 1);
         add(list, "electronics", Station.WORKBENCH, "materials_2", true,
                 List.of(in(wire, 2), in(plastic, 1), in(scrap, 3)), ModItems.SIXTY_SECONDS_ELECTRONICS, 1);
         add(list, "gear", Station.WORKBENCH, "materials_2", false,
@@ -525,6 +523,16 @@ public final class SixtySecondsRecipes {
         add(list, "backpack_traveler", Station.TAILOR, "backpack_5", true,
                 List.of(in(steel, 1), in(Items.LEATHER, 5), in(hemp, 6)),
                 ModItems.SIXTY_SECONDS_BACKPACK_TRAVELER, 1);
+        // ── 背包扩容模块（裁缝台，前置背包-III）────────────────────────
+        add(list, "unlock_slots_small", Station.TAILOR, "backpack_expand_1", true,
+                List.of(in(Items.LEATHER, 2), in(Items.PAPER, 3), in(clothRoll, 1), in(plastic, 12)),
+                ModItems.SIXTY_SECONDS_UNLOCK_SLOTS_SMALL, 1);
+        add(list, "unlock_slots_medium", Station.TAILOR, "backpack_expand_2", true,
+                List.of(in(Items.LEATHER, 4), in(Items.PAPER, 4), in(clothRoll, 4), in(plastic, 20), in(hemp, 2)),
+                ModItems.SIXTY_SECONDS_UNLOCK_SLOTS_MEDIUM, 1);
+        add(list, "unlock_slots_large", Station.TAILOR, "backpack_expand_3", true,
+                List.of(in(Items.LEATHER, 4), in(clothRoll, 6), in(plastic, 32), in(hemp, 6)),
+                ModItems.SIXTY_SECONDS_UNLOCK_SLOTS_LARGE, 1);
 
         // ══ 农业 ═══════════════════════════════════════════════════
         add(list, "seeds_pack", Station.WORKBENCH, "agri_1", false,
@@ -1272,14 +1280,15 @@ public final class SixtySecondsRecipes {
                 org.agmas.noellesroles.init.FunnyItems.SUPER_PIG_HORSESHOE, 1);
         // ── 载具（车床）───────────────────────────────────────────────
         add(list, "wheelchair", Station.LATHE, "vehicle_1", true,
-                List.of(in(steel, 6), in(gear, 5), in(elec, 5), in(wire, 3), in(hemp, 5)),
+                List.of(in(steel, 6), in(gear, 5), in(elec, 5), in(wire, 3), in(hemp, 5), in(plastic, 5)),
                 ModItems.WHEELCHAIR, 1);
         add(list, "motorcycle", Station.LATHE, "vehicle_2", true,
-                List.of(in(steel, 12), in(elec, 10), in(gear, 10), in(wire, 10), in(battery, 2), in(hemp, 20)),
+                List.of(in(steel, 12), in(elec, 10), in(gear, 10), in(wire, 10), in(battery, 2),
+                        in(hemp, 5), in(plastic, 10)),
                 ModItems.SIXTY_SECONDS_MOTORCYCLE, 1);
         add(list, "car", Station.LATHE, "vehicle_3", true,
                 List.of(in(alloy, 10), in(steel, 15), in(glassPlate, 4), in(elec, 20), in(gear, 20),
-                        in(wire, 20), in(battery, 6), in(hemp, 32)),
+                        in(wire, 20), in(battery, 6), in(hemp, 32), in(plastic, 10)),
                 ModItems.SIXTY_SECONDS_CAR, 1);
         add(list, "vehicle_repair_tool", Station.LATHE, "vehicle_repair", true,
                 List.of(in(steel, 2), in(wire, 3), in(glassPlate, 1)),
@@ -1299,6 +1308,26 @@ public final class SixtySecondsRecipes {
                 List.of(in(alloy, 8), in(steel, 18), in(oak, 16), in(glassPlate, 4), in(elec, 16),
                         in(gear, 16), in(wire, 16), in(battery, 5), in(hemp, 24)),
                 ModItems.SIXTY_SECONDS_FISHING_BOAT, 1);
+        // ── 航空煤油（液体融锅，燃料-III），飞行载具专用燃料 ────────────
+        add(list, "aviation_kerosene", Station.MELTING_POT, "fuel_3", true,
+                List.of(in(ModItems.SIXTY_SECONDS_DIESEL_CAN, 2), in(Items.CHARCOAL, 5), in(chem, 2)),
+                ModItems.SIXTY_SECONDS_AVIATION_KEROSENE, 1);
+        // ── 飞行载具（车床，难度递增，均远超汽车）──────────────────────
+        // 飞行器：1 座单人飞行平台——航空级螺旋桨，用料比汽车更精
+        add(list, "flyer", Station.LATHE, "aircraft_1", true,
+                List.of(in(alloy, 2), in(steel, 8), in(glassPlate, 5), in(elec, 22), in(gear, 22),
+                        in(wire, 22), in(battery, 8), in(plastic, 34)),
+                ModItems.SIXTY_SECONDS_FLYER, 1);
+        // 直升机：3 座，主旋翼 + 尾旋翼——航电复杂度再上一个台阶
+        add(list, "helicopter", Station.LATHE, "aircraft_2", true,
+                List.of(in(alloy, 16), in(steel, 22), in(glassPlate, 7), in(elec, 26), in(gear, 26),
+                        in(wire, 26), in(battery, 12), in(hemp, 10), in(plastic, 40)),
+                ModItems.SIXTY_SECONDS_HELICOPTER, 1);
+        // 飞机：6 座固定翼——双引擎航电，顶端飞行载具
+        add(list, "airplane", Station.LATHE, "aircraft_3", true,
+                List.of(in(alloy, 22), in(steel, 28), in(glassPlate, 10), in(elec, 32), in(gear, 32),
+                        in(wire, 30), in(battery, 16), in(hemp, 14), in(plastic, 48), in(chem, 2)),
+                ModItems.SIXTY_SECONDS_AIRPLANE, 1);
         // ── 房车装修（车床，需通电）────────────────────────────────────
         var rvp = org.agmas.noellesroles.init.ModItems.RV_PART_ITEMS;
         // ▸ 房车装修-I (rv_upgrade_1)
@@ -1417,6 +1446,10 @@ public final class SixtySecondsRecipes {
         add(list, "arid_cultivator", Station.WORKBENCH, "misc_planter_2", true,
                 List.of(in(oak, 6), in(ModItems.SIXTY_SECONDS_NUTRIENT_FERTILIZER, 2), in(chem, 2)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_ARID_CULTIVATOR.asItem(), 1);
+        // ── 水培箱（种点别的-III）─────────────────────────────────────────
+        add(list, "hydroponic_box", Station.WORKBENCH, "misc_planter_3", true,
+                List.of(in(oak, 4), in(waterM, 2), in(chem, 4)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_HYDROPONIC_BOX.asItem(), 1);
 
         // ── 新增配方：剪刀（工具-I）───────────────────────────────────────
         add(list, "shears", Station.WORKBENCH, "tools_1", false,

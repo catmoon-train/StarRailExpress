@@ -40,6 +40,8 @@ public final class SixtySecondsTechTree {
 
     /** 神秘技术入口门槛：非神秘节点解锁比例。 */
     public static final double MYSTIC_GATE_RATIO = 0.45;
+    /** 飞行载具入口门槛：交通大类节点解锁比例。 */
+    public static final double AIRCRAFT_GATE_RATIO = 0.70;
 
     /**
      * 科技节点：父节点未解锁不能解锁本节点（分支链 + 跨分支门控统一用 parentId）。
@@ -89,12 +91,13 @@ public final class SixtySecondsTechTree {
         chain(list, "survival", null, "work_env_1", "work_env_2", "work_env_3", "work_env_4");
         chain(list, "survival", null, "materials_1", "materials_2", "materials_3");
         chain(list, "survival", null, "tools_1", "tools_2", "tools_3");
-        // 背包在裁缝台制作 → 需先解锁「更好的工作环境-I」
+        // 背包在裁缝台制作 → 需先解锁「更好的工作环境-I」；扩容模块需要背包-III 后再解锁
         chain(list, "survival", "work_env_1", "backpack_1", "backpack_2", "backpack_3", "backpack_4", "backpack_5");
+        chain(list, "survival", "backpack_3", "backpack_expand_1", "backpack_expand_2", "backpack_expand_3");
         // ── 农业 ────────────────────────────────────────────────────
         chain(list, "agriculture", null, "agri_1", "agri_2", "agri_3");
         chain(list, "agriculture", null, "planter_1", "planter_2");
-        chain(list, "agriculture", "planter_1", "misc_planter_1", "misc_planter_2");
+        chain(list, "agriculture", "planter_1", "misc_planter_1", "misc_planter_2", "misc_planter_3");
         chain(list, "agriculture", null, "fertilizer_1", "fertilizer_2");
         chain(list, "agriculture", null, "tobacco");
         chain(list, "agriculture", "agri_2", "trap_cage");
@@ -163,11 +166,13 @@ public final class SixtySecondsTechTree {
         chain(list, "base", "work_env_4", "base_expand_1", "base_expand_2", "base_expand_3");
         chain(list, "base", "work_env_4", "base_facility_1", "base_facility_2", "base_facility_3");
         // ── 交通工具（需「更好的工作环境-IV」）──────────────────────────
-        chain(list, "transport", "work_env_4", "fuel_1", "fuel_2");
+        chain(list, "transport", "work_env_4", "fuel_1", "fuel_2", "fuel_3");
         chain(list, "transport", "work_env_4", "horse_1", "horse_2");
         chain(list, "transport", "work_env_4", "vehicle_1", "vehicle_2", "vehicle_3", "vehicle_repair");
         // 海上载具：木筏 → 汽艇 → 渔船，与陆上载具同为车床产物（需「更好的工作环境-IV」）
         chain(list, "transport", "work_env_4", "boat_1", "boat_2", "boat_3");
+        // 飞行载具：飞行器 → 直升机 → 飞机（交通大类 70% 解锁门控，见 gateSatisfied）
+        chain(list, "transport", null, "aircraft_1", "aircraft_2", "aircraft_3");
         // ── 房车装修（车床，需「更好的工作环境-IV」）─────────────────────
         chain(list, "transport", "work_env_4", "rv_upgrade_1", "rv_upgrade_2", "rv_upgrade_3");
         // ── 神秘技术（全树 45% 门控，见 gateSatisfied）───────────────────
@@ -295,7 +300,8 @@ public final class SixtySecondsTechTree {
      * <ul>
      *   <li>{@link #EXTRA_REQUIREMENTS} —— 「前置：A 和 B」里的第二个前置；</li>
      *   <li>{@code omni_tonic} —— 医疗大类其余节点全部解锁；</li>
-     *   <li>神秘技术大类首节点（{@code sacrifice_1}）—— 非神秘节点解锁数 ≥ 75%。</li>
+     *   <li>{@code aircraft_1} —— 交通大类节点解锁数 ≥ 70%；</li>
+     *   <li>神秘技术大类首节点（{@code sacrifice_1}）—— 非神秘节点解锁数 ≥ 45%。</li>
      * </ul>
      */
     public static boolean gateSatisfied(TechNode node, Set<String> unlocked) {
@@ -310,6 +316,20 @@ public final class SixtySecondsTechTree {
                 }
             }
             return true;
+        }
+        if ("aircraft_1".equals(node.id())) {
+            int total = 0;
+            int have = 0;
+            for (TechNode other : NODES) {
+                if ("transport".equals(other.category()) && !other.id().equals("aircraft_1")
+                        && !other.id().equals("aircraft_2") && !other.id().equals("aircraft_3")) {
+                    total++;
+                    if (unlocked.contains(other.id())) {
+                        have++;
+                    }
+                }
+            }
+            return have >= (int) Math.ceil(total * AIRCRAFT_GATE_RATIO);
         }
         if ("sacrifice_1".equals(node.id())) {
             int total = 0;

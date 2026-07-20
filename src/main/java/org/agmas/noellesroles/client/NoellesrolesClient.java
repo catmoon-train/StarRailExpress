@@ -443,6 +443,19 @@ public class NoellesrolesClient implements ClientModInitializer {
                         ctx, net.exmo.sre.sixtyseconds.content.entity.SixtySecondsVehicleEntity.Kind.CAR));
         EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_RV,
                 net.exmo.sre.sixtyseconds.client.render.SixtySecondsRvRenderer::new);
+        // 60s 飞行载具：自研盒子模型（飞行器/直升机/飞机）
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_FLYER,
+                ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsFlyingVehicleRenderer(
+                        ctx, net.exmo.sre.sixtyseconds.content.entity
+                                .SixtySecondsFlyingVehicleEntity.Kind.FLYER));
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_HELICOPTER,
+                ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsFlyingVehicleRenderer(
+                        ctx, net.exmo.sre.sixtyseconds.content.entity
+                                .SixtySecondsFlyingVehicleEntity.Kind.HELICOPTER));
+        EntityRendererRegistry.register(ModEntities.SIXTY_SECONDS_AIRPLANE,
+                ctx -> new net.exmo.sre.sixtyseconds.client.render.SixtySecondsFlyingVehicleRenderer(
+                        ctx, net.exmo.sre.sixtyseconds.content.entity
+                                .SixtySecondsFlyingVehicleEntity.Kind.AIRPLANE));
         EntityRendererRegistry.register(ModEntities.ROLLING_STONE,
                 org.agmas.noellesroles.client.render.RollingStoneRenderer::new);
         EntityRendererRegistry.register(ModEntities.ROLLING_LOG,

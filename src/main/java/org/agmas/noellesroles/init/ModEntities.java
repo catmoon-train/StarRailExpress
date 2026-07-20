@@ -75,6 +75,35 @@ public class ModEntities {
                     net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity.Kind.FISHING_BOAT,
                     9.6F, 4.0F);
 
+    // 末日60秒：飞行载具（飞行器 1 座 / 直升机 3 座 / 飞机 6 座，需柴油罐）
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity>
+            SIXTY_SECONDS_FLYER = registerFlyingVehicle("sixty_seconds_flyer",
+                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity.Kind.FLYER,
+                    2.5F, 1.8F);
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity>
+            SIXTY_SECONDS_HELICOPTER = registerFlyingVehicle("sixty_seconds_helicopter",
+                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity.Kind.HELICOPTER,
+                    4.0F, 3.0F);
+    public static final EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity>
+            SIXTY_SECONDS_AIRPLANE = registerFlyingVehicle("sixty_seconds_airplane",
+                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity.Kind.AIRPLANE,
+                    7.0F, 4.5F);
+
+    /** 三种飞行载具的注册只差 Kind 与碰撞盒。 */
+    private static EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity>
+            registerFlyingVehicle(String name,
+                    net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity.Kind kind,
+                    float width, float height) {
+        return Registry.register(BuiltInRegistries.ENTITY_TYPE, Noellesroles.id(name),
+                EntityType.Builder
+                        .<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity>of(
+                                (type, world) -> new net.exmo.sre.sixtyseconds.content.entity
+                                        .SixtySecondsFlyingVehicleEntity(type, world, kind),
+                                MobCategory.MISC)
+                        .sized(width, height)
+                        .build(name));
+    }
+
     /** 三种海上载具的注册只差 Kind 与碰撞盒，抽一个工厂免得抄三遍。 */
     private static EntityType<net.exmo.sre.sixtyseconds.content.entity.SixtySecondsSeaVehicleEntity>
             registerSeaVehicle(String name,
@@ -587,6 +616,12 @@ public class ModEntities {
         FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_MOTORCYCLE, WheelchairEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_CAR, WheelchairEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_RV, WheelchairEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_FLYER,
+                net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_HELICOPTER,
+                net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(SIXTY_SECONDS_AIRPLANE,
+                net.exmo.sre.sixtyseconds.content.entity.SixtySecondsFlyingVehicleEntity.createAttributes());
         // 注册傀儡本体实体属性（LivingEntity 必须注册属性才能生成）
         FabricDefaultAttributeRegistry.register(PUPPETEER_BODY, LivingEntity.createLivingAttributes());
         FabricDefaultAttributeRegistry.register(SALTED_FISH_BODY,

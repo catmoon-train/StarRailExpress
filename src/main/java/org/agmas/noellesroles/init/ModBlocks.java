@@ -426,6 +426,14 @@ public interface ModBlocks {
             b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 水培箱：在水里种甘蔗/海带/药用蕨（种一收二）
+    Block SIXTY_SECONDS_HYDROPONIC_BOX = blockRegistrar.createWithItem("sixty_seconds_hydroponic_box",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsPlanterBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(1.5F).randomTicks(),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsCrops.Tier.HYDROPONIC),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsPlanterBlockEntity> SIXTY_SECONDS_PLANTER_ENTITY =
             blockEntityRegistrar.create("sixty_seconds_planter",
                     BlockEntityType.Builder.of(
@@ -434,7 +442,8 @@ public interface ModBlocks {
                             ModBlocks.SIXTY_SECONDS_ADVANCED_PLANTER,
                             ModBlocks.SIXTY_SECONDS_MUSHROOM_BOX,
                             ModBlocks.SIXTY_SECONDS_GARDENER_PLANTER,
-                            ModBlocks.SIXTY_SECONDS_ARID_CULTIVATOR));
+                            ModBlocks.SIXTY_SECONDS_ARID_CULTIVATOR,
+                            ModBlocks.SIXTY_SECONDS_HYDROPONIC_BOX));
 
     // ── 保险库（对外队上锁的真实容器）+ 基地箱子（普通容器）─────────────────
     Block SIXTY_SECONDS_VAULT_SMALL = blockRegistrar.createWithItem("sixty_seconds_vault_small",

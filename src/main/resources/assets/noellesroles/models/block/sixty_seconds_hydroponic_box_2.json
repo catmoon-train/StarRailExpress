@@ -1,0 +1,9 @@
+{
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "noellesroles:block/sixty_seconds_hydroponic_box_side",
+    "side": "noellesroles:block/sixty_seconds_hydroponic_box_side",
+    "top": "noellesroles:block/sixty_seconds_hydroponic_box_top_2",
+    "particle": "noellesroles:block/sixty_seconds_hydroponic_box_side"
+  }
+}

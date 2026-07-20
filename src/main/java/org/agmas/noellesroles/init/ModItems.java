@@ -1056,6 +1056,12 @@ public class ModItems {
     public static final Item SIXTY_SECONDS_NUTRIENT_FERTILIZER = register(
             new Item(new Item.Properties().stacksTo(16)),
             "sixty_seconds_nutrient_fertilizer", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 药用蕨：右键食用，恢复 20 健康并降低 5 污染值（水培箱种植）
+    public static final Item SIXTY_SECONDS_MEDICINAL_FERN = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsStatItem(
+                    new Item.Properties().stacksTo(16), 20, 0, 0, 0, 5, false, null,
+                    40, net.minecraft.world.item.UseAnim.EAT),
+            "sixty_seconds_medicinal_fern", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
 
     // ── 工具类新物品 ─────────────────────────────────────────────────
     // 便签/巨大便签：纸制小玩意（写便签留言用的道具）
@@ -1347,6 +1353,9 @@ public class ModItems {
     public static final Item SIXTY_SECONDS_DIESEL_CAN = register(
             new Item(new Item.Properties().stacksTo(8)),
             "sixty_seconds_diesel_can", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_AVIATION_KEROSENE = register(
+            new Item(new Item.Properties().stacksTo(4)),
+            "sixty_seconds_aviation_kerosene", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_MOTORCYCLE = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsVehicleItem(
                     new Item.Properties().stacksTo(1),
@@ -1373,6 +1382,22 @@ public class ModItems {
                     new Item.Properties().stacksTo(1),
                     () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_FISHING_BOAT),
             "sixty_seconds_fishing_boat", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // ── 交通：飞行载具（飞行器 1 座 / 直升机 3 座 / 飞机 6 座，使用柴油罐）──
+    public static final Item SIXTY_SECONDS_FLYER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsFlyingVehicleItem(
+                    new Item.Properties().stacksTo(1),
+                    () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_FLYER),
+            "sixty_seconds_flyer", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_HELICOPTER = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsFlyingVehicleItem(
+                    new Item.Properties().stacksTo(1),
+                    () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_HELICOPTER),
+            "sixty_seconds_helicopter", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_AIRPLANE = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsFlyingVehicleItem(
+                    new Item.Properties().stacksTo(1),
+                    () -> org.agmas.noellesroles.init.ModEntities.SIXTY_SECONDS_AIRPLANE),
+            "sixty_seconds_airplane", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     // 载具修理工具（车床，载具修理科技）：右键载具恢复 15 血量
     public static final Item SIXTY_SECONDS_VEHICLE_REPAIR_TOOL = register(
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsVehicleRepairItem(
