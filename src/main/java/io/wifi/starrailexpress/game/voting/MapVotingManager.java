@@ -5,6 +5,10 @@ import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.data.MapConfig;
+import io.wifi.starrailexpress.game.data.ServerMapConfig;
+import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 
@@ -13,6 +17,11 @@ import java.util.UUID;
 
 public class MapVotingManager {
     private static MapVotingManager instance;
+    private MapConfig votingMapconfigs = null;
+
+    public MapConfig getMapVotingCache() {
+        return votingMapconfigs;
+    }
 
     private MapVotingManager() {
     }
@@ -37,8 +46,14 @@ public class MapVotingManager {
                 SRE.LOGGER.warn("Voting start failed: Game has already started!");
                 return;
             }
-
+            votingMapconfigs = ShowSelectedMapUIPayload
+                    .getRandomConfig(ServerMapConfig.getInstance(server));
             MapVotingComponent votingComponent = MapVotingComponent.KEY.get(level);
+            server.getPlayerList().getPlayers().forEach(
+                    serverPlayer -> {
+                        ServerPlayNetworking.send(serverPlayer,
+                                new ShowSelectedMapUIPayload(votingMapconfigs));
+                    });
             votingComponent.startVoting(votingTimeSeconds);
         }
     }

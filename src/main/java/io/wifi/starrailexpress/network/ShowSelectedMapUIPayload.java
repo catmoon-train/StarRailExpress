@@ -33,10 +33,17 @@ public final class ShowSelectedMapUIPayload implements CustomPacketPayload {
         this(convertServerMapConfigToString(mp));
     }
 
-    public static String convertServerMapConfigToString(ServerMapConfig mp) {
+    public static MapConfig getRandomConfig(ServerMapConfig mp) {
         MapConfig cfg = new MapConfig();
         cfg.maps = mp.getRandomMaps();
-        return MapConfig.gson.toJson(cfg);
+        return cfg;
+    }
+
+    public static String convertMapConfigToString(MapConfig mp) {
+        return MapConfig.gson.toJson(mp);
+    }
+    public static String convertServerMapConfigToString(ServerMapConfig mp) {
+        return MapConfig.gson.toJson(getRandomConfig(mp));
     }
 
     public ShowSelectedMapUIPayload(MapConfig mp) {

@@ -113,6 +113,8 @@ public class SREConfig implements ConfigData {
     public int mapRandomCount = -1;
 
     @ConfigEntry.Category(value = "map")
+    public boolean allowRandomChooseMapNotInMapConfig = false;
+    @ConfigEntry.Category(value = "map")
     @Tooltip(count = 3)
     public boolean isLobby = false;
 

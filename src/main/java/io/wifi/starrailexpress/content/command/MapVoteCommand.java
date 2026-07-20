@@ -6,10 +6,7 @@ import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.voting.MapVotingManager;
-import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -67,14 +64,6 @@ public class MapVoteCommand {
       return 0;
     }
     votingManager.startVoting(time);
-    String mapconfigs = ShowSelectedMapUIPayload
-        .convertServerMapConfigToString(ServerMapConfig.getInstance(source.getServer()));
-
-    source.getServer().getPlayerList().getPlayers().forEach(
-        serverPlayer -> {
-          ServerPlayNetworking.send(serverPlayer,
-              new ShowSelectedMapUIPayload(mapconfigs));
-        });
     source.sendSuccess(() -> Component.translatable("command.sre.votemap.success"), false);
 
     return 1;

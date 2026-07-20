@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.game;
 
 import com.google.gson.*;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.game.data.MapConfig;
@@ -909,10 +910,15 @@ public class MapManager {
      */
     public static boolean loadRandomMap(ServerLevel serverWorld) {
         List<String> availableMaps = getAvailableMaps(serverWorld);
+        boolean allowN = SREConfig.instance().allowRandomChooseMapNotInMapConfig;
         availableMaps.removeIf(
                 e -> {
                     final var first = MapConfig.getInstance().maps.stream().filter(mapEntry -> mapEntry.id.equals(e))
                             .findFirst();
+                    if (first.isEmpty() && !allowN) {
+                        // 不在地图里的地图是否参与随机
+                        return true;
+                    }
                     AtomicBoolean isNotAvailable = new AtomicBoolean(false);
                     first.ifPresent(
                             a -> {

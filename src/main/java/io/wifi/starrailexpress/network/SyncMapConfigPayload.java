@@ -1,8 +1,13 @@
 package io.wifi.starrailexpress.network;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.game.data.MapConfig;
+import io.wifi.starrailexpress.game.data.MapConfig.MapEntry;
 import io.wifi.starrailexpress.game.data.ServerMapConfig;
+import io.wifi.starrailexpress.game.voting.MapVotingManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -14,40 +19,39 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public record SyncMapConfigPayload(List<MapConfig.MapEntry> maps) implements CustomPacketPayload {
-    public static final Type<SyncMapConfigPayload> ID = new Type<>(ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "sync_map_config"));
-    public static final StreamCodec<FriendlyByteBuf, SyncMapConfigPayload> CODEC = StreamCodec.ofMember(SyncMapConfigPayload::encode, SyncMapConfigPayload::decode);
+    public static final Type<SyncMapConfigPayload> ID = new Type<>(
+            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "sync_map_config"));
+    public static final StreamCodec<FriendlyByteBuf, SyncMapConfigPayload> CODEC = StreamCodec
+            .ofMember(SyncMapConfigPayload::encode, SyncMapConfigPayload::decode);
 
     public static SyncMapConfigPayload decode(FriendlyByteBuf buf) {
         int size = buf.readInt();
         List<MapConfig.MapEntry> maps = new ArrayList<>();
-        
+
         for (int i = 0; i < size; i++) {
             String id = buf.readUtf();
             String displayName = buf.readUtf();
             String description = buf.readUtf();
             boolean canSelect = buf.readBoolean();
             String color = buf.readUtf();
-            
+
             MapConfig.MapEntry entry = new MapConfig.MapEntry();
             entry.id = id;
             entry.displayName = displayName;
             entry.description = description;
             entry.canSelect = canSelect;
             entry.color = color;
-            
+
             maps.add(entry);
         }
-        
+
         return new SyncMapConfigPayload(maps);
     }
 
     public static void encode(SyncMapConfigPayload payload, FriendlyByteBuf buf) {
         buf.writeInt(payload.maps().size());
-        
+
         for (MapConfig.MapEntry map : payload.maps()) {
             buf.writeUtf(map.getId());
             buf.writeUtf(map.getDisplayName());
@@ -63,7 +67,15 @@ public record SyncMapConfigPayload(List<MapConfig.MapEntry> maps) implements Cus
     }
 
     public static void sendToPlayer(ServerPlayer player) {
-        SyncMapConfigPayload payload = new SyncMapConfigPayload(ServerMapConfig.getInstance(player.getServer()).getMaps());
+
+        List<MapEntry> mp = ServerMapConfig.getInstance(player.getServer()).getMaps();
+        if (MapVotingManager.getInstance().isVotingActive()) {
+            var it = MapVotingManager.getInstance();
+            if (it != null)
+                if (it.getMapVotingCache() != null)
+                    mp = it.getMapVotingCache().getMaps();
+        }
+        SyncMapConfigPayload payload = new SyncMapConfigPayload(mp);
         ServerPlayNetworking.send(player, payload);
     }
 
