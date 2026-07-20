@@ -5,12 +5,14 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMProperties;
 import io.wifi.starrailexpress.index.TMMSounds;
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,12 +26,14 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SREWorldBlackoutComponent implements ServerTickingComponent {
+public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTickingComponent {
     public static final ComponentKey<SREWorldBlackoutComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("blackout"),
             SREWorldBlackoutComponent.class);
     private final Level world;
@@ -77,6 +81,7 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
 
     /**
      * 以center为中心，触发半径为distance的关灯
+     * 
      * @param center
      * @param distance
      * @param haveSound
@@ -172,7 +177,40 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
         for (BlackoutDetails detail : this.blackouts)
             list.add(detail.writeToNbt());
         tag.put("blackouts", list);
+    }
 
+    public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        tag.putInt("bt", blackOutRemainingTicks);
+    }
+
+    public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        if (tag.contains("bt")) {
+            blackOutRemainingTicks = tag.getInt("bt");
+        } else {
+            blackOutRemainingTicks = 0;
+        }
+
+    }
+
+    public void writeToSyncNbtWithPlayer(CompoundTag tag, HolderLookup.Provider registryLookup,
+            ServerPlayer recipient) {
+        writeToSyncNbt(tag, registryLookup);
+    }
+
+    @Override
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        CompoundTag tag = new CompoundTag();
+        this.writeToSyncNbtWithPlayer(tag, buf.registryAccess(), recipient);
+        buf.writeNbt(tag);
+    }
+
+    @Override
+    @CheckEnvironment(EnvType.CLIENT)
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        CompoundTag tag = buf.readNbt();
+        if (tag != null) {
+            this.readFromSyncNbt(tag, buf.registryAccess());
+        }
     }
 
     @Override
@@ -254,10 +292,11 @@ public class SREWorldBlackoutComponent implements ServerTickingComponent {
             return tag;
         }
     }
-    
+
     public static SREWorldBlackoutComponent getInstance(Player player) {
         return KEY.get(player.level());
     }
+
     public static SREWorldBlackoutComponent getInstance(Level level) {
         return KEY.get(level);
     }

@@ -948,6 +948,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 return;
             var role = RoleUtils.getPlayerRole(player);
             if (role == null || role.isKillerTeam()) {
+                if (perPlayerDarknessTime.containsKey(player.getUUID()))
+                    perPlayerDarknessTime.remove(player.getUUID());
                 return;
             }
             if (level.getBrightness(LightLayer.BLOCK, BlockPos.containing(player.getEyePosition())) < 3

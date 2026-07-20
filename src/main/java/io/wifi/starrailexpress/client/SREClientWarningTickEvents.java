@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.client;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent.PlayerBannedBlockTimeInfo;
+import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -37,6 +38,8 @@ public class SREClientWarningTickEvents {
             darknessTime = 0;
             return;
         }
+        if (SREWorldBlackoutComponent.KEY.get(level).isBlackoutActive())
+            return;
         if (level.getBrightness(LightLayer.BLOCK, BlockPos.containing(player.getEyePosition())) < 3
                 && (level.getBrightness(LightLayer.SKY,
                         BlockPos.containing(player.getEyePosition())) < 10
