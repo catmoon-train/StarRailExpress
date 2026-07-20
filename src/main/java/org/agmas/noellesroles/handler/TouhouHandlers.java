@@ -2,7 +2,6 @@ package org.agmas.noellesroles.handler;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
-import io.wifi.starrailexpress.api.SRERole.MoodType;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -175,7 +174,7 @@ public class TouhouHandlers {
           return true;
         }).noAnnouncement().showOnHud(false).cooldownTicks(20 * 120).build());
     RoleSkill.register(RedHouseRoles.KOAKUMA,
-        RoleSkill.skill(SRE.id("daiyouse"), "skill.noellesroles.koakuma", context -> {
+        RoleSkill.skill(SRE.id("koakuma"), "skill.noellesroles.koakuma", context -> {
           var targetId = context.target();
           if (targetId == null)
             return false;
@@ -206,7 +205,7 @@ public class TouhouHandlers {
           var targetRole = RoleUtils.getPlayerRole(target);
           if (targetRole == null)
             return false;
-          if (targetRole.getMoodType().equals(MoodType.REAL)) {
+          {
             var taskcca = SREPlayerTaskComponent.KEY.get(target);
             var moodcca = SREPlayerMoodComponent.KEY.get(target);
             var minigameComponent = SREPlayerMinigameTaskComponent.KEY.get(target);
@@ -223,9 +222,8 @@ public class TouhouHandlers {
               minigameComponent.sync();
             }
             moodcca.addMood(0.1f);
-            return true;
           }
-          return false;
+          return true;
         }).announceToSelf().showOnHud(true).cooldownTicks(20 * 60).build());
     RoleSkill.register(THMiscRoles.SHIKIEIKI,
         RoleSkill.skill(SRE.id("shikieiki"), "skill.noellesroles.shikieiki.instinct", context -> {
