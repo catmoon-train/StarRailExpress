@@ -219,7 +219,7 @@ public class TouhouHandlers {
               minigameComponent.targetMinigameId = null;
               minigameComponent.sync();
             }
-            moodcca.addMood(0.1f);
+            moodcca.addMood(0.4f);
           }
           return true;
         }).announceToSelf().showOnHud(true).cooldownTicks(20 * 60).build());
