@@ -317,7 +317,7 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         // 轮换模式：完成小游戏任务额外获得金币奖励
         if (sp.level() instanceof ServerLevel serverLevel && isRotationModeActive(serverLevel)) {
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);
-            if (shop != null && SREConfig.instance().minigameTaskParallelMode) {
+            if (shop != null && !SREConfig.instance().minigameTaskParallelMode) {
                 shop.addToBalance(SREConfig.instance().minigameRotationCoinBonus);
             }
         }

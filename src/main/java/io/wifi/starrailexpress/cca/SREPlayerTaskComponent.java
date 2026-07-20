@@ -200,12 +200,12 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             this.nextTaskTimer = (int) (this.player.getRandom().nextFloat()
                     * (maxCooldown - minCooldown)
                     + minCooldown);
-            // 小游戏任务未启用时，正常任务刷新加快 30%
+            // 小游戏任务未启用或者并列小游戏任务模式时，正常任务刷新加快 30%
             if (parallelMinigame
                     || !AreasWorldComponent.KEY.get(this.player.level()).areasSettings.minigameQuestEnabled) {
                 this.nextTaskTimer = (int) (this.nextTaskTimer * 0.7f);
             }
-            // 轮换模式：全局任务刷新速率减缓 15%
+            // 轮换模式：非并列小游戏任务模式则全局任务刷新速率减缓 15%
             if (rotationActive && !parallelMinigame) {
                 this.nextTaskTimer = (int) (this.nextTaskTimer * GameConstants.MINIGAME_ROTATION_REFRESH_SLOWDOWN);
             }
