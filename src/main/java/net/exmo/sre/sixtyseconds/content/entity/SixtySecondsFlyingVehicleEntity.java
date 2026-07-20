@@ -196,15 +196,15 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
             offsetZ = (index / 2) * 1.5 + 3.0;
             offsetY = -0.5;
         } else if (kind == Kind.HELICOPTER) {
-            // 直升机 3 座：前排 1 + 后排 2（全下移 1.5，前移 0.7）
+            // 直升机 3 座：前排 1 + 后排 2（再前移 1 格）
             offsetX = (index == 0) ? 0.0 : (index == 1 ? 0.8 : -0.8);
-            offsetZ = (index == 0) ? 1.2 : 0.1;
+            offsetZ = (index == 0) ? 2.2 : 1.1;
             offsetY = -0.2;
         } else {
-            // 飞行器 1 座（下移 1.5，后移 0.2）
+            // 飞行器 1 座
             offsetX = 0.0;
             offsetZ = -0.2;
-            offsetY = -0.7;
+            offsetY = -0.2;
         }
         Vec3 offset = new Vec3(offsetX, offsetY, offsetZ)
                 .yRot(-this.getYRot() * (float) Math.PI / 180.0F);
