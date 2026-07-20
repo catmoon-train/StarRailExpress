@@ -1,5 +1,6 @@
 package io.wifi.ConfigCompact.config_gui_provider;
 
+import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.gui.registry.GuiRegistry;
 import me.shedaniel.autoconfig.gui.registry.api.GuiRegistryAccess;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
@@ -39,7 +40,8 @@ public class GenericMapGuiProvider {
                 (i18n, field, config, defaults, access) -> {
                     return provide(i18n, field, config, defaults, access);
                 },
-                field -> HashMap.class.isAssignableFrom(field.getType()));
+                field -> HashMap.class.isAssignableFrom(field.getType())
+                        && !field.isAnnotationPresent(ConfigEntry.Gui.Excluded.class));
     }
 
     @SuppressWarnings({ "rawtypes" })
