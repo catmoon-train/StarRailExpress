@@ -1,5 +1,8 @@
 package io.wifi.starrailexpress;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import io.wifi.ConfigCompact.ConfigClassHandler;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -22,6 +25,8 @@ public class SREClientConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean ultraPerfMode = false;
 
+    @ConfigEntry.Gui.Excluded
+    public HashMap<Integer, Boolean> taskStatus = new LinkedHashMap<>();
     // Skills configuration
     /**
      * Broadcaster - Broadcast message display duration in seconds

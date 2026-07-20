@@ -9,20 +9,28 @@ import java.util.Set;
 
 import org.agmas.noellesroles.client.screen.FilterSelectionScreen;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public class TaskInstinctManager {
     public static HashMap<Integer, Component> TASK_INSTINCTS = defaultTaskInstincts();
-    public static HashMap<Integer, Boolean> TASK_STATUS = new LinkedHashMap<>();
+    public static HashMap<Integer, Boolean> TASK_STATUS = null;
+
+    private static HashMap<Integer, Boolean> getOrLoadTaskStatus() {
+        if (TASK_STATUS == null) {
+            TASK_STATUS = new HashMap<>(SREClientConfig.instance().taskStatus);
+        }
+        return TASK_STATUS;
+    }
 
     public static boolean tryRegisterTaskInstinctType(int type, Component name, boolean defaultKey) {
         if (TASK_INSTINCTS.containsKey(type)) {
             return false;
         }
         TASK_INSTINCTS.put(type, name);
-        TASK_STATUS.put(type, defaultKey);
+        getOrLoadTaskStatus().put(type, defaultKey);
         return true;
     }
 
@@ -34,7 +42,7 @@ public class TaskInstinctManager {
     }
 
     public static boolean isTaskInstinctTypeShowable(int type) {
-        return TASK_STATUS.getOrDefault(type, true);
+        return getOrLoadTaskStatus().getOrDefault(type, true);
     }
 
     static HashMap<Integer, Component> defaultTaskInstincts() {
@@ -72,7 +80,7 @@ public class TaskInstinctManager {
             int k = t.getKey();
             String key = String.valueOf(k);
             var name = t.getValue();
-            boolean status = TASK_STATUS.getOrDefault(k, true);
+            boolean status = getOrLoadTaskStatus().getOrDefault(k, true);
             if (status) {
                 defaultOptions.add(key);
             }
@@ -90,20 +98,22 @@ public class TaskInstinctManager {
     }
 
     private static void handleSelected(Set<String> selected) {
-        TASK_STATUS.clear();
+        SREClientConfig.instance().taskStatus.clear();
         for (var t : TASK_INSTINCTS.entrySet()) {
             try {
                 int k = t.getKey();
                 String key = String.valueOf(k);
                 if (selected.contains(key)) {
-                    TASK_STATUS.put(k, true);
+                    SREClientConfig.instance().taskStatus.put(k, true);
                 } else {
-                    TASK_STATUS.put(k, false);
+                    SREClientConfig.instance().taskStatus.put(k, false);
                 }
             } catch (Exception e) {
                 SRE.LOGGER.error("Error while parse taskinstinct choices.", e);
             }
         }
+        SREClientConfig.HANDLER.save();
+        TASK_STATUS = new HashMap<>(SREClientConfig.instance().taskStatus);
     }
 
 }
