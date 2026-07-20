@@ -9,7 +9,6 @@ import io.wifi.starrailexpress.client.gui.screen.SkinManagementScreen;
 import io.wifi.starrailexpress.client.gui.screen.roster.RoleRosterEditScreen;
 import io.wifi.starrailexpress.client.gui.screen.roster.RoleRosterViewScreen;
 import net.exmo.sre.record.client.MatchRecordsScreen;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -17,11 +16,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.screen.GameManagementScreen;
 import org.agmas.noellesroles.client.screen.GuessRoleScreen;
-import org.agmas.noellesroles.client.screen.LootInfoScreen;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
-import org.agmas.noellesroles.packet.Loot.LootPoolsInfoCheckC2SPacket;
-import org.agmas.noellesroles.utils.lottery.LotteryManager;
-
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -42,6 +37,12 @@ public class GameMenuEntries {
         entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.introduction"), (btn) -> {
             var role = SREGameWorldComponent.KEY.get(minecraft.level).getRole(minecraft.player);
             minecraft.setScreen(new RoleIntroduceScreen(parent, role));
+            toggleViewMenu.accept(false);
+        }));
+        // 地图介绍
+        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.map_introduction"), (btn) -> {
+
+            minecraft.setScreen(new MapIntroduceScreen(parent));
             toggleViewMenu.accept(false);
         }));
         // 抽卡页面 —— 已禁用
@@ -109,12 +110,6 @@ public class GameMenuEntries {
             minecraft.setScreen(new MatchRecordsScreen(parent));
             toggleViewMenu.accept(false);
         }));
-//        entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.loot_screen"), (btn) -> {
-//            if (LotteryManager.getInstance().getLotteryPools().isEmpty())
-//                ClientPlayNetworking.send(new LootPoolsInfoCheckC2SPacket());
-//            minecraft.setScreen(new LootInfoScreen(0, 0, 0, parent));
-//            toggleViewMenu.accept(false);
-//        }));
         // 皮肤管理
         entries.add(new MenuEntry(Component.translatable("screen.limited_inventory.menu.skin_manage"), (btn) -> {
             minecraft.setScreen(new SkinManagementScreen(parent));
