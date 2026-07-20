@@ -147,7 +147,8 @@ public class WheelchairEntity extends Mob {
         double speed = this.position().distanceTo(lastPos);
         this.lastPos = this.position();
 
-        if (speed >= 0.1 && this.getControllingPassenger() instanceof Player controller) {
+        if (speed >= 0.1 && this.getControllingPassenger() instanceof Player controller
+                && this.level().getGameTime() % 3 == 0) {
             AABB box = this.getBoundingBox().inflate(0.1);
             List<Player> otherPlayers = this.level().getEntitiesOfClass(Player.class, box,
                     p -> p != controller && p.isAlive());

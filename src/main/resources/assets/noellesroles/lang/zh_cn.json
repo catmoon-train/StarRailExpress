@@ -7002,5 +7002,18 @@
   "message.noellesroles.sixty_seconds.rv_raid_incoming": "夜晚突袭：房车周围出现 %1$s 名突袭者，正在冲向房车门！",
   "message.noellesroles.sixty_seconds.rv_horde_incoming": "【尸潮警报】房车遭遇 %1$s 只僵尸尸潮冲击！坚守房车门！",
   "message.noellesroles.sixty_seconds.rv_door_under_attack": "房车门正在被攻击！剩余耐久 %1$s / %2$s",
-  "message.noellesroles.sixty_seconds.rv_door_broken": "房车门被攻破！全队进入室外状态，尽快修复！"
+  "message.noellesroles.sixty_seconds.rv_door_broken": "房车门被攻破！全队进入室外状态，尽快修复！",
+  "category.noellesroles.sixty_seconds": "末日60秒",
+  "key.noellesroles.team_ping": "队友标点",
+  "message.noellesroles.sixty_seconds.helicopter_arrive": "🚁 救援直升机已抵达撤离点 (%1$s, %2$s, %3$s)！前 8 名抵达该区域的幸存者可撤离！",
+  "message.noellesroles.sixty_seconds.helicopter_evac": "🚁 %1$s 已乘直升机撤离！（%2$s/%3$s）",
+  "message.noellesroles.sixty_seconds.helicopter_evac_you": "🎉 你已成功撤离！直升机带你离开了这片末日废土。",
+  "message.noellesroles.sixty_seconds.helicopter_full": "🚁 直升机已满载！8 名幸存者已撤离。祝留下的人好运……",
+  "message.noellesroles.sixty_seconds.helicopter_enabled": "§a直升机撤离已开启——最后一天直升机将在指定降落点抵达。",
+  "message.noellesroles.sixty_seconds.helicopter_disabled": "§c直升机撤离已关闭——最后一天不会刷直升机。",
+  "message.noellesroles.sixty_seconds.helicopter_set": "直升机降落点已设置为 (%1$s, %2$s, %3$s)。",
+  "hud.noellesroles.sixty_seconds.helicopter_title": "救援直升机已抵达",
+  "hud.noellesroles.sixty_seconds.helicopter_pos": "撤离区: (%1$s, %2$s)",
+  "hud.noellesroles.sixty_seconds.helicopter_progress": "已撤离: %1$s / %2$s",
+  "hud.noellesroles.sixty_seconds.helicopter_full": "直升机已满载！"
 }

@@ -187,6 +187,12 @@ public final class SixtySecondsPveSystem {
             chance *= SixtySecondsBalance.ambientSpawnDayMult(data.dayNumber);
             if (SixtySecondsDayCycle.isNight(data, level.getGameTime())) {
                 chance *= SixtySecondsBalance.AMBIENT_NIGHT_CHANCE_MULT;
+                // 只在前 2 分钟刷新怪物（超出窗口不再刷游荡怪，但已有怪继续存在）
+                long nightElapsed = SixtySecondsDayCycle.elapsed(data, level.getGameTime())
+                        - SixtySecondsDayCycle.startOf(SixtySecondsDayCycle.SubPhase.NIGHT);
+                if (nightElapsed >= SixtySecondsBalance.NIGHT_MONSTER_SPAWN_WINDOW_TICKS) {
+                    continue;
+                }
             }
             // 怪物整体刷新频率 +30%（叠加在原有 +40% 之上）
             chance *= SixtySecondsBalance.MONSTER_SPAWN_FREQ_MULT;
@@ -298,8 +304,18 @@ public final class SixtySecondsPveSystem {
         return mob;
     }
 
-    /** Boss 召唤小怪（也供 Boss 实体调用）：在锚点周围 2~6 格找落点。 */
+    /**
+     * Boss 召唤小怪（也供 Boss 实体调用）：在锚点周围 2~6 格找落点。
+     * 周围 16 格内的自研怪物 ≥ {@link SixtySecondsBalance#BOSS_MINION_CAP} 只时跳过召唤
+     * （防止 Boss 无限堆小弟形成怪海）。
+     */
     public static void spawnMinion(ServerLevel level, BlockPos around, Variant variant) {
+        // 周围怪物数量上限检查
+        List<SixtySecondsMonsterEntity> nearby = level.getEntitiesOfClass(SixtySecondsMonsterEntity.class,
+                new net.minecraft.world.phys.AABB(around).inflate(16), Entity::isAlive);
+        if (nearby.size() >= SixtySecondsBalance.BOSS_MINION_CAP) {
+            return;
+        }
         BlockPos spot = findSpawnSpot(level, around, 2, 5, 3, 12, null, null);
         if (spot == null) {
             spot = around;

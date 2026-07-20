@@ -7,8 +7,10 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
 
@@ -68,6 +70,8 @@ public final class SixtySecondsState {
         /** 当前被房车强制加载的区块；{@link Integer#MIN_VALUE} 表示尚未强载。 */
         public int rvForcedChunkX = Integer.MIN_VALUE;
         public int rvForcedChunkZ = Integer.MIN_VALUE;
+        /** 房车重生冷却（tick），>0 期间不尝试重生——防止实体被异常移除后每秒无限重生。 */
+        public int rvRespawnCooldown = 0;
 
         // ── 科技树 / 电力（SixtySecondsTechTree / SixtySecondsPowerSystem）───
         /** 本队已解锁的科技 id。 */
@@ -152,5 +156,9 @@ public final class SixtySecondsState {
         public int lastDayStage = -1;
         /** 上次在房车门口刷过 NPC 的天数（-1=从未）；与 dayNumber 比较实现"一天只刷一次"。 */
         public int lastNpcRvSpawnDay = -1;
+        /** 直升机撤离已抵达标记。 */
+        public boolean helicopterArrived = false;
+        /** 直升机撤离已撤离的玩家 UUID（有序，先到先得）。 */
+        public final Set<UUID> helicopterEvacuated = new LinkedHashSet<>();
     }
 }

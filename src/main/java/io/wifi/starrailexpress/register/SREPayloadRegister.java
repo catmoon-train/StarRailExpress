@@ -240,5 +240,18 @@ public class SREPayloadRegister {
                 net.exmo.sre.record.network.RecordReplayRequestC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.record.network.RecordReplayS2CPayload.ID,
                 net.exmo.sre.record.network.RecordReplayS2CPayload.CODEC);
+
+        // 60s 队友标点：C2S 发标点 → 服务端转发给同队 → S2C
+        PayloadTypeRegistry.playC2S().register(
+                net.exmo.sre.sixtyseconds.network.TeamPingC2SPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TeamPingC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.TeamPingS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.TeamPingS2CPacket.CODEC);
+
+        // 60s 直升机撤离状态同步（S2C）
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsHelicopterS2CPacket.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsHelicopterS2CPacket.CODEC);
     }
 }

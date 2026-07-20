@@ -382,11 +382,17 @@ public class SixtySecondsRvEntity extends SixtySecondsVehicleEntity {
         int newHp = oldHp - (int) amount;
         if (newHp < 1) newHp = 1;
         setVehicleHealth(newHp);
-        // 刚进入 1 血破坏状态：记录时间
+        // 刚进入 1 血破坏状态：记录时间 + 立即刹停防止客户端预测位置分歧
         if (newHp == 1 && oldHp > 1) {
             brokenAtTick = this.level().getGameTime();
             this.entityData.set(DATA_BROKEN_AT, brokenAtTick);
+            throttleState = 0.0F;
+            steeringState = 0.0F;
+            setThrottle(0.0F);
+            setSteering(0.0F);
         }
+        // 受伤时也清空动量，防止任何残余移动导致客户端位置预测偏差
+        setDeltaMovement(0, getDeltaMovement().y < 0 ? getDeltaMovement().y : 0, 0);
         return true;
     }
 
@@ -466,9 +472,10 @@ public class SixtySecondsRvEntity extends SixtySecondsVehicleEntity {
         float inputSteer = player.xxa;    // A=+1, D=-1（MC 约定）
 
         if (broken) {
-            // 破坏/停机/没油：油门归零、转向回正，不响应输入
-            throttleState *= 0.5F;
-            steeringState *= 0.7F;
+            // 破坏/停机/没油：快速衰减（0.15×/tick，3 tick 内归零）而非慢衰减
+            // 慢衰减（0.5×/tick）会导致服务端先减速而客户端还在加速 → 位置分歧 → 回溯
+            throttleState *= 0.15F;
+            steeringState *= 0.3F;
         } else {
             // ── 油门平滑：加速慢（0.04/tick ≈ 2s 到满），刹车快（0.10/tick） ──
             float accelRate = 0.04F;
@@ -604,8 +611,10 @@ public class SixtySecondsRvEntity extends SixtySecondsVehicleEntity {
             }
             return;
         }
-        // 服务端：防穿模（无论是否停机/破坏，玩家都不能进车体）
-        pushOutOverlappingPlayers();
+        // 服务端：防穿模（每 5 tick 一次，节流降低 AABB 实体扫描开销）
+        if (this.level().getGameTime() % 5 == 0) {
+            pushOutOverlappingPlayers();
+        }
         // 服务端：破坏状态冒烟（让附近玩家看到）
         if (isBroken()) {
             spawnSmokeParticles();

@@ -15,7 +15,10 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEntities;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * 房车模式（{@link SixtySecondsConfig#rvEnabled}）的服务端生命周期系统：每队常驻一辆房车。
@@ -39,6 +42,8 @@ public final class SixtySecondsRvSystem {
     private static final int PIT_DROP_THRESHOLD = 6;
     /** 每 20 tick（1s）跑一次巡检：重生、强载跟随、坠坑回退。 */
     private static final int UPKEEP_INTERVAL = 20;
+    /** 已扫除孤立房车的 Level（防每局多次全量扫描）。 */
+    private static final Set<ServerLevel> ORPHAN_SWEPT = Collections.newSetFromMap(new WeakHashMap<>());
 
     // ─────────────────────────────────────────────────────────────────
     // 生命周期
@@ -50,6 +55,7 @@ public final class SixtySecondsRvSystem {
         if (config == null || !config.rvEnabled) {
             return;
         }
+        ORPHAN_SWEPT.remove(level);
         discardAllRvs(level);
         int index = 0;
         for (SixtySecondsState.TeamData team : data.teams.values()) {
@@ -63,12 +69,18 @@ public final class SixtySecondsRvSystem {
         Noellesroles.LOGGER.info("[60s] 房车模式：为 {} 支队伍生成常驻房车。", data.teams.size());
     }
 
-    /** 游戏结束/重置：解除本系统的所有强载区块并清除房车实体。 */
+    /** 游戏结束/重置：解除本系统的所有强载区块并清除房车实体与相关状态。 */
     public static void reset(ServerLevel level) {
         SixtySecondsState.Data data = SixtySecondsState.get(level);
         for (SixtySecondsState.TeamData team : data.teams.values()) {
             releaseForced(level, team);
+            team.rvEntityUuid = null;
+            team.rvForcedChunkX = Integer.MIN_VALUE;
+            team.rvForcedChunkZ = Integer.MIN_VALUE;
+            team.rvLastSafePos = null;
+            team.rvRespawnCooldown = 0;
         }
+        ORPHAN_SWEPT.remove(level);
         discardAllRvs(level);
     }
 
@@ -85,11 +97,22 @@ public final class SixtySecondsRvSystem {
         if (config == null || !config.rvEnabled) {
             return;
         }
+        // 每局首次巡检：扫除上一把残留的孤立房车（teamId 不属于当前任何队伍）
+        if (!ORPHAN_SWEPT.contains(level)) {
+            ORPHAN_SWEPT.add(level);
+            discardOrphanedRvs(level, data);
+        }
         int index = 0;
         for (SixtySecondsState.TeamData team : data.teams.values()) {
+            // 冷却递减
+            if (team.rvRespawnCooldown > 0) {
+                team.rvRespawnCooldown--;
+            }
             SixtySecondsRvEntity rv = resolveRv(level, team);
-            if (rv == null) {
+            if (rv == null && team.rvRespawnCooldown <= 0) {
                 rv = spawnRv(level, config, team, index);
+                // 生成成功→重置冷却；失败→冷却 5 秒防无限重试
+                team.rvRespawnCooldown = (rv != null) ? 0 : 100;
             }
             if (rv != null) {
                 upkeep(level, team, rv);
@@ -160,15 +183,19 @@ public final class SixtySecondsRvSystem {
         return null;
     }
 
-    /** 按刷新点生成一辆房车并登记；刷新点解析失败返回 null。 */
+    /** 按刷新点生成一辆房车并登记；刷新点解析失败返回 null。
+     *  先生成实体前强制加载目标区块，防止实体被挂在未加载区块上导致立即移除。 */
     private static SixtySecondsRvEntity spawnRv(ServerLevel level, SixtySecondsConfig config,
             SixtySecondsState.TeamData team, int index) {
         BlockPos spawn = resolveSpawn(level, config, team, index);
         if (spawn == null) {
             return null;
         }
+        // 先强制加载目标区块再创建实体（防竞态：实体挂到未加载区块后被移除）
+        forceChunksAt(level, team, spawn);
         SixtySecondsRvEntity rv = ModEntities.SIXTY_SECONDS_RV.create(level);
         if (rv == null) {
+            releaseForced(level, team);
             return null;
         }
         rv.setTeamId(team.teamId);
@@ -177,8 +204,20 @@ public final class SixtySecondsRvSystem {
         level.addFreshEntity(rv);
         team.rvEntityUuid = rv.getUUID();
         team.rvLastSafePos = spawn;
-        followForced(level, team, rv);
         return rv;
+    }
+
+    /** 强制加载目标位置周围 FORCE_RADIUS 环区块。 */
+    private static void forceChunksAt(ServerLevel level, SixtySecondsState.TeamData team, BlockPos pos) {
+        releaseForced(level, team);
+        ChunkPos cur = new ChunkPos(pos);
+        for (int dx = -FORCE_RADIUS; dx <= FORCE_RADIUS; dx++) {
+            for (int dz = -FORCE_RADIUS; dz <= FORCE_RADIUS; dz++) {
+                level.setChunkForced(cur.x + dx, cur.z + dz, true);
+            }
+        }
+        team.rvForcedChunkX = cur.x;
+        team.rvForcedChunkZ = cur.z;
     }
 
     /** 刷新点：配置的 {@code rvSpawnPoints[index]} 优先，否则住宅出生点旁的安全落点。 */
@@ -241,6 +280,28 @@ public final class SixtySecondsRvSystem {
         for (Entity entity : toRemove) {
             if (!entity.isRemoved()) {
                 entity.discard();
+            }
+        }
+    }
+
+    /** 扫除上一把残留的孤立房车——teamId 不属于当前任何队伍的实体。每局首次巡检调用一次。 */
+    private static void discardOrphanedRvs(ServerLevel level, SixtySecondsState.Data data) {
+        // 收集当前有效 teamId
+        Set<Integer> validIds = new java.util.HashSet<>();
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            validIds.add(team.teamId);
+        }
+        List<Entity> orphans = new ArrayList<>();
+        for (Entity entity : level.getAllEntities()) {
+            if (entity instanceof SixtySecondsRvEntity rv && !validIds.contains(rv.teamId())) {
+                orphans.add(entity);
+            }
+        }
+        if (!orphans.isEmpty()) {
+            for (Entity entity : orphans) {
+                if (!entity.isRemoved()) {
+                    entity.discard();
+                }
             }
         }
     }

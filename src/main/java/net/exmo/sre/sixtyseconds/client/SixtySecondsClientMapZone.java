@@ -128,6 +128,17 @@ public final class SixtySecondsClientMapZone {
         }
     }
 
+    /** 队友标点颜色（金色/橙色暖色调），与自定义标注循环色区分。 */
+    public static final int PING_COLOR = 0xFFFFAA00;
+
+    /** 添加一个队友标点标记（固定金色，不占颜色循环序号；超上限丢弃最旧的）。 */
+    public static void addPingMarker(double worldX, double worldZ) {
+        MARKERS.add(new Marker(worldX, worldZ, PING_COLOR));
+        if (MARKERS.size() > MAX_MARKERS) {
+            MARKERS.remove(0);
+        }
+    }
+
     /** 移除离 (worldX, worldZ) 最近且距离 ≤ maxDist 的标注；返回是否移除了。 */
     public static boolean removeMarkerNear(double worldX, double worldZ, double maxDist) {
         Marker best = null;

@@ -1066,6 +1066,10 @@ public class NoellesrolesClient implements ClientModInitializer {
                                 new net.exmo.sre.sixtyseconds.client.SixtySecondsIntroScreen())));
         // 60s 区域地图：服务端推送当前扫描区域与家点位
         net.exmo.sre.sixtyseconds.client.SixtySecondsClientMapZone.register();
+        // 60s 队友标点：V 键打标点 + 服务端转发 + 世界光柱渲染 + 地图标记
+        net.exmo.sre.sixtyseconds.client.TeamPingClientHandler.register();
+        // 60s 直升机撤离：接收 S2C 包 + HUD 信息 + 世界绿色标记框渲染
+        net.exmo.sre.sixtyseconds.client.SixtySecondsHelicopterClient.register();
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> {

@@ -85,8 +85,8 @@ public final class SixtySecondsRvRaidSystem {
             LAST_RAID_CHECK.put(level, now);
             tickReinforcements(level, data);
         }
-        // 分批刷出待刷突袭者
-        if (now % 20 == 0) {
+        // 分批刷出待刷突袭者 + 行为更新（每 40 tick / 2s 执行，降低 CPU 开销）
+        if (now % 40 == 0) {
             flushPending(level, data);
             tickRaiders(level, data, now);
         }

@@ -29,9 +29,11 @@ import java.util.WeakHashMap;
 /**
  * 区域固定 Boss 系统（与 {@link SixtySecondsPveSystem} 夜晚「尸潮领主」并行，互不挤占名额）：
  * <ul>
- *   <li><b>4-5 星区域固定 Boss</b>：每个 4 星及以上的星级区域（{@code areaLevelOverrides}）每晚保证
- *       有一只存活 Boss（等级 = areaLevel-1，封顶 4）。已登记的 Boss 刷新点（{@code bossSpawnPoints}）
- *       落在该区域盒内则用之，否则在区域内随机选合理落点。Boss 被击杀后次晚重新刷新（固定刷新）。</li>
+ *   <li><b>4-5 星区域固定 Boss</b>：每个 4 星及以上的星级区域（{@code areaLevelOverrides}）每天有
+ *       {@link SixtySecondsBalance#AREA_BOSS_SPAWN_CHANCE} 概率刷新一只存活 Boss
+ *       （等级 = areaLevel-1，封顶 4）。每天最多刷新 {@link SixtySecondsBalance#AREA_BOSS_MAX_PER_DAY}
+ *       只（跨所有区域累计）。已登记的 Boss 刷新点（{@code bossSpawnPoints}）
+ *       落在该区域盒内则用之，否则在区域内随机选合理落点。每个区域整局游戏仅刷新一次，死了不补。</li>
  *   <li><b>1-5 星区域「伤害 Boss」</b>：每局仅一只，第 {@link SixtySecondsBalance#DAMAGE_BOSS_SPAWN_DAY}
  *       天夜晚降临。近战固定高额伤害（护甲不减免，见 {@code SixtySecondsBossEntity.DAMAGE_BOSS_TAG}）。
  *       落点优先取任意已登记 Boss 刷新点，否则在某队伍探索区锚点附近随机。</li>
@@ -48,6 +50,12 @@ public final class SixtySecondsAreaBossSystem {
     private static final Map<ServerLevel, Map<Integer, UUID>> AREA_BOSSES = new WeakHashMap<>();
     /** level → 已刷过伤害 Boss（每局仅一只）。 */
     private static final Set<ServerLevel> DAMAGE_BOSS_SPAWNED = new HashSet<>();
+    /** level → 当天已刷出的区域 Boss 数量（跨区域累计，每天重置；上限见 {@link SixtySecondsBalance#AREA_BOSS_MAX_PER_DAY}）。 */
+    private static final Map<ServerLevel, Integer> AREA_BOSSES_SPAWNED_TODAY = new WeakHashMap<>();
+    /** level → 上次记录的天数（用于检测新的一天并重置计数器）。 */
+    private static final Map<ServerLevel, Integer> AREA_BOSS_LAST_DAY = new WeakHashMap<>();
+    /** level → 本局已刷过 Boss 的区域 index 集合（整局仅一次，死了不补）。 */
+    private static final Map<ServerLevel, Set<Integer>> AREA_BOSS_SPAWNED_EVER = new WeakHashMap<>();
 
     private SixtySecondsAreaBossSystem() {
     }
@@ -74,20 +82,47 @@ public final class SixtySecondsAreaBossSystem {
         if (config == null || config.areaLevelOverrides == null) {
             return;
         }
+        // 换日重置每日计数器
+        int lastDay = AREA_BOSS_LAST_DAY.getOrDefault(level, -1);
+        if (lastDay != data.dayNumber) {
+            AREA_BOSSES_SPAWNED_TODAY.put(level, 0);
+            AREA_BOSS_LAST_DAY.put(level, data.dayNumber);
+        }
+        int spawnedToday = AREA_BOSSES_SPAWNED_TODAY.getOrDefault(level, 0);
+        if (spawnedToday >= SixtySecondsBalance.AREA_BOSS_MAX_PER_DAY) {
+            return; // 当天已达上限
+        }
+
         Map<Integer, UUID> tracked = AREA_BOSSES.computeIfAbsent(level, ignored -> new HashMap<>());
+        Set<Integer> spawnedEver = AREA_BOSS_SPAWNED_EVER.computeIfAbsent(level, ignored -> new HashSet<>());
         List<SixtySecondsConfig.LevelRegion> regions = config.areaLevelOverrides;
         for (int i = 0; i < regions.size(); i++) {
             SixtySecondsConfig.LevelRegion region = regions.get(i);
             if (region == null || region.level < SixtySecondsBalance.AREA_BOSS_MIN_AREA_LEVEL) {
                 continue;
             }
-            // 该区域已有存活 Boss → 跳过（固定刷新=保证一只，不死不重刷）
+            // 该区域本局已刷过 Boss → 永久跳过（每区域整局仅刷一次，死了不补）
+            if (spawnedEver.contains(i)) {
+                continue;
+            }
+            // 该区域已有存活 Boss → 跳过
             UUID existing = tracked.get(i);
             if (existing != null && level.getEntity(existing) instanceof SixtySecondsBossEntity boss
                     && boss.isAlive() && !boss.isRemoved()) {
                 continue;
             }
-            tracked.remove(i); // 旧 Boss 已死/丢失，清理后重刷
+            tracked.remove(i); // 旧 Boss 已死/丢失，清理
+
+            // 当天已满额 → 不再刷新
+            if (spawnedToday >= SixtySecondsBalance.AREA_BOSS_MAX_PER_DAY) {
+                return;
+            }
+
+            // 概率掷骰（替代原来的 100% 固定刷新）
+            if (level.getRandom().nextDouble() >= SixtySecondsBalance.AREA_BOSS_SPAWN_CHANCE) {
+                continue;
+            }
+
             BlockPos spot = resolveAreaSpot(level, region);
             if (spot == null) {
                 continue;
@@ -103,6 +138,9 @@ public final class SixtySecondsAreaBossSystem {
             boss.addTag(AREA_BOSS_TAG);
             boss.addTag(AREA_BOSS_REGION_TAG_PREFIX + i);
             tracked.put(i, boss.getUUID());
+            spawnedEver.add(i); // 标记该区域本局已刷过，不再补刷
+            spawnedToday++;
+            AREA_BOSSES_SPAWNED_TODAY.put(level, spawnedToday);
         }
     }
 
@@ -256,6 +294,9 @@ public final class SixtySecondsAreaBossSystem {
             }
         }
         AREA_BOSSES.remove(level);
+        AREA_BOSSES_SPAWNED_TODAY.remove(level);
+        AREA_BOSS_LAST_DAY.remove(level);
+        AREA_BOSS_SPAWNED_EVER.remove(level);
         DAMAGE_BOSS_SPAWNED.remove(level);
     }
 }

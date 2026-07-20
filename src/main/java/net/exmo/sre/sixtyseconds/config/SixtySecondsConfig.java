@@ -234,6 +234,21 @@ public class SixtySecondsConfig {
     @SerializedName("npcSpawns")
     public java.util.List<NpcSpawn> npcSpawns = new java.util.ArrayList<>();
 
+    /**
+     * 直升机撤离开关（默认<b>开</b>）：本局最后一天（见 {@link #totalDays}）在 {@link #helicopterLandingPos}
+     * 处刷出救援直升机，最先抵达撤离区的 8 名幸存者可乘直升机撤离获胜。全局单架，先到先得。
+     * <p>{@code /sre:60s helicopter on|off} 切换（按图持久化）。
+     */
+    @SerializedName("helicopterEnabled")
+    public boolean helicopterEnabled = true;
+
+    /**
+     * 直升机降落点（世界绝对坐标）。用 {@code /sre:60s helicopter_set <x> <y> <z>} 设置。
+     * 未设置（(0,0,0)）时随机选大片空地或依赖管理员设置。
+     */
+    @SerializedName("helicopterLandingPos")
+    public Vec helicopterLandingPos = new Vec(0, 0, 0);
+
     /** 第 index（从 0 起）支队伍的网格偏移。 */
     public BlockPos teamOffset(int index) {
         return new BlockPos(teamBase.x + index * teamGridSpacing, teamBase.y, teamBase.z);

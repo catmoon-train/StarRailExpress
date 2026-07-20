@@ -5947,5 +5947,18 @@
   "message.noellesroles.sixty_seconds.rv_raid_incoming": "Night raid: %1$s raiders near the RV are charging the RV door!",
   "message.noellesroles.sixty_seconds.rv_horde_incoming": "[HORDE ALERT] The RV is under siege by a %1$s-zombie horde! Hold the door!",
   "message.noellesroles.sixty_seconds.rv_door_under_attack": "RV door under attack! Durability %1$s / %2$s",
-  "message.noellesroles.sixty_seconds.rv_door_broken": "RV door breached! Whole team is now outdoors — repair ASAP!"
+  "message.noellesroles.sixty_seconds.rv_door_broken": "RV door breached! Whole team is now outdoors — repair ASAP!",
+  "category.noellesroles.sixty_seconds": "60 Seconds",
+  "key.noellesroles.team_ping": "Team Ping",
+  "message.noellesroles.sixty_seconds.helicopter_arrive": "🚁 Rescue helicopter has arrived at evac point (%1$s, %2$s, %3$s)! First 8 survivors to reach the zone will be evacuated!",
+  "message.noellesroles.sixty_seconds.helicopter_evac": "🚁 %1$s has evacuated by helicopter! (%2$s/%3$s)",
+  "message.noellesroles.sixty_seconds.helicopter_evac_you": "🎉 You have successfully evacuated! The helicopter carries you away from this wasteland.",
+  "message.noellesroles.sixty_seconds.helicopter_full": "🚁 Helicopter is full! 8 survivors have evacuated. Good luck to those left behind...",
+  "message.noellesroles.sixty_seconds.helicopter_enabled": "§aHelicopter evacuation enabled — helicopter will arrive at the set landing point on the final day.",
+  "message.noellesroles.sixty_seconds.helicopter_disabled": "§cHelicopter evacuation disabled — no helicopter on the final day.",
+  "message.noellesroles.sixty_seconds.helicopter_set": "Helicopter landing point set to (%1$s, %2$s, %3$s).",
+  "hud.noellesroles.sixty_seconds.helicopter_title": "Rescue Helicopter Arrived",
+  "hud.noellesroles.sixty_seconds.helicopter_pos": "Evac Zone: (%1$s, %2$s)",
+  "hud.noellesroles.sixty_seconds.helicopter_progress": "Evacuated: %1$s / %2$s",
+  "hud.noellesroles.sixty_seconds.helicopter_full": "Helicopter Full!"
 }

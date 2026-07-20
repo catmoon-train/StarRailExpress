@@ -238,9 +238,11 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
         float inputThrottle = player.zza; // W=+1 前进, S=-1 后退
         float inputSteer = player.xxa;     // A=+1 左, D=-1 右
         float inputLift = 0.0F;
-        boolean jumping = ((org.agmas.noellesroles.mixin.LivingEntityAccessor) player).isJumping();
-        if (jumping) inputLift = 1.0F;  // 空格上升
-        if (inputThrottle < -0.1F && !jumping) inputLift = -Math.abs(inputThrottle) * 0.5F; // S 下降
+        // 升/降控制：Ctrl(疾跑)=上升, Shift(潜行)=下降，两者均可在服务端检测
+        if (player.isSprinting()) inputLift = 1.0F;   // Ctrl 上升
+        if (player.isCrouching()) inputLift = -1.0F;  // Shift 下降
+        // S 倒车时若无上升指令则附带下降（保留原 S 下降行为兼容）
+        if (inputThrottle < -0.1F && inputLift <= 0) inputLift = -Math.abs(inputThrottle) * 0.5F;
 
         boolean hasFuel = fuelTicks() > 0;
 

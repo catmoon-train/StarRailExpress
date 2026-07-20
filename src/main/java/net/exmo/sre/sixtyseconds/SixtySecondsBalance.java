@@ -89,8 +89,8 @@ public final class SixtySecondsBalance {
     public static final double AUTO_REVIVE_STAT_PERCENT = 0.5;
 
     // ── 倒地系统 ──────────────────────────────────────────────────────
-    /** 倒地时的初始健康值（需被打空才会真正死亡，取代一击处决）。30 ≈ 枪械 1 击、近战 2 击。 */
-    public static final int DOWNED_MAX_HEALTH = 30;
+    /** 倒地时的初始健康值（需被打空才会真正死亡，取代一击处决）。100 ≈ 让倒地玩家更耐活，给队友更多救援时间。 */
+    public static final int DOWNED_MAX_HEALTH = 100;
     /** 倒地后每秒自然流失的健康值（约 30 秒无人补刀/救起则死）。 */
     public static final int DOWNED_BLEED_PER_SEC = 1;
 
@@ -146,8 +146,8 @@ public final class SixtySecondsBalance {
     // ── 房车夜袭（SixtySecondsRvRaidSystem；房车模式下夜晚房车周围概率刷突袭者攻门）──
     /** 房车夜袭判定间隔（每 5 秒检查一次是否触发小股突袭；尸潮由夜晚首 tick 单独判定）。 */
     public static final int RV_RAID_CHECK_INTERVAL = 20 * 5;
-    /** 每次小股突袭判定概率（夜里；随天数上升）。 */
-    public static final double RV_RAID_CHANCE = 0.35;
+    /** 每次小股突袭判定概率（夜里；随天数上升；-40%：0.35→0.21）。 */
+    public static final double RV_RAID_CHANCE = 0.21;
     /** 突袭者基础数量 = 本值 + 天数×本值。越往后数量越高。 */
     public static final int RV_RAID_BASE_COUNT = 2;
     public static final int RV_RAID_COUNT_PER_DAY = 1;
@@ -156,9 +156,9 @@ public final class SixtySecondsBalance {
     /** 突袭者离房车的刷新距离（远刷：14~22 格）。 */
     public static final int RV_RAID_SPAWN_MIN_DIST = 14;
     public static final int RV_RAID_SPAWN_RAND_DIST = 8;
-    /** 尸潮出现概率（夜晚首 tick 判定；第 4 天起才可能触发）。 */
-    public static final double RV_HORDE_CHANCE = 0.25;
-    public static final int RV_HORDE_MIN_DAY = 4;
+    /** 尸潮出现概率（已禁用：0 = 永不触发尸潮）。 */
+    public static final double RV_HORDE_CHANCE = 0.0;
+    public static final int RV_HORDE_MIN_DAY = 999;
     /** 尸潮规模上限（分规模：小/中/大三档分别 10/20/30 只）。 */
     public static final int RV_HORDE_MAX_SIZE = 30;
     /** 尸潮分批刷出的每批数量（避免一次性刷出怪海卡顿）。 */
@@ -181,13 +181,16 @@ public final class SixtySecondsBalance {
     public static final int AMBIENT_CHECK_INTERVAL = 20 * 30;
     /** 每次判定的基础刷新概率（夜间再乘倍率；怪物刷新频率+40%：0.12→0.168）。 */
     public static final double AMBIENT_SPAWN_CHANCE = 0.168;
-    /** 星级刷新概率乘数：刷新概率 × (1 + 本值×areaLevel)。每星+5%（1星×1.05 … 5星×1.25）。 */
-    public static final double AMBIENT_SPAWN_CHANCE_PER_AREA_LEVEL = 0.05;
-    public static final double AMBIENT_NIGHT_CHANCE_MULT = 2.24;
+    /** 星级刷新概率乘数：刷新概率 × (1 + 本值×areaLevel)。每星+2.5%（频率-50%：0.05→0.025；1星×1.025 … 5星×1.125）。 */
+    public static final double AMBIENT_SPAWN_CHANCE_PER_AREA_LEVEL = 0.025;
+    /** 游荡怪夜间刷新概率倍率（夜晚 chance × 1.12；频率-50%：2.24→1.12）。 */
+    public static final double AMBIENT_NIGHT_CHANCE_MULT = 1.12;
     /** 玩家 40 格内游荡怪数量上限（+区域等级），达到则不再刷。 */
     public static final int AMBIENT_MAX_NEARBY = 4;
     /** 每日保底刷怪每次 tick 分批刷出的最大数量（5 星 5 只 ≈ 3 批刷完，避免一次性刷出怪海）。 */
     public static final int GUARANTEED_BATCH_SIZE = 2;
+    /** 夜晚怪物只在前 2 分钟刷新（2400 tick；超出此窗口的夜晚不再刷游荡怪）。 */
+    public static final int NIGHT_MONSTER_SPAWN_WINDOW_TICKS = 20 * 120;
     /** 游荡怪刷新点离玩家 20~34 格（拉远距离，给更多反应时间）。 */
     public static final int AMBIENT_SPAWN_MIN_DIST = 24;
     public static final int AMBIENT_SPAWN_RAND_DIST = 18;
@@ -197,16 +200,20 @@ public final class SixtySecondsBalance {
     public static final double MONSTER_SCRAP_DROP_CHANCE = 0.65;
 
     // ── 怪物整体强化（2026-07-19 追加）──────────────────────────────────
-    /** 所有自研怪（游荡怪/夜袭怪/Boss 召唤的小怪）血量全局乘数（+40%，让怪更耐打）。 */
-    public static final double MONSTER_HEALTH_GLOBAL_MULT = 1.4;
-    /** 所有自研怪刷新概率全局乘数（+30%）。叠加在原有「刷新频率+40%」之上。 */
-    public static final double MONSTER_SPAWN_FREQ_MULT = 1.3;
+    /** 所有自研怪（游荡怪/夜袭怪/Boss 召唤的小怪）血量全局乘数（-30%：1.4→0.98，降低 PvE 难度）。 */
+    public static final double MONSTER_HEALTH_GLOBAL_MULT = 0.98;
+    /** 所有自研怪刷新概率全局乘数（-30%：1.3→1.0，降低 PvE 难度）。 */
+    public static final double MONSTER_SPAWN_FREQ_MULT = 1.0;
 
-    // ── 区域固定 Boss（4-5 星固定刷 / 1-5 星伤害 Boss 一把一只）──────────────
-    /** 4 星及以上区域固定刷新一只 Boss（1-4 级）；每晚会保证每片此类区域有一只存活 Boss。 */
+    // ── 区域固定 Boss（4-5 星概率刷 / 1-5 星伤害 Boss 一把一只）──────────────
+    /** 4 星及以上区域才有概率刷新区域固定 Boss（1-4 级）。 */
     public static final int AREA_BOSS_MIN_AREA_LEVEL = 4;
     /** 区域固定 Boss 等级 = clamp(areaLevel - 1, 1, 本值)。4 星→Lv3，5 星→Lv4。 */
     public static final int AREA_BOSS_MAX_LEVEL = 4;
+    /** 4-5 星区域 Boss 每日刷新概率（每个区域独立掷骰，~15%，替代原来的 100% 固定刷新）。 */
+    public static final double AREA_BOSS_SPAWN_CHANCE = 0.15;
+    /** 每天最多刷新的区域 Boss 数量上限（设为 0 = 禁用区域 Boss，每天只保留夜晚 Boss 一只）。 */
+    public static final int AREA_BOSS_MAX_PER_DAY = 0;
     /** 「伤害 Boss」固定伤害（近战命中健康伤害；护甲不减免）。每局仅一只，第 3 天夜晚降临。 */
     public static final int DAMAGE_BOSS_MELEE_INJURY = 60;
     /** 「伤害 Boss」降临的游戏日（≥本值那晚首 tick 触发，每局仅一次）。 */
@@ -256,6 +263,8 @@ public final class SixtySecondsBalance {
     public static final int BOSS_SLAM_COOLDOWN_TICKS = 20 * 10;
     public static final int BOSS_ROAR_COOLDOWN_TICKS = 20 * 18;
     public static final int BOSS_SUMMON_COOLDOWN_TICKS = 20 * 25;
+    /** Boss 召唤小怪时的怪物数量上限（周围16格内已有≥本值则不再召唤）。 */
+    public static final int BOSS_MINION_CAP = 6;
     public static final int BOSS_CHARGE_COOLDOWN_TICKS = 20 * 14;
     /** Boss 掉落：loot 掷骰件数 = BASE + PER_LEVEL×等级；保底废料 = BASE + PER_LEVEL×等级（+40%）。 */
     public static final int BOSS_LOOT_ROLLS_BASE = 13;
@@ -390,7 +399,7 @@ public final class SixtySecondsBalance {
     // ── 钩锁（SixtySecondsGrapplingHookItem：钩住准星落点把自己荡过去）────────
     public static final int GRAPPLE_RANGE = 24;               // 最大射程（格）
     public static final int GRAPPLE_COOLDOWN_TICKS = 20 * 15; // 使用冷却 15 秒
-    public static final int GRAPPLE_DURABILITY = 20;          // 耐久 20 次
+    public static final int GRAPPLE_DURABILITY = 60;          // 耐久 60 次（*3）
     public static final int GRAPPLE_NO_FALL_TICKS = 20 * 20;  // 荡索摔落保护窗口上限（落地即提前结束）
 
     // ── 开局保底物资（准备阶段结束随搜刮所得一起装进避难所补给箱；见 SixtySecondsManager.placeSupplyChests）──

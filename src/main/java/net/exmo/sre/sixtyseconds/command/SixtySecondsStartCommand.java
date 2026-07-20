@@ -328,7 +328,23 @@ public final class SixtySecondsStartCommand {
                                                 .executes(context -> backupRestore(context.getSource(),
                                                         net.minecraft.commands.arguments.EntityArgument
                                                                 .getPlayer(context, "player")))))
-                                .then(literal("list").executes(context -> backupList(context.getSource()))))));
+                                .then(literal("list").executes(context -> backupList(context.getSource())))
+                        // 管理员：直升机撤离 开关 + 设置降落点
+                        .then(literal("helicopter")
+                                .requires(source -> source.hasPermission(2))
+                                .then(literal("on").executes(c -> setHelicopter(c.getSource(), true)))
+                                .then(literal("off").executes(c -> setHelicopter(c.getSource(), false)))
+                                .executes(c -> showHelicopter(c.getSource())))
+                        .then(literal("helicopter_set")
+                                .requires(source -> source.hasPermission(2))
+                                .then(argument("x", IntegerArgumentType.integer())
+                                        .then(argument("y", IntegerArgumentType.integer())
+                                                .then(argument("z", IntegerArgumentType.integer())
+                                                        .executes(context -> setHelicopterLanding(
+                                                                context.getSource(),
+                                                                IntegerArgumentType.getInteger(context, "x"),
+                                                                IntegerArgumentType.getInteger(context, "y"),
+                                                                IntegerArgumentType.getInteger(context, "z"))))))))));
     }
 
     /** 玩家NPC 敲门喊话（创造模式；需先右键敲过一扇避难所门）。 */
@@ -1488,6 +1504,52 @@ public final class SixtySecondsStartCommand {
     private static int hotlineRecycleCancel(CommandSourceStack src) {
         if (!(src.getEntity() instanceof ServerPlayer p) || !SixtySecondsMod.isActive(p.level())) return 0;
         net.exmo.sre.sixtyseconds.logic.SixtySecondsHotlineSystem.handleRecycleCancel(p);
+        return 1;
+    }
+
+    /** 管理员：切换直升机撤离开关（按图配置持久化，默认开）。 */
+    private static int setHelicopter(CommandSourceStack source, boolean enabled) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.helicopterEnabled = enabled;
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(enabled
+                ? "message.noellesroles.sixty_seconds.helicopter_enabled"
+                : "message.noellesroles.sixty_seconds.helicopter_disabled")
+                .withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    /** 管理员：查看直升机撤离开关当前状态与降落点坐标。 */
+    private static int showHelicopter(CommandSourceStack source) {
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(source.getLevel())
+                .orElse(null);
+        boolean enabled = config != null ? config.helicopterEnabled : true;
+        String posStr;
+        if (config != null && config.helicopterLandingPos != null
+                && !(config.helicopterLandingPos.x == 0 && config.helicopterLandingPos.y == 0 && config.helicopterLandingPos.z == 0)) {
+            posStr = " §7(" + config.helicopterLandingPos.x + ", " + config.helicopterLandingPos.y + ", " + config.helicopterLandingPos.z + ")";
+        } else {
+            posStr = " §7(未设置 - 使用 /sre:60s helicopter_set <x> <y> <z>)";
+        }
+        source.sendSuccess(() -> Component.translatable(enabled
+                        ? "message.noellesroles.sixty_seconds.helicopter_enabled"
+                        : "message.noellesroles.sixty_seconds.helicopter_disabled")
+                .append(Component.literal(posStr)), false);
+        return 1;
+    }
+
+    /** 管理员：设置直升机降落点坐标。 */
+    private static int setHelicopterLanding(CommandSourceStack source, int x, int y, int z) {
+        var level = source.getLevel();
+        var config = net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.current(level)
+                .orElseGet(net.exmo.sre.sixtyseconds.config.SixtySecondsConfig::new);
+        config.helicopterLandingPos = new net.exmo.sre.sixtyseconds.config.SixtySecondsConfig.Vec(x, y, z);
+        net.exmo.sre.sixtyseconds.config.SixtySecondsConfigStore.save(level, config);
+        source.sendSuccess(() -> Component.translatable(
+                "message.noellesroles.sixty_seconds.helicopter_set", x, y, z)
+                .withStyle(ChatFormatting.GOLD), true);
         return 1;
     }
 }

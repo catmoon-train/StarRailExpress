@@ -294,6 +294,7 @@ public final class SixtySecondsManager {
                 reconcileHomeMapZones(level, data);      // 兜底：已回到家的玩家若区域地图未同步则补发（修复回来地图不显示坐标）
                 net.exmo.sre.sixtyseconds.content.item.SixtySecondsClockItem.tickHeld(level);
                 SixtySecondsRescue.tick(level, data);    // 隐藏通关：救援信标倒计时
+                SixtySecondsHelicopterEvac.tick(level, data); // 直升机撤离：检测进入撤离区的玩家
                 tickSubPhaseNotify(level, data);         // 清晨/白天/晚上/睡觉 切换提示
                 tickTimeWarning(level, data);           // 提前预警：夜晚/睡觉将至（聊天栏）
                 SixtySecondsWinConditions.tick(level, data); // 无存活幸存者→提前结束
@@ -414,6 +415,15 @@ public final class SixtySecondsManager {
         } else if (day == 4) {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.pvp_peace_over",
                     totalDays(level)).withStyle(ChatFormatting.RED));
+        }
+        // 最后一天 → 直升机撤离：若已启用且设置过降落点
+        if (day == totalDays(level)) {
+            var config = SixtySecondsConfigStore.current(level).orElse(null);
+            if (config != null && config.helicopterEnabled
+                    && config.helicopterLandingPos != null
+                    && !config.helicopterLandingPos.toBlockPos().equals(BlockPos.ZERO)) {
+                SixtySecondsHelicopterEvac.arrive(level, data, config.helicopterLandingPos.toBlockPos());
+            }
         }
     }
 

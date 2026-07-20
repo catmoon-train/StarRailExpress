@@ -68,6 +68,28 @@ public class SREReceiverRegister {
         ServerPlayNetworking.registerGlobalReceiver(net.exmo.sre.record.network.RecordReplayRequestC2SPayload.ID,
                 (payload, context) -> net.exmo.sre.record.MatchRecordService.openReplayFor(context.player(),
                         payload.matchId()));
+
+        // 60s 队友标点：服务端接收后转发给同队队友
+        ServerPlayNetworking.registerGlobalReceiver(
+                net.exmo.sre.sixtyseconds.network.TeamPingC2SPacket.ID,
+                (payload, context) -> context.server().execute(() -> {
+                    var player = context.player();
+                    var stats = net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(player);
+                    int teamId = stats.teamId;
+                    if (teamId < 0) return; // 未编队不转发
+
+                    var s2c = net.exmo.sre.sixtyseconds.network.TeamPingS2CPacket.of(
+                            player.getUUID(),
+                            new net.minecraft.world.phys.Vec3(payload.x(), payload.y(), payload.z()));
+
+                    for (var other : player.serverLevel().players()) {
+                        if (other == player) continue;
+                        var otherStats = net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent.KEY.get(other);
+                        if (otherStats.teamId == teamId) {
+                            ServerPlayNetworking.send(other, s2c);
+                        }
+                    }
+                }));
         ServerPlayNetworking.registerGlobalReceiver(GunShootPayload.ID, new GunShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(SniperShootPayload.TYPE, new SniperShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(StoreBuyPayload.ID, new StoreBuyPayload.Receiver());
