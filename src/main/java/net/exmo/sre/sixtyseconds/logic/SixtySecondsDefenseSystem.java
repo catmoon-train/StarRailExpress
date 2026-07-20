@@ -762,7 +762,7 @@ public final class SixtySecondsDefenseSystem {
             if (team.doorBroken && team.doorHp > 0) team.doorBroken = false;
             if (!player.isCreative()) held.shrink(1);
             player.displayClientMessage(Component.translatable(
-                    "message.noellesroles.sixty_seconds.door_repaired",
+                    "message.noellesroles.sixty_seconds.door_repaired_detail",
                     team.doorHp, team.doorMaxHp).withStyle(ChatFormatting.GREEN), true);
             return true;
         } else if (held.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_UNIVERSAL_REPAIR_KIT)) {
@@ -770,7 +770,7 @@ public final class SixtySecondsDefenseSystem {
             team.doorBroken = false;
             if (!player.isCreative()) held.shrink(1);
             player.displayClientMessage(Component.translatable(
-                    "message.noellesroles.sixty_seconds.door_repaired",
+                    "message.noellesroles.sixty_seconds.door_repaired_detail",
                     team.doorHp, team.doorMaxHp).withStyle(ChatFormatting.GREEN), true);
             return true;
         } else if (held.is(org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_REPAIR_KIT)) {

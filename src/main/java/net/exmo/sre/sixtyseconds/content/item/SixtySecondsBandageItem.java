@@ -26,16 +26,23 @@ public class SixtySecondsBandageItem extends Item {
     /** 绷带包扎时间：8 秒 */
     private static final int USE_DURATION = 160;
 
-    /** 本绷带的回复量（简易绷带 10 / 消毒绷带 25）。 */
+    /** 本绷带的回复量（简易绷带 10 / 消毒绷带 30 / 创口贴 10）。 */
     private final int heal;
+    /** 额外降低的污染值（创口贴用，默认 0）。 */
+    private final int pollutionReduce;
 
     public SixtySecondsBandageItem(Properties properties) {
         this(properties, HEAL);
     }
 
     public SixtySecondsBandageItem(Properties properties, int heal) {
+        this(properties, heal, 0);
+    }
+
+    public SixtySecondsBandageItem(Properties properties, int heal, int pollutionReduce) {
         super(properties);
         this.heal = heal;
+        this.pollutionReduce = pollutionReduce;
     }
 
     @Override
@@ -87,6 +94,9 @@ public class SixtySecondsBandageItem extends Item {
         }
         // 绷带缓慢恢复：设置 HoT 剩余量，由 SixtySecondsHealthSystem.tick 每秒恢复 1 点
         stats.bandageHealRemaining = Math.min(heal, stats.healthMax - stats.health);
+        if (pollutionReduce > 0) {
+            stats.pollution = Math.max(0, stats.pollution - pollutionReduce);
+        }
         stats.sync();
         if (!serverPlayer.isCreative()) {
             stack.shrink(1);

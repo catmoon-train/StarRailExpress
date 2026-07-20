@@ -3638,7 +3638,7 @@
   "tech.noellesroles.sixty_seconds.vehicle_repair_2.desc": "载具维修装置：一次性恢复 30 点血量。",
   "tech.noellesroles.sixty_seconds.vehicle_repair_3": "载具修理-III",
   "tech.noellesroles.sixty_seconds.vehicle_repair_3.desc": "万用补丁：一次性恢复 60 点血量。",
-  "message.noellesroles.sixty_seconds.door_repaired": "§a家门已修复！当前耐久 %1$s / %2$s。",
+  "message.noellesroles.sixty_seconds.door_repaired_detail": "§a家门已修复！当前耐久 %1$s / %2$s。",
   "tech.noellesroles.sixty_seconds.boat_1": "海上载具-I",
   "tech.noellesroles.sixty_seconds.boat_1.desc": "扎一张木筏，不用油，但也快不了。",
   "tech.noellesroles.sixty_seconds.boat_2": "海上载具-II",
