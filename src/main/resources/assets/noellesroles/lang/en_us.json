@@ -3055,6 +3055,8 @@
   "item.noellesroles.sixty_seconds_blinding_arrow": "Blinding Arrow",
   "item.noellesroles.sixty_seconds_alloy_arrow": "Alloy Arrow",
   "item.noellesroles.sixty_seconds_hunting_arrow": "Hunting Arrow",
+  "item.noellesroles.sixty_seconds_effect_remove_arrow": "Effect Removal Arrow",
+  "tooltip.noellesroles.sixty_seconds_effect_remove_arrow": "Removes positive potion effects from the target on hit",
   "entity.noellesroles.sixty_seconds_acid_spit": "Acid Spit",
   "block.noellesroles.sixty_seconds_turret": "Sentry Turret",
   "tooltip.noellesroles.sixty_seconds_turret": "Sentry Turret: while your team has power, fires every 1.5s at the nearest monster or enemy player within 12 blocks (your own team is immune). Unlocked by the Fortification tech; crafting requires power. In adventure mode it can only be placed on white concrete markers; a wrench removes it.",

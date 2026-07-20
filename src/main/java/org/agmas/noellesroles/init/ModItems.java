@@ -584,6 +584,10 @@ public class ModItems {
             new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
                     net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.HUNTING),
             "sixty_seconds_hunting_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    public static final Item SIXTY_SECONDS_EFFECT_REMOVE_ARROW = register(
+            new net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem(new Item.Properties().stacksTo(64),
+                    net.exmo.sre.sixtyseconds.content.item.SixtySecondsArrowItem.ArrowType.EFFECT_REMOVE),
+            "sixty_seconds_effect_remove_arrow", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     public static final Item SIXTY_SECONDS_CHEMICALS = register(
             new Item(new Item.Properties().stacksTo(16)),
             "sixty_seconds_chemicals", net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);

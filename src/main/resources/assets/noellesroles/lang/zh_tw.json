@@ -2969,6 +2969,8 @@
   "item.noellesroles.sixty_seconds_blinding_arrow": "失明箭",
   "item.noellesroles.sixty_seconds_alloy_arrow": "合金箭",
   "item.noellesroles.sixty_seconds_hunting_arrow": "狩獵箭",
+  "item.noellesroles.sixty_seconds_effect_remove_arrow": "祛藥箭",
+  "tooltip.noellesroles.sixty_seconds_effect_remove_arrow": "命中後清除目標的增益型藥水效果",
   "entity.noellesroles.sixty_seconds_acid_spit": "酸液",
   "block.noellesroles.sixty_seconds_turret": "哨戒砲",
   "tooltip.noellesroles.sixty_seconds_turret": "哨戒砲：全隊供電時每 1.5 秒自動射擊 12 格內最近的怪物或敵隊玩家（本隊免疫）。防禦工事強化科技解鎖，需供電合成。冒險模式僅可放在白色混凝土標記上方，扳手可拆回。",

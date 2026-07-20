@@ -1219,6 +1219,9 @@ public final class SixtySecondsRecipes {
         add(list, "alloy_arrow", Station.ARSENAL, "arrow_craft_3", true,
                 List.of(in(Items.STICK, 2), in(alloy, 1), in(Items.FEATHER, 1)),
                 ModItems.SIXTY_SECONDS_ALLOY_ARROW, 6);
+        add(list, "effect_remove_arrow", Station.ARSENAL, "arrow_craft_3", true,
+                List.of(in(ModItems.SIXTY_SECONDS_ALLOY_ARROW, 1), in(ModItems.SIXTY_SECONDS_POTION_CLEANSER, 1), in(chem, 1)),
+                ModItems.SIXTY_SECONDS_EFFECT_REMOVE_ARROW, 1);
 
         // ══ 基地设施（车床，全通电）═══════════════════════════════════════
         add(list, "expansion_key_1", Station.LATHE, "base_expand_1", true,

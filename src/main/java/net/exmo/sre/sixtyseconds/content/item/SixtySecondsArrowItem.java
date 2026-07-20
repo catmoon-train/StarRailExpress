@@ -39,9 +39,11 @@ public class SixtySecondsArrowItem extends Item {
         /** 合金箭：2倍钢头箭伤害。 */
         ALLOY(11, 48.0F, 32, Effect.NONE, "alloy_arrow"),
         /** 狩猎箭：对怪物额外伤害。 */
-        HUNTING(12, 14.0F, 10, Effect.HUNT, "hunting_arrow");
+        HUNTING(12, 14.0F, 10, Effect.HUNT, "hunting_arrow"),
+        /** 祛药箭：命中后清除目标的增益型药水效果。 */
+        EFFECT_REMOVE(13, 48.0F, 32, Effect.EFFECT_REMOVE, "effect_remove_arrow");
 
-        public enum Effect { NONE, FIRE, POISON, EXPLODE, TAINT, WHEEL_BREAK, ARMOR_PIERCE, GLOW, BLIND, HUNT }
+        public enum Effect { NONE, FIRE, POISON, EXPLODE, TAINT, WHEEL_BREAK, ARMOR_PIERCE, GLOW, BLIND, HUNT, EFFECT_REMOVE }
 
         public final int id;
         public final float monsterDamage;
@@ -82,6 +84,7 @@ public class SixtySecondsArrowItem extends Item {
                 case BLINDING -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_BLINDING_ARROW;
                 case ALLOY -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_ALLOY_ARROW;
                 case HUNTING -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_HUNTING_ARROW;
+                case EFFECT_REMOVE -> org.agmas.noellesroles.init.ModItems.SIXTY_SECONDS_EFFECT_REMOVE_ARROW;
             };
         }
     }

@@ -148,9 +148,34 @@ public class SixtySecondsArrowEntity extends AbstractArrow {
             case POISON -> monster.addEffect(new MobEffectInstance(MobEffects.POISON, 20 * 6, 1));
             case GLOW -> monster.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 8, 0));
             case BLIND -> monster.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 20 * 5, 0));
+            case EFFECT_REMOVE -> removePositiveEffects(monster);
             default -> {}
         }
     }
+
+    /** 祛药箭——清除目标的增益型药水效果。 */
+    private void removePositiveEffects(LivingEntity target) {
+        for (var effect : positiveEffectsToRemove) {
+            target.removeEffect(effect);
+        }
+    }
+
+    /** 祛药箭目标清除的增益效果列表。 */
+    private static final java.util.List<net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect>> positiveEffectsToRemove =
+            java.util.List.of(
+                    MobEffects.REGENERATION,
+                    MobEffects.NIGHT_VISION,
+                    MobEffects.DAMAGE_BOOST,
+                    MobEffects.INVISIBILITY,
+                    MobEffects.MOVEMENT_SPEED,
+                    MobEffects.JUMP,
+                    MobEffects.DAMAGE_RESISTANCE,
+                    MobEffects.ABSORPTION,
+                    MobEffects.SLOW_FALLING,
+                    MobEffects.WATER_BREATHING,
+                    MobEffects.FIRE_RESISTANCE,
+                    MobEffects.LUCK
+            );
 
     /** 附加效果——对玩家。 */
     private void applyPlayerEffect(ServerLevel level, ServerPlayer player) {
@@ -168,6 +193,7 @@ public class SixtySecondsArrowEntity extends AbstractArrow {
             }
             case GLOW -> player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 8, 0));
             case BLIND -> player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 20 * 5, 0));
+            case EFFECT_REMOVE -> removePositiveEffects(player);
             default -> {}
         }
     }
