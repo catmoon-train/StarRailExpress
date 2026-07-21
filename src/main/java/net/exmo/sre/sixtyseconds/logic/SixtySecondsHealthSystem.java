@@ -127,6 +127,8 @@ public final class SixtySecondsHealthSystem {
             }
             return true;
         });
+        // 原版治疗（再生/瞬间治疗药水）转为健康值恢复——通过 LivingEntity.heal mixin 拦截
+        // 见 SixtySecondsHealMixin.java
         // 原版环境伤害（坠落/火/生物等）改为健康值伤害
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (entity instanceof ServerPlayer player && SixtySecondsMod.isActive(player.level())
@@ -565,11 +567,25 @@ public final class SixtySecondsHealthSystem {
         boolean second = level.getGameTime() % 20 == 0;
         for (ServerPlayer player : level.players()) {
             SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
+            if (!GameUtils.isPlayerAliveAndSurvival(player)) continue;
             // 绷带缓慢恢复：每秒恢复 1 点健康值
-            if (second && stats.bandageHealRemaining > 0
-                    && GameUtils.isPlayerAliveAndSurvival(player)) {
+            if (second && stats.bandageHealRemaining > 0) {
                 stats.health = Math.min(stats.healthMax, stats.health + 1);
                 stats.bandageHealRemaining--;
+                stats.sync();
+            }
+            // 原版再生药水：每秒转换原版治疗量为健康值
+            if (second && player.hasEffect(MobEffects.REGENERATION)) {
+                var effect = player.getEffect(MobEffects.REGENERATION);
+                if (effect != null) {
+                    int heal = (effect.getAmplifier() + 1); // 等级0=1/秒, 等级1=2/秒
+                    stats.health = Math.min(stats.healthMax, stats.health + heal);
+                    stats.sync();
+                }
+            }
+            // 原版中毒效果：每 3 秒提升 1 点污染值
+            if (level.getGameTime() % (20 * 3) == 0 && player.hasEffect(MobEffects.POISON)) {
+                stats.pollution = Math.min(100, stats.pollution + 1);
                 stats.sync();
             }
             // 健康值完全替代原版生命值：每秒把原版血/饥饿钉满——伤害已被 ALLOW_DAMAGE 全量拦截转为健康伤害，
