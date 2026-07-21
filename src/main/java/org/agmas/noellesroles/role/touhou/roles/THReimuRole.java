@@ -146,7 +146,7 @@ public class THReimuRole extends TouhouRole {
                 Component.translatable("skill.noellesroles.reimu.started").withStyle(ChatFormatting.GREEN), true);
         player.getAbilities().mayfly = true;
         player.getAbilities().flying = true;
-        player.getAbilities().setFlyingSpeed(0.015F);
+        player.getAbilities().setFlyingSpeed(0.018F);
         player.onUpdateAbilities();
     }
 
