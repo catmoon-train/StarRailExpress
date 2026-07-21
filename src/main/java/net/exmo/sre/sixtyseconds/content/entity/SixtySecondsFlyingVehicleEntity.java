@@ -35,23 +35,26 @@ import org.agmas.noellesroles.init.ModItems;
 public class SixtySecondsFlyingVehicleEntity extends Mob {
 
     public enum Kind {
-        /** 飞行器：1 座，最慢速度/升力 */
-        FLYER(1, 1.0F, 1.0F, 50),
-        /** 直升机：3 座，中等速度/升力 */
-        HELICOPTER(3, 1.5F, 1.5F, 150),
-        /** 飞机：6 座，最快速度/升力 */
-        AIRPLANE(6, 2.2F, 2.0F, 300);
+        /** 飞行器：1 座，最慢速度/升力，最高升 30 格 */
+        FLYER(1, 1.0F, 1.0F, 50, 30),
+        /** 直升机：3 座，中等速度/升力，最高升 80 格 */
+        HELICOPTER(3, 1.5F, 1.5F, 150, 80),
+        /** 飞机：6 座，最快速度/升力，最高升 120 格 */
+        AIRPLANE(6, 2.2F, 2.0F, 300, 120);
 
         public final int seats;
         public final float speedMult;
         public final float liftMult;
         public final int maxHp;
+        /** 最大抬升高度（相对于起飞点）。 */
+        public final int maxLiftHeight;
 
-        Kind(int seats, float speedMult, float liftMult, int maxHp) {
+        Kind(int seats, float speedMult, float liftMult, int maxHp, int maxLiftHeight) {
             this.seats = seats;
             this.speedMult = speedMult;
             this.liftMult = liftMult;
             this.maxHp = maxHp;
+            this.maxLiftHeight = maxLiftHeight;
         }
     }
 
@@ -71,6 +74,8 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
 
     public static final int FUEL_PER_CAN_TICKS = 20 * 180;
     public static final int REPAIR_AMOUNT = 15;
+    /** 起飞时记录的 y 坐标（上车时记录，空车时重置）。 */
+    private double takeoffY = Double.NaN;
 
     private final Kind kind;
 
@@ -221,6 +226,7 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
 
         // 无乘客且在地面附近 → 重力下落
         if (getPassengers().isEmpty()) {
+            takeoffY = Double.NaN; // 重置起飞高度
             if (!onGround()) {
                 setDeltaMovement(getDeltaMovement().add(0.0, -0.04, 0.0));
                 setDeltaMovement(getDeltaMovement().scale(0.98));
@@ -238,11 +244,17 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
         float inputThrottle = player.zza; // W=+1 前进, S=-1 后退
         float inputSteer = player.xxa;     // A=+1 左, D=-1 右
         float inputLift = 0.0F;
-        // W 前进时自动攀升，S 后退时下降；速度越快升力越大
-        if (inputThrottle > 0.01F)
-            inputLift = inputThrottle;
-        else if (inputThrottle < -0.01F)
-            inputLift = inputThrottle;
+        // W 前进时自动攀升，超过最大抬升高度后不再攀升
+        if (!Double.isNaN(takeoffY)) {
+            boolean atCeiling = getY() >= takeoffY + kind.maxLiftHeight;
+            if (inputThrottle > 0.01F)
+                inputLift = atCeiling ? 0.0F : inputThrottle;
+            else if (inputThrottle < -0.01F)
+                inputLift = inputThrottle;
+        } else {
+            // 首次起飞记录高度
+            takeoffY = getY();
+        }
 
         boolean hasFuel = fuelTicks() > 0;
 
@@ -470,6 +482,7 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
         super.addAdditionalSaveData(tag);
         tag.putInt("FuelTicks", fuelTicks());
         tag.putInt("VehicleHealth", vehicleHealth());
+        if (!Double.isNaN(takeoffY)) tag.putDouble("TakeoffY", takeoffY);
     }
 
     @Override
@@ -477,5 +490,6 @@ public class SixtySecondsFlyingVehicleEntity extends Mob {
         super.readAdditionalSaveData(tag);
         setFuelTicks(tag.getInt("FuelTicks"));
         if (tag.contains("VehicleHealth")) setVehicleHealth(tag.getInt("VehicleHealth"));
+        if (tag.contains("TakeoffY")) takeoffY = tag.getDouble("TakeoffY");
     }
 }
