@@ -12,23 +12,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 /**
  * 树苗培育箱：5 阶段生长（age 0~4），种橡树苗产橡木 + 树苗 + 概率苹果。
  */
 public class SixtySecondsSaplingCultivatorBlock extends SixtySecondsPlanterBlock {
 
-    public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 4);
-
     public SixtySecondsSaplingCultivatorBlock(Properties properties, SixtySecondsCrops.Tier tier) {
         super(properties, tier);
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AGE);
     }
 
     @Override

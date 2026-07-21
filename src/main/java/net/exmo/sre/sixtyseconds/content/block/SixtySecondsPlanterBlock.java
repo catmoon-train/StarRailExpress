@@ -48,7 +48,7 @@ import org.agmas.noellesroles.init.ModItems;
  */
 public class SixtySecondsPlanterBlock extends Block implements EntityBlock {
     /** 0=空耕土，1=发芽，2=生长，3=成熟。 */
-    public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 3);
+    public static final IntegerProperty AGE = IntegerProperty.create("age", 0, 4);
     private static final String LANG = "message.noellesroles.sixty_seconds.planter.";
 
     private final Tier tier;
