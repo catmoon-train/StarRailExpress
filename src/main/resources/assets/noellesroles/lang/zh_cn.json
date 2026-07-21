@@ -1701,6 +1701,7 @@
   "message.tip.is_taskpoint_able": "任务点透视已启用",
   "key.noellesroles.show_help_display": "提示显示折叠",
   "key.noellesroles.task_instinct_option": "任务点透视选项",
+  "message.sre.role_rotation.card_limit":"很抱歉你的任务卡使用失败！已补偿您一张！",
   "message.tip.taskpoint_instinct_enable": "任务点透视已启用！",
   "noellesroles.hud.fold_help_display_tip": "按下 %s 折叠帮助信息",
   "noellesroles.hud.show_help_display_tip": "按下 %s 展开帮助信息",

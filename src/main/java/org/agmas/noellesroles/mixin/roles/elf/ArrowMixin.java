@@ -36,7 +36,7 @@ public class ArrowMixin {
             return;
         if (entityHitResult.getEntity() instanceof ServerPlayer player) {
             AbstractArrow arrow = (AbstractArrow) (Object) this;
-            if (arrow instanceof SpectralArrow){
+            if (arrow instanceof SpectralArrow) {
                 player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 20, 0, false, false, true));
                 arrow.discard();
                 ci.cancel();
@@ -50,7 +50,7 @@ public class ArrowMixin {
                 PotionContents potionContents = pickupItem.get(DataComponents.POTION_CONTENTS);
                 if (potionContents != null) {
                     for (MobEffectInstance instance : potionContents.getAllEffects()) {
-                        if (instance.getEffect().value() instanceof net.minecraft.world.effect.HarmMobEffect) {
+                        if (instance.is(MobEffects.HARM)) {
                             isHit = true;
                             ServerPlayer shooter = arrow.getOwner() instanceof ServerPlayer sp ? sp : null;
                             GameUtils.killPlayer(player, true, shooter, SRE.id("arrow"));
@@ -68,7 +68,8 @@ public class ArrowMixin {
                         isHit = true;
                         GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
                     }
-                    if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.HUNTER)) {
+                    if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer,
+                            ModRoles.HUNTER)) {
                         isHit = true;
                         GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
                         // 猎人击杀处理：弓冷却 + 杀敌计数 + 每3杀奖励毒箭
