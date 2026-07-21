@@ -278,8 +278,10 @@ public class LightningDraftState {
             }
             boolean a_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(a.getUUID());
             boolean b_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(b.getUUID());
-            int a_team = PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(a.getUUID(), 0);
-            int b_team = PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(b.getUUID(), 0);
+            int a_team = normalizeForceRoleSortType(
+                    PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(a.getUUID(), 0));
+            int b_team = normalizeForceRoleSortType(
+                    PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(b.getUUID(), 0));
             if (a_force && b_force)
                 return 0;
             if (a_force)
@@ -293,6 +295,16 @@ public class LightningDraftState {
             playerOrder.add(p.getUUID());
         }
         PLAYER_SORT_WEIGHT.clear();
+    }
+
+    private static int normalizeForceRoleSortType(int type) {
+        if (type == 1) {
+            type = -2;
+        }
+        if (type == 5) {
+            type = -1;
+        }
+        return type;
     }
 
     // ---------- 轮次计算 ----------

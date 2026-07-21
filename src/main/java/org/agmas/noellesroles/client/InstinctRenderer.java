@@ -69,9 +69,469 @@ import java.util.HashMap;
 
 public class InstinctRenderer {
     public static void registerInstinctEvents() {
-        // 必须最先注册自定义职业的本能透视处理器，使其优先于通用本能处理器生效，
-        // 否则自定义职业设置的本能透视范围(instinctMaxRange)会被通用处理器忽略。
+        // 自定义角色的逻辑
         CustomRoleLoader.registerClientInstinctHandler();
+        // 其他角色专用逻辑
+        registerSpecialLogic();
+        // 普通的通用逻辑
+        registerNormalLogic();
+    }
+
+    public static void registerNormalLogic() {
+        // 通用逻辑
+        OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {
+            if (SREClient.gameComponent == null) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            var self_role = SREClient.gameComponent.getRole(self);
+
+            // 布谷鸟：无法透视玩家；非布谷鸟：无法透视蛋
+            boolean selfAlive = GameUtils.isPlayerAliveAndSurvival(self);
+            if (selfAlive && SREClient.gameComponent.isRole(self, ModRoles.REASONER) && target instanceof Player) {
+                return TrueFalseAndCustomResult.disallow();
+            }
+            if (selfAlive && SREClient.gameComponent.isRole(self, ModRoles.CUCKOO)) {
+                if (target instanceof Player) {
+                    return TrueFalseAndCustomResult.disallow();
+                }
+            } else {
+                if (target instanceof Display.BlockDisplay) {
+                    return TrueFalseAndCustomResult.disallow();
+                }
+            }
+            if (target instanceof Player target_player) {
+                // 不开直觉，默认有
+                // 红尘客
+                if (SREClient.gameComponent.isRole(self, ModRoles.WAYFARER)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(target_player)) {
+                        var wayC = WayfarerPlayerComponent.KEY.get(self);
+                        if (wayC.phase == 1) {
+                            if (wayC.killer != null) {
+                                if (target_player.getUUID().equals(wayC.killer)) {
+                                    return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
+                                }
+                            }
+                        }
+                    }
+                }
+                // JOJO
+                if (SREClient.gameComponent.isRole(self, ModRoles.JOJO)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(target_player)) {
+                        if (target_player.distanceTo(self) <= 3) {
+                            if (SREClient.gameComponent.isRole(target_player, ModRoles.DIO)) {
+                                if (self.hasEffect(ModEffects.SKILL_BANED)) {
+                                    return TrueFalseAndCustomResult.pass();
+                                }
+                                return TrueFalseAndCustomResult.custom(ModRoles.DIO.color());
+                            }
+                        }
+                    }
+                }
+                var target_role = SREClient.gameComponent.getRole(target_player);
+                SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(target_player);
+                SREPlayerPoisonComponent playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target_player);
+                if (SREClient.gameComponent.isRole(self, ModRoles.BETTER_VIGILANTE)) {
+                    var betterC = BetterVigilantePlayerComponent.KEY.get(self);
+                    if (betterC.lastStandActivated) {
+                        return TrueFalseAndCustomResult.custom(Color.BLUE.getRGB());
+                    }
+                }
+                if (SREClient.gameComponent.isRole(self, RedHouseRoles.PACHURI)) {
+                    if (!self.hasEffect(ModEffects.SAFE_TIME)) {
+                        if (target.distanceToSqr(self) <= 25) {
+                            if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
+                                return TrueFalseAndCustomResult.custom(RedHouseRoles.FURANDORU.color());
+                            }
+                        }
+                    }
+                }
+                if (SREClient.gameComponent.isRole(self, ModRoles.CHEF)) {
+                    if (self.hasEffect(ModEffects.SAFE_TIME))
+                        return TrueFalseAndCustomResult.pass();
+                    int t = FoodDrinkGlowComponent.KEY.get(self).glowTicks
+                            .getOrDefault(target.getScoreboardName(), new HashMap<>())
+                            .getOrDefault(1, 0);
+                    if (t > 0) {
+                        return TrueFalseAndCustomResult.custom(Color.GREEN.getRGB());
+                    }
+                }
+                if (SREClient.gameComponent.isRole(self, ModRoles.BARTENDER)) {
+                    if (self.hasEffect(ModEffects.SAFE_TIME))
+                        return TrueFalseAndCustomResult.pass();
+                    var weakArmorComponent = io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent.KEY
+                            .get(target_player);
+                    boolean hasWeakArmor = weakArmorComponent != null && weakArmorComponent.getWeakArmor() > 0;
+                    if (armorPlayerComponent.getArmor() > 0 && playerPoisonComponent.poisonTicks > 0) {
+                        return TrueFalseAndCustomResult.custom(new Color(186, 255, 65).getRGB());
+                    }
+                    if (armorPlayerComponent.getArmor() > 0 || hasWeakArmor) {
+                        if (target_role.identifier().equals(ModRoles.WATCHER_ID)) {
+                            return TrueFalseAndCustomResult.pass();
+                        }
+                        return TrueFalseAndCustomResult.custom(Color.BLUE.getRGB());
+                    }
+                    int t = FoodDrinkGlowComponent.KEY.get(self).glowTicks
+                            .getOrDefault(target.getScoreboardName(), new HashMap<>())
+                            .getOrDefault(0, 0);
+                    if (t > 0) {
+                        return TrueFalseAndCustomResult.custom(Color.GREEN.getRGB());
+                    }
+                }
+                if ((SREClient.gameComponent.isRole(self, ModRoles.BARTENDER)
+                        || SREClient.gameComponent.isRole(self, ModRoles.POISONER))
+                        && playerPoisonComponent.poisonTicks > 0) {
+                    return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
+                }
+
+                if (SREClient.gameComponent.isRole(self, ModRoles.EXECUTIONER)) {
+                    ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY
+                            .get(self);
+                    if (executionerPlayerComponent != null && executionerPlayerComponent.target != null) {
+                        if (executionerPlayerComponent.target.equals(target.getUUID())
+                                && !SREClient.gameComponent.isRole(target.getUUID(), ModRoles.GHOST)) {
+                            return TrueFalseAndCustomResult.custom(new Color(0, 254, 254).getRGB());
+                        }
+                    }
+                }
+                if (SREClient.gameComponent.isRole(self, ModRoles.MANIPULATOR)) {
+                    ManipulatorPlayerComponent manipulatorPlayerComponent = ManipulatorPlayerComponent.KEY
+                            .get(self);
+                    if (manipulatorPlayerComponent != null && manipulatorPlayerComponent.target != null) {
+                        if (manipulatorPlayerComponent.target.equals(target.getUUID())) {
+                            return TrueFalseAndCustomResult.custom(Color.orange.getRGB());
+                        }
+                    }
+                }
+                if (SREClient.gameComponent.isRole(self, ModRoles.ADMIRER)) {
+                    AdmirerPlayerComponent admirerPlayerComponent = AdmirerPlayerComponent.KEY
+                            .get(self);
+                    if (admirerPlayerComponent != null && admirerPlayerComponent.getBoundTarget() != null) {
+                        if (admirerPlayerComponent.getBoundTarget().getUUID().equals(target.getUUID())) {
+                            return TrueFalseAndCustomResult.custom(Color.PINK.getRGB());
+                        }
+                    }
+                }
+                if (SREClient.gameComponent.isRole(self, ModRoles.MONITOR)) {
+                    MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY
+                            .get(self);
+                    if (monitorComponent != null && monitorComponent.getMarkedTarget() != null) {
+                        if (monitorComponent.getMarkedTarget().equals(target.getUUID())) {
+                            return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
+                        }
+                    }
+                }
+                // 鹈鹕：透视所有玩家，被吞噬过的显示橙色，其他显示鹈鹕颜色
+                if (SREClient.gameComponent.isRole(self, ModRoles.PELICAN)) {
+                    if (!hasInstinct)
+                        return TrueFalseAndCustomResult.pass();
+                    double distSq = target_player.distanceToSqr(self);
+                    int range = PelicanPlayerComponent.INSTINCT_RANGE;
+                    if (distSq > range * range) {
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                    PelicanPlayerComponent pelicanComp = PelicanPlayerComponent.KEY.get(self);
+                    if (pelicanComp != null && pelicanComp.uniqueEaten.contains(target_player.getUUID())) {
+                        return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
+                    }
+                    return TrueFalseAndCustomResult.custom(ModRoles.PELICAN.color());
+                }
+                // 需要开启直觉
+                if (!hasInstinct)
+                    return TrueFalseAndCustomResult.pass();
+                // 直觉看不到旁观
+                if (target_player.isSpectator())
+                    return TrueFalseAndCustomResult.disallow();
+                if (isTargetInvisibleToInstinct(target_player))
+                    return TrueFalseAndCustomResult.disallow();
+
+                // 小透明：杀手无法看到高亮（杀手，与大部分中立偏狼）
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.GHOST) && isKillerTeam(self_role)
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    return TrueFalseAndCustomResult.disallow();
+                }
+
+                // 风精灵
+                if (SREClient.gameComponent.isRole(self, ModRoles.WIND_YAOSE)) {
+                    return TrueFalseAndCustomResult.custom(ModRoles.WIND_YAOSE.getColor());
+                }
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.SALTED_FISH)) {
+                    if (target_player.isInvisible()) {
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                }
+
+                if (SREClient.gameComponent.isRole(self, RedHouseRoles.FURANDORU)) {
+                    if (target_role != null) {
+                        if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
+                            return TrueFalseAndCustomResult.custom(RedHouseRoles.PACHURI.color());
+                        }
+                        return TrueFalseAndCustomResult.custom(new Color(2, 224, 2).getRGB());
+                    }
+                    return TrueFalseAndCustomResult.pass();
+                }
+                // 傀儡师
+                PuppeteerPlayerComponent selfPuppeteerComp = ModComponents.PUPPETEER.get(self);
+                if (selfPuppeteerComp.isControllingPuppet && SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()) {
+                    return TrueFalseAndCustomResult.custom(ModRoles.PUPPETEER.color());
+                }
+                if (selfPuppeteerComp.isPuppeteerMarked && SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()
+                        && selfPuppeteerComp.phase >= 1) {
+                    return TrueFalseAndCustomResult.pass();
+                }
+                // 黑白熊形态：对所有人隐藏高亮
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.MONOKUMA)
+                        && MonokumaEventHandler.isMonokumaBearForm(target_player)
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    return TrueFalseAndCustomResult.disallow();
+                }
+                if (SREClient.gameComponent.isRole(self, ModRoles.MONOKUMA) && SREClient.isPlayerAliveAndInSurvival()) {
+                    return TrueFalseAndCustomResult.custom(ModRoles.MONOKUMA.color());
+                }
+
+                // 秉烛人：杀手无法透视察觉
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.CANDLE_BEARER) && isKillerTeam(self_role)
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    return TrueFalseAndCustomResult.disallow();
+                }
+                // 雇佣兵：杀手直觉无法透视
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.MERCENARY) && isKillerTeam(self_role)
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    return TrueFalseAndCustomResult.disallow();
+                }
+                // 怀旧者里世界：杀手无法透视察觉
+                if (SREClient.gameComponent.isRole(target_player, ModRoles.NOSTALGIST)
+                        && target_player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD) && isKillerTeam(self_role)
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    return TrueFalseAndCustomResult.disallow();
+                }
+                if (SREClient.gameComponent.isRole(self, ModRoles.WRAITH_ASSASSIN)
+                        && target instanceof Player targetPlayer
+                        && targetPlayer != self
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    int san = Math.round(SREPlayerMoodComponent.KEY.get(targetPlayer).getMood() * 100.0f);
+                    if (san < 10) {
+                        return TrueFalseAndCustomResult.custom(0x2C8DFF);
+                    }
+                    if (san < 30) {
+                        return TrueFalseAndCustomResult.custom(0xFFD84A);
+                    }
+                }
+                // 低 SAN 玩家可见冤魂高亮
+                if (target instanceof Player targetPlayer && targetPlayer != self
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    SRERole selfRole = SREClient.gameComponent.getRole(self);
+                    if (selfRole != null && !selfRole.isKiller()) {
+                        int viewerSan = Math.round(
+                                SREPlayerMoodComponent.KEY.get(self).getMood() * 100.0f);
+                        if (viewerSan < 40) {
+                            return TrueFalseAndCustomResult.custom(0xAA66FF);
+                        }
+                    }
+                }
+                // 记录员
+                if (SREClient.gameComponent.isRole(self, ModRoles.RECORDER)) {
+                    if (target instanceof Player targetPlayer) {
+                        if (targetPlayer.distanceToSqr(self) > 20 * 20)
+                            return TrueFalseAndCustomResult.disallow();
+                        if (targetPlayer == self)
+                            return TrueFalseAndCustomResult.disallow();
+
+                        RecorderPlayerComponent recorder = ModComponents.RECORDER.get(self);
+                        if (recorder.getGuesses().containsKey(targetPlayer.getUUID())) {
+                            // 已记录（猜测过）：亮黄色
+                            return TrueFalseAndCustomResult.custom(0xFFFF55);
+                        } else {
+                            // 未记录：暗蓝色
+                            return TrueFalseAndCustomResult.custom(0x0000AA);
+                        }
+                    }
+                }
+                // 爱慕
+                if (SREClient.gameComponent.isRole(self, ModRoles.ADMIRER) && SREClient.isPlayerAliveAndInSurvival()) {
+                    return TrueFalseAndCustomResult.custom(Color.PINK.getRGB());
+                }
+                // 小丑&LOOSE END
+                if ((SREClient.gameComponent.isRole(self, ModRoles.JESTER)
+                        || SREClient.gameComponent.isRole(self, TMMRoles.LOOSE_END)
+                        || SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END)
+                        || SREClient.gameComponent.isRole(self, SpecialGameModeRoles.DIRT))
+                        && SREClient.isPlayerAliveAndInSurvival()) {
+                    if (SREClient.gameComponent.isRole(target_player, ModRoles.GHOST)) {
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                    // 超级亡命徒无法看到隐身的人
+                    if (SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END) &&
+                            target_player.isInvisible()) {
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                    return TrueFalseAndCustomResult.custom(Color.PINK.getRGB());
+                }
+
+                // 家族本能透视
+                if (self_role != null && self_role.isMafiaTeam() && SREClient.isPlayerAliveAndInSurvival()) {
+                    if (target_role != null && target_role.isMafiaTeam()) {
+                        // 家族成员透视家族成员 - 无距离限制
+                        if (SREClient.gameComponent.isRole(target_player, ModRoles.GODFATHER)) {
+                            return TrueFalseAndCustomResult.custom(new Color(135, 206, 235).getRGB()); // 天蓝色
+                        }
+                        // 其他家族成员显示棕色
+                        return TrueFalseAndCustomResult.custom(new Color(139, 69, 19).getRGB()); // 棕色
+                    }
+                    // 家族成员透视非家族成员 - 20格距离限制
+                    if (self.distanceTo(target_player) > 20.0D) {
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                }
+
+                // 杀手直觉
+                if (isKillerTeam(self_role) && SREClient.isPlayerAliveAndInSurvival()) {
+                    // 布袋鬼：里世界期间无杀手直觉
+                    if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
+                        MaChenXuPlayerComponent macComp = MaChenXuPlayerComponent.KEY.get(self);
+                        if (macComp != null && macComp.otherworldActive) {
+                            return TrueFalseAndCustomResult.disallow();
+                        }
+                    }
+                    // 强盗直觉：只能透视半径10格内的玩家，透视杀手队友无距离限制
+                    if (SREClient.gameComponent.isRole(self, ModRoles.BANDIT)) {
+                        // 检查目标是否是杀手队友
+                        if (target_role != null && SREClient.gameComponent.isKillerTeamRole(target_role)) {
+                            // 杀手队友无距离限制
+                            // 迷失杀手不能看太远的
+                            if (RoleUtils.compareRole(target_role, ModRoles.LOST_KILLER)
+                                    && target_player.distanceTo(self) >= 10) {
+                                return TrueFalseAndCustomResult.disallow();
+                            }
+                        } else {
+                            // 普通玩家只能透视10格内
+                            if (target_player.distanceTo(self) >= 10) {
+                                return TrueFalseAndCustomResult.disallow();
+                            }
+                        }
+                    }
+
+                    // 魔术师：杀手看魔术师时显示红色边框（像看其他杀手一样）
+                    if (SREClient.gameComponent.isRole(target_player, ModRoles.MAGICIAN)) {
+                        target_role = RoleUtils
+                                .getRole(MagicianPlayerComponent.KEY.get(target_player).getDisguiseRoleId());
+                    }
+
+                    if (RoleUtils.compareRole(target_role, ModRoles.PUPPETEER)) {
+                        return TrueFalseAndCustomResult.custom(ModRoles.PUPPETEER.color());
+                    }
+                    if (SREClient.gameComponent.isRole(self, ModRoles.COMMANDER)) {
+                        if (isKillerTeam(target_role)) {
+                            return TrueFalseAndCustomResult.custom(getRoleColor(target_role));
+                        }
+                        if (target_player.distanceTo(self) <= 5) {
+                            var role = SREClient.gameComponent.getRole(target_player);
+                            if (role != null && role.isVigilanteTeam()) {
+                                return TrueFalseAndCustomResult.custom(new Color(63, 72, 204).getRGB());
+                            }
+                        }
+                    }
+                    if (RoleUtils.compareRole(target_role, ModRoles.VULTURE)) {
+                        return TrueFalseAndCustomResult.custom(ModRoles.VULTURE.color());
+                    }
+                    if (RoleUtils.compareRole(target_role, ModRoles.ADMIRER)) {
+                        return TrueFalseAndCustomResult.custom(ModRoles.ADMIRER.color());
+                    }
+                    if (RoleUtils.compareRole(target_role, ModRoles.EXECUTIONER)) {
+                        return TrueFalseAndCustomResult.custom(ModRoles.EXECUTIONER.color());
+                    }
+                    if (RoleUtils.compareRole(target_role, ModRoles.JESTER)) {
+                        return TrueFalseAndCustomResult.custom(Color.PINK.getRGB());
+                    }
+                    if (RoleUtils.compareRole(target_role, ModRoles.LOST_KILLER)) {
+                        return TrueFalseAndCustomResult.custom(TMMRoles.CIVILIAN.color());
+                    }
+                    if (RoleUtils.compareRole(target_role, ModRoles.PRANKSTER)) {
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                    if (RoleUtils.compareRole(target_role, SERoles.AMNESIAC)) {
+                        if (StupidExpress.CONFIG.rolesSection.amnesiacSection.amnesiacGlowsDifferently) {
+                            return TrueFalseAndCustomResult.custom(SERoles.AMNESIAC.color());
+                        }
+                    }
+
+                    if (SREClient.gameComponent.isRole(self, RedHouseRoles.REMILIA)) {
+                        if (!self.hasEffect(ModEffects.SAFE_TIME)) {
+                            if (target.distanceToSqr(self) <= 25) {
+                                if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
+                                    return TrueFalseAndCustomResult.custom(RedHouseRoles.PACHURI.color());
+                                } else if (RoleUtils.compareRole(target_role, RedHouseRoles.FURANDORU)) {
+                                    return TrueFalseAndCustomResult.custom(RedHouseRoles.FURANDORU.color());
+                                }
+                            }
+                        }
+                    }
+                    // 疫使：杀手本能中透视的框为深绿色
+                    if (SREClient.gameComponent.isRole(target_player, ModRoles.INFECTED)) {
+                        return TrueFalseAndCustomResult.custom(new Color(0, 100, 0).getRGB()); // 深绿色
+                    }
+                    // 葬仪：杀手本能中透视的框为淡灰色
+                    if (SREClient.gameComponent.isRole(target_player, ModRoles.MORTICIAN_BODYMAKER)) {
+                        return TrueFalseAndCustomResult.custom(new Color(180, 180, 180).getRGB()); // 淡灰色
+                    }
+                    // 肉汁：当杀手在4格范围内时，该杀手的透视框变为深蓝色
+                    if (RoleUtils.compareRole(target_role, ModRoles.MEATBALL)) {
+                        if (self.distanceTo(target_player) <= 4.0) {
+                            return TrueFalseAndCustomResult.custom(new Color(0, 0, 180).getRGB()); // 深蓝色
+                        }
+                    }
+
+                    // 默认fallback
+                    if (target_role == null)
+                        return TrueFalseAndCustomResult.custom(Color.WHITE.getRGB());
+                    if (target_role.canUseKiller()) {
+                        return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
+                    } else if (target_role.isNeutralForKiller()) {
+                        return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
+                    } else {
+                        if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
+                            if (SREPlayerMoodComponent.KEY.get(target_player).getMood() <= 0.1) {
+                                return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
+                            }
+                        }
+                        if (SREClient.gameComponent.isRole(self, ModRoles.DIO)) {
+                            if (RoleUtils.compareRole(target_role, ModRoles.JOJO)) {
+                                return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
+                            }
+                        }
+                        if (SREGameTimeComponent.KEY.get(self.level()).getTime() >= GameConstants
+                                .getFurandoruSafeLine()) {
+                            if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
+                                return TrueFalseAndCustomResult.disallow();
+                            }
+                        }
+                        if (SREClient.gameComponent.isRole(target_player, ModRoles.GAMBLER)) {
+                            return TrueFalseAndCustomResult.disallow();
+                        }
+                        return TrueFalseAndCustomResult.custom(TMMRoles.CIVILIAN.color());
+                    }
+                }
+            }
+            // 布谷鸟：只透视自己下的蛋（BlockDisplay）
+            if (SREClient.gameComponent.isRole(self, ModRoles.CUCKOO)) {
+                if (target instanceof Display.BlockDisplay blockDisplay) {
+                    if (!hasInstinct)
+                        return TrueFalseAndCustomResult.pass();
+                    if (!GameUtils.isPlayerAliveAndSurvival(self))
+                        return TrueFalseAndCustomResult.pass();
+                    try {
+                        if (CuckooEggData.isOwnEggClient(blockDisplay)) {
+                            return TrueFalseAndCustomResult.custom(ModRoles.CUCKOO.color());
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+            return TrueFalseAndCustomResult.pass();
+        });
+
+    }
+
+    public static void registerSpecialLogic() {
         TouhouInstincts.registerEvents();
         OnGetInstinctHighlight.SPECTATOR_EVENT.register((self, target, hasInstinct) -> {
             if (hasInstinct)
@@ -565,453 +1025,6 @@ public class InstinctRenderer {
                 return TrueFalseAndCustomResult.disallow();
             return TrueFalseAndCustomResult.custom(ModRoles.PHANTOM_MUSICIAN.color());
         });
-
-        // 通用逻辑
-        OnGetInstinctHighlight.ALIVE_EVENT.register((self, target, hasInstinct) -> {
-            if (SREClient.gameComponent == null) {
-                return TrueFalseAndCustomResult.pass();
-            }
-            var self_role = SREClient.gameComponent.getRole(self);
-
-            // 布谷鸟：无法透视玩家；非布谷鸟：无法透视蛋
-            boolean selfAlive = GameUtils.isPlayerAliveAndSurvival(self);
-            if (selfAlive && SREClient.gameComponent.isRole(self, ModRoles.REASONER) && target instanceof Player) {
-                return TrueFalseAndCustomResult.disallow();
-            }
-            if (selfAlive && SREClient.gameComponent.isRole(self, ModRoles.CUCKOO)) {
-                if (target instanceof Player) {
-                    return TrueFalseAndCustomResult.disallow();
-                }
-            } else {
-                if (target instanceof Display.BlockDisplay) {
-                    return TrueFalseAndCustomResult.disallow();
-                }
-            }
-            if (target instanceof Player target_player) {
-                // 不开直觉，默认有
-                // 红尘客
-                if (SREClient.gameComponent.isRole(self, ModRoles.WAYFARER)) {
-                    if (GameUtils.isPlayerAliveAndSurvival(target_player)) {
-                        var wayC = WayfarerPlayerComponent.KEY.get(self);
-                        if (wayC.phase == 1) {
-                            if (wayC.killer != null) {
-                                if (target_player.getUUID().equals(wayC.killer)) {
-                                    return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
-                                }
-                            }
-                        }
-                    }
-                }
-                // JOJO
-                if (SREClient.gameComponent.isRole(self, ModRoles.JOJO)) {
-                    if (GameUtils.isPlayerAliveAndSurvival(target_player)) {
-                        if (target_player.distanceTo(self) <= 3) {
-                            if (SREClient.gameComponent.isRole(target_player, ModRoles.DIO)) {
-                                if (self.hasEffect(ModEffects.SKILL_BANED)) {
-                                    return TrueFalseAndCustomResult.pass();
-                                }
-                                return TrueFalseAndCustomResult.custom(ModRoles.DIO.color());
-                            }
-                        }
-                    }
-                }
-                var target_role = SREClient.gameComponent.getRole(target_player);
-                SREArmorPlayerComponent armorPlayerComponent = SREArmorPlayerComponent.KEY.get(target_player);
-                SREPlayerPoisonComponent playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target_player);
-                if (SREClient.gameComponent.isRole(self, ModRoles.BETTER_VIGILANTE)) {
-                    var betterC = BetterVigilantePlayerComponent.KEY.get(self);
-                    if (betterC.lastStandActivated) {
-                        return TrueFalseAndCustomResult.custom(Color.BLUE.getRGB());
-                    }
-                }
-                if (SREClient.gameComponent.isRole(self, RedHouseRoles.PACHURI)) {
-                    if (!self.hasEffect(ModEffects.SAFE_TIME)) {
-                        if (target.distanceToSqr(self) <= 25) {
-                            if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
-                                return TrueFalseAndCustomResult.custom(RedHouseRoles.FURANDORU.color());
-                            }
-                        }
-                    }
-                }
-                if (SREClient.gameComponent.isRole(self, ModRoles.CHEF)) {
-                    if (self.hasEffect(ModEffects.SAFE_TIME))
-                        return TrueFalseAndCustomResult.pass();
-                    int t = FoodDrinkGlowComponent.KEY.get(self).glowTicks
-                            .getOrDefault(target.getScoreboardName(), new HashMap<>())
-                            .getOrDefault(1, 0);
-                    if (t > 0) {
-                        return TrueFalseAndCustomResult.custom(Color.GREEN.getRGB());
-                    }
-                }
-                if (SREClient.gameComponent.isRole(self, ModRoles.BARTENDER)) {
-                    if (self.hasEffect(ModEffects.SAFE_TIME))
-                        return TrueFalseAndCustomResult.pass();
-                    var weakArmorComponent = io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent.KEY
-                            .get(target_player);
-                    boolean hasWeakArmor = weakArmorComponent != null && weakArmorComponent.getWeakArmor() > 0;
-                    if (armorPlayerComponent.getArmor() > 0 && playerPoisonComponent.poisonTicks > 0) {
-                        return TrueFalseAndCustomResult.custom(new Color(186, 255, 65).getRGB());
-                    }
-                    if (armorPlayerComponent.getArmor() > 0 || hasWeakArmor) {
-                        if (target_role.identifier().equals(ModRoles.WATCHER_ID)) {
-                            return TrueFalseAndCustomResult.pass();
-                        }
-                        return TrueFalseAndCustomResult.custom(Color.BLUE.getRGB());
-                    }
-                    int t = FoodDrinkGlowComponent.KEY.get(self).glowTicks
-                            .getOrDefault(target.getScoreboardName(), new HashMap<>())
-                            .getOrDefault(0, 0);
-                    if (t > 0) {
-                        return TrueFalseAndCustomResult.custom(Color.GREEN.getRGB());
-                    }
-                }
-                if ((SREClient.gameComponent.isRole(self, ModRoles.BARTENDER)
-                        || SREClient.gameComponent.isRole(self, ModRoles.POISONER))
-                        && playerPoisonComponent.poisonTicks > 0) {
-                    return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
-                }
-
-                if (SREClient.gameComponent.isRole(self, ModRoles.EXECUTIONER)) {
-                    ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY
-                            .get(self);
-                    if (executionerPlayerComponent != null && executionerPlayerComponent.target != null) {
-                        if (executionerPlayerComponent.target.equals(target.getUUID())
-                                && !SREClient.gameComponent.isRole(target.getUUID(), ModRoles.GHOST)) {
-                            return TrueFalseAndCustomResult.custom(new Color(0, 254, 254).getRGB());
-                        }
-                    }
-                }
-                if (SREClient.gameComponent.isRole(self, ModRoles.MANIPULATOR)) {
-                    ManipulatorPlayerComponent manipulatorPlayerComponent = ManipulatorPlayerComponent.KEY
-                            .get(self);
-                    if (manipulatorPlayerComponent != null && manipulatorPlayerComponent.target != null) {
-                        if (manipulatorPlayerComponent.target.equals(target.getUUID())) {
-                            return TrueFalseAndCustomResult.custom(Color.orange.getRGB());
-                        }
-                    }
-                }
-                if (SREClient.gameComponent.isRole(self, ModRoles.ADMIRER)) {
-                    AdmirerPlayerComponent admirerPlayerComponent = AdmirerPlayerComponent.KEY
-                            .get(self);
-                    if (admirerPlayerComponent != null && admirerPlayerComponent.getBoundTarget() != null) {
-                        if (admirerPlayerComponent.getBoundTarget().getUUID().equals(target.getUUID())) {
-                            return TrueFalseAndCustomResult.custom(Color.PINK.getRGB());
-                        }
-                    }
-                }
-                if (SREClient.gameComponent.isRole(self, ModRoles.MONITOR)) {
-                    MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY
-                            .get(self);
-                    if (monitorComponent != null && monitorComponent.getMarkedTarget() != null) {
-                        if (monitorComponent.getMarkedTarget().equals(target.getUUID())) {
-                            return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
-                        }
-                    }
-                }
-                // 鹈鹕：透视所有玩家，被吞噬过的显示橙色，其他显示鹈鹕颜色
-                if (SREClient.gameComponent.isRole(self, ModRoles.PELICAN)) {
-                    if (!hasInstinct)
-                        return TrueFalseAndCustomResult.pass();
-                    double distSq = target_player.distanceToSqr(self);
-                    int range = PelicanPlayerComponent.INSTINCT_RANGE;
-                    if (distSq > range * range) {
-                        return TrueFalseAndCustomResult.disallow();
-                    }
-                    PelicanPlayerComponent pelicanComp = PelicanPlayerComponent.KEY.get(self);
-                    if (pelicanComp != null && pelicanComp.uniqueEaten.contains(target_player.getUUID())) {
-                        return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
-                    }
-                    return TrueFalseAndCustomResult.custom(ModRoles.PELICAN.color());
-                }
-                // 需要开启直觉
-                if (!hasInstinct)
-                    return TrueFalseAndCustomResult.pass();
-                // 直觉看不到旁观
-                if (target_player.isSpectator())
-                    return TrueFalseAndCustomResult.disallow();
-                if (isTargetInvisibleToInstinct(target_player))
-                    return TrueFalseAndCustomResult.disallow();
-
-                // 小透明：杀手无法看到高亮（杀手，与大部分中立偏狼）
-                if (SREClient.gameComponent.isRole(target_player, ModRoles.GHOST) && isKillerTeam(self_role)
-                        && SREClient.isPlayerAliveAndInSurvival()) {
-                    return TrueFalseAndCustomResult.disallow();
-                }
-
-                // 风精灵
-                if (SREClient.gameComponent.isRole(self, ModRoles.WIND_YAOSE)) {
-                    return TrueFalseAndCustomResult.custom(ModRoles.WIND_YAOSE.getColor());
-                }
-                if (SREClient.gameComponent.isRole(target_player, ModRoles.SALTED_FISH)) {
-                    if (target_player.isInvisible()) {
-                        return TrueFalseAndCustomResult.disallow();
-                    }
-                }
-
-                if (SREClient.gameComponent.isRole(self, RedHouseRoles.FURANDORU)) {
-                    if (target_role != null) {
-                        if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
-                            return TrueFalseAndCustomResult.custom(RedHouseRoles.PACHURI.color());
-                        }
-                        return TrueFalseAndCustomResult.custom(new Color(2, 224, 2).getRGB());
-                    }
-                    return TrueFalseAndCustomResult.pass();
-                }
-                // 傀儡师
-                PuppeteerPlayerComponent selfPuppeteerComp = ModComponents.PUPPETEER.get(self);
-                if (selfPuppeteerComp.isControllingPuppet && SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()) {
-                    return TrueFalseAndCustomResult.custom(ModRoles.PUPPETEER.color());
-                }
-                if (selfPuppeteerComp.isPuppeteerMarked && SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()
-                        && selfPuppeteerComp.phase >= 1) {
-                    return TrueFalseAndCustomResult.pass();
-                }
-                // 黑白熊形态：对所有人隐藏高亮
-                if (SREClient.gameComponent.isRole(target_player, ModRoles.MONOKUMA)
-                        && MonokumaEventHandler.isMonokumaBearForm(target_player)
-                        && SREClient.isPlayerAliveAndInSurvival()) {
-                    return TrueFalseAndCustomResult.disallow();
-                }
-                if (SREClient.gameComponent.isRole(self, ModRoles.MONOKUMA) && SREClient.isPlayerAliveAndInSurvival()) {
-                    return TrueFalseAndCustomResult.custom(ModRoles.MONOKUMA.color());
-                }
-
-                // 秉烛人：杀手无法透视察觉
-                if (SREClient.gameComponent.isRole(target_player, ModRoles.CANDLE_BEARER) && isKillerTeam(self_role)
-                        && SREClient.isPlayerAliveAndInSurvival()) {
-                    return TrueFalseAndCustomResult.disallow();
-                }
-                // 雇佣兵：杀手直觉无法透视
-                if (SREClient.gameComponent.isRole(target_player, ModRoles.MERCENARY) && isKillerTeam(self_role)
-                        && SREClient.isPlayerAliveAndInSurvival()) {
-                    return TrueFalseAndCustomResult.disallow();
-                }
-                // 怀旧者里世界：杀手无法透视察觉
-                if (SREClient.gameComponent.isRole(target_player, ModRoles.NOSTALGIST)
-                        && target_player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD) && isKillerTeam(self_role)
-                        && SREClient.isPlayerAliveAndInSurvival()) {
-                    return TrueFalseAndCustomResult.disallow();
-                }
-                if (SREClient.gameComponent.isRole(self, ModRoles.WRAITH_ASSASSIN)
-                        && target instanceof Player targetPlayer
-                        && targetPlayer != self
-                        && SREClient.isPlayerAliveAndInSurvival()) {
-                    int san = Math.round(SREPlayerMoodComponent.KEY.get(targetPlayer).getMood() * 100.0f);
-                    if (san < 10) {
-                        return TrueFalseAndCustomResult.custom(0x2C8DFF);
-                    }
-                    if (san < 30) {
-                        return TrueFalseAndCustomResult.custom(0xFFD84A);
-                    }
-                }
-                // 低 SAN 玩家可见冤魂高亮
-                if (target instanceof Player targetPlayer && targetPlayer != self
-                        && SREClient.isPlayerAliveAndInSurvival()) {
-                    SRERole selfRole = SREClient.gameComponent.getRole(self);
-                    if (selfRole != null && !selfRole.isKiller()) {
-                        int viewerSan = Math.round(
-                                SREPlayerMoodComponent.KEY.get(self).getMood() * 100.0f);
-                        if (viewerSan < 40) {
-                            return TrueFalseAndCustomResult.custom(0xAA66FF);
-                        }
-                    }
-                }
-                // 记录员
-                if (SREClient.gameComponent.isRole(self, ModRoles.RECORDER)) {
-                    if (target instanceof Player targetPlayer) {
-                        if (targetPlayer.distanceToSqr(self) > 20 * 20)
-                            return TrueFalseAndCustomResult.disallow();
-                        if (targetPlayer == self)
-                            return TrueFalseAndCustomResult.disallow();
-
-                        RecorderPlayerComponent recorder = ModComponents.RECORDER.get(self);
-                        if (recorder.getGuesses().containsKey(targetPlayer.getUUID())) {
-                            // 已记录（猜测过）：亮黄色
-                            return TrueFalseAndCustomResult.custom(0xFFFF55);
-                        } else {
-                            // 未记录：暗蓝色
-                            return TrueFalseAndCustomResult.custom(0x0000AA);
-                        }
-                    }
-                }
-                // 爱慕
-                if (SREClient.gameComponent.isRole(self, ModRoles.ADMIRER) && SREClient.isPlayerAliveAndInSurvival()) {
-                    return TrueFalseAndCustomResult.custom(Color.PINK.getRGB());
-                }
-                // 小丑&LOOSE END
-                if ((SREClient.gameComponent.isRole(self, ModRoles.JESTER)
-                        || SREClient.gameComponent.isRole(self, TMMRoles.LOOSE_END)
-                        || SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END)
-                        || SREClient.gameComponent.isRole(self, SpecialGameModeRoles.DIRT))
-                        && SREClient.isPlayerAliveAndInSurvival()) {
-                    if (SREClient.gameComponent.isRole(target_player, ModRoles.GHOST)) {
-                        return TrueFalseAndCustomResult.disallow();
-                    }
-                    // 超级亡命徒无法看到隐身的人
-                    if (SREClient.gameComponent.isRole(self, SpecialGameModeRoles.SUPER_LOOSE_END) &&
-                            target_player.isInvisible()) {
-                        return TrueFalseAndCustomResult.disallow();
-                    }
-                    return TrueFalseAndCustomResult.custom(Color.PINK.getRGB());
-                }
-
-                // 家族本能透视
-                if (self_role != null && self_role.isMafiaTeam() && SREClient.isPlayerAliveAndInSurvival()) {
-                    if (target_role != null && target_role.isMafiaTeam()) {
-                        // 家族成员透视家族成员 - 无距离限制
-                        if (SREClient.gameComponent.isRole(target_player, ModRoles.GODFATHER)) {
-                            return TrueFalseAndCustomResult.custom(new Color(135, 206, 235).getRGB()); // 天蓝色
-                        }
-                        // 其他家族成员显示棕色
-                        return TrueFalseAndCustomResult.custom(new Color(139, 69, 19).getRGB()); // 棕色
-                    }
-                    // 家族成员透视非家族成员 - 20格距离限制
-                    if (self.distanceTo(target_player) > 20.0D) {
-                        return TrueFalseAndCustomResult.disallow();
-                    }
-                }
-
-                // 杀手直觉
-                if (isKillerTeam(self_role) && SREClient.isPlayerAliveAndInSurvival()) {
-                    // 布袋鬼：里世界期间无杀手直觉
-                    if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
-                        MaChenXuPlayerComponent macComp = MaChenXuPlayerComponent.KEY.get(self);
-                        if (macComp != null && macComp.otherworldActive) {
-                            return TrueFalseAndCustomResult.disallow();
-                        }
-                    }
-                    // 强盗直觉：只能透视半径10格内的玩家，透视杀手队友无距离限制
-                    if (SREClient.gameComponent.isRole(self, ModRoles.BANDIT)) {
-                        // 检查目标是否是杀手队友
-                        if (target_role != null && SREClient.gameComponent.isKillerTeamRole(target_role)) {
-                            // 杀手队友无距离限制
-                        } else {
-                            // 普通玩家只能透视10格内
-                            if (target_player.distanceTo(self) >= 10) {
-                                return TrueFalseAndCustomResult.disallow();
-                            }
-                        }
-                    }
-
-                    // 魔术师：杀手看魔术师时显示红色边框（像看其他杀手一样）
-                    if (SREClient.gameComponent.isRole(target_player, ModRoles.MAGICIAN)) {
-                        target_role = RoleUtils
-                                .getRole(MagicianPlayerComponent.KEY.get(target_player).getDisguiseRoleId());
-                    }
-
-                    if (RoleUtils.compareRole(target_role, ModRoles.PUPPETEER)) {
-                        return TrueFalseAndCustomResult.custom(ModRoles.PUPPETEER.color());
-                    }
-                    if (SREClient.gameComponent.isRole(self, ModRoles.COMMANDER)) {
-                        if (isKillerTeam(target_role)) {
-                            return TrueFalseAndCustomResult.custom(getRoleColor(target_role));
-                        }
-                        if (target_player.distanceTo(self) <= 5) {
-                            var role = SREClient.gameComponent.getRole(target_player);
-                            if (role != null && role.isVigilanteTeam()) {
-                                return TrueFalseAndCustomResult.custom(new Color(63, 72, 204).getRGB());
-                            }
-                        }
-                    }
-                    if (RoleUtils.compareRole(target_role, ModRoles.VULTURE)) {
-                        return TrueFalseAndCustomResult.custom(ModRoles.VULTURE.color());
-                    }
-                    if (RoleUtils.compareRole(target_role, ModRoles.ADMIRER)) {
-                        return TrueFalseAndCustomResult.custom(ModRoles.ADMIRER.color());
-                    }
-                    if (RoleUtils.compareRole(target_role, ModRoles.EXECUTIONER)) {
-                        return TrueFalseAndCustomResult.custom(ModRoles.EXECUTIONER.color());
-                    }
-                    if (RoleUtils.compareRole(target_role, ModRoles.JESTER)) {
-                        return TrueFalseAndCustomResult.custom(Color.PINK.getRGB());
-                    }
-                    if (RoleUtils.compareRole(target_role, ModRoles.LOST_KILLER)) {
-                        return TrueFalseAndCustomResult.custom(TMMRoles.CIVILIAN.color());
-                    }
-                    if (RoleUtils.compareRole(target_role, ModRoles.PRANKSTER)) {
-                        return TrueFalseAndCustomResult.disallow();
-                    }
-                    if (RoleUtils.compareRole(target_role, SERoles.AMNESIAC)) {
-                        if (StupidExpress.CONFIG.rolesSection.amnesiacSection.amnesiacGlowsDifferently) {
-                            return TrueFalseAndCustomResult.custom(SERoles.AMNESIAC.color());
-                        }
-                    }
-
-                    if (SREClient.gameComponent.isRole(self, RedHouseRoles.REMILIA)) {
-                        if (!self.hasEffect(ModEffects.SAFE_TIME)) {
-                            if (target.distanceToSqr(self) <= 25) {
-                                if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
-                                    return TrueFalseAndCustomResult.custom(RedHouseRoles.PACHURI.color());
-                                } else if (RoleUtils.compareRole(target_role, RedHouseRoles.FURANDORU)) {
-                                    return TrueFalseAndCustomResult.custom(RedHouseRoles.FURANDORU.color());
-                                }
-                            }
-                        }
-                    }
-                    // 疫使：杀手本能中透视的框为深绿色
-                    if (SREClient.gameComponent.isRole(target_player, ModRoles.INFECTED)) {
-                        return TrueFalseAndCustomResult.custom(new Color(0, 100, 0).getRGB()); // 深绿色
-                    }
-                    // 葬仪：杀手本能中透视的框为淡灰色
-                    if (SREClient.gameComponent.isRole(target_player, ModRoles.MORTICIAN_BODYMAKER)) {
-                        return TrueFalseAndCustomResult.custom(new Color(180, 180, 180).getRGB()); // 淡灰色
-                    }
-                    // 肉汁：当杀手在4格范围内时，该杀手的透视框变为深蓝色
-                    if (RoleUtils.compareRole(target_role, ModRoles.MEATBALL)) {
-                        if (self.distanceTo(target_player) <= 4.0) {
-                            return TrueFalseAndCustomResult.custom(new Color(0, 0, 180).getRGB()); // 深蓝色
-                        }
-                    }
-
-                    // 默认fallback
-                    if (target_role == null)
-                        return TrueFalseAndCustomResult.custom(Color.WHITE.getRGB());
-                    if (target_role.canUseKiller()) {
-                        return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
-                    } else if (target_role.isNeutralForKiller()) {
-                        return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
-                    } else {
-                        if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
-                            if (SREPlayerMoodComponent.KEY.get(target_player).getMood() <= 0.1) {
-                                return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
-                            }
-                        }
-                        if (SREClient.gameComponent.isRole(self, ModRoles.DIO)) {
-                            if (RoleUtils.compareRole(target_role, ModRoles.JOJO)) {
-                                return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
-                            }
-                        }
-                        if (SREGameTimeComponent.KEY.get(self.level()).getTime() >= GameConstants
-                                .getFurandoruSafeLine()) {
-                            if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
-                                return TrueFalseAndCustomResult.disallow();
-                            }
-                        }
-                        if (SREClient.gameComponent.isRole(target_player, ModRoles.GAMBLER)) {
-                            return TrueFalseAndCustomResult.disallow();
-                        }
-                        return TrueFalseAndCustomResult.custom(TMMRoles.CIVILIAN.color());
-                    }
-                }
-            }
-            // 布谷鸟：只透视自己下的蛋（BlockDisplay）
-            if (SREClient.gameComponent.isRole(self, ModRoles.CUCKOO)) {
-                if (target instanceof Display.BlockDisplay blockDisplay) {
-                    if (!hasInstinct)
-                        return TrueFalseAndCustomResult.pass();
-                    if (!GameUtils.isPlayerAliveAndSurvival(self))
-                        return TrueFalseAndCustomResult.pass();
-                    try {
-                        if (CuckooEggData.isOwnEggClient(blockDisplay)) {
-                            return TrueFalseAndCustomResult.custom(ModRoles.CUCKOO.color());
-                        }
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
-            return TrueFalseAndCustomResult.pass();
-        });
-
     }
 
     private static int getRoleColor(SRERole target_role) {

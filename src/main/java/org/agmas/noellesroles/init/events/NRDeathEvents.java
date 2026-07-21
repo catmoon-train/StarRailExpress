@@ -738,8 +738,8 @@ public class NRDeathEvents {
                 UUID planterUid = c4instance.getPlanter(player.getUUID());
                 var planter = player.server.getPlayerList().getPlayer(planterUid);
                 if (planter != null && GameUtils.isPlayerAliveAndSurvival(planter)) {
-
-                    c4instance.addC4(planterUid, planterUid);
+                    RoleUtils.insertStackInFreeSlot(planter, ModItems.C4.getDefaultInstance());
+                    // c4instance.addC4(planterUid, planterUid);
                     planter.displayClientMessage(
                             Component.translatable("c4.back_to_planter").withStyle(ChatFormatting.RED), true);
                 }
