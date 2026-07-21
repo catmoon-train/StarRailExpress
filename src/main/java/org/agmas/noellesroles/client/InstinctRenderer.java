@@ -903,10 +903,11 @@ public class InstinctRenderer {
             if (!SREClient.gameComponent.isRole(self, THMiscRoles.KIRISAME_MARISA)) {
                 return TrueFalseAndCustomResult.pass();
             }
-
             if (target instanceof Player targetPlayer) {
+
                 if (SREClient.gameComponent.isRole(targetPlayer, THMiscRoles.HAKUREI_REIMU)) {
-                    return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
+                    if (targetPlayer.getAbilities().flying)
+                        return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
                 }
             }
             return TrueFalseAndCustomResult.pass();
