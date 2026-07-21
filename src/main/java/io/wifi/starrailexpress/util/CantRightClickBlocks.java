@@ -113,9 +113,6 @@ public class CantRightClickBlocks {
         if (keys.getPath().contains("shulker_box")) {
             return false;
         }
-        if (keys.getNamespace().equals("supplementaries")) {
-            return false;
-        }
         if (keys.getNamespace().equals("handcrafted")) {
             if (player.isShiftKeyDown()) {
                 return false;
