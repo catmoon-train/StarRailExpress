@@ -1,0 +1,9 @@
+{
+  "variants": {
+    "age=0": { "model": "noellesroles:block/sixty_seconds_sapling_cultivator_0" },
+    "age=1": { "model": "noellesroles:block/sixty_seconds_sapling_cultivator_1" },
+    "age=2": { "model": "noellesroles:block/sixty_seconds_sapling_cultivator_2" },
+    "age=3": { "model": "noellesroles:block/sixty_seconds_sapling_cultivator_3" },
+    "age=4": { "model": "noellesroles:block/sixty_seconds_sapling_cultivator_4" }
+  }
+}

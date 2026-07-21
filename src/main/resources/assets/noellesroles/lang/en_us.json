@@ -3720,6 +3720,8 @@
   "block.noellesroles.sixty_seconds_trap_cage": "Trap Cage",
   "block.noellesroles.sixty_seconds_arid_cultivator": "Arid Cultivator",
   "block.noellesroles.sixty_seconds_hydroponic_box": "Hydroponic Box",
+  "block.noellesroles.sixty_seconds_sapling_cultivator": "Sapling Cultivator",
+  "tooltip.noellesroles.sixty_seconds_sapling_cultivator": "§7Grows oak saplings only. Plant 1, harvest 1 sapling + 2 oak logs, 5% chance for an apple. 5 growth stages.",
   "item.noellesroles.sixty_seconds_medicinal_fern": "Medicinal Fern",
   "tooltip.noellesroles.sixty_seconds_medicinal_fern": "A medicinal leaf grown in the hydroponic box. Right-click to eat: restores 20 health and reduces 5 pollution.",
   "tech.noellesroles.sixty_seconds.misc_planter_3": "Plant Something Else III",

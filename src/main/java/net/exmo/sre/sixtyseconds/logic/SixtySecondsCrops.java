@@ -21,7 +21,7 @@ public final class SixtySecondsCrops {
 
     /** 培育箱等级。 */
     public enum Tier {
-        BASIC, ADVANCED, MUSHROOM, GARDENER, ARID, HYDROPONIC
+        BASIC, ADVANCED, MUSHROOM, GARDENER, ARID, HYDROPONIC, SAPLING
     }
 
     /**
@@ -99,6 +99,13 @@ public final class SixtySecondsCrops {
                 || "medicinal_fern".equals(crop.id()) || "lily_pad".equals(crop.id())) {
             return tier == Tier.HYDROPONIC;
         }
+        // 树苗培育箱：只种橡树苗
+        if (tier == Tier.SAPLING) {
+            return "oak_sapling".equals(crop.id());
+        }
+        if ("oak_sapling".equals(crop.id())) {
+            return tier == Tier.SAPLING;
+        }
         return tier == Tier.BASIC || tier == Tier.ADVANCED;
     }
 
@@ -169,6 +176,9 @@ public final class SixtySecondsCrops {
                 2, 2, "misc_planter_3", false, false, false, false));
         list.add(new Crop("lily_pad", Items.LILY_PAD, Items.LILY_PAD,
                 2, 2, "misc_planter_3", false, false, false, false));
+        // 树苗培育箱：橡树苗→1树苗+2橡木，5%概率额外苹果（种1收1树苗+2木头）
+        list.add(new Crop("oak_sapling", Items.OAK_SAPLING, Items.OAK_SAPLING,
+                2, 2, "misc_planter_1", false, false, false, false));
         return List.copyOf(list);
     }
 }

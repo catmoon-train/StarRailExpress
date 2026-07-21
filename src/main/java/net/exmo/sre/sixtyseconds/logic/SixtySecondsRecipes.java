@@ -428,6 +428,11 @@ public final class SixtySecondsRecipes {
                 List.of(in(clothRoll, 1), in(chem, 1)), ModItems.SIXTY_SECONDS_DUCT_TAPE, 1);
         add(list, "sticks", Station.WORKBENCH, "materials_1", false,
                 List.of(in(oak, 2)), Items.STICK, 4);
+        // 橡木锯板
+        add(list, "oak_planks", Station.WORKBENCH, "materials_1", false,
+                List.of(in(Items.OAK_LOG, 1)), Items.OAK_PLANKS, 2);
+        add(list, "oak_planks_powered", Station.WORKBENCH, "materials_1", true,
+                List.of(in(Items.OAK_LOG, 1)), Items.OAK_PLANKS, 4);
         add(list, "bowl", Station.WORKBENCH, "materials_1", false,
                 List.of(in(oak, 1)), Items.BOWL, 1);
         add(list, "glass_bottle", Station.WORKBENCH, "materials_1", false,
@@ -1467,6 +1472,10 @@ public final class SixtySecondsRecipes {
         add(list, "hydroponic_box", Station.WORKBENCH, "misc_planter_3", true,
                 List.of(in(oak, 4), in(waterM, 2), in(chem, 4)),
                 org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_HYDROPONIC_BOX.asItem(), 1);
+        // ── 树苗培育箱（种点别的-I）───────────────────────────────────────
+        add(list, "sapling_cultivator", Station.WORKBENCH, "misc_planter_1", true,
+                List.of(in(oak, 4), in(chem, 2), in(plastic, 4)),
+                org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_SAPLING_CULTIVATOR.asItem(), 1);
 
         // ── 新增配方：剪刀（工具-I）───────────────────────────────────────
         add(list, "shears", Station.WORKBENCH, "tools_1", false,

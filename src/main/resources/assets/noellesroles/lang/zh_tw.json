@@ -3627,6 +3627,8 @@
   "block.noellesroles.sixty_seconds_trap_cage": "捕捉籠",
   "block.noellesroles.sixty_seconds_arid_cultivator": "旱地培育箱",
   "block.noellesroles.sixty_seconds_hydroponic_box": "水培箱",
+  "block.noellesroles.sixty_seconds_sapling_cultivator": "樹苗培育箱",
+  "tooltip.noellesroles.sixty_seconds_sapling_cultivator": "§7專用於種植橡樹苗。種1收1樹苗+2橡木，5%概率額外獲得蘋果。5階段生長。",
   "item.noellesroles.sixty_seconds_medicinal_fern": "藥用蕨",
   "tooltip.noellesroles.sixty_seconds_medicinal_fern": "水培箱培育的藥用葉片，右鍵食用恢復 20 健康值並降低 5 污染值。",
   "tech.noellesroles.sixty_seconds.misc_planter_3": "種點別的-III",

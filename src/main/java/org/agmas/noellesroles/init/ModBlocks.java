@@ -434,6 +434,14 @@ public interface ModBlocks {
             b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
                     b, new Item.Properties()),
             BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
+    // 树苗培育箱：5 阶段生长（age 0~4），种橡树苗产木头
+    Block SIXTY_SECONDS_SAPLING_CULTIVATOR = blockRegistrar.createWithItem("sixty_seconds_sapling_cultivator",
+            new net.exmo.sre.sixtyseconds.content.block.SixtySecondsSaplingCultivatorBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS).strength(1.5F).randomTicks(),
+                    net.exmo.sre.sixtyseconds.logic.SixtySecondsCrops.Tier.SAPLING),
+            b -> new net.exmo.sre.sixtyseconds.content.item.SixtySecondsPlaceableBlockItem(
+                    b, new Item.Properties()),
+            BLOCK_CREATIVE_GROUP, net.exmo.sre.sixtyseconds.SixtySecondsCreativeTab.SIXTY_SECONDS_GROUP);
     BlockEntityType<net.exmo.sre.sixtyseconds.content.block_entity.SixtySecondsPlanterBlockEntity> SIXTY_SECONDS_PLANTER_ENTITY =
             blockEntityRegistrar.create("sixty_seconds_planter",
                     BlockEntityType.Builder.of(
@@ -443,7 +451,8 @@ public interface ModBlocks {
                             ModBlocks.SIXTY_SECONDS_MUSHROOM_BOX,
                             ModBlocks.SIXTY_SECONDS_GARDENER_PLANTER,
                             ModBlocks.SIXTY_SECONDS_ARID_CULTIVATOR,
-                            ModBlocks.SIXTY_SECONDS_HYDROPONIC_BOX));
+                            ModBlocks.SIXTY_SECONDS_HYDROPONIC_BOX,
+                            ModBlocks.SIXTY_SECONDS_SAPLING_CULTIVATOR));
 
     // ── 保险库（对外队上锁的真实容器）+ 基地箱子（普通容器）─────────────────
     Block SIXTY_SECONDS_VAULT_SMALL = blockRegistrar.createWithItem("sixty_seconds_vault_small",

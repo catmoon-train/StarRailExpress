@@ -1,0 +1,1 @@
+{ "parent": "block/cube_bottom_top", "textures": { "bottom": "noellesroles:block/sixty_seconds_sapling_cultivator_side", "side": "noellesroles:block/sixty_seconds_sapling_cultivator_side", "top": "noellesroles:block/sixty_seconds_sapling_cultivator_top_0", "particle": "noellesroles:block/sixty_seconds_sapling_cultivator_side" } } 

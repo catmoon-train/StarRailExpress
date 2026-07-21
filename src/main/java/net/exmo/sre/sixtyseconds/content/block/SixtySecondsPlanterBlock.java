@@ -167,7 +167,7 @@ public class SixtySecondsPlanterBlock extends Block implements EntityBlock {
     }
 
     /** 收获：按作物表产出 + 毒马铃薯 + 队伍科技收益。 */
-    private void harvest(BlockState state, ServerLevel level, BlockPos pos, ServerPlayer player,
+    protected void harvest(BlockState state, ServerLevel level, BlockPos pos, ServerPlayer player,
             SixtySecondsState.TeamData team, Crop crop) {
         RandomSource random = level.getRandom();
         int count = crop.minCount() + (crop.maxCount() > crop.minCount()
@@ -241,13 +241,19 @@ public class SixtySecondsPlanterBlock extends Block implements EntityBlock {
      * 设置生长阶段并（未成熟时）排下一阶的定时生长。
      * 高级培育箱对常规作物只需 2 阶段：发芽（1）后下一步直接成熟（跳过 2）。
      */
-    private void grow(ServerLevel level, BlockPos pos, BlockState state, int newAge, Crop crop) {
-        int target = Math.min(3, newAge);
+    /** 最大生长阶段数（子类可覆写为 4 实现 5 阶段）。 */
+    public int maxAge() {
+        return 3;
+    }
+
+    protected void grow(ServerLevel level, BlockPos pos, BlockState state, int newAge, Crop crop) {
+        int max = maxAge();
+        int target = Math.min(max, newAge);
         if (tier == Tier.ADVANCED && crop != null && !crop.fullStagesInAdvanced() && target == 2) {
             target = 3;
         }
         level.setBlock(pos, state.setValue(AGE, target), Block.UPDATE_ALL);
-        if (target < 3) {
+        if (target < max) {
             float mul = crop != null ? crop.growthTimeMultiplier() : 1.0F;
             level.scheduleTick(pos, this, (int) (SixtySecondsBalance.PLANTER_GROW_STAGE_TICKS * mul));
         }
@@ -256,7 +262,8 @@ public class SixtySecondsPlanterBlock extends Block implements EntityBlock {
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         int age = state.getValue(AGE);
-        if (age >= 1 && age < 3) {
+        int max = maxAge();
+        if (age >= 1 && age < max) {
             grow(level, pos, state, age + 1, cropAt(level, pos));
         }
     }
@@ -265,7 +272,8 @@ public class SixtySecondsPlanterBlock extends Block implements EntityBlock {
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         int age = state.getValue(AGE);
-        if (age >= 1 && age < 3 && !level.getBlockTicks().hasScheduledTick(pos, this)) {
+        int max = maxAge();
+        if (age >= 1 && age < max && !level.getBlockTicks().hasScheduledTick(pos, this)) {
             grow(level, pos, state, age + 1, cropAt(level, pos));
         }
     }
