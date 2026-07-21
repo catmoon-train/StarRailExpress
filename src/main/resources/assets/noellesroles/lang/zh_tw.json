@@ -3524,6 +3524,7 @@
   "item.noellesroles.sixty_seconds_pliers": "鉗子",
   "item.noellesroles.sixty_seconds_vault_pick_kit": "保險庫撬鎖器套組",
   "item.noellesroles.sixty_seconds_detach_wrench": "拆卸扳手",
+  "message.noellesroles.sixty_seconds.wrench.other_shelter": "§c無法拆除別人避難所裡的功能方塊！",
   "item.noellesroles.sixty_seconds_backpack_military": "軍用背包",
   "item.noellesroles.sixty_seconds_backpack_traveler": "商旅背包",
   "item.noellesroles.sixty_seconds_battery_large": "大型電池",

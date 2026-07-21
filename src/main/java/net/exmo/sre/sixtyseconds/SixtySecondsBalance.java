@@ -29,6 +29,12 @@ public final class SixtySecondsBalance {
     /** 第四天起的消耗倍率（-35%，叠加在全局/位置倍率上） */
     public static final double DRAIN_MULT_LATE_DAYS = 0.65;
 
+    // ── 战斗节奏控制 ──────────────────────────────────────────────────
+    /** 玩家近战攻击冷却（tick）：两次近战攻击的最短间隔，防连点。10 tick = 0.5s。 */
+    public static final int PLAYER_MELEE_COOLDOWN_TICKS = 10;
+    /** 玩家受击无敌帧（tick）：受伤后短时间内免疫后续所有伤害源，防被连击秒杀。10 tick = 0.5s。 */
+    public static final int PLAYER_INVULN_TICKS = 10;
+
     // ── 健康保护（避免多状态叠加导致掉血过快）─────────────────────────────
     /** 饥饿或口渴清空时，每秒最多扣的健康（<b>单一来源、封顶、不叠加</b>）。100 血≈100s 才死，留足反制窗口。 */
     public static final int HEALTH_LOSS_PER_SEC = 1;

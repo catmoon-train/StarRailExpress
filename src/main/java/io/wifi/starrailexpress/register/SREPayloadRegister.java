@@ -253,5 +253,10 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playS2C().register(
                 net.exmo.sre.sixtyseconds.network.SixtySecondsHelicopterS2CPacket.ID,
                 net.exmo.sre.sixtyseconds.network.SixtySecondsHelicopterS2CPacket.CODEC);
+
+        // 60s 结算数据同步（S2C）
+        PayloadTypeRegistry.playS2C().register(
+                net.exmo.sre.sixtyseconds.network.SixtySecondsEndGamePayload.ID,
+                net.exmo.sre.sixtyseconds.network.SixtySecondsEndGamePayload.CODEC);
     }
 }

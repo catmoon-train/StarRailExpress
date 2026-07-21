@@ -36,6 +36,7 @@ public class NRCommandRegister {
         // 末日60秒模式：启动 + 区域配置命令
         net.exmo.sre.sixtyseconds.command.SixtySecondsStartCommand.register();
         net.exmo.sre.sixtyseconds.command.SixtySecondsAreaCommand.register();
+        net.exmo.sre.sixtyseconds.command.SixtySecondsHelicopterCommand.register();
         net.exmo.sre.sixtyseconds.command.OceanCreatureCommand.register();
 
         // 注册疫使测试指令

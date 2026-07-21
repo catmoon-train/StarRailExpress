@@ -771,6 +771,11 @@ public class SREClient implements ClientModInitializer {
             RoundTextRenderer.startWelcome(announcementText, payload.killers(), payload.targets());
         });
         ClientPlayNetworking.registerGlobalReceiver(AnnounceEndingPayload.ID, (payload, context) -> {
+            // 60s 模式使用独立结算页面（SixtySecondsEndScreen），不再走 RoundTextRenderer
+            if (context.client().level != null
+                    && net.exmo.sre.sixtyseconds.SixtySecondsMod.isActive(context.client().level)) {
+                return;
+            }
             RoundTextRenderer.startEnd();
             final var gameComponent = SREClient.gameComponent;
             if (gameComponent != null) {

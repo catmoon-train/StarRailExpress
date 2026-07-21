@@ -1070,6 +1070,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         net.exmo.sre.sixtyseconds.client.TeamPingClientHandler.register();
         // 60s 直升机撤离：接收 S2C 包 + HUD 信息 + 世界绿色标记框渲染
         net.exmo.sre.sixtyseconds.client.SixtySecondsHelicopterClient.register();
+        // 60s 结算页面：接收结算数据 + 打开独立结算屏幕
+        net.exmo.sre.sixtyseconds.client.SixtySecondsEndGameClient.register();
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.sixtyseconds.network.SixtySecondsMapZoneS2CPacket.ID, (payload, context) ->
                         context.client().execute(() -> {

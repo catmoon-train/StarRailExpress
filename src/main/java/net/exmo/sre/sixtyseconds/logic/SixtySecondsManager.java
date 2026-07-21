@@ -416,15 +416,8 @@ public final class SixtySecondsManager {
             broadcast(level, Component.translatable("message.noellesroles.sixty_seconds.pvp_peace_over",
                     totalDays(level)).withStyle(ChatFormatting.RED));
         }
-        // 最后一天 → 直升机撤离：若已启用且设置过降落点
-        if (day == totalDays(level)) {
-            var config = SixtySecondsConfigStore.current(level).orElse(null);
-            if (config != null && config.helicopterEnabled
-                    && config.helicopterLandingPos != null
-                    && !config.helicopterLandingPos.toBlockPos().equals(BlockPos.ZERO)) {
-                SixtySecondsHelicopterEvac.arrive(level, data, config.helicopterLandingPos.toBlockPos());
-            }
-        }
+        // 最后一天白天开始时再由 tickSubPhaseNotify 触发直升机撤离，
+        // 替换了原先 startDay 清晨即触发的逻辑（详见 tickSubPhaseNotify 中的 MORNING→DAYTIME 检测）。
     }
 
     private static void finish(ServerLevel level, SixtySecondsState.Data data) {
@@ -655,6 +648,15 @@ public final class SixtySecondsManager {
         data.lastDayStage = stage;
         if (previous < 0) {
             return; // 开日初始化，由 startDay 的 SubtitleHUD 负责播报
+        }
+        // 清晨→白天：最后一天白天开始时触发直升机撤离（若已启用且尚未抵达）
+        if (previous == 0 && stage == 1 && data.dayNumber == totalDays(level) && !data.helicopterArrived) {
+            var config = SixtySecondsConfigStore.current(level).orElse(null);
+            if (config != null && config.helicopterEnabled
+                    && config.helicopterLandingPos != null
+                    && !config.helicopterLandingPos.toBlockPos().equals(BlockPos.ZERO)) {
+                SixtySecondsHelicopterEvac.arrive(level, data, config.helicopterLandingPos.toBlockPos());
+            }
         }
         // 傍晚切换（白天→晚上）：播报家庭状态 + 触发每日事件 + 检测妹妹外出
         if (previous == 1 && stage == 2) {

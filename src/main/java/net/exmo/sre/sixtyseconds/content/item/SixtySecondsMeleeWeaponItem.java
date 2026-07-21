@@ -66,6 +66,10 @@ public class SixtySecondsMeleeWeaponItem extends Item implements SREItemProperti
         if (!SixtySecondsMod.isActive(attacker.level())) {
             return true; // 非本模式走原版
         }
+        // 攻击冷却：防连点
+        if (SixtySecondsHealthSystem.checkAttackCooldown(attacker)) {
+            return false;
+        }
         if (attacker.getAttackStrengthScale(0.5F) < 1f) {
             return false;
         }

@@ -4,7 +4,9 @@ import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.exmo.sre.sixtyseconds.SixtySecondsPhase;
 import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
+import net.exmo.sre.sixtyseconds.network.SixtySecondsEndGamePayload;
 import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -89,6 +91,30 @@ public final class SixtySecondsWinConditions {
         SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(level);
         GameUtils.WinStatus status = survivorsWin ? GameUtils.WinStatus.PASSENGERS : GameUtils.WinStatus.KILLERS;
         roundEnd.setRoundEndData(level.players(), status);
+
+        // 构建并发送 60s 专属结算数据
+        var builder = SixtySecondsEndGamePayload.builder()
+                .winStatus(status)
+                .dayNumber(data.dayNumber);
+        for (ServerPlayer player : level.players()) {
+            var stats = SixtySecondsStatsComponent.KEY.get(player);
+            boolean evac = data.helicopterEvacuated.contains(player.getUUID());
+            boolean hasWon = survivorsWin && !stats.monster && !stats.downed
+                    && !GameUtils.isPlayerEliminated(player);
+            builder.addPlayer(new SixtySecondsEndGamePayload.PlayerResult(
+                    player.getUUID(),
+                    player.getGameProfile().getName(),
+                    !GameUtils.isPlayerAliveAndSurvival(player) || stats.downed,
+                    stats.monster,
+                    evac,
+                    stats.teamId,
+                    hasWon));
+        }
+        var payload = builder.build();
+        for (ServerPlayer player : level.players()) {
+            ServerPlayNetworking.send(player, payload);
+        }
+
         GameUtils.stopGame(level);
     }
 

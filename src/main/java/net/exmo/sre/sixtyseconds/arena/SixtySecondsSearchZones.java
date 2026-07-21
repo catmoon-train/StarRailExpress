@@ -24,7 +24,7 @@ import java.util.UUID;
  * P0 骨架：仅完成传送 + 限制 + 送回；搜索区内的物资箱/掉落业务见 {@code SupplyBox}（后续批次）。
  */
 public final class SixtySecondsSearchZones {
-    public static final int EXPLORE_INVIS_TICKS = 20 * 20;         // 出门隐身 20s
+    public static final int EXPLORE_INVIS_TICKS = 20 * 8;          // 出门隐身 8s
     public static final int RETURN_COOLDOWN_TICKS = 20 * 45;       // 归来冷却 45s（白天）
     public static final int RETURN_COOLDOWN_NIGHT_TICKS = 20 * 5;  // 晚上出门只锁 5s（夜袭凶险，放人快速撤回）
 
@@ -39,7 +39,7 @@ public final class SixtySecondsSearchZones {
     }
 
     /**
-     * 出门探索：传送到 {@code doorPos} 绑定的专属探索区（未绑定则用本队默认搜索区），隐身 15s；
+     * 出门探索：传送到 {@code doorPos} 绑定的专属探索区（未绑定则用本队默认搜索区），隐身 8s；
      * 归来需等冷却——白天 45s、晚上仅 5s（夜里探索区有夜袭怪，允许快速撤回）。
      * 每扇门可绑定独立探索区（出生点 + 限制盒），由绑定工具在 {@code searchDoorBindings} 里配置。
      */

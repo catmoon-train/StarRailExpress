@@ -166,6 +166,10 @@ public final class SixtySecondsHealthSystem {
                                     + pvpBlockedReason(serverLevel, attacker, player)), true);
                     return false;
                 }
+                // 玩家近战攻击冷却：防连点（创造模式管理员不限）
+                if (attacker != null && checkAttackCooldown(attacker)) {
+                    return false;
+                }
                 // 伤害按来源分级：玩家武器查表（非武器物品/徒手=满蓄力 5，按攻击间隔充能削减）/ 怪物 20 /
                 // 环境按原版伤害量比例映射（护甲统一减伤）。
                 // 环境映射 amount×5（clamp 5..50）：火焰 tick(1)→5、10 格坠落(≈8)→40——健康值完全替代原版生命值，
@@ -193,6 +197,10 @@ public final class SixtySecondsHealthSystem {
 
     /** 玩家 UUID → 上次环境伤害的 (游戏刻, 结算伤害额)，用于自建环境无敌帧。 */
     private static final Map<UUID, long[]> LAST_ENV_HURT = new HashMap<>();
+    /** 玩家 UUID → 上次近战攻击的游戏刻，用于攻击冷却（防连点）。 */
+    private static final Map<UUID, Long> LAST_PLAYER_ATTACK = new HashMap<>();
+    /** 玩家 UUID → 上次受伤的游戏刻，用于受击无敌帧。 */
+    private static final Map<UUID, Long> LAST_PLAYER_DAMAGED = new HashMap<>();
 
     /**
      * 环境无敌帧结算：返回本次应实际扣除的健康值（0 = 处于无敌帧内且非更强的一击，应跳过）。
@@ -217,6 +225,23 @@ public final class SixtySecondsHealthSystem {
         }
         LAST_ENV_HURT.put(id, new long[] { now, base });
         return base;
+    }
+
+    /**
+     * 玩家近战攻击冷却检查：返回 true 表示冷却中（本次攻击无效）。
+     * 创造模式玩家不受冷却限制。
+     */
+    public static boolean checkAttackCooldown(ServerPlayer attacker) {
+        if (attacker.isCreative()) {
+            return false;
+        }
+        long now = attacker.level().getGameTime();
+        Long last = LAST_PLAYER_ATTACK.get(attacker.getUUID());
+        if (last != null && now - last < SixtySecondsBalance.PLAYER_MELEE_COOLDOWN_TICKS) {
+            return true;
+        }
+        LAST_PLAYER_ATTACK.put(attacker.getUUID(), now);
+        return false;
     }
 
     private static boolean handleLethal(Player victim, Player killer, ResourceLocation deathReason) {
@@ -362,7 +387,14 @@ public final class SixtySecondsHealthSystem {
 
     /** 一次受伤：扣 baseDamage（经护甲减伤）点健康；怪物玩家不受护甲减免。 */
     public static void applyInjury(ServerPlayer victim, @Nullable ServerPlayer attacker, int baseDamage) {
+        // 受击无敌帧：受伤后在窗口内免疫所有后续伤害，防连击秒杀
+        long now = victim.level().getGameTime();
+        Long lastDamaged = LAST_PLAYER_DAMAGED.get(victim.getUUID());
+        if (lastDamaged != null && now - lastDamaged < SixtySecondsBalance.PLAYER_INVULN_TICKS) {
+            return;
+        }
         SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(victim);
+        int healthBefore = stats.health;
         // PvP 伤害减免 -50%（怪物攻防不受限）
         if (attacker != null && !stats.monster) {
             baseDamage = (int) Math.max(1, baseDamage * SixtySecondsBalance.PVP_DAMAGE_MULT);
@@ -372,6 +404,7 @@ public final class SixtySecondsHealthSystem {
             hurtFeedback(victim, attacker);
             stats.health = Math.max(0, stats.health - baseDamage);
             stats.sync();
+            if (stats.health < healthBefore) LAST_PLAYER_DAMAGED.put(victim.getUUID(), now);
             if (stats.health <= 0) {
                 die(victim, attacker);
             }
@@ -383,6 +416,7 @@ public final class SixtySecondsHealthSystem {
                 stats.health = Math.max(0, stats.health - SixtySecondsWeapons.reduceByArmor(victim, baseDamage));
                 stats.sync();
                 hurtFeedback(victim, attacker);
+                if (stats.health < healthBefore) LAST_PLAYER_DAMAGED.put(victim.getUUID(), now);
                 if (stats.health <= 0) {
                     boolean saved = SixtySecondsMystic.tryUndyingTotem(victim, stats);
                     if (!saved) {
@@ -397,6 +431,7 @@ public final class SixtySecondsHealthSystem {
         hurtFeedback(victim, attacker);
         stats.health = Math.max(0, stats.health - SixtySecondsWeapons.reduceByArmor(victim, baseDamage));
         stats.sync();
+        if (stats.health < healthBefore) LAST_PLAYER_DAMAGED.put(victim.getUUID(), now);
         if (stats.health <= 0) {
             onHealthZero(victim, true, attacker);
         }
@@ -707,6 +742,8 @@ public final class SixtySecondsHealthSystem {
     public static void reset(ServerLevel level) {
         REVIVE_PROGRESS.clear();
         LAST_ENV_HURT.clear();
+        LAST_PLAYER_ATTACK.clear();
+        LAST_PLAYER_DAMAGED.clear();
         for (ServerBossEvent bar : REVIVE_BOSS_BARS.values()) {
             bar.removeAllPlayers();
             bar.setVisible(false);

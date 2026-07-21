@@ -2,11 +2,13 @@ package net.exmo.sre.sixtyseconds.content.item;
 
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.exmo.sre.sixtyseconds.SixtySecondsMod;
+import net.exmo.sre.sixtyseconds.component.SixtySecondsStatsComponent;
 import net.exmo.sre.sixtyseconds.content.block.SixtySecondsBarricadeBlock;
 import net.exmo.sre.sixtyseconds.content.block.SixtySecondsGeneratorBlock;
 import net.exmo.sre.sixtyseconds.content.block.SixtySecondsLampBlock;
 import net.exmo.sre.sixtyseconds.content.block.SixtySecondsSpikeTrapBlock;
 import net.exmo.sre.sixtyseconds.logic.SixtySecondsBuildRules;
+import net.exmo.sre.sixtyseconds.state.SixtySecondsState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -23,6 +25,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
@@ -71,6 +74,14 @@ public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
             return InteractionResult.SUCCESS;
         }
 
+        // ── 阻止拆别人避难所里的功能方块 ──
+        if (isInsideOtherShelter(level, pos, player)) {
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.sixty_seconds.wrench.other_shelter")
+                            .withStyle(ChatFormatting.RED), true);
+            return InteractionResult.SUCCESS;
+        }
+
         // ── 原有逻辑：右键拆卸 60s 功能方块 ──
         if (!isFunctionalBlock(state)) {
             return InteractionResult.PASS;
@@ -101,5 +112,26 @@ public class SixtySecondsWrenchItem extends Item implements AdventureUsable {
                 || state.is(org.agmas.noellesroles.init.ModBlocks.SIXTY_SECONDS_DISMANTLER)
                 || state.is(Blocks.TORCH)
                 || state.is(Blocks.WALL_TORCH);
+    }
+
+    /** 目标方块是否在「别队避难所」盒内（自己队伍的避难所不阻止）。 */
+    private static boolean isInsideOtherShelter(ServerLevel level, BlockPos pos, ServerPlayer player) {
+        int playerTeamId = SixtySecondsStatsComponent.KEY.get(player).teamId;
+        if (playerTeamId == -1) {
+            return false; // 未编队 → 不阻止（管理员建图时要用）
+        }
+        double x = pos.getX() + 0.5;
+        double y = pos.getY() + 0.5;
+        double z = pos.getZ() + 0.5;
+        SixtySecondsState.Data data = SixtySecondsState.get(level);
+        for (SixtySecondsState.TeamData team : data.teams.values()) {
+            if (team.teamId == playerTeamId) {
+                continue; // 自己的避难所，允许
+            }
+            if (team.shelterBox != null && team.shelterBox.contains(x, y, z)) {
+                return true; // 在别人的避难所盒内
+            }
+        }
+        return false;
     }
 }
