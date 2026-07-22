@@ -2,13 +2,21 @@ package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.item.SniperRifleItem;
+import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
+import io.wifi.starrailexpress.event.IsShootBackFire;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.PacketTracker;
+import io.wifi.starrailexpress.util.BrokenGunDropUtils;
 import io.wifi.starrailexpress.util.HorseDamageUtil;
+import io.wifi.starrailexpress.util.SREItemUtils;
+import io.wifi.starrailexpress.util.Scheduler;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
@@ -17,24 +25,22 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.horse.Horse;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.block.scene.TrainTargetBlock;
-import org.agmas.noellesroles.content.entity.CanyuesaHorseEntity;
-import org.agmas.noellesroles.content.entity.RainbowHorseEntity;
-import org.agmas.noellesroles.content.entity.SuperPigHorseEntity;
+import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
-public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable BlockPos hitBlockPos) implements CustomPacketPayload {
+public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable BlockPos hitBlockPos)
+        implements CustomPacketPayload {
     public static final Type<SniperShootPayload> TYPE = new Type<>(SRE.id("sniper_shoot"));
     public static final StreamCodec<FriendlyByteBuf, SniperShootPayload> STREAM_CODEC = StreamCodec.ofMember(
             SniperShootPayload::write,
-            SniperShootPayload::new
-    );
+            SniperShootPayload::new);
 
     public SniperShootPayload(Action action, int targetOrShooterId) {
         this(action, targetOrShooterId, null);
@@ -42,10 +48,9 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
 
     private SniperShootPayload(FriendlyByteBuf buf) {
         this(
-            buf.readEnum(Action.class),
-            buf.readInt(),
-            buf.readBoolean() ? buf.readBlockPos() : null
-        );
+                buf.readEnum(Action.class),
+                buf.readInt(),
+                buf.readBoolean() ? buf.readBlockPos() : null);
     }
 
     private void write(FriendlyByteBuf buf) {
@@ -84,7 +89,7 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
                     if (SniperRifleItem.getAmmoCount(mainHandStack) <= 0)
                         return;
 
-                    if (!player.isCreative()){
+                    if (!player.isCreative()) {
                         player.getCooldowns().addCooldown(mainHandStack.getItem(),
                                 GameConstants.ITEM_COOLDOWNS.getOrDefault(mainHandStack.getItem(), 0));
                     }
@@ -103,7 +108,8 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
 
                     // 处理方块命中（列车标靶）
                     if (payload.hitBlockPos() != null && player.serverLevel() != null
-                            && player.serverLevel().getBlockState(payload.hitBlockPos()).getBlock() instanceof TrainTargetBlock) {
+                            && player.serverLevel().getBlockState(payload.hitBlockPos())
+                                    .getBlock() instanceof TrainTargetBlock) {
                         TrainTargetBlock.onHit(player.serverLevel(), payload.hitBlockPos());
                     }
 
@@ -123,24 +129,59 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
                         boolean longRangeKill = distance >= 50.0;
 
                         if (longRangeKill) {
-                            var bartenderComponent = io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(target);
+                            var bartenderComponent = io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY
+                                    .get(target);
                             if (bartenderComponent != null && bartenderComponent.getArmor() > 0) {
                                 bartenderComponent.armor = 0;
                                 bartenderComponent.sync();
-                                io.wifi.starrailexpress.event.OnShieldBroken.EVENT.invoker().onShieldBroken(target, player);
+                                io.wifi.starrailexpress.event.OnShieldBroken.EVENT.invoker().onShieldBroken(target,
+                                        player);
                             }
                         }
-
-                        if (game.isInnocent(target) && !player.isCreative()) {
-                            if (game.isInnocent(player) && player.getRandom().nextFloat() <= game.getBackfireChance()) {
-                                GameUtils.killPlayer(player, true, player, GameConstants.DeathReasons.SNIPER_RIFLE_BACKFIRE);
-                                return;
-                            } else {
-                                player.getInventory().clearOrCountMatchingItems((s) -> s.is(TMMItems.SNIPER_RIFLE), 1, player.getInventory());
-                                player.drop(TMMItems.REVOLVER.getDefaultInstance(), false, false);
-                            }
+                        boolean backfire = false;
+                        backfire = IsShootBackFire.EVENT.invoker().isShootBackFire(player, target);
+                        boolean shouldDropRevolver = game.isInnocent(target) && !player.isCreative()
+                                && mainHandStack.is(TMMItemTags.GUNS) && !mainHandStack.is(TMMItems.DERRINGER);
+                        var dropresult = AllowShootRevolverDrop.EVENT.invoker().allowDrop(player, target);
+                        if (dropresult.equals(TrueFalseResult.FALSE)) {
+                            shouldDropRevolver = false;
+                        } else if (dropresult.equals(TrueFalseResult.TRUE)) {
+                            shouldDropRevolver = true;
                         }
+                        boolean shouldDropBrokenKillerGun = !dropresult.equals(TrueFalseResult.FALSE)
+                                && BrokenGunDropUtils.shouldBreakKillerGunOnGunKill(game, player, target,
+                                        mainHandStack);
+                        if (backfire) {
+                            GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.SNIPER_RIFLE_BACKFIRE);
+                        } else if (shouldDropRevolver || shouldDropBrokenKillerGun) {
+                            Scheduler.schedule(() -> {
+                                {
+                                    boolean flag = false;
+                                    if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
+                                        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                                        flag = true;
+                                    } else if (SREItemUtils.clearItem(player, TMMItems.REVOLVER, 1) >= 1) {
+                                        flag = true;
+                                    } else if (SREItemUtils.clearItem(player, ModItems.BANDIT_REVOLVER, 1) >= 1) {
+                                        flag = true;
+                                    }
 
+                                    if (flag) {
+                                        ItemEntity item = shouldDropBrokenKillerGun
+                                                ? BrokenGunDropUtils.dropBrokenGun(player, false)
+                                                : player.drop(TMMItems.REVOLVER.getDefaultInstance(), false, false);
+                                        if (item != null) {
+                                            if (!shouldDropBrokenKillerGun) {
+                                                item.setPickUpDelay(10);
+                                            }
+                                            item.setThrower(player);
+                                        }
+                                        PacketTracker.sendToClient(player, new GunDropPayload());
+                                        SREPlayerMoodComponent.KEY.get(player).setMood(0);
+                                    }
+                                }
+                            }, 1);
+                        }
                         GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.SNIPER_RIFLE);
                     } else {
                         // 通用马匹伤害处理
