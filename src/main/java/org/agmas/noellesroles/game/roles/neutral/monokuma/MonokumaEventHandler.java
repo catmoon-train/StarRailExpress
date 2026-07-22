@@ -15,7 +15,6 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
-import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
@@ -87,9 +86,13 @@ public class MonokumaEventHandler {
         });
 
         AfterShieldAllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
+            if (deathReason.equals(GameConstants.DeathReasons.DEATH_AFK))
+                return true;
+            if (deathReason.equals(GameConstants.DeathReasons.DISCONNECT))
+                return true;
             if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN))
                 return true;
-            if (deathReason.equals(StupidExpress.id("ignited")))
+            if (deathReason.equals(GameConstants.DeathReasons.IGNITED))
                 return true;
             if (!(player instanceof ServerPlayer sp))
                 return true;

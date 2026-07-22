@@ -353,6 +353,7 @@
   "item.written_book.per_role_title": "%s: ",
   "item.written_book.per_role_content": "%s:\n%s",
   "message.pachuri.be_known_role": "[!] 你已被帕秋莉得知身份。",
+  "message.replay.pachuri.be_known_role": "%s 已被帕秋莉 %s 得知身份。",
   "=============== 蕾米莉亚 ===============": "",
   "=============== 芙兰朵露 ===============": "",
   "announcement.star.win.furandoru": "芙兰朵露获胜！",
@@ -3775,8 +3776,6 @@
   "mob_effect.noellesroles.heavy_metal_voice": "重金属语音",
   "effect.noellesroles.voice_range_boost": "扩音语音",
   "mob_effect.noellesroles.voice_range_boost": "扩音语音",
-  "effect.noellesroles.cca_freezed": "CCA冷冻",
   "mob_effect.noellesroles.cca_freezed": "CCA冷冻",
-  "effect.noellesroles.shop_banned": "商店被禁用",
   "mob_effect.noellesroles.shop_banned": "商店被禁用"
 }

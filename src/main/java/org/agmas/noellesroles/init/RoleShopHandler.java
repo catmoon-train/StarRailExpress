@@ -3,6 +3,7 @@ package org.agmas.noellesroles.init;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.content.item.component.SREWrittenBookContent;
@@ -2694,10 +2695,15 @@ public class RoleShopHandler {
                         }
                         var content = new Filterable<Component>(ct, Optional.of(ct));
                         contents.add(content);
-                        if (p instanceof ServerPlayer sp)
+                        if (p instanceof ServerPlayer sp) {
+                            SRE.REPLAY_MANAGER
+                                    .recordCustomEvent(Component.translatable("message.replay.pachuri.be_known_role",
+                                            GameReplayUtils.getReplayPlayerDisplayText(sp, true),
+                                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
                             BroadcastCommand.BroadcastMessage(sp,
                                     Component.translatable("message.pachuri.be_known_role")
                                             .withStyle(ChatFormatting.RED));
+                        }
                     }
                     String title = "Pachuri Knowledge Book";
                     String shortTitle = title;

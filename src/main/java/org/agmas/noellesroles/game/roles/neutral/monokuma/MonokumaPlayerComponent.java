@@ -345,8 +345,10 @@ public class MonokumaPlayerComponent implements RoleComponent, ServerTickingComp
             return;
         if (!(player instanceof ServerPlayer sp))
             return;
-        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player))
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
+            clear();
             return;
+        }
 
         var gameComponent = SREGameWorldComponent.KEY.get(player.level());
         if (!gameComponent.isRunning())
