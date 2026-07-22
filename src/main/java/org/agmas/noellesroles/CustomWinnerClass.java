@@ -160,6 +160,13 @@ public class CustomWinnerClass {
                 }
             }
 
+            // 自定义角色独立胜利判定 (来自 CustomRoleLoader)
+            WinStatus customRoleWin = io.wifi.starrailexpress.customrole.CustomRoleLoader
+                    .checkCustomRoleWins(serverLevel, winStatus);
+            if (customRoleWin != WinStatus.NOT_MODIFY) {
+                return customRoleWin;
+            }
+
             if (winStatus.equals(WinStatus.TIME) || winStatus.equals(WinStatus.PASSENGERS)
                     || winStatus.equals(WinStatus.LOOSE_END)) {
                 var players = serverLevel.players();

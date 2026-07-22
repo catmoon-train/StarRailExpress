@@ -141,6 +141,31 @@ public class CustomRoleData {
     @SerializedName("defaultEnableMaxPlayerCount")
     public int defaultEnableMaxPlayerCount = -1;
 
+    // ============ 独立胜利选项 (仅中立 && !setNeutralForKiller 时可用) ============
+    @SerializedName("enableCustomWin")
+    public boolean enableCustomWin = false;
+
+    @SerializedName("customWinTitle")
+    public String customWinTitle = "";
+
+    @SerializedName("customWinSubtitle")
+    public String customWinSubtitle = "";
+
+    @SerializedName("customWinSurviveToLast")
+    public boolean customWinSurviveToLast = false;
+
+    @SerializedName("customWinLastAlive")
+    public boolean customWinLastAlive = false;
+
+    @SerializedName("customWinLastWithRoles")
+    public List<String> customWinLastWithRoles = new ArrayList<>();
+
+    @SerializedName("customWinTagSleep")
+    public String customWinTagSleep = "";
+
+    @SerializedName("customWinHeldItem")
+    public String customWinHeldItem = "";
+
     // ============ 职业能力选项 ============
     @SerializedName("initialItems")
     public List<InitialItemEntry> initialItems = new ArrayList<>();

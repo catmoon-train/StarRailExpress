@@ -10,12 +10,14 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -26,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.*;
 
@@ -51,6 +54,9 @@ public class CustomRoleLoader {
     // 游戏结束时自动执行的指令：englishRoleId -> 指令列表
     private static final Map<String, List<String>> gameEndCommandsByRoleId = new HashMap<>();
 
+    // 自定义胜利条件数据：englishRoleId -> CustomRoleData（用于运行时的胜利判定）
+    private static final Map<String, CustomRoleData> customWinDataMap = new HashMap<>();
+
     /**
      * 重新加载所有自定义职业
      */
@@ -58,6 +64,7 @@ public class CustomRoleLoader {
         // 清除旧数据
         initialCooldownMap.clear();
         gameEndCommandsByRoleId.clear();
+        customWinDataMap.clear();
         // 先清除旧的自定义职业
         List<String> toRemove = new ArrayList<>();
         for (var entry : TMMRoles.ROLES.entrySet()) {
@@ -480,6 +487,12 @@ public class CustomRoleLoader {
             if (data.abilityInitialCooldownSeconds > 0) {
                 initialCooldownMap.put(role.identifier(), data.abilityInitialCooldownSeconds * 20);
             }
+        }
+
+        // 存储独立胜利条件数据（仅中立 && !setNeutralForKiller 时可用）
+        if (data.enableCustomWin && data.setNeutrals != null && data.setNeutrals
+                && data.setNeutralForKiller != null && !data.setNeutralForKiller) {
+            customWinDataMap.put(data.englishId, data);
         }
 
         // 存储游戏结束时执行指令
@@ -917,5 +930,135 @@ public class CustomRoleLoader {
         }
 
         return cmd;
+    }
+
+    // ==================== 自定义独立胜利判定 ====================
+
+    /**
+     * 检查所有启用了独立胜利的自定义角色是否满足胜利条件。
+     * 在 {@link org.agmas.noellesroles.CustomWinnerClass} 中调用。
+     *
+     * @return WinStatus.CUSTOM 如果某自定义角色胜利，否则 WinStatus.NOT_MODIFY
+     */
+    public static WinStatus checkCustomRoleWins(ServerLevel serverLevel, WinStatus currentWinStatus) {
+        if (customWinDataMap.isEmpty())
+            return WinStatus.NOT_MODIFY;
+
+        var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
+        int alivePlayerCount = 0;
+        for (var p : serverLevel.players()) {
+            if (GameUtils.isPlayerAliveAndSurvival(p))
+                alivePlayerCount++;
+        }
+
+        for (var entry : customWinDataMap.entrySet()) {
+            CustomRoleData data = entry.getValue();
+            ResourceLocation roleId = ResourceLocation.fromNamespaceAndPath("customrole", data.englishId);
+            SRERole role = TMMRoles.ROLES.get(roleId);
+            if (role == null)
+                continue;
+
+            // 找到拥有此自定义角色的存活玩家
+            ServerPlayer customPlayer = null;
+            for (var p : serverLevel.players()) {
+                if (GameUtils.isPlayerAliveAndSurvival(p) && gameComponent.isRole(p, role)) {
+                    customPlayer = p;
+                    break;
+                }
+            }
+            if (customPlayer == null)
+                continue;
+
+            // 条件6: 当场上只剩下自己和某职业时 (类似教父)
+            if (!data.customWinLastWithRoles.isEmpty() && (currentWinStatus == WinStatus.KILLERS
+                    || currentWinStatus == WinStatus.PASSENGERS || currentWinStatus == WinStatus.TIME)) {
+                // 检查场上是否只有自己 + 指定职业
+                boolean onlySelfAndSpecifiedRoles = true;
+                for (var p : serverLevel.players()) {
+                    if (!GameUtils.isPlayerAliveAndSurvival(p) || p == customPlayer)
+                        continue;
+                    SRERole pRole = gameComponent.getRole(p);
+                    if (pRole == null) {
+                        onlySelfAndSpecifiedRoles = false;
+                        break;
+                    }
+                    String pRoleId = pRole.identifier().toString();
+                    boolean matched = false;
+                    for (String allowedId : data.customWinLastWithRoles) {
+                        if (pRoleId.equals(allowedId.trim())) {
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        onlySelfAndSpecifiedRoles = false;
+                        break;
+                    }
+                }
+                if (onlySelfAndSpecifiedRoles) {
+                    doCustomWin(serverLevel, data, customPlayer);
+                    return WinStatus.CUSTOM;
+                }
+                // 阻止游戏提前结束（场上还有自己和指定职业）
+                if (currentWinStatus != WinStatus.TIME) {
+                    return WinStatus.NONE;
+                }
+            }
+
+            // 条件5: 当场上一共只剩下自己存活时 (类似纵火犯)
+            if (data.customWinLastAlive && alivePlayerCount == 1) {
+                doCustomWin(serverLevel, data, customPlayer);
+                return WinStatus.CUSTOM;
+            }
+            // 阻止游戏结束（纵火犯式）
+            if (data.customWinLastAlive && (currentWinStatus == WinStatus.KILLERS
+                    || currentWinStatus == WinStatus.PASSENGERS)) {
+                return WinStatus.NONE;
+            }
+
+            // 条件4: 存活到最后 (类似芙兰朵露)
+            if (data.customWinSurviveToLast && (alivePlayerCount <= 1 || currentWinStatus == WinStatus.TIME)) {
+                doCustomWin(serverLevel, data, customPlayer);
+                return WinStatus.CUSTOM;
+            }
+            if (data.customWinSurviveToLast && !currentWinStatus.equals(WinStatus.NONE)) {
+                return WinStatus.NONE;
+            }
+
+            // 条件7: 拥有指定标签时躺在床上取得独立胜利 (类似小偷)
+            if (!data.customWinTagSleep.isEmpty() && customPlayer.getTags().contains(data.customWinTagSleep)
+                    && customPlayer.isSleeping()) {
+                doCustomWin(serverLevel, data, customPlayer);
+                return WinStatus.CUSTOM;
+            }
+
+            // 条件8: 当玩家拥有某个物品时取得独立胜利
+            if (!data.customWinHeldItem.isEmpty()) {
+                boolean hasItem = false;
+                ResourceLocation itemId = ResourceLocation.tryParse(data.customWinHeldItem);
+                if (itemId != null) {
+                    var itemOpt = BuiltInRegistries.ITEM.getOptional(itemId);
+                    if (itemOpt.isPresent()) {
+                        for (var stack : customPlayer.getInventory().items) {
+                            if (stack.is(itemOpt.get())) {
+                                hasItem = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (hasItem) {
+                    doCustomWin(serverLevel, data, customPlayer);
+                    return WinStatus.CUSTOM;
+                }
+            }
+        }
+
+        return WinStatus.NOT_MODIFY;
+    }
+
+    private static void doCustomWin(ServerLevel serverLevel, CustomRoleData data, ServerPlayer winner) {
+        RoleUtils.customWinnerWin(serverLevel, "customwin",
+                (data.colorR << 16) | (data.colorG << 8) | data.colorB);
     }
 }
