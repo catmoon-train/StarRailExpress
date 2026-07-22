@@ -421,6 +421,8 @@ public final class SixtySecondsManager {
     }
 
     private static void finish(ServerLevel level, SixtySecondsState.Data data) {
+        // 先执行直升机最终撤离（需在清除倒地/怪物状态前判定资格）
+        int evacCount = SixtySecondsHelicopterEvac.finalizeEvac(level, data);
         // 清除所有玩家的倒地姿态（防止游戏结束后趴下残留）
         for (ServerPlayer player : level.players()) {
             SixtySecondsStatsComponent stats = SixtySecondsStatsComponent.KEY.get(player);
@@ -434,9 +436,9 @@ public final class SixtySecondsManager {
             player.removeEffect(ModEffects.USED_BANED);
             player.removeEffect(ModEffects.BREAK_IN_INTRUDER);
         }
-        // 第7天结束：有存活幸存者→幸存者胜，否则败（详见 SixtySecondsWinConditions）。
+        // 最后一天结束：有存活幸存者→幸存者胜，否则败（详见 SixtySecondsWinConditions）。
         SixtySecondsWinConditions.finish(level, data);
-        Noellesroles.LOGGER.info("[60s] 第七天结束，游戏结算。");
+        Noellesroles.LOGGER.info("[60s] 最后一天结束，直升机撤离 {} 人，游戏结算。", evacCount);
     }
 
     /**

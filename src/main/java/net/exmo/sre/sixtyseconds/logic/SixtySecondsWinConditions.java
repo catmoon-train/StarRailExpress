@@ -99,12 +99,16 @@ public final class SixtySecondsWinConditions {
         for (ServerPlayer player : level.players()) {
             var stats = SixtySecondsStatsComponent.KEY.get(player);
             boolean evac = data.helicopterEvacuated.contains(player.getUUID());
-            boolean hasWon = survivorsWin && !stats.monster && !stats.downed
-                    && !GameUtils.isPlayerEliminated(player);
+            // 直升机撤离者恒为赢家；其余幸存者按存活状态判胜
+            boolean hasWon = evac || (survivorsWin && !stats.monster
+                    && !GameUtils.isPlayerEliminated(player));
+            // 倒地/死亡信息：撤离玩家不算死亡（尽管切了旁观）
+            boolean wasDead = evac ? false
+                    : !GameUtils.isPlayerAliveAndSurvival(player);
             builder.addPlayer(new SixtySecondsEndGamePayload.PlayerResult(
                     player.getUUID(),
                     player.getGameProfile().getName(),
-                    !GameUtils.isPlayerAliveAndSurvival(player) || stats.downed,
+                    wasDead,
                     stats.monster,
                     evac,
                     stats.teamId,

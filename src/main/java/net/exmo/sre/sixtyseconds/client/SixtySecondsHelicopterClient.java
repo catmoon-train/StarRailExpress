@@ -37,8 +37,8 @@ public final class SixtySecondsHelicopterClient {
     private static boolean active = false;
     private static BlockPos landingPos = BlockPos.ZERO;
     private static int evacRadius = 8;
-    private static int evacMax = 8;
-    private static int evacCount = 0;
+    private static int totalSeconds = 0;
+    private static int remainingSeconds = 0;
 
     private SixtySecondsHelicopterClient() {
     }
@@ -50,8 +50,8 @@ public final class SixtySecondsHelicopterClient {
                     if (active) {
                         landingPos = new BlockPos(payload.x(), payload.y(), payload.z());
                         evacRadius = payload.evacRadius();
-                        evacMax = payload.evacMax();
-                        evacCount = payload.evacCount();
+                        totalSeconds = payload.totalSeconds();
+                        remainingSeconds = payload.remainingSeconds();
                     }
                 }));
 
@@ -99,25 +99,31 @@ public final class SixtySecondsHelicopterClient {
         matrices.popPose();
     }
 
-    /** HUD 渲染：屏幕中央上方显示撤离信息。 */
+    /** HUD 渲染：屏幕中央上方显示撤离倒计时。 */
     public static void renderHud(GuiGraphics g, Font font, int screenW, int screenH) {
         if (!active) return;
 
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || !isSixtySeconds(client)) return;
 
-        String line1 = "§a§l🚁 " + Component.translatable("hud.noellesroles.sixty_seconds.helicopter_title").getString() + " §r§a🚁";
-        String line2 = "§7" + Component.translatable("hud.noellesroles.sixty_seconds.helicopter_pos",
-                landingPos.getX(), landingPos.getZ()).getString();
-        String line3 = evacCount >= evacMax
-                ? "§a§l" + Component.translatable("hud.noellesroles.sixty_seconds.helicopter_full").getString()
-                : "§e" + Component.translatable("hud.noellesroles.sixty_seconds.helicopter_progress",
-                        evacCount, evacMax).getString();
+        int min = remainingSeconds / 60;
+        int sec = remainingSeconds % 60;
+        String timeStr = String.format("%d:%02d", min, sec);
+        int timeColor = remainingSeconds <= 30 ? 0xFFFF5555 : 0xFF55FF55;
+
+        String line1 = "§e§l🚁 "
+                + Component.translatable("hud.noellesroles.sixty_seconds.helicopter_title").getString()
+                + " §r§e🚁";
+        String line2 = "§7"
+                + Component.translatable("hud.noellesroles.sixty_seconds.helicopter_pos",
+                        landingPos.getX(), landingPos.getZ()).getString();
+        String line3 = "§a§l" + timeStr + " §7"
+                + Component.translatable("hud.noellesroles.sixty_seconds.helicopter_countdown").getString();
 
         int y = screenH / 2 - 50;
-        g.drawCenteredString(font, line1, screenW / 2, y, GREEN_TEXT);
+        g.drawCenteredString(font, line1, screenW / 2, y, 0xFFAA00);
         g.drawCenteredString(font, line2, screenW / 2, y + 12, 0xFFAAAAAA);
-        g.drawCenteredString(font, line3, screenW / 2, y + 24, evacCount >= evacMax ? GREEN_TEXT : 0xFFFFAA00);
+        g.drawCenteredString(font, line3, screenW / 2, y + 24, timeColor);
     }
 
     private static boolean isSixtySeconds(Minecraft client) {

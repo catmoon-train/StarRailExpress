@@ -68,6 +68,12 @@ public class SixtySecondsEndScreen extends Screen {
 
     // ── 渲染 ──
 
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f) {
+
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         renderBackground(graphics, mouseX, mouseY, delta);
