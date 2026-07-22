@@ -467,7 +467,7 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
 
   // 幻音师组件 - 杀手方中立阵营，音效商店+传送技能
   public static final ComponentKey<PhantomMusicianPlayerComponent> PHANTOM_MUSICIAN = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "musician_phantom"),
+      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "phantom_musician"),
       PhantomMusicianPlayerComponent.class);
 
   // 亡灵之主组件 - 杀手阵营，亡灵召唤 + 感染滚雪球

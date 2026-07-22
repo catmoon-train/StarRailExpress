@@ -46,7 +46,7 @@ import java.util.List;
 public class PhantomMusicianPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
     public static final ComponentKey<PhantomMusicianPlayerComponent> KEY = ComponentRegistry.getOrCreate(
-            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "musician_phantom"),
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "phantom_musician"),
             PhantomMusicianPlayerComponent.class);
 
     private final Player player;
