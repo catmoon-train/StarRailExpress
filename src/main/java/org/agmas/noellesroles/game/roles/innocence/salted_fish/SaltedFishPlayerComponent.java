@@ -4,7 +4,6 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
 import org.agmas.noellesroles.init.ModEntities;
@@ -188,7 +187,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
             return;
         }
         cooldownTicks--;
-        if (cooldownTicks == 0 || cooldownTicks % 20 == 0) {
+        if (cooldownTicks == 0 || cooldownTicks % 200 == 0) {
             sync();
         }
     }
