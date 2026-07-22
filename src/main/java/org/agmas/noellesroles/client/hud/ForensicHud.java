@@ -75,7 +75,7 @@ public class ForensicHud {
 
         context.pose().pushPose();
         context.pose().translate((float) context.guiWidth() / 2.0F, (float) context.guiHeight() / 2.0F + 6.0F, 0.0F);
-        context.pose().scale(0.6F, 0.6F, 1.0F);
+        context.pose().scale(SREClient.bodyHUDScale, SREClient.bodyHUDScale, 1.0F);
         context.drawString(renderer, line, -renderer.width(line) / 2, 32, CommonColors.WHITE);
         context.pose().popPose();
     }
@@ -116,7 +116,7 @@ public class ForensicHud {
             context.pose().pushPose();
             context.pose().translate((float) context.guiWidth() / 2.0F, (float) context.guiHeight() / 2.0F + 6.0F,
                     0.0F);
-            context.pose().scale(0.6F, 0.6F, 1.0F);
+            context.pose().scale(SREClient.bodyHUDScale, SREClient.bodyHUDScale, 1.0F);
 
             // 秃鹫吃过的尸体：痕迹已被破坏
             if (comp.vultured) {
