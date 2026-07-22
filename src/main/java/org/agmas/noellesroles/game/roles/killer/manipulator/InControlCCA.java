@@ -88,6 +88,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
         verticalVelocity = 0;
         useHeldLast = false;
         hasSafePos = false;
+        sync();
     }
 
     @Override

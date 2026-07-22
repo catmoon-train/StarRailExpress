@@ -23,7 +23,7 @@ public class CustomRoleHud {
                         Component.literal(room_name_str).withStyle(ChatFormatting.GOLD));
                 // NoellesrolesClient.hudTarget
                 var _color = java.awt.Color.MAGENTA.getRGB();
-                context.pose().translate(0, 10, 0);
+                context.pose().translate(0, 12, 0);
                 context.drawString(font, room_name, -font.width(room_name) / 2, 0,
                         _color | (int) (1 * 255.0F) << 24);
             }

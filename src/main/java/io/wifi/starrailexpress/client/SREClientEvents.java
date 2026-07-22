@@ -97,17 +97,15 @@ public class SREClientEvents {
                 return null;
             if (SREClient.gameComponent != null) {
                 var selfRole = SREClient.gameComponent.getRole(player);
-                if (SREGameWorldComponent.isKillerTeamRoleStatic(selfRole)) {
-                    if (selfRole.canSeeTeammateKillerRole()) {
-                        if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)) {
-                            var roleR = MagicianPlayerComponent.KEY.get(target).getDisguiseRoleId();
-                            if (SREClient.isPlayerSpectatingOrCreative()) {
-                                return TrueFalseAndCustomResult.custom(Component.translatable(
-                                        "message.magician.magician_are_playing_as",
-                                        RoleUtils.getRoleNameWithColor(roleR)));
-                            }
-                            return TrueFalseAndCustomResult.custom(RoleUtils.getRoleName(roleR));
-                        }
+                if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)) {
+                    var roleR = MagicianPlayerComponent.KEY.get(target).getDisguiseRoleId();
+                    if (SREClient.isPlayerSpectatingOrCreative()) {
+                        return TrueFalseAndCustomResult.custom(Component.translatable(
+                                "message.magician.magician_are_playing_as",
+                                RoleUtils.getRoleNameWithColor(roleR)));
+                    }
+                    if (SREGameWorldComponent.isKillerTeamRoleStatic(selfRole) && selfRole.canSeeTeammateKillerRole()) {
+                        return TrueFalseAndCustomResult.custom(RoleUtils.getRoleName(roleR));
                     }
                 }
             }

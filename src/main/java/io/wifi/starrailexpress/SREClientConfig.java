@@ -27,6 +27,7 @@ public class SREClientConfig implements ConfigData {
 
     @ConfigEntry.Gui.Excluded
     public HashMap<Integer, Boolean> taskStatus = new LinkedHashMap<>();
+
     // Skills configuration
     /**
      * Broadcaster - Broadcast message display duration in seconds
@@ -46,6 +47,10 @@ public class SREClientConfig implements ConfigData {
     public int moodTopOffset = 0;
     @Category("style")
     public int moodLeftOffset = 0;
+    @Category("style")
+    public float playerHudScale = 0.6f;
+    @Category("style")
+    public float bodyHudScale = 0.6f;
 
     @Category("style")
     @ConfigEntry.Gui.Tooltip
@@ -54,7 +59,7 @@ public class SREClientConfig implements ConfigData {
     @Category("style")
     @ConfigEntry.Gui.Tooltip
     public boolean showInfoLinesInHud = true; // 显示在HUD上
-    
+
     @Category("style")
     @ConfigEntry.Gui.Tooltip
     public boolean useLegacyMapSelector = false; // 使用旧版地图投票界面（卡片墙）

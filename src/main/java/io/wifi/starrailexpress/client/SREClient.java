@@ -7,6 +7,7 @@ import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.ConfigCompact.ClientConfigEvents;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -1352,6 +1353,8 @@ public class SREClient implements ClientModInitializer {
     };
     private static boolean cachedPlayerAliveAndInSurvivalIgnoreShitSplit = false;
     public static boolean cachedCanSeeTime = false;
+    public static float playerHUDScale = 0.6f;
+    public static float bodyHUDScale = 0.6f;
 
     public static boolean isInstinctEnabled() {
         boolean canUseInstinct = isKiller();
@@ -1381,6 +1384,12 @@ public class SREClient implements ClientModInitializer {
             return;
         if (client.level == null)
             return;
+        playerHUDScale = SREClientConfig.instance().playerHudScale;
+        bodyHUDScale = SREClientConfig.instance().bodyHudScale;
+        if (playerHUDScale <= 0)
+            playerHUDScale = 0.1f;
+        if (bodyHUDScale <= 0)
+            bodyHUDScale = 0.1f;
         cachedLooseEndPenalty = gameComponent.isRunning() && RefugeeComponent.KEY.get(client.level).isAnyRevivals
                 && DeathPenaltyComponent.KEY.get(client.player).hasPenalty();
         LocalPlayer player = client.player;

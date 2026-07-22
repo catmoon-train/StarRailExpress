@@ -33,6 +33,8 @@
   "text.autoconfig.starrailexpress-client.option.staminaStyle.NONE": "不渲染",
   "text.autoconfig.starrailexpress-client.option.moodLeftOffset": "心情&任务渲染X坐标偏移",
   "text.autoconfig.starrailexpress-client.option.moodTopOffset": "心情&任务渲染Y坐标偏移",
+  "text.autoconfig.starrailexpress-client.option.playerHudScale": "玩家HUD（指向玩家时显示）的字体缩放",
+  "text.autoconfig.starrailexpress-client.option.bodyHudScale": "玩家尸体HUD（指向玩家尸体时显示）的字体缩放",
   "text.autoconfig.starrailexpress-client.option.showInfoLinesInInventory": "在物品栏界面中显示金币下方的信息行",
   "text.autoconfig.starrailexpress-client.option.showInfoLinesInInventory.@Tooltip": "开启后，帮助提示等信息行在打开物品栏界面时会显示（位置不变）",
   "text.autoconfig.starrailexpress-client.option.showInfoLinesInHud": "在主界面中显示金币下方的信息行",

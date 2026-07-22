@@ -80,7 +80,7 @@ public class PlayerBodyHud {
                 context.pose().pushPose();
                 context.pose().translate((float) context.guiWidth() / 2.0F, (float) context.guiHeight() / 2.0F + 6.0F,
                         0.0F);
-                context.pose().scale(0.6F, 0.6F, 1.0F);
+                context.pose().scale(SREClient.bodyHUDScale, SREClient.bodyHUDScale, 1.0F);
                 // 死亡惩罚
                 boolean hasPenalty = ModComponents.DEATH_PENALTY.get(Minecraft.getInstance().player).hasPenalty();
 
@@ -145,7 +145,7 @@ public class PlayerBodyHud {
                 context.pose().pushPose();
                 context.pose().translate((float) context.guiWidth() / 2.0F, (float) context.guiHeight() / 2.0F + 6.0F,
                         0.0F);
-                context.pose().scale(0.6F, 0.6F, 1.0F);
+                context.pose().scale(SREClient.bodyHUDScale, SREClient.bodyHUDScale, 1.0F);
                 SREPlayerMoodComponent moodComponent = (SREPlayerMoodComponent) SREPlayerMoodComponent.KEY
                         .get(Minecraft.getInstance().player);
                 if (shouldShowSanityWarning(moodComponent, SREClient.isPlayerAliveAndInSurvival())) {

@@ -22,7 +22,8 @@ import org.agmas.noellesroles.init.ModEffects;
  * {@link DreamHealthComponent}），在其名字下方绘制红色血条与数值；
  * 通过 {@code OnRenderRoleName.RENDER_PLAYER_EXTRA} 事件挂入，未受伤不显示。</li>
  * <li><b>追杀音乐谓词</b>：{@link #isAnyDreamBerserk()} 供
- * {@code NoellesrolesClientAmbientSounds} 驱动 {@code NRSounds.MANHUNT_CHASE}。</li>
+ * {@code NoellesrolesClientAmbientSounds} 驱动
+ * {@code NRSounds.MANHUNT_CHASE}。</li>
  * </ul>
  */
 @Environment(EnvType.CLIENT)
@@ -60,12 +61,14 @@ public class DreamClientHandler {
             int max = DreamHealthComponent.maxHealth();
             float ratio = Mth.clamp(current / (float) max, 0f, 1f);
 
-            int y = 36;
+            context.pose().translate(0, 20, 0);
+            int y = 0;
             int half = BAR_WIDTH / 2;
             context.fill(-half - 1, y - 1, half + 1, y + 4, 0xAA000000);
             context.fill(-half, y, -half + (int) (BAR_WIDTH * ratio), y + 3, 0xFFD32F2F);
             Component text = Component.literal(current + " / " + max);
             context.drawString(renderer, text, -renderer.width(text) / 2, y + 6, 0xFFFF6B6B);
+            context.pose().translate(0, 16, 0);
         });
     }
 

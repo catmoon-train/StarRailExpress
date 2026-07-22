@@ -176,7 +176,7 @@ public class RoleNameRenderer {
                 }
                 ctx.pose().pushPose();
                 ctx.pose().translate(ctx.guiWidth() / 2f, ctx.guiHeight() / 2f + 6, 0);
-                ctx.pose().scale(0.6f, 0.6f, 1f);
+                ctx.pose().scale(SREClient.playerHUDScale, SREClient.playerHUDScale, 1f);
                 int nameWidth = font.width(nametag);
                 ctx.drawString(font, nametag, -nameWidth / 2, 16,
                         Mth.color(1f, 1f, 1f) | ((int) (1 * 255) << 24));
@@ -296,7 +296,7 @@ public class RoleNameRenderer {
                 String name2 = SREClientUtils.getPlayerNameByUid(uid);
                 ctx.pose().pushPose();
                 ctx.pose().translate(ctx.guiWidth() / 2f, ctx.guiHeight() / 2f + 6, 0);
-                ctx.pose().scale(0.6f, 0.6f, 1f);
+                ctx.pose().scale(SREClient.playerHUDScale, SREClient.playerHUDScale, 1f);
                 int nameWidth2 = font.width(name2);
                 Component tipC = Component.translatable("entity.noellesroles.puppeteer_body")
                         .withStyle(ChatFormatting.GRAY);
@@ -326,7 +326,7 @@ public class RoleNameRenderer {
 
             ctx.pose().pushPose();
             ctx.pose().translate(ctx.guiWidth() / 2f, ctx.guiHeight() / 2f + 6, 0);
-            ctx.pose().scale(0.6f, 0.6f, 1f);
+            ctx.pose().scale(SREClient.playerHUDScale, SREClient.playerHUDScale, 1f);
             for (int i = 0; i < note.length; i++) {
                 Component line = note[i];
                 int lineWidth = font.width(line);
