@@ -120,6 +120,7 @@ public class PlayerBodyHud {
         }
 
         if (targetBody != null) {
+            ForensicHud.renderCorpse(renderer, player, targetBody, context, tickCounter);
             SRERole selfrole = SREClient.getCachedPlayerRole();
             boolean canSeeBody = false;
             if (selfrole != null && selfrole.canSeeBodyDeathReason(SREClient.cached_player))
@@ -305,7 +306,6 @@ public class PlayerBodyHud {
                 context.pose().popPose();
                 return;
             }
-            ForensicHud.renderCorpse(renderer, player, targetBody, context, tickCounter);
         }
     }
 
