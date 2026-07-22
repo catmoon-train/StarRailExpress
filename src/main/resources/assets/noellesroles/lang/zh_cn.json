@@ -1641,7 +1641,7 @@
   "=========== 魔术师 ===========": "",
   "message.magician.cosplay": "你正在扮演：%s",
   "message.magician.you_are_playing_as": "你正在扮演：",
-  "message.magician.magician_are_playing_as": "正在扮演：",
+  "message.magician.magician_are_playing_as": "正在扮演：%s",
   "=========== 红尘客 ===========": "",
   "hud.noellesroles.wayfarer.select": "右键尸体开始你的红尘之旅",
   "message.noellesroles.wayfarer.cannot_interact_fake_body": "无法与伪造的尸体交互",

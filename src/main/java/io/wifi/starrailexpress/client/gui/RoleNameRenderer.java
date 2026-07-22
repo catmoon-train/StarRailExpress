@@ -217,7 +217,7 @@ public class RoleNameRenderer {
                             }
                         }
                         if (allowRenderRole) {
-                            ctx.pose().translate(0, 10, 0);
+                            ctx.pose().translate(0, 12, 0);
                             if (roleText1 != null) {
                                 int roleWidth1 = font.width(roleText1);
                                 ctx.drawString(font, roleText1, -roleWidth1 / 2, 0,
@@ -244,7 +244,7 @@ public class RoleNameRenderer {
                             }
                         }
                         if (allowRenderCohort) {
-                            ctx.pose().translate(0, 10, 0);
+                            ctx.pose().translate(0, 12, 0);
                             int roleWidth = font.width(cohortText);
                             ctx.drawString(font, cohortText, -roleWidth / 2, 0,
                                     Mth.color(1f, 0f, 0f) | ((int) (255) << 24));
@@ -253,7 +253,7 @@ public class RoleNameRenderer {
                     }
                     {
                         if (SREClient.isPlayerSpectatingOrCreative()) {
-                            ctx.pose().translate(0, 10, 0);
+                            ctx.pose().translate(0, 12, 0);
                             SRERole targetRole = SREClient.gameComponent.getRole(target);
                             if (targetRole == null) {
                                 targetRole = TMMRoles.DISCOVERY_CIVILIAN;

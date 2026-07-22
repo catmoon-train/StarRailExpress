@@ -201,9 +201,9 @@ public class OnRenderRoleName {
      * <p>
      * 此事件允许在目标玩家的名称和角色文本下方添加自定义渲染内容。
      * 监听器无需返回值，所有监听器均会被执行。
-     * 建议在渲染前开头先偏移：<pre>ctx.pose().translate(0, 10, 0);</pre>
+     * 建议在渲染前开头先偏移：<pre>ctx.pose().translate(0, 12, 0);</pre>
      * 这将会新启一行避免与前面重复。<br/>
-     * 建议在渲染结束时Y轴偏移到 {@code 下一行新的文本应当开始的Y轴位置 - 10}
+     * 建议在渲染结束时Y轴偏移到 {@code 下一行新的文本应当开始的Y轴位置 - 12}
      *
      * @see RenderPlayerExtraInterface
      */
