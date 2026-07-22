@@ -18,11 +18,6 @@
   "commands.listroles.status.enabled.hover": "\u00a7c點擊切換至禁用狀態\n%s",
   "commands.listroles.status.disabled.text": "\u00a7c[已禁用]",
   "commands.listroles.status.disabled.hover": "§a點擊切換至啟用狀態\n%s",
-  "commands.setrolecount.killer.set": "殺手數量已設置為 %s",
-  "commands.setrolecount.killer.auto": "殺手數量已設置為自動計算",
-  "commands.setrolecount.detective.set": "偵探數量已設置為 %s",
-  "commands.setrolecount.detective.auto": "偵探數量已設置為自動計算",
-  "commands.setrolecount.reset": "殺手和偵探數量已重置為自動計算",
   "commands.changerole.success.changed": "已將玩家 %3$s 的角色從 %1$s 更改為 %2$s",
   "commands.changerole.success.assigned": "已將玩家 %2$s 的角色設置為 %1$s",
   "commands.changerole.reset": "已重置玩家 %s 的角色",
@@ -58,10 +53,14 @@
   "commands.listroles.button.hover": "第 %d 頁",
   "commands.listroles.detail.goal": "※ 目標：%s",
   "commands.listroles.detail.introduction": "※ 詳細介紹：%s",
+  "commands.listroles.detail.spawn_info":"[顯示生成資訊]",
   "commands.listroles.detail.name.role": "【角色】%s",
   "commands.listroles.detail.name.modifier": "【修飾符】%s",
   "commands.listroles.detail.id": "※ ID: %s",
   "commands.listroles.detail.click_to_show": "點擊查看詳情",
   "commands.listroles.all.title": "所有職業與修飾符",
-  "commands.listroles.no.entries": "沒有可用的職業或修飾符！"
+  "commands.listroles.no.entries": "沒有可用的職業或修飾符！",
+  "commands.setrolecount.set":"已設置 %s 的強制刷新數量為 %s！",
+  "commands.setrolecount.reset":"已重置！現在刷新將根據玩家數量刷新（自動計算）！",
+  "commands.setrolecount.auto":"已設置 %s 的強制刷新數量為自動計算！"
 }
