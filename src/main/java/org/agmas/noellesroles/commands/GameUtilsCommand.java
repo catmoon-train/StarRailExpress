@@ -705,7 +705,33 @@ public class GameUtilsCommand {
                 .then(Commands.literal("stop")
                     .executes((context) -> {
                       return executeTimeStopStop(context);
-                    }))));
+                    }))))
+            .then(Commands.literal("tag")
+                .then(Commands.literal("give")
+                    .then(Commands.argument("tag", StringArgumentType.word())
+                        .then(Commands.argument("player", EntityArgument.player())
+                            .executes((context) -> {
+                              ServerPlayer player = EntityArgument.getPlayer(context, "player");
+                              String tag = StringArgumentType.getString(context, "tag");
+                              player.addTag(tag);
+                              context.getSource().sendSuccess(
+                                  () -> Component.literal("Tag '" + tag + "' added to " + player.getName().getString()),
+                                  true);
+                              return 1;
+                            }))))
+                .then(Commands.literal("clear")
+                    .then(Commands.argument("tag", StringArgumentType.word())
+                        .then(Commands.argument("player", EntityArgument.player())
+                            .executes((context) -> {
+                              ServerPlayer player = EntityArgument.getPlayer(context, "player");
+                              String tag = StringArgumentType.getString(context, "tag");
+                              player.removeTag(tag);
+                              context.getSource().sendSuccess(
+                                  () -> Component.literal(
+                                      "Tag '" + tag + "' removed from " + player.getName().getString()),
+                                  true);
+                              return 1;
+                            }))));
 
   }
 

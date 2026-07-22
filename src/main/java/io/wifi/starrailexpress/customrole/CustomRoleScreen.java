@@ -326,6 +326,26 @@ public class CustomRoleScreen extends Screen {
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_across_fog", data.canAcrossFog, v -> data.canAcrossFog = v, true);
         addTriBtn(tabWidgets1, r++, "sre.custom_role.can_use_sabotage", data.canUseSabotage, v -> data.canUseSabotage = v, true);
 
+        // === 自定义独立胜利 (仅中立 && !杀手方中立时可用) ===
+        boolean isNeutral = data.setNeutrals != null && data.setNeutrals;
+        boolean isNotKillerNeutral = data.setNeutralForKiller != null && !data.setNeutralForKiller;
+        if (isNeutral && isNotKillerNeutral) {
+            addLabel(tabLabels1, "sre.custom_role.custom_win_section", r++);
+            addBoolBtnX(tabWidgets1, r++, "sre.custom_role.enable_custom_win", data.enableCustomWin, v -> data.enableCustomWin = v, true);
+            if (data.enableCustomWin) {
+                makeLabeledBox(tabWidgets1, tabLabels1, r++, FIELD_W, "sre.custom_role.custom_win_title", data.customWinTitle, v -> data.customWinTitle = v);
+                makeLabeledBox(tabWidgets1, tabLabels1, r++, FIELD_W, "sre.custom_role.custom_win_subtitle", data.customWinSubtitle, v -> data.customWinSubtitle = v);
+                addBoolBtn(tabWidgets1, r, "sre.custom_role.custom_win_survive", data.customWinSurviveToLast, v -> { data.customWinSurviveToLast = v; if (v) data.customWinLastAlive = false; }, true);
+                addBoolBtnX(tabWidgets1, r++, "sre.custom_role.custom_win_last_alive", data.customWinLastAlive, v -> { data.customWinLastAlive = v; if (v) data.customWinSurviveToLast = false; }, true);
+                makeLabeledHintBox(tabWidgets1, tabLabels1, r++, FIELD_W, "sre.custom_role.custom_win_with_roles", String.join(";", data.customWinLastWithRoles), "职业id;职业id...", v -> {
+                    data.customWinLastWithRoles.clear();
+                    for (String s : v.split(";")) { String t = s.trim(); if (!t.isEmpty()) data.customWinLastWithRoles.add(t); }
+                });
+                makeLabeledHintBox(tabWidgets1, tabLabels1, r++, FIELD_W, "sre.custom_role.custom_win_tag_sleep", data.customWinTagSleep, "customwin标签名", v -> data.customWinTagSleep = v.trim());
+                makeLabeledHintBox(tabWidgets1, tabLabels1, r++, FIELD_W, "sre.custom_role.custom_win_held_item", data.customWinHeldItem, "minecraft:diamond", v -> data.customWinHeldItem = v.trim());
+            }
+        }
+
         // 特殊地图类型限制（枚举按钮，默认 ALL）
         int smRow = r++;
         addLabel(tabLabels1, "sre.custom_role.special_map_role", smRow);
