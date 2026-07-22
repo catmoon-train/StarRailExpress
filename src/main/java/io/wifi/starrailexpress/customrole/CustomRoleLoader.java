@@ -1058,7 +1058,29 @@ public class CustomRoleLoader {
     }
 
     private static void doCustomWin(ServerLevel serverLevel, CustomRoleData data, ServerPlayer winner) {
-        RoleUtils.customWinnerWin(serverLevel, "customwin",
-                (data.colorR << 16) | (data.colorG << 8) | data.colorB);
+        int color = (data.colorR << 16) | (data.colorG << 8) | data.colorB;
+        var roundComponent = SREGameWorldComponent.KEY.get(serverLevel).getRoundEnd();
+        boolean hasCustomText = !data.customWinTitle.isEmpty() || !data.customWinSubtitle.isEmpty();
+
+        if (hasCustomText && roundComponent != null) {
+            // 使用 CUSTOM_COMPONENT 模式直接显示用户自定义文本
+            if (!data.customWinTitle.isEmpty()) {
+                roundComponent.CustomWinnerTitle = Component.literal(data.customWinTitle
+                        .replace("<player>", winner.getGameProfile().getName()));
+            }
+            if (!data.customWinSubtitle.isEmpty()) {
+                roundComponent.CustomWinnerSubtitle = Component.literal(data.customWinSubtitle
+                        .replace("<player>", winner.getGameProfile().getName()));
+            }
+            if (roundComponent.CustomWinnerTitle == null) {
+                roundComponent.CustomWinnerTitle = Component.literal("");
+            }
+            roundComponent.CustomWinnerColor = color;
+            roundComponent.setRoundEndData(serverLevel.players(), WinStatus.CUSTOM_COMPONENT);
+            GameUtils.stopGame(serverLevel);
+        } else {
+            // 无自定义文本时使用 CUSTOM 模式，走翻译键
+            RoleUtils.customWinnerWin(serverLevel, "customwin", color);
+        }
     }
 }
