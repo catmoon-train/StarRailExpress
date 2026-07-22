@@ -10,9 +10,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
-import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.PacketTracker;
-import io.wifi.starrailexpress.util.BrokenGunDropUtils;
 import io.wifi.starrailexpress.util.HorseDamageUtil;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.Scheduler;
@@ -31,7 +29,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.block.scene.TrainTargetBlock;
-import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -141,37 +138,30 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
                         boolean backfire = false;
                         backfire = IsShootBackFire.EVENT.invoker().isShootBackFire(player, target);
                         boolean shouldDropRevolver = game.isInnocent(target) && !player.isCreative()
-                                && mainHandStack.is(TMMItemTags.GUNS) && !mainHandStack.is(TMMItems.DERRINGER);
+                                && mainHandStack.is(TMMItems.SNIPER_RIFLE);
                         var dropresult = AllowShootRevolverDrop.EVENT.invoker().allowDrop(player, target);
                         if (dropresult.equals(TrueFalseResult.FALSE)) {
                             shouldDropRevolver = false;
                         } else if (dropresult.equals(TrueFalseResult.TRUE)) {
                             shouldDropRevolver = true;
                         }
-                        boolean shouldDropBrokenKillerGun = !dropresult.equals(TrueFalseResult.FALSE)
-                                && BrokenGunDropUtils.shouldBreakKillerGunOnGunKill(game, player, target,
-                                        mainHandStack);
                         if (backfire) {
                             GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.SNIPER_RIFLE_BACKFIRE);
-                        } else if (shouldDropRevolver || shouldDropBrokenKillerGun) {
+                        } else if (shouldDropRevolver) {
                             Scheduler.schedule(() -> {
                                 {
                                     boolean flag = false;
-                                    if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
+                                    if (player.getMainHandItem().is(TMMItems.SNIPER_RIFLE)) {
                                         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                                         flag = true;
-                                    } else if (SREItemUtils.clearItem(player, TMMItems.REVOLVER, 1) >= 1) {
-                                        flag = true;
-                                    } else if (SREItemUtils.clearItem(player, ModItems.BANDIT_REVOLVER, 1) >= 1) {
+                                    } else if (SREItemUtils.clearItem(player, TMMItems.SNIPER_RIFLE, 1) >= 1) {
                                         flag = true;
                                     }
 
                                     if (flag) {
-                                        ItemEntity item = shouldDropBrokenKillerGun
-                                                ? BrokenGunDropUtils.dropBrokenGun(player, false)
-                                                : player.drop(TMMItems.REVOLVER.getDefaultInstance(), false, false);
+                                        ItemEntity item = player.drop(TMMItems.REVOLVER.getDefaultInstance(), false, false);
                                         if (item != null) {
-                                            if (!shouldDropBrokenKillerGun) {
+                                             {
                                                 item.setPickUpDelay(10);
                                             }
                                             item.setThrower(player);

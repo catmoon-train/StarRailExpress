@@ -14,6 +14,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.PacketTracker;
+import io.wifi.starrailexpress.util.BrokenGunDropUtils;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.Scheduler;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -108,9 +109,11 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 } else if (dropresult.equals(TrueFalseResult.TRUE)) {
                     shouldDropRevolver = true;
                 }
+                boolean shouldDropBrokenKillerGun = !dropresult.equals(TrueFalseResult.FALSE)
+                        && BrokenGunDropUtils.shouldBreakKillerGunOnGunKill(game, player, target, mainHandStack);
                 if (backfire) {
                     GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.BACKFIRE);
-                } else if (shouldDropRevolver) {
+                } else if (shouldDropRevolver || shouldDropBrokenKillerGun) {
                     {
                         Scheduler.schedule(() -> {
                             {
@@ -125,9 +128,11 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                                 }
 
                                 if (flag) {
-                                    ItemEntity item = player.drop(revolver.getDefaultInstance(), false, false);
+                                    ItemEntity item = shouldDropBrokenKillerGun
+                                            ? BrokenGunDropUtils.dropBrokenGun(player, false)
+                                            : player.drop(revolver.getDefaultInstance(), false, false);
                                     if (item != null) {
-                                        {
+                                        if (!shouldDropBrokenKillerGun) {
                                             item.setPickUpDelay(10);
                                         }
                                         item.setThrower(player);
