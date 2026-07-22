@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.EntityHitResult;
+
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -56,7 +58,7 @@ public class RoleNameRenderer {
         return 2f;
     }
 
-    public static void renderHud(Font renderer, @NotNull LocalPlayer self, FakeGuiGraphics context,
+    public static void renderHud(Font font, @NotNull LocalPlayer self, FakeGuiGraphics ctx,
             DeltaTracker tickCounter) {
 
         SREGameWorldComponent component = SREClient.gameComponent;
@@ -64,8 +66,8 @@ public class RoleNameRenderer {
             return;
 
         if (component.isRunning()) {
-            var result = OnRenderRoleName.RENDER_ALL.invoker().allowRender(self, context, tickCounter,
-                    renderer);
+            var result = OnRenderRoleName.RENDER_ALL.invoker().allowRender(self, ctx, tickCounter,
+                    font);
             if (result.equals(TrueFalseResult.FALSE))
                 return;
             if (result.equals(TrueFalseResult.PASS)) {
@@ -93,7 +95,7 @@ public class RoleNameRenderer {
             range = result.orElse(range);
         }
         {
-            OnRenderRoleName.RENDER_START.invoker().render(self, range, context, tickCounter, renderer);
+            OnRenderRoleName.RENDER_START.invoker().render(self, range, ctx, tickCounter, font);
         }
         {
 
@@ -103,8 +105,8 @@ public class RoleNameRenderer {
                     && entityHitResult.getEntity() instanceof Player) {
                 target = (Player) entityHitResult.getEntity();
                 {
-                    var result = OnRenderRoleName.RENDER_PLAYER.invoker().allowRender(self, target, context,
-                            tickCounter, renderer);
+                    var result = OnRenderRoleName.RENDER_PLAYER.invoker().allowRender(self, target, ctx,
+                            tickCounter, font);
                     if (result == TrueFalseResult.FALSE) {
                         targetRoleType = TrainRole.BYSTANDER;
                         targetRole = null;
@@ -125,8 +127,8 @@ public class RoleNameRenderer {
                     }
                 }
                 {
-                    var result = OnRenderRoleName.RENDER_PLAYER_NAME.invoker().allowRender(self, target, context,
-                            tickCounter, renderer);
+                    var result = OnRenderRoleName.RENDER_PLAYER_NAME.invoker().allowRender(self, target, ctx,
+                            tickCounter, font);
                     if (result.isFalse()) {
                         nametag = Component.empty();
                     } else if (result.isCustom()) {
@@ -138,8 +140,8 @@ public class RoleNameRenderer {
                 if (SREClient.modifierComponent != null) {
                     Component modifierText = Component.empty();
                     boolean shouldRender = false;
-                    var result = OnRenderRoleName.RENDER_PLAYER_MODIFIER.invoker().allowRender(self, target, context,
-                            tickCounter, renderer);
+                    var result = OnRenderRoleName.RENDER_PLAYER_MODIFIER.invoker().allowRender(self, target, ctx,
+                            tickCounter, font);
                     if (result.isFalse()) {
                         modifierText = Component.empty();
                         shouldRender = false;
@@ -172,11 +174,11 @@ public class RoleNameRenderer {
                 if (role != null) {
                     targetRole = role;
                 }
-                context.pose().pushPose();
-                context.pose().translate(context.guiWidth() / 2f, context.guiHeight() / 2f + 6, 0);
-                context.pose().scale(0.6f, 0.6f, 1f);
-                int nameWidth = renderer.width(nametag);
-                context.drawString(renderer, nametag, -nameWidth / 2, 16,
+                ctx.pose().pushPose();
+                ctx.pose().translate(ctx.guiWidth() / 2f, ctx.guiHeight() / 2f + 6, 0);
+                ctx.pose().scale(0.6f, 0.6f, 1f);
+                int nameWidth = font.width(nametag);
+                ctx.drawString(font, nametag, -nameWidth / 2, 16,
                         Mth.color(1f, 1f, 1f) | ((int) (1 * 255) << 24));
                 // 游戏未开始且不在大厅时，在名字下方提示该玩家是否参与本局
                 if (!component.isRunning() && !SREClient.isInLobby()
@@ -184,8 +186,8 @@ public class RoleNameRenderer {
                     MutableComponent partTag = Component
                             .translatable("hud.sre.participation.not_participating")
                             .withStyle(ChatFormatting.GOLD);
-                    int partWidth = renderer.width(partTag);
-                    context.drawString(renderer, partTag, -partWidth / 2, 16 + renderer.lineHeight + 2,
+                    int partWidth = font.width(partTag);
+                    ctx.drawString(font, partTag, -partWidth / 2, 16 + font.lineHeight + 2,
                             Mth.color(1f, 0.69f, 0f) | (255 << 24));
                 }
                 {
@@ -198,8 +200,8 @@ public class RoleNameRenderer {
                         boolean allowRenderRole = true;
                         {
                             var result = OnRenderRoleName.RENDER_PLAYER_ROLE.invoker().allowRender(self, target,
-                                    context,
-                                    tickCounter, renderer);
+                                    ctx,
+                                    tickCounter, font);
                             if (result.isFalse()) {
                                 roleText1 = null;
                                 allowRenderRole = false;
@@ -208,15 +210,16 @@ public class RoleNameRenderer {
                             } else {
                                 allowRenderRole = targetRoleType.equals(TrainRole.KILLER)
                                         && selfRoleType.equals(TrainRole.KILLER)
-                                        && component.canSeeKillerTeammate(self);
+                                        && component.canSeeKillerTeammate(self)
+                                        && SREClient.isPlayerAliveAndInSurvival();
                                 roleText1 = RoleUtils.getRoleName(targetRole.identifier());
                             }
                         }
                         if (allowRenderRole) {
-                            context.pose().translate(0, 20 + renderer.lineHeight, 0);
+                            ctx.pose().translate(0, 20 + font.lineHeight, 0);
                             if (roleText1 != null) {
-                                int roleWidth1 = renderer.width(roleText1);
-                                context.drawString(renderer, roleText1, -roleWidth1 / 2, 0,
+                                int roleWidth1 = font.width(roleText1);
+                                ctx.drawString(font, roleText1, -roleWidth1 / 2, 0,
                                         Mth.color(1f, 0f, 0f) | ((int) (1 * 255) << 24));
                             }
                         }
@@ -226,8 +229,8 @@ public class RoleNameRenderer {
                         boolean allowRenderCohort = true;
                         {
                             var result = OnRenderRoleName.RENDER_PLAYER_COHORT.invoker().allowRender(self, target,
-                                    context,
-                                    tickCounter, renderer);
+                                    ctx,
+                                    tickCounter, font);
                             if (result.isFalse()) {
                                 allowRenderCohort = false;
                             } else if (result.isCustom()) {
@@ -238,18 +241,35 @@ public class RoleNameRenderer {
                             }
                         }
                         if (allowRenderCohort) {
-                            context.pose().translate(0, 20 + renderer.lineHeight, 0);
-                            int roleWidth = renderer.width(cohortText);
-                            context.drawString(renderer, cohortText, -roleWidth / 2, 0,
+                            ctx.pose().translate(0, 20 + font.lineHeight, 0);
+                            int roleWidth = font.width(cohortText);
+                            ctx.drawString(font, cohortText, -roleWidth / 2, 0,
                                     Mth.color(1f, 0f, 0f) | ((int) (255) << 24));
                         }
                     }
                     {
-                        OnRenderRoleName.RENDER_PLAYER_EXTRA.invoker().renderExtra(self, target, context, tickCounter,
-                                renderer);
+                        ctx.pose().pushPose();
+                        ctx.pose().translate(0, font.lineHeight, 0);
+                        if (SREClient.isPlayerSpectatingOrCreative()) {
+                            SRERole targetRole = SREClient.gameComponent.getRole(target);
+                            if (targetRole == null) {
+                                targetRole = TMMRoles.DISCOVERY_CIVILIAN;
+                            }
+                            MutableComponent name = RoleUtils.getRoleName(targetRole);
+                            int di_color = targetRole.color();
+
+                            // 不用考虑死亡惩罚，这已经在最开始被处理了。
+                            ctx.drawString(font, name, -font.width(name) / 2, 0,
+                                    di_color | (int) (1 * 255.0F) << 24);
+                        }
+                        ctx.pose().popPose();
+                    }
+                    {
+                        OnRenderRoleName.RENDER_PLAYER_EXTRA.invoker().renderExtra(self, target, ctx, tickCounter,
+                                font);
                     }
                 }
-                context.pose().popPose();
+                ctx.pose().popPose();
             }
         }
         {
@@ -259,8 +279,8 @@ public class RoleNameRenderer {
                     && entityHitResult.getEntity() instanceof PuppeteerBodyEntity pbe) {
                 {
                     TrueFalseResult result = OnRenderRoleName.RENDER_PUPPETEER.invoker().allowRender(self, pbe,
-                            context, tickCounter,
-                            renderer);
+                            ctx, tickCounter,
+                            font);
                     if (result.isPass()) {
                         if (!GameUtils.isPlayerSpectatingOrCreative(self)) {
                             return;
@@ -272,17 +292,17 @@ public class RoleNameRenderer {
 
                 UUID uid = pbe.getOwnerUuid().orElse(null);
                 String name2 = SREClientUtils.getPlayerNameByUid(uid);
-                context.pose().pushPose();
-                context.pose().translate(context.guiWidth() / 2f, context.guiHeight() / 2f + 6, 0);
-                context.pose().scale(0.6f, 0.6f, 1f);
-                int nameWidth2 = renderer.width(name2);
+                ctx.pose().pushPose();
+                ctx.pose().translate(ctx.guiWidth() / 2f, ctx.guiHeight() / 2f + 6, 0);
+                ctx.pose().scale(0.6f, 0.6f, 1f);
+                int nameWidth2 = font.width(name2);
                 Component tipC = Component.translatable("entity.noellesroles.puppeteer_body")
                         .withStyle(ChatFormatting.GRAY);
-                context.drawString(renderer, name2, -nameWidth2 / 2, 16,
+                ctx.drawString(font, name2, -nameWidth2 / 2, 16,
                         Mth.color(1f, 1f, 1f) | ((int) (1 * 255) << 24));
-                context.drawString(renderer, tipC, -renderer.width(tipC) / 2, 4,
+                ctx.drawString(font, tipC, -font.width(tipC) / 2, 4,
                         Mth.color(1f, 1f, 1f) | ((int) (1 * 255) << 24));
-                context.pose().popPose();
+                ctx.pose().popPose();
             }
 
         }
@@ -291,8 +311,8 @@ public class RoleNameRenderer {
                 && entityHitResult.getEntity() instanceof NoteEntity notee) {
             {
                 TrueFalseResult result = OnRenderRoleName.RENDER_NOTE.invoker().allowRender(self, notee,
-                        context, tickCounter,
-                        renderer);
+                        ctx, tickCounter,
+                        font);
                 if (result.isFalse()) {
                     return;
                 }
@@ -302,20 +322,20 @@ public class RoleNameRenderer {
             note[2] = Component.literal(notee.getLines()[2]);
             note[3] = Component.literal(notee.getLines()[3]);
 
-            context.pose().pushPose();
-            context.pose().translate(context.guiWidth() / 2f, context.guiHeight() / 2f + 6, 0);
-            context.pose().scale(0.6f, 0.6f, 1f);
+            ctx.pose().pushPose();
+            ctx.pose().translate(ctx.guiWidth() / 2f, ctx.guiHeight() / 2f + 6, 0);
+            ctx.pose().scale(0.6f, 0.6f, 1f);
             for (int i = 0; i < note.length; i++) {
                 Component line = note[i];
-                int lineWidth = renderer.width(line);
-                context.drawString(renderer, line, -lineWidth / 2, 16 + (i * (renderer.lineHeight + 2)),
+                int lineWidth = font.width(line);
+                ctx.drawString(font, line, -lineWidth / 2, 16 + (i * (font.lineHeight + 2)),
                         Mth.color(1f, 1f, 1f) | ((int) (1 * 255) << 24));
             }
-            context.pose().popPose();
+            ctx.pose().popPose();
 
         }
         {
-            OnRenderRoleName.RENDER_END.invoker().render(self, range, context, tickCounter, renderer);
+            OnRenderRoleName.RENDER_END.invoker().render(self, range, ctx, tickCounter, font);
         }
     }
 

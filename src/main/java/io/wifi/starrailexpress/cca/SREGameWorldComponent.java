@@ -1154,7 +1154,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean canSeeKillerTeammate(Player player) {
-        return getRole(player) != null && getRole(player).canSeeTeammateKiller();
+        return getRole(player) != null && getRole(player).canSeeTeammateKillerRole();
     }
 
     public boolean isKillerTeamRole(SRERole role) {

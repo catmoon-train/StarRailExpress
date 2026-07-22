@@ -725,7 +725,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean ableToPickUpRevolver;
     protected boolean isNeutralForKiller = false;
     protected boolean isNeutralForInnocent = false;
-    protected boolean canSeeTeammateKiller = true;
+    protected boolean canSeeTeammateKillerRole = true;
     protected boolean canUseSabotage = false;
     protected boolean canJumpManhole = false;
     protected boolean canAcrossFog = false;
@@ -750,12 +750,12 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this.isNeutralForInnocent;
     }
 
-    public boolean canSeeTeammateKiller() {
-        return this.canSeeTeammateKiller;
+    public boolean canSeeTeammateKillerRole() {
+        return this.canSeeTeammateKillerRole;
     }
 
-    public SRERole setCanSeeTeammateKiller(boolean canSeeKiller) {
-        this.canSeeTeammateKiller = canSeeKiller;
+    public SRERole setCanSeeTeammateKillerRole(boolean canSeeKiller) {
+        this.canSeeTeammateKillerRole = canSeeKiller;
         return this;
     }
 
