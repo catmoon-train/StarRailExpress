@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
 import io.wifi.starrailexpress.event.OnGameEnd;
@@ -1059,7 +1060,7 @@ public class CustomRoleLoader {
 
     private static void doCustomWin(ServerLevel serverLevel, CustomRoleData data, ServerPlayer winner) {
         int color = (data.colorR << 16) | (data.colorG << 8) | data.colorB;
-        var roundComponent = SREGameWorldComponent.KEY.get(serverLevel).getRoundEnd();
+        var roundComponent = SREGameRoundEndComponent.KEY.get(serverLevel);
         boolean hasCustomText = !data.customWinTitle.isEmpty() || !data.customWinSubtitle.isEmpty();
 
         if (hasCustomText && roundComponent != null) {
