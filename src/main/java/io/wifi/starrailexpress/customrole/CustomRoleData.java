@@ -170,6 +170,7 @@ public class CustomRoleData {
     @SerializedName("initialItems")
     public List<InitialItemEntry> initialItems = new ArrayList<>();
 
+    // --- 旧版直觉系统（已废弃，保留向下兼容；优先使用 instinctModes） ---
     @SerializedName("instinctSameColorFrame")
     public boolean instinctSameColorFrame = false;
 
@@ -181,6 +182,11 @@ public class CustomRoleData {
 
     @SerializedName("instinctNightVision")
     public Boolean instinctNightVision = null;
+
+    // --- 新版直觉系统：支持多种模式切换 ---
+    // 每个模式包含「看别人」和「被别人看」两套配置，外加范围和队友限制
+    @SerializedName("instinctModes")
+    public List<InstinctModeData> instinctModes = new ArrayList<>();
 
     @SerializedName("enableAbility")
     public boolean enableAbility = false;
@@ -250,6 +256,39 @@ public class CustomRoleData {
         public String itemId = "";
         @SerializedName("count")
         public int count = 1;
+    }
+
+    /**
+     * 单个直觉模式的配置数据。
+     * 每个模式定义了「看别人」（seeing）和「被别人看」（beSeen）的高亮类型，
+     * 分别对应 {@code SRERole.setInstinctType} 和 {@code SRERole.setBeSeenInstinctType}。
+     * 类型字符串见 {@link io.wifi.starrailexpress.api.InstinctType#valueOf(String)}，
+     * 额外支持 {@code CUSTOM(0xAARRGGBB)} 形式的自定义颜色。
+     */
+    public static class InstinctModeData {
+        /** 直觉关闭时，该职业看别人的高亮类型（如 DEFAULT/NONE/KILLER_INSTINCT/OBSERVER_ROLE_COLOR/TARGET_ROLE_COLOR/CUSTOM(0x...)） */
+        @SerializedName("seeingOff")
+        public String seeingOff = "DEFAULT";
+
+        /** 直觉开启时，该职业看别人的高亮类型 */
+        @SerializedName("seeingOn")
+        public String seeingOn = "DEFAULT";
+
+        /** 别人直觉关闭时，看到该职业的高亮类型 */
+        @SerializedName("beSeenOff")
+        public String beSeenOff = "DEFAULT";
+
+        /** 别人直觉开启时，看到该职业的高亮类型 */
+        @SerializedName("beSeenOn")
+        public String beSeenOn = "DEFAULT";
+
+        /** 最大透视距离（格数），"*" 表示无限 */
+        @SerializedName("maxRange")
+        public String maxRange = "*";
+
+        /** 同阵营队友无视距离限制 */
+        @SerializedName("unlimitedTeammate")
+        public boolean unlimitedTeammate = false;
     }
 
     public static class ShopEntryData {

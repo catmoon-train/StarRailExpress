@@ -2,6 +2,7 @@ package io.wifi.starrailexpress.customrole;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -9,6 +10,7 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
+import io.wifi.starrailexpress.customrole.CustomRoleData.InstinctModeData;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
@@ -45,6 +47,8 @@ public class CustomRoleLoader {
     private static final Map<String, Integer> instinctMaxRanges = new HashMap<>(); // englishId -> maxBlocksSquared
     private static final Map<String, Boolean> instinctSameColor = new HashMap<>(); // englishId -> sameColorFrame
     private static final Map<String, Boolean> instinctUnlimitedTeammate = new HashMap<>(); // englishId -> unlimitedTeammate
+    // 新版直觉模式存储：englishRoleId -> 模式列表
+    private static final Map<String, List<InstinctModeData>> instinctModeDataMap = new HashMap<>();
     // 技能初始冷却配置：roleIdentifier -> initialCooldownTicks
     private static final Map<ResourceLocation, Integer> initialCooldownMap = new HashMap<>();
     private static boolean mapRestrictionHandlerRegistered = false;
@@ -92,6 +96,8 @@ public class CustomRoleLoader {
         loadedRoles.clear();
         instinctMaxRanges.clear();
         instinctSameColor.clear();
+        instinctUnlimitedTeammate.clear();
+        instinctModeDataMap.clear();
 
         // 从服务器世界目录加载配置
         var level = server.overworld();
@@ -158,6 +164,8 @@ public class CustomRoleLoader {
         loadedRoles.clear();
         instinctMaxRanges.clear();
         instinctSameColor.clear();
+        instinctUnlimitedTeammate.clear();
+        instinctModeDataMap.clear();
 
         // 从客户端本地 config 目录加载（网络同步写入的）
         CustomRoleConfig config = CustomRoleConfig.loadFromDefaultPath();
@@ -167,6 +175,7 @@ public class CustomRoleLoader {
                 TMMRoles.registerRole(role);
                 loadedRoles.put(data.englishId, data);
                 registeredRoles.put(data.englishId, role);
+
                 // 注册报幕文本（客户端），确保欢迎报到能显示自定义职业
                 try {
                     io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts.registerRoleAnnouncementText(
@@ -174,6 +183,11 @@ public class CustomRoleLoader {
                             new io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts.RoleAnnouncementText(
                                     role.identifier(), role.getColor()));
                 } catch (Throwable ignored) {
+                }
+
+                // 为拥有 instinctModes 的职业注册直觉模式事件处理器
+                if (!data.instinctModes.isEmpty()) {
+                    ClientInstinctHandler.registerModeEvents(data, role);
                 }
             } catch (Exception e) {
                 SRE.LOGGER.error("[CustomRole-Client] Failed to register: {}", data.englishId, e);
@@ -302,16 +316,41 @@ public class CustomRoleLoader {
         role.setCanSeeCoin(data.canSeeCoin);
         if (data.canUseInstinct) {
             role.setCanUseInstinctAndNightVision(true);
-            // 存储本能透视范围配置（供 ClientInstinctHandler 查询）
-            if (!"*".equals(data.instinctMaxRange)) {
-                try {
-                    int maxBlocks = Integer.parseInt(data.instinctMaxRange.trim());
-                    instinctMaxRanges.put(data.englishId, maxBlocks * maxBlocks); // 存储平方值
-                } catch (NumberFormatException ignored) {
+
+            // 新版直觉模式优先
+            if (!data.instinctModes.isEmpty()) {
+                // 将模式 0 的默认值应用到 SRERole（静态配置作为兜底）
+                InstinctModeData mode0 = data.instinctModes.get(0);
+                role.setInstinctType(
+                        parseInstinctType(mode0.seeingOff),
+                        parseInstinctType(mode0.seeingOn));
+                role.setBeSeenInstinctType(
+                        parseInstinctType(mode0.beSeenOff),
+                        parseInstinctType(mode0.beSeenOn));
+                // 存储模式数据供运行时切换和事件处理器使用
+                instinctModeDataMap.put(data.englishId, new ArrayList<>(data.instinctModes));
+                // 也存储旧版范围配置供旧版处理器兜底
+                if (!"*".equals(mode0.maxRange)) {
+                    try {
+                        int maxBlocks = Integer.parseInt(mode0.maxRange.trim());
+                        instinctMaxRanges.put(data.englishId, maxBlocks * maxBlocks);
+                    } catch (NumberFormatException ignored) {
+                    }
                 }
+                instinctUnlimitedTeammate.put(data.englishId, mode0.unlimitedTeammate);
+            } else {
+                // 旧版直觉配置
+                // 存储本能透视范围配置（供 ClientInstinctHandler 查询）
+                if (!"*".equals(data.instinctMaxRange)) {
+                    try {
+                        int maxBlocks = Integer.parseInt(data.instinctMaxRange.trim());
+                        instinctMaxRanges.put(data.englishId, maxBlocks * maxBlocks); // 存储平方值
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+                instinctSameColor.put(data.englishId, data.instinctSameColorFrame);
+                instinctUnlimitedTeammate.put(data.englishId, data.instinctUnlimitedTeammate);
             }
-            instinctSameColor.put(data.englishId, data.instinctSameColorFrame);
-            instinctUnlimitedTeammate.put(data.englishId, data.instinctUnlimitedTeammate);
         } else {
             role.setCanUseInstinctAndNightVision(false);
         }
@@ -683,6 +722,33 @@ public class CustomRoleLoader {
     }
 
     /**
+     * 解析直觉类型字符串。
+     * 支持预定义常量名（DEFAULT/NONE/KILLER_INSTINCT/OBSERVER_ROLE_COLOR/TARGET_ROLE_COLOR）
+     * 以及自定义颜色格式 {@code CUSTOM(0xAARRGGBB)}。
+     */
+    public static InstinctType parseInstinctType(String str) {
+        if (str == null || str.isEmpty())
+            return InstinctType.DEFAULT;
+        String upper = str.toUpperCase().trim();
+        if (upper.startsWith("CUSTOM(") && upper.endsWith(")")) {
+            String hex = upper.substring(7, upper.length() - 1).trim();
+            try {
+                long color = Long.decode(hex);
+                return InstinctType.custom((int) color);
+            } catch (NumberFormatException e) {
+                SRE.LOGGER.warn("[CustomRole] Invalid CUSTOM color: {}", str);
+                return InstinctType.DEFAULT;
+            }
+        }
+        try {
+            return InstinctType.valueOf(upper);
+        } catch (IllegalArgumentException e) {
+            SRE.LOGGER.warn("[CustomRole] Unknown instinct type: {}, falling back to DEFAULT", str);
+            return InstinctType.DEFAULT;
+        }
+    }
+
+    /**
      * 注册自定义职业的本能透视事件处理器（仅客户端）。
      * <p>
      * 必须在 {@code InstinctRenderer.registerInstinctEvents()} 之前注册，
@@ -704,6 +770,7 @@ public class CustomRoleLoader {
      */
     private static class ClientInstinctHandler {
         static void register() {
+            // 注册旧版本能透视后处理（仅对未使用 instinctModes 的角色生效）
             io.wifi.starrailexpress.event.client.CommonInstinctEvents.ALIVE_COMMON_AFTER_EVENT
                     .register((self, target, isInstinctEnabled) -> {
                         if (!(target instanceof net.minecraft.world.entity.player.Player))
@@ -728,6 +795,10 @@ public class CustomRoleLoader {
 
                         String englishId = role.identifier().getPath();
 
+                        // 使用 instinctModes 的角色由 OBSERVER_HIGHLIGHT_EVENT 专门处理，这里跳过
+                        if (instinctModeDataMap.containsKey(englishId))
+                            return TrueFalseAndCustomResult.pass();
+
                         // 无限制透视队友：对同阵营玩家无视范围限制
                         Boolean unlimitedTeammate = instinctUnlimitedTeammate.get(englishId);
                         boolean isSameTeam = false;
@@ -738,7 +809,6 @@ public class CustomRoleLoader {
                                 boolean targetKiller = gameWorld.isKillerTeamRole(targetRole);
                                 boolean selfInno = gameWorld.isInnocentTeamRole(role);
                                 boolean targetInno = gameWorld.isInnocentTeamRole(targetRole);
-                                // 同阵营：同为杀手方或同为平民方
                                 if ((selfKiller && targetKiller) || (selfInno && targetInno)) {
                                     isSameTeam = true;
                                 }
@@ -765,6 +835,111 @@ public class CustomRoleLoader {
 
                         return TrueFalseAndCustomResult.pass();
                     });
+        }
+
+        /**
+         * 为拥有 instinctModes 的自定义职业注册 OBSERVER / TARGET 事件处理器。
+         * 始终使用模式 0。
+         */
+        static void registerModeEvents(CustomRoleData data, SRERole role) {
+            ResourceLocation roleId = role.identifier();
+            List<InstinctModeData> modes = data.instinctModes;
+            if (modes == null || modes.isEmpty())
+                return;
+
+            instinctModeDataMap.put(data.englishId, new ArrayList<>(modes));
+            InstinctModeData mode = modes.get(0);
+
+            // OBSERVER：自定义职业「看别人」
+            io.wifi.starrailexpress.event.client.RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(roleId,
+                    (client, self, target, hasInstinct) -> {
+                        if (!(target instanceof net.minecraft.world.entity.player.Player))
+                            return TrueFalseAndCustomResult.pass();
+                        net.minecraft.world.entity.player.Player tp = (net.minecraft.world.entity.player.Player) target;
+
+                        if (!isWithinRange(self, tp, mode))
+                            return TrueFalseAndCustomResult.disallow();
+
+                        InstinctType type = hasInstinct
+                                ? parseInstinctType(mode.seeingOn)
+                                : parseInstinctType(mode.seeingOff);
+
+                        return applyType(type, self, tp, role,
+                                io.wifi.starrailexpress.client.SREClient.gameComponent != null
+                                        ? io.wifi.starrailexpress.client.SREClient.gameComponent.getRole(tp)
+                                        : null,
+                                TrueFalseAndCustomResult.pass());
+                    });
+
+            // TARGET：别人看自定义职业
+            io.wifi.starrailexpress.event.client.RoleInstinctEvents.TARGET_HIGHLIGHT_EVENT.register(roleId,
+                    (client, self, target, hasInstinct) -> {
+                        if (!(target instanceof net.minecraft.world.entity.player.Player))
+                            return TrueFalseAndCustomResult.pass();
+                        net.minecraft.world.entity.player.Player tp = (net.minecraft.world.entity.player.Player) target;
+
+                        if (!isWithinRange(self, tp, mode))
+                            return TrueFalseAndCustomResult.disallow();
+
+                        InstinctType type = hasInstinct
+                                ? parseInstinctType(mode.beSeenOn)
+                                : parseInstinctType(mode.beSeenOff);
+
+                        return applyType(type, self, tp,
+                                io.wifi.starrailexpress.client.SREClient.gameComponent != null
+                                        ? io.wifi.starrailexpress.client.SREClient.gameComponent.getRole(self)
+                                        : null,
+                                role,
+                                TrueFalseAndCustomResult.pass());
+                    });
+        }
+
+        private static TrueFalseAndCustomResult applyType(InstinctType type,
+                net.minecraft.world.entity.player.Player self,
+                net.minecraft.world.entity.player.Player target,
+                SRERole selfRole, SRERole targetRole,
+                TrueFalseAndCustomResult fallback) {
+            if (type.isNone())
+                return TrueFalseAndCustomResult.disallow();
+            if (type.isObserverRoleColor()) {
+                if (selfRole == null) return TrueFalseAndCustomResult.disallow();
+                return TrueFalseAndCustomResult.custom(selfRole.getColor());
+            }
+            if (type.isTargetRoleColor()) {
+                if (targetRole == null) return TrueFalseAndCustomResult.disallow();
+                return TrueFalseAndCustomResult.custom(targetRole.getColor());
+            }
+            if (type.isCustom())
+                return TrueFalseAndCustomResult.custom(type.getColor());
+            if (type.isKillerInstinct())
+                return TrueFalseAndCustomResult.pass();
+            return fallback;
+        }
+
+        private static boolean isWithinRange(net.minecraft.world.entity.player.Player viewer,
+                net.minecraft.world.entity.player.Player target, InstinctModeData mode) {
+            if (mode == null) return true;
+            if (mode.unlimitedTeammate
+                    && io.wifi.starrailexpress.client.SREClient.gameComponent != null) {
+                SRERole vr = io.wifi.starrailexpress.client.SREClient.gameComponent.getRole(viewer);
+                SRERole tr = io.wifi.starrailexpress.client.SREClient.gameComponent.getRole(target);
+                if (vr != null && tr != null) {
+                    if ((io.wifi.starrailexpress.client.SREClient.gameComponent.isKillerTeamRole(vr)
+                            && io.wifi.starrailexpress.client.SREClient.gameComponent.isKillerTeamRole(tr))
+                            || (io.wifi.starrailexpress.client.SREClient.gameComponent.isInnocentTeamRole(vr)
+                                    && io.wifi.starrailexpress.client.SREClient.gameComponent.isInnocentTeamRole(tr)))
+                        return true;
+                }
+            }
+            if (!"*".equals(mode.maxRange)) {
+                try {
+                    int maxBlocks = Integer.parseInt(mode.maxRange.trim());
+                    if (viewer.distanceToSqr(target) > (double) maxBlocks * maxBlocks)
+                        return false;
+                } catch (NumberFormatException ignored) {
+                }
+            }
+            return true;
         }
     }
 

@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.customrole;
 
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
+import io.wifi.starrailexpress.customrole.CustomRoleData.InstinctModeData;
 import io.wifi.starrailexpress.customrole.CustomRoleData.InitialItemEntry;
 import io.wifi.starrailexpress.customrole.CustomRoleData.ShopEntryData;
 import net.fabricmc.api.EnvType;
@@ -291,9 +292,7 @@ public class CustomRoleScreen extends Screen {
     // ---- TAB 1: Advanced ----
     private void buildAdvancedTab() {
         int r = 0;
-        addBoolBtn(tabWidgets1, r, "sre.custom_role.can_see_coin", data.canSeeCoin, v -> data.canSeeCoin = v, true);
-        addBoolBtnX(tabWidgets1, r++, "sre.custom_role.can_use_instinct", data.canUseInstinct, v -> data.canUseInstinct = v, true);
-        addTriBtnX(tabWidgets1, r++, "sre.custom_role.instinct_night_vision", data.instinctNightVision, v -> data.instinctNightVision = v, true);
+        addBoolBtn(tabWidgets1, r++, "sre.custom_role.can_see_coin", data.canSeeCoin, v -> data.canSeeCoin = v, true);
         addTriBtn(tabWidgets1, r, "sre.custom_role.able_pickup_revolver", data.ableToPickUpRevolver, v -> data.ableToPickUpRevolver = v, true);
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.set_neutrals", data.setNeutrals, v -> data.setNeutrals = v, true);
         addTriBtn(tabWidgets1, r, "sre.custom_role.set_neutral_for_killer", data.setNeutralForKiller, v -> data.setNeutralForKiller = v, true);
@@ -387,10 +386,71 @@ public class CustomRoleScreen extends Screen {
             }
             r++;
         }
+        r++; // spacer
+
+        // ═══ 直觉系统 ═══
+        addLabel(tabLabels2, "sre.custom_role.instinct_section", r++);
+
+        // 启用直觉 + 夜视
+        addBoolBtn(tabWidgets2, r, "sre.custom_role.can_use_instinct", data.canUseInstinct,
+                v -> { data.canUseInstinct = v; if (!v) data.instinctModes.clear(); init(minecraft, width, height); }, true);
+        addTriBtnX(tabWidgets2, r++, "sre.custom_role.instinct_night_vision", data.instinctNightVision,
+                v -> data.instinctNightVision = v, true);
+
+        if (data.canUseInstinct) {
+            ensureInstinctMode();
+            InstinctModeData mode = data.instinctModes.get(0);
+
+            // 看别人
+            addLabel(tabLabels2, "sre.custom_role.instinct_seeing", r);
+            var seeingOffBtn = makeInstinctTypeBtn(fieldX(), baseRowY(r), 155, 18,
+                    () -> mode.seeingOff, v -> mode.seeingOff = v);
+            var seeingOnBtn  = makeInstinctTypeBtn(fieldX() + 163, baseRowY(r), 155, 18,
+                    () -> mode.seeingOn, v -> mode.seeingOn = v);
+            tabWidgets2.add(seeingOffBtn);
+            tabWidgets2.add(seeingOnBtn);
+            r++;
+
+            // 被看
+            addLabel(tabLabels2, "sre.custom_role.instinct_be_seen", r);
+            var beSeenOffBtn = makeInstinctTypeBtn(fieldX(), baseRowY(r), 155, 18,
+                    () -> mode.beSeenOff, v -> mode.beSeenOff = v);
+            var beSeenOnBtn  = makeInstinctTypeBtn(fieldX() + 163, baseRowY(r), 155, 18,
+                    () -> mode.beSeenOn, v -> mode.beSeenOn = v);
+            tabWidgets2.add(beSeenOffBtn);
+            tabWidgets2.add(beSeenOnBtn);
+            r++;
+
+            // 自定义颜色输入（当任一字段为 CUSTOM 时显示）
+            boolean hasCustom = isCustomType(mode.seeingOff) || isCustomType(mode.seeingOn)
+                    || isCustomType(mode.beSeenOff) || isCustomType(mode.beSeenOn);
+            if (hasCustom) {
+                // 收集所有 CUSTOM 字段，使用同一个颜色输入
+                final String sharedHex = findFirstCustomHex(mode);
+                addLabel(tabLabels2, "sre.custom_role.instinct_custom_color", r);
+                EditBox colorBox = makeBox(fieldX(), rowY(r), 80, 18, sharedHex, v -> {
+                    String hex = v.trim().replaceAll("[^0-9a-fA-F]", "");
+                    if (hex.isEmpty()) hex = "FF0000";
+                    String newVal = "CUSTOM(0x" + hex + ")";
+                    if (isCustomType(mode.seeingOff)) mode.seeingOff = newVal;
+                    if (isCustomType(mode.seeingOn)) mode.seeingOn = newVal;
+                    if (isCustomType(mode.beSeenOff)) mode.beSeenOff = newVal;
+                    if (isCustomType(mode.beSeenOn)) mode.beSeenOn = newVal;
+                });
+                colorBox.setHint(Component.literal("RRGGBB hex"));
+                recordWidgetBase(colorBox, baseRowY(r));
+                tabWidgets2.add(colorBox);
+                r++;
+            }
+
+            // 最大距离
+            makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.instinct_range",
+                    mode.maxRange, "* = 不限", v -> mode.maxRange = v);
+            addBoolBtn(tabWidgets2, r++, "sre.custom_role.instinct_unlimited_teammate", mode.unlimitedTeammate,
+                    v -> mode.unlimitedTeammate = v, false);
+        }
+
         r++;
-        addBoolBtn(tabWidgets2, r++, "sre.custom_role.instinct_same_color", data.instinctSameColorFrame, v -> data.instinctSameColorFrame = v, false);
-        makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.instinct_range", data.instinctMaxRange, "* = 不限", v -> data.instinctMaxRange = v);
-        addBoolBtn(tabWidgets2, r++, "sre.custom_role.instinct_unlimited_teammate", data.instinctUnlimitedTeammate, v -> data.instinctUnlimitedTeammate = v, false);
         addBoolBtn(tabWidgets2, r++, "sre.custom_role.enable_ability", data.enableAbility, v -> data.enableAbility = v, true);
         if (data.enableAbility) {
             if (data.abilitySkillCommands.isEmpty()) data.abilitySkillCommands.add("");
@@ -583,6 +643,86 @@ public class CustomRoleScreen extends Screen {
                 () -> { data.shopEntries.add(new ShopEntryData()); init(minecraft, width, height); },
                 AccentSide.BOTTOM);
         tabWidgets4.add(addEntryBtn);
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 新直觉系统 GUI 辅助方法
+    // ══════════════════════════════════════════════════════════════════
+    private static final String[] INSTINCT_TYPE_NAMES = {
+        "DEFAULT", "NONE", "KILLER_INSTINCT", "OBSERVER_ROLE_COLOR", "TARGET_ROLE_COLOR"
+    };
+
+    /** 确保 data.instinctModes 存在至少一个模式，否则从旧字段自动补全 */
+    private void ensureInstinctMode() {
+        if (data.instinctModes.isEmpty()) {
+            InstinctModeData m = new InstinctModeData();
+            if (data.instinctSameColorFrame) m.seeingOn = "OBSERVER_ROLE_COLOR";
+            if (!"*".equals(data.instinctMaxRange)) m.maxRange = data.instinctMaxRange;
+            m.unlimitedTeammate = data.instinctUnlimitedTeammate;
+            data.instinctModes.add(m);
+        }
+    }
+
+    /** 将类型字符串循环到下一个预定义类型 */
+    private String cycleInstinctTypeStr(String current) {
+        String upper = current.toUpperCase().trim();
+        if (upper.startsWith("CUSTOM(")) return "DEFAULT";
+        for (int i = 0; i < INSTINCT_TYPE_NAMES.length; i++) {
+            if (INSTINCT_TYPE_NAMES[i].equals(upper))
+                return (i + 1 < INSTINCT_TYPE_NAMES.length) ? INSTINCT_TYPE_NAMES[i + 1] : "CUSTOM(0xFFFF0000)";
+        }
+        return "DEFAULT";
+    }
+
+    /** 获取类型字符串的显示名 */
+    private String instinctTypeDisplay(String s) {
+        if (s == null || s.isEmpty()) return "DEFAULT";
+        String upper = s.toUpperCase().trim();
+        if (upper.startsWith("CUSTOM(")) {
+            String hex = upper.substring(7, upper.length() - 1).trim();
+            try { return "CUSTOM(#" + Integer.toHexString(Long.decode(hex).intValue()).toUpperCase().substring(2) + ")"; }
+            catch (Exception e) { return "CUSTOM(???)"; }
+        }
+        return upper;
+    }
+
+    /** 提取 CUSTOM 颜色字符串中的 hex 部分（不含 0x 前缀） */
+    private String extractCustomHex(String s) {
+        if (s == null) return "FF0000";
+        String upper = s.toUpperCase().trim();
+        if (upper.startsWith("CUSTOM(") && upper.endsWith(")")) {
+            String hex = upper.substring(7, upper.length() - 1).trim();
+            try { return Integer.toHexString(Long.decode(hex).intValue()).toUpperCase().substring(2); }
+            catch (Exception e) { return "FF0000"; }
+        }
+        return "FF0000";
+    }
+
+    /** 检查类型字符串是否为 CUSTOM */
+    private boolean isCustomType(String s) {
+        return s != null && s.toUpperCase().trim().startsWith("CUSTOM(");
+    }
+
+    /** 从模式中提取第一个 CUSTOM 类型的 hex 颜色字符串 */
+    private String findFirstCustomHex(InstinctModeData m) {
+        for (String s : new String[]{m.seeingOff, m.seeingOn, m.beSeenOff, m.beSeenOn}) {
+            if (isCustomType(s)) return extractCustomHex(s);
+        }
+        return "FF0000";
+    }
+
+    /** 构建一个点击循环的类型按钮，并返回 */
+    private ModernButton makeInstinctTypeBtn(int x, int baseY, int w, int h, java.util.function.Supplier<String> getter, java.util.function.Consumer<String> setter) {
+        String cur = getter.get();
+        String display = instinctTypeDisplay(cur);
+        ModernButton btn = ModernButton.builder(
+                Component.literal(display).append(Component.literal(" ↻").withStyle(s -> s.withColor(0x8899AA))),
+                b -> {
+                    setter.accept(cycleInstinctTypeStr(getter.get()));
+                    init(minecraft, width, height);
+                }).bounds(x, baseY, w, h).accentBar(AccentSide.LEFT).build();
+        recordWidgetBase(btn, baseY);
+        return btn;
     }
 
     // ---- Bottom ----
