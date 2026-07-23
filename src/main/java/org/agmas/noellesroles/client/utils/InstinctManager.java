@@ -39,9 +39,9 @@ import pro.fazeclan.river.stupid_express.constants.SERoles;
  * 高亮获取顺序：
  * <li>通用逻辑：{@link CommonInstinctEvents#ALIVE_COMMON_BEFORE_EVENT}</li>
  * <li>被看逻辑：{@link RoleInstinctEvents#TARGET_HIGHLIGHT_EVENT}</li>
- * <li>被看职业逻辑 {@link SRERole#setToggledOffBeSeenInstinctType(InstinctType)}</li>
+ * <li>被看职业逻辑 {@link SRERole#setBeSeenInstinctType(InstinctType,InstinctType)}</li>
  * <li>看人逻辑：{@link RoleInstinctEvents#OBSERVER_HIGHLIGHT_EVENT}</li>
- * <li>看人职业逻辑 {@link SRERole#setInstinctType(InstinctType)}</li>
+ * <li>看人职业逻辑 {@link SRERole#setInstinctType(InstinctType,InstinctType)}</li>
  * <li>通用逻辑：{@link CommonInstinctEvents#ALIVE_COMMON_AFTER_EVENT}</li>
  * <li>杀手直觉（杀手默认）</li>
  */
