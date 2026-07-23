@@ -1367,6 +1367,7 @@ public class ModRoles {
             .registerRole(new GamblerRole(GAMBLER_ID, new Color(72, 61, 139).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), true))
             .setCanPickUpRevolver(true).setComponentKey(GamblerPlayerComponent.KEY).setNeutrals(true)
+            .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setDefaultMax(1).setHiddenForRoleRotation(true);
     public static SRERole TAMER = TMMRoles
             .registerRole(new NormalRole(TAMER_ID, new Color(210, 180, 140).getRGB(), true,
@@ -1560,7 +1561,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 隐藏计分板
-    )).setNeutralForKiller(true).setCanSeeTeammateKillerRole(false);;
+    )).setNeutralForKiller(true).setCanSeeTeammateKillerRole(false)
+            .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE);
 
     /**
      * 工程师角色
