@@ -239,6 +239,72 @@ public class CustomRoleData {
     @SerializedName("shopEntries")
     public List<ShopEntryData> shopEntries = new ArrayList<>();
 
+    // ============ 任务奖励（完成 N 个任务给物品，可不限次数） ============
+    @SerializedName("taskRewardCount")
+    public int taskRewardCount = 0; // 0 = 关闭
+
+    @SerializedName("taskRewardMaxTriggers")
+    public int taskRewardMaxTriggers = 1; // 一局最多触发次数
+
+    @SerializedName("taskRewardUnlimited")
+    public boolean taskRewardUnlimited = false; // true = 不限次数（传 -1）
+
+    @SerializedName("taskRewardMessage")
+    public String taskRewardMessage = ""; // 奖励提示翻译键，为空用默认
+
+    @SerializedName("taskRewardSilent")
+    public boolean taskRewardSilent = false; // 静默发放（不弹提示）
+
+    @SerializedName("taskRewardItems")
+    public List<InitialItemEntry> taskRewardItems = new ArrayList<>();
+
+    // ============ 免疫类 ============
+    @SerializedName("fallDamageImmune")
+    public Boolean fallDamageImmune = null; // 免疫摔落伤害
+
+    @SerializedName("darknessImmune")
+    public Boolean darknessImmune = null; // 免疫黑暗死亡
+
+    @SerializedName("environmentalImmune")
+    public Boolean environmentalImmune = null; // 免疫环境致死（窒息/冰冻/干渴等）
+
+    // ============ 经济 / 金币 ============
+    @SerializedName("initialCoinCount")
+    public int initialCoinCount = -1; // -1 = 不修改
+
+    @SerializedName("noCoinSystem")
+    public Boolean noCoinSystem = null; // 无金币系统
+
+    @SerializedName("cannotEarnCoinFromKills")
+    public Boolean cannotEarnCoinFromKills = null; // 击杀不获得金币
+
+    // ============ 战斗 / 击杀限制 ============
+    @SerializedName("canKillWithBowAndCrossbow")
+    public Boolean canKillWithBowAndCrossbow = null; // 能用弓/弩杀人
+
+    @SerializedName("canKillWithTrident")
+    public Boolean canKillWithTrident = null; // 能用三叉戟杀人
+
+    @SerializedName("cannotKnifeLeftClick")
+    public Boolean cannotKnifeLeftClick = null; // 无法用刀左键击退人
+
+    // ============ 杀手同伙可见性 ============
+    @SerializedName("killerTeammateVisibilityEnabled")
+    public Boolean killerTeammateVisibilityEnabled = null; // 是否启用该机制
+
+    @SerializedName("canBeSeenAsKillerTeammate")
+    public Boolean canBeSeenAsKillerTeammate = null; // 能否被看到杀手同伙
+
+    // ============ 心情颜色覆盖 ============
+    @SerializedName("moodColorR")
+    public int moodColorR = -1; // -1 = 使用默认
+
+    @SerializedName("moodColorG")
+    public int moodColorG = -1;
+
+    @SerializedName("moodColorB")
+    public int moodColorB = -1;
+
     // ============ 内部类 ============
 
     public static class EffectEntry {

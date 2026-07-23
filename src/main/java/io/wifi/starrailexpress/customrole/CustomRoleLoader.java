@@ -413,6 +413,61 @@ public class CustomRoleLoader {
         if (data.canUseSabotage != null)
             role.setCanUseSabotage(data.canUseSabotage);
 
+        // === 免疫 / 经济 / 战斗 / 杀手同伙 / 心情颜色 / 任务奖励 补全 ===
+        if (data.fallDamageImmune != null)
+            role.setFallDamageImmune(data.fallDamageImmune);
+        if (data.darknessImmune != null)
+            role.setDarknessImmune(data.darknessImmune);
+        if (data.environmentalImmune != null)
+            role.setEnvironmentalImmunity(data.environmentalImmune);
+
+        if (data.initialCoinCount >= 0)
+            role.setInitialCoinCount(data.initialCoinCount);
+        if (data.noCoinSystem != null)
+            role.setNoCoinSystem(data.noCoinSystem);
+        if (data.cannotEarnCoinFromKills != null)
+            role.setCannotEarnCoinFromKills(data.cannotEarnCoinFromKills);
+
+        if (data.canKillWithBowAndCrossbow != null)
+            role.setCanKillWithBowAndCrossbow(data.canKillWithBowAndCrossbow);
+        if (data.canKillWithTrident != null)
+            role.setCanKillWithTrident(data.canKillWithTrident);
+        if (data.cannotKnifeLeftClick != null)
+            role.setCannotKnifeLeftClick(data.cannotKnifeLeftClick);
+
+        if (data.killerTeammateVisibilityEnabled != null)
+            role.setKillerTeammateScreenVisibility(data.killerTeammateVisibilityEnabled,
+                    data.canBeSeenAsKillerTeammate != null ? data.canBeSeenAsKillerTeammate : true);
+
+        if (data.moodColorR >= 0 && data.moodColorG >= 0 && data.moodColorB >= 0)
+            role.setMoodColor(new java.awt.Color(data.moodColorR, data.moodColorG, data.moodColorB));
+
+        // 任务奖励：完成 taskRewardCount 个任务给物品，可不限次数、可静默
+        if (data.taskRewardCount > 0 && !data.taskRewardItems.isEmpty()) {
+            List<ItemStack> rewardStacks = new ArrayList<>();
+            for (CustomRoleData.InitialItemEntry entry : data.taskRewardItems) {
+                if (entry.itemId == null || entry.itemId.isEmpty())
+                    continue;
+                try {
+                    ResourceLocation itemId = ResourceLocation.parse(entry.itemId);
+                    Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(itemId);
+                    if (itemOpt.isPresent()) {
+                        int count = Math.max(1, entry.count);
+                        rewardStacks.add(new ItemStack(itemOpt.get(), count));
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+            if (!rewardStacks.isEmpty()) {
+                int triggers = data.taskRewardUnlimited ? -1 : Math.max(1, data.taskRewardMaxTriggers);
+                role.setTaskReward(data.taskRewardCount, triggers,
+                        rewardStacks.toArray(new ItemStack[0]));
+                if (data.taskRewardMessage != null && !data.taskRewardMessage.isEmpty())
+                    role.setTaskRewardMessage(data.taskRewardMessage);
+                role.setTaskRewardSilent(data.taskRewardSilent);
+            }
+        }
+
         // === 生成选项 ===
         if (data.enableChance >= 0 && !data.useRareChance)
             role.setDefaultEnableChance(data.enableChance * 100);

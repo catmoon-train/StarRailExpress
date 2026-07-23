@@ -283,6 +283,14 @@ public class CustomRoleScreen extends Screen {
                 AccentSide.LEFT);
         tabWidgets0.add(moodBtn);
 
+        // 心情颜色覆盖（R/G/B，任一 <0 视为不覆盖）
+        makeLabeledHintBox(tabWidgets0, tabLabels0, r++, 60, "sre.custom_role.label.mood_color_r", String.valueOf(data.moodColorR), "-1=默认",
+            v -> { try { data.moodColorR = Integer.parseInt(v); } catch(Exception ignored){} });
+        makeLabeledHintBox(tabWidgets0, tabLabels0, r++, 60, "sre.custom_role.label.mood_color_g", String.valueOf(data.moodColorG), "-1=默认",
+            v -> { try { data.moodColorG = Integer.parseInt(v); } catch(Exception ignored){} });
+        makeLabeledHintBox(tabWidgets0, tabLabels0, r++, 60, "sre.custom_role.label.mood_color_b", String.valueOf(data.moodColorB), "-1=默认",
+            v -> { try { data.moodColorB = Integer.parseInt(v); } catch(Exception ignored){} });
+
         makeLabeledHintBox(tabWidgets0, tabLabels0, r++, 80, "sre.custom_role.label.sprint_mult", String.valueOf(data.sprintMultiplier), "默认1",
             v -> { try { data.sprintMultiplier = Double.parseDouble(v); } catch(Exception ignored){} });
         addBoolBtn(tabWidgets0, r++, "sre.custom_role.infinite_sprint", data.infiniteSprint, v -> data.infiniteSprint = v, true);
@@ -324,6 +332,20 @@ public class CustomRoleScreen extends Screen {
         addTriBtn(tabWidgets1, r, "sre.custom_role.can_jump_manhole", data.canJumpManhole, v -> data.canJumpManhole = v, true);
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_across_fog", data.canAcrossFog, v -> data.canAcrossFog = v, true);
         addTriBtn(tabWidgets1, r++, "sre.custom_role.can_use_sabotage", data.canUseSabotage, v -> data.canUseSabotage = v, true);
+
+        // === 免疫 / 经济 / 战斗 / 杀手同伙 ===
+        addTriBtn(tabWidgets1, r, "sre.custom_role.fall_damage_immune", data.fallDamageImmune, v -> data.fallDamageImmune = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.darkness_immune", data.darknessImmune, v -> data.darknessImmune = v, true);
+        addTriBtn(tabWidgets1, r, "sre.custom_role.environmental_immune", data.environmentalImmune, v -> data.environmentalImmune = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.no_coin_system", data.noCoinSystem, v -> data.noCoinSystem = v, true);
+        makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.initial_coin_count", String.valueOf(data.initialCoinCount), "-1=不改",
+            v -> { try { data.initialCoinCount = Integer.parseInt(v); } catch(Exception ignored){} });
+        addTriBtn(tabWidgets1, r, "sre.custom_role.cannot_earn_coin_from_kills", data.cannotEarnCoinFromKills, v -> data.cannotEarnCoinFromKills = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_kill_with_bow_crossbow", data.canKillWithBowAndCrossbow, v -> data.canKillWithBowAndCrossbow = v, true);
+        addTriBtn(tabWidgets1, r, "sre.custom_role.can_kill_with_trident", data.canKillWithTrident, v -> data.canKillWithTrident = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.cannot_knife_left_click", data.cannotKnifeLeftClick, v -> data.cannotKnifeLeftClick = v, true);
+        addTriBtn(tabWidgets1, r, "sre.custom_role.killer_teammate_visibility_enabled", data.killerTeammateVisibilityEnabled, v -> data.killerTeammateVisibilityEnabled = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_be_seen_as_killer_teammate", data.canBeSeenAsKillerTeammate, v -> data.canBeSeenAsKillerTeammate = v, true);
 
         // === 自定义独立胜利 (仅中立 && !杀手方中立时可用) ===
         boolean isNeutral = data.setNeutrals != null && data.setNeutrals;
@@ -381,6 +403,38 @@ public class CustomRoleScreen extends Screen {
             if (data.initialItems.size() > 1) {
                 var minusBtn = makeModernButton(fieldX()+220, baseRowY(r), 20, 18, Component.literal("-"),
                         () -> { data.initialItems.remove(idx); init(minecraft, width, height); },
+                        AccentSide.TOP);
+                tabWidgets2.add(minusBtn);
+            }
+            r++;
+        }
+        r++; // spacer
+
+        // ═══ 任务奖励（完成 N 个任务给物品） ═══
+        addLabel(tabLabels2, "sre.custom_role.task_reward_section", r++);
+        makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 60, "sre.custom_role.label.task_reward_count", String.valueOf(data.taskRewardCount), "0=关闭",
+            v -> { try { data.taskRewardCount = Integer.parseInt(v); } catch(Exception ignored){} });
+        makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 60, "sre.custom_role.label.task_reward_max_triggers", String.valueOf(data.taskRewardMaxTriggers), "默认1",
+            v -> { try { data.taskRewardMaxTriggers = Integer.parseInt(v); } catch(Exception ignored){} });
+        addBoolBtn(tabWidgets2, r++, "sre.custom_role.task_reward_unlimited", data.taskRewardUnlimited, v -> data.taskRewardUnlimited = v, true);
+        addBoolBtn(tabWidgets2, r++, "sre.custom_role.task_reward_silent", data.taskRewardSilent, v -> data.taskRewardSilent = v, true);
+        makeLabeledBox(tabWidgets2, tabLabels2, r++, FIELD_W, "sre.custom_role.task_reward_message", data.taskRewardMessage, v -> data.taskRewardMessage = v);
+        if (data.taskRewardItems.isEmpty()) data.taskRewardItems.add(new InitialItemEntry());
+        for (int i = 0; i < data.taskRewardItems.size(); i++) {
+            final int idx = i; InitialItemEntry en = data.taskRewardItems.get(i); int y = rowY(r);
+            addLabel(tabLabels2, "sre.custom_role.label.task_reward_items", r);
+            EditBox ib = makeBox(fieldX(), y, 130, 18, en.itemId, v -> en.itemId = v); ib.setHint(Component.literal("物品id"));
+            EditBox cb = makeBox(fieldX() + 138, y, 50, 18, String.valueOf(en.count), v -> { try { en.count = Integer.parseInt(v); } catch(Exception ignored){} }); cb.setHint(Component.literal("数量"));
+            recordWidgetBase(ib, baseRowY(r));
+            recordWidgetBase(cb, baseRowY(r));
+            tabWidgets2.addAll(List.of(ib, cb));
+            var plusBtn = makeModernButton(fieldX()+196, baseRowY(r), 20, 18, Component.literal("+"),
+                    () -> { data.taskRewardItems.add(new InitialItemEntry()); init(minecraft, width, height); },
+                    AccentSide.TOP);
+            tabWidgets2.add(plusBtn);
+            if (data.taskRewardItems.size() > 1) {
+                var minusBtn = makeModernButton(fieldX()+220, baseRowY(r), 20, 18, Component.literal("-"),
+                        () -> { data.taskRewardItems.remove(idx); init(minecraft, width, height); },
                         AccentSide.TOP);
                 tabWidgets2.add(minusBtn);
             }
