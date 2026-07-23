@@ -704,7 +704,7 @@ public class CustomRoleLoader {
      */
     private static class ClientInstinctHandler {
         static void register() {
-            io.wifi.starrailexpress.event.client.OnGetInstinctHighlight.ALIVE_EVENT
+            io.wifi.starrailexpress.event.client.CommonInstinctEvents.ALIVE_COMMON_AFTER_EVENT
                     .register((self, target, isInstinctEnabled) -> {
                         if (!(target instanceof net.minecraft.world.entity.player.Player))
                             return TrueFalseAndCustomResult.pass();

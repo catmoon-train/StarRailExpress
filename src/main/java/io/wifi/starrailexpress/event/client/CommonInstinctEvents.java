@@ -5,7 +5,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
-
 import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
 
 /**
@@ -16,7 +15,29 @@ import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
  * <li>{@link TrueFalseAndCustomResult#disallow()} 或
  * {@link TrueFalseAndCustomResult#no()} 阻止显示</li>
  */
-public class OnGetInstinctHighlight {
+public class CommonInstinctEvents {
+
+    /**
+     * 获取活着的玩家的直觉高亮颜色的事件。最后触发<br/>
+     * 首个返回非 {@link TrueFalseAndCustomResult#pass()} 的监听器结果生效。<br/>
+     * <li>{@link TrueFalseAndCustomResult#pass()} 不修改颜色（走默认逻辑）</li>
+     * <li>{@link TrueFalseAndCustomResult#custom()} 返回自定义颜色</li>
+     * <li>{@link TrueFalseAndCustomResult#disallow()} 或
+     * {@link TrueFalseAndCustomResult#no()} 阻止显示</li>
+     */
+    public static Event<InnerOnGetInstinctHighlight> ALIVE_COMMON_AFTER_EVENT = createArrayBacked(
+            InnerOnGetInstinctHighlight.class,
+            listeners -> (self, target, isInstinctEnabled) -> {
+                if (target == null)
+                    return TrueFalseAndCustomResult.pass();
+                for (InnerOnGetInstinctHighlight listener : listeners) {
+                    var color = listener.getInstinctHighlight(self, target, isInstinctEnabled);
+                    if (color != null && !color.isPass()) {
+                        return color;
+                    }
+                }
+                return TrueFalseAndCustomResult.pass();
+            });
 
     /**
      * 获取活着的玩家的直觉高亮颜色的事件。<br/>
@@ -26,7 +47,8 @@ public class OnGetInstinctHighlight {
      * <li>{@link TrueFalseAndCustomResult#disallow()} 或
      * {@link TrueFalseAndCustomResult#no()} 阻止显示</li>
      */
-    public static Event<InnerOnGetInstinctHighlight> ALIVE_EVENT = createArrayBacked(InnerOnGetInstinctHighlight.class,
+    public static Event<InnerOnGetInstinctHighlight> ALIVE_COMMON_BEFORE_EVENT = createArrayBacked(
+            InnerOnGetInstinctHighlight.class,
             listeners -> (self, target, isInstinctEnabled) -> {
                 if (target == null)
                     return TrueFalseAndCustomResult.pass();
@@ -47,7 +69,7 @@ public class OnGetInstinctHighlight {
      * <li>{@link TrueFalseAndCustomResult#disallow()} 或
      * {@link TrueFalseAndCustomResult#no()} 阻止显示</li>
      */
-    public static Event<InnerOnGetInstinctHighlight> SPECTATOR_EVENT = createArrayBacked(
+    public static Event<InnerOnGetInstinctHighlight> SPECTATOR_COMMON_EVENT = createArrayBacked(
             InnerOnGetInstinctHighlight.class,
             listeners -> (self, target, isInstinctEnabled) -> {
                 if (target == null)
@@ -75,7 +97,7 @@ public class OnGetInstinctHighlight {
      *         highlight
      */
     public interface InnerOnGetInstinctHighlight {
-        TrueFalseAndCustomResult<Integer> getInstinctHighlight(LocalPlayer self, Entity target, boolean isInstinctEnabled);
-
+        TrueFalseAndCustomResult<Integer> getInstinctHighlight(LocalPlayer self, Entity target,
+                boolean isInstinctEnabled);
     }
 }

@@ -1,12 +1,10 @@
 package io.wifi.starrailexpress.game.roles;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.NormalRole;
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.special.dirt.DirtRole;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
@@ -19,7 +17,8 @@ public class SpecialGameModeRoles {
    * 躲猫猫寻找者
    */
   public static final SRERole SEEKER = registerRole(
-      new SeekerRole(SRE.wifiId("hide_and_seek_seeker"), TMMRoles.KILLER.color(), false, true, SRERole.MoodType.NONE,
+      new SeekerRole(SRE.wifiId("hide_and_seek_seeker"), TMMRoles.KILLER.color(), false, true,
+          SRERole.MoodType.NONE,
           -1, true))
       .setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(0).setOtherModeRole(true);
 
@@ -27,8 +26,10 @@ public class SpecialGameModeRoles {
    * 自选职业
    */
   public static final SRERole CUSTOM_PENDING = registerRole(
-      new NormalRole(SRE.wifiId("custom_pending"), 0x5CFF4A, false, false, SRERole.MoodType.NONE, -1, true), "inner.other_gamemode")
-      .setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(false).setCanBeRandomedByOtherRoles(false)
+      new NormalRole(SRE.wifiId("custom_pending"), 0x5CFF4A, false, false, SRERole.MoodType.NONE, -1, true),
+      "inner.other_gamemode")
+      .setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(false)
+      .setCanBeRandomedByOtherRoles(false)
       .setDefaultMax(0).setOtherModeRole(true);
 
   /**
@@ -48,7 +49,8 @@ public class SpecialGameModeRoles {
       .setComponentKey(ModComponents.SUPER_LOOSE_END)
       .setCanSeeCoin(true)
       .setCanUseInstinctAndNightVision(true)
-      .setCanAutoAddMoney(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true);
+      .setCanAutoAddMoney(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true)
+      .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR);
 
   /**
    * 职业：土块
@@ -63,14 +65,13 @@ public class SpecialGameModeRoles {
       false,
       SRERole.MoodType.FAKE,
       Integer.MAX_VALUE,
-      true),"inner.other_gamemode")
+      true), "inner.other_gamemode")
       .setCanSeeCoin(true)
       .setCanSeeTime(true)
       .setCanUseInstinctAndNightVision(true)
       .setDefaultMax(0)
       .setCanBeRandomedByOtherRoles(false)
       .setNeutrals(true).setOtherModeRole(true);
-
 
   public static SRERole registerRole(SRERole role) {
     return TMMRoles.registerRole(role);

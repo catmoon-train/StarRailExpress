@@ -10,7 +10,6 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.client.commandmacro.CommandMacroExecutor;
 import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
@@ -47,7 +46,6 @@ import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.ClientHeldItemSwitchEvent;
 import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
 import io.wifi.starrailexpress.event.client.OnGameStartedClient;
-import io.wifi.starrailexpress.event.client.OnGetInstinctHighlight;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.data.MapConfig;
@@ -59,7 +57,6 @@ import io.wifi.starrailexpress.network.packet.*;
 import io.wifi.starrailexpress.rules.ChatHudRules;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
-import io.wifi.starrailexpress.util.Color;
 import io.wifi.starrailexpress.util.HPManager;
 import io.wifi.starrailexpress.util.MatrixParticleManager;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
@@ -111,6 +108,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.ClientSkincrawlerState;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.hud.MapStatusBarClientState;
+import org.agmas.noellesroles.client.utils.InstinctManager;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomStatePayload;
@@ -1274,72 +1272,7 @@ public class SREClient implements ClientModInitializer {
      * @return
      */
     public static OptionalInt getInstinctHighlight(Entity target) {
-        Minecraft client = Minecraft.getInstance();
-        if (client == null || client.player == null || gameComponent == null) {
-            return OptionalInt.empty();
-        }
-        boolean instinctEnabled = isInstinctEnabled();
-        {
-            int deathPenaltyType = getDeathPenaltyType(client.player);
-            if (deathPenaltyType == 1) {
-                if (instinctEnabled)
-                    return OptionalInt.of(Color.WHITE.getRGB());
-                return OptionalInt.empty();
-            } else if (deathPenaltyType == 2) {
-                return OptionalInt.empty();
-            }
-        }
-        var self = client.player;
-        if (GameUtils.isPlayerAliveAndSurvival(self)) {
-            var result = OnGetInstinctHighlight.ALIVE_EVENT.invoker().getInstinctHighlight(self, target,
-                    instinctEnabled);
-            if (result.isCustom()) {
-                int color = result.getContent().orElse(-1);
-                return OptionalInt.of(color);
-            } else if (result.isFalse()) {
-                return OptionalInt.empty();
-            }
-        } else {
-            var result = OnGetInstinctHighlight.SPECTATOR_EVENT.invoker().getInstinctHighlight(self, target,
-                    instinctEnabled);
-            if (result.isCustom()) {
-                int color = result.getContent().orElse(-1);
-                return OptionalInt.of(color);
-            } else if (result.isFalse()) {
-                return OptionalInt.empty();
-            }
-        }
-        if (!instinctEnabled) {
-            return OptionalInt.empty();
-        }
-        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
-                .get(Minecraft.getInstance().player.level());
-        // if (target instanceof PlayerBodyEntity) return 0x606060;
-        if (target instanceof ItemEntity || target instanceof NoteEntity || target instanceof FirecrackerEntity)
-            return OptionalInt.of(0xDB9D00);
-        // 渲染傀儡高亮
-        if (target instanceof PuppeteerBodyEntity) {
-            if (GameUtils.isPlayerSpectatingOrCreativeIgnoreShitSplit(Minecraft.getInstance().player)) {
-                // new Color(181, 255, 231).getRGB()
-                return OptionalInt.of(-4849689);
-            }
-        }
-        if (target instanceof Player targetPlayer) {
-            if (!(targetPlayer).isSpectator()) {
-                if (GameUtils.isPlayerSpectatingOrCreativeIgnoreShitSplit(Minecraft.getInstance().player)) {
-                    SRERole role = gameWorldComponent.getRole(targetPlayer);
-                    if (role == null) {
-                        return OptionalInt.of(TMMRoles.DISCOVERY_CIVILIAN.color());
-                    } else {
-                        return OptionalInt.of(role.color());
-                    }
-                } else {
-                    return OptionalInt.of(TMMRoles.CIVILIAN.color());
-                }
-
-            }
-        }
-        return OptionalInt.empty();
+        return InstinctManager.getInstinctHighlight(target);
     }
 
     static Predicate<Player> isHoldSpecialItem = (player) -> {

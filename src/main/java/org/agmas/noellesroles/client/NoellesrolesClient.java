@@ -444,7 +444,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             TwoDimensionalTaskArrowRenderer.render(renderContext);
             PointerGuidanceRenderer.render(renderContext);
         });
-        InstinctRenderer.registerInstinctEvents();
+        RoleInstinctRegister.registerInstinctEvents();
 
         ClientPlayNetworking.registerGlobalReceiver(ReasonerOpenScreenS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> context.client().setScreen(new ReasonerCompassScreen(payload)));

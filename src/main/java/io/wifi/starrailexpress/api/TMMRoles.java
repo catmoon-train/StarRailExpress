@@ -39,7 +39,12 @@ public class TMMRoles {
                             false, // showParticles（显示粒子）
                             true // showIcon（显示图标）
                     )))
-            .setCanSeeTime(true).setCanUseInstinctAndNightVision(true).setCanBeRandomedByOtherRoles(false);
+            .setCanSeeTime(true).setCanUseInstinctAndNightVision(true).setCanBeRandomedByOtherRoles(false)
+            .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR);
+
+    public static class CACHE {
+        public static final ArrayList<SRERole> MAFIA_ROLES = new ArrayList<>();
+    };
 
     public static SRERole registerRole(SRERole role, String... flags) {
         return registerRole(role.addFlag(flags));
@@ -47,6 +52,9 @@ public class TMMRoles {
 
     public static SRERole registerRole(SRERole role) {
         ROLES.put(role.identifier(), role);
+        if (role.isMafiaTeam()) {
+            CACHE.MAFIA_ROLES.add(role);
+        }
         if (role.getComponentKey() != null) {
             COMPONENT_KEYS.add(role.getComponentKey());
         }
