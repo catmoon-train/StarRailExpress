@@ -563,9 +563,6 @@ public class CustomRoleLoader {
                 // 记录「技能 id -> 模块显示名」，供 HUD / 切换提示精确显示当前选中的技能名
                 skillDisplayNames.put(customSkillId,
                         sd.name == null ? "" : sd.name);
-                // 注意：nameKey 直接填模块名（中文）。Minecraft 在未找到对应翻译键时会原样显示该字符串，
-                // 因此 actionbar / 报幕 / 切换提示都会精确显示真实技能名（如「入眠摆钟」「浅梦时刻」），
-                // 而不会出现写死的占位「技能」。各处的 Component.translatable(nameKey) 因此自然显示中文技能名。
                 skillDefs.add(RoleSkill.skill(
                         customSkillId,
                         sd.name == null || sd.name.isEmpty() ? "skill.sre.custom_role.ability" : sd.name,
