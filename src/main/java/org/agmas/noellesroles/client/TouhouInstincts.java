@@ -34,7 +34,9 @@ public class TouhouInstincts {
                         var offhandItem = targetPlayer.getOffhandItem();
                         if (targetPlayer.distanceToSqr(self) <= 5 * 5) {
                             if (mainhandItem.getItem() instanceof TrainWeapon
-                                    || mainhandItem.is(TMMItemTags.GUNS) || offhandItem.getItem() instanceof TrainWeapon
+                                    || mainhandItem.is(TMMItemTags.GUNS) || mainhandItem.is(TMMItemTags.BOWS)
+                                    || offhandItem.getItem() instanceof TrainWeapon
+                                    || offhandItem.is(TMMItemTags.BOWS)
                                     || offhandItem.is(TMMItemTags.GUNS)) {
                                 return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
                             }
