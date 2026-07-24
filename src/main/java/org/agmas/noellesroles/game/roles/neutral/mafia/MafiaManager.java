@@ -25,6 +25,7 @@ import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.packet.MafiaActionC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
+import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -152,11 +153,13 @@ public final class MafiaManager {
 
     public static void onGodfatherDeath(ServerPlayer godfather) {
         UUID gfId = godfather.getUUID();
+        // 亡命徒时刻（难民修饰符触发）期间，教父死亡不还原家族成员职业
+        boolean inLooseEndMoment = RefugeeComponent.KEY.get(godfather.level()).isAnyRevivals;
         for (UUID memberId : new ArrayList<>(godfatherByMember.keySet())) {
             if (gfId.equals(godfatherByMember.get(memberId))) {
                 ServerPlayer member = godfather.server.getPlayerList().getPlayer(memberId);
-                // 只有当前仍然是家族成员，才变回原来的职业
-                if (member != null && isMafiaMember(member)
+                // 只有在亡命徒时刻之外，且当前仍然是家族成员，才变回原来的职业
+                if (!inLooseEndMoment && member != null && isMafiaMember(member)
                         && previousRoleByMember.containsKey(memberId)) {
                     RoleUtils.changeRole(member, previousRoleByMember.get(memberId));
                     // 清除从家族商店购买的标记物品
