@@ -1174,7 +1174,7 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer player = context.player();
                     if (player.getCooldowns().isOnCooldown(Items.CLOCK))
                         return false;
-                    return TimeStopEffect.tryTriggerStart(player, 20 * 3,
+                    return TimeStopEffect.tryTriggerStart(player, 20 * 5,
                             Component.translatable("hud.noellesroles.jojo.the_world")
                                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
                 }).cooldownSeconds(240).build());

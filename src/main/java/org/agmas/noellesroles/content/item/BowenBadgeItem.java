@@ -336,8 +336,8 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
         BlockState state = world.getBlockState(pos);
         if (player.getCooldowns().isOnCooldown(FunnyItems.BOWEN_BADGE))
             return InteractionResult.PASS;
-        player.getCooldowns().addCooldown(FunnyItems.BOWEN_BADGE, 20);
         if (state.getBlock() instanceof SmallDoorBlock) {
+            player.getCooldowns().addCooldown(FunnyItems.BOWEN_BADGE, 20);
             BlockPos lowerPos = state.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
             if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
                 if (player.isShiftKeyDown()) {
@@ -358,9 +358,9 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
             }
 
             return InteractionResult.PASS;
+        } else {
+            return InteractionResult.PASS;
         }
-
-        return super.useOn(context);
     }
     // public InteractionResult useOn(UseOnContext context) {
     // Player player = context.getPlayer();
