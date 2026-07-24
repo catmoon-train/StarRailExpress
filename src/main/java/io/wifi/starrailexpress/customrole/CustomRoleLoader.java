@@ -548,8 +548,11 @@ public class CustomRoleLoader {
             List<CustomRoleData.SkillData> skills = data.getEffectiveSkills();
             String skillNs = role.identifier().getNamespace();
             String skillPath = role.identifier().getPath();
+            List<RoleSkill.Definition> skillDefs = new ArrayList<>();
             for (int si = 0; si < skills.size(); si++) {
                 final CustomRoleData.SkillData sd = skills.get(si);
+                SRE.LOGGER.info("[CustomRole] Registering skill module #{} '{}' for role {} (commands={}, delayed={})",
+                        si, sd.name, data.englishId, sd.commands.size(), sd.delayedCommands.size());
                 final List<String> commands = new ArrayList<>(sd.commands);
                 final List<String> delayedCommands = new ArrayList<>(sd.delayedCommands);
                 final int cooldownSeconds = sd.cooldownSeconds;
@@ -557,12 +560,15 @@ public class CustomRoleLoader {
 
                 ResourceLocation customSkillId = ResourceLocation.fromNamespaceAndPath(
                         skillNs, skillPath + "_ability_" + si);
-                // 记录「技能 id -> 模块显示名」，供 HUD 精确显示当前选中的技能名
+                // 记录「技能 id -> 模块显示名」，供 HUD / 切换提示精确显示当前选中的技能名
                 skillDisplayNames.put(customSkillId,
                         sd.name == null ? "" : sd.name);
-                RoleSkill.register(role, RoleSkill.skill(
+                // 注意：nameKey 直接填模块名（中文）。Minecraft 在未找到对应翻译键时会原样显示该字符串，
+                // 因此 actionbar / 报幕 / 切换提示都会精确显示真实技能名（如「入眠摆钟」「浅梦时刻」），
+                // 而不会出现写死的占位「技能」。各处的 Component.translatable(nameKey) 因此自然显示中文技能名。
+                skillDefs.add(RoleSkill.skill(
                         customSkillId,
-                        "skill.sre.custom_role.ability",
+                        sd.name == null || sd.name.isEmpty() ? "skill.sre.custom_role.ability" : sd.name,
                         context -> {
                             ServerPlayer player = context.player();
                             // 死亡/旁观者不能使用技能；若角色设置了 canUseSkillWhileSpectator 则允许旁观者释放
@@ -603,6 +609,10 @@ public class CustomRoleLoader {
                 if (sd.initialCooldownSeconds > 0) {
                     initialCooldownMap.put(customSkillId, sd.initialCooldownSeconds * 20);
                 }
+            }
+            // 收集齐所有技能模块后，一次性注册（避免 RoleSkill.register 覆盖式 put 丢掉前面的技能）
+            if (!skillDefs.isEmpty()) {
+                RoleSkill.register(role, skillDefs.toArray(new RoleSkill.Definition[0]));
             }
         }
 
