@@ -1299,7 +1299,18 @@ public class RoleShopHandler {
             GANGSTERS_SHOP.add(new ShopEntry(
                     ModItems.C4.getDefaultInstance(),
                     280,
-                    ShopEntry.Type.TOOL));
+                    ShopEntry.Type.TOOL) {
+                public static int BUY_COOLDOWN = 30 * 20;
+
+                @Override
+                public boolean onBuy(Player player) {
+                    if (super.onBuy(player)) {
+                        player.getCooldowns().addCooldown(ModItems.C4, BUY_COOLDOWN);
+                        return true;
+                    }
+                    return false;
+                }
+            });
 
             // 撬棍 - 25金币
             GANGSTERS_SHOP.add(new ShopEntry(
