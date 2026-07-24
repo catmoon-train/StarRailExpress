@@ -591,7 +591,7 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setVigilanteTeam(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(0)
-            .setCanSetSpawnInfoInConfig(false);
+            .setCanSetSpawnInfoInConfig(false).setCanPickUpRevolver(true);
 
     // ==================== 已注册角色定义 ====================
     // 乘客阵营角色
