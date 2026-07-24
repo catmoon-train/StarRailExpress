@@ -102,7 +102,7 @@ public class VeteranKnifeHandler {
     }
 
     public static boolean isHeldKnife(ItemStack stack) {
-        return stack.getItem() instanceof TrainWeapon && stack.is(TMMItemTags.GUNS);
+        return stack.getItem() instanceof TrainWeapon && !stack.is(TMMItemTags.GUNS);
     }
 
     private static void removeSPKnifeFromPlayer(Player player) {

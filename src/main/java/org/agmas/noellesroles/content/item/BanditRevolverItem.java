@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static io.wifi.starrailexpress.content.item.RevolverItem.spawnHandParticle;
 
-public class BanditRevolverItem extends SkinableItem implements TrainWeapon {
+public class BanditRevolverItem extends SkinableItem {
 
     public BanditRevolverItem(Item.Properties settings) {
         super(settings);
