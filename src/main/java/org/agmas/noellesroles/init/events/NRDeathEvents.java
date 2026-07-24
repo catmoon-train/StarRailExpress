@@ -733,17 +733,6 @@ public class NRDeathEvents {
         OnPlayerDeath.EVENT.register((p, reason) -> {
             if (!(p instanceof ServerPlayer player))
                 return;
-            if (C4BackComponent.hasC4(player)) {
-                var c4instance = C4BackComponent.getInstance(player);
-                UUID planterUid = c4instance.getPlanter(player.getUUID());
-                var planter = player.server.getPlayerList().getPlayer(planterUid);
-                if (planter != null && GameUtils.isPlayerAliveAndSurvival(planter)) {
-                    RoleUtils.insertStackInFreeSlot(planter, ModItems.C4.getDefaultInstance());
-                    // c4instance.addC4(planterUid, planterUid);
-                    planter.displayClientMessage(
-                            Component.translatable("c4.back_to_planter").withStyle(ChatFormatting.RED), true);
-                }
-            }
             // 掉落左轮 (DropRevolverWhenDead)
             int dropCount = MCItemsUtils.clearItem(player, (t) -> {
                 return t.getItem() instanceof DropRevolverWhenDead || t.is(TMMItems.REVOLVER)
@@ -897,6 +886,21 @@ public class NRDeathEvents {
             RavenPlayerComponent raven = ModComponents.RAVEN.get(killer);
             if (raven.canKill(victim))
                 raven.onTargetKilled(victim);
+        });
+        OnPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
+            if (!(victim instanceof ServerPlayer player))
+                return;
+            if (C4BackComponent.hasC4(player)) {
+                var c4instance = C4BackComponent.getInstance(player);
+                UUID planterUid = c4instance.getPlanter(player.getUUID());
+                var planter = player.server.getPlayerList().getPlayer(planterUid);
+                if (planter != null && !planterUid.equals(killer.getUUID()) && GameUtils.isPlayerAliveAndSurvival(planter)) {
+                    RoleUtils.insertStackInFreeSlot(planter, ModItems.C4.getDefaultInstance());
+                    // c4instance.addC4(planterUid, planterUid);
+                    planter.displayClientMessage(
+                            Component.translatable("c4.back_to_planter").withStyle(ChatFormatting.RED), true);
+                }
+            }
         });
 
         // 血迹路径
