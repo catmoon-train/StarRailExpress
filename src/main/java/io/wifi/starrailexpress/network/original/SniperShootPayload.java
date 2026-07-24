@@ -75,6 +75,9 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
         @Override
         public void receive(@NotNull SniperShootPayload payload, ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer player = context.player();
+            // 旁观者模式下禁止使用狙击枪（射击/装弹/装卸倍镜）
+            if (player.isSpectator())
+                return;
             ItemStack mainHandStack = player.getMainHandItem();
 
             if (!mainHandStack.is(TMMItems.SNIPER_RIFLE))

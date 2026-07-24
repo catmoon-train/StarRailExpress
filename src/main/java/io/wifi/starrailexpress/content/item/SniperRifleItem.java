@@ -50,6 +50,7 @@ public class SniperRifleItem extends Item implements HeldLikeRevolver {
     public static void tryShootFromKeybind(Player user) {
         ItemStack stack = user.getMainHandItem();
         if (!stack.is(TMMItems.SNIPER_RIFLE)) return;
+        if (user.isSpectator()) return;
         if (user.getCooldowns().isOnCooldown(stack.getItem())) return;
 
         final var gameComponent = SREClient.gameComponent;
