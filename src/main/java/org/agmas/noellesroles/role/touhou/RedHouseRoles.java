@@ -124,8 +124,9 @@ public class RedHouseRoles {
   public static SRERole HOAN_MEIRIN = TMMRoles.registerRole(
       new TouhouRole(HOAN_MEIRIN_ID, new Color(243, 140, 132).getRGB(),
           true, false, SRERole.MoodType.REAL,
-          TMMRoles.CIVILIAN.getMaxSprintTime(), false),
+          TMMRoles.CIVILIAN.getMaxSprintTime() * 3, false),
       "th_redhouse")
+      .setCanAutoAddMoney(true)
       .setVigilanteTeam(true).setSpecialVigilante(true).setCanSeeCoin(true)
       .setSpecialMapRole(SRERole.SpecialMapRoleMap.CAN_JUMP);
   // 好人：帕秋莉 Patchouli Knowledge
