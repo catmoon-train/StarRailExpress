@@ -1,12 +1,13 @@
 package org.agmas.noellesroles.game.roles.innocence.veteran;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +28,14 @@ public class VeteranKnifeHandler {
     private static final Set<UUID> grantedInitialKnife = new HashSet<>();
     private static int tickCounter = 0;
 
+    public static void tick(ServerPlayer player) {
+        tickCounter++;
+        if (tickCounter % CHECK_INTERVAL_TICKS != 0) {
+            return;
+        }
+        tryGrantInitialKnife(player);
+    }
+
     public static void register() {
         GameInitializeEvent.EVENT.register((level, gameWorldComponent, readyPlayerList) -> {
             grantedInitialKnife.clear();
@@ -35,15 +44,6 @@ public class VeteranKnifeHandler {
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
             grantedInitialKnife.clear();
             tickCounter = 0;
-        });
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
-            tickCounter++;
-            if (tickCounter % CHECK_INTERVAL_TICKS != 0) {
-                return;
-            }
-            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                tryGrantInitialKnife(player);
-            }
         });
 
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
@@ -62,7 +62,7 @@ public class VeteranKnifeHandler {
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(killer.level());
             if (!gameWorld.isRole(killer, ModRoles.VETERAN))
                 return;
-            ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) killer);
+            ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) killer);
             // 移除玩家手中的刀
             removeKnifeFromPlayer(killer);
         });
@@ -73,11 +73,6 @@ public class VeteranKnifeHandler {
             return;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(player)) {
-            return;
-        }
-
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (!gameWorld.isRunning() || !gameWorld.isRole(player, ModRoles.VETERAN)) {
             return;
         }
         if (!hasNearbyKnifeHolder(player)) {
@@ -107,11 +102,7 @@ public class VeteranKnifeHandler {
     }
 
     public static boolean isHeldKnife(ItemStack stack) {
-        return stack.is(TMMItems.KNIFE)
-                || stack.is(ModItems.SP_KNIFE)
-                || stack.is(ModItems.STALKER_KNIFE)
-                || stack.is(ModItems.STALKER_KNIFE_OFFHAND)
-                || stack.is(ModItems.NINJA_KNIFE);
+        return stack.getItem() instanceof TrainWeapon && stack.is(TMMItemTags.GUNS);
     }
 
     private static void removeSPKnifeFromPlayer(Player player) {

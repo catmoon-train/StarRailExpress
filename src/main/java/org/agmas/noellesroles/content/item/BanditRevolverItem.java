@@ -3,6 +3,7 @@ package org.agmas.noellesroles.content.item;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.SkinableItem;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.world.InteractionHand;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static io.wifi.starrailexpress.content.item.RevolverItem.spawnHandParticle;
 
-public class BanditRevolverItem extends SkinableItem {
+public class BanditRevolverItem extends SkinableItem implements TrainWeapon {
 
     public BanditRevolverItem(Item.Properties settings) {
         super(settings);

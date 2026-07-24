@@ -55,6 +55,7 @@ import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerCompon
 import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.bomber.BomberPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
@@ -1647,7 +1648,9 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    )).setCannotKnifeLeftClick(true);
+    )).setCannotKnifeLeftClick(true).setServerGameTickEvent((player, gamecca) -> {
+        VeteranKnifeHandler.tick(player);
+    });
 
     /**
      * 歌手角色
