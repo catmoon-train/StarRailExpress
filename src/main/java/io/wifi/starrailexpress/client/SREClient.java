@@ -587,7 +587,6 @@ public class SREClient implements ClientModInitializer {
                     if (client.screen != null || keycode) {
                         SecurityMonitorBlock.setSecurityMode(false);
                         Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
-
                     }
                 }
             }
