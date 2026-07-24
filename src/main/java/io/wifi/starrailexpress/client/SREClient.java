@@ -1,7 +1,36 @@
 package io.wifi.starrailexpress.client;
 
+import static org.agmas.noellesroles.init.ModEventsRegister.canThrowItems;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.OptionalInt;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.client.ClientSkincrawlerState;
+import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.client.hud.MapStatusBarClientState;
+import org.agmas.noellesroles.client.utils.InstinctManager;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomStatePayload;
+import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomTableEffectsPayload;
+import org.agmas.noellesroles.game.modes.fourthroom.network.OpenFourthRoomPeekDeckPayload;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem;
+import org.agmas.noellesroles.init.SREFumoBlocks;
+import org.lwjgl.glfw.GLFW;
+import org.slf4j.LoggerFactory;
+import org.spongepowered.include.com.google.gson.JsonSyntaxException;
+
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.text2speech.Narrator;
+
 import dev.doctor4t.ratatouille.client.util.OptionLocker;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
@@ -10,18 +39,40 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.*;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.client.commandmacro.CommandMacroExecutor;
 import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomTableHud;
-import io.wifi.starrailexpress.client.gui.*;
-import io.wifi.starrailexpress.client.gui.screen.*;
+import io.wifi.starrailexpress.client.gui.HudStoreRenderer;
+import io.wifi.starrailexpress.client.gui.MapDetailsRenderer;
+import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
+import io.wifi.starrailexpress.client.gui.RoundTextRenderer;
+import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
+import io.wifi.starrailexpress.client.gui.SecurityCameraHUD;
+import io.wifi.starrailexpress.client.gui.StoreRenderer;
+import io.wifi.starrailexpress.client.gui.TimeRenderer;
+import io.wifi.starrailexpress.client.gui.screen.MapVoteScreen;
+import io.wifi.starrailexpress.client.gui.screen.PlayerStatsScreen;
+import io.wifi.starrailexpress.client.gui.screen.ProgressionPassScreen;
+import io.wifi.starrailexpress.client.gui.screen.SkinManagementScreen;
+import io.wifi.starrailexpress.client.gui.screen.WaypointHUD;
 import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleRotationScreen;
 import io.wifi.starrailexpress.client.model.GeneralModelLoadingPlugin;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
-import io.wifi.starrailexpress.client.render.block_entity.*;
+import io.wifi.starrailexpress.client.render.block_entity.FourthRoomTableBlockEntityRenderer;
+import io.wifi.starrailexpress.client.render.block_entity.PlaneSmallDoorBlockEntityRenderer;
+import io.wifi.starrailexpress.client.render.block_entity.PlateBlockEntityRenderer;
+import io.wifi.starrailexpress.client.render.block_entity.SmallDoorBlockEntityRenderer;
+import io.wifi.starrailexpress.client.render.block_entity.UpSmallDoorBlockEntityRenderer;
+import io.wifi.starrailexpress.client.render.block_entity.WheelBlockEntityRenderer;
+import io.wifi.starrailexpress.client.render.block_entity.ZiplineBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.FirecrackerEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.HornBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.entity.NoteEntityRenderer;
@@ -50,10 +101,43 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
-import io.wifi.starrailexpress.index.*;
-import io.wifi.starrailexpress.network.*;
-import io.wifi.starrailexpress.network.original.*;
-import io.wifi.starrailexpress.network.packet.*;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.index.TMMBlockEntities;
+import io.wifi.starrailexpress.index.TMMBlocks;
+import io.wifi.starrailexpress.index.TMMEntities;
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.TMMParticles;
+import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.network.BreakArmorPayload;
+import io.wifi.starrailexpress.network.CloseUiPayload;
+import io.wifi.starrailexpress.network.IsLobbyConfigPayload;
+import io.wifi.starrailexpress.network.JoinSpecGroupPayload;
+import io.wifi.starrailexpress.network.MapVotingResultsPayload;
+import io.wifi.starrailexpress.network.OnGameFinishedPayload;
+import io.wifi.starrailexpress.network.OnGameStartedPayload;
+import io.wifi.starrailexpress.network.OpenProgressionScreenPayload;
+import io.wifi.starrailexpress.network.OpenSkinScreenPaylod;
+import io.wifi.starrailexpress.network.PlayerDataPartSyncPayload;
+import io.wifi.starrailexpress.network.PlayerDeathPayload;
+import io.wifi.starrailexpress.network.PlayerStatsSyncPayload;
+import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
+import io.wifi.starrailexpress.network.SecurityCameraModePayload;
+import io.wifi.starrailexpress.network.ShowSelectedMapUIPayload;
+import io.wifi.starrailexpress.network.ShowStatsPayload;
+import io.wifi.starrailexpress.network.SyncMapConfigPayload;
+import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
+import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
+import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
+import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
+import io.wifi.starrailexpress.network.original.GunDropPayload;
+import io.wifi.starrailexpress.network.original.ShootMuzzleS2CPayload;
+import io.wifi.starrailexpress.network.original.SniperScopeStateS2CPayload;
+import io.wifi.starrailexpress.network.original.TaskCompletePayload;
+import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
+import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
+import io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket;
+import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
+import io.wifi.starrailexpress.network.packet.SyncWaypointsPacket;
 import io.wifi.starrailexpress.rules.ChatHudRules;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
@@ -104,28 +188,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.noellesroles.client.ClientSkincrawlerState;
-import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.client.hud.MapStatusBarClientState;
-import org.agmas.noellesroles.client.utils.InstinctManager;
-import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
-import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomStatePayload;
-import org.agmas.noellesroles.game.modes.fourthroom.network.FourthRoomTableEffectsPayload;
-import org.agmas.noellesroles.game.modes.fourthroom.network.OpenFourthRoomPeekDeckPayload;
-import org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem;
-import org.agmas.noellesroles.init.SREFumoBlocks;
-import org.lwjgl.glfw.GLFW;
-import org.slf4j.LoggerFactory;
-import org.spongepowered.include.com.google.gson.JsonSyntaxException;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-
-import static org.agmas.noellesroles.init.ModEventsRegister.canThrowItems;
 
 public class SREClient implements ClientModInitializer {
     private static float soundLevel = 0f;
@@ -511,17 +574,20 @@ public class SREClient implements ClientModInitializer {
                     }
                 });
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
-            if (Minecraft.getInstance() == null || Minecraft.getInstance().player == null
+            final var client = Minecraft.getInstance();
+            if (client == null || client.player == null
                     || SREClient.gameComponent == null) {
                 return;
             }
-            final LocalPlayer player = Minecraft.getInstance().player;
+            final LocalPlayer player = client.player;
             {
-                boolean keycode = Minecraft.getInstance().options.keyShift.consumeClick();
-                if (keycode) {
-                    if (SecurityMonitorBlock.isInSecurityMode()) {
+                if (SecurityMonitorBlock.isInSecurityMode()) {
+
+                    boolean keycode = Minecraft.getInstance().options.keyShift.isDown();
+                    if (client.screen != null || keycode) {
                         SecurityMonitorBlock.setSecurityMode(false);
                         Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
+
                     }
                 }
             }
