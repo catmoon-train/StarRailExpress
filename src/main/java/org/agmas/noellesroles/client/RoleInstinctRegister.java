@@ -1,30 +1,7 @@
 package org.agmas.noellesroles.client;
 
-import io.wifi.starrailexpress.api.InstinctType;
-import io.wifi.starrailexpress.api.SREGameModes;
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.customrole.CustomRoleLoader;
-import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.event.client.CommonInstinctEvents;
-import io.wifi.starrailexpress.event.client.RoleInstinctEvents;
-import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeModifiers;
-import io.wifi.starrailexpress.index.SREDataComponentTypes;
-import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.Color;
-import io.wifi.starrailexpress.util.SREItemUtils;
-import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
-import net.minecraft.client.Minecraft;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Display;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
+import java.util.HashMap;
+
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
@@ -54,12 +31,36 @@ import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
+
+import io.wifi.starrailexpress.api.InstinctType;
+import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.customrole.CustomRoleLoader;
+import io.wifi.starrailexpress.event.client.CommonInstinctEvents;
+import io.wifi.starrailexpress.event.client.RoleInstinctEvents;
+import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.roles.SpecialGameModeModifiers;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.util.Color;
+import io.wifi.starrailexpress.util.SREItemUtils;
+import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
-
-import java.util.HashMap;
 
 /**
  * 高亮获取顺序：
@@ -185,7 +186,7 @@ public class RoleInstinctRegister {
         });
 
         // 疫使：透视所有玩家，被感染者显示橙色边框
-        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.CUPID_ID, (client, self, target, hasInstinct) -> {
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.INFECTED_ID, (client, self, target, hasInstinct) -> {
             {
                 if (!hasInstinct)
                     return TrueFalseAndCustomResult.pass();
