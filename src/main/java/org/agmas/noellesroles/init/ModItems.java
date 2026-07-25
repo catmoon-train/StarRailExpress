@@ -785,6 +785,27 @@ public class ModItems {
                             .attributes(AxeItem.createAttributes(Tiers.IRON, 0.0F, -3.1F))),
             "dream_axe", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
     /**
+     * Dream 的钻石剑
+     * - 继承原版钻石剑（属性/材质/耐久与原版一致），攻击逻辑复刻原版（蓄力/暴击/横扫）
+     * - 伤害扣除的是虚拟血量；持有者职业需开启 canUseSpVanillaWeapon
+     */
+    public static final Item DREAM_DIAMOND_SWORD = register(
+            new org.agmas.noellesroles.content.item.DreamDiamondSwordItem(
+                    new Item.Properties().stacksTo(1).durability(12)
+                            // 与原版钻石剑完全一致：攻击力 3+4=7、攻速 -2.4
+                            .attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))),
+            "dream_diamond_sword", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+    /**
+     * Dream 的重锤
+     * - 继承原版重锤（属性/材质/耐久与原版一致），攻击逻辑复刻原版（下落高度加伤/坠击击退/免摔伤）
+     * - 伤害扣除的是虚拟血量；持有者职业需开启 canUseSpVanillaWeapon
+     */
+    public static final Item DREAM_MACE = register(
+            new org.agmas.noellesroles.content.item.DreamMaceItem(
+                    new Item.Properties().stacksTo(1).durability(12)
+                            .attributes(MaceItem.createAttributes())),
+            "dream_mace", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+    /**
      * 巨幕面具
      * - 右键：Dream 进入狂暴状态（120s冷却）；购买时附赠一层护盾
      */

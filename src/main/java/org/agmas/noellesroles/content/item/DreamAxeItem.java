@@ -58,8 +58,8 @@ public class DreamAxeItem extends Item implements SREItemProperties.LeftClickHur
             return false;
         }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(attacker.level());
-        // 持斧者职业需开启 canUseDreamAxe（由 SRERole 通用方法决定，与具体职业解耦）
-        if (!gameWorld.getRole(attacker).canUseDreamAxe()) {
+        // 持斧者职业需开启 canUseSpVanillaWeapon（由 SRERole 通用方法决定，与具体职业解耦）
+        if (!gameWorld.getRole(attacker).canUseSpVanillaWeapon()) {
             return false;
         }
         // 蓄力条必须满才能攻击

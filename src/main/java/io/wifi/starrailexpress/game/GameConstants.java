@@ -280,6 +280,10 @@ public class GameConstants {
         public static ResourceLocation VOTED_OUT = Noellesroles.id("voted_out");
         public static ResourceLocation PELICAN_EATEN = Noellesroles.id("pelican_eaten");
 
+        // Dream 特殊原版武器死因（伤害扣除虚拟血量），与铁斧/消防斧同类
+        public static ResourceLocation DREAM_DIAMOND_SWORD = Noellesroles.id("dream_diamond_sword");
+        public static ResourceLocation DREAM_MACE = Noellesroles.id("dream_mace");
+
         public static ResourceLocation BROKEN_HEART = StupidExpress.id("broken_heart");
         public static ResourceLocation FAILED_INITIATION = StupidExpress.id("failed_initiation");
         public static ResourceLocation ALLERGIST = StupidExpress.id("allergist");
