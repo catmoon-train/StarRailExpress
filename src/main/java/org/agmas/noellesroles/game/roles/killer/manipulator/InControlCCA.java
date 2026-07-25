@@ -224,6 +224,9 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
     }
 
     public void stopControl() {
+        if (isControlling && this.player.fallDistance > 3) {
+            bounceToSafe();
+        }
         this.isControlling = false;
         this.controlTimer = 0;
         this.controller = null;
