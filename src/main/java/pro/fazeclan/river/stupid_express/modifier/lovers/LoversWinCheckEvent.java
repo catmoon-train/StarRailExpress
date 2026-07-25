@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -43,5 +44,25 @@ public class LoversWinCheckEvent {
             }
             return WinStatus.NOT_MODIFY;
         });
+    }
+
+    /**
+     * 判断当前是否满足恋人胜利条件（供自定义职业结算让位使用，不含 TIME 让位逻辑）。
+     */
+    public static boolean isLoversWin(ServerLevel serverWorld) {
+        var remainingPlayers = serverWorld.getPlayers(GameUtils::isPlayerAliveAndSurvival);
+        var worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
+        for (ServerPlayer player : remainingPlayers) {
+            if (worldModifierComponent.isModifier(player, SEModifiers.LOVERS)) {
+                var loversComponent = LoversComponent.KEY.get(player);
+                if (!loversComponent.isLover()) {
+                    continue;
+                }
+                if (loversComponent.won()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

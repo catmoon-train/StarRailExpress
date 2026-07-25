@@ -33,6 +33,7 @@ import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.client.RoleInstinctRegister;
 import org.agmas.noellesroles.utils.RoleUtils;
+import pro.fazeclan.river.stupid_express.modifier.lovers.LoversWinCheckEvent;
 
 import java.util.*;
 
@@ -1257,6 +1258,11 @@ public class CustomRoleLoader {
                 alivePlayerCount++;
         }
 
+        // 恋人胜利状态（供低优先级条件让位使用）。优先级链：
+        // 条件4(存活到最后) > TIME > LOVER > 条件5/6(只剩自己/只剩自己+指定职业)
+        boolean loversWin = LoversWinCheckEvent.isLoversWin(serverLevel);
+
+
         for (var entry : customWinDataMap.entrySet()) {
             CustomRoleData data = entry.getValue();
             ResourceLocation roleId = ResourceLocation.fromNamespaceAndPath("customrole", data.englishId);
@@ -1276,8 +1282,9 @@ public class CustomRoleLoader {
                 continue;
 
             // 条件6: 当场上只剩下自己和某职业时 (类似教父)
+            // 优先级低于 TIME 与 LOVER：TIME 时不触发；恋人已赢时让位
             if (!data.customWinLastWithRoles.isEmpty() && (currentWinStatus == WinStatus.KILLERS
-                    || currentWinStatus == WinStatus.PASSENGERS || currentWinStatus == WinStatus.TIME)) {
+                    || currentWinStatus == WinStatus.PASSENGERS)) {
                 // 检查场上是否只有自己 + 指定职业
                 boolean onlySelfAndSpecifiedRoles = true;
                 List<ServerPlayer> specifiedWinners = new ArrayList<>();
@@ -1303,34 +1310,44 @@ public class CustomRoleLoader {
                     specifiedWinners.add(p);
                 }
                 if (onlySelfAndSpecifiedRoles) {
+                    // 恋人胜利优先级高于条件6：让位给后注册的恋人监听器
+                    if (loversWin) return WinStatus.NOT_MODIFY;
                     doCustomWin(serverLevel, data, customPlayer, specifiedWinners);
                     return WinStatus.CUSTOM;
                 }
-                // 阻止游戏提前结束（场上还有自己和指定职业）
+                // 阻止游戏提前结束（场上还有自己和指定职业）；恋人已赢时让位给恋人
                 if (currentWinStatus != WinStatus.TIME) {
+                    if (loversWin) return WinStatus.NOT_MODIFY;
                     return WinStatus.NONE;
                 }
             }
 
+
             // 条件5: 当场上一共只剩下自己存活时 (类似纵火犯)
-            if (data.customWinLastAlive && alivePlayerCount == 1) {
+            // 优先级低于 TIME 与 LOVER：TIME 时不触发；恋人已赢时让位
+            if (data.customWinLastAlive && alivePlayerCount == 1 && currentWinStatus != WinStatus.TIME) {
+                if (loversWin) return WinStatus.NOT_MODIFY;
                 doCustomWin(serverLevel, data, customPlayer, List.of());
                 return WinStatus.CUSTOM;
             }
-            // 阻止游戏结束（纵火犯式）
+            // 阻止游戏结束（纵火犯式）；恋人已赢时让位给恋人
             if (data.customWinLastAlive && (currentWinStatus == WinStatus.KILLERS
                     || currentWinStatus == WinStatus.PASSENGERS)) {
+                if (loversWin) return WinStatus.NOT_MODIFY;
                 return WinStatus.NONE;
             }
 
-            // 条件4: 存活到最后 (类似芙兰朵露)
+            // 条件4: 存活到最后 (类似芙兰朵露) —— 优先级最高，高于 TIME 与 LOVER
             if (data.customWinSurviveToLast && (alivePlayerCount <= 1 || currentWinStatus == WinStatus.TIME)) {
                 doCustomWin(serverLevel, data, customPlayer, List.of());
                 return WinStatus.CUSTOM;
             }
             if (data.customWinSurviveToLast && !currentWinStatus.equals(WinStatus.NONE)) {
+                // 仅「拖延」阻止；恋人已赢时让位给恋人（条件4 真正胜利时不会被拦截）
+                if (loversWin) return WinStatus.NOT_MODIFY;
                 return WinStatus.NONE;
             }
+
 
             // 条件7: 拥有指定标签时躺在床上取得独立胜利 (类似小偷)
             if (!data.customWinTagSleep.isEmpty() && customPlayer.getTags().contains(data.customWinTagSleep)
