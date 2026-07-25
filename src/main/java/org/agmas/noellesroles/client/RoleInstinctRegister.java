@@ -517,8 +517,9 @@ public class RoleInstinctRegister {
         // return TrueFalseAndCustomResult.pass();
         // });
 
-        // 家族本能（为所有家族职业注册通用逻辑）
-        for (var familyRole : ModRoles.getAllMafiaRoles()) { // 假设有方法获取所有家族职业 ID
+        // 家族本能（为所有 mafia 家族职业注册通用高亮逻辑）
+        // getAllMafiaRoles() 返回 TMMRoles.CACHE.MAFIA_ROLES，即所有 setMafiaTeam(true) 的角色类型
+        for (var familyRole : ModRoles.getAllMafiaRoles()) {
             RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(familyRole.getIdentifier(),
                     (client, viewer, target, isInstinctEnabled) -> {
                         if (!SREClient.isPlayerAliveAndInSurvival())
