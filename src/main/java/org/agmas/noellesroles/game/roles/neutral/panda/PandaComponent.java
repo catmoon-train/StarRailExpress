@@ -71,7 +71,7 @@ public class PandaComponent implements RoleComponent, ClientTickingComponent {
 
     @Override
     public void clientTick() {
-        if (!SREClient.gameComponent.isRunning()) {
+        if (SREClient.gameComponent == null || !SREClient.gameComponent.isRunning()) {
             if (!PandaClientHandle.pandaMap.isEmpty())
                 PandaClientHandle.pandaMap.clear();
             this.clear();
