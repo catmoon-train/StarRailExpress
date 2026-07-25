@@ -28,6 +28,12 @@ public class SREGameRoundEndComponent implements AutoSyncedComponent {
     public final List<RoundEndData> players = new ArrayList<>();
     private GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
     public ArrayList<UUID> CustomWinnerPlayers = new ArrayList<>();
+    /**
+     * 自定义独立胜利（条件6：只剩自己和指定职业）时，除自定义职业自身外，
+     * 一同获胜的「指定职业」角色路径集合（例如 killer）。用于让整类指定职业玩家都算赢，
+     * 行为对齐教父/杀手团队（整个阵营一同获胜）。
+     */
+    public List<String> CustomWinnerExtraRoleIds = new ArrayList<>();
 
     public Component CustomWinnerTitle = null;
     public Component CustomWinnerSubtitle = null;

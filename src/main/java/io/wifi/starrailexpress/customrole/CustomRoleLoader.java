@@ -1216,6 +1216,31 @@ public class CustomRoleLoader {
     // ==================== 自定义独立胜利判定 ====================
 
     /**
+     * 判断某个角色是否匹配配置中填写的「指定职业 ID」。
+     * <p>
+     * 兼容多种填写格式（大小写不敏感）：
+     * <ul>
+     * <li>完整 ResourceLocation：{@code noellesroles:killer}</li>
+     * <li>仅路径（path）：{@code killer}</li>
+     * <li>{@code 命名空间:路径} 任意大小写</li>
+     * </ul>
+     * 修复此前用 {@code identifier().toString()} 与手填值严格 {@code equals} 比较，
+     * 导致用户填短 id 时匹配失败、条件6 误判为非「只剩自己和指定职业」、
+     * 从而通过 {@code return WinStatus.NONE} 永久阻止游戏结束的问题。
+     */
+    private static boolean roleIdMatches(SRERole role, String configuredId) {
+        if (configuredId == null)
+            return false;
+        String id = configuredId.trim();
+        if (id.isEmpty())
+            return false;
+        ResourceLocation actual = role.identifier();
+        return actual.toString().equalsIgnoreCase(id) // 例如 noellesroles:killer
+                || actual.getPath().equalsIgnoreCase(id) // 例如 killer
+                || (actual.getNamespace() + ":" + actual.getPath()).equalsIgnoreCase(id);
+    }
+
+    /**
      * 检查所有启用了独立胜利的自定义角色是否满足胜利条件。
      * 在 {@link org.agmas.noellesroles.CustomWinnerClass} 中调用。
      *
@@ -1255,6 +1280,7 @@ public class CustomRoleLoader {
                     || currentWinStatus == WinStatus.PASSENGERS || currentWinStatus == WinStatus.TIME)) {
                 // 检查场上是否只有自己 + 指定职业
                 boolean onlySelfAndSpecifiedRoles = true;
+                List<ServerPlayer> specifiedWinners = new ArrayList<>();
                 for (var p : serverLevel.players()) {
                     if (!GameUtils.isPlayerAliveAndSurvival(p) || p == customPlayer)
                         continue;
@@ -1263,10 +1289,9 @@ public class CustomRoleLoader {
                         onlySelfAndSpecifiedRoles = false;
                         break;
                     }
-                    String pRoleId = pRole.identifier().toString();
                     boolean matched = false;
                     for (String allowedId : data.customWinLastWithRoles) {
-                        if (pRoleId.equals(allowedId.trim())) {
+                        if (roleIdMatches(pRole, allowedId)) {
                             matched = true;
                             break;
                         }
@@ -1275,9 +1300,10 @@ public class CustomRoleLoader {
                         onlySelfAndSpecifiedRoles = false;
                         break;
                     }
+                    specifiedWinners.add(p);
                 }
                 if (onlySelfAndSpecifiedRoles) {
-                    doCustomWin(serverLevel, data, customPlayer);
+                    doCustomWin(serverLevel, data, customPlayer, specifiedWinners);
                     return WinStatus.CUSTOM;
                 }
                 // 阻止游戏提前结束（场上还有自己和指定职业）
@@ -1288,7 +1314,7 @@ public class CustomRoleLoader {
 
             // 条件5: 当场上一共只剩下自己存活时 (类似纵火犯)
             if (data.customWinLastAlive && alivePlayerCount == 1) {
-                doCustomWin(serverLevel, data, customPlayer);
+                doCustomWin(serverLevel, data, customPlayer, List.of());
                 return WinStatus.CUSTOM;
             }
             // 阻止游戏结束（纵火犯式）
@@ -1299,7 +1325,7 @@ public class CustomRoleLoader {
 
             // 条件4: 存活到最后 (类似芙兰朵露)
             if (data.customWinSurviveToLast && (alivePlayerCount <= 1 || currentWinStatus == WinStatus.TIME)) {
-                doCustomWin(serverLevel, data, customPlayer);
+                doCustomWin(serverLevel, data, customPlayer, List.of());
                 return WinStatus.CUSTOM;
             }
             if (data.customWinSurviveToLast && !currentWinStatus.equals(WinStatus.NONE)) {
@@ -1309,7 +1335,7 @@ public class CustomRoleLoader {
             // 条件7: 拥有指定标签时躺在床上取得独立胜利 (类似小偷)
             if (!data.customWinTagSleep.isEmpty() && customPlayer.getTags().contains(data.customWinTagSleep)
                     && customPlayer.isSleeping()) {
-                doCustomWin(serverLevel, data, customPlayer);
+                doCustomWin(serverLevel, data, customPlayer, List.of());
                 return WinStatus.CUSTOM;
             }
 
@@ -1329,7 +1355,7 @@ public class CustomRoleLoader {
                     }
                 }
                 if (hasItem) {
-                    doCustomWin(serverLevel, data, customPlayer);
+                    doCustomWin(serverLevel, data, customPlayer, List.of());
                     return WinStatus.CUSTOM;
                 }
             }
@@ -1338,10 +1364,21 @@ public class CustomRoleLoader {
         return WinStatus.NOT_MODIFY;
     }
 
-    private static void doCustomWin(ServerLevel serverLevel, CustomRoleData data, ServerPlayer winner) {
+    private static void doCustomWin(ServerLevel serverLevel, CustomRoleData data, ServerPlayer winner,
+            List<ServerPlayer> extraWinners) {
         int color = (data.colorR << 16) | (data.colorG << 8) | data.colorB;
         var roundComponent = SREGameRoundEndComponent.KEY.get(serverLevel);
+        var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
         boolean hasCustomText = !data.customWinTitle.isEmpty() || !data.customWinSubtitle.isEmpty();
+
+        // 记录条件6中一同获胜的「指定职业」角色路径，使其在结算时整类算赢（对齐教父/杀手团队）
+        roundComponent.CustomWinnerExtraRoleIds.clear();
+        for (ServerPlayer sp : extraWinners) {
+            SRERole r = gameComponent.getRole(sp);
+            if (r != null) {
+                roundComponent.CustomWinnerExtraRoleIds.add(r.identifier().getPath());
+            }
+        }
 
         if (hasCustomText && roundComponent != null) {
             // 使用 CUSTOM_COMPONENT 模式直接显示用户自定义文本
