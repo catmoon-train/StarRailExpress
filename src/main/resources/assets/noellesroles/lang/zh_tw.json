@@ -1695,6 +1695,7 @@
   "hud.noellesroles.task_instinct.render.task.transport.end": "運輸任務終點",
   "hud.noellesroles.task_instinct.render.door": "你的房間門（手持鑰匙顯示）",
   "hud.noellesroles.task_instinct.render.vending_machine": "售貨機",
+  "hud.noellesroles.task_instinct.render.manhole": "井蓋",
   "hud.noellesroles.task_instinct.render.lottery_machine": "抽獎機",
   "msg.noellesroles.taskpoint.available": "任務點透視已可用。按下 %s 開啟或關閉。",
   "message.tip.for_taskpoint": "任務點透視 %s",

@@ -260,7 +260,6 @@ public class TaskBlockOverlayRenderer {
          */
         {
             shouldDisplay[11] = true;
-            shouldDisplay[23] = true;
         }
         var playerMood = SREPlayerMoodComponent.KEY.get(client.player);
         if (playerMood != null) {
@@ -399,7 +398,6 @@ public class TaskBlockOverlayRenderer {
                                 true, 0f);
                     break;
                 case 11:
-                case 23:
                     if (shouldDisplay[type])
                         TaskBlockOverlayRenderer.renderBlockOverlay(renderContext, pos,
                                 new Color(255, 174, 201), 1f,

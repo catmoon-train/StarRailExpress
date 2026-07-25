@@ -47,7 +47,7 @@ import java.util.UUID;
  */
 public class ManholeBlock extends BaseEntityBlock implements TaskInstinctShowableInterface {
 
-    public static final int TASK_INSTINCT_ID = 23;
+    public static final int TASK_INSTINCT_ID = 25;
     /** 传送的最大水平距离。 */
     public static final double TRAVEL_RANGE = 48.0;
     /** 离开井盖后的冷却时间（1分钟） */

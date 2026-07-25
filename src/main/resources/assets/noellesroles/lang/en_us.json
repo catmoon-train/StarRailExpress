@@ -1576,6 +1576,7 @@
   "hud.noellesroles.task_instinct.render.task.note_block": "Note Block",
   "hud.noellesroles.task_instinct.render.door": "Your Room Door",
   "hud.noellesroles.task_instinct.render.vending_machine": "Vending Machine",
+  "hud.noellesroles.task_instinct.render.manhole": "Manhole",
   "msg.noellesroles.taskpoint.available": "Task point vision available. Press %s to toggle.",
   "message.tip.for_taskpoint": "Press %s to toggle task point vision",
   "message.tip.is_taskpoint_able": "Task point vision enabled",

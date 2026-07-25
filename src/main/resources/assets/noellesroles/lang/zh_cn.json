@@ -1698,6 +1698,7 @@
   "hud.noellesroles.task_instinct.render.door": "你的房间门（手持钥匙显示）",
   "hud.noellesroles.task_instinct.render.vending_machine": "售货机",
   "hud.noellesroles.task_instinct.render.lottery_machine": "抽奖机",
+  "hud.noellesroles.task_instinct.render.manhole": "井盖",
   "msg.noellesroles.taskpoint.available": "任务点透视已可用。按下 %s 开启或关闭。",
   "message.tip.for_taskpoint": "任务点透视 %s",
   "message.tip.is_taskpoint_able": "任务点透视已启用",
