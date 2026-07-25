@@ -529,9 +529,14 @@ public class LightningDraftState {
             if (canReplaceRole.contains(role) || role.equals(TMMRoles.CIVILIAN)) {
                 continue;
             }
-            if (!roleRotationForceRoleSettings && role.isInnocent()) {
-                continue;
+            if (role.isInnocent()) {
+                if (!isSpecialInnocent(role)) {
+                    if (!roleRotationForceRoleSettings) {
+                        continue;
+                    }
+                }
             }
+
             needToReplaceRole.add(role);
         }
         if (needToReplaceRole.isEmpty())
@@ -553,6 +558,14 @@ public class LightningDraftState {
                     r.getName().getString());
             t++;
         }
+    }
+
+    private static boolean isSpecialInnocent(SRERole role) {
+        if (!role.occupationRoles.isEmpty())
+            return true;
+        if (!role.occupationedRoles.isEmpty())
+            return true;
+        return false;
     }
 
     public Map<UUID, List<String>> getRoundCandidatesAsStrings() {
