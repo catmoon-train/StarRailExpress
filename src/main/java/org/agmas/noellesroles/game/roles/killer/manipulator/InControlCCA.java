@@ -33,7 +33,8 @@ import java.util.UUID;
 /**
  * 被操控者组件（附身的目标侧）。
  *
- * <p>被操控期间：目标被施加 失明 / 禁止移动 / 禁止使用 / 禁止打开背包 / 禁止使用技能 等效果，
+ * <p>
+ * 被操控期间：目标被施加 失明 / 禁止移动 / 禁止使用 / 禁止打开背包 / 禁止使用技能 等效果，
  * 移动改由操纵师通过 {@link ManipulatorControlInputC2SPacket} 远程驱动；
  * 当被驱动到游戏区域之外（主要是虚空 Y 轴判定）时，会被弹回上一个安全落点以避免自杀。
  */
@@ -142,7 +143,8 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
     /**
      * 被操控者不应因此致死的「环境 / 陷阱 / 自然伤害」死因集合。
      *
-     * <p>覆盖：列车碾压（坠车/出界）、摔落、溺水/深水、岩浆、冻结、黑暗、下水道窒息、
+     * <p>
+     * 覆盖：列车碾压（坠车/出界）、摔落、溺水/深水、岩浆、冻结、黑暗、下水道窒息、
      * 钟乳石穿刺、滚石/滚木碾压、焚化炉推入、喷火装置、口渴/饥饿/脱水、迷失、远古啃咬。
      * 操控期间目标的移动完全由操纵师驱动，因此任何环境致死都视为操纵师所为，一律否决并回溯。
      */
@@ -170,8 +172,10 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
      * 注册操纵师操控的死亡限制（优先用 API 事件实现）：
      * 被操控者因被拖入危险区/陷阱（水、岩浆、坠车/虚空、摔落、碾压等）而死时，否决其死亡并回溯到安全落点。
      *
-     * <p>该事件只拦截「非强制」死亡；场景陷阱多走 {@code forceKillPlayer}（强制死亡）会绕过此事件，
-     * 那部分由 {@code ManipulatorControlledDeathImmunityMixin} 在 {@link GameUtils#killPlayer} 入口兜底。
+     * <p>
+     * 该事件只拦截「非强制」死亡；场景陷阱多走 {@code forceKillPlayer}（强制死亡）会绕过此事件，
+     * 那部分由 {@code ManipulatorControlledDeathImmunityMixin} 在
+     * {@link GameUtils#killPlayer} 入口兜底。
      */
     public static void registerEvents() {
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
@@ -321,18 +325,22 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
         // 水平方向（基于操纵师朝向）
         double f = 0, l = 0;
         if (fresh) {
-            if ((inputBits & ManipulatorControlInputC2SPacket.BIT_FORWARD) != 0) f += 1;
-            if ((inputBits & ManipulatorControlInputC2SPacket.BIT_BACK) != 0) f -= 1;
-            if ((inputBits & ManipulatorControlInputC2SPacket.BIT_LEFT) != 0) l += 1;
-            if ((inputBits & ManipulatorControlInputC2SPacket.BIT_RIGHT) != 0) l -= 1;
+            if ((inputBits & ManipulatorControlInputC2SPacket.BIT_FORWARD) != 0)
+                f += 1;
+            if ((inputBits & ManipulatorControlInputC2SPacket.BIT_BACK) != 0)
+                f -= 1;
+            if ((inputBits & ManipulatorControlInputC2SPacket.BIT_LEFT) != 0)
+                l += 1;
+            if ((inputBits & ManipulatorControlInputC2SPacket.BIT_RIGHT) != 0)
+                l -= 1;
         }
         boolean sprint = fresh && (inputBits & ManipulatorControlInputC2SPacket.BIT_SPRINT) != 0;
         double speed = sprint ? 0.26 : 0.20;
 
         double rad = Math.toRadians(inputYaw);
         double sin = Math.sin(rad), cos = Math.cos(rad);
-        Vec3 fwd = new Vec3(-sin, 0, cos);   // W
-        Vec3 left = new Vec3(cos, 0, sin);   // A
+        Vec3 fwd = new Vec3(-sin, 0, cos); // W
+        Vec3 left = new Vec3(cos, 0, sin); // A
         Vec3 horizontal = fwd.scale(f).add(left.scale(l));
         if (horizontal.lengthSqr() > 1.0e-4) {
             horizontal = horizontal.normalize().scale(speed);
@@ -349,7 +357,8 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
         } else {
             verticalVelocity -= 0.08;
             verticalVelocity *= 0.98;
-            if (verticalVelocity < -3.0) verticalVelocity = -3.0;
+            if (verticalVelocity < -3.0)
+                verticalVelocity = -3.0;
         }
 
         Vec3 delta = new Vec3(horizontal.x, verticalVelocity, horizontal.z);
@@ -362,24 +371,21 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
         }
 
         // 防虚空：越界则弹回上一个安全落点
-        if (sp.getY() < sp.level().getMinBuildHeight() + 1 && hasSafePos) {
-            verticalVelocity = 0;
-            sp.setDeltaMovement(0, 0, 0);
-            sp.teleportTo(safeX, safeY, safeZ);
-            sp.connection.teleport(safeX, safeY, safeZ, sp.getYRot(), sp.getXRot());
-        } else if (delta.lengthSqr() > 1.0e-5) {
+        if (delta.lengthSqr() > 1.0e-5) {
             // 推送权威位置到目标客户端（目标处于 MOVE_BANED，不会与之争抢）
             sp.connection.teleport(sp.getX(), sp.getY(), sp.getZ(), sp.getYRot(), sp.getXRot());
         }
         sp.hasImpulse = true;
 
-        if (inputFreshTicks > 0) inputFreshTicks--;
+        if (inputFreshTicks > 0)
+            inputFreshTicks--;
     }
 
     /**
      * 以被操控者身份对其准星方向的方块进行一次"使用"交互（开门、按按钮、拉拉杆等）。
      *
-     * <p>仅触发方块自身的交互（{@link net.minecraft.world.level.block.state.BlockState#useWithoutItem}），
+     * <p>
+     * 仅触发方块自身的交互（{@link net.minecraft.world.level.block.state.BlockState#useWithoutItem}），
      * 不会使用目标手中的物品（避免操纵师借此开枪/消耗目标道具）；同时由于直接走服务端逻辑，
      * 不受目标身上 USED_BANED（仅在客户端拦截按键）的影响。
      */
