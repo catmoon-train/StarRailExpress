@@ -181,7 +181,8 @@ public class AbilityHandler {
             if (hit instanceof net.minecraft.world.phys.EntityHitResult ehr
                     && ehr.getEntity() instanceof ServerPlayer victim) {
                 victim.knockback(cfg.leonKickKnockback,
-                        victim.getX() - player.getX(), victim.getZ() - player.getZ());
+                        player.getX() - victim.getX(),
+                        player.getZ() - victim.getZ());
                 victim.hurtMarked = true;
                 // 玩家受服务端击退需主动同步速度
                 victim.connection
