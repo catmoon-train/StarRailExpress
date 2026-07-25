@@ -519,28 +519,10 @@ public class RoleInstinctRegister {
 
         // 家族本能（为所有 mafia 家族职业注册通用高亮逻辑）
         // getAllMafiaRoles() 返回 TMMRoles.CACHE.MAFIA_ROLES，即所有 setMafiaTeam(true) 的角色类型
+        // 内置角色在此初始化时注册；运行时加载的自定义 mafia 角色由 CustomRoleLoader.reloadClient 调用
+        // registerFamilyInstinct 注册（保证自定义家族也能看到彼此的特殊框）。
         for (var familyRole : ModRoles.getAllMafiaRoles()) {
-            RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(familyRole.getIdentifier(),
-                    (client, viewer, target, isInstinctEnabled) -> {
-                        if (!SREClient.isPlayerAliveAndInSurvival())
-                            return TrueFalseAndCustomResult.pass();
-                        if (!isInstinctEnabled)
-                            return TrueFalseAndCustomResult.pass();
-                        var selfRole = SREClient.gameComponent.getRole(viewer);
-                        if (selfRole == null || !selfRole.isMafiaTeam())
-                            return TrueFalseAndCustomResult.pass();
-                        if (target instanceof Player targetPlayer) {
-                            var targetRole = SREClient.gameComponent.getRole(targetPlayer);
-                            if (targetRole != null && targetRole.isMafiaTeam()) {
-                                if (SREClient.gameComponent.isRole(targetPlayer, ModRoles.GODFATHER))
-                                    return TrueFalseAndCustomResult.custom(new Color(135, 206, 235).getRGB());
-                                return TrueFalseAndCustomResult.custom(new Color(139, 69, 19).getRGB());
-                            }
-                            if (viewer.distanceTo(targetPlayer) > 20.0D)
-                                return TrueFalseAndCustomResult.disallow();
-                        }
-                        return TrueFalseAndCustomResult.pass();
-                    });
+            registerFamilyInstinct(familyRole);
         }
 
         // --- 以下从 registerSpecialLogic 迁移过来的角色相关逻辑 ---
@@ -631,6 +613,41 @@ public class RoleInstinctRegister {
                     if (comp.hereticTarget == null || !comp.hereticTarget.equals(targetPlayer.getUUID()))
                         return TrueFalseAndCustomResult.pass();
                     return TrueFalseAndCustomResult.custom(0xF2C56A);
+                });
+    }
+
+    /**
+     * 为指定 mafia 家族职业注册通用高亮逻辑（家族本能）：
+     * 开启本能后，该角色看到家族成员显示棕色框、看到教父显示天蓝框；
+     * 看到远处非家族玩家则禁止透视。
+     * <p>
+     * 既用于内置 mafia 角色（{@code registerObserverHighlights} 初始化时），
+     * 也用于运行时加载的自定义 mafia 角色（{@code CustomRoleLoader.reloadClient} 中调用），
+     * 使自定义家族角色也能互相看到特殊框。
+     *
+     * @param familyRole 需要注册家族本能的职业（其 isMafiaTeam() 应为 true）
+     */
+    public static void registerFamilyInstinct(SRERole familyRole) {
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(familyRole.getIdentifier(),
+                (client, viewer, target, isInstinctEnabled) -> {
+                    if (!SREClient.isPlayerAliveAndInSurvival())
+                        return TrueFalseAndCustomResult.pass();
+                    if (!isInstinctEnabled)
+                        return TrueFalseAndCustomResult.pass();
+                    var selfRole = SREClient.gameComponent.getRole(viewer);
+                    if (selfRole == null || !selfRole.isMafiaTeam())
+                        return TrueFalseAndCustomResult.pass();
+                    if (target instanceof Player targetPlayer) {
+                        var targetRole = SREClient.gameComponent.getRole(targetPlayer);
+                        if (targetRole != null && targetRole.isMafiaTeam()) {
+                            if (SREClient.gameComponent.isRole(targetPlayer, ModRoles.GODFATHER))
+                                return TrueFalseAndCustomResult.custom(new Color(135, 206, 235).getRGB());
+                            return TrueFalseAndCustomResult.custom(new Color(139, 69, 19).getRGB());
+                        }
+                        if (viewer.distanceTo(targetPlayer) > 20.0D)
+                            return TrueFalseAndCustomResult.disallow();
+                    }
+                    return TrueFalseAndCustomResult.pass();
                 });
     }
 

@@ -31,6 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.client.RoleInstinctRegister;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.*;
@@ -179,6 +180,17 @@ public class CustomRoleLoader {
                 TMMRoles.registerRole(role);
                 loadedRoles.put(data.englishId, data);
                 registeredRoles.put(data.englishId, role);
+
+                // 自定义角色可能因重载而修改 mafiaTeam 状态，先清掉该角色上一次重载残留的
+                // OBSERVER_HIGHLIGHT_EVENT 处理器（含家族本能 / instinctModes），避免重复累积。
+                // 家族本能（若有）与 instinctModes 处理器会在下方按当前配置重新注册。
+                io.wifi.starrailexpress.event.client.RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT
+                        .removeConsumer(role.identifier());
+                // 若该自定义角色是 mafia 家族职业，为其注册家族本能，使其能互相看到特殊框。
+                // 必须在此处（registerModeEvents 之前）注册，以保证在事件分发中优先于模式处理器生效。
+                if (role.isMafiaTeam()) {
+                    RoleInstinctRegister.registerFamilyInstinct(role);
+                }
 
                 // 注册报幕文本（客户端），确保欢迎报到能显示自定义职业
                 try {
