@@ -2442,7 +2442,7 @@ public class ModRoles {
     }).setComponentKey(org.agmas.noellesroles.game.roles.killer.dream.DreamPlayerComponent.KEY)
             .setCanUseKiller(true).setCanSeeTeammateKillerRole(true).setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
-            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true);
+            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true).setCanUseDreamAxe(true);
 
     // ==================== 嬉命人（Embalmer）====================
     public static SRERole EMBALMER = TMMRoles.registerRole(new NormalRole(

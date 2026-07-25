@@ -447,6 +447,8 @@ public class CustomRoleLoader {
             role.setCanKillWithTrident(data.canKillWithTrident);
         if (data.cannotKnifeLeftClick != null)
             role.setCannotKnifeLeftClick(data.cannotKnifeLeftClick);
+        if (data.canUseDreamAxe != null)
+            role.setCanUseDreamAxe(data.canUseDreamAxe);
 
         if (data.killerTeammateVisibilityEnabled != null)
             role.setKillerTeammateScreenVisibility(data.killerTeammateVisibilityEnabled,

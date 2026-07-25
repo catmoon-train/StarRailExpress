@@ -298,6 +298,9 @@ public class CustomRoleData {
     @SerializedName("cannotKnifeLeftClick")
     public Boolean cannotKnifeLeftClick = null; // 无法用刀左键击退人
 
+    @SerializedName("canUseDreamAxe")
+    public Boolean canUseDreamAxe = null; // 能用 Dream 铁斧削减他人虚拟血量
+
     // ============ 杀手同伙可见性 ============
     @SerializedName("killerTeammateVisibilityEnabled")
     public Boolean killerTeammateVisibilityEnabled = null; // 是否启用该机制

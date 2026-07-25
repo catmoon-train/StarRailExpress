@@ -23,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
+
 
 import java.util.List;
 
@@ -58,7 +58,8 @@ public class DreamAxeItem extends Item implements SREItemProperties.LeftClickHur
             return false;
         }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(attacker.level());
-        if (!gameWorld.isRole(attacker, ModRoles.DREAM)) {
+        // 持斧者职业需开启 canUseDreamAxe（由 SRERole 通用方法决定，与具体职业解耦）
+        if (!gameWorld.getRole(attacker).canUseDreamAxe()) {
             return false;
         }
         // 蓄力条必须满才能攻击

@@ -344,6 +344,7 @@ public class CustomRoleScreen extends Screen {
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_kill_with_bow_crossbow", data.canKillWithBowAndCrossbow, v -> data.canKillWithBowAndCrossbow = v, true);
         addTriBtn(tabWidgets1, r, "sre.custom_role.can_kill_with_trident", data.canKillWithTrident, v -> data.canKillWithTrident = v, true);
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.cannot_knife_left_click", data.cannotKnifeLeftClick, v -> data.cannotKnifeLeftClick = v, true);
+        addTriBtn(tabWidgets1, r++, "sre.custom_role.can_use_dream_axe", data.canUseDreamAxe, v -> data.canUseDreamAxe = v, true);
         addTriBtn(tabWidgets1, r, "sre.custom_role.killer_teammate_visibility_enabled", data.killerTeammateVisibilityEnabled, v -> data.killerTeammateVisibilityEnabled = v, true);
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_be_seen_as_killer_teammate", data.canBeSeenAsKillerTeammate, v -> data.canBeSeenAsKillerTeammate = v, true);
 

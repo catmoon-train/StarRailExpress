@@ -63,6 +63,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canKillWithBowAndCrossbow = false; // 能用弓/弩和箭杀人
     protected boolean cannotKnifeLeftClick = false;    // 无法用刀左键击退人
     protected boolean canKillWithTrident = false;      // 能用三叉戟（忠诚/激流）杀人
+    protected boolean canUseDreamAxe = false;           // 能用 Dream 铁斧削减他人虚拟血量
 
     // --- 任务奖励追踪（per-player） ---
     private static final Map<UUID, Map<ResourceLocation, Integer>> taskRewardCounts = new HashMap<>();
@@ -1759,6 +1760,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public boolean canKillWithTrident() {
         return canKillWithTrident;
+    }
+
+    /** 设置该职业是否能用 Dream 铁斧削减他人虚拟血量 */
+    public SRERole setCanUseDreamAxe(boolean can) {
+        this.canUseDreamAxe = can;
+        return this;
+    }
+
+    public boolean canUseDreamAxe() {
+        return canUseDreamAxe;
     }
 
     // ---------- 任务奖励（完成 N 个任务给予物品，一局最多触发 M 次，物品可设置多个） ----------
