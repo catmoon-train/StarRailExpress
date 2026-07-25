@@ -160,7 +160,7 @@
     "sre.custom_role.mood.current": "Click to Toggle",
     "sre.custom_role.is_innocent": "Is Innocent (false for neutral/killer)",
     "sre.custom_role.can_use_killer": "Can Use Killer (false for neutral/innocent)",
-    "sre.custom_role.can_use_dream_axe": "Can Use Dream Axe (reduce others' dream HP)",
+    "sre.custom_role.can_use_dream_axe": "Can Use Special Vanilla Weapon",
     "sre.custom_role.infinite_sprint": "Infinite Sprint",
     "sre.custom_role.can_see_time": "Can See Time",
     "sre.custom_role.cannot_earn_coin_from_kills": "Cannot Earn Coin From Kills",
