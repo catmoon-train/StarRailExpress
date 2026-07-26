@@ -54,11 +54,11 @@ public class SREPlushBlock extends PlushBlock {
 
    public static SoundEvent getSound(Level world, BlockPos pos, BlockState state) {
       SoundEvent ret = NRSounds.BAKA_BAKA;
-      if (state.getBlock() == SREFumoBlocks.BAKA_PLUSH) {
+      if (state.is(SREFumoBlocks.BAKA_PLUSH)) {
          ret = NRSounds.BAKA_BAKA;
       }
 
-      if (state.getBlock() == SREFumoBlocks.MILK_DRAGON_PLUSH) {
+      if (state.is(SREFumoBlocks.MILK_DRAGON_PLUSH)) {
          ret = NRSounds.WO_SHI_NAI_LONG;
       }
       if (state.getBlock() instanceof SREPlushBlock cppb) {

@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
@@ -28,16 +29,15 @@ public abstract class MinecraftClientMixin {
         }
 
         SREGameWorldComponent gameComponent = SREClient.gameComponent;
-        if (gameComponent!=null){
+        if (gameComponent != null) {
 
-        if (gameComponent.getFade() > 0) {
-            return;
+            if (gameComponent.getFade() > 0) {
+                return;
+            }
+
         }
-
-
-        }
-        boolean flag = SREClient.isPlayerAliveAndInSurvival();
-        if(!flag && checkOnOpenInventory(player, screen)){
+        boolean flag = GameUtils.isPlayerAliveAndSurvival(player);
+        if (!flag && checkOnOpenInventory(player, screen)) {
             flag = true;
         }
 

@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.content.block;
 
 import org.agmas.noellesroles.init.NRSounds;
+import org.agmas.noellesroles.init.SREFumoBlocks;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
@@ -30,8 +31,11 @@ public class SREPlushItem extends BlockItem {
         if (stack.has(DataComponents.NOTE_BLOCK_SOUND)) {
             sound = stack.get(DataComponents.NOTE_BLOCK_SOUND);
         }
-        level.playSound(null, player.blockPosition(), SoundEvent.
-        createVariableRangeEvent(sound), SoundSource.BLOCKS);
+
+        if (stack.is(SREFumoBlocks.MILK_DRAGON_PLUSH_ITEM)) {
+            sound = NRSounds.WO_SHI_NAI_LONG.getLocation();
+        }
+        level.playSound(null, player.blockPosition(), SoundEvent.createVariableRangeEvent(sound), SoundSource.BLOCKS);
         player.getCooldowns().addCooldown(this, 20);
         return InteractionResultHolder.success(stack);
     }
