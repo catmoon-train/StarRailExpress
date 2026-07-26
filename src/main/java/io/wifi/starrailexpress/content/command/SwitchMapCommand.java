@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.MapManager;
 import io.wifi.starrailexpress.game.MapResetManager;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
+import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -47,6 +48,8 @@ public class SwitchMapCommand {
                           "mapName")))))
       .then(Commands.literal("list")
           .executes(context -> executeList(context.getSource())))
+      .then(Commands.literal("list_vote_map")
+          .executes(context -> executeListVoteConfig(context.getSource())))
       .then(Commands.literal("random")
           .executes(context -> executeRandom(
               context.getSource())))
@@ -58,6 +61,40 @@ public class SwitchMapCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(
         node);
+  }
+
+  private static int executeListVoteConfig(CommandSourceStack source) {
+    ServerLevel serverWorld = source.getLevel();
+    ServerMapConfig serverMapConfig = ServerMapConfig.getInstance(serverWorld);
+
+    if (serverMapConfig == null || serverMapConfig.getMaps().isEmpty()) {
+      source.sendSuccess(
+          () -> Component.translatable("commands.sre.switchmap.list_vote_map.none")
+              .withStyle(style -> style.withColor(0xFFFF00)),
+          false);
+    } else {
+      source.sendSuccess(
+          () -> Component.translatable("commands.sre.switchmap.list_vote_map.header")
+              .withStyle(style -> style.withColor(0x00FFFF)),
+          false);
+
+      for (final var mapEntry : serverMapConfig.getMaps()) {
+        source.sendSuccess(
+            () -> Component.translatable(" - [%s] (%s)", Component.translatable(mapEntry.getDisplayName()), mapEntry.id)
+                .withStyle(style -> style.withColor(0xFFFFFF)
+                    .withHoverEvent(new HoverEvent(
+                        HoverEvent.Action.SHOW_TEXT,
+                        Component.literal(
+                            "CLICK TO SWITCH")))
+                    .withClickEvent(new ClickEvent(
+                        ClickEvent.Action.RUN_COMMAND,
+                        "/tmm:switchmap load '"
+                            + mapEntry.id
+                            + "'"))),
+            false);
+      }
+    }
+    return 1;
   }
 
   private static int executeScanWithoutReset(CommandContext<CommandSourceStack> context) {
