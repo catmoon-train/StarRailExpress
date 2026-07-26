@@ -53,6 +53,14 @@ public class ManholeBlock extends BaseEntityBlock implements TaskInstinctShowabl
     /** 离开井盖后的冷却时间（1分钟） */
     private static final long MANHOLE_COOLDOWN_TICKS = 60 * 20;
     private static final Map<UUID, Long> manholeCooldownUntil = new HashMap<>();
+    /** 右键确认窗口：2 秒（40 tick），超时需重新右键井盖 */
+    private static final long MANHOLE_CONFIRM_TICKS = 40;
+    /** 右键井盖后等待按“祷告/加入塔罗会”键传送的待定目标（含过期时间） */
+    private static final Map<UUID, PendingManholeTeleport> pendingManholeTarget = new HashMap<>();
+
+    /** 待传送目标：目标井盖坐标 + 过期游戏时刻 */
+    private record PendingManholeTeleport(BlockPos target, long expireTick) {
+    }
 
     /** 活板门碰撞箱：厚度 3 像素，大小与原版活板门一致 */
     private static final VoxelShape TRAPDOOR_SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 3.0, 16.0);
@@ -90,21 +98,26 @@ public class ManholeBlock extends BaseEntityBlock implements TaskInstinctShowabl
         if (!(player instanceof ServerPlayer sp) || !(level instanceof ServerLevel serverLevel)) {
             return InteractionResult.CONSUME;
         }
+        // 所有玩家右键井盖统一播放音效
+        serverLevel.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, 0.6F, 0.7F);
         var role = SceneRoleAccess.roleOf(player);
-        if (!SceneRoleAccess.canEnterRestricted(player, null)
-                && (role == null || !role.canJumpManhole())) {
-            sp.displayClientMessage(Component.translatable("message.noellesroles.manhole.denied"), true);
-            serverLevel.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, 0.6F, 0.7F);
+        boolean canUse = SceneRoleAccess.canEnterRestricted(player, null)
+                || (role != null && role.canJumpManhole());
+        // 所有玩家右键井盖都不会直接传送。不能使用井盖的玩家：无任何提示、无反应。
+        if (!canUse) {
             return InteractionResult.CONSUME;
         }
+        // 以本次右键为准：清除旧的待传送目标
+        pendingManholeTarget.remove(player.getUUID());
+
         // 检查离开井盖后的冷却时间（游戏未开始时不检查冷却）
         boolean gameRunning = SREGameWorldComponent.KEY.get(serverLevel).isRunning();
         if (gameRunning) {
             Long cooldownUntil = manholeCooldownUntil.get(player.getUUID());
             if (cooldownUntil != null && serverLevel.getGameTime() < cooldownUntil) {
                 long remainingSec = (cooldownUntil - serverLevel.getGameTime()) / 20;
-                sp.displayClientMessage(Component.translatable("message.noellesroles.manhole.cooldown", remainingSec), true);
-                serverLevel.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, 0.6F, 0.7F);
+                sp.displayClientMessage(Component.translatable("message.noellesroles.manhole.cooldown", remainingSec),
+                        true);
                 return InteractionResult.CONSUME;
             }
             if (cooldownUntil != null) {
@@ -114,31 +127,104 @@ public class ManholeBlock extends BaseEntityBlock implements TaskInstinctShowabl
         BlockPos target = ManholeRegistry.findInLookDirection(serverLevel, player, pos, TRAVEL_RANGE);
         if (target == null) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.manhole.no_exit"), true);
-            serverLevel.playSound(null, pos, SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.BLOCKS, 0.6F, 0.7F);
             return InteractionResult.CONSUME;
         }
 
+        // 记录待传送目标（含 2 秒确认窗口），等待玩家按下“祷告/加入塔罗会”键后才真正传送
+        pendingManholeTarget.put(player.getUUID(),
+                new PendingManholeTeleport(target.immutable(), serverLevel.getGameTime() + MANHOLE_CONFIRM_TICKS));
+        // 用 actionbar 提示玩家按对应按键（%s 由代码传入具体按键名）
+        sp.displayClientMessage(Component.translatable("message.noellesroles.manhole.press_pray",
+                Component.translatable("key.noellesroles.fool_prayer")), true);
+        return InteractionResult.CONSUME;
+    }
+
+    /**
+     * 取出并移除玩家的待传送目标（按“祷告/加入塔罗会”键时调用）。
+     * 若已超过 2 秒确认窗口则视为失效，返回 null（需重新右键井盖确认）。
+     *
+     * @return 目标井盖坐标，没有或已超时则返回 null
+     */
+    public static BlockPos consumePendingTarget(Player player) {
+        PendingManholeTeleport pending = pendingManholeTarget.remove(player.getUUID());
+        if (pending == null) {
+            return null;
+        }
+        if (player.level().getGameTime() > pending.expireTick()) {
+            return null;
+        }
+        return pending.target();
+    }
+
+    /**
+     * 执行井盖传送（在玩家按下“祷告/加入塔罗会”键后调用）。
+     * 会再次校验权限与目标是否仍然存在，并设置离开冷却。
+     */
+    public static void doTeleport(ServerPlayer player, BlockPos target, ServerLevel serverLevel) {
+        // 权限二次校验（防止右键后权限变化）
+        var role = SceneRoleAccess.roleOf(player);
+        if (!SceneRoleAccess.canEnterRestricted(player, null)
+                && (role == null || !role.canJumpManhole())) {
+            return;
+        }
+        if (target == null || !ManholeRegistry.all(serverLevel).contains(target)) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.manhole.no_exit"), true);
+            return;
+        }
+        // 玩家 2 格内必须仍有井盖方块，防止离开井盖后再按按键传送
+        if (!isManholeWithin2Blocks(serverLevel, player.blockPosition())) {
+            player.displayClientMessage(Component.translatable("message.noellesroles.manhole.not_near"), true);
+            return;
+        }
+
         // 设置冷却时间（离开井盖后1分钟无法再次进入，游戏未开始时不设置）
+        boolean gameRunning = SREGameWorldComponent.KEY.get(serverLevel).isRunning();
         if (gameRunning) {
+            Long cooldownUntil = manholeCooldownUntil.get(player.getUUID());
+            if (cooldownUntil != null && serverLevel.getGameTime() < cooldownUntil) {
+                long remainingSec = (cooldownUntil - serverLevel.getGameTime()) / 20;
+                player.displayClientMessage(Component.translatable("message.noellesroles.manhole.cooldown", remainingSec),
+                        true);
+                return;
+            }
+            manholeCooldownUntil.remove(player.getUUID());
             manholeCooldownUntil.put(player.getUUID(), serverLevel.getGameTime() + MANHOLE_COOLDOWN_TICKS);
         }
 
-        // 起点特效
-        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
-                20, 0.3, 0.3, 0.3, 0.02);
-        serverLevel.playSound(null, pos, SoundEvents.BUBBLE_COLUMN_WHIRLPOOL_INSIDE, SoundSource.BLOCKS, 0.9F, 1.2F);
+        // 起点特效（以玩家当前位置为准）
+        double sx = player.getX();
+        double sy = player.getY() + 1.0;
+        double sz = player.getZ();
+        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, sx, sy, sz, 20, 0.3, 0.3, 0.3, 0.02);
+        serverLevel.playSound(null, player.blockPosition(), SoundEvents.BUBBLE_COLUMN_WHIRLPOOL_INSIDE,
+                SoundSource.BLOCKS, 0.9F, 1.2F);
 
         // 传送
         double tx = target.getX() + 0.5;
         double ty = target.getY() + 1.0;
         double tz = target.getZ() + 0.5;
-        sp.teleportTo(tx, ty, tz);
-        sp.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 12, 0, false, false, false));
+        player.teleportTo(tx, ty, tz);
+        player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 12, 0, false, false, false));
 
         // 终点特效
         serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, tx, ty, tz, 20, 0.3, 0.3, 0.3, 0.02);
         serverLevel.playSound(null, target, SoundEvents.BUBBLE_COLUMN_WHIRLPOOL_INSIDE, SoundSource.BLOCKS, 0.9F, 0.9F);
-        return InteractionResult.CONSUME;
+    }
+
+    /**
+     * 判断指定位置 2 格（含）范围内是否存在井盖方块。
+     */
+    private static boolean isManholeWithin2Blocks(ServerLevel level, BlockPos center) {
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dy = -2; dy <= 2; dy++) {
+                for (int dz = -2; dz <= 2; dz++) {
+                    if (level.getBlockState(center.offset(dx, dy, dz)).getBlock() instanceof ManholeBlock) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Nullable

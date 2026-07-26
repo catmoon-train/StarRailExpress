@@ -1740,6 +1740,8 @@
   "message.noellesroles.manhole.denied": "你无法进入井盖",
   "message.noellesroles.manhole.no_exit": "视线方向没有其它井盖",
   "message.noellesroles.manhole.cooldown": "你刚从井盖出来，还需 %s 秒才能再次进入",
+  "message.noellesroles.manhole.press_pray": "已对准井盖，按【%s】进行传送",
+  "message.noellesroles.manhole.not_near": "附近没有井盖，无法传送",
   "message.noellesroles.fog.denied": "迷雾笼罩，你无法进入此区域",
   "message.noellesroles.fog.warning_15s": "你即将迷失方向，需尽快离开迷雾区域",
   "message.noellesroles.fog.warning_25s": "你已迷失方向，必须立即离开迷雾区域",

@@ -30,6 +30,15 @@ public class PrayerHandler {
      * 玩家按V键开始祷告
      */
     public static void startPrayer(ServerPlayer player) {
+        // 井盖传送：若玩家右键过井盖并处于待传送状态，则按下“祷告/加入塔罗会”键后执行传送
+        net.minecraft.core.BlockPos pendingManhole = org.agmas.noellesroles.content.block.scene.ManholeBlock
+                .consumePendingTarget(player);
+        if (pendingManhole != null) {
+            org.agmas.noellesroles.content.block.scene.ManholeBlock.doTeleport(player, pendingManhole,
+                    (ServerLevel) player.level());
+            return;
+        }
+
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(player.level());
         ServerLevel serverLevel = (ServerLevel) player.level();
         ServerPlayer fool = TarotAssemblyManager.findFoolPlayer(serverLevel, gameComponent);
