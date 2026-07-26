@@ -288,6 +288,9 @@ public class CustomRoleData {
     @SerializedName("cannotEarnCoinFromKills")
     public Boolean cannotEarnCoinFromKills = null; // 击杀不获得金币
 
+    @SerializedName("neutralKillCoin")
+    public int neutralKillCoin = 0; // 击杀玩家获得的额外金币（0=不给予）
+
     // ============ 战斗 / 击杀限制 ============
     @SerializedName("canKillWithBowAndCrossbow")
     public Boolean canKillWithBowAndCrossbow = null; // 能用弓/弩杀人
