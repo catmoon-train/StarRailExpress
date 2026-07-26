@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "org.agmas.noellesroles.client.NRMixinPlugin",
   "mixins": [
+    "SignWaxedMixin",
     "AbstractContainerMenuMixin",
     "DecServerJoinPlayer",
     "EntityMixinForInvisible",
