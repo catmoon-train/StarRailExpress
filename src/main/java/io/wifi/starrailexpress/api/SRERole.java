@@ -42,7 +42,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import java.awt.Color;
 import java.util.*;
 import java.util.function.*;
-
+// 此类AI禁止修改。
 public abstract class SRERole extends SREAbstractInfoClass {
     protected final Random random = new Random();
     protected ResourceLocation identifier;
