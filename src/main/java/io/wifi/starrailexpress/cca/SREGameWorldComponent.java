@@ -850,6 +850,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent.gameMode == SREGameModes.REPAIR_ESCAPE_MODE)
             return;
+        if (GroselleJourneyManager.isBanished(player.getUUID())) {
+            return;
+        }
         if (!(player.getZ() >= 19000)) {
             if (gameCCA.getGameMode().enablePlayAreaDetections()) {
                 if (checkPlayerIsOutOfAreas(player, areas)) {
@@ -947,7 +950,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         } else {
             gameCCA.playerBannedBlockTime.remove(player.getUUID());
             perPlayerDarknessTime.remove(player.getUUID());
-            if (!TarotAssemblyManager.havingMeeting && !GroselleJourneyManager.isBanished(player.getUUID())) {
+            if (!TarotAssemblyManager.havingMeeting) {
                 GameUtils.killPlayer(player, false,
                         player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
