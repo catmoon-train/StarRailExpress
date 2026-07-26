@@ -69,12 +69,12 @@ public class SwitchMapCommand {
 
     if (serverMapConfig == null || serverMapConfig.getMaps().isEmpty()) {
       source.sendSuccess(
-          () -> Component.translatable("commands.sre.switchmap.list.none")
+          () -> Component.translatable("commands.sre.switchmap.list_vote_map.none")
               .withStyle(style -> style.withColor(0xFFFF00)),
           false);
     } else {
       source.sendSuccess(
-          () -> Component.translatable("commands.sre.switchmap.list.header")
+          () -> Component.translatable("commands.sre.switchmap.list_vote_map.header")
               .withStyle(style -> style.withColor(0x00FFFF)),
           false);
 
