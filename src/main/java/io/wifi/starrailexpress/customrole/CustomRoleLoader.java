@@ -1229,6 +1229,21 @@ public class CustomRoleLoader {
      * 导致用户填短 id 时匹配失败、条件6 误判为非「只剩自己和指定职业」、
      * 从而通过 {@code return WinStatus.NONE} 永久阻止游戏结束的问题。
      */
+    /**
+     * 从配置中填写的「指定职业 ID」提取职业路径（path），用于结算时的整类算赢匹配。
+     * <p>
+     * 兼容 {@code noellesroles:killer}（取 {@code killer}）与 {@code killer}（原样）两种写法。
+     */
+    private static String roleIdPath(String configuredId) {
+        if (configuredId == null)
+            return null;
+        String id = configuredId.trim();
+        if (id.isEmpty())
+            return null;
+        int idx = id.indexOf(':');
+        return idx >= 0 ? id.substring(idx + 1) : id;
+    }
+
     private static boolean roleIdMatches(SRERole role, String configuredId) {
         if (configuredId == null)
             return false;
@@ -1389,12 +1404,12 @@ public class CustomRoleLoader {
         boolean hasCustomText = !data.customWinTitle.isEmpty() || !data.customWinSubtitle.isEmpty();
 
         // 记录条件6中一同获胜的「指定职业」角色路径，使其在结算时整类算赢（对齐教父/杀手团队）
+        // 来源使用配置里填写的指定职业（而非仅存活玩家），确保已死的指定职业成员也随其职业整类算赢
         roundComponent.CustomWinnerExtraRoleIds.clear();
-        for (ServerPlayer sp : extraWinners) {
-            SRERole r = gameComponent.getRole(sp);
-            if (r != null) {
-                roundComponent.CustomWinnerExtraRoleIds.add(r.identifier().getPath());
-            }
+        for (String allowedId : data.customWinLastWithRoles) {
+            String path = roleIdPath(allowedId);
+            if (path != null && !path.isEmpty())
+                roundComponent.CustomWinnerExtraRoleIds.add(path);
         }
 
         if (hasCustomText && roundComponent != null) {
