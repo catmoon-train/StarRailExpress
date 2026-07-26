@@ -340,7 +340,7 @@ public class CustomRoleScreen extends Screen {
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.no_coin_system", data.noCoinSystem, v -> data.noCoinSystem = v, true);
         makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.initial_coin_count", String.valueOf(data.initialCoinCount), "-1=不改",
             v -> { try { data.initialCoinCount = Integer.parseInt(v); } catch(Exception ignored){} });
-        addTriBtn(tabWidgets1, r, "sre.custom_role.cannot_earn_coin_from_kills", data.cannotEarnCoinFromKills, v -> data.cannotEarnCoinFromKills = v, true);
+        addTriBtn(tabWidgets1, r++, "sre.custom_role.cannot_earn_coin_from_kills", data.cannotEarnCoinFromKills, v -> data.cannotEarnCoinFromKills = v, true);
         makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.neutral_kill_coin", String.valueOf(data.neutralKillCoin), "0=不给",
             v -> { try { data.neutralKillCoin = Math.max(0, Integer.parseInt(v)); } catch(Exception ignored){} });
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_kill_with_bow_crossbow", data.canKillWithBowAndCrossbow, v -> data.canKillWithBowAndCrossbow = v, true);
