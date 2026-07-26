@@ -1002,11 +1002,11 @@ public class CustomRoleLoader {
                     });
         }
 
-        private static TrueFalseAndCustomResult applyType(InstinctType type,
+        private static TrueFalseAndCustomResult<Integer> applyType(InstinctType type,
                 net.minecraft.world.entity.player.Player self,
                 net.minecraft.world.entity.player.Player target,
                 SRERole selfRole, SRERole targetRole,
-                TrueFalseAndCustomResult fallback) {
+                TrueFalseAndCustomResult<Integer> fallback) {
             if (type.isNone())
                 return TrueFalseAndCustomResult.disallow();
             if (type.isObserverRoleColor()) {
@@ -1402,7 +1402,6 @@ public class CustomRoleLoader {
             List<ServerPlayer> extraWinners) {
         int color = (data.colorR << 16) | (data.colorG << 8) | data.colorB;
         var roundComponent = SREGameRoundEndComponent.KEY.get(serverLevel);
-        var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
         boolean hasCustomText = !data.customWinTitle.isEmpty() || !data.customWinSubtitle.isEmpty();
 
         // 记录条件6中一同获胜的「指定职业」角色路径，使其在结算时整类算赢（对齐教父/杀手团队）
