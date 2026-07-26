@@ -874,7 +874,8 @@ public class ModRoles {
             .setComponentKey(AdventurerPlayerComponent.KEY).setDefaultEnableNeededPlayerCount(6)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.TRAP).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
-            .setEnvironmentalImmunity(true);
+            .setEnvironmentalImmunity(true)
+            .setDefaultMax(0 /* 有BUG */);
     // 红尘客
     public static SRERole WAYFARER = TMMRoles.registerRole(
             new NormalRole(WAYFARER_ID, new Color(255, 54, 105).getRGB(),
@@ -2452,7 +2453,8 @@ public class ModRoles {
             false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.KEY))
             .setNeutralForKiller(true).setCanSeeTeammateKillerRole(true)
-            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true).setDefaultEnableChance(4500);
+            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true).setDefaultEnableChance(4500)
+            .setDefaultMax(0 /* 有BUG */);
 
     // ==================== 窃皮者 ====================
     public static SRERole SKINCRAWLER = TMMRoles.registerRole(new NormalRole(
