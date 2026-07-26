@@ -874,7 +874,7 @@ public class ModRoles {
             .setComponentKey(AdventurerPlayerComponent.KEY).setDefaultEnableNeededPlayerCount(6)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.TRAP).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
-            .setEnvironmentalImmunity(true)
+            .setEnvironmentalImmunity(true);
     // 红尘客
     public static SRERole WAYFARER = TMMRoles.registerRole(
             new NormalRole(WAYFARER_ID, new Color(255, 54, 105).getRGB(),
