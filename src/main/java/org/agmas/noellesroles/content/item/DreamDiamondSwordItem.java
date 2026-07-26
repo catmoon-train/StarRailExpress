@@ -45,8 +45,47 @@ public class DreamDiamondSwordItem extends SwordItem implements SREItemPropertie
     /** 虚拟血量归零时的死因（用于死亡播报与击杀归属）。 */
     public static final ResourceLocation DEATH_REASON = GameConstants.DeathReasons.DREAM_DIAMOND_SWORD;
 
+    /**
+     * 耐久 12、其余属性委托给钻石的 Tier。
+     * <p>
+     * 原版 {@code TieredItem} 构造时会用 {@code tier.getUses()} 无条件覆盖
+     * Properties 里设置的耐久（钻石为 1561），因此必须在 Tier 层面改掉 uses，
+     * 注册处的 {@code .durability(12)} 才能生效。
+     */
+    private static final net.minecraft.world.item.Tier LOW_DURABILITY_DIAMOND = new net.minecraft.world.item.Tier() {
+        @Override
+        public int getUses() {
+            return 12;
+        }
+
+        @Override
+        public float getSpeed() {
+            return Tiers.DIAMOND.getSpeed();
+        }
+
+        @Override
+        public float getAttackDamageBonus() {
+            return Tiers.DIAMOND.getAttackDamageBonus();
+        }
+
+        @Override
+        public net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block> getIncorrectBlocksForDrops() {
+            return Tiers.DIAMOND.getIncorrectBlocksForDrops();
+        }
+
+        @Override
+        public int getEnchantmentValue() {
+            return Tiers.DIAMOND.getEnchantmentValue();
+        }
+
+        @Override
+        public net.minecraft.world.item.crafting.Ingredient getRepairIngredient() {
+            return Tiers.DIAMOND.getRepairIngredient();
+        }
+    };
+
     public DreamDiamondSwordItem(Properties properties) {
-        super(Tiers.DIAMOND, properties);
+        super(LOW_DURABILITY_DIAMOND, properties);
     }
 
     @Override
