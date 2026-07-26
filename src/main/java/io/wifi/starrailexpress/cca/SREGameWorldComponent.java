@@ -32,6 +32,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.content.item.GroselleJourneyManager;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.init.ModEffects;
@@ -945,7 +946,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
         } else {
             gameCCA.playerBannedBlockTime.remove(player.getUUID());
-            if (!TarotAssemblyManager.havingMeeting) {
+            perPlayerDarknessTime.remove(player.getUUID());
+            if (!TarotAssemblyManager.havingMeeting && !GroselleJourneyManager.isBanished(player.getUUID())) {
                 GameUtils.killPlayer(player, false,
                         player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);

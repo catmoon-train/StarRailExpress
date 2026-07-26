@@ -32,15 +32,18 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 格罗赛尔游记 - 放逐管理器。
  *
- * <p>持有者用书将目标放逐到配置坐标（默认 -100/50/21000）。被放逐的玩家：
+ * <p>
+ * 持有者用书将目标放逐到配置坐标（默认 -100/50/21000）。被放逐的玩家：
  * <ul>
- *   <li>无法使用技能 / 物品 / 背包（{@link ModEffects#SKILL_BANED}/{@link ModEffects#USED_BANED}/{@link ModEffects#INVENTORY_BANED}），
- *       因而也无法对其他玩家发动攻击；原版规则下玩家本就不能徒手造成伤害，故游记中玩家之间无法互相伤害。</li>
- *   <li>在游记中的任何死亡都会通过 {@link EarlyKillPlayer} 改判为「将其放入游记的持有者」击杀。</li>
- *   <li>60 秒后自动回归被放逐前的位置；或持有者再次蓄力游记 1 秒可主动将其召回。</li>
+ * <li>无法使用技能 / 物品 /
+ * 背包（{@link ModEffects#SKILL_BANED}/{@link ModEffects#USED_BANED}/{@link ModEffects#INVENTORY_BANED}），
+ * 因而也无法对其他玩家发动攻击；原版规则下玩家本就不能徒手造成伤害，故游记中玩家之间无法互相伤害。</li>
+ * <li>在游记中的任何死亡都会通过 {@link EarlyKillPlayer} 改判为「将其放入游记的持有者」击杀。</li>
+ * <li>60 秒后自动回归被放逐前的位置；或持有者再次蓄力游记 1 秒可主动将其召回。</li>
  * </ul>
  *
- * <p>采用静态管理器 + 服务端 tick 思路，避免新增 CCA。
+ * <p>
+ * 采用静态管理器 + 服务端 tick 思路，避免新增 CCA。
  */
 public final class GroselleJourneyManager {
 
@@ -57,8 +60,8 @@ public final class GroselleJourneyManager {
     }
 
     private record Banishment(UUID banisher, ResourceKey<Level> dimension,
-                             double x, double y, double z, float yaw, float pitch,
-                             long banishedAtMillis) {
+            double x, double y, double z, float yaw, float pitch,
+            long banishedAtMillis) {
     }
 
     public static void register() {
