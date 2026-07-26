@@ -42,6 +42,7 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import java.awt.Color;
 import java.util.*;
 import java.util.function.*;
+
 // 此类AI禁止修改。
 public abstract class SRERole extends SREAbstractInfoClass {
     protected final Random random = new Random();
@@ -60,15 +61,29 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canUseSkillWhileSpectator = false;
     protected boolean mafiaTeam = false;
     // --- 通用能力标识 ---
-    protected boolean environmentalImmunity = false;   // 免疫环境致死（窒息、冰冻、干渴等）
+    protected boolean environmentalImmunity = false; // 免疫环境致死（窒息、冰冻、干渴等）
     protected boolean canKillWithBowAndCrossbow = false; // 能用弓/弩和箭杀人
-    protected boolean cannotKnifeLeftClick = false;    // 无法用刀左键击退人
-    protected boolean canKillWithTrident = false;      // 能用三叉戟（忠诚/激流）杀人
-    protected boolean canUseSpVanillaWeapon = false;    // 能用特殊原版武器（Dream 铁斧/钻石剑/重锤）削减他人虚拟血量
+    protected boolean cannotKnifeLeftClick = false; // 无法用刀左键击退人
+    protected boolean canKillWithTrident = false; // 能用三叉戟（忠诚/激流）杀人
+    protected boolean canUseSpVanillaWeapon = false; // 能用特殊原版武器（Dream 铁斧/钻石剑/重锤）削减他人虚拟血量
+
+    /**
+     * 击杀获得额外金币。
+     */
+    protected int killCoin = 0;
+
+    // ---------- 杀人获得金币 ----------
+    // 在SRERole初始化时初始化
+    protected boolean canEarnKillerCoinAwardsFromKills;
 
     // --- 任务奖励追踪（per-player） ---
     private static final Map<UUID, Map<ResourceLocation, Integer>> taskRewardCounts = new HashMap<>();
     private static final Map<UUID, Set<ResourceLocation>> taskRewardTriggered = new HashMap<>();
+
+    public static void resetStatic() {
+        taskRewardCounts.clear();
+        taskRewardTriggered.clear();
+    }
 
     /** 获取玩家对指定角色的已完成任务数 */
     private static int getTaskCount(UUID playerUuid, ResourceLocation roleId) {
@@ -78,7 +93,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
     /** 检查是否已触发过奖励 */
     private static boolean hasTaskRewardTriggered(UUID playerUuid, ResourceLocation roleId, int triggerIdx) {
         var set = taskRewardTriggered.getOrDefault(playerUuid, Set.of());
-        return set.contains(ResourceLocation.fromNamespaceAndPath(roleId.getNamespace(), roleId.getPath() + "_" + triggerIdx));
+        return set.contains(
+                ResourceLocation.fromNamespaceAndPath(roleId.getNamespace(), roleId.getPath() + "_" + triggerIdx));
     }
 
     /** 标记奖励已触发 */
@@ -92,6 +108,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
         taskRewardCounts.remove(playerUuid);
         taskRewardTriggered.remove(playerUuid);
     }
+
     @NotNull
     protected InstinctType toggledOffInstinctType = InstinctType.DEFAULT;
     @NotNull
@@ -932,8 +949,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return;
     }
 
-    public void onFinishQuest(Player player, String quest) {
-        // 通用任务奖励系统
+    /**
+     * 通用任务奖励系统
+     */
+    protected void giveGeneralTaskAwards(Player player, String quest) {
         if (taskRewardCount > 0 && !taskRewardItems.isEmpty()) {
             UUID uuid = player.getUUID();
             int count = getTaskCount(uuid, identifier) + 1;
@@ -949,7 +968,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
                 // 检查已触发次数
                 int triggered = 0;
                 for (int i = 1; i <= taskRewardMaxTriggers; i++) {
-                    if (hasTaskRewardTriggered(uuid, identifier, i)) triggered++;
+                    if (hasTaskRewardTriggered(uuid, identifier, i))
+                        triggered++;
                 }
                 if (count >= taskRewardCount && triggered < taskRewardMaxTriggers) {
                     int nextTrigger = triggered + 1;
@@ -960,6 +980,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
                 }
             }
         }
+    }
+
+    /**
+     * 完成任务时触发
+     * 
+     * @param player
+     * @param quest
+     */
+    public void onFinishQuest(Player player, String quest) {
+        giveGeneralTaskAwards(player, quest);
     }
 
     /** 向玩家发放任务奖励物品并（在非静默时）弹出提示 */
@@ -1177,6 +1207,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
         this.canSeeTime = canSeeTime;
         this.canUseInstinct = this.canUseKiller;
         this.instinctNightVision = this.canUseInstinct;
+        this.canEarnKillerCoinAwardsFromKills = this.canUseKiller && !this.isInnocent && !this.isNeutrals;
     }
 
     public SRERole setCanAutoAddMoney(boolean bl) {
@@ -1774,7 +1805,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     // ---------- 任务奖励（完成 N 个任务给予物品，一局最多触发 M 次，物品可设置多个） ----------
-    protected int taskRewardCount = 0;       // 需要完成的任务数
+    protected int taskRewardCount = 0; // 需要完成的任务数
     protected final List<ItemStack> taskRewardItems = new ArrayList<>(); // 奖励物品（可多个）
     protected int taskRewardMaxTriggers = 1; // 一局最多触发次数
     protected String taskRewardMessageKey = "message.sre.task_reward_received"; // 奖励提示翻译键
@@ -1810,9 +1841,17 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
-    public int getTaskRewardCount() { return taskRewardCount; }
-    public List<ItemStack> getTaskRewardItems() { return Collections.unmodifiableList(taskRewardItems); }
-    public int getTaskRewardMaxTriggers() { return taskRewardMaxTriggers; }
+    public int getTaskRewardCount() {
+        return taskRewardCount;
+    }
+
+    public List<ItemStack> getTaskRewardItems() {
+        return Collections.unmodifiableList(taskRewardItems);
+    }
+
+    public int getTaskRewardMaxTriggers() {
+        return taskRewardMaxTriggers;
+    }
 
     /** 玩家本局是否已至少触发过一次任务奖励 */
     public boolean hasReceivedTaskReward(UUID playerUuid) {
@@ -1825,7 +1864,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     // ---------- 杀手同伙可见性机制（能否被其它职业的 screen 看到杀手同伙） ----------
     protected boolean killerTeammateVisibilityOverride = false; // 是否启用该机制
-    protected boolean canBeSeenAsKillerTeammate = true;         // 能否被看到杀手同伙
+    protected boolean canBeSeenAsKillerTeammate = true; // 能否被看到杀手同伙
 
     /**
      * 杀手同伙可见性机制。
@@ -1900,48 +1939,38 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return darknessImmune;
     }
 
-
-    // ---------- 杀人无法获得金币 ----------
-    protected boolean cannotEarnCoinFromKills = false;
-
-    /** 该职业杀人后无法获得基础金币奖励 */
-    public SRERole setCannotEarnCoinFromKills(boolean cannot) {
-        this.cannotEarnCoinFromKills = cannot;
+    /** 该职业杀人后是否可以获得基础金币奖励 */
+    public SRERole setCanEarnKillerCoinAwardsFromKills(boolean cannot) {
+        this.canEarnKillerCoinAwardsFromKills = cannot;
         return this;
     }
 
-    public boolean cannotEarnCoinFromKills() {
-        return cannotEarnCoinFromKills;
+    public boolean canEarnKillerCoinAwardsFromKills() {
+        return canEarnKillerCoinAwardsFromKills;
     }
 
-    // ---------- 中立击杀获得金币 ----------
-    protected int neutralKillCoin = 0;
-
     /**
-     * 设置该中立职业击杀玩家获得的金币数（默认 0 = 无此奖励）。
-     * 在击杀事件中调用 {@link #grantNeutralKillCoin(ServerPlayer)} 发放。
+     * 设置该职业击杀玩家获得的金币数（默认 0 = 无此奖励）。
+     * 杀手会在此基础上获得更多金币。
+     * 在击杀事件中调用 {@link #grantKillCoin(ServerPlayer)} 发放。
      */
-    public SRERole setNeutralKillCoin(int coin) {
-        this.neutralKillCoin = coin;
+    public SRERole setKillExtraCoinAwards(int coin) {
+        this.killCoin = coin;
         return this;
     }
 
-    public int getNeutralKillCoin() {
-        return neutralKillCoin;
+    public int getKillCoinExtraAwards() {
+        return killCoin;
     }
 
     /**
-     * 击杀玩家时调用，发放该中立职业配置的击杀金币（{@link #getNeutralKillCoin()}）。
+     * 击杀玩家时调用，发放该职业配置的击杀金币（{@link #getKillCoinExtraAwards()}）。
      * <p>
-     * 前提：调用者必须是<b>中立职业</b>（{@link #isNeutrals()} 为 true，含杀手方中立）。
-     * 非中立职业（纯杀手、好人/无辜方等）即使配置了 {@code neutralKillCoin} 也不会生效。
+     * 杀手会在杀手奖励基础上额外发放金币。
      */
-    public void grantNeutralKillCoin(ServerPlayer killer) {
-        if (!isNeutrals()) {
-            return;
-        }
-        if (neutralKillCoin > 0) {
-            SREPlayerShopComponent.KEY.get(killer).addToBalance(neutralKillCoin);
+    public void grantKillCoin(Player killer) {
+        if (killCoin > 0) {
+            SREPlayerShopComponent.KEY.get(killer).addToBalance(killCoin);
         }
     }
 

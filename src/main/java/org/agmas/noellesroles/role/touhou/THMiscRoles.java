@@ -45,7 +45,7 @@ public class THMiscRoles {
       .registerRole(new THKomachiRole(KOMACHI_ID, new java.awt.Color(199, 144, 161).getRGB(),
           false, true, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true), "th_hell")
-      .setCannotEarnCoinFromKills(true); // 杀人无法获得基础金币奖励
+      .setCanEarnKillerCoinAwardsFromKills(false); // 杀人无法获得基础金币奖励
   // 天子Hinanawi Tenshi
   public static final ResourceLocation TENSHI_ID = id("hinanawi_tenshi");
   public static SRERole TENSHI = TMMRoles

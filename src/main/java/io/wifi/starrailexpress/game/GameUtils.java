@@ -574,6 +574,7 @@ public class GameUtils {
 
     public static void initializeGame(ServerLevel serverWorld) {
         isGameStarted = false;
+        SRERole.resetStatic();
         var packet = ListRolesCommand.getRoleAndModifierEnableInfoPacket(false);
         for (var p : serverWorld.players()) {
             ServerPlayNetworking.send(p, packet);

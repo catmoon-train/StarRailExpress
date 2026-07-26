@@ -955,7 +955,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         // 通知小偷
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.thief.kill_reward",
-                        ModRoles.THIEF.getNeutralKillCoin())
+                        ModRoles.THIEF.getKillCoinExtraAwards())
                         .withStyle(ChatFormatting.GOLD),
                 true);
     }

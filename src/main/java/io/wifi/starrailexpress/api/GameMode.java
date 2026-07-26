@@ -36,12 +36,18 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ！！！AI禁止修改！！！
+ * GameMode
+ */
 public abstract class GameMode {
     public final ResourceLocation identifier;
     public final int defaultStartTime;
@@ -56,6 +62,12 @@ public abstract class GameMode {
         var result = ShouldGiveKillerBalance.EVENT.invoker().shouldGiveKillerBalance(victim, killer, deathReason);
         if (result == TrueFalseResult.FALSE)
             return false;
+        if (result == TrueFalseResult.TRUE)
+            return true;
+        var killerRole = RoleUtils.getPlayerRole(killer);
+        if (!killerRole.canEarnKillerCoinAwardsFromKills()) {
+            return false;
+        }
         return true;
     }
 
@@ -709,15 +721,6 @@ public abstract class GameMode {
                 }
                 OnPlayerDeath.EVENT.invoker().onPlayerDeath(victim, deathReason);
 
-                // 中立职业击杀获得金币：由各职业 setNeutralKillCoin 定义，统一在此发放一次。
-                // 必须放在 OnPlayerDeathWithKiller 事件之前，避免角色被事件回调（如学徒 changeRole）改变后读错数值。
-                if (killer instanceof ServerPlayer killerSp) {
-                    SRERole killerRoleNow = gameWorldComponent.getRole(killerSp);
-                    if (killerRoleNow != null) {
-                        killerRoleNow.grantNeutralKillCoin(killerSp);
-                    }
-                }
-
                 OnPlayerDeathWithKiller.EVENT.invoker().onPlayerDeath(victim, killer, deathReason);
 
                 var cantSend = ReplayRules.cantSendReplay.stream().anyMatch((pre) -> {
@@ -736,11 +739,21 @@ public abstract class GameMode {
             }
 
             // 杀手击杀获得金钱奖励
-            if (killer != null && SREGameWorldComponent.KEY.get(killer.level()).canUseKillerFeatures(killer)
-                    && shouldGiveKillerBalance(victim, killer, deathReason)) {
-                int gift = OnGiveKillerBalance.EVENT.invoker().onGiveKillerBalance(victim, killer, deathReason);
-                gift += GameConstants.getMoneyPerKill();
-                SREPlayerShopComponent.KEY.get(killer).addToBalance(gift);
+            if (killer != null) {
+
+                var killerRole = RoleUtils.getPlayerRole(killer);
+                if (killerRole != null) {
+
+                    if (shouldGiveKillerBalance(victim, killer, deathReason)) {
+                        int gift = OnGiveKillerBalance.EVENT.invoker().onGiveKillerBalance(victim, killer, deathReason);
+                        gift += GameConstants.getMoneyPerKill();
+                        SREPlayerShopComponent.KEY.get(killer).addToBalance(gift);
+                    }
+                    {
+                        // 获取额外金币
+                        killerRole.grantKillCoin(killer);
+                    }
+                }
             }
 
             SREPlayerMoodComponent.KEY.get(victim).init();

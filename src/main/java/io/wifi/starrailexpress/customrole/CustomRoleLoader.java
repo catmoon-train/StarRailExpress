@@ -452,9 +452,9 @@ public class CustomRoleLoader {
         if (data.noCoinSystem != null)
             role.setNoCoinSystem(data.noCoinSystem);
         if (data.cannotEarnCoinFromKills != null)
-            role.setCannotEarnCoinFromKills(data.cannotEarnCoinFromKills);
+            role.setCanEarnKillerCoinAwardsFromKills(!data.cannotEarnCoinFromKills);
         if (data.neutralKillCoin > 0)
-            role.setNeutralKillCoin(data.neutralKillCoin);
+            role.setKillExtraCoinAwards(data.neutralKillCoin);
 
         if (data.canKillWithBowAndCrossbow != null)
             role.setCanKillWithBowAndCrossbow(data.canKillWithBowAndCrossbow);

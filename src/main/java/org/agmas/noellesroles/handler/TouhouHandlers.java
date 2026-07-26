@@ -12,7 +12,6 @@ import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
-import io.wifi.starrailexpress.event.ShouldGiveKillerBalance;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -88,16 +87,6 @@ public class TouhouHandlers {
           return TrueFalseResult.TRUE;
         }
         return TrueFalseResult.FALSE;
-      }
-      return TrueFalseResult.PASS;
-    });
-    ShouldGiveKillerBalance.EVENT.register((victim, killer, deathReason) -> {
-      if (killer != null) {
-        var gameWorld = SREGameWorldComponent.KEY.get(killer.level());
-        var role = gameWorld != null ? gameWorld.getRole(killer) : null;
-        // 杀人无法获得基础金币奖励的职业（如小野冢小町）
-        if (role != null && role.cannotEarnCoinFromKills())
-          return TrueFalseResult.FALSE;
       }
       return TrueFalseResult.PASS;
     });
