@@ -13,15 +13,15 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 客户端接收端语音处理：根据<b>说话者</b>是否携带 {@link ModEffects#BEEP_VOICE} /
- * {@link ModEffects#ROBOT_VOICE} 对原始 PCM 做实时变换。
+ * 客户端接收端语音处理：根据<b>说话者</b>是否携带 {@link ModEffects#VOICE_BEEP} /
+ * {@link ModEffects#VOICE_ROBOT} 对原始 PCM 做实时变换。
  *
  * <p>与 {@link org.agmas.noellesroles.voice.client.HeliumBuzzClientReceiver} 同一层
  * （ClientReceiveSoundEvent 的 raw audio），但本类做的是“替换/调制”而非“变调”，因此：
  * <ul>
- *   <li>{@code beep_voice}：pitch-tracking sine vocoder，用跟随语调起伏的纯正弦音完全替换人声
+ *   <li>{@code voice_beep}：pitch-tracking sine vocoder，用跟随语调起伏的纯正弦音完全替换人声
  *       （参考 more_wathe 的 warble 思路，但在 PCM 层实现，无需编解码 Opus）。</li>
- *   <li>{@code robot_voice}：ring modulation（环形调制）+ 轻度低通，保留可懂度但呈电子/机器人质感。</li>
+ *   <li>{@code voice_robot}：ring modulation（环形调制）+ 轻度低通，保留可懂度但呈电子/机器人质感。</li>
  * </ul>
  *
  * <p>说话者的效果由 {@link org.agmas.noellesroles.voice.VoiceEffectSync} 广播到听者客户端，
@@ -78,8 +78,8 @@ public class BeepRobotVoiceClientReceiver {
             return;
         }
 
-        int beepLevel = effectLevel(player, ModEffects.BEEP_VOICE);
-        int robotLevel = effectLevel(player, ModEffects.ROBOT_VOICE);
+        int beepLevel = effectLevel(player, ModEffects.VOICE_BEEP);
+        int robotLevel = effectLevel(player, ModEffects.VOICE_ROBOT);
 
         if (beepLevel > 0) {
             event.setRawAudio(beepTransform(pcm, speaker, beepLevel));

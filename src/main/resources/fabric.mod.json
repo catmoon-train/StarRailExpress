@@ -50,6 +50,7 @@
       "org.agmas.noellesroles.voice.HeliumBuzzVoicechatPlugin",
       "org.agmas.noellesroles.voice.VoiceEffectsOpenALPlugin",
       "org.agmas.noellesroles.voice.BeepRobotVoicechatPlugin",
+      "org.agmas.noellesroles.voice.VoiceExtraEffectsPlugin",
       "pro.fazeclan.river.stupid_express.StupidExpressVoiceChatPlugin",
       "io.wifi.starrailexpress.compat.TrainVoicePlugin"
     ],

@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * 把“说话者身上的语音药水效果”同步给所有客户端。
+ * 把"说话者身上的语音药水效果"同步给所有客户端。
  *
  * <p>原版只会把玩家自身的 MobEffect 同步给他自己（{@code ServerPlayer.onEffectAdded}
  * 只发给本人的连接），其它玩家的效果不会下发。而
@@ -38,13 +38,18 @@ public final class VoiceEffectSync {
     /** 下发到客户端的效果时长，需明显大于刷新间隔以避免闪断。 */
     private static final int SYNC_DURATION = 40;
 
-    /** 需要同步给其它玩家的“说话者侧”语音效果。 */
+    /** 需要同步给其它玩家的"说话者侧"语音效果。 */
     private static final Holder<MobEffect>[] SYNCED_EFFECTS = effects();
 
     @SuppressWarnings("unchecked")
     private static Holder<MobEffect>[] effects() {
         return new Holder[] { ModEffects.HEAVY_METAL_VOICE, ModEffects.VOICE_ECHO,
-                ModEffects.BEEP_VOICE, ModEffects.ROBOT_VOICE };
+                ModEffects.VOICE_BEEP, ModEffects.VOICE_ROBOT,
+                ModEffects.VOICE_HELMET, ModEffects.VOICE_UNDERWATER,
+                ModEffects.VOICE_REVERB, ModEffects.VOICE_SYNTH,
+                ModEffects.VOICE_DISTORTION, ModEffects.VOICE_CHORUS,
+                ModEffects.VOICE_TREMOLO, ModEffects.VOICE_STUTTER,
+                ModEffects.VOICE_REVERSE };
     }
 
     /** 记录每个玩家上一次已广播的效果，便于在效果消失时下发移除包。key=玩家UUID，value=效果索引位掩码。 */
