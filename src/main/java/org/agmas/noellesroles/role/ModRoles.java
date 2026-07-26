@@ -259,6 +259,7 @@ public class ModRoles {
     public static final ResourceLocation GUEST_GHOST_ID = Noellesroles.id("guest_ghost");
     public static final ResourceLocation SILENCER_ID = Noellesroles.id("silencer");
     public static final ResourceLocation WATCHER_ID = Noellesroles.id("watcher");
+    public static final ResourceLocation YOULU_ID = Noellesroles.id("youlu");
     public static final ResourceLocation IMITATOR_ID = Noellesroles.id("imitator");
     public static final ResourceLocation NOSTALGIST_ID = Noellesroles.id("nostalgist");
     public static final ResourceLocation WRAITH_ASSASSIN_ID = Noellesroles.id("wraith_assassin");
@@ -2318,6 +2319,17 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true), "slay_the_spire").setComponentKey(ModComponents.WATCHER).setCanSeeCoin(true);
+
+    // 幽露 - 杀手角色：锚点传送（不请自来）/ 穿墙烟雾（遮天闭目）/ 自由摄像机球烟（G键）
+    public static SRERole YOULU = TMMRoles.registerRole(new NormalRole(
+            YOULU_ID,
+            new Color(126, 148, 168).getRGB(), // 雾青灰 - 幽幽薄雾
+            false, // isInnocent = 非乘客阵营
+            true, // canUseKiller = 有杀手能力
+            SRERole.MoodType.FAKE, // 假心情
+            Integer.MAX_VALUE, // 无限冲刺时间
+            true // 隐藏计分板
+    )).setComponentKey(ModComponents.YOULU).setCanSeeCoin(true);
 
     // 模仿者 - 杀手角色，右键尸体吃掉获得永久能力
     public static SRERole IMITATOR = TMMRoles.registerRole(new NormalRole(

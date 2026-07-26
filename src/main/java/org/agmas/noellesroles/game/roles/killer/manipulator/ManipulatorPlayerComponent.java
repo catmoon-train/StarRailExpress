@@ -27,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -136,11 +137,13 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     /**
-     * 尝试附身操控目标。包含：距离校验、{@link AllowPlayerControlled} 否决、冷却设置。
+     * 施放操控：对目标附加"傀儡游走"药水组合——身体自动朝随机方向乱走且拥有者无法控制、黑屏。
+     *
+     * <p>包含：距离校验、{@link AllowPlayerControlled} 否决、冷却设置。
+     * 相比旧版"远程直接驾驶"（{@link InControlCCA}，已弃用但保留代码），
+     * 新版操控者施法后即自由行动，不再冻结本体 / 绑定相机。
      */
     public void setTarget(UUID targetUuid) {
-        if (!canUseAbility())
-            return;
         if (!(player instanceof ServerPlayer sp))
             return;
         if (targetUuid == null || targetUuid.equals(player.getUUID()))
@@ -151,7 +154,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             return;
 
         Player targetPlayer = player.level().getPlayerByUUID(targetUuid);
-        if (!(targetPlayer instanceof ServerPlayer))
+        if (!(targetPlayer instanceof ServerPlayer targetServerPlayer))
             return;
         if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
             return;
@@ -171,31 +174,30 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
 
         ConfigWorldComponent.onPlayerUsedSkill(sp);
 
-        // 开始附身
-        isControlling = true;
-        this.target = targetUuid;
+        // 傀儡游走：身体随机乱走 + 黑屏 + 禁止移动/转向/使用/背包/技能（拥有者彻底失控）
         int controlTime = GameConstants.getInTicks(0, config().manipulatorControlSeconds);
-        final var inControlCCA = InControlCCA.KEY.get(targetPlayer);
-        inControlCCA.isControlling = true;
-        inControlCCA.controlTimer = controlTime;
-        inControlCCA.controller = player.getUUID();
-        inControlCCA.sync();
+        applyPuppetWander(targetServerPlayer, controlTime);
 
         // 冷却（记在操纵师身上）
         ability.cooldown = GameConstants.getInTicks(0, config().manipulatorCooldown);
         ability.sync();
 
-        // 冻结 + 保护操纵师本体
-        anchorX = sp.getX();
-        anchorY = sp.getY();
-        anchorZ = sp.getZ();
-        sp.setInvulnerable(true);
-        sp.setDeltaMovement(0, 0, 0);
-
-        this.sync();
-
         sp.displayClientMessage(Component.translatable("message.noellesroles.manipulator.control_started",
                 targetPlayer.getName()).withStyle(ChatFormatting.LIGHT_PURPLE), true);
+    }
+
+    /**
+     * 给目标施加"傀儡游走"药水组合：随机自动走动 + 黑屏 + 全面失控。
+     * 一次性附加整段时长（自动走动由 {@link ModEffects#PUPPET_WANDER} 每 tick 驱动）。
+     */
+    private static void applyPuppetWander(ServerPlayer target, int durationTicks) {
+        target.addEffect(new MobEffectInstance(ModEffects.PUPPET_WANDER, durationTicks, 0, false, false, true));
+        target.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, durationTicks, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, durationTicks, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, durationTicks, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, durationTicks, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.INVENTORY_BANED, durationTicks, 0, false, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, durationTicks, 0, false, false, false));
     }
 
     /**

@@ -256,6 +256,11 @@ public interface TMMItems {
         // 注册蓄力物品
         ChargeableItemRegistry.register(TMMItems.KNIFE, new KnifeChargeableItem());
         ChargeableItemRegistry.register(TMMItems.GRENADE, new GrenadeChargeableItem());
+        ChargeableItemRegistry.register(ModItems.WALL_BREAK_GRENADE, new GrenadeChargeableItem());
+        ChargeableItemRegistry.register(ModItems.SLIME_GRENADE, new GrenadeChargeableItem());
+        ChargeableItemRegistry.register(ModItems.INCENDIARY_GRENADE, new GrenadeChargeableItem());
+        ChargeableItemRegistry.register(TMMItems.GRENADE, new GrenadeChargeableItem());
+        ChargeableItemRegistry.register(TMMItems.GRENADE, new GrenadeChargeableItem());
         ChargeableItemRegistry.register(TMMItems.STICKY_GRENADE, new GrenadeChargeableItem());
         WatheBridgerItems.initialize();
         sreRegistrar.registerEntries();

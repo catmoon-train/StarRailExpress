@@ -3318,6 +3318,82 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(ModRoles.WATCHER_ID, shop);
         }
 
+        // ==================== 幽露商店（YOULU） ====================
+        {
+            var YOULU_SHOP = new ArrayList<ShopEntry>();
+            // 刀 - 默认价格（130）
+            YOULU_SHOP.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice));
+            // 零一五 - 275金币
+            YOULU_SHOP.add(new ShopEntry(ModItems.ZERO_ONE_FIVE_GUN.getDefaultInstance(), 275,
+                    ShopEntry.Type.WEAPON));
+            // 技能：不请自来 - 80金币购买一次（可反复使用，物品自带30s冷却）
+            YOULU_SHOP.add(new ShopEntry(ModItems.YOULU_ANCHOR.getDefaultInstance(), 80,
+                    ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    if (io.wifi.starrailexpress.util.SREItemUtils.hasItem(player, ModItems.YOULU_ANCHOR)) {
+                        player.displayClientMessage(Component
+                                .translatable("message.noellesroles.youlu.already_has_item")
+                                .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    // 必须调用默认实现发放物品（否则只扣钱不给货）
+                    return super.onBuy(player);
+                }
+            });
+            // 技能：遮天闭目 - 100金币购买一次（可反复使用，物品自带60s冷却）
+            YOULU_SHOP.add(new ShopEntry(ModItems.YOULU_SMOKE.getDefaultInstance(), 100,
+                    ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    if (io.wifi.starrailexpress.util.SREItemUtils.hasItem(player, ModItems.YOULU_SMOKE)) {
+                        player.displayClientMessage(Component
+                                .translatable("message.noellesroles.youlu.already_has_item")
+                                .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    // 必须调用默认实现发放物品（否则只扣钱不给货）
+                    return super.onBuy(player);
+                }
+            });
+            // 范围关灯（r=24） - 160金币：购买即以自己为中心熄灭半径24格的灯
+            YOULU_SHOP.add(new ShopEntry(ModItems.DREAM_BLACKOUT.getDefaultInstance(), 160,
+                    ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    if (player.getCooldowns().isOnCooldown(ModItems.DREAM_BLACKOUT)) {
+                        return false;
+                    }
+                    SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(player.level());
+                    if (blackout.isBlackoutActive()) {
+                        return false;
+                    }
+                    blackout.triggerBlackout(player.blockPosition(),
+                            NoellesRolesConfig.HANDLER.instance().youluBlackoutRadius, true,
+                            SREWorldBlackoutComponent.getMaxDuration(player.level()));
+                    // 冷却与普通关灯一致
+                    player.getCooldowns().addCooldown(ModItems.DREAM_BLACKOUT,
+                            Math.max(60 * 20, GameConstants.getBlackoutCooldownGlobal()));
+                    return true;
+                }
+            });
+            // 滞时雷 - 350金币
+            YOULU_SHOP.add(new ShopEntry(TMMItems.TIMED_GRENADE.getDefaultInstance(), 350,
+                    ShopEntry.Type.WEAPON));
+            // 狂暴模式 - 460金币
+            YOULU_SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(), 460,
+                    ShopEntry.Type.WEAPON) {
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    return SREPlayerShopComponent.usePsychoMode(player);
+                }
+            });
+            // 撬锁器 - 100金币
+            YOULU_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100,
+                    ShopEntry.Type.TOOL));
+            ShopContent.customEntries.put(ModRoles.YOULU_ID, YOULU_SHOP);
+        }
+
         // 叛徒商店 - 屏障商品，不可交互、不可购买、不可显示，阻止默认杀手商店出现
         {
             var TRAITOR_SHOP = new ArrayList<ShopEntry>();

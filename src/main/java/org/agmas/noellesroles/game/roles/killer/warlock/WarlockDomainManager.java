@@ -52,7 +52,7 @@ public final class WarlockDomainManager {
     /** 领域持续时间。 */
     public static final int DURATION_TICKS = 25 * 20;
     /** 一次最多拉入的咒物主人数量。 */
-    public static final int MAX_VICTIMS = 3;
+    public static final int MAX_VICTIMS = 1;
     /** 领域活动范围（越界即被拉回）。 */
     private static final int BOUND_RADIUS = 15;
     private static final int BOUND_HEIGHT = 10;
@@ -93,27 +93,20 @@ public final class WarlockDomainManager {
         });
     }
 
-    /** 展开领域。返回 false 表示条件不满足（不消耗冷却）。 */
-    public static boolean open(ServerPlayer warlock, WarlockPlayerComponent comp) {
+    /**
+     * 对指定目标展开领域（仅拉入这一人）。返回 false 表示条件不满足（不消耗冷却）。
+     * 校验（角色/存活/冷却/目标处于诅咒中）由 {@link WarlockPlayerComponent#tryOpenDomainOn} 负责。
+     */
+    public static boolean open(ServerPlayer warlock, WarlockPlayerComponent comp, ServerPlayer victim) {
         if (ACTIVE.containsKey(warlock.getUUID()))
             return false;
-        ServerLevel level = warlock.serverLevel();
-
-        List<ServerPlayer> victims = new ArrayList<>();
-        for (UUID uuid : new ArrayList<>(comp.essences)) {
-            if (victims.size() >= MAX_VICTIMS)
-                break;
-            ServerPlayer victim = warlock.server.getPlayerList().getPlayer(uuid);
-            if (victim != null && GameUtils.isPlayerAliveAndSurvival(victim)) {
-                victims.add(victim);
-            }
-        }
-        if (victims.isEmpty()) {
+        if (victim == null || !GameUtils.isPlayerAliveAndSurvival(victim)) {
             warlock.displayClientMessage(Component
                     .translatable("message.noellesroles.warlock.domain_no_victims")
                     .withStyle(ChatFormatting.RED), true);
             return false;
         }
+        ServerLevel level = warlock.serverLevel();
 
         new WarlockDomainSceneBuilder(level)
                 .build(BlockPos.containing(DOMAIN_X, DOMAIN_Y, DOMAIN_Z));
@@ -121,16 +114,13 @@ public final class WarlockDomainManager {
         ActiveDomain domain = new ActiveDomain(warlock.getUUID(), level,
                 level.getGameTime() + DURATION_TICKS);
 
-        // 咒术师站上祭坛中心，咒物主人环绕四周
+        // 咒术师站上祭坛中心，被诅咒者被拉到一侧
         pullIn(domain, warlock, DOMAIN_X, DOMAIN_Z, true);
-        int index = 0;
-        for (ServerPlayer victim : victims) {
-            comp.essences.remove(victim.getUUID());
-            domain.victims.add(victim.getUUID());
-            double angle = Math.PI * 2.0D * index / victims.size();
-            pullIn(domain, victim, DOMAIN_X + Math.cos(angle) * 8.0D, DOMAIN_Z + Math.sin(angle) * 8.0D, false);
-            index++;
-        }
+        // 消耗该目标的诅咒 / 咒物
+        comp.cursedPlayers.remove(victim.getUUID());
+        comp.essences.remove(victim.getUUID());
+        domain.victims.add(victim.getUUID());
+        pullIn(domain, victim, DOMAIN_X + 8.0D, DOMAIN_Z, false);
 
         ACTIVE.put(warlock.getUUID(), domain);
         comp.domainOpen = true;
@@ -164,6 +154,9 @@ public final class WarlockDomainManager {
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, DURATION_TICKS, 0,
                     false, false, false));
         } else {
+            // 进入领域时目标获得黑暗 + 失明双重效果
+            player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, DURATION_TICKS, 0, false, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, DURATION_TICKS, 0, false, false, true));
             sendDomainTitle(player);
         }
     }

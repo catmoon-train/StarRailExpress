@@ -169,7 +169,10 @@ public class ZeroOneFiveGunItem extends SkinableItem {
         // 播放射击音效
         shooter.level().playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(),
                 TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
-        
+
+        // 射击轨迹渲染
+        org.agmas.noellesroles.gunfx.GunTracers.broadcast(shooter, target, 30.0D);
+
         // 发送枪口闪光给所有追踪者（包括自己）
         for (ServerPlayer tracking : PlayerLookup.tracking(shooter)) {
             PacketTracker.sendToClient(tracking, new ShootMuzzleS2CPayload(shooter.getId()));

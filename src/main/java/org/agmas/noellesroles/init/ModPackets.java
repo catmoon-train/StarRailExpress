@@ -46,6 +46,11 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(BroadcasterC2SPacket.ID, BroadcasterC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(NinjaAbilityC2SPacket.ID, NinjaAbilityC2SPacket.CODEC);
 
+        // 幽露：自由摄像机进入/退出（S2C）、摄像机位置上报与 ESC 取消（C2S）
+        PayloadTypeRegistry.playS2C().register(YouluFreeCamS2CPacket.ID, YouluFreeCamS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(YouluCamPosC2SPacket.ID, YouluCamPosC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(YouluFreeCamCancelC2SPacket.ID, YouluFreeCamCancelC2SPacket.CODEC);
+
         PayloadTypeRegistry.playC2S().register(AbilityWithTargetC2SPacket.ID, AbilityWithTargetC2SPacket.CODEC);
 
         PayloadTypeRegistry.playC2S().register(VendingMachinesBuyC2SPacket.TYPE,
@@ -94,6 +99,7 @@ public class ModPackets {
                 org.agmas.noellesroles.packet.WizardShieldC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(WizardSwitchSpellC2SPacket.ID, WizardSwitchSpellC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorC2SPacket.ID, ManipulatorC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(WarlockDomainC2SPacket.ID, WarlockDomainC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(AmonSelectTargetC2SPacket.ID, AmonSelectTargetC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorControlInputC2SPacket.ID, ManipulatorControlInputC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorAbilityC2SPacket.ID, ManipulatorAbilityC2SPacket.CODEC);
@@ -176,6 +182,10 @@ public class ModPackets {
         // 注册零一五枪射击网络包
         PayloadTypeRegistry.playC2S().register(ZeroOneFiveShootPayload.ID, ZeroOneFiveShootPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ZeroOneFiveSecondShotPayload.ID, ZeroOneFiveSecondShotPayload.CODEC);
+
+        // 注册枪械射击轨迹网络包
+        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID,
+                org.agmas.noellesroles.gunfx.GunTracerS2CPacket.CODEC);
 
         // 注册鹈鹕网络包
         PayloadTypeRegistry.playC2S().register(PelicanEatC2SPacket.ID, PelicanEatC2SPacket.CODEC);

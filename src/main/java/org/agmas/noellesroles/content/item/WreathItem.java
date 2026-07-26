@@ -14,7 +14,6 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 
 public class WreathItem extends ArmorItem {
-    private int tick = 0;
 
     @Override
     public Holder<SoundEvent> getEquipSound() {
@@ -27,32 +26,32 @@ public class WreathItem extends ArmorItem {
 
     @Override
     public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
-        if (entity instanceof Player pl) {
-            ItemStack headItem = pl.getSlot(103).get();
-            if (headItem.equals(itemStack) && itemStack.is(ModItems.WREATH)) {
-                // 耐久耗尽后不再提供效果
-                if (itemStack.getDamageValue() >= itemStack.getMaxDamage()) {
-                    pl.removeEffect(ModEffects.MOOD_REGENERATION);
-                    return;
-                }
-                // 持续给予 san值恢复
-                pl.addEffect(new MobEffectInstance(
-                        ModEffects.MOOD_REGENERATION,
-                        50,
-                        0,
-                        true,
-                        false,
-                        true
-                ));
-                // 每秒（20 tick）消耗 1 点耐久
-                this.tick++;
-                if (this.tick >= 20) {
-                    this.tick = 0;
-                    if (!pl.isCreative() && !pl.isSpectator()) {
-                        itemStack.setDamageValue(itemStack.getDamageValue() + 1);
-                    }
-                }
-            }
+        if (!(entity instanceof Player pl)) {
+            return;
+        }
+        ItemStack headItem = pl.getSlot(103).get();
+        if (!headItem.equals(itemStack) || !itemStack.is(ModItems.WREATH)) {
+            return;
+        }
+        // 耐久耗尽后不再提供效果（仅在物品可损坏时判定，避免未设置耐久时判定恒真）
+        if (itemStack.isDamageableItem() && itemStack.getDamageValue() >= itemStack.getMaxDamage()) {
+            pl.removeEffect(ModEffects.MOOD_REGENERATION);
+            return;
+        }
+        // 持续给予 san值恢复
+        pl.addEffect(new MobEffectInstance(
+                ModEffects.MOOD_REGENERATION,
+                50,
+                0,
+                true,
+                false,
+                true
+        ));
+        // 每秒（20 tick）消耗 1 点耐久；按游戏刻计以保证每个物品栈独立扣耐久
+        if (!level.isClientSide() && itemStack.isDamageableItem()
+                && !pl.isCreative() && !pl.isSpectator()
+                && level.getGameTime() % 20 == 0) {
+            itemStack.setDamageValue(itemStack.getDamageValue() + 1);
         }
     }
 }

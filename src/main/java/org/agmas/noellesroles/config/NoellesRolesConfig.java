@@ -102,6 +102,12 @@ public class NoellesRolesConfig implements ConfigData {
     public boolean enableClientBlood = true;
 
     /**
+     * (Server Side) Enable the gun-fire tracer line effect broadcast on every gunshot
+     */
+
+    public boolean gunTracerEffect = true;
+
+    /**
      * Punishment for a civilian's accidental killing of another civilian
      */
 
@@ -419,6 +425,33 @@ public class NoellesRolesConfig implements ConfigData {
     public int grosellTravelogCooldownSeconds = 75;
     /** 格罗赛尔游记 - 瞄准放逐目标的最大距离（格） */
     public double grosellTravelogRange = 6;
+
+    /** 幽露 (Youlu) - 不请自来：锚点物品使用冷却（秒） */
+    public int youluAnchorCooldownSeconds = 30;
+    /** 幽露 (Youlu) - 不请自来：锚点在地面滑行的速度（格/tick） */
+    public double youluAnchorSpeed = 0.25;
+    /** 幽露 (Youlu) - 不请自来：锚点最长存在时间（秒），超时自动消散 */
+    public int youluAnchorLifetimeSeconds = 60;
+    /** 幽露 (Youlu) - 遮天闭目：烟雾物品使用冷却（秒） */
+    public int youluSmokeCooldownSeconds = 60;
+    /** 幽露 (Youlu) - 遮天闭目：烟雾波向前推进的总距离（格），可穿墙 */
+    public double youluSmokeRangeBlocks = 12;
+    /** 幽露 (Youlu) - 遮天闭目：烟雾波推进速度（格/tick） */
+    public double youluSmokeWaveSpeed = 0.5;
+    /** 幽露 (Youlu) - 遮天闭目：烟雾波命中半径（格） */
+    public double youluSmokeHitRadius = 4;
+    /** 幽露 (Youlu) - 遮天闭目：失明+黑暗持续时间（秒） */
+    public int youluSmokeBlindSeconds = 8;
+    /** 幽露 (Youlu) - 自由摄像机：距离本体的最大距离（格），服务端同时校验 */
+    public double youluCamMaxDistance = 48;
+    /** 幽露 (Youlu) - 自由摄像机：最长持续时间（秒），超时自动退出 */
+    public int youluCamMaxSeconds = 60;
+    /** 幽露 (Youlu) - 球烟：半径（格） */
+    public double youluSmokeBallRadius = 6;
+    /** 幽露 (Youlu) - 球烟：持续时间（秒） */
+    public int youluSmokeBallSeconds = 12;
+    /** 幽露 (Youlu) - 商店范围关灯半径（格） */
+    public int youluBlackoutRadius = 24;
 
     /** Leon (里昂) - Combat skill (kick) cooldown in seconds */
     public int leonKickCooldown = 12;

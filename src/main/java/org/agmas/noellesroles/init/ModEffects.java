@@ -20,6 +20,7 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.GhostStateComponent;
 import org.agmas.noellesroles.content.effects.NoCollideEffect;
+import org.agmas.noellesroles.content.effects.PuppetWanderEffect;
 import org.agmas.noellesroles.content.effects.SimpleMobEffect;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistBackworldEffectSync;
@@ -90,6 +91,15 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
     public static final Holder<MobEffect> USED_BANED = register("used_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
+
+    /**
+     * 傀儡游走（操控者·失控之躯）
+     * - 有害效果
+     * - 拥有者身体每 tick 自动朝随机方向缓慢走动、拥有者无法控制（配合 MOVE_BANED/TURN_BANED 等），
+     *   带悬崖/危险探测避免走进虚空。行为见 {@link PuppetWanderEffect}。
+     */
+    public static final Holder<MobEffect> PUPPET_WANDER = register("puppet_wander",
+            new PuppetWanderEffect());
 
     /**
      * 时间停止效果

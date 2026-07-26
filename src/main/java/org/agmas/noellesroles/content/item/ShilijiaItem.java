@@ -62,37 +62,11 @@ public class ShilijiaItem extends Item {
     public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level world,
             @NotNull LivingEntity user) {
         if (user instanceof Player player) {
+            // 体力（sprintingTicks）在客户端与服务端各自模拟，仅服务端设置不会反映到本地
+            // 玩家的体力条与冲刺判定，因此恢复需在两端同时执行。
+            restoreStamina(world, player);
+
             if (!world.isClientSide()) {
-                // 恢复基于体力上限 50% 的体力
-                if (!(player instanceof PlayerStaminaGetter stamina)) {
-                    return shrinkAndReturn(stack);
-                }
-                if (ModEffects.hasInfiniteStamina(player)) {
-                    return shrinkAndReturn(stack);
-                }
-
-                SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(world);
-                float max = -1f;
-                if (gameComponent != null && gameComponent.isRunning()) {
-                    SRERole role = gameComponent.getRole(player);
-                    if (role != null) {
-                        int maxSprintTime = role.getMaxSprintTime(player);
-                        if (maxSprintTime >= 0 && maxSprintTime != Integer.MAX_VALUE) {
-                            max = maxSprintTime * ModEffects.getStaminaCapacityMultiplier(player);
-                        }
-                    }
-                }
-
-                if (max > 0f) {
-                    float current = stamina.starrailexpress$getStamina();
-                    if (current < 0) {
-                        current = max; // -1 = 尚未初始化，视为满
-                    }
-                    current = Math.min(current, max);
-                    float restored = max * STAMINA_RESTORE_RATIO;
-                    stamina.starrailexpress$setStamina(Math.min(max, current + restored));
-                }
-
                 // 播放吃东西的音效
                 world.playSound(null, player.blockPosition(),
                         SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.5F, 1.0F);
@@ -105,9 +79,36 @@ public class ShilijiaItem extends Item {
         return stack;
     }
 
-    private static @NotNull ItemStack shrinkAndReturn(@NotNull ItemStack stack) {
-        stack.shrink(1);
-        return stack;
+    /** 恢复基于体力上限 50% 的体力（客户端与服务端都会执行）。 */
+    private static void restoreStamina(@NotNull Level world, @NotNull Player player) {
+        if (!(player instanceof PlayerStaminaGetter stamina)) {
+            return;
+        }
+        if (ModEffects.hasInfiniteStamina(player)) {
+            return;
+        }
+
+        SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(world);
+        float max = -1f;
+        if (gameComponent != null && gameComponent.isRunning()) {
+            SRERole role = gameComponent.getRole(player);
+            if (role != null) {
+                int maxSprintTime = role.getMaxSprintTime(player);
+                if (maxSprintTime >= 0 && maxSprintTime != Integer.MAX_VALUE) {
+                    max = maxSprintTime * ModEffects.getStaminaCapacityMultiplier(player);
+                }
+            }
+        }
+
+        if (max > 0f) {
+            float current = stamina.starrailexpress$getStamina();
+            if (current < 0) {
+                current = max; // -1 = 尚未初始化，视为满
+            }
+            current = Math.min(current, max);
+            float restored = max * STAMINA_RESTORE_RATIO;
+            stamina.starrailexpress$setStamina(Math.min(max, current + restored));
+        }
     }
 
     @Override

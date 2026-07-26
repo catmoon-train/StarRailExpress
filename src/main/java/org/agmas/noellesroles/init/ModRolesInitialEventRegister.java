@@ -605,16 +605,9 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer target = context.target() != null
                             && player.level().getPlayerByUUID(context.target()) instanceof ServerPlayer sp ? sp : null;
                     return comp.tryCurse(target);
-                }).cooldownSeconds(45).showOnHud(true).build(),
-                RoleSkill.skill(SRE.id("warlock_domain"), "skill.noellesroles.warlock.domain", context -> {
-                    ServerPlayer player = context.player();
-                    if (player.isSpectator())
-                        return false;
-                    var comp = org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY.get(player);
-                    if (comp == null)
-                        return false;
-                    return comp.tryOpenDomain();
-                }).cooldownSeconds(240).shifted(true).showOnHud(true).announceToSelf(true).build());
+                }).cooldownSeconds(45).showOnHud(true).build());
+        // 领域展开（技能三）改为在背包 LimitedInventoryScreen 点选已被诅咒且存活的目标触发，
+        // 见 WarlockDomainScreenMixin / WarlockDomainWidget / WarlockDomainC2SPacket（冷却记在组件里，60s）。
 
         // Dream（梦魇）技能注册：制酒 —— 酿一瓶酒，喝下隐身10s（期间无法攻击/无法受伤）
         RoleSkill.register(ModRoles.DREAM,
@@ -647,6 +640,17 @@ public class ModRolesInitialEventRegister {
                     return true;
                 }).cooldownSeconds(NoellesRolesConfig.instance().dreamBrewCooldownSeconds)
                         .showOnHud(true).announceToSelf(true).build());
+
+        // 幽露（Youlu）G 键技能：【魂游】—— 第一次按 G 进入自由摄像机（返回 false 不进冷却），
+        // 再按 G 在摄像机位置生成球烟并进入 45s 冷却；ESC 取消由 YouluFreeCamCancelC2SPacket 处理。
+        RoleSkill.register(ModRoles.YOULU,
+                RoleSkill.skill(SRE.id("youlu_freecam"), "skill.noellesroles.youlu.freecam", context -> {
+                    ServerPlayer player = context.player();
+                    if (player.isSpectator())
+                        return false;
+                    return org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent.KEY
+                            .get(player).useCamSkill(player);
+                }).cooldownSeconds(45).showOnHud(true).announceToSelf(true).build());
 
         // 滞时鬼（Delayer）技能注册：【时间锚点】——消耗金币锚定当前状态，
         // delayerRewindDelaySeconds 秒后自动沿原路平滑回溯（详见 DelayerPlayerComponent）。

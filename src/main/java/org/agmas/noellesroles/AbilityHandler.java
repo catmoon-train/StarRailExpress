@@ -42,6 +42,70 @@ public class AbilityHandler {
     }
 
     /**
+     * 在踢击者前方锥形范围内寻找最近的存活玩家目标。
+     *
+     * <p>相比射线检测（{@code getHitResultOnViewVector}），锥形检测在贴脸/近距离时更稳定，
+     * 不会因准星未精确对上目标碰撞箱而踢空。
+     *
+     * @param player 踢击者
+     * @param range  水平检测半径（格）
+     * @return 最近的合法目标，若无则为 {@code null}
+     */
+    private static ServerPlayer findKickTarget(ServerPlayer player, double range) {
+        net.minecraft.world.phys.Vec3 self = player.position();
+        float yawRad = (float) Math.toRadians(player.getYRot());
+        // 由 yaw 计算的水平前向单位向量，不受俯仰角影响
+        net.minecraft.world.phys.Vec3 forward = new net.minecraft.world.phys.Vec3(
+                -Math.sin(yawRad), 0, Math.cos(yawRad));
+        ServerPlayer best = null;
+        double bestDist = Double.MAX_VALUE;
+        for (ServerPlayer p : player.serverLevel().players()) {
+            if (p == player || !GameUtils.isPlayerAliveAndSurvival(p))
+                continue;
+            double dx = p.getX() - self.x;
+            double dz = p.getZ() - self.z;
+            double dist = Math.sqrt(dx * dx + dz * dz);
+            if (dist > range)
+                continue;
+            // 竖直方向限制，避免踢到楼上/楼下的人
+            if (Math.abs(p.getY() - self.y) > 2.0)
+                continue;
+            // 贴脸（dist 极小）时跳过朝向判定直接命中；否则要求目标在前方锥形内
+            if (dist > 1.0e-4) {
+                double dot = (forward.x * dx + forward.z * dz) / dist;
+                if (dot < 0.25D)
+                    continue;
+            }
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = p;
+            }
+        }
+        return best;
+    }
+
+    /**
+     * 返回踢击者的水平视线单位方向；若正对天/地（水平分量近 0），则退化为指向目标的方向。
+     */
+    private static net.minecraft.world.phys.Vec3 horizontalLookDirection(ServerPlayer player,
+            ServerPlayer target) {
+        net.minecraft.world.phys.Vec3 look = player.getLookAngle();
+        double dx = look.x;
+        double dz = look.z;
+        double len = Math.sqrt(dx * dx + dz * dz);
+        if (len < 1.0e-4) {
+            dx = target.getX() - player.getX();
+            dz = target.getZ() - player.getZ();
+            len = Math.sqrt(dx * dx + dz * dz);
+        }
+        if (len < 1.0e-4) {
+            // 完全重合时给一个默认方向，避免除零
+            return new net.minecraft.world.phys.Vec3(0, 0, 1);
+        }
+        return new net.minecraft.world.phys.Vec3(dx / len, 0, dz / len);
+    }
+
+    /**
      * 通用技能服务端处理。
      *
      * @param possessed 若为 true，则跳过 {@link ModEffects#SKILL_BANED} 拦截
@@ -173,16 +237,15 @@ public class AbilityHandler {
                 && abilityPlayerComponent.cooldown <= 0) {
             // 格斗体术：向面前玩家猛踹一脚，造成较远击退与减速
             NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
-            net.minecraft.world.phys.HitResult hit = net.minecraft.world.entity.projectile.ProjectileUtil
-                    .getHitResultOnViewVector(player,
-                            e -> e instanceof ServerPlayer p
-                                    && io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(p),
-                            cfg.leonKickRange);
-            if (hit instanceof net.minecraft.world.phys.EntityHitResult ehr
-                    && ehr.getEntity() instanceof ServerPlayer victim) {
-                victim.knockback(cfg.leonKickKnockback,
-                        player.getX() - victim.getX(),
-                        player.getZ() - victim.getZ());
+            // 播放踢击动画（挥击），无论是否命中都会播放
+            player.swing(net.minecraft.world.InteractionHand.MAIN_HAND, true);
+            // 使用锥形最近目标检测：近距离也能稳定命中，避免射线在贴脸时踢空
+            ServerPlayer victim = findKickTarget(player, cfg.leonKickRange);
+            if (victim != null) {
+                // 以踢击者的视线水平方向击退：贴脸时也有稳定方向，不会因两点重合而乱飞
+                net.minecraft.world.phys.Vec3 dir = horizontalLookDirection(player, victim);
+                // knockback(strength, x, z) 会把目标推向 -(x, z)，故传入反方向
+                victim.knockback(cfg.leonKickKnockback, -dir.x, -dir.z);
                 victim.hurtMarked = true;
                 // 玩家受服务端击退需主动同步速度
                 victim.connection
