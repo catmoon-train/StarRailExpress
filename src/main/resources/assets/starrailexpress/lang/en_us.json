@@ -178,6 +178,7 @@
     "sre.custom_role.task_reward_silent": "Silent Reward",
     "sre.custom_role.task_reward_message": "Reward Message Key",
     "sre.custom_role.label.initial_coin_count": "Initial Coin Count (-1=default)",
+    "sre.custom_role.label.neutral_kill_coin": "Kill Reward Coin (0=none)",
     "sre.custom_role.label.mood_color_r": "Mood Color R (-1=default)",
     "sre.custom_role.label.mood_color_g": "Mood Color G (-1=default)",
     "sre.custom_role.label.mood_color_b": "Mood Color B (-1=default)",
