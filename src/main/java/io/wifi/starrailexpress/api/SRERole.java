@@ -1931,9 +1931,15 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     /**
-     * 击杀玩家时调用，若该职业配置了中立击杀金币（{@link #getNeutralKillCoin()} > 0）则发放给杀手。
+     * 击杀玩家时调用，发放该中立职业配置的击杀金币（{@link #getNeutralKillCoin()}）。
+     * <p>
+     * 前提：调用者必须是<b>中立职业</b>（{@link #isNeutrals()} 为 true，含杀手方中立）。
+     * 非中立职业（纯杀手、好人/无辜方等）即使配置了 {@code neutralKillCoin} 也不会生效。
      */
     public void grantNeutralKillCoin(ServerPlayer killer) {
+        if (!isNeutrals()) {
+            return;
+        }
         if (neutralKillCoin > 0) {
             SREPlayerShopComponent.KEY.get(killer).addToBalance(neutralKillCoin);
         }
