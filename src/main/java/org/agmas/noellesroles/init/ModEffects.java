@@ -311,6 +311,19 @@ public class ModEffects {
     public static final Holder<MobEffect> VOICE_SILENCE = register("voice_silence",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x808080));
     /**
+     * 蜂鸣音效：把说话者的声音替换成跟随语调起伏的纯正弦音（pitch-tracking sine vocoder）。
+     * 听不出具体内容，但能感知语调与情绪起伏。客户端处理见
+     * {@code org.agmas.noellesroles.voice.client.BeepRobotVoiceClientReceiver}。
+     */
+    public static final Holder<MobEffect> BEEP_VOICE = register("beep_voice",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFD700));
+    /**
+     * 机器人音效：环形调制（ring modulation）+ 轻度低通，模拟机器人电子音，但保留可懂度。
+     * 客户端处理见 {@code org.agmas.noellesroles.voice.client.BeepRobotVoiceClientReceiver}。
+     */
+    public static final Holder<MobEffect> ROBOT_VOICE = register("robot_voice",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x00CED1));
+    /**
      * 聊天禁止：拥有此效果的玩家发送的聊天消息不会被任何人看到
      */
     public static final Holder<MobEffect> CHAT_BAN = register("chat_ban",

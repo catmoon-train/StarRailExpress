@@ -43,7 +43,8 @@ public final class VoiceEffectSync {
 
     @SuppressWarnings("unchecked")
     private static Holder<MobEffect>[] effects() {
-        return new Holder[] { ModEffects.HEAVY_METAL_VOICE, ModEffects.VOICE_ECHO };
+        return new Holder[] { ModEffects.HEAVY_METAL_VOICE, ModEffects.VOICE_ECHO,
+                ModEffects.BEEP_VOICE, ModEffects.ROBOT_VOICE };
     }
 
     /** 记录每个玩家上一次已广播的效果，便于在效果消失时下发移除包。key=玩家UUID，value=效果索引位掩码。 */
