@@ -950,14 +950,12 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return;
         }
 
-        // 给予200金币
-        SREPlayerShopComponent thiefShop = SREPlayerShopComponent.KEY.get(player);
-        thiefShop.balance += 200;
-        thiefShop.sync();
+        // 中立击杀金币已由 GameMode 在击杀处理中统一发放（数值由 THIEF 职业的 setNeutralKillCoin 决定）
 
         // 通知小偷
         serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.thief.kill_reward", 200)
+                Component.translatable("message.noellesroles.thief.kill_reward",
+                        ModRoles.THIEF.getNeutralKillCoin())
                         .withStyle(ChatFormatting.GOLD),
                 true);
     }

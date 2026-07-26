@@ -10,6 +10,7 @@ public class InitiateRole extends SRERole {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
         this.setNeutrals(true);
         this.setNeutralForInnocent(true);
+        this.setNeutralKillCoin(100);
     }
 
     // @Override

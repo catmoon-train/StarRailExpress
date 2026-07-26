@@ -708,6 +708,16 @@ public abstract class GameMode {
                     bartenderPlayerComponent.clear();
                 }
                 OnPlayerDeath.EVENT.invoker().onPlayerDeath(victim, deathReason);
+
+                // 中立职业击杀获得金币：由各职业 setNeutralKillCoin 定义，统一在此发放一次。
+                // 必须放在 OnPlayerDeathWithKiller 事件之前，避免角色被事件回调（如学徒 changeRole）改变后读错数值。
+                if (killer instanceof ServerPlayer killerSp) {
+                    SRERole killerRoleNow = gameWorldComponent.getRole(killerSp);
+                    if (killerRoleNow != null) {
+                        killerRoleNow.grantNeutralKillCoin(killerSp);
+                    }
+                }
+
                 OnPlayerDeathWithKiller.EVENT.invoker().onPlayerDeath(victim, killer, deathReason);
 
                 var cantSend = ReplayRules.cantSendReplay.stream().anyMatch((pre) -> {

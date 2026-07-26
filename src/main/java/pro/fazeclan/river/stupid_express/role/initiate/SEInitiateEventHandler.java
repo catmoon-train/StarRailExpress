@@ -205,9 +205,7 @@ public class SEInitiateEventHandler {
                     sc.setBalance(120);
                 }
             }
-                
 
-            SREPlayerShopComponent.KEY.get(killer).addToBalance(100);
             StupidRoleUtils.sendWelcomeAnnouncement((ServerPlayer) killer);
             return true;
         }

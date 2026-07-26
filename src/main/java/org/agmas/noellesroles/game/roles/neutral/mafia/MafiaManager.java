@@ -2,9 +2,7 @@ package org.agmas.noellesroles.game.roles.neutral.mafia;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
-import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnRevolverUsed;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -44,17 +42,6 @@ public final class MafiaManager {
         OnRevolverUsed.EVENT.register((player, target) -> {
             if (isGodfather(player) && player.getMainHandItem().is(TMMItems.DERRINGER)) {
                 consumeBullet(player);
-            }
-        });
-        OnPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
-            if (killer instanceof ServerPlayer sp) {
-                if (isGodfather(sp)) {
-                    SREPlayerShopComponent.KEY.get(sp).addToBalance(50);
-                } else if (isParasol(sp)) {
-                    SREPlayerShopComponent.KEY.get(sp).addToBalance(50);
-                } else if (isMafiaMember(sp)) {
-                    SREPlayerShopComponent.KEY.get(sp).addToBalance(75);
-                }
             }
         });
         GameUtils.CustomWinnersPredicates.add(entry -> {

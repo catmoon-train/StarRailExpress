@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -1911,6 +1912,31 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public boolean cannotEarnCoinFromKills() {
         return cannotEarnCoinFromKills;
+    }
+
+    // ---------- 中立击杀获得金币 ----------
+    protected int neutralKillCoin = 0;
+
+    /**
+     * 设置该中立职业击杀玩家获得的金币数（默认 0 = 无此奖励）。
+     * 在击杀事件中调用 {@link #grantNeutralKillCoin(ServerPlayer)} 发放。
+     */
+    public SRERole setNeutralKillCoin(int coin) {
+        this.neutralKillCoin = coin;
+        return this;
+    }
+
+    public int getNeutralKillCoin() {
+        return neutralKillCoin;
+    }
+
+    /**
+     * 击杀玩家时调用，若该职业配置了中立击杀金币（{@link #getNeutralKillCoin()} > 0）则发放给杀手。
+     */
+    public void grantNeutralKillCoin(ServerPlayer killer) {
+        if (neutralKillCoin > 0) {
+            SREPlayerShopComponent.KEY.get(killer).addToBalance(neutralKillCoin);
+        }
     }
 
     // ---------- 初始金币数 ----------
