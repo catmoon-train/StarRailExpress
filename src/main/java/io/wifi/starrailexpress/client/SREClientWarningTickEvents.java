@@ -67,12 +67,17 @@ public class SREClientWarningTickEvents {
         }
         var role = SREClient.getCachedPlayerRole();
         if (role == null) {
+            bannedBlockPlayerInfo = null;
+            bannedBlockInfo = null;
             return;
         }
 
         final var pos1 = SREGameWorldComponent.findNearestSupportBelow(player, 3);
-        if (pos1 == null)
+        if (pos1 == null){
+            bannedBlockPlayerInfo = null;
+            bannedBlockInfo = null;
             return;
+        }
         final var blockState1 = level.getBlockState(pos1);
         final String blockId1 = SREGameWorldComponent.getBlockId(blockState1);
 

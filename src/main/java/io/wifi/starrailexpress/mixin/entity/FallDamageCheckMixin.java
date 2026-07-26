@@ -1,13 +1,14 @@
 package io.wifi.starrailexpress.mixin.entity;
 
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,10 +28,11 @@ public abstract class FallDamageCheckMixin {
                 var cca = AreasWorldComponent.KEY.get(player.level());
                 if (cca.areasSettings.fallToDeathHeight > 0) {
                     if (self.fallDistance >= cca.areasSettings.fallToDeathHeight) {
-                        var gameWorld = SREGameWorldComponent.KEY.get(player.level());
-                        var role = gameWorld != null ? gameWorld.getRole(player) : null;
+                        var role = RoleUtils.getPlayerRole(player);
                         // 免疫摔落致死的职业不会因高度限制摔死
-                        if (role == null || !role.isFallDamageImmune()) {
+                        if (role == null)
+                            return;
+                        if (!role.isFallDamageImmune()) {
                             GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.FALL_DAMAGE);
                         }
                     }
