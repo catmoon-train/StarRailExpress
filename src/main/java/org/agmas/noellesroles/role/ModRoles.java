@@ -2422,7 +2422,7 @@ public class ModRoles {
             .setComponentKey(org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY))
             .setCanUseKiller(true).setCanSeeTeammateKillerRole(true).setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
-            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true)
+            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true);
 
     // ==================== Dream（梦魇）====================
     // "噢，皮革噶的，i want to 和你蹦蹦蹦。"
