@@ -875,7 +875,6 @@ public class ModRoles {
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.TRAP).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
             .setEnvironmentalImmunity(true)
-            .setDefaultMax(0 /* 有BUG */);
     // 红尘客
     public static SRERole WAYFARER = TMMRoles.registerRole(
             new NormalRole(WAYFARER_ID, new Color(255, 54, 105).getRGB(),
@@ -2424,7 +2423,6 @@ public class ModRoles {
             .setCanUseKiller(true).setCanSeeTeammateKillerRole(true).setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
             .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true)
-            .setDefaultMax(0 /* 有BUG */);
 
     // ==================== Dream（梦魇）====================
     // "噢，皮革噶的，i want to 和你蹦蹦蹦。"
