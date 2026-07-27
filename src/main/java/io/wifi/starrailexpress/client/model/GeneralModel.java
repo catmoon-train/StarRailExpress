@@ -88,7 +88,7 @@ public class GeneralModel implements UnbakedModel, BakedModel {
         var mode = context.itemTransformationMode();
         var variant = mode.firstPerson() || IN_HAND.contains(mode) ? GeneralModelLoadingPlugin.Variant.IN_HAND
                 : GeneralModelLoadingPlugin.Variant.DEFAULT;
-
+        
         // 从玩家的CCA组件获取皮肤，而不是仅依赖TMMCosmetics
         String skinName = stack.get(SREDataComponentTypes.SKIN);
         if (skinName == null) {

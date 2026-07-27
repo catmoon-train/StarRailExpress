@@ -1,7 +1,10 @@
 package io.wifi.starrailexpress.content.item;
 
+import io.wifi.starrailexpress.client.util.SREClientUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.ItemSkinManager;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -29,14 +32,15 @@ public abstract class SkinableItem extends Item {
         if (itemName == null)
             return;
         Player player = null;
-        if (tooltipContext instanceof net.minecraft.world.entity.player.Player p) {
+        if (tooltipContext instanceof Player p) {
             player = p;
         } else {
             player = null;
         }
         if (player == null) {
-            super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
-            return;
+            if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)){
+                player = SREClientUtils.getClientPlayer();
+            }
         }
 
         String skinName = "default";

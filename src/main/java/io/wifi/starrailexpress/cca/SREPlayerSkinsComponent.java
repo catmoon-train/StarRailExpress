@@ -4,12 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.util.ItemSkinManager;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -151,7 +149,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 获取当前装备的皮肤名称
      */
     public String getEquippedSkin(ItemStack itemStack) {
-        String itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath().toLowerCase();
+        String itemName = ItemSkinManager.getItemTypeName(itemStack);
         return equippedSkins.getOrDefault(itemName, "default");
     }
 
@@ -159,7 +157,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 设置当前装备的皮肤名称
      */
     public void setEquippedSkin(ItemStack itemStack, String skinName) {
-        String itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath().toLowerCase();
+        String itemName = ItemSkinManager.getItemTypeName(itemStack);
         equippedSkins.put(itemName, skinName);
         markSkinDataChanged();
     }
@@ -168,7 +166,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 解锁一个皮肤
      */
     public void unlockSkin(ItemStack itemStack, String skinName) {
-        String itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath().toLowerCase();
+        String itemName =ItemSkinManager.getItemTypeName(itemStack);
         unlockedSkins.computeIfAbsent(itemName, k -> new HashMap<>()).put(skinName, true);
         // 触发网络同步
         markSkinDataChanged();
@@ -188,7 +186,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 锁定一个皮肤（移除解锁状态）
      */
     public void lockSkin(ItemStack itemStack, String skinName) {
-        String itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath().toLowerCase();
+        String itemName = ItemSkinManager.getItemTypeName(itemStack);
         Map<String, Boolean> skinsForItem = unlockedSkins.get(itemName);
         if (skinsForItem != null) {
             skinsForItem.remove(skinName);
@@ -230,7 +228,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 检查皮肤是否已解锁
      */
     public boolean isSkinUnlocked(ItemStack itemStack, String skinName) {
-        String itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath().toLowerCase();
+        String itemName = ItemSkinManager.getItemTypeName(itemStack);
         Map<String, Boolean> skinsForItem = unlockedSkins.get(itemName);
         return skinsForItem != null && skinsForItem.getOrDefault(skinName, false);
     }
@@ -250,7 +248,8 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 获取所有解锁的皮肤
      */
     public Map<String, Boolean> getUnlockedSkins(ItemStack itemStack) {
-        String itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath().toLowerCase();
+        
+        String itemName = ItemSkinManager.getItemTypeName(itemStack);
         return unlockedSkins.getOrDefault(itemName, new HashMap<>());
     }
 
@@ -296,12 +295,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      * 从数据同步令牌获取皮肤数据
      */
     public String getSkinFromDataSync(ItemStack itemStack) {
-        String itemName = "default";
-        if (itemStack.getItem() instanceof SkinableItem ski) {
-            itemName = ski.getItemSkinType();
-        } else {
-            itemName = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath();
-        }
+        String itemName = ItemSkinManager.getItemTypeName(itemStack);
         // 使用物品的注册名而不是显示名称，以确保一致性
 
         if (KEY.get(player).equippedSkins.containsKey(itemName)) {
@@ -316,7 +310,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      */
     public void setSkinInDataSync(ItemStack itemStack, String skinName) {
         // 只在客户端上传数据
-        KEY.get(player).equippedSkins.put(BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath(), skinName);
+        KEY.get(player).equippedSkins.put(ItemSkinManager.getItemTypeName(itemStack), skinName);
         markSkinDataChanged();
     }
 

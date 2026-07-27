@@ -5,14 +5,13 @@ import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
-import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.network.PlayerDataPartSyncPayload;
+import io.wifi.starrailexpress.util.ItemSkinManager;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -287,10 +286,7 @@ public final class PlayerEconomyManager {
     }
 
     private static String itemType(ItemStack stack) {
-        if (stack.getItem() instanceof SkinableItem skit) {
-            return skit.getItemSkinType();
-        }
-        return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().toLowerCase(java.util.Locale.ROOT);
+        return ItemSkinManager.getItemTypeName(stack);
     }
 
     public static String normalizeItemName(String itemTypeName) {

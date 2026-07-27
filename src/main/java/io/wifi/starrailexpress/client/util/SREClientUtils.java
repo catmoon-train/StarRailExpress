@@ -14,6 +14,7 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -125,5 +126,9 @@ public class SREClientUtils {
 
             client.updateTitle();
         }
+    }
+
+    public static Player getClientPlayer() {
+        return Minecraft.getInstance().player;
     }
 }
