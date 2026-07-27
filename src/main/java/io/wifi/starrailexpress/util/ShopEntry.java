@@ -22,10 +22,26 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
         this(stack, price, type, Currency.MONEY);
     }
 
+    /**
+     * 仅支持售货机使用！！！
+     * @param stack
+     * @param price
+     * @param type
+     * @param currency
+     * @param weight
+     */
     public ShopEntry(ItemStack stack, int price, dev.doctor4t.wathe.util.ShopEntry.Type type, Currency currency) {
         this(stack, price, type, currency, 1);
     }
 
+    /**
+     * 仅支持售货机使用！！！
+     * @param stack
+     * @param price
+     * @param type
+     * @param currency
+     * @param weight
+     */
     public ShopEntry(ItemStack stack, int price, dev.doctor4t.wathe.util.ShopEntry.Type type, Currency currency,
             int weight) {
         super(stack, price, type);
@@ -81,6 +97,14 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
         return true;
     }
 
+    /**
+     * 仅支持售货机使用！！！
+     * @param stack
+     * @param price
+     * @param type
+     * @param currency
+     * @param weight
+     */
     public enum Currency {
         MONEY("money", "gui.vendingmachine.money_display", 0xFFFFD700) {
             @Override
