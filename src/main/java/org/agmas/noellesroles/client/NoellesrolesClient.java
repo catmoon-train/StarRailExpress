@@ -403,6 +403,13 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.renderer.UndeadEntityRenderer::new);
         EntityRendererRegistry.register(ModEntities.MORPHLING_KNIFE_DUMMY,
                 org.agmas.noellesroles.client.renderer.MorphlingKnifeDummyRenderer::new);
+        EntityRendererRegistry.register(ModEntities.YOULU_ANCHOR,
+                org.agmas.noellesroles.client.renderer.YouluAnchorRenderer::new);
+        EntityRendererRegistry.register(ModEntities.YOULU_SMOKE_BALL,
+                org.agmas.noellesroles.client.renderer.YouluSmokeBallRenderer::new);
+        // 烟雾波仅靠少量粒子表现，无需模型
+        EntityRendererRegistry.register(ModEntities.YOULU_SMOKE_WAVE,
+                org.agmas.noellesroles.client.render.EmptyEntityRenderer::new);
         EntityRendererRegistry.register(ModEntities.DOOMED_SINNER_BODY,
                 context -> new io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer<>(context, false));
         EntityRendererRegistry.register(ModEntities.SALTED_FISH_BODY,
@@ -443,6 +450,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             TaskBlockOverlayRenderer.render(renderContext);
             TwoDimensionalTaskArrowRenderer.render(renderContext);
             PointerGuidanceRenderer.render(renderContext);
+            org.agmas.noellesroles.gunfx.GunTracerRenderer.render(renderContext);
         });
         RoleInstinctRegister.registerInstinctEvents();
 
@@ -463,6 +471,11 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientSmokeAreaManager.createSmokeArea(context.client().level, payload.position(), payload.radius(),
                     payload.durationTicks());
         });
+        // 枪械射击轨迹
+        ClientPlayNetworking.registerGlobalReceiver(
+                org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() ->
+                                org.agmas.noellesroles.gunfx.GunTracerRenderer.onPacket(payload)));
 
         // 建筑师墙数据S2C包
         ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID,
@@ -537,6 +550,18 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientSmokeAreaManager.tick();
             ClientWallManager.tick();
         });
+        // 幽露自由摄像机：每 tick 推进（相机移动/位置上报/ESC 取消/球烟内缓存）
+        ClientTickEvents.END_CLIENT_TICK.register(YouluFreeCamClient::tick);
+        // 幽露自由摄像机进入/退出
+        ClientPlayNetworking.registerGlobalReceiver(
+                org.agmas.noellesroles.packet.YouluFreeCamS2CPacket.ID, (payload, context) ->
+                        context.client().execute(() -> {
+                            if (payload.active()) {
+                                YouluFreeCamClient.enter(context.client());
+                            } else {
+                                YouluFreeCamClient.exit();
+                            }
+                        }));
         ClientPlayNetworking.registerGlobalReceiver(ProblemScreenOpenC2SPacket.ID, (payload, context) -> {
             var client = context.client();
             client.execute(() -> {

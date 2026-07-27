@@ -293,7 +293,7 @@ public class TimeStopShader {
         m_post.addSinglePassEntry("nostalgist_gray", pass -> processPlayer(mc.player, () -> {
             totalTime += 0.016f;
 
-            boolean active = mc.player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD);
+            boolean active = mc.player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD) || YouluFreeCamClient.isActive();
             if (active) {
                 nostalgistGray = Math.min(1.0f, nostalgistGray + 0.05f);
             } else {

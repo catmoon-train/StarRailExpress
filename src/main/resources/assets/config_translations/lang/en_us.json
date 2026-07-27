@@ -236,6 +236,7 @@
   "text.autoconfig.noellesroles.option.chanceOfModifierSplitPersonality": "Split Personality modifier chance(%%)",
   "text.autoconfig.noellesroles.option.generalCooldownTicks": "Default Skill Cooldown Duration",
   "text.autoconfig.noellesroles.option.enableClientBlood": "Enable Client-side Blood Display",
+  "text.autoconfig.noellesroles.option.gunTracerEffect": "Enable Gun-fire Tracer Line Effect",
   "text.autoconfig.noellesroles.option.accidentalKillPunishment": "Accidental Kill Punishment",
   "text.autoconfig.noellesroles.option.voodooNonKillerDeaths": "Allow Voodoo trigger without a killer",
   "text.autoconfig.noellesroles.option.voodooShotLikeEvil": "Whether Voodoo dies like an evil role",

@@ -33,10 +33,11 @@ public class WarlockHud {
             context.drawString(font, essenceText, 8, y, 0xFFFFFF);
             y += 12;
 
-            if (comp.curseTarget != null && comp.curseEndTick > gameTime) {
-                int sec = (int) ((comp.curseEndTick - gameTime + 19) / 20);
+            // 当前处于诅咒中的存活目标数量（领域可拉入的候选）
+            long cursedCount = comp.cursedPlayers.values().stream().filter(end -> end > gameTime).count();
+            if (cursedCount > 0) {
                 Component curseText = Component
-                        .translatable("hud.noellesroles.warlock.cursing", sec)
+                        .translatable("hud.noellesroles.warlock.cursing", cursedCount)
                         .withStyle(ChatFormatting.DARK_PURPLE);
                 context.drawString(font, curseText, 8, y, 0xFFFFFF);
                 y += 12;
@@ -48,6 +49,12 @@ public class WarlockHud {
                         .translatable("hud.noellesroles.warlock.domain", sec)
                         .withStyle(ChatFormatting.DARK_AQUA);
                 context.drawString(font, domainText, 8, y, 0xFFFFFF);
+            } else if (comp.domainCooldownEndTick > gameTime) {
+                int sec = (int) ((comp.domainCooldownEndTick - gameTime + 19) / 20);
+                Component cdText = Component
+                        .translatable("hud.noellesroles.warlock.domain_cd", sec)
+                        .withStyle(ChatFormatting.GRAY);
+                context.drawString(font, cdText, 8, y, 0xFFFFFF);
             }
         });
     }

@@ -345,6 +345,7 @@
   "text.autoconfig.noellesroles.option.chanceOfModifierSplitPersonality": "双重人格词条概率(%%)",
   "text.autoconfig.noellesroles.option.generalCooldownTicks": "默认技能冷却时长",
   "text.autoconfig.noellesroles.option.enableClientBlood": "启用客户端的血迹显示",
+  "text.autoconfig.noellesroles.option.gunTracerEffect": "启用枪械开火射线特效",
   "text.autoconfig.noellesroles.option.accidentalKillPunishment": "小脑惩罚",
   "text.autoconfig.noellesroles.option.voodooNonKillerDeaths": "允许无杀手时巫毒触发",
   "text.autoconfig.noellesroles.option.voodooShotLikeEvil": "是否让巫毒像坏人一样死去",

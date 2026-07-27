@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -80,7 +81,19 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
 
         this.dashTicks = DASH_TICKS;
         this.hitThisDash = false;
-        applyDashVelocity(sp);
+
+        // 播放踢击动画（挥击），服务端广播到所有客户端
+        sp.swing(InteractionHand.MAIN_HAND, true);
+
+        // 起手先检查贴脸目标：避免冲刺在第一 tick 直接越过近身玩家导致踢空
+        Player pointBlank = findTargetInFront(sp);
+        if (pointBlank != null) {
+            performKick(sp, pointBlank);
+            this.hitThisDash = true;
+            this.dashTicks = 0;
+        } else {
+            applyDashVelocity(sp);
+        }
 
         // 清空体力条：先让客户端停止冲刺，再重置服务端体力值
         sp.setSprinting(false);
@@ -120,9 +133,13 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
     }
 
     private void applyDashVelocity(ServerPlayer sp) {
-        Vec3 look = sp.getLookAngle();
+        // 使用 yaw 计算的水平单位方向：冲刺距离/方向不再受俯仰角（抬头/低头）影响，
+        // 修复此前 look.x/look.z 在俯仰时被缩短导致方向偏移、位移不足的问题。
+        float yawRad = (float) Math.toRadians(sp.getYRot());
+        double dirX = -Math.sin(yawRad);
+        double dirZ = Math.cos(yawRad);
         double perTick = (double) NoellesRolesConfig.HANDLER.instance().jadeGeneralDashBlocks / DASH_TICKS;
-        Vec3 motion = new Vec3(look.x * perTick, Math.max(sp.getDeltaMovement().y, 0.05D), look.z * perTick);
+        Vec3 motion = new Vec3(dirX * perTick, Math.max(sp.getDeltaMovement().y, 0.05D), dirZ * perTick);
         sp.setDeltaMovement(motion);
         sp.hurtMarked = true;
         sp.connection.send(new ClientboundSetEntityMotionPacket(sp.getId(), motion));
@@ -132,9 +149,9 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
 
     private Player findTargetInFront(ServerPlayer sp) {
         Vec3 selfPos = sp.position();
-        Vec3 lookFlat = flatten(sp.getLookAngle());
-        if (lookFlat.lengthSqr() < 1.0e-4) return null;
-        lookFlat = lookFlat.normalize();
+        // 由 yaw 计算水平前向单位向量，正对天/地时也有效（旧实现在垂直看时会直接返回 null）
+        float yawRad = (float) Math.toRadians(sp.getYRot());
+        Vec3 forward = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad));
 
         Player best = null;
         double bestDist = Double.MAX_VALUE;
@@ -142,8 +159,11 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
             if (p == sp || !GameUtils.isPlayerAliveAndSurvival(p)) continue;
             Vec3 to = flatten(p.position().subtract(selfPos));
             double dist = to.length();
-            if (dist > TARGET_RANGE || dist < 1.0e-4) continue;
-            if (lookFlat.dot(to.normalize()) < 0.3D) continue;
+            if (dist > TARGET_RANGE) continue;
+            // 竖直方向限制，避免踢到楼上/楼下的人
+            if (Math.abs(p.getY() - selfPos.y) > 2.0) continue;
+            // 贴脸（dist 极小）时跳过朝向判定直接命中；否则要求目标在前方锥形内
+            if (dist > 1.0e-4 && forward.dot(to.normalize()) < 0.3D) continue;
             if (dist < bestDist) { bestDist = dist; best = p; }
         }
         return best;

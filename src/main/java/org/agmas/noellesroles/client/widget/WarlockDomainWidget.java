@@ -1,0 +1,82 @@
+package org.agmas.noellesroles.client.widget;
+
+import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import io.wifi.starrailexpress.util.ShopEntry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent;
+import org.agmas.noellesroles.packet.WarlockDomainC2SPacket;
+import org.jetbrains.annotations.NotNull;
+
+import java.awt.Color;
+
+/**
+ * 咒术师·领域展开目标选择组件。
+ * 显示"已被诅咒且存活"的候选玩家头像；点击即请求对其展开领域（60s 冷却）。
+ */
+public class WarlockDomainWidget extends Button {
+    public final LimitedInventoryScreen screen;
+    public final PlayerInfo targetPlayer;
+
+    public WarlockDomainWidget(LimitedInventoryScreen screen, int x, int y, @NotNull PlayerInfo targetPlayer) {
+        super(x, y, 16, 16, Component.literal(targetPlayer.getProfile().getName()), (button) -> {
+            AbstractClientPlayer player = Minecraft.getInstance().player;
+            if (player != null && isReady(player)) {
+                ClientPlayNetworking.send(new WarlockDomainC2SPacket(targetPlayer.getProfile().getId()));
+            }
+        }, DEFAULT_NARRATION);
+        this.screen = screen;
+        this.targetPlayer = targetPlayer;
+    }
+
+    private static boolean isReady(AbstractClientPlayer player) {
+        WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.get(player);
+        long gameTime = player.level().getGameTime();
+        return comp != null && gameTime >= comp.domainCooldownEndTick;
+    }
+
+    @Override
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        AbstractClientPlayer player = Minecraft.getInstance().player;
+        if (player == null)
+            return;
+        WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.get(player);
+        if (comp == null)
+            return;
+        long gameTime = player.level().getGameTime();
+        boolean ready = gameTime >= comp.domainCooldownEndTick;
+
+        super.renderWidget(context, mouseX, mouseY, delta);
+        if (!ready) {
+            context.setColor(0.25f, 0.25f, 0.25f, 0.5f);
+        }
+        context.blitSprite(ShopEntry.Type.WEAPON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
+        PlayerFaceRenderer.draw(context, targetPlayer.getSkin().texture(), this.getX(), this.getY(), 16);
+        context.setColor(1f, 1f, 1f, 1f);
+
+        if (this.isHovered()) {
+            context.renderTooltip(Minecraft.getInstance().font,
+                    Component.nullToEmpty(targetPlayer.getProfile().getName()),
+                    this.getX() - 4 - Minecraft.getInstance().font.width(targetPlayer.getProfile().getName()) / 2,
+                    this.getY() - 9);
+        }
+
+        if (!ready) {
+            int cooldownSeconds = (int) ((comp.domainCooldownEndTick - gameTime + 19) / 20);
+            context.drawString(Minecraft.getInstance().font, cooldownSeconds + "s",
+                    this.getX(), this.getY(), Color.RED.getRGB(), true);
+        }
+    }
+
+    @Override
+    public void renderString(GuiGraphics context, Font textRenderer, int color) {
+        // 空实现
+    }
+}

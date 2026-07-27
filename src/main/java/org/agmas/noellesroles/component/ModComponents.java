@@ -430,6 +430,12 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "jade_general"),
       JadeGeneralPlayerComponent.class);
 
+  // 幽露组件 - 杀手阵营，锚点传送/穿墙烟雾/自由摄像机球烟
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent> YOULU =
+      ComponentRegistry.getOrCreate(
+          ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "youlu"),
+          org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent.class);
+
   // 巫师组件 - 杀手阵营，魔素/法杖/魔药/法术池
   public static final ComponentKey<WizardPlayerComponent> WIZARD = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "wizard"),
@@ -898,6 +904,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, JADE_GENERAL)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(JadeGeneralPlayerComponent::new);
+
+    // 注册幽露组件 - 锚点/自由摄像机状态
+    registry.beginRegistration(Player.class, YOULU)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent::new);
 
     // 注册巫师组件 - 魔素/法术状态
     registry.beginRegistration(Player.class, WIZARD)

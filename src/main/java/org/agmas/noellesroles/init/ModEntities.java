@@ -44,6 +44,36 @@ public class ModEntities {
                     .build());
 
     @SuppressWarnings("deprecation")
+    public static final EntityType<IncendiaryGrenadeEntity> INCENDIARY_GRENADE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("incendiary_grenade"),
+            FabricEntityTypeBuilder.<IncendiaryGrenadeEntity>create(MobCategory.MISC, IncendiaryGrenadeEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    @SuppressWarnings("deprecation")
+    public static final EntityType<SlimeGrenadeEntity> SLIME_GRENADE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("slime_grenade"),
+            FabricEntityTypeBuilder.<SlimeGrenadeEntity>create(MobCategory.MISC, SlimeGrenadeEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    @SuppressWarnings("deprecation")
+    public static final EntityType<WallBreakGrenadeEntity> WALL_BREAK_GRENADE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("wall_break_grenade"),
+            FabricEntityTypeBuilder.<WallBreakGrenadeEntity>create(MobCategory.MISC, WallBreakGrenadeEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    @SuppressWarnings("deprecation")
     public static final EntityType<ThrowingKnifeEntity> THROWING_KNIFE = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "throwing_knife"),
@@ -315,6 +345,45 @@ public class ModEntities {
             FabricEntityTypeBuilder.<DecoyGrenadeEntity>create(MobCategory.MISC, DecoyGrenadeEntity::new)
                     .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
                     .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    /**
+     * 幽露锚点实体 - 贴地滑行的球形传送锚点（仅幽露本人可见）
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<YouluAnchorEntity> YOULU_ANCHOR = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "youlu_anchor"),
+            FabricEntityTypeBuilder.<YouluAnchorEntity>create(MobCategory.MISC, YouluAnchorEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(2)
+                    .build());
+
+    /**
+     * 幽露烟雾波实体 - 遮天闭目：向前推进的穿墙烟雾，半径内玩家失明+黑暗
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<YouluSmokeWaveEntity> YOULU_SMOKE_WAVE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "youlu_smoke_wave"),
+            FabricEntityTypeBuilder.<YouluSmokeWaveEntity>create(MobCategory.MISC, YouluSmokeWaveEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(2)
+                    .build());
+
+    /**
+     * 幽露球烟实体 - G 键技能生成的黑色烟雾球（内部视野迷雾+黑雾）
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<YouluSmokeBallEntity> YOULU_SMOKE_BALL = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "youlu_smoke_ball"),
+            FabricEntityTypeBuilder.<YouluSmokeBallEntity>create(MobCategory.MISC, YouluSmokeBallEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
+                    .trackRangeBlocks(64)
                     .trackedUpdateRate(10)
                     .build());
 

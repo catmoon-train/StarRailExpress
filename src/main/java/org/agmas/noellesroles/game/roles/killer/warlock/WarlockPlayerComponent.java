@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -29,7 +30,10 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,11 +44,12 @@ import java.util.UUID;
  * <ul>
  * <li><b>窃取发肤</b>（G）：近身从目标身上悄悄取得一份「咒物」（头发 / 血肉），
  * 每名玩家整局只能被窃取一次。目标只会收到一句模糊的寒意提示。</li>
- * <li><b>蚀骨之咒</b>（V 切换）：消耗一份咒物诅咒其主人 —— 目标反胃、短暂迟缓，
- * 周身萦绕灵魂颗粒；若诅咒未解时目标死亡（不限死因），咒术师收取咒酬。</li>
- * <li><b>领域展开·灰髓之境</b>（潜行+技能键）：消耗至多 {@value WarlockDomainManager#MAX_VICTIMS}
- * 份咒物，将其主人连同自己一并拉入灰雾领域（高空异空间，见
- * {@link WarlockDomainManager}），域内自由猎杀；杀死咒术师即可立刻破界而出。</li>
+ * <li><b>蚀骨之咒</b>（V 切换）：消耗一份咒物诅咒其主人 —— 目标被暂时隔离（看不见/听不见他人）、
+ * 缓慢、并扣除 30% SAN，且被标记为"被诅咒"（{@value #CURSE_DURATION_TICKS} tick）；
+ * 若诅咒未解时目标死亡（不限死因），咒术师收取咒酬。</li>
+ * <li><b>领域展开·灰髓之境</b>（打开背包 {@code LimitedInventoryScreen} 点选一名已被诅咒且存活的目标）：
+ * 将其连同自己一并拉入灰雾领域（高空异空间，见 {@link WarlockDomainManager}），
+ * 进入领域时目标获得黑暗 + 失明双重效果；域内自由猎杀；杀死咒术师即可立刻破界而出。冷却 60s。</li>
  * </ul>
  * 技能冷却统一交给 {@code RoleSkill}（见 {@code ModRolesInitialEventRegister}），
  * 组件只负责咒物 / 诅咒 / 领域状态与同步。
@@ -56,12 +61,20 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
 
     /** 窃取发肤的最大距离。 */
     public static final double STEAL_RANGE = 8.0D;
-    /** 蚀骨之咒持续时间（tick）。 */
+    /** 蚀骨之咒（诅咒标记）持续时间（tick）：期间目标可被领域拉入、死亡给咒酬。 */
     public static final int CURSE_DURATION_TICKS = 45 * 20;
     /** 蚀咒目标自动搜索半径（未瞄准咒物主人时取最近者）。 */
     public static final double CURSE_AUTO_RANGE = 40.0D;
     /** 被诅咒者死亡时咒术师获得的咒酬。 */
     public static final int CURSE_REWARD_COINS = 40;
+    /** 蚀骨之咒·隔离效果持续时间（tick，"暂时隔离"）。 */
+    public static final int CURSE_ISOLATION_TICKS = 8 * 20;
+    /** 蚀骨之咒·缓慢效果持续时间（tick）。 */
+    public static final int CURSE_SLOW_TICKS = 8 * 20;
+    /** 蚀骨之咒·扣除的 SAN 值比例（0~1）。 */
+    public static final float CURSE_SAN_DRAIN = 0.30F;
+    /** 领域展开冷却（tick）。 */
+    public static final int DOMAIN_COOLDOWN_TICKS = 60 * 20;
 
     static {
         // 被诅咒者死亡（不限死因）→ 咒术师收取咒酬
@@ -74,9 +87,10 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
     public final Set<UUID> essences = new LinkedHashSet<>();
     /** 已被窃取过的玩家（包括咒物已消耗的），保证每人整局只能被窃取一次。 */
     public final Set<UUID> everStolen = new LinkedHashSet<>();
-    @Nullable
-    public UUID curseTarget;
-    public long curseEndTick;
+    /** 当前被诅咒的玩家 → 诅咒结束时间戳（gameTime）。领域只能拉入其中存活者，被诅咒者死亡给咒酬。 */
+    public final Map<UUID, Long> cursedPlayers = new LinkedHashMap<>();
+    /** 领域展开冷却结束时间戳（gameTime）。 */
+    public long domainCooldownEndTick;
     /** 领域是否展开（由 {@link WarlockDomainManager} 维护，同步给 HUD）。 */
     public boolean domainOpen;
     public long domainEndTick;
@@ -94,8 +108,8 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
     public void init() {
         essences.clear();
         everStolen.clear();
-        curseTarget = null;
-        curseEndTick = 0;
+        cursedPlayers.clear();
+        domainCooldownEndTick = 0;
         domainOpen = false;
         domainEndTick = 0;
         sync();
@@ -197,14 +211,13 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
         }
 
         essences.remove(target.getUUID());
-        curseTarget = target.getUUID();
-        curseEndTick = sp.level().getGameTime() + CURSE_DURATION_TICKS;
+        cursedPlayers.put(target.getUUID(), sp.level().getGameTime() + CURSE_DURATION_TICKS);
         sync();
 
-        target.addEffect(new MobEffectInstance(MobEffects.CONFUSION, CURSE_DURATION_TICKS, 0, false, false, false));
-        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 8 * 20, 0, false, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.NEXT_SKILL_BANED, 8 * 20, 0, false, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, 8 * 20, 2, false, false, false));
+        // 蚀骨之咒（重做）：暂时隔离 + 缓慢 + 扣除 30% SAN
+        target.addEffect(new MobEffectInstance(ModEffects.PLAYER_ISOLATION, CURSE_ISOLATION_TICKS, 0, false, false, true));
+        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, CURSE_SLOW_TICKS, 1, false, false, true));
+        SREPlayerMoodComponent.KEY.get(target).addMood(-CURSE_SAN_DRAIN);
         target.serverLevel().playSound(null, target.blockPosition(), SoundEvents.WARDEN_HEARTBEAT,
                 SoundSource.PLAYERS, 1.2F, 0.7F);
         target.displayClientMessage(Component
@@ -216,14 +229,46 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
         return true;
     }
 
-    // ── 技能三：领域展开 ─────────────────────────────────────────
+    // ── 技能三：领域展开（在背包 LimitedInventoryScreen 中点选已被诅咒且存活的目标）──────
 
-    public boolean tryOpenDomain() {
+    /**
+     * 对指定的（已被诅咒且存活的）目标展开领域，仅拉入这一人。60s 冷却。
+     * 校验：角色 / 存活 / 冷却 / 目标处于诅咒中且存活。
+     */
+    public boolean tryOpenDomainOn(@Nullable UUID victimUuid) {
         if (!(player instanceof ServerPlayer sp) || !isActiveWarlock())
             return false;
         if (!io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(sp))
             return false;
-        return WarlockDomainManager.open(sp, this);
+        long now = sp.level().getGameTime();
+        if (now < domainCooldownEndTick) {
+            fail(sp, "message.noellesroles.warlock.domain_cooldown");
+            return false;
+        }
+        if (victimUuid == null || !isCursedAlive(sp, victimUuid)) {
+            fail(sp, "message.noellesroles.warlock.domain_no_victims");
+            return false;
+        }
+        ServerPlayer victim = sp.server.getPlayerList().getPlayer(victimUuid);
+        if (victim == null || !io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(victim)) {
+            fail(sp, "message.noellesroles.warlock.domain_no_victims");
+            return false;
+        }
+        boolean opened = WarlockDomainManager.open(sp, this, victim);
+        if (opened) {
+            domainCooldownEndTick = now + DOMAIN_COOLDOWN_TICKS;
+            sync();
+        }
+        return opened;
+    }
+
+    /** 判断某玩家当前是否处于（未过期的）诅咒中且存活。 */
+    public boolean isCursedAlive(ServerPlayer warlock, UUID uuid) {
+        Long end = cursedPlayers.get(uuid);
+        if (end == null || warlock.level().getGameTime() >= end)
+            return false;
+        ServerPlayer target = warlock.server.getPlayerList().getPlayer(uuid);
+        return target != null && io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(target);
     }
 
     // ── Tick / 事件 ────────────────────────────────────────────
@@ -234,13 +279,20 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
             return;
         long gameTime = sp.level().getGameTime();
 
-        if (curseTarget != null) {
-            if (gameTime >= curseEndTick) {
-                curseTarget = null;
-                curseEndTick = 0;
-                sync();
-            } else if (gameTime % 15 == 0) {
-                ServerPlayer target = sp.server.getPlayerList().getPlayer(curseTarget);
+        if (cursedPlayers.isEmpty())
+            return;
+
+        boolean changed = false;
+        Iterator<Map.Entry<UUID, Long>> it = cursedPlayers.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, Long> entry = it.next();
+            if (gameTime >= entry.getValue()) {
+                it.remove();
+                changed = true;
+                continue;
+            }
+            if (gameTime % 15 == 0) {
+                ServerPlayer target = sp.server.getPlayerList().getPlayer(entry.getKey());
                 if (target != null
                         && io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(target)) {
                     target.serverLevel().sendParticles(ParticleTypes.SOUL,
@@ -248,6 +300,8 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
                 }
             }
         }
+        if (changed)
+            sync();
     }
 
     private static void rewardCurseOnDeath(Player victim) {
@@ -258,12 +312,12 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
             if (!gameWorld.isRole(candidate, ModRoles.WARLOCK))
                 continue;
             WarlockPlayerComponent comp = KEY.maybeGet(candidate).orElse(null);
-            if (comp == null || comp.curseTarget == null || !comp.curseTarget.equals(sv.getUUID()))
+            if (comp == null)
                 continue;
-            if (sv.level().getGameTime() >= comp.curseEndTick)
+            Long end = comp.cursedPlayers.get(sv.getUUID());
+            if (end == null || sv.level().getGameTime() >= end)
                 continue;
-            comp.curseTarget = null;
-            comp.curseEndTick = 0;
+            comp.cursedPlayers.remove(sv.getUUID());
             PlayerEconomyManager.addCoinNum(candidate, CURSE_REWARD_COINS);
             candidate.displayClientMessage(Component
                     .translatable("message.noellesroles.warlock.curse_reward", CURSE_REWARD_COINS)
@@ -285,11 +339,17 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
             list.add(StringTag.valueOf(uuid.toString()));
         }
         tag.put("essences", list);
+        ListTag cursedList = new ListTag();
+        for (Map.Entry<UUID, Long> entry : cursedPlayers.entrySet()) {
+            CompoundTag c = new CompoundTag();
+            c.putString("uuid", entry.getKey().toString());
+            c.putLong("end", entry.getValue());
+            cursedList.add(c);
+        }
+        tag.put("cursedPlayers", cursedList);
+        tag.putLong("domainCooldownEndTick", domainCooldownEndTick);
         tag.putBoolean("domainOpen", domainOpen);
         tag.putLong("domainEndTick", domainEndTick);
-        tag.putLong("curseEndTick", curseEndTick);
-        if (curseTarget != null)
-            tag.putString("curseTarget", curseTarget.toString());
     }
 
     @Override
@@ -298,10 +358,14 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
         for (Tag entry : tag.getList("essences", Tag.TAG_STRING)) {
             essences.add(UUID.fromString(entry.getAsString()));
         }
+        cursedPlayers.clear();
+        for (Tag entry : tag.getList("cursedPlayers", Tag.TAG_COMPOUND)) {
+            CompoundTag c = (CompoundTag) entry;
+            cursedPlayers.put(UUID.fromString(c.getString("uuid")), c.getLong("end"));
+        }
+        domainCooldownEndTick = tag.getLong("domainCooldownEndTick");
         domainOpen = tag.getBoolean("domainOpen");
         domainEndTick = tag.getLong("domainEndTick");
-        curseEndTick = tag.getLong("curseEndTick");
-        curseTarget = tag.contains("curseTarget") ? UUID.fromString(tag.getString("curseTarget")) : null;
     }
 
     @Override

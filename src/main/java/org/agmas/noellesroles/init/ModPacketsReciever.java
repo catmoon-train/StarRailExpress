@@ -83,6 +83,32 @@ import java.util.function.Predicate;
 public class ModPacketsReciever {
   public static void registerPackets() {
 
+    // 幽露：自由摄像机位置上报（服务端按最大距离校验后保存）
+    ServerPlayNetworking.registerGlobalReceiver(YouluCamPosC2SPacket.ID, (payload, context) -> {
+      context.server().execute(() -> {
+        ServerPlayer player = context.player();
+        var gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
+        if (!gameWorld.isRunning() || !gameWorld.isRole(player, ModRoles.YOULU)) {
+          return;
+        }
+        org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent.KEY.get(player)
+            .reportCamPos(player, payload.pos());
+      });
+    });
+
+    // 幽露：ESC 取消自由摄像机（不生成球烟、不进冷却）
+    ServerPlayNetworking.registerGlobalReceiver(YouluFreeCamCancelC2SPacket.ID, (payload, context) -> {
+      context.server().execute(() -> {
+        ServerPlayer player = context.player();
+        var gameWorld = io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(player.level());
+        if (!gameWorld.isRunning() || !gameWorld.isRole(player, ModRoles.YOULU)) {
+          return;
+        }
+        org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent.KEY.get(player)
+            .cancelFreeCam(player);
+      });
+    });
+
     ServerPlayNetworking.registerGlobalReceiver(VendingMachinesBuyC2SPacket.TYPE, (payload, context) -> {
       context.server().execute(() -> {
         try {
@@ -504,6 +530,21 @@ public class ModPacketsReciever {
         manipulatorPlayerComponent.setTarget(payload.player());
       }
     });
+
+    // 咒术师·领域展开：背包点选一名已被诅咒且存活的目标，对其展开领域（校验/冷却由组件内部处理）
+    ServerPlayNetworking.registerGlobalReceiver(
+        org.agmas.noellesroles.packet.WarlockDomainC2SPacket.ID, (payload, context) -> {
+          if (context.player().hasEffect(ModEffects.SAFE_TIME))
+            return;
+          if (payload.target() == null)
+            return;
+          SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+              .get(context.player().level());
+          if (gameWorldComponent.isRole(context.player(), ModRoles.WARLOCK)) {
+            org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY
+                .get(context.player()).tryOpenDomainOn(payload.target());
+          }
+        });
 
     // 阿蒙背包点选玩家包：附身到点选的成熟宿主身上（进入附身）。校验由 setPossessTarget 内部处理。
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.AMON_SELECT_TARGET_PACKET, (payload, context) -> {

@@ -75,6 +75,10 @@ public record ZeroOneFiveShootPayload(int target, boolean isAutoSecondShot) impl
                     TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5f,
                     1f + player.getRandom().nextFloat() * .1f - .05f);
 
+            // 射击轨迹渲染
+            org.agmas.noellesroles.gunfx.GunTracers.broadcast(player,
+                    payload.target() >= 0 ? player.serverLevel().getEntity(payload.target()) : null, 30.0D);
+
             // 发送枪口闪光给所有追踪者
             for (ServerPlayer tracking : PlayerLookup.tracking(player)) {
                 PacketTracker.sendToClient(tracking, new ShootMuzzleS2CPayload(player.getId()));
