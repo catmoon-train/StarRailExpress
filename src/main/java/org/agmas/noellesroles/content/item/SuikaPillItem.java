@@ -26,6 +26,7 @@ public class SuikaPillItem extends PillItem {
             player.getAttribute(Attributes.SCALE).removeModifiers();
             player.getAttribute(Attributes.SCALE).setBaseValue(1f);
         }
-        return stack.consumeAndReturn(1, user);
+        stack.consume(1, user);
+        return stack;
     }
 }
