@@ -20,7 +20,7 @@ public class VoiceChangerHud {
             int level = vc.currentVoiceLevel + 1; // 0 级 = 实际 1 级
             Component line = Component.translatable("tip.voice_changer",
                     Component.translatable(effect.getDescriptionId()), level);
-            int drawY = context.guiHeight() - client.font.wordWrapHeight(line, 999999) - 20;
+            int drawY = context.guiHeight() - client.font.wordWrapHeight(line, 999999) - 8;
             context.drawString(client.font, line, context.guiWidth() - client.font.width(line), drawY,
                     0xADD8E6); // 淡蓝色
         });

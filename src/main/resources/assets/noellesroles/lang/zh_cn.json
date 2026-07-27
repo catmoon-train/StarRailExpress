@@ -702,7 +702,7 @@
   "message.noellesroles.voice_changer.no_target": "准星范围内没有可标记的目标！",
   "message.noellesroles.voice_changer.target_eliminated": "目标已被淘汰！",
   "message.noellesroles.voice_changer.already_marked": "你已标记过 %s！",
-  "message.noellesroles.voice_changer.marked": "已标记 %s（对方不会收到任何提示）",
+  "message.noellesroles.voice_changer.marked": "已标记 %s",
   "message.noellesroles.voice_changer.no_marked": "你还没有标记任何玩家！",
   "message.noellesroles.voice_changer.applied": "已对 %s 名玩家施加【%s】（持续60秒）",
   "message.noellesroles.voice_changer.applied_to_target": "你被变声怪杰施加了【%s】！",
