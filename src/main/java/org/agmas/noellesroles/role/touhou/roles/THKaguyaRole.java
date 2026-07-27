@@ -59,7 +59,7 @@ public class THKaguyaRole extends TouhouRole {
         if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN))
             return;
         if (deathReason.equals(GameConstants.DeathReasons.BROKEN_HEART)
-                || (killer != null && !SREGameWorldComponent.isInnocentStatic(killer) && !forceDeath)) {
+                || (killer != null && !SREGameWorldComponent.isKillerTeamStatic(killer) && !forceDeath)) {
 
             var lover = LoversComponent.KEY.get(victim).getLoverAsPlayer();
             if (lover != null) {

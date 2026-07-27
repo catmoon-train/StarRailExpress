@@ -30,7 +30,8 @@ public class THLostForestRoles {
       .setNeutrals(true)
       .setNeutralForKiller(true)
       .setToggledOnInstinctType(InstinctType.KILLER_INSTINCT)
-      .setCanBeRandomedByOtherRoles(false);
+      .setCanBeRandomedByOtherRoles(false)
+      .setCanUseInstinctAndNightVision(true);
 
   // 藤原妹红
   public static final ResourceLocation MOKOU_ID = id("huziwara_no_mokou");

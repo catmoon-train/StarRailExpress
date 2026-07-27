@@ -27,8 +27,6 @@ import java.util.*;
 public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTickingComponent {
     private static final Logger logger = LoggerFactory.getLogger(SREPlayerSkinsComponent.class);
     private static final String DATABASE_SYNC_KEY = "skins";
-    private static final long DATABASE_SYNC_DEBOUNCE_MS = 2500L;
-    private static final long DATABASE_SYNC_FLUSH_TIMEOUT_MS = 4000L;
     public static final ComponentKey<SREPlayerSkinsComponent> KEY = ComponentRegistry.getOrCreate(
             SRE.id("player_skins"),
             SREPlayerSkinsComponent.class);
@@ -44,8 +42,6 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     private boolean isNetworkSyncEnabled = false;
     private boolean syncMode = false;
     private volatile boolean databaseSyncQueued = false;
-    private volatile boolean databaseSyncInFlight = false;
-    private volatile boolean databaseLoadPending = false;
     private volatile long nextDatabaseSyncAt = 0L;
 
     public SREPlayerSkinsComponent(Player player) {
@@ -80,7 +76,6 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         this.isNetworkSyncEnabled = SREConfig.instance().itemSkinSyncServerEnabled
                 && SREConfig.instance().mysqlPlayerSyncEnabled
                 && MysqlPlayerDataStore.isAvailable();
-        this.databaseLoadPending = false;
         if (this.isNetworkSyncEnabled) {
             logger.info("玩家 {} 的皮肤 MySQL 同步已启用", this.player.getName().getString());
         } else if (SREConfig.instance().itemSkinSyncServerEnabled) {
@@ -100,7 +95,6 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
      */
     public void disableNetworkSync() {
         this.isNetworkSyncEnabled = false;
-        this.databaseLoadPending = false;
     }
 
     @Override
@@ -356,12 +350,10 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
             return;
         }
 
-        this.databaseLoadPending = true;
         MysqlPlayerDataStore.loadBatchAsync(this.player.getUUID(), List.of(DATABASE_SYNC_KEY))
                 .thenAccept(records -> {
                     MysqlPlayerDataStore.SyncRecord record = records.get(DATABASE_SYNC_KEY);
                     serverPlayer.getServer().execute(() -> {
-                        this.databaseLoadPending = false;
                         if (record != null && record.payload() != null && !record.payload().isBlank()) {
                             @SuppressWarnings("unchecked")
                             Map<String, Object> skinData = GSON.fromJson(record.payload(), Map.class);
@@ -378,7 +370,6 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                     });
                 })
                 .exceptionally(throwable -> {
-                    this.databaseLoadPending = false;
                     logger.error("从 MySQL 拉取玩家 {} 的皮肤数据时出错", this.player.getName().getString(), throwable);
                     this.isNetworkSyncEnabled = false;
                     return null;
@@ -433,17 +424,6 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
 
     public void flushNetworkSyncAsyncOnDisconnect() {
         // 只读策略：断线时不再将本地数据异步写入远程数据库。保留签名以兼容调用方。
-    }
-
-    /**
-     * 深复制解锁皮肤映射
-     */
-    private Map<String, Map<String, Boolean>> deepCopyUnlockedSkins() {
-        Map<String, Map<String, Boolean>> copy = new HashMap<>();
-        for (Map.Entry<String, Map<String, Boolean>> entry : this.unlockedSkins.entrySet()) {
-            copy.put(entry.getKey(), new HashMap<>(entry.getValue()));
-        }
-        return copy;
     }
 
     /**

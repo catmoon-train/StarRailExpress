@@ -80,7 +80,7 @@ public class THMokouRole extends TouhouRole {
         if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN))
             return;
         if (deathReason.equals(GameConstants.DeathReasons.BROKEN_HEART)
-                || (killer != null && !SREGameWorldComponent.isKillerTeamStatic(killer) && !forceDeath)) {
+                || (killer != null && !SREGameWorldComponent.isInnocentStatic(killer) && !forceDeath)) {
 
             var lover = LoversComponent.KEY.get(victim).getLoverAsPlayer();
             if (lover != null) {
