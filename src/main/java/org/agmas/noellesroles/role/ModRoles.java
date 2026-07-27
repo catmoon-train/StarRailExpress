@@ -2355,7 +2355,7 @@ public class ModRoles {
             true), "slay_the_spire").setComponentKey(ModComponents.WATCHER).setCanSeeCoin(true);
 
     // 幽露 - 杀手角色：锚点传送（不请自来）/ 穿墙烟雾（遮天闭目）/ 自由摄像机球烟（G键）
-    public static SRERole YOULU = TMMRoles.registerRole(new NormalRole(
+    public static SRERole YOULU = TMMRoles.registerRole(new EggRole(
             YOULU_ID,
             new Color(126, 148, 168).getRGB(), // 雾青灰 - 幽幽薄雾
             false, // isInnocent = 非乘客阵营
@@ -2363,7 +2363,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.YOULU).setCanSeeCoin(true);
+    )).setComponentKey(ModComponents.YOULU).setCanSeeCoin(true).setDefaultEnableChance(5000);
 
     // 模仿者 - 杀手角色，右键尸体吃掉获得永久能力
     public static SRERole IMITATOR = TMMRoles.registerRole(new NormalRole(
