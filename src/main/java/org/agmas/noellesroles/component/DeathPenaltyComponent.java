@@ -195,7 +195,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     public boolean hasStrictPenalty() {
-        return this.hasPenalty() && !chatEnabled;
+        return this.hasPenalty() && (!chatEnabled || (this.limitCameraUUID != null || this.limitPos != null));
     }
 
     public boolean hasPenalty() {

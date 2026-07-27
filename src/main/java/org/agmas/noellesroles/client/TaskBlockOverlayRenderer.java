@@ -32,6 +32,8 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.content.block.scene.DebrisPileBlock;
 import org.agmas.noellesroles.content.block.scene.ReactorBlock;
 import org.agmas.noellesroles.content.block.scene.WaterValveBlock;
@@ -203,7 +205,9 @@ public class TaskBlockOverlayRenderer {
             return;
         if (!SREClient.gameComponent.isRunning())
             return;
-
+        if (DeathPenaltyComponent.hasStrictPenalty(instance.player)) {
+            return;
+        }
         // 监控模式下，非杀手不能看到任务点透视
         if (SecurityMonitorBlock.isInSecurityMode() && !SREClient.isKiller())
             return;
