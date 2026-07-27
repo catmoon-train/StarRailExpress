@@ -65,8 +65,8 @@ public class THMokouRole extends TouhouRole {
             return false;
         int remaningPlayerCount = RoleUtils.getAlivePlayers(serverVictim.serverLevel()).size();
         if (remaningPlayerCount <= XIAONAO_THRESHOLD)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     @Override
