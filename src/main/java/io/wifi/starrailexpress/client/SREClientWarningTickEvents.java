@@ -3,11 +3,8 @@ package io.wifi.starrailexpress.client;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent.PlayerBannedBlockTimeInfo;
-import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.LightLayer;
 
 public class SREClientWarningTickEvents {
     public static PlayerBannedBlockTimeInfo bannedBlockPlayerInfo = null;
@@ -19,36 +16,35 @@ public class SREClientWarningTickEvents {
             return;
         if (SREClient.cached_player != null) {
             checkPlayerBannedBlocksClientAndWarns(world, SREClient.cached_player);
-            checkPlayerDarkness(world, SREClient.cached_player);
         }
     }
 
-    private static void checkPlayerDarkness(ClientLevel level, Player player) {
-        int limit = SREClient.areaComponent.areasSettings.deadInDarknessTime;
-        if (player.isSpectator() || player.isCreative() || limit <= 0) {
-            darknessTime = 0;
-            return;
-        }
-        var role = SREClient.getCachedPlayerRole();
-        if (role == null) {
-            darknessTime = 0;
-            return;
-        }
-        if (role.isKillerTeam()) {
-            darknessTime = 0;
-            return;
-        }
-        if (SREWorldBlackoutComponent.KEY.get(level).isBlackoutActive())
-            return;
-        if (level.getBrightness(LightLayer.BLOCK, BlockPos.containing(player.getEyePosition())) < 3
-                && (level.getBrightness(LightLayer.SKY,
-                        BlockPos.containing(player.getEyePosition())) < 10
-                        || level.getDayTime() > 13000)) {
-            darknessTime++;
-        } else {
-            darknessTime = 0;
-        }
-    }
+    // private static void checkPlayerDarkness(ClientLevel level, Player player) {
+    //     int limit = SREClient.areaComponent.areasSettings.deadInDarknessTime;
+    //     if (player.isSpectator() || player.isCreative() || limit <= 0) {
+    //         darknessTime = 0;
+    //         return;
+    //     }
+    //     var role = SREClient.getCachedPlayerRole();
+    //     if (role == null) {
+    //         darknessTime = 0;
+    //         return;
+    //     }
+    //     if (role.isKillerTeam()) {
+    //         darknessTime = 0;
+    //         return;
+    //     }
+    //     if (SREWorldBlackoutComponent.KEY.get(level).isBlackoutActive())
+    //         return;
+    //     if (level.getBrightness(LightLayer.BLOCK, BlockPos.containing(player.getEyePosition())) < 3
+    //             && (level.getBrightness(LightLayer.SKY,
+    //                     BlockPos.containing(player.getEyePosition())) < 10
+    //                     || level.getDayTime() > 13000)) {
+    //         darknessTime++;
+    //     } else {
+    //         darknessTime = 0;
+    //     }
+    // }
 
     private static void checkPlayerBannedBlocksClientAndWarns(ClientLevel level, Player player) {
         if (level.getGameTime() % 2 != 0) // 2tick 检测一次
