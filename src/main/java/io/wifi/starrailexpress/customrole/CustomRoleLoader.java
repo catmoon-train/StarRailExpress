@@ -1301,7 +1301,7 @@ public class CustomRoleLoader {
             // 条件6: 当场上只剩下自己和某职业时 (类似教父)
             // 优先级低于 TIME 与 LOVER：TIME 时不触发；恋人已赢时让位
             if (!data.customWinLastWithRoles.isEmpty() && (currentWinStatus == WinStatus.KILLERS
-                    || currentWinStatus == WinStatus.PASSENGERS)) {
+                    || currentWinStatus == WinStatus.PASSENGERS || currentWinStatus == WinStatus.NO_PLAYER)) {
                 // 检查场上是否只有自己 + 指定职业
                 boolean onlySelfAndSpecifiedRoles = true;
                 List<ServerPlayer> specifiedWinners = new ArrayList<>();
