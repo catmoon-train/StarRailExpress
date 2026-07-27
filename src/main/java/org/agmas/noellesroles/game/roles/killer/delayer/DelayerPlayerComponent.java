@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeathWithKiller;
+import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -40,7 +41,9 @@ import java.util.List;
  *   回溯期间回溯者本人屏幕呈现<b>时停同款灰白滤镜</b>（{@link ModEffects#TIME_STOP_FILTER}），
  *   其它人短暂恍惚（{@link ModEffects#TIME_REWIND_DAZE} + 反胃）并播放玻璃破碎声。冷却 120 秒。
  * - 若锚点仍在（15 秒内）时被击中（受到伤害），则<b>强制立即回溯</b>，且回溯后进入“趴下”且
- *   无法移动 30 秒的虚弱状态。
+ *   无法移动 30 秒的虚弱状态。本游戏中刀/枪等攻击走击杀管线而非扣血，因此“被击中”通过
+ *   {@link AllowPlayerDeathWithKiller} 在护盾判定前拦截：锚点被击碎、取消这次死亡并强制回溯；
+ *   普通掉血（摔落、中毒等）仍由血量轮询兜底检测。
  */
 public class DelayerPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final org.ladysnake.cca.api.v3.component.ComponentKey<DelayerPlayerComponent> KEY = ModComponents.DELAYER;
@@ -89,6 +92,22 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
             }
             return true;
         });
+
+        // 锚定期间被击中（刀/枪等致命攻击走击杀管线，不扣血）：
+        // 在护盾判定前拦截这次死亡——锚点被击碎，强制沿原路回溯并趴下。
+        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            if (victim == null || killer == null || victim == killer) return true;
+            if (!(victim instanceof ServerPlayer sp)) return true;
+            var world = victim.level();
+            if (world == null || world.isClientSide()) return true;
+            var gameWorld = SREGameWorldComponent.KEY.get(world);
+            if (!gameWorld.isRunning() || !gameWorld.isRole(victim, ModRoles.DELAYER)) return true;
+            DelayerPlayerComponent comp = KEY.get(victim);
+            if (comp == null || !comp.isAnchored()) return true;
+            if (!GameUtils.isPlayerAliveAndSurvival(sp)) return true;
+            comp.forceRewindByHit(sp);
+            return false; // 锚点抵消了这次击杀
+        });
     }
 
     @Override
@@ -98,6 +117,13 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     public boolean isAnchored() {
         return anchored;
+    }
+
+    /** 锚定期间被击中：锚点被击碎，强制立即沿原路回溯，回溯后进入趴下惩罚。 */
+    public void forceRewindByHit(ServerPlayer sp) {
+        if (!anchored || rewinding) return;
+        penaltyPending = true;
+        beginReturn(sp);
     }
 
     /** 锚定当前状态并安排持续 {@code delayerRewindDelaySeconds} 秒后自动回溯。冷却/扣费由 {@link org.agmas.noellesroles.AbilityHandler} 处理。 */
@@ -143,12 +169,11 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
     private void tickAnchored(ServerPlayer sp) {
         NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
 
-        // 被击中（受到伤害）即强制回溯并附带趴下惩罚
+        // 普通掉血（摔落、中毒等）兜底：受到伤害即强制回溯并附带趴下惩罚
         float hp = sp.getHealth();
         if (prevHealth >= 0f && hp < prevHealth - 0.001f) {
             prevHealth = hp;
-            penaltyPending = true;
-            beginReturn(sp);
+            forceRewindByHit(sp);
             return;
         }
         prevHealth = hp;
