@@ -151,7 +151,7 @@ public class HoanMeirinFistPunchHandler {
         if (attacker.getUUID().equals(entity.getUUID())) {
             return InteractionResult.PASS;
         }
-        attacker.getCooldowns().addCooldown(Items.BARRIER, 10);
+        attacker.getCooldowns().addCooldown(Items.BARRIER, 6);
         UUID attackerUUID = attacker.getUUID();
         UUID victimUUID = victim.getUUID();
 
