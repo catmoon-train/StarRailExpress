@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
@@ -28,6 +29,7 @@ public class ThrowingKnifeEntity extends AbstractArrow {
         super(entityType, level);
         it = ModItems.THROWING_KNIFE.getDefaultInstance();
         this.setNoGravity(true);
+        this.pickup = AbstractArrow.Pickup.DISALLOWED; // 不可被拾取
     }
 
     public ThrowingKnifeEntity(EntityType<? extends AbstractArrow> entityType, LivingEntity livingEntity, Level level,
@@ -35,6 +37,16 @@ public class ThrowingKnifeEntity extends AbstractArrow {
         super(entityType, livingEntity, level, itemStack, null);
         it = itemStack.copy();
         this.setNoGravity(true);
+        this.pickup = AbstractArrow.Pickup.DISALLOWED; // 不可被拾取
+    }
+
+    @Override
+    protected boolean tryPickup(Player player) {
+        return false;
+    }
+
+    @Override
+    public void playerTouch(Player player) {
     }
 
     @Override
