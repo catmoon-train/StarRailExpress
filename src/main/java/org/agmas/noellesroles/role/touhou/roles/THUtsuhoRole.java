@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -20,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 
 public class THUtsuhoRole extends TouhouRole {
@@ -70,6 +72,7 @@ public class THUtsuhoRole extends TouhouRole {
             }
 
             if (p.isInWater()) {
+                p.removeEffect(MobEffects.GLOWING);
                 needclear.add(puid);
             }
             if (timenow % 30 == 0) {
@@ -115,7 +118,9 @@ public class THUtsuhoRole extends TouhouRole {
             }
         }
         final long timenow = level.getGameTime();
+        player.addEffect(ModEffects.of(MobEffects.GLOWING, 30 * 20, 1, true, true, true));
         for (var p : victims) {
+            p.addEffect(ModEffects.of(MobEffects.GLOWING, 30 * 20, 1, true, true, true));
             NEED_DRINK_TIME.put(p.getUUID(), new UtsuhoNeedDrinkInfo(timenow + DRINK_THRESHOLD, player));
             p.playNotifySound(NRSounds.C4_BEEP, SoundSource.MASTER, 1f, 1f);
             SRENetworkMessageUtils.sendBroadcast(p,
@@ -135,6 +140,7 @@ public class THUtsuhoRole extends TouhouRole {
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }
+        sp.removeEffect(MobEffects.GLOWING);
         NEED_DRINK_TIME.remove(sp.getUUID());
     }
 }
