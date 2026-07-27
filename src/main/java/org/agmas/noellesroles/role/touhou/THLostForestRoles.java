@@ -33,8 +33,6 @@ public class THLostForestRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), true), "lost_forest")
             .setCanSetSpawnInfoInConfig(true)
             .setDefaultMax(1)
-            .setVigilanteTeam(true)
-            .setSpecialVigilante(true)
             .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(1000)
             .addOccupationRole(KAGUYA)
             .addRelatedModifier(SEModifiers.LOVERS);

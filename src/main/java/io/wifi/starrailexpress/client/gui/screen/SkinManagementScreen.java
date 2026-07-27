@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.UpdateNameTagSelectedPayload;
 import io.wifi.starrailexpress.network.UpdateSkinSelectedPayload;
+import io.wifi.starrailexpress.util.ItemSkinManager;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
@@ -290,7 +291,6 @@ public class SkinManagementScreen extends Screen {
                 skinsComponent,
                 skinName -> {
                     String itemTypeName = getItemTypeName(itemStack);
-                    skinsComponent.setEquippedSkinForItemType(itemTypeName, skinName);
                     ClientPlayNetworking.send(new UpdateSkinSelectedPayload(itemTypeName, skinName));
                 });
 
@@ -387,8 +387,7 @@ public class SkinManagementScreen extends Screen {
     }
 
     private String getItemTypeName(ItemStack itemStack) {
-        Item item = itemStack.getItem();
-        return BuiltInRegistries.ITEM.getKey(item).toString();
+        return ItemSkinManager.getItemTypeName(itemStack);
     }
 
     private List<Item> getSkinnableItemTypes() {
