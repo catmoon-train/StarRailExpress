@@ -87,11 +87,13 @@ public class THSuikaRole extends TouhouRole {
             }
             {
                 if (player.isSprinting()) {
-                    if (!player.getCooldowns().isOnCooldown(Items.REPEATING_COMMAND_BLOCK)
-                            || !player.getCooldowns().isOnCooldown(Items.COMMAND_BLOCK)) {
+                    if ((!player.getCooldowns().isOnCooldown(Items.REPEATING_COMMAND_BLOCK)
+                            || !player.getCooldowns().isOnCooldown(Items.COMMAND_BLOCK))
+                            && !player.getCooldowns().isOnCooldown(Items.CHAIN_COMMAND_BLOCK)) {
                         Vec3 playerPos = player.position();
                         // 获取当前玩家的碰撞箱
                         AABB playerBox = player.getBoundingBox();
+                        int triggeredPush = 0, triggeredKill = 0;
                         // 遍历服务器中所有玩家（包括自己，但跳过）
                         for (ServerPlayer other : player.serverLevel().players()) {
 
@@ -102,11 +104,11 @@ public class THSuikaRole extends TouhouRole {
                             // 检测碰撞箱是否相交（三维空间）
                             if (playerBox.intersects(other.getBoundingBox())) {
                                 // 疾跑冲撞人会击退玩家，CD 30s。此形态免疫手铐，其他处于控制状态的玩家若此时被撞到会直接死亡（包括杀手）CD 30s。
-                                if (other.hasEffect(ModEffects.MOVE_BANED)) {
+                                if (other.hasEffect(ModEffects.MOVE_BANED) && triggeredKill < 3 && triggeredPush <= 0) {
                                     if (!player.getCooldowns().isOnCooldown(Items.REPEATING_COMMAND_BLOCK)) {
                                         GameUtils.killPlayer(other, true, player,
                                                 GameConstants.DeathReasons.SUIKA_RUSH);
-                                        player.getCooldowns().addCooldown(Items.REPEATING_COMMAND_BLOCK, 20 * 30);
+                                        triggeredKill++;
                                     }
                                 } else {
                                     if (!player.getCooldowns().isOnCooldown(Items.COMMAND_BLOCK)) {
@@ -125,11 +127,20 @@ public class THSuikaRole extends TouhouRole {
                                                     1, 0, 0, 0, 0);
                                         }
                                         other.addEffect(ModEffects.of(ModEffects.MOVE_BANED, 20, 0, false, true, true));
-                                        player.getCooldowns().addCooldown(Items.COMMAND_BLOCK, 20 * 10);
+                                        triggeredPush++;
                                         other.setLastHurtByPlayer(player);
                                     }
                                 }
                             }
+                        }
+                        if (triggeredKill > 0) {
+                            player.getCooldowns().addCooldown(Items.REPEATING_COMMAND_BLOCK, 20 * 30);
+                        }
+                        if (triggeredPush > 0) {
+                            player.getCooldowns().addCooldown(Items.COMMAND_BLOCK, 20 * 5);
+                        }
+                        if (triggeredKill > 0 || triggeredPush > 0) {
+                            player.getCooldowns().addCooldown(Items.CHAIN_COMMAND_BLOCK, 20);
                         }
                     }
                 }

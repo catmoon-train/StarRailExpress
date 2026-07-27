@@ -612,7 +612,7 @@ public class SREMurderGameMode extends GameMode {
                                 "Couldn't force player [{}]'s role to {} because there are no roles available for him.",
                                 playerUid,
                                 roleType);
-                        FactionCardType cardType = FactionCardType.fromInt(roleType);
+                        FactionCardType cardType = FactionCardType.fromRoleType(roleType);
                         if (cardType != FactionCardType.NONE) {
                             ProgressionDataManager.addFactionCard((ServerPlayer) selectedPlayer, cardType, 1);
                             BroadcastCommand.BroadcastMessage(selectedPlayer,
