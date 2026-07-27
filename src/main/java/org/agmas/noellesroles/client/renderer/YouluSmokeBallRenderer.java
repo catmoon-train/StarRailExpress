@@ -24,7 +24,9 @@ public class YouluSmokeBallRenderer extends EntityRenderer<YouluSmokeBallEntity>
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("minecraft",
             "textures/block/white_concrete.png");
 
-    // ==================== 消散特效参数 ====================
+    // ==================== 显现 / 消散特效参数 ====================
+    /** 初始显现动画时长（tick），前 N tick 内 alpha 从 0 渐变到满值。 */
+    private static final int APPEAR_TICKS = 15;
     /** 消散阶段起始阈值：生命周期进度超过此值后进入消散阶段（55%）。留有一些余量使过渡平滑。 */
     private static final float DISSIPATION_START = 0.55f;
     /** 最大半径膨胀倍数（加速扩散）。 */
@@ -52,6 +54,10 @@ public class YouluSmokeBallRenderer extends EntityRenderer<YouluSmokeBallEntity>
         // 缓慢起伏（独立于消散，始终存在）
         float pulse = (float) Math.sin((entity.tickCount + partialTick) * 0.05) * 0.03f + 1.0f;
 
+        // 初始显现动画：前 APPEAR_TICKS tick 内 alpha 从 0 平滑过渡到 1
+        float appearProgress = Math.min(1.0f, (entity.tickCount + partialTick) / APPEAR_TICKS);
+        float appearAlpha = smoothstep(appearProgress);
+
         // 消散进度计算
         float lifeProgress = entity.tickCount / entity.getMaxLifetime();
         float d = computeDissipationProgress(lifeProgress);
@@ -66,8 +72,8 @@ public class YouluSmokeBallRenderer extends EntityRenderer<YouluSmokeBallEntity>
         int outerG = lerpColor(25, FADE_TARGET_COLOR[1], lerp);
         int outerB = lerpColor(30, FADE_TARGET_COLOR[2], lerp);
 
-        // 3) 透明度逐渐降低
-        float outerAlpha = 170 * (1.0f - lerp);
+        // 3) 透明度逐渐降低（叠加显现 alpha）
+        float outerAlpha = 170 * (1.0f - lerp) * appearAlpha;
 
         // 4) 向上飘散（消散后期加速上升）
         float yOffset = computeYOffset(d);
@@ -87,7 +93,7 @@ public class YouluSmokeBallRenderer extends EntityRenderer<YouluSmokeBallEntity>
         int innerR = lerpColor(15, FADE_TARGET_COLOR[0], innerLerp);
         int innerG = lerpColor(15, FADE_TARGET_COLOR[1], innerLerp);
         int innerB = lerpColor(18, FADE_TARGET_COLOR[2], innerLerp);
-        float innerAlpha = 220 * (1.0f - innerLerp);
+        float innerAlpha = 220 * (1.0f - innerLerp) * appearAlpha;
 
         SphereRenderHelper.renderSphere(poseStack, consumer,
                 radius * 0.9f * pulse * radiusMultiplier, 12, 24,

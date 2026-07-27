@@ -4,6 +4,8 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,6 +31,15 @@ public class YouluSmokeWaveEntity extends Entity {
 
     /** 拥有者 UUID（不受烟雾影响）。 */
     private UUID ownerUuid = null;
+    /** 球烟渲染半径（同步给客户端）。 */
+    private static final EntityDataAccessor<Float> RADIUS = SynchedEntityData.defineId(
+            YouluSmokeWaveEntity.class, EntityDataSerializers.FLOAT);
+    /** 最大推进距离（同步给客户端用于渲染消散进度）。 */
+    private static final EntityDataAccessor<Float> MAX_DISTANCE = SynchedEntityData.defineId(
+            YouluSmokeWaveEntity.class, EntityDataSerializers.FLOAT);
+    /** 剩余可推进距离（同步给客户端用于渲染消散进度）。 */
+    private static final EntityDataAccessor<Float> REMAINING_DISTANCE = SynchedEntityData.defineId(
+            YouluSmokeWaveEntity.class, EntityDataSerializers.FLOAT);
     /** 前进方向（水平单位向量）。 */
     private Vec3 direction = new Vec3(0, 0, 1);
     /** 推进速度（格/tick）。 */
@@ -46,17 +57,36 @@ public class YouluSmokeWaveEntity extends Entity {
     }
 
     public void setup(UUID ownerUuid, Vec3 direction, double speed, double rangeBlocks,
-            double hitRadius, int blindTicks) {
+            double hitRadius, int blindTicks, float renderRadius) {
         this.ownerUuid = ownerUuid;
         this.direction = direction.normalize();
         this.speed = speed;
         this.remainingDistance = rangeBlocks;
         this.hitRadius = hitRadius;
         this.blindTicks = blindTicks;
+        this.entityData.set(RADIUS, renderRadius);
+        this.entityData.set(MAX_DISTANCE, (float) rangeBlocks);
+        this.entityData.set(REMAINING_DISTANCE, (float) remainingDistance);
+    }
+
+    public float getRadius() {
+        return this.entityData.get(RADIUS);
+    }
+
+    public float getMaxDistance() {
+        return this.entityData.get(MAX_DISTANCE);
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(RADIUS, 3.6F);
+        builder.define(MAX_DISTANCE, 30.0F);
+        builder.define(REMAINING_DISTANCE, 30.0F);
+    }
+
+    /** 剩余可推进距离（同步给客户端用于渲染消散进度）。 */
+    public double getRemainingDistance() {
+        return this.entityData.get(REMAINING_DISTANCE);
     }
 
     @Override
@@ -78,6 +108,7 @@ public class YouluSmokeWaveEntity extends Entity {
         double step = Math.min(speed, remainingDistance);
         setPos(getX() + direction.x * step, getY() + direction.y * step, getZ() + direction.z * step);
         remainingDistance -= step;
+        this.entityData.set(REMAINING_DISTANCE, (float) remainingDistance);
 
         applyToPlayersInRange(serverLevel);
 

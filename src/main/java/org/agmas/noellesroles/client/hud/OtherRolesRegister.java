@@ -64,6 +64,7 @@ public class OtherRolesRegister {
         org.agmas.noellesroles.client.hud.roles.AmonHud.register();
         AdventurerHud.register();
         ReasonerHud.register();
+        VoiceChangerHud.register();
         EmbalmerHud.register();
         SkincrawlerHud.register();
         SwapperHud.register();

@@ -236,7 +236,8 @@
       "noellesroles:silencer",
       "noellesroles:diviner",
       "noellesroles:doomed_sinner",
-      "noellesroles:ghost_eye"
+      "noellesroles:ghost_eye",
+      "noellesroles:voice_changer"
     ],
     "loom:injected_interfaces": {
       "net/minecraft/class_5483/class_5496": [

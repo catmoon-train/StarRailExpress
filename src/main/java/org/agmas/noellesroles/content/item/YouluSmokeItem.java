@@ -61,10 +61,14 @@ public class YouluSmokeItem extends Item {
         Vec3 forward = new Vec3(-Math.sin(rad), 0, Math.cos(rad));
         Vec3 start = sp.getEyePosition().add(forward);
 
+        // 渲染半径 = 球烟半径的 60%
+        float renderRadius = (float) (config.youluSmokeBallRadius * 0.6f);
+
         YouluSmokeWaveEntity wave = new YouluSmokeWaveEntity(ModEntities.YOULU_SMOKE_WAVE, serverLevel);
         wave.setPos(start.x, start.y, start.z);
-        wave.setup(sp.getUUID(), forward, config.youluSmokeWaveSpeed, config.youluSmokeRangeBlocks,
-                config.youluSmokeHitRadius, GameConstants.getInTicks(0, config.youluSmokeBlindSeconds));
+        wave.setup(sp.getUUID(), forward, config.youluSmokeWaveSpeed, 30.0D,
+                config.youluSmokeHitRadius, GameConstants.getInTicks(0, config.youluSmokeBlindSeconds),
+                renderRadius);
         serverLevel.addFreshEntity(wave);
 
         sp.getCooldowns().addCooldown(this,

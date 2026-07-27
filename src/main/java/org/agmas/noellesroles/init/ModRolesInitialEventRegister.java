@@ -63,6 +63,7 @@ import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerCompon
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.voice_changer.VoiceChangerPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
@@ -882,6 +883,33 @@ public class ModRolesInitialEventRegister {
                             ThiefPlayerComponent.KEY.get(context.player()).toggleMode();
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
+
+        // 变声怪杰技能注册：
+        // - 蹲下+技能键(G)：标记准星玩家（冷却20秒）
+        // - 技能键(G)：对全部被标记目标施加当前选择的变声效果（持续60秒，冷却60秒）
+        // - 技能切换键(Y)：切换变声种类
+        // - 蹲下+技能切换键(Y)：切换变声等级
+        RoleSkill.register(ModRoles.VOICE_CHANGER,
+                RoleSkill.skill(SRE.id("voice_changer_apply"),
+                        "skill.noellesroles.voice_changer.apply",
+                        context -> {
+                            return VoiceChangerPlayerComponent.KEY.get(context.player()).applyVoice();
+                        }).cooldownSeconds(60).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("voice_changer_mark"),
+                        "skill.noellesroles.voice_changer.mark",
+                        context -> {
+                            return VoiceChangerPlayerComponent.KEY.get(context.player()).markTarget(context.target());
+                        }).shifted(true).cooldownSeconds(20).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("voice_changer_switch"),
+                        "skill.noellesroles.voice_changer.switch",
+                        context -> {
+                            if (context.player().isShiftKeyDown()) {
+                                VoiceChangerPlayerComponent.KEY.get(context.player()).switchVoiceLevel();
+                            } else {
+                                VoiceChangerPlayerComponent.KEY.get(context.player()).switchVoiceType();
+                            }
+                            return true;
+                        }).shifted(true).modeSwitch(true).announceToSelf(false).build());
 
         // 会计技能注册：普通按 G 使用技能，按技能切换键(Y) 切换模式
         RoleSkill.register(ModRoles.ACCOUNTANT,

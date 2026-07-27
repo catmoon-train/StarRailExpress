@@ -407,9 +407,9 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.renderer.YouluAnchorRenderer::new);
         EntityRendererRegistry.register(ModEntities.YOULU_SMOKE_BALL,
                 org.agmas.noellesroles.client.renderer.YouluSmokeBallRenderer::new);
-        // 烟雾波仅靠少量粒子表现，无需模型
+        // 烟雾波：小型球烟（60% 大小）、穿墙推进 30 格后消散
         EntityRendererRegistry.register(ModEntities.YOULU_SMOKE_WAVE,
-                org.agmas.noellesroles.client.render.EmptyEntityRenderer::new);
+                org.agmas.noellesroles.client.renderer.YouluSmokeWaveRenderer::new);
         EntityRendererRegistry.register(ModEntities.DOOMED_SINNER_BODY,
                 context -> new io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer<>(context, false));
         EntityRendererRegistry.register(ModEntities.SALTED_FISH_BODY,

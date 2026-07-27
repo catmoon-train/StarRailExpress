@@ -89,6 +89,7 @@ import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.reasoner.ReasonerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.voice_changer.VoiceChangerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
@@ -290,6 +291,7 @@ public class ModRoles {
     public static final ResourceLocation RAVEN_ID = Noellesroles.id("raven");
     public static final ResourceLocation REASONER_ID = Noellesroles.id("reasoner");
     public static final ResourceLocation AMON_ID = Noellesroles.id("amon");
+    public static final ResourceLocation VOICE_CHANGER_ID = Noellesroles.id("voice_changer");
     public static final ResourceLocation DOOMED_SINNER_ID = Noellesroles.id("doomed_sinner");
     public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
     // 占卜家角色 ID
@@ -2127,6 +2129,35 @@ public class ModRoles {
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
             .setDefaultMax(1).setDefaultEnableNeededPlayerCount(10).setDefaultEnableChance(6500);
 
+    /**
+     * 变声怪杰角色 - 杀手方中立阵营
+     * - 中立阵营 (isInnocent = false, canUseKiller = true)
+     * - 假心情 (MoodType.FAKE)
+     * - 无限体力 (Integer.MAX_VALUE 冲刺时间)
+     * - 在计分板上隐藏
+     * - 不给予初始物品（开局自带 100 金币用于商店）
+     * - 本能透视：看所有玩家都显示为自己的颜色 (OBSERVER_ROLE_COLOR)
+     * - 商店（见 RoleShopHandler）：100 金币购买开锁器
+     * - 技能（见 ModRolesInitialEventRegister 注册）：
+     *   - 蹲下+技能键(G)：标记准星玩家（冷却20秒）
+     *   - 技能键(G)：对全部被标记目标施加当前选择的变声效果（持续60秒，冷却60秒）
+     *   - 技能切换键(Y)：切换变声种类
+     *   - 蹲下+技能切换键(Y)：切换变声等级
+     */
+    public static SRERole VOICE_CHANGER = TMMRoles.registerRole(new NormalRole(
+            VOICE_CHANGER_ID, // 角色 ID
+            new Color(148, 0, 211).getRGB(), // 深紫罗兰 - 代表变声/神秘
+            false, // isInnocent = 非乘客阵营（杀手方中立）
+            false, // canUseKiller = 有杀手能力
+            SRERole.MoodType.FAKE, // 假心情
+            Integer.MAX_VALUE, // 无限体力（冲刺时间）
+            true // 隐藏计分板
+    )).setComponentKey(VoiceChangerPlayerComponent.KEY)
+            .setCanUseInstinctAndNightVision(true)
+            .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR)
+            .setNeutrals(true)
+            .setNeutralForKiller(true)
+            .setDefaultMax(1);
     /**
      * 阿蒙（诡秘之主）—— 中立彩蛋独立胜利角色，核心机制「寄生」。
      * - 中立独立胜利 (setNeutrals(true)，setNeutralForKiller(false) 杀手视角为好人)

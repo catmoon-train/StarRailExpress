@@ -88,6 +88,7 @@ import org.agmas.noellesroles.game.roles.neutral.reasoner.ReasonerPlayerComponen
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.voice_changer.VoiceChangerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
@@ -682,6 +683,10 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(GhostPlayerComponent::new);
     registry.beginRegistration(Player.class, VulturePlayerComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(VulturePlayerComponent::new);
+
+    // 注册变声怪杰组件
+    registry.beginRegistration(Player.class, VoiceChangerPlayerComponent.KEY)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(VoiceChangerPlayerComponent::new);
     registry.beginRegistration(Player.class, PelicanPlayerComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(PelicanPlayerComponent::new);
     registry.beginRegistration(Player.class, GodfatherComponent.KEY)
