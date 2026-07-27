@@ -378,6 +378,13 @@ public class ModEffects {
     public static final Holder<MobEffect> VOICE_REVERSE = register("voice_reverse",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x8A2BE2));
     /**
+     * 氦气变声：用 WSOLA 实时升调（pitch shift），像吸了氦气一样尖细。
+     * 变调倍率随等级提升（等级越高升得越尖）。
+     * 客户端处理见 {@code org.agmas.noellesroles.voice.VoiceExtraEffectsPlugin}。
+     */
+    public static final Holder<MobEffect> VOICE_HELIUM = register("voice_helium",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x9FE0FF));
+    /**
      * 聊天禁止：拥有此效果的玩家发送的聊天消息不会被任何人看到
      */
     public static final Holder<MobEffect> CHAT_BAN = register("chat_ban",
@@ -631,6 +638,12 @@ public class ModEffects {
     /** 倒放语音等级（0 = 无效果，1~5 = amplifier+1）。 */
     public static int getVoiceReverseLevel(LivingEntity entity) {
         int amp = getAmplifier(entity, VOICE_REVERSE);
+        return amp < 0 ? 0 : Mth.clamp(amp + 1, 1, 5);
+    }
+
+    /** 氦气变声等级（0 = 无效果，1~5 = amplifier+1）。 */
+    public static int getVoiceHeliumLevel(LivingEntity entity) {
+        int amp = getAmplifier(entity, VOICE_HELIUM);
         return amp < 0 ? 0 : Mth.clamp(amp + 1, 1, 5);
     }
 

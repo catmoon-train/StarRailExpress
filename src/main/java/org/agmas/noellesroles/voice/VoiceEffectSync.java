@@ -49,7 +49,7 @@ public final class VoiceEffectSync {
                 ModEffects.VOICE_REVERB, ModEffects.VOICE_SYNTH,
                 ModEffects.VOICE_DISTORTION, ModEffects.VOICE_CHORUS,
                 ModEffects.VOICE_TREMOLO, ModEffects.VOICE_STUTTER,
-                ModEffects.VOICE_REVERSE };
+                ModEffects.VOICE_REVERSE, ModEffects.VOICE_HELIUM };
     }
 
     /** 记录每个玩家上一次已广播的效果，便于在效果消失时下发移除包。key=玩家UUID，value=效果索引位掩码。 */

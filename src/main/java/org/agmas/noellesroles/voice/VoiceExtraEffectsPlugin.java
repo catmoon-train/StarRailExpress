@@ -81,6 +81,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     private static final Map<UUID, int[]> REVERB_RESOURCES = new ConcurrentHashMap<>(); // {slot, effect}
 
     // ---- 每个说话者的 PCM 状态 ----
+    private static final Map<UUID, HeliumPitchShifter> HELIUM_SHIFTERS = new ConcurrentHashMap<>();
     private static final Map<UUID, HeliumPitchShifter> SYNTH_SHIFTERS = new ConcurrentHashMap<>();
     private static final Map<UUID, Double> SYNTH_RATIO = new ConcurrentHashMap<>();
     private static final Map<UUID, ChorusState> CHORUS = new ConcurrentHashMap<>();
@@ -240,8 +241,11 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         int trem = ModEffects.getVoiceTremoloLevel(player);
         int stut = ModEffects.getVoiceStutterLevel(player);
         int rev = ModEffects.getVoiceReverseLevel(player);
+        int helium = ModEffects.getVoiceHeliumLevel(player);
 
         // 注意：多个效果可叠加，按固定顺序串联处理。
+        // 升调（氦气）最先处理，作用在原始信号上，使其余效果叠加在变调后的音频上。
+        if (helium > 0) pcm = heliumTransform(pcm, speaker, helium);
         if (rev > 0) pcm = reverseTransform(pcm, speaker, rev);
         if (synth > 0) pcm = synthTransform(pcm, speaker, synth);
         if (chorus > 0) pcm = chorusTransform(pcm, speaker, chorus);
@@ -262,12 +266,25 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             ratio = snapped / f0;
         }
         ratio = Math.max(0.5, Math.min(2.0, ratio));
+        // 等级越高：在自动调音基础上额外整体上移音高（每级 +2 半音），越来越"电子歌姬/尖细"。
+        double transpose = Math.pow(2.0, (level - 1) * 2.0 / 12.0);
+        ratio = Math.max(0.5, Math.min(2.0, ratio * transpose));
         // 平滑避免抖动
         double prev = SYNTH_RATIO.getOrDefault(speaker, 1.0);
         double smoothed = prev + 0.3 * (ratio - prev);
         SYNTH_RATIO.put(speaker, smoothed);
         HeliumPitchShifter shifter = SYNTH_SHIFTERS.computeIfAbsent(speaker, k -> new HeliumPitchShifter());
         return shifter.process(pcm, (float) smoothed);
+    }
+
+    /**
+     * 氦气变声：WSOLA 实时升调。变调倍率随等级提升（等级越高声音越尖）。
+     * ratio：1 级≈1.3，每升 1 级 +0.25，最高 2.5（HeliumPitchShifter 上限）。
+     */
+    private static short[] heliumTransform(short[] pcm, UUID speaker, int level) {
+        float ratio = (float) Math.min(2.5, 1.3 + (level - 1) * 0.25);
+        HeliumPitchShifter shifter = HELIUM_SHIFTERS.computeIfAbsent(speaker, k -> new HeliumPitchShifter());
+        return shifter.process(pcm, ratio);
     }
 
     /** 失真：预增益 + tanh 软削波。等级越高驱动越强、削波越狠。 */
@@ -345,7 +362,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
     /** 倒放：累积一个固定块后整体反向播放（双缓冲，保证输出长度 == 输入长度）。 */
     private static short[] reverseTransform(short[] pcm, UUID speaker, int level) {
-        ReverseState st = REVERSE.computeIfAbsent(speaker, k -> new ReverseState());
+        ReverseState st = getReverseState(speaker, level);
         short[] out = new short[pcm.length];
         int outPos = 0;
         if (st.ready) {
@@ -408,6 +425,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
     /** 清理某说话者的全部状态与 EFX 资源（说话者离开时调用）。 */
     private static void cleanupSpeaker(UUID speaker) {
+        HELIUM_SHIFTERS.remove(speaker);
         SYNTH_SHIFTERS.remove(speaker);
         SYNTH_RATIO.remove(speaker);
         CHORUS.remove(speaker);
@@ -448,6 +466,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             }
         }
         REVERB_RESOURCES.clear();
+        HELIUM_SHIFTERS.clear();
         SYNTH_SHIFTERS.clear();
         SYNTH_RATIO.clear();
         CHORUS.clear();
@@ -480,11 +499,28 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     }
 
     private static final class ReverseState {
-        static final int BLOCK = 4800; // 100ms 反向块
-        final short[] inBuf = new short[BLOCK];
-        final short[] outBuf = new short[BLOCK];
+        final int blockSize;                          // 反向块大小，随等级增大（50ms * 等级）
+        final short[] inBuf;
+        final short[] outBuf;
         int inLen = 0;
         int outPos = 0;
         boolean ready = false;
+
+        ReverseState(int blockSize) {
+            this.blockSize = blockSize;
+            this.inBuf = new short[blockSize];
+            this.outBuf = new short[blockSize];
+        }
+    }
+
+    /** 按等级取/建倒放状态：等级越高反向块越长（更明显的倒放感）。等级变化则重建。 */
+    private static ReverseState getReverseState(UUID speaker, int level) {
+        int blockSize = 2400 * level; // 50ms * 等级（1 级=50ms … 5 级=250ms）
+        ReverseState st = REVERSE.get(speaker);
+        if (st == null || st.blockSize != blockSize) {
+            st = new ReverseState(blockSize);
+            REVERSE.put(speaker, st);
+        }
+        return st;
     }
 }
