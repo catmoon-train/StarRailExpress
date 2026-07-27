@@ -67,6 +67,7 @@ import org.agmas.noellesroles.game.roles.neutral.voice_changer.VoiceChangerPlaye
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -107,7 +108,8 @@ public class ModRolesInitialEventRegister {
             if (role.identifier().equals(ModRoles.CHEF.identifier())) {
                 FoodDrinkGlowComponent.KEY.get(player).init();
             }
-            if (role.identifier().equals(ModRoles.MAGICIAN.identifier())) {
+            if (RoleUtils.compareRole(role, THLostForestRoles.KAGUYA)
+                    || RoleUtils.compareRole(role, ModRoles.MAGICIAN)) {
                 var magicianComponent = ModComponents.MAGICIAN.maybeGet(player).orElse(null);
                 if (magicianComponent != null) {
                     // 停止疯狂模式（如果之前存在）
@@ -608,7 +610,8 @@ public class ModRolesInitialEventRegister {
                     return comp.tryCurse(target);
                 }).cooldownSeconds(45).showOnHud(true).build());
         // 领域展开（技能三）改为在背包 LimitedInventoryScreen 点选已被诅咒且存活的目标触发，
-        // 见 WarlockDomainScreenMixin / WarlockDomainWidget / WarlockDomainC2SPacket（冷却记在组件里，60s）。
+        // 见 WarlockDomainScreenMixin / WarlockDomainWidget /
+        // WarlockDomainC2SPacket（冷却记在组件里，60s）。
 
         // Dream（梦魇）技能注册：制酒 —— 酿一瓶酒，喝下隐身10s（期间无法攻击/无法受伤）
         RoleSkill.register(ModRoles.DREAM,

@@ -39,6 +39,7 @@ import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponen
 import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
@@ -97,7 +98,8 @@ public class SREClientEvents {
                 return null;
             if (SREClient.gameComponent != null) {
                 var selfRole = SREClient.gameComponent.getRole(player);
-                if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)) {
+                if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)
+                        || SREClient.gameComponent.isRole(target, THLostForestRoles.KAGUYA)) {
                     var roleR = MagicianPlayerComponent.KEY.get(target).getDisguiseRoleId();
                     if (SREClient.isPlayerSpectatingOrCreative()) {
                         return TrueFalseAndCustomResult.custom(Component.translatable(
@@ -116,8 +118,13 @@ public class SREClientEvents {
             if (target == null)
                 return null;
             if (SREClient.gameComponent != null) {
-                if (SREClient.gameComponent.isKillerTeam(player)) {
-                    if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)) {
+                if (SREClient.gameComponent.isRole(player, THLostForestRoles.KAGUYA)) {
+                    if (SREClient.gameComponent.isKillerTeam(target)) {
+                        return TrueFalseAndCustomResult.allow();
+                    }
+                } else if (SREClient.gameComponent.isKillerTeam(player)) {
+                    if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)
+                            || SREClient.gameComponent.isRole(target, THLostForestRoles.KAGUYA)) {
                         return TrueFalseAndCustomResult.allow();
                     }
                 }

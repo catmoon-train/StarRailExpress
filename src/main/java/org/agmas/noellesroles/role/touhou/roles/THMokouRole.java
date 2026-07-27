@@ -31,6 +31,21 @@ public class THMokouRole extends TouhouRole {
     }
 
     @Override
+    public boolean winWithKiller() {
+        return false;
+    }
+
+    @Override
+    public boolean canIncreaseSurvivingInnocents() {
+        return true;
+    }
+
+    @Override
+    public boolean winWithInnocent() {
+        return false;
+    }
+
+    @Override
     public List<ShopEntry> getShopEntries() {
         ArrayList<ShopEntry> SHOP = new ArrayList<>();
         SHOP.add(new ShopEntry(ModItems.FAKE_REVOLVER.getDefaultInstance(),

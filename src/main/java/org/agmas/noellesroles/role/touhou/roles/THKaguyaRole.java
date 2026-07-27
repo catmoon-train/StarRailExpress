@@ -29,6 +29,21 @@ public class THKaguyaRole extends TouhouRole {
     }
 
     @Override
+    public boolean canIncreaseSurvivingKillers() {
+        return true;
+    }
+
+    @Override
+    public boolean winWithKiller() {
+        return false;
+    }
+
+    @Override
+    public boolean winWithInnocent() {
+        return false;
+    }
+
+    @Override
     public List<ShopEntry> getShopEntries() {
         return ShopContent.getDefaultKnifeEntries();
     }

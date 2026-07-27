@@ -663,6 +663,7 @@ public class SREMurderGameMode extends GameMode {
         GameUtils.WinStatus winStatus = GameUtils.WinStatus.NONE;
 
         boolean civilianAlive = false;
+        boolean killerAlive = false;
         for (ServerPlayer player : serverWorld.players()) {
             // passive money
             if (gameWorldComponent.canAutoAddMoney(player)) {
@@ -677,24 +678,21 @@ public class SREMurderGameMode extends GameMode {
             }
 
             // check if some civilians are still alive
-            if (gameWorldComponent.isInnocent(player) && !GameUtils.isPlayerEliminated(player)) {
+            if (gameWorldComponent.canIncreaseSurvivingInnocents(player) && !GameUtils.isPlayerEliminated(player)) {
                 civilianAlive = true;
+            }
+            if (gameWorldComponent.canIncreaseSurvivingKillers(player) && !GameUtils.isPlayerEliminated(player)) {
+                killerAlive = true;
             }
         }
 
         // check killer win condition (killed all civilians)
-        if (!civilianAlive) {
+        if (!civilianAlive && !killerAlive) {
+            winStatus = GameUtils.WinStatus.NO_PLAYER;
+        } else if (!civilianAlive) {
             winStatus = GameUtils.WinStatus.KILLERS;
-        }
-
-        // check passenger win condition (all killers are dead)
-        if (winStatus == GameUtils.WinStatus.NONE) {
+        } else if (!killerAlive) {
             winStatus = GameUtils.WinStatus.PASSENGERS;
-            for (UUID player : gameWorldComponent.getAllKillerPlayers()) {
-                if (!GameUtils.isPlayerEliminated(serverWorld.getPlayerByUUID(player))) {
-                    winStatus = GameUtils.WinStatus.NONE;
-                }
-            }
         }
 
         // 检查场上是否存在亡命徒

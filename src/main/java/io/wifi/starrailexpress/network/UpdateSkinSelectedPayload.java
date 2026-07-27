@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -9,9 +10,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 public record UpdateSkinSelectedPayload(String id, String name) implements CustomPacketPayload {
-    public static final Type<UpdateSkinSelectedPayload> ID = new Type<>(ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "update_skin_selected"));
-    public static final StreamCodec<FriendlyByteBuf, UpdateSkinSelectedPayload> CODEC = StreamCodec.ofMember(UpdateSkinSelectedPayload::encode, UpdateSkinSelectedPayload::decode);
-
+    public static final Type<UpdateSkinSelectedPayload> ID = new Type<>(
+            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "update_skin_selected"));
+    public static final StreamCodec<FriendlyByteBuf, UpdateSkinSelectedPayload> CODEC = StreamCodec
+            .ofMember(UpdateSkinSelectedPayload::encode, UpdateSkinSelectedPayload::decode);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
@@ -27,16 +29,19 @@ public record UpdateSkinSelectedPayload(String id, String name) implements Custo
     public static UpdateSkinSelectedPayload decode(FriendlyByteBuf buf) {
         String id = buf.readUtf();
         String name = buf.readUtf();
-        return new UpdateSkinSelectedPayload(id,name);
+        return new UpdateSkinSelectedPayload(id, name);
     }
+
     public static void registerReceiver() {
         ServerPlayNetworking.registerGlobalReceiver(ID, (payload, context) -> {
             context.server().execute(() -> {
-                if (!PlayerEconomyManager.isSkinUnlockedForItemType(context.player(), payload.id, payload.name)) {
+                SREPlayerSkinsComponent skincca = SREPlayerSkinsComponent.KEY.get(context.player());
+                if (!skincca.isSkinUnlockedForItemType(payload.id, payload.name) && !PlayerEconomyManager
+                        .isSkinUnlockedForItemType(context.player(), payload.id, payload.name)) {
                     return;
                 }
                 PlayerEconomyManager.setEquippedSkinForItemType(context.player(), payload.id, payload.name);
             });
         });
     }
-    }
+}

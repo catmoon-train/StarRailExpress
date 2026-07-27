@@ -1400,4 +1400,18 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         }
         return null;
     }
+
+    public boolean canIncreaseSurvivingInnocents(Player player) {
+        var role = getRole(player);
+        if (role == null)
+            return false;
+        return role.canIncreaseSurvivingInnocents();
+    }
+
+    public boolean canIncreaseSurvivingKillers(ServerPlayer player) {
+        var role = getRole(player);
+        if (role == null)
+            return false;
+        return role.canIncreaseSurvivingKillers();
+    }
 }
