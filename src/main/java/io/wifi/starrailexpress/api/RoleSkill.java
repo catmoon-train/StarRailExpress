@@ -81,11 +81,13 @@ public final class RoleSkill {
                 stateLabel = Component.translatable("message.sre.skill.toggled_off",
                         Component.translatable(ctx.definition.nameKey()));
             } else {
-                if (ctx.target() != null) {
-                    stateLabel = Component.translatable("message.sre.skill.cast_with_target", ctx.target().getName(),
-                            Component.translatable(ctx.definition.nameKey()),
-                            ctx.skillState.castCount);
-                } else {
+                // if (ctx.target() != null) {
+                // stateLabel = Component.translatable("message.sre.skill.cast_with_target",
+                // ctx.target().getName(),
+                // Component.translatable(ctx.definition.nameKey()),
+                // ctx.skillState.castCount);
+                // } else
+                {
                     stateLabel = Component.translatable("message.sre.skill.cast",
                             Component.translatable(ctx.definition.nameKey()),
                             ctx.skillState.castCount);
