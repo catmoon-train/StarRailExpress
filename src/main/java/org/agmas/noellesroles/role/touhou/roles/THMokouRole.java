@@ -15,7 +15,6 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
-import io.wifi.starrailexpress.util.ShopEntry.Currency;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -50,12 +49,8 @@ public class THMokouRole extends TouhouRole {
         ArrayList<ShopEntry> SHOP = new ArrayList<>();
         SHOP.add(new ShopEntry(ModItems.FAKE_REVOLVER.getDefaultInstance(),
                 50, ShopEntry.Type.WEAPON));
-        SHOP.add(new ShopEntry(ModItems.FAKE_REVOLVER.getDefaultInstance(),
-                1, ShopEntry.Type.WEAPON, Currency.MINIGAME_TOKEN));
         SHOP.add(new ShopEntry(ModItems.ONCE_REVOLVER.getDefaultInstance(),
                 150, ShopEntry.Type.WEAPON));
-        SHOP.add(new ShopEntry(ModItems.ONCE_REVOLVER.getDefaultInstance(),
-                4, ShopEntry.Type.WEAPON, Currency.MINIGAME_TOKEN));
         return SHOP;
     }
 
