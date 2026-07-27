@@ -32,7 +32,7 @@ public class THUtsuhoRole extends TouhouRole {
     }
 
     public static final int SKILL_RANGE = 4;
-    public static final int MAX_PLAYER_COUNT = 8;
+    public static final int MAX_PLAYER_COUNT = 6;
     public static final int DRINK_THRESHOLD = 30 * 20;
 
     public THUtsuhoRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
