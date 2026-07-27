@@ -63,7 +63,6 @@ public class ArrowMixin {
                 }
                 if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
                     if (CupidPlayerComponent.handleArrowHit((Arrow) arrow, serverPlayer, player)) {
-                        arrow.discard();
                         ci.cancel();
                         return;
                     }
