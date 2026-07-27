@@ -366,7 +366,7 @@ public class InitModRolesMax {
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
                 neutralRoles.removeIf((r) -> {
                     if (r.isNeutrals() && r.isNeutralForKiller() && (r.spawnInfo.enableChance < 0)
-                            && r.defaultMaxCount <= 0)
+                            && r.defaultMaxCount < 0)
                         return false;
                     return true;
                 });

@@ -25,6 +25,7 @@ public class THLostForestRoles {
           Integer.MAX_VALUE, true), "lost_forest")
       .setCanSetSpawnInfoInConfig(false)
       .setDefaultMax(0)
+      .setDefaultEnableChance(0)
       .setComponentKey(MagicianPlayerComponent.KEY)
       .addRelatedModifier(SEModifiers.LOVERS)
       .setNeutrals(true)
