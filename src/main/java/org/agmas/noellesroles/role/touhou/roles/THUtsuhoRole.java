@@ -30,7 +30,7 @@ public class THUtsuhoRole extends TouhouRole {
     private static record UtsuhoNeedDrinkInfo(long time, ServerPlayer killer) {
     }
 
-    public static final int SKILL_RANGE = 6;
+    public static final int SKILL_RANGE = 4;
     public static final int MAX_PLAYER_COUNT = 6;
     public static final int DRINK_THRESHOLD = 30 * 20;
 
