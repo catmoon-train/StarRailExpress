@@ -32,10 +32,10 @@ public class RoleMethodDispatcher {
      * 调用玩家角色的 onDeath 方法
      */
     public static void callOnDeath(Player victim, boolean spawnBody, @Nullable Player killer,
-            ResourceLocation deathReason) {
+            ResourceLocation deathReason, boolean forceDeath) {
         SRERole role = getCurrentRole(victim);
         if (role != null) {
-            role.onDeath(victim, spawnBody, killer, deathReason);
+            role.onDeath(victim, spawnBody, killer, deathReason, forceDeath);
         }
     }
 

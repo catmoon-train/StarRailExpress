@@ -21,7 +21,9 @@ import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponen
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
+import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.modifier.allergist.cca.AllergistComponent;
@@ -48,7 +50,7 @@ public class SEModifiers {
     public static SREModifier LOVERS = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("lovers"),
             0xf38aff,
-            null,
+            Set.of(THLostForestRoles.KAGUYA, THLostForestRoles.MOKOU),
             null,
             false,
             false)).setCanSetSpawnInfoInConfig(false);
@@ -284,6 +286,10 @@ public class SEModifiers {
             }
             for (var can_i_love : arrs) {
                 if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(can_i_love)) {
+                    var can_i_love_role = RoleUtils.getPlayerRole(can_i_love);
+                    if (can_i_love_role == null || LOVERS.cannotBeAppliedTo.contains(can_i_love_role)) {
+                        continue;
+                    }
                     if (!SREConfig.instance().enableNoLimitLoversInLoverMode) {
                         // 检查候选人是否已有恋人，防止重复绑定
                         var candidateLoverComp = LoversComponent.KEY.get(can_i_love);

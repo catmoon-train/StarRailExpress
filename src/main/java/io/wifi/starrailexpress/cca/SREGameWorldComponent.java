@@ -551,6 +551,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return getRole(player) != null && getRole(player).canUseKiller();
     }
 
+    public boolean isInnocent(@NotNull UUID player) {
+        return getRole(player) != null && getRole(player).isInnocent();
+    }
+
     public boolean isInnocent(@NotNull Player player) {
         return getRole(player) != null && getRole(player).isInnocent();
     }
@@ -1210,6 +1214,20 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     public boolean isKillerTeam(Player player) {
         if (player != null) {
             return isKillerTeam(player.getUUID());
+        }
+        return false;
+    }
+
+    public static boolean isKillerTeamStatic(Player player) {
+        if (player != null) {
+            return getInstance(player).isKillerTeam(player.getUUID());
+        }
+        return false;
+    }
+
+    public static boolean isInnocentStatic(Player player) {
+        if (player != null) {
+            return getInstance(player).isInnocent(player.getUUID());
         }
         return false;
     }

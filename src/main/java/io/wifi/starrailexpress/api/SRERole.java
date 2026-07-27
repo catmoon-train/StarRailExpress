@@ -929,7 +929,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return true;
     }
 
-    public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason) {
+    public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason, boolean forceDeath) {
         return;
     }
 
@@ -2000,11 +2000,11 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public void onEat(Player p, ItemStack item) {
     }
 
-    public boolean canBeXiaonao() {
+    public boolean canBeXiaonao(Player victim, Player killer, ResourceLocation deathReason) {
         return canBeXiaonao;
     }
 
-    public boolean canXiaonao() {
+    public boolean canXiaonao(Player victim, Player killer, ResourceLocation deathReason) {
         return canXiaonao;
     }
 

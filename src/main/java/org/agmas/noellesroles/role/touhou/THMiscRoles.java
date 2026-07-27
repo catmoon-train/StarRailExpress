@@ -24,15 +24,7 @@ public class THMiscRoles {
       .setDefaultMax(1)
       .setDefaultEnableNeededPlayerCount(18)
       .setDefaultEnableChance(5000);
-  // Kirisame Marisa
-  public static final ResourceLocation KIRISAME_MARISA_ID = id("kirisame_marisa");
-  public static SRERole KIRISAME_MARISA = TMMRoles
-      .registerRole(new THMarisaRole(KIRISAME_MARISA_ID, new Color(172, 154, 104).getRGB(),
-          true, false, SRERole.MoodType.REAL,
-          TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
-      .setCanSetSpawnInfoInConfig(true).setDefaultMax(1)
-      .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(1000)
-      .setFallDamageImmune(true); // 不会因高度限制摔死
+  
   public static final ResourceLocation HAKUREI_REIMU_ID = id("hakurei_reimu");
   public static SRERole HAKUREI_REIMU = TMMRoles
       .registerRole(new THReimuRole(HAKUREI_REIMU_ID, new Color(153, 82, 89).getRGB(),

@@ -65,9 +65,9 @@ public class XiaoNaoHandler {
                     var killerRole = gameWorldComponent.getRole(killer);
                     if (victimRole == null || killerRole == null)
                         return;
-                    if (victimRole.canBeXiaonao())
+                    if (victimRole.canBeXiaonao(victim, killer, deathReason))
                         return;
-                    if (killerRole.canXiaonao())
+                    if (killerRole.canXiaonao(victim, killer, deathReason))
                         return;
                     // 小脑(误杀)惩罚写这里
                     TeamKillViolationHandler.handle(victim, killer, isInnocent, deathReason);

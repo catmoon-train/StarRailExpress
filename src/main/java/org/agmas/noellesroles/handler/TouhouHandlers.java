@@ -26,13 +26,19 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.noellesroles.content.item.BowenBadgeItem;
 import org.agmas.noellesroles.content.item.RopeItem;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.touhou.MountainRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THLostForestRoles;
+import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
 import org.agmas.noellesroles.role.touhou.roles.THSuikaRole;
@@ -42,6 +48,32 @@ public class TouhouHandlers {
   public static void register() {
     registerSkills();
     registerEvents();
+    registerInitEvents();
+  }
+
+  public static void registerInitEvents() {
+    ModdedRoleAssigned.EVENT.register((player, role) -> {
+      // 强制绑定不死组辉夜和妹红为恋人
+      var modifierCca = WorldModifierComponent.KEY.get(player.level());
+      var gameCca = SREGameWorldComponent.getInstance(player);
+      if (RoleUtils.compareRole(role, THLostForestRoles.MOKOU)) {
+        modifierCca.addModifier(player.getUUID(), SEModifiers.LOVERS);
+        Player kaguya = null;
+        for (final Player p : player.level().players()) {
+          if (!modifierCca.isModifier(p.getUUID(), SEModifiers.LOVERS)
+              && gameCca.isRole(p.getUUID(), THLostForestRoles.KAGUYA)) {
+            kaguya = p;
+          }
+        }
+        if (kaguya != null) {
+          modifierCca.addModifier(player.getUUID(), SEModifiers.LOVERS, false);
+          modifierCca.addModifier(kaguya.getUUID(), SEModifiers.LOVERS, false);
+          LoversComponent.KEY.get(player).setLover(kaguya.getUUID());
+          LoversComponent.KEY.get(kaguya).setLover(player.getUUID());
+          modifierCca.sync();
+        }
+      }
+    });
   }
 
   public static void registerEvents() {
@@ -51,7 +83,7 @@ public class TouhouHandlers {
         if (RoleUtils.isPlayerTheJob(victim, THMiscRoles.HAKUREI_REIMU)) {
           return TrueFalseResult.FALSE;
         }
-        if (RoleUtils.isPlayerTheJob(victim, THMiscRoles.KIRISAME_MARISA)) {
+        if (RoleUtils.isPlayerTheJob(victim, THMagicForestRoles.KIRISAME_MARISA)) {
           return TrueFalseResult.FALSE;
         }
       }
@@ -142,7 +174,7 @@ public class TouhouHandlers {
             .showOnHud(true).cooldownSeconds(60).build(),
         RoleSkill.skill(SRE.id("suika_small"), "skill.noellesroles.suika.small", THSuikaRole::handleSkillSmall)
             .announceToSelf().cooldownSeconds(60).showOnHud(true).shifted(true).build());
-    RoleSkill.register(THMiscRoles.KIRISAME_MARISA,
+    RoleSkill.register(THMagicForestRoles.KIRISAME_MARISA,
         RoleSkill.skill(SRE.id("marisa_magic"), "skill.noellesroles.marisa_magic", context -> {
           Player player = context.player();
           for (var p : player.level().players()) {

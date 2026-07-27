@@ -12,7 +12,8 @@ public class ManipulatorRole extends NormalRole {
     }
 
     @Override
-    public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason) {
+    public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
+            boolean forceDeath) {
         final var manipulatorPlayerComponent = ManipulatorPlayerComponent.KEY.get(victim);
         final var target = manipulatorPlayerComponent.target;
         if (target != null) {
@@ -24,6 +25,6 @@ public class ManipulatorRole extends NormalRole {
             }
 
         }
-        super.onDeath(victim, spawnBody, killer, deathReason);
+        super.onDeath(victim, spawnBody, killer, deathReason, forceDeath);
     }
 }

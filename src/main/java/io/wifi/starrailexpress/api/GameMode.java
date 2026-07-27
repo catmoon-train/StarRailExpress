@@ -670,7 +670,7 @@ public abstract class GameMode {
             // --- 新增统计数据更新逻辑 (受害者) ---
             if (victim instanceof ServerPlayer serverVictim) {
                 SRERole victimRole = gameWorldComponent.getRole(serverVictim);
-                victimRole.onDeath(victim, spawnBody, killer, deathReason);
+                victimRole.onDeath(victim, spawnBody, killer, deathReason, forceDeath);
                 PlayerStats victimStats = PlayerStatsManager.get(serverVictim);
                 if (shouldRecordPlayerStats()) {
                     victimStats.incrementTotalDeaths();

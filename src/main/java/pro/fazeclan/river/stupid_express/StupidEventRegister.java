@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
@@ -113,8 +114,7 @@ public class StupidEventRegister {
                     GameUtils.forceKillPlayer(
                             lover,
                             true,
-                            victim,
-                            StupidExpress.id("broken_heart"));
+                            victim, GameConstants.DeathReasons.BROKEN_HEART);
                 }
             }
         });

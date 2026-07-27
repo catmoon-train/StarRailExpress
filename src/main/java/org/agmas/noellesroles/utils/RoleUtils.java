@@ -721,4 +721,10 @@ public class RoleUtils extends MCItemsUtils {
         return role.getName().copy().withColor(role.color());
     }
 
+    public static ArrayList<ServerPlayer> getAlivePlayers(ServerLevel level) {
+        ArrayList<ServerPlayer> players = new ArrayList<>(level.players());
+        players.removeIf(p -> !GameUtils.isPlayerAliveAndSurvival(p));
+        return players;
+    }
+
 }

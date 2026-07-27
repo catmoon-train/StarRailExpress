@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.client;
 
+import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 
 import io.wifi.starrailexpress.api.SRERole;
@@ -17,7 +18,7 @@ public class TouhouInstincts {
     public static void registerEvents() {
 
         // 雾雨魔理沙看博丽灵梦飞行
-        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THMiscRoles.KIRISAME_MARISA_ID,
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THMagicForestRoles.KIRISAME_MARISA_ID,
                 (client, self, target, hasInstinct) -> {
                     if (target instanceof Player targetPlayer
                             && SREClient.gameComponent.isRole(targetPlayer, THMiscRoles.HAKUREI_REIMU)) {

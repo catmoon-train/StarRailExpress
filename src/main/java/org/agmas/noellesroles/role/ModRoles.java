@@ -745,37 +745,31 @@ public class ModRoles {
             .setRefreshableSpecialVigilante(1000, true)
             .setCanKillWithBowAndCrossbow(true);
     public static final ResourceLocation GUARD_ID = Noellesroles.id("guard");
-    public static SRERole GUARD = TMMRoles.registerRole(
-            new NormalRole(GUARD_ID, new Color(170, 170, 170).getRGB(), true, false, SRERole.MoodType.REAL,
-                    TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
-                @Override
-                public java.util.function.Predicate<net.minecraft.world.item.Item> cantPickupItem(
-                        net.minecraft.world.entity.player.Player player) {
-                    return item -> {
-                        // 检查是否是左轮手枪或巡警手枪
-                        if (item == io.wifi.starrailexpress.index.TMMItems.REVOLVER
-                                || item == org.agmas.noellesroles.init.ModItems.PATROLLER_REVOLVER) {
-                            // 检查主手、副手和背包是否有警棍
-                            if (player.getMainHandItem()
-                                    .is(org.agmas.noellesroles.init.ModItems.BATON))
-                                return true;
-                            if (player.getOffhandItem()
-                                    .is(org.agmas.noellesroles.init.ModItems.BATON))
-                                return true;
-                            for (int i = 0; i < player.getInventory()
-                                    .getContainerSize(); i++) {
-                                if (player.getInventory().getItem(i).is(
-                                        org.agmas.noellesroles.init.ModItems.BATON))
-                                    return true;
-                            }
-                            return false;
-                        }
-                        return false;
-                    };
+    public static SRERole GUARD = TMMRoles.registerRole(new NormalRole(GUARD_ID, new Color(170, 170, 170).getRGB(),
+            true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
+        @Override
+        public java.util.function.Predicate<net.minecraft.world.item.Item> cantPickupItem(
+                net.minecraft.world.entity.player.Player player) {
+            return item -> {
+                // 检查是否是左轮手枪或巡警手枪
+                if (item == io.wifi.starrailexpress.index.TMMItems.REVOLVER
+                        || item == org.agmas.noellesroles.init.ModItems.PATROLLER_REVOLVER) {
+                    // 检查主手、副手和背包是否有警棍
+                    if (player.getMainHandItem().is(org.agmas.noellesroles.init.ModItems.BATON))
+                        return true;
+                    if (player.getOffhandItem().is(org.agmas.noellesroles.init.ModItems.BATON))
+                        return true;
+                    for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                        if (player.getInventory().getItem(i).is(org.agmas.noellesroles.init.ModItems.BATON))
+                            return true;
+                    }
+                    return false;
                 }
-            }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false)
-            .setVigilanteTeam(true)
-            .setDefaultMax(1).setCanSetSpawnInfoInConfig(false);
+                return false;
+            };
+        }
+    }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false).setVigilanteTeam(true).setDefaultMax(1)
+            .setCanSetSpawnInfoInConfig(false);
 
     /**
      * 警卫角色
@@ -790,10 +784,10 @@ public class ModRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
                 @Override
                 public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer,
-                        net.minecraft.resources.ResourceLocation deathReason) {
+                        ResourceLocation deathReason, boolean forceDeath) {
                     // 未解锁左轮手枪前死亡：在死亡位置掉落一把左轮手枪
                     dropUnearnedRevolverOnDeath(victim, this);
-                    super.onDeath(victim, spawnBody, killer, deathReason);
+                    super.onDeath(victim, spawnBody, killer, deathReason, forceDeath);
                 }
             })
             .setVigilanteTeam(true).setCanPickUpRevolver(true).setCanAutoAddMoney(true)
@@ -812,10 +806,10 @@ public class ModRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
                 @Override
                 public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer,
-                        net.minecraft.resources.ResourceLocation deathReason) {
+                        ResourceLocation deathReason, boolean forceDeath) {
                     // 未解锁左轮手枪前死亡：在死亡位置掉落一把左轮手枪
                     dropUnearnedRevolverOnDeath(victim, this);
-                    super.onDeath(victim, spawnBody, killer, deathReason);
+                    super.onDeath(victim, spawnBody, killer, deathReason, forceDeath);
                 }
             })
             .setVigilanteTeam(true).setCanPickUpRevolver(true).setCanAutoAddMoney(true)
@@ -1446,31 +1440,40 @@ public class ModRoles {
     // TMMRoles.CACHE.MAFIA_ROLES，导致 RoleInstinctRegister 的家族本能循环遗漏该角色。
     public static SRERole GODFATHER = TMMRoles
             .registerRole(new EggRole(GODFATHER_ID, new Color(199, 21, 133).getRGB(), false,
-                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true).setMafiaTeam(true))
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true)
+                    .setMafiaTeam(true))
             .setNeutrals(true).setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true).setOccupiedRoleCount(3).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(2000).setKillExtraCoinAwards(50);
     public static SRERole MAFIOSO = TMMRoles
             .registerRole(new EggRole(MAFIOSO_ID, new Color(218, 112, 214).getRGB(), false,
-                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true).setMafiaTeam(true))
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true)
+                    .setMafiaTeam(true))
             .setNeutrals(true).setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
-            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setKillExtraCoinAwards(75);
+            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false)
+            .setKillExtraCoinAwards(75);
     public static SRERole JANITOR = TMMRoles
             .registerRole(new EggRole(JANITOR_ID, new Color(255, 105, 180).getRGB(), false,
-                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true).setMafiaTeam(true))
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true)
+                    .setMafiaTeam(true))
             .setNeutrals(true).setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
-            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setKillExtraCoinAwards(75);
+            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false)
+            .setKillExtraCoinAwards(75);
     public static SRERole NUTRITIONIST = TMMRoles
             .registerRole(new EggRole(NUTRITIONIST_ID, new Color(50, 205, 50).getRGB(), false,
-                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true).setMafiaTeam(true))
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true)
+                    .setMafiaTeam(true))
             .setNeutrals(true).setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
-            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setKillExtraCoinAwards(75);
+            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false)
+            .setKillExtraCoinAwards(75);
     public static SRERole PARASOL = TMMRoles
             .registerRole(new EggRole(PARASOL_ID, new Color(0, 139, 139).getRGB(), false,
-                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true).setMafiaTeam(true))
+                    false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true)
+                    .setMafiaTeam(true))
             .setNeutrals(true).setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
-            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setKillExtraCoinAwards(50);
+            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false)
+            .setKillExtraCoinAwards(50);
 
     // 验尸官
     public static SRERole CORONER = TMMRoles
@@ -2139,10 +2142,10 @@ public class ModRoles {
      * - 本能透视：看所有玩家都显示为自己的颜色 (OBSERVER_ROLE_COLOR)
      * - 商店（见 RoleShopHandler）：100 金币购买开锁器
      * - 技能（见 ModRolesInitialEventRegister 注册）：
-     *   - 蹲下+技能键(G)：标记准星玩家（冷却20秒）
-     *   - 技能键(G)：对全部被标记目标施加当前选择的变声效果（持续60秒，冷却60秒）
-     *   - 技能切换键(Y)：切换变声种类
-     *   - 蹲下+技能切换键(Y)：切换变声等级
+     * - 蹲下+技能键(G)：标记准星玩家（冷却20秒）
+     * - 技能键(G)：对全部被标记目标施加当前选择的变声效果（持续60秒，冷却60秒）
+     * - 技能切换键(Y)：切换变声种类
+     * - 蹲下+技能切换键(Y)：切换变声等级
      */
     public static SRERole VOICE_CHANGER = TMMRoles.registerRole(new NormalRole(
             VOICE_CHANGER_ID, // 角色 ID
