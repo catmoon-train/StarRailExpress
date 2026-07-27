@@ -10,7 +10,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.init.ModEffects;
-import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.EXTEfx;
 
@@ -136,21 +135,18 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         applyReverb(source, speaker, reverb);
     }
 
-    /** 头盔/水下：低通直接滤波 + 水下降低增益。两者都不存在时复位。 */
+    /**
+     * 头盔/水下：低通直接滤波。
+     */
     private static void applyLowPassGain(int source, UUID speaker, int helmet, int underwater) {
         if (helmet <= 0 && underwater <= 0) {
             try {
                 AL11.alSourcei(source, AL_DIRECT_FILTER, AL_FILTER_NULL);
             } catch (Throwable ignored) {}
-            try {
-                AL10.alSourcef(source, AL10.AL_GAIN, 1.0f);
-            } catch (Throwable ignored) {}
             return;
         }
         if (!efxAvailable) {
-            try {
-                AL10.alSourcef(source, AL10.AL_GAIN, underwater > 0 ? 0.7f : 1.0f);
-            } catch (Throwable ignored) {}
+            // EFX 不可用：无法做低通，也不要写 AL_GAIN（会锁死滑块）。
             return;
         }
 
@@ -163,9 +159,6 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             EXTEfx.alFilteri(filter, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
             EXTEfx.alFilterf(filter, AL_FILTER_LOWPASS_GAINHF, hf);
             AL11.alSourcei(source, AL_DIRECT_FILTER, filter);
-
-            float gain = underwater > 0 ? Math.max(0.4f, 0.7f - (underwater - 1) * 0.06f) : 1.0f;
-            AL10.alSourcef(source, AL10.AL_GAIN, gain);
         } catch (Throwable t) {
             efxAvailable = false;
         }
@@ -242,9 +235,11 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         int stut = ModEffects.getVoiceStutterLevel(player);
         int rev = ModEffects.getVoiceReverseLevel(player);
         int helium = ModEffects.getVoiceHeliumLevel(player);
+        int underwater = ModEffects.getVoiceUnderwaterLevel(player);
 
         // 注意：多个效果可叠加，按固定顺序串联处理。
         // 升调（氦气）最先处理，作用在原始信号上，使其余效果叠加在变调后的音频上。
+        if (underwater > 0) pcm = underwaterTransform(pcm, underwater);
         if (helium > 0) pcm = heliumTransform(pcm, speaker, helium);
         if (rev > 0) pcm = reverseTransform(pcm, speaker, rev);
         if (synth > 0) pcm = synthTransform(pcm, speaker, synth);
@@ -275,6 +270,18 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         SYNTH_RATIO.put(speaker, smoothed);
         HeliumPitchShifter shifter = SYNTH_SHIFTERS.computeIfAbsent(speaker, k -> new HeliumPitchShifter());
         return shifter.process(pcm, (float) smoothed);
+    }
+
+    /**
+     * 水下语音的“降音量”部分（PCM 级衰减）。
+     * <p>衰减系数与原本一致：1 级≈0.7，最高 5 级≈0.46。</p>
+     */
+    private static short[] underwaterTransform(short[] pcm, int level) {
+        float gain = Math.max(0.4f, 0.7f - (level - 1) * 0.06f);
+        for (int i = 0; i < pcm.length; i++) {
+            pcm[i] = clamp(pcm[i] * gain);
+        }
+        return pcm;
     }
 
     /**
