@@ -65,7 +65,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
     public boolean shouldSyncWith(ServerPlayer sp) {
         return true;
     }
-    public void clear(){
+
+    public void clear() {
         this.pendingRevivals.clear();
         this.pendingWho = null;
         this.isPendingRestore = false;
@@ -97,7 +98,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 return true;
             return false;
         });
-        for (RefugeeData data : pendingRevivals) {
+        for (RefugeeData data : new ArrayList<>(pendingRevivals)) {
             if (!data.isRevive && currentTime >= data.revivalTime) {
                 reviveLooseEnd(data);
                 data.isRevive = true;
