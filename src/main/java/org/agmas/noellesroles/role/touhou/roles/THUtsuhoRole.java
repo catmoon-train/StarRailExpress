@@ -16,6 +16,7 @@ import io.wifi.starrailexpress.util.Color;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import io.wifi.starrailexpress.api.TouhouRole;
 import net.exmo.sre.subtitle.SubtitleS2CPayload;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -31,7 +32,7 @@ public class THUtsuhoRole extends TouhouRole {
     }
 
     public static final int SKILL_RANGE = 4;
-    public static final int MAX_PLAYER_COUNT = 6;
+    public static final int MAX_PLAYER_COUNT = 8;
     public static final int DRINK_THRESHOLD = 30 * 20;
 
     public THUtsuhoRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
@@ -131,6 +132,10 @@ public class THUtsuhoRole extends TouhouRole {
                     100,
                     Color.RED.getRGB(), false, SubtitleS2CPayload.POS_CENTER);
         }
+        player.displayClientMessage(Component.translatable("skill.noellesroles.utsuho.triggered",
+                Component.translatable("skill.noellesroles.utsuho").withStyle(ChatFormatting.GOLD), victims.size(),
+                DRINK_THRESHOLD / 20).withStyle(ChatFormatting.AQUA), true);
+        player.playNotifySound(NRSounds.C4_BEEP, SoundSource.MASTER, 1f, 1f);
         return true;
     }
 

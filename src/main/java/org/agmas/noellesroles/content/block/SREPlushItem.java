@@ -27,6 +27,9 @@ public class SREPlushItem extends BlockItem {
         if (player.getCooldowns().isOnCooldown(this)) {
             return InteractionResultHolder.fail(stack);
         }
+        if (level.isClientSide) {
+            return InteractionResultHolder.success(stack);
+        }
         ResourceLocation sound = NRSounds.BAKA_BAKA.getLocation();
         if (stack.has(DataComponents.NOTE_BLOCK_SOUND)) {
             sound = stack.get(DataComponents.NOTE_BLOCK_SOUND);
