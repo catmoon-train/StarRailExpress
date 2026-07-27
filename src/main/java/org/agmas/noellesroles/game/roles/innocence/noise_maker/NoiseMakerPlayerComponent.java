@@ -43,7 +43,7 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
     private static final Map<UUID, PushCredit> PUSH_CREDITS = new ConcurrentHashMap<>();
 
     static {
-        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, deathReason) -> {
+        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, deathReason, force) -> {
             if (!(victim instanceof ServerPlayer serverVictim)
                     || !GameConstants.DeathReasons.FELL_OUT_OF_TRAIN.equals(deathReason)) {
                 return null;
@@ -121,7 +121,7 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
                 ChatFormatting.BOLD);
 
         if (player instanceof ServerPlayer serverPlayer) {
-            ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) serverPlayer);
+            ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) serverPlayer);
             var gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
             player.level().playSound(null, serverPlayer.blockPosition(), SoundEvents.NOTE_BLOCK_HARP.value(),
                     SoundSource.PLAYERS, 2F, 0F);
@@ -166,7 +166,8 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
                         stp.connection.send(new ClientboundSetEntityMotionPacket(stp.getId(), stp.getDeltaMovement()));
                     }
                     target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, stunTicks, 0, false, true, true));
-                    target.addEffect(new MobEffectInstance(ModEffects.INVENTORY_BANED, stunTicks, 0, false, true, true));
+                    target.addEffect(
+                            new MobEffectInstance(ModEffects.INVENTORY_BANED, stunTicks, 0, false, true, true));
                     target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, stunTicks, 0, false, true, true));
                 }
             }
@@ -187,7 +188,6 @@ public class NoiseMakerPlayerComponent implements RoleComponent, ServerTickingCo
         this.cooldown = tag.getInt("cooldown");
     }
 
-    
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }

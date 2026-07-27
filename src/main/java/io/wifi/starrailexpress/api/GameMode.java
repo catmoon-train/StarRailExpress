@@ -361,7 +361,8 @@ public abstract class GameMode {
      */
     public void killPlayer(Player victim, boolean spawnBody, @Nullable Player _killer,
             ResourceLocation deathReason, boolean forceDeath) {
-        Player trueKiller = EarlyKillPlayer.FIND_KILLER_EVENT.invoker().findTrueKiller(victim, _killer, deathReason);
+        Player trueKiller = EarlyKillPlayer.FIND_KILLER_EVENT.invoker().findTrueKiller(victim, _killer, deathReason,
+                forceDeath);
         Player killer;
         if (trueKiller != null)
             killer = trueKiller;

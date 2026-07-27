@@ -15,7 +15,7 @@ import org.agmas.noellesroles.role.ModRoles;
 public class TrueKillerFinder {
 
     public static void registerEvents() {
-        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, deathReason) -> {
+        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, deathReason,force) -> {
             if (!(victim instanceof ServerPlayer serverVictim))
                 return null;
             Player bomber = BombItem.findBomber(victim, originalKiller, deathReason);

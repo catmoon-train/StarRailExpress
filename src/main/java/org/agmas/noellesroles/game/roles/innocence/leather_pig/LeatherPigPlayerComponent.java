@@ -23,7 +23,6 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -50,7 +49,8 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
     /**
      * 伪装期间玩家的真实眼高（= 猪实体的眼高）。
      *
-     * <p>改的是眼高而不是相机位置：相机、准星射线、枪械命中判定全都读 {@code getEyeY()}，
+     * <p>
+     * 改的是眼高而不是相机位置：相机、准星射线、枪械命中判定全都读 {@code getEyeY()}，
      * 只挪相机会让画面与实际命中点错开 0.75 格。见 LeatherPigEyeHeightMixin。
      */
     public static final float PIG_EYE_HEIGHT = EntityType.PIG.getDimensions().eyeHeight();
@@ -208,7 +208,8 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
                     1.0f, 1.1f);
         }
 
-        sp.serverLevel().sendParticles(ParticleTypes.CLOUD, sp.getX(), sp.getY() + 0.25, sp.getZ(), 2, 0.1, 0.1, 0.1,0.1);
+        sp.serverLevel().sendParticles(ParticleTypes.CLOUD, sp.getX(), sp.getY() + 0.25, sp.getZ(), 2, 0.1, 0.1, 0.1,
+                0.1);
         if (frenzyTicks == 0) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.leather_pig.frenzy_end")
                     .withStyle(ChatFormatting.AQUA), true);
@@ -258,14 +259,17 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
      * 注册皮革噶的相关事件：将"被推致死"的平民归因给皮革噶的。
      * 在 {@code ModRolesInitialEventRegister.register()} 中调用一次。
      *
-     * <p>被推玩家若在归因窗口内因无归属的环境死亡（坠车/摔落/岩浆/溺水等）而死，
+     * <p>
+     * 被推玩家若在归因窗口内因无归属的环境死亡（坠车/摔落/岩浆/溺水等）而死，
      * 且其为平民（乘客阵营），则将皮革噶的判定为真正击杀者。随后 {@code killPlayer}
      * 管线会触发 {@code OnTeammateKilledTeammate(innocent, innocent)} →
      * {@code XiaoNaoHandler} 施加小脑惩罚。
      */
     public static void registerEvents() {
-        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, reason) -> {
+        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, reason, force) -> {
             // 仅认领无归属的环境死亡
+            if (force)
+                return null;
             if (originalKiller != null) {
                 return null;
             }
