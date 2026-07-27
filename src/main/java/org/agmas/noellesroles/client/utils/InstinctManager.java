@@ -10,6 +10,7 @@ import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerCompone
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.InstinctType;
@@ -102,8 +103,8 @@ public class InstinctManager {
                 return OptionalInt.of(-4849689);
             }
         }
-        if (gameWorldComponent.isRole( self,ModRoles.YOULU)){
-            if (target instanceof YouluAnchorEntity){
+        if (gameWorldComponent.isRole(self, ModRoles.YOULU)) {
+            if (target instanceof YouluAnchorEntity) {
                 return OptionalInt.of(-4849689);
             }
         }
@@ -293,7 +294,8 @@ public class InstinctManager {
         }
 
         // 魔术师：杀手看魔术师时显示红色边框（像看其他杀手一样）
-        if (SREClient.gameComponent.isRole(target_player, ModRoles.MAGICIAN)) {
+        if (SREClient.gameComponent.isRole(target_player, ModRoles.MAGICIAN)
+                || SREClient.gameComponent.isRole(target_player, THLostForestRoles.KAGUYA)) {
             target_role = RoleUtils
                     .getRole(MagicianPlayerComponent.KEY.get(target_player).getDisguiseRoleId());
         }

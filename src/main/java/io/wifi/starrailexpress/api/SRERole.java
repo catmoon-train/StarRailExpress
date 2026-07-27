@@ -2027,4 +2027,20 @@ public abstract class SRERole extends SREAbstractInfoClass {
         canBeXiaonao = flag;
         return this;
     }
+
+    public boolean winWithKiller() {
+        return SREGameWorldComponent.isKillerTeamRoleStatic(this) && !this.isInnocent();
+    }
+
+    public boolean winWithInnocent() {
+        return this.isNeutralForInnocent() || this.isInnocent();
+    }
+
+    public boolean canIncreaseSurvivingInnocents() {
+        return isInnocent();
+    }
+
+    public boolean canIncreaseSurvivingKillers() {
+        return isKiller();
+    }
 }

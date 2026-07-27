@@ -2,9 +2,9 @@ package org.agmas.noellesroles.client;
 
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.event.client.RoleInstinctEvents;
@@ -16,9 +16,21 @@ import net.minecraft.world.entity.player.Player;
 public class TouhouInstincts {
 
     public static void registerEvents() {
+
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THMiscRoles.REIUJI_UTSUHO_ID,
+                (client, self, target, hasInstinct) -> {
+                    if (target instanceof Player targetPlayer) {
+                        if (SREGameWorldComponent.isKillerTeamStatic(targetPlayer)) {
+                            return TrueFalseAndCustomResult.allow();
+                        }
+                    }
+                    return TrueFalseAndCustomResult.disallow();
+                });
         // 雾雨魔理沙看博丽灵梦飞行
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THMagicForestRoles.KIRISAME_MARISA_ID,
-                (client, self, target, hasInstinct) -> {
+                (client, self, target, hasInstinct) ->
+
+                {
                     if (target instanceof Player targetPlayer
                             && SREClient.gameComponent.isRole(targetPlayer, THMiscRoles.HAKUREI_REIMU)) {
                         if (targetPlayer.getAbilities().flying)

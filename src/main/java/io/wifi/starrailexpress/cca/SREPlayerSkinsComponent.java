@@ -471,17 +471,6 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         return false;
     }
 
-    private Map<String, Object> buildSkinDataPayload() {
-        Map<String, Object> skinData = new HashMap<>();
-        skinData.put("equipped", new HashMap<>(this.equippedSkins));
-        skinData.put("unlocked", this.deepCopyUnlockedSkins());
-        skinData.put("lootChance", this.lootChance);
-        skinData.put("coinNum", this.coinNum);
-        skinData.put("version", System.currentTimeMillis());
-        skinData.put("timestamp", System.currentTimeMillis());
-        return skinData;
-    }
-
     @Override
     public void readFromNbt(CompoundTag compoundTag, HolderLookup.Provider provider) {
         // 读取装备的皮肤数据

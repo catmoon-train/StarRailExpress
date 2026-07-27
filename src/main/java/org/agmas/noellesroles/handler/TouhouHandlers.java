@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
+import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -30,7 +31,6 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.noellesroles.content.item.BowenBadgeItem;
 import org.agmas.noellesroles.content.item.RopeItem;
 import org.agmas.noellesroles.init.ModEffects;
@@ -53,25 +53,35 @@ public class TouhouHandlers {
   }
 
   public static void registerInitEvents() {
-    ModdedRoleAssigned.EVENT.register((player, role) -> {
-      // 强制绑定不死组辉夜和妹红为恋人
-      var modifierCca = WorldModifierComponent.KEY.get(player.level());
-      var gameCca = SREGameWorldComponent.getInstance(player);
-      if (RoleUtils.compareRole(role, THLostForestRoles.MOKOU)) {
-        modifierCca.addModifier(player.getUUID(), SEModifiers.LOVERS);
-        Player kaguya = null;
-        for (final Player p : player.level().players()) {
-          if (!modifierCca.isModifier(p.getUUID(), SEModifiers.LOVERS)
-              && gameCca.isRole(p.getUUID(), THLostForestRoles.KAGUYA)) {
-            kaguya = p;
+    OnGameTrueStarted.EVENT.register((serverLevel) -> {
+      final var modifierCca = WorldModifierComponent.KEY.get(serverLevel);
+      final var gameCca = SREGameWorldComponent.getInstance(serverLevel);
+      for (final var player : serverLevel.players()) {
+        final var role = RoleUtils.getPlayerRole(player);
+        // 强制绑定不死组辉夜和妹红为恋人
+        {
+          if (RoleUtils.compareRole(role, THLostForestRoles.KAGUYA)) {
+            if (modifierCca.isModifier(player, SEModifiers.LOVERS)
+                && LoversComponent.KEY.get(player).getLoverAsPlayer() != null) {
+              return;
+            }
+            Player mokou = null;
+            for (final Player p : player.level().players()) {
+              if (!modifierCca.isModifier(p.getUUID(), SEModifiers.LOVERS)
+                  && gameCca.isRole(p.getUUID(), THLostForestRoles.MOKOU)) {
+                mokou = p;
+              }
+            }
+            if (mokou != null) {
+              modifierCca.addModifier(player.getUUID(), SEModifiers.LOVERS, false);
+              modifierCca.addModifier(mokou.getUUID(), SEModifiers.LOVERS, false);
+              LoversComponent.KEY.get(player).setLoverAndSync(mokou.getUUID());
+              LoversComponent.KEY.get(mokou).setLoverAndSync(player.getUUID());
+              modifierCca.sync();
+            } else {
+              SRE.LOGGER.warn("Cannot find mokou for kaguya {}", player.getScoreboardName());
+            }
           }
-        }
-        if (kaguya != null) {
-          modifierCca.addModifier(player.getUUID(), SEModifiers.LOVERS, false);
-          modifierCca.addModifier(kaguya.getUUID(), SEModifiers.LOVERS, false);
-          LoversComponent.KEY.get(player).setLover(kaguya.getUUID());
-          LoversComponent.KEY.get(kaguya).setLover(player.getUUID());
-          modifierCca.sync();
         }
       }
     });

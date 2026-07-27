@@ -3,18 +3,24 @@ package org.agmas.noellesroles.client.hud.roles;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.function.BiConsumer;
+
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 
 public class MagicianHud {
 
     public static void register() {
-        RoleHudRenderCallback.EVENT.register(ModRoles.MAGICIAN_ID, (context, tickCounter) -> {
+        final BiConsumer<FakeGuiGraphics, DeltaTracker> magicianHud = (context, tickCounter) -> {
             Minecraft client = Minecraft.getInstance();
             if (SREClient.isPlayerSpectator()) {
                 return;
@@ -49,6 +55,8 @@ public class MagicianHud {
             int y = screenHeight - 35;
 
             context.drawString(client.font, fullText, x, y, 0xFFD700);
-        });
+        };
+        RoleHudRenderCallback.EVENT.register(THLostForestRoles.KAGUYA_ID, magicianHud);
+        RoleHudRenderCallback.EVENT.register(ModRoles.MAGICIAN_ID, magicianHud);
     }
 }

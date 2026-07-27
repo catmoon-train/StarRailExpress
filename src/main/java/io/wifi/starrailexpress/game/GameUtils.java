@@ -1204,7 +1204,7 @@ public class GameUtils {
                             }
                             break;
                         case KILLERS:
-                            if (SREGameWorldComponent.isKillerTeamRoleStatic(playerRole) && !playerRole.isInnocent()) {
+                            if (playerRole.winWithKiller()) {
                                 // String roleidentifier = playerRole.identifier().getPath();
                                 // 魔术师不算胜利
                                 isWinner = true;
@@ -1243,12 +1243,8 @@ public class GameUtils {
                         case TIME:
                         case PASSENGERS:
                             // 排除游客职业
-                            if (playerRole.isInnocent())
+                            if (playerRole.winWithInnocent())
                                 isWinner = true;
-                            else if (playerRole.isNeutralForInnocent()) {
-                                // 随好人胜利的中立（如失忆患者、初学者）：好人胜利时一同获胜
-                                isWinner = true;
-                            }
                             if (!isWinner && playerRole.identifier().equals(ModRoles.MERCENARY_ID)) {
                                 var mercenary = MercenaryPlayerComponent.KEY.maybeGet(player).orElse(null);
                                 if (mercenary != null && mercenary.canFollowFactionWin(winStatus)) {
