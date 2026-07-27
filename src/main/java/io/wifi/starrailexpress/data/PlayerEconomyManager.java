@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.network.PlayerDataPartSyncPayload;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -85,7 +86,8 @@ public final class PlayerEconomyManager {
         Entry entry = get(player.getUUID());
         entry.state.equipped.put(normalizedType, skinName == null || skinName.isBlank() ? "default" : skinName);
         markDirty(player, entry);
-        mirrorToSkinsComponent(player, sc -> sc.setEquippedSkinForItemType(normalizedType, skinName == null || skinName.isBlank() ? "default" : skinName));
+        mirrorToSkinsComponent(player, sc -> sc.setEquippedSkinForItemType(normalizedType,
+                skinName == null || skinName.isBlank() ? "default" : skinName));
     }
 
     public static boolean isSkinUnlocked(Player player, ItemStack stack, String skinName) {
@@ -190,8 +192,10 @@ public final class PlayerEconomyManager {
                         // 优先使用 skins 分区（网站端权威源）；回退到 economy 分区
                         MysqlPlayerDataStore.SyncRecord skinsRecord = records.get("skins");
                         MysqlPlayerDataStore.SyncRecord economyRecord = records.get(PART);
-                        MysqlPlayerDataStore.SyncRecord primary = (skinsRecord != null && skinsRecord.payload() != null && !skinsRecord.payload().isBlank())
-                                ? skinsRecord : economyRecord;
+                        MysqlPlayerDataStore.SyncRecord primary = (skinsRecord != null && skinsRecord.payload() != null
+                                && !skinsRecord.payload().isBlank())
+                                        ? skinsRecord
+                                        : economyRecord;
                         if (primary != null && primary.payload() != null && !primary.payload().isBlank()) {
                             EconomyState loaded = fromJson(primary.payload());
                             entry.state.copyFrom(loaded);
@@ -245,8 +249,10 @@ public final class PlayerEconomyManager {
      * <p>
      * 游戏服务端存在两套并行的皮肤/经济存储：
      * <ul>
-     *   <li>{@code SREPlayerSkinsComponent}（data_key="skins"）—— 客户端 UI、网站端、mysql-viewer 读写</li>
-     *   <li>{@code PlayerEconomyManager}（data_key="economy"）—— 游戏内 ItemSkinManager、任务奖励、角色技能等写入</li>
+     * <li>{@code SREPlayerSkinsComponent}（data_key="skins"）—— 客户端
+     * UI、网站端、mysql-viewer 读写</li>
+     * <li>{@code PlayerEconomyManager}（data_key="economy"）—— 游戏内
+     * ItemSkinManager、任务奖励、角色技能等写入</li>
      * </ul>
      * 两者互不同步，导致"游戏内解锁皮肤但网站端看不到"、"网站端修改抽数但游戏内不变化"等问题。
      * 此方法在服务端写入 economy 分区的同时，把相同的变更应用到 SREPlayerSkinsComponent，
@@ -255,8 +261,10 @@ public final class PlayerEconomyManager {
      * <p>
      * 仅在服务端执行，避免客户端调用 {@code sync()} 出错。
      */
-    private static void mirrorToSkinsComponent(Player player, java.util.function.Consumer<SREPlayerSkinsComponent> action) {
-        if (player.level().isClientSide()) return;
+    private static void mirrorToSkinsComponent(Player player,
+            java.util.function.Consumer<SREPlayerSkinsComponent> action) {
+        if (player.level().isClientSide())
+            return;
         try {
             SREPlayerSkinsComponent sc = SREPlayerSkinsComponent.KEY.get(player);
             if (sc != null) {
@@ -270,7 +278,8 @@ public final class PlayerEconomyManager {
 
     private static void send(ServerPlayer player, Entry entry) {
         ServerPlayNetworking.send(player,
-                new PlayerDataPartSyncPayload(player.getUUID(), PART, toJson(entry.state, entry.updatedAt), entry.updatedAt));
+                new PlayerDataPartSyncPayload(player.getUUID(), PART, toJson(entry.state, entry.updatedAt),
+                        entry.updatedAt));
     }
 
     private static boolean isDatabaseEnabled() {
@@ -278,6 +287,9 @@ public final class PlayerEconomyManager {
     }
 
     private static String itemType(ItemStack stack) {
+        if (stack.getItem() instanceof SkinableItem skit) {
+            return skit.getItemSkinType();
+        }
         return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().toLowerCase(java.util.Locale.ROOT);
     }
 

@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.content.item.Colors;
+import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -323,6 +324,9 @@ public class ItemSkinManager {
      * @return 物品类型名称
      */
     public static String getItemTypeName(ItemStack itemStack) {
+        if (itemStack.getItem() instanceof SkinableItem skit) {
+            return skit.getItemSkinType();
+        }
         Item item = itemStack.getItem();
         String itemId = BuiltInRegistries.ITEM.getKey(item).getPath();
         return itemId.toLowerCase();
