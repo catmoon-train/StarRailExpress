@@ -57,8 +57,11 @@ public class TouhouHandlers {
       // 强制绑定不死组辉夜和妹红为恋人
       var modifierCca = WorldModifierComponent.KEY.get(player.level());
       var gameCca = SREGameWorldComponent.getInstance(player);
-      if (RoleUtils.compareRole(role, THLostForestRoles.MOKOU)) {
-        modifierCca.addModifier(player.getUUID(), SEModifiers.LOVERS);
+      if (RoleUtils.compareRole(role, THLostForestRoles.KAGUYA)
+          || RoleUtils.compareRole(role, THLostForestRoles.MOKOU)) {
+        if (modifierCca.isModifier(player, SEModifiers.LOVERS)) {
+          return;
+        }
         Player kaguya = null;
         for (final Player p : player.level().players()) {
           if (!modifierCca.isModifier(p.getUUID(), SEModifiers.LOVERS)

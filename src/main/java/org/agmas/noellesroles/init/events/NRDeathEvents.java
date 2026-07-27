@@ -70,6 +70,7 @@ import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -784,6 +785,14 @@ public class NRDeathEvents {
     }
 
     private static void dropRoleSpecificItems(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
+
+        if (gameWorldComponent.isRole(player, THMiscRoles.SHIKIEIKI)) {
+            int dropCount = MCItemsUtils.clearItem(player, TMMItems.DERRINGER);
+            while (dropCount > 0) {
+                player.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
+                dropCount--;
+            }
+        }
         if (gameWorldComponent.isRole(player, ModRoles.JOJO)) {
             int dropCount = 1 + MCItemsUtils.clearItem(player, TMMItemTags.GUNS);
             while (dropCount > 0) {
@@ -894,7 +903,8 @@ public class NRDeathEvents {
                 var c4instance = C4BackComponent.getInstance(player);
                 UUID planterUid = c4instance.getPlanter(player.getUUID());
                 var planter = player.server.getPlayerList().getPlayer(planterUid);
-                if (planter != null && (killer == null || !planterUid.equals(killer.getUUID())) && GameUtils.isPlayerAliveAndSurvival(planter)) {
+                if (planter != null && (killer == null || !planterUid.equals(killer.getUUID()))
+                        && GameUtils.isPlayerAliveAndSurvival(planter)) {
                     RoleUtils.insertStackInFreeSlot(planter, ModItems.C4.getDefaultInstance());
                     // c4instance.addC4(planterUid, planterUid);
                     planter.displayClientMessage(
