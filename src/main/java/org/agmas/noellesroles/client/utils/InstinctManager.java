@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.OptionalInt;
 
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.content.entity.YouluAnchorEntity;
 import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
@@ -98,6 +99,11 @@ public class InstinctManager {
         if (target instanceof PuppeteerBodyEntity) {
             if (GameUtils.isPlayerSpectatingOrCreativeIgnoreShitSplit(Minecraft.getInstance().player)) {
                 // new Color(181, 255, 231).getRGB()
+                return OptionalInt.of(-4849689);
+            }
+        }
+        if (gameWorldComponent.isRole( self,ModRoles.YOULU)){
+            if (target instanceof YouluAnchorEntity){
                 return OptionalInt.of(-4849689);
             }
         }

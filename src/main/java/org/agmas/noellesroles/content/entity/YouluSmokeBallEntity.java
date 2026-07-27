@@ -44,7 +44,7 @@ public class YouluSmokeBallEntity extends Entity {
     /** 每次刷新给予的效果时长（tick），略大于间隔避免闪烁。 */
     private static final int EFFECT_DURATION = 30;
 
-    private int remainingLifetime = 12 * 20;
+    private int remainingLifetime = 15 * 20;
 
     public YouluSmokeBallEntity(EntityType<? extends YouluSmokeBallEntity> entityType, Level level) {
         super(entityType, level);
