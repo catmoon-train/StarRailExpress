@@ -5,7 +5,7 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * 蓄力物品接口，允许其他MOD添加自定义蓄力行为
- * 使用方法：在物品类实现本 interface，或使用 ChargeableItemRegistry.register(物品, 蓄力实现类); 来注册
+ * 使用方法：在物品类实现本 interface（建议！！！），或使用 ChargeableItemRegistry.register(物品, 蓄力实现类); 来注册
  */
 public interface ChargeableItem {
     /**

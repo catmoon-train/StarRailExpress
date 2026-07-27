@@ -752,16 +752,7 @@ public interface ChargeableItem {
 **包 / Package:** `io.wifi.starrailexpress.api`
 
 ```java
-// 注册蓄力物品
-ChargeableItemRegistry.register(MyItems.MY_ITEM, new ChargeableItem() {
-    @Override
-    public int getMaxChargeTime(ItemStack stack, Player player) { return 20; }
-
-    @Override
-    public float getChargePercentage(ItemStack stack, Player player, int ticks) {
-        return Math.min(1.0f, ticks / 20.0f);
-    }
-});
+// 不需要注册了，只需要给Item类implements ChargeableItem 即可！
 
 // 查询
 boolean chargeable = ChargeableItemRegistry.isChargeable(item);
