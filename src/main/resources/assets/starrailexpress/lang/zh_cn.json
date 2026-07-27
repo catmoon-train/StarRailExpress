@@ -2105,7 +2105,7 @@
     "sre.custom_role.task_reward_silent": "静默发放",
     "sre.custom_role.task_reward_message": "奖励提示翻译键",
     "sre.custom_role.label.initial_coin_count": "初始金币数(-1不改)",
-    "sre.custom_role.label.neutral_kill_coin": "击杀奖励金币(0=不给)",
+    "sre.custom_role.label.neutral_kill_coin": "击杀奖励的额外金币(0=不给)",
     "sre.custom_role.label.mood_color_r": "心情颜色R(-1默认)",
     "sre.custom_role.label.mood_color_g": "心情颜色G(-1默认)",
     "sre.custom_role.label.mood_color_b": "心情颜色B(-1默认)",
