@@ -1,10 +1,12 @@
 package org.agmas.noellesroles.role.touhou;
 
+import org.agmas.noellesroles.role.touhou.roles.*;
+
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.util.Color;
 import net.minecraft.resources.ResourceLocation;
-import org.agmas.noellesroles.role.touhou.roles.*;
 
 public class THMiscRoles {
   public static final String NAMESPACE = "th_misc";
@@ -14,9 +16,18 @@ public class THMiscRoles {
   }
 
   // Kirisame Marisa
+  public static final ResourceLocation IBUKI_SUIKA_ID = id("ibuki_suika");
+  public static SRERole IBUKI_SUIKA = TMMRoles
+      .registerRole(new THSuikaRole(IBUKI_SUIKA_ID, new Color(149,76,24).getRGB(),
+          false, true, SRERole.MoodType.FAKE,
+          Integer.MAX_VALUE, true))
+      .setDefaultMax(1)
+      .setDefaultEnableNeededPlayerCount(18)
+      .setDefaultEnableChance(5000);
+  // Kirisame Marisa
   public static final ResourceLocation KIRISAME_MARISA_ID = id("kirisame_marisa");
   public static SRERole KIRISAME_MARISA = TMMRoles
-      .registerRole(new THMarisaRole(KIRISAME_MARISA_ID, new java.awt.Color(172, 154, 104).getRGB(),
+      .registerRole(new THMarisaRole(KIRISAME_MARISA_ID, new Color(172, 154, 104).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true))
       .setCanSetSpawnInfoInConfig(true).setDefaultMax(1)
@@ -24,7 +35,7 @@ public class THMiscRoles {
       .setFallDamageImmune(true); // 不会因高度限制摔死
   public static final ResourceLocation HAKUREI_REIMU_ID = id("hakurei_reimu");
   public static SRERole HAKUREI_REIMU = TMMRoles
-      .registerRole(new THReimuRole(HAKUREI_REIMU_ID, new java.awt.Color(153, 82, 89).getRGB(),
+      .registerRole(new THReimuRole(HAKUREI_REIMU_ID, new Color(153, 82, 89).getRGB(),
           false, true, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true))
       .setCanPickUpRevolver(false)
@@ -34,7 +45,7 @@ public class THMiscRoles {
   // 四季映姬曾经是地藏，后来全国各地的地藏联名上书请求分担阎魔大人的工作，她也成为了阎魔。
   public static final ResourceLocation SHIKIEIKI_ID = id("shikieiki");
   public static SRERole SHIKIEIKI = TMMRoles
-      .registerRole(new THShikieikiRole(SHIKIEIKI_ID, new java.awt.Color(87, 79, 117).getRGB(),
+      .registerRole(new THShikieikiRole(SHIKIEIKI_ID, new Color(87, 79, 117).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true), "th_hell")
       .setCanPickUpRevolver(false).setVigilanteTeam(true).setSpecialVigilante(true)
@@ -42,21 +53,21 @@ public class THMiscRoles {
   // 小野冢小町 Onozuka Komachi
   public static final ResourceLocation KOMACHI_ID = id("onozuka_komachi");
   public static SRERole KOMACHI = TMMRoles
-      .registerRole(new THKomachiRole(KOMACHI_ID, new java.awt.Color(199, 144, 161).getRGB(),
+      .registerRole(new THKomachiRole(KOMACHI_ID, new Color(199, 144, 161).getRGB(),
           false, true, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true), "th_hell")
       .setCanEarnKillerCoinAwardsFromKills(false); // 杀人无法获得基础金币奖励
   // 天子Hinanawi Tenshi
   public static final ResourceLocation TENSHI_ID = id("hinanawi_tenshi");
   public static SRERole TENSHI = TMMRoles
-      .registerRole(new THTenshiRole(TENSHI_ID, new java.awt.Color(89, 177, 250).getRGB(),
+      .registerRole(new THTenshiRole(TENSHI_ID, new Color(89, 177, 250).getRGB(),
           true, false, SRERole.MoodType.REAL,
           TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false));
   public static final ResourceLocation RINNOSUKE_ID = id("morichika_rinnosuke");
   // 森近霖之助 Morichika Rinnosuke
   public static SRERole RINNOSUKE = TMMRoles.registerRole(new THRinnosukeRole(
       RINNOSUKE_ID, // 角色 ID
-      new java.awt.Color(252, 250, 249).getRGB(),
+      new Color(252, 250, 249).getRGB(),
       false, // isInnocent = 乘客阵营
       false, // canUseKiller = 无杀手能力
       SRERole.MoodType.REAL, // 真实心情

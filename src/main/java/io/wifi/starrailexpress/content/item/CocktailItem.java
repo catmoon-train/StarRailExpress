@@ -24,13 +24,14 @@ public class CocktailItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
-        super.finishUsingItem(stack, world, user);
+
         if (user instanceof ServerPlayer serverPlayerEntity) {
-            FoodDrinkGlowComponent.playerDrink(serverPlayerEntity);
+            FoodDrinkGlowComponent.playerDrink(serverPlayerEntity, stack);
             CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayerEntity, stack);
             serverPlayerEntity.awardStat(Stats.ITEM_USED.get(this));
             SREPlayerMoodComponent.KEY.get(serverPlayerEntity).drinkCocktail();
         }
+        super.finishUsingItem(stack, world, user);
         return stack;
     }
 

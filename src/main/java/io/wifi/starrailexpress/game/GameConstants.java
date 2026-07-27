@@ -236,6 +236,7 @@ public class GameConstants {
         public static ResourceLocation HOT_POTATO = SRE.id("hot_potato");
         public static ResourceLocation CAT_KILLER = SRE.wifiId("cat_killer");
 
+        public static ResourceLocation SUIKA_RUSH = Noellesroles.id("suika_rush");
         public static ResourceLocation VOODOO = Noellesroles.id("voodoo");
         public static ResourceLocation SHOT_INNOCENT = Noellesroles.id("shot_innocent");
         public static ResourceLocation INSANE_KILLER_DEATH = Noellesroles.id("insane_killer_death");

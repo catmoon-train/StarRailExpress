@@ -21,6 +21,8 @@ import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponen
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
+
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.modifier.allergist.cca.AllergistComponent;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
@@ -65,7 +67,7 @@ public class SEModifiers {
     public static SREModifier TINY = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tiny"),
             new Color(255, 166, 0).getRGB(),
-            null,
+            Set.of(THMiscRoles.IBUKI_SUIKA),
             null,
             false,
             false)).setCanSetSpawnInfoInConfig(false);
@@ -73,7 +75,7 @@ public class SEModifiers {
     public static SREModifier TALL = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tall"),
             new Color(0, 255, 0).getRGB(),
-            null,
+            Set.of(THMiscRoles.IBUKI_SUIKA),
             null,
             false,
             false)).setCanSetSpawnInfoInConfig(false);

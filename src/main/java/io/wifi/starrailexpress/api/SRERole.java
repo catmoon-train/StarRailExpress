@@ -1990,4 +1990,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public enum MoodType {
         NONE, REAL, FAKE
     }
+
+    public void onDrink(Player p, ItemStack item) {
+    }
+
+    public void onEat(Player p, ItemStack item) {
+    }
 }

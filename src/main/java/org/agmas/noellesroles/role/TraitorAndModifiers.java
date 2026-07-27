@@ -34,6 +34,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
@@ -177,7 +178,7 @@ public class TraitorAndModifiers {
     public static SREModifier DWARF = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("dwarf"),
             new Color(205, 133, 63).getRGB(), // 秘鲁色
-            null, null, false, false))
+            Set.of(THMiscRoles.IBUKI_SUIKA), null, false, false))
             .setDefaultEnableChance(300);
 
     // 绝境信徒 - 唯一杀手时获得金币和药水效果

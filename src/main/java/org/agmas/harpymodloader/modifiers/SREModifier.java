@@ -315,12 +315,12 @@ public class SREModifier extends SREAbstractInfoClass {
         return this;
     }
 
-    public SREModifier(ResourceLocation identifier, int color, HashSet<SRERole> cannotBeAppliedTo,
-            HashSet<SRERole> canOnlyBeAppliedTo, boolean killerOnly, boolean civilianOnly) {
+    public SREModifier(ResourceLocation identifier, int color, Collection<SRERole> cannotBeAppliedTo,
+            Collection<SRERole> canOnlyBeAppliedTo, boolean killerOnly, boolean civilianOnly) {
         this.identifier = identifier;
         this.color = color;
-        this.cannotBeAppliedTo = cannotBeAppliedTo;
-        this.canOnlyBeAppliedTo = canOnlyBeAppliedTo;
+        this.cannotBeAppliedTo = new HashSet<SRERole>(cannotBeAppliedTo);
+        this.canOnlyBeAppliedTo = new HashSet<SRERole>(canOnlyBeAppliedTo);
         this.killerOnly = killerOnly;
         this.civilianOnly = civilianOnly;
     }

@@ -23,7 +23,6 @@ public class THShikieikiRole extends TouhouRole {
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
     }
-
     @Override
     public List<ItemStack> getDefaultItems() {
         return List.of(TMMItems.DERRINGER.getDefaultInstance());
@@ -93,5 +92,4 @@ public class THShikieikiRole extends TouhouRole {
         }
         return SHOP;
     }
-
 }

@@ -31,11 +31,11 @@ public class FoodItemMixin {
             }
             if (stack.getItem() instanceof PotionItem || stack.getItem() instanceof HoneyBottleItem) {
                 SREPlayerMoodComponent.KEY.get(p).drinkCocktail();
-                FoodDrinkGlowComponent.playerDrink(p);
+                FoodDrinkGlowComponent.playerDrink(p, stack);
                 return;
             }
             if (stack.get(DataComponents.FOOD) != null) {
-                FoodDrinkGlowComponent.playerEat(p);
+                FoodDrinkGlowComponent.playerEat(p, stack);
                 return;
             }
         }

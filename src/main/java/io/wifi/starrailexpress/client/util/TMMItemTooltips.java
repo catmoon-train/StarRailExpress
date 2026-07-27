@@ -14,6 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 
+import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 
@@ -70,6 +71,8 @@ public class TMMItemTooltips {
             addTooltipForItem(ModItems.DOGSKIN_PLASTER, itemStack, tooltipList);
             addTooltipForItem(ModItems.REIMU_GOHEI, itemStack, tooltipList);
             addTooltipForItem(ModItems.MINI_BAGUALU, itemStack, tooltipList);
+            addTooltipForItem(FunnyItems.SUIKA_GOURD, itemStack, tooltipList);
+            addTooltipForItem(FunnyItems.SUIKA_PILL, itemStack, tooltipList);
         });
     }
 

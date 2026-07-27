@@ -38,8 +38,8 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
     public boolean fullSync = false;
     public final HashMap<ResourceLocation, Boolean> needSync = new HashMap<>();
 
-    public static void hurtAndBreak(Player player, ItemStack stack, int damage, ResourceLocation slot) {
-        KEY.get(player).hurtAndBreak(stack, damage, slot);
+    public static ItemStack hurtAndBreak(Player player, ItemStack stack, int damage, ResourceLocation slot) {
+        return KEY.get(player).hurtAndBreak(stack, damage, slot);
     }
 
     public static ItemStack removeSlot(Player player, ResourceLocation slot) {
@@ -149,11 +149,11 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
         return this.player;
     }
 
-    public void hurtAndBreak(ItemStack stack, int damage, ResourceLocation slot) {
+    public ItemStack hurtAndBreak(ItemStack stack, int damage, ResourceLocation slot) {
         if (this.player.level().isClientSide)
-            return;
+            return ItemStack.EMPTY;
         if (!(this.player instanceof ServerPlayer serverPlayer)) {
-            return;
+            return ItemStack.EMPTY;
         }
         ServerLevel serverLevel = serverPlayer.serverLevel();
         if (stack.isDamageableItem()) {
@@ -161,7 +161,7 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
                 if (damage > 0) {
                     damage = EnchantmentHelper.processDurabilityChange(serverLevel, stack, damage);
                     if (damage <= 0) {
-                        return;
+                        return ItemStack.EMPTY;
                     }
                 }
 
@@ -180,6 +180,7 @@ public class ExtraSlotComponent implements RoleComponent, ServerTickingComponent
         }
         needSync.put(slot, true);
         sync();
+        return stack;
     }
 
     public void clear() {

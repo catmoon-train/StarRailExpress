@@ -19,6 +19,7 @@ import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.init.ModItems;
 
 public class HandCuffsItem extends Item {
+    public static final int MAX_DAMAGE = 10;
     public HandCuffsItem(Item.Properties settings) {
         super(settings.durability(10));
     }
@@ -35,6 +36,15 @@ public class HandCuffsItem extends Item {
 
     public static ItemStack putOffHandCuff(Player player) {
         return ExtraSlotComponent.removeSlot(player, SLOT_HANDCUFFS);
+    }
+
+    public static ItemStack breakHandCuff(Player player) {
+        var stack = ExtraSlotComponent.getSlot(player, SLOT_HANDCUFFS);
+        if(stack.is(ModItems.HANDCUFFS)){
+            ExtraSlotComponent.hurtAndBreak(player,stack,MAX_DAMAGE,SLOT_HANDCUFFS);
+            return ExtraSlotComponent.removeSlot(player, SLOT_HANDCUFFS);
+        }
+        return ItemStack.EMPTY;
     }
 
     public static boolean hasHandCuff(Player player) {

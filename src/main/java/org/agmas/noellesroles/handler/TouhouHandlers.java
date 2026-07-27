@@ -35,6 +35,7 @@ import org.agmas.noellesroles.role.touhou.MountainRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
+import org.agmas.noellesroles.role.touhou.roles.THSuikaRole;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 public class TouhouHandlers {
@@ -135,6 +136,12 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
+    RoleSkill.register(THMiscRoles.IBUKI_SUIKA,
+        RoleSkill.skill(SRE.id("suika_big"), "skill.noellesroles.suika.big", THSuikaRole::handleSkillBig)
+            .announceToSelf()
+            .showOnHud(true).cooldownSeconds(60).build(),
+        RoleSkill.skill(SRE.id("suika_small"), "skill.noellesroles.suika.small", THSuikaRole::handleSkillSmall)
+            .announceToSelf().cooldownSeconds(60).showOnHud(true).shifted(true).build());
     RoleSkill.register(THMiscRoles.KIRISAME_MARISA,
         RoleSkill.skill(SRE.id("marisa_magic"), "skill.noellesroles.marisa_magic", context -> {
           Player player = context.player();
