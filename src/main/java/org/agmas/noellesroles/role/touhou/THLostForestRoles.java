@@ -32,7 +32,8 @@ public class THLostForestRoles {
       .setNeutralForKiller(true)
       .setToggledOnInstinctType(InstinctType.KILLER_INSTINCT)
       .setCanBeRandomedByOtherRoles(false)
-      .setCanUseInstinctAndNightVision(true);
+      .setCanUseInstinctAndNightVision(true)
+      .setHiddenForRoleRotation(true);
 
   // 藤原妹红
   public static final ResourceLocation MOKOU_ID = id("huziwara_no_mokou");
@@ -47,7 +48,8 @@ public class THLostForestRoles {
       .addOccupationRole(KAGUYA)
       .setNeutrals(true)
       .addRelatedModifier(SEModifiers.LOVERS)
-      .setCanBeRandomedByOtherRoles(false);
+      .setCanBeRandomedByOtherRoles(false)
+      .setHiddenForRoleRotation(true);
 
   public static void init() {
   }

@@ -1189,6 +1189,10 @@ public class ModItems {
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
     public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
     static {
+        // 不需要单独注册！！！！
+        // 不需要单独注册！！！！
+        // 直接在 Item类里面 implement即可！！！
+        // 直接在 Item类里面 implement即可！！！
         var examplerPsychoLore = new ItemLore(
                 List.of(Component.translatable("itemstack.exampler.psychoitem.item_lore.1"),
                         Component.translatable("itemstack.exampler.psychoitem.item_lore.2")));
@@ -1199,7 +1203,6 @@ public class ModItems {
         ChargeableItemRegistry.register(FunnyItems.BOWEN_BADGE, new BowenBadgeChargeItem());
         ChargeableItemRegistry.register(ModItems.STALKER_KNIFE, new StalkerKnifeChargeItem());
         ChargeableItemRegistry.register(ModItems.SILENCE_TOTEM, new SilenceTotemChargeItem());
-        ChargeableItemRegistry.register(ModItems.THROWING_AXE, new ThrowingAxeChargeItem());
         ChargeableItemRegistry.register(ModItems.STALKER_KNIFE_OFFHAND, new StalkerKnifeChargeItem());
         ChargeableItemRegistry.register(TOXIN, new ToxinChargeItem());
         ChargeableItemRegistry.register(ModItems.THROWING_KNIFE, new KnifeChargeableItem());
