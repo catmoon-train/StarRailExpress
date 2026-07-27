@@ -2351,6 +2351,13 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(ModRoles.MERCENARY_ID, shop);
         }
 
+        // 变声怪杰商店：撬锁器 - 100金币
+        {
+            var shop = new ArrayList<ShopEntry>();
+            shop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+            ShopContent.customEntries.put(ModRoles.VOICE_CHANGER_ID, shop);
+        }
+
         // 布谷鸟（Cuckoo）商店：撬锁器 - 250金币
         {
             var SHOP = new ArrayList<ShopEntry>();
