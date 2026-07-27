@@ -114,6 +114,8 @@ public final class MeetingManager {
     private static final Set<UUID> skipVoters = new HashSet<>();
     /** 投票权重：玩家 UUID → 其投票算几票 */
     private static final Map<UUID, Integer> voteWeightOverrides = new HashMap<>();
+    /** 被投票倍率：玩家 UUID → 他人投给该玩家的每一票在实际计票中按此倍率计算（显示仍为原始票数）。 */
+    private static final Map<UUID, Double> receivedVoteMultipliers = new HashMap<>();
     private static boolean registered;
 
     private MeetingManager() {
@@ -655,17 +657,23 @@ public final class MeetingManager {
         VoteManager.addEndCallback(session -> {
             String expelledName = "";
 
-            // 第一步：统计所有选项的票数
+            // 第一步：统计所有选项的票数（实际计票应用"被投票倍率"，如呆呆鸟每票按 1.5 计）
             var results = session.getResults();
-            int maxVotes = 0;
+            Map<String, Double> effectiveVotes = new HashMap<>();
+            double maxVotes = 0;
             for (var entry : results.entrySet()) {
-                maxVotes = Math.max(maxVotes, entry.getValue().count());
+                double effective = entry.getValue().count();
+                if (entry.getValue().option() instanceof VoteOption.PlayerOption po) {
+                    effective *= getReceivedVoteMultiplier(po.uuid());
+                }
+                effectiveVotes.put(entry.getKey(), effective);
+                maxVotes = Math.max(maxVotes, effective);
             }
 
             // 第二步：找出所有达到最高票的选项
             List<String> topResultIds = new ArrayList<>();
-            for (var entry : results.entrySet()) {
-                if (entry.getValue().count() == maxVotes && maxVotes > 0) {
+            for (var entry : effectiveVotes.entrySet()) {
+                if (maxVotes > 1.0E-6 && Math.abs(entry.getValue() - maxVotes) < 1.0E-6) {
                     topResultIds.add(entry.getKey());
                 }
             }
@@ -755,5 +763,27 @@ public final class MeetingManager {
     /** 重置所有投票权重（游戏结束时调用）。 */
     public static void resetAllVoteWeights() {
         voteWeightOverrides.clear();
+        receivedVoteMultipliers.clear();
+    }
+
+    // ==================== 被投票倍率 ====================
+
+    /**
+     * 设置指定玩家的"被投票倍率"：他人投给该玩家的每一票，在实际计票中按此倍率计算。
+     * 投票结果界面显示的仍是原始票数。默认倍率为 1.0。
+     * 例如呆呆鸟为 1.5 → 投给呆呆鸟的 1 票实际算 1.5 票。
+     */
+    public static void setReceivedVoteMultiplier(ServerPlayer player, double multiplier) {
+        receivedVoteMultipliers.put(player.getUUID(), multiplier);
+    }
+
+    /** UUID 版：获取"被投票倍率"（无覆盖返回 1.0）。 */
+    public static double getReceivedVoteMultiplier(UUID uuid) {
+        return receivedVoteMultipliers.getOrDefault(uuid, 1.0);
+    }
+
+    /** 重置指定玩家的"被投票倍率"。 */
+    public static void resetReceivedVoteMultiplier(ServerPlayer player) {
+        receivedVoteMultipliers.remove(player.getUUID());
     }
 }

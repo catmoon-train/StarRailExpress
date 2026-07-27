@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.role;
 
+import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -32,13 +33,19 @@ public class ModMeetingRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
     ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
 
-    /** 呆呆鸟 — 独立胜利中立：有杀手透视但看不到人，被投票出局即胜 */
+    /**
+     * 呆呆鸟 — 独立胜利中立：有杀手透视但看不到人，被投票出局即胜。
+     * - 不会被杀手透视看到（与小透明 ghost 相同，见 setBeSeenInstinctType）。
+     * - 初始物品：假刀 + 假左轮（见 RoleInitialItems）。
+     * - 会议投票中投给呆呆鸟的每一票实际按 1.5 票计算（显示仍为 1 票，见 MeetingManager）。
+     */
     public static SRERole DUMMY_BIRD = TMMRoles.registerRole(
             new NormalRole(id(DUMMY_BIRD_ID), new Color(255, 215, 0).getRGB(),
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true)
     ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE)
             .setCanUseInstinctAndNightVision(true)
+            .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setNeutrals(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
 
     /** 政客 — 平民：不会因投票出局，投票权重2(>24人时3)，获得一定票数后得左轮 */

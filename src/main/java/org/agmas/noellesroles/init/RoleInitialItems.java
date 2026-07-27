@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Unbreakable;
 import org.agmas.noellesroles.role.BounsRoles;
+import org.agmas.noellesroles.role.ModMeetingRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
@@ -378,6 +379,12 @@ public class RoleInitialItems {
         List<Supplier<ItemStack>> courierItems = new ArrayList<>();
         courierItems.add(() -> ModItems.COURIER_MAIL.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.COURIER, courierItems);
+
+        // 呆呆鸟初始物品 - 假刀 + 假左轮
+        List<Supplier<ItemStack>> dummyBirdItems = new ArrayList<>();
+        dummyBirdItems.add(() -> ModItems.FAKE_KNIFE.getDefaultInstance());
+        dummyBirdItems.add(() -> ModItems.FAKE_REVOLVER.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModMeetingRoles.DUMMY_BIRD, dummyBirdItems);
     }
 
 }

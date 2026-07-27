@@ -55,12 +55,17 @@ public class ModMeetingRoleEvents {
         });
 
         // 政客：游戏开始时设置投票权重（覆盖默认值）
+        // 呆呆鸟：游戏开始时设置"被投票倍率"——投给呆呆鸟的每一票实际按 1.5 票计算（显示仍为 1 票）
         OnGameTrueStarted.EVENT.register((level) -> {
             long alive = level.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
             for (ServerPlayer p : level.players()) {
                 var game = SREGameWorldComponent.KEY.get(level);
-                if (game != null && game.isRole(p, ModMeetingRoles.POLITICIAN)) {
+                if (game == null) continue;
+                if (game.isRole(p, ModMeetingRoles.POLITICIAN)) {
                     MeetingManager.setVoteWeight(p, alive > 24 ? 3 : 2);
+                }
+                if (game.isRole(p, ModMeetingRoles.DUMMY_BIRD)) {
+                    MeetingManager.setReceivedVoteMultiplier(p, 1.5);
                 }
             }
         });

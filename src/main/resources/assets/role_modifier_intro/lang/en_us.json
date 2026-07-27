@@ -223,7 +223,7 @@
   "info.screen.roleid.leather_pig.simple": "Civilian Faction\nYour model is a pig.\nPress G to spend 150 coins and go frenzied for 30s: instinct vision + Speed III + manhunt sound. 45s cooldown.",
   "info.screen.roleid.canada_goose": "Civilian Faction\nOnly spawns in maps with meeting enabled.\nWhen you are killed by another player or swallowed by a Pelican, an emergency meeting is automatically called, with your killer as the reporter.",
   "info.screen.roleid.canada_goose.simple": "Civilian Faction\nAuto-calls emergency meeting when killed",
-  "info.screen.roleid.dummy_bird": "Neutral (Independent Victory)\nOnly spawns in maps with meeting voting enabled.\nHas killer instinct, but cannot see any players through it.\nAchieve independent victory by being voted out during meeting.",
+  "info.screen.roleid.dummy_bird": "Neutral (Independent Victory)\nOnly spawns in maps with meeting voting enabled.\nHas killer instinct, but cannot see any players through it.\nCannot be seen through killer instinct.\nStarts with a Fake Knife and a Fake Revolver.\nEach vote cast against the Dummy Bird counts as 1.5 votes in the tally (displayed as 1).\nAchieve independent victory by being voted out during meeting.",
   "info.screen.roleid.dummy_bird.simple": "Neutral\nWin independently by being voted out",
   "info.screen.roleid.politician": "Civilian Faction\nOnly spawns in maps with meeting voting enabled.\nCannot be voted out.\nYour vote counts as 2 (3 if >24 players alive).\nWhen votes received reach 1/4 of alive players, receive a revolver.",
   "info.screen.roleid.politician.simple": "Civilian Faction\nVote immune + weight 2/3, receive revolver when heavily voted",
