@@ -230,12 +230,12 @@ public class RoleRotationScreen extends Screen {
     }
 
     private int getFactionColor(SRERole role) {
+        if (role.isVigilanteTeam())
+            return 0xFF22BBCC;
         if (role.canUseKiller())
             return RED;
         if (role.isInnocent())
             return GREEN;
-        if (role.isVigilanteTeam())
-            return 0xFF22BBCC;
         if (role.isNeutrals() || role.isNeutralForKiller())
             return GOLD;
         return BLUE;
@@ -436,7 +436,10 @@ public class RoleRotationScreen extends Screen {
     }
 
     private Component getRoleFactionText(SRERole role) {
-        if (role.isInnocent()) {
+        if (role.isVigilanteTeam()) {
+            return Component.translatable("display.type.role.vigilante")
+                    .withStyle(style -> style.withColor(0xFF22BBCC));
+        } else if (role.isInnocent()) {
             return Component.translatable("display.type.role.innocent").withStyle(style -> style.withColor(0xFF44BB66));
         } else if (role.canUseKiller()) {
             return Component.translatable("display.type.role.killer").withStyle(style -> style.withColor(0xFFCC2233));
@@ -446,9 +449,6 @@ public class RoleRotationScreen extends Screen {
         } else if (role.isNeutrals()) {
             return Component.translatable("display.type.role.neutral_special")
                     .withStyle(style -> style.withColor(0xFFCCAA22));
-        } else if (role.isVigilanteTeam()) {
-            return Component.translatable("display.type.role.vigilante")
-                    .withStyle(style -> style.withColor(0xFF22BBCC));
         }
         return Component.literal("Unknown").withStyle(ChatFormatting.GRAY);
     }
