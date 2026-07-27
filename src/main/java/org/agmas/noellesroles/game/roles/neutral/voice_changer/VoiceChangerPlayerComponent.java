@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
@@ -49,6 +48,13 @@ public class VoiceChangerPlayerComponent implements RoleComponent, ServerTicking
     public static final ComponentKey<VoiceChangerPlayerComponent> KEY = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "voice_changer"),
             VoiceChangerPlayerComponent.class);
+
+    // /**
+    //  * 版本兼容
+    //  */
+    // public boolean isRequiredOnClient() {
+    //     return false;
+    // }
 
     /** 变声效果顺序（与技能切换循环一致），共 14 种。 */
     public static final List<Holder<MobEffect>> VOICE_EFFECTS = List.of(

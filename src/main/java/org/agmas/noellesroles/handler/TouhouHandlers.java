@@ -42,6 +42,7 @@ import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
 import org.agmas.noellesroles.role.touhou.roles.THSuikaRole;
+import org.agmas.noellesroles.role.touhou.roles.THUtsuhoRole;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 public class TouhouHandlers {
@@ -168,6 +169,9 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
+    RoleSkill.register(THMiscRoles.REIUJI_UTSUHO,
+        RoleSkill.skill(SRE.id("utsuho"), "skill.noellesroles.utsuho", THUtsuhoRole::skillHandler)
+            .announceToSelf().showOnHud(true).cooldownSeconds(120).build());
     RoleSkill.register(THMiscRoles.IBUKI_SUIKA,
         RoleSkill.skill(SRE.id("suika_big"), "skill.noellesroles.suika.big", THSuikaRole::handleSkillBig)
             .announceToSelf()

@@ -84,6 +84,15 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public static void resetStatic() {
         taskRewardCounts.clear();
         taskRewardTriggered.clear();
+        for (SRERole r : TMMRoles.ROLES.values()) {
+            r.resetVariables();
+        }
+    }
+
+    /**
+     * 重置常量
+     */
+    public void resetVariables() {
     }
 
     /** 获取玩家对指定角色的已完成任务数 */
@@ -929,7 +938,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return true;
     }
 
-    public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason, boolean forceDeath) {
+    public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
+            boolean forceDeath) {
         return;
     }
 

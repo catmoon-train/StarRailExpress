@@ -16,7 +16,6 @@ import net.minecraft.world.entity.player.Player;
 public class TouhouInstincts {
 
     public static void registerEvents() {
-
         // 雾雨魔理沙看博丽灵梦飞行
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THMagicForestRoles.KIRISAME_MARISA_ID,
                 (client, self, target, hasInstinct) -> {

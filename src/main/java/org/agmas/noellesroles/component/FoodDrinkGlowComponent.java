@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.roles.THUtsuhoRole;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
@@ -42,6 +43,7 @@ public class FoodDrinkGlowComponent implements RoleComponent, ServerTickingCompo
         if (pRole != null) {
             pRole.onDrink(p, item);
         }
+        THUtsuhoRole.playerDrink(p);
         for (var p2 : p.level().players()) {
             if (gameWorldComponent.isRole(p2, ModRoles.BARTENDER)) {
                 FoodDrinkGlowComponent.KEY.get(p2).startGlow(p, 0);
