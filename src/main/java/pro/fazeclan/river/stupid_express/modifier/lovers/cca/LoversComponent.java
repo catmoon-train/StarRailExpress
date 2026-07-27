@@ -88,4 +88,9 @@ public class LoversComponent implements AutoSyncedComponent {
         if (this.lover != null)
             tag.putUUID("lover", this.lover);
     }
+
+    public void setLoverAndSync(UUID uuid) {
+        setLover(uuid);
+        sync();
+    }
 }
