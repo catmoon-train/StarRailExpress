@@ -1367,9 +1367,12 @@ public class SREClient implements ClientModInitializer {
                 canUseInstinct = role.canUseInstinct();
             }
         }
+        boolean t = isHoldSpecialItem.test(player);
+        if (player.isSpectator() || player.isCreative())
+            t = false;
         return (isInstinctToggleEnabled
                 && ((canUseInstinct && isPlayerAliveAndInSurvival()) || isPlayerSpectatingOrCreative()))
-                || (canUseInstinct && isHoldSpecialItem.test(player));
+                || (canUseInstinct && t);
     }
 
     public static Object getLockedRenderDistance(boolean ultraPerfMode) {
