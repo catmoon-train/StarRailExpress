@@ -54,6 +54,8 @@ public class ArrowMixin {
                             isHit = true;
                             ServerPlayer shooter = arrow.getOwner() instanceof ServerPlayer sp ? sp : null;
                             GameUtils.killPlayer(player, true, shooter, SRE.id("arrow"));
+
+                            arrow.discard();
                             ci.cancel();
                             return;
                         }
@@ -61,11 +63,13 @@ public class ArrowMixin {
                 }
                 if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
                     if (CupidPlayerComponent.handleArrowHit((Arrow) arrow, serverPlayer, player)) {
+                        arrow.discard();
                         ci.cancel();
                         return;
                     }
                     if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.ELF)) {
                         isHit = true;
+
                         GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
                     }
                     if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer,
