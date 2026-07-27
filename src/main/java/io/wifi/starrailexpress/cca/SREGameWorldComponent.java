@@ -18,6 +18,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -976,8 +977,15 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         }
         if (areas.areasSettings.deadInDarknessTime > 0) {
             final var level = player.level();
-            if (SREWorldBlackoutComponent.KEY.get(level).isBlackoutActive())
+            if (SREWorldBlackoutComponent.KEY.get(level).isBlackoutActive()) {
+                int time = perPlayerDarknessTime.getOrDefault(player.getUUID(), 0);
+                if (time > 0 && level.getGameTime() % 20 == 1) {
+                    player.displayClientMessage(
+                            Component.translatable("message.starrailexpress.darkness_warn.warning.blackout", time / 20),
+                            true);
+                }
                 return;
+            }
             var role = RoleUtils.getPlayerRole(player);
             if (role == null || role.isKillerTeam()) {
                 if (perPlayerDarknessTime.containsKey(player.getUUID()))
@@ -998,6 +1006,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     perPlayerDarknessTime.remove(player.getUUID());
                 } else {
                     perPlayerDarknessTime.put(player.getUUID(), time + 1);
+                    if (time % 20 == 1) {
+                        player.displayClientMessage(
+                                Component.translatable("message.starrailexpress.darkness_warn.warning", time / 20),
+                                true);
+                    }
                 }
             } else {
                 if (perPlayerDarknessTime.containsKey(player.getUUID()))

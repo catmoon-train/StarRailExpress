@@ -9,7 +9,6 @@ import org.agmas.noellesroles.client.hud.roles.*;
 public class OtherRolesRegister {
     public static int warningOffset = 0;
     public static void registerSons() {
-        DarknessWarningHud.register();
         BannedBlockWarningHud.register();
         CuckooHud.register();
         ShitSplitHud.register();
