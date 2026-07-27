@@ -916,7 +916,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             }
             if (!areas.areasSettings.canSimpleSwim) {
                 if (checkPlayerIsSwiming(player, areas)) {
-
                     if (InControlCCA
                             .bounceBackIfControlled(player)) {
                         return;
@@ -1105,6 +1104,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     private static boolean checkPlayerIsInLava(ServerPlayer player, AreasWorldComponent areas) {
+
+        if (player.hasEffect(ModEffects.SAFE_TIME))
+            return false;
         if (player.isInLava()) {
             return true;
         }
@@ -1119,9 +1121,13 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     private static boolean checkPlayerIsInDeepWater(ServerPlayer player, AreasWorldComponent areas) {
+
+        if (player.hasEffect(ModEffects.SAFE_TIME))
+            return false;
         if (player.isUnderWater()) {
             return true;
         }
+
         final var block = player.level()
                 .getBlockState(new BlockPos((int) player.getX(), (int) player.getY(), (int) player.getZ())).getBlock();
         final var block1 = player.level()
@@ -1134,6 +1140,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     private static boolean checkPlayerIsSwiming(ServerPlayer player, AreasWorldComponent areas) {
+        if (player.hasEffect(ModEffects.SAFE_TIME))
+            return false;
+
         if (!player.isUnderWater()) {
             return false;
         }

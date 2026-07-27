@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -68,11 +69,15 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
 
         SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
 
+        player.teleportTo(playerStats.pos().x, playerStats.pos().y, playerStats.pos().z);
+        player.setPos(playerStats.pos());
+
         bartenderPlayerComponent.armor = playerStats.shieldAmount;
         if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), role);
             player.setGameMode(GameType.ADVENTURE);
         }
+        player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 20, 0, true, false, true));
         player.teleportTo(playerStats.pos().x, playerStats.pos().y, playerStats.pos().z);
         player.setPos(playerStats.pos());
         player.setXRot(playerStats.rotation().x);
