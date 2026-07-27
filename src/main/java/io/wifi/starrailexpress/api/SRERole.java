@@ -66,7 +66,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean cannotKnifeLeftClick = false; // 无法用刀左键击退人
     protected boolean canKillWithTrident = false; // 能用三叉戟（忠诚/激流）杀人
     protected boolean canUseSpVanillaWeapon = false; // 能用特殊原版武器（Dream 铁斧/钻石剑/重锤）削减他人虚拟血量
-
+    protected boolean canBeXiaonao = false;
+    protected boolean canXiaonao = false;
     /**
      * 击杀获得额外金币。
      */
@@ -1208,6 +1209,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
         this.canUseInstinct = this.canUseKiller;
         this.instinctNightVision = this.canUseInstinct;
         this.canEarnKillerCoinAwardsFromKills = this.canUseKiller && !this.isInnocent && !this.isNeutrals;
+        this.canBeXiaonao = this.canUseKiller || !this.isInnocent || this.isNeutrals;
+        this.canXiaonao = this.canUseKiller || !this.isInnocent || this.isNeutrals;
     }
 
     public SRERole setCanAutoAddMoney(boolean bl) {
@@ -1995,5 +1998,23 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     public void onEat(Player p, ItemStack item) {
+    }
+
+    public boolean canBeXiaonao() {
+        return canBeXiaonao;
+    }
+
+    public boolean canXiaonao() {
+        return canXiaonao;
+    }
+
+    public SRERole setCanXiaonao(boolean flag) {
+        canXiaonao = flag;
+        return this;
+    }
+
+    public SRERole setCanBeXiaonao(boolean flag) {
+        canBeXiaonao = flag;
+        return this;
     }
 }

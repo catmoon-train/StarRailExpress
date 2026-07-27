@@ -31,8 +31,8 @@ public class CommanderHudRender {
                 var bindTip = Component
                         .translatable("message.commander.channel.normal.tip.bind",
                                 NoellesrolesClient.abilityBind
-                                        .getTranslatedKeyMessage())
-                        .withStyle(ChatFormatting.WHITE);
+                                        .getTranslatedKeyMessage().copy().withStyle(ChatFormatting.AQUA))
+                        .withStyle(ChatFormatting.GRAY);
                 if (comc.status == 1) {
                     channelText = Component.translatable("message.commander.channel.killer")
                             .withStyle(ChatFormatting.RED);

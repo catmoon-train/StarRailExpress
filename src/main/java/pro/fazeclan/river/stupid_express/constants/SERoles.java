@@ -32,7 +32,7 @@ public class SERoles {
             false,
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            false)).setPassiveIncome(false).setNeutralForInnocent(true).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
+            false)).setPassiveIncome(false).setNeutralForInnocent(true).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12).setCanBeXiaonao(false);
 
     public static SRERole ARSONIST = registerRole(new NormalRole(
             StupidExpress.id("arsonist"),
@@ -72,7 +72,7 @@ public class SERoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             true)).setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(8000)
             .setDefaultEnableNeededPlayerCount(12)
-            .setCannotKnifeLeftClick(true);
+            .setCannotKnifeLeftClick(true).setCanBeXiaonao(false);
 
     public static List<ShopEntry> INITIATE_SHOP = Util.make(new ArrayList<>(), entries -> {
         entries.add(new ShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, ShopEntry.Type.WEAPON));

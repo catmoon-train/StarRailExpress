@@ -26,6 +26,8 @@ public class XiaoNaoHandler {
     public static void registerEvent() {
         TeamKillViolationHandler.registerEvent();
         OnTeammateKilledTeammate.EVENT.register((victim, killer, isInnocent, deathReason) -> {
+            if (killer == null)
+                return;
             if (GameUtils.isPlayerAliveAndSurvival(killer)) {
                 if (isInnocent) {
                     SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
@@ -59,6 +61,14 @@ public class XiaoNaoHandler {
                     if (gameWorldComponent.isRole(victim, ModRoles.VOODOO)) {
                         return;
                     }
+                    var victimRole = gameWorldComponent.getRole(victim);
+                    var killerRole = gameWorldComponent.getRole(killer);
+                    if (victimRole == null || killerRole == null)
+                        return;
+                    if (victimRole.canBeXiaonao())
+                        return;
+                    if (killerRole.canXiaonao())
+                        return;
                     // 小脑(误杀)惩罚写这里
                     TeamKillViolationHandler.handle(victim, killer, isInnocent, deathReason);
                     if (NoellesRolesConfig.HANDLER.instance().accidentalKillPunishment) {

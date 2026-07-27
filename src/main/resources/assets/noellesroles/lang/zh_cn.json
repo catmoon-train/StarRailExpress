@@ -1653,7 +1653,7 @@
   "message.commander.channel.killer.tip2": "你也可以听到、看到杀手同伙的消息。",
   "message.commander.channel.normal": "普通频道",
   "message.commander.channel.normal.tip": "附近任何人都可以听到、看到你的消息。",
-  "message.commander.channel.normal.tip.bind": "附近任何人都可以听到、看到你的消息。",
+  "message.commander.channel.normal.tip.bind": "按下 %s 切换频道",
   "=========== 老人 ===========": "",
   "hud.oldman.buy": "按下 %s 花费 150金币 购买轮椅（有概率获得神秘钓竿）",
   "hud.oldman.already_buy": "你已经拥有了轮椅，不能继续购买。",
