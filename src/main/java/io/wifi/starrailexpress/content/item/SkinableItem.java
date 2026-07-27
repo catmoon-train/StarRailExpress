@@ -38,8 +38,10 @@ public abstract class SkinableItem extends Item {
             player = null;
         }
         if (player == null) {
-            if(FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)){
+            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
                 player = SREClientUtils.getClientPlayer();
+                if (player == null)
+                    return;
             }
         }
 
