@@ -48,9 +48,9 @@ public class THMokouRole extends TouhouRole {
     public List<ShopEntry> getShopEntries() {
         ArrayList<ShopEntry> SHOP = new ArrayList<>();
         SHOP.add(new ShopEntry(ModItems.FAKE_REVOLVER.getDefaultInstance(),
-                100, ShopEntry.Type.WEAPON));
+                50, ShopEntry.Type.WEAPON));
         SHOP.add(new ShopEntry(ModItems.ONCE_REVOLVER.getDefaultInstance(),
-                200, ShopEntry.Type.WEAPON));
+                150, ShopEntry.Type.WEAPON));
         return SHOP;
     }
 
