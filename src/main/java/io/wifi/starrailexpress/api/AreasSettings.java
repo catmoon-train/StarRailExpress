@@ -52,7 +52,6 @@ public class AreasSettings {
     public AreasSettings() {
         // 不要在这里初始化，请在各值处直接初始化。Gson反序列化不走此处。
     }
-
     /*
      * 正文开始
      * 关于同步，默认会同步全部field。
@@ -66,11 +65,37 @@ public class AreasSettings {
     // @ConfigSync(shouldSync = false)
     // public boolean __isTest__ = true;
 
+    // ==================== 内部类型定义 ====================
+    /**
+     * MapBlockedSetting
+     *
+     * @param blockId              方块ID
+     * @param deathTimeForInnocent 平民站上去的死亡时间。-1禁用。0立刻。
+     * @param deathTimeForKillers  杀手站上去的死亡时间。-1禁用。0立刻。
+     */
+    public static record MapBlockedBlockSetting(String blockId, int deathTimeForInnocent, int deathTimeForKillers) {
+    }
+
+    public static enum FogShape {
+        SPHERE, CYLINDER
+    }
+
+    public static enum MinecraftWeather {
+        clear, rain, thunder
+    }
+
+    /** 背景音效类型：train/wind/sand_storm/snow_storm/circus。空字符串或未设置时默认 train。 */
+    public static enum BackgroundAmbienceSound {
+        train, wind, sand_storm, snow_storm, circus, flower_sea, indoor_music
+    }
+
+    // ==================== map ====================
     @Category("map")
     public boolean noReset = false;
     @Category("map")
     public boolean mustCopy = false;
 
+    // ==================== action ====================
     /** 是否可跳跃 */
     @Category("action")
     // 默认为 true，此处只是为了占位
@@ -83,19 +108,9 @@ public class AreasSettings {
     @Category("action")
     public boolean canSwim = false;
 
-    /**
-     * MapBlockedSetting
-     * 
-     * @param blockId              方块ID
-     * @param deathTimeForInnocent 平民站上去的死亡时间。-1禁用。0立刻。
-     * @param deathTimeForKillers  杀手站上去的死亡时间。-1禁用。0立刻。
-     */
-    public static record MapBlockedBlockSetting(String blockId, int deathTimeForInnocent, int deathTimeForKillers) {
-    }
-
     @Category("action")
     public int deadInDarknessTime = 0;
-    
+
     @Category("action")
     public ArrayList<MapBlockedBlockSetting> bannedBlock = new ArrayList<>();
     /**
@@ -126,6 +141,11 @@ public class AreasSettings {
      */
     @Category("action")
     public boolean enableOxygenDrowning = false;
+    /**
+     * 狼人不会因为氧气值死亡
+     */
+    @Category("action")
+    public boolean killerNoDrowing = true;
 
     // 药水效果配置（格式：["namespace:effect_id,level", ...]，为空数组则无效果）
     @Category("action")
@@ -135,6 +155,19 @@ public class AreasSettings {
     @Category("action")
     public boolean minigameQuestEnabled = false;
 
+    // 重力modifier（默认0）
+    @Category("action")
+    public double gravityModifier = 0;
+
+    // 死亡高度。0禁用
+    @Category("action")
+    public int fallToDeathHeight = 0;
+    @Category("action")
+    public MapStatusBarType mapStatusBar = MapStatusBarType.NONE;
+    @Category("action")
+    public java.util.List<String> initialItems = new java.util.ArrayList<>();
+
+    // ==================== visual ====================
     // 雪花效果配置（默认关闭）
     @Category("visual")
     public boolean snowEnabled = false;
@@ -151,25 +184,14 @@ public class AreasSettings {
     @Category("visual")
     public float fogEnd = 100.0f;
 
-    public static enum FogShape {
-        SPHERE, CYLINDER
-    }
-
     // 雾气形状（SPHERE 或 CYLINDER），默认 SPHERE，仅在 fogEnabled 启用时生效
     @Category("visual")
     public FogShape fogShape = FogShape.SPHERE;
-
-    public static enum MinecraftWeather {
-        clear, rain, thunder
-    }
 
     // 天气配置（默认晴天）
     @Category("visual")
     public MinecraftWeather weather = MinecraftWeather.clear; // clear, rain, thunder
 
-    // 重力modifier（默认0）
-    @Category("action")
-    public double gravityModifier = 0;
     // 时间配置（默认午夜 18000）
     @Category("visual")
     public long time = 18000;
@@ -181,25 +203,15 @@ public class AreasSettings {
     // 天气循环配置（默认关闭）
     @Category("visual")
     public boolean weatherCycle = false;
-    // 死亡高度。0禁用
-    @Category("action")
-    public int fallToDeathHeight = 0;
-    @Category("action")
-    public MapStatusBarType mapStatusBar = MapStatusBarType.NONE;
-    @Category("action")
-    public java.util.List<String> initialItems = new java.util.ArrayList<>();
 
+    // ==================== sound ====================
     @Category("sound")
     public boolean haveOutsideSound = false;
-
-    /** 背景音效类型：train/wind/sand_storm/snow_storm/circus。空字符串或未设置时默认 train。 */
-    public static enum BackgroundAmbienceSound {
-        train, wind, sand_storm, snow_storm, circus, flower_sea, indoor_music
-    }
 
     @Category("sound")
     public BackgroundAmbienceSound sceneOutsideSound = BackgroundAmbienceSound.train;
 
+    // ==================== meeting ====================
     // ==================== 紧急会议系统 / Emergency Meeting ====================
     // 见 net.exmo.sre.meeting.MeetingManager；地图配置 GUI 的「会议」标签页可视化编辑。
 

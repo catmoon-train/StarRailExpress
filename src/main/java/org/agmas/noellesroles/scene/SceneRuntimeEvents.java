@@ -65,16 +65,21 @@ public final class SceneRuntimeEvents {
     }
 
     private static void tickOxygenDrowning(ServerLevel level) {
+        final boolean killerNoDrowing = isKillerNoDrowing(level);
         if (!SREGameWorldComponent.KEY.get(level).isRunning() || !isOxygenDrowningEnabled(level)) {
             clearOxygenDrowning(level);
             return;
         }
         for (ServerPlayer player : level.players()) {
-            if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+            if (!GameUtils.isPlayerAliveAndSurvival(player)
+                    || (killerNoDrowing && SREGameWorldComponent.isKillerTeamStatic(player))) {
                 ZERO_AIR_TICKS.remove(player.getUUID());
                 continue;
             }
             if (player.getAirSupply() <= 0) {
+                if ((killerNoDrowing && SREGameWorldComponent.isKillerTeamStatic(player))) {
+                    continue;
+                }
                 int ticks = ZERO_AIR_TICKS.getOrDefault(player.getUUID(), 0) + 1;
                 ZERO_AIR_TICKS.put(player.getUUID(), ticks);
                 if (ticks >= 5 * 20) {
@@ -86,6 +91,10 @@ public final class SceneRuntimeEvents {
                 ZERO_AIR_TICKS.remove(player.getUUID());
             }
         }
+    }
+
+    private static boolean isKillerNoDrowing(ServerLevel level) {
+        return AreasWorldComponent.KEY.get(level).areasSettings.killerNoDrowing;
     }
 
     private static boolean isOxygenDrowningEnabled(ServerLevel level) {
