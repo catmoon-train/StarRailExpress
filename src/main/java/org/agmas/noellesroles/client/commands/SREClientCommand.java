@@ -50,7 +50,6 @@ public class SREClientCommand {
                             return 1;
                           })))
               .then(ClientCommandManager.literal("debug")
-                  .requires(ctx -> ctx.hasPermission(2))
                   .then(ClientCommandManager.literal("rhythm_game")
                       .then(ClientCommandManager.literal("random")
                           .executes((ctx) -> {
@@ -97,6 +96,8 @@ public class SREClientCommand {
                             return 1;
                           })))
                   .then(ClientCommandManager.literal("track_pose")
+
+                      .requires(ctx -> ctx.hasPermission(2))
                       .then(ClientCommandManager.argument("count", IntegerArgumentType.integer(0, 1024))
                           .executes((ctx) -> {
                             int count = IntegerArgumentType.getInteger(ctx, "count");
@@ -104,6 +105,7 @@ public class SREClientCommand {
                             return 0;
                           })))
                   .then(ClientCommandManager.literal("client_area_config")
+                      .requires(ctx -> ctx.hasPermission(2))
                       .executes((ctx) -> {
                         var key = AreasWorldComponent.KEY.get(ctx.getSource().getWorld());
                         final var GSON = new GsonBuilder().setPrettyPrinting().create();
