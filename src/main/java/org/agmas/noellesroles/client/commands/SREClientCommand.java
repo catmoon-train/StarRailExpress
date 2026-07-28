@@ -21,6 +21,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class SREClientCommand {
   public static void register() {
@@ -51,6 +52,25 @@ public class SREClientCommand {
               .then(ClientCommandManager.literal("debug")
                   .requires(ctx -> ctx.hasPermission(2))
                   .then(ClientCommandManager.literal("rhythm_game")
+                      .then(ClientCommandManager.literal("random")
+                          .executes((ctx) -> {
+                            var mapDatas = new ArrayList<>(RhythmMapManager.MAP_NAMES.keySet());
+                            if (mapDatas.isEmpty()) {
+                              ctx.getSource().sendError(Component.literal("No available maps foun!"));
+                              return 0;
+                            }
+                            final var mapKey = mapDatas.get(new Random().nextInt(0, mapDatas.size()));
+                            final var mapData = RhythmMapManager.MAP_NAMES.get(mapKey);
+                            if (mapData == null) {
+                              ctx.getSource().sendError(Component.literal("Not a vaild src!"));
+                              return 0;
+                            }
+                            ClientScheduler.schedule(() -> {
+                              RhythmGameScreen.open(mapData);
+                            }, 1);
+                            ctx.getSource().sendFeedback(Component.literal("Successfully!"));
+                            return 1;
+                          }))
                       .then(ClientCommandManager.argument("src", StringArgumentType.greedyString()).suggests((c, b) -> {
                         for (final var t : RhythmMapManager.MAP_NAMES.keySet()) {
                           b.suggest(t.toString());

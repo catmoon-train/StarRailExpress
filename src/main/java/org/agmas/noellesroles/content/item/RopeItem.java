@@ -139,6 +139,9 @@ public class RopeItem extends Item implements AdventureUsable {
             if (!target.isAlive())
                 continue;
 
+            // 跳过创造模式
+            if (target.isCreative())
+                continue;
             // 跳过观察者模式
             if (target.isSpectator())
                 continue;
