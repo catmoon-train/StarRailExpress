@@ -13,6 +13,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+
+import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,9 +42,14 @@ public abstract class LivingEntityMixin extends EntityMixin {
     @Inject(method = "decreaseAirSupply", at = @At("HEAD"), cancellable = true)
     private void sre$decreaseAirSupply(int currentAir, CallbackInfoReturnable<Integer> cir) {
         if ((Object) this instanceof Player player) {
+            if (player.hasEffect(ModEffects.SAFE_TIME)) {
+                cir.setReturnValue(currentAir);
+                return;
+            }
             if (SREGameWorldComponent.isKillerTeamStatic(player)) {
                 if (AreasWorldComponent.KEY.get(player.level()).areasSettings.killerNoDrowing) {
                     cir.setReturnValue(currentAir);
+                    return;
                 }
             }
         }
