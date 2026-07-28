@@ -12,6 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -164,7 +166,7 @@ public class RhythmGameScreen extends Screen {
         ResourceLocation soundLocation = ResourceLocation.tryParse(currentMap.Src);
         Minecraft.getInstance().getSoundManager().play(
                 new SimpleSoundInstance(soundLocation, SoundSource.VOICE, 1.0F, 1.0F,
-                        null, false, 0, SimpleSoundInstance.Attenuation.NONE, 0, 0, 0, true));
+                        RandomSource.create(), false, 0, SimpleSoundInstance.Attenuation.NONE, 0, 0, 0, true));
         songStartTime = System.currentTimeMillis();
     }
 
