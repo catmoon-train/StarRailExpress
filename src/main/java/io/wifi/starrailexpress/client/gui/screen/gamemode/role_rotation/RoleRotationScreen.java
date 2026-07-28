@@ -41,6 +41,7 @@ public class RoleRotationScreen extends Screen {
     private static final int GREEN = 0xFF72C17B;
     private static final int RED = 0xFFE06B65;
 
+
     private int leftX, leftY, leftW, panelH;
     private int rightX, rightY, rightW, cardW, cardY;
     private int detailX, detailY, detailW, detailH;
@@ -236,9 +237,17 @@ public class RoleRotationScreen extends Screen {
             return RED;
         if (role.isInnocent())
             return GREEN;
-        if (role.isNeutrals() || role.isNeutralForKiller())
+        if (role.isNeutralForKiller())
+            return 0xFFAA44CC;
+        if (role.isNeutrals())
             return GOLD;
         return BLUE;
+    }
+
+    private int getRoleDisplayColor(SRERole role) {
+        if (role.isNeutralForKiller())
+            return 0xFFAA44CC;
+        return role.getColor() | 0xFF000000;
     }
 
     private void drawTurnInfo(GuiGraphics g) {
@@ -334,7 +343,7 @@ public class RoleRotationScreen extends Screen {
             drawCenteredWrapped(g, Component.literal(candidates.get(index)), x + 8, y + 32, w - 16, 0xFFFFFFFF);
             return;
         }
-        int roleColor = role.getColor() | 0xFF000000;
+        int roleColor = getRoleDisplayColor(role);
         g.fill(x + 8, y + 14, x + w - 8, y + 34, (roleColor & 0x00FFFFFF) | 0x66000000);
         g.drawCenteredString(font, trim(RoleUtils.getRoleName(role).getString(), w - 16), x + w / 2, y + 20,
                 0xFFFFFFFF);
@@ -381,7 +390,7 @@ public class RoleRotationScreen extends Screen {
 
         int x = detailX + PAD;
         int y = detailY + PAD;
-        int roleColor = role.getColor();
+        int roleColor = getRoleDisplayColor(role);
         Component name = RoleUtils.getRoleName(role).withStyle(style -> style.withColor(roleColor).withBold(true));
         g.drawString(font, name, x, y, roleColor | 0xFF000000, false);
         Component faction = getRoleFactionText(role);
