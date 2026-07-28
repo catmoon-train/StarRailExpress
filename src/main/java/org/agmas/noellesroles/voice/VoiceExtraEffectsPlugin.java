@@ -296,7 +296,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
     /** 失真：预增益 + tanh 软削波。等级越高驱动越强、削波越狠。 */
     private static short[] distortionTransform(short[] pcm, UUID speaker, int level) {
-        double drive = 1.0 + (level - 1) * 0.7; // 1.0 -> 3.8
+        double drive = 2.5 + (level - 1) * 0.9; // 2.5 -> 6.1
         for (int i = 0; i < pcm.length; i++) {
             double s = ((double) pcm[i]) * drive / 32767.0;
             s = Math.tanh(s);
@@ -343,7 +343,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         return pcm;
     }
 
-    /** 口吃：填充一小段后重复播放该段 level-1 次。 */
+    /** 口吃：填充一小段后重复播放该段 level 次（level=1 即至少重复 1 次，保证默认等级可听）。 */
     private static short[] stutterTransform(short[] pcm, UUID speaker, int level) {
         StutterState st = STUTTER.computeIfAbsent(speaker, k -> new StutterState((int) (0.04 * SAMPLE_RATE)));
         short[] out = new short[pcm.length];
@@ -358,9 +358,9 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
                 st.chunk[st.wIdx++] = pcm[i];
                 out[i] = pcm[i];
                 if (st.wIdx >= st.size) {
-                    st.wIdx = 0;
-                    st.rIdx = 0;
-                    st.repeatLeft = Math.max(0, level - 1);
+                st.wIdx = 0;
+                st.rIdx = 0;
+                st.repeatLeft = level;
                 }
             }
         }
