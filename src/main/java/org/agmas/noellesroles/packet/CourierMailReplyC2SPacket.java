@@ -13,6 +13,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import io.wifi.starrailexpress.index.TMMItems;
+import org.agmas.noellesroles.content.item.CourierMailItem;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.entity.PigeonEntity;
 import org.agmas.noellesroles.content.item.CourierMailData;
@@ -59,6 +62,25 @@ public record CourierMailReplyC2SPacket(boolean mainHand, byte[] message, int it
         if (courier.getInventory().getFreeSlot() < 0) {
             player.displayClientMessage(Component.translatable("message.noellesroles.courier.reply_fail"), true);
             return;
+        }
+
+        // 附件物品校验：禁止把德林加手枪、信封本身或炸弹放入回信
+        if (p.itemSlot >= 0) {
+            ItemStack attach = player.getInventory().getItem(p.itemSlot);
+            if (!attach.isEmpty()) {
+                if (attach.getItem() == TMMItems.DERRINGER) {
+                    player.displayClientMessage(Component.translatable("message.noellesroles.courier.derringer_banned"), true);
+                    return;
+                }
+                if (attach.getItem() instanceof CourierMailItem) {
+                    player.displayClientMessage(Component.translatable("message.noellesroles.courier.attachment_banned"), true);
+                    return;
+                }
+                if (attach.is(ModItems.BOMB)) {
+                    player.displayClientMessage(Component.translatable("message.noellesroles.courier.attachment_banned"), true);
+                    return;
+                }
+            }
         }
 
         // 附件物品：发送时立刻消耗并序列化到信鸽身上
