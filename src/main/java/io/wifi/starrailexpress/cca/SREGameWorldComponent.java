@@ -981,7 +981,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 int time = perPlayerDarknessTime.getOrDefault(player.getUUID(), 0);
                 if (time > 0 && level.getGameTime() % 20 == 1) {
                     player.displayClientMessage(
-                            Component.translatable("message.starrailexpress.darkness_warn.warning.blackout", time / 20),
+                            Component.translatable("message.starrailexpress.darkness_warn.warning.blackout",
+                                    (areas.areasSettings.deadInDarknessTime - time) / 20),
                             true);
                 }
                 return;
@@ -1008,7 +1009,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     perPlayerDarknessTime.put(player.getUUID(), time + 1);
                     if (time % 20 == 1) {
                         player.displayClientMessage(
-                                Component.translatable("message.starrailexpress.darkness_warn.warning", time / 20),
+                                Component.translatable("message.starrailexpress.darkness_warn.warning",
+                                        (areas.areasSettings.deadInDarknessTime - time) / 20),
                                 true);
                     }
                 }
