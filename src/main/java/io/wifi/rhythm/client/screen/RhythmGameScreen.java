@@ -21,12 +21,16 @@ import java.util.*;
 public class RhythmGameScreen extends Screen {
     private static final float NOTE_SPEED = 0.2F;
     private static final int JUDGE_LINE_X = 60;
-    private static final int TRACK_Y_UP = 240;
-    private static final int TRACK_Y_DOWN = 290;
     private static final int PERFECT_WINDOW = 80;
     private static final int GOOD_WINDOW = 150;
     private static final int MISS_THRESHOLD = 50;
     private static final int ADVANCE_DISPLAY_TIME = 3900;
+
+    private int getTrackY(int track) {
+        int centerY = this.height / 2;
+        int spacing = 50; // 两轨间距
+        return track == 0 ? centerY - spacing / 2 : centerY + spacing / 2;
+    }
 
     private static final SoundEvent CLICK_SOUND = SoundEvents.NOTE_BLOCK_SNARE.value();
     private static final SoundEvent HIT_SOUND = SoundEvents.NOTE_BLOCK_IRON_XYLOPHONE.value();
@@ -200,7 +204,7 @@ public class RhythmGameScreen extends Screen {
         }
 
         // 4. 更新特效
-        hitEffects.removeIf(e -> System.currentTimeMillis() - e.startTime > 600);
+        hitEffects.removeIf(e -> System.currentTimeMillis() - e.startTime > 800);
 
         // 5. 结束检测（只在音乐开始后）
         if (musicStarted && activeNotes.isEmpty() && pendingNotes.isEmpty()) {
@@ -246,13 +250,14 @@ public class RhythmGameScreen extends Screen {
         // 击中特效
         for (HitEffect effect : hitEffects) {
             long elapsed = System.currentTimeMillis() - effect.startTime;
-            if (elapsed < 600) {
-                float alpha = 1.0f - (elapsed / 600f);
-                int color = effect.perfect ? 0xFFFFD700 : 0xFF00FF00;
-                int finalColor = ((int) (alpha * 255) << 24) | (color & 0x00FFFFFF);
-                graphics.drawCenteredString(font, effect.text, effect.x, effect.y - 10 - (int) (elapsed * 0.02),
-                        finalColor);
-            }
+            float life = 1.0f - (elapsed / 800f); // 800ms 生命周期
+            if (life <= 0)
+                continue; // 跳过已消失的特效（后续会被 removeIf 清除）
+            // 使用 ease-out 曲线，让消失更平滑
+            float alpha = life * life; // 平方淡出
+            int color = effect.perfect ? 0xFFFFD700 : 0xFF00FF00;
+            int finalColor = ((int) (alpha * 255) << 24) | (color & 0x00FFFFFF);
+            graphics.drawCenteredString(font, effect.text, effect.x, effect.y - (int) ((1 - life) * 20), finalColor);
         }
 
         drawHUD(graphics);
@@ -266,6 +271,8 @@ public class RhythmGameScreen extends Screen {
     }
 
     private void drawTracks(GuiGraphics graphics) {
+        int TRACK_Y_UP = getTrackY(0);
+        int TRACK_Y_DOWN = getTrackY(1);
         graphics.fill(JUDGE_LINE_X, TRACK_Y_UP - 12, width, TRACK_Y_UP + 12, 0x22000000);
         graphics.fill(JUDGE_LINE_X, TRACK_Y_DOWN - 12, width, TRACK_Y_DOWN + 12, 0x22000000);
         graphics.fill(JUDGE_LINE_X - 1, TRACK_Y_UP - 20, JUDGE_LINE_X + 1, TRACK_Y_DOWN + 20, 0xFFFFFFFF);
@@ -274,6 +281,9 @@ public class RhythmGameScreen extends Screen {
     }
 
     private void drawNote(GuiGraphics graphics, LiveNote ln, float partialTick) {
+
+        int TRACK_Y_UP = getTrackY(0);
+        int TRACK_Y_DOWN = getTrackY(1);
         int y = ln.track == 0 ? TRACK_Y_UP : TRACK_Y_DOWN;
         int x = Mth.lerpInt(partialTick, ln.prevX, ln.currentX);
 
@@ -430,6 +440,9 @@ public class RhythmGameScreen extends Screen {
 
     // ===== 判定 =====
     private void hitNote(LiveNote note, boolean perfect) {
+
+        int TRACK_Y_UP = getTrackY(0);
+        int TRACK_Y_DOWN = getTrackY(1);
         note.state = NoteState.HIT;
         score += (perfect ? 100 : 70) * comboMultiplier();
         if (perfect)
@@ -450,6 +463,9 @@ public class RhythmGameScreen extends Screen {
     }
 
     private void startHold(LiveNote note) {
+
+        int TRACK_Y_UP = getTrackY(0);
+        int TRACK_Y_DOWN = getTrackY(1);
         note.state = NoteState.HOLDING;
         note.held = true;
         score += 50 * comboMultiplier();
