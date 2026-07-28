@@ -6,6 +6,8 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.game.data.MapConfig;
+import io.wifi.starrailexpress.game.data.ServerMapConfig;
+import io.wifi.starrailexpress.game.data.MapConfig.MapEntry;
 import io.wifi.starrailexpress.scenery.SceneAsset;
 import io.wifi.starrailexpress.scenery.server.SceneLibrary;
 import net.minecraft.server.level.ServerLevel;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -911,23 +914,28 @@ public class MapManager {
     public static boolean loadRandomMap(ServerLevel serverWorld) {
         List<String> availableMaps = getAvailableMaps(serverWorld);
         boolean allowN = SREConfig.instance().allowRandomChooseMapNotInMapConfig;
+        HashMap<String, MapConfig.MapEntry> mapConfigHashMap = new HashMap<>();
+        for (MapEntry map : ServerMapConfig.getInstance(serverWorld).getMaps()) {
+            mapConfigHashMap.put(map.id, map);
+        }
+        ;
         availableMaps.removeIf(
                 e -> {
-                    final var first = MapConfig.getInstance().maps.stream().filter(mapEntry -> mapEntry.id.equals(e))
-                            .findFirst();
-                    if (first.isEmpty() && !allowN) {
+                    final var first = mapConfigHashMap.getOrDefault(e, null);
+                    if (first == null && !allowN) {
                         // 不在地图里的地图是否参与随机
                         return true;
                     }
                     AtomicBoolean isNotAvailable = new AtomicBoolean(false);
-                    first.ifPresent(
-                            a -> {
-                                isNotAvailable.set(!a.canSelect
-                                        || (first.get().maxCount >= 0
-                                                && serverWorld.players().size() > first.get().maxCount)
-                                        || (first.get().minCount >= 0
-                                                && serverWorld.players().size() < first.get().minCount));
-                            });
+                    if (first != null) {
+                        isNotAvailable.set(!first.canSelect
+                                || (first.maxCount >= 0
+                                        && serverWorld.players().size() > first.maxCount)
+                                || (first.minCount >= 0
+                                        && serverWorld.players().size() < first.minCount));
+
+                    }
+
                     return isNotAvailable.get();
                 });
 
@@ -950,7 +958,7 @@ public class MapManager {
      * @return 可用地图名称列表
      */
     public static List<String> getAvailableMaps(ServerLevel serverWorld) {
-        return getAvailableMaps(serverWorld, false);
+        return getAvailableMaps(serverWorld, true);
     }
 
     /**
