@@ -223,7 +223,7 @@ public final class MeetingManager {
         if (!GameUtils.isPlayerAliveAndSurvival(ringer)) {
             return false;
         }
-        long now = matchElapsedTicks(serverLevel);
+        long now = serverLevel.getGameTime();
         // 首次摇铃：设置开局冷却
         if (bellCooldownUntilTick == 0) {
             bellCooldownUntilTick = now + settings.bellMeetingStartCooldown * 20L;
@@ -270,8 +270,7 @@ public final class MeetingManager {
             return false;
         }
         long now = serverLevel.getGameTime();
-        long matchNow = matchElapsedTicks(serverLevel);
-        if (!emergency && matchNow < cooldownUntilTick) {
+        if (!emergency && now < cooldownUntilTick) {
             return false;
         }
         // 开局冷却：游戏开始后一段时间内不能召开会议（紧急会议绕过）。
@@ -350,7 +349,7 @@ public final class MeetingManager {
         ServerLevel serverLevel = level;
         phase = PHASE_NONE;
         AreasSettings settings = settings(serverLevel);
-        cooldownUntilTick = matchElapsedTicks(serverLevel)
+        cooldownUntilTick = serverLevel.getGameTime()
                 + (settings != null ? settings.meetingCooldownSeconds : 60) * 20L;
 
         for (Map.Entry<UUID, ReturnPos> entry : participants.entrySet()) {
@@ -611,15 +610,6 @@ public final class MeetingManager {
     private static AreasSettings settings(ServerLevel serverLevel) {
         AreasWorldComponent component = AreasWorldComponent.KEY.get(serverLevel);
         return component == null ? null : component.areasSettings;
-    }
-
-    /** 本局比赛已进行的时长（tick）。仅在比赛运行时推进，暂停/未开始时为 0。 */
-    private static long matchElapsedTicks(ServerLevel serverLevel) {
-        SREGameTimeComponent timeComponent = SREGameTimeComponent.KEY.get(serverLevel);
-        if (timeComponent == null) {
-            return 0;
-        }
-        return Math.max(0L, (long) timeComponent.getResetTime() - timeComponent.getTime());
     }
 
     // ==================== 投票阶段 ====================
