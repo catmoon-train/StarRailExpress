@@ -171,7 +171,7 @@ public class RhythmGameScreen extends Screen {
     // ===== 渲染 =====
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTick);
+        super.render(graphics, mouseX, mouseY, partialTick);
         drawTracks(graphics);
 
         for (LiveNote ln : activeNotes) {
@@ -187,7 +187,6 @@ public class RhythmGameScreen extends Screen {
             drawResult(graphics);
         }
 
-        super.render(graphics, mouseX, mouseY, partialTick);
     }
 
     private void drawTracks(GuiGraphics graphics) {
