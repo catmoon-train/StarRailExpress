@@ -2,6 +2,8 @@ package org.agmas.noellesroles.client.commands;
 
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.ConfigCompact.ui.TestScreen;
+import io.wifi.rhythm.client.RhythmMapManager;
+import io.wifi.rhythm.client.screen.RhythmGameScreen;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.NewspaperScreen;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
@@ -10,11 +12,13 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+
 import org.agmas.noellesroles.client.screen.GameManagementScreen;
 
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-
+import com.mojang.brigadier.arguments.StringArgumentType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +50,32 @@ public class SREClientCommand {
                           })))
               .then(ClientCommandManager.literal("debug")
                   .requires(ctx -> ctx.hasPermission(2))
+                  .then(ClientCommandManager.literal("rhythm_game")
+                      .then(ClientCommandManager.argument("src", StringArgumentType.greedyString()).suggests((c, b) -> {
+                        for (final var t : RhythmMapManager.MAP_NAMES.keySet()) {
+                          b.suggest(t.toString());
+                        }
+                        return b.buildFuture();
+                      })
+                          .executes((ctx) -> {
+                            String str = StringArgumentType.getString(ctx, "src");
+                            var t = ResourceLocation.tryParse(str);
+                            if (t == null) {
+                              ctx.getSource().sendError(Component.literal("Not a vaild src!"));
+                              return 0;
+                            }
+                            var mapData = RhythmMapManager.MAP_NAMES.get(t);
+
+                            if (mapData == null) {
+                              ctx.getSource().sendError(Component.literal("Not a vaild src!"));
+                              return 0;
+                            }
+                            ClientScheduler.schedule(() -> {
+                              RhythmGameScreen.open(mapData);
+                            }, 1);
+                            ctx.getSource().sendFeedback(Component.literal("Successfully!"));
+                            return 1;
+                          })))
                   .then(ClientCommandManager.literal("track_pose")
                       .then(ClientCommandManager.argument("count", IntegerArgumentType.integer(0, 1024))
                           .executes((ctx) -> {

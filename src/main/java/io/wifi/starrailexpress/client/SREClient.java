@@ -35,6 +35,7 @@ import dev.doctor4t.ratatouille.client.util.OptionLocker;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.ConfigCompact.ClientConfigEvents;
+import io.wifi.rhythm.client.RhythmMapManager;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.SREConfig;
@@ -275,6 +276,7 @@ public class SREClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        RhythmMapManager.registerEvents();
         SceneAssetClient.initialize();
         SceneAssetNetwork.registerClientReceivers();
         ClientScheduler.init();

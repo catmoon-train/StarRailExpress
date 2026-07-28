@@ -214,6 +214,8 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
                 return false;
             if (stack.is(ModItems.DELIVERY_BOX))
                 return false;
+            if (stack.is(Items.BUNDLE))
+                return false;
             if (stack.is(Items.BOW))
                 return false;
             if (stack.is(Items.CROSSBOW))

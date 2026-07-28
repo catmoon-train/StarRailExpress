@@ -141,8 +141,6 @@ public class MountainRoles {
 
         @Override
         public InteractionResult onDropItem(Player player, ItemStack item) {
-            if (item.is(Items.BUNDLE))
-                return InteractionResult.SUCCESS;
             return InteractionResult.PASS;
         }
     }.setHiddenForRoleRotation(true).setComponentKey(AyayayaPlayerComponent.KEY), "th_mountain");
@@ -178,8 +176,6 @@ public class MountainRoles {
 
         @Override
         public InteractionResult onDropItem(Player player, ItemStack item) {
-            if (item.is(Items.BUNDLE))
-                return InteractionResult.SUCCESS;
             return InteractionResult.PASS;
         }
 

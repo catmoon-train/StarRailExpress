@@ -56,6 +56,11 @@ public class PlayerBodyEntity extends LivingEntity {
         builder.define(CORRUPTED, false);
     }
 
+    @Override
+    public boolean isIgnoringBlockTriggers() {
+        return true;
+    }
+
     /**
      * 设置腐化标记（腐化修饰符的尸体直接显示为骷髅）
      */

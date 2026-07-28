@@ -1,0 +1,10 @@
+﻿{
+    "gui.rhythm.waiting": "点击下方按钮开始",
+    "gui.rhythm.start": "开始游戏",
+    "gui.rhythm.hint.up": "上：[W] 或 鼠标左键",
+    "gui.rhythm.hint.down": "下：[S] 或 鼠标右键",
+    "gui.rhythm.result.title": "演奏结束",
+    "gui.rhythm.result.score": "总分：%s",
+    "gui.rhythm.result.max_combo": "最大连击：%s",
+    "gui.rhythm.back": "点击任意位置返回"
+}
