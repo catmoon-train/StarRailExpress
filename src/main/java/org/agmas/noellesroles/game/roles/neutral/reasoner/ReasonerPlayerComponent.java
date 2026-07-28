@@ -213,14 +213,20 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     private void refreshQuestionTargets(ServerLevel level) {
+        UUID self = player.getUUID();
         List<ServerPlayer> alive = alivePlayers(level);
-        if (roleQuestionTarget == null || alive.stream().noneMatch(p -> p.getUUID().equals(roleQuestionTarget))) {
-            roleQuestionTarget = pickRandomUuid(alive);
+        // 角色问题候选：排除推理师本人
+        List<ServerPlayer> roleCandidates = alive.stream()
+                .filter(p -> !p.getUUID().equals(self))
+                .toList();
+        if (roleQuestionTarget == null || roleCandidates.stream().noneMatch(p -> p.getUUID().equals(roleQuestionTarget))) {
+            roleQuestionTarget = pickRandomUuid(roleCandidates);
         }
 
-        // 死因问题：仅选取已死亡但仍在线玩家的尸体
+        // 死因问题：仅选取已死亡但仍在线玩家、且非推理师本人的尸体
         List<PlayerBodyEntity> bodies = getBodyTargets(level).stream()
                 .filter(b -> b.getPlayerUuid() != null
+                        && !b.getPlayerUuid().equals(self)
                         && level.getServer().getPlayerList().getPlayer(b.getPlayerUuid()) != null
                         && !GameUtils.isPlayerAliveAndSurvival(level.getServer().getPlayerList().getPlayer(b.getPlayerUuid())))
                 .toList();
@@ -229,6 +235,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         List<ServerPlayer> taskTargets = alive.stream()
+                .filter(p -> !p.getUUID().equals(self))
                 .filter(this::isInnocentNonNeutral)
                 .filter(p -> !SREPlayerTaskComponent.KEY.get(p).tasks.isEmpty())
                 .toList();
@@ -239,7 +246,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         // 二次校验：目标离线时持续尝试重新选择，直到找到有效目标或池子耗尽
         while (roleQuestionTarget != null
                 && level.getServer().getPlayerList().getPlayer(roleQuestionTarget) == null) {
-            UUID next = pickRandomUuid(alive);
+            UUID next = pickRandomUuid(roleCandidates);
             if (next == null || next.equals(roleQuestionTarget)) {
                 roleQuestionTarget = null;
                 break;
