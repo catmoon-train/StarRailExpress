@@ -64,8 +64,11 @@ public class InstinctManager {
         {
             int deathPenaltyType = SREClient.getDeathPenaltyType(client.player);
             if (deathPenaltyType == 1) {
-                if (instinctEnabled)
-                    return OptionalInt.of(Color.WHITE.getRGB());
+                if (instinctEnabled) {
+                    if (target instanceof Player) {
+                        return OptionalInt.of(Color.WHITE.getRGB());
+                    }
+                }
                 return OptionalInt.empty();
             } else if (deathPenaltyType == 2) {
                 return OptionalInt.empty();
