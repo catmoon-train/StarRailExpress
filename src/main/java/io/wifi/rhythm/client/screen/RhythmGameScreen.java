@@ -102,7 +102,7 @@ public class RhythmGameScreen extends Screen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().getSoundManager().stop(null, SoundSource.MUSIC);
+        Minecraft.getInstance().getSoundManager().stop(null, SoundSource.VOICE);
         super.onClose();
     }
 
@@ -163,7 +163,7 @@ public class RhythmGameScreen extends Screen {
     private void playMusic() {
         ResourceLocation soundLocation = ResourceLocation.tryParse(currentMap.Src);
         Minecraft.getInstance().getSoundManager().play(
-                new SimpleSoundInstance(soundLocation, SoundSource.MUSIC, 1.0F, 1.0F,
+                new SimpleSoundInstance(soundLocation, SoundSource.VOICE, 1.0F, 1.0F,
                         null, false, 0, SimpleSoundInstance.Attenuation.NONE, 0, 0, 0, true));
         songStartTime = System.currentTimeMillis();
     }
@@ -259,6 +259,9 @@ public class RhythmGameScreen extends Screen {
             onClose();
             return true;
         }
+        if (gameState == GameState.WAITING) {
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
         if (gameState != GameState.PLAYING)
             return false;
         if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
@@ -287,19 +290,20 @@ public class RhythmGameScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (gameState != GameState.PLAYING && keyCode != GLFW.GLFW_KEY_ESCAPE)
-            return false;
-        if (keyCode == GLFW.GLFW_KEY_W) {
-            pressTrack(0);
-            return true;
-        }
-        if (keyCode == GLFW.GLFW_KEY_S) {
-            pressTrack(1);
-            return true;
-        }
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-            togglePause();
-            return true;
+
+        if (gameState == GameState.PLAYING) {
+            if (keyCode == GLFW.GLFW_KEY_W) {
+                pressTrack(0);
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_S) {
+                pressTrack(1);
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_SPACE) {
+                togglePause();
+                return true;
+            }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }

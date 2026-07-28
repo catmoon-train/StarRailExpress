@@ -208,6 +208,8 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
                 return false;
             if (stack.getItem() instanceof TrainWeapon)
                 return false;
+            if (stack.is(Items.TRIDENT))
+                return false;
             if (stack.is(TMMItemTags.GUNS))
                 return false;
             if (stack.is(TMMItems.DERRINGER))
