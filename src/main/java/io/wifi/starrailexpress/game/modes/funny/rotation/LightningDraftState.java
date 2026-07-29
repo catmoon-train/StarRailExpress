@@ -430,11 +430,19 @@ public class LightningDraftState {
 
         ServerPlayer player = world.getServer().getPlayerList().getPlayer(playerUuid);
         if (player != null) {
-            player.displayClientMessage(
-                    Component.translatable("gui.sre.role_rotation.selected",
-                            RoleUtils.getRoleName(chosen.role()).withColor(chosen.role().getColor()))
-                            .withStyle(ChatFormatting.GREEN),
-                    true);
+            if (canReplaceRole.contains(chosen.role())) {
+                player.displayClientMessage(
+                        Component.translatable("gui.sre.role_rotation.selected_adjust",
+                                RoleUtils.getRoleName(chosen.role()).withColor(chosen.role().getColor()))
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+            } else {
+                player.displayClientMessage(
+                        Component.translatable("gui.sre.role_rotation.selected",
+                                RoleUtils.getRoleName(chosen.role()).withColor(chosen.role().getColor()))
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+            }
         }
         RoleUtils.playSound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 1.0f, 1.2f);
 
@@ -547,7 +555,11 @@ public class LightningDraftState {
     }
 
     private static boolean isSpecialInnocent(SRERole role) {
-        return !role.occupationRoles.isEmpty() || !role.occupationedRoles.isEmpty();
+        if (!role.occupationRoles.isEmpty())
+            return true;
+        if (!role.occupationedRoles.isEmpty())
+            return true;
+        return false;
     }
 
     public Map<UUID, List<String>> getRoundCandidatesAsStrings() {
