@@ -2148,6 +2148,7 @@
     "sre.custom_role.label.infinite_sprint": "無限體力",
     "sre.custom_role.label.initial_items": "職業初始物品",
     "sre.custom_role.label.instinct_range": "最大透視範圍",
+    "sre.custom_role.label.instinct_beseen_range": "被透視範圍",
     "sre.custom_role.label.is_innocent": "是否平民",
     "sre.custom_role.label.map_restrict": "限定地圖刷新",
     "sre.custom_role.label.max_count": "最大自然刷新數量",

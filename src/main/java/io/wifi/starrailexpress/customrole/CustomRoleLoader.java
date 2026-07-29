@@ -46,7 +46,8 @@ public class CustomRoleLoader {
     private static final Map<String, CustomRoleData> loadedRoles = new HashMap<>();
     private static final Map<String, SRERole> registeredRoles = new HashMap<>();
     // 自定义职业的本能透视配置
-    private static final Map<String, Integer> instinctMaxRanges = new HashMap<>(); // englishId -> maxBlocksSquared
+    private static final Map<String, Integer> instinctMaxRanges = new HashMap<>(); // englishId -> maxBlocksSquared（看别人）
+    private static final Map<String, Integer> instinctBeSeenMaxRanges = new HashMap<>(); // englishId -> maxBlocksSquared（被别人看）
     private static final Map<String, Boolean> instinctSameColor = new HashMap<>(); // englishId -> sameColorFrame
     private static final Map<String, Boolean> instinctUnlimitedTeammate = new HashMap<>(); // englishId -> unlimitedTeammate
     // 技能 id -> 模块显示名（注册时写入，HUD 反查用，保证与释放/切换用的是同一个技能）
@@ -99,6 +100,7 @@ public class CustomRoleLoader {
         registeredRoles.clear();
         loadedRoles.clear();
         instinctMaxRanges.clear();
+        instinctBeSeenMaxRanges.clear();
         instinctSameColor.clear();
         instinctUnlimitedTeammate.clear();
         instinctModeDataMap.clear();
@@ -168,6 +170,7 @@ public class CustomRoleLoader {
         registeredRoles.clear();
         loadedRoles.clear();
         instinctMaxRanges.clear();
+        instinctBeSeenMaxRanges.clear();
         instinctSameColor.clear();
         instinctUnlimitedTeammate.clear();
         instinctModeDataMap.clear();
@@ -363,6 +366,15 @@ public class CustomRoleLoader {
                     } catch (NumberFormatException ignored) {
                     }
                 }
+                String beSeenRange0 = (mode0.beSeenMaxRange == null || "*".equals(mode0.beSeenMaxRange.trim()))
+                        ? mode0.maxRange : mode0.beSeenMaxRange;
+                if (beSeenRange0 != null && !"*".equals(beSeenRange0)) {
+                    try {
+                        int maxBlocks = Integer.parseInt(beSeenRange0.trim());
+                        instinctBeSeenMaxRanges.put(data.englishId, maxBlocks * maxBlocks);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
                 instinctUnlimitedTeammate.put(data.englishId, mode0.unlimitedTeammate);
             } else {
                 // 旧版直觉配置
@@ -371,6 +383,13 @@ public class CustomRoleLoader {
                     try {
                         int maxBlocks = Integer.parseInt(data.instinctMaxRange.trim());
                         instinctMaxRanges.put(data.englishId, maxBlocks * maxBlocks); // 存储平方值
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+                if (!"*".equals(data.instinctBeSeenMaxRange)) {
+                    try {
+                        int maxBlocks = Integer.parseInt(data.instinctBeSeenMaxRange.trim());
+                        instinctBeSeenMaxRanges.put(data.englishId, maxBlocks * maxBlocks); // 存储平方值
                     } catch (NumberFormatException ignored) {
                     }
                 }
@@ -823,6 +842,13 @@ public class CustomRoleLoader {
     }
 
     /**
+     * 获取自定义职业的本能「被别人透视」（beSeen）最大范围（平方值），用于客户端事件处理
+     */
+    public static Integer getInstinctBeSeenMaxRange(String englishId) {
+        return instinctBeSeenMaxRanges.get(englishId);
+    }
+
+    /**
      * 获取自定义职业的本能透视同色框设置，用于客户端事件处理
      */
     public static Boolean getInstinctSameColor(String englishId) {
@@ -965,7 +991,7 @@ public class CustomRoleLoader {
                             return TrueFalseAndCustomResult.pass();
                         net.minecraft.world.entity.player.Player tp = (net.minecraft.world.entity.player.Player) target;
 
-                        if (!isWithinRange(self, tp, mode))
+                        if (!isWithinRange(self, tp, mode, mode.maxRange))
                             return TrueFalseAndCustomResult.disallow();
 
                         InstinctType type = hasInstinct
@@ -986,7 +1012,9 @@ public class CustomRoleLoader {
                             return TrueFalseAndCustomResult.pass();
                         net.minecraft.world.entity.player.Player tp = (net.minecraft.world.entity.player.Player) target;
 
-                        if (!isWithinRange(self, tp, mode))
+                        String beSeenRange = (mode.beSeenMaxRange == null || "*".equals(mode.beSeenMaxRange.trim()))
+                                ? mode.maxRange : mode.beSeenMaxRange;
+                        if (!isWithinRange(self, tp, mode, beSeenRange))
                             return TrueFalseAndCustomResult.disallow();
 
                         InstinctType type = hasInstinct
@@ -1025,7 +1053,7 @@ public class CustomRoleLoader {
         }
 
         private static boolean isWithinRange(net.minecraft.world.entity.player.Player viewer,
-                net.minecraft.world.entity.player.Player target, InstinctModeData mode) {
+                net.minecraft.world.entity.player.Player target, InstinctModeData mode, String rangeStr) {
             if (mode == null) return true;
             if (mode.unlimitedTeammate
                     && io.wifi.starrailexpress.client.SREClient.gameComponent != null) {
@@ -1039,9 +1067,9 @@ public class CustomRoleLoader {
                         return true;
                 }
             }
-            if (!"*".equals(mode.maxRange)) {
+            if (rangeStr != null && !"*".equals(rangeStr)) {
                 try {
-                    int maxBlocks = Integer.parseInt(mode.maxRange.trim());
+                    int maxBlocks = Integer.parseInt(rangeStr.trim());
                     if (viewer.distanceToSqr(target) > (double) maxBlocks * maxBlocks)
                         return false;
                 } catch (NumberFormatException ignored) {
