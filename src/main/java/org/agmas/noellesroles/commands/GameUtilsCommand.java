@@ -221,7 +221,7 @@ public class GameUtilsCommand {
                           ctx.getSource()
                               .sendSuccess(() -> Component.translatable("Opened screen %s for player %s",
                                   OpenScreenManager.SCREENS.getOrDefault(screenId, Component.literal("Unknown Screen")),
-                                  player), true);
+                                  player.getName()), true);
                           return 1;
                         })))
                 .then(Commands.literal("role_rotaion_weight")
