@@ -26,7 +26,7 @@ public class ModPackets {
     public static final CustomPacketPayload.Type<ExecutionerSelectTargetC2SPacket> EXECUTIONER_SELECT_TARGET_PACKET = ExecutionerSelectTargetC2SPacket.ID;
     public static final CustomPacketPayload.Type<InsaneKillerAbilityC2SPacket> INSANE_KILLER_ABILITY_PACKET = InsaneKillerAbilityC2SPacket.ID;
     public static final CustomPacketPayload.Type<RecorderC2SPacket> RECORDER_PACKET = RecorderC2SPacket.TYPE;
-        public static final CustomPacketPayload.Type<MercenaryContractSignC2SPacket> MERCENARY_CONTRACT_SIGN_PACKET = MercenaryContractSignC2SPacket.TYPE;
+    public static final CustomPacketPayload.Type<MercenaryContractSignC2SPacket> MERCENARY_CONTRACT_SIGN_PACKET = MercenaryContractSignC2SPacket.TYPE;
     public static final CustomPacketPayload.Type<MonitorMarkC2SPacket> MONITOR_MARK_PACKET = MonitorMarkC2SPacket.ID;
     public static final CustomPacketPayload.Type<WaterGhostUseSkillC2SPacket> WATER_GHOST_SKILL_PACKET = WaterGhostUseSkillC2SPacket.TYPE;
 
@@ -49,7 +49,8 @@ public class ModPackets {
         // 幽露：自由摄像机进入/退出（S2C）、摄像机位置上报与 ESC 取消（C2S）
         PayloadTypeRegistry.playS2C().register(YouluFreeCamS2CPacket.ID, YouluFreeCamS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(YouluCamPosC2SPacket.ID, YouluCamPosC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(YouluFreeCamCancelC2SPacket.ID, YouluFreeCamCancelC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(YouluFreeCamCancelC2SPacket.ID,
+                YouluFreeCamCancelC2SPacket.CODEC);
 
         PayloadTypeRegistry.playC2S().register(AbilityWithTargetC2SPacket.ID, AbilityWithTargetC2SPacket.CODEC);
 
@@ -70,8 +71,10 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(ScanAllTaskPointsPayload.ID, ScanAllTaskPointsPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ScanAllTaskPointsPayload.ID, ScanAllTaskPointsPayload.CODEC);
 
-        
-        PayloadTypeRegistry.playS2C().register(ShowCustomNewspaperPacket.ID, ShowCustomNewspaperPacket.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenScreenPayload.ID, OpenScreenPayload.CODEC);
+
+        PayloadTypeRegistry.playS2C().register(ShowCustomNewspaperPacket.ID,
+                ShowCustomNewspaperPacket.STREAM_CODEC);
         PayloadTypeRegistry.playC2S().register(EditNewspaperPacket.ID, EditNewspaperPacket.STREAM_CODEC);
 
         PayloadTypeRegistry.playC2S().register(PlayerResetS2CPacket.ID, PlayerResetS2CPacket.CODEC);
@@ -90,7 +93,8 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(OpenIntroPayload.ID, OpenIntroPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(AbilityC2SPacket.ID, AbilityC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(UnifiedSkillInputC2SPacket.ID, UnifiedSkillInputC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(UnifiedSkillSelectC2SPacket.ID, UnifiedSkillSelectC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(UnifiedSkillSelectC2SPacket.ID,
+                UnifiedSkillSelectC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(ToggleInsaneSkillC2SPacket.ID, ToggleInsaneSkillC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(SwapperC2SPacket.ID, SwapperC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(VultureEatC2SPacket.ID, VultureEatC2SPacket.CODEC);
@@ -101,8 +105,10 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(ManipulatorC2SPacket.ID, ManipulatorC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(WarlockDomainC2SPacket.ID, WarlockDomainC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(AmonSelectTargetC2SPacket.ID, AmonSelectTargetC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(ManipulatorControlInputC2SPacket.ID, ManipulatorControlInputC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(ManipulatorAbilityC2SPacket.ID, ManipulatorAbilityC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(ManipulatorControlInputC2SPacket.ID,
+                ManipulatorControlInputC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(ManipulatorAbilityC2SPacket.ID,
+                ManipulatorAbilityC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenLockGuiS2CPacket.ID, OpenLockGuiS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenLockGuiS2CPacket.ID, OpenLockGuiS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenKeyForgeGuiS2CPacket.ID, OpenKeyForgeGuiS2CPacket.CODEC);
@@ -119,34 +125,50 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(MapStatusBarSyncS2CPacket.ID, MapStatusBarSyncS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairStationActionC2SPacket.ID,
                 RepairStationActionC2SPacket.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(RepairStationActionC2SPacket.ID, RepairStationActionC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairStationActionC2SPacket.ID,
+                RepairStationActionC2SPacket::handle);
         PayloadTypeRegistry.playS2C().register(OpenRepairRoleSelectionS2CPacket.ID,
                 OpenRepairRoleSelectionS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenRepairRoleShopS2CPacket.ID,
                 OpenRepairRoleShopS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairRoleSelectC2SPacket.ID, RepairRoleSelectC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairRoleShopPurchaseC2SPacket.ID, RepairRoleShopPurchaseC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairPrimarySkillC2SPacket.ID, RepairPrimarySkillC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairCarryStruggleC2SPacket.ID, RepairCarryStruggleC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairRoleShopPurchaseC2SPacket.ID,
+                RepairRoleShopPurchaseC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairPrimarySkillC2SPacket.ID,
+                RepairPrimarySkillC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RepairCarryStruggleC2SPacket.ID,
+                RepairCarryStruggleC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(RepairSearchBeginC2SPacket.ID, RepairSearchBeginC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairSearchCancelC2SPacket.ID, RepairSearchCancelC2SPacket.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(RepairRoleSelectC2SPacket.ID, RepairRoleSelectC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairRoleShopPurchaseC2SPacket.ID, RepairRoleShopPurchaseC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairPrimarySkillC2SPacket.ID, RepairPrimarySkillC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairCarryStruggleC2SPacket.ID, RepairCarryStruggleC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairSearchBeginC2SPacket.ID, RepairSearchBeginC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairSearchCancelC2SPacket.ID, RepairSearchCancelC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(RepairSearchCancelC2SPacket.ID,
+                RepairSearchCancelC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(RepairRoleSelectC2SPacket.ID,
+                RepairRoleSelectC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairRoleShopPurchaseC2SPacket.ID,
+                RepairRoleShopPurchaseC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairPrimarySkillC2SPacket.ID,
+                RepairPrimarySkillC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairCarryStruggleC2SPacket.ID,
+                RepairCarryStruggleC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairSearchBeginC2SPacket.ID,
+                RepairSearchBeginC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RepairSearchCancelC2SPacket.ID,
+                RepairSearchCancelC2SPacket::handle);
 
-        PayloadTypeRegistry.playS2C().register(ReasonerOpenScreenS2CPacket.ID, ReasonerOpenScreenS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(ReasonerOpenScreenS2CPacket.ID,
+                ReasonerOpenScreenS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ReasonerSubmitC2SPacket.ID, ReasonerSubmitC2SPacket.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(ReasonerSubmitC2SPacket.ID, ReasonerSubmitC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(ReasonerSubmitC2SPacket.ID,
+                ReasonerSubmitC2SPacket::handle);
 
-        PayloadTypeRegistry.playS2C().register(DoomedSinnerFateRevealS2CPacket.ID, DoomedSinnerFateRevealS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(DoomedSinnerFateRevealS2CPacket.ID,
+                DoomedSinnerFateRevealS2CPacket.CODEC);
 
         PayloadTypeRegistry.playS2C().register(BloodConfigS2CPacket.ID, BloodConfigS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(BloodConfigS2CPacket.ID, BloodConfigS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(CreateClientSmokeAreaPacket.ID, CreateClientSmokeAreaPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(CreateCreeperBombAreaPacket.ID, CreateCreeperBombAreaPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(CreateClientSmokeAreaPacket.ID,
+                CreateClientSmokeAreaPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(CreateCreeperBombAreaPacket.ID,
+                CreateCreeperBombAreaPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(BanditRevolverShootPayload.ID,
                 BanditRevolverShootPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(BanditRevolverShootPayload.ID,
@@ -162,16 +184,20 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(MercenaryContractSignC2SPacket.TYPE,
                 MercenaryContractSignC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(MonitorMarkC2SPacket.ID, MonitorMarkC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(WaterGhostUseSkillC2SPacket.TYPE, WaterGhostUseSkillC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(WaterGhostUseSkillC2SPacket.TYPE,
+                WaterGhostUseSkillC2SPacket.CODEC);
 
         // 葬仪模式切换网络包
-        PayloadTypeRegistry.playC2S().register(MorticianToggleModeC2SPacket.TYPE, MorticianToggleModeC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(MorticianToggleModeC2SPacket.TYPE,
+                MorticianToggleModeC2SPacket.CODEC);
 
         // 葬仪造尸网络包
-        PayloadTypeRegistry.playC2S().register(MorticianCreateBodyC2SPacket.TYPE, MorticianCreateBodyC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(MorticianCreateBodyC2SPacket.TYPE,
+                MorticianCreateBodyC2SPacket.CODEC);
 
         // 模仿者切换槽位网络包
-        PayloadTypeRegistry.playC2S().register(ImitatorSwitchSlotC2SPacket.TYPE, ImitatorSwitchSlotC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(ImitatorSwitchSlotC2SPacket.TYPE,
+                ImitatorSwitchSlotC2SPacket.CODEC);
 
         // 派对狂网络包
         PayloadTypeRegistry.playC2S().register(PartyKillerC2SPacket.TYPE, PartyKillerC2SPacket.CODEC);
@@ -181,7 +207,8 @@ public class ModPackets {
 
         // 注册零一五枪射击网络包
         PayloadTypeRegistry.playC2S().register(ZeroOneFiveShootPayload.ID, ZeroOneFiveShootPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ZeroOneFiveSecondShotPayload.ID, ZeroOneFiveSecondShotPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ZeroOneFiveSecondShotPayload.ID,
+                ZeroOneFiveSecondShotPayload.CODEC);
 
         // 注册枪械射击轨迹网络包
         PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID,
@@ -196,7 +223,8 @@ public class ModPackets {
         // 注册抽奖网络包
         PayloadTypeRegistry.playS2C().register(LootResultS2CPacket.ID, LootResultS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(LootMultiResultS2CPacket.ID, LootMultiResultS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(LootPoolsInfoCheckS2CPacket.ID, LootPoolsInfoCheckS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(LootPoolsInfoCheckS2CPacket.ID,
+                LootPoolsInfoCheckS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(LootPoolsInfoS2CPacket.ID, LootPoolsInfoS2CPacket.CODEC);
 
         // 自定义职业同步
@@ -233,7 +261,8 @@ public class ModPackets {
                 new org.agmas.noellesroles.game.roles.innocence.fool.FoolExecutionerGunShootC2SPacket.Receiver());
 
         // 注册清除血液粒子网络包
-        PayloadTypeRegistry.playS2C().register(ClearBloodParticlesS2CPacket.ID, ClearBloodParticlesS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(ClearBloodParticlesS2CPacket.ID,
+                ClearBloodParticlesS2CPacket.CODEC);
 
         // 注册启用任务透视网络包
         PayloadTypeRegistry.playS2C().register(EnableTaskHighlightPacket.ID, EnableTaskHighlightPacket.CODEC);
@@ -255,33 +284,55 @@ public class ModPackets {
                 org.agmas.noellesroles.packet.AmonFinaleS2CPacket.CODEC);
 
         // 注册物资箱网络包
-        PayloadTypeRegistry.playC2S().register(SupplyCrateSaveConfigC2SPacket.ID, SupplyCrateSaveConfigC2SPacket.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(SupplyCrateSaveConfigC2SPacket.ID, SupplyCrateSaveConfigC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(SupplyCrateSaveConfigC2SPacket.ID,
+                SupplyCrateSaveConfigC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(SupplyCrateSaveConfigC2SPacket.ID,
+                SupplyCrateSaveConfigC2SPacket::handle);
 
         // 注册移动平台配置网络包
-        PayloadTypeRegistry.playC2S().register(MovingPlatformConfigC2SPacket.TYPE, MovingPlatformConfigC2SPacket.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(MovingPlatformConfigC2SPacket.TYPE, MovingPlatformConfigC2SPacket::handle);
-        PayloadTypeRegistry.playC2S().register(HurricaneDeviceConfigC2SPacket.TYPE, HurricaneDeviceConfigC2SPacket.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(HurricaneDeviceConfigC2SPacket.TYPE, HurricaneDeviceConfigC2SPacket::handle);
-        PayloadTypeRegistry.playC2S().register(TrashCanConfigC2SPacket.TYPE, TrashCanConfigC2SPacket.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(TrashCanConfigC2SPacket.TYPE, TrashCanConfigC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(MovingPlatformConfigC2SPacket.TYPE,
+                MovingPlatformConfigC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(MovingPlatformConfigC2SPacket.TYPE,
+                MovingPlatformConfigC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(HurricaneDeviceConfigC2SPacket.TYPE,
+                HurricaneDeviceConfigC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(HurricaneDeviceConfigC2SPacket.TYPE,
+                HurricaneDeviceConfigC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(TrashCanConfigC2SPacket.TYPE,
+                TrashCanConfigC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(TrashCanConfigC2SPacket.TYPE,
+                TrashCanConfigC2SPacket::handle);
 
         // 注册反应堆小游戏完成网络包
-        PayloadTypeRegistry.playC2S().register(ReactorMinigameCompleteC2SPacket.TYPE, ReactorMinigameCompleteC2SPacket.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(ReactorMinigameCompleteC2SPacket.TYPE, ReactorMinigameCompleteC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(ReactorMinigameCompleteC2SPacket.TYPE,
+                ReactorMinigameCompleteC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ReactorMinigameCompleteC2SPacket.TYPE,
+                ReactorMinigameCompleteC2SPacket::handle);
 
         // 注册水阀小游戏完成网络包
-        PayloadTypeRegistry.playC2S().register(WaterValveMinigameCompleteC2SPacket.TYPE, WaterValveMinigameCompleteC2SPacket.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(WaterValveMinigameCompleteC2SPacket.TYPE, WaterValveMinigameCompleteC2SPacket::handle);
-        PayloadTypeRegistry.playC2S().register(DebrisPileMinigameCompleteC2SPacket.TYPE, DebrisPileMinigameCompleteC2SPacket.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(DebrisPileMinigameCompleteC2SPacket.TYPE, DebrisPileMinigameCompleteC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(WaterValveMinigameCompleteC2SPacket.TYPE,
+                WaterValveMinigameCompleteC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(WaterValveMinigameCompleteC2SPacket.TYPE,
+                WaterValveMinigameCompleteC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(DebrisPileMinigameCompleteC2SPacket.TYPE,
+                DebrisPileMinigameCompleteC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(DebrisPileMinigameCompleteC2SPacket.TYPE,
+                DebrisPileMinigameCompleteC2SPacket::handle);
 
         // 信使邮件包
-        PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.CourierMailSendC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailSendC2SPacket.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.CourierMailSendC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailSendC2SPacket::handle);
-        PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket::handle);
-        PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.TYPE, org.agmas.noellesroles.packet.CourierMailReplyC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.CourierMailSendC2SPacket.TYPE,
+                org.agmas.noellesroles.packet.CourierMailSendC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.CourierMailSendC2SPacket.TYPE,
+                org.agmas.noellesroles.packet.CourierMailSendC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket.TYPE,
+                org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+                org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket.TYPE,
+                org.agmas.noellesroles.packet.CourierMailReceiveC2SPacket::handle);
+        PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.TYPE,
+                org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+                org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.TYPE,
+                org.agmas.noellesroles.packet.CourierMailReplyC2SPacket::handle);
     }
 }

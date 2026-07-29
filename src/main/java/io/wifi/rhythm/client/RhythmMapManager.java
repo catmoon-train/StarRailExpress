@@ -3,7 +3,11 @@ package io.wifi.rhythm.client;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.Random;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 
@@ -38,5 +42,14 @@ public class RhythmMapManager {
                 SRE.LOGGER.error("Failed to load map {}!", entry.getKey(), e);
             }
         }
+    }
+
+    public static Optional<MapData> randomMap() {
+        var mapDatas = new ArrayList<>(RhythmMapManager.MAP_NAMES.keySet());
+        if (mapDatas.isEmpty())
+            return Optional.empty();
+        final var mapKey = mapDatas.get(new Random().nextInt(0, mapDatas.size()));
+        final var mapData = RhythmMapManager.MAP_NAMES.get(mapKey);
+        return Optional.of(mapData);
     }
 }

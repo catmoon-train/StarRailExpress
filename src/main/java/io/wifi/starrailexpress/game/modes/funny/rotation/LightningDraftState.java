@@ -1,16 +1,7 @@
 package io.wifi.starrailexpress.game.modes.funny.rotation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.agmas.harpymodloader.Harpymodloader;
@@ -39,15 +30,16 @@ import net.minecraft.sounds.SoundSource;
 
 public class LightningDraftState {
     public static HashMap<UUID, Integer> PLAYER_SORT_WEIGHT = new HashMap<>();
+    public static final Random random = new Random();
+    public static final int PLAYER_SELECT_COUNT = 3;
     public final List<ServerPlayer> allPlayers;
     public final int totalPlayers;
-
-    // 锁定本轮分配给玩家的候选职业，防止随机选择抢走
-    private final Set<SRERole> lockedCandidates = new HashSet<>();
+    // 锁定本轮已展示给玩家的具体角色实例（按UUID），防止随机选择时抢走
+    private final Set<UUID> lockedInstanceIds = new HashSet<>();
 
     // ===== 职业池与结果 =====
-    public final ArrayList<SRERole> canReplaceRole = new ArrayList<>();
-    public final ArrayList<SRERole> rolePool = new ArrayList<>();
+    public final Set<SRERole> canReplaceRole = new LinkedHashSet<>(); // 可替换职业类型集合（去重）
+    public final ArrayList<RoleInstance> rolePool = new ArrayList<>(); // 当前未被选走的角色实例池
     public final Map<UUID, SRERole> selectedRoles = new LinkedHashMap<>();
     public final Set<UUID> randomChoosers = new HashSet<>();
 
@@ -58,7 +50,7 @@ public class LightningDraftState {
     public int remainingPlayerCount;
     public int currentRoundIndex = 0;
     public int playersInThisRound = 0;
-    public Map<UUID, List<SRERole>> roundCandidates = new HashMap<>();
+    public Map<UUID, List<RoleInstance>> roundCandidates = new HashMap<>();
     public long roundStartTime;
     public int perPlayerTimeLimit;
     public boolean isSelecting = false;
@@ -92,12 +84,13 @@ public class LightningDraftState {
             return false;
 
         for (UUID uuid : offlineUnselected) {
-            List<SRERole> oldCandidates = roundCandidates.remove(uuid);
-            if (oldCandidates != null)
-                lockedCandidates.removeAll(oldCandidates);
-            SRERole randomRole = selectRandomRole(world);
-            selectedRoles.put(uuid, randomRole);
-            rolePool.remove(randomRole);
+            List<RoleInstance> oldCandidates = roundCandidates.remove(uuid);
+            if (oldCandidates != null) {
+                oldCandidates.forEach(ri -> lockedInstanceIds.remove(ri.uuid()));
+            }
+            RoleInstance randomInstance = selectRandomRole(world);
+            selectedRoles.put(uuid, randomInstance.role());
+            rolePool.remove(randomInstance);
             remainingPlayerCount--;
             randomChoosers.add(uuid);
         }
@@ -148,15 +141,14 @@ public class LightningDraftState {
                         role.isInnocent() &&
                         (enableCivilianInPool || role != TMMRoles.CIVILIAN));
         civilianPool.ignoreeRoleOccupiedCount = true;
-        // 职业池总数 = 总玩家数
-        // 最后几人不允许选
+
+        // 强制职业直接作为实例加入池子
         int forceRoleCount = 0;
         for (var flip : Harpymodloader.FORCED_MODDED_ROLE_FLIP.entrySet()) {
             var role = flip.getValue();
             if (role == null)
                 continue;
-
-            rolePool.add(role);
+            rolePool.add(new RoleInstance(UUID.randomUUID(), role));
             forceRoleCount++;
             switch (role.getRoleType()) {
                 case 1:
@@ -171,10 +163,9 @@ public class LightningDraftState {
                 case 5:
                     vigilanteCount--;
                     break;
-                default:
-                    break;
             }
         }
+
         List<RoleInstance> baseRoles = SREMurderGameMode.getAllRoles(
                 killerCount, vigilanteCount, neutralsCount,
                 totalPlayers, forceRoleCount,
@@ -182,36 +173,28 @@ public class LightningDraftState {
 
         for (RoleInstance inst : baseRoles) {
             if (inst.role() != null) {
-                rolePool.add(inst.role());
+                rolePool.add(inst); // 保留原有UUID
             }
         }
-        ArrayList<SRERole> roles = new ArrayList<>(civilianPool.selectRoles(2,
-                (role) -> {
-                    if (role.hasOccupationRole()) {
-                        return false;
-                    }
-                    if (!role.canBeRandomed()) {
-                        return false;
-                    }
-                    if (!role.opposingRoles.isEmpty()) {
-                        return false;
-                    }
-                    if (role.hasOccupationedRole()) {
-                        return false;
-                    }
-                    return true;
-                }));
-        int size = roles.size();
-        for (int i = 0; i < 2 - size; i++) {
-            roles.add(TMMRoles.CIVILIAN);
+
+        // 生成可替换职业列表
+        List<SRERole> replaceableTypes = new ArrayList<>(civilianPool.selectRoles(PLAYER_SELECT_COUNT - 1,
+                role -> !role.hasOccupationRole() && role.canBeRandomed()
+                        && role.opposingRoles.isEmpty() && !role.hasOccupationedRole()));
+        int size = replaceableTypes.size();
+        for (int i = 0; i < PLAYER_SELECT_COUNT - 1 - size; i++) {
+            replaceableTypes.add(TMMRoles.CIVILIAN);
         }
-        SRE.LOGGER.info("Replaceable role size {}", roles.size());
-        for (var r : roles) {
+        for (SRERole r : replaceableTypes) {
+            canReplaceRole.add(r); // 记录可替换的类型
+            rolePool.add(new RoleInstance(UUID.randomUUID(), r)); // 为每个类型创建一个实例
+        }
+
+        SRE.LOGGER.info("Replaceable role size {}", replaceableTypes.size());
+        for (var r : replaceableTypes) {
             SRE.LOGGER.info("Replaceable Role {}", r.getName().getString());
         }
-        canReplaceRole
-                .addAll(roles);
-        rolePool.addAll(canReplaceRole);
+
         initializeCardTracking();
     }
 
@@ -254,7 +237,7 @@ public class LightningDraftState {
     }
 
     private boolean roleMatchesFaction(SRERole role, int type) {
-        return role == null ? false : (normalizeCardType(role.getRoleType()) == type);
+        return role != null && normalizeCardType(role.getRoleType()) == type;
     }
 
     private static int normalizeCardType(int rawType) {
@@ -272,9 +255,9 @@ public class LightningDraftState {
         sorted.sort((a, b) -> {
             int aW = PLAYER_SORT_WEIGHT.getOrDefault(a.getUUID(), 0);
             int bW = PLAYER_SORT_WEIGHT.getOrDefault(b.getUUID(), 0);
-            if (aW != bW) {
+            if (aW != bW)
                 return -Integer.compare(aW, bW);
-            }
+
             boolean a_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(a.getUUID());
             boolean b_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(b.getUUID());
             int a_team = normalizeForceRoleSortType(
@@ -297,12 +280,10 @@ public class LightningDraftState {
     }
 
     private static int normalizeForceRoleSortType(int type) {
-        if (type == 1) {
+        if (type == 1)
             type = -2;
-        }
-        if (type == 5) {
+        if (type == 5)
             type = 0;
-        }
         return type;
     }
 
@@ -313,13 +294,24 @@ public class LightningDraftState {
             startConfirmCountdown();
             return;
         }
-
+        if (rolePool.isEmpty()) {
+            for (UUID uuid : playerOrder) {
+                if (!selectedRoles.containsKey(uuid)) {
+                    selectedRoles.put(uuid, TMMRoles.CIVILIAN);
+                    remainingPlayerCount--;
+                }
+            }
+            adjustRoles(world);
+            startConfirmCountdown();
+            return;
+        }
         roundCandidates.clear();
-        lockedCandidates.clear(); // 清空锁定集
+        lockedInstanceIds.clear();
 
-        int b = Math.max(1, rolePool.size() / 3);
+        int b = Math.max(1, rolePool.size() / PLAYER_SELECT_COUNT);
         playersInThisRound = b;
 
+        // 本轮参选玩家
         List<UUID> roundPlayers = new ArrayList<>();
         for (UUID uuid : playerOrder) {
             if (!selectedRoles.containsKey(uuid)) {
@@ -329,44 +321,45 @@ public class LightningDraftState {
             }
         }
 
-        int need = Math.min(rolePool.size(), playersInThisRound * 3);
-        List<SRERole> drawn = new ArrayList<>(rolePool);
-        Collections.shuffle(drawn, new Random(world.getGameTime()));
+        int need = Math.min(rolePool.size(), playersInThisRound * PLAYER_SELECT_COUNT);
+        List<RoleInstance> drawn = new ArrayList<>(rolePool);
+        Collections.shuffle(drawn, random);
         drawn = new ArrayList<>(drawn.subList(0, need));
 
-        // 预分配：为有强制阵营的玩家准备一个匹配职业
-        Map<UUID, SRERole> preAssigned = new LinkedHashMap<>();
-        Set<SRERole> usedInThisRound = new HashSet<>();
-        // 强制职业
+        List<RoleInstance> remainingDrawn = new ArrayList<>(drawn); // 可分配池
+        Map<UUID, List<RoleInstance>> candidateMap = new LinkedHashMap<>();
+        for (UUID id : roundPlayers) {
+            candidateMap.put(id, new ArrayList<>());
+        }
+
+        // 1. 强制职业预分配
         for (UUID playerId : roundPlayers) {
-            if (Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(playerId)) {
-                var role = Harpymodloader.FORCED_MODDED_ROLE_FLIP.get(playerId);
-                if (!usedInThisRound.contains(role) && drawn.contains(role)) {
-                    usedInThisRound.add(role);
-                    preAssigned.put(playerId, role);
-                    drawn.remove(role);
-                }
+            SRERole forcedRole = Harpymodloader.FORCED_MODDED_ROLE_FLIP.get(playerId);
+            if (forcedRole != null) {
+                Optional<RoleInstance> match = remainingDrawn.stream()
+                        .filter(ri -> ri.role() == forcedRole).findFirst();
+                match.ifPresent(ri -> {
+                    candidateMap.get(playerId).add(ri);
+                    remainingDrawn.remove(ri);
+                });
             }
         }
+
+        // 2. 强制阵营预分配
         for (UUID playerId : roundPlayers) {
             Integer forcedType = PlayerRoleWeightManager.ForcePlayerTeam.get(playerId);
             if (forcedType == null || forcedType < 1 || forcedType > 5)
                 continue;
-
             int type = normalizeCardType(forcedType);
-            // 尝试从剩余职业池中寻找匹配职业（排除已锁定和本轮已占用的）
-            SRERole match = null;
-            for (SRERole role : rolePool) {
-                if (!usedInThisRound.contains(role)
-                        && roleMatchesFaction(role, type)) {
-                    match = role;
-                    break;
-                }
-            }
+            if (candidateMap.get(playerId).size() >= PLAYER_SELECT_COUNT)
+                continue;
 
-            if (match != null) {
-                preAssigned.put(playerId, match);
-                usedInThisRound.add(match);
+            Optional<RoleInstance> match = remainingDrawn.stream()
+                    .filter(ri -> roleMatchesFaction(ri.role(), type)).findFirst();
+            if (match.isPresent()) {
+                RoleInstance ri = match.get();
+                candidateMap.get(playerId).add(ri);
+                remainingDrawn.remove(ri);
             } else {
                 // 无法提供匹配职业，移除强制要求，退还卡片
                 PlayerRoleWeightManager.ForcePlayerTeam.remove(playerId);
@@ -381,41 +374,31 @@ public class LightningDraftState {
                 }
             }
         }
-        drawn.removeAll(usedInThisRound);
-        int idx = 0;
-        int max_count = drawn.size();
+
+        // 3. 剩余实例依次分配给玩家，每人最多 PLAYER_SELECT_COUNT 个
+        Iterator<RoleInstance> iter = remainingDrawn.iterator();
         for (UUID playerId : roundPlayers) {
-            var preRole = preAssigned.getOrDefault(playerId, null);
-            int count = Math.min(3, max_count - idx);
-            if (preRole != null) {
-                count--;
+            List<RoleInstance> candidates = candidateMap.get(playerId);
+            while (candidates.size() < PLAYER_SELECT_COUNT && iter.hasNext()) {
+                candidates.add(iter.next());
+                iter.remove();
             }
-            if (count < 0)
-                count = 0;
-            if (count <= 0 && preRole == null)
-                continue;
-            List<SRERole> candidates = new ArrayList<>();
-            if (count > 0) {
-                candidates.addAll(drawn.subList(idx, idx + count));
+        }
+
+        // 过滤出非空候选列表，并记录锁定实例
+        for (Map.Entry<UUID, List<RoleInstance>> entry : candidateMap.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                roundCandidates.put(entry.getKey(), entry.getValue());
+                entry.getValue().forEach(ri -> lockedInstanceIds.add(ri.uuid()));
             }
-            if (preRole != null) {
-                candidates.add(preRole);
-            }
-            roundCandidates.put(playerId, candidates);
-            lockedCandidates.addAll(candidates); // 锁定本轮候选
-            idx += count;
         }
 
         currentRoundIndex++;
         roundStartTime = world.getGameTime();
 
-        int baseTime = roundCandidates.values().stream()
-                .mapToInt(List::size).max().orElse(0) * SREConfig.instance().roleRotationPerPlayerPerRoleTime * 20;
-        if (currentRoundIndex == 1) {
-            perPlayerTimeLimit = baseTime + 60; // 第一轮多3秒缓冲
-        } else {
-            perPlayerTimeLimit = baseTime;
-        }
+        int maxCandidates = roundCandidates.values().stream().mapToInt(List::size).max().orElse(0);
+        int baseTime = maxCandidates * SREConfig.instance().roleRotationPerPlayerPerRoleTime * 20;
+        perPlayerTimeLimit = currentRoundIndex == 1 ? baseTime + 60 : baseTime;
 
         isSelecting = true;
         confirmCountdown = -1;
@@ -426,29 +409,40 @@ public class LightningDraftState {
         if (!isSelecting || !roundCandidates.containsKey(playerUuid))
             return false;
 
-        List<SRERole> candidates = roundCandidates.remove(playerUuid);
-        lockedCandidates.removeAll(candidates);
-        SRERole chosen = null;
+        List<RoleInstance> candidates = roundCandidates.remove(playerUuid);
+        candidates.forEach(ri -> lockedInstanceIds.remove(ri.uuid()));
+
+        RoleInstance chosen = null;
         if (choiceIndex >= 0 && choiceIndex < candidates.size()) {
             chosen = candidates.get(choiceIndex);
-        } else if (choiceIndex == 3) { // 随机
-            chosen = selectRandomRole(world); // 排除锁定职业
+        }
+        if (chosen == null || choiceIndex == PLAYER_SELECT_COUNT) { // 随机
+            chosen = selectRandomRole(world);
             randomChoosers.add(playerUuid);
         }
+
         if (chosen == null)
             return false;
 
-        selectedRoles.put(playerUuid, chosen);
+        selectedRoles.put(playerUuid, chosen.role());
         rolePool.remove(chosen);
         remainingPlayerCount--;
 
         ServerPlayer player = world.getServer().getPlayerList().getPlayer(playerUuid);
         if (player != null) {
-            player.displayClientMessage(
-                    Component.translatable("gui.sre.role_rotation.selected",
-                            RoleUtils.getRoleName(chosen).withColor(chosen.getColor()))
-                            .withStyle(ChatFormatting.GREEN),
-                    true);
+            if (canReplaceRole.contains(chosen.role())) {
+                player.displayClientMessage(
+                        Component.translatable("gui.sre.role_rotation.selected_adjust",
+                                RoleUtils.getRoleName(chosen.role()).withColor(chosen.role().getColor()))
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+            } else {
+                player.displayClientMessage(
+                        Component.translatable("gui.sre.role_rotation.selected",
+                                RoleUtils.getRoleName(chosen.role()).withColor(chosen.role().getColor()))
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+            }
         }
         RoleUtils.playSound(player, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 1.0f, 1.2f);
 
@@ -460,19 +454,16 @@ public class LightningDraftState {
 
     private void finishRound(ServerLevel world) {
         isSelecting = false;
-        lockedCandidates.clear();
+        lockedInstanceIds.clear();
         if (remainingPlayerCount > 0) {
-            // 一轮结束，新轮提示音
             for (ServerPlayer p : world.players()) {
                 RoleUtils.playSound(p, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.MASTER, 1.0f, 1.5f);
             }
             startNextRound(world);
         } else {
-            // 全部结束提示音
             for (ServerPlayer p : world.players()) {
                 RoleUtils.playSound(p, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.MASTER, 1f, 1f);
             }
-
             adjustRoles(world);
             startConfirmCountdown();
         }
@@ -483,12 +474,18 @@ public class LightningDraftState {
         confirmCountdown = 6 * 20;
     }
 
-    private SRERole selectRandomRole(ServerLevel world) {
-        List<SRERole> available = new ArrayList<>(rolePool);
-        available.removeAll(lockedCandidates);
-        if (available.isEmpty())
-            return TMMRoles.CIVILIAN;
-        return available.get(new Random(world.getGameTime()).nextInt(available.size()));
+    private RoleInstance selectRandomRole(ServerLevel world) {
+        List<RoleInstance> available = rolePool.stream()
+                .filter(ri -> !lockedInstanceIds.contains(ri.uuid()))
+                .collect(Collectors.toList());
+        if (available.isEmpty()) {
+            // 极端情况：从整个池子随机，若池子为空则生成一个平民实例
+            RoleInstance civilian = new RoleInstance(UUID.randomUUID(), TMMRoles.CIVILIAN);
+            rolePool.add(civilian);
+            SRE.LOGGER.warn("No available role for random selection, assigning civilian.");
+            return civilian;
+        }
+        return available.get(random.nextInt(available.size()));
     }
 
     public void timeoutUnfinishedPlayers(ServerLevel world) {
@@ -496,13 +493,14 @@ public class LightningDraftState {
             return;
         List<UUID> unfinished = new ArrayList<>(roundCandidates.keySet());
         for (UUID uuid : unfinished) {
-            List<SRERole> oldCandidates = roundCandidates.remove(uuid);
-            if (oldCandidates != null)
-                lockedCandidates.removeAll(oldCandidates);
+            List<RoleInstance> oldCandidates = roundCandidates.remove(uuid);
+            if (oldCandidates != null) {
+                oldCandidates.forEach(ri -> lockedInstanceIds.remove(ri.uuid()));
+            }
             ServerPlayer player = world.getServer().getPlayerList().getPlayer(uuid);
-            SRERole randomRole = selectRandomRole(world);
-            selectedRoles.put(uuid, randomRole);
-            rolePool.remove(randomRole);
+            RoleInstance randomInstance = selectRandomRole(world);
+            selectedRoles.put(uuid, randomInstance.role());
+            rolePool.remove(randomInstance);
             remainingPlayerCount--;
             randomChoosers.add(uuid);
             if (player != null) {
@@ -516,7 +514,6 @@ public class LightningDraftState {
     }
 
     public void adjustRoles(ServerLevel serverWorld) {
-        // 不做任何替换
         var canReplacePlayers = new ArrayList<UUID>();
         for (Entry<UUID, SRERole> entrySet : selectedRoles.entrySet()) {
             if (canReplaceRole.contains(entrySet.getValue()) || entrySet.getValue().equals(TMMRoles.CIVILIAN)) {
@@ -525,25 +522,22 @@ public class LightningDraftState {
         }
         var needToReplaceRole = new ArrayList<SRERole>();
         boolean roleRotationForceRoleSettings = SREConfig.instance().roleRotationForceRoleSettings;
-        for (SRERole role : rolePool) {
+        for (RoleInstance ri : rolePool) {
+            SRERole role = ri.role();
             if (canReplaceRole.contains(role) || role.equals(TMMRoles.CIVILIAN)) {
                 continue;
             }
-            if (role.isInnocent()) {
-                if (!isSpecialInnocent(role)) {
-                    if (!roleRotationForceRoleSettings) {
-                        continue;
-                    }
-                }
+            if (role.isInnocent() && !isSpecialInnocent(role) && !roleRotationForceRoleSettings) {
+                continue;
             }
-
             needToReplaceRole.add(role);
         }
         if (needToReplaceRole.isEmpty())
             return;
+
         Collections.shuffle(needToReplaceRole);
         int t = 0;
-        for (var r : needToReplaceRole) {
+        for (SRERole r : needToReplaceRole) {
             if (canReplacePlayers.isEmpty()) {
                 SRE.LOGGER.error("Need {} more innocent player.", needToReplaceRole.size() - t);
                 break;
@@ -572,7 +566,7 @@ public class LightningDraftState {
         return roundCandidates.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> e.getValue().stream().map(r -> r.identifier().toString()).toList()));
+                        e -> e.getValue().stream().map(ri -> ri.role().identifier().toString()).toList()));
     }
 
     public Map<UUID, String> getSelectedRolesAsStrings() {

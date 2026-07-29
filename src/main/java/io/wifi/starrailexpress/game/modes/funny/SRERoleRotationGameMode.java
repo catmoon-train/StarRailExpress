@@ -170,7 +170,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
     private void forceFinishRotation(ServerLevel world, SREGameWorldComponent gameComp) {
         for (UUID uuid : draftState.playerOrder) {
             if (!draftState.selectedRoles.containsKey(uuid)) {
-                SRERole role = draftState.rolePool.isEmpty() ? TMMRoles.CIVILIAN : draftState.rolePool.remove(0);
+                SRERole role = draftState.rolePool.isEmpty() ? TMMRoles.CIVILIAN : draftState.rolePool.remove(0).role();
                 draftState.selectedRoles.put(uuid, role);
             }
         }

@@ -37,7 +37,7 @@ public class THSuikaRole extends TouhouRole {
             SUIKA_BIG_SCALE_ID, 1f,
             AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     public static final AttributeModifier smallScale = new AttributeModifier(
-            SUIKA_SMALL_SCALE_ID, -0.5f,
+            SUIKA_SMALL_SCALE_ID, -0.33f,
             AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
     public THSuikaRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
@@ -175,19 +175,9 @@ public class THSuikaRole extends TouhouRole {
                 }
             }
         } else if (isSmallScale(player)) {
-            boolean needAdd = false;
             if (!player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
-                needAdd = true;
-            } else {
-                var eff = player.getEffect(MobEffects.MOVEMENT_SPEED);
-                if (eff.getDuration() <= 2 * 20) {
-                    needAdd = true;
-                }
+                restore(player);
             }
-            if (needAdd) {
-                player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, 10 * 20, 0, true, false, true));
-            }
-
         }
     }
 
@@ -209,6 +199,7 @@ public class THSuikaRole extends TouhouRole {
     public static void addSmallScale(Player player) {
         restore(player);
         player.getAttribute(Attributes.SCALE).addOrReplacePermanentModifier(smallScale);
+        player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, 10 * 20, 0, false, false, true));
     }
 
     public static void addBigScale(Player player) {

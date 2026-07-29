@@ -48,6 +48,7 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
+import org.agmas.noellesroles.client.utils.OpenScreenManager;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
@@ -202,6 +203,27 @@ public class GameUtilsCommand {
                   return 1;
                 })))
             .then(Commands.literal("tests")
+
+                .then(Commands.literal("open_screen")
+                    .then(Commands.argument("screen_id", ResourceLocationArgument.id())
+                        .suggests((a, b) -> {
+                          for (var entry : OpenScreenManager.SCREENS.entrySet()) {
+                            var id = entry.getKey();
+                            var name = entry.getValue();
+                            b.suggest(id.toString(), name);
+                          }
+                          return b.buildFuture();
+                        })
+                        .executes((ctx) -> {
+                          final ResourceLocation screenId = ResourceLocationArgument.getId(ctx, "screen_id");
+                          final ServerPlayer player = ctx.getSource().getPlayerOrException();
+                          OpenScreenManager.openScreen(player, screenId);
+                          ctx.getSource()
+                              .sendSuccess(() -> Component.translatable("Opened screen %s for player %s",
+                                  OpenScreenManager.SCREENS.getOrDefault(screenId, Component.literal("Unknown Screen")),
+                                  player.getName()), true);
+                          return 1;
+                        })))
                 .then(Commands.literal("role_rotaion_weight")
                     .then(Commands.literal("clear").executes(ctx -> {
                       var p = ctx.getSource().getPlayerOrException();

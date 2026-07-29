@@ -96,7 +96,6 @@ public class SREClientCommand {
                             return 1;
                           })))
                   .then(ClientCommandManager.literal("track_pose")
-
                       .requires(ctx -> ctx.hasPermission(2))
                       .then(ClientCommandManager.argument("count", IntegerArgumentType.integer(0, 1024))
                           .executes((ctx) -> {

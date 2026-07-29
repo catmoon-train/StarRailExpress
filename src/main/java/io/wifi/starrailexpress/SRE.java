@@ -41,6 +41,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.noellesroles.client.utils.OpenScreenManager;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.config.SpawnInfoConfig;
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
@@ -83,6 +84,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     @Override
     public void onInitialize() {
         CustomMotdManager.init();
+        OpenScreenManager.init();
         initConfig();
         initConstants();
         initWaypoints();

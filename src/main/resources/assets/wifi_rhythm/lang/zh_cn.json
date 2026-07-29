@@ -1,4 +1,5 @@
 ﻿{
+    "gui.rhythm.title": "音游",
     "gui.rhythm.start": "开始游戏",
     "gui.rhythm.waiting": "点击下方按钮开始",
     "gui.rhythm.score": "分数：%s",
