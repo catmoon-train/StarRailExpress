@@ -1125,6 +1125,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         if (player.isInLava()) {
             return true;
         }
+        if (player.getVehicle() != null) {
+            if (player.getVehicle().isInLava())
+                return true;
+        }
         return false;
     }
 
@@ -1141,6 +1145,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             return false;
         if (player.isUnderWater()) {
             return true;
+        }
+        if (player.getVehicle() != null) {
+            if (player.getVehicle().isUnderWater())
+                return true;
         }
 
         final var block = player.level()
@@ -1159,7 +1167,12 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             return false;
 
         if (!player.isUnderWater()) {
-            return false;
+            if (player.getVehicle() != null) {
+                if (!player.getVehicle().isUnderWater())
+                    return false;
+            } else {
+                return false;
+            }
         }
         final var block = player.level()
                 .getBlockState(new BlockPos((int) player.getX(), (int) player.getY(), (int) player.getZ())).getBlock();
