@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.packet;
 
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.index.TMMItems;
+import org.agmas.noellesroles.content.item.CourierMailItem;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -59,6 +61,25 @@ public record CourierMailSendC2SPacket(boolean mainHand, UUID targetUuid, byte[]
         if (target.getInventory().getFreeSlot() < 0) {
             player.displayClientMessage(Component.translatable("message.noellesroles.courier.target_full"), true);
             return;
+        }
+
+        // 附件物品校验：禁止把德林加手枪、信封本身或炸弹放入信封
+        if (p.itemSlot >= 0) {
+            ItemStack attach = player.getInventory().getItem(p.itemSlot);
+            if (!attach.isEmpty()) {
+                if (attach.getItem() == TMMItems.DERRINGER) {
+                    player.displayClientMessage(Component.translatable("message.noellesroles.courier.derringer_banned"), true);
+                    return;
+                }
+                if (attach.getItem() instanceof CourierMailItem) {
+                    player.displayClientMessage(Component.translatable("message.noellesroles.courier.attachment_banned"), true);
+                    return;
+                }
+                if (attach.is(ModItems.BOMB)) {
+                    player.displayClientMessage(Component.translatable("message.noellesroles.courier.attachment_banned"), true);
+                    return;
+                }
+            }
         }
 
         // 计算金币

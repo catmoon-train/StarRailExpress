@@ -3618,6 +3618,8 @@
   "message.noellesroles.courier.insufficient_coins": "金幣不足，還需 %s 金幣",
   "message.noellesroles.courier.reply_fail": "無法回信",
   "message.noellesroles.courier.self_send": "§c不能給自己送信！",
+  "message.noellesroles.courier.derringer_banned": "德林加手槍不能透過信封交換",
+  "message.noellesroles.courier.attachment_banned": "該物品不能透過信封寄送",
   "message.noellesroles.pigeon.failed": "§c你的信鴿未能送達信物！",
   "message.noellesroles.pigeon.target_dead": "§c收件人已死亡，信件被退回，金幣與物品已返還！",
   "message.noellesroles.courier.courier_dead": "§c信使已經死亡，無法回信！物品已返還。",
