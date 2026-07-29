@@ -262,6 +262,11 @@ public class RoleUtils extends MCItemsUtils {
 
     public static void changeRole(Player player, SRERole role, boolean record, boolean addStats,
             boolean clearOldItems) {
+        changeRole(player, role, record, addStats, false, false);
+    }
+
+    public static void changeRole(Player player, SRERole role, boolean record, boolean addStats,
+            boolean clearOldItems, boolean noEventCall) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         // 删除旧职业
         var oldRole = gameWorldComponent.getRole(player);
@@ -283,7 +288,8 @@ public class RoleUtils extends MCItemsUtils {
                             player.getInventory().removeItem(itemStack);
                         });
             }
-            ((ModdedRoleRemoved) ModdedRoleRemoved.EVENT.invoker()).removeModdedRole(player, oldRole);
+            if (!noEventCall)
+                ((ModdedRoleRemoved) ModdedRoleRemoved.EVENT.invoker()).removeModdedRole(player, oldRole);
         }
         if (addStats) {
             PlayerStats stats = PlayerStatsManager.get(player);
@@ -303,7 +309,8 @@ public class RoleUtils extends MCItemsUtils {
         gameWorldComponent.addRole(player, role);
         // 触发事件
         if (player instanceof ServerPlayer sp) {
-            (ModdedRoleAssigned.EVENT.invoker()).assignModdedRole(sp, role);
+            if (!noEventCall)
+                (ModdedRoleAssigned.EVENT.invoker()).assignModdedRole(sp, role);
         }
     }
 
