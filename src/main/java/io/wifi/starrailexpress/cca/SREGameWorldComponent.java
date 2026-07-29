@@ -881,7 +881,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             checkPlayerDarkness(player, areas, gameCCA);
 
             if (!areas.areasSettings.canUnderWater) {
-                if (player.isUnderWater()) {
+                if (checkPlayerUnderwater(player)) {
                     if (InControlCCA
                             .bounceBackIfControlled(player)) {
                         return;
@@ -1137,6 +1137,13 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             return true;
         }
         return false;
+    }
+
+    private static boolean checkPlayerUnderwater(ServerPlayer player) {
+        if (player.hasEffect(ModEffects.SAFE_TIME)) {
+            return false;
+        }
+        return player.isUnderWater();
     }
 
     private static boolean checkPlayerIsInDeepWater(ServerPlayer player, AreasWorldComponent areas) {

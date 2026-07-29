@@ -66,7 +66,7 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         player.stopUsingItem();
         player.setShiftKeyDown(false);
         player.setCamera(player);
-
+        player.clearFire();
         SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
 
         player.teleportTo(playerStats.pos().x, playerStats.pos().y, playerStats.pos().z);
