@@ -1542,7 +1542,7 @@
   "tooltip.sre.custom_player_plush.player": "玩家：%s",
   "tooltip.sre.custom_player_plush.texture": "材质：%s",
   "tooltip.sre.custom_player_plush.sound": "音效：%s",
-  "tooltip.sre.custom_player_plush.sound_with_translatable": "音效：%s (%s)",
+  "tooltip.sre.custom_player_plush.sound_with_translatable": "音效：[%s] (%s)",
   "display.type.role.killer": "杀手阵营",
   "display.type.role.innocent": "平民阵营",
   "display.type.role.neutral_all": "中立阵营",
