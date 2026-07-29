@@ -128,6 +128,7 @@
     "sre.custom_role.label.sprint_mult": "Sprint Multiplier",
     "sre.custom_role.label.initial_items": "Initial Items",
     "sre.custom_role.label.instinct_range": "Instinct Max Range",
+    "sre.custom_role.label.instinct_beseen_range": "Be-seen Max Range",
     "sre.custom_role.label.ability_commands": "Ability Commands",
     "sre.custom_role.label.ability_cooldown": "Ability Cooldown(s)",
     "sre.custom_role.label.ability_initial_cooldown": "Ability Initial Cooldown(s)",

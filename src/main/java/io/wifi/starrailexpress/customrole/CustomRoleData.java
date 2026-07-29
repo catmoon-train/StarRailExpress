@@ -177,6 +177,9 @@ public class CustomRoleData {
     @SerializedName("instinctMaxRange")
     public String instinctMaxRange = "*";
 
+    @SerializedName("instinctBeSeenMaxRange")
+    public String instinctBeSeenMaxRange = "*"; // 旧版：被别人透视（beSeen）的最大距离（格数），"*" 表示无限
+
     @SerializedName("instinctUnlimitedTeammate")
     public boolean instinctUnlimitedTeammate = false;
 
@@ -364,9 +367,13 @@ public class CustomRoleData {
         @SerializedName("beSeenOn")
         public String beSeenOn = "DEFAULT";
 
-        /** 最大透视距离（格数），"*" 表示无限 */
+        /** 看别人（透视）时的最大距离（格数），"*" 表示无限 */
         @SerializedName("maxRange")
         public String maxRange = "*";
+
+        /** 被别人透视（beSeen）时的最大距离（格数），"*" 表示无限；为 "*" 时回退到 maxRange */
+        @SerializedName("beSeenMaxRange")
+        public String beSeenMaxRange = "*";
 
         /** 同阵营队友无视距离限制 */
         @SerializedName("unlimitedTeammate")
