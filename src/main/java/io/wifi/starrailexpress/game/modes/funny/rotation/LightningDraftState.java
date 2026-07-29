@@ -30,10 +30,10 @@ import net.minecraft.sounds.SoundSource;
 
 public class LightningDraftState {
     public static HashMap<UUID, Integer> PLAYER_SORT_WEIGHT = new HashMap<>();
+    public static final Random random = new Random();
     public static final int PLAYER_SELECT_COUNT = 3;
     public final List<ServerPlayer> allPlayers;
     public final int totalPlayers;
-
     // 锁定本轮已展示给玩家的具体角色实例（按UUID），防止随机选择时抢走
     private final Set<UUID> lockedInstanceIds = new HashSet<>();
 
@@ -294,7 +294,17 @@ public class LightningDraftState {
             startConfirmCountdown();
             return;
         }
-
+        if (rolePool.isEmpty()) {
+            for (UUID uuid : playerOrder) {
+                if (!selectedRoles.containsKey(uuid)) {
+                    selectedRoles.put(uuid, TMMRoles.CIVILIAN);
+                    remainingPlayerCount--;
+                }
+            }
+            adjustRoles(world);
+            startConfirmCountdown();
+            return;
+        }
         roundCandidates.clear();
         lockedInstanceIds.clear();
 
@@ -313,7 +323,7 @@ public class LightningDraftState {
 
         int need = Math.min(rolePool.size(), playersInThisRound * PLAYER_SELECT_COUNT);
         List<RoleInstance> drawn = new ArrayList<>(rolePool);
-        Collections.shuffle(drawn, new Random(world.getGameTime()));
+        Collections.shuffle(drawn, random);
         drawn = new ArrayList<>(drawn.subList(0, need));
 
         List<RoleInstance> remainingDrawn = new ArrayList<>(drawn); // 可分配池
@@ -462,11 +472,12 @@ public class LightningDraftState {
                 .collect(Collectors.toList());
         if (available.isEmpty()) {
             // 极端情况：从整个池子随机，若池子为空则生成一个平民实例
-            {
-                return new RoleInstance(UUID.randomUUID(), TMMRoles.CIVILIAN);
-            }
+            RoleInstance civilian = new RoleInstance(UUID.randomUUID(), TMMRoles.CIVILIAN);
+            rolePool.add(civilian);
+            SRE.LOGGER.warn("No available role for random selection, assigning civilian.");
+            return civilian;
         }
-        return available.get(new Random(world.getGameTime()).nextInt(available.size()));
+        return available.get(random.nextInt(available.size()));
     }
 
     public void timeoutUnfinishedPlayers(ServerLevel world) {
