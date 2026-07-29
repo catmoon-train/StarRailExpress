@@ -166,7 +166,7 @@ public final class MafiaManager {
                 // 只有在亡命徒时刻之外，且当前仍然是家族成员，才变回原来的职业
                 if (!inLooseEndMoment && member != null && isMafiaMember(member)
                         && previousRoleByMember.containsKey(memberId)) {
-                    RoleUtils.changeRole(member, previousRoleByMember.get(memberId), true, false, false, true);
+                    RoleUtils.changeRole(member, previousRoleByMember.get(memberId), true, false, true, false);
                     // 清除从家族商店购买的标记物品
                     clearMafiaShopItems(member);
                 }
