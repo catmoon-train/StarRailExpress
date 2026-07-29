@@ -179,8 +179,8 @@ public class LightningDraftState {
 
         // 生成可替换职业列表
         List<SRERole> replaceableTypes = new ArrayList<>(civilianPool.selectRoles(PLAYER_SELECT_COUNT - 1,
-                role -> !role.hasOccupationRole() && role.canBeRandomed()
-                        && role.opposingRoles.isEmpty() && !role.hasOccupationedRole()));
+                role -> role.canBeRandomed()
+                        && role.opposingRoles.isEmpty() && !isSpecialInnocent(role)));
         int size = replaceableTypes.size();
         for (int i = 0; i < PLAYER_SELECT_COUNT - 1 - size; i++) {
             replaceableTypes.add(TMMRoles.CIVILIAN);

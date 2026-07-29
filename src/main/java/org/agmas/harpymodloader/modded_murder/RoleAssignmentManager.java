@@ -94,9 +94,12 @@ public class RoleAssignmentManager {
         List<RoleInstance> expandedRoles = new ArrayList<>(roles);
         List<SRERole> companionRoles = new ArrayList<>();
         List<SRERole> companedRoles = new ArrayList<>();
-
         for (var role : oldRoles) {
             ArrayList<SRERole> companions = getCompanionRoles(role.role());
+            if (!expandedRoles.contains(role)) {
+                // 已被删除
+                continue;
+            }
             if (!companions.isEmpty()) {
                 companedRoles.add(role.role());
             }
