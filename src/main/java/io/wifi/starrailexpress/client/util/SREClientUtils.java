@@ -14,6 +14,8 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -130,5 +132,17 @@ public class SREClientUtils {
 
     public static Player getClientPlayer() {
         return Minecraft.getInstance().player;
+    }
+
+    public static Component getSoundEventSubtitle(ResourceLocation sound) {
+        if (sound == null)
+            return null;
+        final var soundManager = Minecraft.getInstance().getSoundManager();
+        if (soundManager == null)
+            return null;
+        final var soundEvent = soundManager.getSoundEvent(sound);
+        if (soundEvent == null)
+            return null;
+        return soundEvent.getSubtitle();
     }
 }

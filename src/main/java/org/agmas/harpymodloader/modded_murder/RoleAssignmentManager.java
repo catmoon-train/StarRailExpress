@@ -6,7 +6,10 @@ import io.wifi.starrailexpress.game.utils.RoleInstance;
 import org.agmas.harpymodloader.Harpymodloader;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -34,50 +37,72 @@ public class RoleAssignmentManager {
     }
 
     /**
-     * 
+     * 尝试从 expandedRoles 中移除一个符合条件的角色实例。
+     *
      * @param companion      当前被关联角色
-     * @param expandedRoles  被展开的职业
-     * @param companionRoles 所有关联的职业
-     * @param companedRoles  所有被关联的职业的列表
-     * @param tryLevel       尝试匹配等级。0：完全相同，1：忽略中立阵营，2：包含平民，3：包括所有
-     * @return
+     * @param expandedRoles  被展开的职业（可变的实例列表）
+     * @param companionRoles 所有关联的职业（不可作为移除目标）
+     * @param companedRoles  所有被关联的职业（不可作为移除目标）
+     * @param tryLevel       匹配等级：
+     *                       0 - 完全相同阵营，
+     *                       1 - 忽略中立阵营，
+     *                       2 - 仅区分杀手，
+     *                       其他 - 匹配任意
+     * @return 是否成功移除一个实例
      */
-    public static boolean tryRemoveARole(SRERole companion, List<RoleInstance> expandedRoles,
+    public static boolean tryRemoveARole(SRERole companion,
+            List<RoleInstance> expandedRoles,
             List<SRERole> companionRoles,
-            List<SRERole> companedRoles, int tryLevel) {
-        final boolean[] isRemoved = { false };
-
-        expandedRoles.removeIf(ro -> {
-            if (!isRemoved[0]) {
-                var r = ro.role();
-                boolean conditionMet = false;
-                if (tryLevel == 0) {
-                    conditionMet = (PlayerRoleWeightManager
-                            .getRoleType(r) == PlayerRoleWeightManager
-                                    .getRoleType(companion));
-                } else if (tryLevel == 1) {
-                    conditionMet = (PlayerRoleWeightManager
-                            .getRoleType_IgnoreNeutralType(r) == PlayerRoleWeightManager
-                                    .getRoleType_IgnoreNeutralType(companion));
-                } else if (tryLevel == 2) {
-                    conditionMet = (PlayerRoleWeightManager
-                            .getRoleType_OnlyDistinctKiller(r) == PlayerRoleWeightManager
-                                    .getRoleType(companion));
-                } else {
-                    conditionMet = true;
-                }
-
-                if (conditionMet && companionRoles.stream()
-                        .noneMatch(rd -> rd.getIdentifier().equals(r.getIdentifier()))
-                        && companedRoles.stream()
-                                .noneMatch(rd -> rd.getIdentifier().equals(r.getIdentifier()))) {
-                    isRemoved[0] = true;
-                    return true;
-                }
-            }
+            List<SRERole> companedRoles,
+            int tryLevel) {
+        if (expandedRoles == null || expandedRoles.isEmpty()) {
             return false;
-        });
-        return isRemoved[0];
+        }
+
+        // 预先计算 companion 的阵营类型，避免循环内重复计算
+        final int companionNormalType = PlayerRoleWeightManager.getRoleType(companion);
+        final int companionIgnoreNeutralType = PlayerRoleWeightManager.getRoleType_IgnoreNeutralType(companion);
+        final int companionOnlyDistinctKillerType = PlayerRoleWeightManager.getRoleType_OnlyDistinctKiller(companion);
+        // 收集所有不可移除的角色标识符，用 Set 加速查找
+        final Set<Object> excludedIdentifiers = new HashSet<>();
+        for (SRERole r : companionRoles) {
+            excludedIdentifiers.add(r.getIdentifier());
+        }
+        for (SRERole r : companedRoles) {
+            excludedIdentifiers.add(r.getIdentifier());
+        }
+
+        // 使用迭代器显式遍历，找到第一个匹配项后立即移除并返回
+        final Iterator<RoleInstance> iterator = expandedRoles.iterator();
+        while (iterator.hasNext()) {
+            final RoleInstance instance = iterator.next();
+            final SRERole role = instance.role();
+            if (role == null) {
+                iterator.remove();
+                return true;
+            }
+
+            // 若角色已在排除列表中，跳过
+            if (excludedIdentifiers.contains(role.getIdentifier())) {
+                continue;
+            }
+
+            // 根据 tryLevel 判断阵营匹配条件
+            final boolean conditionMet = switch (tryLevel) {
+                case 0 -> PlayerRoleWeightManager.getRoleType(role) == companionNormalType;
+                case 1 -> PlayerRoleWeightManager.getRoleType_IgnoreNeutralType(role) == companionIgnoreNeutralType;
+                case 2 ->
+                    PlayerRoleWeightManager.getRoleType_OnlyDistinctKiller(role) == companionOnlyDistinctKillerType;
+                default -> true; // tryLevel >= 3 匹配任意
+            };
+
+            if (conditionMet) {
+                iterator.remove();
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

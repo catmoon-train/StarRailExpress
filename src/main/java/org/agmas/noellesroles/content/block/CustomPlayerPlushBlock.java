@@ -64,13 +64,13 @@ public class CustomPlayerPlushBlock extends SREPlushBlock {
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
             TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
-        if (stack.get(SREDataComponentTypes.TEXTURE) != null) {
+        if (stack.has(SREDataComponentTypes.TEXTURE)) {
             var texture = stack.get(SREDataComponentTypes.TEXTURE);
             if (texture != null) {
                 tooltip.add(Component.translatable("tooltip.sre.custom_player_plush.texture", texture)
                         .withStyle(ChatFormatting.GRAY));
             }
-        } else if (stack.get(DataComponents.PROFILE) != null) {
+        } else if (stack.has(DataComponents.PROFILE)) {
             ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
             var name = resolvableProfile.name().orElse(null);
             if (name != null && !name.isBlank()) {
