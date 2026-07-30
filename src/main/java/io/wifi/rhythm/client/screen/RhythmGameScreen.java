@@ -1,5 +1,6 @@
 package io.wifi.rhythm.client.screen;
 
+import io.wifi.rhythm.client.utils.OggPlayer;
 import io.wifi.rhythm.data.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -7,24 +8,24 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 
 public class RhythmGameScreen extends Screen {
+    // 渲染与判定常量
     private static final float NOTE_SPEED = 0.2F;
     private static final int JUDGE_LINE_X = 60;
     private static final int PERFECT_WINDOW = 80;
     private static final int GOOD_WINDOW = 150;
     private static final int MISS_THRESHOLD = 50;
     private static final int ADVANCE_DISPLAY_TIME = 3900;
-    private long pauseMusicTime = 0; // 暂停瞬间的音乐时间
 
     private static final SoundEvent CLICK_SOUND = SoundEvents.NOTE_BLOCK_SNARE.value();
     private static final SoundEvent HIT_SOUND = SoundEvents.NOTE_BLOCK_IRON_XYLOPHONE.value();
@@ -43,23 +44,36 @@ public class RhythmGameScreen extends Screen {
 
     private GameState gameState = GameState.WAITING;
 
-    private long musicStartTime = -1;
-    private long songStartTime = -1;
-    private long pauseStart = 0;
+    // 游戏整体时间轴
+    private long gameStartTime = -1;
     private long totalPauseDuration = 0;
+    private long pauseStart = 0;
+    private long musicStartGameTime = -1;
+    private boolean musicPlayed = false;
+
+    // 平滑模拟时间相关
+    private long musicStartSystemTime = -1;
+    private long musicPausedDuration = 0;
+    private long musicPauseStart = 0;
+    private long smoothedTimeDrift = 0; // 漂移修正量（毫秒）
+    private long lastCalibrationTime = -1; // 上次校准的系统时间
+
+    private OggPlayer musicPlayer;
     private long allNotesProcessedTime = -1;
 
-    // 按键状态（当前帧 / 上一帧）
+    // 按键状态
     private final boolean[] trackPressed = new boolean[2];
     private final boolean[] prevTrackPressed = new boolean[2];
 
+    // 计分
     private int score = 0, combo = 0, maxCombo = 0;
     private int perfectCount = 0, goodCount = 0, missCount = 0;
-
     private final List<HitEffect> hitEffects = new ArrayList<>();
+
     private Screen parent = null;
     private Button startButton;
 
+    // ==================== 构造 ====================
     public RhythmGameScreen(RhythmMapData map) {
         super(Component.empty());
         this.currentMap = map;
@@ -94,9 +108,7 @@ public class RhythmGameScreen extends Screen {
     protected void init() {
         super.init();
         if (gameState == GameState.WAITING) {
-            this.startButton = Button.builder(Component.translatable("gui.rhythm.start"), btn -> {
-                startGame();
-            })
+            this.startButton = Button.builder(Component.translatable("gui.rhythm.start"), btn -> startGame())
                     .pos((this.width - 100) / 2, this.height / 2 + 20)
                     .size(100, 20)
                     .build();
@@ -106,16 +118,37 @@ public class RhythmGameScreen extends Screen {
 
     private void startGame() {
         gameState = GameState.PLAYING;
-        musicStartTime = System.currentTimeMillis() + MUSIC_DELAY_MS;
+        gameStartTime = System.currentTimeMillis();
+        totalPauseDuration = 0;
+        musicPlayed = false;
+        musicStartGameTime = MUSIC_DELAY_MS;
 
-        if (startButton != null) {
-            removeWidget(this.startButton);
+        ResourceLocation musicRes = ResourceLocation.tryParse(currentMap.Src);
+        musicRes = transformResourcePackogg(musicRes);
+        musicPlayer = new OggPlayer(musicRes);
+        musicPlayer.preloadRaw(); // 快速预加载原始数据
+
+        smoothedTimeDrift = 0;
+        lastCalibrationTime = -1;
+
+        if (startButton != null)
+            removeWidget(startButton);
+    }
+
+    private ResourceLocation transformResourcePackogg(ResourceLocation musicRes) {
+        WeighedSoundEvents entry = this.minecraft.getSoundManager().getSoundEvent(musicRes);
+        if (entry != null) {
+            final var sound = entry.getSound(RandomSource.create());
+            return sound.getPath();
         }
+        return ResourceLocation.fromNamespaceAndPath(musicRes.getNamespace(), "sounds/" + musicRes.getPath() + ".ogg");
     }
 
     @Override
     public void onClose() {
-        minecraft.getSoundManager().stop(null, SoundSource.VOICE);
+        if (musicPlayer != null)
+            musicPlayer.stop();
+        minecraft.getSoundManager().stop(null, net.minecraft.sounds.SoundSource.VOICE);
         minecraft.setScreen(parent);
     }
 
@@ -124,89 +157,112 @@ public class RhythmGameScreen extends Screen {
         if (gameState != GameState.PLAYING)
             return;
 
-        // 检查音乐是否该开始了（与之前相同）
-        if (songStartTime < 0 && musicStartTime > 0 && System.currentTimeMillis() >= musicStartTime) {
-            playMusic();
-            songStartTime = System.currentTimeMillis();
+        long gameTime = getGameTime();
+
+        // 触发音乐播放
+        if (!musicPlayed && gameTime >= musicStartGameTime) {
+            musicPlayer.play();
+            musicPlayed = true;
+            musicStartSystemTime = System.currentTimeMillis();
+            musicPausedDuration = 0;
+            lastCalibrationTime = System.currentTimeMillis(); // 初始化校准计时
         }
 
-        long currentTime = getCurrentMusicTime();
-        boolean musicStarted = (songStartTime >= 0);
+        // 真实音频位置（用于判定）
+        long audioPosition = musicPlayed ? musicPlayer.getPositionMs() : 0;
 
-        // 1. 新音符加入（与之前相同）
+        // 计算谱面时间
+        long rawMusicTime; // 用于预滚动/显示
+        long currentMusicTime; // 判定用（真实音频位置）
+
+        if (musicPlayed && musicPlayer.isPlaying()) {
+            currentMusicTime = audioPosition;
+            rawMusicTime = getSmoothedMusicTime(); // 平滑模拟时间
+
+            // ---- 定期校准模拟时间 ----
+            long now = System.currentTimeMillis();
+            if (lastCalibrationTime > 0 && now - lastCalibrationTime >= 2000) {
+                // 计算当前模拟时间（不含漂移修正）与真实音频位置的差值
+                long rawSimulated = Math.max(0, now - musicStartSystemTime - musicPausedDuration);
+                long diff = audioPosition - rawSimulated;
+                // 指数平滑更新漂移修正量（缓慢跟踪）
+                smoothedTimeDrift = (long) (smoothedTimeDrift * 0.95 + diff * 0.05);
+                lastCalibrationTime = now;
+            }
+        } else {
+            rawMusicTime = gameTime - MUSIC_DELAY_MS;
+            currentMusicTime = Math.max(0, rawMusicTime);
+        }
+
+        // 1. 新音符加入
         while (!pendingNotes.isEmpty()) {
             RhythmNote next = pendingNotes.peek();
             long delayedStart = next.startTime + currentMap.Delayer;
-            if (delayedStart - ADVANCE_DISPLAY_TIME <= currentTime) {
+            if (delayedStart - ADVANCE_DISPLAY_TIME <= rawMusicTime) {
                 pendingNotes.poll();
                 activeNotes.add(new LiveNote(next, currentMap.Delayer));
             } else
                 break;
         }
 
-        // 2. 判定（仅在音乐开始后）
-        if (musicStarted) {
-            // 计算上升沿（此时 prevTrackPressed 保存的是上一帧结束时的状态）
+        // 2. 判定逻辑
+        if (musicPlayed) {
             boolean[] trackJustPressed = new boolean[2];
             for (int i = 0; i < 2; i++) {
                 trackJustPressed[i] = trackPressed[i] && !prevTrackPressed[i];
             }
 
-            // 2a. SINGLE 与 HOLD 头部 —— 仅上升沿触发
+            // SINGLE 与 HOLD 头部
             for (int track = 0; track < 2; track++) {
                 if (!trackJustPressed[track])
                     continue;
-
                 for (LiveNote ln : activeNotes) {
                     if (ln.track != track || ln.state != NoteState.ACTIVE)
                         continue;
                     long effectiveStart = ln.note.startTime + ln.delayer;
-
                     if (ln.type == NoteType.SINGLE) {
-                        long diff = Math.abs(currentTime - effectiveStart);
+                        long diff = Math.abs(currentMusicTime - effectiveStart);
                         if (diff <= PERFECT_WINDOW) {
-                            hitNote(ln, true);
+                            hitNote(ln, true, currentMusicTime);
                             break;
                         } else if (diff <= GOOD_WINDOW) {
-                            hitNote(ln, false);
+                            hitNote(ln, false, currentMusicTime);
                             break;
                         }
                     } else if (ln.type == NoteType.HOLD) {
-                        long diff = Math.abs(currentTime - effectiveStart);
+                        long diff = Math.abs(currentMusicTime - effectiveStart);
                         if (diff <= GOOD_WINDOW) {
-                            startHold(ln);
+                            startHold(ln, currentMusicTime);
                             break;
                         }
                     }
                 }
             }
 
-            // 2b. HOLDSINGLE 自动连打（持续按住）
+            // HOLDSINGLE 连打
             for (int track = 0; track < 2; track++) {
                 if (!trackPressed[track])
                     continue;
-
                 for (LiveNote ln : activeNotes) {
                     if (ln.track == track && ln.type == NoteType.HOLDSINGLE && ln.state == NoteState.ACTIVE) {
                         long effectiveStart = ln.note.startTime + ln.delayer;
-                        if (currentTime >= effectiveStart) {
-                            long diff = currentTime - effectiveStart;
-                            if (diff <= PERFECT_WINDOW) {
-                                hitNote(ln, true);
-                            } else {
-                                hitNote(ln, false);
-                            }
+                        if (currentMusicTime >= effectiveStart) {
+                            long diff = currentMusicTime - effectiveStart;
+                            if (diff <= PERFECT_WINDOW)
+                                hitNote(ln, true, currentMusicTime);
+                            else
+                                hitNote(ln, false, currentMusicTime);
                             break;
                         }
                     }
                 }
             }
 
-            // 2c. HOLD 持续检测（与之前相同）
+            // HOLD 长按
             for (LiveNote ln : activeNotes) {
                 if (ln.type == NoteType.HOLD && ln.state == NoteState.HOLDING) {
                     if (ln.isHolding()) {
-                        if (getTailX(ln, currentTime) <= JUDGE_LINE_X) {
+                        if (getTailX(ln, currentMusicTime) <= JUDGE_LINE_X) {
                             completeHold(ln);
                         }
                     } else {
@@ -215,7 +271,7 @@ public class RhythmGameScreen extends Screen {
                 }
             }
 
-            // 2d. 移除已处理音符 & miss 检查（使用 getNoteX 实时计算）
+            // 移除与 miss
             Iterator<LiveNote> it = activeNotes.iterator();
             while (it.hasNext()) {
                 LiveNote ln = it.next();
@@ -223,24 +279,22 @@ public class RhythmGameScreen extends Screen {
                     it.remove();
                     continue;
                 }
-                if (ln.state == NoteState.ACTIVE && getNoteX(ln, currentTime) < JUDGE_LINE_X - MISS_THRESHOLD) {
+                if (ln.state == NoteState.ACTIVE && getNoteX(ln, currentMusicTime) < JUDGE_LINE_X - MISS_THRESHOLD) {
                     triggerMiss(ln);
                     it.remove();
                 }
             }
 
-            // 2e. 节拍音效（与之前相同）
-            while (nextBeatIndex < beatTimes.size() && beatTimes.get(nextBeatIndex) <= currentTime) {
+            // 节拍音效
+            while (nextBeatIndex < beatTimes.size() && beatTimes.get(nextBeatIndex) <= currentMusicTime) {
                 playClickSound();
                 nextBeatIndex++;
             }
         }
 
-        // 3. 更新特效（与之前相同）
         hitEffects.removeIf(e -> System.currentTimeMillis() - e.startTime > 800);
 
-        // 4. 结束检测（与之前相同）
-        if (musicStarted && activeNotes.isEmpty() && pendingNotes.isEmpty()) {
+        if (musicPlayed && activeNotes.isEmpty() && pendingNotes.isEmpty()) {
             if (allNotesProcessedTime < 0) {
                 allNotesProcessedTime = System.currentTimeMillis();
             } else if (System.currentTimeMillis() - allNotesProcessedTime >= END_DELAY_MS) {
@@ -250,60 +304,70 @@ public class RhythmGameScreen extends Screen {
             allNotesProcessedTime = -1;
         }
 
-        // === 关键修正：将当前帧的按键状态保存到 prevTrackPressed，供下一帧使用 ===
         System.arraycopy(trackPressed, 0, prevTrackPressed, 0, 2);
     }
 
-    // 工具方法：基于音乐时间计算音符 x 坐标（实时，不依赖存储）
-    private int getNoteX(LiveNote note, long time) {
-        long effectiveStart = note.note.startTime + note.delayer;
-        return JUDGE_LINE_X + (int) ((effectiveStart - time) * NOTE_SPEED);
-    }
-
-    private int getTailX(LiveNote note, long time) {
-        long effectiveEnd = note.note.endTime + note.delayer;
-        return JUDGE_LINE_X + (int) ((effectiveEnd - time) * NOTE_SPEED);
-    }
-
-    private long getCurrentMusicTime() {
+    private long getGameTime() {
+        if (gameStartTime < 0)
+            return 0;
+        long elapsed = System.currentTimeMillis() - gameStartTime;
         if (gameState == GameState.PAUSED) {
-            return pauseMusicTime; // 暂停期间时间不再变化
+            long currentPause = System.currentTimeMillis() - pauseStart;
+            return Math.max(0, elapsed - (totalPauseDuration + currentPause));
+        } else {
+            return Math.max(0, elapsed - totalPauseDuration);
         }
-        if (songStartTime >= 0) {
-            return Math.max(0, System.currentTimeMillis() - songStartTime - totalPauseDuration);
-        }
-        if (musicStartTime > 0) {
-            return System.currentTimeMillis() - musicStartTime - totalPauseDuration;
-        }
-        return 0;
     }
 
-    private void playMusic() {
-        ResourceLocation soundLocation = ResourceLocation.tryParse(currentMap.Src);
-        minecraft.getSoundManager().play(
-                new SimpleSoundInstance(soundLocation, SoundSource.VOICE, 1.0F, 1.0F,
-                        RandomSource.create(), false, 0, SimpleSoundInstance.Attenuation.NONE, 0, 0, 0, true));
+    /**
+     * 平滑模拟音乐时间：系统时钟扣除暂停，加上漂移修正量。
+     */
+    private long getSmoothedMusicTime() {
+        if (musicStartSystemTime < 0)
+            return 0;
+        long elapsed = System.currentTimeMillis() - musicStartSystemTime - musicPausedDuration;
+        if (gameState == GameState.PAUSED && musicPlayed) {
+            elapsed -= (System.currentTimeMillis() - musicPauseStart);
+        }
+        return Math.max(0, elapsed + smoothedTimeDrift);
     }
 
-    // ===== 渲染（完全基于实时音乐时间 + partialTick，消除逻辑帧率影响） =====
+    private int getNoteX(LiveNote note, long musicTime) {
+        long effectiveStart = note.note.startTime + note.delayer;
+        return JUDGE_LINE_X + (int) ((effectiveStart - musicTime) * NOTE_SPEED);
+    }
+
+    private int getTailX(LiveNote note, long musicTime) {
+        long effectiveEnd = note.note.endTime + note.delayer;
+        return JUDGE_LINE_X + (int) ((effectiveEnd - musicTime) * NOTE_SPEED);
+    }
+
+    // ==================== 渲染 ====================
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
         drawTracks(graphics);
 
-        // 计算渲染时间：暂停或结束时不加 partialTick
-        long renderTime;
-        if (gameState == GameState.PLAYING) {
-            renderTime = getCurrentMusicTime() + (long) (partialTick * 50);
+        long renderMusicTime;
+        if (musicPlayed && musicPlayer.isPlaying()) {
+            long base = getSmoothedMusicTime();
+            if (gameState == GameState.PLAYING) {
+                renderMusicTime = base + (long) (partialTick * 50);
+            } else {
+                renderMusicTime = base;
+            }
         } else {
-            renderTime = getCurrentMusicTime();
+            long renderGameTime = getGameTime();
+            if (gameState == GameState.PLAYING)
+                renderGameTime += (long) (partialTick * 50);
+            renderMusicTime = renderGameTime - MUSIC_DELAY_MS;
         }
 
         for (LiveNote ln : activeNotes) {
-            drawNote(graphics, ln, renderTime);
+            drawNote(graphics, ln, renderMusicTime);
         }
 
-        // 击中特效（与之前相同）
+        // 击中特效
         long now = System.currentTimeMillis();
         for (HitEffect effect : hitEffects) {
             long elapsed = now - effect.startTime;
@@ -343,9 +407,9 @@ public class RhythmGameScreen extends Screen {
         graphics.drawString(font, "▼", JUDGE_LINE_X - 20, yDown - 8, 0xFFAA00FF);
     }
 
-    private void drawNote(GuiGraphics graphics, LiveNote ln, long renderTime) {
+    private void drawNote(GuiGraphics graphics, LiveNote ln, long renderMusicTime) {
         int y = getTrackY(ln.track);
-        int x = getNoteX(ln, renderTime);
+        int x = getNoteX(ln, renderMusicTime);
 
         switch (ln.type) {
             case SINGLE, HOLDSINGLE -> {
@@ -353,20 +417,16 @@ public class RhythmGameScreen extends Screen {
                 int size = ln.type == NoteType.HOLDSINGLE ? 5 : 8;
                 if (ln.type == NoteType.HOLDSINGLE)
                     color = 0xFFFF5500;
-                // 如果整个音符都在判定线左侧，则不渲染
                 if (x + size < JUDGE_LINE_X)
                     return;
-                // 可选：裁剪左边缘，这里简单跳过
                 graphics.fill(x - size, y - size, x + size, y + size, color);
                 graphics.renderOutline(x - size, y - size, size * 2, size * 2, 0xFFFFFFFF);
             }
             case HOLD -> {
                 int headX = x;
-                int tailX = getTailX(ln, renderTime);
-                // 裁剪：整个长条在左侧则不画
+                int tailX = getTailX(ln, renderMusicTime);
                 if (tailX < JUDGE_LINE_X)
                     return;
-                // 将头部限制在判定线右侧
                 if (headX < JUDGE_LINE_X)
                     headX = JUDGE_LINE_X;
                 if (tailX < headX)
@@ -407,7 +467,7 @@ public class RhythmGameScreen extends Screen {
         graphics.drawCenteredString(font, text, x, y, color);
     }
 
-    // ===== 输入处理（仅记录状态，不进行判定） =====
+    // ==================== 输入处理 ====================
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (gameState == GameState.FINISHED) {
@@ -487,8 +547,8 @@ public class RhythmGameScreen extends Screen {
         trackPressed[track] = false;
     }
 
-    // ===== 判定方法 =====
-    private void hitNote(LiveNote note, boolean perfect) {
+    // ==================== 判定 ====================
+    private void hitNote(LiveNote note, boolean perfect, long musicTime) {
         note.state = NoteState.HIT;
         score += (perfect ? 100 : 70) * comboMultiplier();
         if (perfect)
@@ -499,9 +559,7 @@ public class RhythmGameScreen extends Screen {
         maxCombo = Math.max(maxCombo, combo);
         playHitSound();
         int y = getTrackY(note.track);
-        // 特效位置取当前渲染位置
-        hitEffects
-                .add(new HitEffect(getNoteX(note, getCurrentMusicTime()), y, perfect ? "Perfect!" : "Good!", perfect));
+        hitEffects.add(new HitEffect(getNoteX(note, musicTime), y, perfect ? "Perfect!" : "Good!", perfect));
     }
 
     private void triggerMiss(LiveNote note) {
@@ -510,7 +568,7 @@ public class RhythmGameScreen extends Screen {
         missCount++;
     }
 
-    private void startHold(LiveNote note) {
+    private void startHold(LiveNote note, long musicTime) {
         note.state = NoteState.HOLDING;
         note.held = true;
         score += 50 * comboMultiplier();
@@ -518,7 +576,7 @@ public class RhythmGameScreen extends Screen {
         maxCombo = Math.max(maxCombo, combo);
         playHitSound();
         int y = getTrackY(note.track);
-        hitEffects.add(new HitEffect(getNoteX(note, getCurrentMusicTime()), y, "Hold!", true));
+        hitEffects.add(new HitEffect(getNoteX(note, musicTime), y, "Hold!", true));
     }
 
     private void completeHold(LiveNote note) {
@@ -547,23 +605,29 @@ public class RhythmGameScreen extends Screen {
         minecraft.getSoundManager().play(SimpleSoundInstance.forUI(HIT_SOUND, 1.0F, 1.0F));
     }
 
+    // ==================== 暂停 ====================
     private void togglePause() {
         if (gameState == GameState.PLAYING) {
             gameState = GameState.PAUSED;
             pauseStart = System.currentTimeMillis();
-            pauseMusicTime = getCurrentMusicTime(); // 冻结音乐时间
-            minecraft.getSoundManager().pause();
+            if (musicPlayer != null && musicPlayed) {
+                musicPlayer.pause();
+                musicPauseStart = System.currentTimeMillis();
+            }
         } else if (gameState == GameState.PAUSED) {
             long delta = System.currentTimeMillis() - pauseStart;
             totalPauseDuration += delta;
-            if (songStartTime < 0 && musicStartTime > 0)
-                musicStartTime += delta;
+            if (musicPlayer != null && musicPlayed) {
+                musicPausedDuration += System.currentTimeMillis() - musicPauseStart;
+                musicPlayer.resume();
+            }
+            // 恢复后立即触发一次校准，消除暂停累积的误差
+            lastCalibrationTime = 0; // 强制下次 tick 立即校准
             gameState = GameState.PLAYING;
-            minecraft.getSoundManager().resume();
         }
     }
 
-    // ===== 内部类 =====
+    // ==================== 内部类 ====================
     private enum NoteType {
         SINGLE, HOLD, HOLDSINGLE
     }
@@ -611,6 +675,7 @@ public class RhythmGameScreen extends Screen {
         }
     }
 
+    // ==================== 静态入口 ====================
     public static void open(RhythmMapData map) {
         Minecraft.getInstance().setScreen(new RhythmGameScreen(map));
     }
