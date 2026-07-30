@@ -277,7 +277,7 @@ public final class MeetingManager {
         if (settings.meetingStartCooldown > 0) {
             SREGameTimeComponent timeComponent = SREGameTimeComponent.KEY.get(serverLevel);
             if (timeComponent != null) {
-                long elapsed = Math.max(0, timeComponent.getResetTime() - timeComponent.getTime());
+                long elapsed = Math.max(0, serverLevel.getGameTime() - timeComponent.getStartWorldTick());
                 if (!emergency && elapsed < settings.meetingStartCooldown * 20L) {
                     return false;
                 }

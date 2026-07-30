@@ -118,7 +118,7 @@ public final class MeetingReportClientHandler {
         if (areas != null && areas.areasSettings.meetingStartCooldown > 0) {
             SREGameTimeComponent time = SREGameTimeComponent.KEY.getNullable(client.level);
             if (time != null) {
-                long elapsed = Math.max(0, time.getResetTime() - time.getTime());
+                long elapsed = Math.max(0, client.level.getGameTime() - time.getStartWorldTick());
                 remain = Math.max(remain, areas.areasSettings.meetingStartCooldown * 20L - elapsed);
             }
         }

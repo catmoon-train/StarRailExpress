@@ -16,6 +16,8 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     public final Level world;
     public int resetTime = 0;
     public int time = 0;
+    /** 游戏开始（计时器启动）时的世界 gameTime，用于「开局冷却」基准，不受击杀加时影响。 */
+    public long startWorldTick = 0;
 
     public SREGameTimeComponent(Level world) {
         this.world = world;
@@ -26,11 +28,16 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     }
 
     public void reset() {
+        this.startWorldTick = this.world.getGameTime();
         this.setTime(this.resetTime);
     }
 
     public int getResetTime() {
         return this.resetTime;
+    }
+
+    public long getStartWorldTick() {
+        return this.startWorldTick;
     }
 
     @Override
@@ -82,11 +89,13 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("resetTime", this.resetTime);
         tag.putInt("time", this.time);
+        tag.putLong("startWorldTick", this.startWorldTick);
     }
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.resetTime = tag.contains("resetTime") ? tag.getInt("resetTime") : 0;
         this.time = tag.contains("time") ? tag.getInt("time") : 0;
+        this.startWorldTick = tag.contains("startWorldTick") ? tag.getLong("startWorldTick") : 0L;
     }
 }
