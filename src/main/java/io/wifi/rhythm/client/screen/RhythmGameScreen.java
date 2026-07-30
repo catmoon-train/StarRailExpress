@@ -24,6 +24,7 @@ public class RhythmGameScreen extends Screen {
     private static final int GOOD_WINDOW = 150;
     private static final int MISS_THRESHOLD = 50;
     private static final int ADVANCE_DISPLAY_TIME = 3900;
+    private long pauseMusicTime = 0; // 暂停瞬间的音乐时间
 
     private static final SoundEvent CLICK_SOUND = SoundEvents.NOTE_BLOCK_SNARE.value();
     private static final SoundEvent HIT_SOUND = SoundEvents.NOTE_BLOCK_IRON_XYLOPHONE.value();
@@ -94,14 +95,21 @@ public class RhythmGameScreen extends Screen {
         super.init();
         if (gameState == GameState.WAITING) {
             this.startButton = Button.builder(Component.translatable("gui.rhythm.start"), btn -> {
-                gameState = GameState.PLAYING;
-                musicStartTime = System.currentTimeMillis() + MUSIC_DELAY_MS;
-                removeWidget(btn);
+                startGame();
             })
                     .pos((this.width - 100) / 2, this.height / 2 + 20)
                     .size(100, 20)
                     .build();
             this.addRenderableWidget(startButton);
+        }
+    }
+
+    private void startGame() {
+        gameState = GameState.PLAYING;
+        musicStartTime = System.currentTimeMillis() + MUSIC_DELAY_MS;
+
+        if (startButton != null) {
+            removeWidget(this.startButton);
         }
     }
 
@@ -116,10 +124,7 @@ public class RhythmGameScreen extends Screen {
         if (gameState != GameState.PLAYING)
             return;
 
-        // 保存上一帧按键状态，用于检测上升沿
-        System.arraycopy(trackPressed, 0, prevTrackPressed, 0, 2);
-
-        // 音乐开始检测
+        // 检查音乐是否该开始了（与之前相同）
         if (songStartTime < 0 && musicStartTime > 0 && System.currentTimeMillis() >= musicStartTime) {
             playMusic();
             songStartTime = System.currentTimeMillis();
@@ -128,7 +133,7 @@ public class RhythmGameScreen extends Screen {
         long currentTime = getCurrentMusicTime();
         boolean musicStarted = (songStartTime >= 0);
 
-        // 1. 新音符加入
+        // 1. 新音符加入（与之前相同）
         while (!pendingNotes.isEmpty()) {
             RhythmNote next = pendingNotes.peek();
             long delayedStart = next.startTime + currentMap.Delayer;
@@ -141,7 +146,7 @@ public class RhythmGameScreen extends Screen {
 
         // 2. 判定（仅在音乐开始后）
         if (musicStarted) {
-            // 计算上升沿 (刚按下的瞬间)
+            // 计算上升沿（此时 prevTrackPressed 保存的是上一帧结束时的状态）
             boolean[] trackJustPressed = new boolean[2];
             for (int i = 0; i < 2; i++) {
                 trackJustPressed[i] = trackPressed[i] && !prevTrackPressed[i];
@@ -197,7 +202,7 @@ public class RhythmGameScreen extends Screen {
                 }
             }
 
-            // 2c. HOLD 长按持续检测
+            // 2c. HOLD 持续检测（与之前相同）
             for (LiveNote ln : activeNotes) {
                 if (ln.type == NoteType.HOLD && ln.state == NoteState.HOLDING) {
                     if (ln.isHolding()) {
@@ -210,7 +215,7 @@ public class RhythmGameScreen extends Screen {
                 }
             }
 
-            // 2d. 移除已处理音符 & miss 检查
+            // 2d. 移除已处理音符 & miss 检查（使用 getNoteX 实时计算）
             Iterator<LiveNote> it = activeNotes.iterator();
             while (it.hasNext()) {
                 LiveNote ln = it.next();
@@ -218,24 +223,23 @@ public class RhythmGameScreen extends Screen {
                     it.remove();
                     continue;
                 }
-                // 检查是否飞过判定线太远（基于实时位置）
                 if (ln.state == NoteState.ACTIVE && getNoteX(ln, currentTime) < JUDGE_LINE_X - MISS_THRESHOLD) {
                     triggerMiss(ln);
                     it.remove();
                 }
             }
 
-            // 2e. 节拍音效
+            // 2e. 节拍音效（与之前相同）
             while (nextBeatIndex < beatTimes.size() && beatTimes.get(nextBeatIndex) <= currentTime) {
                 playClickSound();
                 nextBeatIndex++;
             }
         }
 
-        // 3. 更新特效
+        // 3. 更新特效（与之前相同）
         hitEffects.removeIf(e -> System.currentTimeMillis() - e.startTime > 800);
 
-        // 4. 结束检测
+        // 4. 结束检测（与之前相同）
         if (musicStarted && activeNotes.isEmpty() && pendingNotes.isEmpty()) {
             if (allNotesProcessedTime < 0) {
                 allNotesProcessedTime = System.currentTimeMillis();
@@ -245,6 +249,9 @@ public class RhythmGameScreen extends Screen {
         } else if (!activeNotes.isEmpty() || !pendingNotes.isEmpty()) {
             allNotesProcessedTime = -1;
         }
+
+        // === 关键修正：将当前帧的按键状态保存到 prevTrackPressed，供下一帧使用 ===
+        System.arraycopy(trackPressed, 0, prevTrackPressed, 0, 2);
     }
 
     // 工具方法：基于音乐时间计算音符 x 坐标（实时，不依赖存储）
@@ -259,6 +266,9 @@ public class RhythmGameScreen extends Screen {
     }
 
     private long getCurrentMusicTime() {
+        if (gameState == GameState.PAUSED) {
+            return pauseMusicTime; // 暂停期间时间不再变化
+        }
         if (songStartTime >= 0) {
             return Math.max(0, System.currentTimeMillis() - songStartTime - totalPauseDuration);
         }
@@ -281,18 +291,19 @@ public class RhythmGameScreen extends Screen {
         super.render(graphics, mouseX, mouseY, partialTick);
         drawTracks(graphics);
 
-        // 计算当前渲染时间（毫秒），用于平滑滚动
-        long renderTime = getCurrentMusicTime();
-        // 对于非暂停状态，partialTick 可以用来预测下一帧的音乐时间
+        // 计算渲染时间：暂停或结束时不加 partialTick
+        long renderTime;
         if (gameState == GameState.PLAYING) {
-            renderTime += (long) (partialTick * 50); // 假设每个逻辑 tick 间隔 50ms
+            renderTime = getCurrentMusicTime() + (long) (partialTick * 50);
+        } else {
+            renderTime = getCurrentMusicTime();
         }
 
         for (LiveNote ln : activeNotes) {
             drawNote(graphics, ln, renderTime);
         }
 
-        // 击中特效
+        // 击中特效（与之前相同）
         long now = System.currentTimeMillis();
         for (HitEffect effect : hitEffects) {
             long elapsed = now - effect.startTime;
@@ -448,6 +459,10 @@ public class RhythmGameScreen extends Screen {
                 return true;
             }
         }
+        if (gameState == GameState.WAITING && keyCode == GLFW.GLFW_KEY_SPACE) {
+            startGame();
+            return true;
+        }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
@@ -536,6 +551,7 @@ public class RhythmGameScreen extends Screen {
         if (gameState == GameState.PLAYING) {
             gameState = GameState.PAUSED;
             pauseStart = System.currentTimeMillis();
+            pauseMusicTime = getCurrentMusicTime(); // 冻结音乐时间
             minecraft.getSoundManager().pause();
         } else if (gameState == GameState.PAUSED) {
             long delta = System.currentTimeMillis() - pauseStart;
