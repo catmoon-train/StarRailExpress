@@ -292,8 +292,6 @@ public class RhythmGameScreen extends Screen {
             }
         }
 
-        hitEffects.removeIf(e -> System.currentTimeMillis() - e.startTime > 800);
-
         if (musicPlayed && activeNotes.isEmpty() && pendingNotes.isEmpty()) {
             if (allNotesProcessedTime < 0) {
                 allNotesProcessedTime = System.currentTimeMillis();
@@ -367,18 +365,28 @@ public class RhythmGameScreen extends Screen {
             drawNote(graphics, ln, renderMusicTime);
         }
 
-        // 击中特效
+        // 击中特效（优化后）
         long now = System.currentTimeMillis();
-        for (HitEffect effect : hitEffects) {
+        Iterator<HitEffect> it = hitEffects.iterator();
+        while (it.hasNext()) {
+            HitEffect effect = it.next();
             long elapsed = now - effect.startTime;
-            float life = 1.0f - (elapsed / 800f);
-            if (life <= 0)
+            float life = 1.0f - (elapsed / 600f); // 缩短至600ms，消失更快
+            if (life <= 0) {
+                it.remove();
                 continue;
-            float alpha = life * life;
+            }
+            // 使用缓出函数：1 - (1 - t)^3，让末尾更柔和
+            float progress = 1.0f - life; // 进度 0→1
+            float easeOut = 1.0f - (1.0f - progress) * (1.0f - progress) * (1.0f - progress);
+            float alpha = 1.0f - easeOut; // 透明度从1到0
+            if (alpha < 0.02f)
+                continue; // 几乎透明时跳过，避免闪烁
+
             int color = effect.perfect ? 0xFFFFD700 : 0xFF00FF00;
             int finalColor = ((int) (alpha * 255) << 24) | (color & 0x00FFFFFF);
             graphics.drawCenteredString(font, effect.text,
-                    effect.x, effect.y - (int) ((1 - life) * 20), finalColor);
+                    effect.x, effect.y - (int) (easeOut * 20), finalColor);
         }
 
         drawHUD(graphics);
