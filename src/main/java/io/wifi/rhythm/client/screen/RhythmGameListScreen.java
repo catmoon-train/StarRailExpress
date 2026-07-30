@@ -1,7 +1,7 @@
 package io.wifi.rhythm.client.screen;
 
 import io.wifi.rhythm.client.RhythmMapManager;
-import io.wifi.rhythm.data.MapData;
+import io.wifi.rhythm.data.RhythmMapData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -40,7 +40,7 @@ public class RhythmGameListScreen extends Screen {
         this.addRenderableWidget(this.mapList);
 
         // 添加地图条目
-        for (Map.Entry<ResourceLocation, MapData> entry : RhythmMapManager.MAP_NAMES.entrySet()) {
+        for (Map.Entry<ResourceLocation, RhythmMapData> entry : RhythmMapManager.MAP_NAMES.entrySet()) {
             this.mapList.addMapEntry(new MapEntry(entry.getKey(), entry.getValue(), false));
         }
         // 添加随机条目
@@ -83,10 +83,10 @@ public class RhythmGameListScreen extends Screen {
         @Nullable
         private final ResourceLocation mapId;
         @Nullable
-        private final MapData mapData;
+        private final RhythmMapData mapData;
         private final boolean isRandom;
 
-        public MapEntry(@Nullable ResourceLocation mapId, @Nullable MapData mapData, boolean isRandom) {
+        public MapEntry(@Nullable ResourceLocation mapId, @Nullable RhythmMapData mapData, boolean isRandom) {
             this.mapId = mapId;
             this.mapData = mapData;
             this.isRandom = isRandom;

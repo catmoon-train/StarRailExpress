@@ -1,6 +1,6 @@
 package io.wifi.rhythm.data;
 
-public class Note {
+public class RhythmNote {
     public int startTime;      // 毫秒
     public int endTime;        // 0 = 非长按
     public String noteType;    // Single, Hold, HoldSingle

@@ -1,7 +1,7 @@
 package io.wifi.rhythm.data;
 import java.util.List;
 
-public class ChapterData {
+public class RhythmChapterData {
     public String ChapterName;
-    public List<MapData> Maps;
+    public List<RhythmMapData> Maps;
 }

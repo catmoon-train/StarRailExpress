@@ -38,8 +38,8 @@ public class RhythmGameScreen extends Screen {
     private static final long MUSIC_DELAY_MS = 3000;
     private static final long END_DELAY_MS = 2000;
 
-    private final MapData currentMap;
-    private final Deque<Note> pendingNotes;
+    private final RhythmMapData currentMap;
+    private final Deque<RhythmNote> pendingNotes;
     private final List<LiveNote> activeNotes = new ArrayList<>();
     private final List<Long> beatTimes = new ArrayList<>();
     private int nextBeatIndex = 0;
@@ -66,16 +66,16 @@ public class RhythmGameScreen extends Screen {
     private Screen parent = null;
     private Button startButton;
 
-    public RhythmGameScreen(MapData map) {
+    public RhythmGameScreen(RhythmMapData map) {
         super(Component.empty());
         this.currentMap = map;
-        List<Note> sorted = new ArrayList<>(map.Notes);
+        List<RhythmNote> sorted = new ArrayList<>(map.Notes);
         sorted.sort(Comparator.comparingInt(n -> n.startTime));
         this.pendingNotes = new ArrayDeque<>(sorted);
         buildBeatTimes();
     }
 
-    public RhythmGameScreen(Screen parent, MapData map) {
+    public RhythmGameScreen(Screen parent, RhythmMapData map) {
         this(map);
         this.parent = parent;
     }
@@ -83,7 +83,7 @@ public class RhythmGameScreen extends Screen {
     private void buildBeatTimes() {
         List<Long> times = new ArrayList<>();
         if (currentMap.NoteClick != null) {
-            for (NoteClick nc : currentMap.NoteClick) {
+            for (RhythmNoteClick nc : currentMap.NoteClick) {
                 long base = nc.StartTime;
                 if (nc.SpecificMidiClick != null) {
                     for (int offset : nc.SpecificMidiClick) {
@@ -132,13 +132,12 @@ public class RhythmGameScreen extends Screen {
         long currentTime = getCurrentMusicTime();
         boolean musicStarted = (songStartTime >= 0); // 音乐是否已经播放
 
-        // 1. 将新音符加入活跃列表（即使在音乐开始前也允许，但只显示不判定）
         while (!pendingNotes.isEmpty()) {
-            Note next = pendingNotes.peek();
-            if (next.startTime - ADVANCE_DISPLAY_TIME <= currentTime) {
+            RhythmNote next = pendingNotes.peek();
+            long delayedStart = next.startTime + currentMap.Delayer; // 用于判断是否该出现
+            if (delayedStart - ADVANCE_DISPLAY_TIME <= currentTime) {
                 pendingNotes.poll();
-                LiveNote ln = new LiveNote(next);
-                // 初始化位置，避免首帧跳动
+                LiveNote ln = new LiveNote(next, currentMap.Delayer);
                 ln.updatePosition(currentTime);
                 ln.prevX = ln.currentX;
                 activeNotes.add(ln);
@@ -156,17 +155,17 @@ public class RhythmGameScreen extends Screen {
             // 3a. HoldSingle 自动连打（长按效果）
             for (int track = 0; track < 2; track++) {
                 if (trackPressed[track]) {
-                    // 寻找第一个未处理的 HoldSingle 音符
                     for (LiveNote ln : activeNotes) {
                         if (ln.track == track && ln.type == NoteType.HOLDSINGLE && ln.state == NoteState.ACTIVE) {
-                            if (currentTime >= ln.note.startTime) {
-                                long diff = currentTime - ln.note.startTime;
+                            long effectiveStart = ln.note.startTime + ln.delayer;
+                            if (currentTime >= effectiveStart) {
+                                long diff = currentTime - effectiveStart;
                                 if (diff <= PERFECT_WINDOW) {
                                     hitNote(ln, true);
                                 } else {
                                     hitNote(ln, false);
                                 }
-                                break; // 每次 tick 只命中一个，防止一帧内扫光所有
+                                break;
                             }
                         }
                     }
@@ -297,7 +296,7 @@ public class RhythmGameScreen extends Screen {
                 int color = ln.track == 0 ? 0xFFFFAA00 : 0xFFAA00FF;
                 if (ln.type == NoteType.HOLDSINGLE)
                     color = 0xFFFF5500;
-                int size = 8;
+                int size = ln.type == NoteType.HOLDSINGLE ? 5 : 8;
                 graphics.fill(x - size, y - size, x + size, y + size, color);
                 graphics.renderOutline(x - size, y - size, size * 2, size * 2, 0xFFFFFFFF);
             }
@@ -413,15 +412,14 @@ public class RhythmGameScreen extends Screen {
     private void pressTrack(int track) {
         trackPressed[track] = true;
         if (songStartTime < 0)
-            return; // 音乐未开始，不进行任何判定
-
+            return;
         long now = getCurrentMusicTime();
-        // 只处理 Single 和 Hold 头部，HoldSingle 由 tick 自动处理
         for (LiveNote ln : activeNotes) {
             if (ln.track != track || ln.state != NoteState.ACTIVE)
                 continue;
+            long effectiveStart = ln.note.startTime + ln.delayer;
             if (ln.type == NoteType.SINGLE) {
-                long diff = Math.abs(now - ln.note.startTime);
+                long diff = Math.abs(now - effectiveStart);
                 if (diff <= PERFECT_WINDOW) {
                     hitNote(ln, true);
                     return;
@@ -430,7 +428,7 @@ public class RhythmGameScreen extends Screen {
                     return;
                 }
             } else if (ln.type == NoteType.HOLD) {
-                long diff = Math.abs(now - ln.note.startTime);
+                long diff = Math.abs(now - effectiveStart);
                 if (diff <= GOOD_WINDOW) {
                     startHold(ln);
                     return;
@@ -536,16 +534,18 @@ public class RhythmGameScreen extends Screen {
     }
 
     private class LiveNote {
-        final Note note;
+        final RhythmNote note;
         final NoteType type;
         final int track;
+        final int delayer; // 全局延迟（毫秒）
         NoteState state = NoteState.ACTIVE;
         int prevX, currentX;
         int prevTailX, currentTailX;
         boolean held;
 
-        LiveNote(Note n) {
+        LiveNote(RhythmNote n, int delayer) {
             this.note = n;
+            this.delayer = delayer;
             this.type = switch (n.noteType) {
                 case "Single" -> NoteType.SINGLE;
                 case "Hold" -> NoteType.HOLD;
@@ -557,11 +557,13 @@ public class RhythmGameScreen extends Screen {
 
         void updatePosition(long currentTime) {
             prevX = currentX;
-            currentX = JUDGE_LINE_X + (int) ((note.startTime - currentTime) * NOTE_SPEED);
+            long effectiveStart = note.startTime + delayer;
+            currentX = JUDGE_LINE_X + (int) ((effectiveStart - currentTime) * NOTE_SPEED);
 
             if (type == NoteType.HOLD) {
                 prevTailX = currentTailX;
-                currentTailX = JUDGE_LINE_X + (int) ((note.endTime - currentTime) * NOTE_SPEED);
+                long effectiveEnd = note.endTime + delayer;
+                currentTailX = JUDGE_LINE_X + (int) ((effectiveEnd - currentTime) * NOTE_SPEED);
             } else {
                 prevTailX = currentTailX = 0;
             }
@@ -590,11 +592,11 @@ public class RhythmGameScreen extends Screen {
         }
     }
 
-    public static void open(MapData map) {
+    public static void open(RhythmMapData map) {
         Minecraft.getInstance().setScreen(new RhythmGameScreen(map));
     }
 
-    public static void open(Screen parent, MapData map) {
+    public static void open(Screen parent, RhythmMapData map) {
         Minecraft.getInstance().setScreen(new RhythmGameScreen(parent, map));
     }
 }

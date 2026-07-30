@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * NoteClick
  */
-public class NoteClick {
+public class RhythmNoteClick {
     public long StartTime;
     public float Bpm;
     public int Division;
