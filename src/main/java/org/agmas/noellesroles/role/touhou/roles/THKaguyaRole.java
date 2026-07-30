@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,6 +72,8 @@ public class THKaguyaRole extends TouhouRole {
             DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(victim);
             component.triggerDeath(30 * 20, null, victim.position());
             SREPlayerShopComponent.KEY.get(victim).addToBalance(50);
+            // 更换对象
+            MagicianPlayerComponent.KEY.get(victim).startDisguiseRandomRole();
         }
     }
 }
