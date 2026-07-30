@@ -909,6 +909,10 @@ public class CustomRoleScreen extends Screen {
             server.execute(() -> {
                 try { io.wifi.starrailexpress.customrole.CustomRoleLoader.reload(server); } catch (Exception ignored) {}
             });
+            try {
+                config.saveToDefaultPath();
+                io.wifi.starrailexpress.customrole.CustomRoleLoader.reloadClient();
+            } catch (Exception ignored) {}
         }
         if (minecraft.player != null) minecraft.player.displayClientMessage(Component.translatable("sre.custom_role.saved", data.englishId), false);
         onClose();
