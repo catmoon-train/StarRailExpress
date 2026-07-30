@@ -19,7 +19,6 @@ import org.lwjgl.glfw.GLFW;
 import java.util.*;
 
 public class RhythmGameScreen extends Screen {
-    // 渲染与判定常量
     private static final float NOTE_SPEED = 0.2F;
     private static final int JUDGE_LINE_X = 60;
     private static final int PERFECT_WINDOW = 80;
@@ -51,7 +50,7 @@ public class RhythmGameScreen extends Screen {
     private long musicStartGameTime = -1;
     private boolean musicPlayed = false;
 
-    // 平滑模拟时间相关
+    // 平滑模拟时间相关（用于渲染和判定）
     private long musicStartSystemTime = -1;
     private long musicPausedDuration = 0;
     private long musicPauseStart = 0;
@@ -61,11 +60,9 @@ public class RhythmGameScreen extends Screen {
     private OggPlayer musicPlayer;
     private long allNotesProcessedTime = -1;
 
-    // 按键状态
     private final boolean[] trackPressed = new boolean[2];
     private final boolean[] prevTrackPressed = new boolean[2];
 
-    // 计分
     private int score = 0, combo = 0, maxCombo = 0;
     private int perfectCount = 0, goodCount = 0, missCount = 0;
     private final List<HitEffect> hitEffects = new ArrayList<>();
@@ -73,7 +70,6 @@ public class RhythmGameScreen extends Screen {
     private Screen parent = null;
     private Button startButton;
 
-    // ==================== 构造 ====================
     public RhythmGameScreen(RhythmMapData map) {
         super(Component.empty());
         this.currentMap = map;
@@ -126,7 +122,7 @@ public class RhythmGameScreen extends Screen {
         ResourceLocation musicRes = ResourceLocation.tryParse(currentMap.Src);
         musicRes = transformResourcePackogg(musicRes);
         musicPlayer = new OggPlayer(musicRes);
-        musicPlayer.preloadRaw(); // 快速预加载原始数据
+        musicPlayer.preloadRaw();
 
         smoothedTimeDrift = 0;
         lastCalibrationTime = -1;
@@ -159,36 +155,35 @@ public class RhythmGameScreen extends Screen {
 
         long gameTime = getGameTime();
 
-        // 触发音乐播放
         if (!musicPlayed && gameTime >= musicStartGameTime) {
             musicPlayer.play();
             musicPlayed = true;
             musicStartSystemTime = System.currentTimeMillis();
             musicPausedDuration = 0;
-            lastCalibrationTime = System.currentTimeMillis(); // 初始化校准计时
+            lastCalibrationTime = System.currentTimeMillis();
         }
 
-        // 真实音频位置（用于判定）
-        long audioPosition = musicPlayed ? musicPlayer.getPositionMs() : 0;
-
-        // 计算谱面时间
-        long rawMusicTime; // 用于预滚动/显示
-        long currentMusicTime; // 判定用（真实音频位置）
-
+        // 平滑模拟时间（用于渲染和判定）
+        long smoothTime = 0;
         if (musicPlayed && musicPlayer.isPlaying()) {
-            currentMusicTime = audioPosition;
-            rawMusicTime = getSmoothedMusicTime(); // 平滑模拟时间
-
-            // ---- 定期校准模拟时间 ----
+            smoothTime = getSmoothedMusicTime();
+            // 定期校准
             long now = System.currentTimeMillis();
             if (lastCalibrationTime > 0 && now - lastCalibrationTime >= 2000) {
-                // 计算当前模拟时间（不含漂移修正）与真实音频位置的差值
+                long audioPos = musicPlayer.getPositionMs();
                 long rawSimulated = Math.max(0, now - musicStartSystemTime - musicPausedDuration);
-                long diff = audioPosition - rawSimulated;
-                // 指数平滑更新漂移修正量（缓慢跟踪）
+                long diff = audioPos - rawSimulated;
                 smoothedTimeDrift = (long) (smoothedTimeDrift * 0.95 + diff * 0.05);
                 lastCalibrationTime = now;
             }
+        }
+
+        // 谱面时间：统一使用平滑模拟时间（音乐开始前使用游戏时间模拟）
+        long rawMusicTime;
+        long currentMusicTime; // 用于判定和显示
+        if (musicPlayed && musicPlayer.isPlaying()) {
+            currentMusicTime = smoothTime;
+            rawMusicTime = smoothTime;
         } else {
             rawMusicTime = gameTime - MUSIC_DELAY_MS;
             currentMusicTime = Math.max(0, rawMusicTime);
@@ -205,14 +200,13 @@ public class RhythmGameScreen extends Screen {
                 break;
         }
 
-        // 2. 判定逻辑
+        // 2. 判定逻辑（基于平滑模拟时间）
         if (musicPlayed) {
             boolean[] trackJustPressed = new boolean[2];
             for (int i = 0; i < 2; i++) {
                 trackJustPressed[i] = trackPressed[i] && !prevTrackPressed[i];
             }
 
-            // SINGLE 与 HOLD 头部
             for (int track = 0; track < 2; track++) {
                 if (!trackJustPressed[track])
                     continue;
@@ -239,7 +233,6 @@ public class RhythmGameScreen extends Screen {
                 }
             }
 
-            // HOLDSINGLE 连打
             for (int track = 0; track < 2; track++) {
                 if (!trackPressed[track])
                     continue;
@@ -258,7 +251,6 @@ public class RhythmGameScreen extends Screen {
                 }
             }
 
-            // HOLD 长按
             for (LiveNote ln : activeNotes) {
                 if (ln.type == NoteType.HOLD && ln.state == NoteState.HOLDING) {
                     if (ln.isHolding()) {
@@ -271,7 +263,6 @@ public class RhythmGameScreen extends Screen {
                 }
             }
 
-            // 移除与 miss
             Iterator<LiveNote> it = activeNotes.iterator();
             while (it.hasNext()) {
                 LiveNote ln = it.next();
@@ -285,7 +276,6 @@ public class RhythmGameScreen extends Screen {
                 }
             }
 
-            // 节拍音效
             while (nextBeatIndex < beatTimes.size() && beatTimes.get(nextBeatIndex) <= currentMusicTime) {
                 playClickSound();
                 nextBeatIndex++;
@@ -317,9 +307,6 @@ public class RhythmGameScreen extends Screen {
         }
     }
 
-    /**
-     * 平滑模拟音乐时间：系统时钟扣除暂停，加上漂移修正量。
-     */
     private long getSmoothedMusicTime() {
         if (musicStartSystemTime < 0)
             return 0;
@@ -365,23 +352,22 @@ public class RhythmGameScreen extends Screen {
             drawNote(graphics, ln, renderMusicTime);
         }
 
-        // 击中特效（优化后）
+        // 击中特效（优化淡出，无闪烁）
         long now = System.currentTimeMillis();
         Iterator<HitEffect> it = hitEffects.iterator();
         while (it.hasNext()) {
             HitEffect effect = it.next();
             long elapsed = now - effect.startTime;
-            float life = 1.0f - (elapsed / 600f); // 缩短至600ms，消失更快
+            float life = 1.0f - (elapsed / 600f);
             if (life <= 0) {
                 it.remove();
                 continue;
             }
-            // 使用缓出函数：1 - (1 - t)^3，让末尾更柔和
-            float progress = 1.0f - life; // 进度 0→1
+            float progress = 1.0f - life;
             float easeOut = 1.0f - (1.0f - progress) * (1.0f - progress) * (1.0f - progress);
-            float alpha = 1.0f - easeOut; // 透明度从1到0
+            float alpha = 1.0f - easeOut;
             if (alpha < 0.02f)
-                continue; // 几乎透明时跳过，避免闪烁
+                continue;
 
             int color = effect.perfect ? 0xFFFFD700 : 0xFF00FF00;
             int finalColor = ((int) (alpha * 255) << 24) | (color & 0x00FFFFFF);
@@ -629,8 +615,7 @@ public class RhythmGameScreen extends Screen {
                 musicPausedDuration += System.currentTimeMillis() - musicPauseStart;
                 musicPlayer.resume();
             }
-            // 恢复后立即触发一次校准，消除暂停累积的误差
-            lastCalibrationTime = 0; // 强制下次 tick 立即校准
+            lastCalibrationTime = 0; // 恢复后立即校准
             gameState = GameState.PLAYING;
         }
     }
@@ -683,7 +668,6 @@ public class RhythmGameScreen extends Screen {
         }
     }
 
-    // ==================== 静态入口 ====================
     public static void open(RhythmMapData map) {
         Minecraft.getInstance().setScreen(new RhythmGameScreen(map));
     }
