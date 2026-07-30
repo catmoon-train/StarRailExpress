@@ -10,5 +10,9 @@
     "gui.rhythm.result.title": "演奏结束",
     "gui.rhythm.result.score": "总分：%s",
     "gui.rhythm.result.max_combo": "最大连击：%s",
-    "gui.rhythm.back": "点击任意位置返回"
+    "gui.rhythm.back": "点击任意位置返回",
+    "rhythm.screen.list.title": "选择曲目",
+    "rhythm.screen.list.random": "随机",
+    "rhythm.screen.list.back": "返回",
+    "rhythm.map.wifi_rhythm.rhythm/yaosemountain_1.json": "妖怪之山 PART 1（红石音乐）"
 }

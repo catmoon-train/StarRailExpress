@@ -63,7 +63,7 @@ public class RhythmGameScreen extends Screen {
 
     // 击中特效
     private final List<HitEffect> hitEffects = new ArrayList<>();
-
+    private Screen parent = null;
     private Button startButton;
 
     public RhythmGameScreen(MapData map) {
@@ -73,6 +73,11 @@ public class RhythmGameScreen extends Screen {
         sorted.sort(Comparator.comparingInt(n -> n.startTime));
         this.pendingNotes = new ArrayDeque<>(sorted);
         buildBeatTimes();
+    }
+
+    public RhythmGameScreen(Screen parent, MapData map) {
+        this(map);
+        this.parent = parent;
     }
 
     private void buildBeatTimes() {
@@ -109,8 +114,8 @@ public class RhythmGameScreen extends Screen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().getSoundManager().stop(null, SoundSource.VOICE);
-        super.onClose();
+        minecraft.getSoundManager().stop(null, SoundSource.VOICE);
+        minecraft.setScreen(parent);
     }
 
     @Override
@@ -231,7 +236,7 @@ public class RhythmGameScreen extends Screen {
 
     private void playMusic() {
         ResourceLocation soundLocation = ResourceLocation.tryParse(currentMap.Src);
-        Minecraft.getInstance().getSoundManager().play(
+        minecraft.getSoundManager().play(
                 new SimpleSoundInstance(soundLocation, SoundSource.VOICE, 1.0F, 1.0F,
                         RandomSource.create(), false, 0, SimpleSoundInstance.Attenuation.NONE, 0, 0, 0, true));
     }
@@ -498,11 +503,11 @@ public class RhythmGameScreen extends Screen {
 
     // ===== 音效 =====
     private void playClickSound() {
-        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(CLICK_SOUND, 0.8F, 1.0F));
+        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(CLICK_SOUND, 0.8F, 1.0F));
     }
 
     private void playHitSound() {
-        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(HIT_SOUND, 1.0F, 1.0F));
+        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(HIT_SOUND, 1.0F, 1.0F));
     }
 
     // ===== 暂停 =====
@@ -510,14 +515,14 @@ public class RhythmGameScreen extends Screen {
         if (gameState == GameState.PLAYING) {
             gameState = GameState.PAUSED;
             pauseStart = System.currentTimeMillis();
-            Minecraft.getInstance().getSoundManager().pause();
+            minecraft.getSoundManager().pause();
         } else if (gameState == GameState.PAUSED) {
             long delta = System.currentTimeMillis() - pauseStart;
             totalPauseDuration += delta;
             if (songStartTime < 0 && musicStartTime > 0)
                 musicStartTime += delta;
             gameState = GameState.PLAYING;
-            Minecraft.getInstance().getSoundManager().resume();
+            minecraft.getSoundManager().resume();
         }
     }
 
@@ -587,5 +592,9 @@ public class RhythmGameScreen extends Screen {
 
     public static void open(MapData map) {
         Minecraft.getInstance().setScreen(new RhythmGameScreen(map));
+    }
+
+    public static void open(Screen parent, MapData map) {
+        Minecraft.getInstance().setScreen(new RhythmGameScreen(parent, map));
     }
 }

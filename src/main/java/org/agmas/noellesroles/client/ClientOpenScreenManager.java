@@ -3,9 +3,7 @@ package org.agmas.noellesroles.client;
 import org.agmas.noellesroles.client.utils.OpenScreenManager;
 import org.agmas.noellesroles.packet.OpenScreenPayload;
 
-import io.wifi.rhythm.client.RhythmMapManager;
-import io.wifi.rhythm.client.screen.RhythmGameScreen;
-import io.wifi.rhythm.data.MapData;
+import io.wifi.rhythm.client.screen.RhythmGameListScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.Context;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +17,7 @@ public class ClientOpenScreenManager {
         Screen screen = null;
         ResourceLocation id = payload.id();
         if (id.equals(OpenScreenManager.RHYTHM_GAME_SCREEN)) {
-            screen = new RhythmGameScreen(RhythmMapManager.randomMap().orElse(new MapData()));
+            screen = new RhythmGameListScreen(null);
         }
         if (screen != null) {
             final var finalScreen = screen;
