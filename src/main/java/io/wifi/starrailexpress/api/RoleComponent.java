@@ -49,10 +49,17 @@ public interface RoleComponent extends AutoSyncedComponent {
         }
     }
 
+    /**
+     * 一般情况下请不要使用这个方法。这个方法会让玩家NBT长度暴增，极有可能导致玩家无法进入游戏。更建议使用writeToSyncNbt。
+     */
     @Override
     default void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 
+    
+    /**
+     * 一般情况下无需用到此方法。
+     */
     @Override
     default void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
