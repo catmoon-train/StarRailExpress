@@ -184,11 +184,10 @@ public final class MeetingClientHandler {
 
     private static void tick(Minecraft client) {
         LocalPlayer player = client.player;
-        if (player == null || client.level == null || phase == MeetingManager.PHASE_NONE) {
+        if (player == null || client.level == null) {
             stopOverride();
             return;
         }
-        boolean participant = participants.contains(player.getUUID());
 
         // 分号键 — 会议中：发言（讨论阶段）或跳过（开场/讨论阶段）；会议外：上报尸体
         while (speakKey.consumeClick()) {
@@ -202,6 +201,7 @@ public final class MeetingClientHandler {
                 }
                 break;
             }
+            boolean participant = participants.contains(player.getUUID());
             if (!participant) {
                 break;
             }
@@ -217,6 +217,12 @@ public final class MeetingClientHandler {
             }
         }
 
+        if (phase == MeetingManager.PHASE_NONE) {
+            stopOverride();
+            return;
+        }
+
+        boolean participant = participants.contains(player.getUUID());
         if (!participant) {
             stopOverride();
             return;
