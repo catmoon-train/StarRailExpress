@@ -27,6 +27,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
@@ -39,21 +40,30 @@ import java.util.UUID;
 /**
  * 归途旅人组件 —— 平民阵营，拥有两个可切换技能。
  *
- * <p><b>技能切换</b>：按技能切换键（Y）即可在「旧日渡口」「末班车」之间切换，
- * 技能键（G）释放当前选中的技能。</p>
+ * <p>
+ * <b>技能切换</b>：按技能切换键（Y）即可在「旧日渡口」「末班车」之间切换，
+ * 技能键（G）释放当前选中的技能。
+ * </p>
  *
- * <p><b>旧日渡口</b>：起手播放粒子爆发与音效，2 秒后把 4 格内最近的 2 名玩家拉入里世界
+ * <p>
+ * <b>旧日渡口</b>：起手播放粒子爆发与音效，2 秒后把 4 格内最近的 2 名玩家拉入里世界
  * （与怀旧者里世界一致）持续 10 秒；10 秒后里世界破碎（特效音效与怀旧者相同），
- * 随后归途旅人本人获得 15 秒 {@link ModEffects#PLAYER_ISOLATION} 与 {@link ModEffects#GHOST_STATE}。
- * 冷却 80 秒。</p>
+ * 随后归途旅人本人获得 15 秒 {@link ModEffects#PLAYER_ISOLATION} 与
+ * {@link ModEffects#GHOST_STATE}。
+ * 冷却 80 秒。
+ * </p>
  *
- * <p><b>末班车</b>：一局仅能释放一次。起手 3 秒后，把 12 格内除自己以外的所有玩家拉入里世界
+ * <p>
+ * <b>末班车</b>：一局仅能释放一次。起手 3 秒后，把 12 格内除自己以外的所有玩家拉入里世界
  * 30 秒（怀旧者与布袋鬼不受影响）。在末班车里世界期间再次按下技能键，归途旅人本人转为平民
- * 并重新播放欢迎报幕。</p>
+ * 并重新播放欢迎报幕。
+ * </p>
  *
- * <p>所有药水效果均以 {@code showParticles=false, showIcon=false} 施加，不产生气泡。</p>
+ * <p>
+ * 所有药水效果均以 {@code showParticles=false, showIcon=false} 施加，不产生气泡。
+ * </p>
  */
-public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTickingComponent {
+public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
 
     public static final ComponentKey<ReturnTravelerPlayerComponent> KEY = ModComponents.RETURN_TRAVELER;
 
@@ -220,24 +230,13 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
         return true;
     }
 
-    /** 检查 4 格内是否存在可被旧日渡口拉入里世界的合法目标。 */
-    private boolean hasNearbyBackworldTarget(ServerPlayer serverPlayer) {
-        ServerLevel level = serverPlayer.serverLevel();
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
-        for (ServerPlayer other : level.players()) {
-            if (other == serverPlayer) continue;
-            if (!isValidBackworldTarget(gameWorld, other)) continue;
-            if (other.distanceTo(serverPlayer) > OLD_FERRY_RADIUS) continue;
-            return true;
-        }
-        return false;
-    }
-
     /**
      * 旧日渡口开启特效：一次性批量粒子爆发 + 音效。
      *
-     * <p>性能取向与苦力怕爆炸一致：使用服务端 {@link ServerLevel#sendParticles} 单次批量下发，
-     * 而不是每 tick 逐粒子发包，客户端只收到 3 个粒子包。</p>
+     * <p>
+     * 性能取向与苦力怕爆炸一致：使用服务端 {@link ServerLevel#sendParticles} 单次批量下发，
+     * 而不是每 tick 逐粒子发包，客户端只收到 3 个粒子包。
+     * </p>
      */
     private void spawnFerryOpenEffect(ServerPlayer serverPlayer) {
         ServerLevel level = serverPlayer.serverLevel();
@@ -263,24 +262,28 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
 
         List<ServerPlayer> candidates = new ArrayList<>();
         for (ServerPlayer other : level.players()) {
-            if (other == serverPlayer) continue;
-            if (!isValidBackworldTarget(gameWorld, other)) continue;
-            if (other.distanceTo(serverPlayer) > OLD_FERRY_RADIUS) continue;
+            if (other == serverPlayer)
+                continue;
+            if (!isValidBackworldTarget(gameWorld, other))
+                continue;
+            if (other.distanceTo(serverPlayer) > OLD_FERRY_RADIUS)
+                continue;
             candidates.add(other);
         }
         candidates.sort(Comparator.comparingDouble(serverPlayer::distanceTo));
 
         oldFerryVictims.clear();
         for (ServerPlayer target : candidates) {
-            if (oldFerryVictims.size() >= OLD_FERRY_MAX_TARGETS) break;
+            if (oldFerryVictims.size() >= OLD_FERRY_MAX_TARGETS)
+                break;
             oldFerryVictims.add(target.getUUID());
             BACKWORLD_VICTIMS.add(target.getUUID());
             spawnEnterBackworldEffect(target);
             applyBackworldEffects(target);
-                target.displayClientMessage(
-                        Component.translatable("message.noellesroles.return_traveler.dragged")
-                                .withStyle(ChatFormatting.DARK_GRAY),
-                        true);
+            target.displayClientMessage(
+                    Component.translatable("message.noellesroles.return_traveler.dragged")
+                            .withStyle(ChatFormatting.DARK_GRAY),
+                    true);
         }
 
         // 归途旅人本人也拉入里世界（与受害者身处同一里世界，获得隐身/禁言/禁用物品等效果）
@@ -369,9 +372,12 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
 
         lastTrainVictims.clear();
         for (ServerPlayer other : level.players()) {
-            if (other == serverPlayer) continue;
-            if (!isValidBackworldTarget(gameWorld, other)) continue;
-            if (other.distanceTo(serverPlayer) > LAST_TRAIN_RADIUS) continue;
+            if (other == serverPlayer)
+                continue;
+            if (!isValidBackworldTarget(gameWorld, other))
+                continue;
+            if (other.distanceTo(serverPlayer) > LAST_TRAIN_RADIUS)
+                continue;
 
             lastTrainVictims.add(other.getUUID());
             BACKWORLD_VICTIMS.add(other.getUUID());
@@ -429,17 +435,17 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
         sync();
     }
 
-    /** 末班车期间再次按下技能键：结束里世界并把自己变为平民。 */
-    private void leaveAsCivilian(ServerPlayer serverPlayer) {
-        finishLastTrain(serverPlayer);
-        serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.return_traveler.last_train.leave")
-                        .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
-                true);
-        RoleUtils.changeRole(serverPlayer, TMMRoles.CIVILIAN);
-        // 转职后重新报幕，让玩家知道自己已经是平民
-        RoleUtils.sendWelcomeAnnouncement(serverPlayer, TMMRoles.CIVILIAN);
-    }
+    // /** 末班车期间再次按下技能键：结束里世界并把自己变为平民。 */
+    // private void leaveAsCivilian(ServerPlayer serverPlayer) {
+    //     finishLastTrain(serverPlayer);
+    //     serverPlayer.displayClientMessage(
+    //             Component.translatable("message.noellesroles.return_traveler.last_train.leave")
+    //                     .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+    //             true);
+    //     RoleUtils.changeRole(serverPlayer, TMMRoles.CIVILIAN);
+    //     // 转职后重新报幕，让玩家知道自己已经是平民
+    //     RoleUtils.sendWelcomeAnnouncement(serverPlayer, TMMRoles.CIVILIAN);
+    // }
 
     // ------------------------------------------------------------------
     // tick
@@ -452,8 +458,10 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
         }
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverPlayer.level());
+
         boolean valid = gameWorld.isRunning()
-                && GameUtils.isPlayerAliveAndSurvival(serverPlayer);
+                && GameUtils.isPlayerAliveAndSurvival(serverPlayer)
+                && gameWorld.isRole(player, ModRoles.RETURN_TRAVELER);
 
         if (!valid) {
             // 归途旅人死亡/退场：立即释放所有被困者，避免有人永久卡在里世界
@@ -464,7 +472,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
                 lastTrainActive = false;
                 sync();
             }
-            tickCooldown();
             return;
         }
 
@@ -611,8 +618,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
         return true;
     }
 
-
-
     /** 释放所有被困者（游戏结束 / 归途旅人退场）。 */
     private void releaseAllVictims() {
         if (!(player instanceof ServerPlayer serverPlayer)) {
@@ -679,5 +684,10 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         currentMode = tag.getInt("currentMode");
         lastTrainUsed = tag.getBoolean("lastTrainUsed");
+    }
+
+    @Override
+    public void clientTick() {
+        tickCooldown();
     }
 }
