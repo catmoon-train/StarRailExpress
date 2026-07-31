@@ -135,7 +135,7 @@ public class ManholeBlock extends BaseEntityBlock implements TaskInstinctShowabl
                 new PendingManholeTeleport(target.immutable(), serverLevel.getGameTime() + MANHOLE_CONFIRM_TICKS));
         // 用 actionbar 提示玩家按对应按键（%s 由代码传入具体按键名）
         sp.displayClientMessage(Component.translatable("message.noellesroles.manhole.press_pray",
-                Component.translatable("key.noellesroles.fool_prayer")), true);
+                Component.keybind("key.noellesroles.fool_prayer")), true);
         return InteractionResult.CONSUME;
     }
 
