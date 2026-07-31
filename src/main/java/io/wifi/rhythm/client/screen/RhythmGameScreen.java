@@ -527,11 +527,11 @@ public class RhythmGameScreen extends Screen {
 
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_W) {
+        if (keyCode == GLFW.GLFW_KEY_W || keyCode == GLFW.GLFW_KEY_J || keyCode == GLFW.GLFW_KEY_K) {
             releaseTrack(0);
             return true;
         }
-        if (keyCode == GLFW.GLFW_KEY_S) {
+        if (keyCode == GLFW.GLFW_KEY_S || keyCode == GLFW.GLFW_KEY_F || keyCode == GLFW.GLFW_KEY_D) {
             releaseTrack(1);
             return true;
         }
