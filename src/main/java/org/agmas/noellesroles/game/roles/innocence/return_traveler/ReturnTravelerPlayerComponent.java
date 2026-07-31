@@ -472,19 +472,20 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverPlayer.level());
 
-        boolean valid = gameWorld.isRunning()
-                && GameUtils.isPlayerAliveAndSurvival(serverPlayer)
-                && gameWorld.isRole(player, ModRoles.RETURN_TRAVELER);
-
-        if (!valid) {
-            // 归途旅人死亡/退场：立即释放所有被困者，避免有人永久卡在里世界
+        // 仅当“游戏未运行”时才强制释放被困者。
+        // 里世界效果本身有固定时长（约 30 秒）会自然到期，因此施法者死亡/退场
+        // 或末班车结局换阵营都不需要立刻解除，受害者独立维持到效果结束即可。
+        boolean running = gameWorld.isRunning();
+        if (!running) {
             if (!oldFerryVictims.isEmpty() || !lastTrainVictims.isEmpty()) {
                 releaseAllVictims();
-                oldFerryBackworld = 0;
-                lastTrainBackworld = 0;
-                lastTrainActive = false;
-                sync();
             }
+            oldFerryBackworld = 0;
+            lastTrainBackworld = 0;
+            lastTrainActive = false;
+            oldFerryWindup = 0;
+            lastTrainWindup = 0;
+            sync();
             return;
         }
 
