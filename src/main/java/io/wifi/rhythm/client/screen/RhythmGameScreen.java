@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import org.lwjgl.glfw.GLFW;
 
@@ -126,7 +127,7 @@ public class RhythmGameScreen extends Screen {
 
         ResourceLocation musicRes = ResourceLocation.tryParse(currentMap.Src);
         musicRes = transformResourcePackogg(musicRes);
-        musicPlayer = new OggPlayer(musicRes, this);
+        musicPlayer = new OggPlayer(musicRes, this, minecraft.options.getSoundSourceVolume(SoundSource.MASTER));
         musicPlayer.preloadRaw();
 
         smoothedTimeDrift = 0;

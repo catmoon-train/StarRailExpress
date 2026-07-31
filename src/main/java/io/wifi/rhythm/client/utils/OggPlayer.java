@@ -21,11 +21,12 @@ public class OggPlayer {
 
     private final AtomicBoolean playing = new AtomicBoolean(false);
     private final AtomicBoolean paused = new AtomicBoolean(false);
-    private final AtomicBoolean stopping = new AtomicBoolean(false); // 防止重复停止
+    private final AtomicBoolean stopping = new AtomicBoolean(false);
     private volatile boolean stopped = false;
 
     private volatile AudioFormat audioFormat;
     private volatile SourceDataLine line;
+    private volatile float playSampleRate; // 实际播放采样率（受 speed 影响）
 
     private volatile byte[] rawOggData = null;
     private volatile long frameOffset = 0;
@@ -33,15 +34,49 @@ public class OggPlayer {
     private final Screen screen;
     private Thread playbackThread;
 
+    // 音量因子（0.0 ~ 无穷，建议 0.0~1.0，可大于1但可能削波）
+    private volatile float volume = 1.0f;
+    // 播放速度因子（1.0 为原速，>1 快放升调，<1 慢放降调，仅在开始播放时生效）
+    private volatile float speed = 1.0f;
+
     public OggPlayer(ResourceLocation location) {
         this(location, null);
     }
 
     public OggPlayer(ResourceLocation location, Screen playScreen) {
+        this(location, playScreen, 1f, 1f);
+    }
+
+    public OggPlayer(ResourceLocation location, Screen playScreen, float volume) {
+        this(location, playScreen, volume, 1f);
+    }
+
+    public OggPlayer(ResourceLocation location, Screen playScreen, float volume, float speed) {
         this.oggLocation = location;
         this.minecraft = Minecraft.getInstance();
         this.screen = playScreen;
+        this.volume = Math.max(0f, volume);
+        this.speed = Math.max(0.1f, Math.min(speed, 4.0f));
     }
+    // ---------- 参数设置 ----------
+
+    public void setVolume(float volume) {
+        this.volume = Math.max(0.0f, volume);
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = Math.max(0.1f, Math.min(speed, 4.0f)); // 限制在合理范围
+    }
+
+    public float getVolume() {
+        return volume;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    // ---------- 预加载 ----------
 
     public void preloadRaw() {
         try (InputStream input = minecraft.getResourceManager()
@@ -89,7 +124,7 @@ public class OggPlayer {
 
     public void stop() {
         if (!stopping.compareAndSet(false, true))
-            return; // 只允许一次停止
+            return;
         stopped = true;
         playing.set(false);
         paused.set(false);
@@ -104,11 +139,8 @@ public class OggPlayer {
         ACTIVE_PLAYERS.remove(this);
     }
 
-    // ---------- 外部检查 ----------
+    // ---------- 屏幕检查 ----------
 
-    /**
-     * 由主线程调用，若当前屏幕不是构造时绑定的屏幕则停止播放。
-     */
     public void checkAndStopIfScreenChanged(Screen currentScreen) {
         if (screen != null && currentScreen != screen) {
             stop();
@@ -124,11 +156,9 @@ public class OggPlayer {
     // ---------- 状态查询 ----------
 
     public long getPositionMs() {
-        if (line != null && line.isOpen()) {
+        if (line != null && line.isOpen() && playSampleRate > 0) {
             long frames = line.getLongFramePosition() - frameOffset;
-            if (audioFormat != null) {
-                return frames * 1000 / (long) audioFormat.getSampleRate();
-            }
+            return frames * 1000 / (long) playSampleRate;
         }
         return 0;
     }
@@ -159,8 +189,7 @@ public class OggPlayer {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // 播放结束（自然结束或异常），保证资源释放
-            if (!stopping.get()) { // 如果还没被stop()清理
+            if (!stopping.get()) {
                 if (line != null) {
                     line.drain();
                     line.close();
@@ -172,16 +201,24 @@ public class OggPlayer {
         }
     }
 
-    /**
-     * 统一的解码与播放逻辑，无论数据来源。
-     */
     private void playFromStream(InputStream rawStream) throws Exception {
         try (JOrbisAudioStream oggStream = new JOrbisAudioStream(rawStream)) {
             audioFormat = oggStream.getFormat();
+
+            // 根据 speed 计算实际播放采样率（仅在开始时获取一次）
+            float currentSpeed = Math.max(0.1f, this.speed);
+            float baseSampleRate = audioFormat.getSampleRate();
+            float targetSampleRate = baseSampleRate * currentSpeed;
+            playSampleRate = targetSampleRate;
+
             AudioFormat pcmFmt = new AudioFormat(
                     AudioFormat.Encoding.PCM_SIGNED,
-                    audioFormat.getSampleRate(), 16, audioFormat.getChannels(),
-                    audioFormat.getChannels() * 2, audioFormat.getSampleRate(), false);
+                    targetSampleRate,
+                    16,
+                    audioFormat.getChannels(),
+                    audioFormat.getChannels() * 2,
+                    targetSampleRate,
+                    false);
 
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, pcmFmt);
             line = (SourceDataLine) AudioSystem.getLine(info);
@@ -193,7 +230,6 @@ public class OggPlayer {
             ByteBuffer pcmBuffer = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN);
 
             while (!stopped) {
-                // 暂停循环
                 while (paused.get() && !stopped) {
                     Thread.sleep(10);
                 }
@@ -201,7 +237,10 @@ public class OggPlayer {
                     break;
 
                 boolean hasMore = oggStream.readChunk(sample -> {
-                    short s = (short) (sample * 32767);
+                    // 应用音量（线程安全读取 volatile volume）
+                    float vol = volume;
+                    int scaled = (int) (sample * 32767.0f * vol);
+                    short s = (short) Math.max(-32768, Math.min(32767, scaled));
                     if (pcmBuffer.remaining() < 2) {
                         pcmBuffer.flip();
                         line.write(buffer, 0, pcmBuffer.limit());
@@ -210,7 +249,6 @@ public class OggPlayer {
                     pcmBuffer.putShort(s);
                 });
 
-                // 写入剩余数据
                 if (pcmBuffer.position() > 0) {
                     pcmBuffer.flip();
                     line.write(buffer, 0, pcmBuffer.limit());
