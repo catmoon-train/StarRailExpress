@@ -20,6 +20,15 @@ public final class ReasonerHud {
             int y = context.guiHeight() - 23;
             var font = Minecraft.getInstance().font;
 
+            if (!comp.isCompassGiven()) {
+                int remainTicks = comp.getCompassRemainingTicks();
+                int secs = (int) Math.ceil(remainTicks / 20.0f);
+                context.drawString(font,
+                        Component.translatable("hud.noellesroles.reasoner.compass", secs),
+                        x, y, 0xFF7FD4E0);
+                y -= font.lineHeight + 2;
+            }
+
             context.drawString(font,
                     Component.translatable("hud.noellesroles.reasoner.progress", solved, 5),
                     x, y, 0xFFD4B25C);
