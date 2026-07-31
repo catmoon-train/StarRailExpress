@@ -40,6 +40,7 @@ import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinPlayerC
 import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
@@ -98,20 +99,20 @@ public class ModRolesInitialEventRegister {
             if (initialCoin >= 0) {
                 SREPlayerShopComponent.KEY.get(player).setBalance(initialCoin);
             }
-            // 魔术师角色初始化
             if (RoleUtils.compareRole(role, ModRoles.CONSPIRATOR)) {
                 ModEventsRegister.reJudgeSpectatorsPenalty(player.level());
             }
             if (role.identifier().equals(ModRoles.BARTENDER.identifier())) {
                 FoodDrinkGlowComponent.KEY.get(player).init();
             }
+            // 魔术师角色初始化
             if (role.identifier().equals(ModRoles.CHEF.identifier())) {
                 FoodDrinkGlowComponent.KEY.get(player).init();
             }
             if (RoleUtils.compareRole(role, THLostForestRoles.KAGUYA)
                     || RoleUtils.compareRole(role, ModRoles.MAGICIAN)) {
-                var magicianComponent = ModComponents.MAGICIAN.maybeGet(player).orElse(null);
-                if (magicianComponent != null) {
+                var magicianComponent = MagicianPlayerComponent.KEY.get(player);
+                {
                     // 停止疯狂模式（如果之前存在）
                     var psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
                     if (psychoComponent != null) {
