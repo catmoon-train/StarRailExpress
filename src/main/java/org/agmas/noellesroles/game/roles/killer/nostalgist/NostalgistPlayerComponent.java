@@ -265,6 +265,8 @@ public class NostalgistPlayerComponent implements RoleComponent, ServerTickingCo
         player.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, 60, 0, true, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, 60, 0, true, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.FOOTSTEP_VANISH, 60, 0, true, false, false));
+        // 里世界同界描边：让处于里世界的人能互相看见对方轮廓
+        player.addEffect(new MobEffectInstance(ModEffects.BACKWORLD_OUTLINE, 60, 0, true, false, false));
     }
 
     /** 移除里世界相关的全部药水效果（现身或游戏结束时调用）。 */
@@ -286,6 +288,9 @@ public class NostalgistPlayerComponent implements RoleComponent, ServerTickingCo
         }
         if (player.hasEffect(ModEffects.FOOTSTEP_VANISH)) {
             player.removeEffect(ModEffects.FOOTSTEP_VANISH);
+        }
+        if (player.hasEffect(ModEffects.BACKWORLD_OUTLINE)) {
+            player.removeEffect(ModEffects.BACKWORLD_OUTLINE);
         }
     }
 

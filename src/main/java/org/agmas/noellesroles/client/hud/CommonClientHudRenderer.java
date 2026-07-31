@@ -23,6 +23,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemCooldowns.CooldownInstance;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.client.ReturnTravelerHudRenderer;
 import org.agmas.noellesroles.client.WayfarerHudRenderer;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.client.event.MutableComponentResult;
@@ -754,6 +755,7 @@ public class CommonClientHudRenderer {
     });
 
     CommanderHudRender.register();
+    ReturnTravelerHudRenderer.registerRendererEvent();
     WayfarerHudRenderer.registerRendererEvent();
     RoleHudRenderCallback.EVENT.register(ModRoles.RECORDER.identifier(), (guiGraphics, deltaTracker) -> {
       // 记录员

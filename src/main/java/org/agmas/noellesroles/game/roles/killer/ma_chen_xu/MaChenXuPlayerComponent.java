@@ -664,6 +664,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         sp.setInvulnerable(true);
         sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, 2, false, false, false));
         sp.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false, false));
+        // 布袋鬼本人也处于里世界，能看见里世界内其他人的轮廓
+        sp.addEffect(new MobEffectInstance(ModEffects.BACKWORLD_OUTLINE, duration, 0, false, false, false));
 
         Level world = player.level();
 
@@ -693,6 +695,8 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 continue;
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, 2, false, false, true));
             target.addEffect(new MobEffectInstance(ModEffects.OTHERWORLD_AURA, duration, 0, false, false, false));
+            // 里世界同界描边：里世界内的人可以互相看见轮廓
+            target.addEffect(new MobEffectInstance(ModEffects.BACKWORLD_OUTLINE, duration, 0, false, false, false));
             target.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, duration, 5, false, false, false));
             target.addEffect(new MobEffectInstance(ModEffects.LOW_SAN_SHADER_RESISTANCE, duration, 10, false, false, false));
             target.addEffect(new MobEffectInstance(ModEffects.MOOD_DRAIN_REDUCTION, duration, 1, false, false, false));
@@ -730,6 +734,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
 
         sp.setInvulnerable(false);
         sp.removeEffect(MobEffects.INVISIBILITY);
+        sp.removeEffect(ModEffects.BACKWORLD_OUTLINE);
 
         Level world = player.level();
 
@@ -792,6 +797,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 target.removeEffect(MobEffects.MOVEMENT_SPEED);
                 target.removeEffect(MobEffects.GLOWING);
                 target.removeEffect(ModEffects.OTHERWORLD_AURA);
+                target.removeEffect(ModEffects.BACKWORLD_OUTLINE);
                 if (target instanceof ServerPlayer targetSp) {
                     targetSp.connection.send(new ClientboundSetTitlesAnimationPacket(10, 40, 20));
                     targetSp.connection.send(new ClientboundSetTitleTextPacket(

@@ -23,6 +23,7 @@ import org.agmas.noellesroles.content.effects.NoCollideEffect;
 import org.agmas.noellesroles.content.effects.PuppetWanderEffect;
 import org.agmas.noellesroles.content.effects.SimpleMobEffect;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.game.backworld.BackworldOutlineEffectSync;
 import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistBackworldEffectSync;
 import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithDimensionEffectSync;
 
@@ -182,6 +183,17 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> NOSTALGIST_BACKWORLD = register("nostalgist_backworld",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xBFBFBF));
+
+    /**
+     * 里世界·同界描边
+     * - 中性效果，青白色
+     * - 仅作为「客户端渲染标记」：当本地玩家自身也持有该效果时，才会给同样持有该效果的
+     * 其他玩家绘制发光轮廓（类似原版发光，但只有里世界内的人能互相看见）。
+     * - 由 {@code BackworldOutlineEffectSync} 同步给所有客户端（原版只会把效果同步给持有者本人）。
+     * - 使用方：怀旧者里世界、布袋鬼里世界、归途旅人「旧日渡口 / 末班车」。
+     */
+    public static final Holder<MobEffect> BACKWORLD_OUTLINE = register("backworld_outline",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x7FE7E0));
 
     public static final Holder<MobEffect> WRAITH_DIMENSION = register("wraith_dimension",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x315B7C));
@@ -674,6 +686,7 @@ public class ModEffects {
         // 把怀旧者“里世界标记”效果同步给所有客户端，否则其它客户端查不到怀旧者的里世界状态，
         // 导致手持物品仍显示 / 仍能被杀手透视。
         NostalgistBackworldEffectSync.init();
+        BackworldOutlineEffectSync.init();
         WraithDimensionEffectSync.init();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (pierceDeath) {

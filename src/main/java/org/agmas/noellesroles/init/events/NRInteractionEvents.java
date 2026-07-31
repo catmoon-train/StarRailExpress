@@ -325,6 +325,7 @@ public class NRInteractionEvents {
         CustomWinnerClass.registerCustomWinners();
         XiaoNaoHandler.registerEvent();
         org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent.registerEvents();
+        org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent.registerEvents();
         TrueKillerFinder.registerEvents();
 
         // 难民逃生前状态保存

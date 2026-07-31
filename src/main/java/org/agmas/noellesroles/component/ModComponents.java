@@ -312,6 +312,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "salted_fish"),
       SaltedFishPlayerComponent.class);
 
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent> RETURN_TRAVELER = ComponentRegistry
+      .getOrCreate(
+          ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "return_traveler"),
+          org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent.class);
+
   public static final ComponentKey<org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent> LEATHER_PIG = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "leather_pig"),
       org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent.class);
@@ -544,6 +549,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, SALTED_FISH)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(SaltedFishPlayerComponent::new);
+
+    // 注册归途旅人组件 - 旧日渡口 / 末班车
+    registry.beginRegistration(Player.class, RETURN_TRAVELER)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent::new);
 
     registry.beginRegistration(Player.class, LEATHER_PIG)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)

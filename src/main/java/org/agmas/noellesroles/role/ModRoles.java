@@ -52,6 +52,7 @@ import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponen
 import org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
@@ -218,6 +219,8 @@ public class ModRoles {
     public static final ResourceLocation CAKE_MAKER_ID = Noellesroles.id("cake_maker");
     public static final ResourceLocation ADVENTURER_ID = Noellesroles.id("adventurer");
     public static final ResourceLocation SALTED_FISH_ID = Noellesroles.id("salted_fish");
+    // 归途旅人角色 ID
+    public static final ResourceLocation RETURN_TRAVELER_ID = Noellesroles.id("return_traveler");
     // 皮革噶的角色 ID
     public static final ResourceLocation LEATHER_PIG_ID = Noellesroles.id("leather_pig");
     // 亡灵之主角色 ID
@@ -657,6 +660,21 @@ public class ModRoles {
             .setComponentKey(SaltedFishPlayerComponent.KEY)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000);
+
+    /**
+     * 归途旅人（乘客阵营）。
+     * - 拥有两个可切换技能「旧日渡口」「末班车」，玩法见 {@code ReturnTravelerPlayerComponent}。
+     * - 旧日渡口：把附近最近的 2 名玩家拉入里世界 10 秒，结束后自身隐匿 15 秒。
+     * - 末班车：一局一次，把 12 格内除自己外的玩家拉入里世界 30 秒，期间再次按键转为平民。
+     */
+    public static SRERole RETURN_TRAVELER = TMMRoles.registerRole(
+            new NormalRole(RETURN_TRAVELER_ID, new Color(120, 200, 180).getRGB(), // 青碧色 - 归途旅人
+                    true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setCanSeeCoin(true)
+            .setComponentKey(ReturnTravelerPlayerComponent.KEY)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(4000);
 
     /**
      * 皮革噶的 - 平民阵营

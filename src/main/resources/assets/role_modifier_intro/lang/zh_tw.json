@@ -419,5 +419,7 @@
   "info.screen.roleid.repair_saboteur": "中立獨立勝利職業\n通過修機校準累計 10 點破壞記錄即可獨立獲勝。",
   "info.screen.roleid.repair_saboteur.simple": "",
   "info.screen.roleid.repair_collector": "中立獨立勝利職業\n使用 4 次修機道具或補給即可獨立獲勝。",
-  "info.screen.roleid.repair_collector.simple": ""
+  "info.screen.roleid.repair_collector.simple": "",
+  "info.screen.roleid.return_traveler": "歸途旅人（乘客陣營）\n擁有兩個可切換技能：舊日渡口與末班車。\n【舊日渡口】:前搖 2 秒後，將 4 格內最近的 2 名玩家拉入里世界 10 秒，結束後自身進入半透明化狀態並無法看到/聽到其他人，持續 15 秒。\n【末班車】:一侷限一次，前搖 2 秒後，將 12 格內除自己外的所有玩家拉入里世界 30 秒，隨後自身變為平民。\n里世界的人能看到其它處於里世界的人（包括處於里世界的懷舊者與布袋鬼）。",
+  "info.screen.roleid.return_traveler.simple": "乘客陣營。擁有兩個可切換技能：舊日渡口與末班車。\n【舊日渡口】:將 4 格內最近的 2 名玩家拉入里世界 10 秒，結束後自身進入半透明化狀態並無法看到/聽到其他人，持續 15 秒。\n【末班車】:一侷限一次，將 12 格內除自己外的所有玩家拉入里世界 30 秒，隨後自身變為平民。\n里世界的人能看到其它處於里世界的人。"
 }

@@ -237,6 +237,7 @@
       "noellesroles:diviner",
       "noellesroles:doomed_sinner",
       "noellesroles:ghost_eye",
+      "noellesroles:return_traveler",
       "noellesroles:voice_changer"
     ],
     "loom:injected_interfaces": {

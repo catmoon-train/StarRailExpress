@@ -82,6 +82,7 @@
   "client": [
     "LivingEntityAccessor",
     "client.general.AmonHideTargetMixin",
+    "client.general.BackworldOutlineGlowMixin",
     "client.HandCuffsKeyBindingMixin",
     "client.InstinctMixin",
     "client.LamBugFix",

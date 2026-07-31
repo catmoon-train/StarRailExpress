@@ -41,6 +41,7 @@ import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponen
 import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
@@ -1119,6 +1120,19 @@ public class ModRolesInitialEventRegister {
                         context -> SaltedFishPlayerComponent.KEY.get(context.player()).useSkill(context.player()))
                         .cooldownTicks(SaltedFishPlayerComponent.COOLDOWN_TICKS)
                         .toggleable(true).showOnHud(true).announceToSelf(false).build());
+
+        // 归途旅人技能注册：普通按 G 释放当前技能，按技能切换键(Y) 直接切换技能
+        RoleSkill.register(ModRoles.RETURN_TRAVELER,
+                RoleSkill.skill(ReturnTravelerPlayerComponent.SKILL_ID,
+                        "skill.noellesroles.return_traveler.ability",
+                        context -> ReturnTravelerPlayerComponent.KEY.get(context.player()).useAbility())
+                        .showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("return_traveler_toggle_mode"),
+                        "skill.noellesroles.return_traveler.toggle_mode",
+                        context -> {
+                            ReturnTravelerPlayerComponent.KEY.get(context.player()).toggleMode();
+                            return true;
+                        }).shifted(true).modeSwitch(true).announceToSelf(false).build());
 
         // 皮革噶的技能注册：消耗 150 金币进入疯魔模式（直觉 + 速度 III + 追杀音效）
         RoleSkill.register(ModRoles.LEATHER_PIG,
