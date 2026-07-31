@@ -264,7 +264,8 @@ public class TraitorAndModifiers {
 
     // ==================== 初始化方法 ====================
     public static void init() {
-        // 已统一配置项
+        // 起义军修饰符排除巫毒师职业
+        REBEL.cannotBeAppliedTo = new HashSet<>(List.of(ModRoles.VOODOO));
 
         registerModifierEvents();
         registerDeathEvents();
