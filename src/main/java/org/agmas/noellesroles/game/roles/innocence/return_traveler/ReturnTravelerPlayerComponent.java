@@ -634,8 +634,8 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
     /** 释放所有被困者（游戏结束 / 归途旅人退场）。 */
     private void releaseAllVictims() {
         if (!(player instanceof ServerPlayer serverPlayer)) {
-            oldFerryVictims.forEach(BACKWORLD_VICTIMS::remove);
-            lastTrainVictims.forEach(BACKWORLD_VICTIMS::remove);
+            BACKWORLD_VICTIMS.removeAll(oldFerryVictims);
+            BACKWORLD_VICTIMS.removeAll(lastTrainVictims);
             oldFerryVictims.clear();
             lastTrainVictims.clear();
             return;
