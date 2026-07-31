@@ -731,6 +731,15 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         // 磁铁
         if (stack.is(ModItems.MAGNET))
             return true;
+        // 彩虹马蹄铁
+        if (stack.is(FunnyItems.RAINBOW_HORSESHOE))
+            return true;
+        // 残月萨马蹄铁
+        if (stack.is(FunnyItems.CANYUESA_HORSESHOE))
+            return true;
+        // 超级猪马蹄铁
+        if (stack.is(FunnyItems.SUPER_PIG_HORSESHOE))
+            return true;
 
         // 其他物品不可偷取
         return false;

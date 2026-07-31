@@ -62,13 +62,14 @@ public class ToxinItem extends Item {
                                         .setPoisonTicks(HSRConstants.toxinPoisonTime, player.getUUID());
                                 player.playSound(NRSounds.SYRINGE_STAB, 0.15F, 1.0F);
                                 player.swing(InteractionHand.MAIN_HAND);
+                                // 只要成功命中玩家就扣 1 点耐久（含创造模式），扣的是实际使用的那支毒针。
+                                // 不再消耗整支毒针，耗尽后保留物品，可回商店补满。
+                                if (ToxinDurability.consumeOne(stack)) {
+                                    player.displayClientMessage(Component
+                                            .translatable("message.noellesroles.toxin.depleted")
+                                            .withStyle(ChatFormatting.DARK_RED), true);
+                                }
                                 if (!player.isCreative()) {
-                                    // 不再消耗整支毒针，而是消耗 1 点耐久（耗尽提示，但保留毒针，可回商店补满）。
-                                    if (ToxinDurability.consumeOne(player.getMainHandItem())) {
-                                        player.displayClientMessage(Component
-                                                .translatable("message.noellesroles.toxin.depleted")
-                                                .withStyle(ChatFormatting.DARK_RED), true);
-                                    }
                                     if (player.level() instanceof ServerLevel slevel) {
                                         var gameComponent = SREGameWorldComponent.KEY.get(player.level());
                                         slevel.players().forEach((pl) -> {
