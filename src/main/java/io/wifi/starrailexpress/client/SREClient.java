@@ -36,6 +36,7 @@ import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.ConfigCompact.ClientConfigEvents;
 import io.wifi.rhythm.client.RhythmMapManager;
+import io.wifi.rhythm.client.utils.OggPlayer;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.SREConfig;
@@ -514,6 +515,7 @@ public class SREClient implements ClientModInitializer {
             trainComponent = SRETrainWorldComponent.KEY.get(clientWorld);
             moodComponent = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player);
         });
+
         ClientPlayConnectionEvents.DISCONNECT.register((a, b) -> {
             gameComponent = null;
             modifierComponent = null;
@@ -650,6 +652,9 @@ public class SREClient implements ClientModInitializer {
         });
         intervalTime = new Random().nextInt(0, 200);
         ClientTickEvents.END_CLIENT_TICK.register((client) -> {
+            {
+                OggPlayer.checker(Minecraft.getInstance().screen);
+            }
             if (client.level == null || gameComponent == null)
                 return;
             FrameAnimationRenderer.setInWorld(client != null && client.level != null);

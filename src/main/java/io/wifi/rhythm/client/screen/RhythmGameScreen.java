@@ -41,6 +41,11 @@ public class RhythmGameScreen extends Screen {
         WAITING, PLAYING, PAUSED, FINISHED
     }
 
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
     private GameState gameState = GameState.WAITING;
 
     // 游戏整体时间轴
@@ -121,7 +126,7 @@ public class RhythmGameScreen extends Screen {
 
         ResourceLocation musicRes = ResourceLocation.tryParse(currentMap.Src);
         musicRes = transformResourcePackogg(musicRes);
-        musicPlayer = new OggPlayer(musicRes);
+        musicPlayer = new OggPlayer(musicRes, this);
         musicPlayer.preloadRaw();
 
         smoothedTimeDrift = 0;
@@ -500,11 +505,11 @@ public class RhythmGameScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (gameState == GameState.PLAYING || gameState == GameState.PAUSED) {
-            if (keyCode == GLFW.GLFW_KEY_W) {
+            if (keyCode == GLFW.GLFW_KEY_W || keyCode == GLFW.GLFW_KEY_J || keyCode == GLFW.GLFW_KEY_K) {
                 pressTrack(0);
                 return true;
             }
-            if (keyCode == GLFW.GLFW_KEY_S) {
+            if (keyCode == GLFW.GLFW_KEY_S || keyCode == GLFW.GLFW_KEY_F || keyCode == GLFW.GLFW_KEY_D) {
                 pressTrack(1);
                 return true;
             }
