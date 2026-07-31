@@ -1297,6 +1297,10 @@ public class CustomRoleLoader {
         if (customWinDataMap.isEmpty())
             return WinStatus.NOT_MODIFY;
 
+        // 硬性约束：倒计时归零（TIME）时，任何「拖延/阻止游戏结束」的分支都不得生效。
+        // 下方所有 return WinStatus.NONE 的位置都必须受此标志保护。
+        final boolean canBlockGameEnd = currentWinStatus != WinStatus.TIME;
+
         var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
         int alivePlayerCount = 0;
         for (var p : serverLevel.players()) {
@@ -1331,41 +1335,54 @@ public class CustomRoleLoader {
             // 优先级低于 TIME 与 LOVER：TIME 时不触发；恋人已赢时让位
             if (!data.customWinLastWithRoles.isEmpty() && (currentWinStatus == WinStatus.KILLERS
                     || currentWinStatus == WinStatus.PASSENGERS || currentWinStatus == WinStatus.NO_PLAYER)) {
-                // 检查场上是否只有自己 + 指定职业
-                boolean onlySelfAndSpecifiedRoles = true;
+
+                // 统计除自己以外的存活玩家：分成「指定职业」与「外人（非指定职业）」两类
+                boolean specifiedAlive = false;
+                boolean outsiderAlive = false;
                 List<ServerPlayer> specifiedWinners = new ArrayList<>();
                 for (var p : serverLevel.players()) {
                     if (!GameUtils.isPlayerAliveAndSurvival(p) || p == customPlayer)
                         continue;
                     SRERole pRole = gameComponent.getRole(p);
-                    if (pRole == null) {
-                        onlySelfAndSpecifiedRoles = false;
-                        break;
-                    }
                     boolean matched = false;
-                    for (String allowedId : data.customWinLastWithRoles) {
-                        if (roleIdMatches(pRole, allowedId)) {
-                            matched = true;
-                            break;
+                    if (pRole != null) {
+                        for (String allowedId : data.customWinLastWithRoles) {
+                            if (roleIdMatches(pRole, allowedId)) {
+                                matched = true;
+                                break;
+                            }
                         }
                     }
-                    if (!matched) {
-                        onlySelfAndSpecifiedRoles = false;
-                        break;
+                    if (matched) {
+                        specifiedWinners.add(p);
+                        specifiedAlive = true;
+                    } else {
+                        outsiderAlive = true;
                     }
-                    specifiedWinners.add(p);
                 }
-                if (onlySelfAndSpecifiedRoles) {
+
+                // 只要「自己 + 至少一个指定职业」都还活着，条件6 就介入：
+                // 1) 仍有外人存活 -> 阻止游戏结束，直到外人被杀光
+                // 2) 外人已清空（只剩自己 + 指定职业）-> 直接独立获胜，不再判断指定职业阵营
+                if (specifiedAlive) {
+                    if (outsiderAlive) {
+                        // 倒计时归零时不得阻止结束，让 TIME 正常结算
+                        if (!canBlockGameEnd)
+                            return WinStatus.NOT_MODIFY;
+                        // 恋人已赢时让位给恋人
+                        if (loversWin)
+                            return WinStatus.NOT_MODIFY;
+                        return WinStatus.NONE; // 拖延游戏结束，直至非 A/指定职业的玩家全部死亡
+                    }
+
                     // 恋人胜利优先级高于条件6：让位给后注册的恋人监听器
-                    if (loversWin) return WinStatus.NOT_MODIFY;
+                    if (loversWin)
+                        return WinStatus.NOT_MODIFY;
                     doCustomWin(serverLevel, data, customPlayer, specifiedWinners);
                     return WinStatus.CUSTOM;
                 }
-                // 阻止游戏提前结束（场上还有自己和指定职业）；恋人已赢时让位给恋人
-                if (currentWinStatus != WinStatus.TIME) {
-                    if (loversWin) return WinStatus.NOT_MODIFY;
-                    return WinStatus.NONE;
-                }
+                // 自己虽存活，但指定职业已全灭 -> 条件6 不介入，让原胜利方正常结算
+                // （自己已死的情况在上方 customPlayer == null 处就已 continue 跳过）
             }
 
 
@@ -1376,8 +1393,8 @@ public class CustomRoleLoader {
                 doCustomWin(serverLevel, data, customPlayer, List.of());
                 return WinStatus.CUSTOM;
             }
-            // 阻止游戏结束（纵火犯式）；恋人已赢时让位给恋人
-            if (data.customWinLastAlive && (currentWinStatus == WinStatus.KILLERS
+            // 阻止游戏结束（纵火犯式）；TIME 时不得阻止；恋人已赢时让位给恋人
+            if (data.customWinLastAlive && canBlockGameEnd && (currentWinStatus == WinStatus.KILLERS
                     || currentWinStatus == WinStatus.PASSENGERS)) {
                 if (loversWin) return WinStatus.NOT_MODIFY;
                 return WinStatus.NONE;
@@ -1388,8 +1405,8 @@ public class CustomRoleLoader {
                 doCustomWin(serverLevel, data, customPlayer, List.of());
                 return WinStatus.CUSTOM;
             }
-            if (data.customWinSurviveToLast && !currentWinStatus.equals(WinStatus.NONE)) {
-                // 仅「拖延」阻止；恋人已赢时让位给恋人（条件4 真正胜利时不会被拦截）
+            if (data.customWinSurviveToLast && canBlockGameEnd && !currentWinStatus.equals(WinStatus.NONE)) {
+                // 仅「拖延」阻止；TIME 时不得阻止；恋人已赢时让位给恋人（条件4 真正胜利时不会被拦截）
                 if (loversWin) return WinStatus.NOT_MODIFY;
                 return WinStatus.NONE;
             }
@@ -1436,9 +1453,13 @@ public class CustomRoleLoader {
         // 记录条件6中一同获胜的「指定职业」角色路径，使其在结算时整类算赢（对齐教父/杀手团队）
         // 来源使用配置里填写的指定职业（而非仅存活玩家），确保已死的指定职业成员也随其职业整类算赢
         roundComponent.CustomWinnerExtraRoleIds.clear();
+        // 先加入触发胜利的自定义角色自身，避免 A/B/C 互相绑定时「先命中者反而不在获胜名单」
+        String selfPath = roleIdPath(data.englishId);
+        if (selfPath != null && !selfPath.isEmpty())
+            roundComponent.CustomWinnerExtraRoleIds.add(selfPath);
         for (String allowedId : data.customWinLastWithRoles) {
             String path = roleIdPath(allowedId);
-            if (path != null && !path.isEmpty())
+            if (path != null && !path.isEmpty() && !roundComponent.CustomWinnerExtraRoleIds.contains(path))
                 roundComponent.CustomWinnerExtraRoleIds.add(path);
         }
 
