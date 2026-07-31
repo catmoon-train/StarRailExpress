@@ -3,6 +3,7 @@ package org.agmas.noellesroles.client.commands;
 import io.wifi.ConfigCompact.ui.SettingMenuScreen;
 import io.wifi.ConfigCompact.ui.TestScreen;
 import io.wifi.rhythm.client.RhythmMapManager;
+import io.wifi.rhythm.client.screen.RhythmGameListScreen;
 import io.wifi.rhythm.client.screen.RhythmGameScreen;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.NewspaperScreen;
@@ -51,6 +52,12 @@ public class SREClientCommand {
                           })))
               .then(ClientCommandManager.literal("debug")
                   .then(ClientCommandManager.literal("rhythm_game")
+                      .executes((ctx) -> {
+                        ClientScheduler.schedule(() -> {
+                          ctx.getSource().getClient().setScreen(new RhythmGameListScreen(null));
+                        }, 1);
+                        return 1;
+                      })
                       .then(ClientCommandManager.literal("random")
                           .executes((ctx) -> {
                             var mapDatas = new ArrayList<>(RhythmMapManager.MAP_NAMES.keySet());
