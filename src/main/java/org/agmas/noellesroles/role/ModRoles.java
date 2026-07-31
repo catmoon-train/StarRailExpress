@@ -668,7 +668,7 @@ public class ModRoles {
      * - 末班车：一局一次，把 12 格内除自己外的玩家拉入里世界 30 秒，期间再次按键转为平民。
      */
     public static SRERole RETURN_TRAVELER = TMMRoles.registerRole(
-            new NormalRole(RETURN_TRAVELER_ID, new Color(120, 200, 180).getRGB(), // 青碧色 - 归途旅人
+            new EggRole(RETURN_TRAVELER_ID, new Color(120, 200, 180).getRGB(), // 青碧色 - 归途旅人
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true)
