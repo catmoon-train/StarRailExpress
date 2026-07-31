@@ -16,16 +16,6 @@ import net.minecraft.world.entity.player.Player;
 public class TouhouInstincts {
 
     public static void registerEvents() {
-
-        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THMiscRoles.REIUJI_UTSUHO_ID,
-                (client, self, target, hasInstinct) -> {
-                    if (target instanceof Player targetPlayer) {
-                        if (SREGameWorldComponent.isKillerTeamStatic(targetPlayer)) {
-                            return TrueFalseAndCustomResult.allow();
-                        }
-                    }
-                    return TrueFalseAndCustomResult.disallow();
-                });
         // 雾雨魔理沙看博丽灵梦飞行
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THMagicForestRoles.KIRISAME_MARISA_ID,
                 (client, self, target, hasInstinct) ->
