@@ -191,7 +191,7 @@ public class BounsRoles {
                     Integer.MAX_VALUE, true) {
                 @Override
                 public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
-                    ResourceLocation texture = SRE.id("block/plush/lengxiaocn.png");
+                    ResourceLocation texture = SRE.id("textures/block/plush/lengxiaocn.png");
                     return texture;
                 }
             }, "creator_team")
