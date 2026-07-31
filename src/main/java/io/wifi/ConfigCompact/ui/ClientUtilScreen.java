@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import org.agmas.noellesroles.mixin.SkinManagerAccessor;
 
+import io.wifi.rhythm.client.screen.RhythmGameListScreen;
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -131,6 +132,14 @@ public class ClientUtilScreen extends Screen {
                         // 立即执行清理，确保旧数据被丢弃
                         cache.cleanUp();
                         SRE.LOGGER.info("Skin caches cleared by user.");
+                    });
+            rowHelper.addChild(btn);
+        }
+
+        {
+            Button btn = simpleButton(Component.translatable("screen.starrailexpress.client_utils.rhythm_game"),
+                    (b) -> {
+                        this.minecraft.setScreen(new RhythmGameListScreen(this));
                     });
             rowHelper.addChild(btn);
         }

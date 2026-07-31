@@ -14,11 +14,16 @@ public interface ModdedRoleAssigned {
         // 使用映射表添加初始物品（包括映射表和职业里的getDefaultItems）
         RoleInitialItems.addInitialItemsForRole(player, role);
 
-        for (ModdedRoleAssigned listener : listeners) {
-            listener.assignModdedRole(player, role);
-        }
+        // 先调用 onInit
+
         if (player instanceof ServerPlayer serverPlayer) {
             RoleMethodDispatcher.onInit(role, serverPlayer.getServer(), serverPlayer);
+        }
+
+        // 再调用 EVENT
+        
+        for (ModdedRoleAssigned listener : listeners) {
+            listener.assignModdedRole(player, role);
         }
     });
 

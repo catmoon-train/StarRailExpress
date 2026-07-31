@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.roles.innocence.magician;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -134,6 +135,8 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
             player.displayClientMessage(Component.translatable("message.magician.you_are_playing_as")
                     .append(Component.translatable("announcement.star.role." + disguiseRole.getPath()))
                     .withStyle(ChatFormatting.GOLD), true);
+
+            SRE.LOGGER.info("Player {} is disguising role {}", player.getScoreboardName(), disguiseRole);
         }
         sync();
     }
@@ -155,6 +158,8 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (tag.contains("DisguiseRoleId")) {
             this.disguiseRoleId = ResourceLocation.tryParse(tag.getString("DisguiseRoleId"));
+        } else {
+            this.disguiseRoleId = null;
         }
     }
 

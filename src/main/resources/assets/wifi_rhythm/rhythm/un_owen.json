@@ -1,0 +1,1846 @@
+{
+  "MusicDisplayName": "un_owen",
+  "Level": 1,
+  "Notes": [
+    {
+      "startTime": 0,
+      "endTime": 387,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 796,
+      "endTime": 1183,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 1570,
+      "endTime": 1957,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 2344,
+      "endTime": 2731,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 3118,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 3312,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 3505,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 3699,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 3892,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 4086,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 4279,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 4473,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 4666,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 4860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 5054,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 5247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 5441,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 5634,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 5828,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 6021,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 6215,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 6215,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 6408,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 6602,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 6602,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 6796,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 6989,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 6989,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 7183,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 7376,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 7376,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 7570,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 7763,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 7763,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 7957,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 8150,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 8150,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 8344,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 8537,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 8537,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 8731,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 8925,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 8925,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 9118,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 9312,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 9312,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 9505,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 9699,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 9699,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 9892,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 10086,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 10086,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 10279,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 10473,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 10473,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 10666,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 10860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 10860,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 11054,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 11247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 11247,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 11441,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 11634,
+      "endTime": 12118,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 11634,
+      "endTime": 12118,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 12408,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 12795,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 13183,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 13570,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 13957,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 14344,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 14537,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 14731,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 15118,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 15505,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 15699,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 15892,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 16086,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 16279,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 16473,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 16570,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 16666,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 16860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 17054,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 17247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 17441,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 17634,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 17828,
+      "endTime": 18215,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 18602,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 18602,
+      "endTime": 18989,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 18989,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 19376,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 19376,
+      "endTime": 19763,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 19763,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 20150,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 20150,
+      "endTime": 20537,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 20537,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 20731,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 20925,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 20925,
+      "endTime": 21312,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 21312,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 21699,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 21892,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 22086,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 22279,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 22473,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 22473,
+      "endTime": 24408,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 22666,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 22763,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 22860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 23054,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 23247,
+      "endTime": 24408,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 24795,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 24795,
+      "endTime": 25183,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 25183,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 25570,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 25570,
+      "endTime": 25957,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 25957,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 26344,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 26344,
+      "endTime": 26731,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 26731,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 26925,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 27118,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 27118,
+      "endTime": 27505,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 27505,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 27892,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 28086,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 28279,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 28473,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 28666,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 28860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 28957,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 29054,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 29247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 29441,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 29634,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 29828,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 30021,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 30215,
+      "endTime": 30602,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 30989,
+      "endTime": 31376,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 30989,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 31376,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 31763,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 31763,
+      "endTime": 32150,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 32150,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 32537,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 32537,
+      "endTime": 32925,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 32925,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 33118,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 33312,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 33312,
+      "endTime": 33699,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 33699,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 34086,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 34279,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 34473,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 34666,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 34860,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 34860,
+      "endTime": 36408,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 35054,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 35150,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 35247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 35441,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 35634,
+      "endTime": 36408,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 37183,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 37279,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 37376,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 37570,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 37666,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 37763,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 37957,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 38054,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 38150,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 38344,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 38441,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 38537,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 38731,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 38828,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 38925,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 39118,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 39215,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 39312,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 39505,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 39602,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 39699,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 39892,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 39989,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 40086,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 40279,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 40376,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 40473,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 40666,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 40763,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 40860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 41054,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 41150,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 41247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 41441,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 41537,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 41634,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 41828,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 41925,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 42021,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 42215,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 42312,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 42408,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 42602,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 42699,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 42795,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 42989,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 43086,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 43183,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 43376,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 43473,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 43570,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 43763,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 43860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 43957,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 44150,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 44247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 44344,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 44537,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 44634,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 44731,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 44925,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 45021,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 45118,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 45312,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 45408,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 45505,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 45699,
+      "endTime": 46086,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 46279,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 46376,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 46473,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 46473,
+      "endTime": 46666,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 46570,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 46666,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 46860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 46860,
+      "endTime": 47054,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 46957,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 47054,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 47247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 47247,
+      "endTime": 47441,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 47344,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 47441,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 47634,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 47634,
+      "endTime": 47828,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 47731,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 47828,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 48021,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 48021,
+      "endTime": 48215,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 48118,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 48215,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 48408,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 48408,
+      "endTime": 49183,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 48505,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 48602,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 48795,
+      "endTime": 49183,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 49570,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 49570,
+      "endTime": 49763,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 49666,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 49763,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 49957,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 49957,
+      "endTime": 50150,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 50054,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 50150,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 50344,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 50344,
+      "endTime": 50537,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 50441,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 50537,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 50731,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 50731,
+      "endTime": 50925,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 50828,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 50925,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 51118,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 51118,
+      "endTime": 51312,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 51215,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 51312,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 51505,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 51505,
+      "endTime": 52279,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 51602,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 51699,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 51892,
+      "endTime": 52279,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 52473,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 52570,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 52666,
+      "endTime": 53828,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 52666,
+      "endTime": 53828,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 52763,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 52763,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 52860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 52860,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 53054,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 53054,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 53150,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 53150,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 53247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 53247,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 53441,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 53441,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 53537,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 53537,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 53634,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 53634,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    }
+  ],
+  "NoteClick": [
+    {
+      "StartTime": 0,
+      "Bpm": 155.0,
+      "Division": 4,
+      "SpecificMidiClick": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Type": "Normal"
+    },
+    {
+      "StartTime": 796,
+      "Bpm": 155.0,
+      "Division": 4,
+      "SpecificMidiClick": null,
+      "Type": "Normal"
+    }
+  ],
+  "CoverPicOffset": {
+    "x": 0.0,
+    "y": 4.0
+  },
+  "CoverPicBorderColor": {
+    "r": 0.04705883,
+    "g": 0.04705883,
+    "b": 0.04705883,
+    "a": 1.0
+  },
+  "Original": "Unknown Original",
+  "Mapper": "Unknown Mapper",
+  "Src": "noellesroles:noellesroles.rhythm.un_owen"
+}

@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import org.lwjgl.glfw.GLFW;
 
@@ -39,6 +40,11 @@ public class RhythmGameScreen extends Screen {
 
     private enum GameState {
         WAITING, PLAYING, PAUSED, FINISHED
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
     private GameState gameState = GameState.WAITING;
@@ -121,7 +127,7 @@ public class RhythmGameScreen extends Screen {
 
         ResourceLocation musicRes = ResourceLocation.tryParse(currentMap.Src);
         musicRes = transformResourcePackogg(musicRes);
-        musicPlayer = new OggPlayer(musicRes);
+        musicPlayer = new OggPlayer(musicRes, this, minecraft.options.getSoundSourceVolume(SoundSource.MASTER));
         musicPlayer.preloadRaw();
 
         smoothedTimeDrift = 0;
@@ -500,11 +506,11 @@ public class RhythmGameScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (gameState == GameState.PLAYING || gameState == GameState.PAUSED) {
-            if (keyCode == GLFW.GLFW_KEY_W) {
+            if (keyCode == GLFW.GLFW_KEY_W || keyCode == GLFW.GLFW_KEY_J || keyCode == GLFW.GLFW_KEY_K) {
                 pressTrack(0);
                 return true;
             }
-            if (keyCode == GLFW.GLFW_KEY_S) {
+            if (keyCode == GLFW.GLFW_KEY_S || keyCode == GLFW.GLFW_KEY_F || keyCode == GLFW.GLFW_KEY_D) {
                 pressTrack(1);
                 return true;
             }
@@ -522,11 +528,11 @@ public class RhythmGameScreen extends Screen {
 
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_W) {
+        if (keyCode == GLFW.GLFW_KEY_W || keyCode == GLFW.GLFW_KEY_J || keyCode == GLFW.GLFW_KEY_K) {
             releaseTrack(0);
             return true;
         }
-        if (keyCode == GLFW.GLFW_KEY_S) {
+        if (keyCode == GLFW.GLFW_KEY_S || keyCode == GLFW.GLFW_KEY_F || keyCode == GLFW.GLFW_KEY_D) {
             releaseTrack(1);
             return true;
         }

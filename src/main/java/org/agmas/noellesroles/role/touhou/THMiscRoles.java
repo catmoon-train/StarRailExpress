@@ -20,7 +20,7 @@ public class THMiscRoles {
   public static SRERole IBUKI_SUIKA = TMMRoles
       .registerRole(new THSuikaRole(IBUKI_SUIKA_ID, new Color(149, 76, 24).getRGB(),
           false, true, SRERole.MoodType.FAKE,
-          TMMRoles.CIVILIAN_MAX_SPRINT_TICKS * 20, true))
+          TMMRoles.CIVILIAN_MAX_SPRINT_TICKS * 100, true))
       .setDefaultMax(1)
       .setDefaultEnableNeededPlayerCount(18)
       .setDefaultEnableChance(5000);

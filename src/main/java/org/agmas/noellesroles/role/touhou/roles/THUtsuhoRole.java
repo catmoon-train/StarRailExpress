@@ -33,7 +33,7 @@ public class THUtsuhoRole extends TouhouRole {
 
     public static final int SKILL_RANGE = 4;
     public static final int MAX_PLAYER_COUNT = 6;
-    public static final int DRINK_THRESHOLD = 30 * 20;
+    public static final int DRINK_THRESHOLD = 20 * 20;
 
     public THUtsuhoRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
@@ -119,9 +119,9 @@ public class THUtsuhoRole extends TouhouRole {
             }
         }
         final long timenow = level.getGameTime();
-        player.addEffect(ModEffects.of(MobEffects.GLOWING, 30 * 20, 1, true, true, true));
+        player.addEffect(ModEffects.of(MobEffects.GLOWING, DRINK_THRESHOLD, 1, true, true, true));
         for (var p : victims) {
-            p.addEffect(ModEffects.of(MobEffects.GLOWING, 30 * 20, 1, true, true, true));
+            p.addEffect(ModEffects.of(MobEffects.GLOWING, DRINK_THRESHOLD, 1, true, true, true));
             NEED_DRINK_TIME.put(p.getUUID(), new UtsuhoNeedDrinkInfo(timenow + DRINK_THRESHOLD, player));
             p.playNotifySound(NRSounds.C4_BEEP, SoundSource.MASTER, 1f, 1f);
             SRENetworkMessageUtils.sendBroadcast(p,

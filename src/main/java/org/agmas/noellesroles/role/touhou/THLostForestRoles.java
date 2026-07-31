@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.role.touhou;
 
-import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
 import org.agmas.noellesroles.role.touhou.roles.*;
 
 import io.wifi.starrailexpress.api.InstinctType;
@@ -26,7 +25,6 @@ public class THLostForestRoles {
       .setCanSetSpawnInfoInConfig(false)
       .setDefaultMax(0)
       .setDefaultEnableChance(0)
-      .setComponentKey(MagicianPlayerComponent.KEY)
       .addRelatedModifier(SEModifiers.LOVERS)
       .setNeutrals(true)
       .setNeutralForKiller(true)

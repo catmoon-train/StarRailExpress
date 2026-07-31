@@ -5,8 +5,8 @@
     "gui.rhythm.score": "分数：%s",
     "gui.rhythm.combo": "连击：%s",
     "gui.rhythm.accuracy": "准确率：%s",
-    "gui.rhythm.hint.up": "上：[W] 或 鼠标左键",
-    "gui.rhythm.hint.down": "下：[S] 或 鼠标右键",
+    "gui.rhythm.hint.up": "上：[W]/[J]/[K] 或 鼠标左键",
+    "gui.rhythm.hint.down": "下：[S]/[F]/[D] 或 鼠标右键",
     "gui.rhythm.result.title": "演奏结束",
     "gui.rhythm.result.score": "总分：%s",
     "gui.rhythm.result.max_combo": "最大连击：%s",
@@ -14,5 +14,7 @@
     "rhythm.screen.list.title": "选择曲目",
     "rhythm.screen.list.random": "随机",
     "rhythm.screen.list.back": "返回",
-    "rhythm.map.wifi_rhythm.rhythm/yaosemountain_1.json": "妖怪之山 PART 1（红石音乐）"
+    "rhythm.map.wifi_rhythm.rhythm/yaosemountain_1.json": "妖怪之山 PART 1（红石音乐，节选）",
+    "rhythm.map.wifi_rhythm.rhythm/broken_moon.json": "碎月/东方萃梦想（红石音乐，节选）",
+    "rhythm.map.wifi_rhythm.rhythm/un_owen.json": "U.N.Owen就是她吗？（红石音乐，节选）"
 }
