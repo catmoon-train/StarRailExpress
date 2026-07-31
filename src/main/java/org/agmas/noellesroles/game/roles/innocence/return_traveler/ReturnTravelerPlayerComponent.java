@@ -689,14 +689,10 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
 
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("currentMode", currentMode);
-        tag.putBoolean("lastTrainUsed", lastTrainUsed);
     }
 
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        currentMode = tag.getInt("currentMode");
-        lastTrainUsed = tag.getBoolean("lastTrainUsed");
     }
 
     @Override
