@@ -435,16 +435,29 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
         sync();
     }
 
+    // 未使用到的方法：
+    // /** 检查 4 格内是否存在可被旧日渡口拉入里世界的合法目标。 */
+    // private boolean hasNearbyBackworldTarget(ServerPlayer serverPlayer) {
+    // ServerLevel level = serverPlayer.serverLevel();
+    // SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
+    // for (ServerPlayer other : level.players()) {
+    // if (other == serverPlayer) continue;
+    // if (!isValidBackworldTarget(gameWorld, other)) continue;
+    // if (other.distanceTo(serverPlayer) > OLD_FERRY_RADIUS) continue;
+    // return true;
+    // }
+    // return false;
+    // }
     // /** 末班车期间再次按下技能键：结束里世界并把自己变为平民。 */
     // private void leaveAsCivilian(ServerPlayer serverPlayer) {
-    //     finishLastTrain(serverPlayer);
-    //     serverPlayer.displayClientMessage(
-    //             Component.translatable("message.noellesroles.return_traveler.last_train.leave")
-    //                     .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
-    //             true);
-    //     RoleUtils.changeRole(serverPlayer, TMMRoles.CIVILIAN);
-    //     // 转职后重新报幕，让玩家知道自己已经是平民
-    //     RoleUtils.sendWelcomeAnnouncement(serverPlayer, TMMRoles.CIVILIAN);
+    // finishLastTrain(serverPlayer);
+    // serverPlayer.displayClientMessage(
+    // Component.translatable("message.noellesroles.return_traveler.last_train.leave")
+    // .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+    // true);
+    // RoleUtils.changeRole(serverPlayer, TMMRoles.CIVILIAN);
+    // // 转职后重新报幕，让玩家知道自己已经是平民
+    // RoleUtils.sendWelcomeAnnouncement(serverPlayer, TMMRoles.CIVILIAN);
     // }
 
     // ------------------------------------------------------------------
