@@ -1307,6 +1307,13 @@ public class GameUtils {
 
     public static void resetPlayer(ServerPlayer player) {
         SREItemUtils.clearItem(player, (item) -> true, -1);
+        {
+            player.getAbilities().mayfly = false;
+            player.getAbilities().flying = false;
+            player.getAbilities().setFlyingSpeed(0.05F);
+            player.fallDistance = 0;
+            player.onUpdateAbilities();
+        }
         SREPlayerMoodComponent.KEY.get(player).clear();
         SREPlayerShopComponent.KEY.get(player).clear();
         io.wifi.starrailexpress.cca.DynamicShopComponent.KEY.get(player).clear();
