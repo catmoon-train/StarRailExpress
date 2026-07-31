@@ -488,7 +488,10 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
             sync();
             return;
         }
-
+        if (!gameWorld.isRole(player, ModRoles.RETURN_TRAVELER)) {
+            // 不是 RETURN_TRAVELER 职业则不执行职业CCA逻辑
+            return;
+        }
         // 前摇
         if (oldFerryWindup > 0) {
             oldFerryWindup--;
