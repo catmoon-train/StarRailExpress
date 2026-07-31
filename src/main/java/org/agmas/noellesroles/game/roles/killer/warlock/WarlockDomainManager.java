@@ -154,9 +154,10 @@ public final class WarlockDomainManager {
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, DURATION_TICKS, 0,
                     false, false, false));
         } else {
-            // 进入领域时目标获得黑暗 + 失明双重效果
+            // 进入领域时目标获得黑暗 + 失明双重效果，并禁用技能
             player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, DURATION_TICKS, 0, false, false, true));
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, DURATION_TICKS, 0, false, false, true));
+            player.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, DURATION_TICKS, 0, false, false, true));
             sendDomainTitle(player);
         }
     }
