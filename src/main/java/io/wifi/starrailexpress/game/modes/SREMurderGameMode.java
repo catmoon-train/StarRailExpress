@@ -664,6 +664,7 @@ public class SREMurderGameMode extends GameMode {
 
         boolean civilianAlive = false;
         boolean killerAlive = false;
+        boolean anyAlive = false;
         for (ServerPlayer player : serverWorld.players()) {
             // passive money
             if (gameWorldComponent.canAutoAddMoney(player)) {
@@ -684,10 +685,13 @@ public class SREMurderGameMode extends GameMode {
             if (gameWorldComponent.canIncreaseSurvivingKillers(player) && !GameUtils.isPlayerEliminated(player)) {
                 killerAlive = true;
             }
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                anyAlive = true;
+            }
         }
 
         // check killer win condition (killed all civilians)
-        if (!civilianAlive && !killerAlive) {
+        if (!anyAlive) {
             winStatus = GameUtils.WinStatus.NO_PLAYER;
         } else if (!civilianAlive) {
             winStatus = GameUtils.WinStatus.KILLERS;
