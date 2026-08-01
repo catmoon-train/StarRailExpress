@@ -59,7 +59,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     @Override
     public void tick() {
         if (!world.isClientSide) {
-            if (isFrozen() || world.getServer().tickRateManager().isFrozen()) {
+            if (isFrozen()) {
                 return;
             }
         }
