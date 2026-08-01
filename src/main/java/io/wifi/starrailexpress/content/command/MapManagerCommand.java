@@ -299,7 +299,7 @@ public class MapManagerCommand {
       BlockPos min, BlockPos max,
       CommandSourceStack source, String fieldName) {
     AABB box = new AABB(min.getX(), min.getY(), min.getZ(),
-        max.getX() + 1.0, max.getY() + 1.0, max.getZ() + 1.0);
+        max.getX(), max.getY(), max.getZ());
     updateAABB(areas, setter, box, source, fieldName);
   }
 
