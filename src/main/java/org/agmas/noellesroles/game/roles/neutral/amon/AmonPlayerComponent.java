@@ -381,8 +381,11 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
         // 被夺舍宿主获得音效与提示。
         host.playNotifySound(SoundEvents.SCULK_SHRIEKER_SHRIEK, SoundSource.PLAYERS, 0.9f, 0.7f);
+        
         host.displayClientMessage(Component.translatable("message.noellesroles.amon.possessed_victim")
                 .withStyle(ChatFormatting.DARK_PURPLE), false);
+        host.displayClientMessage(Component.translatable("message.noellesroles.amon.possessed_victim")
+                .withStyle(ChatFormatting.DARK_PURPLE), true);
         sync();
         return true;
     }
