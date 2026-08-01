@@ -15,11 +15,11 @@ public class AreasModule implements TabModule {
       "readyArea", "playArea", "sceneArea", "resetTemplateArea", "resetPasteArea"
   };
 
-  // 全局共用的坐标（static 保存，无需文件）
+  // 静态存储（全局共用，关闭屏幕不丢失）
   private static BlockPos pos1 = null;
   private static BlockPos pos2 = null;
 
-  // 输入框引用，用于 Set 按钮点击后刷新显示
+  // 输入框引用
   private EditBox pos1Field;
   private EditBox pos2Field;
 
@@ -34,7 +34,7 @@ public class AreasModule implements TabModule {
     int inputHeight = 20;
     int btnHeight = 22;
     int smallGap = 2;
-    int sectionGap = 16; // 全局绑定区与下方区域列表的间距
+    int sectionGap = 16;
 
     int bw = layout.columnWidth(2, gap);
     int leftX = layout.leftColumnX();
@@ -44,13 +44,12 @@ public class AreasModule implements TabModule {
     int y = 0;
 
     // ==================== 全局绑定区 ====================
-    // 左列：POS1 输入框 + Set POS1
     pos1Field = new EditBox(
         Minecraft.getInstance().font,
         leftX, y, bw, inputHeight,
         Component.empty());
     pos1Field.setMaxLength(50);
-    pos1Field.setValue(formatPos(pos1));
+    pos1Field.setValue(formatPos(pos1)); // 显示已保存的坐标
     placements.add(new WidgetPlacement(pos1Field, y));
 
     int set1Y = y + inputHeight + smallGap;
@@ -65,7 +64,6 @@ public class AreasModule implements TabModule {
         .build();
     placements.add(new WidgetPlacement(setPos1Btn, set1Y));
 
-    // 右列：POS2 输入框 + Set POS2
     pos2Field = new EditBox(
         Minecraft.getInstance().font,
         rightX, y, bw, inputHeight,
@@ -86,7 +84,6 @@ public class AreasModule implements TabModule {
         .build();
     placements.add(new WidgetPlacement(setPos2Btn, set2Y));
 
-    // 绑定区结束 Y（用于计算区域列表起点）
     int bindEndY = set1Y + btnHeight + smallGap + sectionGap;
 
     // ==================== 区域 Apply 按钮 ====================
@@ -96,15 +93,7 @@ public class AreasModule implements TabModule {
 
       ModernButton applyBtn = ModernButton.builder(
           Component.translatable("sre.map_helper.area.apply", areaName),
-          b -> {
-            if (pos1 != null && pos2 != null) {
-              ctx.sendAndClose(String.format(
-                  "sre:area_manager set %s min %d %d %d max %d %d %d",
-                  cmd,
-                  pos1.getX(), pos1.getY(), pos1.getZ(),
-                  pos2.getX(), pos2.getY(), pos2.getZ()));
-            }
-          })
+          b -> applyArea(cmd, ctx)) // 提取为独立方法
           .bounds(leftX, y, fullWidth, btnHeight)
           .accentBar(AccentSide.LEFT)
           .build();
@@ -112,13 +101,47 @@ public class AreasModule implements TabModule {
 
       y += btnHeight + smallGap;
     }
+    ctx.registerCloseHook(this::saveData);
+  }
+
+  private void saveData() {
+    BlockPos p1 = parseBlockPos(pos1Field.getValue());
+    BlockPos p2 = parseBlockPos(pos2Field.getValue());
+
+    if (p1 != null)
+      pos1 = p1; // 回退到静态存储
+    if (p2 != null)
+      pos2 = p2;
+  }
+
+  /**
+   * 解析输入框并发送区域设置命令
+   */
+  private void applyArea(String cmd, ModuleContext ctx) {
+    // 优先尝试从输入框解析坐标，失败则使用静态存储
+    BlockPos p1 = parseBlockPos(pos1Field.getValue());
+    BlockPos p2 = parseBlockPos(pos2Field.getValue());
+
+    if (p1 == null)
+      p1 = pos1; // 回退到静态存储
+    if (p2 == null)
+      p2 = pos2;
+
+    if (p1 != null && p2 != null) {
+      // 若输入框有效，将解析结果同步回静态存储
+      pos1 = p1;
+      pos2 = p2;
+      ctx.sendAndClose(String.format(
+          "sre:area_manager set %s min %d %d %d max %d %d %d",
+          cmd,
+          p1.getX(), p1.getY(), p1.getZ(),
+          p2.getX(), p2.getY(), p2.getZ()));
+    }
   }
 
   @Override
   public int getContentHeight() {
-    // 全局绑定区高度：输入框(20) + 小间距(2) + 按钮(22) + 小间距(2) + 区域间距(16) = 62
-    // 每个 Apply 按钮高度：按钮(22) + 小间距(2) = 24
-    return 62 + AREA_KEYS.length * 24;
+    return 62 + AREA_KEYS.length * 24; // 与之前相同
   }
 
   // ========== 工具方法 ==========
@@ -132,5 +155,24 @@ public class AreasModule implements TabModule {
 
   private String formatPos(BlockPos pos) {
     return pos == null ? "" : pos.getX() + " " + pos.getY() + " " + pos.getZ();
+  }
+
+  /**
+   * 将 "x y z" 字符串解析为 BlockPos，非法格式返回 null
+   */
+  private BlockPos parseBlockPos(String input) {
+    if (input == null || input.isBlank())
+      return null;
+    String[] parts = input.trim().split("\\s+");
+    if (parts.length != 3)
+      return null;
+    try {
+      int x = Integer.parseInt(parts[0]);
+      int y = Integer.parseInt(parts[1]);
+      int z = Integer.parseInt(parts[2]);
+      return new BlockPos(x, y, z);
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 }
