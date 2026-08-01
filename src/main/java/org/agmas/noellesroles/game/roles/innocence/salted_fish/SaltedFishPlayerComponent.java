@@ -58,13 +58,13 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
     public static final int FLIP_TICKS = 20;
 
     private final Player player;
-    public int activeTicks;
-    public int cooldownTicks;
-    public int flipTicks;
-    public int side;
-    public int previousSide;
-    public float sunYaw;
-    private UUID fakeBodyUuid;
+    public int activeTicks = 0;
+    public int cooldownTicks = 0;
+    public int flipTicks = 0;
+    public int side = 0;
+    public int previousSide = 0;
+    public float sunYaw = 0;
+    private UUID fakeBodyUuid = null;
 
     public SaltedFishPlayerComponent(Player player) {
         this.player = player;
@@ -192,7 +192,7 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
 
         // 每秒做一次纠偏同步即可；翻身的离散状态改变已在 startFlip/finishActive 里各同步一次，
         // 客户端 clientTick 会自行递减 flipTicks 播放动画。切勿每 tick 同步（会造成广播风暴）。
-        if (elapsed % 20 == 0) {
+        if (elapsed % 200 == 0) {
             sync();
         }
     }
