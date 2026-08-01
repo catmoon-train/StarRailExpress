@@ -124,6 +124,8 @@ public class NRRulePredicateEvents {
 
         // 多种条件不可被推动
         CollisionRules.cantPushableBy.add(entity -> {
+            if (entity.isInvisible())
+                return true;
             if (entity instanceof Player player) {
                 if (player.hasEffect(MobEffects.INVISIBILITY)
                         || player.hasEffect(ModEffects.SAFE_TIME)
@@ -140,7 +142,7 @@ public class NRRulePredicateEvents {
                         return true;
                     }
                     if (gameComp.isRole(player, ModRoles.SALTED_FISH)) {
-                        if (SaltedFishPlayerComponent.KEY.get(player).isActive()){
+                        if (SaltedFishPlayerComponent.KEY.get(player).isActive()) {
                             return true;
                         }
 
@@ -157,7 +159,8 @@ public class NRRulePredicateEvents {
         });
 
         // 傀儡身体不可被推动
-        CollisionRules.cantPushableBy.add(entity -> (entity instanceof io.wifi.starrailexpress.content.entity.NoteEntity));
+        CollisionRules.cantPushableBy
+                .add(entity -> (entity instanceof io.wifi.starrailexpress.content.entity.NoteEntity));
     }
 
     // --- DropRules ---
