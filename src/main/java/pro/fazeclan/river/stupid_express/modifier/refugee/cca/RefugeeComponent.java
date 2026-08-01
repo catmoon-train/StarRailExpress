@@ -117,7 +117,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         boolean timeFrozen = SREGameTimeComponent.KEY.get(level).timeFrozen;
         for (RefugeeData data : new ArrayList<>(pendingRevivals)) {
             if (timeFrozen) {
-                data.revivalTime++;
+                data.revivalTime += 1;
                 continue;
             }
             if (!data.isRevive && currentTime >= data.revivalTime) {

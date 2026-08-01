@@ -85,15 +85,13 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     }
 
     public boolean isTimeFrozen() {
-        return this.timeFrozen || levelGameTimeFrozen || world.getServer().tickRateManager().isFrozen();
+        return this.timeFrozen || levelGameTimeFrozen || world.tickRateManager().isFrozen();
     }
 
     @Override
     public void tick() {
-        if (!world.isClientSide) {
-            if (isTimeFrozen()) {
-                return;
-            }
+        if (isTimeFrozen()) {
+            return;
         }
         if (!SREGameWorldComponent.KEY.get(this.world).isRunning())
             return;
