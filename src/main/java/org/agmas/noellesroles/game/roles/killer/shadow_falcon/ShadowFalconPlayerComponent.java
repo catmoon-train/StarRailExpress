@@ -266,6 +266,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
     /**
      * 检查玩家是否在空中（脚下没有方块）
      */
+    @SuppressWarnings("deprecation")
     public boolean isInAir() {
         // 检查脚下是否有方块
         double feetY = player.getY();
@@ -459,7 +460,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
                 continue;
             if (p == deadPlayer)
                 continue;
-            if (!(p instanceof ServerPlayer sp))
+            if (!(p instanceof ServerPlayer))
                 continue;
 
             // 检查是否是杀手阵营
