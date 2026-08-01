@@ -124,29 +124,29 @@ public class NRRulePredicateEvents {
 
         // 多种条件不可被推动
         CollisionRules.cantPushableBy.add(entity -> {
-            if (entity instanceof Player serverPlayer) {
-                if (serverPlayer.hasEffect(MobEffects.INVISIBILITY)
-                        || serverPlayer.hasEffect(ModEffects.SAFE_TIME)
-                        || serverPlayer.hasEffect(ModEffects.NO_COLLIDE)) {
+            if (entity instanceof Player player) {
+                if (player.hasEffect(MobEffects.INVISIBILITY)
+                        || player.hasEffect(ModEffects.SAFE_TIME)
+                        || player.hasEffect(ModEffects.NO_COLLIDE)) {
                     return true;
                 }
-                var modifiers = WorldModifierComponent.KEY.get(serverPlayer.level());
-                if (modifiers.isModifier(serverPlayer.getUUID(), SEModifiers.FEATHER)) {
+                var modifiers = WorldModifierComponent.KEY.get(player.level());
+                if (modifiers.isModifier(player.getUUID(), SEModifiers.FEATHER)) {
                     return true;
                 }
-                var gameComp = SREGameWorldComponent.KEY.get(serverPlayer.level());
+                var gameComp = SREGameWorldComponent.KEY.get(player.level());
                 if (gameComp != null) {
-                    if (gameComp.isRole(serverPlayer, ModRoles.NOSTALGIST)) {
+                    if (gameComp.isRole(player, ModRoles.NOSTALGIST)) {
                         return true;
                     }
-                    if (gameComp.isRole(serverPlayer, ModRoles.SALTED_FISH)) {
-                        if (SaltedFishPlayerComponent.KEY.get(serverPlayer).isActive()){
+                    if (gameComp.isRole(player, ModRoles.SALTED_FISH)) {
+                        if (SaltedFishPlayerComponent.KEY.get(player).isActive()){
                             return true;
                         }
 
                     }
-                    if (gameComp.isRole(serverPlayer, ModRoles.INSANE_KILLER)) {
-                        InsaneKillerPlayerComponent insaneKiller = InsaneKillerPlayerComponent.KEY.get(serverPlayer);
+                    if (gameComp.isRole(player, ModRoles.INSANE_KILLER)) {
+                        InsaneKillerPlayerComponent insaneKiller = InsaneKillerPlayerComponent.KEY.get(player);
                         if (insaneKiller.isActive) {
                             return true;
                         }
