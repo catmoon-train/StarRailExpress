@@ -54,38 +54,38 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
     public static final ComponentKey<ShadowFalconPlayerComponent> KEY = ModComponents.SHADOW_FALCON;
 
     // ==================== 常量定义 ====================
-    
+
     /** 开局冷却时间（60秒 = 1200 tick） */
     public static final int INITIAL_COOLDOWN = 1200;
-    
+
     /** 技能持续时间（20秒 = 400 tick） */
     public static final int SKILL_DURATION = 400;
-    
+
     /** 技能冷却时间（240秒 = 4800 tick） */
     public static final int SKILL_COOLDOWN = 4800;
-    
+
     /** 浮空检测高度阈值（脚下方块检测距离） */
     private static final double AIR_CHECK_DISTANCE = 0.1;
 
     // ==================== 状态变量 ====================
-    
+
     private final Player player;
-    
+
     /** 技能冷却时间（tick） */
     public int cooldown = INITIAL_COOLDOWN;
-    
+
     /** 技能持续时间（tick），用于HUD显示 */
     public int skillTicks = 0;
-    
+
     /** 是否正在使用掠食技能 */
     public boolean isPredationActive = false;
-    
+
     /** 临时护盾层数（0或1） */
     public int temporaryShield = 0;
-    
+
     /** 护盾是否被打掉（用于技能结束时判断） */
     public boolean shieldBroken = false;
-    
+
     /** 上一tick是否在空中（用于检测从空中着陆） */
     private boolean wasInAir = false;
 
@@ -153,9 +153,8 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
                     0,
                     false,
                     false,
-                    false
-            ));
-            
+                    false));
+
             // 开启创造模式飞行能力
             serverPlayer.getAbilities().mayfly = true;
             serverPlayer.getAbilities().flying = true;
@@ -202,7 +201,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
             // 尝试将喷气背包放入背包
             ItemStack jetpack = chestplate.copy();
             player.getInventory().armor.set(2, ItemStack.EMPTY);
-            
+
             if (!player.getInventory().add(jetpack)) {
                 // 背包满了，恢复装备并提示
                 player.getInventory().armor.set(2, jetpack);
@@ -213,9 +212,10 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
                 }
                 return false;
             }
-            
+
             removedSomething = true;
-            messageBuilder.append(Component.translatable("message.noellesroles.shadow_falcon.jetpack_removed").getString());
+            messageBuilder
+                    .append(Component.translatable("message.noellesroles.shadow_falcon.jetpack_removed").getString());
         }
 
         // 检查身上是否有鞘翅（胸甲位置）
@@ -224,7 +224,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
             // 尝试将鞘翅放入背包
             ItemStack elytra = currentChest.copy();
             player.getInventory().armor.set(2, ItemStack.EMPTY);
-            
+
             if (!player.getInventory().add(elytra)) {
                 // 背包满了，恢复装备并提示
                 player.getInventory().armor.set(2, elytra);
@@ -235,11 +235,12 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
                 }
                 return false;
             }
-            
+
             if (removedSomething) {
                 messageBuilder.append(", ");
             }
-            messageBuilder.append(Component.translatable("message.noellesroles.shadow_falcon.elytra_removed").getString());
+            messageBuilder
+                    .append(Component.translatable("message.noellesroles.shadow_falcon.elytra_removed").getString());
             removedSomething = true;
         }
 
@@ -269,16 +270,16 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
         // 检查脚下是否有方块
         double feetY = player.getY();
         double checkY = feetY - AIR_CHECK_DISTANCE;
-        
+
         // 获取玩家所在的区块
         int x = (int) Math.floor(player.getX());
         int z = (int) Math.floor(player.getZ());
-        
+
         // 检查脚下是否有固体方块
         var level = player.level();
         var blockPos = new net.minecraft.core.BlockPos(x, (int) Math.floor(checkY), z);
         var blockState = level.getBlockState(blockPos);
-        
+
         // 如果脚下没有方块或者是空气，则认为在空中
         return !blockState.isSolid() || blockState.isAir();
     }
@@ -303,6 +304,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
 
     /**
      * 护盾被打破
+     * 
      * @param landed 是否因为着陆而失去护盾
      */
     public void onShieldBroken(boolean landed) {
@@ -322,7 +324,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
             this.sync();
         }
     }
-    
+
     /**
      * 护盾被打破（兼容旧调用）
      */
@@ -356,10 +358,17 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
     @Override
     public void serverTick() {
         // 减少冷却时间
+
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+
+        if (!gameWorld.isRunning() || !gameWorld.isRole(player, ModRoles.SHADOW_FALCON)) {
+            // 不是 RETURN_TRAVELER 职业则不执行职业CCA逻辑
+            return;
+        }
         if (this.cooldown > 0) {
             this.cooldown--;
             // 每秒同步一次
-            if (this.cooldown % 20 == 0 || this.cooldown == 0) {
+            if (this.cooldown % 200 == 0 || this.cooldown == 0) {
                 this.sync();
             }
         }
@@ -369,17 +378,17 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
             this.skillTicks--;
 
             boolean currentlyInAir = isInAir();
-            
+
             // 检查是否从空中着陆 - 如果之前在空中，现在不在，且有护盾
             if (wasInAir && !currentlyInAir && temporaryShield > 0) {
                 onShieldBroken(true);
             }
-            
+
             // 检查是否在空中
             if (currentlyInAir && temporaryShield == 0 && !shieldBroken) {
                 giveTemporaryShield();
             }
-            
+
             // 更新浮空状态
             wasInAir = currentlyInAir;
 
@@ -398,16 +407,16 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
      */
     private void endPredation() {
         this.isPredationActive = false;
-        
+
         // 清除虚弱效果和创造模式飞行
         if (player instanceof ServerPlayer serverPlayer) {
             player.removeEffect(MobEffects.WEAKNESS);
-            
+
             // 关闭创造模式飞行能力
             serverPlayer.getAbilities().mayfly = false;
             serverPlayer.getAbilities().flying = false;
             serverPlayer.onUpdateAbilities();
-            
+
             // 如果护盾还在，移除护盾
             if (temporaryShield > 0 && !shieldBroken) {
                 temporaryShield = 0;
@@ -423,7 +432,7 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
                         true);
             }
         }
-        
+
         this.shieldBroken = false;
         this.sync();
     }
@@ -432,21 +441,27 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
      * 处理影隼死亡 - 为存活杀手提供喷气背包
      */
     public static void onDeathGiveJetpacks(Player deadPlayer) {
-        if (!(deadPlayer instanceof ServerPlayer)) return;
-        
+        if (!(deadPlayer instanceof ServerPlayer))
+            return;
+
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(deadPlayer.level());
-        if (gameWorld == null) return;
-        
+        if (gameWorld == null)
+            return;
+
         // 检查是否是影隼
-        if (!gameWorld.isRole(deadPlayer, ModRoles.SHADOW_FALCON)) return;
-        
+        if (!gameWorld.isRole(deadPlayer, ModRoles.SHADOW_FALCON))
+            return;
+
         // 获取所有存活的杀手阵营玩家
         List<ServerPlayer> killerPlayers = new ArrayList<>();
         for (Player p : deadPlayer.level().players()) {
-            if (!GameUtils.isPlayerAliveAndSurvival(p)) continue;
-            if (p == deadPlayer) continue;
-            if (!(p instanceof ServerPlayer sp)) continue;
-            
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
+                continue;
+            if (p == deadPlayer)
+                continue;
+            if (!(p instanceof ServerPlayer sp))
+                continue;
+
             // 检查是否是杀手阵营
             SREGameWorldComponent pGameWorld = SREGameWorldComponent.KEY.get(p.level());
             if (pGameWorld != null) {
@@ -456,16 +471,16 @@ public class ShadowFalconPlayerComponent implements RoleComponent, ServerTicking
                 }
             }
         }
-        
+
         // 为每个存活杀手提供喷气背包
         for (ServerPlayer killer : killerPlayers) {
             // 给予喷气背包
             var jetpackStack = ModItems.JETPACK.getDefaultInstance();
             killer.addItem(jetpackStack);
-            
+
             killer.displayClientMessage(
                     Component.translatable("message.noellesroles.shadow_falcon.jetpack_gifted", deadPlayer.getName())
-                        .withStyle(net.minecraft.ChatFormatting.GOLD),
+                            .withStyle(net.minecraft.ChatFormatting.GOLD),
                     true);
         }
     }
