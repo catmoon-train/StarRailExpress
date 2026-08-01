@@ -407,7 +407,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
                 Component.translatable("message.noellesroles.return_traveler.last_train.open",
                         lastTrainVictims.size()).withStyle(ChatFormatting.GOLD),
                 true);
-        // 末班车启动后，施法者立即下车，变回普通乘客（里世界由组件继续维持 30 秒）
         RoleUtils.changeRole(serverPlayer, TMMRoles.CIVILIAN);
         RoleUtils.sendWelcomeAnnouncement(serverPlayer, TMMRoles.CIVILIAN);
         serverPlayer.displayClientMessage(
@@ -488,6 +487,21 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
             sync();
             return;
         }
+        if (lastTrainWindup > 0) {
+            lastTrainWindup--;
+            spawnWindupParticles(serverPlayer);
+            if (lastTrainWindup == 0) {
+                startLastTrainBackworld(serverPlayer);
+            }
+        }
+        if (lastTrainBackworld > 0) {
+            maintainBackworld(serverPlayer, lastTrainVictims);
+            lastTrainBackworld--;
+            if (lastTrainBackworld == 0) {
+                finishLastTrain(serverPlayer);
+            }
+        }
+
         if (!gameWorld.isRole(player, ModRoles.RETURN_TRAVELER)) {
             // 不是 RETURN_TRAVELER 职业则不执行职业CCA逻辑
             return;
@@ -500,13 +514,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
                 startOldFerryBackworld(serverPlayer);
             }
         }
-        if (lastTrainWindup > 0) {
-            lastTrainWindup--;
-            spawnWindupParticles(serverPlayer);
-            if (lastTrainWindup == 0) {
-                startLastTrainBackworld(serverPlayer);
-            }
-        }
 
         // 里世界维持
         if (oldFerryBackworld > 0) {
@@ -514,13 +521,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
             oldFerryBackworld--;
             if (oldFerryBackworld == 0) {
                 finishOldFerry(serverPlayer);
-            }
-        }
-        if (lastTrainBackworld > 0) {
-            maintainBackworld(serverPlayer, lastTrainVictims);
-            lastTrainBackworld--;
-            if (lastTrainBackworld == 0) {
-                finishLastTrain(serverPlayer);
             }
         }
 
