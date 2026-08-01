@@ -718,6 +718,10 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
 
+        if (!gameWorld.isRole(player, ModRoles.RETURN_TRAVELER)) {
+            // 不是 RETURN_TRAVELER 职业则不执行职业CCA逻辑
+            return;
+        }
         // 仅当“游戏未运行”时才强制释放被困者。
         // 里世界效果本身有固定时长（约 30 秒）会自然到期，因此施法者死亡/退场
         // 或末班车结局换阵营都不需要立刻解除，受害者独立维持到效果结束即可。
