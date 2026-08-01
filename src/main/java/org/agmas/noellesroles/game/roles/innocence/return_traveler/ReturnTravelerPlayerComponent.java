@@ -499,7 +499,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
             lastTrainActive = false;
             oldFerryWindup = 0;
             lastTrainWindup = 0;
-            sync();
             return;
         }
         if (lastTrainWindup > 0) {
@@ -716,6 +715,25 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
 
     @Override
     public void clientTick() {
+
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+
+        // 仅当“游戏未运行”时才强制释放被困者。
+        // 里世界效果本身有固定时长（约 30 秒）会自然到期，因此施法者死亡/退场
+        // 或末班车结局换阵营都不需要立刻解除，受害者独立维持到效果结束即可。
+        boolean running = gameWorld.isRunning();
+        if (!running) {
+            if (!oldFerryVictims.isEmpty() || !lastTrainVictims.isEmpty()) {
+                oldFerryVictims.clear();
+                lastTrainVictims.clear();
+            }
+            oldFerryBackworld = 0;
+            lastTrainBackworld = 0;
+            lastTrainActive = false;
+            oldFerryWindup = 0;
+            lastTrainWindup = 0;
+            return;
+        }
         tickCooldown();
     }
 }
