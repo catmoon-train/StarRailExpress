@@ -71,7 +71,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     }
 
     public void setServerFrozen(boolean frozen) {
-        world.getServer().tickRateManager().setFrozen(frozen);
+        world.tickRateManager().setFrozen(frozen);
     }
 
     public void setTimeFrozen(boolean frozen) {

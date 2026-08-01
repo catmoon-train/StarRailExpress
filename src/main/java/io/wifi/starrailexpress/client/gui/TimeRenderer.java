@@ -22,8 +22,10 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
 import org.jetbrains.annotations.NotNull;
@@ -42,9 +44,12 @@ public class TimeRenderer {
             return;
         SRERole role = gameWorldComponent.getRole(player);
         cachedCanSeeTime = gameWorldComponent.isRunning() &&
-                (role != null && role.canSeeTime() || GameUtils.isPlayerSpectatingOrCreative(player) || SREClient.cachedCanSeeTime);
+                (role != null && role.canSeeTime() || GameUtils.isPlayerSpectatingOrCreative(player)
+                        || SREClient.cachedCanSeeTime);
         if (cachedCanSeeTime) {
-            int time = SREGameTimeComponent.KEY.get(player.level()).getTime();
+            final var timeCCA = SREGameTimeComponent.KEY.get(player.level());
+            int time = timeCCA.getTime();
+            boolean isFrozen = timeCCA.isTimeFrozen();
             if (Math.abs(view.getTarget() - time) > 10)
                 offsetDelta = time > view.getTarget() ? .6f : -.6f;
             if (time < GameConstants.getInTicks(1, 0)) {
@@ -53,6 +58,7 @@ public class TimeRenderer {
                 offsetDelta = Mth.lerp(delta / 16, offsetDelta, 0f);
             }
             view.setTarget(time);
+            view.setFrozen(isFrozen);
             float r = 1f;
             float g = 1f;
             float b = 1f;
@@ -74,6 +80,7 @@ public class TimeRenderer {
         private final Tuple<ScrollingDigit, ScrollingDigit> seconds = new Tuple<>(new ScrollingDigit(120, true),
                 new ScrollingDigit(12, false));
         private float target;
+        private boolean isFrozen = false;
 
         public void setTarget(float target) {
             this.target = target;
@@ -83,6 +90,10 @@ public class TimeRenderer {
             this.seconds.getB().setTarget(seconds);
             this.minutes.getA().setTarget(mins / 10);
             this.minutes.getB().setTarget(mins);
+        }
+
+        public void setFrozen(boolean flag) {
+            this.isFrozen = flag;
         }
 
         public void update() {
@@ -95,16 +106,27 @@ public class TimeRenderer {
         public void render(Font renderer, @NotNull FakeGuiGraphics context, int x, int y, int colour, float delta) {
             context.pose().pushPose();
             context.pose().translate(x, y, 0);
+            if (isFrozen) {
+                final int gap = 12;
+                // 0 + (32 + gap + textWidth) / 2
+                Component text = Component.translatable("hud.time.frozen").withStyle(ChatFormatting.AQUA);
+                int textWidth = renderer.width(text);
+                int textOffsetX = (32 + gap - textWidth) / 2;
+                // int textHalfWidth = (32 + gap + textWidth) / 2;
+                context.pose().translate(textOffsetX, 0, 0);
+                context.drawString(renderer, text, 0, 0, colour);
+                context.pose().translate(-textOffsetX - (gap + textWidth) / 2, 0, 0);
+            }
             context.pose().translate(16, 0, 0);
-            this.seconds.getB().render(renderer, context, colour, delta);
+            this.seconds.getB().render(renderer, context, colour, delta, isFrozen);
             context.pose().translate(-8, 0, 0);
-            this.seconds.getA().render(renderer, context, colour, delta);
+            this.seconds.getA().render(renderer, context, colour, delta, isFrozen);
             context.pose().translate(-8, 0, 0);
-            context.drawString(renderer, ":", 2, 0, colour);
+            context.drawString(renderer, ":", 2, 0, colour, isFrozen);
             context.pose().translate(-8, 0, 0);
-            this.minutes.getB().render(renderer, context, colour, delta);
+            this.minutes.getB().render(renderer, context, colour, delta, isFrozen);
             context.pose().translate(-8, 0, 0);
-            this.minutes.getA().render(renderer, context, colour, delta);
+            this.minutes.getA().render(renderer, context, colour, delta, isFrozen);
             context.pose().popPose();
         }
 
@@ -135,7 +157,8 @@ public class TimeRenderer {
                 this.value = this.target;
         }
 
-        public void render(@NotNull Font renderer, @NotNull FakeGuiGraphics context, int colour, float delta) {
+        public void render(@NotNull Font renderer, @NotNull FakeGuiGraphics context, int colour, float delta,
+                boolean isFrozen) {
             float value = Mth.lerp(delta, this.lastValue, this.value);
             int mod = this.cap6 ? 6 : 10;
             int digit = Mth.floor(value) % mod;
@@ -143,6 +166,8 @@ public class TimeRenderer {
             // 使用快速幂近似代替Math.pow
             float base = value % 1;
             float offset = fastPow(base, this.power);
+            if (isFrozen)
+                offset = 0;
             colour &= 0xFFFFFF;
             context.pose().pushPose();
             context.pose().translate(0, -offset * (renderer.lineHeight + 2), 0);
