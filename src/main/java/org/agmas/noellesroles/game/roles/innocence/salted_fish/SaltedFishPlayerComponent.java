@@ -358,6 +358,11 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        if (!gameWorld.isRole(player, ModRoles.SALTED_FISH)) {
+            // 不是 RETURN_TRAVELER 职业则不执行职业CCA逻辑
+            return;
+        }
         tag.putInt("activeTicks", activeTicks);
         tag.putInt("cooldownTicks", cooldownTicks);
         tag.putInt("flipTicks", flipTicks);
@@ -368,12 +373,12 @@ public class SaltedFishPlayerComponent implements RoleComponent, ServerTickingCo
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        activeTicks = tag.getInt("activeTicks");
-        cooldownTicks = tag.getInt("cooldownTicks");
-        flipTicks = tag.getInt("flipTicks");
-        side = tag.getInt("side");
-        previousSide = tag.getInt("previousSide");
-        sunYaw = tag.getFloat("sunYaw");
+        activeTicks = getIntTag(tag, "activeTicks", 0);
+        cooldownTicks = tag.contains("cooldownTicks") ? tag.getInt("cooldownTicks") : 0;
+        flipTicks = tag.contains("flipTicks") ? tag.getInt("flipTicks") : 0;
+        side = tag.contains("side") ? tag.getInt("side") : 0;
+        previousSide = tag.contains("previousSide") ? tag.getInt("previousSide") : 0;
+        sunYaw = tag.contains("sunYaw") ? tag.getFloat("sunYaw") : 0;
     }
 
     @Override
