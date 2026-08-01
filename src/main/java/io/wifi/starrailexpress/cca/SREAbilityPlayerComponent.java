@@ -364,7 +364,7 @@ public class SREAbilityPlayerComponent
     @Override
     public void serverTick() {
         boolean unifiedStateChanged = false;
-        boolean shouldSync = true;
+        boolean shouldSync = false;
         if (this.cooldown > 0) {
             this.cooldown--;
 
