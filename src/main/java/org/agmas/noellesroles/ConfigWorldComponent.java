@@ -220,4 +220,8 @@ public class ConfigWorldComponent implements AutoSyncedComponent, ServerTickingC
             });
         }
     }
+
+    public void syncToPlayer(ServerPlayer serverPlayer) {
+        KEY.syncWith(serverPlayer, this.world.asComponentProvider());
+    }
 }
