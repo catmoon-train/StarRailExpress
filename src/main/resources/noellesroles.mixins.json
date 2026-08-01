@@ -62,6 +62,7 @@
     "roles.courier.PigeonGunPayloadMixin",
     "roles.morphling.MorphlingDummyGunPayloadMixin",
     "roles.undead_lord.UndeadGunPayloadMixin",
+    "roles.trapper.TrapperTrapGunPayloadMixin",
     "roles.nostalgist.NostalgistKnifeImmuneMixin",
     "roles.stalker.StalkerLeftClickKillMixin",
     "roles.stalker.StalkerOffItemMixin",

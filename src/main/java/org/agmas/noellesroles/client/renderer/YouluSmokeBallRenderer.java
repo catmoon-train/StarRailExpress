@@ -30,7 +30,7 @@ import org.agmas.noellesroles.content.entity.YouluSmokeBallEntity;
  * 幽露球烟渲染器：一团缓慢起伏的黑色半透明烟雾球（自制球体网格）。
  * 从内外均可见；球内玩家另受视野迷雾 + 黑雾（见 {@code YouluFogColorMixin}）。
  *
- * <p>消散特效（生命后 45%）：烟雾粒子逐渐变淡、加速扩散、颜色由深变浅、
+ * <p>消散特效（生命后 18%）：烟雾粒子逐渐变淡、加速扩散、颜色由深变浅、
  * 透明度逐渐降低至完全消失，后期加入轻微向上飘散动效，模拟自然上升消散的物理表现。</p>
  */
 @Environment(EnvType.CLIENT)
@@ -42,8 +42,8 @@ public class YouluSmokeBallRenderer extends EntityRenderer<YouluSmokeBallEntity>
     // ==================== 显现 / 消散特效参数 ====================
     /** 初始显现动画时长（tick），前 N tick 内 alpha 从 0 渐变到满值。 */
     private static final int APPEAR_TICKS = 15;
-    /** 消散阶段起始阈值：生命周期进度超过此值后进入消散阶段（55%）。留有一些余量使过渡平滑。 */
-    private static final float DISSIPATION_START = 0.55f;
+    /** 消散阶段起始阈值：生命周期进度超过此值后进入消散阶段（82%，散去动画时长为旧版的 40%）。 */
+    private static final float DISSIPATION_START = 0.82f;
     /** 最大半径膨胀倍数（加速扩散）。 */
     private static final float MAX_RADIUS_MULTIPLIER = 2.8f;
     /** 最大向上飘散距离（方块格数）。 */

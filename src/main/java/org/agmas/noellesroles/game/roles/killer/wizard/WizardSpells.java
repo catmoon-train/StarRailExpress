@@ -160,23 +160,25 @@ public final class WizardSpells {
         level.playSound(null, BlockPos.containing(center), SoundEvents.GENERIC_EXPLODE.value(),
                 SoundSource.PLAYERS, 4.0f, 0.9f);
 
-        // 无视墙体的 AoE 击杀
+        // 无视墙体的 AoE 击杀（本局火球术累计击杀不超过 wizardFireballMaxKills）
         double r2 = radius * radius;
         int killed = 0;
         for (Player p : level.players()) {
+            if (comp.fireballKills >= config().wizardFireballMaxKills) {
+                break;
+            }
             if (p == caster || !GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue;
             }
             if (p.position().add(0, p.getBbHeight() / 2, 0).distanceToSqr(center) <= r2) {
                 GameUtils.killPlayer(p, true, caster, Noellesroles.id("wizard_fireball"));
                 killed++;
-                if (killed >= config().wizardFireballMaxKills) {
-                    break;
-                }
+                comp.fireballKills++;
             }
         }
         if (killed > 0) {
             // var comp = WizardPlayerComponent.KEY.get(caster);
+            comp.sync();
             comp.onKillWhileShielded();
             caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
                     io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(

@@ -663,7 +663,7 @@ public class ModRolesInitialEventRegister {
                         .showOnHud(true).announceToSelf(true).build());
 
         // 幽露（Youlu）G 键技能：【魂游】—— 第一次按 G 进入自由摄像机（返回 false 不进冷却），
-        // 再按 G 在摄像机位置生成球烟并进入 45s 冷却；ESC 取消由 YouluFreeCamCancelC2SPacket 处理。
+        // 再按 G 在摄像机位置生成球烟并进入 60s 冷却；ESC 取消由 YouluFreeCamCancelC2SPacket 处理。
         RoleSkill.register(ModRoles.YOULU,
                 RoleSkill.skill(SRE.id("youlu_freecam"), "skill.noellesroles.youlu.freecam", context -> {
                     ServerPlayer player = context.player();
@@ -671,7 +671,7 @@ public class ModRolesInitialEventRegister {
                         return false;
                     return org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent.KEY
                             .get(player).useCamSkill(player);
-                }).cooldownSeconds(45).showOnHud(true).announceToSelf(true).build());
+                }).cooldownSeconds(60).showOnHud(true).announceToSelf(true).build());
 
         // 滞时鬼（Delayer）技能注册：【时间锚点】——消耗金币锚定当前状态，
         // delayerRewindDelaySeconds 秒后自动沿原路平滑回溯（详见 DelayerPlayerComponent）。

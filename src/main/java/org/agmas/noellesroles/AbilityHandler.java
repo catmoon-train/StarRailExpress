@@ -261,6 +261,9 @@ public class AbilityHandler {
                 net.minecraft.world.phys.Vec3 dir = horizontalLookDirection(player, victim);
                 // knockback(strength, x, z) 会把目标推向 -(x, z)，故传入反方向
                 victim.knockback(cfg.leonKickKnockback, -dir.x, -dir.z);
+                // 踹人击退的竖直分量削减 60%，避免把人踢飞上天
+                net.minecraft.world.phys.Vec3 kickVel = victim.getDeltaMovement();
+                victim.setDeltaMovement(kickVel.x, kickVel.y * 0.4D, kickVel.z);
                 victim.hurtMarked = true;
                 // 玩家受服务端击退需主动同步速度
                 victim.connection

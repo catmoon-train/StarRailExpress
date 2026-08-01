@@ -3363,8 +3363,8 @@ public class RoleShopHandler {
                     return super.onBuy(player);
                 }
             });
-            // 技能：遮天闭目 - 100金币购买一次（可反复使用，物品自带60s冷却）
-            YOULU_SHOP.add(new ShopEntry(ModItems.YOULU_SMOKE.getDefaultInstance(), 100,
+            // 技能：遮天闭目 - 70金币购买一次（可反复使用，物品自带60s冷却）
+            YOULU_SHOP.add(new ShopEntry(ModItems.YOULU_SMOKE.getDefaultInstance(), 70,
                     ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {

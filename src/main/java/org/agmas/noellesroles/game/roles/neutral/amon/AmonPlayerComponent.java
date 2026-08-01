@@ -87,8 +87,8 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
     private static final int POSSESSION_REQUIRED_TICKS = 60 * 20;
     /** 终幕「寻找阿蒙」持续时间：80 秒。 */
     public static final int FINALE_TICKS = 80 * 20;
-    /** 种植半径：15 格。 */
-    private static final double PLANT_RADIUS_SQR = 15.0 * 15.0;
+    /** 种植（寄生）半径：10 格。 */
+    private static final double PLANT_RADIUS_SQR = 10.0 * 10.0;
     /** 夺舍半径：15 格（玩家主动夺舍时，目标须在此范围内）。 */
     private static final double USURP_RADIUS_SQR = 15.0 * 15.0;
     /** 食物/饮料标签（noellesroles:food_drink），用于窃取豁免。 */
@@ -327,8 +327,11 @@ public final class AmonPlayerComponent implements RoleComponent, ServerTickingCo
             return false;
         }
         seeds.put(target.getUUID(), 0);
-        amon.displayClientMessage(Component.translatable("message.noellesroles.amon.seed_planted")
-                .withStyle(ChatFormatting.DARK_PURPLE), true);
+        // 用 SubtitleHUD 报幕（原 actionbar 提示会被角色 HUD 覆盖导致「不提示」）。
+        io.wifi.starrailexpress.util.SRENetworkMessageUtils.sendCODSubtitleToPlayerTop(amon,
+                Component.translatable("message.noellesroles.amon.seed_planted")
+                        .withStyle(ChatFormatting.DARK_PURPLE),
+                Component.empty(), 60);
         sync();
         return true;
     }

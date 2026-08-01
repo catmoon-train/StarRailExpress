@@ -93,6 +93,8 @@ public class DreamPlayerComponent implements RoleComponent, ServerTickingCompone
             1.4f);
     /** 恐惧光环效果刷新时长（tick），每 10 tick 判定、短时效滚动续期。 */
     private static final int FEAR_EFFECT_TICKS = 4 * 20;
+    /** 单条船的乘坐次数上限：一条船累计强制乘坐 2 人次后不再拉人。 */
+    private static final int BOAT_MAX_RIDES = 2;
 
     static {
         OnPlayerDeathWithKiller.EVENT.register(DreamPlayerComponent::onKillFeedback);
@@ -103,6 +105,8 @@ public class DreamPlayerComponent implements RoleComponent, ServerTickingCompone
     @Nullable
     private UUID boatUuid;
     private long boatEndTick;
+    /** 当前这条船已累计的强制乘坐人次（达到 {@link #BOAT_MAX_RIDES} 后不再拉新乘客）。 */
+    private int boatRideCount;
 
     public DreamPlayerComponent(Player player) {
         this.player = player;
@@ -121,6 +125,7 @@ public class DreamPlayerComponent implements RoleComponent, ServerTickingCompone
     public void init() {
         boatUuid = null;
         boatEndTick = 0;
+        boatRideCount = 0;
         removeBerserkReach();
         sync();
     }
@@ -248,6 +253,7 @@ public class DreamPlayerComponent implements RoleComponent, ServerTickingCompone
             return false;
         }
         boatUuid = boat.getUUID();
+        boatRideCount = 0;
         boatEndTick = level.getGameTime() + NoellesRolesConfig.HANDLER.instance().dreamBoatDurationSeconds * 20L;
         level.playSound(null, boat.blockPosition(), SoundEvents.WOOD_PLACE, SoundSource.PLAYERS, 1.0f, 0.8f);
         return true;
@@ -364,12 +370,18 @@ public class DreamPlayerComponent implements RoleComponent, ServerTickingCompone
             if (target.isPassenger()) {
                 continue;
             }
+            // 已达乘坐次数上限：这条船不再强制拉新乘客（已在船上的照常锁住）
+            if (boatRideCount >= BOAT_MAX_RIDES) {
+                continue;
+            }
             if (target.distanceToSqr(entity) > radius * radius) {
                 continue;
             }
             // 先传送到船旁再强制上座，避免跨房间 startRiding 失败
             target.teleportTo(entity.getX(), entity.getY(), entity.getZ());
-            target.startRiding(entity, true);
+            if (target.startRiding(entity, true)) {
+                boatRideCount++;
+            }
         }
     }
 

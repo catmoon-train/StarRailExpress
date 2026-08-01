@@ -27,7 +27,7 @@ import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
-import org.agmas.noellesroles.content.entity.CalamityMarkEntity;
+import org.agmas.noellesroles.content.entity.MudTrapEntity;
 import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
 import org.agmas.noellesroles.game.roles.innocence.athlete.AthletePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
@@ -212,16 +212,16 @@ public abstract class PlayerResetMixin {
         // WorldModifierComponent.KEY.get(player.level());
         // worldModifierComponent.modifiers.clear();
         // worldModifierComponent.sync();
-        // 清除该玩家放置的所有灾厄印记实体
-        clearCalamityMarks(player);
-        // 清除该玩家放置的所有绊索陷阱实体
+        // 清除该玩家放置的所有泥沼陷阱实体
+        clearMudTraps(player);
+        // 清除该玩家放置的所有绊线陷阱实体
         clearTripwireTraps(player);
     }
 
     /**
-     * 清除指定玩家放置的所有灾厄印记实体
+     * 清除指定玩家放置的所有泥沼陷阱实体
      */
-    private static void clearCalamityMarks(ServerPlayer player) {
+    private static void clearMudTraps(ServerPlayer player) {
         ServerLevel world = player.serverLevel();
         if (world == null)
             return;
@@ -230,11 +230,11 @@ public abstract class PlayerResetMixin {
         List<Entity> toRemove = new ArrayList<>();
 
         for (Entity entity : world.getAllEntities()) {
-            if (entity instanceof CalamityMarkEntity mark) {
+            if (entity instanceof MudTrapEntity mud) {
                 // 检查是否是该玩家放置的
-                if (mark.getOwnerUuid().isPresent() &&
-                        mark.getOwnerUuid().get().equals(player.getUUID())) {
-                    toRemove.add(mark);
+                if (mud.getOwnerUuid().isPresent() &&
+                        mud.getOwnerUuid().get().equals(player.getUUID())) {
+                    toRemove.add(mud);
                 }
             }
         }

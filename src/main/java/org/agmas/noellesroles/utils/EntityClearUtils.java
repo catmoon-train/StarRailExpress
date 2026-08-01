@@ -76,7 +76,8 @@ public class EntityClearUtils {
                 entity instanceof PurifyBombEntity ||
                 entity instanceof PoisonGasTankEntity ||
                 entity instanceof PoisonGasCloudEntity ||
-                entity instanceof CalamityMarkEntity ||
+                entity instanceof MudTrapEntity ||
+                entity instanceof TrapperNetEntity ||
                 entity instanceof TripwireTrapEntity ||
                 entity instanceof PuppeteerBodyEntity ||
                 entity instanceof FlashGrenadeEntity ||

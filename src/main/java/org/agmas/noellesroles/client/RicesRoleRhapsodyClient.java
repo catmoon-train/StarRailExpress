@@ -723,10 +723,13 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
 
         EntityRendererRegistry.register(ModEntities.SILENCE_TOTEM, TotemItemRenderer::new);
 
-        // 灾厄印记实体渲染器 - 使用自定义渲染器（对设陷者半透明可见）
-        EntityRendererRegistry.register(ModEntities.CALAMITY_MARK, CalamityMarkEntityRenderer::new);
+        // 泥沼陷阱实体渲染器 - 使用自定义渲染器（仅设陷者本人可见）
+        EntityRendererRegistry.register(ModEntities.MUD_TRAP, MudTrapEntityRenderer::new);
 
-        // 绊索陷阱实体渲染器 - 使用自定义渲染器（对所有玩家可见）
+        // 捕网实体渲染器 - 渲染为蜘蛛网方块
+        EntityRendererRegistry.register(ModEntities.TRAPPER_NET, TrapperNetEntityRenderer::new);
+
+        // 绊线陷阱实体渲染器 - 使用自定义渲染器（对所有玩家可见）
         EntityRendererRegistry.register(ModEntities.TRIPWIRE_TRAP, TripwireTrapEntityRenderer::new);
 
         // 傀儡本体实体渲染器 - 使用玩家皮肤渲染
