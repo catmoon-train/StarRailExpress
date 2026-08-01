@@ -213,6 +213,8 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
             // 任何玩家都可以放入物品
             if (stack.is(TMMItems.REVOLVER))
                 return true;
+            if (stack.is(ModItems.PATROLLER_REVOLVER))
+                return true;
             if (stack.is(ModItems.ONCE_REVOLVER))
                 return true;
             if (stack.is(ModItems.FAKE_REVOLVER))
