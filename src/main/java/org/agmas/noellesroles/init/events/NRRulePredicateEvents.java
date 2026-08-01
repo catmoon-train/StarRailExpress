@@ -124,10 +124,8 @@ public class NRRulePredicateEvents {
 
         // 多种条件不可被推动
         CollisionRules.cantPushableBy.add(entity -> {
-            if (entity.isInvisible())
-                return true;
             if (entity instanceof Player player) {
-                if (player.hasEffect(MobEffects.INVISIBILITY)
+                if (player.isInvisible() || player.hasEffect(MobEffects.INVISIBILITY)
                         || player.hasEffect(ModEffects.SAFE_TIME)
                         || player.hasEffect(ModEffects.NO_COLLIDE)) {
                     return true;
