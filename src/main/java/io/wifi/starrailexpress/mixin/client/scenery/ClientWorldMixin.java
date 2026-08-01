@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.mixin.client.scenery;
 
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.SREBlocks;
 import io.wifi.starrailexpress.index.TMMBlocks;
@@ -53,12 +54,26 @@ import java.util.function.Supplier;
 
 @Mixin(ClientLevel.class)
 public abstract class ClientWorldMixin extends Level {
-    protected ClientWorldMixin(WritableLevelData properties, ResourceKey<Level> registryRef, RegistryAccess registryManager, Holder<DimensionType> dimensionEntry, Supplier<ProfilerFiller> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
-        super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
+    @Inject(method = "tickTime", at = @At("HEAD"), require = 0, cancellable = true)
+    private void tickTime(CallbackInfo ci) {
+        SREGameTimeComponent cca = SREGameTimeComponent.KEY.getNullable((Object) this);
+        if (cca != null) {
+            if (cca.levelGameTimeFrozen) {
+                ci.cancel();
+            }
+        }
+    }
+
+    protected ClientWorldMixin(WritableLevelData properties, ResourceKey<Level> registryRef,
+            RegistryAccess registryManager, Holder<DimensionType> dimensionEntry, Supplier<ProfilerFiller> profiler,
+            boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
+        super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess,
+                maxChainedNeighborUpdates);
     }
 
     @Shadow
-    public abstract void addParticle(ParticleOptions parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ);
+    public abstract void addParticle(ParticleOptions parameters, double x, double y, double z, double velocityX,
+            double velocityY, double velocityZ);
 
     @Shadow
     @Final
@@ -81,7 +96,9 @@ public abstract class ClientWorldMixin extends Level {
 
     @SuppressWarnings("rawtypes")
     @Inject(method = "<init>", at = @At("TAIL"))
-    public void tmm$addCustomBlockMarkers(ClientPacketListener networkHandler, ClientLevel.ClientLevelData properties, ResourceKey registryRef, Holder dimensionTypeEntry, int loadDistance, int simulationDistance, Supplier profiler, LevelRenderer worldRenderer, boolean debugWorld, long seed, CallbackInfo ci) {
+    public void tmm$addCustomBlockMarkers(ClientPacketListener networkHandler, ClientLevel.ClientLevelData properties,
+            ResourceKey registryRef, Holder dimensionTypeEntry, int loadDistance, int simulationDistance,
+            Supplier profiler, LevelRenderer worldRenderer, boolean debugWorld, long seed, CallbackInfo ci) {
         MARKER_PARTICLE_ITEMS = new HashSet<>(MARKER_PARTICLE_ITEMS);
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.BARRIER_PANEL.asItem());
         MARKER_PARTICLE_ITEMS.add(SREBlocks.TRAIN_LIGHT.asItem());
@@ -101,54 +118,54 @@ public abstract class ClientWorldMixin extends Level {
     public void tmm$addSnowflakes(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         // 第1级过滤：快速检查所有条件（零开销）
         // 雪花效果依赖列车移动、下雪启用和地图配置
-        if (!SREClient.isTrainMoving() || 
-            !SREClient.getTrainComponent().isSnowing() || 
-            SREClient.areaComponent == null || 
-            !SREClient.areaComponent.areasSettings.snowEnabled) {
+        if (!SREClient.isTrainMoving() ||
+                !SREClient.getTrainComponent().isSnowing() ||
+                SREClient.areaComponent == null ||
+                !SREClient.areaComponent.areasSettings.snowEnabled) {
             return;
         }
-        
+
         // 第2级过滤：节流机制，每3tick更新一次（降低CPU负载66%）
         sre_snowFrameCount++;
         if (sre_snowFrameCount % SRE_SNOW_UPDATE_INTERVAL != 0) {
             return;
         }
-        
+
         LocalPlayer player = minecraft.player;
-        if (player == null) return;
-        
+        if (player == null)
+            return;
+
         RandomSource random = player.getRandom();
         Vec3 playerVel = player.getKnownMovement();
-        
+
         // 预计算玩家位置（避免重复调用）
         double playerX = player.getX();
         double playerY = player.getY();
         double playerZ = player.getZ();
-        
+
         // 性能优化：减少粒子数量从200降到50
         for (int i = 0; i < SRE_SNOW_PARTICLES_PER_TICK; i++) {
             // 使用局部变量减少对象创建
             float randX = random.nextFloat();
             float randY = random.nextFloat();
             float randZ = random.nextFloat();
-            
+
             // 计算粒子位置（内联计算，避免创建中间Vec3对象）
             double posX = playerX - 20f + randX + playerVel.x();
             double posY = playerY + (randY * 2 - 1) * 10f + playerVel.y();
             double posZ = playerZ + (randZ * 2 - 1) * 10f + playerVel.z();
-            
+
             // 性能优化：只在部分粒子上检查天空可见性（降低75%的canSeeSky调用）
             boolean shouldCheckSky = (i % 4 == 0);
-            
+
             if (!shouldCheckSky || this.minecraft.level.canSeeSky(BlockPos.containing(posX, posY, posZ))) {
                 // 添加雪花粒子
                 this.addParticle(
-                    TMMParticles.SNOWFLAKE, 
-                    posX, posY, posZ, 
-                    2 + playerVel.x(), 
-                    playerVel.y(), 
-                    playerVel.z()
-                );
+                        TMMParticles.SNOWFLAKE,
+                        posX, posY, posZ,
+                        2 + playerVel.x(),
+                        playerVel.y(),
+                        playerVel.z());
             }
         }
     }
@@ -156,50 +173,50 @@ public abstract class ClientWorldMixin extends Level {
     @Inject(method = "tick", at = @At("TAIL"))
     public void tmm$addSandstorm(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         // 第1级过滤：快速检查所有条件
-        if (!SREClient.isTrainMoving() || 
-            !SREClient.getTrainComponent().isSandEnabled() ||
-            SREClient.areaComponent == null || 
-            !SREClient.areaComponent.areasSettings.sandEnabled) {
+        if (!SREClient.isTrainMoving() ||
+                !SREClient.getTrainComponent().isSandEnabled() ||
+                SREClient.areaComponent == null ||
+                !SREClient.areaComponent.areasSettings.sandEnabled) {
             return;
         }
-        
+
         // 第2级过滤：节流机制，每3tick更新一次
         sre_sandFrameCount++;
         if (sre_sandFrameCount % SRE_SAND_UPDATE_INTERVAL != 0) {
             return;
         }
-        
+
         LocalPlayer player = minecraft.player;
-        if (player == null) return;
-        
+        if (player == null)
+            return;
+
         RandomSource random = player.getRandom();
         Vec3 playerVel = player.getKnownMovement();
-        
+
         double playerX = player.getX();
         double playerY = player.getY();
         double playerZ = player.getZ();
-        
+
         for (int i = 0; i < SRE_SAND_PARTICLES_PER_TICK; i++) {
             float randX = random.nextFloat();
             float randY = random.nextFloat();
             float randZ = random.nextFloat();
-            
+
             // 沙尘暴粒子：在玩家周围更大的范围生成
             double posX = playerX - 25f + randX * 10f + playerVel.x();
             double posY = playerY + (randY * 2 - 1) * 12f + playerVel.y();
             double posZ = playerZ + (randZ * 2 - 1) * 12f + playerVel.z();
-            
+
             // 性能优化：只在部分粒子上检查天空可见性（降低75%的canSeeSky调用）
             boolean shouldCheckSky = (i % 4 == 0);
-            
+
             if (!shouldCheckSky || this.minecraft.level.canSeeSky(BlockPos.containing(posX, posY, posZ))) {
                 this.addParticle(
-                    TMMParticles.SAND,
-                    posX, posY, posZ,
-                    2 + playerVel.x(),
-                    playerVel.y(),
-                    playerVel.z()
-                );
+                        TMMParticles.SAND,
+                        posX, posY, posZ,
+                        2 + playerVel.x(),
+                        playerVel.y(),
+                        playerVel.z());
             }
         }
     }

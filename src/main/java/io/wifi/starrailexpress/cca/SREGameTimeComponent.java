@@ -33,7 +33,8 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     public int time = 0;
     /** 游戏开始（计时器启动）时的世界 gameTime，用于「开局冷却」基准，不受击杀加时影响。 */
     public long startWorldTick = 0;
-    public boolean frozen = false;
+    public boolean timeFrozen = false;
+    public boolean levelGameTimeFrozen = false;
 
     public SREGameTimeComponent(Level world) {
         this.world = world;
@@ -45,7 +46,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
 
     public void reset() {
         this.startWorldTick = this.world.getGameTime();
-        this.frozen = false;
+        this.timeFrozen = false;
         this.setServerFrozen(false);
         this.setTime(this.resetTime);
     }
@@ -58,23 +59,38 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
         return this.startWorldTick;
     }
 
+    public void setLevelGameTimeFrozen(boolean frozen) {
+        setLevelGameTimeFrozen(frozen, true);
+    }
+
+    public void setLevelGameTimeFrozen(boolean frozen, boolean sync) {
+        levelGameTimeFrozen = frozen;
+        if (sync)
+            sync();
+    }
+
     public void setServerFrozen(boolean frozen) {
         world.getServer().tickRateManager().setFrozen(frozen);
     }
 
-    public void setFrozen(boolean frozen) {
-        this.frozen = true;
-        sync();
+    public void setTimeFrozen(boolean frozen) {
+        setTimeFrozen(frozen, true);
     }
 
-    public boolean isFrozen() {
-        return this.frozen || world.getServer().tickRateManager().isFrozen();
+    public void setTimeFrozen(boolean frozen, boolean sync) {
+        this.timeFrozen = true;
+        if (sync)
+            sync();
+    }
+
+    public boolean isTimeFrozen() {
+        return this.timeFrozen || levelGameTimeFrozen || world.getServer().tickRateManager().isFrozen();
     }
 
     @Override
     public void tick() {
         if (!world.isClientSide) {
-            if (isFrozen()) {
+            if (isTimeFrozen()) {
                 return;
             }
         }
@@ -111,17 +127,21 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
 
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        tag.putBoolean("frozen", this.timeFrozen);
+        tag.putBoolean("lt_frozen", this.levelGameTimeFrozen);
         tag.putInt("resetTime", this.resetTime);
-        tag.putBoolean("frozen", this.frozen);
         tag.putInt("time", this.time);
         tag.putLong("startWorldTick", this.startWorldTick);
     }
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+
+        this.timeFrozen = tag.contains("frozen") && tag.getBoolean("frozen");
+        this.levelGameTimeFrozen = tag.contains("lt_frozen") && tag.getBoolean("lt_frozen");
+
         this.resetTime = tag.contains("resetTime") ? tag.getInt("resetTime") : 0;
         this.time = tag.contains("time") ? tag.getInt("time") : 0;
-        this.frozen = tag.contains("frozen") && tag.getBoolean("frozen");
         this.startWorldTick = tag.contains("startWorldTick") ? tag.getLong("startWorldTick") : 0L;
     }
 }
