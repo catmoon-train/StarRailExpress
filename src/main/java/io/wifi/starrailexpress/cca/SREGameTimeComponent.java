@@ -71,13 +71,6 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
         // 从每400tick增加到每600tick同步（30秒）
         if (this.time % 600 == 0)
             this.sync();
-
-        // 更新计分板上的游戏计时器
-        if (this.time % 20 == 0) { // 每秒更新一次计分板
-            final var server = this.world.getServer();
-            if (server == null)
-                return;
-        }
     }
 
     public boolean hasTime() {
