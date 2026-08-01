@@ -455,7 +455,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         RoleInstinctRegister.registerInstinctEvents();
 
         ClientPlayNetworking.registerGlobalReceiver(OpenScreenPayload.ID, (payload, context) -> {
-            ClientOpenScreenManager.openScreen(payload,context);
+            ClientOpenScreenManager.openScreen(payload, context);
         });
         ClientPlayNetworking.registerGlobalReceiver(ReasonerOpenScreenS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> context.client().setScreen(new ReasonerCompassScreen(payload)));
@@ -476,9 +476,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         // 枪械射击轨迹
         ClientPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID, (payload, context) ->
-                        context.client().execute(() ->
-                                org.agmas.noellesroles.gunfx.GunTracerRenderer.onPacket(payload)));
+                org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID, (payload, context) -> context.client()
+                        .execute(() -> org.agmas.noellesroles.gunfx.GunTracerRenderer.onPacket(payload)));
 
         // 建筑师墙数据S2C包
         ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID,
@@ -557,14 +556,14 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(YouluFreeCamClient::tick);
         // 幽露自由摄像机进入/退出
         ClientPlayNetworking.registerGlobalReceiver(
-                org.agmas.noellesroles.packet.YouluFreeCamS2CPacket.ID, (payload, context) ->
-                        context.client().execute(() -> {
-                            if (payload.active()) {
-                                YouluFreeCamClient.enter(context.client());
-                            } else {
-                                YouluFreeCamClient.exit();
-                            }
-                        }));
+                org.agmas.noellesroles.packet.YouluFreeCamS2CPacket.ID,
+                (payload, context) -> context.client().execute(() -> {
+                    if (payload.active()) {
+                        YouluFreeCamClient.enter(context.client());
+                    } else {
+                        YouluFreeCamClient.exit();
+                    }
+                }));
         ClientPlayNetworking.registerGlobalReceiver(ProblemScreenOpenC2SPacket.ID, (payload, context) -> {
             var client = context.client();
             client.execute(() -> {
@@ -1452,6 +1451,24 @@ public class NoellesrolesClient implements ClientModInitializer {
                     return new MutableComponentResult(
                             Component
                                     .translatable("message.tip.game_mode", SREClient.gameComponent.gameMode.getName())
+                                    .withStyle(ChatFormatting.WHITE));
+                }
+            }
+            return null;
+        });
+        // 当前地图
+
+        OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {
+            if (SREClient.gameComponent != null && SREClient.areaComponent != null && minecraft != null
+                    && minecraft.player != null) {
+                if (SREClient.gameComponent.isRunning() && SREClient.areaComponent.displayName != null) {
+                    if (SREClient.areaComponent.displayName.isBlank()) {
+                        return null;
+                    }
+                    return new MutableComponentResult(
+                            Component
+                                    .translatable("message.tip.map_name", Component
+                                            .translatable(SREClient.areaComponent.displayName))
                                     .withStyle(ChatFormatting.WHITE));
                 }
             }

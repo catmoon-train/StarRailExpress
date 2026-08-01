@@ -269,6 +269,18 @@ public class MapManager {
 
     public static String last_start_map = "";
 
+    public static String getVoteMapName(ServerLevel serverWorld, String mapId) {
+
+        HashMap<String, MapConfig.MapEntry> mapConfigHashMap = new HashMap<>();
+        for (MapEntry map : ServerMapConfig.getInstance(serverWorld).getMaps()) {
+            mapConfigHashMap.put(map.id, map);
+        }
+        var mapConfig = mapConfigHashMap.getOrDefault(mapId, null);
+        if (mapConfig == null)
+            return mapId;
+        return mapConfig.displayName;
+    }
+
     /**
      * 加载指定的地图配置
      * 
@@ -295,6 +307,7 @@ public class MapManager {
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
             areas.mapName = normalizedMapName(mapName);
+            areas.displayName = getVoteMapName(serverWorld, mapName);
             // 先读取，避免后面被覆盖了
             if (jsonObject.has("settings")) {
                 try {
@@ -918,7 +931,6 @@ public class MapManager {
         for (MapEntry map : ServerMapConfig.getInstance(serverWorld).getMaps()) {
             mapConfigHashMap.put(map.id, map);
         }
-        ;
         availableMaps.removeIf(
                 e -> {
                     final var first = mapConfigHashMap.getOrDefault(e, null);

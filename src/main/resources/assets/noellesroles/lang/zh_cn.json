@@ -1368,6 +1368,7 @@
   "message.bartender.weak_armor_broke_self": "你的弱效护盾被破坏了！",
   "hud.bartender.has_armor": "你当前拥有 %s 层护盾",
   "message.tip.for_killer": "杀手直觉切换 %s",
+  "message.tip.map_name": "地图：%s",
   "message.tip.death_penalty_inf": "死亡惩罚状态",
   "message.tip.death_penalty_with_timeout": "死亡惩罚状态，剩余 %ss",
   "message.tip.skill_disabled": "当前场上部分职业及修饰符的技能已被禁用",
