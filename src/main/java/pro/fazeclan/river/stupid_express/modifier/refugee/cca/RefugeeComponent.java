@@ -57,6 +57,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -68,7 +69,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class RefugeeComponent implements AutoSyncedComponent, ServerTickingComponent {
+public class RefugeeComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<RefugeeComponent> KEY = ComponentRegistry.getOrCreate(
             StupidExpress.id("refugee"),
             RefugeeComponent.class);
@@ -113,7 +114,12 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 return true;
             return false;
         });
+        boolean timeFrozen = SREGameTimeComponent.KEY.get(level).timeFrozen;
         for (RefugeeData data : new ArrayList<>(pendingRevivals)) {
+            if (timeFrozen) {
+                data.revivalTime++;
+                continue;
+            }
             if (!data.isRevive && currentTime >= data.revivalTime) {
                 reviveLooseEnd(data);
                 data.isRevive = true;
@@ -136,8 +142,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 return true;
             return false;
         });
-        // 每200 tick（10秒）发送一次倒计时提示
-        if (currentTime % 200 == 0) {
+        // 每600 tick（30秒）发送一次倒计时提示
+        if (currentTime % 600 == 0) {
             sendCountdownMessages();
             this.sync();
         }
@@ -497,7 +503,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
     public static class RefugeeData {
         final UUID uuid;
-        final long revivalTime;
+        long revivalTime;
 
         public boolean isRevive() {
             return isRevive;
@@ -542,5 +548,17 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 return false;
             return true;
         });
+    }
+
+    @Override
+    public void clientTick() {
+        boolean timeFrozen = SREGameTimeComponent.KEY.get(level).timeFrozen;
+        if (timeFrozen) {
+            for (RefugeeData data : new ArrayList<>(pendingRevivals)) {
+                {
+                    data.revivalTime++;
+                }
+            }
+        }
     }
 }
