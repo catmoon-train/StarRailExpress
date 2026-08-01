@@ -219,6 +219,8 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
                 return true;
             if (stack.is(ModItems.FAKE_KNIFE))
                 return true;
+            if (stack.is(TMMItems.KNIFE))
+                return true;
             if (stack.getItem() instanceof KnifeItem)
                 return false;
             if (stack.getItem() instanceof TrainWeapon)
