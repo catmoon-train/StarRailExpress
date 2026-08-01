@@ -1,7 +1,10 @@
 package io.wifi.starrailexpress.client.gui.screen.maprotation;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.gui.screen.MapSpecialRoleLines;
@@ -25,12 +28,15 @@ import java.util.Set;
  * 把一张地图的属性 JSON + 投票配置渲染成可换行的详情文本行。
  *
  * <p>
- * 内容与 {@code MapIntroduceScreen.buildMapDetail} 对齐，复用同一套 {@code map_intro.*} 翻译键。
+ * 内容与 {@code MapIntroduceScreen.buildMapDetail} 对齐，复用同一套 {@code map_intro.*}
+ * 翻译键。
  * 之所以独立成类而不是直接调用那个屏幕：它的构建方法与静态工具全部是 {@code private}，
  * 且绑定在实例状态（{@code detailLines}、{@code font}）上，按 {@code ai_doc.md}
  * 不应改动既有代码。这里的 JSON 取值做了类型校验，字段类型不符时退回默认值而不是抛异常。
  */
 public final class MapIntroDetail {
+
+    private static final Gson GSON = new Gson();
 
     private MapIntroDetail() {
     }
@@ -86,63 +92,121 @@ public final class MapIntroDetail {
                 value -> taskName(value, false));
         addNameSet(sink, json, "disabledRoles", "map_intro.property.disabled_roles", MapIntroDetail::roleName);
         addNameSet(sink, json, "enableSceneTask", "map_intro.property.scene_tasks", value -> taskName(value, true));
-        if (boolValue(json, "minigameQuestEnabled", false)) {
-            sink.key("map_intro.property.minigame_quest");
+        {
+            // 老配置
+            if (boolValue(json, "minigameQuestEnabled", false)) {
+                sink.key("map_intro.property.minigame_quest");
+            }
+            String status = stringValue(json, "mapStatusBar", "NONE");
+            if (!status.equalsIgnoreCase("NONE") && !status.isBlank()) {
+                sink.line("map_intro.property.status_bar", statusName(status));
+            }
+            sink.key(boolValue(json, "canSwim", false)
+                    ? "map_intro.property.can_swim.true"
+                    : "map_intro.property.can_swim.false");
+            if (boolValue(json, "enableOxygenDrowning", false)) {
+                sink.key("map_intro.property.oxygen_drowning");
+            }
+            sink.key(boolValue(json, "canJump", false)
+                    ? "map_intro.property.can_jump.true"
+                    : "map_intro.property.can_jump.false");
+            if (boolValue(json, "snowEnabled", false)) {
+                sink.key("map_intro.property.snow");
+            }
+            if (boolValue(json, "sandEnabled", false)) {
+                sink.key("map_intro.property.sand");
+            }
+            if (!boolValue(json, "fogEnabled", true)) {
+                sink.key("map_intro.property.no_fog");
+            }
+            sink.line("map_intro.property.fog_end", trimNumber(doubleValue(json, "fogEnd", 200.0D)));
+            String weather = stringValue(json, "weather", "clear");
+            if (!weather.equalsIgnoreCase("clear")) {
+                sink.line("map_intro.property.weather",
+                        Component.translatableWithFallback("map_intro.weather." + weather.toLowerCase(Locale.ROOT),
+                                weather));
+            }
+            double gravity = doubleValue(json, "gravity", 0.08D);
+            if (Math.abs(gravity - 0.08D) > 0.0001D) {
+                sink.line("map_intro.property.gravity",
+                        Component.translatable(gravity < 0.08D ? "map_intro.gravity.low" : "map_intro.gravity.high"));
+            }
+            addEffects(sink, json);
+            addInitialItems(sink, json);
+            long time = longValue(json, "time", 18000L);
+            if (time != 18000L) {
+                sink.line("map_intro.property.time", Component.translatable(timeName(time)));
+            }
+            if (boolValue(json, "daylightCycle", false)) {
+                sink.key("map_intro.property.daylight_cycle");
+            }
+            if (boolValue(json, "weatherCycle", false)) {
+                sink.key("map_intro.property.weather_cycle");
+            }
         }
-        if (meetingBoolValue(json, "meetingEnabled", false)) {
-            sink.key("map_intro.property.meeting_enabled");
-        }
-        if (meetingBoolValue(json, "meetingVoteEnabled", false)) {
-            sink.key("map_intro.property.meeting_vote_enabled");
-        }
-        if (meetingBoolValue(json, "bellMeetingEnabled", false)) {
-            sink.key("map_intro.property.bell_meeting_enabled");
-        }
-        String status = stringValue(json, "mapStatusBar", "NONE");
-        if (!status.equalsIgnoreCase("NONE") && !status.isBlank()) {
-            sink.line("map_intro.property.status_bar", statusName(status));
-        }
-        sink.key(boolValue(json, "canSwim", false)
-                ? "map_intro.property.can_swim.true"
-                : "map_intro.property.can_swim.false");
-        if (boolValue(json, "enableOxygenDrowning", false)) {
-            sink.key("map_intro.property.oxygen_drowning");
-        }
-        sink.key(boolValue(json, "canJump", false)
-                ? "map_intro.property.can_jump.true"
-                : "map_intro.property.can_jump.false");
-        if (boolValue(json, "snowEnabled", false)) {
-            sink.key("map_intro.property.snow");
-        }
-        if (boolValue(json, "sandEnabled", false)) {
-            sink.key("map_intro.property.sand");
-        }
-        if (!boolValue(json, "fogEnabled", true)) {
-            sink.key("map_intro.property.no_fog");
-        }
-        sink.line("map_intro.property.fog_end", trimNumber(doubleValue(json, "fogEnd", 200.0D)));
-        String weather = stringValue(json, "weather", "clear");
-        if (!weather.equalsIgnoreCase("clear")) {
-            sink.line("map_intro.property.weather",
-                    Component.translatableWithFallback("map_intro.weather." + weather.toLowerCase(Locale.ROOT),
-                            weather));
-        }
-        double gravity = doubleValue(json, "gravity", 0.08D);
-        if (Math.abs(gravity - 0.08D) > 0.0001D) {
-            sink.line("map_intro.property.gravity",
-                    Component.translatable(gravity < 0.08D ? "map_intro.gravity.low" : "map_intro.gravity.high"));
-        }
-        addEffects(sink, json);
-        addInitialItems(sink, json);
-        long time = longValue(json, "time", 18000L);
-        if (time != 18000L) {
-            sink.line("map_intro.property.time", Component.translatable(timeName(time)));
-        }
-        if (boolValue(json, "daylightCycle", false)) {
-            sink.key("map_intro.property.daylight_cycle");
-        }
-        if (boolValue(json, "weatherCycle", false)) {
-            sink.key("map_intro.property.weather_cycle");
+        if (json.has("settings")) {
+            // 新配置
+            AreasSettings areasSettings = GSON.fromJson(json.get("settings"), AreasSettings.class);
+            if (areasSettings.minigameQuestEnabled) {
+                sink.key("map_intro.property.minigame_quest");
+            }
+
+            if (areasSettings.meetingEnabled) {
+                sink.key("map_intro.property.meeting_enabled");
+            }
+            if (areasSettings.meetingVoteEnabled) {
+                sink.key("map_intro.property.meeting_vote_enabled");
+            }
+            if (areasSettings.bellMeetingEnabled) {
+                sink.key("map_intro.property.bell_meeting_enabled");
+            }
+            String status = areasSettings.mapStatusBar.name();
+            if (!status.equalsIgnoreCase("NONE") && !status.isBlank()) {
+                sink.line("map_intro.property.status_bar", statusName(status));
+            }
+            sink.key(areasSettings.canSimpleSwim && areasSettings.canUnderWater && areasSettings.allowInDeepWater
+                    && (areasSettings.canJump || areasSettings.canSwim)
+                            ? "map_intro.property.can_swim.true"
+                            : "map_intro.property.can_swim.false");
+            if (areasSettings.enableOxygenDrowning) {
+                sink.key("map_intro.property.oxygen_drowning");
+            }
+            sink.key(areasSettings.canJump
+                    ? "map_intro.property.can_jump.true"
+                    : "map_intro.property.can_jump.false");
+            if (areasSettings.snowEnabled) {
+                sink.key("map_intro.property.snow");
+            }
+            if (areasSettings.sandEnabled) {
+                sink.key("map_intro.property.sand");
+            }
+            if (areasSettings.fogEnabled) {
+                sink.key("map_intro.property.no_fog");
+            }
+            sink.line("map_intro.property.fog_end", trimNumber(areasSettings.fogEnd));
+            String weather = areasSettings.weather.name();
+            if (!weather.equalsIgnoreCase("clear")) {
+                sink.line("map_intro.property.weather",
+                        Component.translatableWithFallback("map_intro.weather." + weather.toLowerCase(Locale.ROOT),
+                                weather));
+            }
+            double gravity = areasSettings.gravityModifier;
+            if (Math.abs(gravity - 0.08D) > 0.0001D) {
+                sink.line("map_intro.property.gravity",
+                        Component.translatable(gravity < 0.08D ? "map_intro.gravity.low" : "map_intro.gravity.high"));
+            }
+            addEffects(sink, areasSettings);
+            addInitialItems(sink, areasSettings);
+            long time = areasSettings.time;
+            if (time != 18000L) {
+                sink.line("map_intro.property.time", Component.translatable(timeName(time)));
+            }
+            if (areasSettings.daylightCycle) {
+                sink.key("map_intro.property.daylight_cycle");
+            }
+            if (areasSettings.weatherCycle) {
+                sink.key("map_intro.property.weather_cycle");
+            }
         }
         return sink.lines;
     }
@@ -218,6 +282,48 @@ public final class MapIntroDetail {
         }
     }
 
+    private static void addInitialItems(Sink sink, AreasSettings areasSettings) {
+        List<String> parts = new ArrayList<>();
+        for (String element : areasSettings.initialItems) {
+            if(element.isBlank()) continue;
+            String[] split = element.split("[;,]", 2);
+            ResourceLocation id = ResourceLocation.tryParse(split[0]);
+            if (id == null) {
+                continue;
+            }
+            Item item = BuiltInRegistries.ITEM.get(id);
+            if (item == Items.AIR) {
+                continue;
+            }
+            int count = split.length > 1 ? parseInt(split[1], 1) : 1;
+            String name = item.getDescription().getString();
+            parts.add(count > 1 ? Component.translatable("map_intro.item.entry", name, count).getString() : name);
+        }
+        if (!parts.isEmpty()) {
+            sink.line("map_intro.property.initial_items", String.join(", ", parts));
+        }
+    }
+
+    private static void addEffects(Sink sink, AreasSettings areasSettings) {
+        List<String> parts = new ArrayList<>();
+        for (String element : areasSettings.mobEffects) {
+            if(element.isBlank()) continue;
+            String[] split = element.split(",", 2);
+            int level = split.length > 1 ? parseInt(split[1], 1) : 1;
+            String name = split[0];
+            ResourceLocation id = ResourceLocation.tryParse(split[0]);
+            if (id != null) {
+                var effect = BuiltInRegistries.MOB_EFFECT.getHolder(id).orElse(null);
+                if (effect != null) {
+                    name = Component.translatable(effect.value().getDescriptionId()).getString();
+                }
+            }
+            parts.add(Component.translatable("map_intro.effect.entry", name, level).getString());
+        }
+        if (!parts.isEmpty()) {
+            sink.line("map_intro.property.effects", String.join(", ", parts));
+        }
+    }
     private static void addEffects(Sink sink, JsonObject json) {
         List<String> parts = new ArrayList<>();
         for (JsonElement element : arrayOf(json, "effect")) {
