@@ -303,28 +303,6 @@ public class MapManagerCommand {
     updateAABB(areas, setter, box, source, fieldName);
   }
 
-  private static void setAABBMin(AreasWorldComponent areas,
-      BiConsumer<AreasWorldComponent, AABB> setter,
-      Function<AreasWorldComponent, AABB> getter,
-      BlockPos min,
-      CommandSourceStack source, String fieldName) {
-    AABB old = getter.apply(areas);
-    AABB newBox = new AABB(min.getX(), min.getY(), min.getZ(),
-        old.maxX, old.maxY, old.maxZ);
-    updateAABB(areas, setter, newBox, source, fieldName + ".min");
-  }
-
-  private static void setAABBMax(AreasWorldComponent areas,
-      BiConsumer<AreasWorldComponent, AABB> setter,
-      Function<AreasWorldComponent, AABB> getter,
-      BlockPos max,
-      CommandSourceStack source, String fieldName) {
-    AABB old = getter.apply(areas);
-    AABB newBox = new AABB(old.minX, old.minY, old.minZ,
-        max.getX() + 1.0, max.getY() + 1.0, max.getZ() + 1.0);
-    updateAABB(areas, setter, newBox, source, fieldName + ".max");
-  }
-
   // 3. playAreaOffset
   private static void setPlayAreaOffset(CommandSourceStack source, Vec3 offset) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
@@ -653,25 +631,7 @@ public class MapManagerCommand {
                           BlockPos max = BlockPosArgument.getBlockPos(ctx, "max");
                           setAABBFull(areas, setter, min, max, src, name);
                           return 1;
-                        })))
-                // 仅设置 min 角
-                .executes(ctx -> {
-                  CommandSourceStack src = ctx.getSource();
-                  AreasWorldComponent areas = AreasWorldComponent.KEY.get(src.getLevel());
-                  BlockPos min = BlockPosArgument.getBlockPos(ctx, "min");
-                  setAABBMin(areas, setter, getter, min, src, name);
-                  return 1;
-                })))
-        // 仅设置 max 角
-        .then(Commands.literal("max")
-            .then(Commands.argument("max", BlockPosArgument.blockPos())
-                .executes(ctx -> {
-                  CommandSourceStack src = ctx.getSource();
-                  AreasWorldComponent areas = AreasWorldComponent.KEY.get(src.getLevel());
-                  BlockPos max = BlockPosArgument.getBlockPos(ctx, "max");
-                  setAABBMax(areas, setter, getter, max, src, name);
-                  return 1;
-                })));
+                        })))));
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setReadyArea() {
