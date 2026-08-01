@@ -166,8 +166,12 @@ public class TimeRenderer {
             // 使用快速幂近似代替Math.pow
             float base = value % 1;
             float offset = fastPow(base, this.power);
-            if (isFrozen)
+            if (isFrozen) {
+                this.lastValue = this.target;
+                this.value = this.target;
+                value = this.value;
                 offset = 0;
+            }
             colour &= 0xFFFFFF;
             context.pose().pushPose();
             context.pose().translate(0, -offset * (renderer.lineHeight + 2), 0);
