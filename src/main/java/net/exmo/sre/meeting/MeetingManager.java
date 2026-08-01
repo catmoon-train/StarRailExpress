@@ -187,6 +187,8 @@ public final class MeetingManager {
 
     /** 尸体被右键：满足条件则召开会议。返回是否已消费该交互。 */
     public static boolean tryReportBody(ServerPlayer reporter, PlayerBodyEntity body) {
+        // SRE.LOGGER.info("[MEETING] Try report body");
+
         ServerLevel serverLevel = reporter.serverLevel();
         AreasSettings settings = settings(serverLevel);
         if (settings == null || !settings.meetingEnabled) {
@@ -196,9 +198,14 @@ public final class MeetingManager {
             return false;
         }
         if (reportedBodies.contains(body.getUUID())) {
+            // SRE.LOGGER.info("[MEETING] Body has already reported");
+
             return false;
         }
-        String victim = body.getName().getString();
+        String victim = body.getComponent().getOwnerName();
+        if (victim == null || victim.isBlank()) {
+            victim = body.getName().getString();
+        }
         UUID owner = body.getPlayerUuid();
         if (owner != null) {
             ServerPlayer ownerPlayer = reporter.server.getPlayerList().getPlayer(owner);
@@ -271,6 +278,7 @@ public final class MeetingManager {
         }
         long now = serverLevel.getGameTime();
         if (!emergency && now < cooldownUntilTick) {
+            // SRE.LOGGER.info("[MEETING] Cooldown: {} < {}", now, cooldownUntilTick);
             return false;
         }
         // 开局冷却：游戏开始后一段时间内不能召开会议（紧急会议绕过）。
@@ -279,6 +287,8 @@ public final class MeetingManager {
             if (timeComponent != null) {
                 long elapsed = Math.max(0, serverLevel.getGameTime() - timeComponent.getStartWorldTick());
                 if (!emergency && elapsed < settings.meetingStartCooldown * 20L) {
+                    // SRE.LOGGER.info("[MEETING] Cooldown: elapsed{} < settings.meetingStartCooldown*20 {}", elapsed,
+                    //         settings.meetingStartCooldown);
                     return false;
                 }
             }
@@ -391,7 +401,6 @@ public final class MeetingManager {
         MeetingEndEvent.EVENT.invoker().onMeetingEnd(serverLevel);
         level = null;
     }
-
 
     // ==================== 跳过会议 ====================
 
@@ -637,7 +646,8 @@ public final class MeetingManager {
                 Component.translatable("meeting.vote.skip"), SKIP_RESULT_ID));
 
         Set<UUID> targetPlayers = new HashSet<>();
-        for (ServerPlayer p : alive) targetPlayers.add(p.getUUID());
+        for (ServerPlayer p : alive)
+            targetPlayers.add(p.getUUID());
         VoteManager.builder(Component.translatable("meeting.vote.title"))
                 .options(options).duration(VOTE_DURATION_SECONDS * 20).allowReVote(true)
                 .showResults(true).syncInterval(20).targetPlayerUUIDs(targetPlayers)
@@ -735,7 +745,8 @@ public final class MeetingManager {
         int weight = voteWeightOverrides.getOrDefault(uuid, 1);
         if (weight >= 2 && level != null) {
             long alive = level.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
-            if (alive > 24) weight = Math.max(weight, 3);
+            if (alive > 24)
+                weight = Math.max(weight, 3);
         }
         return weight;
     }

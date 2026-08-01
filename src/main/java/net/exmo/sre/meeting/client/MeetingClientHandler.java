@@ -79,9 +79,6 @@ public final class MeetingClientHandler {
 
     private static boolean overriding;
     private static boolean speakingToggled;
-    /** 跳过按钮左键按下沿检测。 */
-    private static boolean wasLeftDownSkip;
-
     private MeetingClientHandler() {
     }
 
@@ -188,6 +185,10 @@ public final class MeetingClientHandler {
             stopOverride();
             return;
         }
+        if (phase == MeetingManager.PHASE_NONE) {
+            stopOverride();
+        }
+        boolean participant = participants.contains(player.getUUID());
 
         // 分号键 — 会议中：发言（讨论阶段）或跳过（开场/讨论阶段）；会议外：上报尸体
         while (speakKey.consumeClick()) {
@@ -201,7 +202,6 @@ public final class MeetingClientHandler {
                 }
                 break;
             }
-            boolean participant = participants.contains(player.getUUID());
             if (!participant) {
                 break;
             }
@@ -217,12 +217,6 @@ public final class MeetingClientHandler {
             }
         }
 
-        if (phase == MeetingManager.PHASE_NONE) {
-            stopOverride();
-            return;
-        }
-
-        boolean participant = participants.contains(player.getUUID());
         if (!participant) {
             stopOverride();
             return;
