@@ -79,7 +79,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     }
 
     public void setTimeFrozen(boolean frozen, boolean sync) {
-        this.timeFrozen = true;
+        this.timeFrozen = frozen;
         if (sync)
             sync();
     }
