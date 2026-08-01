@@ -18,6 +18,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     public int time = 0;
     /** 游戏开始（计时器启动）时的世界 gameTime，用于「开局冷却」基准，不受击杀加时影响。 */
     public long startWorldTick = 0;
+    public boolean frozen = false;
 
     public SREGameTimeComponent(Level world) {
         this.world = world;
@@ -29,6 +30,8 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
 
     public void reset() {
         this.startWorldTick = this.world.getGameTime();
+        this.frozen = false;
+        this.setServerFrozen(false);
         this.setTime(this.resetTime);
     }
 
@@ -40,10 +43,23 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
         return this.startWorldTick;
     }
 
+    public void setServerFrozen(boolean frozen) {
+        world.getServer().tickRateManager().setFrozen(frozen);
+    }
+
+    public void setFrozen(boolean frozen) {
+        this.frozen = true;
+        sync();
+    }
+
+    public boolean isFrozen() {
+        return this.frozen || world.getServer().tickRateManager().isFrozen();
+    }
+
     @Override
     public void tick() {
         if (!world.isClientSide) {
-            if (world.getServer().tickRateManager().isFrozen()) {
+            if (isFrozen() || world.getServer().tickRateManager().isFrozen()) {
                 return;
             }
         }
@@ -88,6 +104,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     @Override
     public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("resetTime", this.resetTime);
+        tag.putBoolean("frozen", this.frozen);
         tag.putInt("time", this.time);
         tag.putLong("startWorldTick", this.startWorldTick);
     }
@@ -96,6 +113,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.resetTime = tag.contains("resetTime") ? tag.getInt("resetTime") : 0;
         this.time = tag.contains("time") ? tag.getInt("time") : 0;
+        this.frozen = tag.contains("frozen") && tag.getBoolean("frozen");
         this.startWorldTick = tag.contains("startWorldTick") ? tag.getLong("startWorldTick") : 0L;
     }
 }

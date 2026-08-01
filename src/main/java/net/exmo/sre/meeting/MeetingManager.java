@@ -287,8 +287,9 @@ public final class MeetingManager {
             if (timeComponent != null) {
                 long elapsed = Math.max(0, serverLevel.getGameTime() - timeComponent.getStartWorldTick());
                 if (!emergency && elapsed < settings.meetingStartCooldown * 20L) {
-                    // SRE.LOGGER.info("[MEETING] Cooldown: elapsed{} < settings.meetingStartCooldown*20 {}", elapsed,
-                    //         settings.meetingStartCooldown);
+                    // SRE.LOGGER.info("[MEETING] Cooldown: elapsed{} <
+                    // settings.meetingStartCooldown*20 {}", elapsed,
+                    // settings.meetingStartCooldown);
                     return false;
                 }
             }
@@ -337,11 +338,15 @@ public final class MeetingManager {
             participant.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, totalDuration, 0, false, false, false));
             participant.addEffect(new MobEffectInstance(ModEffects.USED_BANED, totalDuration, 0, false, false, false));
             participant.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, totalDuration, 0, false, false, false));
+            participant
+                    .addEffect(new MobEffectInstance(ModEffects.SKILL_FREEZED, totalDuration, 0, false, false, false));
+            participant.addEffect(new MobEffectInstance(ModEffects.CCA_FREEZED, totalDuration, 0, false, false, false));
+
             index++;
         }
 
         MeetingVoice.joinAll(participants.keySet(), serverLevel.getServer());
-
+        SREGameTimeComponent.KEY.get(serverLevel).setFrozen(true);
         for (ServerPlayer player : serverLevel.players()) {
             player.playNotifySound(SoundEvents.BELL_BLOCK, SoundSource.MASTER, 1.0F, 0.8F);
         }
@@ -371,6 +376,8 @@ public final class MeetingManager {
             participant.removeEffect(ModEffects.MOVE_BANED);
             participant.removeEffect(ModEffects.USED_BANED);
             participant.removeEffect(ModEffects.SKILL_BANED);
+            participant.removeEffect(ModEffects.SKILL_FREEZED);
+            participant.removeEffect(ModEffects.CCA_FREEZED);
             if (!participant.isSpectator()) {
                 ReturnPos pos = entry.getValue();
                 participant.teleportTo(serverLevel, pos.x(), pos.y(), pos.z(), Set.of(), pos.yaw(), pos.pitch());
@@ -378,6 +385,8 @@ public final class MeetingManager {
                 participant.fallDistance = 0.0F;
             }
         }
+        SREGameTimeComponent.KEY.get(serverLevel).setFrozen(false);
+
         for (int entityId : seatEntityIds) {
             var entity = serverLevel.getEntity(entityId);
             if (entity instanceof SeatEntity) {
