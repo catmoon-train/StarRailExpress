@@ -42,4 +42,6 @@ public interface ModuleContext {
     void requestModuleRefresh();
 
     Screen screen();
+
+    void registerCloseHook(Runnable runner);
 }

@@ -22,6 +22,14 @@ import java.util.function.Consumer;
  * MapBuildHelperScreen
  */
 public class MapBuildHelperScreen extends Screen implements ModuleContext {
+    private ArrayList<Runnable> onCloseEvents = new ArrayList<>();
+
+    @Override
+    public void registerCloseHook(Runnable runner) {
+        if (runner != null)
+            onCloseEvents.add(runner);
+    }
+
     @Override
     public void requestModuleRefresh() {
         if (activeTab == null || !modules.containsKey(activeTab))
@@ -462,6 +470,10 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext {
 
     @Override
     public void onClose() {
+        for (Runnable event : onCloseEvents) {
+            if (event != null)
+                event.run();
+        }
         SceneAssetClient.closeEditor();
         super.onClose();
     }
