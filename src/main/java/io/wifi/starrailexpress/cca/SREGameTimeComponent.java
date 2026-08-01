@@ -49,6 +49,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
         this.timeFrozen = false;
         this.setServerFrozen(false);
         this.setTime(this.resetTime);
+        this.levelGameTimeFrozen = false;
     }
 
     public int getResetTime() {

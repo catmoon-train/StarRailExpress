@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -82,6 +83,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
     @Override
     public void initializeGame(ServerLevel world, SREGameWorldComponent gameComp, List<ServerPlayer> players) {
         gameComp.clearRoleMap(false);
+        SREGameTimeComponent.KEY.get(world).setLevelGameTimeFrozen(true);
         for (ServerPlayer p : players) {
             gameComp.addRole(p, SpecialGameModeRoles.CUSTOM_PENDING, false);
             p.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, ROTATION_SAFE_TIME + 40, 10, true, false, false));
@@ -205,7 +207,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
             mood.sync();
         });
         OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(world);
-
+        SREGameTimeComponent.KEY.get(world).setLevelGameTimeFrozen(false);
         Harpymodloader.FORCED_MODDED_ROLE.clear();
         Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
         Harpymodloader.FORCED_MODDED_MODIFIER.clear();
@@ -227,7 +229,6 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
             }
         }
         roleComp.sync();
-
         List<ServerPlayer> alive = world.getPlayers(GameUtils::isPlayerAliveAndSurvivalIgnoreShitSplit);
         for (ServerPlayer p : alive) {
             var role = gameComp.getRole(p);

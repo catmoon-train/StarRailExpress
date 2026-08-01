@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -90,7 +91,9 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
             p.addEffect(new MobEffectInstance(ModEffects.CCA_FREEZED, 40, 10, true, false, false));
             RoleUtils.sendWelcomeAnnouncement(p);
         }
+        SREGameTimeComponent.KEY.get(world).setLevelGameTimeFrozen(true);
         // 保底
+
         final var random = new Random(world.getGameTime());
         for (var p : players) {
             if (PlayerRoleWeightManager.ForcePlayerTeam.containsKey(p.getUUID()))
@@ -300,6 +303,7 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
             mood.setMood(1);
             mood.sync();
         });
+        SREGameTimeComponent.KEY.get(world).setLevelGameTimeFrozen(false);
         OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(world);
     }
 
