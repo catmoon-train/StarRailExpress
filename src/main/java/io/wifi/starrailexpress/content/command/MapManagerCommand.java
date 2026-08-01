@@ -420,6 +420,7 @@ public class MapManagerCommand {
     sb.append("playAreaOffset: ").append(formatVec3(areas.getPlayAreaOffset())).append("\n");
     sb.append("roomCount: ").append(areas.getRoomCount()).append("\n");
     sb.append("roomPositions: ").append(formatRoomPositions(areas.getRoomPositions())).append("\n");
+    sb.append("Vote List Display Name: \"").append(areas.mapDisplayName).append("\"\n");
     sb.append("mapName: \"").append(areas.mapName).append("\"\n");
     sb.append("disabledTasks: ").append(formatDisabledTasks(areas.disabledTasks)).append("\n");
     sb.append("disabledRoles: ").append(formatDisabledTasks(areas.disabledRoles)).append("\n");

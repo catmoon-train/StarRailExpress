@@ -80,7 +80,9 @@ public class SwitchMapCommand {
 
       for (final var mapEntry : serverMapConfig.getMaps()) {
         source.sendSuccess(
-            () -> Component.translatable(" - [%s] (%s)", Component.translatable(mapEntry.getDisplayName()), mapEntry.id)
+            () -> Component
+                .translatable(" - [%s] (%s)", Component.translatable(mapEntry.getDisplayName()),
+                    mapEntry.id)
                 .withStyle(style -> style.withColor(0xFFFFFF)
                     .withHoverEvent(new HoverEvent(
                         HoverEvent.Action.SHOW_TEXT,
@@ -384,6 +386,12 @@ public class SwitchMapCommand {
     source.sendSuccess(
         () -> Component
             .literal("Map ID: " + areas.mapName)
+            .withStyle(style -> style.withColor(0x00FFFF)),
+        false);
+    // 显示当前配置信息
+    source.sendSuccess(
+        () -> Component
+            .translatable("Map Name: %s", Component.translatable(areas.mapDisplayName))
             .withStyle(style -> style.withColor(0x00FFFF)),
         false);
     // 显示当前配置信息

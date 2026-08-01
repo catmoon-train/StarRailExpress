@@ -115,6 +115,11 @@ public class SREClientCommand {
                       .executes((ctx) -> {
                         var key = AreasWorldComponent.KEY.get(ctx.getSource().getWorld());
                         final var GSON = new GsonBuilder().setPrettyPrinting().create();
+
+                        ctx.getSource()
+                            .sendFeedback(Component
+                                .translatable("Map ID: %s\nMap Display Name Key: %s", key.mapName, key.mapDisplayName)
+                                .withStyle(ChatFormatting.GREEN));
                         String result = GSON.toJson(key.areasSettings);
                         ctx.getSource()
                             .sendFeedback(Component.literal(result)

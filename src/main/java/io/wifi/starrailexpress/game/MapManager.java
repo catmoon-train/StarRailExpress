@@ -307,7 +307,7 @@ public class MapManager {
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
             areas.mapName = normalizedMapName(mapName);
-            areas.displayName = getVoteMapName(serverWorld, mapName);
+            areas.mapDisplayName = getVoteMapName(serverWorld, mapName);
             // 先读取，避免后面被覆盖了
             if (jsonObject.has("settings")) {
                 try {

@@ -1457,18 +1457,17 @@ public class NoellesrolesClient implements ClientModInitializer {
             return null;
         });
         // 当前地图
-
         OnMessageBelowMoneyRenderer.EVENT.register((minecraft, guiGraphics, deltaTracker) -> {
             if (SREClient.gameComponent != null && SREClient.areaComponent != null && minecraft != null
                     && minecraft.player != null) {
-                if (SREClient.gameComponent.isRunning() && SREClient.areaComponent.displayName != null) {
-                    if (SREClient.areaComponent.displayName.isBlank()) {
+                if (SREClient.gameComponent.isRunning() && SREClient.areaComponent.mapDisplayName != null) {
+                    if (SREClient.areaComponent.mapDisplayName.isBlank()) {
                         return null;
                     }
                     return new MutableComponentResult(
                             Component
                                     .translatable("message.tip.map_name", Component
-                                            .translatable(SREClient.areaComponent.displayName))
+                                            .translatable(SREClient.areaComponent.mapDisplayName))
                                     .withStyle(ChatFormatting.WHITE));
                 }
             }

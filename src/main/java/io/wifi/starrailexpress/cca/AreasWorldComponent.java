@@ -187,7 +187,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     // Room positions map
     Map<Integer, Vec3> roomPositions = new HashMap<>();
     public String mapName = null;
-    public String displayName = null;
+    public String mapDisplayName = null;
 
     /** 当前地图中存在的小游戏种类 ID 集合（由 MapScanner 扫描填充），用于小游戏任务刷新时随机选取。 */
     public final HashSet<String> availableMinigameIds = new HashSet<>();
@@ -457,7 +457,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         this.mapName = tag.contains("mapName") && !tag.getString("mapName").isBlank()
                 ? tag.getString("mapName")
                 : null;
-        this.mapName = tag.contains("displayName") && !tag.getString("displayName").isBlank()
+        this.mapDisplayName = tag.contains("displayName") && !tag.getString("displayName").isBlank()
                 ? tag.getString("displayName")
                 : null;
         // this.canJump = tag.contains("canJump") ? tag.getBoolean("canJump") : false;
@@ -572,8 +572,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         if (this.mapName != null) {
             tag.putString("mapName", this.mapName);
         }
-        if (this.displayName != null) {
-            tag.putString("displayName", this.displayName);
+        if (this.mapDisplayName != null) {
+            tag.putString("displayName", this.mapDisplayName);
         }
         // writeVec3dToNbt(tag, this.playAreaOffset, "playAreaOffset");
         // writeBoxToNbt(tag, this.playArea, "playArea");
