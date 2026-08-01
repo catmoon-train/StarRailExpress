@@ -6,6 +6,8 @@
 
 本模组完全开源免费，非盈利项目。
 
+如果您游玩时遇到收费现象，非本模组开发团队的问题。
+
 我们使用和上游 `Noellesroles` 相同的 `GNU General Public License v3.0 only (GPL-3.0-only)` 协议。
 
 # 4.3 更新日志
