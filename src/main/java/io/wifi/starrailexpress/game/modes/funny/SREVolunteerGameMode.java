@@ -81,6 +81,7 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
     @Override
     public void initializeGame(ServerLevel world, SREGameWorldComponent gameComp, List<ServerPlayer> players) {
         gameComp.clearRoleMap(false);
+        SREGameTimeComponent.KEY.get(world).setTimeFrozen(true);
         for (ServerPlayer p : players) {
             gameComp.addRole(p, SpecialGameModeRoles.CUSTOM_PENDING, false);
             p.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, ROTATION_SAFE_TIME + 40, 10, true, false, false));
@@ -91,7 +92,6 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
             p.addEffect(new MobEffectInstance(ModEffects.CCA_FREEZED, 40, 10, true, false, false));
             RoleUtils.sendWelcomeAnnouncement(p);
         }
-        SREGameTimeComponent.KEY.get(world).setLevelGameTimeFrozen(true);
         // 保底
 
         final var random = new Random(world.getGameTime());
@@ -303,7 +303,7 @@ public class SREVolunteerGameMode extends SREMurderGameMode {
             mood.setMood(1);
             mood.sync();
         });
-        SREGameTimeComponent.KEY.get(world).setLevelGameTimeFrozen(false);
+        SREGameTimeComponent.KEY.get(world).setTimeFrozen(false);
         OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(world);
     }
 

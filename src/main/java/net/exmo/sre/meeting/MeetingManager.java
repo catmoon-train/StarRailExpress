@@ -362,8 +362,7 @@ public final class MeetingManager {
 
         MeetingVoice.joinAll(participants.keySet(), serverLevel.getServer());
         final var timecca = SREGameTimeComponent.KEY.get(serverLevel);
-        timecca.setTimeFrozen(true, false);
-        timecca.setLevelGameTimeFrozen(true);
+        timecca.setTimeFrozen(true, true);
         for (ServerPlayer player : serverLevel.players()) {
             player.playNotifySound(SoundEvents.BELL_BLOCK, SoundSource.MASTER, 1.0F, 0.8F);
         }
@@ -403,8 +402,7 @@ public final class MeetingManager {
             }
         }
         final var timecca = SREGameTimeComponent.KEY.get(serverLevel);
-        timecca.setTimeFrozen(false, false);
-        timecca.setLevelGameTimeFrozen(false);
+        timecca.setTimeFrozen(false, true);
         for (int entityId : seatEntityIds) {
             var entity = serverLevel.getEntity(entityId);
             if (entity instanceof SeatEntity) {

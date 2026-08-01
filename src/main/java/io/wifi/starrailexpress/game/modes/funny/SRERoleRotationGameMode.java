@@ -83,7 +83,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
     @Override
     public void initializeGame(ServerLevel world, SREGameWorldComponent gameComp, List<ServerPlayer> players) {
         gameComp.clearRoleMap(false);
-        SREGameTimeComponent.KEY.get(world).setLevelGameTimeFrozen(true);
+        SREGameTimeComponent.KEY.get(world).setTimeFrozen(true);
         for (ServerPlayer p : players) {
             gameComp.addRole(p, SpecialGameModeRoles.CUSTOM_PENDING, false);
             p.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, ROTATION_SAFE_TIME + 40, 10, true, false, false));
@@ -207,7 +207,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
             mood.sync();
         });
         OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(world);
-        SREGameTimeComponent.KEY.get(world).setLevelGameTimeFrozen(false);
+        SREGameTimeComponent.KEY.get(world).setTimeFrozen(false);
         Harpymodloader.FORCED_MODDED_ROLE.clear();
         Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
         Harpymodloader.FORCED_MODDED_MODIFIER.clear();
