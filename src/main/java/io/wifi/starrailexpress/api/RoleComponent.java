@@ -109,7 +109,7 @@ public interface RoleComponent extends AutoSyncedComponent {
     }
 
     default boolean getBooleanTag(CompoundTag tag, String name, boolean defaultValue) {
-        return getBooleanTag(tag, name, defaultValue);
+        return getBooleanTagOrDefault(tag, name, defaultValue);
     }
 
     // 静态方法，实现逻辑

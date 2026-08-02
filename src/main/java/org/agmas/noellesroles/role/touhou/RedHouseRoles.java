@@ -37,6 +37,7 @@ import org.agmas.noellesroles.handler.THEventHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.HoanMeirinRoleData;
 
 import java.awt.*;
 import java.util.List;
@@ -61,7 +62,8 @@ public class RedHouseRoles {
       new TouhouRole(KOAKUMA_ID, new Color(175, 94, 83).getRGB(),
           false, false, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true),
-      "th_redhouse").setNeutralForKiller(true).addTwoWayOpposingRole(ModRoles.PRANKSTER).setCanUseInstinct(true);
+      "th_redhouse").setNeutralForKiller(true).addTwoWayOpposingRole(ModRoles.PRANKSTER)
+      .setCanUseInstinct(true);
   // 大妖精
   public static SRERole DAIYOUSEI = TMMRoles.registerRole(
       new TouhouRole(DAIYOUSEI_ID, new Color(171, 216, 167).getRGB(),
@@ -143,6 +145,7 @@ public class RedHouseRoles {
       "th_redhouse")
       .setCanAutoAddMoney(true)
       .setVigilanteTeam(true).setSpecialVigilante(true).setCanSeeCoin(true)
+      .setRoleData(HoanMeirinRoleData::new)
       .setSpecialMapRole(SRERole.SpecialMapRoleMap.CAN_JUMP);
   // 好人：帕秋莉 Patchouli Knowledge
   public static SRERole PACHURI = TMMRoles.registerRole(

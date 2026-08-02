@@ -67,7 +67,7 @@ public class BreakingBridgeToolItem extends Item {
                     if (entity instanceof BreakingBridgeBlockEntity bbbe) {
                         if (bbbe.displayState != null) {
                             var originalTag = bbbe.blockEntityTag;
-                            level.setBlock(pos, bbbe.displayState, Block.UPDATE_CLIENTS);
+                            level.setBlock(pos, bbbe.displayState, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
                             if (originalTag != null) {
                                 var newBlockEntity = level.getBlockEntity(pos);
                                 if (newBlockEntity != null) {
@@ -92,12 +92,13 @@ public class BreakingBridgeToolItem extends Item {
             if (targetState == null) {
                 return InteractionResult.FAIL;
             }
-            level.setBlock(pos, block.getStateForPlacement(new BlockPlaceContext(useOnContext))
-                    .setValue(BreakingBridgeBlock.TYPE,
-                            targetState.getOptionalValue(BreakingBridgeBlock.TYPE).orElse(SlabType.DOUBLE))
-                    .setValue(BlockStateProperties.WATERLOGGED,
-                            targetState.getOptionalValue(BlockStateProperties.WATERLOGGED).orElse(false)),
-                    Block.UPDATE_CLIENTS);
+            level.setBlock(
+                    pos, block.getStateForPlacement(new BlockPlaceContext(useOnContext))
+                            .setValue(BreakingBridgeBlock.TYPE,
+                                    targetState.getOptionalValue(BreakingBridgeBlock.TYPE).orElse(SlabType.DOUBLE))
+                            .setValue(BlockStateProperties.WATERLOGGED,
+                                    targetState.getOptionalValue(BlockStateProperties.WATERLOGGED).orElse(false)),
+                    Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
             if (level.getBlockEntity(pos) instanceof BreakingBridgeBlockEntity bbbe) {
                 bbbe.displayState = targetState;
                 bbbe.blockEntityTag = entityTag;

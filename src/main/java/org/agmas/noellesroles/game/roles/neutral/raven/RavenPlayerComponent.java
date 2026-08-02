@@ -91,7 +91,7 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public boolean shouldSyncWith(ServerPlayer target) {
-        return true;
+        return target == player;
     }
 
     public void sync() {
@@ -160,19 +160,22 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
             cooldownTicks--;
         if (huntTicks > 0) {
             huntTicks--;
-            if (!hasLivingTargetRole(game))
-                chooseTargetRole(game);
+            if (!hasLivingTargetRole(game) && chooseTargetRole(game))
+                changed = true;
             if (huntTicks <= 0)
                 endHunt(true);
-            changed = true;
         }
-        if (changed || player.tickCount % 200 == 0)
+        if (changed)
             sync();
     }
 
     private boolean observeNearbyMood(int totalPlayers) {
         boolean changed = false;
         float threshold = getChargeThreshold(totalPlayers);
+        if (charges >= MAX_CHARGES) {
+            observedMood.keySet().removeIf(id -> player.level().getPlayerByUUID(id) == null);
+            return false;
+        }
         for (Player nearby : player.level().players()) {
             if (nearby == player || nearby.distanceToSqr(player) > MOOD_RADIUS_SQR
                     || !GameUtils.isPlayerAliveAndSurvival(nearby))
@@ -399,7 +402,6 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
         buf.writeVarInt(huntTicks);
         buf.writeVarInt(kills);
         buf.writeVarInt(requiredKills);
-        buf.writeFloat(moodProgress);
         buf.writeFloat(moodProgressThreshold);
         boolean hasTarget = targetRoleId != null;
         buf.writeBoolean(hasTarget);
@@ -413,7 +415,6 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
         huntTicks = buf.readVarInt();
         kills = buf.readVarInt();
         requiredKills = buf.readVarInt();
-        moodProgress = buf.readFloat();
         moodProgressThreshold = buf.readFloat();
         targetRoleId = buf.readBoolean() ? ResourceLocation.tryParse(buf.readUtf()) : null;
     }

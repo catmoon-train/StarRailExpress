@@ -18,6 +18,7 @@ package org.agmas.noellesroles.content.entity;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
+import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -38,7 +39,8 @@ import org.agmas.noellesroles.init.ModItems;
 
 public class ThrowingKnifeEntity extends AbstractArrow {
 
-    private ItemStack it = null;
+    private ItemStack it = null;    
+    private UUID ownerUuid = null;
 
     public ThrowingKnifeEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
         super(entityType, level);
@@ -51,6 +53,9 @@ public class ThrowingKnifeEntity extends AbstractArrow {
             ItemStack itemStack) {
         super(entityType, livingEntity, level, itemStack, null);
         it = itemStack.copy();
+        if (livingEntity != null) {
+            this.ownerUuid = livingEntity.getUUID();
+        }
         this.setNoGravity(true);
         this.pickup = AbstractArrow.Pickup.DISALLOWED; // 不可被拾取
     }
@@ -84,10 +89,12 @@ public class ThrowingKnifeEntity extends AbstractArrow {
     @Override
     protected void onHitEntity(EntityHitResult entityHitResult) {
         super.onHitEntity(entityHitResult);
-        if (getOwner() == null)
-            return;
+        Player owner = getOwner() instanceof Player p ? p : null;
+        if (owner == null && ownerUuid != null && level() instanceof ServerLevel serverLevel) {
+            owner = serverLevel.getServer().getPlayerList().getPlayer(ownerUuid);
+        }
         if (entityHitResult.getEntity() instanceof ServerPlayer serverPlayer) {
-            if (!serverPlayer.getUUID().equals(getOwner().getUUID())) {
+            if (owner == null || !serverPlayer.getUUID().equals(owner.getUUID())) {
                 Vec3 location = entityHitResult.getLocation();
                 ServerLevel serverLevel = serverPlayer.serverLevel();
                 serverLevel.sendParticles(ParticleTypes.CRIT, location.x, location.y + 1.25f, location.z, 10, 0.3, 0.3,
@@ -104,8 +111,8 @@ public class ThrowingKnifeEntity extends AbstractArrow {
                         ;
                     }
                 }
-                GameUtils.killPlayer(serverPlayer, true, (ServerPlayer) getOwner(),
-                        deathReason);
+                GameUtils.killPlayer(serverPlayer, true,
+                        owner instanceof ServerPlayer sp ? sp : null, deathReason);
                 this.remove(RemovalReason.KILLED);
             }
         }
@@ -119,6 +126,17 @@ public class ThrowingKnifeEntity extends AbstractArrow {
     @Override
     public void addAdditionalSaveData(CompoundTag compoundTag) {
         super.addAdditionalSaveData(compoundTag);
+        if (ownerUuid != null) {
+            compoundTag.putUUID("OwnerUuid", ownerUuid);
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compoundTag) {
+        super.readAdditionalSaveData(compoundTag);
+        if (compoundTag.hasUUID("OwnerUuid")) {
+            ownerUuid = compoundTag.getUUID("OwnerUuid");
+        }
     }
     // @Override
     // protected Item getDefaultItem() {

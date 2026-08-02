@@ -51,7 +51,6 @@ import org.agmas.noellesroles.game.roles.innocence.alchemist.AlchemistPlayerComp
 import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
 import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
@@ -156,10 +155,6 @@ public class ModRolesInitialEventRegister {
 
             if (role.identifier().equals(ModRoles.DIO.identifier())) {
                 var tpc = DIOPlayerComponent.KEY.get(player);
-                tpc.init();
-            }
-            if (role.identifier().equals(RedHouseRoles.HOAN_MEIRIN.identifier())) {
-                var tpc = HoanMeirinPlayerComponent.KEY.get(player);
                 tpc.init();
             }
             if (role.identifier().equals(RedHouseRoles.FURANDORU.identifier())) {

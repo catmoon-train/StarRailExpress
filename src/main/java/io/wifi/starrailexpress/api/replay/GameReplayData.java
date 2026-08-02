@@ -336,10 +336,7 @@ public class GameReplayData {
             }
             case DISGUISE -> Component.translatable("sre.replay.event.disguise", sourceName);
             case TRAP_TRIGGERED -> {
-                if (sourcePlayer != null) {
-                    yield Component.translatable("sre.replay.event.trap_triggered", targetName, sourceName);
-                }
-                yield Component.translatable("sre.replay.event.trap_triggered_no_owner", targetName);
+                yield null;
             }
             case DOOR_PRY -> Component.translatable("sre.replay.event.door_pry", sourceName);
             case DOOR_SEAL -> Component.translatable("sre.replay.event.door_seal", sourceName);
@@ -416,12 +413,12 @@ public class GameReplayData {
         PSYCHO_STATE_CHANGE,
         BLACKOUT_START,
         BLACKOUT_END, CHANGE_ROLE, PLAYER_REVIVAL,
+        TRAP_TRIGGERED,
         // ===== 新增低频关键事件 =====
         SKILL_RELEASE,
         BOMB_DEFUSE,
         BOMB_DETONATE,
         DISGUISE,
-        TRAP_TRIGGERED,
         DOOR_PRY,
         DOOR_SEAL,
         ROPE_PULL

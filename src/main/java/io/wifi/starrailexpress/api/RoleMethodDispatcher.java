@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.api;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
@@ -183,8 +184,17 @@ public class RoleMethodDispatcher {
         }
     }
 
+    public static void onRemoveRole(SRERole role, MinecraftServer server, ServerPlayer serverPlayer) {
+        final var cca = SRERoleDataPlayerComponent.KEY.get(serverPlayer);
+        cca.onRemoveRole();
+    }
+
     public static void onInit(SRERole role, MinecraftServer minecraftServer, ServerPlayer player) {
         role.onInit(minecraftServer, player);
+        {
+            final var cca = SRERoleDataPlayerComponent.KEY.get(player);
+            cca.init();
+        }
         if (role.isAutoReset()) {
             ComponentKey<? extends RoleComponent> componentKey = role.getComponentKey();
             if (componentKey != null) {

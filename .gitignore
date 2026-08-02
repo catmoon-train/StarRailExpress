@@ -28,3 +28,6 @@ src/main/java/org/agmas/noellesroles/role/StarRailExpress.code-workspace
 
 # JAR auth signing key (tools/sign_sre_jar.py) - never commit
 tools/sre_auth_key.secret
+hashes/*
+/hashes/
+hashes/

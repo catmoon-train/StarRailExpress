@@ -18,6 +18,7 @@ package net.exmo.sre.meeting.client;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
@@ -76,7 +77,7 @@ public final class MeetingReportClientHandler {
     }
 
     private static void renderHint(Player player, float range, FakeGuiGraphics g,
-                DeltaTracker tickCounter, Font renderer) {
+            DeltaTracker tickCounter, Font renderer) {
         Minecraft client = Minecraft.getInstance();
         if (client.options.hideGui || !canPrompt(client)) {
             return;
@@ -108,6 +109,9 @@ public final class MeetingReportClientHandler {
     /** 地图启用会议 + 游戏运行中 + 当前无会议 + 本人非旁观。 */
     public static boolean canPrompt(Minecraft client) {
         if (client.player == null || client.level == null || client.player.isSpectator()) {
+            return false;
+        }
+        if (SREClient.gameComponent == null || !SREClient.gameComponent.getGameMode().canHaveMeeting()) {
             return false;
         }
         if (MeetingClientHandler.phase != MeetingManager.PHASE_NONE) {

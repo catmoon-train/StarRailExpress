@@ -167,7 +167,45 @@ java {
 tasks.register('generateSha256') {
     dependsOn remapJar
     doLast {
-        ant.checksum(file: remapJar.archiveFile.get().asFile, algorithm: "SHA-256", fileext: ".sha256")
+        // 1. 生成 SHA-256 校验和文件（ant 任务）
+        def jarFile = remapJar.archiveFile.get().asFile
+        ant.checksum(file: jarFile, algorithm: "SHA-256", fileext: ".sha256")
+
+        // 2. 读取生成的校验和文件，提取哈希值
+        def checksumFile = file(jarFile.absolutePath + ".sha256")
+        if (!checksumFile.exists()) {
+            throw new GradleException("Checksum file not generated: ${checksumFile}")
+        }
+        def checksumContent = checksumFile.text.trim()
+        // 格式通常为 "hash  filename" 或 "hash *filename"，取第一个词即为哈希
+        def hash = checksumContent.split(/\s+/).first()
+        if (!hash) {
+            throw new GradleException("Could not extract hash from ${checksumFile}")
+        }
+
+        // 3. 准备存储哈希列表的目录和文件
+        def hashDir = file("./hashes")
+        hashDir.mkdirs()
+        def hashListFile = file("./hashes/hash-list.txt")
+
+        // 4. 读取已有哈希列表（如果存在）
+        def lines = []
+        if (hashListFile.exists()) {
+            lines = hashListFile.readLines()
+        }
+
+        // 5. 追加新的哈希
+        lines.add(hash)
+
+        // 6. 从 gradle.properties 读取最大缓存数量，默认为 10
+        def maxHashes = project.findProperty('max-hashes-caches') as Integer ?: 10
+        if (lines.size() > maxHashes) {
+            // 保留最新的 maxHashes 条（丢弃最旧的）
+            lines = lines.drop(lines.size() - maxHashes)
+        }
+
+        // 7. 写回文件（每行一个哈希）
+        hashListFile.text = lines.join(System.lineSeparator())
     }
 }
 build.finalizedBy(generateSha256)

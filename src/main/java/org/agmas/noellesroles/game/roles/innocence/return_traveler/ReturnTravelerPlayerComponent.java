@@ -544,7 +544,7 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
     private void tickCooldown() {
         if (oldFerryCooldown > 0) {
             oldFerryCooldown--;
-            if (oldFerryCooldown == 0 || oldFerryCooldown % 200 == 0) {
+            if (oldFerryCooldown == 0) {
                 sync();
             }
         }
@@ -693,7 +693,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("currentMode", currentMode);
         tag.putBoolean("lastTrainUsed", lastTrainUsed);
-        tag.putBoolean("lastTrainActive", lastTrainActive);
         tag.putInt("oldFerryCooldown", oldFerryCooldown);
     }
 
@@ -701,7 +700,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         currentMode = tag.getInt("currentMode");
         lastTrainUsed = tag.getBoolean("lastTrainUsed");
-        lastTrainActive = tag.getBoolean("lastTrainActive");
         oldFerryCooldown = tag.getInt("oldFerryCooldown");
     }
 

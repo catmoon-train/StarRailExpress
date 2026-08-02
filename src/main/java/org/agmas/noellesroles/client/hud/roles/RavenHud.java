@@ -16,8 +16,11 @@
 package org.agmas.noellesroles.client.hud.roles;
 
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.network.CustomRoleClientNetwork;
+import io.wifi.starrailexpress.customrole.CustomRoleLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
@@ -69,8 +72,7 @@ public final class RavenHud {
             // Target role during hunt
             if (raven.isHunting() && raven.targetRoleId != null) {
                 context.drawString(Minecraft.getInstance().font,
-                        Component.translatable("hud.noellesroles.raven.target",
-                                Component.translatable("announcement.star.role." + raven.targetRoleId.getPath())),
+                        Component.translatable("hud.noellesroles.raven.target", roleDisplayName(raven.targetRoleId)),
                         x, y - 22, 0xFF5555);
             }
 
@@ -81,5 +83,18 @@ public final class RavenHud {
                         x, y - 33, 0xFFD700);
             }
         });
+    }
+
+    private static Component roleDisplayName(ResourceLocation roleId) {
+        String path = roleId.getPath();
+        var customData = CustomRoleLoader.getCustomRoleData(path);
+        if (customData != null && !customData.displayName.isEmpty()) {
+            return Component.literal(customData.displayName);
+        }
+        customData = CustomRoleClientNetwork.getSyncedRole(path);
+        if (customData != null && !customData.displayName.isEmpty()) {
+            return Component.literal(customData.displayName);
+        }
+        return Component.translatable("announcement.star.role." + path);
     }
 }

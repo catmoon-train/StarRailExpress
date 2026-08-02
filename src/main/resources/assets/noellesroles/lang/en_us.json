@@ -86,6 +86,8 @@
   "announcement.star.goals.wayfarer": "Flowers fall despite our will, swallows return as before.",
   "announcement.star.goals.canada_goose": "I'm a good guy, don't kill me!",
   "announcement.star.goals.dummy_bird": "Get voted out during the meeting vote.",
+  "announcement.star.win.dummy_bird": "Dummy Bird wins!",
+  "game.win.star.dummy_bird": "The Dummy Bird fooled everyone in the meeting!",
   "announcement.star.goals.politician": "Use your influence to sway the vote.",
   "announcement.star.goals.missionary": "Boost others' influence in meetings through conversion.",
   "announcement.star.role.monokuma": "Monokuma",

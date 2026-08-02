@@ -24,3 +24,17 @@ UI打开不一定必须要按键绑定，也可以写客户端命令打开。客
 # 版本号
 
 不要随便改模组版本号。版本号应当由人工手动更改。
+
+# 有关玩家职业数据
+
+你可以使用SRERole中的 
+```java
+.setRoleData(RoleData实例类::new)
+```
+
+RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
+因为每次实例都是创建新的，理论上你不需要init和clear。
+获取此实例类方法是 `RoleData.getNullable(玩家)`
+或者 `RoleData.get(类.class, 玩家);`
+
+！！！尽量使用此API，不要使用CCA！！！
