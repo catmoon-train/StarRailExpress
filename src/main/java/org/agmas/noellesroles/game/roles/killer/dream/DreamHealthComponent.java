@@ -97,7 +97,13 @@ public class DreamHealthComponent implements RoleComponent {
 
     @Override
     public void init() {
-        baseHealth = maxHealth();
+        // 本组件挂在所有玩家身上且对全员同步，开局对每人无脑 sync 是 N² 个包；
+        // 绝大多数玩家本来就处于默认满血态，只有状态真正变化时才广播。
+        int max = maxHealth();
+        if (baseHealth == max && lastHurtGameTime == 0) {
+            return;
+        }
+        baseHealth = max;
         lastHurtGameTime = 0;
         sync();
     }
@@ -158,14 +164,20 @@ public class DreamHealthComponent implements RoleComponent {
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
-        tag.putInt("baseHealth", baseHealth);
-        tag.putLong("lastHurt", lastHurtGameTime);
+        // 默认满血态写空包：CCA 开始追踪实体时会对全部组件自动同步，
+        // 本组件挂在所有玩家身上，省掉默认字段能把这类包压到近乎空载。
+        if (baseHealth != maxHealth()) {
+            tag.putInt("baseHealth", baseHealth);
+        }
+        if (lastHurtGameTime != 0) {
+            tag.putLong("lastHurt", lastHurtGameTime);
+        }
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
-        baseHealth = tag.getInt("baseHealth");
-        lastHurtGameTime = tag.getLong("lastHurt");
+        baseHealth = RoleComponent.getIntTagOrDefault(tag, "baseHealth", maxHealth());
+        lastHurtGameTime = RoleComponent.getLongTagOrDefault(tag, "lastHurt", 0);
     }
 
     @Override

@@ -79,6 +79,10 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
     private static final int HEARTBEAT_INTERVAL = 40;
     /** 伪装状态补发间隔（tick） */
     private static final int DISGUISE_RESYNC_INTERVAL = 20;
+    /** 伪装翻转后的补发窗口（tick）：窗口内每秒补发一次，之后不再广播 */
+    private static final int DISGUISE_RESYNC_WINDOW = 100;
+    /** 疯魔倒计时漂移校正间隔（tick），只发给本人 */
+    private static final int FRENZY_RESYNC_INTERVAL = 100;
 
     /** 疯魔模式期间推开路径上玩家的判定范围（格） */
     private static final double PUSH_RANGE = 2;
@@ -101,6 +105,8 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
     public boolean disguised;
     /** 疯魔模式剩余时间（tick） */
     public int frenzyTicks;
+    /** 伪装翻转后的剩余补发时间（tick），仅服务端使用，不参与同步 */
+    private int disguiseResyncTicks;
 
     public LeatherPigPlayerComponent(Player player) {
         this.player = player;
@@ -115,11 +121,26 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
         KEY.sync(player);
     }
 
+    /**
+     * 只同步给本人：疯魔倒计时只有本人关心（见 {@link #writeToSyncNbtWithPlayer}），
+     * 伪装状态没变时不必对全场广播。
+     */
+    private void syncSelf() {
+        if (player instanceof ServerPlayer sp) {
+            KEY.syncWith(sp, sp.asComponentProvider(), this, this);
+        }
+    }
+
     @Override
     public void init() {
+        // 开局/清场会对所有玩家统一 init，状态本就默认时跳过广播，避免 N² 个包
+        boolean dirty = disguised || frenzyTicks > 0;
         setDisguised(false);
         frenzyTicks = 0;
-        sync();
+        disguiseResyncTicks = 0;
+        if (dirty) {
+            sync();
+        }
     }
 
     @Override
@@ -173,7 +194,7 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
         }
         shop.addToBalance(-FRENZY_COST);
         frenzyTicks = FRENZY_TICKS;
-        sync();
+        syncSelf();
         // 神秘追杀音效：自定义追杀 BGM（资源包提供）+ 原版守卫者诅咒兜底
 
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.PLAYERS,
@@ -193,13 +214,16 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
                 && GameUtils.isPlayerAliveAndSurvival(sp);
         if (shouldDisguise != disguised) {
             setDisguised(shouldDisguise);
+            disguiseResyncTicks = DISGUISE_RESYNC_WINDOW;
             sync();
-        } else if (disguised && sp.tickCount % DISGUISE_RESYNC_INTERVAL == 0) {
-            // 伪装只在翻转那一 tick 推送一次，而翻转恰好落在开局传送/重生的窗口里：
-            // 此时客户端可能还没有对应实体，CCA 会直接丢弃这个组件包，而服务端此后
-            // 不会再发第二次，客户端就永远停在 disguised=false（看到玩家本体而非猪）。
-            // 每秒补发一次，保证所有客户端最终收敛到猪模型。
-            sync();
+        } else if (disguiseResyncTicks > 0) {
+            // 翻转恰好落在开局传送/重生的窗口里时，客户端可能还没有对应实体，
+            // CCA 会直接丢弃这个组件包。翻转后的 5 秒窗口内每秒补发一次兜底；
+            // 窗口过后交给 CCA「开始追踪实体时自动同步」收尾，不再全场每秒广播。
+            disguiseResyncTicks--;
+            if (disguiseResyncTicks % DISGUISE_RESYNC_INTERVAL == 0) {
+                sync();
+            }
         }
 
         if (frenzyTicks <= 0) {
@@ -207,7 +231,7 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
         }
         if (!shouldDisguise) {
             frenzyTicks = 0;
-            sync();
+            syncSelf();
             return;
         }
 
@@ -228,11 +252,12 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
         if (frenzyTicks == 0) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.leather_pig.frenzy_end")
                     .withStyle(ChatFormatting.AQUA), true);
-            sync();
+            syncSelf();
             return;
         }
-        if (frenzyTicks % 20 == 0) {
-            sync();
+        // 客户端在 clientTick 里自行倒计时，这里只做低频漂移校正，且只发给本人
+        if (frenzyTicks % FRENZY_RESYNC_INTERVAL == 0) {
+            syncSelf();
         }
     }
 
