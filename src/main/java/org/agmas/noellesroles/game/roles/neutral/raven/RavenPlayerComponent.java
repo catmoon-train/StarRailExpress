@@ -91,7 +91,7 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public boolean shouldSyncWith(ServerPlayer target) {
-        return true;
+        return target == player;
     }
 
     public void sync() {
@@ -166,7 +166,7 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
                 endHunt(true);
             changed = true;
         }
-        if (changed || player.tickCount % 200 == 0)
+        if (changed)
             sync();
     }
 
@@ -399,7 +399,6 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
         buf.writeVarInt(huntTicks);
         buf.writeVarInt(kills);
         buf.writeVarInt(requiredKills);
-        buf.writeFloat(moodProgress);
         buf.writeFloat(moodProgressThreshold);
         boolean hasTarget = targetRoleId != null;
         buf.writeBoolean(hasTarget);
@@ -413,7 +412,6 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
         huntTicks = buf.readVarInt();
         kills = buf.readVarInt();
         requiredKills = buf.readVarInt();
-        moodProgress = buf.readFloat();
         moodProgressThreshold = buf.readFloat();
         targetRoleId = buf.readBoolean() ? ResourceLocation.tryParse(buf.readUtf()) : null;
     }
