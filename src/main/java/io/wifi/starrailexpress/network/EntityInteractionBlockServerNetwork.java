@@ -43,7 +43,7 @@ public class EntityInteractionBlockServerNetwork {
                 (payload, context) -> {
                     context.server().execute(() -> {
                         ServerPlayer player = context.player();
-                        if (!player.isCreative() && !player.hasPermissions(2)) {
+                        if (!player.isCreative() || !player.hasPermissions(2)) {
                             return;
                         }
                         BlockEntity be = player.level().getBlockEntity(payload.pos());
