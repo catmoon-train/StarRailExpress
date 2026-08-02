@@ -16,6 +16,8 @@
 package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -83,6 +85,26 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canUseSpVanillaWeapon = false; // 能用特殊原版武器（Dream 铁斧/钻石剑/重锤）削减他人虚拟血量
     protected boolean canBeXiaonao = false;
     protected boolean canXiaonao = false;
+    protected Function<RoleDataContext, RoleData> roleDataFunc = null;
+    /**
+     * 获取职业数据。用于替代CCA。
+     * 
+     * @return
+     */
+    public Function<RoleDataContext, RoleData> getRoleDataFunc() {
+        return this.roleDataFunc;
+    }
+
+    /**
+     * 职业数据。用于替代CCA。
+     * 
+     * @return
+     */
+    public SRERole setRoleData(Function<RoleDataContext, RoleData> newFunc) {
+        this.roleDataFunc = newFunc;
+        return this;
+    }
+
     /**
      * 击杀获得额外金币。
      */
