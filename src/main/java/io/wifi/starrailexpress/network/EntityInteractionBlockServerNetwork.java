@@ -41,11 +41,12 @@ public class EntityInteractionBlockServerNetwork {
         // 处理客户端发来的 SaveConfig 包
         ServerPlayNetworking.registerGlobalReceiver(EntityInteractionBlockPayload.SaveConfig.TYPE,
                 (payload, context) -> {
+
+                    ServerPlayer player = context.player();
+                    if (!player.isCreative() || !player.hasPermissions(2)) {
+                        return;
+                    }
                     context.server().execute(() -> {
-                        ServerPlayer player = context.player();
-                        if (!player.isCreative() || !player.hasPermissions(2)) {
-                            return;
-                        }
                         BlockEntity be = player.level().getBlockEntity(payload.pos());
                         if (be instanceof EntityInteractionBlockEntity entity) {
                             // 解析数据
