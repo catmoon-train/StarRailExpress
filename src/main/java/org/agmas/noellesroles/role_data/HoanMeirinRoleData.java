@@ -1,12 +1,10 @@
 package org.agmas.noellesroles.role_data;
 
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
 import org.jetbrains.annotations.NotNull;
 
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -105,13 +103,6 @@ public class HoanMeirinRoleData extends SimpleRoleData {
 
     @Override
     public void clientTick() {
-        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        if (!gameWorldComponent.isRunning())
-            return;
-        if (!gameWorldComponent.isRole(player, RedHouseRoles.HOAN_MEIRIN))
-            return;
-        if (!GameUtils.isPlayerAliveAndSurvival(player))
-            return;
         // 客户端也进行冷却计算（用于预测显示）
         if (this.cooldown > 0) {
             this.cooldown--;
