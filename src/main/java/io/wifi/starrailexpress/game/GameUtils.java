@@ -1329,6 +1329,8 @@ public class GameUtils {
             player.fallDistance = 0;
             player.onUpdateAbilities();
         }
+
+        SRERoleDataPlayerComponent.KEY.get(player).clear();
         SREPlayerMoodComponent.KEY.get(player).clear();
         SREPlayerShopComponent.KEY.get(player).clear();
         io.wifi.starrailexpress.cca.DynamicShopComponent.KEY.get(player).clear();
