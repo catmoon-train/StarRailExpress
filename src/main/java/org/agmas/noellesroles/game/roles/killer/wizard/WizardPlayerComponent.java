@@ -73,6 +73,8 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     public int shadowCooldownTicks = 0;
     public int explosionCooldownTicks = 0;
     public int blinkCooldownTicks = 0;
+    /** 九环火球术本局累计击杀数（上限 {@code wizardFireballMaxKills}，达到后无法再施放）。 */
+    public int fireballKills = 0;
 
     private boolean gaveStartingItems = false;
     private boolean potionKilledPlayer = false;
@@ -103,6 +105,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.shadowCooldownTicks = 0;
         this.explosionCooldownTicks = 0;
         this.blinkCooldownTicks = 0;
+        this.fireballKills = 0;
         this.gaveStartingItems = false;
         this.fireArrowMarks.clear();
         sync();
@@ -118,6 +121,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.shadowCooldownTicks = 0;
         this.explosionCooldownTicks = 0;
         this.blinkCooldownTicks = 0;
+        this.fireballKills = 0;
         this.gaveStartingItems = false;
         this.fireArrowMarks.clear();
         sync();
@@ -353,6 +357,11 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
     }
 
     private boolean castExplosion(ServerPlayer sp) {
+        if (fireballKills >= config().wizardFireballMaxKills) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.fireball_kill_limit",
+                    config().wizardFireballMaxKills).withStyle(ChatFormatting.RED), true);
+            return false;
+        }
         if (explosionArmed) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.explosion_already")
                     .withStyle(ChatFormatting.GOLD), true);
@@ -396,7 +405,12 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         }
 
         Vec3 eye = sp.getEyePosition();
-        Vec3 dir = sp.getLookAngle().normalize();
+        // 位移只取水平方向（无 Y 轴分量）；垂直看时退化为面朝方向
+        Vec3 look = sp.getLookAngle();
+        Vec3 dir = new Vec3(look.x, 0, look.z);
+        dir = dir.lengthSqr() < 1.0e-4
+                ? Vec3.directionFromRotation(0, sp.getYRot())
+                : dir.normalize();
         double maxDist = Math.max(2.0, config().wizardBlinkDistance);
         Vec3 wanted = eye.add(dir.scale(maxDist));
         var hit = sl.clip(new net.minecraft.world.level.ClipContext(eye, wanted,
@@ -602,6 +616,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         tag.putInt("shadowCooldownTicks", this.shadowCooldownTicks);
         tag.putInt("explosionCooldownTicks", this.explosionCooldownTicks);
         tag.putInt("blinkCooldownTicks", this.blinkCooldownTicks);
+        tag.putInt("fireballKills", this.fireballKills);
     }
 
     @Override
@@ -615,6 +630,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         this.shadowCooldownTicks = tag.getInt("shadowCooldownTicks");
         this.explosionCooldownTicks = tag.getInt("explosionCooldownTicks");
         this.blinkCooldownTicks = tag.getInt("blinkCooldownTicks");
+        this.fireballKills = tag.getInt("fireballKills");
     }
 
     @Override

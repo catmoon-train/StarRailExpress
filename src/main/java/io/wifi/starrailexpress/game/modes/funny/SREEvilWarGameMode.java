@@ -446,10 +446,11 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                                 false // 是否显示图标
                         ));
             }
-            // 削弱设陷者的开局陷阱数量
+            // 削弱设陷者：开局即进入放置冷却，无法立刻布陷阱
             else if (role == ModRoles.TRAPPER) {
                 TrapperPlayerComponent trapperPlayerComponent = TrapperPlayerComponent.KEY.get(player);
-                trapperPlayerComponent.trapCharges = 0;
+                trapperPlayerComponent.tripwireCooldownTicks = TrapperPlayerComponent.PLACE_COOLDOWN_TICKS;
+                trapperPlayerComponent.mudCooldownTicks = TrapperPlayerComponent.PLACE_COOLDOWN_TICKS;
                 trapperPlayerComponent.sync();
             }
             // 强盗开局自带1层护盾

@@ -446,7 +446,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** 幽露 (Youlu) - 不请自来：锚点在地面滑行的速度（格/tick） */
     public double youluAnchorSpeed = 0.25;
     /** 幽露 (Youlu) - 不请自来：锚点最长存在时间（秒），超时自动消散 */
-    public int youluAnchorLifetimeSeconds = 60;
+    public int youluAnchorLifetimeSeconds = 25;
     /** 幽露 (Youlu) - 遮天闭目：烟雾物品使用冷却（秒） */
     public int youluSmokeCooldownSeconds = 60;
     /** 幽露 (Youlu) - 遮天闭目：烟雾波向前推进的总距离（格），可穿墙 */
@@ -462,9 +462,9 @@ public class NoellesRolesConfig implements ConfigData {
     /** 幽露 (Youlu) - 自由摄像机：最长持续时间（秒），超时自动退出 */
     public int youluCamMaxSeconds = 60;
     /** 幽露 (Youlu) - 球烟：半径（格） */
-    public double youluSmokeBallRadius = 6;
+    public double youluSmokeBallRadius = 7;
     /** 幽露 (Youlu) - 球烟：持续时间（秒） */
-    public int youluSmokeBallSeconds = 12;
+    public int youluSmokeBallSeconds = 20;
     /** 幽露 (Youlu) - 商店范围关灯半径（格） */
     public int youluBlackoutRadius = 24;
 

@@ -46,7 +46,7 @@ import java.util.List;
  * <p>使用后放出一团<b>向前匀速推进</b>的烟雾波（可穿墙，非瞬时判定）：
  * 推进途中半径 4 格（可配置）内的存活玩家陷入 8s（可配置）失明 + 黑暗，
  * 命中后烟雾不会消失、继续前进，直到走完总距离（可配置，默认 12 格）。
- * 仅少量粒子作为视觉提示。60s（可配置）物品冷却。商店 100 金币购买一次。
+ * 仅少量粒子作为视觉提示。60s（可配置）物品冷却。商店 70 金币购买一次。
  */
 public class YouluSmokeItem extends Item {
 
@@ -71,9 +71,8 @@ public class YouluSmokeItem extends Item {
 
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
 
-        // 前向单位向量（由 yaw 计算，不受俯仰影响），从眼部高度前方 1 格出发
-        double rad = Math.toRadians(sp.getYRot());
-        Vec3 forward = new Vec3(-Math.sin(rad), 0, Math.cos(rad));
+        // 前向单位向量（取完整视线方向，支持 Y 轴移动），从眼部高度前方 1 格出发
+        Vec3 forward = sp.getLookAngle().normalize();
         Vec3 start = sp.getEyePosition().add(forward);
 
         // 渲染半径 = 球烟半径的 60%

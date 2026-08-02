@@ -23,6 +23,7 @@ import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.content.entity.MorphlingKnifeDummyEntity;
 import org.agmas.noellesroles.content.entity.PigeonEntity;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
 import org.agmas.noellesroles.content.entity.UndeadEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -43,7 +44,9 @@ public class UndeadGunTargetMixin {
                         || entity instanceof PuppeteerBodyEntity
                         || entity instanceof PigeonEntity
                         || entity instanceof MorphlingKnifeDummyEntity
-                        || entity instanceof UndeadEntity,
+                        || entity instanceof UndeadEntity
+                        // 设陷者绊线：可被枪击落（服务端由 TrapperTrapGunPayloadMixin 结算）
+                        || entity instanceof TripwireTrapEntity,
                 20f);
         cir.setReturnValue(result);
     }

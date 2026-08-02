@@ -190,9 +190,9 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
         if (dir.lengthSqr() < 1.0e-4) dir = flatten(sp.getLookAngle());
         dir = dir.normalize();
 
-        // 击退
+        // 击退（竖直分量削减 60%：0.42 -> 0.168，避免把人踢飞上天）
         double strength = config.jadeGeneralKnockbackBlocks * KNOCKBACK_PER_BLOCK;
-        target.push(dir.x * strength, 0.42D, dir.z * strength);
+        target.push(dir.x * strength, 0.168D, dir.z * strength);
         if (target instanceof ServerPlayer stp) {
             stp.hurtMarked = true;
             stp.connection.send(new ClientboundSetEntityMotionPacket(stp.getId(), stp.getDeltaMovement()));

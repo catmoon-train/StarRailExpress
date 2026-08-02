@@ -120,6 +120,7 @@ public class StandardRevolverItem extends SkinableItem {
                     return entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             || entity instanceof PuppeteerBodyEntity
                             || entity instanceof org.agmas.noellesroles.content.entity.PigeonEntity
+                            || entity instanceof org.agmas.noellesroles.content.entity.TripwireTrapEntity
                             || entity instanceof RainbowHorseEntity
                             || entity instanceof CanyuesaHorseEntity
                             || entity instanceof SuperPigHorseEntity;

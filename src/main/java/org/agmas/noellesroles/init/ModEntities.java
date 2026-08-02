@@ -192,20 +192,33 @@ public class ModEntities {
                     .build());
 
     /**
-     * 灾厄印记实体 - 设陷者专属隐形陷阱
+     * 泥沼陷阱实体 - 设陷者专属隐形陷阱，触发后范围困陷
      */
     @SuppressWarnings("deprecation")
-    public static final EntityType<CalamityMarkEntity> CALAMITY_MARK = Registry.register(
+    public static final EntityType<MudTrapEntity> MUD_TRAP = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
-            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "calamity_mark"),
-            FabricEntityTypeBuilder.<CalamityMarkEntity>create(MobCategory.MISC, CalamityMarkEntity::new)
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "mud_trap"),
+            FabricEntityTypeBuilder.<MudTrapEntity>create(MobCategory.MISC, MudTrapEntity::new)
                     .dimensions(EntityDimensions.fixed(0.5F, 0.1F))
                     .trackRangeBlocks(32)
                     .trackedUpdateRate(20)
                     .build());
 
     /**
-     * 绊索陷阱实体 - 设陷者可见陷阱，可被拆除
+     * 捕网实体 - 设陷者大招捕网枪的投掷物，渲染为蜘蛛网方块
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<TrapperNetEntity> TRAPPER_NET = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "trapper_net"),
+            FabricEntityTypeBuilder.<TrapperNetEntity>create(MobCategory.MISC, TrapperNetEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.6F, 0.6F))
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(2)
+                    .build());
+
+    /**
+     * 绊线陷阱实体 - 设陷者贴墙绊线，只有被枪击落才会消失
      */
     @SuppressWarnings("deprecation")
     public static final EntityType<TripwireTrapEntity> TRIPWIRE_TRAP = Registry.register(

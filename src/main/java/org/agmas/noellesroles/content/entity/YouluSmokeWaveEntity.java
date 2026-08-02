@@ -55,7 +55,7 @@ public class YouluSmokeWaveEntity extends Entity {
     /** 剩余可推进距离（同步给客户端用于渲染消散进度）。 */
     private static final EntityDataAccessor<Float> REMAINING_DISTANCE = SynchedEntityData.defineId(
             YouluSmokeWaveEntity.class, EntityDataSerializers.FLOAT);
-    /** 前进方向（水平单位向量）。 */
+    /** 前进方向（单位向量，可含 Y 轴分量）。 */
     private Vec3 direction = new Vec3(0, 0, 1);
     /** 推进速度（格/tick）。 */
     private double speed = 0.5D;

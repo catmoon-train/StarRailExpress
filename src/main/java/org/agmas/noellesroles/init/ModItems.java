@@ -871,6 +871,14 @@ public class ModItems {
             new org.agmas.noellesroles.content.item.DreamWineItem(new Item.Properties().stacksTo(1)),
             "dream_wine", ROLE_ITEMS_GROUP, CONSUMABLES_GROUP);
     /**
+     * 设陷者大招「捕网枪」
+     * - G 键（选中捕网类型）花费200金币购得，到手即150s初始冷却
+     * - 右键发射捕网：命中玩家或落地后禁锢半径5格内玩家8s；150s冷却
+     */
+    public static final Item TRAPPER_NET_GUN = register(
+            new org.agmas.noellesroles.content.item.TrapperNetGunItem(new Item.Properties().stacksTo(1)),
+            "trapper_net_gun", ROLE_ITEMS_GROUP);
+    /**
      * 绳索
      * - 2点耐久
      * - 右键：将前方直线距离12格内你瞄准的玩家拉到自己身前

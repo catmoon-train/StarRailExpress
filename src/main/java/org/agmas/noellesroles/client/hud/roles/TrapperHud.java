@@ -25,6 +25,9 @@ import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
+/**
+ * 设陷者 HUD（重做版）：当前陷阱类型、绊线/泥沼各自的独立冷却、陷阱数量与大招状态。
+ */
 public class TrapperHud {
 
     public static void register() {
@@ -32,59 +35,62 @@ public class TrapperHud {
             Minecraft client = Minecraft.getInstance();
             if (SREClient.isPlayerSpectator())
                 return;
+            if (!SREClient.isPlayerAliveAndInSurvival())
+                return;
 
-            // 检查玩家是否存活
-            if (!SREClient.isPlayerAliveAndInSurvival()) return;
+            TrapperPlayerComponent comp = TrapperPlayerComponent.KEY.get(client.player);
 
-            // 获取设陷者组件
-            TrapperPlayerComponent trapperComponent = TrapperPlayerComponent.KEY.get(client.player);
-
-            // 渲染位置 - 右下角
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
             int x = screenWidth - 150;
-            int y = screenHeight - 74;
+            int y = screenHeight - 86;
 
-            Font textRenderer = client.font;
+            Font font = client.font;
 
-            // 显示切换陷阱类型提示
+            // 切换陷阱类型提示
             Component toggleText = Component.translatable("hud.trapper.toggle_mode",
                     NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage());
-            context.drawString(textRenderer, toggleText, x, y, 0xAAAAAA);
+            context.drawString(font, toggleText, x, y, 0xAAAAAA);
 
-            // 显示当前陷阱类型
-            Component trapTypeText = Component.translatable(trapperComponent.getTrapTypeName());
-            int trapTypeColor = trapperComponent.getSelectedTrapType() == TrapperPlayerComponent.TRAP_TYPE_CALAMITY
-                    ? 0xBB44CC
-                    : 0xFF8C00;
-            context.drawString(textRenderer, trapTypeText, x, y + 12, trapTypeColor);
+            // 当前陷阱类型
+            int typeColor = switch (comp.getSelectedTrapType()) {
+                case TrapperPlayerComponent.TRAP_TYPE_MUD -> 0x8B5A2B;
+                case TrapperPlayerComponent.TRAP_TYPE_NET -> 0xE0E0E0;
+                default -> 0xFF8C00;
+            };
+            context.drawString(font, Component.translatable(comp.getTrapTypeName()), x, y + 12, typeColor);
 
-            // 显示陷阱储存数量
-            int charges = trapperComponent.getTrapCharges();
-            int maxCharges = TrapperPlayerComponent.MAX_TRAP_CHARGES;
+            // 数量：绊线 x/4，总数 x/5
+            context.drawString(font, Component.translatable("hud.noellesroles.trapper.tripwires",
+                    comp.syncedTripwireCount, TrapperPlayerComponent.MAX_TRIPWIRES), x, y + 24, 0xFF8C00);
+            context.drawString(font, Component.translatable("hud.noellesroles.trapper.total",
+                    comp.syncedTotalCount, TrapperPlayerComponent.MAX_TOTAL_TRAPS), x, y + 36, 0xFFFF00);
 
-            int chargeColor;
-            if (charges == 0) {
-                chargeColor = CommonColors.RED;
-            } else if (charges == maxCharges) {
-                chargeColor = CommonColors.GREEN;
+            // 独立冷却：绊线 / 泥沼
+            drawCooldown(context, font, x, y + 48, "hud.noellesroles.trapper.cd.tripwire",
+                    comp.tripwireCooldownTicks);
+            drawCooldown(context, font, x, y + 60, "hud.noellesroles.trapper.cd.mud",
+                    comp.mudCooldownTicks);
+
+            // 大招状态：未购买显示价格；已购买显示技能冷却
+            if (comp.hasNetGun) {
+                drawCooldown(context, font, x, y + 72, "hud.noellesroles.trapper.cd.net",
+                        comp.netGunCooldownTicks);
             } else {
-                chargeColor = 0xFFFF00;
-            }
-
-            Component chargeText = Component.translatable("hud.noellesroles.trapper.charges", charges, maxCharges);
-            context.drawString(textRenderer, chargeText, x, y + 24, chargeColor);
-
-            // 如果陷阱未满，显示恢复时间
-            if (charges < maxCharges) {
-                float rechargeSeconds = trapperComponent.getRechargeSeconds();
-                Component rechargeText = Component.translatable("hud.noellesroles.trapper.recharge",
-                        String.format("%.1f", rechargeSeconds));
-                context.drawString(textRenderer, rechargeText, x, y + 36, 0xAAAAAA);
-            } else {
-                Component readyText = Component.translatable("hud.noellesroles.trapper.ready");
-                context.drawString(textRenderer, readyText, x, y + 36, CommonColors.GREEN);
+                context.drawString(font, Component.translatable("hud.noellesroles.trapper.net_cost",
+                        TrapperPlayerComponent.NET_GUN_COST), x, y + 72, 0xAAAAAA);
             }
         });
+    }
+
+    private static void drawCooldown(io.wifi.utils.client.betterrender.FakeGuiGraphics context, Font font,
+            int x, int y, String key, int cooldownTicks) {
+        if (cooldownTicks > 0) {
+            context.drawString(font, Component.translatable(key,
+                    String.format("%.1f", cooldownTicks / 20.0f)), x, y, CommonColors.RED);
+        } else {
+            context.drawString(font, Component.translatable(key,
+                    Component.translatable("hud.noellesroles.trapper.ready")), x, y, CommonColors.GREEN);
+        }
     }
 }

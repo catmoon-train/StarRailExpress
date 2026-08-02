@@ -17,13 +17,15 @@ package org.agmas.noellesroles.content.entity;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -38,86 +40,83 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.role.ModRoles;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * 绊索陷阱实体
- * 
- * 可见陷阱，所有玩家均可看到并拆除：
- * - 目标走路通过时获得 3 秒缓慢 I
- * - 若目标在疾跑状态下触发，则会摔倒，获得 5 秒缓慢 IV 并清空体力值
+ * 设陷者「绊线」陷阱实体（重做版）。
+ *
+ * <p>贴墙放置：锚点在墙面上，绊线沿墙面法线（水平方向）向外延伸至对面墙壁
+ * （或最大长度）。踩中绊线的玩家速度 -90%（缓慢 VI）持续 4s；绊线不因触发消失，
+ * <b>只有被枪击落才会消失</b>（见 {@code TrapperTrapGunPayloadMixin}），近战无法拆除。
  */
 public class TripwireTrapEntity extends Entity {
 
     /** 所有者 UUID */
     private static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId(
             TripwireTrapEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    /** 绊线延伸方向（Direction 3D data value，水平四向）。 */
+    private static final EntityDataAccessor<Byte> WIRE_DIRECTION = SynchedEntityData.defineId(
+            TripwireTrapEntity.class, EntityDataSerializers.BYTE);
+    /** 绊线长度（格）。 */
+    private static final EntityDataAccessor<Float> WIRE_LENGTH = SynchedEntityData.defineId(
+            TripwireTrapEntity.class, EntityDataSerializers.FLOAT);
 
-    /** 陷阱触发半径（格） */
-    public static final double TRIGGER_RADIUS = 1.0;
+    /** 触发后给予的缓慢等级：缓慢 VI = -90% 移速。 */
+    public static final int SLOW_AMPLIFIER = 5;
+    /** 缓慢持续时间（4s）。 */
+    public static final int SLOW_DURATION = 4 * 20;
+    /** 绊线判定盒半厚度（格）。 */
+    public static final double WIRE_HALF_THICKNESS = 0.2;
+    /** 同一受害者的触发反馈节流（tick），避免站在线上刷屏/刷音效。 */
+    private static final int RETRIGGER_THROTTLE = 30;
 
-    /** 陷阱检测区域高度（格） */
-    public static final double DETECTION_HEIGHT = 2.0;
-
-    /** 陷阱存在时间上限（5分钟 = 6000 tick），防止无限存在 */
-    public static final int MAX_LIFETIME = 6000;
-
-    /** 走路触发缓慢效果持续时间（3秒 = 60 tick） */
-    public static final int WALK_SLOW_DURATION = 60;
-
-    /** 走路触发缓慢等级（Slowness I = amplifier 0） */
-    public static final int WALK_SLOW_AMPLIFIER = 0;
-
-    /** 疾跑触发缓慢效果持续时间（5秒 = 100 tick） */
-    public static final int SPRINT_SLOW_DURATION = 100;
-
-    /** 疾跑触发缓慢等级（Slowness IV = amplifier 3） */
-    public static final int SPRINT_SLOW_AMPLIFIER = 3;
-
-    /** 存活时间计数器 */
-    private int lifetime = 0;
-
+    /** 每个受害者的触发节流计时。 */
+    private final Map<UUID, Integer> victimThrottle = new HashMap<>();
     /** 所有者玩家引用（缓存） */
     private Player ownerCache = null;
 
     public TripwireTrapEntity(EntityType<?> type, Level world) {
         super(type, world);
-        this.setInvisible(false); // 对所有人可见
-        this.setNoGravity(true); // 无重力
+        this.setNoGravity(true);
+        this.noPhysics = true;
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(OWNER_UUID, Optional.empty());
+        builder.define(WIRE_DIRECTION, (byte) Direction.NORTH.get3DDataValue());
+        builder.define(WIRE_LENGTH, 0.0F);
     }
 
-    /**
-     * 设置所有者
-     */
-    public void setOwner(Player owner) {
-        if (owner != null) {
-            this.entityData.set(OWNER_UUID, Optional.of(owner.getUUID()));
-            this.ownerCache = owner;
-        }
+    /** 设置绊线几何（锚点=实体位置，沿 direction 延伸 length 格）。 */
+    public void setupWire(Player owner, Direction direction, double length) {
+        this.entityData.set(OWNER_UUID, Optional.of(owner.getUUID()));
+        this.ownerCache = owner;
+        this.entityData.set(WIRE_DIRECTION, (byte) direction.get3DDataValue());
+        this.entityData.set(WIRE_LENGTH, (float) length);
+        this.setBoundingBox(this.makeBoundingBox());
     }
 
-    /**
-     * 获取所有者 UUID
-     */
+    public Direction getWireDirection() {
+        return Direction.from3DDataValue(this.entityData.get(WIRE_DIRECTION));
+    }
+
+    public double getWireLength() {
+        return this.entityData.get(WIRE_LENGTH);
+    }
+
     public Optional<UUID> getOwnerUuid() {
         return this.entityData.get(OWNER_UUID);
     }
 
-    /**
-     * 获取所有者玩家
-     */
     public Player getOwner() {
         if (ownerCache != null && ownerCache.isAlive()) {
             return ownerCache;
         }
-
         Optional<UUID> ownerUuid = getOwnerUuid();
         if (ownerUuid.isPresent()) {
             ownerCache = level().getPlayerByUUID(ownerUuid.get());
@@ -126,226 +125,171 @@ public class TripwireTrapEntity extends Entity {
         return null;
     }
 
+    /** 包围盒沿绊线方向拉长（方向为轴对齐，故 AABB 恰好贴合），供触发判定与枪击射线拾取。 */
+    @Override
+    protected AABB makeBoundingBox() {
+        Vec3 pos = position();
+        double len = getWireLength();
+        Direction dir = getWireDirection();
+        if (len <= 0) {
+            return new AABB(pos.x - 0.25, pos.y - 0.1, pos.z - 0.25, pos.x + 0.25, pos.y + 0.1, pos.z + 0.25);
+        }
+        Vec3 end = pos.add(dir.getStepX() * len, 0, dir.getStepZ() * len);
+        return new AABB(
+                Math.min(pos.x, end.x) - WIRE_HALF_THICKNESS,
+                pos.y - WIRE_HALF_THICKNESS,
+                Math.min(pos.z, end.z) - WIRE_HALF_THICKNESS,
+                Math.max(pos.x, end.x) + WIRE_HALF_THICKNESS,
+                pos.y + WIRE_HALF_THICKNESS,
+                Math.max(pos.z, end.z) + WIRE_HALF_THICKNESS);
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
+        super.onSyncedDataUpdated(data);
+        if (WIRE_DIRECTION.equals(data) || WIRE_LENGTH.equals(data)) {
+            this.setBoundingBox(this.makeBoundingBox());
+        }
+    }
+
     @Override
     public void tick() {
         super.tick();
-
-        if (level().isClientSide())
-            return;
-
-        // 增加存活时间
-        lifetime++;
-        if (lifetime > MAX_LIFETIME) {
-            this.discard();
+        if (level().isClientSide()) {
             return;
         }
 
-        // 检查所有者是否还是设陷者
         Player owner = getOwner();
         if (owner == null) {
             this.discard();
             return;
         }
-
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
         if (!gameWorld.isRole(owner, ModRoles.TRAPPER)) {
             this.discard();
             return;
         }
 
-        // 检测触发
+        victimThrottle.replaceAll((uuid, ticks) -> ticks - 1);
+        victimThrottle.values().removeIf(ticks -> ticks <= 0);
         checkTrigger();
     }
 
-    /**
-     * 检测是否有玩家触发陷阱
-     */
+    /** 玩家碰到绊线：缓慢 VI（-90%）4s；绊线保留。 */
     private void checkTrigger() {
         Level world = level();
-        Vec3 pos = this.position();
-
-        // 创建检测区域
-        AABB detectionBox = new AABB(
-                pos.x - TRIGGER_RADIUS, pos.y - 0.5, pos.z - TRIGGER_RADIUS,
-                pos.x + TRIGGER_RADIUS, pos.y + DETECTION_HEIGHT, pos.z + TRIGGER_RADIUS);
-
-        // 获取区域内的所有玩家
-        List<Player> players = world.getEntitiesOfClass(
-                Player.class, detectionBox,
-                player -> {
-                    // 排除所有者
-                    Optional<UUID> ownerUuid = getOwnerUuid();
-                    if (ownerUuid.isPresent() && player.getUUID().equals(ownerUuid.get())) {
-                        return false;
-                    }
-
-                    // 排除死亡或观察者模式的玩家
-                    if (!GameUtils.isPlayerAliveAndSurvival(player)) {
-                        return false;
-                    }
-
-                    // 排除其他杀手阵营玩家（同阵营不触发）
-                    SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
-                    if (gameWorld.isKillerTeam(player)) {
-                        return false;
-                    }
-
-                    // 被操纵师操控的玩家：弹回且不触发陷阱（不受陷阱伤害）
-                    if (org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA.bounceBackIfControlled(player)) {
-                        return false;
-                    }
-
-                    return true;
-                });
-
-        // 如果有玩家触发
-        if (!players.isEmpty()) {
-            Player victim = players.getFirst();
-            triggerTrap(victim);
+        AABB wireBox = getBoundingBox().inflate(0.1);
+        List<Player> players = world.getEntitiesOfClass(Player.class, wireBox, player -> {
+            Optional<UUID> ownerUuid = getOwnerUuid();
+            if (ownerUuid.isPresent() && player.getUUID().equals(ownerUuid.get())) {
+                return false;
+            }
+            if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+                return false;
+            }
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(world);
+            if (gameWorld.isKillerTeam(player)) {
+                return false;
+            }
+            // 被操纵师操控的玩家：弹回且不触发陷阱
+            if (org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA.bounceBackIfControlled(player)) {
+                return false;
+            }
+            return true;
+        });
+        for (Player victim : players) {
+            triggerOn(victim);
         }
     }
 
-    /**
-     * 触发绊索陷阱
-     */
-    private void triggerTrap(Player victim) {
-        Player owner = getOwner();
-        if (owner == null) {
-            this.discard();
+    private void triggerOn(Player victim) {
+        victim.addEffect(new MobEffectInstance(
+                MobEffects.MOVEMENT_SLOWDOWN, SLOW_DURATION, SLOW_AMPLIFIER, false, true, true));
+        if (victimThrottle.containsKey(victim.getUUID())) {
             return;
         }
+        victimThrottle.put(victim.getUUID(), RETRIGGER_THROTTLE);
 
-        // 记录陷阱触发事件（低频关键事件）：victim 踩中了 owner 布下的陷阱
-        if (!victim.level().isClientSide) {
+        // 记录陷阱触发事件（低频关键事件）
+        Player owner = getOwner();
+        if (owner != null) {
             io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordTrapTriggered(owner.getUUID(), victim.getUUID());
         }
 
-        boolean wasSprinting = victim.isSprinting();
-
-        if (wasSprinting) {
-            // 疾跑状态触发：摔倒，5秒缓慢 IV，清空体力值
-            victim.addEffect(new MobEffectInstance(
-                    MobEffects.MOVEMENT_SLOWDOWN, SPRINT_SLOW_DURATION, SPRINT_SLOW_AMPLIFIER,
-                    false, true, true));
-
-            // 停止疾跑
-            victim.setSprinting(false);
-
-            // 清空体力值
-            if (victim instanceof PlayerStaminaGetter staminaGetter) {
-                staminaGetter.starrailexpress$setStamina(0);
-            }
-
-            // 播放摔倒音效
-            Level world = victim.level();
-            world.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
-                    SoundEvents.PLAYER_BIG_FALL, SoundSource.PLAYERS, 1.0f, 1.0f);
-
-            // 通知受害者
-            if (victim instanceof ServerPlayer serverVictim) {
-                serverVictim.displayClientMessage(
-                        Component.translatable("message.noellesroles.trapper.tripwire_sprint_triggered")
-                                .withStyle(ChatFormatting.RED, ChatFormatting.BOLD),
-                        true);
-            }
-        } else {
-            // 走路状态触发：3秒缓慢 I
-            victim.addEffect(new MobEffectInstance(
-                    MobEffects.MOVEMENT_SLOWDOWN, WALK_SLOW_DURATION, WALK_SLOW_AMPLIFIER,
-                    false, true, true));
-
-            // 播放触发音效
-            Level world = victim.level();
-            world.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
-                    SoundEvents.TRIPWIRE_CLICK_ON, SoundSource.PLAYERS, 1.0f, 1.0f);
-
-            // 通知受害者
-            if (victim instanceof ServerPlayer serverVictim) {
-                serverVictim.displayClientMessage(
-                        Component.translatable("message.noellesroles.trapper.tripwire_walk_triggered")
-                                .withStyle(ChatFormatting.YELLOW),
-                        true);
-            }
+        if (level() instanceof ServerLevel serverLevel) {
+            serverLevel.playSound(null, victim.getX(), victim.getY(), victim.getZ(),
+                    SoundEvents.TRIPWIRE_CLICK_ON, SoundSource.PLAYERS, 1.0f, 0.8f);
+            serverLevel.sendParticles(ParticleTypes.CRIT,
+                    victim.getX(), victim.getY() + 0.5, victim.getZ(), 12, 0.3, 0.3, 0.3, 0.1);
         }
-
-        // 通知设陷者
+        if (victim instanceof ServerPlayer serverVictim) {
+            serverVictim.addEffect(new MobEffectInstance(
+                    MobEffects.GLOWING, SLOW_DURATION, SLOW_AMPLIFIER, false, true, true));
+            serverVictim.addEffect(new MobEffectInstance(
+                    MobEffects.BLINDNESS, SLOW_DURATION, SLOW_AMPLIFIER, false, true, true));
+            serverVictim.displayClientMessage(
+                    Component.translatable("message.noellesroles.trapper.tripwire_slowed")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+        }
         if (owner instanceof ServerPlayer serverOwner) {
-            String typeKey = wasSprinting
-                    ? "message.noellesroles.trapper.tripwire_type.sprinting"
-                    : "message.noellesroles.trapper.tripwire_type.walking";
             serverOwner.displayClientMessage(
-                    Component.translatable("message.noellesroles.trapper.tripwire_triggered_notify",
-                            victim.getName(), Component.translatable(typeKey))
+                    Component.translatable("message.noellesroles.trapper.tripwire_hit_notify", victim.getName())
                             .withStyle(ChatFormatting.GREEN),
                     true);
         }
+    }
 
-        // 陷阱触发后消失（一次性）
+    /** 被枪击落（由 {@code TrapperTrapGunPayloadMixin} 调用）：唯一的移除方式。 */
+    public void shotDown(ServerPlayer shooter) {
+        if (level().isClientSide() || this.isRemoved()) {
+            return;
+        }
+        if (level() instanceof ServerLevel serverLevel) {
+            Vec3 mid = position().add(
+                    getWireDirection().getStepX() * getWireLength() / 2, 0,
+                    getWireDirection().getStepZ() * getWireLength() / 2);
+            serverLevel.playSound(null, mid.x, mid.y, mid.z,
+                    SoundEvents.TRIPWIRE_CLICK_OFF, SoundSource.PLAYERS, 1.0f, 1.4f);
+            serverLevel.sendParticles(ParticleTypes.WAX_OFF, mid.x, mid.y, mid.z, 20,
+                    Math.abs(getWireDirection().getStepX()) * getWireLength() / 2 + 0.1, 0.1,
+                    Math.abs(getWireDirection().getStepZ()) * getWireLength() / 2 + 0.1, 0.0);
+        }
+        if (shooter != null) {
+            shooter.displayClientMessage(
+                    Component.translatable("message.noellesroles.trapper.tripwire_dismantled")
+                            .withStyle(ChatFormatting.GREEN),
+                    true);
+        }
+        Player owner = getOwner();
+        if (owner instanceof ServerPlayer serverOwner && serverOwner != shooter) {
+            serverOwner.displayClientMessage(
+                    Component.translatable("message.noellesroles.trapper.tripwire_dismantled_notify",
+                            shooter != null ? shooter.getName() : Component.literal("?"))
+                            .withStyle(ChatFormatting.RED),
+                    true);
+        }
         this.discard();
     }
 
     @Override
     public boolean isPickable() {
-        return true; // 可以被点击（用于拆除）
+        return true; // 允许枪械射线拾取
     }
 
     @Override
     public boolean isPushable() {
-        return false; // 不能被推动
+        return false;
     }
 
     @Override
     public boolean canBeCollidedWith() {
-        return false; // 无物理碰撞
+        return false;
     }
 
-    /**
-     * 当受到攻击时（玩家左键点击拆除）
-     */
+    /** 近战/其他伤害无效：只有枪能击落（走 shotDown）。 */
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (level().isClientSide())
-            return false;
-
-        Entity attacker = source.getEntity();
-        if (attacker instanceof Player player) {
-            // 所有者不能拆除自己的陷阱（通过攻击）
-            Optional<UUID> ownerUuid = getOwnerUuid();
-            if (ownerUuid.isPresent() && player.getUUID().equals(ownerUuid.get())) {
-                return false;
-            }
-
-            // 杀手阵营不能拆除
-            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
-            if (gameWorld.isKillerTeam(player)) {
-                return false;
-            }
-
-            // 播放拆除音效
-            level().playSound(null, this.getX(), this.getY(), this.getZ(),
-                    SoundEvents.TRIPWIRE_CLICK_OFF, SoundSource.PLAYERS, 1.0f, 1.5f);
-
-            // 通知拆除者
-            if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.trapper.tripwire_dismantled")
-                                .withStyle(ChatFormatting.GREEN),
-                        true);
-            }
-
-            // 通知设陷者
-            Player owner = getOwner();
-            if (owner instanceof ServerPlayer serverOwner) {
-                serverOwner.displayClientMessage(
-                        Component.translatable("message.noellesroles.trapper.tripwire_dismantled_notify",
-                                player.getName())
-                                .withStyle(ChatFormatting.RED),
-                        true);
-            }
-
-            this.discard();
-            return true;
-        }
         return false;
     }
 
@@ -358,13 +302,16 @@ public class TripwireTrapEntity extends Entity {
             } catch (IllegalArgumentException ignored) {
             }
         }
-        this.lifetime = nbt.contains("Lifetime") ? nbt.getInt("Lifetime") : 0;
+        this.entityData.set(WIRE_DIRECTION, nbt.getByte("WireDirection"));
+        this.entityData.set(WIRE_LENGTH, nbt.getFloat("WireLength"));
+        this.setBoundingBox(this.makeBoundingBox());
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag nbt) {
         Optional<UUID> ownerUuid = getOwnerUuid();
         ownerUuid.ifPresent(uuid -> nbt.putString("OwnerUUID", uuid.toString()));
-        nbt.putInt("Lifetime", this.lifetime);
+        nbt.putByte("WireDirection", this.entityData.get(WIRE_DIRECTION));
+        nbt.putFloat("WireLength", this.entityData.get(WIRE_LENGTH));
     }
 }
