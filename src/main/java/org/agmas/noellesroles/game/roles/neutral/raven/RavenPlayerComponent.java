@@ -160,11 +160,10 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
             cooldownTicks--;
         if (huntTicks > 0) {
             huntTicks--;
-            if (!hasLivingTargetRole(game))
-                chooseTargetRole(game);
+            if (!hasLivingTargetRole(game) && chooseTargetRole(game))
+                changed = true;
             if (huntTicks <= 0)
                 endHunt(true);
-            changed = true;
         }
         if (changed)
             sync();
@@ -173,6 +172,10 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
     private boolean observeNearbyMood(int totalPlayers) {
         boolean changed = false;
         float threshold = getChargeThreshold(totalPlayers);
+        if (charges >= MAX_CHARGES) {
+            observedMood.keySet().removeIf(id -> player.level().getPlayerByUUID(id) == null);
+            return false;
+        }
         for (Player nearby : player.level().players()) {
             if (nearby == player || nearby.distanceToSqr(player) > MOOD_RADIUS_SQR
                     || !GameUtils.isPlayerAliveAndSurvival(nearby))
