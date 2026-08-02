@@ -821,4 +821,6 @@ public abstract class GameMode {
     public boolean canAllPeopleSeeTime() {
         return false;
     }
+
+    public abstract boolean canHaveMeeting();
 }

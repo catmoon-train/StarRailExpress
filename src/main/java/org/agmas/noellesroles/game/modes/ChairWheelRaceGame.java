@@ -157,12 +157,17 @@ public class ChairWheelRaceGame extends GameMode {
         }));
         gameWorldComponent.syncRoles();
     }
-    
-    public boolean hasMood(){
+
+    public boolean hasMood() {
         return false;
     }
 
     public boolean hasSafeTime() {
+        return false;
+    }
+
+    @Override
+    public boolean canHaveMeeting() {
         return false;
     }
 }

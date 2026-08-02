@@ -58,4 +58,9 @@ public final class FourthRoomGameMode extends GameMode {
     public boolean hasMood() {
         return false;
     }
+
+    @Override
+    public boolean canHaveMeeting() {
+        return false;
+    }
 }

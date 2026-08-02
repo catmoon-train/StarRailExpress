@@ -111,4 +111,9 @@ public class RepairEscapeGameMode extends GameMode {
         RepairForcedRoleState.clearAll();
         roleSelection.reset();
     }
+
+    @Override
+    public boolean canHaveMeeting() {
+        return false;
+    }
 }

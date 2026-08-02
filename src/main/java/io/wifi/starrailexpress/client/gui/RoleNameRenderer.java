@@ -352,7 +352,9 @@ public class RoleNameRenderer {
 
         }
         {
+            ctx.pose().pushPose();
             OnRenderRoleName.RENDER_END.invoker().render(self, range, ctx, tickCounter, font);
+            ctx.pose().popPose();
         }
     }
 

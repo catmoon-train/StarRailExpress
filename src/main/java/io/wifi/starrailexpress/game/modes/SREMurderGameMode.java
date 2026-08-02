@@ -777,4 +777,9 @@ public class SREMurderGameMode extends GameMode {
         return AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld,
                 winStatus, false);
     }
+
+    @Override
+    public boolean canHaveMeeting() {
+        return true;
+    }
 }

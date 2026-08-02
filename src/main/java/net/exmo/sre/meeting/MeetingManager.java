@@ -282,6 +282,9 @@ public final class MeetingManager {
         if (RefugeeComponent.KEY.get(serverLevel).isAnyRevivals) {
             return false;
         }
+        if (!SREGameWorldComponent.KEY.get(serverLevel).getGameMode().canHaveMeeting()) {
+            return false;
+        }
         skipVoters.clear();
         AreasSettings settings = settings(serverLevel);
         if (settings == null || !settings.meetingEnabled || isActive()) {
