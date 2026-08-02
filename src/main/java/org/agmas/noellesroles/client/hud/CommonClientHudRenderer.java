@@ -1030,7 +1030,11 @@ public class CommonClientHudRenderer {
 
     RoleHudRenderCallback.EVENT.register(RedHouseRoles.HOAN_MEIRIN_ID, (guiGraphics, deltaTracker) -> {
       // 渲染红美铃的提示
+
       var client = Minecraft.getInstance();
+
+      if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+        return;
       int screenWidth = guiGraphics.guiWidth();
       int screenHeight = guiGraphics.guiHeight();
       var font = client.font;

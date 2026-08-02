@@ -69,6 +69,8 @@ public class HoanMeirinRoleData extends SimpleRoleData {
     @Override
     public void serverTick() {
         // 服务端每 tick 减少冷却时间
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return;
         boolean shouldSync = false;
         if (this.cooldown > 0) {
             this.cooldown--;
@@ -118,6 +120,8 @@ public class HoanMeirinRoleData extends SimpleRoleData {
 
     @Override
     public void clientTick() {
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return;
         // 客户端也进行冷却计算（用于预测显示）
         if (this.cooldown > 0) {
             this.cooldown--;
