@@ -8,14 +8,17 @@ import net.minecraft.world.entity.player.Player;
 
 /**
  * 示例：简单实例化RoleData类。
+ * 因为每次变换职业都会创建新的实例，所以理论上不需要写init和clear来重置数据。
  * SimpleRoleData
  */
 public class SimpleRoleData implements RoleData {
 
     final protected RoleDataContext ctx;
+    final protected Player player;
 
     public SimpleRoleData(RoleDataContext context) {
         this.ctx = context;
+        this.player = ctx.player();
     }
 
     @Override

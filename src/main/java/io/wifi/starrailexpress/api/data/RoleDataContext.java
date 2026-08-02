@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.world.entity.player.Player;
 
-public record RoleDataContext(Player player, SRERole role, @Nullable Runnable syncFunc) {
+public record RoleDataContext(Player player, @Nullable SRERole role, @Nullable Runnable syncFunc) {
     public void sync() {
         if (syncFunc != null)
             syncFunc.run();

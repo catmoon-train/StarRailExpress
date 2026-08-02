@@ -21,9 +21,10 @@
 ```java
 .setRoleData(RoleData实例类::new)
 ```
-
 RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
-获取此实例类方法是RoleData.getNullable(玩家)
+因为每次实例都是创建新的，理论上你不需要init和clear。
+获取此实例类方法是 `RoleData.getNullable(玩家)`
+或者 `RoleData.get(类.class, 玩家);`
 
 如果你打算写冷却等需要ticking的事件：
 - 请服务端尽量在重大更改时同步，而不是每秒同步！

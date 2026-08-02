@@ -42,7 +42,6 @@ import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPl
 import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.glitch_robot.GlitchRobotPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectivePlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.jade_general.JadeGeneralPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
@@ -246,11 +245,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   public static final ComponentKey<InsaneKillerPlayerComponent> INSANE_KILLER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "insane_killer"),
       InsaneKillerPlayerComponent.class);
-
-  public static final ComponentKey<HoanMeirinPlayerComponent> hoan_meirin = ComponentRegistry
-      .getOrCreate(
-          ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "hoan_meirin"),
-          HoanMeirinPlayerComponent.class);
   public static final ComponentKey<PandaComponent> panda = ComponentRegistry
       .getOrCreate(
           ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "panda"),
@@ -727,11 +721,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, BETTER_VIGILANTE)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(BetterVigilantePlayerComponent::new);
-
-    // 注册记录员组件 - 存储猜测记录和可用角色
-    registry.beginRegistration(Player.class, hoan_meirin)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(HoanMeirinPlayerComponent::new);
     // 注册记录员组件 - 存储猜测记录和可用角色
     registry.beginRegistration(Player.class, RECORDER)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)

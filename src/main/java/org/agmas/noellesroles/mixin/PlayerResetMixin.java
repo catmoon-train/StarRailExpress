@@ -38,7 +38,6 @@ import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayer
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
@@ -121,7 +120,6 @@ public abstract class PlayerResetMixin {
         MonokumaPlayerComponent.KEY.get(player).clear();
         (PlayerVolumeComponent.KEY.get(player)).clear();
         (WayfarerPlayerComponent.KEY.get(player)).clear();
-        (HoanMeirinPlayerComponent.KEY.get(player)).clear();
 
         ((MorphlingPlayerComponent) MorphlingPlayerComponent.KEY.get(player)).init();
         ((VoodooPlayerComponent) VoodooPlayerComponent.KEY.get(player)).init();

@@ -110,10 +110,11 @@ public class SRERoleDataPlayerComponent
         if (roleDataFunc != null) {
             roleData = roleDataFunc.apply(ctx);
         }
-        initSync = true;
-        sync();
-        if (roleData != null)
+        if (roleData != null) {
+            initSync = true;
+            sync();
             roleData.init();
+        }
     }
 
     public void clientInit() {

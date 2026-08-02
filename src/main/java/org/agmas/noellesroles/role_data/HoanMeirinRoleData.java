@@ -1,71 +1,27 @@
-/*
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+package org.agmas.noellesroles.role_data;
 
-package org.agmas.noellesroles.game.roles.innocence.hoan_meirin;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.jetbrains.annotations.NotNull;
 
-import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.data.RoleDataContext;
+import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
-import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-/**
- * 通用技能组件
- *
- * 用于管理玩家的技能冷却时间和使用次数
- * 该组件会自动在客户端和服务端之间同步
- *
- * 功能：
- * - 冷却时间管理（自动递减）
- * - 技能使用次数限制
- * - 自动同步到客户端（用于 HUD 显示）
- */
-public class HoanMeirinPlayerComponent
-        implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+public class HoanMeirinRoleData extends SimpleRoleData {
 
-    @Override
-    public Player getPlayer() {
-        return player;
+    public HoanMeirinRoleData(RoleDataContext context) {
+        super(context);
     }
-
-    /** 组件键 - 用于从玩家获取此组件 */
-    public static final ComponentKey<HoanMeirinPlayerComponent> KEY = ModComponents.hoan_meirin;
-
-    // 持有该组件的玩家
-    private final Player player;
 
     // 技能冷却时间（tick）
-    public int cooldown = 100;
+    public int cooldown = 0;
     public int loneyTime = 0;
-
-    /**
-     * 构造函数
-     */
-    public HoanMeirinPlayerComponent(Player player) {
-        this.player = player;
-    }
 
     /**
      * 重置组件状态
@@ -73,14 +29,10 @@ public class HoanMeirinPlayerComponent
      */
     @Override
     public void init() {
-        this.cooldown = 0;
-        this.loneyTime = 0;
-        this.sync();
     }
 
     @Override
     public void clear() {
-        this.init();
     }
 
     /**
@@ -99,24 +51,11 @@ public class HoanMeirinPlayerComponent
     public float getCooldownSeconds() {
         return cooldown / 20.0f;
     }
-
-    /**
-     * 同步到客户端
-     */
-    public void sync() {
-        KEY.sync(this.player);
-    }
-
     // ==================== Tick 处理 ====================
 
     @Override
     public void serverTick() {
         // 服务端每 tick 减少冷却时间
-        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        if (!gameWorldComponent.isRunning())
-            return;
-        if (!gameWorldComponent.isRole(player, RedHouseRoles.HOAN_MEIRIN))
-            return;
         boolean shouldSync = false;
         if (this.cooldown > 0) {
             this.cooldown--;
@@ -207,31 +146,5 @@ public class HoanMeirinPlayerComponent
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         this.loneyTime = tag.contains("loneyTime") ? tag.getInt("loneyTime") : 0;
-    }
-
-    // public boolean triggerArmor(Player victim, Player killer, ResourceLocation deathReason) {
-    //     if (this.armor > 0) {
-    //         boolean cantDefend = SRE.canStickArmor.stream()
-    //                 .anyMatch((pre) -> pre.test(new DeathInfo(victim, killer, deathReason)));
-    //         if (cantDefend) {
-    //             return false;
-    //         }
-    //         this.armor--;
-    //         this.sync();
-    //         player.level().playSound(null, player.blockPosition(), TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER,
-    //                 5.0F, 1.0F);
-    //         SRE.REPLAY_MANAGER.breakArmor(player.getUUID());
-    //         HoanMeirinFistPunchHandler.applyShockwave(player);
-    //         return true;
-    //     }
-    //     return false;
-    // }
-    
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-    }
-
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 }

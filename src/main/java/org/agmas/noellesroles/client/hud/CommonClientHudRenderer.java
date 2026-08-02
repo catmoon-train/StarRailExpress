@@ -19,6 +19,7 @@ import net.exmo.sre.repair.client.*;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -56,7 +57,6 @@ import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
 import org.agmas.noellesroles.game.roles.innocence.clock_maker.ClockmakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
@@ -75,6 +75,7 @@ import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.MountainRoles;
 import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role_data.HoanMeirinRoleData;
 import org.agmas.noellesroles.utils.MessageDetail;
 
 import java.awt.*;
@@ -1035,7 +1036,7 @@ public class CommonClientHudRenderer {
       var font = client.font;
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
-      var abpc = HoanMeirinPlayerComponent.KEY.get(client.player);
+      var abpc = RoleData.getOrCreate(HoanMeirinRoleData.class, client.player);
       var shpc = SREArmorPlayerComponent.KEY.get(client.player);
       {
         var text = Component
