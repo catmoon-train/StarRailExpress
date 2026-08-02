@@ -52,6 +52,9 @@ import java.util.UUID;
  * <p>贴墙放置：锚点在墙面上，绊线沿墙面法线（水平方向）向外延伸至对面墙壁
  * （或最大长度）。踩中绊线的玩家速度 -90%（缓慢 VI）持续 4s；绊线不因触发消失，
  * <b>只有被枪击落才会消失</b>（见 {@code TrapperTrapGunPayloadMixin}），近战无法拆除。
+ *
+ * <p>可见性（见 {@code TripwireTrapEntityRenderer}）：所有玩家只能看到墙面锚点的
+ * 出发点小标记；激光线本体只有杀手阵营与偏狼中立阵营可见。
  */
 public class TripwireTrapEntity extends Entity {
 

@@ -17,6 +17,9 @@ package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.client.SREClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -32,8 +35,9 @@ import org.joml.Matrix4f;
 /**
  * 绊线陷阱实体渲染器（重做版）。
  *
- * <p>从墙面锚点沿延伸方向绘制一根绷紧的橙色发光绊线（水平+竖直两片薄面组成十字截面，
- * 任意角度都可见），带轻微脉动。对所有玩家可见。
+ * <p>所有玩家只能看到墙面锚点处的「出发点」小标记；从锚点沿延伸方向绷紧的橙色
+ * 激光线（水平+竖直两片薄面组成十字截面，带轻微脉动）<b>只有杀手阵营与偏狼中立
+ * 阵营可见</b>——平民视角下绊线本体是隐形的。
  */
 public class TripwireTrapEntityRenderer extends EntityRenderer<TripwireTrapEntity> {
 
@@ -75,22 +79,44 @@ public class TripwireTrapEntityRenderer extends EntityRenderer<TripwireTrapEntit
         PoseStack.Pose entry = matrices.last();
         VertexConsumer consumer = vertexConsumers.getBuffer(RenderType.entityTranslucent(TEXTURE));
 
-        float halfW = 0.03f;
-        float ex = (float) delta.x;
-        float ez = (float) delta.z;
-        // 竖直薄片（法线水平）
+        // 出发点标记：贴在墙面锚点的小方片，对所有人可见
+        float s = 0.12f;
+        float hx = -dir.getStepZ() * s;
+        float hz = dir.getStepX() * s;
         drawQuad(consumer, entry,
-                0, -halfW, 0, 0, halfW, 0, ex, halfW, ez, ex, -halfW, ez,
-                red, green, blue, alpha, light);
-        // 水平薄片（法线竖直）：垂直于线方向的水平偏移
-        float px = -ez / (float) length * halfW;
-        float pz = ex / (float) length * halfW;
-        drawQuad(consumer, entry,
-                px, 0, pz, -px, 0, -pz, ex - px, 0, ez - pz, ex + px, 0, ez + pz,
-                red, green, blue, alpha, light);
+                hx, s, hz, hx, -s, hz, -hx, -s, -hz, -hx, s, -hz,
+                red, green, blue, 230, light);
+
+        // 激光线本体：只有杀手阵营与偏狼中立阵营可见
+        if (canSeeLaser()) {
+            float halfW = 0.03f;
+            float ex = (float) delta.x;
+            float ez = (float) delta.z;
+            // 竖直薄片（法线水平）
+            drawQuad(consumer, entry,
+                    0, -halfW, 0, 0, halfW, 0, ex, halfW, ez, ex, -halfW, ez,
+                    red, green, blue, alpha, light);
+            // 水平薄片（法线竖直）：垂直于线方向的水平偏移
+            float px = -ez / (float) length * halfW;
+            float pz = ex / (float) length * halfW;
+            drawQuad(consumer, entry,
+                    px, 0, pz, -px, 0, -pz, ex - px, 0, ez - pz, ex + px, 0, ez + pz,
+                    red, green, blue, alpha, light);
+        }
 
         matrices.popPose();
         super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
+    }
+
+    /** 本地玩家是否能看到绊线激光：杀手阵营或偏狼中立阵营。 */
+    private static boolean canSeeLaser() {
+        var client = Minecraft.getInstance();
+        var game = SREClient.gameComponent;
+        if (client.player == null || game == null) {
+            return false;
+        }
+        SRERole role = game.getRole(client.player);
+        return role != null && (role.canUseKiller() || role.isNeutralForKiller());
     }
 
     /** 双面四边形。 */

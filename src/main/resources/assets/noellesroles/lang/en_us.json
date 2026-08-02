@@ -1032,6 +1032,7 @@
   "message.noellesroles.trapper.tripwire_limit": "Tripwire limit reached (%s)",
   "message.noellesroles.trapper.need_wall": "Aim at a wall to place a tripwire!",
   "message.noellesroles.trapper.wire_too_short": "Not enough room for a tripwire here!",
+  "message.noellesroles.trapper.wire_too_close": "Another tripwire is within 2 blocks - pick a different spot!",
   "message.noellesroles.trapper.tripwire_placed": "Tripwire set.",
   "message.noellesroles.trapper.tripwire_slowed": "You are tangled in a tripwire! Heavily slowed!",
   "message.noellesroles.trapper.tripwire_hit_notify": "%s ran into your tripwire!",

@@ -1090,6 +1090,7 @@
   "message.noellesroles.trapper.tripwire_limit": "絆線數量已達上限（%s）",
   "message.noellesroles.trapper.need_wall": "需要對準一面牆來放置絆線！",
   "message.noellesroles.trapper.wire_too_short": "這裡空間太窄，放不下絆線！",
+  "message.noellesroles.trapper.wire_too_close": "附近（2格內）已有絆線，換個位置！",
   "message.noellesroles.trapper.tripwire_placed": "絆線已布好。",
   "message.noellesroles.trapper.tripwire_slowed": "你被絆線纏住了！速度大幅降低！",
   "message.noellesroles.trapper.tripwire_hit_notify": "%s 撞上了你的絆線！",

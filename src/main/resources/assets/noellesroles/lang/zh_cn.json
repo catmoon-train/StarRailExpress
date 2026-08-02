@@ -1099,6 +1099,7 @@
   "message.noellesroles.trapper.tripwire_limit": "绊线数量已达上限（%s）",
   "message.noellesroles.trapper.need_wall": "需要对准一面墙来放置绊线！",
   "message.noellesroles.trapper.wire_too_short": "这里空间太窄，放不下绊线！",
+  "message.noellesroles.trapper.wire_too_close": "附近（2格内）已有绊线，换个位置！",
   "message.noellesroles.trapper.tripwire_placed": "绊线已布好。",
   "message.noellesroles.trapper.tripwire_slowed": "你被绊线缠住了！速度大幅降低！",
   "message.noellesroles.trapper.tripwire_hit_notify": "%s 撞上了你的绊线！",
