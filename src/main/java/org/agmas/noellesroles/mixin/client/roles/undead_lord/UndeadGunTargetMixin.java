@@ -39,15 +39,22 @@ public class UndeadGunTargetMixin {
 
     @Inject(method = "getGunTarget", at = @At("HEAD"), cancellable = true)
     private static void allowUndeadTarget(Player user, CallbackInfoReturnable<HitResult> cir) {
+        // 优先判定玩家等常规目标；绊线只作兜底，避免挡在玩家前面的绊线抢走子弹
         HitResult result = ProjectileUtil.getHitResultOnViewVector(user,
                 entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                         || entity instanceof PuppeteerBodyEntity
                         || entity instanceof PigeonEntity
                         || entity instanceof MorphlingKnifeDummyEntity
-                        || entity instanceof UndeadEntity
-                        // 设陷者绊线：可被枪击落（服务端由 TrapperTrapGunPayloadMixin 结算）
-                        || entity instanceof TripwireTrapEntity,
+                        || entity instanceof UndeadEntity,
                 20f);
+        if (!(result instanceof net.minecraft.world.phys.EntityHitResult)) {
+            // 没打中任何常规目标：再判定设陷者绊线（服务端由 TrapperTrapGunPayloadMixin 结算击落）
+            HitResult wireResult = ProjectileUtil.getHitResultOnViewVector(user,
+                    entity -> entity instanceof TripwireTrapEntity, 20f);
+            if (wireResult instanceof net.minecraft.world.phys.EntityHitResult) {
+                result = wireResult;
+            }
+        }
         cir.setReturnValue(result);
     }
 }

@@ -33,6 +33,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -89,7 +90,7 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
     public static final int MAX_TOTAL_TRAPS = 5;
 
     /** 泥沼单次放置花费（金币） */
-    public static final int MUD_COST = 45;
+    public static final int MUD_COST = 25;
 
     /** 捕网枪购买价格（金币） */
     public static final int NET_GUN_COST = 200;
@@ -100,6 +101,9 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
 
     /** 绊线最大延伸长度（格） */
     public static final double MAX_WIRE_LENGTH = 8.0;
+
+    /** 绊线最小间距（格）：新绊线整条线段（含射线对面端点）2 格内不能有其他绊线 */
+    public static final double MIN_WIRE_SPACING = 2.0;
 
     /** 最大瞄准放置距离（格） */
     public static final double MAX_PLACE_DISTANCE = 8.0;
@@ -270,10 +274,8 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
                         MAX_TRIPWIRES).withStyle(ChatFormatting.RED), true);
                 return false;
             }
-            // 预校验：必须瞄着一面墙
-            if (findWallAnchor(sp, serverLevel) == null) {
-                sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.need_wall")
-                        .withStyle(ChatFormatting.RED), true);
+            // 预校验：对墙 / 长度 / 与现有绊线的间距（失败时已向玩家提示）
+            if (validateTripwire(sp, serverLevel) == null) {
                 return false;
             }
         } else {
@@ -352,12 +354,20 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         return hit;
     }
 
-    private void finishPlaceTripwire(ServerPlayer sp, ServerLevel serverLevel) {
+    /** 绊线几何：锚点（墙面）、延伸方向、长度。 */
+    private record WireGeometry(Direction outward, Vec3 anchor, double length) {
+    }
+
+    /**
+     * 校验当前瞄准位置能否放绊线（对墙 / 长度 / 与现有绊线的间距），
+     * 失败时向玩家提示并返回 null，成功返回几何信息。
+     */
+    private WireGeometry validateTripwire(ServerPlayer sp, ServerLevel serverLevel) {
         BlockHitResult hit = findWallAnchor(sp, serverLevel);
         if (hit == null) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.need_wall")
                     .withStyle(ChatFormatting.RED), true);
-            return;
+            return null;
         }
         Direction outward = hit.getDirection();
         // 锚点稍微离墙，避免嵌进方块
@@ -373,8 +383,38 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         if (length < 0.5) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.wire_too_short")
                     .withStyle(ChatFormatting.RED), true);
+            return null;
+        }
+        if (wireTooClose(serverLevel, anchor, outward, length)) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.wire_too_close")
+                    .withStyle(ChatFormatting.RED), true);
+            return null;
+        }
+        return new WireGeometry(outward, anchor, length);
+    }
+
+    /** 新绊线整条线段（含射线对面端点）{@link #MIN_WIRE_SPACING} 格内是否已有其他绊线。 */
+    private static boolean wireTooClose(ServerLevel serverLevel, Vec3 anchor, Direction outward, double length) {
+        Vec3 end = anchor.add(outward.getStepX() * length, 0, outward.getStepZ() * length);
+        AABB newWireBox = new AABB(anchor, end).inflate(TripwireTrapEntity.WIRE_HALF_THICKNESS);
+        AABB searchBox = newWireBox.inflate(MIN_WIRE_SPACING + 0.5);
+        for (TripwireTrapEntity existing : serverLevel.getEntitiesOfClass(TripwireTrapEntity.class, searchBox)) {
+            if (existing.getBoundingBox().inflate(MIN_WIRE_SPACING).intersects(newWireBox)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void finishPlaceTripwire(ServerPlayer sp, ServerLevel serverLevel) {
+        // 以前摇结束时的最新瞄准重新校验（对墙/长度/间距）
+        WireGeometry geo = validateTripwire(sp, serverLevel);
+        if (geo == null) {
             return;
         }
+        Direction outward = geo.outward();
+        Vec3 anchor = geo.anchor();
+        double length = geo.length();
 
         TripwireTrapEntity wire = new TripwireTrapEntity(ModEntities.TRIPWIRE_TRAP, serverLevel);
         wire.setPos(anchor.x, anchor.y, anchor.z);
