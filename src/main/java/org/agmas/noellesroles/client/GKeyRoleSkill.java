@@ -186,6 +186,9 @@ public final class GKeyRoleSkill {
             var comp = org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent.KEY.maybeGet(client.player)
                     .orElse(null);
             if (comp != null && client.player != null && client.player.level() != null) {
+                if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
+                    return true;
+                }
                 long now = client.player.level().getGameTime();
                 if (comp.recruitCooldownUntil > 0 && now < comp.recruitCooldownUntil) {
                     long remaining = (comp.recruitCooldownUntil - now) / 20 + 1;

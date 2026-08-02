@@ -96,6 +96,8 @@ public final class MafiaManager {
     }
 
     private static void handleAction(ServerPlayer player, int action, UUID target, String rolePath) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return;
         if (!isGodfather(player))
             return;
         if (target == null)
