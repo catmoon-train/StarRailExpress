@@ -39,73 +39,84 @@ public class EntityInteractionBlockServerNetwork {
      */
     public static void register() {
         // 处理客户端发来的 SaveConfig 包
-        ServerPlayNetworking.registerGlobalReceiver(EntityInteractionBlockPayload.SaveConfig.TYPE, (payload, context) -> {
-            context.server().execute(() -> {
-                ServerPlayer player = context.player();
-                BlockEntity be = player.level().getBlockEntity(payload.pos());
-                if (be instanceof EntityInteractionBlockEntity entity) {
-                    // 解析数据
-                    CompoundTag data = payload.data();
-                    List<EntityInteractionBlockEntity.TriggerCondition> conditions = new ArrayList<>();
-                    List<EntityInteractionBlockEntity.TriggerAction> actions = new ArrayList<>();
-
-                    if (data.contains("Conditions", ListTag.TAG_LIST)) {
-                        ListTag list = data.getList("Conditions", ListTag.TAG_COMPOUND);
-                        for (int i = 0; i < list.size(); i++) {
-                            conditions.add(EntityInteractionBlockEntity.TriggerCondition.fromNbt(list.getCompound(i)));
+        ServerPlayNetworking.registerGlobalReceiver(EntityInteractionBlockPayload.SaveConfig.TYPE,
+                (payload, context) -> {
+                    context.server().execute(() -> {
+                        ServerPlayer player = context.player();
+                        if (!player.isCreative() && !player.hasPermissions(2)) {
+                            return;
                         }
-                    }
+                        BlockEntity be = player.level().getBlockEntity(payload.pos());
+                        if (be instanceof EntityInteractionBlockEntity entity) {
+                            // 解析数据
+                            CompoundTag data = payload.data();
+                            List<EntityInteractionBlockEntity.TriggerCondition> conditions = new ArrayList<>();
+                            List<EntityInteractionBlockEntity.TriggerAction> actions = new ArrayList<>();
 
-                    if (data.contains("Actions", ListTag.TAG_LIST)) {
-                        ListTag list = data.getList("Actions", ListTag.TAG_COMPOUND);
-                        for (int i = 0; i < list.size(); i++) {
-                            actions.add(EntityInteractionBlockEntity.TriggerAction.fromNbt(list.getCompound(i)));
+                            if (data.contains("Conditions", ListTag.TAG_LIST)) {
+                                ListTag list = data.getList("Conditions", ListTag.TAG_COMPOUND);
+                                for (int i = 0; i < list.size(); i++) {
+                                    conditions.add(
+                                            EntityInteractionBlockEntity.TriggerCondition.fromNbt(list.getCompound(i)));
+                                }
+                            }
+
+                            if (data.contains("Actions", ListTag.TAG_LIST)) {
+                                ListTag list = data.getList("Actions", ListTag.TAG_COMPOUND);
+                                for (int i = 0; i < list.size(); i++) {
+                                    actions.add(
+                                            EntityInteractionBlockEntity.TriggerAction.fromNbt(list.getCompound(i)));
+                                }
+                            }
+
+                            int cooldown = data.getInt("CooldownTicks");
+                            boolean isTeleportPoint = data.getBoolean("IsTeleportPoint");
+                            int teleportPointId = data.getInt("TeleportPointId");
+
+                            // 任务路标相关
+                            boolean isTaskMarker = data.getBoolean("IsTaskMarker");
+                            int taskMarkerColor = data.contains("TaskMarkerColor") ? data.getInt("TaskMarkerColor")
+                                    : 0xFFFFFF;
+                            EntityInteractionBlockEntity.TaskHighlightCondition taskHighlightCondition = EntityInteractionBlockEntity.TaskHighlightCondition.NONE;
+                            if (data.contains("TaskHighlightCondition")) {
+                                taskHighlightCondition = EntityInteractionBlockEntity.TaskHighlightCondition
+                                        .valueOf(data.getString("TaskHighlightCondition"));
+                            }
+                            String taskHighlightTaskType = data.getString("TaskHighlightTaskType");
+                            if (taskHighlightTaskType == null || taskHighlightTaskType.isEmpty())
+                                taskHighlightTaskType = "*";
+                            String taskHighlightCustomTaskId = data.getString("TaskHighlightCustomTaskId");
+                            if (taskHighlightCustomTaskId == null)
+                                taskHighlightCustomTaskId = "";
+                            int taskInstinctId = data.contains("TaskInstinctId") ? data.getInt("TaskInstinctId") : 100;
+
+                            entity.setTeleportPoint(isTeleportPoint);
+                            entity.setTeleportPointId(teleportPointId);
+                            entity.setTaskMarker(isTaskMarker);
+                            entity.setTaskMarkerColor(taskMarkerColor);
+                            entity.setTaskHighlightCondition(taskHighlightCondition);
+                            entity.setTaskHighlightTaskType(taskHighlightTaskType);
+                            entity.setTaskHighlightCustomTaskId(taskHighlightCustomTaskId);
+                            entity.setTaskInstinctId(taskInstinctId);
+
+                            entity.updateFromServer(conditions, actions, cooldown);
+
+                            // 标记服务器端 BlockEntity 已变更
+                            entity.setChanged();
+                            // 发送区块更新通知客户端
+                            Level level = player.level();
+                            level.sendBlockUpdated(entity.getBlockPos(), entity.getBlockState(), entity.getBlockState(),
+                                    3);
+
+                            // 强制同步 BlockEntity 数据到所有客户端
+                            if (level instanceof ServerLevel serverLevel) {
+                                for (ServerPlayer allPlayer : serverLevel.players()) {
+                                    sendSyncBlockEntity(allPlayer, payload.pos(), entity);
+                                }
+                            }
                         }
-                    }
-
-                    int cooldown = data.getInt("CooldownTicks");
-                    boolean isTeleportPoint = data.getBoolean("IsTeleportPoint");
-                    int teleportPointId = data.getInt("TeleportPointId");
-
-                    // 任务路标相关
-                    boolean isTaskMarker = data.getBoolean("IsTaskMarker");
-                    int taskMarkerColor = data.contains("TaskMarkerColor") ? data.getInt("TaskMarkerColor") : 0xFFFFFF;
-                    EntityInteractionBlockEntity.TaskHighlightCondition taskHighlightCondition = EntityInteractionBlockEntity.TaskHighlightCondition.NONE;
-                    if (data.contains("TaskHighlightCondition")) {
-                        taskHighlightCondition = EntityInteractionBlockEntity.TaskHighlightCondition.valueOf(data.getString("TaskHighlightCondition"));
-                    }
-                    String taskHighlightTaskType = data.getString("TaskHighlightTaskType");
-                    if (taskHighlightTaskType == null || taskHighlightTaskType.isEmpty()) taskHighlightTaskType = "*";
-                    String taskHighlightCustomTaskId = data.getString("TaskHighlightCustomTaskId");
-                    if (taskHighlightCustomTaskId == null) taskHighlightCustomTaskId = "";
-                    int taskInstinctId = data.contains("TaskInstinctId") ? data.getInt("TaskInstinctId") : 100;
-
-                    entity.setTeleportPoint(isTeleportPoint);
-                    entity.setTeleportPointId(teleportPointId);
-                    entity.setTaskMarker(isTaskMarker);
-                    entity.setTaskMarkerColor(taskMarkerColor);
-                    entity.setTaskHighlightCondition(taskHighlightCondition);
-                    entity.setTaskHighlightTaskType(taskHighlightTaskType);
-                    entity.setTaskHighlightCustomTaskId(taskHighlightCustomTaskId);
-                    entity.setTaskInstinctId(taskInstinctId);
-
-                    entity.updateFromServer(conditions, actions, cooldown);
-
-                    // 标记服务器端 BlockEntity 已变更
-                    entity.setChanged();
-                    // 发送区块更新通知客户端
-                    Level level = player.level();
-                    level.sendBlockUpdated(entity.getBlockPos(), entity.getBlockState(), entity.getBlockState(), 3);
-
-                    // 强制同步 BlockEntity 数据到所有客户端
-                    if (level instanceof ServerLevel serverLevel) {
-                        for (ServerPlayer allPlayer : serverLevel.players()) {
-                            sendSyncBlockEntity(allPlayer, payload.pos(), entity);
-                        }
-                    }
-                }
-            });
-        });
+                    });
+                });
     }
 
     /**
@@ -139,8 +150,10 @@ public class EntityInteractionBlockServerNetwork {
         if (entity.getTaskHighlightCondition() != null) {
             data.putString("TaskHighlightCondition", entity.getTaskHighlightCondition().name());
         }
-        data.putString("TaskHighlightTaskType", entity.getTaskHighlightTaskType() != null ? entity.getTaskHighlightTaskType() : "*");
-        data.putString("TaskHighlightCustomTaskId", entity.getTaskHighlightCustomTaskId() != null ? entity.getTaskHighlightCustomTaskId() : "");
+        data.putString("TaskHighlightTaskType",
+                entity.getTaskHighlightTaskType() != null ? entity.getTaskHighlightTaskType() : "*");
+        data.putString("TaskHighlightCustomTaskId",
+                entity.getTaskHighlightCustomTaskId() != null ? entity.getTaskHighlightCustomTaskId() : "");
         data.putInt("TaskInstinctId", entity.getTaskInstinctId());
 
         ServerPlayNetworking.send(player, new EntityInteractionBlockPayload.SyncBlockEntity(pos, data));
@@ -176,8 +189,10 @@ public class EntityInteractionBlockServerNetwork {
         if (entity.getTaskHighlightCondition() != null) {
             data.putString("TaskHighlightCondition", entity.getTaskHighlightCondition().name());
         }
-        data.putString("TaskHighlightTaskType", entity.getTaskHighlightTaskType() != null ? entity.getTaskHighlightTaskType() : "*");
-        data.putString("TaskHighlightCustomTaskId", entity.getTaskHighlightCustomTaskId() != null ? entity.getTaskHighlightCustomTaskId() : "");
+        data.putString("TaskHighlightTaskType",
+                entity.getTaskHighlightTaskType() != null ? entity.getTaskHighlightTaskType() : "*");
+        data.putString("TaskHighlightCustomTaskId",
+                entity.getTaskHighlightCustomTaskId() != null ? entity.getTaskHighlightCustomTaskId() : "");
         data.putInt("TaskInstinctId", entity.getTaskInstinctId());
 
         ServerPlayNetworking.send(player, new EntityInteractionBlockPayload.OpenUI(pos, data));
