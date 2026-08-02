@@ -54,6 +54,9 @@ public class SRERoleDataPlayerComponent
 
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
+        if (roleData != null && !initSync) {
+            return roleData.shouldSyncWith(player);
+        }
         return this.getPlayer() == player;
     }
 
