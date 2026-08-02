@@ -53,6 +53,9 @@ public class EmbalmerPlayerComponent implements RoleComponent, ServerTickingComp
     public Map<UUID, UUID> skinSwaps = new HashMap<>();
     public Map<UUID, Float> voicePitches = new HashMap<>();
 
+    // 用于检测激活状态边界，避免每秒同步
+    private boolean prevMasqueradeActive = false;
+
     public EmbalmerPlayerComponent(Player player) { this.player = player; }
     @Override public Player getPlayer() { return player; }
     @Override public void init() {
@@ -61,6 +64,7 @@ public class EmbalmerPlayerComponent implements RoleComponent, ServerTickingComp
         masqueradeTicksLeft = 0;
         skinSwaps.clear();
         voicePitches.clear();
+        prevMasqueradeActive = false;
         sync();
     }
     @Override public void clear() { init(); }
@@ -74,10 +78,10 @@ public class EmbalmerPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void serverTick() {
         if (!isActive()) return;
+        boolean changed = false;
         if (masqueradeCooldown > 0) {
             masqueradeCooldown--;
-            // 每秒同步一次（20 tick），冷却归零时强制同步
-            if (masqueradeCooldown % 20 == 0 || masqueradeCooldown == 0) sync();
+            if (masqueradeCooldown == 0) changed = true; // 冷却归零边界
         }
         if (masqueradeActive && masqueradeTicksLeft > 0) {
             masqueradeTicksLeft--;
@@ -91,10 +95,14 @@ public class EmbalmerPlayerComponent implements RoleComponent, ServerTickingComp
                         ServerPlayNetworking.send(p, org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket.clear());
                     }
                 }
+                changed = true; // 激活结束边界
             }
-            // 每秒同步一次，状态结束时强制同步
-            if (masqueradeTicksLeft % 20 == 0 || masqueradeTicksLeft <= 0) sync();
         }
+        // 仅在状态边界同步（替代原先每秒同步）：冷却归零、激活开始/结束。
+        // 客户端 HUD 自行平滑秒数显示，因此无需每秒发包。
+        if (masqueradeActive != prevMasqueradeActive) changed = true;
+        if (changed) sync();
+        prevMasqueradeActive = masqueradeActive;
     }
 
     @Override
