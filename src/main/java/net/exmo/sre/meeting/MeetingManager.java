@@ -15,6 +15,7 @@
 
 package net.exmo.sre.meeting;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -24,6 +25,8 @@ import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.vote.VoteManager;
 import io.wifi.starrailexpress.content.vote.VoteOption;
+import io.wifi.starrailexpress.content.vote.VoteSession;
+import io.wifi.starrailexpress.content.vote.VoteSession.VoteResultOption;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.MeetingEndEvent;
@@ -44,7 +47,10 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,6 +58,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -70,6 +77,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * 紧急会议系统（Among Us / 鹅鸭杀式），服务端核心。
@@ -89,7 +97,7 @@ import java.util.UUID;
  * 对外 API 见 {@link MeetingApi}。
  */
 public final class MeetingManager {
-
+    public static ResourceLocation DATA_STORAGE_ID = SRE.id("meeting_vote_results");
     /** 开场运镜时长（tick）。 */
     public static final int INTRO_TICKS = 70;
 
@@ -658,6 +666,27 @@ public final class MeetingManager {
     /** "跳过"选项的 resultId 常量。 */
     private static final String SKIP_RESULT_ID = "meeting_skip";
 
+    private static CompoundTag getVoteOptionCompoundTag(VoteResultOption optresult, ServerLevel serverWorld) {
+        var ttag = new CompoundTag();
+        var opt = optresult.option();
+        ttag.putInt("id", optresult.id());
+        ttag.putInt("count", optresult.count());
+        ttag.putString("rid", opt.resultId());
+        ttag.putString("display", Component.Serializer.toJson(opt.display(), serverWorld.registryAccess()));
+        ttag.putString("type", opt.typeId().toString());
+        if (opt.isItem() && opt instanceof VoteOption.ItemOption ito) {
+            ttag.put("item", ito.stack().save(serverWorld.registryAccess()));
+        } else if (opt.isPlayer() && opt instanceof VoteOption.PlayerOption ito) {
+            var player_info_tag = new CompoundTag();
+            player_info_tag.putUUID("id",
+                    ito.uuid());
+            player_info_tag.putString("display_name",
+                    ito.display().getString());
+            ttag.put("player", player_info_tag);
+        }
+        return ttag;
+    }
+
     /** 开始投票阶段：创建玩家投票 Session，投票结束时按新规则处理出局。 */
     private static void startVotingPhase(ServerLevel serverLevel) {
         phase = PHASE_VOTE;
@@ -680,13 +709,9 @@ public final class MeetingManager {
         Set<UUID> targetPlayers = new HashSet<>();
         for (ServerPlayer p : alive)
             targetPlayers.add(p.getUUID());
-        VoteManager.builder(Component.translatable("meeting.vote.title"))
-                .options(options).duration(VOTE_DURATION_SECONDS * 20).allowReVote(true)
-                .showResults(true).syncInterval(20).targetPlayerUUIDs(targetPlayers)
-                .maxSelect(1).type("meeting").start();
 
         // ==================== 投票结束时按新规则处理 ====================
-        VoteManager.addEndCallback(session -> {
+        Consumer<VoteSession> callback = session -> {
             String expelledName = "";
 
             // 第一步：统计所有选项的票数（实际计票应用"被投票倍率"，如呆呆鸟每票按 1.5 计）
@@ -719,9 +744,60 @@ public final class MeetingManager {
                         UUID votedOut = po.uuid();
                         ServerPlayer target = serverLevel.getServer().getPlayerList().getPlayer(votedOut);
                         if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
+                            final var areaCCA = AreasWorldComponent.getInstance(serverLevel);
+                            final AreasSettings areasSettings = areaCCA.areasSettings;
                             if (MeetingVoteOutEvent.EVENT.invoker().onVoteOut(serverLevel, target)) {
-                                GameUtils.forceKillPlayer(target, false, null,
-                                        GameConstants.DeathReasons.VOTED_OUT);
+                                switch (areasSettings.meetingVoteProcessor) {
+                                    case FUNCTION: {
+                                        var tag = new CompoundTag();
+                                        var tag_results = new CompoundTag();
+                                        var tag_top_results = new CompoundTag();
+                                        {
+                                            // 存储所有results
+                                            for (var entry : session.getResults().entrySet()) {
+                                                tag_results.put(entry.getKey(),
+                                                        getVoteOptionCompoundTag(entry.getValue(), serverLevel));
+                                            }
+                                        }
+                                        {
+                                            // 存储获胜者
+
+                                            // 存储所有results
+                                            var tag_top_result_entries = new ListTag();
+                                            for (var entry : session.getTopResults()) {
+                                                tag_top_result_entries
+                                                        .add(getVoteOptionCompoundTag(entry.getValue(), serverLevel));
+                                            }
+                                            tag_top_results.put("entries", tag_top_result_entries);
+                                        }
+                                        {
+                                            tag.put("results", tag_results);
+                                            tag.put("tops", tag_top_results);
+                                        }
+                                        serverLevel.getServer().getCommandStorage().set(DATA_STORAGE_ID, tag);
+
+                                        if (areasSettings.meetingVoteProcessorFunction != null
+                                                && !areasSettings.meetingVoteProcessorFunction.isBlank())
+                                            GameUtils.executeFunction(serverLevel.getServer(), areasSettings.meetingVoteProcessorFunctionPermission,
+                                                    areasSettings.meetingVoteProcessorFunction);
+                                    }
+                                        break;
+                                    case GLOWING:
+                                        target.addEffect(ModEffects.of(MobEffects.GLOWING,
+                                                areasSettings.meetingVoteProcessorGlowingTime * 20, 1, false, true,
+                                                true));
+                                        break;
+                                    case KILL:
+                                        GameUtils.killPlayer(target, false, null,
+                                                GameConstants.DeathReasons.VOTED_OUT);
+                                        break;
+                                    case FORCE_KILL:
+                                        GameUtils.forceKillPlayer(target, false, null,
+                                                GameConstants.DeathReasons.VOTED_OUT);
+                                        break;
+                                    default:
+                                        break;
+                                }
                                 expelledName = target.getGameProfile().getName();
                             }
                         }
@@ -745,7 +821,13 @@ public final class MeetingManager {
             }
 
             endMeeting(false);
-        });
+        };
+
+        // ==================== 开始投票 ====================
+        VoteManager.builder(Component.translatable("meeting.vote.title"))
+                .options(options).duration(VOTE_DURATION_SECONDS * 20).allowReVote(true)
+                .showResults(true).syncInterval(20).targetPlayerUUIDs(targetPlayers)
+                .maxSelect(1).type("meeting").callback(callback).start();
         broadcastState(serverLevel);
     }
 

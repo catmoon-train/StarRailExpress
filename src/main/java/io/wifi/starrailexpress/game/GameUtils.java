@@ -60,6 +60,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
@@ -577,6 +578,15 @@ public class GameUtils {
         SREWorldBlackoutComponent.KEY.get(world).reset();
         component.setGameStatus(SREGameWorldComponent.GameStatus.STOPPING);
         component.gameMode.stopGame(world);
+    }
+
+    public static void executeFunction(MinecraftServer server, int permission, String function) {
+        try {
+            server.getCommands().performPrefixedCommand(server.createCommandSourceStack().withPermission(permission),
+                    "function " + function);
+        } catch (Exception e) {
+            Log.warn(LogCategory.GENERAL, "Failed to execute function: " + function + ", error: " + e.getMessage());
+        }
     }
 
     public static void executeFunction(CommandSourceStack source, String function) {
