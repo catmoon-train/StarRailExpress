@@ -74,9 +74,10 @@ public class SREGameRoundEndComponent implements AutoSyncedComponent {
         }
     }
 
-    public void setRoundEndData(@NotNull List<ServerPlayer> players, GameUtils.WinStatus winStatus) {
+    public void setRoundEndData(@NotNull List<ServerPlayer> inputPlayers, GameUtils.WinStatus winStatus) {
+
         this.players.clear();
-        for (ServerPlayer player : players) {
+        for (ServerPlayer player : inputPlayers) {
             this.players.add(new RoundEndData(player.getGameProfile(),
                     !io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(player), false));
         }

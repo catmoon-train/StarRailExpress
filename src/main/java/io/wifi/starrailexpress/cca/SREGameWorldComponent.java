@@ -814,7 +814,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 var alivePlayers = new ArrayList<>(serverWorld.players());
                 alivePlayers.removeIf(p -> !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p));
                 if (alivePlayers.size() <= 0) {
-                    SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(serverWorld.players(),
+                    SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(new ArrayList<>(serverWorld.players()),
                             WinStatus.NO_PLAYER);
                     GameUtils.stopGame(serverWorld);
                     return;

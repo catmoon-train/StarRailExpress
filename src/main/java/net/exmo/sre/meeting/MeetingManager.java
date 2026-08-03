@@ -341,7 +341,7 @@ public final class MeetingManager {
         speakCooldownUntil.clear();
         lastSyncedSpeakers = List.of();
 
-        List<ServerPlayer> alive = new ArrayList<>(serverLevel.players()).stream()
+        List<ServerPlayer> alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
                 .toList();
         List<BlockPos> chairs = scanChairs(serverLevel, settings);
@@ -381,7 +381,7 @@ public final class MeetingManager {
         MeetingVoice.joinAll(participants.keySet(), serverLevel.getServer());
         final var timecca = SREGameTimeComponent.KEY.get(serverLevel);
         timecca.setTimeFrozen(true, true);
-        for (ServerPlayer player : serverLevel.players()) {
+        for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
             player.playNotifySound(SoundEvents.BELL_BLOCK, SoundSource.MASTER, 1.0F, 0.8F);
         }
         broadcastState(serverLevel);
@@ -436,7 +436,7 @@ public final class MeetingManager {
         skipVoters.clear();
         lastSyncedSpeakers = List.of();
         if (!silent) {
-            for (ServerPlayer player : serverLevel.players()) {
+            for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
                 player.playNotifySound(SoundEvents.BELL_BLOCK, SoundSource.MASTER, 0.8F, 1.2F);
             }
         }
@@ -471,7 +471,8 @@ public final class MeetingManager {
         ServerLevel serverLevel = level;
         broadcastSkipState(serverLevel);
         // 超过二分之一的存活玩家投了跳过 → 跳过会议（有投票则直接进入投票阶段）
-        long alive = new ArrayList<>(serverLevel.players()).stream().filter(GameUtils::isPlayerAliveAndSurvival)
+        long alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
+                .filter(GameUtils::isPlayerAliveAndSurvival)
                 .count();
         if (alive > 0 && skipVoters.size() > alive / 2) {
             skipMeeting(serverLevel);
@@ -491,10 +492,11 @@ public final class MeetingManager {
 
     /** 向全体玩家同步跳过计票状态。 */
     private static void broadcastSkipState(ServerLevel serverLevel) {
-        long alive = new ArrayList<>(serverLevel.players()).stream().filter(GameUtils::isPlayerAliveAndSurvival)
+        long alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
+                .filter(GameUtils::isPlayerAliveAndSurvival)
                 .count();
         MeetingSkipStateS2CPayload payload = new MeetingSkipStateS2CPayload(skipVoters.size(), (int) alive);
-        for (ServerPlayer player : serverLevel.players()) {
+        for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(player, payload);
         }
     }
@@ -655,7 +657,7 @@ public final class MeetingManager {
                 reporterName, victimName,
                 List.copyOf(participants.keySet()),
                 phase == PHASE_DISCUSS ? currentSpeakers() : List.of());
-        for (ServerPlayer player : serverLevel.players()) {
+        for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(player, payload);
         }
     }
@@ -696,14 +698,14 @@ public final class MeetingManager {
     private static void startVotingPhase(ServerLevel serverLevel) {
         phase = PHASE_VOTE;
         phaseEndTick = serverLevel.getGameTime() + VOTE_DURATION_SECONDS * 20L;
-        List<ServerPlayer> alive = new ArrayList<>(serverLevel.players()).stream()
+        List<ServerPlayer> alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
                 .toList();
         if (alive.size() <= 1) {
             endMeeting(false);
             return;
         }
-        
+
         List<VoteOption> options = new ArrayList<>();
         // 添加"跳过"选项在最前面
         options.add(VoteOption.text(
@@ -823,7 +825,7 @@ public final class MeetingManager {
 
             // 广播投票结果给所有玩家
             MeetingVoteResultS2CPayload resultPayload = new MeetingVoteResultS2CPayload(expelledName, entries);
-            for (ServerPlayer player : serverLevel.players()) {
+            for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
                 ServerPlayNetworking.send(player, resultPayload);
             }
 
@@ -865,7 +867,8 @@ public final class MeetingManager {
     public static int getVoterWeight(UUID uuid) {
         int weight = voteWeightOverrides.getOrDefault(uuid, 1);
         if (weight >= 2 && level != null) {
-            long alive = level.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
+            long alive = level.getServer().getPlayerList().getPlayers().stream()
+                    .filter(GameUtils::isPlayerAliveAndSurvival).count();
             if (alive > 24)
                 weight = Math.max(weight, 3);
         }
