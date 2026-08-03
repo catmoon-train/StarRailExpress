@@ -238,7 +238,8 @@ public class GameUtils {
             return;
         if (GameUtils.roomToPlayer.isEmpty())
             return;
-
+        player.stopRiding();
+        player.stopSleeping();
         var areas = AreasWorldComponent.KEY.get(player.level());
         Vec3 pos = GameUtils.getSpawnPos(areas,
                 GameUtils.roomToPlayer.getOrDefault(player.getUUID(), 0));
