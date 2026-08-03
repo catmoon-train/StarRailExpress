@@ -27,6 +27,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -35,6 +36,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.init.ModEffects;
 import org.lwjgl.glfw.GLFW;
 
@@ -94,6 +97,7 @@ public final class MeetingClientHandler {
 
     private static boolean overriding;
     private static boolean speakingToggled;
+
     private MeetingClientHandler() {
     }
 
@@ -162,11 +166,20 @@ public final class MeetingClientHandler {
         Component title = expelled.isEmpty()
                 ? Component.translatable("meeting.vote.result.none_expelled")
                 : Component.translatable("meeting.vote.result.expelled", expelled);
-        Component subtitle = buildVoteSummary(payload.voteEntries());
+        Component subtitle = expelled.isEmpty()
+                ? Component.translatable("meeting.vote.result.none_expelled.subtitle")
+                : Component.translatable("meeting.vote.result.expelled.subtitle", expelled);
+        Component summary = Component
+                .translatable("meeting.vote.result.summary",
+                        buildVoteSummary(payload.voteEntries()).copy()
+                                .withStyle(style -> style.withBold(false).withColor(ChatFormatting.WHITE)))
+                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
         // fadeIn / stay / fadeOut（tick）
+        NoellesrolesClient.showBroadcastMessage(summary);
         client.gui.setTimes(10, 120, 20);
         client.gui.setSubtitle(subtitle);
         client.gui.setTitle(title);
+
     }
 
     /** 把票数按降序拼成一行紧凑摘要，用于 Title 副标题。 */

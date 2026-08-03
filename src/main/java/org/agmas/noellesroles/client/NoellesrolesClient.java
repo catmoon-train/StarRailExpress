@@ -626,7 +626,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 if (client.player != null) {
                     // if (!isPlayerInAdventureMode(client.player))
                     // return;
-                    ShowBroadcastMessage(payload.content());
+                    showBroadcastMessage(payload.content());
                 }
             });
         });
@@ -1670,7 +1670,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         SREClientCommand.register();
     }
 
-    private void ShowBroadcastMessage(Component message) {
+    public static void showBroadcastMessage(Component message) {
         var client = Minecraft.getInstance();
         if (client == null)
             return;
