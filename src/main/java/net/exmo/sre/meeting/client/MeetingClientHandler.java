@@ -189,23 +189,20 @@ public final class MeetingClientHandler {
 
     }
 
-    /** 把票数按降序拼成一行紧凑摘要，用于 Title 副标题。 */
+    /** 把票数按降序拼成一行紧凑摘要，用于 Broadcast。 */
     private static Component buildVoteSummary(List<MeetingVoteResultS2CPayload.VoteEntry> entries) {
         if (entries.isEmpty()) {
             return Component.empty();
         }
         List<MeetingVoteResultS2CPayload.VoteEntry> sorted = new ArrayList<>(entries);
         sorted.sort((a, b) -> Integer.compare(b.voteCount(), a.voteCount()));
-        int max = Math.min(sorted.size(), 6);
+        int max = sorted.size();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < max; i++) {
             if (i > 0) {
-                sb.append("    ");
+                sb.append(" ; ");
             }
             sb.append(sorted.get(i).playerName()).append(':').append(sorted.get(i).voteCount());
-        }
-        if (sorted.size() > max) {
-            sb.append("  …");
         }
         return Component.literal(sb.toString());
     }
