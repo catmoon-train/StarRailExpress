@@ -354,8 +354,7 @@ public final class MeetingManager {
             participant.stopSleeping();
             participant.stopRiding();
 
-            if (index < chairs.size()) {
-                seatOnChair(serverLevel, participant, chairs.get(index));
+            if (index < chairs.size() && seatOnChair(serverLevel, participant, chairs.get(index))) {
             } else {
                 // 没有椅子的玩家围成一圈站立
                 int standIndex = index - chairs.size();
@@ -623,10 +622,10 @@ public final class MeetingManager {
     }
 
     /** 在椅子上生成临时座位实体并让玩家就座（复刻 MountableBlock 的坐下逻辑）。 */
-    private static void seatOnChair(ServerLevel serverLevel, ServerPlayer participant, BlockPos chairPos) {
+    private static boolean seatOnChair(ServerLevel serverLevel, ServerPlayer participant, BlockPos chairPos) {
         BlockState state = serverLevel.getBlockState(chairPos);
         if (!(state.getBlock() instanceof MountableBlock mountable)) {
-            return;
+            return false;
         }
         // 传送到椅子旁再上座，避免跨房间 startRiding 失败
         Vec3 chairCenter = chairPos.getCenter();
@@ -636,15 +635,17 @@ public final class MeetingManager {
 
         SeatEntity seat = TMMEntities.SEAT.create(serverLevel);
         if (seat == null) {
-            return;
+            return false;
         }
         Vec3 sitPos = mountable.getSitPos(serverLevel, state, chairPos);
-        Vec3 target = chairCenter.add(sitPos);
-        seat.moveTo(target.x, target.y, target.z, yaw, 0);
+        Vec3 vec3d = Vec3.atLowerCornerOf(chairPos).add(sitPos);
+
+        seat.moveTo(vec3d.x, vec3d.y, vec3d.z, 0, 0);
         seat.setSeatPos(chairPos);
         serverLevel.addFreshEntity(seat);
         participant.startRiding(seat, true);
         seatEntityIds.add(seat.getId());
+        return true;
     }
 
     // ==================== 同步 ====================
