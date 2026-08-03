@@ -424,12 +424,30 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
-        // 使用 writeSyncPacket/applySyncPacket 紧凑二进制格式
+        tag.putInt("charges", charges);
+        tag.putInt("cooldownTicks", cooldownTicks);
+        tag.putInt("huntTicks", huntTicks);
+        tag.putInt("kills", kills);
+        tag.putInt("requiredKills", requiredKills);
+        tag.putFloat("moodProgress", moodProgress);
+        tag.putFloat("moodProgressThreshold", moodProgressThreshold);
+        if (targetRoleId != null) {
+            tag.putString("targetRoleId", targetRoleId.toString());
+        }
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
-        // 使用 writeSyncPacket/applySyncPacket 紧凑二进制格式
+        charges = tag.getInt("charges");
+        cooldownTicks = tag.getInt("cooldownTicks");
+        huntTicks = tag.getInt("huntTicks");
+        kills = tag.getInt("kills");
+        requiredKills = tag.getInt("requiredKills");
+        moodProgress = tag.getFloat("moodProgress");
+        moodProgressThreshold = tag.getFloat("moodProgressThreshold");
+        if (tag.contains("targetRoleId")) {
+            targetRoleId = ResourceLocation.tryParse(tag.getString("targetRoleId"));
+        }
     }
 
     @Override
