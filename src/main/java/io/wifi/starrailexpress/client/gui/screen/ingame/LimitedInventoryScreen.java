@@ -692,6 +692,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     public void tick() {
         // 未开始时：等待面板内的便捷菜单接管交互
         updateWaitingMenuVisibility();
+        super.tick();
     }
 
     public static class StoreItemWidget extends Button {
