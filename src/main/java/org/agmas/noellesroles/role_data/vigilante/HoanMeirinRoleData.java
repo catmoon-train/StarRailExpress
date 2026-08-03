@@ -43,12 +43,12 @@ public class HoanMeirinRoleData extends SimpleRoleData {
      */
     @Override
     public void init() {
-        SREArmorPlayerComponent.KEY.get(player).addArmor();
+        SREArmorPlayerComponent.KEY.get(player).setArmor(1);
     }
 
     @Override
     public void clear() {
-        SREArmorPlayerComponent.KEY.get(player).addArmor(-1);
+        SREArmorPlayerComponent.KEY.get(player).setArmor(0);
     }
 
     /**

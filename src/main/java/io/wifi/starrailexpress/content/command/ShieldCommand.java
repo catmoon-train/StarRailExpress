@@ -34,7 +34,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -77,22 +77,22 @@ public class ShieldCommand {
     private static LiteralArgumentBuilder<CommandSourceStack> buildNormal() {
         LiteralArgumentBuilder<CommandSourceStack> add = Commands.literal("add")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
-                        .executes(ctx -> normalAdd(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                        .then(Commands.argument("targets", EntityArgument.entities())
-                                .executes(ctx -> normalAdd(ctx, EntityArgument.getEntities(ctx, "targets")))));
+                        .executes(ctx -> normalAdd(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                        .then(Commands.argument("targets", EntityArgument.players())
+                                .executes(ctx -> normalAdd(ctx, EntityArgument.getPlayers(ctx, "targets")))));
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal("set")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
-                        .executes(ctx -> normalSet(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                        .then(Commands.argument("targets", EntityArgument.entities())
-                                .executes(ctx -> normalSet(ctx, EntityArgument.getEntities(ctx, "targets")))));
+                        .executes(ctx -> normalSet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                        .then(Commands.argument("targets", EntityArgument.players())
+                                .executes(ctx -> normalSet(ctx, EntityArgument.getPlayers(ctx, "targets")))));
         LiteralArgumentBuilder<CommandSourceStack> get = Commands.literal("get")
-                .executes(ctx -> normalGet(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                .then(Commands.argument("targets", EntityArgument.entities())
-                        .executes(ctx -> normalGet(ctx, EntityArgument.getEntities(ctx, "targets"))));
+                .executes(ctx -> normalGet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> normalGet(ctx, EntityArgument.getPlayers(ctx, "targets"))));
         LiteralArgumentBuilder<CommandSourceStack> clear = Commands.literal("clear")
-                .executes(ctx -> normalClear(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                .then(Commands.argument("targets", EntityArgument.entities())
-                        .executes(ctx -> normalClear(ctx, EntityArgument.getEntities(ctx, "targets"))));
+                .executes(ctx -> normalClear(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> normalClear(ctx, EntityArgument.getPlayers(ctx, "targets"))));
         return Commands.literal(TYPE_NORMAL)
                 .then(add)
                 .then(set)
@@ -105,24 +105,24 @@ public class ShieldCommand {
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
                         .then(Commands.argument("seconds", IntegerArgumentType.integer(0))
                                 .then(Commands.argument("reset", BoolArgumentType.bool())
-                                        .executes(ctx -> timedAdd(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                                        .then(Commands.argument("targets", EntityArgument.entities())
-                                                .executes(ctx -> timedAdd(ctx, EntityArgument.getEntities(ctx, "targets")))))));
+                                        .executes(ctx -> timedAdd(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                                        .then(Commands.argument("targets", EntityArgument.players())
+                                                .executes(ctx -> timedAdd(ctx, EntityArgument.getPlayers(ctx, "targets")))))));
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal("set")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
                         .then(Commands.argument("seconds", IntegerArgumentType.integer(0))
                                 .then(Commands.argument("reset", BoolArgumentType.bool())
-                                        .executes(ctx -> timedSet(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                                        .then(Commands.argument("targets", EntityArgument.entities())
-                                                .executes(ctx -> timedSet(ctx, EntityArgument.getEntities(ctx, "targets")))))));
+                                        .executes(ctx -> timedSet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                                        .then(Commands.argument("targets", EntityArgument.players())
+                                                .executes(ctx -> timedSet(ctx, EntityArgument.getPlayers(ctx, "targets")))))));
         LiteralArgumentBuilder<CommandSourceStack> get = Commands.literal("get")
-                .executes(ctx -> timedGet(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                .then(Commands.argument("targets", EntityArgument.entities())
-                        .executes(ctx -> timedGet(ctx, EntityArgument.getEntities(ctx, "targets"))));
+                .executes(ctx -> timedGet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> timedGet(ctx, EntityArgument.getPlayers(ctx, "targets"))));
         LiteralArgumentBuilder<CommandSourceStack> clear = Commands.literal("clear")
-                .executes(ctx -> timedClear(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                .then(Commands.argument("targets", EntityArgument.entities())
-                        .executes(ctx -> timedClear(ctx, EntityArgument.getEntities(ctx, "targets"))));
+                .executes(ctx -> timedClear(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> timedClear(ctx, EntityArgument.getPlayers(ctx, "targets"))));
         return Commands.literal(TYPE_TIMED)
                 .then(add)
                 .then(set)
@@ -136,30 +136,30 @@ public class ShieldCommand {
                         .then(Commands.argument("seconds", IntegerArgumentType.integer(0))
                                 .then(Commands.argument("deathReason", StringArgumentType.word())
                                         .suggests(DEATH_REASON_SUGGESTIONS)
-                                        .executes(ctx -> weakAdd(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                                        .then(Commands.argument("targets", EntityArgument.entities())
-                                                .executes(ctx -> weakAdd(ctx, EntityArgument.getEntities(ctx, "targets")))))));
+                                        .executes(ctx -> weakAdd(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                                        .then(Commands.argument("targets", EntityArgument.players())
+                                                .executes(ctx -> weakAdd(ctx, EntityArgument.getPlayers(ctx, "targets")))))));
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal("set")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
                         .then(Commands.argument("seconds", IntegerArgumentType.integer(0))
                                 .then(Commands.argument("deathReason", StringArgumentType.word())
                                         .suggests(DEATH_REASON_SUGGESTIONS)
-                                        .executes(ctx -> weakSet(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                                        .then(Commands.argument("targets", EntityArgument.entities())
-                                                .executes(ctx -> weakSet(ctx, EntityArgument.getEntities(ctx, "targets")))))));
+                                        .executes(ctx -> weakSet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                                        .then(Commands.argument("targets", EntityArgument.players())
+                                                .executes(ctx -> weakSet(ctx, EntityArgument.getPlayers(ctx, "targets")))))));
         LiteralArgumentBuilder<CommandSourceStack> get = Commands.literal("get")
-                .executes(ctx -> weakGet(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                .then(Commands.argument("targets", EntityArgument.entities())
-                        .executes(ctx -> weakGet(ctx, EntityArgument.getEntities(ctx, "targets"))));
+                .executes(ctx -> weakGet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> weakGet(ctx, EntityArgument.getPlayers(ctx, "targets"))));
         LiteralArgumentBuilder<CommandSourceStack> clear = Commands.literal("clear")
-                .executes(ctx -> weakClear(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                .then(Commands.argument("targets", EntityArgument.entities())
-                        .executes(ctx -> weakClear(ctx, EntityArgument.getEntities(ctx, "targets"))));
+                .executes(ctx -> weakClear(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> weakClear(ctx, EntityArgument.getPlayers(ctx, "targets"))));
         LiteralArgumentBuilder<CommandSourceStack> remove = Commands.literal("remove")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(1))
-                        .executes(ctx -> weakRemove(ctx, ImmutableList.of(ctx.getSource().getEntityOrException())))
-                        .then(Commands.argument("targets", EntityArgument.entities())
-                                .executes(ctx -> weakRemove(ctx, EntityArgument.getEntities(ctx, "targets")))));
+                        .executes(ctx -> weakRemove(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                        .then(Commands.argument("targets", EntityArgument.players())
+                                .executes(ctx -> weakRemove(ctx, EntityArgument.getPlayers(ctx, "targets")))));
         return Commands.literal(TYPE_WEAK)
                 .then(add)
                 .then(set)
@@ -169,9 +169,9 @@ public class ShieldCommand {
     }
 
     // ===== normal =====
-    private static int normalAdd(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int normalAdd(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             c.armor += layers;
             c.sync();
@@ -180,9 +180,9 @@ public class ShieldCommand {
         return layers * targets.size();
     }
 
-    private static int normalSet(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int normalSet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             c.armor = Math.max(0, layers);
             c.timedArmorTicks = 0;
@@ -192,9 +192,9 @@ public class ShieldCommand {
         return layers * targets.size();
     }
 
-    private static int normalGet(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int normalGet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         MutableComponent out = Component.translatable("commands.sre.shield.normal.get.header").withStyle(ChatFormatting.GREEN);
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             out.append(Component.translatable("commands.sre.shield.normal.get.entry", e.getName().getString(), c.armor));
         }
@@ -202,8 +202,8 @@ public class ShieldCommand {
         return 1;
     }
 
-    private static int normalClear(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
-        for (Entity e : targets) {
+    private static int normalClear(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+        for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             c.armor = 0;
             c.sync();
@@ -213,12 +213,12 @@ public class ShieldCommand {
     }
 
     // ===== timed =====
-    private static int timedAdd(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int timedAdd(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
         int seconds = IntegerArgumentType.getInteger(ctx, "seconds");
         boolean reset = BoolArgumentType.getBool(ctx, "reset");
         int ticks = seconds * 20;
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREArmorPlayerComponent.KEY.get(e).addTimedArmor(layers, ticks, reset);
         }
         Component resetText = Component.translatable(reset
@@ -227,12 +227,12 @@ public class ShieldCommand {
         return 1;
     }
 
-    private static int timedSet(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int timedSet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
         int seconds = IntegerArgumentType.getInteger(ctx, "seconds");
         boolean reset = BoolArgumentType.getBool(ctx, "reset");
         int ticks = seconds * 20;
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             if (reset) {
                 c.addTimedArmor(layers, ticks, true);
@@ -246,9 +246,9 @@ public class ShieldCommand {
         return 1;
     }
 
-    private static int timedGet(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int timedGet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         MutableComponent out = Component.translatable("commands.sre.shield.timed.get.header").withStyle(ChatFormatting.GREEN);
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             out.append(Component.translatable("commands.sre.shield.timed.get.entry",
                     e.getName().getString(), c.armor, c.timedArmorTicks));
@@ -257,8 +257,8 @@ public class ShieldCommand {
         return 1;
     }
 
-    private static int timedClear(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
-        for (Entity e : targets) {
+    private static int timedClear(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+        for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             c.armor = 0;
             c.timedArmorTicks = 0;
@@ -269,14 +269,14 @@ public class ShieldCommand {
     }
 
     // ===== weak =====
-    private static int weakAdd(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int weakAdd(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
         int seconds = IntegerArgumentType.getInteger(ctx, "seconds");
         int ticks = seconds * 20;
         boolean blockAll;
         Set<ResourceLocation> reasons = new HashSet<>();
         blockAll = parseDeathReason(ctx, reasons);
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREWeakArmorPlayerComponent c = SREWeakArmorPlayerComponent.KEY.get(e);
             for (int i = 0; i < layers; i++) {
                 c.giveWeakArmor(ticks, reasons, blockAll);
@@ -288,14 +288,14 @@ public class ShieldCommand {
         return 1;
     }
 
-    private static int weakSet(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int weakSet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
         int seconds = IntegerArgumentType.getInteger(ctx, "seconds");
         int ticks = seconds * 20;
         boolean blockAll;
         Set<ResourceLocation> reasons = new HashSet<>();
         blockAll = parseDeathReason(ctx, reasons);
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREWeakArmorPlayerComponent.KEY.get(e).setWeakArmor(layers, ticks, reasons, blockAll);
         }
         Component block = blockAll ? Component.translatable("commands.sre.shield.weak.block_any")
@@ -304,9 +304,9 @@ public class ShieldCommand {
         return 1;
     }
 
-    private static int weakGet(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int weakGet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         MutableComponent out = Component.translatable("commands.sre.shield.weak.get.header").withStyle(ChatFormatting.GREEN);
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREWeakArmorPlayerComponent c = SREWeakArmorPlayerComponent.KEY.get(e);
             Component block = c.blockAllDeathReasons ? Component.translatable("commands.sre.shield.weak.block_any")
                     : Component.literal(String.join("/", c.blockedDeathReasons.stream().map(ResourceLocation::toString).toList()));
@@ -317,17 +317,17 @@ public class ShieldCommand {
         return 1;
     }
 
-    private static int weakClear(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
-        for (Entity e : targets) {
+    private static int weakClear(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+        for (ServerPlayer e : targets) {
             SREWeakArmorPlayerComponent.KEY.get(e).setWeakArmor(0, 0, new HashSet<>(), false);
         }
         feedback(ctx, Component.translatable("commands.sre.shield.weak.clear", targets.size()));
         return 1;
     }
 
-    private static int weakRemove(CommandContext<CommandSourceStack> ctx, Collection<? extends Entity> targets) {
+    private static int weakRemove(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
-        for (Entity e : targets) {
+        for (ServerPlayer e : targets) {
             SREWeakArmorPlayerComponent.KEY.get(e).decreaseWeakArmor(layers);
         }
         feedback(ctx, Component.translatable("commands.sre.shield.weak.remove", targets.size(), layers));
