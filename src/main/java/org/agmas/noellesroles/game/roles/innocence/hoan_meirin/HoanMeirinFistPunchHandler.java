@@ -94,6 +94,7 @@ public class HoanMeirinFistPunchHandler {
 
             // knockback(strength, dirX, dirZ)：方向为单位向量
             target.knockback(strength, -dx / dist, -dz / dist);
+            target.hurtMarked = true;
         }
     }
 

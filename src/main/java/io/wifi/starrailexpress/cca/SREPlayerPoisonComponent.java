@@ -165,6 +165,14 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     public void serverTick() {
         // CCA冷冻：仅禁止CCA/职业执行tick，因此冻结中毒/假毒的递减（不减少、不失活致死）
         // 不需要，已在上游冻结
+        
+        if (!checkIsGameRunning()) {
+            this.poisonTicks = 0;
+            this.poisonPulseCooldown = 0;
+            this.poisoner = null;
+            return;
+        }
+        
         if (this.poisonTicks > 0) {
             this.poisonTicks--;
             if (this.poisonTicks == 0) {
@@ -191,7 +199,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
         }
     }
 
-    public void setPoisonTicks(int ticks, UUID poisoner) {
+    public void setPoisonTicks(int ticks, @NotNull UUID poisoner) {
         this.poisoner = poisoner;
         this.poisonTicks = ticks;
         this.fakePoison = false;
@@ -200,7 +208,7 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
         this.sync();
     }
 
-    public void setFakePoisonTicks(int ticks, UUID poisoner) {
+    public void setFakePoisonTicks(int ticks, @NotNull UUID poisoner) {
         this.poisoner = poisoner;
         this.poisonTicks = ticks;
         this.fakePoison = true;
