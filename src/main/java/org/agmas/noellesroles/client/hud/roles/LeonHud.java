@@ -15,20 +15,21 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.vigilante.LeonRoleData;
 
 public final class LeonHud {
     public static void register() {
         RoleHudRenderCallback.EVENT.register(ModRoles.LEON_ID, (context, tickCounter) -> {
             var client = Minecraft.getInstance();
-            if (client.player == null) return;
+            if (client.player == null)
+                return;
             var font = client.font;
             int screenWidth = context.guiWidth();
             int screenHeight = context.guiHeight();
@@ -36,7 +37,7 @@ public final class LeonHud {
             int lineHeight = font.lineHeight + 2;
 
             SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(client.player);
-            LeonPlayerComponent leonComponent = ModComponents.LEON.get(client.player);
+            LeonRoleData leonComponent = RoleData.getOrCreate(LeonRoleData.class, client.player);
 
             // 竖向排列：技能 → 蓝色药丸 → 红色药丸，从下往上
             int y = screenHeight - 10 - font.lineHeight;

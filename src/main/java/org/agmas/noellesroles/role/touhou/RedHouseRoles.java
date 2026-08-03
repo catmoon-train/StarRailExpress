@@ -37,7 +37,7 @@ import org.agmas.noellesroles.handler.THEventHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role_data.HoanMeirinRoleData;
+import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
 
 import java.awt.*;
 import java.util.List;

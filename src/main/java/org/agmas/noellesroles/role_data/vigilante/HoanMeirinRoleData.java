@@ -13,7 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.role_data;
+package org.agmas.noellesroles.role_data.vigilante;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;

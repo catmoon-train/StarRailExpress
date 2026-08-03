@@ -111,6 +111,7 @@ import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilant
 import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role_data.vigilante.LeonRoleData;
 import org.agmas.noellesroles.utils.RandomColorUtil;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
@@ -1031,7 +1032,7 @@ public class ModRoles {
      * - 格斗体术（按 G 触发，见 {@link org.agmas.noellesroles.AbilityHandler}）：向面前玩家猛踹一脚，
      * 造成较远击退与减速。
      * - 被动「幸存之人」（见
-     * {@link org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent}）：
+     * {@link org.agmas.noellesroles.role_data.vigilante.LeonRoleData}）：
      * 场上剩 6 人时获得蓝色草药（刷新格斗体术），剩 3 人时获得红色草药（套盾，不可叠加）。
      * - 不与远征队等任何修饰符共存（见 {@link org.agmas.noellesroles.game.modifier.NRModifiers}）。
      */
@@ -1039,8 +1040,7 @@ public class ModRoles {
             .registerRole(new NormalRole(LEON_ID, 0x2E6FB0, true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setVigilanteTeam(true)
-                    .setComponentKey(
-                            org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent.KEY))
+                    .setRoleData(LeonRoleData::new))
             .setCanPickUpRevolver(true).setDefaultMax(1).setDefaultEnableChance(5000)
             .setDefaultEnableNeededPlayerCount(12)
             .setSpecialVigilante(true);

@@ -330,10 +330,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "leather_pig"),
       org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent.class);
 
-  public static final ComponentKey<org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent> LEON = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "leon"),
-      org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent.class);
-
   public static final ComponentKey<BloodFeudistPlayerComponent> BLOOD_FEUDIST = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "blood_feudist"),
       BloodFeudistPlayerComponent.class);
@@ -567,11 +563,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, LEATHER_PIG)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent::new);
-
-    // 注册里昂组件 - 「幸存之人」被动草药发放
-    registry.beginRegistration(Player.class, LEON)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(org.agmas.noellesroles.game.roles.vigilante.leon.LeonPlayerComponent::new);
 
     // 注册算命大师组件 - 存储目标和死亡倒计时
     registry.beginRegistration(Player.class, FORTUNETELLER)
