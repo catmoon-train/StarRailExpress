@@ -329,7 +329,11 @@ public final class MeetingManager {
         phase = PHASE_INTRO;
         phaseEndTick = now + INTRO_TICKS;
         center = new Vec3(settings.meetingPosition.x, settings.meetingPosition.y, settings.meetingPosition.z);
-        reporterName = reporter.getGameProfile().getName();
+        if (settings.meetingNoReporter) {
+            reporterName = "meeting.sre.subtitle.a_player";
+        } else {
+            reporterName = reporter.getGameProfile().getName();
+        }
         victimName = victim == null ? "" : victim;
         participants.clear();
         seatEntityIds.clear();
@@ -340,7 +344,6 @@ public final class MeetingManager {
         List<ServerPlayer> alive = new ArrayList<>(serverLevel.players()).stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
                 .toList();
-        int totalDuration = INTRO_TICKS + settings.meetingDiscussSeconds * 20 + 40;
         List<BlockPos> chairs = scanChairs(serverLevel, settings);
 
         int index = 0;
@@ -365,12 +368,12 @@ public final class MeetingManager {
             participant.setDeltaMovement(Vec3.ZERO);
             participant.fallDistance = 0.0F;
 
-            participant.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, totalDuration, 0, false, false, false));
-            participant.addEffect(new MobEffectInstance(ModEffects.USED_BANED, totalDuration, 0, false, false, false));
-            participant.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, totalDuration, 0, false, false, false));
+            participant.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, -1, 0, false, false, false));
+            participant.addEffect(new MobEffectInstance(ModEffects.USED_BANED, -1, 0, false, false, false));
+            participant.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, -1, 0, false, false, false));
             participant
-                    .addEffect(new MobEffectInstance(ModEffects.SKILL_FREEZED, totalDuration, 0, false, false, false));
-            participant.addEffect(new MobEffectInstance(ModEffects.CCA_FREEZED, totalDuration, 0, false, false, false));
+                    .addEffect(new MobEffectInstance(ModEffects.SKILL_FREEZED, -1, 0, false, false, false));
+            participant.addEffect(new MobEffectInstance(ModEffects.CCA_FREEZED, -1, 0, false, false, false));
 
             index++;
         }
