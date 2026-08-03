@@ -318,6 +318,18 @@ public class SREAbilityPlayerComponent
         }
     }
 
+    public SkillState getSelectedSkillState(List<RoleSkill.Definition> definitions) {
+        if (definitions.isEmpty()) {
+            return null;
+        }
+        var definition = definitions.get(selectedSkill);
+        if (definition.noCastCCA()) {
+            return null;
+        }
+        SkillState state = getSkillState(definition.id());
+        return state;
+    }
+
     private void mirrorSelectedSkill(List<RoleSkill.Definition> definitions) {
         if (definitions.isEmpty()) {
             return;
