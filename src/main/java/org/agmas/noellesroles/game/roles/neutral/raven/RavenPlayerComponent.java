@@ -402,6 +402,7 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
         buf.writeVarInt(huntTicks);
         buf.writeVarInt(kills);
         buf.writeVarInt(requiredKills);
+        buf.writeFloat(moodProgress);
         buf.writeFloat(moodProgressThreshold);
         boolean hasTarget = targetRoleId != null;
         buf.writeBoolean(hasTarget);
@@ -416,6 +417,7 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
         huntTicks = buf.readVarInt();
         kills = buf.readVarInt();
         requiredKills = buf.readVarInt();
+        moodProgress = buf.readFloat();
         moodProgressThreshold = buf.readFloat();
         targetRoleId = buf.readBoolean() ? ResourceLocation.tryParse(buf.readUtf()) : null;
     }
