@@ -289,7 +289,7 @@ public class TouhouHandlers {
             moodcca.addMood(0.4f);
           }
           return true;
-        }).announceToSelf().showOnHud(true).cooldownTicks(20 * 60).build());
+        }).withTarget().announceToSelf().showOnHud(true).cooldownTicks(20 * 60).build());
     RoleSkill.register(THMiscRoles.SHIKIEIKI,
         RoleSkill.skill(SRE.id("shikieiki"), "skill.noellesroles.shikieiki.instinct", context -> {
           final int GAP = 15 * 20;
@@ -374,6 +374,6 @@ public class TouhouHandlers {
             return true;
           }
           return false;
-        }).announceToSelf(false).cooldownSeconds(30).build());
+        }).withTarget().announceToSelf(false).cooldownSeconds(30).build());
   }
 }
