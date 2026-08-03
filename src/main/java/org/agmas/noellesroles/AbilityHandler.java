@@ -278,7 +278,7 @@ public class AbilityHandler {
                 player.level().playSound(null, victim.blockPosition(),
                         net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_KNOCKBACK,
                         net.minecraft.sounds.SoundSource.PLAYERS, 1.0f, 1.0f);
-                abilityPlayerComponent.cooldown = GameConstants.getInTicks(0, cfg.leonKickCooldown);
+                abilityPlayerComponent.setCooldown(GameConstants.getInTicks(0, cfg.leonKickCooldown));
                 player.displayClientMessage(
                         Component.translatable("message.noellesroles.leon.kick_hit")
                                 .withStyle(ChatFormatting.AQUA),
@@ -327,7 +327,7 @@ public class AbilityHandler {
             level.playSound(null, player.blockPosition(),
                     net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_STRONG,
                     net.minecraft.sounds.SoundSource.PLAYERS, 0.8f, 1.2f);
-            abilityPlayerComponent.cooldown = GameConstants.getInTicks(0, cfg.morphlingDummyCooldown);
+            abilityPlayerComponent.setCooldown(GameConstants.getInTicks(0, cfg.morphlingDummyCooldown));
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.morphling.dummy_spawned")
                             .withStyle(ChatFormatting.GREEN),
@@ -350,7 +350,7 @@ public class AbilityHandler {
                         NoellesRolesConfig.HANDLER.instance().recallerTeleportCooldown);
                 recallerPlayerComponent.teleport();
             }
-
+            abilityPlayerComponent.sync();
         }
         if (gameWorldComponent.isRole(player, ModRoles.JADE_GENERAL)
                 && abilityPlayerComponent.cooldown <= 0) {

@@ -140,11 +140,7 @@ public class ClientAbilityHandler {
         if (GKeyRoleSkill.trigger(client, gameWorldComponent, false)) {
             return;
         }
-        if (NoellesrolesClient.targetPlayer != null) {
-            ClientPlayNetworking.send(new AbilityWithTargetC2SPacket(NoellesrolesClient.targetPlayer));
-        } else {
-            ClientPlayNetworking.send(new AbilityC2SPacket());
-        }
+        ClientPlayNetworking.send(new AbilityC2SPacket());
     }
 
     public static void tickContinuousInput(Minecraft client) {
