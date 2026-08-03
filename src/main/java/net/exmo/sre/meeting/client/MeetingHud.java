@@ -185,11 +185,13 @@ public final class MeetingHud {
         // 发言者名牌（面板正下方横排，金框脉冲）
         int speakersY = py + panelH + 4;
         renderSpeakers(g, client, speakersY);
-
+        Component reporterNameComponent = MeetingClientHandler.reporterName.equals("meeting.sre.subtitle.a_player")
+                ? Component.translatable("meeting.sre.subtitle.a_player")
+                : Component.literal(MeetingClientHandler.reporterName);
         // 报告信息（发言人名牌下方；过宽时自动缩放，避免溢出屏幕）
         if (!MeetingClientHandler.victimName.isEmpty()) {
             Component reportInfo = Component.translatable("meeting.sre.subtitle.body",
-                    MeetingClientHandler.reporterName, MeetingClientHandler.victimName);
+                    reporterNameComponent, MeetingClientHandler.victimName);
             drawReportInfo(g, client, reportInfo, w / 2, speakersY + 18, TEXT, w - 20);
         }
 
