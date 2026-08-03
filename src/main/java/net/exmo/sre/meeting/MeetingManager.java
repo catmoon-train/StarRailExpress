@@ -36,7 +36,6 @@ import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
-import io.wifi.starrailexpress.util.BlockTypeChecker;
 import net.exmo.sre.meeting.network.MeetingSkipStateS2CPayload;
 import net.exmo.sre.meeting.network.MeetingStateS2CPayload;
 import net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload;
@@ -613,7 +612,7 @@ public final class MeetingManager {
                 centerPos.offset((int) scanBox.minX, (int) scanBox.minY, (int) scanBox.minZ),
                 centerPos.offset((int) scanBox.maxX, (int) scanBox.maxY, (int) scanBox.maxZ))) {
             BlockState state = serverLevel.getBlockState(pos);
-            if (BlockTypeChecker.isSeatBlock(state.getBlock())) {
+            if ((state.getBlock()) instanceof MountableBlock) {
                 chairs.add(pos.immutable());
             }
         }
