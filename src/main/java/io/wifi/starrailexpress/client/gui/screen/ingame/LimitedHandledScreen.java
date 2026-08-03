@@ -671,7 +671,7 @@ public abstract class LimitedHandledScreen<T extends AbstractContainerMenu> exte
     }
 
     @Override
-    public final void tick() {
+    public void tick() {
         super.tick();
 
         if (SREClient.gameComponent.getFade() > 0) {

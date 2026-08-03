@@ -567,10 +567,6 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-
-        // 未开始时：等待面板内的便捷菜单接管交互
-        updateWaitingMenuVisibility();
-
         super.render(context, mouseX, mouseY, delta);
         renderOverlayMessageOnScreen(context, mouseX, mouseY, delta);
 
@@ -690,6 +686,12 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         @Override
         public void renderString(GuiGraphics context, Font textRenderer, int color) {
         }
+    }
+
+    @Override
+    public void tick() {
+        // 未开始时：等待面板内的便捷菜单接管交互
+        updateWaitingMenuVisibility();
     }
 
     public static class StoreItemWidget extends Button {
