@@ -703,14 +703,15 @@ public final class MeetingManager {
             endMeeting(false);
             return;
         }
+        
         List<VoteOption> options = new ArrayList<>();
-        for (ServerPlayer p : alive) {
-            options.add(new VoteOption.PlayerOption(p.getName(), p.getUUID()));
-        }
-        // 添加"跳过"选项
+        // 添加"跳过"选项在最前面
         options.add(VoteOption.text(
                 Component.translatable("meeting.vote.skip"), SKIP_RESULT_ID));
 
+        for (ServerPlayer p : alive) {
+            options.add(new VoteOption.PlayerOption(p.getName(), p.getUUID()));
+        }
         Set<UUID> targetPlayers = new HashSet<>();
         for (ServerPlayer p : alive)
             targetPlayers.add(p.getUUID());

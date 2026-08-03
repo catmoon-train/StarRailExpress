@@ -41,6 +41,8 @@ import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.init.ModEffects;
 import org.lwjgl.glfw.GLFW;
 
+import io.wifi.starrailexpress.client.SREClient;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -162,10 +164,15 @@ public final class MeetingClientHandler {
         if (client.gui == null) {
             return;
         }
+        if (SREClient.areaComponent == null)
+            return;
         String expelled = payload.expelledPlayerName();
         Component title = expelled.isEmpty()
                 ? Component.translatable("meeting.vote.result.none_expelled")
-                : Component.translatable("meeting.vote.result.expelled", expelled);
+                : switch (SREClient.areaComponent.areasSettings.meetingVoteProcessor) {
+                    case GLOWING -> Component.translatable("meeting.vote.result.glowing", expelled);
+                    default -> Component.translatable("meeting.vote.result.expelled", expelled);
+                };
         Component subtitle = expelled.isEmpty()
                 ? Component.translatable("meeting.vote.result.none_expelled.subtitle")
                 : Component.translatable("meeting.vote.result.expelled.subtitle", expelled);
