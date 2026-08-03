@@ -97,6 +97,54 @@ public final class HatEquipmentApi {
     }
 
     /**
+     * 判断玩家当前是否处于"固定皮肤替换"的隐藏状态（客户端）。
+     * <p>
+     * 这些状态下皮肤管线把玩家渲染为固定的伪装/角色皮肤
+     * （不属于任何真实玩家），与皮肤表现对齐，帽子一并隐藏：
+     * <ul>
+     * <li>疯魔模式（psycho）：全员显示疯魔皮肤（{@code PLAYER_PSYCHO_CACHE}）</li>
+     * <li>难民惩罚：旁观者视角全员显示默认皮肤（{@code getLooseEndPenalty}）</li>
+     * <li>亡命徒 / 超级亡命徒：统一显示 th_sariel 皮肤</li>
+     * <li>角色固定皮肤（{@code SRERole#getNormalSkin} 非空，如 jester、remilia 等）</li>
+     * </ul>
+     */
+    @Environment(EnvType.CLIENT)
+    private static boolean isConcealedByFixedSkin(AbstractClientPlayer player) {
+        // 大堂中皮肤不替换，帽子正常显示
+        if (io.wifi.starrailexpress.SRE.isLobby || io.wifi.starrailexpress.client.SREClient.isInLobby) {
+            return false;
+        }
+        // 疯魔模式
+        if (io.wifi.starrailexpress.client.SREClient.PLAYER_PSYCHO_CACHE
+                .getOrDefault(player.getUUID(), false)) {
+            return true;
+        }
+        // 难民惩罚（旁观者全员默认皮肤）
+        if (io.wifi.starrailexpress.client.SREClient.getLooseEndPenalty()) {
+            return true;
+        }
+        // 亡命徒 / 超级亡命徒（统一皮肤）
+        if (org.agmas.noellesroles.utils.RoleUtils.isPlayerTheJob(player,
+                io.wifi.starrailexpress.api.TMMRoles.LOOSE_END)
+                || org.agmas.noellesroles.utils.RoleUtils.isPlayerTheJob(player,
+                        io.wifi.starrailexpress.game.roles.SpecialGameModeRoles.SUPER_LOOSE_END)) {
+            return true;
+        }
+        // 角色固定皮肤（与 PlayerEntityRendererMixin 的皮肤判定一致）
+        if (io.wifi.starrailexpress.client.SREClient.gameComponent != null) {
+            io.wifi.starrailexpress.api.SRERole role = io.wifi.starrailexpress.client.SREClient.gameComponent
+                    .getRole(player.getUUID());
+            if (role != null) {
+                boolean slim = player.getSkin().model() == net.minecraft.client.resources.PlayerSkin.Model.SLIM;
+                if (role.getNormalSkin(player, slim) != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * 洗牌观察目标解析（与 {@code MorphlingRendererMixin#getShuffledTarget} 逻辑一致）：
      * JEB 洗牌，或精神低落者在配置允许时看到的变形者洗牌。
      */
@@ -150,6 +198,11 @@ public final class HatEquipmentApi {
     public static String getDisplayedHatSkinName(AbstractClientPlayer player) {
         // DISGUISE 伪装效果（含渡鸦的伪装）下隐藏帽子
         if (player.hasEffect(org.agmas.noellesroles.init.ModEffects.DISGUISE)) {
+            return "default";
+        }
+        // 固定皮肤替换状态（疯魔模式、亡命徒统一皮肤、难民旁观者默认皮肤、角色固定皮肤）：
+        // 显示的既不是本人皮肤、也不属于任何真实玩家，隐藏帽子避免暴露身份
+        if (isConcealedByFixedSkin(player)) {
             return "default";
         }
         UUID ownerUuid = resolveDisplayedOwnerUuid(player);

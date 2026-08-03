@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.gui.anim.GuiAnim;
 import io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -111,6 +112,8 @@ public class SkinManagementScreen extends Screen {
     private HatSkinGridPanel hatGrid;
     private NameTagList nameTagList;
     private EditBox searchBox;
+    private ToggleCheckbox hideAllHatsCheck;
+    private ToggleCheckbox showOwnHatCheck;
     private Button backButton;
     private Button refreshButton;
 
@@ -187,6 +190,7 @@ public class SkinManagementScreen extends Screen {
 
         initCategoryArea(categoryHeight, categoryMarginT, titleMarginT + titleHeight);
         initSearchBox(categoryHeight, titleMarginT + titleHeight);
+        initHatConfigCheckboxes(categoryHeight, titleMarginT + titleHeight);
         initContentArea();
         initButtonArea(isCompact);
     }
@@ -274,6 +278,30 @@ public class SkinManagementScreen extends Screen {
         });
         searchBox.setHint(Component.translatable("screen.sre.skins.search_hint").withStyle(ChatFormatting.DARK_GRAY));
         addRenderableWidget(searchBox);
+    }
+
+    private void initHatConfigCheckboxes(int checkH, int checkY) {
+        SREClientConfig config = SREClientConfig.instance();
+        int checkW = rightPanelWidth;
+        int checkX = rightPanelX;
+
+        hideAllHatsCheck = new ToggleCheckbox(checkX, checkY, checkW / 2 - 3, checkH,
+                Component.translatable("screen.sre.skins.hide_all_hats"),
+                config.hideAllHats,
+                v -> {
+                    config.hideAllHats = v;
+                    config.reload();
+                });
+        addRenderableWidget(hideAllHatsCheck);
+
+        showOwnHatCheck = new ToggleCheckbox(checkX + checkW / 2 + 3, checkY, checkW / 2 - 3, checkH,
+                Component.translatable("screen.sre.skins.show_own_hat_only"),
+                config.showOwnHatOnly,
+                v -> {
+                    config.showOwnHatOnly = v;
+                    config.reload();
+                });
+        addRenderableWidget(showOwnHatCheck);
     }
 
     private void selectCategory(int index) {
@@ -768,6 +796,89 @@ public class SkinManagementScreen extends Screen {
         @Override
         protected void updateWidgetNarration(NarrationElementOutput output) {
             output.add(NarratedElementType.TITLE, text);
+        }
+    }
+
+    // ─── ToggleCheckbox ──────────────────────────────────────────────────────
+
+    private static class ToggleCheckbox extends AbstractWidget {
+        private final Component label;
+        private boolean toggled;
+        private final java.util.function.Consumer<Boolean> onToggle;
+        private float hoverAnim = 0f;
+
+        private static final int BG_OFF = 0x991A1008;
+        private static final int BG_ON = 0x992A2010;
+        private static final int BG_HOVER = 0x992A1A08;
+        private static final int BORDER = 0x558B6914;
+        private static final int BORDER_ACTIVE = 0xFFD4AF37;
+        private static final int CHECK_ON = 0xFFD4AF37;
+
+        ToggleCheckbox(int x, int y, int width, int height, Component label, boolean initial,
+                java.util.function.Consumer<Boolean> onToggle) {
+            super(x, y, width, height, label);
+            this.label = label;
+            this.toggled = initial;
+            this.onToggle = onToggle;
+        }
+
+        @Override
+        public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+            float dt = GuiAnim.currentDelta();
+            hoverAnim = GuiAnim.toggle(hoverAnim, isHoveredOrFocused(), 14f, dt);
+
+            int bg = GuiAnim.blend(toggled ? BG_ON : BG_OFF, BG_HOVER, hoverAnim);
+            int border = GuiAnim.blend(BORDER,
+                    toggled ? BORDER_ACTIVE : GuiAnim.blend(0x558B6914, 0xFFC9A84C, hoverAnim),
+                    Math.max(toggled ? 1f : 0f, hoverAnim * 0.5f));
+
+            // 背景
+            g.fill(getX(), getY(), getX() + width, getY() + height, bg);
+            // 边框
+            g.fill(getX(), getY(), getX() + width, getY() + 1, border);
+            g.fill(getX(), getY() + height - 1, getX() + width, getY() + height, border);
+            g.fill(getX(), getY(), getX() + 1, getY() + height, border);
+            g.fill(getX() + width - 1, getY(), getX() + width, getY() + height, border);
+
+            // 勾选框
+            int boxSize = Math.min(12, height - 4);
+            int boxX = getX() + 3;
+            int boxY = getY() + (height - boxSize) / 2;
+            g.fill(boxX, boxY, boxX + boxSize, boxY + boxSize, toggled ? CHECK_ON : 0x553A3020);
+            g.fill(boxX, boxY, boxX + boxSize, boxY + 1, 0x558B6914);
+            g.fill(boxX + boxSize - 1, boxY, boxX + boxSize, boxY + boxSize, 0x558B6914);
+            g.fill(boxX, boxY, boxX + 1, boxY + boxSize, 0x558B6914);
+            g.fill(boxX, boxY + boxSize - 1, boxX + boxSize, boxY + boxSize, 0x558B6914);
+
+            // 勾号
+            if (toggled) {
+                var font = Minecraft.getInstance().font;
+                g.drawString(font, "\u2713", boxX + 1, boxY - 1, 0xFF1A1008, false);
+            }
+
+            // 标签
+            int textColor = GuiAnim.blend(0xFF9E8B6E, 0xFFFFF4DC, Math.max(toggled ? 0.6f : 0f, hoverAnim));
+            var font = Minecraft.getInstance().font;
+            String clipped = font.plainSubstrByWidth(label.getString(), width - boxSize - 8);
+            g.drawString(font, clipped, boxX + boxSize + 5, getY() + (height - 8) / 2, textColor, false);
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (button == 0 && isMouseOver(mouseX, mouseY)) {
+                toggled = !toggled;
+                Minecraft.getInstance().getSoundManager().play(
+                        net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                SoundEvents.UI_BUTTON_CLICK, 0.7f));
+                if (onToggle != null) onToggle.accept(toggled);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput output) {
+            output.add(NarratedElementType.TITLE, label);
         }
     }
 

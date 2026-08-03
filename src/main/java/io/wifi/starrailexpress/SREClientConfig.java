@@ -105,6 +105,14 @@ public class SREClientConfig implements ConfigData {
 
     public boolean autoSortVotes = false;
 
+    @Category("skin")
+    @ConfigEntry.Gui.Tooltip
+    public boolean hideAllHats = false; // 不显示所有人的帽子
+
+    @Category("skin")
+    @ConfigEntry.Gui.Tooltip
+    public boolean showOwnHatOnly = false; // 只显示自己的帽子
+
     public boolean isUltraPerfMode() {
         return ultraPerfMode;
     }
