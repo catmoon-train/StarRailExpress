@@ -114,7 +114,7 @@ public final class YouluFreeCamClient {
             exit();
             return;
         }
-        SREClient.isInstinctToggleEnabled = false;
+//        SREClient.isInstinctToggleEnabled = false;
         moveCamera(client, player);
 
         // 相机距本体软限制

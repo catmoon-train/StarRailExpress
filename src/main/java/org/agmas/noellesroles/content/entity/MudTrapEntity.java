@@ -62,7 +62,7 @@ public class MudTrapEntity extends Entity {
     /** 触发后的困陷范围半径（格）。 */
     public static final double ROOT_RADIUS = 3.0;
     /** 困陷时长（5s）。 */
-    public static final int ROOT_DURATION = 5 * 20;
+    public static final int ROOT_DURATION = 6 * 20;
 
     /** 所有者玩家引用（缓存） */
     private Player ownerCache = null;
@@ -193,6 +193,7 @@ public class MudTrapEntity extends Entity {
             victim.stopRiding();
             victim.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, ROOT_DURATION, 0, false, false, true));
             victim.addEffect(new MobEffectInstance(ModEffects.USED_BANED, ROOT_DURATION, 0, false, false, true));
+            victim.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, ROOT_DURATION, 0, false, false, true));
             serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.MUD.defaultBlockState()),
                     victim.getX(), victim.getY() + 0.3, victim.getZ(), 20, 0.3, 0.3, 0.3, 0.05);
             if (victim instanceof ServerPlayer serverVictim) {

@@ -16,16 +16,22 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
+import io.wifi.starrailexpress.client.gui.anim.GuiAnim;
+import io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.UpdateNameTagSelectedPayload;
 import io.wifi.starrailexpress.network.UpdateSkinSelectedPayload;
 import io.wifi.starrailexpress.util.ItemSkinManager;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -34,684 +40,729 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 皮肤装备界面（复古列车风格重写版）。
+ * <p>
+ * 遵循 docs/ui_style.md 风格约定：
+ * <ul>
+ * <li>深棕红渐变背景 + 棕褐色描边 + 金色点缀；</li>
+ * <li>分类标签栏带平滑滑动的金色选中指示条；</li>
+ * <li>切换分类时内容区淡入过渡，打开界面时面板滑入；</li>
+ * <li>"帽子"页使用 {@link HatSkinGridPanel} 卡片网格；</li>
+ * <li>"名片"页使用 {@link NameTagList} 列表选择；</li>
+ * <li>所有动画基于真实帧间隔驱动（{@link GuiAnim}）。</li>
+ * </ul>
+ */
 public class SkinManagementScreen extends Screen {
-    private static final class CategoryTabData {
-        private final String id;
-        private final Component label;
-        private final Item iconItem;
 
-        private CategoryTabData(String id, Component label, Item iconItem) {
+    // ─── 分类标签数据 ────────────────────────────────────────────────────────
+    private static final class CategoryTabData {
+        final String id;
+        final Component label;
+        final Item iconItem;
+
+        CategoryTabData(String id, Component label, Item iconItem) {
             this.id = id;
             this.label = label;
             this.iconItem = iconItem;
         }
 
-        private boolean isHatTab() {
+        boolean isHatTab() {
             return "hat".equals(id);
         }
+
+        boolean isNameTagTab() {
+            return "name_tag".equals(id);
+        }
     }
+
+    // ─── 主题色（遵循 ui_style.md 复古列车配色） ──────────────────────────
+    private static final int ACCENT = 0xFFD4AF37;        // GOLD 强调色
+    private static final int ACCENT_SOFT = 0xFFC9A84C;   // 棕金色
+    private static final int BG_TOP = 0xD81A1008;        // 深棕红（面板上）
+    private static final int BG_BOTTOM = 0xD820140A;     // 棕黑（面板下）
+    private static final int SCREEN_BG_TOP = 0xF018120A;  // 全屏背景上
+    private static final int SCREEN_BG_BOTTOM = 0xF0061018; // 全屏背景下
+    private static final int PANEL_BORDER = 0xFF8B6914;  // 棕褐色描边
+    private static final int DECOR_LINE = 0x33FFE8C0;    // 顶部装饰线
+    private static final int TEXT_MAIN = 0xFFFFF4DC;     // 主文字 浅奶油色
+    private static final int TEXT_TITLE = 0xFFF5E8C8;    // 标题文字 浅米色
+    private static final int TEXT_DIM = 0xFF9E8B6E;      // 次要文字 土褐色
+    private static final int NAME_TAG_COLOR = 0xFFF5DFA8; // 称号色
+
+    private static final int MIN_CATEGORY_WIDTH = 52;
+    private static final int MODEL_SCALE_DIVISOR = 3;
 
     private final SREPlayerSkinsComponent skinsComponent;
     private final Player player;
     private SkinSelectionList skinList;
+    private HatSkinGridPanel hatGrid;
+    private NameTagList nameTagList;
+    private EditBox searchBox;
     private Button backButton;
     private Button refreshButton;
-    private Button prevCategoryPageButton;
-    private Button nextCategoryPageButton;
-    private Button prevNameTagButton;
-    private Button nextNameTagButton;
 
     public Screen parentScreen = null;
 
-    // 分类标签按钮列表
+    private final List<CategoryTabData> categories = new ArrayList<>();
     private final List<CategoryButton> categoryButtons = new ArrayList<>();
-    private List<CategoryTabData> categories = new ArrayList<>();
     private int selectedCategory = 0;
     private int categoryPage = 0;
-    // FIX: categoryPageSize is now dynamic (computed per-init based on available width)
     private int categoryPageSize = 6;
-    private final List<String> availableNameTags = new ArrayList<>();
-    private int selectedNameTagIndex = 0;
+    private String searchFilter = "";
 
-    // 当前选中的帽子皮肤
-    private String selectedHat = "default";
+    // ─── 动画状态 ───────────────────────────────────────────────────────────
+    private long openTimeMs = -1L;
+    private float contentAlpha = 1f;
+    private float indicatorX = 0f;
+    private float indicatorWidth = 0f;
+    private boolean indicatorInitialized = false;
 
-    // 颜色定义
-    private static final int BACKGROUND_COLOR_TOP = 0xFF1A1A2E;
-    private static final int BACKGROUND_COLOR_BOTTOM = 0xFF16213E;
-    private static final int PANEL_COLOR = 0x90303030;
-    private static final int MODEL_SCALE_DIVISOR = 3;
-    private static final int MIN_CATEGORY_WIDTH = 52;
-    private static final int NAME_TAG_COLOR = 0xFFF5DFA8;
-    private static final int NAME_TAG_HINT_COLOR = 0xFF9FAABC;
-
-    // 右侧面板布局
+    // 布局缓存
+    private int contentX;
+    private int leftPanelWidth;
+    private int listTop;
+    private int listHeight;
     private int rightPanelX;
     private int rightPanelWidth;
-    private int rightPanelY;
-    private int rightPanelHeight;
 
     public SkinManagementScreen() {
-        super(Component.translatable("screen.sre.skins.title"));
-        this.player = Minecraft.getInstance().player;
-        this.skinsComponent = SREPlayerSkinsComponent.KEY.get(this.player);
-        // 加载当前装备的帽子
-        this.selectedHat = skinsComponent.getEquippedSkins().getOrDefault("hat", "default");
+        this(null);
     }
+
     public SkinManagementScreen(Screen parentScreen) {
         super(Component.translatable("screen.sre.skins.title"));
         this.player = Minecraft.getInstance().player;
         this.skinsComponent = SREPlayerSkinsComponent.KEY.get(this.player);
-        // 加载当前装备的帽子
-        this.selectedHat = skinsComponent.getEquippedSkins().getOrDefault("hat", "default");
         this.parentScreen = parentScreen;
     }
+
+    // ─── 初始化 ─────────────────────────────────────────────────────────────
 
     @Override
     protected void init() {
         super.init();
-
-        // 清除旧组件
         this.clearWidgets();
         categoryButtons.clear();
+        if (openTimeMs < 0) {
+            openTimeMs = System.currentTimeMillis();
+            contentAlpha = 0f;
+        }
 
-        int screenWidth = this.width;
-        int screenHeight = this.height;
+        boolean isCompact = this.height < 420 || this.width < 560;
+        int titleHeight = isCompact ? 24 : 32;
+        int titleMarginT = isCompact ? 6 : 10;
+        int categoryHeight = isCompact ? 20 : 24;
+        int categoryMarginT = isCompact ? 5 : 8;
+        int gapBelowCategory = isCompact ? 5 : 8;
+        this.listTop = titleMarginT + titleHeight + categoryMarginT + categoryHeight + gapBelowCategory;
+        int bottomPadding = isCompact ? 30 : 48;
+        this.listHeight = this.height - listTop - bottomPadding;
 
-        // FIX: Adaptive layout — compress title/padding on small screens
-        boolean isCompact = screenHeight < 420 || screenWidth < 560;
-        int titleHeight   = isCompact ? 22 : 36;
-        int titleMarginT  = isCompact ? 4  : 8;
-        int categoryHeight = isCompact ? 18 : 22;
-        int categoryMarginT = isCompact ? 4 : 6;
-        // listTop = titleMarginT + titleHeight + categoryMarginT + categoryHeight + gap-below-category
-        int gapBelowCategory = isCompact ? 4 : 6;
-        int listTop = titleMarginT + titleHeight + categoryMarginT + categoryHeight + gapBelowCategory;
-        int bottomPadding = isCompact ? 28 : 46;
-        int listHeight = screenHeight - listTop - bottomPadding;
+        int totalContentWidth = Math.min(this.width - 20, 820);
+        this.contentX = (this.width - totalContentWidth) / 2;
+        this.leftPanelWidth = (int) (totalContentWidth * 0.58);
+        this.rightPanelWidth = totalContentWidth - leftPanelWidth - 10;
+        this.rightPanelX = contentX + leftPanelWidth + 10;
 
-        // 左右分栏比例: 左侧~58% 皮肤列表, 右侧~42% 玩家预览
-        int totalContentWidth = Math.min(screenWidth - 20, 800);
-        int contentStartX = (screenWidth - totalContentWidth) / 2;
-        int leftPanelWidth = (int) (totalContentWidth * 0.58);
-        rightPanelWidth = totalContentWidth - leftPanelWidth - 10;
-        rightPanelX = contentStartX + leftPanelWidth + 10;
-        rightPanelY = listTop;
-        rightPanelHeight = listHeight;
-
-        categories = buildCategories();
-        refreshNameTagState();
-
+        rebuildCategories();
         if (categories.isEmpty()) {
             selectedCategory = 0;
             categoryPage = 0;
         } else {
             selectedCategory = Mth.clamp(selectedCategory, 0, categories.size() - 1);
-            // FIX: categoryPage is NOT recalculated from selectedCategory here;
-            //      it is preserved across refreshSkinPanels() calls.
-            //      We only clamp it after computing categoryPageSize in initCategoryArea.
         }
 
-        // 1. 标题区域
-        initTitleArea(screenWidth, titleMarginT, titleHeight);
-
-        // 2. 分类标签区域 — also computes categoryPageSize and clamps categoryPage
-        initCategoryArea(contentStartX, leftPanelWidth, listTop, categoryHeight, categoryMarginT);
-
-        // 3. 左侧皮肤列表区域
-        initSkinListArea(contentStartX, leftPanelWidth, listTop, listHeight);
-
-        // 4. 右侧玩家预览区域和帽子按钮
-        initPlayerPreviewArea();
-
-        // 5. 底部按钮区域
-        initButtonArea(screenWidth, screenHeight, isCompact);
+        initCategoryArea(categoryHeight, categoryMarginT, titleMarginT + titleHeight);
+        initSearchBox(categoryHeight, titleMarginT + titleHeight);
+        initContentArea();
+        initButtonArea(isCompact);
     }
 
-    private void initTitleArea(int screenWidth, int marginTop, int titleHeight) {
-        int titleWidth = Math.min(300, screenWidth - 20);
-        int titleX = (screenWidth - titleWidth) / 2;
-
-        addRenderableWidget(new SimplePanel(
-                titleX, marginTop, titleWidth, titleHeight,
-                PANEL_COLOR, 0xFF555555));
-
-        addRenderableWidget(new CenteredText(
-                titleX + titleWidth / 2, marginTop + titleHeight / 2,
-                this.title, 0xFFFFFFFF));
+    private void rebuildCategories() {
+        categories.clear();
+        if (player != null && TMMItems.SkinableItem != null) {
+            for (Item item : TMMItems.SkinableItem) {
+                String itemTypeName = BuiltInRegistries.ITEM.getKey(item).toString();
+                categories.add(new CategoryTabData(itemTypeName,
+                        Component.literal(getItemShortName(item)), item));
+            }
+        }
+        categories.add(new CategoryTabData("hat",
+                Component.translatable("screen.sre.skins.hat_title"), Items.LEATHER_HELMET));
+        // 名片（称号）标签
+        categories.add(new CategoryTabData("name_tag",
+                Component.translatable("screen.sre.skins.name_tag_title"), Items.NAME_TAG));
     }
 
-    private void initCategoryArea(int listX, int listWidth, int listTop, int categoryHeight, int categoryMarginT) {
+    private void initCategoryArea(int categoryHeight, int categoryMarginT, int categoryY) {
         if (categories.isEmpty()) {
             return;
         }
-
-        int categoryY = listTop - categoryHeight - categoryMarginT;
         int arrowWidth = 18;
         int arrowSpacing = 4;
         int categorySpacing = 4;
 
-        // FIX: Compute how many tabs actually fit in the available width
-        int tabsAreaWidth = listWidth - arrowWidth * 2 - arrowSpacing * 2;
-        // Each tab needs at least MIN_CATEGORY_WIDTH px plus a spacing gap
-        categoryPageSize = Math.max(1,
-                (tabsAreaWidth + categorySpacing) / (MIN_CATEGORY_WIDTH + categorySpacing));
-
+        int tabsAreaWidth = leftPanelWidth - arrowWidth * 2 - arrowSpacing * 2;
+        categoryPageSize = Math.max(1, (tabsAreaWidth + categorySpacing) / (MIN_CATEGORY_WIDTH + categorySpacing));
         int maxPage = Math.max(0, (categories.size() - 1) / categoryPageSize);
-        // FIX: clamp categoryPage using the freshly-computed categoryPageSize
         categoryPage = Mth.clamp(categoryPage, 0, maxPage);
 
-        int pageStart       = categoryPage * categoryPageSize;
-        int pageEndExcl     = Math.min(categories.size(), pageStart + categoryPageSize);
-        int tabsThisPage    = Math.max(1, pageEndExcl - pageStart);
-
-        // Distribute remaining space evenly among tabs (floor), with a sane floor
+        int pageStart = categoryPage * categoryPageSize;
+        int pageEndExcl = Math.min(categories.size(), pageStart + categoryPageSize);
+        int tabsThisPage = Math.max(1, pageEndExcl - pageStart);
         int categoryWidth = Math.max(MIN_CATEGORY_WIDTH,
                 (tabsAreaWidth - (tabsThisPage - 1) * categorySpacing) / tabsThisPage);
+        int tabsStartX = contentX + arrowWidth + arrowSpacing;
 
-        int tabsStartX = listX + arrowWidth + arrowSpacing;
-
-        prevCategoryPageButton = Button.builder(Component.literal("<"), button -> {
+        Button prevPage = Button.builder(Component.literal("<"), b -> {
             if (categoryPage > 0) {
                 categoryPage--;
-                // Move selectedCategory into the new page range
-                int newPageStart = categoryPage * categoryPageSize;
-                int newPageEnd   = Math.min(categories.size(), newPageStart + categoryPageSize) - 1;
-                selectedCategory = Mth.clamp(selectedCategory, newPageStart, newPageEnd);
-                refreshSkinPanels();
+                int newStart = categoryPage * categoryPageSize;
+                int newEnd = Math.min(categories.size(), newStart + categoryPageSize) - 1;
+                selectedCategory = Mth.clamp(selectedCategory, newStart, newEnd);
+                onCategoryChanged(false);
             }
-        }).pos(listX, categoryY)
-                .size(arrowWidth, categoryHeight)
-                .build();
-        prevCategoryPageButton.active = categoryPage > 0;
-        addRenderableWidget(prevCategoryPageButton);
+        }).pos(contentX, categoryY).size(arrowWidth, categoryHeight).build();
+        prevPage.active = categoryPage > 0;
+        addRenderableWidget(prevPage);
 
-        nextCategoryPageButton = Button.builder(Component.literal(">"), button -> {
-            if (categoryPage < maxPage) {
+        int finalMaxPage = maxPage;
+        Button nextPage = Button.builder(Component.literal(">"), b -> {
+            if (categoryPage < finalMaxPage) {
                 categoryPage++;
                 selectedCategory = categoryPage * categoryPageSize;
-                refreshSkinPanels();
+                onCategoryChanged(false);
             }
-        }).pos(listX + listWidth - arrowWidth, categoryY)
-                .size(arrowWidth, categoryHeight)
-                .build();
-        nextCategoryPageButton.active = categoryPage < maxPage;
-        addRenderableWidget(nextCategoryPageButton);
+        }).pos(contentX + leftPanelWidth - arrowWidth, categoryY).size(arrowWidth, categoryHeight).build();
+        nextPage.active = categoryPage < maxPage;
+        addRenderableWidget(nextPage);
 
         for (int i = pageStart; i < pageEndExcl; i++) {
             CategoryTabData tab = categories.get(i);
             int finalI = i;
-            int localIndex = i - pageStart;
-
             CategoryButton button = new CategoryButton(
-                    tabsStartX + localIndex * (categoryWidth + categorySpacing),
-                    categoryY,
-                    categoryWidth,
-                    categoryHeight,
-                    tab.label,
-                    tab.iconItem,
-                    button1 -> {
-                        selectedCategory = finalI;
-                        refreshSkinPanels();
-                    },
+                    tabsStartX + (i - pageStart) * (categoryWidth + categorySpacing),
+                    categoryY, categoryWidth, categoryHeight,
+                    tab.label, tab.iconItem,
+                    b -> selectCategory(finalI),
                     i == selectedCategory);
-
             categoryButtons.add(button);
             addRenderableWidget(button);
         }
     }
 
-    private void initSkinListArea(int listX, int listWidth, int listTop, int listHeight) {
-        if (categories.isEmpty() || selectedCategory >= categories.size()) {
-            addRenderableWidget(new CenteredText(
-                    listX + listWidth / 2, listTop + listHeight / 2,
-                    Component.translatable("screen.sre.skins.no_items"),
-                    0xFFAAAAAA));
+    private void initSearchBox(int categoryHeight, int categoryY) {
+        searchBox = new EditBox(font, rightPanelX, categoryY, rightPanelWidth, categoryHeight,
+                Component.translatable("screen.sre.skins.search"));
+        searchBox.setMaxLength(50);
+        searchBox.setResponder(text -> {
+            searchFilter = text.toLowerCase();
+            refreshSkinPanels();
+        });
+        searchBox.setHint(Component.translatable("screen.sre.skins.search_hint").withStyle(ChatFormatting.DARK_GRAY));
+        addRenderableWidget(searchBox);
+    }
+
+    private void selectCategory(int index) {
+        if (index == selectedCategory && contentAlpha > 0.95f) {
             return;
         }
+        selectedCategory = index;
+        categoryPage = index / categoryPageSize;
+        onCategoryChanged(true);
+    }
 
+    private void onCategoryChanged(boolean playSound) {
+        if (playSound) {
+            Minecraft.getInstance().getSoundManager().play(
+                    net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 0.7f));
+        }
+        contentAlpha = 0f;
+        refreshSkinPanels();
+    }
+
+    private void initContentArea() {
+        if (categories.isEmpty() || selectedCategory >= categories.size()) {
+            addRenderableWidget(new CenteredText(contentX + leftPanelWidth / 2, listTop + listHeight / 2,
+                    Component.translatable("screen.sre.skins.no_items"), TEXT_DIM));
+            return;
+        }
         CategoryTabData selectedTab = categories.get(selectedCategory);
         if (selectedTab.isHatTab()) {
-            addRenderableWidget(new CenteredText(
-                    listX + listWidth / 2,
-                    listTop + listHeight / 2,
-                    Component.translatable("screen.sre.skins.hat_title"),
-                    0xFFCCCCCC));
+            hatGrid = new HatSkinGridPanel(contentX, listTop, leftPanelWidth, listHeight,
+                    skinsComponent, this::equipHat, searchFilter);
+            addRenderableWidget(hatGrid);
             return;
         }
+        hatGrid = null;
 
-        Item selectedItem = selectedTab.iconItem;
-        ItemStack itemStack = new ItemStack(selectedItem);
+        if (selectedTab.isNameTagTab()) {
+            nameTagList = new NameTagList(this, minecraft,
+                    contentX, leftPanelWidth, listHeight, listTop, searchFilter);
+            addRenderableWidget(nameTagList);
+            return;
+        }
+        nameTagList = null;
 
-        skinList = new SkinSelectionList(
-                this,
-                Minecraft.getInstance(),
-                listX,
-                listWidth,
-                listHeight,
-                listTop,
-                itemStack,
-                skinsComponent,
-                skinName -> {
-                    String itemTypeName = getItemTypeName(itemStack);
-                    ClientPlayNetworking.send(new UpdateSkinSelectedPayload(itemTypeName, skinName));
-                });
-
+        ItemStack itemStack = new ItemStack(selectedTab.iconItem);
+        skinList = new SkinSelectionList(this, Minecraft.getInstance(),
+                contentX, leftPanelWidth, listHeight, listTop, itemStack, skinsComponent,
+                skinName -> ClientPlayNetworking.send(
+                        new UpdateSkinSelectedPayload(ItemSkinManager.getItemTypeName(itemStack), skinName)),
+                searchFilter);
         addRenderableWidget(skinList);
 
-        addRenderableWidget(new ItemInfoPanel(
-                rightPanelX,
-                rightPanelY - 25,
-                rightPanelWidth,
-                20,
-                itemStack));
+        addRenderableWidget(new ItemInfoPanel(rightPanelX, listTop - 25, rightPanelWidth, 20, itemStack));
     }
 
-    private List<CategoryTabData> buildCategories() {
-        List<CategoryTabData> result = new ArrayList<>();
-        for (Item item : getSkinnableItemTypes()) {
-            String itemTypeName = BuiltInRegistries.ITEM.getKey(item).toString();
-            result.add(new CategoryTabData(itemTypeName, Component.literal(getItemShortName(item)), item));
+    /** 装备帽子：发送到服务端并做本地乐观更新（预览即时生效） */
+    private void equipHat(String skinName) {
+        ClientPlayNetworking.send(new UpdateSkinSelectedPayload("hat", skinName));
+        if (player != null) {
+            ClientHatEquipmentCache.setLocalOptimistic(player.getUUID(), skinName);
         }
-        result.add(
-                new CategoryTabData("hat", Component.translatable("screen.sre.skins.hat_title"), Items.LEATHER_HELMET));
-        return result;
     }
 
-    private void initPlayerPreviewArea() {
-        addRenderableWidget(new SimplePanel(
-                rightPanelX, rightPanelY, rightPanelWidth, rightPanelHeight,
-                0x80000000, 0xFF444455));
+    // ─── 名片数据 ────────────────────────────────────────────────────────────
 
-        addRenderableWidget(new CenteredText(
-                rightPanelX + rightPanelWidth / 2, rightPanelY + 10,
-                Component.translatable("screen.sre.skins.preview"),
-                0xFFFFFFFF));
-
-        int nameTagY = rightPanelY + 30;
-        addRenderableWidget(new CenteredText(
-                rightPanelX + rightPanelWidth / 2,
-                nameTagY - 10,
-                Component.translatable("screen.sre.skins.title_selector"),
-                NAME_TAG_HINT_COLOR));
-
-        prevNameTagButton = Button.builder(Component.literal("<"), button -> shiftNameTagSelection(-1))
-                .pos(rightPanelX + 8, nameTagY - 7)
-                .size(18, 14)
-                .build();
-        prevNameTagButton.active = availableNameTags.size() > 1;
-        addRenderableWidget(prevNameTagButton);
-
-        nextNameTagButton = Button.builder(Component.literal(">"), button -> shiftNameTagSelection(1))
-                .pos(rightPanelX + rightPanelWidth - 26, nameTagY - 7)
-                .size(18, 14)
-                .build();
-        nextNameTagButton.active = availableNameTags.size() > 1;
-        addRenderableWidget(nextNameTagButton);
+    List<String> getNameTags() {
+        List<String> tags = new ArrayList<>();
+        NameTagInventoryComponent component = player == null ? null
+                : NameTagInventoryComponent.KEY.get(player);
+        if (component != null) {
+            tags.addAll(component.nameTags);
+        }
+        return tags;
     }
 
-    private void initButtonArea(int screenWidth, int screenHeight, boolean isCompact) {
-        int buttonWidth  = isCompact ? 80  : 100;
-        int buttonHeight = isCompact ? 16  : 20;
-        int buttonY      = screenHeight - (isCompact ? 22 : 36);
+    String getCurrentNameTag() {
+        NameTagInventoryComponent component = player == null ? null
+                : NameTagInventoryComponent.KEY.get(player);
+        return component != null ? component.getCurrentNameTag() : "";
+    }
+
+    void selectNameTag(String tag) {
+        NameTagInventoryComponent component = player == null ? null
+                : NameTagInventoryComponent.KEY.get(player);
+        if (component != null) {
+            component.CurrentNameTag = tag;
+        }
+        ClientPlayNetworking.send(new UpdateNameTagSelectedPayload(tag));
+    }
+
+    Component getNameTagDisplayText(String tagId) {
+        ResourceLocation tagRl = ResourceLocation.tryParse(tagId);
+        if (tagRl != null) {
+            return Component.translatableWithFallback(tagId, tagRl.getPath());
+        }
+        return Component.translatableWithFallback(tagId, tagId);
+    }
+
+    // ─── 按钮区 ─────────────────────────────────────────────────────────────
+
+    private void initButtonArea(boolean isCompact) {
+        int buttonWidth = isCompact ? 84 : 110;
+        int buttonHeight = isCompact ? 16 : 20;
+        int buttonY = this.height - (isCompact ? 24 : 38);
         int buttonSpacing = 16;
 
-        refreshButton = ModernButton.builder(
-                Component.translatable("screen.sre.skins.refresh"),
-                button -> refreshSkinPanels())
-                .pos((screenWidth - buttonWidth * 2 - buttonSpacing) / 2, buttonY)
+        refreshButton = Button.builder(Component.translatable("screen.sre.skins.refresh"),
+                b -> refreshSkinPanels())
+                .pos((this.width - buttonWidth * 2 - buttonSpacing) / 2, buttonY)
                 .size(buttonWidth, buttonHeight)
-                .accentBar()
                 .build();
-        refreshButton.setTooltip(Tooltip.create(
-                Component.translatable("screen.sre.skins.refresh_tooltip")));
+        refreshButton.setTooltip(Tooltip.create(Component.translatable("screen.sre.skins.refresh_tooltip")));
         addRenderableWidget(refreshButton);
 
-        backButton = ModernButton.builder(
-                Component.translatable("screen.sre.skins.back"),
-                button -> this.onClose())
+        backButton = Button.builder(Component.translatable("screen.sre.skins.back"), b -> this.onClose())
                 .pos(refreshButton.getX() + buttonWidth + buttonSpacing, buttonY)
                 .size(buttonWidth, buttonHeight)
-                .accentBar()
                 .build();
         addRenderableWidget(backButton);
     }
 
+    // ─── 渲染（遵循 ui_style.md 第3节渲染范式） ──────────────────────────
+
     @Override
-    public void onClose() {
-        this.minecraft.setScreen((Screen)parentScreen);
-    }
-
-    private static String getItemShortName(Item item) {
-        String name = item.getDescription().getString();
-        if (name.length() <= 12)
-            return name;
-        return name.substring(0, 10) + "...";
-    }
-
-    private String getItemTypeName(ItemStack itemStack) {
-        return ItemSkinManager.getItemTypeName(itemStack);
-    }
-
-    private List<Item> getSkinnableItemTypes() {
-        List<Item> skinnableItems = new ArrayList<>();
-        if (player != null) {
-            if (TMMItems.SkinableItem != null) {
-                skinnableItems.addAll(TMMItems.SkinableItem);
-            }
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // 不调用 super，绘制自定义全屏背景
+        float dt = GuiAnim.frameDeltaSeconds();
+        if (hatGrid != null) {
+            hatGrid.setFrameDelta(dt);
         }
-        return skinnableItems;
+        contentAlpha = GuiAnim.approach(contentAlpha, 1f, 10f, dt);
+        float openProgress = GuiAnim.easeOutCubic((System.currentTimeMillis() - openTimeMs) / 400f);
+
+        renderAnimatedBackground(graphics, dt);
+        renderPanelBackgrounds(graphics, openProgress);
+        renderTitle(graphics, openProgress);
+        renderTabIndicator(graphics, dt, openProgress);
     }
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics, mouseX, mouseY, partialTick);
+        // 先调用 super.render 绘制组件（内部自动调用 renderBackground）
         super.render(graphics, mouseX, mouseY, partialTick);
-        renderPlayerPreview(graphics, mouseX, mouseY);
-        renderInstructions(graphics);
+
+        // 在组件上方绘制附加元素
+        float openProgress = GuiAnim.easeOutCubic((System.currentTimeMillis() - openTimeMs) / 400f);
+        float dt = GuiAnim.frameDeltaSeconds();
+        renderPreviewPanel(graphics, mouseX, mouseY, dt, openProgress);
+        renderFooterStats(graphics);
     }
 
-    @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.fillGradient(0, 0, width, height,
-                BACKGROUND_COLOR_TOP, BACKGROUND_COLOR_BOTTOM);
+    // ─── 背景渲染 ───────────────────────────────────────────────────────────
 
+    private void renderAnimatedBackground(GuiGraphics graphics, float dt) {
+        // 全屏深棕渐变背景
+        graphics.fillGradient(0, 0, width, height, SCREEN_BG_TOP, SCREEN_BG_BOTTOM);
+
+        // 金色微粒（替代之前的蓝色粒点）
         long time = System.currentTimeMillis();
-        for (int i = 0; i < 20; i++) {
-            float x = (float) ((time * 0.2 + i * 50) % width);
-            float y = (float) ((Math.sin(time * 0.001 + i) * 30 + height / 2) % height);
-            float size = 1 + (float) Math.sin(time * 0.002 + i);
-            int alpha = (int) (50 + 100 * Math.sin(time * 0.0005 + i));
-            int starColor = (alpha << 24) | 0xFFFFFF;
-            graphics.fill((int) x, (int) y, (int) (x + size), (int) (y + size), starColor);
+        for (int i = 0; i < 24; i++) {
+            float x = (time * 0.015f * (1 + i % 3) + i * 67f) % (width + 20) - 10;
+            float y = height / 2f + (float) Math.sin(time * 0.0008 + i * 1.7) * (height * 0.45f);
+            float twinkle = 0.5f + 0.5f * (float) Math.sin(time * 0.0012 + i * 2.3);
+            int alpha = (int) (15 + 45 * twinkle);
+            graphics.fill((int) x, (int) y, (int) x + 2, (int) y + 2, GuiAnim.withAlpha(0xD4AF37, alpha));
         }
+        // 顶部金色氛围光
+        graphics.fillGradient(0, 0, width, 60, 0x252A1A08, 0x002A1A08);
     }
 
-    private void renderPlayerPreview(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if (player == null)
+    /** 左面板 + 右面板的盒子背景 */
+    private void renderPanelBackgrounds(GuiGraphics graphics, float openProgress) {
+        float slide = (1f - openProgress) * -12f;
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, slide, 0);
+
+        // 左面板
+        drawPanelBox(graphics, contentX, listTop, leftPanelWidth, listHeight, openProgress);
+        // 右面板
+        drawPanelBox(graphics, rightPanelX, listTop, rightPanelWidth, listHeight, openProgress);
+
+        graphics.pose().popPose();
+    }
+
+    /** 单一面板盒子：渐变背景 + 棕褐色描边 + 顶部装饰线 */
+    private void drawPanelBox(GuiGraphics g, int x, int y, int w, int h, float alpha) {
+        int bgTop = GuiAnim.withAlpha(BG_TOP, GuiAnim.alphaOf(alpha));
+        int bgBot = GuiAnim.withAlpha(BG_BOTTOM, GuiAnim.alphaOf(alpha));
+        g.fillGradient(x, y, x + w, y + h, bgTop, bgBot);
+        // 棕褐色描边
+        int borderColor = GuiAnim.withAlpha(PANEL_BORDER, GuiAnim.alphaOf(alpha));
+        g.fill(x, y, x + w, y + 1, borderColor);
+        g.fill(x, y + h - 1, x + w, y + h, borderColor);
+        g.fill(x, y, x + 1, y + h, borderColor);
+        g.fill(x + w - 1, y, x + w, y + h, borderColor);
+        // 顶部装饰线
+        int decorAlpha = Math.min(0x33, GuiAnim.alphaOf(alpha));
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, decorAlpha | 0x00FFE8C0);
+    }
+
+    private void renderTitle(GuiGraphics graphics, float openProgress) {
+        int titleY = this.height < 420 ? 6 : 10;
+        int titleHeight = this.height < 420 ? 18 : 24;
+        float slide = (1f - openProgress) * -18f;
+
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, slide, 0);
+
+        int titleW = Math.min(240, (int) ((width - 40) * 0.75));
+        int titleX = (width - titleW) / 2;
+
+        // 标题背景面板
+        graphics.fillGradient(titleX, titleY, titleX + titleW, titleY + titleHeight,
+                GuiAnim.withAlpha(BG_TOP, GuiAnim.alphaOf(openProgress)),
+                GuiAnim.withAlpha(BG_BOTTOM, GuiAnim.alphaOf(openProgress)));
+        // 棕褐色上下边
+        int borderColor = GuiAnim.withAlpha(PANEL_BORDER, GuiAnim.alphaOf(openProgress));
+        graphics.fill(titleX, titleY, titleX + titleW, titleY + 1, borderColor);
+        graphics.fill(titleX, titleY + titleHeight - 1, titleX + titleW, titleY + titleHeight, borderColor);
+        graphics.fill(titleX, titleY, titleX + 1, titleY + titleHeight, borderColor);
+        graphics.fill(titleX + titleW - 1, titleY, titleX + titleW, titleY + titleHeight, borderColor);
+        // 顶部装饰线
+        int decorAlpha = Math.min(0x33, GuiAnim.alphaOf(openProgress));
+        graphics.fill(titleX + 1, titleY + 1, titleX + titleW - 1, titleY + 2, decorAlpha | 0x00FFE8C0);
+
+        graphics.drawCenteredString(font, this.title,
+                width / 2, titleY + (titleHeight - 8) / 2,
+                GuiAnim.withAlpha(TEXT_TITLE, GuiAnim.alphaOf(openProgress)));
+
+        // 标题下金色短线（随打开动画延展）
+        int underlineW = (int) (64 * openProgress);
+        int underlineColor = GuiAnim.withAlpha(ACCENT, GuiAnim.alphaOf(openProgress));
+        graphics.fill(width / 2 - underlineW / 2, titleY + titleHeight + 2,
+                width / 2 + underlineW / 2, titleY + titleHeight + 4, underlineColor);
+
+        graphics.pose().popPose();
+    }
+
+    /** 分类标签栏下的滑动选中指示条 */
+    private void renderTabIndicator(GuiGraphics graphics, float dt, float openProgress) {
+        CategoryButton selected = null;
+        for (CategoryButton button : categoryButtons) {
+            if (button.selected) {
+                selected = button;
+                break;
+            }
+        }
+        if (selected == null) {
+            indicatorInitialized = false;
             return;
+        }
+        if (!indicatorInitialized) {
+            indicatorX = selected.getX();
+            indicatorWidth = selected.getWidth();
+            indicatorInitialized = true;
+        }
+        indicatorX = GuiAnim.approach(indicatorX, selected.getX(), 18f, dt);
+        indicatorWidth = GuiAnim.approach(indicatorWidth, selected.getWidth(), 18f, dt);
 
-        int previewX1 = rightPanelX + 5;
-        int previewY1 = rightPanelY + 25;
-        int previewX2 = rightPanelX + rightPanelWidth - 5;
-        int previewY2 = rightPanelY + rightPanelHeight - 10;
+        int y = selected.getY() + selected.getHeight() + 1;
+        int x0 = Math.round(indicatorX);
+        int x1 = Math.round(indicatorX + indicatorWidth);
+        int alpha = GuiAnim.alphaOf(openProgress);
+        graphics.fill(x0, y, x1, y + 2, GuiAnim.withAlpha(ACCENT, alpha));
+        graphics.fill(x0, y - 1, x1, y, GuiAnim.withAlpha(ACCENT_SOFT, alpha / 2));
+    }
 
+    // ─── 右侧预览面板 ───────────────────────────────────────────────────────
+
+    private void renderPreviewPanel(GuiGraphics graphics, int mouseX, int mouseY, float dt, float openProgress) {
+        if (player == null) {
+            return;
+        }
+        float slide = (1f - openProgress) * 24f;
+        graphics.pose().pushPose();
+        graphics.pose().translate(slide, 0, 0);
+
+        boolean isNameTagTab = !categories.isEmpty() && selectedCategory < categories.size()
+                && categories.get(selectedCategory).isNameTagTab();
+
+        // 称号标签（预览面板内显示当前称号）
+        if (isNameTagTab) {
+            int nameTagY = listTop + 34;
+            graphics.drawCenteredString(font, Component.translatable("screen.sre.skins.title_selector"),
+                    rightPanelX + rightPanelWidth / 2, nameTagY - 20, TEXT_DIM);
+            String current = getCurrentNameTag();
+            Component displayText = current.isEmpty()
+                    ? Component.translatable("screen.sre.skins.no_title")
+                    : getNameTagDisplayText(current);
+            graphics.drawCenteredString(font, displayText,
+                    rightPanelX + rightPanelWidth / 2, nameTagY - 4, NAME_TAG_COLOR);
+        } else {
+            // 非名片页：在预览上方显示当前装备的皮肤名
+            int labelY = listTop + 30;
+            graphics.drawCenteredString(font, Component.translatable("screen.sre.skins.preview"),
+                    rightPanelX + rightPanelWidth / 2, labelY, TEXT_DIM);
+        }
+
+
+        // 玩家预览
+        int nameTagY = listTop + 34;
+        int previewX1 = rightPanelX + 6;
+        int previewY1 = nameTagY + 8;
+        int previewX2 = rightPanelX + rightPanelWidth - 6;
+        int previewY2 = listTop + listHeight - 12;
         int previewSize = Math.min(previewX2 - previewX1, previewY2 - previewY1);
-        int modelScale  = previewSize / MODEL_SCALE_DIVISOR;
-        ItemStack previewStack   = getPreviewStackForCurrentTab();
-        // Save the real mainhand item before temporarily overriding it for rendering
+        int modelScale = previewSize / MODEL_SCALE_DIVISOR;
+
+        ItemStack previewStack = getPreviewStackForCurrentTab();
         ItemStack originalMainhand = player.getMainHandItem().copy();
         if (!previewStack.isEmpty()) {
             player.setItemSlot(EquipmentSlot.MAINHAND, previewStack);
         }
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, 400F);
-
-        InventoryScreen.renderEntityInInventoryFollowsMouse(
-                guiGraphics,
-                previewX1, previewY1, previewX2, previewY2,
-                modelScale,
-                0.0625F,
-                mouseX, mouseY,
-                player);
-
-        guiGraphics.pose().popPose();
-        // Always restore the original item — even if previewStack was empty
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 400F);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics,
+                previewX1, previewY1, previewX2, previewY2, modelScale, 0.0625F, mouseX, mouseY, player);
+        graphics.pose().popPose();
         player.setItemSlot(EquipmentSlot.MAINHAND, originalMainhand);
 
-        Component selectedNameTagText = getSelectedNameTagDisplayText();
-        int titleX = rightPanelX + rightPanelWidth / 2;
-        int titleY = previewY1 + 4;
-        guiGraphics.drawCenteredString(font, selectedNameTagText, titleX, titleY, NAME_TAG_COLOR);
-    }
-
-    private NameTagInventoryComponent getNameTagComponent() {
-        if (player == null)
-            return null;
-        return NameTagInventoryComponent.KEY.get(player);
-    }
-
-    private void refreshNameTagState() {
-        availableNameTags.clear();
-        NameTagInventoryComponent component = getNameTagComponent();
-        if (component == null)
-            return;
-
-        availableNameTags.addAll(component.nameTags);
-        if (availableNameTags.isEmpty()) {
-            selectedNameTagIndex = 0;
-            return;
-        }
-
-        String current = component.getCurrentNameTag();
-        int idx = availableNameTags.indexOf(current);
-        selectedNameTagIndex = idx >= 0 ? idx : 0;
-    }
-
-    private void shiftNameTagSelection(int delta) {
-        if (availableNameTags.isEmpty())
-            return;
-        int size      = availableNameTags.size();
-        int nextIndex = ((selectedNameTagIndex + delta) % size + size) % size;
-        selectedNameTagIndex = nextIndex;
-        String selectedTag = availableNameTags.get(selectedNameTagIndex);
-        NameTagInventoryComponent component = getNameTagComponent();
-        if (component != null)
-            component.CurrentNameTag = selectedTag;
-        ClientPlayNetworking.send(new UpdateNameTagSelectedPayload(selectedTag));
-        refreshSkinPanels();
-    }
-
-    private Component getSelectedNameTagDisplayText() {
-        if (availableNameTags.isEmpty())
-            return Component.translatable("screen.sre.skins.no_title");
-
-        String selectedTag = availableNameTags.get(Mth.clamp(selectedNameTagIndex, 0, availableNameTags.size() - 1));
-        ResourceLocation tagRl = ResourceLocation.tryParse(selectedTag);
-        if (tagRl != null)
-            return Component.translatableWithFallback(selectedTag, tagRl.getPath());
-        return Component.translatableWithFallback(selectedTag, selectedTag);
+        graphics.pose().popPose();
     }
 
     private ItemStack getPreviewStackForCurrentTab() {
-        if (categories.isEmpty() || selectedCategory < 0 || selectedCategory >= categories.size())
+        if (categories.isEmpty() || selectedCategory < 0 || selectedCategory >= categories.size()) {
             return ItemStack.EMPTY;
-
-        CategoryTabData selectedTab = categories.get(selectedCategory);
-        if (selectedTab.isHatTab()) {
-            ItemStack hatPreview = new ItemStack(Items.LEATHER_HELMET);
-            hatPreview.set(io.wifi.starrailexpress.index.SREDataComponentTypes.SKIN, selectedHat);
-            return hatPreview;
         }
-
-        ItemStack preview    = new ItemStack(selectedTab.iconItem);
-        String equippedSkin  = skinsComponent.getEquippedSkin(selectedTab.id);
-        preview.set(io.wifi.starrailexpress.index.SREDataComponentTypes.SKIN, equippedSkin);
+        CategoryTabData selectedTab = categories.get(selectedCategory);
+        if (selectedTab.isHatTab() || selectedTab.isNameTagTab()) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack preview = new ItemStack(selectedTab.iconItem);
+        preview.set(io.wifi.starrailexpress.index.SREDataComponentTypes.SKIN,
+                skinsComponent.getEquippedSkin(selectedTab.id));
         return preview;
     }
 
-    private void renderInstructions(GuiGraphics graphics) {
-        Component instructions = Component.translatable("screen.sre.skins.instructions");
-        graphics.drawCenteredString(font, instructions, width / 2, height - 10, 0xFF888888);
+    private void renderFooterStats(GuiGraphics graphics) {
+        graphics.drawCenteredString(font, Component.translatable("screen.sre.skins.instructions"),
+                width / 2, height - 10, TEXT_DIM);
 
         int totalSkins = 0;
         int unlockedSkins = 0;
-        List<Item> skinnableItems = getSkinnableItemTypes();
-        for (Item item : skinnableItems) {
-            ItemStack stack = new ItemStack(item);
-            var skins = skinsComponent.getUnlockedSkins(stack);
-            totalSkins    += skins.size() + 1;
-            unlockedSkins += (int) skins.values().stream().filter(b -> b).count() + 1;
+        if (player != null && TMMItems.SkinableItem != null) {
+            for (Item item : TMMItems.SkinableItem) {
+                var skins = skinsComponent.getUnlockedSkins(new ItemStack(item));
+                totalSkins += skins.size() + 1;
+                unlockedSkins += (int) skins.values().stream().filter(b -> b).count() + 1;
+            }
         }
-
+        var hatSkins = ItemSkinManager.getSkins("hat");
+        for (String hatName : hatSkins.keySet()) {
+            if ("default".equals(hatName)) continue;
+            totalSkins++;
+            if (skinsComponent.isSkinUnlockedForItemType("hat", hatName)) unlockedSkins++;
+        }
         if (totalSkins > 0) {
-            Component stats = Component.translatable("screen.sre.skins.stats", unlockedSkins, totalSkins);
-            graphics.drawString(font, stats, 10, 4, 0xFFAAAAAA, false);
+            graphics.drawString(font, Component.translatable("screen.sre.skins.stats", unlockedSkins, totalSkins),
+                    10, 4, TEXT_DIM, false);
         }
     }
 
+    // ─── 输入 ───────────────────────────────────────────────────────────────
+
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (super.keyPressed(keyCode, scanCode, modifiers))
+        if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
-
+        }
         if (keyCode == 256) { // ESC
             this.onClose();
             return true;
         }
-        if (keyCode == 82) { // R — refresh
+        if (keyCode == 82) { // R — 刷新
             refreshSkinPanels();
             return true;
         }
-
-        // Arrow keys: navigate categories
-        if (keyCode == 263) { // left
-            if (selectedCategory > 0) {
-                selectedCategory--;
-                // FIX: use the live categoryPageSize
-                categoryPage = selectedCategory / categoryPageSize;
-                refreshSkinPanels();
-                return true;
-            }
-        } else if (keyCode == 262) { // right
-            if (selectedCategory < categories.size() - 1) {
-                selectedCategory++;
-                categoryPage = selectedCategory / categoryPageSize;
-                refreshSkinPanels();
-                return true;
-            }
+        if (keyCode == 263 && selectedCategory > 0) { // ←
+            selectCategory(selectedCategory - 1);
+            return true;
         }
-
+        if (keyCode == 262 && selectedCategory < categories.size() - 1) { // →
+            selectCategory(selectedCategory + 1);
+            return true;
+        }
         return false;
     }
 
+    @Override
+    public void onClose() {
+        this.minecraft.setScreen(parentScreen);
+    }
+
     public void refreshSkinPanels() {
+        skinList = null;
+        hatGrid = null;
+        nameTagList = null;
         this.init();
     }
 
-    // ─── CategoryButton ──────────────────────────────────────────────────────────
+    private static String getItemShortName(Item item) {
+        String name = item.getDescription().getString();
+        return name.length() <= 12 ? name : name.substring(0, 10) + "...";
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 内部控件
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // ─── CategoryButton ──────────────────────────────────────────────────────
 
     private static class CategoryButton extends Button {
-        private final boolean selected;
+        final boolean selected;
         private final ItemStack item;
         private final Component label;
+        private float hoverAnim = 0f;
+        private float selectAnim = 0f;
 
-        public CategoryButton(int x, int y, int width, int height, Component label, Item item,
+        // 复古主题分类按钮色
+        private static final int TAB_BG = 0x991A1008;
+        private static final int TAB_BG_HOVER = 0x992A1A08;
+        private static final int TAB_BG_SELECT = 0x99302010;
+        private static final int TAB_BORDER = 0x558B6914;
+        private static final int TAB_BORDER_ACTIVE = 0xFFD4AF37;
+        private static final int TAB_TEXT = 0xFFC8B898;
+        private static final int TAB_TEXT_ACTIVE = 0xFFFFF4DC;
+
+        CategoryButton(int x, int y, int width, int height, Component label, Item item,
                 OnPress onPress, boolean selected) {
             super(x, y, width, height, label, onPress, DEFAULT_NARRATION);
             this.selected = selected;
-            this.item     = new ItemStack(item);
-            this.label    = label;
+            this.item = new ItemStack(item);
+            this.label = label;
+            this.selectAnim = selected ? 1f : 0f;
         }
 
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            int backgroundColor, borderColor;
-            if (selected) {
-                backgroundColor = 0x8040AA40;
-                borderColor     = 0xFF00FF00;
-            } else if (isHoveredOrFocused()) {
-                backgroundColor = 0x804488CC;
-                borderColor     = 0xFF6688CC;
-            } else {
-                backgroundColor = 0x80404040;
-                borderColor     = 0xFF555555;
-            }
+            float dt = GuiAnim.currentDelta();
+            hoverAnim = GuiAnim.toggle(hoverAnim, isHoveredOrFocused(), 14f, dt);
+            selectAnim = GuiAnim.toggle(selectAnim, selected, 12f, dt);
 
-            // Background
-            graphics.fill(getX(), getY(), getX() + width, getY() + height, backgroundColor);
-            // Border
-            graphics.fill(getX(),             getY(),              getX() + width,     getY() + 2,              borderColor);
-            graphics.fill(getX(),             getY() + height - 2, getX() + width,     getY() + height,         borderColor);
-            graphics.fill(getX(),             getY(),              getX() + 2,          getY() + height,         borderColor);
-            graphics.fill(getX() + width - 2, getY(),              getX() + width,     getY() + height,         borderColor);
+            int bg = GuiAnim.blend(TAB_BG, TAB_BG_HOVER, hoverAnim);
+            bg = GuiAnim.blend(bg, TAB_BG_SELECT, selectAnim);
+            graphics.fill(getX(), getY(), getX() + width, getY() + height, bg);
 
-            var font    = Minecraft.getInstance().font;
-            int textColor = selected ? 0xFF00FF00 : (isHoveredOrFocused() ? 0xFFFFFFFF : 0xFFCCCCCC);
+            int border = GuiAnim.blend(TAB_BORDER, TAB_BORDER_ACTIVE,
+                    Math.max(hoverAnim * 0.6f, selectAnim));
+            graphics.fill(getX(), getY(), getX() + width, getY() + 1, border);
+            graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height, border);
+            graphics.fill(getX(), getY(), getX() + 1, getY() + height, border);
+            graphics.fill(getX() + width - 1, getY(), getX() + width, getY() + height, border);
 
-            // FIX: Centre the icon+label block as a unit, instead of anchoring from text centre.
-            // Layout: [icon 16px] [gap 3px] [text]  — all centred horizontally in the button.
-            int iconSize    = 16;
+            var font = Minecraft.getInstance().font;
+            int textColor = GuiAnim.blend(TAB_TEXT, TAB_TEXT_ACTIVE,
+                    Math.max(hoverAnim, selectAnim));
+
+            int iconSize = 16;
             int iconTextGap = 3;
-            int textWidth   = font.width(label);
-            int totalW      = iconSize + iconTextGap + textWidth;
-            // If content is wider than button, fall back to icon-only
-            boolean showText = totalW + 4 <= width;
-
-            int contentW    = showText ? totalW : iconSize;
-            // FIX: vertical centre — icon is 16px tall, text baseline is ~8px from top of 8px text
-            int iconY  = getY() + (height - iconSize) / 2;
-            int textY  = getY() + (height - 8) / 2;
+            int textWidth = font.width(label);
+            boolean showText = iconSize + iconTextGap + textWidth + 4 <= width;
+            int contentW = showText ? iconSize + iconTextGap + textWidth : iconSize;
+            int iconY = getY() + (height - iconSize) / 2;
+            int textY = getY() + (height - 8) / 2;
             int startX = getX() + (width - contentW) / 2;
 
             graphics.renderFakeItem(item, startX, iconY);
-
             if (showText) {
                 graphics.drawString(font, label, startX + iconSize + iconTextGap, textY, textColor);
             }
         }
     }
 
-    // ─── SimplePanel ─────────────────────────────────────────────────────────────
-
-    private static class SimplePanel extends AbstractWidget {
-        private final int backgroundColor;
-        private final int borderColor;
-
-        public SimplePanel(int x, int y, int width, int height, int backgroundColor, int borderColor) {
-            super(x, y, width, height, Component.empty());
-            this.backgroundColor = backgroundColor;
-            this.borderColor     = borderColor;
-        }
-
-        @Override
-        public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            graphics.fill(getX(), getY(), getX() + width, getY() + height, backgroundColor);
-            graphics.fill(getX(), getY(),              getX() + width, getY() + 1,          borderColor);
-            graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height,     borderColor);
-            graphics.fill(getX(), getY(),              getX() + 1,      getY() + height,     borderColor);
-            graphics.fill(getX() + width - 1, getY(), getX() + width,  getY() + height,     borderColor);
-        }
-
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            return false;
-        }
-
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput output) { }
-    }
-
-    // ─── CenteredText ────────────────────────────────────────────────────────────
+    // ─── CenteredText ────────────────────────────────────────────────────────
 
     private static class CenteredText extends AbstractWidget {
         private final Component text;
         private final int color;
 
-        public CenteredText(int x, int y, Component text, int color) {
+        CenteredText(int x, int y, Component text, int color) {
             super(x, y, 0, 0, text);
-            this.text  = text;
+            this.text = text;
             this.color = color;
         }
 
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            int textWidth  = Minecraft.getInstance().font.width(text);
-            int textHeight = Minecraft.getInstance().font.lineHeight;
-            graphics.drawString(Minecraft.getInstance().font, text,
-                    getX() - textWidth / 2, getY() - textHeight / 2, color, false);
+            var font = Minecraft.getInstance().font;
+            graphics.drawString(font, text, getX() - font.width(text) / 2,
+                    getY() - font.lineHeight / 2, color, false);
         }
 
         @Override
@@ -720,28 +771,233 @@ public class SkinManagementScreen extends Screen {
         }
     }
 
-    // ─── ItemInfoPanel ───────────────────────────────────────────────────────────
+    // ─── ItemInfoPanel ───────────────────────────────────────────────────────
 
     private static class ItemInfoPanel extends AbstractWidget {
         private final ItemStack item;
 
-        public ItemInfoPanel(int x, int y, int width, int height, ItemStack item) {
+        ItemInfoPanel(int x, int y, int width, int height, ItemStack item) {
             super(x, y, width, height, item.getDisplayName());
             this.item = item;
         }
 
         @Override
         public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            graphics.fill(getX(), getY(), getX() + width, getY() + height, 0x80404040);
+            graphics.fillGradient(getX(), getY(), getX() + width, getY() + height,
+                    0x991A1008, 0x9920140A);
+            graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height, 0x558B6914);
             graphics.renderFakeItem(item, getX() + 5, getY() + (height - 16) / 2);
-            var font = Minecraft.getInstance().font;
-            graphics.drawString(font, getMessage(),
-                    getX() + 25, getY() + (height - 8) / 2, 0xFFFFFF, false);
+            graphics.drawString(Minecraft.getInstance().font, getMessage(),
+                    getX() + 25, getY() + (height - 8) / 2, 0xFFFFF4DC, false);
         }
 
         @Override
         protected void updateWidgetNarration(NarrationElementOutput output) {
             output.add(NarratedElementType.TITLE, getMessage());
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // 名片列表（称号选择）
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    public static class NameTagList extends ObjectSelectionList<NameTagList.NameTagEntry> {
+        private static final int ENTRY_HEIGHT = 32;
+        private static final int SCROLLBAR_WIDTH = 7;
+
+        private final SkinManagementScreen parentScreen;
+        private boolean draggingScrollbar = false;
+
+        // 复古主题色
+        private static final int BG_COLOR = 0x801A1008;
+        private static final int BORDER_COLOR = 0x558B6914;
+        private static final int ENTRY_BG = 0x991A1008;
+        private static final int ENTRY_BG_HOVER = 0x992A1A08;
+        private static final int ENTRY_BG_SELECTED = 0xB0302010;
+        private static final int TEXT_COLOR = 0xFFC8B898;
+        private static final int TEXT_SELECTED = 0xFFF5E8C8;
+        private static final int SELECTED_MARKER = 0xFFD4AF37;
+
+        public NameTagList(SkinManagementScreen parentScreen, Minecraft mc,
+                int x, int width, int height, int y, String searchFilter) {
+            super(mc, width, height, y, ENTRY_HEIGHT);
+            this.setX(x);
+            this.parentScreen = parentScreen;
+            rebuild(searchFilter);
+        }
+
+        public void rebuild() {
+            rebuild("");
+        }
+
+        public void rebuild(String filter) {
+            clearEntries();
+            List<String> tags = parentScreen.getNameTags();
+            String current = parentScreen.getCurrentNameTag();
+            String f = filter != null ? filter.toLowerCase() : "";
+            for (String tag : tags) {
+                if (!f.isEmpty()) {
+                    Component display = parentScreen.getNameTagDisplayText(tag);
+                    if (!tag.toLowerCase().contains(f) && !display.getString().toLowerCase().contains(f)) {
+                        continue;
+                    }
+                }
+                addEntry(new NameTagEntry(tag, tag.equals(current)));
+            }
+            if (tags.isEmpty() || (filter != null && !filter.isEmpty() && children().isEmpty())) {
+                addEntry(new NameTagEntry("__empty__", false));
+            }
+        }
+
+        @Override
+        protected int getScrollbarPosition() {
+            return getX() + width - SCROLLBAR_WIDTH - 2;
+        }
+
+        @Override
+        public int getRowWidth() {
+            return width - SCROLLBAR_WIDTH - 10;
+        }
+
+        @Override
+        protected void renderListBackground(@NotNull GuiGraphics g) {
+            int x0 = getX(), y0 = getY();
+            int x1 = x0 + width, y1 = y0 + height;
+            g.fillGradient(x0, y0, x1, y1, BG_COLOR, BG_COLOR);
+            g.fill(x0, y0, x1, y0 + 1, BORDER_COLOR);
+            g.fill(x0, y1 - 1, x1, y1, BORDER_COLOR);
+            g.fill(x0, y0, x0 + 1, y1, BORDER_COLOR);
+            g.fill(x1 - 1, y0, x1, y1, BORDER_COLOR);
+        }
+
+        @Override
+        protected void renderHeader(GuiGraphics g, int i, int j) {}
+
+        @Override
+        public void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+            renderListBackground(g);
+            g.enableScissor(getX() + 1, getY() + 1, getX() + width - 1, getY() + height - 1);
+            super.renderWidget(g, mouseX, mouseY, partialTick);
+            g.disableScissor();
+        }
+
+        @Override
+        public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+            if (draggingScrollbar) {
+                double scrollAmount = getMaxScroll();
+                if (scrollAmount > 0) {
+                    double trackH = height - 6;
+                    double thumbH = Math.max(18, (int) (height * (height / (double) (getMaxPosition() + height))));
+                    double scrollPerPx = scrollAmount / (trackH - thumbH);
+                    setScrollAmount(getScrollAmount() + dragY * scrollPerPx);
+                }
+                return true;
+            }
+            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (button == 0 && getMaxScroll() > 0) {
+                int trackX = getScrollbarPosition() + 1;
+                int trackW = SCROLLBAR_WIDTH - 2;
+                double thumbH = Math.max(18, (int) (height * (height / (double) (getMaxPosition() + height))));
+                double thumbY = getY() + (height - thumbH) * (getScrollAmount() / (double) getMaxScroll());
+                if (mouseX >= trackX && mouseX <= trackX + trackW
+                        && mouseY >= thumbY && mouseY <= thumbY + thumbH) {
+                    draggingScrollbar = true;
+                    return true;
+                }
+            }
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        @Override
+        public boolean mouseReleased(double mouseX, double mouseY, int button) {
+            draggingScrollbar = false;
+            return super.mouseReleased(mouseX, mouseY, button);
+        }
+
+        @Override
+        protected void renderSelection(GuiGraphics g, int top, int w, int h, int outer, int inner) {
+            // 自定义选中行背景
+            int y0 = top;
+            int y1 = top + h;
+            g.fillGradient(getX() + 2, y0, getX() + getRowWidth(), y1,
+                    0x401A1008, 0x4020140A);
+            // 左侧金色标记
+            g.fill(getX() + 2, y0 + 2, getX() + 5, y1 - 2, SELECTED_MARKER);
+        }
+
+        public class NameTagEntry extends ObjectSelectionList.Entry<NameTagEntry> {
+            final String tagId;
+            final boolean isCurrent;
+            float hoverAnim = 0f;
+
+            NameTagEntry(String tagId, boolean isCurrent) {
+                this.tagId = tagId;
+                this.isCurrent = isCurrent;
+            }
+
+            @Override
+            public void render(GuiGraphics g, int index, int y, int x,
+                    int entryWidth, int entryHeight,
+                    int mouseX, int mouseY, boolean hovered, float partialTick) {
+                float dt = GuiAnim.currentDelta();
+                hoverAnim = GuiAnim.toggle(hoverAnim, hovered, 14f, dt);
+
+                if ("__empty__".equals(tagId)) {
+                    g.drawCenteredString(Minecraft.getInstance().font,
+                            Component.translatable("screen.sre.skins.no_title"),
+                            x + entryWidth / 2, y + entryHeight / 2 - 4, 0xFF9E8B6E);
+                    return;
+                }
+
+                // 背景
+                int bg = GuiAnim.blend(ENTRY_BG, ENTRY_BG_HOVER, hoverAnim);
+                if (isCurrent) bg = GuiAnim.blend(bg, ENTRY_BG_SELECTED, 0.5f + hoverAnim * 0.3f);
+                g.fill(x + 2, y + 2, x + entryWidth - 4, y + entryHeight - 2, bg);
+
+                // 边框
+                int border = GuiAnim.blend(0x308B6914, 0xFFD4AF37, hoverAnim);
+                if (isCurrent) border = GuiAnim.blend(border, 0xFFD4AF37, 0.6f);
+                g.fill(x + 2, y + 2, x + entryWidth - 4, y + 3, border);
+                g.fill(x + 2, y + entryHeight - 3, x + entryWidth - 4, y + entryHeight - 2, border);
+                g.fill(x + 2, y + 2, x + 3, y + entryHeight - 2, border);
+                g.fill(x + entryWidth - 5, y + 2, x + entryWidth - 4, y + entryHeight - 2, border);
+
+                // 当前选中标记
+                if (isCurrent) {
+                    g.fill(x + 4, y + 4, x + 8, y + entryHeight - 4, SELECTED_MARKER);
+                }
+
+                // 文字
+                Component display = parentScreen.getNameTagDisplayText(tagId);
+                int textColor = isCurrent ? TEXT_SELECTED
+                        : (int) GuiAnim.blend(0xFF9E8B6E, 0xFFFFF4DC, hoverAnim);
+                var font = Minecraft.getInstance().font;
+                g.drawString(font, font.plainSubstrByWidth(display.getString(), entryWidth - 30),
+                        x + (isCurrent ? 14 : 6), y + (entryHeight - 8) / 2, textColor, false);
+            }
+
+            @Override
+            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+                if ("__empty__".equals(tagId)) return false;
+                if (button == 0) {
+                    Minecraft.getInstance().getSoundManager().play(
+                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                    SoundEvents.UI_BUTTON_CLICK, 1.0f));
+                    parentScreen.selectNameTag(tagId);
+                    parentScreen.refreshSkinPanels();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public @NotNull Component getNarration() {
+                return parentScreen.getNameTagDisplayText(tagId);
+            }
         }
     }
 }

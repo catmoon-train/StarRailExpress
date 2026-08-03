@@ -1,4 +1,4 @@
-﻿{
+{
     "gui.sre.role_roster.view.title": "Job Rotation Roster",
     "gui.sre.role_roster.edit.title": "Job Rotation Roster (Admin)",
     "gui.sre.role_roster.status.on": "Governing assignment",
@@ -1341,9 +1341,14 @@
     "screen.sre.skins.no_items": "No skinnable items available",
     "screen.sre.skins.preview": "Character Preview",
     "screen.sre.skins.hat_title": "Hat/Accessory",
+    "screen.sre.skins.hat_empty": "No hats available (hat content mod required)",
+    "screen.sre.skins.no_hat": "No Hat",
     "screen.sre.skins.hat_locked": "Locked",
     "screen.sre.skins.locked": "Locked",
     "screen.sre.skins.locked_short": "Locked",
+    "screen.sre.skins.name_tag_title": "Name Tag",
+    "screen.sre.skins.search": "Search",
+    "screen.sre.skins.search_hint": "Type to filter...",
     "death_reason.starrailexpress.revolver_shot": "Revolver",
     "death_reason.starrailexpress.derringer_shot": "Derringer",
     "death_reason.starrailexpress.sniper_rifle": "Sniper Rifle",

@@ -297,6 +297,9 @@ public class SREClient implements ClientModInitializer {
         SceneAssetNetwork.registerClientReceivers();
         ClientScheduler.init();
         ClientSkinCache.init();
+        io.wifi.starrailexpress.hat.HatEquipmentApi.registerDefaultOwnerResolvers();
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT
+                .register((handler, client) -> io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache.clear());
         io.wifi.starrailexpress.client.mirror.MirrorReflectionManager.init();
         ClientConfigEvents.register();
         new EXSREClient().onInitializeClient();
@@ -873,6 +876,9 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(PlayerDataPartSyncPayload.ID,
                 (payload, context) -> context.client().execute(() -> ClientPlayerDataCache.update(payload.playerUuid(),
                         payload.part(), payload.json(), payload.updatedAt())));
+        ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.HatEquipmentSyncPayload.ID,
+                (payload, context) -> context.client()
+                        .execute(() -> io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache.applySync(payload)));
         ClientPlayNetworking.registerGlobalReceiver(ShowStatsPayload.ID, (payload, context) -> {
             UUID targetPlayerUuid = payload.targetPlayerUuid();
             context.client().execute(() -> {

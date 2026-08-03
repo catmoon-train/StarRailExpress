@@ -1028,7 +1028,7 @@
   "hud.noellesroles.trapper.net_owned": "Net gun owned",
   "hud.noellesroles.trapper.net_cost": "Ultimate net: %s coins (press G to buy)",
   "message.noellesroles.trapper.windup": "Already setting a trap...",
-  "message.noellesroles.trapper.windup_start": "Setting trap: placed in 2s",
+  "message.noellesroles.trapper.windup_start": "Setting trap: placed in 1s (you cannot move)",
   "message.noellesroles.trapper.on_cooldown": "On cooldown: %ss",
   "message.noellesroles.trapper.total_limit": "Trap limit reached (%s)",
   "message.noellesroles.trapper.tripwire_limit": "Tripwire limit reached (%s)",

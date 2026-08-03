@@ -1,4 +1,4 @@
-﻿{
+{
     "=== END ===": "",
     "=== 遊戲管理UI ===": "",
     "============ 地圖構建助手 ============": "",
@@ -1919,6 +1919,8 @@
     "screen.sre.skins.equipped_short": "已裝備",
     "screen.sre.skins.hat_locked": "未解鎖",
     "screen.sre.skins.hat_title": "帽子/飾品",
+    "screen.sre.skins.hat_empty": "暫無可用帽子（需要帽子內容模組）",
+    "screen.sre.skins.no_hat": "無帽子",
     "screen.sre.skins.instructions": "點擊皮膚進行裝備",
     "screen.sre.skins.locked": "未解鎖",
     "screen.sre.skins.locked_short": "鎖定",
@@ -1934,6 +1936,9 @@
     "screen.sre.skins.stats": "皮膚: %s/%s",
     "screen.sre.skins.title": "皮膚管理",
     "screen.sre.skins.title_selector": "稱號選擇",
+    "screen.sre.skins.name_tag_title": "稱號",
+    "screen.sre.skins.search": "搜尋",
+    "screen.sre.skins.search_hint": "輸入關鍵字過濾...",
     "screen.starrailexpress.cooking_count": "%s / %s",
     "screen.starrailexpress.cooking_hint": "A/D=移動 接住目標食材",
     "screen.starrailexpress.cooking_minigame": "烹飪小遊戲",

@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.util.ItemSkinManager;
+import net.exmo.sre.sync.EquippedSkinsDatabaseSync;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.HolderLookup;
@@ -168,6 +169,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void setEquippedSkin(ItemStack itemStack, String skinName) {
         String itemName = ItemSkinManager.getItemTypeName(itemStack);
         equippedSkins.put(itemName, skinName);
+        EquippedSkinsDatabaseSync.queueUpload(this.player);
         markSkinDataChanged();
     }
 
@@ -276,6 +278,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void setEquippedSkinForItemType(String itemTypeName, String skinName) {
         String normalizedItemName = normalizeItemName(itemTypeName);
         equippedSkins.put(normalizedItemName, skinName);
+        EquippedSkinsDatabaseSync.queueUpload(this.player);
         markSkinDataChanged();
     }
 
@@ -320,6 +323,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public void setSkinInDataSync(ItemStack itemStack, String skinName) {
         // 只在客户端上传数据
         KEY.get(player).equippedSkins.put(ItemSkinManager.getItemTypeName(itemStack), skinName);
+        EquippedSkinsDatabaseSync.queueUpload(this.player);
         markSkinDataChanged();
     }
 

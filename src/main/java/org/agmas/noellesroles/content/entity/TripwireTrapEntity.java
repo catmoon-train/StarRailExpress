@@ -74,8 +74,12 @@ public class TripwireTrapEntity extends Entity {
     public static final int SLOW_DURATION = 4 * 20;
     /** 绊线判定盒半厚度（格）。 */
     public static final double WIRE_HALF_THICKNESS = 0.2;
-    /** 同一受害者的触发反馈节流（tick），避免站在线上刷屏/刷音效。 */
-    private static final int RETRIGGER_THROTTLE = 30;
+    /**
+     * 同一受害者的重触发节流（tick）＝效果时长：效果只在触发瞬间施加一次，
+     * 不随接触每 tick 刷新——否则穿线期间 4s 倒计时被不断重置，玩家会被
+     * 永远粘在线上动弹不得。
+     */
+    private static final int RETRIGGER_THROTTLE = SLOW_DURATION;
 
     /** 每个受害者的触发节流计时。 */
     private final Map<UUID, Integer> victimThrottle = new HashMap<>();
@@ -206,12 +210,12 @@ public class TripwireTrapEntity extends Entity {
     }
 
     private void triggerOn(Player victim) {
-        victim.addEffect(new MobEffectInstance(
-                MobEffects.MOVEMENT_SLOWDOWN, SLOW_DURATION, SLOW_AMPLIFIER, false, true, true));
         if (victimThrottle.containsKey(victim.getUUID())) {
             return;
         }
         victimThrottle.put(victim.getUUID(), RETRIGGER_THROTTLE);
+        victim.addEffect(new MobEffectInstance(
+                MobEffects.MOVEMENT_SLOWDOWN, SLOW_DURATION, SLOW_AMPLIFIER, false, true, true));
 
         // 记录陷阱触发事件（低频关键事件）
         Player owner = getOwner();

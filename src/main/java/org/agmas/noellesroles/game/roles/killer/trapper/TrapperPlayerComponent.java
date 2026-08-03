@@ -30,6 +30,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -40,6 +41,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.MudTrapEntity;
 import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -67,7 +69,7 @@ import java.util.UUID;
  * </ul>
  *
  * <p>绊线与泥沼冷却各自独立（35s）；两种陷阱合计最多同时存在 5 个；
- * 每次放置有 2s 前摇（带粒子与音效）。捕网枪的 150s 冷却为技能冷却
+ * 每次放置有 1s 前摇（期间无法移动，带粒子与音效）。捕网枪的 150s 冷却为技能冷却
  * （由本组件计时并显示在 HUD），而非物品冷却。
  */
 public class TrapperPlayerComponent implements RoleComponent, ServerTickingComponent {
@@ -81,7 +83,7 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
     public static final int PLACE_COOLDOWN_TICKS = 35 * 20;
 
     /** 放置前摇（2s） */
-    public static final int WINDUP_TICKS = 2 * 20;
+    public static final int WINDUP_TICKS = 20;
 
     /** 绊线同时存在上限 */
     public static final int MAX_TRIPWIRES = 4;
@@ -298,27 +300,19 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
 
     // ==================== 前摇 ====================
 
-    /** 3s 前摇：期间分批播放粒子与音效，结束后按最新瞄准落点放置。 */
+    /** 1s 前摇：期间无法移动，播放粒子与音效，结束后按最新瞄准落点放置。 */
     private void startWindup(ServerPlayer sp, ServerLevel serverLevel, boolean tripwire) {
         windupActive = true;
+        sp.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, WINDUP_TICKS, 0, false, false, true));
         sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.windup_start")
                 .withStyle(ChatFormatting.YELLOW), true);
         serverLevel.playSound(null, sp.blockPosition(),
                 SoundEvents.SCULK_CLICKING, SoundSource.PLAYERS, 0.8f, 0.8f);
-        // 前摇期间每秒一圈粒子
-        for (int i = 0; i < 2; i++) {
-            int delay = i * 20;
-            Scheduler.schedule(() -> {
-                if (!sp.isAlive()) return;
-                for (int j = 0; j < 12; j++) {
-                    double angle = Math.PI * 2 * j / 12;
-                    serverLevel.sendParticles(ParticleTypes.WAX_ON,
-                            sp.getX() + Math.cos(angle) * 0.8, sp.getY() + 0.2, sp.getZ() + Math.sin(angle) * 0.8,
-                            1, 0, 0.05, 0, 0.01);
-                }
-                serverLevel.playSound(null, sp.blockPosition(),
-                        SoundEvents.SCULK_CLICKING, SoundSource.PLAYERS, 0.6f, 1.0f + 0.2f * (delay / 20f));
-            }, delay);
+        for (int j = 0; j < 12; j++) {
+            double angle = Math.PI * 2 * j / 12;
+            serverLevel.sendParticles(ParticleTypes.WAX_ON,
+                    sp.getX() + Math.cos(angle) * 0.8, sp.getY() + 0.2, sp.getZ() + Math.sin(angle) * 0.8,
+                    1, 0, 0.05, 0, 0.01);
         }
         Scheduler.schedule(() -> {
             windupActive = false;

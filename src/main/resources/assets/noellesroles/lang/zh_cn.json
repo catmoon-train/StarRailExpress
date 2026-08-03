@@ -1095,7 +1095,7 @@
   "hud.noellesroles.trapper.net_owned": "捕网枪已持有",
   "hud.noellesroles.trapper.net_cost": "大招捕网: %s金币（按G购买）",
   "message.noellesroles.trapper.windup": "正在布设陷阱中……",
-  "message.noellesroles.trapper.windup_start": "开始布设：2秒后放置陷阱",
+  "message.noellesroles.trapper.windup_start": "开始布设：1秒后放置陷阱（期间无法移动）",
   "message.noellesroles.trapper.on_cooldown": "技能冷却中：%s秒",
   "message.noellesroles.trapper.total_limit": "陷阱数量已达上限（%s）",
   "message.noellesroles.trapper.tripwire_limit": "绊线数量已达上限（%s）",
