@@ -337,7 +337,7 @@ public final class MeetingManager {
         speakCooldownUntil.clear();
         lastSyncedSpeakers = List.of();
 
-        List<ServerPlayer> alive = serverLevel.players().stream()
+        List<ServerPlayer> alive = new ArrayList<>(serverLevel.players()).stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
                 .toList();
         int totalDuration = INTRO_TICKS + settings.meetingDiscussSeconds * 20 + 40;
@@ -468,7 +468,8 @@ public final class MeetingManager {
         ServerLevel serverLevel = level;
         broadcastSkipState(serverLevel);
         // 超过二分之一的存活玩家投了跳过 → 跳过会议（有投票则直接进入投票阶段）
-        long alive = serverLevel.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
+        long alive = new ArrayList<>(serverLevel.players()).stream().filter(GameUtils::isPlayerAliveAndSurvival)
+                .count();
         if (alive > 0 && skipVoters.size() > alive / 2) {
             skipMeeting(serverLevel);
         }
@@ -487,7 +488,8 @@ public final class MeetingManager {
 
     /** 向全体玩家同步跳过计票状态。 */
     private static void broadcastSkipState(ServerLevel serverLevel) {
-        long alive = serverLevel.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
+        long alive = new ArrayList<>(serverLevel.players()).stream().filter(GameUtils::isPlayerAliveAndSurvival)
+                .count();
         MeetingSkipStateS2CPayload payload = new MeetingSkipStateS2CPayload(skipVoters.size(), (int) alive);
         for (ServerPlayer player : serverLevel.players()) {
             ServerPlayNetworking.send(player, payload);
@@ -691,7 +693,7 @@ public final class MeetingManager {
     private static void startVotingPhase(ServerLevel serverLevel) {
         phase = PHASE_VOTE;
         phaseEndTick = serverLevel.getGameTime() + VOTE_DURATION_SECONDS * 20L;
-        List<ServerPlayer> alive = serverLevel.players().stream()
+        List<ServerPlayer> alive = new ArrayList<>(serverLevel.players()).stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
                 .toList();
         if (alive.size() <= 1) {
@@ -778,7 +780,8 @@ public final class MeetingManager {
 
                                         if (areasSettings.meetingVoteProcessorFunction != null
                                                 && !areasSettings.meetingVoteProcessorFunction.isBlank())
-                                            GameUtils.executeFunction(serverLevel.getServer(), areasSettings.meetingVoteProcessorFunctionPermission,
+                                            GameUtils.executeFunction(serverLevel.getServer(),
+                                                    areasSettings.meetingVoteProcessorFunctionPermission,
                                                     areasSettings.meetingVoteProcessorFunction);
                                     }
                                         break;
