@@ -34,17 +34,20 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 /**
  * Dream（梦魇）虚拟血量组件 —— 挂在<b>所有玩家</b>身上。
  *
- * <p>在所有人眼中每名玩家默认都有 {@code dreamMaxHealth}（默认 20）滴血；
+ * <p>
+ * 在所有人眼中每名玩家默认都有 {@code dreamMaxHealth}（默认 20）滴血；
  * 该血量<b>不使用原版血量</b>，只会被 Dream 的铁斧攻击扣除，归零时按
  * {@code dream_axe} 死因判死并归属 Dream。
  *
- * <p>回血采用<b>懒计算</b>（见 ai_doc：用触发时间代替每秒同步）：只存
+ * <p>
+ * 回血采用<b>懒计算</b>（见 ai_doc：用触发时间代替每秒同步）：只存
  * {@code baseHealth} 与 {@code lastHurtGameTime}，脱战
  * {@code dreamHealthRegenDelaySeconds}（默认 30s）后按每秒 1 点匀速恢复，
  * 服务端与客户端都用 {@link #getEffectiveHealth(long)} 由游戏时间推算当前值，
  * 因此<b>只在受伤瞬间同步一次</b>，无需每 tick/每秒发包。
  *
- * <p>血量条 HUD（受伤后才显示，头顶浮动条）见
+ * <p>
+ * 血量条 HUD（受伤后才显示，头顶浮动条）见
  * {@code org.agmas.noellesroles.game.roles.killer.dream.client.DreamHealthBarRenderer}。
  */
 public class DreamHealthComponent implements RoleComponent {
@@ -56,7 +59,7 @@ public class DreamHealthComponent implements RoleComponent {
         // 开局重置所有玩家的虚拟血量（本组件不绑定职业 componentKey，自行挂开局事件）
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
             for (ServerPlayer p : serverLevel.getServer().getPlayerList().getPlayers()) {
-                KEY.get(p).init();
+                KEY.get(p).initWhenNecessary();
             }
         });
     }
@@ -70,6 +73,13 @@ public class DreamHealthComponent implements RoleComponent {
     public DreamHealthComponent(Player player) {
         this.player = player;
         this.baseHealth = maxHealth();
+    }
+
+    public void initWhenNecessary() {
+        if (this.baseHealth == maxHealth() && lastHurtGameTime == 0) {
+            return;
+        }
+        init();
     }
 
     public static int maxHealth() {
@@ -95,22 +105,27 @@ public class DreamHealthComponent implements RoleComponent {
         KEY.sync(player);
     }
 
-    @Override
-    public void init() {
+    public void init(boolean sync) {
         // 本组件挂在所有玩家身上且对全员同步，开局对每人无脑 sync 是 N² 个包；
         // 绝大多数玩家本来就处于默认满血态，只有状态真正变化时才广播。
         int max = maxHealth();
-        if (baseHealth == max && lastHurtGameTime == 0) {
-            return;
-        }
+        // if (baseHealth == max && lastHurtGameTime == 0) {
+        //     return;
+        // }
         baseHealth = max;
         lastHurtGameTime = 0;
-        sync();
+        if (sync)
+            sync();
+    }
+
+    @Override
+    public void init() {
+        init(true);
     }
 
     @Override
     public void clear() {
-        init();
+        init(true);
     }
 
     /**

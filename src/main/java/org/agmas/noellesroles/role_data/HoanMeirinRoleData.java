@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -42,10 +43,12 @@ public class HoanMeirinRoleData extends SimpleRoleData {
      */
     @Override
     public void init() {
+        SREArmorPlayerComponent.KEY.get(player).addArmor();
     }
 
     @Override
     public void clear() {
+        SREArmorPlayerComponent.KEY.get(player).addArmor(-1);
     }
 
     /**
@@ -74,8 +77,8 @@ public class HoanMeirinRoleData extends SimpleRoleData {
         boolean shouldSync = false;
         if (this.cooldown > 0) {
             this.cooldown--;
-            // 每秒同步一次（而不是每 tick），减少网络压力
-            if (this.cooldown % 100 == 0 || this.cooldown == 0) {
+            // 每20秒同步一次（而不是每 tick），减少网络压力
+            if (this.cooldown % 400 == 0 || this.cooldown == 0) {
                 shouldSync = true;
             }
         }
@@ -93,7 +96,8 @@ public class HoanMeirinRoleData extends SimpleRoleData {
             }
             if (nearByPlayerCount <= 0) {
                 this.loneyTime++;
-                if (this.loneyTime % 100 == 0) {
+                // 10s
+                if (this.loneyTime % 200 == 0) {
                     shouldSync = true;
                 }
             } else {

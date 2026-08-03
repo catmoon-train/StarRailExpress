@@ -82,7 +82,7 @@ public class LeatherPigPlayerComponent implements RoleComponent, ServerTickingCo
     /** 伪装翻转后的补发窗口（tick）：窗口内每秒补发一次，之后不再广播 */
     private static final int DISGUISE_RESYNC_WINDOW = 100;
     /** 疯魔倒计时漂移校正间隔（tick），只发给本人 */
-    private static final int FRENZY_RESYNC_INTERVAL = 100;
+    private static final int FRENZY_RESYNC_INTERVAL = 200;
 
     /** 疯魔模式期间推开路径上玩家的判定范围（格） */
     private static final double PUSH_RANGE = 2;

@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +30,8 @@ import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.function.Predicate;
 
 public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<SREArmorPlayerComponent> KEY = ComponentRegistry.getOrCreate(
@@ -36,12 +39,32 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
     private final Player player;
     private SREGameWorldComponent gameWorldComponent = null;
 
-    public static ArrayList<String> canSyncedRolePaths = new ArrayList<>();
+    /**
+     * 是否允许给指定职业同步。
+     * 参数：
+     * - 第一个SRERole: 可否同步的玩家
+     * - 第二个SRERole: 拥有护盾的玩家
+     */
+    public static ArrayList<Predicate<Map.Entry<SRERole, SRERole>>> canSynced = new ArrayList<>();
     public int armor = 0;
     public int timedArmorTicks = 0;
 
     public int getArmor() {
         return armor;
+    }
+
+    public void setArmor(int count) {
+        this.armor = count;
+        if (this.armor < 0)
+            this.armor = 0;
+        this.sync();
+    }
+
+    public void addArmor(int count) {
+        this.armor += count;
+        if (this.armor < 0)
+            this.armor = 0;
+        this.sync();
     }
 
     public void addArmor() {
@@ -51,8 +74,9 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
 
     /**
      * 限时护盾：给玩家添加限时护盾，持续指定 tick 数，时间到后自动移除。
-     * @param layers 叠加的护盾层数
-     * @param ticks 护盾持续 tick 数
+     * 
+     * @param layers     叠加的护盾层数
+     * @param ticks      护盾持续 tick 数
      * @param stackArmor true=重置计时器并叠加护盾层数；false=仅重置计时器，不叠加护盾层数（但保证至少有 1 层）
      */
     public void addTimedArmor(int layers, int ticks, boolean stackArmor) {
@@ -67,8 +91,9 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
 
     /**
      * 限时护盾：直接设置护盾层数与持续时间（非叠加）。
+     * 
      * @param layers 护盾层数（0 表示清除限时护盾）
-     * @param ticks 护盾持续 tick 数
+     * @param ticks  护盾持续 tick 数
      */
     public void setTimedArmor(int layers, int ticks) {
         this.armor = Math.max(0, layers);
@@ -93,19 +118,20 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
-        if (player == this.player)
+    public boolean shouldSyncWith(ServerPlayer target) {
+        if (target == this.player)
             return true;
         if (gameWorldComponent == null) {
             gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         }
         if (gameWorldComponent != null) {
-            var role = gameWorldComponent.getRole(player);
-            if (role != null) {
-                if (canSyncedRolePaths.stream().anyMatch((p) -> p.equals(role.identifier().getPath()))) {
-                    return true;
-                } else {
-                    return false;
+            var selfRole = gameWorldComponent.getRole(player);
+            var targetRole = gameWorldComponent.getRole(target);
+            if (targetRole != null) {
+                for (var t : canSynced) {
+                    if (t.test(Map.entry(targetRole, selfRole))) {
+                        return true;
+                    }
                 }
             }
         }

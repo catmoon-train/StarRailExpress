@@ -33,6 +33,7 @@ import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -195,17 +196,21 @@ public class SREWeakArmorPlayerComponent implements RoleComponent, ServerTicking
     }
 
     @Override
-    public boolean shouldSyncWith(ServerPlayer sp) {
-        if (sp == this.player)
+    public boolean shouldSyncWith(ServerPlayer target) {
+        if (target == this.player)
             return true;
         if (gameWorldComponent == null) {
             gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         }
         if (gameWorldComponent != null) {
-            var role = gameWorldComponent.getRole(sp);
-            if (role != null) {
-                // 酒保可以看到弱效护盾
-                return SREArmorPlayerComponent.canSyncedRolePaths.contains(role.identifier().getPath());
+            var selfRole = gameWorldComponent.getRole(player);
+            var targetRole = gameWorldComponent.getRole(target);
+            if (targetRole != null) {
+                for (var t : SREArmorPlayerComponent.canSynced) {
+                    if (t.test(Map.entry(targetRole, selfRole))) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
