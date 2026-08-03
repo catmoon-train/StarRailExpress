@@ -127,7 +127,7 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
         if (gameWorldComponent != null) {
             var selfRole = gameWorldComponent.getRole(player);
             var targetRole = gameWorldComponent.getRole(target);
-            if (targetRole != null) {
+            if (targetRole != null && selfRole != null) {
                 for (var t : canSynced) {
                     if (t.test(Map.entry(targetRole, selfRole))) {
                         return true;
