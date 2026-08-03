@@ -77,7 +77,8 @@ public class SREWeakArmorPlayerComponent implements RoleComponent, ServerTicking
 
     /**
      * 给予一层弱效护盾（叠加），使用指定的持续时间与可抵挡的死亡原因。
-     * @param durationTicks 持续时间（ticks）
+     * 
+     * @param durationTicks  持续时间（ticks）
      * @param blockedReasons 可以抵挡的死亡原因列表
      */
     public void giveWeakArmor(int durationTicks, Set<ResourceLocation> blockedReasons) {
@@ -86,9 +87,10 @@ public class SREWeakArmorPlayerComponent implements RoleComponent, ServerTicking
 
     /**
      * 给予一层弱效护盾（叠加）。
-     * @param durationTicks 持续时间（ticks）
+     * 
+     * @param durationTicks  持续时间（ticks）
      * @param blockedReasons 可以抵挡的死亡原因列表
-     * @param blockAll 是否抵挡任意死亡原因（true 时忽略 blockedReasons）
+     * @param blockAll       是否抵挡任意死亡原因（true 时忽略 blockedReasons）
      */
     public void giveWeakArmor(int durationTicks, Set<ResourceLocation> blockedReasons, boolean blockAll) {
         this.weakArmor += 1;
@@ -108,10 +110,11 @@ public class SREWeakArmorPlayerComponent implements RoleComponent, ServerTicking
 
     /**
      * 直接设置弱效护盾层数（非叠加）。
-     * @param layers 层数（0 表示清除）
-     * @param durationTicks 持续时间（ticks）
+     * 
+     * @param layers         层数（0 表示清除）
+     * @param durationTicks  持续时间（ticks）
      * @param blockedReasons 可以抵挡的死亡原因列表
-     * @param blockAll 是否抵挡任意死亡原因
+     * @param blockAll       是否抵挡任意死亡原因
      */
     public void setWeakArmor(int layers, int durationTicks, Set<ResourceLocation> blockedReasons, boolean blockAll) {
         this.weakArmor = Math.max(0, layers);
@@ -165,6 +168,7 @@ public class SREWeakArmorPlayerComponent implements RoleComponent, ServerTicking
 
     /**
      * 增加弱效护盾层数（仅在已存在弱效护盾时生效，保留原有的持续时间与抵挡规则）。
+     * 
      * @param layers 要增加的层数（>0）
      */
     public void increaseWeakArmor(int layers) {
@@ -176,6 +180,7 @@ public class SREWeakArmorPlayerComponent implements RoleComponent, ServerTicking
 
     /**
      * 减少弱效护盾层数（最小到 0）；减到 0 时一并清除持续时间与抵挡规则。
+     * 
      * @param layers 要减少的层数（>0）
      */
     public void decreaseWeakArmor(int layers) {
@@ -205,7 +210,7 @@ public class SREWeakArmorPlayerComponent implements RoleComponent, ServerTicking
         if (gameWorldComponent != null) {
             var selfRole = gameWorldComponent.getRole(player);
             var targetRole = gameWorldComponent.getRole(target);
-            if (targetRole != null) {
+            if (targetRole != null && selfRole != null) {
                 for (var t : SREArmorPlayerComponent.canSynced) {
                     if (t.test(Map.entry(targetRole, selfRole))) {
                         return true;
