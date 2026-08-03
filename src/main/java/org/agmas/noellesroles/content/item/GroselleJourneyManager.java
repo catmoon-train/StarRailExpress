@@ -81,7 +81,6 @@ public final class GroselleJourneyManager {
 
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(GroselleJourneyManager::tick);
-
         // 游记内的死亡改判为放逐持有者的击杀（在击杀流程最前端解析真正击杀者）。
         EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, reason, force) -> {
             if (!(victim instanceof ServerPlayer serverVictim)) {

@@ -78,6 +78,15 @@ public class DanmukuEntity extends AbstractArrow {
     }
 
     @Override
+    protected float getWaterInertia() {
+        return 1F;
+    }
+
+    protected double getDefaultGravity() {
+        return 0;
+    }
+
+    @Override
     protected boolean tryPickup(Player player) {
         return false;
     }

@@ -233,9 +233,26 @@ public class AreasSettings {
     /** 是否启用会议系统（右键尸体召开紧急会议）。 */
     @Category("meeting")
     public boolean meetingEnabled = false;
-    /** 是否启用会议投票（讨论结束后可投票出局）。前提是 meetingEnabled 为 true。 */
+    /** 尸体会议不显示上报人 */
+    @Category("meeting")
+    public boolean meetingNoReporter = false;
+
     @Category("meeting")
     public boolean meetingVoteEnabled = false;
+
+    public enum VoteResultProcessor {
+        KILL, GLOWING, FUNCTION
+    }
+
+    @Category("meeting")
+    public VoteResultProcessor meetingVoteProcessor = VoteResultProcessor.GLOWING;
+
+    @Category("meeting")
+    public int meetingVoteProcessorGlowingTime = 60;
+
+    @Category("meeting")
+    public String meetingVoteProcessorFunction = "sre:meeting_vote_result";
+
     /** 这个class里有可以存储的Vec3不用的AI是真的逊。 */
     @Category("meeting")
     public StoreableVec3 meetingPosition = new StoreableVec3(0, 0, 0);

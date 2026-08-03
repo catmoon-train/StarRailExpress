@@ -86,6 +86,11 @@ public class FlyingAxeEntity extends AbstractArrow {
     }
 
     @Override
+    protected float getWaterInertia() {
+        return 1F;
+    }
+
+    @Override
     public void playerTouch(Player player) {
     }
 
