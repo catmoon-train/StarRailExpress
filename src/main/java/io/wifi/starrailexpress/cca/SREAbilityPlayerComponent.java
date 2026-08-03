@@ -380,16 +380,20 @@ public class SREAbilityPlayerComponent
             }
         }
         if (!skillStates.isEmpty()) {
+            boolean hasZeroCooldown = false;
             for (SkillState state : skillStates.values()) {
                 if (state.cooldown > 0) {
                     state.cooldown--;
                     unifiedStateChanged = true;
+                    if (state.cooldown == 0) {
+                        hasZeroCooldown = true;
+                    }
                 }
             }
             var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
             List<RoleSkill.Definition> definitions = RoleSkill.getDefinitions(role);
             mirrorSelectedSkill(definitions);
-            if (unifiedStateChanged && (player.level().getGameTime() % 400 == 0 || cooldown == 0)) {
+            if (unifiedStateChanged && (player.level().getGameTime() % 400 == 0 || hasZeroCooldown)) {
                 shouldSync = true;
             }
         }

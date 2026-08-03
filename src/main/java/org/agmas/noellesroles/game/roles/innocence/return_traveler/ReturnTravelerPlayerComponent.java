@@ -544,7 +544,7 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
     private void tickCooldown() {
         if (oldFerryCooldown > 0) {
             oldFerryCooldown--;
-            if (oldFerryCooldown == 0) {
+            if (oldFerryCooldown == 0 || oldFerryCooldown % 400 == 0) {
                 sync();
             }
         }

@@ -183,7 +183,7 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
             float now = SREPlayerMoodComponent.KEY.get(nearby).getMood();
             Float before = observedMood.put(nearby.getUUID(), now);
             if (before != null && now > before && charges < MAX_CHARGES) {
-                changed |= addChargeProgress(now - before, threshold);
+                changed = changed || addChargeProgress(now - before, threshold);
             }
         }
         observedMood.keySet().removeIf(id -> player.level().getPlayerByUUID(id) == null);
