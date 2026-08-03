@@ -91,9 +91,6 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public boolean shouldSyncWith(ServerPlayer target) {
-        if (isHunting()) {
-            return true;
-        }
         return target == player;
     }
 

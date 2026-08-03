@@ -46,11 +46,11 @@ import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.hud.ForensicHud;
 import org.agmas.noellesroles.client.hud.PlayerBodyHud;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -194,9 +194,10 @@ public class SREClientEvents {
             }
             return TrueFalseAndCustomResult.pass();
         });
+        // 有DISGUISE效果的渡鸦不显示
         OnRenderRoleName.RENDER_PLAYER.register((player, target, context, delta, font) -> {
             if (RoleUtils.isPlayerTheJob(target, ModRoles.RAVEN)
-                    && ModComponents.RAVEN.get(target).isHunting()) {
+                    && target.hasEffect(ModEffects.DISGUISE)) {
                 return TrueFalseResult.FALSE;
             }
             return TrueFalseResult.PASS;
