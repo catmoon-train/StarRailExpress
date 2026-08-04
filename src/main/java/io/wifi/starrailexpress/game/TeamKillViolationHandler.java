@@ -114,7 +114,7 @@ public class TeamKillViolationHandler {
             String mcFunction = config.teamKillViolationMcFunction;
             if (mcFunction != null && !mcFunction.isEmpty()) {
                 GameUtils.executeFunction(
-                        killer.createCommandSourceStack().withPermission(3),
+                        killer.createCommandSourceStack().withPermission(2),
                         mcFunction);
             }
 

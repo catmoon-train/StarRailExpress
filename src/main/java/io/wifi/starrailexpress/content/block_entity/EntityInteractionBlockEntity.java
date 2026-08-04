@@ -16,6 +16,8 @@
 package io.wifi.starrailexpress.content.block_entity;
 
 import com.mojang.datafixers.util.Pair;
+
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
@@ -63,13 +65,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     public static final double MAX_RANGE = 100.0;
 
     // 按地图名追踪服务端实体交互方块数量，用于游戏结束时快速跳过无方块的地图
-    private static final java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.atomic.AtomicInteger>
-            mapBlockCount = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.atomic.AtomicInteger> mapBlockCount = new java.util.concurrent.ConcurrentHashMap<>();
 
     // 按地图名追踪所有 EntityInteractionBlockEntity 实例（用于外部事件触发 DEATH 等条件）
     // 与 mapBlockCount 使用相同的 mapKey，仅扫描当前地图中 scan 到的方块
-    private static final java.util.concurrent.ConcurrentHashMap<String,
-            java.util.Set<BlockPos>> mapInstances = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.concurrent.ConcurrentHashMap<String, java.util.Set<BlockPos>> mapInstances = new java.util.concurrent.ConcurrentHashMap<>();
 
     private boolean tracked = false;
 
@@ -80,7 +80,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
 
     public static int getCountForMap(net.minecraft.world.level.Level level) {
         String key = getMapKey(level);
-        if (key.isEmpty()) return 0;
+        if (key.isEmpty())
+            return 0;
         var counter = mapBlockCount.get(key);
         return counter != null ? counter.get() : 0;
     }
@@ -592,15 +593,19 @@ public class EntityInteractionBlockEntity extends BlockEntity {
      */
     public static void onPlayerDeath(ServerLevel world, ServerPlayer victim,
             net.minecraft.resources.ResourceLocation deathReason) {
-        if (world == null || victim == null) return;
+        if (world == null || victim == null)
+            return;
         String key = getMapKey(world);
-        if (key.isEmpty()) return;
+        if (key.isEmpty())
+            return;
         var set = mapInstances.get(key);
-        if (set == null || set.isEmpty()) return;
+        if (set == null || set.isEmpty())
+            return;
 
         for (BlockPos pos : set) {
             if (world.getBlockEntity(pos) instanceof EntityInteractionBlockEntity entity) {
-                if (entity.isRemoved()) continue;
+                if (entity.isRemoved())
+                    continue;
                 entity.handleDeathTrigger(victim, world, pos, deathReason);
             }
         }
@@ -611,7 +616,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
      */
     private void handleDeathTrigger(ServerPlayer player, ServerLevel world, BlockPos pos,
             net.minecraft.resources.ResourceLocation deathReason) {
-        if (conditions.isEmpty()) return;
+        if (conditions.isEmpty())
+            return;
 
         // 检查方块冷却
         long currentGameTime;
@@ -623,11 +629,13 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         } catch (Exception e) {
             return;
         }
-        if (isInCooldown(currentGameTime)) return;
+        if (isInCooldown(currentGameTime))
+            return;
 
         // 检查玩家冷却
         long lastTrigger = lastTriggerTime.getOrDefault(player.getUUID(), 0L);
-        if (currentGameTime - lastTrigger < cooldownTicks) return;
+        if (currentGameTime - lastTrigger < cooldownTicks)
+            return;
 
         // 综合检查所有条件：DEATH 条件视为满足（并校验死亡原因），
         // 其余条件（如 ROLE_IS）照常对死亡玩家求值，逻辑运算符（AND/OR/...）生效。
@@ -1513,7 +1521,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             }
             case TRIGGER_MEETING -> {
                 // 触发会议：普通会议或紧急会议（紧急会议绕过冷却）
-                String victim = (action.stringValue != null && !action.stringValue.isEmpty()) ? action.stringValue : null;
+                String victim = (action.stringValue != null && !action.stringValue.isEmpty()) ? action.stringValue
+                        : null;
                 net.exmo.sre.meeting.MeetingApi.startMeeting(world, player, victim, action.meetingEmergency);
             }
         }
@@ -1528,7 +1537,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 command = replaceRelativeCoordinates(command, pos);
                 world.getServer().getCommands().performPrefixedCommand(
                         world.getServer().createCommandSourceStack()
-                                .withPermission(4)
+                                .withPermission(SREConfig.instance().entityInteractionBlockEntityPermission)
                                 .withLevel(world),
                         command);
             }
@@ -1748,6 +1757,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 for (var entity : entitiesToRemove) {
                     entity.remove(net.minecraft.world.entity.Entity.RemovalReason.KILLED);
                 }
+            }
+            default -> {
             }
         }
     }
@@ -2232,11 +2243,14 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             }
             action.teleportTarget = tag.contains("TeleportTarget") ? tag.getInt("TeleportTarget") : 0;
             action.roleWinId = tag.getString("RoleWinId");
-            if (action.roleWinId.isEmpty()) action.roleWinId = "";
+            if (action.roleWinId.isEmpty())
+                action.roleWinId = "";
             action.roleWinDescription = tag.getString("RoleWinDescription");
-            if (action.roleWinDescription.isEmpty()) action.roleWinDescription = "";
+            if (action.roleWinDescription.isEmpty())
+                action.roleWinDescription = "";
             action.roleWinSubtitle = tag.getString("RoleWinSubtitle");
-            if (action.roleWinSubtitle.isEmpty()) action.roleWinSubtitle = "";
+            if (action.roleWinSubtitle.isEmpty())
+                action.roleWinSubtitle = "";
             action.sabotageDuration = tag.contains("SabotageDuration") ? tag.getInt("SabotageDuration") : 60;
             action.meetingEmergency = tag.contains("MeetingEmergency") && tag.getBoolean("MeetingEmergency");
             return action;

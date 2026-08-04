@@ -19,6 +19,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+
+import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -34,7 +36,8 @@ public class RoleCountManager {
 
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("setRoleCount")
-                .requires(serverCommandSource -> serverCommandSource.hasPermission(3))
+                .requires(serverCommandSource -> serverCommandSource
+                        .hasPermission(SREConfig.instance().modifyEnableStatusRequiredPermission))
                 .then(Commands.literal("killer")
                         .then(Commands.argument("count", IntegerArgumentType.integer(0))
                                 .executes(RoleCountManager::setKillerCount)))

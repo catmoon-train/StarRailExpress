@@ -16,6 +16,8 @@
 package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+
+import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -29,7 +31,7 @@ import java.util.Collection;
 
 public class ForceTeamCommand {
     public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("forceTeam").requires(source -> source.hasPermission(3)).then(Commands
+        dispatcher.register(Commands.literal("forceTeam").requires(source -> source.hasPermission(SREConfig.instance().forceTeamRequiredPermission)).then(Commands
                 .argument("players", EntityArgument.players())
                 .then(Commands.literal("innocent")
                         .executes(context -> forceTeam(context.getSource(),
