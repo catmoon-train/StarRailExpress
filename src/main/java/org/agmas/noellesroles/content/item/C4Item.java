@@ -39,6 +39,8 @@ import org.agmas.noellesroles.game.c4.C4Detonation;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
 
+import io.wifi.starrailexpress.game.GameUtils;
+
 public class C4Item extends Item {
     public C4Item(Properties properties) {
         super(properties);
@@ -147,7 +149,8 @@ public class C4Item extends Item {
         if (hit.getType() == HitResult.Type.ENTITY) {
             EntityHitResult entityHit = (EntityHitResult) hit;
             if (entityHit.getEntity() instanceof Player target && canPlantOnEntity(user, target)) {
-                return target;
+                if (GameUtils.isPlayerAliveAndSurvival(target))
+                    return target;
             }
         }
         return null;
