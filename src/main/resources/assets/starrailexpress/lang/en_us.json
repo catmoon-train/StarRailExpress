@@ -1349,6 +1349,8 @@
     "screen.sre.skins.name_tag_title": "Name Tag",
     "screen.sre.skins.search": "Search",
     "screen.sre.skins.search_hint": "Type to filter...",
+    "screen.sre.skins.hide_all_hats": "Hide Hats",
+    "screen.sre.skins.show_own_hat_only": "Self Only",
     "death_reason.starrailexpress.revolver_shot": "Revolver",
     "death_reason.starrailexpress.derringer_shot": "Derringer",
     "death_reason.starrailexpress.sniper_rifle": "Sniper Rifle",

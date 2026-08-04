@@ -1939,6 +1939,8 @@
     "screen.sre.skins.name_tag_title": "稱號",
     "screen.sre.skins.search": "搜尋",
     "screen.sre.skins.search_hint": "輸入關鍵字過濾...",
+    "screen.sre.skins.hide_all_hats": "隱藏帽子",
+    "screen.sre.skins.show_own_hat_only": "僅顯示自己",
     "screen.starrailexpress.cooking_count": "%s / %s",
     "screen.starrailexpress.cooking_hint": "A/D=移動 接住目標食材",
     "screen.starrailexpress.cooking_minigame": "烹飪小遊戲",
