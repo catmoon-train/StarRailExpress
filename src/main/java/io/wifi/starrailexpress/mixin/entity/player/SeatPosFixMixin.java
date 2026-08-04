@@ -16,44 +16,56 @@
 package io.wifi.starrailexpress.mixin.entity.player;
 
 import io.wifi.starrailexpress.content.block.MountableBlock;
+import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Mixin(ServerPlayer.class)
+@Mixin(LivingEntity.class)
 public class SeatPosFixMixin {
+    @ModifyArgs(method = "dismountVehicle", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;dismountTo(DDD)V"))
+    private void fixWheelchairDismount(Args args, Entity vehicle) {
+        // 仅当车辆是轮椅且标记为“耐久耗尽”时介入
+        LivingEntity self = (LivingEntity) (Object) this;
+        if (self instanceof ServerPlayer player) {
+            player.getCooldowns().addCooldown(TMMBlocks.ACACIA_BRANCH.asItem(), 10);
+            if (vehicle instanceof SeatEntity) {
+                var lastPos = MountableBlock.lastPos.get(player.getUUID());
+                if (lastPos != null) {
+                    if (lastPos.distanceTo(player.position()) < 5) {
+                        int lx = (int) lastPos.x();
+                        int ly = (int) lastPos.y();
+                        int lz = (int) lastPos.z();
+                        if (player.level().getBlockState(new BlockPos(lx, ly + 1, lz))
+                                .getBlock() instanceof MountableBlock) {
+                            args.set(0, lastPos.x);
+                            args.set(1, lastPos.y + 2.25);
+                            args.set(2, lastPos.z);
+                        } else {
+                            args.set(0, lastPos.x);
+                            args.set(1, lastPos.y + 0.25);
+                            args.set(2, lastPos.z);
+                        }
 
-    @Inject(method = "dismountTo", at = @At("HEAD"), cancellable = true)
-    public void stopRiding(double d, double e, double f, CallbackInfo ci) {
-        ServerPlayer player = (ServerPlayer) (Object) this;
-        var lastPos = MountableBlock.lastPos.get(player.getUUID());
-        if (lastPos != null) {
-            if (lastPos.distanceTo(player.position()) < 5) {
-                int lx = (int) lastPos.x();
-                int ly = (int) lastPos.y();
-                int lz = (int) lastPos.z();
-                if (player.level().getBlockState(new BlockPos(lx, ly + 1, lz)).getBlock() instanceof MountableBlock) {
-                    player.teleportTo(lastPos.x, lastPos.y + 2.25, lastPos.z);
-                } else {
-                    player.teleportTo(lastPos.x, lastPos.y + 0.25, lastPos.z);
+                        // 下座椅添加cooldown
+                    } else {
+                        var vec = player.position();
+                        args.set(0, vec.x);
+                        args.set(1, vec.y + 0.25);
+                        args.set(2, vec.z);
+                    }
+
+                    // 移除记录,防止连续坐椅子时累积高度
+                    MountableBlock.lastPos.remove(player.getUUID());
                 }
-                // 移除记录,防止连续坐椅子时累积高度
-                MountableBlock.lastPos.remove(player.getUUID());
-
-                // 下座椅添加cooldown
-            } else {
-                var vec = player.position();
-                player.teleportTo(vec.x, vec.y + 0.25, vec.z);
             }
-            ci.cancel();
-
         }
-        player.getCooldowns().addCooldown(TMMBlocks.ACACIA_BRANCH.asItem(), 10);
     }
 
 }

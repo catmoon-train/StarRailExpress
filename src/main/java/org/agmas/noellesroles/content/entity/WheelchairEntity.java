@@ -15,6 +15,14 @@
 
 package org.agmas.noellesroles.content.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.utils.WheelchairEffectBlockHandler;
+
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import net.minecraft.ChatFormatting;
@@ -29,7 +37,12 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -37,13 +50,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.utils.WheelchairEffectBlockHandler;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class WheelchairEntity extends Mob {
 
@@ -213,8 +219,10 @@ public class WheelchairEntity extends Mob {
             }
         }
         if (this.durability <= 0) {
+            Vec3 safePos = this.position().add(0, 1.0, 0); // 轮椅上方1格
             player.stopRiding();
             this.discard();
+            player.teleportTo(safePos.x, safePos.y, safePos.z);
             player.displayClientMessage(
                     Component.translatable("entity.noellesroles.wheelchair.damaged")
                             .withStyle(ChatFormatting.RED),
