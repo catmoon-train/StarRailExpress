@@ -219,7 +219,7 @@ public class WheelchairEntity extends Mob {
             }
         }
         if (this.durability <= 0) {
-            Vec3 safePos = this.position().add(0, 0.25, 0); // 轮椅上方1格
+            Vec3 safePos = this.position().add(0, 0.25, 0); // 轮椅上方0.25格
             player.stopRiding();
             this.discard();
             player.teleportTo(safePos.x, safePos.y, safePos.z);
