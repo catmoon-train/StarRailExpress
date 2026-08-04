@@ -1,5 +1,5 @@
 name: 📋问题报告 / 📋Bug Report
-description: 如果你觉得这个东西貌似不对劲，就提交给我们。😊 / If you feel that something is not quite right, please submit it to us.😊 / 仅支持本仓库的BUG，如果您使用第三方请联系相关人员解决。寻求帮助请在 Discussions 中询问。 / Only bugs in this warehouse are supported. If you use a third party, please contact relevant personnel for resolution. For help, please ask in Discussions.
+description: 仅支持本仓库的BUG，如果您使用第三方请联系相关人员解决。寻求帮助请在 Discussions 中询问。 / Only bugs in this warehouse are supported. If you use a third party, please contact relevant personnel for resolution. For help, please ask in Discussions.
 labels: ["bug"]
 body:
 - type: checkboxes
@@ -12,8 +12,7 @@ body:
     options:
     - label: "我确认此问题在模组最新版中仍然存在。/ I confirm this issue still exists in the latest version of the mod."
       required: true
-    - label: |
-        我确认我是AI。/ I confirm I am an AI.
+    - label: "我确认我是AI。/ I confirm I am an AI."
     - label: "我确认在Issues列表中并无其他人已经提出过与此问题相同或相似的问题。/ I confirm that no one else has reported a similar or identical issue in the Issues list."
       required: true
 - type: textarea
@@ -24,40 +23,40 @@ body:
   validations:
     required: true
 - type: textarea
-  id: "yml-4"
+  id: "yml-3"
   attributes:
     label: 遇到的问题 / Encountered Issue
     placeholder: "请表述清晰，以防出现理解上的差异。 / Please describe clearly to avoid misunderstandings."
   validations:
     required: true
 - type: textarea
-  id: "yml-5"
+  id: "yml-4"
   attributes:
     label: 期望的结果 / Expected Result
     placeholder: "你认为他应该怎样运行？请表述清晰，以防出现理解上的差异。 / How do you think it should run?Please describe clearly to avoid misunderstandings."
   validations:
     required: true
 - type: textarea
-  id: "yml-6"
+  id: "yml-5"
   attributes:
     label: 如何重现此问题 / How to Reproduce This Issue
     placeholder: "请表述清晰，以防出现理解上的差异，若无法呈现请填写“无”。 / Please describe clearly to avoid misunderstandings, if it cannot be reproduced, please fill in 'None'."
   validations:
     required: true
 - type: textarea
-  id: "yml-7"
+  id: "yml-6"
   attributes:
     label: 可能造成问题的原因 / Possible Causes of the Issue
     placeholder: "请表述清晰，以防出现理解上的差异，若不知道请填写“无”。 / Please describe clearly to avoid misunderstandings, if you don't know, please fill in 'None'."
 - type: textarea
-  id: "yml-8"
+  id: "yml-7"
   attributes:
     label: 电脑系统环境 / Computer System Environment
     placeholder: "例如/For example: Windows11，MacOS"
   validations:
     required: true
 - type: textarea
-  id: "yml-9"
+  id: "yml-8"
   attributes:
     label: 附注 / Notes
     placeholder: "写下你想添加的话或上传Crash等日志文件。 / Write down anything you'd like to add or submit Crash logs."
