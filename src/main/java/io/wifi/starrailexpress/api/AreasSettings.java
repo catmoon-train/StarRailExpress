@@ -253,9 +253,6 @@ public class AreasSettings {
     @Category("meeting")
     public String meetingVoteProcessorFunction = "sre:meeting_vote_result";
 
-    @Category("meeting")
-    public int meetingVoteProcessorFunctionPermission = 3;
-
     /** 这个class里有可以存储的Vec3不用的AI是真的逊。 */
     @Category("meeting")
     public StoreableVec3 meetingPosition = new StoreableVec3(0, 0, 0);

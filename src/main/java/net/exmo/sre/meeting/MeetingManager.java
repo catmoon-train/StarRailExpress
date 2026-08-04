@@ -16,6 +16,7 @@
 package net.exmo.sre.meeting;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -787,7 +788,7 @@ public final class MeetingManager {
                                         if (areasSettings.meetingVoteProcessorFunction != null
                                                 && !areasSettings.meetingVoteProcessorFunction.isBlank())
                                             GameUtils.executeFunction(serverLevel.getServer(),
-                                                    areasSettings.meetingVoteProcessorFunctionPermission,
+                                                    SREConfig.instance().meetingVoteProcessorFunctionPermission,
                                                     areasSettings.meetingVoteProcessorFunction);
                                     }
                                         break;
