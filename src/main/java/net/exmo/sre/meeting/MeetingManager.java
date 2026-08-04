@@ -306,7 +306,7 @@ public final class MeetingManager {
             } else {
                 TarotAssemblyManager.endMeeting(fool);
                 FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
-                comp.tarotCooldownEndTick = 20;
+                comp.tarotCooldownEndTick = 0;
                 comp.sync();
             }
         }
