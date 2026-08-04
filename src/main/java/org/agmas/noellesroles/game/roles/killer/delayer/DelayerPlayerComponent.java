@@ -36,7 +36,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -67,6 +66,14 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     // world-level 一次性触发标志（每轮仅触发一次）
     public static volatile boolean timeBoostTriggered = false;
+
+    // ===== 滞时鬼数值（硬编码，原为 NoellesRolesConfig 配置项）=====
+    private static final int REWIND_DELAY_SECONDS = 15;   // 锚点持续秒数（到时自动回溯）
+    private static final int DAZE_SECONDS = 1;            // 回溯时对其他玩家施加的恍惚/滤镜时长（秒）
+    private static final int PATH_SAMPLE_SECONDS = 2;     // 锚定期间路径采样间隔（秒）
+    private static final int PATH_RECORD_SECONDS = 30;    // 滚动路径缓冲长度（秒）
+    private static final int RETURN_SEGMENT_TICKS = 6;    // 回溯时每段路径平滑移动的 tick 数
+    private static final int DOWNED_SECONDS = 30;         // 锚点被击中后趴下惩罚时长（秒）
 
     // ===== 时间锚点 / 回溯 状态 =====
     // 锚定中（自由活动，等待自动回溯或被击中触发回溯）
@@ -146,7 +153,6 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }
-        NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
         this.anchorX = sp.getX();
         this.anchorY = sp.getY();
         this.anchorZ = sp.getZ();
@@ -167,7 +173,7 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
         this.sampleTicks = 0;
         this.prevHealth = sp.getHealth();
 
-        this.rewindTicksLeft = GameConstants.getInTicks(0, cfg.delayerRewindDelaySeconds);
+        this.rewindTicksLeft = GameConstants.getInTicks(0, REWIND_DELAY_SECONDS);
         this.anchored = true;
 
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME,
@@ -177,13 +183,11 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
                     sp.getX(), sp.getY() + 1.0, sp.getZ(), 30, 0.4, 0.8, 0.4, 0.2);
         }
         sp.displayClientMessage(Component.translatable("message.noellesroles.delayer.anchored",
-                cfg.delayerRewindDelaySeconds).withStyle(ChatFormatting.LIGHT_PURPLE), true);
+                REWIND_DELAY_SECONDS).withStyle(ChatFormatting.LIGHT_PURPLE), true);
     }
 
     /** 锚定期间每 tick：检测被击中、采样路径、倒计时。 */
     private void tickAnchored(ServerPlayer sp) {
-        NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
-
         // 普通掉血（摔落、中毒等）兜底：受到伤害即强制回溯并附带趴下惩罚
         float hp = sp.getHealth();
         if (prevHealth >= 0f && hp < prevHealth - 0.001f) {
@@ -194,12 +198,12 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
         prevHealth = hp;
 
         // 路径采样
-        int sampleInterval = GameConstants.getInTicks(0, cfg.delayerPathSampleSeconds);
+        int sampleInterval = GameConstants.getInTicks(0, PATH_SAMPLE_SECONDS);
         if (sampleInterval < 1) sampleInterval = 1;
         sampleTicks++;
         if (sampleTicks >= sampleInterval) {
             sampleTicks = 0;
-            addPathSample(sp.position(), cfg, sampleInterval);
+            addPathSample(sp.position(), sampleInterval);
         }
 
         // 自动回溯倒计时
@@ -215,10 +219,10 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
         }
     }
 
-    private void addPathSample(Vec3 pos, NoellesRolesConfig cfg, int sampleInterval) {
+    private void addPathSample(Vec3 pos, int sampleInterval) {
         pathPoints.add(pos);
         // 保留最近 delayerPathRecordSeconds 秒的路径；始终保留第 0 个锚点
-        int maxSamples = Math.max(2, GameConstants.getInTicks(0, cfg.delayerPathRecordSeconds) / sampleInterval + 1);
+        int maxSamples = Math.max(2, GameConstants.getInTicks(0, PATH_RECORD_SECONDS) / sampleInterval + 1);
         while (pathPoints.size() > maxSamples) {
             pathPoints.remove(1); // 移除锚点之后最早的一个，保住锚点
         }
@@ -226,7 +230,6 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     /** 开始平滑回溯：构建倒序返回路径，施加限制与视觉滤镜。 */
     private void beginReturn(ServerPlayer sp) {
-        NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
         anchored = false;
         rewinding = true;
         rewindTicksLeft = 0;
@@ -240,14 +243,14 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
         returnIndex = 0;
         segTick = 0;
 
-        int segTicks = Math.max(1, cfg.delayerReturnSegmentTicks);
+        int segTicks = Math.max(1, RETURN_SEGMENT_TICKS);
         int segments = Math.max(1, returnPath.size() - 1);
         // 回溯者本人套上时停同款灰白滤镜，覆盖整个返回动画（+ 少量余量用于淡出）
         int filterTicks = segments * segTicks + 10;
         sp.addEffect(new MobEffectInstance(ModEffects.TIME_STOP_FILTER, filterTicks, 0, false, false, false));
 
         // 其它人短暂恍惚（时空滤镜 + 反胃）并播放玻璃破碎声
-        int daze = GameConstants.getInTicks(0, cfg.delayerDazeSeconds);
+        int daze = GameConstants.getInTicks(0, DAZE_SECONDS);
         if (sp.level() instanceof ServerLevel level) {
             for (ServerPlayer p : level.players()) {
                 if (p == sp) continue;
@@ -275,7 +278,7 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
             return;
         }
 
-        int segTicks = Math.max(1, NoellesRolesConfig.HANDLER.instance().delayerReturnSegmentTicks);
+        int segTicks = Math.max(1, RETURN_SEGMENT_TICKS);
         Vec3 a = returnPath.get(returnIndex);
         Vec3 b = returnPath.get(returnIndex + 1);
         segTick++;
@@ -328,14 +331,13 @@ public class DelayerPlayerComponent implements RoleComponent, ServerTickingCompo
 
     /** 进入趴下 + 无法移动状态。 */
     private void startDowned(ServerPlayer sp) {
-        NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
-        downedTicksLeft = GameConstants.getInTicks(0, cfg.delayerDownedSeconds);
+        downedTicksLeft = GameConstants.getInTicks(0, DOWNED_SECONDS);
         sp.setSwimming(true);
         applyRestraints(sp, true);
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP,
                 SoundSource.PLAYERS, 1.0f, 0.6f);
         sp.displayClientMessage(Component.translatable("message.noellesroles.delayer.downed",
-                cfg.delayerDownedSeconds).withStyle(ChatFormatting.RED), true);
+                DOWNED_SECONDS).withStyle(ChatFormatting.RED), true);
     }
 
     /** 趴下状态每 tick：持续保持趴下姿态与移动限制。 */

@@ -681,7 +681,7 @@ public class ModRolesInitialEventRegister {
                     if (delayer.isAnchored())
                         return false; // 已锚定，等待回溯
                     SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-                    int cost = NoellesRolesConfig.instance().delayerRewindCost;
+                    int cost = 75; 
                     if (shop.balance < cost) {
                         player.displayClientMessage(
                                 Component.translatable("message.noellesroles.delayer.no_money", cost)
@@ -693,7 +693,7 @@ public class ModRolesInitialEventRegister {
                     shop.sync();
                     delayer.anchor();
                     return true; // 进入冷却
-                }).cooldownSeconds(NoellesRolesConfig.instance().delayerRewindCooldown)
+                }).cooldownSeconds(120) 
                         .showOnHud(true).build());
 
         // 幻音师技能注册：花费100金币传送到30格外随机一人的身边

@@ -264,24 +264,6 @@ public class NoellesRolesConfig implements ConfigData {
     /** Photographer - 画框传送的最大垂直(Y轴)距离（方块，<=0 表示不限制） */
     public double photographerFrameMaxYDistance = 12.0;
 
-    // ==================== Delayer (滞时鬼) ====================
-    /** Delayer - Rewind skill: seconds the time anchor lasts before the automatic rewind */
-    public int delayerRewindDelaySeconds = 15;
-    /** Delayer - Rewind skill cooldown in seconds */
-    public int delayerRewindCooldown = 120;
-    /** Delayer - Rewind skill coin cost */
-    public int delayerRewindCost = 75;
-    /** Delayer - Duration (seconds) of the daze/shader filter applied to everyone else on rewind */
-    public int delayerDazeSeconds = 1;
-    /** Delayer - Path sampling interval (seconds) while anchored, used to trace the rewind route */
-    public int delayerPathSampleSeconds = 2;
-    /** Delayer - Rolling path buffer length (seconds); older samples are dropped */
-    public int delayerPathRecordSeconds = 30;
-    /** Delayer - Ticks spent smoothly traversing each recorded path segment during the rewind */
-    public int delayerReturnSegmentTicks = 6;
-    /** Delayer - Prone + immobilize duration (seconds) when hit while the anchor is still active */
-    public int delayerDownedSeconds = 30;
-
     // ==================== Dream (梦魇) ====================
     /** Dream - 全员虚拟血量上限（Dream 斧头攻击扣此血量，归零死亡） */
     public int dreamMaxHealth = 20;
