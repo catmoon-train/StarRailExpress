@@ -67,14 +67,14 @@ public final class StreamingSpectatorCommand {
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> SESSIONS.clear());
         OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> {
             final var server = serverLevel.getServer();
-            for (Map.Entry<UUID, Session> entry : SESSIONS.entrySet()) {
-                ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
-                if (player == null) {
-                    continue;
+            // 用 List 复制所有 UUID，避免遍历时修改原 Map
+            for (UUID uuid : new ArrayList<>(SESSIONS.keySet())) {
+                ServerPlayer player = server.getPlayerList().getPlayer(uuid);
+                if (player != null) {
+                    stopStreamingMode(player); // 这里会从原 Map 删除，但遍历的是副本，不会冲突
                 }
-                stopStreamingMode(player);
             }
-            SESSIONS.clear();
+            SESSIONS.clear(); // 清空剩余未处理的（如玩家已离线的条目）
         });
     }
 
@@ -291,7 +291,8 @@ public final class StreamingSpectatorCommand {
         if (target != null) {
             Vec3 pos = target.position();
             if (player.level() != target.level())
-                player.changeDimension(new DimensionTransition(target.serverLevel(), target, DimensionTransition.DO_NOTHING));
+                player.changeDimension(
+                        new DimensionTransition(target.serverLevel(), target, DimensionTransition.DO_NOTHING));
             player.teleportTo(pos.x, pos.y, pos.z);
         }
 
