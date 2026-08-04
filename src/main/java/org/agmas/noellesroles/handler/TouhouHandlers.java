@@ -46,6 +46,7 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.noellesroles.content.item.BowenBadgeItem;
 import org.agmas.noellesroles.content.item.RopeItem;
 import org.agmas.noellesroles.init.ModEffects;
@@ -68,6 +69,16 @@ public class TouhouHandlers {
   }
 
   public static void registerInitEvents() {
+    ModdedRoleRemoved.EVENT.register((player, role) -> {
+      if (!(player instanceof ServerPlayer sp)) {
+        return;
+      }
+      if (RoleUtils.compareRole(role, THMiscRoles.IBUKI_SUIKA)) {
+        THSuikaRole.restore(sp);
+      } else if (RoleUtils.compareRole(role, THMiscRoles.HAKUREI_REIMU)) {
+        THReimuRole.stopFlying(sp);
+      }
+    });
     OnGameTrueStarted.EVENT.register((serverLevel) -> {
       final var modifierCca = WorldModifierComponent.KEY.get(serverLevel);
       final var gameCca = SREGameWorldComponent.getInstance(serverLevel);
