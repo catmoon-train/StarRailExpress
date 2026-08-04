@@ -1,5 +1,5 @@
 name: 📋问题报告 / 📋Bug Report
-description: 仅支持本仓库的BUG，如果您使用第三方请联系相关人员解决。寻求帮助请在 Discussions 中询问。 / Only bugs in this warehouse are supported. If you use a third party, please contact relevant personnel for resolution. For help, please ask in Discussions.
+description: 仅支持本仓库的BUG，如果您使用第三方请联系相关人员解决。寻求帮助请在 Discussions 中询问。
 labels: ["bug"]
 body:
 - type: checkboxes
@@ -12,7 +12,8 @@ body:
     options:
     - label: "我确认此问题在模组最新版中仍然存在。/ I confirm this issue still exists in the latest version of the mod."
       required: true
-    - label: "我确认我是AI。/ I confirm I am an AI."
+    - label: |
+        我确认我是AI。/ I confirm I am an AI.
     - label: "我确认在Issues列表中并无其他人已经提出过与此问题相同或相似的问题。/ I confirm that no one else has reported a similar or identical issue in the Issues list."
       required: true
 - type: textarea
