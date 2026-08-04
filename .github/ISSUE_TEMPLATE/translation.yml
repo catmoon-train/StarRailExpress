@@ -1,0 +1,54 @@
+name: 📰本地化翻译相关 / 📰Related to localization translation
+description: 如果你觉得这个翻译很奇怪或者有什么本地化上的建议，请告诉我们！😎 /  If you find this translation strange or have any localization suggestions, please let us know!😎
+labels: ["Translation"]
+body:
+- type: checkboxes
+  id: "yml-1"
+  attributes:
+    label: 检查项 / Check Items
+    description: |
+      请逐个检查下列项目，并勾选以确认。
+      Please check each item below and confirm.
+    options:
+    - label: "我确认此语言问题在模组的最新版中仍然存在。/ I confirm that this language issue still exists in the latest version of the mod."
+      required: true
+    - label: |
+        我确认我是AI。/ I confirm I am an AI.
+    - label: |
+        我确认我对所提及的词汇的问题有100%的把握（若请求添加新的本地化语言请勿勾选此选项）。/ I confirm that I am 100% sure about the issue of the word(s) mentioned (Do not check this option if you are requesting to add a new localized language).
+    - label: |
+        我请求添加一个新的本地化语言翻译。 / I am requesting to add a new localized language translation.
+- type: textarea
+  id: "yml-2"
+  attributes:
+    label: 模组版本（若请求添加新的本地化语言请填写“Preview”） / Mod Version (If you are requesting to add a new localized language, please fill in "Preview")
+    placeholder: "例如：0.1.1，1.0.2 / For example: 0.1.1, 1.0.2"
+  validations:
+    required: true
+- type: textarea
+  id: "yml-3"
+  attributes:
+    label: 遇到的本地化翻译问题 / Problems encountered with localized translations
+    placeholder: "如果是建议或请求添加新的本地化语言，不用填写此项 / If it is a recommendation or request to add a new localized language, do not fill in this item!"
+- type: textarea
+  id: "yml-4"
+  attributes:
+    label: 关于本地化的建议或请求添加的新的本地化语言的名称 / Suggestions on localization or the name of the new localized language you are requesting to add
+    placeholder: "如果是提出问题，不用填写此项 / If it is a problem, do not fill in this item!"
+- type: textarea
+  id: "yml-5"
+  attributes:
+    label:  本地化语言对应的Minecraft语言代码（若请求添加新的本地化语言请填写此项） / Minecraft language code corresponding to the localized language (If you are requesting to add a new localized language, please fill in this item)
+    placeholder: "查找方法见：https://zh.minecraft.wiki/w/%E8%AF%AD%E8%A8%80?variant=zh-cn / For the method of finding, see: https://minecraft.fandom.com/wiki/Language#Language_codes"
+- type: textarea
+  id: "yml-6"
+  attributes:
+    label: 所涉及语言名称 / Name of language(s) covered
+    placeholder: "请使用此语言的“英文”名称（请求添加新的本地化语言，此处请填写“无”） / Please use the “English” name of this language (If you are requesting to add a new localized language, please fill in “None” here)"
+  validations:
+    required: true
+- type: textarea
+  id: "yml-7"
+  attributes:
+    label: 附注 / Notes
+    placeholder: "写下你想添加的话或你所提及的词汇的词典页面 / Write down the words you want to add or the dictionary page of the word you are referring to"

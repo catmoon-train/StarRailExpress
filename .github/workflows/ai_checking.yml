@@ -1,0 +1,21 @@
+name: Auto-close AI Issue
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  close_if_ai:
+    runs-on: ubuntu-latest
+    if: github.event.issue.body && contains(github.event.issue.body, '[x] 我确认我是AI') || contains(github.event.issue.body, '[x] I confirm I am an AI')
+    steps:
+      - name: Add AI label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: AI
+      - name: Close issue
+        uses: peter-evans/close-issue@v3
+        with:
+          comment: |
+            ❗ 此页面因未通过AI测试而关闭，如仍有提出需求，请手动打开本Issue。
+            ❗ This page has been closed due to failing the AI test. If you still have requests, please manually reopen this Issue.
