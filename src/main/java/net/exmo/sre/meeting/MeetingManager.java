@@ -63,6 +63,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
@@ -185,7 +188,7 @@ public final class MeetingManager {
             refreshVoiceMuted();
         });
 
-        // 会议期间否决一切死亡（forceKill 除外）
+        // 会议期间否决一切非投票死亡（forceKill 除外）
         AllowPlayerDeath.EVENT.register((player, deathReason) -> !isActive());
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> !isActive());
     }
@@ -293,6 +296,19 @@ public final class MeetingManager {
             reporter.displayClientMessage(
                     Component.translatable("meeting.sre.report_failed").withStyle(ChatFormatting.RED), true);
             return false;
+        }
+        // 愚者会议取消，愚者的开会时间恢复。
+        if (TarotAssemblyManager.havingMeeting) {
+            final var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
+            ServerPlayer fool = TarotAssemblyManager.findFoolPlayer(serverLevel, gameComponent);
+            if (fool == null) {
+                TarotAssemblyManager.havingMeeting = false;
+            } else {
+                TarotAssemblyManager.endMeeting(fool);
+                FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
+                comp.tarotCooldownEndTick = 20;
+                comp.sync();
+            }
         }
         if (!SREGameWorldComponent.KEY.get(serverLevel).getGameMode().canHaveMeeting()) {
             return false;
@@ -743,7 +759,8 @@ public final class MeetingManager {
                     topResultIds.add(entry.getKey());
                 }
             }
-
+            // 结束会议
+            endMeeting(false);
             // 第三步：判定出局者
             // 只有当最高票唯一、且不是"跳过"、且是玩家时，才驱逐
             if (topResultIds.size() == 1 && !topResultIds.get(0).equals(SKIP_RESULT_ID)) {
@@ -829,8 +846,6 @@ public final class MeetingManager {
             for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
                 ServerPlayNetworking.send(player, resultPayload);
             }
-
-            endMeeting(false);
         };
 
         // ==================== 开始投票 ====================

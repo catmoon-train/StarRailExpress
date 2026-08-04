@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.CloseUiPayload;
@@ -413,6 +414,10 @@ public class TarotAssemblyManager {
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
         long currentTick = player.level().getGameTime();
         // 检查灵性斗篷效果是否过期
+        if (SREGameTimeComponent.KEY.get(player.level()).timeFrozen) {
+            comp.cloakEndTick++;
+            comp.hereticEndTick++;
+        }
         if (comp.cloakActive && currentTick >= comp.cloakEndTick) {
             comp.cloakActive = false;
             comp.sync();
