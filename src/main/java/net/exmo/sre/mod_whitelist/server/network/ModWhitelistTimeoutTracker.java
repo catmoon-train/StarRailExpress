@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Tracks mod whitelist payload timeout for players
@@ -28,7 +29,7 @@ import java.util.*;
  */
 public class ModWhitelistTimeoutTracker {
 	private static final long TIMEOUT_MS = 7500; // 5 seconds
-	private static final Map<UUID, Long> PLAYER_TIMEOUT_MAP = new HashMap<>();
+	private static final Map<UUID, Long> PLAYER_TIMEOUT_MAP = new ConcurrentHashMap<>();
 
 	/**
 	 * Registers a player for timeout checking
