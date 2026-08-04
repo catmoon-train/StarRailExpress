@@ -105,6 +105,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         initWaypoints();
         initReplayApi();
         SREEventRegister.registerEventHandlers();
+        PlayerJoinUtils.register();
         SREEventRegister.registerServerLifecycleEvents();
         initRegistries();
         initNetworkStatistics();

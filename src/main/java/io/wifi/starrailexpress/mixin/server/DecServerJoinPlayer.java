@@ -15,20 +15,13 @@
 
 package io.wifi.starrailexpress.mixin.server;
 
+import io.wifi.starrailexpress.PlayerJoinUtils;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.replay.GameReplayManager;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
-import io.wifi.starrailexpress.network.SyncMapConfigPayload;
-import io.wifi.starrailexpress.util.SREItemUtils;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
-import org.ladysnake.cca.api.v3.component.ComponentProvider;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -42,40 +35,7 @@ public class DecServerJoinPlayer {
             CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
         if (SRE.isLobby)
             return;
-        GameReplayManager.playerNames.put(serverPlayer.getUUID(), serverPlayer.getScoreboardName());
-        final var gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
-
-        // MapVotingComponent mapVotingComponent =
-        // MapVotingComponent.KEY.get(serverPlayer.level());
-        // if (mapVotingComponent.isVotingActive()){
-        // if (TMMConfig.mapRandomCount!=-1){
-        // ServerPlayNetworking.send(serverPlayer, new ShowSelectedMapUIPayload(true));
-        // }
-        // }
-        if (gameWorldComponent.getGameStatus() == GameStatus.ACTIVE) {
-            if (serverPlayer.level() instanceof ServerLevel serverWorld) {
-
-                    AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
-                    AreasWorldComponent.PosWithOrientation spectatorSpawnPos = areas.getSpectatorSpawnPos();
-                    serverPlayer.teleportTo(serverWorld, spectatorSpawnPos.pos.x(), spectatorSpawnPos.pos.y(),
-                            spectatorSpawnPos.pos.z(), spectatorSpawnPos.yaw, spectatorSpawnPos.pitch);
-                    serverPlayer.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
-
-            }
-        } else {
-
-                if (serverPlayer.level() instanceof ServerLevel serverWorld) {
-                    BlockPos spawn = serverWorld.getSharedSpawnPos();
-                    float angle = serverWorld.getSharedSpawnAngle();
-                    serverPlayer.teleportTo(serverWorld, spawn.getX(), spawn.getY(),
-                            spawn.getZ(), angle, 0);
-                    SREItemUtils.clearItem(serverPlayer, (a) -> true);
-                    if (!serverPlayer.isCreative())
-                        serverPlayer.setGameMode(net.minecraft.world.level.GameType.ADVENTURE);
-                }
-
-        }
-        SyncMapConfigPayload.sendToPlayer(serverPlayer);
-        SREGameWorldComponent.KEY.syncWith(serverPlayer, (ComponentProvider) serverPlayer.level());
+        PlayerJoinUtils.onPlayerJoin(serverPlayer);
     }
+
 }
