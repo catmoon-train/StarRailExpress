@@ -111,7 +111,7 @@ public class SREClientConfig implements ConfigData {
 
     @Category("skin")
     @ConfigEntry.Gui.Tooltip
-    public boolean showOwnHatOnly = false; // 只显示自己的帽子
+    public boolean showOwnHatOnly = true; // 只显示自己的帽子
 
     public boolean isUltraPerfMode() {
         return ultraPerfMode;
