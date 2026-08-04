@@ -20,7 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 public class PlayerJoinUtils {
-    private static final long WAITING_TIME = 500;
+    private static final long WAITING_TIME = 100;
 
     public static record NewPlayerInfo(UUID player, long joinTime) {
     }
