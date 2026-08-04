@@ -190,7 +190,7 @@ public class SkinManagementScreen extends Screen {
 
         initCategoryArea(categoryHeight, categoryMarginT, titleMarginT + titleHeight);
         initSearchBox(categoryHeight, titleMarginT + titleHeight);
-        initHatConfigCheckboxes(categoryHeight, titleMarginT + titleHeight);
+        initHatConfigCheckboxes(titleMarginT, titleMarginT + titleHeight);
         initContentArea();
         initButtonArea(isCompact);
     }
@@ -280,12 +280,15 @@ public class SkinManagementScreen extends Screen {
         addRenderableWidget(searchBox);
     }
 
-    private void initHatConfigCheckboxes(int checkH, int checkY) {
+    private void initHatConfigCheckboxes(int titleY, int totalTitleH) {
         SREClientConfig config = SREClientConfig.instance();
-        int checkW = rightPanelWidth;
-        int checkX = rightPanelX;
+        int checkH = 14;
+        int checkW = 100;
+        int gap = 4;
+        int checkY = titleY + (totalTitleH - checkH) / 2;
+        int startX = width - 10 - checkW * 2 - gap;
 
-        hideAllHatsCheck = new ToggleCheckbox(checkX, checkY, checkW / 2 - 3, checkH,
+        hideAllHatsCheck = new ToggleCheckbox(startX, checkY, checkW, checkH,
                 Component.translatable("screen.sre.skins.hide_all_hats"),
                 config.hideAllHats,
                 v -> {
@@ -294,7 +297,7 @@ public class SkinManagementScreen extends Screen {
                 });
         addRenderableWidget(hideAllHatsCheck);
 
-        showOwnHatCheck = new ToggleCheckbox(checkX + checkW / 2 + 3, checkY, checkW / 2 - 3, checkH,
+        showOwnHatCheck = new ToggleCheckbox(startX + checkW + gap, checkY, checkW, checkH,
                 Component.translatable("screen.sre.skins.show_own_hat_only"),
                 config.showOwnHatOnly,
                 v -> {
