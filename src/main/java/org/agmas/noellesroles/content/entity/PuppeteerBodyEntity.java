@@ -234,6 +234,12 @@ public class PuppeteerBodyEntity extends LivingEntity {
             return false;
         if (source.is(DamageTypes.PLAYER_ATTACK))
             return false;
+        if (source.is(DamageTypes.DROWN))
+            return false;
+        if (source.is(DamageTypes.FREEZE))
+            return false;
+        if (source.is(DamageTypes.CACTUS))
+            return false;
         // 调用父类处理伤害
         boolean result = super.hurt(source, amount);
 
