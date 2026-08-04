@@ -38,3 +38,6 @@ RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
 或者 `RoleData.get(类.class, 玩家);`
 
 ！！！尽量使用此API，不要使用CCA！！！
+
+# 语言文件
+遵循使用翻译键，优先补全 `zh_cn.json`

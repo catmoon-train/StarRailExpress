@@ -32,3 +32,6 @@ RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
 - 或者使用 `level.getGameTime() + time` 设定触发时间来代替（只需要在触发和结束的时候同步更改）（推荐）
 - 
 ！！！尽量使用此API，不要使用CCA！！！
+
+# 语言文件
+遵循使用翻译键，优先补全 `zh_cn.json`
