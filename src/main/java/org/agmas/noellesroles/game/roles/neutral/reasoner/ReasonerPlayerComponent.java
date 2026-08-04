@@ -226,12 +226,10 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     private int getElapsedTicks() {
-        if (player.level() instanceof ServerLevel) {
-            SREGameTimeComponent time = SREGameTimeComponent.KEY.get(player.level());
-            int reset = time.getResetTime();
-            int current = time.getTime();
-            if (reset > 0 && current >= 0 && reset >= current) {
-                return reset - current;
+        if (player.level() instanceof ServerLevel sl) {
+            long startWorldTick = SREGameTimeComponent.KEY.get(sl).getStartWorldTick();
+            if (startWorldTick > 0) {
+                return (int) (sl.getGameTime() - startWorldTick);
             }
         }
         return activeTicks;
