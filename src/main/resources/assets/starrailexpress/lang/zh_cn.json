@@ -1972,6 +1972,8 @@
     "screen.sre.skins.name_tag_title": "称号",
     "screen.sre.skins.search": "搜索",
     "screen.sre.skins.search_hint": "输入关键词过滤...",
+    "screen.sre.skins.hide_all_hats": "隐藏帽子",
+    "screen.sre.skins.show_own_hat_only": "仅显示自己",
     "screen.starrailexpress.cooking_count": "%s / %s",
     "screen.starrailexpress.cooking_hint": "A/D=移动 接住目标食材",
     "screen.starrailexpress.cooking_minigame": "烹饪小游戏",

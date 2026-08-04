@@ -15,11 +15,13 @@
 
 package io.wifi.starrailexpress.hat;
 
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache;
 import io.wifi.starrailexpress.event.OnResolveDisplayedSkinOwner;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -196,6 +198,15 @@ public final class HatEquipmentApi {
      */
     @Environment(EnvType.CLIENT)
     public static String getDisplayedHatSkinName(AbstractClientPlayer player) {
+        // 客户端配置：不显示所有人的帽子
+        SREClientConfig config = SREClientConfig.instance();
+        if (config.hideAllHats) {
+            return "default";
+        }
+        // 客户端配置：只显示自己的帽子
+        if (config.showOwnHatOnly && !player.getUUID().equals(Minecraft.getInstance().player.getUUID())) {
+            return "default";
+        }
         // DISGUISE 伪装效果（含渡鸦的伪装）下隐藏帽子
         if (player.hasEffect(org.agmas.noellesroles.init.ModEffects.DISGUISE)) {
             return "default";
