@@ -11,6 +11,7 @@ import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
+import io.wifi.starrailexpress.event.OnGameInitialized;
 import io.wifi.starrailexpress.network.SyncMapConfigPayload;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -29,6 +30,9 @@ public class PlayerJoinUtils {
 
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(PlayerJoinUtils::tick);
+        OnGameInitialized.EVENT.register((t) -> {
+            pendingJoins.clear();
+        });
     }
 
     public static void onPlayerJoin(ServerPlayer serverPlayer) {

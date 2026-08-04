@@ -28,6 +28,7 @@ import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnGameInitialized;
 import io.wifi.starrailexpress.event.OnGameStarted;
 import io.wifi.starrailexpress.event.OnTrainAreaHaveReseted;
 import io.wifi.starrailexpress.event.ShouldDropOnDeath;
@@ -599,6 +600,7 @@ public class GameUtils {
     }
 
     public static void initializeGame(ServerLevel serverWorld) {
+        OnGameInitialized.EVENT.invoker().onGameInitialized(serverWorld);
         isGameStarted = false;
         SRERole.resetStatic();
         var packet = ListRolesCommand.getRoleAndModifierEnableInfoPacket(false);
