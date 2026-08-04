@@ -415,8 +415,10 @@ public class TarotAssemblyManager {
         long currentTick = player.level().getGameTime();
         // 检查灵性斗篷效果是否过期
         if (SREGameTimeComponent.KEY.get(player.level()).timeFrozen) {
-            comp.cloakEndTick++;
-            comp.hereticEndTick++;
+            if (comp.cloakEndTick > 0)
+                comp.cloakEndTick++;
+            if (comp.hereticEndTick > 0)
+                comp.hereticEndTick++;
         }
         if (comp.cloakActive && currentTick >= comp.cloakEndTick) {
             comp.cloakActive = false;
