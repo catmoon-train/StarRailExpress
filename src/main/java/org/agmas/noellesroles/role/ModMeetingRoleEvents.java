@@ -84,17 +84,18 @@ public class ModMeetingRoleEvents {
         });
         MeetingVoteEndEvent.EVENT.register((level, session) -> {
             var game = SREGameWorldComponent.KEY.get(level);
+            final long alivePlayerCount = GameUtils.getAlivePlayerCount(level);
             for (final var player : new ArrayList<>(level.players())) {
                 if (game.isRole(player, ModMeetingRoles.POLITICIAN)) {
                     {
                         for (VoteOption opt : session.getOptions()) {
                             if (opt instanceof VoteOption.PlayerOption po) {
                                 UUID puid = po.uuid();
-                                if (puid.equals(player.getUUID())) {
+                                if (puid != null && puid.equals(player.getUUID())) {
                                     VoteResultOption result = session.getResults().getOrDefault(opt.resultId(), null);
                                     if (result != null) {
                                         int count = result.count();
-                                        if (count >= GameUtils.getAlivePlayerCount(level) / 4) {
+                                        if (count >= alivePlayerCount / 4) {
                                             MCItemsUtils.insertStackInFreeSlot(player,
                                                     TMMItems.REVOLVER.getDefaultInstance());
                                         }
