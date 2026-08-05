@@ -263,7 +263,6 @@ public class InitModRolesMax {
 
         RoleAssignmentManager.addOccupationRole(ModRoles.POISONER, ModRoles.DOCTOR);
         RoleAssignmentManager.addOccupationRole(ModRoles.INFECTED, ModRoles.DOCTOR);
-        RoleAssignmentManager.addOccupationRole(RedHouseRoles.BAKA, ModRoles.EXAMPLER);
         RoleAssignmentManager.addOccupationRole(ModRoles.DIO, ModRoles.JOJO);
         RoleAssignmentManager.addOccupationRole(ModRoles.WATER_GHOST, ModRoles.DIVER);
 
@@ -276,7 +275,6 @@ public class InitModRolesMax {
         Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 0);
         Harpymodloader.setRoleMaximum(RedHouseRoles.FURANDORU, 0);
         Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.EXAMPLER, 0);
         Harpymodloader.setRoleMaximum(ModRoles.MANIPULATOR, 0);
         Harpymodloader.setRoleMaximum(ModRoles.EXECUTIONER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.VULTURE_ID, 1);

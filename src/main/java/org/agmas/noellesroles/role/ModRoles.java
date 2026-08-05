@@ -621,14 +621,15 @@ public class ModRoles {
     // 乘客阵营角色
     // 狼：小镇做题家
     public static SRERole EXAMPLER = TMMRoles.registerRole(
-            new NormalRole(EXAMPLER_ID, new Color(213, 95, 214).getRGB(),
+            new EggRole(EXAMPLER_ID, new Color(213, 95, 214).getRGB(),
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
             .setCanSeeCoin(true)
             .setCanSeeTeammateKillerRole(true)
             .setCanUseInstinctAndNightVision(true)
-            .setDefaultMax(0)
-            .setCanSetSpawnInfoInConfig(false);
+            .setDefaultMax(1)
+            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(400);
 
     // 好人：锁匠
     public static SRERole LOCKSMITH = TMMRoles.registerRole(
