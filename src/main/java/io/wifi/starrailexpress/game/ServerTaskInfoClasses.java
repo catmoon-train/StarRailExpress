@@ -47,7 +47,6 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.agmas.noellesroles.utils.MapScanner;
 import org.agmas.noellesroles.utils.MapScannerManager;
 
 public class ServerTaskInfoClasses {
