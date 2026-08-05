@@ -113,7 +113,7 @@ public abstract class ShikieikiScreenMixin extends LimitedHandledScreen<Inventor
         ConfigWorldComponent configComponent = ConfigWorldComponent.KEY.get(player.level());
         if (!configComponent.naturalVoodoosAllowed) {
             Minecraft client = Minecraft.getInstance();
-            Component text = Component.translatable("hud.lengxiao.tip");
+            Component text = Component.translatable("hud.shikieiki.tip");
             int textWidth = client.font.width(text);
             context.drawString(client.font, text,
                 point.x - textWidth / 2, point.y + 40, Color.RED.getRGB());

@@ -520,6 +520,7 @@
   "hud.noellesroles.swapper.inventory_ready": "背包技能交换就绪",
   "hud.voodoo.tip": "巫毒死亡必须由其他玩家触发！",
   "hud.lengxiao.tip": "神权死亡必须由其他玩家触发！",
+  "hud.shikieiki.tip": "选择你怀疑最近杀了人的目标！",
   "hud.vulture.already_consumed": "这具尸体已经被吃掉了。",
   "hud.vulture.eat": "按 %s 吃掉尸体！",
   "item.noellesroles.defense_vial.tooltip": "右键点击饮料托盘使用\n清除托盘上所有的毒药\n使饮用受保护饮料的玩家额外获得一次免死机会。",
@@ -3880,7 +3881,6 @@
   "message.noellesroles.salted_fish.start": "你面朝太阳躺下了。",
   "message.noellesroles.salted_fish.end": "咸鱼时间结束，冷却开始。",
   "message.noellesroles.salted_fish.already_active": "你已经躺得很认真了。",
-
   "announcement.star.role.return_traveler": "归途旅人",
   "announcement.star.goals.return_traveler": "送他们回到该去的地方。",
   "skill.noellesroles.return_traveler.ability": "释放技能",
