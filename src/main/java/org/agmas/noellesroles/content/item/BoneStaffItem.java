@@ -26,7 +26,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 
 import java.util.List;
 
@@ -41,13 +40,21 @@ import java.util.List;
  * 本类负责物品定义、耐久自动恢复与提示。
  */
 public class BoneStaffItem extends Item implements SREItemProperties.LeftClickHurtable {
+    /**
+     * 骨杖每次攻击为玩家注入的感染值（写死在代码中，不再读取配置）。
+     * 耐久上限为 5，5 次攻击累计 125% 感染值，配合衰减也能在耐久耗尽前稳定致死。
+     */
+    public static final float BONE_STAFF_INFECTION_PER_HIT = 25.0f;
+
     public BoneStaffItem(Properties settings) {
         super(settings);
     }
 
-    /** 骨杖逻辑耐久（攻击次数），与提示及恢复逻辑保持一致。 */
+    /** 骨杖逻辑耐久（攻击次数），写死在代码中，不再读取配置。 */
+    public static final int BONE_STAFF_MAX_DURABILITY = 5;
+
     public static int maxDurability() {
-        return Math.max(1, NoellesRolesConfig.HANDLER.instance().undeadLordBoneStaffDurability);
+        return BONE_STAFF_MAX_DURABILITY;
     }
 
     @Override
@@ -70,12 +77,11 @@ public class BoneStaffItem extends Item implements SREItemProperties.LeftClickHu
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag type) {
-        NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
         int max = maxDurability();
         tooltip.add(Component.translatable("item.noellesroles.bone_staff.tooltip.durability",
                 max - stack.getDamageValue(), max).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("item.noellesroles.bone_staff.tooltip.infection",
-                (int) config.undeadLordBoneStaffInfection).withStyle(ChatFormatting.DARK_PURPLE));
+                (int) BONE_STAFF_INFECTION_PER_HIT).withStyle(ChatFormatting.DARK_PURPLE));
         super.appendHoverText(stack, context, tooltip, type);
     }
 }

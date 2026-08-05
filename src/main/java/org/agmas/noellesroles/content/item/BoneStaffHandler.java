@@ -93,7 +93,7 @@ public class BoneStaffHandler {
         }
 
         // 注入感染
-        comp.addInfection(target, (float) config.undeadLordBoneStaffInfection);
+        comp.addInfection(target, BoneStaffItem.BONE_STAFF_INFECTION_PER_HIT);
 
         // 消耗 1 点耐久（耗尽后不破坏，进入充能冷却）。
         if (!serverAttacker.isCreative()) {
@@ -115,7 +115,7 @@ public class BoneStaffHandler {
                 SoundSource.PLAYERS, 0.7f, 0.9f);
         serverAttacker.displayClientMessage(
                 Component.translatable("message.noellesroles.undead_lord.bone_staff_hit",
-                        (int) config.undeadLordBoneStaffInfection).withStyle(ChatFormatting.DARK_PURPLE),
+                        (int) BoneStaffItem.BONE_STAFF_INFECTION_PER_HIT).withStyle(ChatFormatting.DARK_PURPLE),
                 true);
 
         // 取消普通攻击（仅注入感染，不造成普通击杀/伤害）。
