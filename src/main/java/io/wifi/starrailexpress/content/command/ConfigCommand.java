@@ -44,6 +44,7 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.config.SpawnInfoConfig;
 import org.agmas.noellesroles.init.ModEventsRegister;
 import org.agmas.noellesroles.init.RoleShopHandler;
 import pro.fazeclan.river.stupid_express.StupidExpressConfig;
@@ -217,8 +218,9 @@ public class ConfigCommand {
                             .withStyle(ChatFormatting.GREEN),
                     false);
         } catch (Exception e) {
-            throw createSimpleSyntaxException("Cannot get config entry! " + e.getClass().getSimpleName()+": "
-                    + e.getMessage());
+            throw createSimpleSyntaxException(
+                    "Cannot get config entry! " + e.getClass().getSimpleName() + ": "
+                            + e.getMessage());
         }
         return 1;
     }
@@ -293,6 +295,7 @@ public class ConfigCommand {
             SREConfig.instance().reload();
             SREConfig.HANDLER.syncToClient(source.getServer());
             HarpyModLoaderConfig.HANDLER.load();
+            SpawnInfoConfig.HANDLER.load();
             NoellesRolesConfig.HANDLER.load();
             NoellesRolesConfig.HANDLER.syncToClient(source.getServer());
             StupidExpressConfig.HANDLER.load();
