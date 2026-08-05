@@ -17,6 +17,7 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -37,7 +38,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -55,6 +55,12 @@ public class BombItem extends Item {
     public static Player findBomber(Player player, Player originalKiller, ResourceLocation deathReason) {
         var stack = MCItemsUtils.getFirstMatchedItem(player, (p) -> p.is(ModItems.BOMB));
         if (stack == null) {
+            return null;
+        }
+        if (stack.isEmpty()) {
+            return null;
+        }
+        if (stack.getCount() <= 0) {
             return null;
         }
         if (player.isSpectator())
@@ -78,7 +84,6 @@ public class BombItem extends Item {
             bomber = player.level().getPlayerByUUID(owner);
         if (bomber == null)
             return null;
-        // Removed the recursive killPlayer call that was causing StackOverflowError
         return bomber;
     }
 
@@ -139,7 +144,23 @@ public class BombItem extends Item {
         }
     }
 
-    private void explode(ServerPlayer player, ItemStack stack, CompoundTag customTag) {
+    public static void explode(ServerPlayer victim, Player killer) {
+        MCItemsUtils.clearItem(victim, ModItems.BOMB);
+        final var stack = ModItems.BOMB.getDefaultInstance();
+        CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = customData.copyTag();
+        if (killer != null)
+            tag.putUUID("owner", killer.getUUID());
+        explode(victim, stack, tag);
+    }
+
+    public static void explode(ServerPlayer player, ItemStack stack) {
+        CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+        CompoundTag tag = customData.copyTag();
+        explode(player, stack, tag);
+    }
+
+    private static void explode(ServerPlayer player, ItemStack stack, CompoundTag customTag) {
         stack.shrink(1);
         if (player.isSpectator())
             return;
@@ -154,15 +175,13 @@ public class BombItem extends Item {
         Player killer = null;
         if (owner != null)
             killer = player.level().getPlayerByUUID(owner);
-        if (killer == null)
-            killer = player;
-        GameUtils.killPlayer(player, true, killer, Noellesroles.id("bomb_death"));
+        GameUtils.killPlayer(player, true, killer, GameConstants.DeathReasons.BOMB_DEATH);
         ServerLevel serverLevel = player.serverLevel();
         serverLevel.players().forEach(
                 target -> {
                     if (SREGameWorldComponent.KEY.get(serverLevel).isRole(target, ModRoles.BOMBER)) {
                         SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(target);
-                        playerShopComponent.setBalance(90 + playerShopComponent.balance);
+                        playerShopComponent.addToBalance(90);
                         playerShopComponent.sync();
                     }
                 });

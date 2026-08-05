@@ -30,12 +30,15 @@ import org.agmas.noellesroles.role.ModRoles;
 public class TrueKillerFinder {
 
     public static void registerEvents() {
-        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, deathReason,force) -> {
+        EarlyKillPlayer.FIND_KILLER_EVENT.register((victim, originalKiller, deathReason, force) -> {
             if (!(victim instanceof ServerPlayer serverVictim))
                 return null;
             Player bomber = BombItem.findBomber(victim, originalKiller, deathReason);
             if (bomber != null) {
-                return bomber;
+                BombItem.explode(serverVictim, bomber);
+                // GameUtils.killPlayer(victim, false, bomber,
+                // GameConstants.DeathReasons.BOMB_DEATH);
+                return originalKiller;
             }
             // Noellesroles.LOGGER.info("!!!");
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
