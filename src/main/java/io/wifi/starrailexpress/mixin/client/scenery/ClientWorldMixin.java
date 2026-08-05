@@ -118,7 +118,7 @@ public abstract class ClientWorldMixin extends Level {
     public void tmm$addSnowflakes(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         // 第1级过滤：快速检查所有条件（零开销）
         // 雪花效果依赖列车移动、下雪启用和地图配置
-        if (!SREClient.isTrainMoving() ||
+        if (SREClient.getTrainComponent() != null && !SREClient.isTrainMoving() ||
                 !SREClient.getTrainComponent().isSnowing() ||
                 SREClient.areaComponent == null ||
                 !SREClient.areaComponent.areasSettings.snowEnabled) {
@@ -173,7 +173,7 @@ public abstract class ClientWorldMixin extends Level {
     @Inject(method = "tick", at = @At("TAIL"))
     public void tmm$addSandstorm(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         // 第1级过滤：快速检查所有条件
-        if (!SREClient.isTrainMoving() ||
+        if (SREClient.getTrainComponent() != null && !SREClient.isTrainMoving() ||
                 !SREClient.getTrainComponent().isSandEnabled() ||
                 SREClient.areaComponent == null ||
                 !SREClient.areaComponent.areasSettings.sandEnabled) {

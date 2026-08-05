@@ -127,6 +127,9 @@ public class WheelBlockEntityRenderer extends AnimatableBlockEntityRenderer<Whee
         if (!shouldRender(entity)) {
             return;
         }
+        if (SREClient.trainComponent == null) {
+            return;
+        }
         matrices.translate(0, 0.3f, .5f);
         matrices.mulPose(Axis.ZP
                 .rotationDegrees((SREClient.trainComponent.getTime() + tickDelta) * (SREClient.getTrainSpeed() * .9f)));

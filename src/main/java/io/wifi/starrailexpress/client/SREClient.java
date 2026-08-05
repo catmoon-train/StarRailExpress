@@ -1232,7 +1232,7 @@ public class SREClient implements ClientModInitializer {
     }
 
     public static float getTrainSpeed() {
-        return trainComponent.getSpeed();
+        return trainComponent != null ? trainComponent.getSpeed() : 0f;
     }
 
     public static boolean isTrainMoving() {
