@@ -16,13 +16,22 @@
 package org.agmas.noellesroles.role;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.vote.VoteOption;
+import io.wifi.starrailexpress.content.vote.VoteSession.VoteResultOption;
+import io.wifi.starrailexpress.event.MeetingVoteEndEvent;
 import io.wifi.starrailexpress.event.MeetingVoteOutEvent;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.exmo.sre.meeting.MeetingApi;
 import net.exmo.sre.meeting.MeetingManager;
 import net.minecraft.server.level.ServerPlayer;
+
+import java.util.ArrayList;
+import java.util.UUID;
+
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
@@ -33,17 +42,22 @@ public class ModMeetingRoleEvents {
     private static boolean registered;
 
     public static void register() {
-        if (registered) return;
+        if (registered)
+            return;
         registered = true;
 
         // 加拿大鹅：被杀时自动发起会议
         OnPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
-            if (!(player instanceof ServerPlayer sp)) return;
+            if (!(player instanceof ServerPlayer sp))
+                return;
             var game = SREGameWorldComponent.KEY.get(sp.serverLevel());
-            if (game == null || !game.isRunning()) return;
-            if (!game.isRole(sp, ModMeetingRoles.CANADA_GOOSE)) return;
+            if (game == null || !game.isRunning())
+                return;
+            if (!game.isRole(sp, ModMeetingRoles.CANADA_GOOSE))
+                return;
             // 亡命徒期间（难民触发）：加拿大鹅不强制启用/发起会议
-            if (RefugeeComponent.KEY.get(sp.serverLevel()).isAnyRevivals) return;
+            if (RefugeeComponent.KEY.get(sp.serverLevel()).isAnyRevivals)
+                return;
             ServerPlayer reporter = killer instanceof ServerPlayer kp ? kp : sp;
             // 紧急会议：绕过开局冷却与会议间冷却，确保加拿大鹅死亡必定触发会议
             MeetingApi.startMeeting(sp.serverLevel(), reporter, sp.getGameProfile().getName(), true);
@@ -68,14 +82,41 @@ public class ModMeetingRoleEvents {
             }
             return true;
         });
+        MeetingVoteEndEvent.EVENT.register((level, session) -> {
+            var game = SREGameWorldComponent.KEY.get(level);
+            for (final var player : new ArrayList<>(level.players())) {
+                if (game.isRole(player, ModMeetingRoles.POLITICIAN)) {
+                    {
+                        for (VoteOption opt : session.getOptions()) {
+                            if (opt instanceof VoteOption.PlayerOption po) {
+                                UUID puid = po.uuid();
+                                if (puid.equals(player.getUUID())) {
+                                    VoteResultOption result = session.getResults().getOrDefault(opt.resultId(), null);
+                                    if (result != null) {
+                                        int count = result.count();
+                                        if (count >= GameUtils.getAlivePlayerCount(level) / 4) {
+                                            MCItemsUtils.insertStackInFreeSlot(player,
+                                                    TMMItems.REVOLVER.getDefaultInstance());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
         // 政客：游戏开始时设置投票权重（覆盖默认值）
         // 呆呆鸟：游戏开始时设置"被投票倍率"——投给呆呆鸟的每一票实际按 1.5 票计算（显示仍为 1 票）
-        OnGameTrueStarted.EVENT.register((level) -> {
+        OnGameTrueStarted.EVENT.register((level) ->
+
+        {
             long alive = level.players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
             for (ServerPlayer p : level.players()) {
                 var game = SREGameWorldComponent.KEY.get(level);
-                if (game == null) continue;
+                if (game == null)
+                    continue;
                 if (game.isRole(p, ModMeetingRoles.POLITICIAN)) {
                     MeetingManager.setVoteWeight(p, alive > 24 ? 3 : 2);
                 }
