@@ -119,6 +119,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
             ServerLevel serverLevel = (ServerLevel) player.level();
             if (compassStartWorldTick < 0) {
                 compassStartWorldTick = serverLevel.getGameTime();
+                sync(); 
             }
             if (serverLevel.getGameTime() - compassStartWorldTick >= GIVE_COMPASS_TICKS
                     && player instanceof ServerPlayer serverPlayer) {
@@ -461,11 +462,8 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         if (compassGiven || compassStartWorldTick < 0) {
             return 0;
         }
-        if (player.level() instanceof ServerLevel sl) {
-            long elapsed = sl.getGameTime() - compassStartWorldTick;
-            return (int) Math.max(0, GIVE_COMPASS_TICKS - elapsed);
-        }
-        return 0;
+        long elapsed = player.level().getGameTime() - compassStartWorldTick;
+        return (int) Math.max(0, GIVE_COMPASS_TICKS - elapsed);
     }
 
     private int solvedCount() {
