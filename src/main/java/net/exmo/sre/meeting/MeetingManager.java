@@ -382,7 +382,8 @@ public final class MeetingManager {
             }
             participant.setDeltaMovement(Vec3.ZERO);
             participant.fallDistance = 0.0F;
-
+            participant.removeEffect(MobEffects.INVISIBILITY);
+            participant.removeEffect(MobEffects.GLOWING);
             participant.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, -1, 0, false, false, false));
             participant.addEffect(new MobEffectInstance(ModEffects.USED_BANED, -1, 0, false, false, false));
             participant.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, -1, 0, false, false, false));
