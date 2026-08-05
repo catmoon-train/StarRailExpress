@@ -988,7 +988,6 @@ public class SREClient implements ClientModInitializer {
             if (slot >= 0 && slot < 9) {
                 context.client().player.getInventory().selected = slot;
             }
-            context.client().player.getInventory().selected = 0;
             NoellesrolesClient.isTaskInstinctEnabled = false;
             // isInstinctToggleEnabled = false;
         });
