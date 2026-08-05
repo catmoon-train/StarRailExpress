@@ -47,6 +47,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.agmas.noellesroles.utils.MapScanner;
 import org.agmas.noellesroles.utils.MapScannerManager;
 
 public class ServerTaskInfoClasses {
@@ -249,7 +250,6 @@ public class ServerTaskInfoClasses {
                                 .withStyle(ChatFormatting.YELLOW),
                         true);
             });
-            MapScannerManager.saveArea(serverWorld);
             // if (!shouldStartGame) {
             // GameUtils.serverTaskQueue.addLast(new SchedulerTask(1, () -> {
             // this.serverWorld.players().forEach((p) -> {
@@ -273,6 +273,7 @@ public class ServerTaskInfoClasses {
                 GameUtils.serverTaskQueue.addLast(task);
             }
             MapResetManager.saveArea(serverWorld);
+            MapScannerManager.scanAndSaveScannerArea(serverWorld, area);
         }
     }
 
