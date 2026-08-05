@@ -15,6 +15,9 @@
 
 package org.agmas.noellesroles.utils;
 
+import io.wifi.starrailexpress.content.item.KnifeItem;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -89,5 +92,22 @@ public class MCItemsUtils extends SREItemUtils {
             }
         }
         return null;
+    }
+
+    public static int getHotbarNotKnifeSlot(Player player) {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.isEmpty()) {
+                return i;
+            }
+        }
+        for (int i = 0; i < 9; ++i) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (!(stack.getItem() instanceof KnifeItem || stack.getItem() instanceof TrainWeapon
+                    || stack.is(TMMItemTags.GUNS))) {
+                return i;
+            }
+        }
+        return 0;
     }
 }

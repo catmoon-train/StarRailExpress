@@ -52,6 +52,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -721,6 +722,13 @@ public abstract class GameMode {
 
                 // 关闭任务透视发包
                 ServerPlayNetworking.send(serverPlayerEntity, new PlayerDeathPayload());
+
+                // 切换到一个空物品物品栏
+
+                int slot = MCItemsUtils.getHotbarNotKnifeSlot(victim);
+                if (slot >= 0 && slot < 9) {
+                    victim.getInventory().selected = slot;
+                }
 
                 SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.maybeGet(serverPlayerEntity)
                         .orElse(null);

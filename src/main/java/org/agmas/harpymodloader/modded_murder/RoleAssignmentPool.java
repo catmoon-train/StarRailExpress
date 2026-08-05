@@ -208,7 +208,6 @@ public class RoleAssignmentPool {
         if (isEmpty()) {
             return null;
         }
-
         var roleWeights2 = roleWeights.filter(condition);
         SRERole selectedRole = roleWeights2.selectRandomKeyBasedOnWeights();
         if (selectedRole == null) {

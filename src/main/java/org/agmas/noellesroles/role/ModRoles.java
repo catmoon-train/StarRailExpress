@@ -619,14 +619,16 @@ public class ModRoles {
 
     // ==================== 已注册角色定义 ====================
     // 乘客阵营角色
-    // 中立偏狼：小镇做题家
+    // 狼：小镇做题家
     public static SRERole EXAMPLER = TMMRoles.registerRole(
             new NormalRole(EXAMPLER_ID, new Color(213, 95, 214).getRGB(),
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
-            .setCanSeeCoin(true).setCanSeeTeammateKillerRole(true)
-            .setCanUseInstinctAndNightVision(true).setDefaultMax(1).setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(400);
+            .setCanSeeCoin(true)
+            .setCanSeeTeammateKillerRole(true)
+            .setCanUseInstinctAndNightVision(true)
+            .setDefaultMax(0)
+            .setCanSetSpawnInfoInConfig(false);
 
     // 好人：锁匠
     public static SRERole LOCKSMITH = TMMRoles.registerRole(
@@ -795,7 +797,8 @@ public class ModRoles {
                     if (player.getOffhandItem().is(org.agmas.noellesroles.init.ModItems.BATON))
                         return true;
                     for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                        if (player.getInventory().getItem(i).is(org.agmas.noellesroles.init.ModItems.BATON))
+                        if (player.getInventory().getItem(i)
+                                .is(org.agmas.noellesroles.init.ModItems.BATON))
                             return true;
                     }
                     return false;
@@ -803,7 +806,8 @@ public class ModRoles {
                 return false;
             };
         }
-    }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false).setVigilanteTeam(true).setDefaultMax(1)
+    }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false).setVigilanteTeam(true)
+            .setDefaultMax(1)
             .setCanSetSpawnInfoInConfig(false);
 
     /**
