@@ -26,7 +26,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent;
-import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.CocktailItem;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
@@ -95,7 +94,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @ModifyReturnValue(method = "getSpeed", at = @At("RETURN"))
     public float tmm$overrideMovementSpeed(float original) {
-        if (SRE.isLobby || SREClient.isInLobby()) {
+        if (SRE.isLobby) {
             return original;
         }
         final var player = (Player) (Object) this;
@@ -128,7 +127,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @Inject(method = "aiStep", at = @At("HEAD"))
     public void tmm$limitSprint(CallbackInfo ci) {
-        if (SRE.isLobby || SREClient.isInLobby()) {
+        if (SRE.isLobby) {
             return;
         }
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(this.level());
@@ -169,7 +168,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @WrapMethod(method = "attack")
     public void attack(Entity ttarget, Operation<Void> original) {
-        if (SRE.isLobby || SREClient.isInLobby()) {
+        if (SRE.isLobby) {
             original.call(ttarget);
             return;
         }
@@ -233,7 +232,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
                 boolean currentlyFakePoisoned = SREPlayerPoisonComponent.KEY.get(this).fakePoison;
                 if (currentlyFakePoisoned && !isFakePoison) {
                     // 真毒覆盖假毒，使用全新计时
-                    int randomTicks = world.getRandom().nextIntBetweenInclusive(SREPlayerPoisonComponent.clampTime.getA(),
+                    int randomTicks = world.getRandom().nextIntBetweenInclusive(
+                            SREPlayerPoisonComponent.clampTime.getA(),
                             SREPlayerPoisonComponent.clampTime.getB());
                     SREPlayerPoisonComponent.KEY.get(this).setPoisonTicks(randomTicks, poisonerUUID);
                 } else {
