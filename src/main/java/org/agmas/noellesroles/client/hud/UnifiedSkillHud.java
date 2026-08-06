@@ -79,6 +79,10 @@ public final class UnifiedSkillHud {
             if (role != null && role.identifier().equals(org.agmas.noellesroles.role.ModRoles.RETURN_TRAVELER_ID)) {
                 return;
             }
+            // 领袖有自绘的 HUD（技能状态/倒计时/追随者列表），跳过通用技能 HUD
+            if (role != null && role.identifier().equals(org.agmas.noellesroles.role.ModRoles.LEADER_ID)) {
+                return;
+            }
             List<RoleSkill.Definition> skills = RoleSkill.getDefinitions(role);
             List<RolePassive.Definition> passives = RolePassive.getDefinitions(role);
             if (skills.isEmpty() && passives.isEmpty()) {
