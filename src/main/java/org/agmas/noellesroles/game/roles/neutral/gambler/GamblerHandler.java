@@ -83,11 +83,71 @@ public class GamblerHandler {
         if (victim instanceof ServerPlayer)
             ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) victim);
 
+        // 领袖追随者效果：独立胜利概率 1%→2%，死亡必定转职（49% 杀手 / 49% 警长 / 2% 奇迹）
+        boolean isLeaderFollower = org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                .isFollowerOfLeader(serverPlayer);
+
         victim.level().players().forEach(
                 player -> {
                     player.playNotifySound(NRSounds.GAMBER_DEATH, SoundSource.PLAYERS, 0.5F, 1.3F);
                     player.playNotifySound(SoundEvents.BAT_HURT, SoundSource.PLAYERS, 0.5F, 1.3F);
                 });
+        // 追随者赌徒：不再直接死亡；49% 杀手 (0-48) / 49% 警长 (49-97) / 2% 奇迹 (98-99)
+        if (isLeaderFollower) {
+            if (chance < 49) {
+                // 49% 变成杀手
+                gamblerPlayerComponent.usedAbility = true;
+                gamblerPlayerComponent.sync();
+
+                ArrayList<SRERole> shuffledKillerRoles = new ArrayList<>(Noellesroles.getEnableKillerRoles());
+                if (shuffledKillerRoles.isEmpty())
+                    shuffledKillerRoles.add(TMMRoles.KILLER);
+                Collections.shuffle(shuffledKillerRoles);
+
+                final var first = shuffledKillerRoles.getFirst();
+                RoleUtils.changeRole(victim, first);
+
+                RoleUtils.sendWelcomeAnnouncement(serverPlayer);
+
+                SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
+                        .get(victim);
+                playerShopComponent.setBalance(150);
+                teleport(victim);
+                return false;
+            } else if (chance < 98) {
+                // 49% 变成警长
+                gamblerPlayerComponent.usedAbility = true;
+                gamblerPlayerComponent.sync();
+
+                ArrayList<SRERole> vigilanteRoles = new ArrayList<>();
+                for (SRERole role : Noellesroles.getEnableAndAvailableRoles(true)) {
+                    if (role.isVigilanteTeam() && !HarpyModLoaderConfig.HANDLER.instance().getDisabled()
+                            .contains(role.identifier().getPath())) {
+                        vigilanteRoles.add(role);
+                    }
+                }
+                if (vigilanteRoles.isEmpty()) {
+                    vigilanteRoles.add(ModRoles.SHERIFF);
+                }
+
+                Collections.shuffle(vigilanteRoles);
+                SRERole selectedRole = vigilanteRoles.get(0);
+
+                RoleUtils.changeRole(victim, selectedRole);
+
+                RoleUtils.sendWelcomeAnnouncement((ServerPlayer) victim);
+
+                teleport(victim);
+                return false;
+            } else {
+                // 2% 独立胜利（奇迹）
+                if (victim.level() instanceof ServerLevel serverWorld) {
+                    triggerOnePercentMiracle(serverWorld, victim);
+                    return false;
+                }
+                return false;
+            }
+        }
         // 33%概率直接死亡 (0-32)
         if (chance < 33) {
             // 直接死亡，不取消事件

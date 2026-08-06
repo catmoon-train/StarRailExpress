@@ -165,6 +165,12 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
         }
     }
 
+    /** 重置错误猜测计数（领袖追随者效果：免疫记录错误死亡） */
+    public void resetWrongGuesses() {
+        this.wrongGuessCount = 0;
+        ModComponents.RECORDER.sync(this.player);
+    }
+
     public Map<UUID, ResourceLocation> getGuesses() {
         return guesses;
     }

@@ -448,6 +448,33 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         return solvedCount();
     }
 
+    /**
+     * 罗盘立即完成一条未回答的随机问题（领袖追随者效果）。
+     */
+    public void forceCompleteRandomQuestion() {
+        java.util.List<Integer> unsolved = new java.util.ArrayList<>();
+        for (int q = 1; q <= 5; q++) {
+            if (!isSolved(q)) {
+                unsolved.add(q);
+            }
+        }
+        if (unsolved.isEmpty()) {
+            return;
+        }
+        int question = unsolved.get(player.getRandom().nextInt(unsolved.size()));
+        markSolved(question);
+        if (player instanceof ServerPlayer sp) {
+            sp.displayClientMessage(
+                    Component.translatable("message.noellesroles.reasoner.correct", solvedCount(), 5)
+                            .withStyle(ChatFormatting.GREEN),
+                    true);
+        }
+        sync();
+        if (player instanceof ServerPlayer sp2) {
+            checkWin(sp2.serverLevel());
+        }
+    }
+
     /** 是否已发放罗盘。 */
     public boolean isCompassGiven() {
         return compassGiven;

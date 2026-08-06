@@ -37,6 +37,7 @@ import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayer
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
 import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
@@ -659,11 +660,32 @@ public class RoleInstinctRegister {
                                 return TrueFalseAndCustomResult.custom(new Color(135, 206, 235).getRGB());
                             return TrueFalseAndCustomResult.custom(new Color(139, 69, 19).getRGB());
                         }
+                        // 家族附属成员（如被教父招募的领袖）：虽非 mafia 职业，但已加入家族，
+                        // 在家族透视中同样显示为家族成员颜色
+                        if (isInAnyGodfatherFamily(targetPlayer))
+                            return TrueFalseAndCustomResult.custom(new Color(139, 69, 19).getRGB());
                         if (viewer.distanceTo(targetPlayer) > 20.0D)
                             return TrueFalseAndCustomResult.disallow();
                     }
                     return TrueFalseAndCustomResult.pass();
                 });
+    }
+
+    /** 玩家是否属于任意教父的家族成员（读取 familyMembers，含被教父招募的领袖等非 mafia 职业） */
+    private static boolean isInAnyGodfatherFamily(Player target) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.level == null) {
+            return false;
+        }
+        for (Player p : client.level.players()) {
+            if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(p, ModRoles.GODFATHER)) {
+                GodfatherComponent comp = GodfatherComponent.KEY.maybeGet(p).orElse(null);
+                if (comp != null && comp.familyMembers.contains(target.getUUID())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     // ---------- 被看高亮（TARGET） ----------

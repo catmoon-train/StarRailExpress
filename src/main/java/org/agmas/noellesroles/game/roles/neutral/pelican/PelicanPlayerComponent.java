@@ -165,8 +165,15 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
         // 吞噬玩家
         PelicanManager.stashPlayer(sp, target);
 
-        long cooldownTicks = 35 * 20L; // 硬编码：35秒冷却
-        eatCooldownUntil = player.level().getGameTime() + cooldownTicks;
+        // 领袖追随者效果：40% 概率技能不进入冷却
+        if (sp instanceof ServerPlayer sp2
+                && org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects.isFollowerOfLeader(sp2)
+                && sp2.getRandom().nextInt(100) < 40) {
+            eatCooldownUntil = 0;
+        } else {
+            long cooldownTicks = 35 * 20L; // 硬编码：35秒冷却
+            eatCooldownUntil = player.level().getGameTime() + cooldownTicks;
+        }
 
         bellyPlayerIds.add(target.getUUID());
         bellyNames.add(target.getName().getString());

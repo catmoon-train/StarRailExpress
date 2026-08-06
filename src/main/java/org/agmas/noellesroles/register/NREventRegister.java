@@ -39,6 +39,7 @@ public class NREventRegister {
         // 
         org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler.register();
         org.agmas.noellesroles.game.roles.neutral.amon.AmonEventHandler.register();
+        org.agmas.noellesroles.game.roles.neutral.leader.LeaderEventHandler.register();
         net.exmo.sre.repair.event.RepairCombatEvents.register();
         net.exmo.sre.repair.event.RepairWorldInteractions.register();
 

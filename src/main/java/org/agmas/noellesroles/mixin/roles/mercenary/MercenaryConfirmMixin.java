@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
@@ -57,7 +58,11 @@ public class MercenaryConfirmMixin {
 
         boolean isContractTarget = mercenary.isContractTarget(victim);
         boolean isForcedTarget = mercenary.isForcedTarget(victim);
-        if (!isContractTarget && !isForcedTarget) {
+        // 领袖追随者效果：解锁「帮助任意一方」后可击杀除领袖外的任何人
+        boolean canKillAnyone = killer instanceof ServerPlayer sk
+                && org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                        .mercenaryCanKillAnyone(sk, victim);
+        if (!isContractTarget && !isForcedTarget && !canKillAnyone) {
             killer.displayClientMessage(
                     Component.translatable("message.noellesroles.mercenary.invalid_target"),
                     true);

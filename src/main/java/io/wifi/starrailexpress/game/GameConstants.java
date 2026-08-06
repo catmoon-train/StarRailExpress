@@ -309,6 +309,9 @@ public class GameConstants {
         public static ResourceLocation LOOSE_END = StupidExpress.id("loose_end");
         public static ResourceLocation SPLIT_PERSONALITY = StupidExpress.id("split_personality");
 
+        /** 领袖（Leader）犹豫：200 秒内未释放技能而死 */
+        public static ResourceLocation HESITATION = Noellesroles.id("hesitation");
+
         private static ResourceLocation itemId(Item item) {
             return BuiltInRegistries.ITEM.getKey(item);
         }

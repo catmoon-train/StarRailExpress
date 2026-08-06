@@ -146,6 +146,12 @@ public class CuckooPlayerComponent implements RoleComponent, ServerTickingCompon
                 new Quaternionf(new AxisAngle4f(0, 0, 1, 0))
         ));
 
+        // 领袖追随者效果：下一颗蛋隐身
+        if (org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                .consumeInvisibleEggFlag(serverPlayer.getUUID())) {
+            egg.setInvisible(true);
+        }
+
         level.addFreshEntity(egg);
 
         CuckooEggData.registerEgg(egg, serverPlayer.getUUID());

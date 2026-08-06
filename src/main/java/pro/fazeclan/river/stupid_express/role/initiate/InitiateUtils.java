@@ -101,8 +101,12 @@ public class InitiateUtils {
                         return;
                     }
 
-                    SRE.LOGGER.info("change_count:" + initiates.size());
                     ServerPlayer initiate = initiates.get(0);
+                    // 领袖追随者初学者：不再因考核失败而转职（死亡）
+                    if (org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                            .isFollowerOfLeader(initiate)) {
+                        return;
+                    }
                     clearModItems(initiate);
                     StupidRoleUtils.changeRole(initiate, SERoles.AMNESIAC);
 

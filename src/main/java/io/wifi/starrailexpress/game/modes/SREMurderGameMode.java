@@ -462,6 +462,23 @@ public class SREMurderGameMode extends GameMode {
             assignedNatures.addAll(neutralsPool.selectRoles((int) zeroNeutrals));
         }
 
+        // ===== 领袖特判 =====
+        // 领袖需要"非杀手方中立"（type 2）职业作为追随者。
+        // 若本次抽选出的中立职业中，除领袖外没有其它 type 2 职业，说明本局领袖没有可招募对象，
+        // 将其从池中移除，并补抽等量的中立职业（排除领袖），保证中立名额数量不变。
+        long leaderDrawn = assignedNatures.stream()
+                .filter(r -> r != null && ModRoles.LEADER_ID.equals(r.identifier())).count();
+        if (leaderDrawn > 0) {
+            boolean hasOtherNonKillerNeutral = assignedNatures.stream()
+                    .anyMatch(r -> r != null && !ModRoles.LEADER_ID.equals(r.identifier())
+                            && PlayerRoleWeightManager.getRoleType(r) == 2);
+            if (!hasOtherNonKillerNeutral) {
+                assignedNatures.removeIf(r -> r != null && ModRoles.LEADER_ID.equals(r.identifier()));
+                assignedNatures.addAll(neutralsPool.selectRoles((int) leaderDrawn,
+                        r -> r != null && !ModRoles.LEADER_ID.equals(r.identifier())));
+            }
+        }
+
         // 第三步：计算平民数量（只分配基础非平民角色，不包含补充的平民角色）
         int assignedSpecialCount = assignedKillers.size() + assignedVigilantes.size() + assignedNatures.size();
         int civilianCount = playerSize - assignedSpecialCount - forcedRoleSize;

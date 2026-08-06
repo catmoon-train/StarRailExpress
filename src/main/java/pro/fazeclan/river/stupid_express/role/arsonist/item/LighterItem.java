@@ -65,7 +65,13 @@ public class LighterItem extends Item {
         var alivePlayers = players1.stream().filter(GameUtils::isPlayerAliveAndSurvival).toList();
         var dousedCountComponent = DousedPlayerComponent.KEY.get(player);
         var dousedCount = dousedCountComponent.dousedCount;
-        if (dousedCount >= (int) (alivePlayers.size() * 0.3)) {
+        // 领袖追随者效果：点燃所需目标 -2 人
+        int required = (int) (alivePlayers.size() * 0.3);
+        if (player instanceof ServerPlayer sp) {
+            required = org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                    .arsonistRequiredDoused(required, sp);
+        }
+        if (dousedCount >= required) {
             // 点燃所有存活且被泼油的玩家：施加燃烧效果，期间持续着火，效果结束后才死亡
             int burnTicks = Math.max(20,
                     StupidExpress.CONFIG.rolesSection.arsonistSection.burnDurationSeconds * 20);
