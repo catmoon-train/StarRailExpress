@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.mixin.roles.elf;
 
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BowItem;
@@ -29,6 +30,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class BowMixin {
     @Inject(method = "releaseUsing", at = @At("HEAD"), cancellable = true)
     private void noellesroles$releaseUsing(ItemStack itemStack, Level level, LivingEntity livingEntity, int i, CallbackInfo ci) {
+        if (SRE.isLobby) {
+            return;
+        }
         if (livingEntity instanceof ServerPlayer serverPlayer) {
             if (serverPlayer.isSpectator()) {
                 ci.cancel();

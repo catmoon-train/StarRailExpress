@@ -15,7 +15,9 @@
 
 package io.wifi.starrailexpress.mixin.entity.player;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.ExtraSlotComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -43,6 +45,9 @@ public class InventoryClearMixin {
             int i,
             Container container,
             CallbackInfoReturnable<Integer> cir) {
+        if (SRE.isLobby) {
+            return;
+        }
         var esc = ExtraSlotComponent.KEY.get(player);
         int customCount = 0;
         int originalCount = cir.getReturnValueI();
