@@ -26,6 +26,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -63,6 +64,9 @@ public class LeaderRoleData extends SimpleRoleData {
 
     /** 是否已因「犹豫」死亡（避免重复触发） */
     public boolean hesitated = false;
+
+    /** 开局安全时间（tick）：安全时间内犹豫倒计时不下降 */
+    public long safeTimeTicks = 0;
 
     public LeaderRoleData(RoleDataContext context) {
         super(context);
@@ -106,11 +110,17 @@ public class LeaderRoleData extends SimpleRoleData {
         if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
             return;
         }
-        // 「犹豫」死亡：200 秒（4000 tick）内未释放技能
+        // 「犹豫」死亡：200 秒（4000 tick）内未释放技能；安全时间内倒计时不下降
         if (!skillUsed && !hesitated) {
+            // 记录开局安全时间（SAFE_TIME 效果时长），仅记录一次
+            if (safeTimeTicks <= 0 && serverPlayer.hasEffect(ModEffects.SAFE_TIME)) {
+                safeTimeTicks = serverPlayer.getEffect(ModEffects.SAFE_TIME).getDuration();
+                sync();
+            }
             long elapsed = player.level().getGameTime()
                     - SREGameTimeComponent.KEY.get(player.level()).startWorldTick;
-            if (elapsed >= 200 * 20L) {
+            long effectiveElapsed = Math.max(0, elapsed - safeTimeTicks);
+            if (effectiveElapsed >= 200 * 20L) {
                 hesitated = true;
                 sync();
                 GameUtils.killPlayer(serverPlayer, true, null, GameConstants.DeathReasons.HESITATION);
@@ -122,6 +132,7 @@ public class LeaderRoleData extends SimpleRoleData {
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("skillUsed", skillUsed);
         tag.putBoolean("hesitated", hesitated);
+        tag.putLong("safeTimeTicks", safeTimeTicks);
         ListTag followerList = new ListTag();
         for (UUID uid : followers) {
             followerList.add(StringTag.valueOf(uid.toString()));
@@ -143,6 +154,7 @@ public class LeaderRoleData extends SimpleRoleData {
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         skillUsed = tag.getBoolean("skillUsed");
         hesitated = tag.getBoolean("hesitated");
+        safeTimeTicks = tag.contains("safeTimeTicks") ? tag.getLong("safeTimeTicks") : 0;
         followers.clear();
         ListTag followerList = tag.getList("followers", Tag.TAG_STRING);
         for (int i = 0; i < followerList.size(); i++) {

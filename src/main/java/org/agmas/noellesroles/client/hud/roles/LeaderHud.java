@@ -24,6 +24,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role_data.leader.LeaderRoleData;
@@ -33,8 +34,11 @@ import java.awt.*;
 
 public abstract class LeaderHud {
 
-    /** 本能透视：靠近非杀手方中立时显示其职业名的最大距离（格） */
-    private static final double ROLE_REVEAL_RANGE = 6.0D;
+    /** 准星指向显示职业名的最大距离（格） */
+    private static final double ROLE_REVEAL_RANGE = 30.0D;
+
+    /** 准星指向判定阈值（度）：视线与目标方向的夹角小于该值视为「指向」 */
+    private static final double AIM_ANGLE_DEGREES = 12.0D;
 
     public static void register() {
         RoleHudRenderCallback.EVENT.register(ModRoles.LEADER_ID, (guiGraphics, deltaTracker) -> {
@@ -47,34 +51,39 @@ public abstract class LeaderHud {
             int screenWidth = guiGraphics.guiWidth();
             int screenHeight = guiGraphics.guiHeight();
             Font font = client.font;
-            int yOffset = screenHeight - 10 - font.lineHeight;
-            int xOffset = screenWidth - 10;
 
             LeaderRoleData data = getData(player);
             if (data == null) {
                 return;
             }
 
-            // 技能状态
+            // ================= 右上角往下：技能状态 / 倒计时 / 追随者列表（与右下角默认技能 HUD 分离） =================
+            int xOffset = screenWidth - 10; // 右对齐
+            int y = 10 + font.lineHeight; // 从顶部往下
+
+            // 1) 技能状态
             if (data.skillUsed) {
                 Component used = Component.translatable("hud.noellesroles.leader.skill_used")
                         .withStyle(ChatFormatting.GREEN);
-                guiGraphics.drawString(font, used, xOffset - font.width(used), yOffset, Color.WHITE.getRGB());
+                guiGraphics.drawString(font, used, xOffset - font.width(used), y, Color.WHITE.getRGB());
             } else {
                 Component ready = Component.translatable("hud.noellesroles.leader.skill_ready")
                         .withStyle(ChatFormatting.GOLD);
-                guiGraphics.drawString(font, ready, xOffset - font.width(ready), yOffset, Color.WHITE.getRGB());
+                guiGraphics.drawString(font, ready, xOffset - font.width(ready), y, Color.WHITE.getRGB());
+            }
+            y += font.lineHeight + 6;
 
-                // 200 秒倒计时（客户端本地计算，零同步）
+            // 2) 倒计时（独立一行）
+            if (!data.skillUsed) {
+                // 200 秒倒计时（客户端本地计算，零同步；安全时间内不下降）
                 long remaining = remainingSeconds(player);
                 Component countdown = Component.translatable("hud.noellesroles.leader.countdown", remaining)
                         .withStyle(remaining <= 10 ? ChatFormatting.RED : ChatFormatting.AQUA);
-                guiGraphics.drawString(font, countdown, xOffset - font.width(countdown),
-                        yOffset - font.lineHeight - 4, Color.WHITE.getRGB());
+                guiGraphics.drawString(font, countdown, xOffset - font.width(countdown), y, Color.WHITE.getRGB());
             }
+            y += font.lineHeight + 6;
 
-            // 追随者列表
-            int y = yOffset - font.lineHeight * 2 - 8;
+            // 3) 追随者列表（向下排）
             if (!data.followers.isEmpty()) {
                 for (int i = 0; i < data.followers.size(); i++) {
                     String rolePath = i < data.followerRoleIds.size() ? data.followerRoleIds.get(i) : "";
@@ -83,29 +92,43 @@ public abstract class LeaderHud {
                             displayRoleName(rolePath), name).withStyle(ChatFormatting.LIGHT_PURPLE);
                     guiGraphics.drawString(font, followerText, xOffset - font.width(followerText), y,
                             Color.WHITE.getRGB());
-                    y -= font.lineHeight + 2;
+                    y += font.lineHeight + 2;
                 }
             }
 
-            // 本能透视：靠近非杀手方中立的中立职业时，显示其职业名（类似杀手本能看杀手）
-            Component nearby = nearbyNeutralRoles(client);
-            if (nearby != null) {
-                guiGraphics.drawString(font, nearby, xOffset - font.width(nearby), y, Color.YELLOW.getRGB());
+            // ================= 屏幕中央偏下：准星指向的非杀手方中立职业名（不带玩家名） =================
+            Component aimed = aimedNeutralRole(client);
+            if (aimed != null) {
+                int cx = screenWidth / 2 - font.width(aimed) / 2;
+                int cy = (int) (screenHeight * 0.62);
+                guiGraphics.drawString(font, aimed, cx, cy, Color.YELLOW.getRGB());
             }
         });
     }
 
-    /** 找出靠近的非杀手方中立职业（含玩家名 + 职业名） */
+    /**
+     * 找出准星指向（距离范围内 + 视线夹角小于阈值）的非杀手方中立职业，
+     * 返回其职业名（支持自定义职业的自定义名称），不含玩家名。
+     */
     @Nullable
-    private static Component nearbyNeutralRoles(Minecraft client) {
+    private static Component aimedNeutralRole(Minecraft client) {
         Player self = client.player;
-        if (self == null || !(client.level != null)) {
+        if (self == null || client.level == null) {
+            return null;
+        }
+        // 拥有追随者后，靠近/指向非杀手方中立显示职业名的能力失效
+        LeaderRoleData selfData = getData(self);
+        if (selfData != null && !selfData.followers.isEmpty()) {
             return null;
         }
         var game = SREGameWorldComponent.KEY.get(self.level());
         if (game == null || !game.isRunning()) {
             return null;
         }
+        Vec3 look = self.getLookAngle();
+        Vec3 eye = self.getEyePosition(1.0F);
+        Player best = null;
+        double bestDot = Double.NEGATIVE_INFINITY;
         for (Player p : client.level.players()) {
             if (p == self || p.isSpectator() || p.isInvisible()) {
                 continue;
@@ -118,14 +141,21 @@ public abstract class LeaderHud {
                 continue;
             }
             // 非杀手方中立：中立但非杀手方
-            if (role.isNeutrals() && !role.isNeutralForKiller()) {
-                return Component.translatable("hud.noellesroles.leader.nearby_role",
-                        p.getDisplayName(),
-                        Component.translatable("announcement.star.role." + role.identifier().getPath()))
-                        .withStyle(ChatFormatting.YELLOW);
+            if (!(role.isNeutrals() && !role.isNeutralForKiller())) {
+                continue;
+            }
+            Vec3 toTarget = p.getBoundingBox().getCenter().subtract(eye).normalize();
+            double dot = look.dot(toTarget);
+            if (dot > bestDot) {
+                bestDot = dot;
+                best = p;
             }
         }
-        return null;
+        if (best == null || bestDot < Math.cos(Math.toRadians(AIM_ANGLE_DEGREES))) {
+            return null;
+        }
+        SRERole role = game.getRole(best);
+        return role == null ? null : role.getDisplayName();
     }
 
     @Nullable
@@ -133,11 +163,14 @@ public abstract class LeaderHud {
         return RoleData.getNullable(LeaderRoleData.class, player);
     }
 
-    /** 距「犹豫」死亡的剩余秒数（200 秒内未释放技能） */
+    /** 距「犹豫」死亡的剩余秒数（200 秒内未释放技能；安全时间不算作犹豫时间） */
     private static long remainingSeconds(Player player) {
         long start = SREGameTimeComponent.KEY.get(player.level()).startWorldTick;
         long elapsed = player.level().getGameTime() - start;
-        long remaining = 200 - elapsed / 20;
+        LeaderRoleData data = getData(player);
+        long safeTicks = data != null ? data.safeTimeTicks : 0;
+        long effective = Math.max(0, elapsed - safeTicks);
+        long remaining = 200 - effective / 20;
         return Math.max(0, remaining);
     }
 

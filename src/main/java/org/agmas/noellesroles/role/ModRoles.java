@@ -1370,7 +1370,7 @@ public class ModRoles {
      * </ul>
      */
     public static SRERole LEADER = TMMRoles
-            .registerRole(new LeaderRole(LEADER_ID, new Color(255, 215, 0).getRGB(), false,
+            .registerRole(new LeaderRole(LEADER_ID, new Color(255, 0, 255).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setRoleData(LeaderRoleData::new)
             .setCanBeRandomedByOtherRoles(false)
@@ -1378,21 +1378,39 @@ public class ModRoles {
             .setDefaultEnableNeededPlayerCount(18)
             .setDefaultEnableChance(3000)
             .setCanSeeCoin(true)
-            .setAllInstinctType(InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
+            .setCanUseInstinctAndNightVision(true)
+            // 只有本能开启时才透视；关闭时不显示任何颜色
+            .setToggledOffInstinctType(InstinctType.NONE)
+            .setToggledOnInstinctType(InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
                 if (target == null || targetRole == null) {
-                    return InstinctType.custom(new Color(255, 215, 0).getRGB());
+                    return InstinctType.custom(new Color(255, 0, 255).getRGB());
                 }
-                // 追随者 → 蓝色
                 LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, self);
-                if (data != null && data.isFollower(target.getUUID())) {
+                boolean isFollower = data != null && data.isFollower(target.getUUID());
+                boolean isNonKillerNeutral = targetRole.isNeutrals() && !targetRole.isNeutralForKiller();
+                boolean hasFollowers = data != null && !data.followers.isEmpty();
+                // 自己的追随者 → 蓝色（可无限距离透视）
+                if (isFollower) {
                     return InstinctType.custom(new Color(0, 0, 255).getRGB());
                 }
-                // 非杀手方中立（非追随者） → 黄色
-                if (targetRole.isNeutrals() && !targetRole.isNeutralForKiller()) {
+                // 有追随者时：不再额外显示其它非杀手方中立的特殊框
+                if (hasFollowers && isNonKillerNeutral) {
+                    return InstinctType.NONE;
+                }
+                double dist = self.distanceTo(target);
+                // 超出 10 格：仅当没有追随者时可无限透视非杀手方中立（黄色），其余不透视
+                if (dist > 10.0D) {
+                    if (!hasFollowers && isNonKillerNeutral) {
+                        return InstinctType.custom(new Color(255, 255, 0).getRGB());
+                    }
+                    return InstinctType.NONE;
+                }
+                // 10 格内
+                if (isNonKillerNeutral) {
                     return InstinctType.custom(new Color(255, 255, 0).getRGB());
                 }
                 // 其余（杀手、好人、杀手方中立、自己） → 领袖色
-                return InstinctType.custom(new Color(255, 215, 0).getRGB());
+                return InstinctType.custom(new Color(255, 0, 255).getRGB());
             }));
     public static SRERole TAMER = TMMRoles
             .registerRole(new NormalRole(TAMER_ID, new Color(210, 180, 140).getRGB(), true,
