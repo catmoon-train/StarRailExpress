@@ -32,7 +32,6 @@
     "item.FoodItemMixin",
     "item.ItemPickupProgressionMixin",
     "item.ItemStackMixin",
-    "item.ShieldMixin",
     "item.UseItemProgressionMixin",
     "network.NetworkReceiveStatisticsMixin",
     "network.NetworkStatisticsMixin",
