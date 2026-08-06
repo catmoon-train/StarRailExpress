@@ -15,5 +15,11 @@
 
 package io.wifi.starrailexpress.util;
 
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+
 public interface AdventureUsable {
+    default boolean canUseOn(UseOnContext context, ItemStack itemStack){
+        return true;
+    }
 }
