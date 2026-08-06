@@ -22,7 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
 public class PlayerJoinUtils {
-    private static final long WAITING_TIME = 100;
+    private static final long WAITING_TIME = 500;
 
     // 新增：5秒后位置检查的等待时间
     private static final long POSITION_CHECK_DELAY = 3000;
