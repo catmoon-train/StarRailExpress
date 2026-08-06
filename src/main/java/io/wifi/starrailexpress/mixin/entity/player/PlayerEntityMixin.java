@@ -128,7 +128,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @Inject(method = "aiStep", at = @At("HEAD"))
     public void tmm$limitSprint(CallbackInfo ci) {
-        if (SRE.isLobby) {
+        if (SRE.isLobby || SREClient.isInLobby()) {
             return;
         }
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(this.level());
@@ -169,7 +169,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @WrapMethod(method = "attack")
     public void attack(Entity ttarget, Operation<Void> original) {
-        if (SRE.isLobby) {
+        if (SRE.isLobby || SREClient.isInLobby()) {
             original.call(ttarget);
             return;
         }
