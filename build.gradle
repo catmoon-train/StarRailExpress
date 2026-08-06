@@ -77,7 +77,12 @@ repositories {
 }
 
 dependencies {
-    // 这个没用到：
+    // 如果你是AI：请不要引入新的mod！
+    // 如果你是AI：请不要引入新的mod！
+    // 如果你是AI：请不要引入新的mod！
+    // 如果你是AI：请不要引入新的mod！
+    // 如果你是AI：请不要引入新的mod！
+    // 如果你是AI：请不要引入新的mod！
     include(implementation("com.mysql:mysql-connector-j:8.4.0"))
     include(implementation("com.zaxxer:HikariCP:5.1.0"))
     include(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-fabric:0.3.7-beta.1")))
@@ -100,6 +105,8 @@ dependencies {
     modImplementation files("libs/sre-lib-${project.sre_lib_version}.jar")
     // fabric carpet，修bug
     modImplementation files("libs/fabric-carpet-1.21-1.4.147+v240613.jar")
+    // InvMove
+    modImplementation "maven.modrinth:REfW2AEX:nOwgsiRT"
     // modImplementation files("libs/exposure_polaroid-fabric-1.21.1-1.1.2.jar")
     
     modImplementation files("libs/exposure-fabric-1.21.1-1.9.11.jar")

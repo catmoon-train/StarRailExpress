@@ -78,24 +78,31 @@ public class PuppeteerBodyEntity extends LivingEntity {
         return this.persistenceRequired;
     }
 
+    /** 是否压制自定义名显示（傀儡师玩法默认压制；假人等子类可覆盖恢复）。 */
+    protected boolean suppressCustomName() {
+        return true;
+    }
+
     @Override
     public boolean hasCustomName() {
-        return false;
+        return !suppressCustomName() && super.hasCustomName();
     }
 
     @Override
     public void setCustomName(@Nullable Component component) {
-        return;
+        if (!suppressCustomName()) {
+            super.setCustomName(component);
+        }
     }
 
     @Override
     public boolean isCustomNameVisible() {
-        return false;
+        return !suppressCustomName() && super.isCustomNameVisible();
     }
 
     @Override
     public boolean shouldShowName() {
-        return false;
+        return !suppressCustomName() && super.shouldShowName();
     }
 
     public PuppeteerBodyEntity(EntityType<? extends LivingEntity> entityType, Level world) {
@@ -160,6 +167,11 @@ public class PuppeteerBodyEntity extends LivingEntity {
      */
     public GameProfile getSkinProfile() {
         return skinProfile;
+    }
+
+    /** 直接设置皮肤 GameProfile（假人系统等无所有者玩家的场景使用）。 */
+    public void setSkinProfile(GameProfile skinProfile) {
+        this.skinProfile = skinProfile;
     }
 
     /**

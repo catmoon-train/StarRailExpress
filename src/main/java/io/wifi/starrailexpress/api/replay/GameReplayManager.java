@@ -37,6 +37,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;

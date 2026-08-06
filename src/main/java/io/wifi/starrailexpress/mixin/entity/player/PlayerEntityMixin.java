@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.CocktailItem;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
@@ -94,7 +95,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @ModifyReturnValue(method = "getSpeed", at = @At("RETURN"))
     public float tmm$overrideMovementSpeed(float original) {
-        if (SRE.isLobby) {
+        if (SRE.isLobby || SREClient.isInLobby()) {
             return original;
         }
         final var player = (Player) (Object) this;
@@ -127,7 +128,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @Inject(method = "aiStep", at = @At("HEAD"))
     public void tmm$limitSprint(CallbackInfo ci) {
-        if (SRE.isLobby) {
+        if (SRE.isLobby || SREClient.isInLobby()) {
             return;
         }
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(this.level());
@@ -168,7 +169,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @WrapMethod(method = "attack")
     public void attack(Entity ttarget, Operation<Void> original) {
-        if (SRE.isLobby) {
+        if (SRE.isLobby || SREClient.isInLobby()) {
             original.call(ttarget);
             return;
         }
@@ -275,6 +276,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @Inject(method = "stopSleepInBed(ZZ)V", at = @At("HEAD"))
     private void tmm$poisonSleep(boolean skipSleepTimer, boolean updateSleepingPlayers, CallbackInfo ci) {
+        if (SRE.isLobby) {
+
+            return;
+        }
         if (this.poisonSleepTask != null) {
             this.poisonSleepTask.cancel();
             this.poisonSleepTask = null;
@@ -284,6 +289,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
     @Inject(method = "startSleepInBed", at = @At("TAIL"))
     private void tmm$poisonSleepMessage(BlockPos pos,
             CallbackInfoReturnable<Either<Player.BedSleepingProblem, Unit>> cir) {
+        if (SRE.isLobby) {
+
+            return;
+        }
         Player self = (Player) (Object) (this);
         if (cir.getReturnValue().right().isPresent() && self instanceof ServerPlayer serverPlayer) {
             if (this.poisonSleepTask != null)

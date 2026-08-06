@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.mixin.client.items;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import io.wifi.starrailexpress.SRE;
 import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,6 +25,9 @@ import org.spongepowered.asm.mixin.injection.At;
 public class ClientPlayerEntityMixin {
     @ModifyExpressionValue(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isUsingItem()Z"))
     public boolean tmm$disableItemSlowdown(boolean original) {
+        if (SRE.isLobby) {
+            return original;
+        }
         return false;
     }
 

@@ -16,7 +16,6 @@
 package io.wifi.mixins.cca;
 
 import net.minecraft.world.entity.Entity;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,7 +37,6 @@ public class MixinServerWorldMixin {
         }
         // 否则什么都不做
     }
-
     // 覆盖 CCA 的 tick 方法
     @TargetHandler(mixin = "org.ladysnake.cca.mixin.entity.common.MixinServerWorld", // 完整类名
             name = "tickRiding", prefix = "handler" // 目标方法名（最好带上描述符，但简单名也可以）

@@ -106,6 +106,7 @@ public class SRECommandRegister {
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher, registryAccess);
             net.exmo.sre.subtitle.SubtitleCommand.register(dispatcher, registryAccess);
             net.exmo.sre.camera.AdvancedCameraCommand.register(dispatcher);
+            net.exmo.sre.dummy.DummyCommand.register(dispatcher);
             // io.wifi.starrailexpress.contents.command.UnlockAllRolesCommand.register(dispatcher);
             StartCommand.register(dispatcher);
             StopCommand.register(dispatcher);

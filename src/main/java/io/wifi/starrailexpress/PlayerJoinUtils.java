@@ -19,19 +19,26 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 
 public class PlayerJoinUtils {
     private static final long WAITING_TIME = 100;
+
+    // 新增：5秒后位置检查的等待时间
+    private static final long POSITION_CHECK_DELAY = 3000;
 
     public static record NewPlayerInfo(UUID player, long joinTime) {
     }
 
     private static final ConcurrentHashMap<UUID, Long> pendingJoins = new ConcurrentHashMap<>();
+    // 新增：用于5秒后位置检查的记录
+    private static final ConcurrentHashMap<UUID, Long> positionCheckPending = new ConcurrentHashMap<>();
 
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(PlayerJoinUtils::tick);
         OnGameInitialized.EVENT.register((t) -> {
             pendingJoins.clear();
+            positionCheckPending.clear(); // 清空新map
         });
     }
 
@@ -39,10 +46,12 @@ public class PlayerJoinUtils {
 
         GameReplayManager.playerNames.put(serverPlayer.getUUID(), serverPlayer.getScoreboardName());
 
-        PlayerJoinUtils.adjustPlayerPosition(serverPlayer);
+        adjustPlayerPosition(serverPlayer);
+
         SyncMapConfigPayload.sendToPlayer(serverPlayer);
         SREGameWorldComponent.KEY.syncWith(serverPlayer, (ComponentProvider) serverPlayer.level());
         pendingJoins.put(serverPlayer.getUUID(), System.currentTimeMillis());
+        positionCheckPending.put(serverPlayer.getUUID(), System.currentTimeMillis());
     }
 
     public static void tick(MinecraftServer server) {
@@ -60,6 +69,57 @@ public class PlayerJoinUtils {
                 it.remove(); // 安全删除
             }
         }
+
+        // 新增：5秒后位置合法性检查
+        Iterator<Map.Entry<UUID, Long>> checkIt = positionCheckPending.entrySet().iterator();
+        while (checkIt.hasNext()) {
+            Map.Entry<UUID, Long> entry = checkIt.next();
+            UUID uuid = entry.getKey();
+            long joinTime = entry.getValue();
+            if (now - joinTime >= POSITION_CHECK_DELAY) {
+                ServerPlayer player = server.getPlayerList().getPlayer(uuid);
+                if (player != null) {
+                    // 检查位置是否合法，不合法则传回出生点
+                    if (!isPlayerPositionValid(player)) {
+                        adjustPlayerPosition(player);
+                    }
+                }
+                checkIt.remove();
+            }
+        }
+    }
+
+    /**
+     * 判断玩家当前位置是否合法
+     * 
+     * @param player 待检查的玩家
+     * @return
+     */
+    private static boolean isPlayerPositionValid(ServerPlayer player) {
+        Vec3 playerPos = player.position();
+        final var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+
+        // MapVotingComponent mapVotingComponent =
+        // MapVotingComponent.KEY.get(serverPlayer.level());
+        // if (mapVotingComponent.isVotingActive()){
+        // if (TMMConfig.mapRandomCount!=-1){
+        // ServerPlayNetworking.send(serverPlayer, new ShowSelectedMapUIPayload(true));
+        // }
+        // }
+        if (gameWorldComponent.getGameStatus() == GameStatus.ACTIVE) {
+            if (player.isSpectator())
+                return true;
+            return false;
+        }
+        final ServerLevel serverWorld = player.serverLevel();
+
+        BlockPos spawn = serverWorld.getSharedSpawnPos();
+        if (spawn.getX() - 200 < playerPos.x && playerPos.x < spawn.getX() + 200) {
+            if (spawn.getZ() - 200 < playerPos.z && playerPos.z < spawn.getZ() + 200) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void adjustPlayerPosition(ServerPlayer serverPlayer) {
@@ -83,7 +143,7 @@ public class PlayerJoinUtils {
 
             }
         } else {
-            if (serverPlayer.level() instanceof ServerLevel serverWorld) {
+            if (serverPlayer.serverLevel() instanceof ServerLevel serverWorld) {
                 BlockPos spawn = serverWorld.getSharedSpawnPos();
                 float angle = serverWorld.getSharedSpawnAngle();
                 serverPlayer.teleportTo(serverWorld, spawn.getX(), spawn.getY(),
