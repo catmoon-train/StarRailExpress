@@ -129,6 +129,11 @@ public final class LeaderEventHandler {
                 }
                 return false;
             }
+            // 追随者初学者：免疫「考核失败」死亡（考核失败的代价由领袖承受）
+            if (GameConstants.DeathReasons.FAILED_INITIATION.equals(deathReason)
+                    && LeaderFollowerEffects.isFollowerOfLeader(sp)) {
+                return false;
+            }
             return true;
         });
 

@@ -1343,6 +1343,7 @@
   "hud.noellesroles.leader.countdown": "距犹豫死亡还有 %s 秒",
   "hud.noellesroles.leader.follower": "追随者：%s %s",
   "hud.noellesroles.leader.nearby_role": "%s：%s",
+  "message.noellesroles.leader.entry": "你感受到了一股凝聚力",
   "message.noellesroles.leader.follower_joined": "%s%s已成为你的追随者",
   "message.noellesroles.leader.mercenary_unlocked": "雇佣兵现在可以『帮助』任意一方结束游戏",
   "message.noellesroles.leader.thief_coin": "领袖 %s 击杀了一名玩家，你获得了 100 金币",

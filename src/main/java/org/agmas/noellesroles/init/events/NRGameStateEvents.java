@@ -239,7 +239,7 @@ public class NRGameStateEvents {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             boolean hasDio = false, hasRecorder = false, hasCandlebearer = false, hasRaven = false;
             boolean hasNianShou = false, hasArsonist = false, hasCuckoo = false, hasPelican = false,
-                    hasGodfather = false;
+                    hasGodfather = false, hasLeader = false;
             final var all_players = serverLevel.players();
 
             for (var p : all_players) {
@@ -271,6 +271,8 @@ public class NRGameStateEvents {
                     hasPelican = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.GODFATHER)) {
                     hasGodfather = true;
+                } else if (gameWorldComponent.isRole(p, ModRoles.LEADER)) {
+                    hasLeader = true;
                 }
             }
 
@@ -328,6 +330,14 @@ public class NRGameStateEvents {
                     if (p != null) {
                         BroadcastCommand.BroadcastMessage(p, Component
                                 .translatable("message.noellesroles.pelican.entry").withStyle(ChatFormatting.YELLOW));
+                    }
+                });
+            }
+            if (hasLeader) {
+                all_players.forEach((p) -> {
+                    if (p != null) {
+                        BroadcastCommand.BroadcastMessage(p, Component
+                                .translatable("message.noellesroles.leader.entry").withStyle(ChatFormatting.YELLOW));
                     }
                 });
             }

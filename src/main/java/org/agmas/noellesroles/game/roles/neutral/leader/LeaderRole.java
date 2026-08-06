@@ -60,13 +60,19 @@ public class LeaderRole extends CustomWinnerRole {
         }
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(player.level());
-        for (UUID followerId : data.followers) {
+        for (int i = 0; i < data.followers.size(); i++) {
+            UUID followerId = data.followers.get(i);
+            String originalRolePath = i < data.followerRoleIds.size() ? data.followerRoleIds.get(i) : "";
             ServerPlayer follower = player.serverLevel().getServer().getPlayerList().getPlayer(followerId);
             if (follower == null) {
                 continue;
             }
             SRERole fr = game.getRole(follower);
             if (fr == null) {
+                continue;
+            }
+            // 初学者追随者一旦转职（不再是初学者），领袖不再随其获胜
+            if (originalRolePath.equals("initiate") && !fr.identifier().getPath().equals("initiate")) {
                 continue;
             }
             // 森近霖之助 / 河城荷取：金币依附（任意胜利，非独立）

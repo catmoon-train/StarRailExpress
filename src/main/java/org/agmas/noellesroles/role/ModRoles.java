@@ -1376,6 +1376,7 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(18)
+            .setDefaultEnableChance(3000)
             .setCanSeeCoin(true)
             .setAllInstinctType(InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
                 if (target == null || targetRole == null) {

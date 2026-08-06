@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.neutral.leader;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -25,10 +26,13 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
@@ -49,6 +53,8 @@ import org.agmas.noellesroles.role_data.leader.LeaderRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -175,6 +181,7 @@ public final class LeaderFollowerEffects {
             case "thief" -> applyThief(leader, follower);
             case "pelican" -> applyPelican(leader, follower);
             case "initiate" -> applyInitiate(leader, follower);
+            case "amnesiac" -> applyAmnesiac(leader, follower);
             case "arsonist" -> applyArsonist(leader, follower);
             case "morichika_rinnosuke", "kawashiro_nitori" -> applyCoinDependent(leader, follower);
             case "furandoru" -> applyFurandoru(leader, follower);
@@ -337,9 +344,22 @@ public final class LeaderFollowerEffects {
         comp.sync();
     }
 
-    /** 初学者：其它初学者也自动成为追随者（由技能释放逻辑处理）；不再考核失败死；转型→领袖死 */
+    /** 初学者：其它初学者也自动成为追随者（由技能释放逻辑处理）；不再考核失败死；转型→领袖死；领袖得刀 */
     private static void applyInitiate(ServerPlayer leader, ServerPlayer follower) {
-        // 联动逻辑见 LeaderEventHandler / 技能释放处（其它初学者加入追随者）
+        giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
+        // 其它联动逻辑见 LeaderEventHandler / 技能释放处（其它初学者加入追随者）
+    }
+
+    /** 失忆患者：随机变成一名杀手（berandomedbyotherroles 职业除外）；领袖得刀；领袖随杀手获胜 */
+    private static void applyAmnesiac(ServerPlayer leader, ServerPlayer follower) {
+        ArrayList<SRERole> killerRoles = new ArrayList<>(Noellesroles.getEnableKillerRoles());
+        if (killerRoles.isEmpty()) {
+            killerRoles.add(TMMRoles.KILLER);
+        }
+        Collections.shuffle(killerRoles);
+        RoleUtils.changeRole(follower, killerRoles.getFirst());
+        RoleUtils.sendWelcomeAnnouncement(follower);
+        giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
     }
 
     /** 纵火犯：打火机目标 -2 人 */
@@ -431,6 +451,11 @@ public final class LeaderFollowerEffects {
 
         // 释放成功：标记技能已用
         data.markSkillUsed();
+
+        // 全场播放音效（MASTER 类型）
+        for (ServerPlayer p : leader.serverLevel().getServer().getPlayerList().getPlayers()) {
+            p.playNotifySound(SoundEvents.TRIAL_SPAWNER_DETECT_PLAYER, SoundSource.MASTER, 1.0F, 1.0F);
+        }
 
         // 招募目标为追随者
         data.addFollower(target, path);

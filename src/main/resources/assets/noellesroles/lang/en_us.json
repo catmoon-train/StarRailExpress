@@ -1274,6 +1274,7 @@
   "hud.noellesroles.leader.countdown": "%s seconds until Hesitation death",
   "hud.noellesroles.leader.follower": "Follower: %s %s",
   "hud.noellesroles.leader.nearby_role": "%s: %s",
+  "message.noellesroles.leader.entry": "You feel a sense of cohesion",
   "message.noellesroles.leader.follower_joined": "%s%s has become your follower",
   "message.noellesroles.leader.mercenary_unlocked": "The Mercenary can now 'help' any side end the game",
   "message.noellesroles.leader.thief_coin": "Leader %s killed a player, you received 100 coins",
