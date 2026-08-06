@@ -48,11 +48,12 @@ public abstract class WorldRendererMixin {
     public void tmm$applyBlizzardFog(Camera camera, FogRenderer.FogMode fogType, float viewDistance, boolean thickFog,
             float tickDelta, Operation<Void> original) {
         if (SREClient.isInLobby) {
-            tmm$doFog(0, 200);
             return;
         }
         if (SREClient.shouldRenderVanillaHud()) {
-            original.call(camera, fogType, viewDistance, thickFog, tickDelta);
+            if (SREClient.isGameRunning()) {
+                original.call(camera, fogType, viewDistance, thickFog, tickDelta);
+            }
             return;
         }
         LocalPlayer player = Minecraft.getInstance().player;
@@ -85,7 +86,7 @@ public abstract class WorldRendererMixin {
                         tmm$doFog(0, 7);
                         return;
                     }
-                    // 如果地图未自定义 fogEnd（仍是默认200），则使用原默认值100
+                    // 如果地图未自定义 fogEnd，则使用原默认值100
                     tmm$doFog(0,
                             SREClient.areaComponent.areasSettings.fogEnd,
                             SREClient.areaComponent.areasSettings.fogShape);
