@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "org.agmas.noellesroles.client.NRMixinPlugin",
   "mixins": [
+    "LivingEntityAccessor",
     "AbstractContainerMenuMixin",
     "DecServerJoinPlayer",
     "EntityMixinForInvisible",
@@ -81,7 +82,6 @@
     "defaultRequire": 1
   },
   "client": [
-    "LivingEntityAccessor",
     "client.compat.inv_move.InvMoveBaned",
     "client.AbstractClientPlayerSkinMixin",
     "client.C4ItemEntityRendererMixin",
