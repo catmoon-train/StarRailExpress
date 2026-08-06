@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -378,9 +379,11 @@ public final class LeaderFollowerEffects {
         giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
     }
 
-    /** 其它非杀手方中立：追随者永久速度 1 */
+    /** 其它非杀手方中立：追随者永久速度 1；双方各得 150 金币 */
     private static void applyGeneric(ServerPlayer leader, ServerPlayer follower) {
         permanentEffect(follower, MobEffects.MOVEMENT_SPEED, 0);
+        SREPlayerShopComponent.KEY.get(leader).addToBalance(150);
+        SREPlayerShopComponent.KEY.get(follower).addToBalance(150);
     }
 
     // ==================== 工具方法 ====================
