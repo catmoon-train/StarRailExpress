@@ -8,32 +8,36 @@
 package net.exmo.sre.dummy;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ClientInformation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.level.GameType;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.init.ModEntities;
 
 /**
- * 假人实体（傀儡玩家）：拥有真实皮肤的假玩家，客户端无需任何模组即可渲染。
- * 通过空连接接入玩家列表，由服务端驱动，可配置无敌。
+ * 假人实体：直接复用已注册的 {@link PuppeteerBodyEntity}（玩家模型 + 皮肤渲染），
+ * 不注册新实体类型。通过持久化标记跳过傀儡师游戏规则（不自动消失、不检查所有者），
+ * 支持任意皮肤玩家名、头顶展示名与无敌开关，客户端无需模组即可渲染。
  */
-public class DummyEntity extends ServerPlayer {
+public class DummyEntity extends PuppeteerBodyEntity {
 
-    public Runnable fixStartingPosition = () -> {
-    };
     /** 皮肤来源玩家名（用于重生时重新拉取皮肤）。 */
     private final String skinOwner;
     /** 展示名（头顶名字）。 */
     private final String label;
+    /** 是否无敌。 */
+    private final boolean invincible;
 
-    public DummyEntity(MinecraftServer server, ServerLevel level, GameProfile profile, String skinOwner, String label) {
-        super(server, level, profile, ClientInformation.createDefault());
+    public DummyEntity(Level level, GameProfile skinProfile, String skinOwner, String label, boolean invincible) {
+        super(ModEntities.PUPPETEER_BODY, level);
         this.skinOwner = skinOwner;
         this.label = label;
+        this.invincible = invincible;
+        this.setSkinProfile(skinProfile);
+        this.setPersistenceRequired(); // 跳过游戏结束/存活时间/所有者检查，永不自动消失
+        this.setCustomName(Component.literal(label));
+        this.setCustomNameVisible(true);
     }
 
     public String skinOwner() {
@@ -44,45 +48,32 @@ public class DummyEntity extends ServerPlayer {
         return this.label;
     }
 
-    /** 把假人接入服务器玩家列表（必须在主线程调用）。 */
-    public void joinServer(ServerLevel level, double x, double y, double z, float yaw, float pitch) {
-        MinecraftServer server = this.server;
-        this.fixStartingPosition = () -> this.moveTo(x, y, z, yaw, pitch);
-        server.getPlayerList().placeNewPlayer(
-            new FakeClientConnection(PacketFlow.SERVERBOUND), this,
-            new CommonListenerCookie(this.getGameProfile(), 0, this.clientInformation(), false));
-        this.teleportTo(level, x, y, z, yaw, pitch);
-        this.setHealth(20.0F);
-        this.getFoodData().setFoodLevel(20);
-        this.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+    public boolean invincible() {
+        return this.invincible;
+    }
+
+    // ── 恢复头顶名字显示（父类为傀儡师玩法压制了自定义名） ──────────────────
+
+    @Override
+    protected boolean suppressCustomName() {
+        return false;
+    }
+
+    // ── 无敌 ──────────────────────────────────────────────────────────────
+
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if (this.invincible && !source.is(DamageTypes.FELL_OUT_OF_WORLD) && !source.is(DamageTypes.GENERIC_KILL)) {
+            return false;
+        }
+        return super.hurt(source, amount);
     }
 
     @Override
-    public void tick() {
-        if (this.level().getServer().getTickCount() % 10 == 0) {
-            this.connection.resetPosition();
-            ((net.minecraft.server.level.ServerChunkCache) this.level().getChunkSource()).move(this);
+    public boolean isInvulnerableTo(DamageSource source) {
+        if (this.invincible && !source.is(DamageTypes.FELL_OUT_OF_WORLD)) {
+            return true;
         }
-        try {
-            super.tick();
-        } catch (NullPointerException ignored) {
-            // 假人没有真实连接，部分网络字段为空属正常
-        }
-        if (this.fixStartingPosition != null) {
-            this.fixStartingPosition.run();
-            this.fixStartingPosition = null;
-        }
-    }
-
-    @Override
-    public void die(DamageSource source) {
-        super.die(source);
-        // 假人死亡后立即原地满血复活（除非是移除操作）
-        this.setHealth(20.0F);
-    }
-
-    @Override
-    public void kill() {
-        this.discard();
+        return super.isInvulnerableTo(source);
     }
 }

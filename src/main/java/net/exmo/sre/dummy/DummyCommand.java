@@ -65,7 +65,7 @@ public final class DummyCommand {
                         for (DummyEntity dummy : DummyManager.all()) {
                             ctx.getSource().sendSuccess(() -> Component.literal(
                                 "§a" + dummy.label() + " §7(皮肤: " + dummy.skinOwner()
-                                    + (dummy.isInvulnerable() ? ", 无敌" : "") + ")"), false);
+                                    + (dummy.invincible() ? ", 无敌" : "") + ")"), false);
                         }
                     }
                     return DummyManager.all().size();

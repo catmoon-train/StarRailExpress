@@ -56,6 +56,14 @@ public final class DummyManager {
         DUMMIES.clear();
         RECORDS.clear();
         RECORDS.addAll(loadRecords());
+        // 清理世界存档里残留的假人实体（假人由存档记录统一管理重生，避免重复）
+        for (ServerLevel level : server.getAllLevels()) {
+            for (var entity : level.getAllEntities()) {
+                if (entity instanceof DummyEntity) {
+                    entity.discard();
+                }
+            }
+        }
         // 逐个重生持久化的假人（皮肤异步拉取，逐个接入主线程）
         for (DummyRecord record : new ArrayList<>(RECORDS)) {
             ServerLevel level = findLevel(record.world());
@@ -118,17 +126,18 @@ public final class DummyManager {
                 }
             }
             final GameProfile finalProfile = display;
+            final boolean finalInvincible = invincible;
             server.execute(() -> {
                 DummyEntity old = DUMMIES.remove(name);
                 if (old != null) {
                     old.discard();
                 }
-                DummyEntity dummy = new DummyEntity(server, level, finalProfile, skinOwner, name);
-                dummy.setInvulnerable(invincible);
-                dummy.joinServer(level, pos.x, pos.y, pos.z, yaw, pitch);
+                DummyEntity dummy = new DummyEntity(level, finalProfile, skinOwner, name, finalInvincible);
+                dummy.moveTo(pos.x, pos.y, pos.z, yaw, pitch);
+                level.addFreshEntity(dummy);
                 DUMMIES.put(name, dummy);
                 if (persist) {
-                    upsertRecord(new DummyRecord(name, skinOwner, invincible,
+                    upsertRecord(new DummyRecord(name, skinOwner, finalInvincible,
                         level.dimension().location().toString(), pos.x, pos.y, pos.z, yaw, pitch));
                     saveRecordsAsync();
                 }
@@ -165,7 +174,7 @@ public final class DummyManager {
         ServerLevel level = (ServerLevel) dummy.level();
         Vec3 pos = dummy.position();
         float yaw = dummy.getYRot();
-        boolean invincible = dummy.isInvulnerable();
+        boolean invincible = dummy.invincible();
         remove(label);
         spawn(level, pos, yaw, dummy.getXRot(), newSkinOwner, label, invincible, true);
     }
