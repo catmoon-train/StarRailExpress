@@ -48,7 +48,7 @@ public abstract class WorldRendererMixin {
     public void tmm$applyBlizzardFog(Camera camera, FogRenderer.FogMode fogType, float viewDistance, boolean thickFog,
             float tickDelta, Operation<Void> original) {
         if (SREClient.isInLobby) {
-            original.call(camera, fogType, viewDistance, thickFog, tickDelta);
+            tmm$doFog(0, 200);
             return;
         }
         if (SREClient.shouldRenderVanillaHud()) {
