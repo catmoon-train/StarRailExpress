@@ -81,8 +81,7 @@
     "defaultRequire": 1
   },
   "client": [
-    "client.InvMoveBaned",
-
+    "client.compat.inv_move.InvMoveBaned",
     "LivingEntityAccessor",
     "client.AbstractClientPlayerSkinMixin",
     "client.C4ItemEntityRendererMixin",

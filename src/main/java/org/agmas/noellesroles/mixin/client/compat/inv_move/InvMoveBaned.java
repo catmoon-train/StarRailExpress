@@ -1,4 +1,4 @@
-package org.agmas.noellesroles.mixin.client;
+package org.agmas.noellesroles.mixin.client.compat.inv_move;
 
 import io.wifi.starrailexpress.client.SREClient;
 import me.pieking1215.invmove.InvMove;

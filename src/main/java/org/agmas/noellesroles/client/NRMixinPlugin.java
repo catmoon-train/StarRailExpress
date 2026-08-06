@@ -40,6 +40,10 @@ public class NRMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.endsWith("LamBugFix") && !IS_LAMBDYNLIGHTS_LOADED) {
             return false;
         }
+        if (!FabricLoader.getInstance().isModLoaded("invmove")) {
+            if (mixinClassName.contains("org.agmas.noellesroles.mixin.client.compat.inv_move"))
+                return false;
+        }
         return true;
     }
 
