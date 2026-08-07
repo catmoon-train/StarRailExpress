@@ -130,13 +130,14 @@ public class TouhouHandlers {
           return;
         }
         MCItemsUtils.clearItem(victim, (item) -> !item.is(TMMItems.LETTER) && !item.is(TMMItems.KEY));
-        RoleUtils.changeRole(victim, THRedHouseRoles.REMILIA_BLOOD_SERVANT);
-        DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(victim);
-        component.triggerDeath(30 * 20, null, victim.position());
-
         victim.displayClientMessage(Component.translatable("hud.noellesroles.remilia.victim", killer.getName()), true);
         killer.displayClientMessage(Component.translatable("hud.noellesroles.remilia.success", victim.getName(),
             RoleUtils.getPlayerRoleName(victim, true)).withStyle(ChatFormatting.GREEN), true);
+        RoleUtils.changeRole(victim, THRedHouseRoles.REMILIA_BLOOD_SERVANT);
+
+        DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(victim);
+        component.triggerDeath(30 * 20, null, victim.position());
+
         cdcca.setCooldown(THRemiliaRole.COOLDOWN_TICKS);
       }
     });
