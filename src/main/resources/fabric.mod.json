@@ -238,7 +238,8 @@
       "noellesroles:doomed_sinner",
       "noellesroles:ghost_eye",
       "noellesroles:return_traveler",
-      "noellesroles:voice_changer"
+      "noellesroles:voice_changer",
+      "noellesroles:missionary"
     ],
     "loom:injected_interfaces": {
       "net/minecraft/class_5483/class_5496": [

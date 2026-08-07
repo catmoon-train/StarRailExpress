@@ -453,6 +453,7 @@
   "morphling.dummy.cooldown": "Knife dummy cooldown, %s seconds remaining",
   "morphling.dummy.ready": "Knife dummy ready",
   "hud.morphling.player_selection": "Select player to morph into",
+  "hud.missionary.player_selection": "Select a target to preach to",
   "message.swapper.failed.died": "Cannot swap %s, they are already dead.",
   "hud.swapper.first_player_selection": "Select first player to swap",
   "hud.swapper.second_player_selection": "Select second player to swap",
