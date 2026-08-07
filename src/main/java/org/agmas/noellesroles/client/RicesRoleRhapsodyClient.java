@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.content.item.map_dev.MapBuildHelperItem;
 import io.wifi.starrailexpress.customrole.CustomRoleScreen;
 import io.wifi.starrailexpress.customrole.CustomRoleToolItem;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -497,6 +498,27 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
                                 component.cooldown / 20),
                         true);
             }
+            return true;
+        }
+
+        // ==================== 玉将军：飞踢技能（释放后清空自身体力条） ====================
+        if (gameWorld.isRole(client.player, ModRoles.JADE_GENERAL)) {
+            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
+                return true;
+
+            if (abilityComponent.cooldown > 0) {
+                client.player.displayClientMessage(
+                        net.minecraft.network.chat.Component.translatable("hud.jade_general.cooldown",
+                                String.format("%.1f", abilityComponent.cooldown / 20.0)),
+                        true);
+                return true;
+            }
+            // 客户端镜像清空体力：sprintingTicks 两端各自独立计算且没有同步包，
+            // 只在服务端清空会让客户端 HUD 体力条纹丝不动（与 ZiplineBlock 同款处理）
+            if (client.player instanceof PlayerStaminaGetter stamina) {
+                stamina.starrailexpress$setStamina(0f);
+            }
+            ClientPlayNetworking.send(new AbilityC2SPacket());
             return true;
         }
 
