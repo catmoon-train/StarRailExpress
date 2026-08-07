@@ -24,7 +24,7 @@ public class CreativeNoFogMixin {
             ci.cancel();
             // 手动设置雾为“无雾”：距离极大，颜色沿用当前水平
             FogRenderer.levelFogColor(); // 设置颜色为当前维度颜色
-            RenderSystem.setShaderFogStart(2000); // 或一个极大值，比如 100000
+            RenderSystem.setShaderFogStart(800); // 或一个极大值，比如 100000
             RenderSystem.setShaderFogEnd(Float.MAX_VALUE);
             RenderSystem.setShaderFogShape(FogShape.CYLINDER);
         }
