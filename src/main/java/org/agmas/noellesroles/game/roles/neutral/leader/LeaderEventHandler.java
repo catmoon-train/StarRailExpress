@@ -33,7 +33,8 @@ import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerCompon
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role_data.leader.LeaderRoleData;
+import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
+
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.agmas.noellesroles.utils.RoleUtils;
 

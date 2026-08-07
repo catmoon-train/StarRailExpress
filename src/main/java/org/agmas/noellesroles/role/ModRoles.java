@@ -97,7 +97,6 @@ import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayer
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
 import org.agmas.noellesroles.game.roles.neutral.leader.LeaderRole;
-import org.agmas.noellesroles.role_data.leader.LeaderRoleData;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterHandler;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
@@ -114,6 +113,7 @@ import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilant
 import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
 import org.agmas.noellesroles.role_data.vigilante.LeonRoleData;
 import org.agmas.noellesroles.utils.RandomColorUtil;
 import org.agmas.noellesroles.utils.RoleUtils;

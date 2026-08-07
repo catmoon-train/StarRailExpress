@@ -50,7 +50,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.ModMeetingRoles;
 import org.agmas.noellesroles.role.touhou.MountainRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
-import org.agmas.noellesroles.role_data.leader.LeaderRoleData;
+import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 

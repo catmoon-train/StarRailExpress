@@ -26,9 +26,10 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import org.agmas.noellesroles.role_data.leader.LeaderRoleData;
 
 import java.util.UUID;
+
+import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
 
 /**
  * 领袖（Leader）职业。

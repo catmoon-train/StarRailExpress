@@ -32,7 +32,7 @@ import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
  * when a player is killed. All listener return values are summed to produce the
  * final amount.
  */
-public interface OnDeathWithBody {
+public interface OnPlayerDeathWithBody {
 
     /**
      * 计算击杀者金币奖励的事件。
@@ -49,10 +49,10 @@ public interface OnDeathWithBody {
      *
      * @see io.wifi.starrailexpress.game.GameConstants.DeathReasons
      */
-    Event<OnDeathWithBody> EVENT = createArrayBacked(OnDeathWithBody.class,
+    Event<OnPlayerDeathWithBody> EVENT = createArrayBacked(OnPlayerDeathWithBody.class,
             listeners -> (victim, killer, deathReason, body) -> {
-                for (OnDeathWithBody listener : listeners) {
-                   listener.onDeathWithBody(victim, killer, deathReason,body);
+                for (OnPlayerDeathWithBody listener : listeners) {
+                    listener.onDeathWithBody(victim, killer, deathReason, body);
                 }
             });
 
@@ -69,5 +69,5 @@ public interface OnDeathWithBody {
      * @return 应给予击杀者的金币数量（将与其他监听器结果累加）/
      *         the balance amount to award (summed with other listeners' results)
      */
-    void onDeathWithBody(Player victim, Player killer, ResourceLocation deathReason,PlayerBodyEntity body);
+    void onDeathWithBody(Player victim, Player killer, ResourceLocation deathReason, PlayerBodyEntity body);
 }

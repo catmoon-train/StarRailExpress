@@ -710,7 +710,7 @@ public abstract class GameMode {
                 if (spawnBody) {
                     PlayerBodyEntity body = GameUtils.spawnBodyEntity(victim, killer, victimRole, deathReason);
                     victimRole.onDeathWithBody(victim, spawnBody, killer, deathReason, body);
-                    OnDeathWithBody.EVENT.invoker().onDeathWithBody(victim, killer, deathReason, body);
+                    OnPlayerDeathWithBody.EVENT.invoker().onDeathWithBody(victim, killer, deathReason, body);
                 }
             }
 

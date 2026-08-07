@@ -75,6 +75,7 @@ import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.MountainRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
+import org.agmas.noellesroles.role_data.neutral.RemiliaBloodServantRoleData;
 import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
 import org.agmas.noellesroles.utils.MessageDetail;
 
@@ -260,6 +261,40 @@ public class CommonClientHudRenderer {
   }
 
   public static void registerSons() {
+    RoleHudRenderCallback.EVENT.register(THRedHouseRoles.REMILIA_ID, (context, tickCounter) -> {
+      var client = Minecraft.getInstance();
+      var cca = SREAbilityPlayerComponent.KEY.get(client.player);
+      final var font = client.font;
+
+      int screenHeight = client.getWindow().getGuiScaledHeight();
+      int x = 10;
+      int y = screenHeight - 20;
+      Component killsText;
+      if (cca.cooldown > 0) {
+        killsText = Component.translatable("hud.noellesroles.remilia.cd",
+            String.format("%.1f", cca.getCooldownSeconds())).withStyle(ChatFormatting.RED);
+      } else {
+        killsText = Component.translatable("hud.noellesroles.remilia.ready").withStyle(ChatFormatting.GREEN);
+      }
+
+      context.drawString(font, killsText, x - font.width(killsText), y, 0xffffffff);
+    });
+    RoleHudRenderCallback.EVENT.register(THRedHouseRoles.REMILIA_BLOOD_SERVANT_ID, (context, tickCounter) -> {
+      var client = Minecraft.getInstance();
+      var roleData = RoleData.getNullable(RemiliaBloodServantRoleData.class, client.player);
+      if (roleData == null)
+        return;
+      final var font = client.font;
+      int screenHeight = client.getWindow().getGuiScaledHeight();
+      int x = 10;
+      int y = screenHeight - 20;
+      if (roleData.ticks > 0) {
+        Component killsText;
+        killsText = Component.translatable("hud.noellesroles.remilia_servant.alive",
+            String.format("%.1f", roleData.ticks / 20f)).withStyle(ChatFormatting.RED);
+        context.drawString(font, killsText, x - font.width(killsText), y, 0xffffffff);
+      }
+    });
     RoleHudRenderCallback.EVENT.register(ModRoles.STALKER_ID, (context, tickCounter) -> {
       var client = Minecraft.getInstance();
       // 获取跟踪者组件

@@ -402,7 +402,7 @@ public class TraitorAndModifiers {
     }
 
     private static void registerDeathEvents() {
-        OnDeathWithBody.EVENT.register((victim, killer, deathReason, body) -> {
+        OnPlayerDeathWithBody.EVENT.register((victim, killer, deathReason, body) -> {
             // 检查腐化修饰符 - 腐化尸体会直接显示为骷髅
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(victim.level());
             if (modifiers.isModifier(victim.getUUID(), TraitorAndModifiers.CORRUPTED)) {

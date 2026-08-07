@@ -15,28 +15,26 @@
 
 package org.agmas.noellesroles.role.touhou;
 
-import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
-import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.handler.THEventHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.roles.*;
+import org.agmas.noellesroles.role_data.neutral.RemiliaBloodServantRoleData;
 import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
 
 import java.awt.*;
@@ -83,29 +81,32 @@ public class THRedHouseRoles {
       }, "th_redhouse").setCanAcrossFog(true).setMoodColor((t) -> new Color(t.getColor()));
   // 杀手：蕾米莉亚
   public static SRERole REMILIA = TMMRoles.registerRole(
-      new TouhouRole(REMILIA_ID, new Color(113, 98, 121).getRGB(),
+      new THRemiliaRole(REMILIA_ID, new Color(113, 98, 121).getRGB(),
           false, true, SRERole.MoodType.FAKE,
-          Integer.MAX_VALUE, true) {
-        @Override
-        public InteractionResult rightClickEntity(Player player, Entity target) {
-          if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player))
-            return InteractionResult.PASS;
-          if (target instanceof PlayerBodyEntity be
-              && !org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(be)) {
-            PlayerBodyEntityComponent bdrc = PlayerBodyEntityComponent.KEY.get(be);
-            bdrc.playerRole = THEventHandler.getRandomRole().identifier();
-            bdrc.sync();
-            be.setDeathReason(THEventHandler.getRandomDeathReason());
-          }
-          return InteractionResult.PASS;
-        }
-
-        @Override
-        public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
-          return SRE.id("textures/entity/custom_psycho/remilia.png");
-        }
-      }, "th_redhouse")
-      .setCanSeeCoin(true).setCanSeeBodyDeathReason(true).setCanSeeBodyRoleInfo(true).setCanSeeBodyKiller(true);
+          Integer.MAX_VALUE, true),
+      "th_redhouse")
+      .setCanSeeCoin(true)
+      .setCanSeeBodyDeathReason(true)
+      .setCanSeeBodyRoleInfo(true)
+      .setCanSeeBodyKiller(true)
+      .setDefaultEnableChance(3000);
+  // 蕾米莉亚的仆从
+  // remilia_blood_servant
+  public static ResourceLocation REMILIA_BLOOD_SERVANT_ID = id("remilia_blood_servant");
+  public static SRERole REMILIA_BLOOD_SERVANT = TMMRoles.registerRole(
+      new THRemiliaServantRole(REMILIA_BLOOD_SERVANT_ID, new Color(113, 98, 121).getRGB(),
+          false, false, SRERole.MoodType.FAKE,
+          Integer.MAX_VALUE, true))
+      .setCanBeRandomedByOtherRoles(false)
+      .setNeutralForKiller(true)
+      .setDefaultMax(0)
+      .setCanSetSpawnInfoInConfig(false)
+      .setCanUseInstinctAndNightVision(true)
+      .setCanSeeTeammateKillerRole(false)
+      .setInstinctType(InstinctType.NONE, InstinctType.custom(TMMRoles.CIVILIAN.color()))
+      .setCanIgnoreBlackout(true)
+      .setDarknessImmune(true)
+      .setRoleData(RemiliaBloodServantRoleData::new);
   // 独立中立：芙兰朵露
   public static SRERole FURANDORU = TMMRoles.registerRole(
       new TouhouRole(FURANDORU_ID, new Color(177, 153, 130).getRGB(),

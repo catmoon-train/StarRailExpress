@@ -343,7 +343,7 @@
   "hud.exampler.money": "你需要100金幣才能讓指定玩家考試",
   "hud.exampler.charges": "能量：%s / 3",
   "death_reason.wifi.cat_killer": "貓娘陽壽已盡",
-  "death_reason.noellesroles.success": "你及格了，避免了掛科。",
+  "mathproblem.noellesroles.success": "你及格了，避免了掛科。",
   "death_reason.noellesroles.machenxu": "魂噬",
   "death_reason.noellesroles.yinyang_sword_aoe": "陰陽劍AOE範圍傷害",
   "death_reason.noellesroles.fail_exam": "掛科",

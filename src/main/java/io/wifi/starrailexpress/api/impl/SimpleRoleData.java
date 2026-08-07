@@ -17,7 +17,6 @@ package io.wifi.starrailexpress.api.impl;
 
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
-import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 
@@ -42,11 +41,11 @@ public class SimpleRoleData implements RoleData {
     }
 
     @Override
-    public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
+    public void writeToSyncNbt(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registryLookup) {
     }
 
     @Override
-    public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
+    public void readFromSyncNbt(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registryLookup) {
     }
 
     public void sync() {

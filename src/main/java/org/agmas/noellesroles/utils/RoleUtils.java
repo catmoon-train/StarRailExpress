@@ -749,4 +749,16 @@ public class RoleUtils extends MCItemsUtils {
         return players;
     }
 
+    public static Component getPlayerRoleName(Player victim) {
+        return getPlayerRoleName(victim, false);
+    }
+
+    public static MutableComponent getPlayerRoleName(Player victim, boolean color) {
+        var role = getPlayerRole(victim);
+        if (role == null) {
+            return Component.translatable("unknown").withStyle(ChatFormatting.GRAY);
+        }
+        return role.getName().copy().withColor(role.color());
+    }
+
 }

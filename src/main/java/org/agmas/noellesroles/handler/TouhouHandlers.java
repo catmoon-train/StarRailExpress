@@ -27,6 +27,7 @@ import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithBody;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -47,6 +48,8 @@ import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
+import org.agmas.noellesroles.component.DefibrillatorComponent;
+import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.BowenBadgeItem;
 import org.agmas.noellesroles.content.item.RopeItem;
 import org.agmas.noellesroles.init.ModEffects;
@@ -57,8 +60,10 @@ import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
+import org.agmas.noellesroles.role.touhou.roles.THRemiliaRole;
 import org.agmas.noellesroles.role.touhou.roles.THSuikaRole;
 import org.agmas.noellesroles.role.touhou.roles.THUtsuhoRole;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 public class TouhouHandlers {
@@ -114,6 +119,26 @@ public class TouhouHandlers {
   }
 
   public static void registerEvents() {
+    // 蕾米莉亚杀人转换职业
+    OnPlayerDeathWithBody.EVENT.register((victim, killer, deathReason, body) -> {
+      if (killer == null)
+        return;
+      if (RoleUtils.isPlayerTheJob(killer, THRedHouseRoles.REMILIA)) {
+        final var cdcca = SREAbilityPlayerComponent.KEY.get(killer);
+        if (cdcca.hasCooldown()) {
+          return;
+        }
+        MCItemsUtils.clearItem(victim, (item) -> !item.is(TMMItems.LETTER) && !item.is(TMMItems.KEY));
+        RoleUtils.changeRole(victim, THRedHouseRoles.REMILIA_BLOOD_SERVANT);
+        DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(victim);
+        component.triggerDeath(30 * 20, null, victim.position());
+
+        victim.displayClientMessage(Component.translatable("hud.noellesroles.remilia.victim", killer.getName()), true);
+        killer.displayClientMessage(Component.translatable("hud.noellesroles.remilia.success", victim.getName(),
+            RoleUtils.getPlayerRoleName(victim, true)).withStyle(ChatFormatting.GREEN), true);
+        cdcca.setCooldown(THRemiliaRole.COOLDOWN_TICKS);
+      }
+    });
     // 魔理沙和灵梦不受到摔伤影响
     OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, deathreason, forceKill) -> {
       if (deathreason.equals(GameConstants.DeathReasons.FALL_DAMAGE)) {

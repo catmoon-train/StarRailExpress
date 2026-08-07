@@ -269,7 +269,7 @@ public class ModPacketsReciever {
         var psc = SREPlayerShopComponent.KEY.get(player);
         if (isForced) {
           player.displayClientMessage(
-              Component.translatable("death_reason.noellesroles.success").withStyle(ChatFormatting.GREEN), true);
+              Component.translatable("mathproblem.noellesroles.success").withStyle(ChatFormatting.GREEN), true);
           // 没奖励，太抠门了。
         } else {
           if (gameWorldComponent.isRole(player, THRedHouseRoles.BAKA)) {

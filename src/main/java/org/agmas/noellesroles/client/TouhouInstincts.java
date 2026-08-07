@@ -17,6 +17,8 @@ package org.agmas.noellesroles.client;
 
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
+
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -30,6 +32,18 @@ import net.minecraft.world.entity.player.Player;
 public class TouhouInstincts {
 
     public static void registerEvents() {
+        // 大小姐的仆人
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THRedHouseRoles.REMILIA_BLOOD_SERVANT_ID,
+                (client, self, target, hasInstinct) -> {
+                    if (!hasInstinct) {
+                        return TrueFalseAndCustomResult.pass();
+                    }
+                    if (target instanceof Player targetPlayer
+                            && SREClient.gameComponent.isRole(targetPlayer, THRedHouseRoles.REMILIA)) {
+                        return TrueFalseAndCustomResult.custom(THRedHouseRoles.REMILIA.color());
+                    }
+                    return TrueFalseAndCustomResult.pass();
+                });
         // 雾雨魔理沙看博丽灵梦飞行
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THMagicForestRoles.KIRISAME_MARISA_ID,
                 (client, self, target, hasInstinct) ->

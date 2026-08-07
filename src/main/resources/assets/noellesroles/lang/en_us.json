@@ -319,7 +319,7 @@
   "hud.exampler.money": "You need 100 coins to force exam on a player",
   "hud.exampler.charges": "Energy: %s / 3",
   "death_reason.wifi.cat_killer": "Cat's lifespan ended",
-  "death_reason.noellesroles.success": "You passed, avoiding failure.",
+  "mathproblem.noellesroles.success": "You passed, avoiding failure.",
   "death_reason.noellesroles.machenxu": "Soul Devour",
   "death_reason.noellesroles.yinyang_sword_aoe": "Yin-Yang Sword AOE damage",
   "death_reason.noellesroles.fail_exam": "Failed exam",
