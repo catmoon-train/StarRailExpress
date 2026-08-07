@@ -47,9 +47,9 @@ public class THMamizouRole extends TouhouRole {
             List<ShopEntry> newShops = new ArrayList<>();
             for (final var s : shops) {
                 if (s instanceof KillerKnifeShopEntry ks) {
-                    newShops.add(new KillerKnifeShopEntry(ks.stack(), (int) (ks.price() * 1.2f), ks.discount()));
+                    newShops.add(new KillerKnifeShopEntry(ks.stack(), (int) (ks.price() * 1.5f), ks.discount()));
                 } else {
-                    newShops.add(new ShopEntry(s.stack(), (int) (s.price() * 1.2f), s.type()));
+                    newShops.add(new ShopEntry(s.stack(), (int) (s.price() * 1.5f), s.type()));
                 }
             }
             return newShops;
