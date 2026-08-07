@@ -130,7 +130,13 @@ public class TouhouHandlers {
           return;
         }
         MCItemsUtils.clearItem(victim, (item) -> !item.is(TMMItems.LETTER) && !item.is(TMMItems.KEY));
-        victim.displayClientMessage(Component.translatable("hud.noellesroles.remilia.victim", killer.getName()), true);
+        victim.displayClientMessage(
+            Component.translatable("hud.noellesroles.remilia.victim", killer.getName()).withStyle(ChatFormatting.GOLD),
+            true);
+        if (victim instanceof ServerPlayer svictim) {
+          SRENetworkMessageUtils.sendBroadcast(svictim, Component
+              .translatable("hud.noellesroles.remilia.victim", killer.getName()).withStyle(ChatFormatting.GOLD));
+        }
         killer.displayClientMessage(Component.translatable("hud.noellesroles.remilia.success", victim.getName(),
             RoleUtils.getPlayerRoleName(victim, true)).withStyle(ChatFormatting.GREEN), true);
         RoleUtils.changeRole(victim, THRedHouseRoles.REMILIA_BLOOD_SERVANT);
@@ -232,7 +238,7 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
-    
+
     RoleSkill.register(THMiscRoles.MAMIZOU,
         RoleSkill.skill(SRE.id("mamizou_select"), "skill.noellesroles.mamizou_select", THMamizouRole::handleSelect)
             .noAnnouncement()
