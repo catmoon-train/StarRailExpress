@@ -22,7 +22,7 @@ import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants.DeathReasons;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,20 +34,20 @@ public class THEventHandler {
             if (killer == null)
                 return true;
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
-            if (gameWorldComponent.isRole(killer, RedHouseRoles.FURANDORU)) {
-                if (gameWorldComponent.isRole(victim, RedHouseRoles.REMILIA)
-                        || gameWorldComponent.isRole(victim, RedHouseRoles.PACHURI)
-                        || gameWorldComponent.isRole(victim, RedHouseRoles.MAID_SAKUYA))
+            if (gameWorldComponent.isRole(killer, THRedHouseRoles.FURANDORU)) {
+                if (gameWorldComponent.isRole(victim, THRedHouseRoles.REMILIA)
+                        || gameWorldComponent.isRole(victim, THRedHouseRoles.PACHURI)
+                        || gameWorldComponent.isRole(victim, THRedHouseRoles.MAID_SAKUYA))
                     return false;
-            } else if (gameWorldComponent.isRole(killer, RedHouseRoles.REMILIA)) {
-                if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU))
+            } else if (gameWorldComponent.isRole(killer, THRedHouseRoles.REMILIA)) {
+                if (gameWorldComponent.isRole(victim, THRedHouseRoles.FURANDORU))
                     return false;
-            } else if (gameWorldComponent.isRole(killer, RedHouseRoles.MAID_SAKUYA)) {
-                if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU)
-                        || gameWorldComponent.isRole(victim, RedHouseRoles.REMILIA))
+            } else if (gameWorldComponent.isRole(killer, THRedHouseRoles.MAID_SAKUYA)) {
+                if (gameWorldComponent.isRole(victim, THRedHouseRoles.FURANDORU)
+                        || gameWorldComponent.isRole(victim, THRedHouseRoles.REMILIA))
                     return false;
-            } else if (gameWorldComponent.isRole(killer, RedHouseRoles.PACHURI)) {
-                if (gameWorldComponent.isRole(victim, RedHouseRoles.FURANDORU))
+            } else if (gameWorldComponent.isRole(killer, THRedHouseRoles.PACHURI)) {
+                if (gameWorldComponent.isRole(victim, THRedHouseRoles.FURANDORU))
                     return false;
             }
             return true;

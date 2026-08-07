@@ -32,7 +32,7 @@ import org.agmas.noellesroles.modifier.BounsModifiers;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.MountainRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 
 import java.awt.*;
@@ -214,7 +214,7 @@ public class BounsRoles {
             .addRelatedRole(ModRoles.VOODOO);
 
     public static void init() {
-        RedHouseRoles.init();
+        THRedHouseRoles.init();
         MountainRoles.init();
         THMagicForestRoles.init();
         THMiscRoles.init();

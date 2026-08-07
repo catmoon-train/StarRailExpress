@@ -44,7 +44,7 @@ import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerCompo
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -331,13 +331,13 @@ public class RoleInstinctRegister {
                 });
 
         // 帕秋莉 -> 芙兰朵露
-        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(RedHouseRoles.PACHURI_ID,
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THRedHouseRoles.PACHURI_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (viewer.hasEffect(ModEffects.SAFE_TIME))
                         return TrueFalseAndCustomResult.pass();
                     if (target instanceof Player targetPlayer && target.distanceToSqr(viewer) <= 25) {
-                        if (SREClient.gameComponent.isRole(targetPlayer, RedHouseRoles.FURANDORU)) {
-                            return TrueFalseAndCustomResult.custom(RedHouseRoles.FURANDORU.color());
+                        if (SREClient.gameComponent.isRole(targetPlayer, THRedHouseRoles.FURANDORU)) {
+                            return TrueFalseAndCustomResult.custom(THRedHouseRoles.FURANDORU.color());
                         }
                     }
                     return TrueFalseAndCustomResult.pass();
@@ -464,12 +464,12 @@ public class RoleInstinctRegister {
                 });
 
         // 芙兰朵露
-        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(RedHouseRoles.FURANDORU_ID,
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(THRedHouseRoles.FURANDORU_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (target instanceof Player targetPlayer) {
                         var targetRole = SREClient.gameComponent.getRole(targetPlayer);
-                        if (RoleUtils.compareRole(targetRole, RedHouseRoles.PACHURI))
-                            return TrueFalseAndCustomResult.custom(RedHouseRoles.PACHURI.color());
+                        if (RoleUtils.compareRole(targetRole, THRedHouseRoles.PACHURI))
+                            return TrueFalseAndCustomResult.custom(THRedHouseRoles.PACHURI.color());
                         if (isInstinctEnabled)
                             return TrueFalseAndCustomResult.custom(new Color(2, 224, 2).getRGB());
                     }

@@ -87,7 +87,7 @@ import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -272,7 +272,7 @@ public class ModPacketsReciever {
               Component.translatable("death_reason.noellesroles.success").withStyle(ChatFormatting.GREEN), true);
           // 没奖励，太抠门了。
         } else {
-          if (gameWorldComponent.isRole(player, RedHouseRoles.BAKA)) {
+          if (gameWorldComponent.isRole(player, THRedHouseRoles.BAKA)) {
             player.displayClientMessage(
                 Component.translatable("message.baka.problem_set.success").withStyle(ChatFormatting.GREEN), true);
             psc.addToBalance(200);
@@ -284,7 +284,7 @@ public class ModPacketsReciever {
           }
         }
       } else {
-        if (gameWorldComponent.isRole(player, RedHouseRoles.BAKA)) {
+        if (gameWorldComponent.isRole(player, THRedHouseRoles.BAKA)) {
           player.displayClientMessage(
               Component.translatable("message.baka.problem_set.failed").withStyle(ChatFormatting.YELLOW), true);
           var pmc = SREPlayerMoodComponent.KEY.get(player);

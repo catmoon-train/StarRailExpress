@@ -71,7 +71,7 @@ import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import net.exmo.sre.repair.role.RepairRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -2053,7 +2053,7 @@ public class RoleShopHandler {
 
             SHOP.add(new ShopEntry(Items.WIND_CHARGE.getDefaultInstance(), 50,
                     ShopEntry.Type.TOOL));
-            ShopContent.customEntries.put(RedHouseRoles.FURANDORU.getIdentifier(), SHOP);
+            ShopContent.customEntries.put(THRedHouseRoles.FURANDORU.getIdentifier(), SHOP);
         }
 
         // 滞时鬼（Delayer）商店
@@ -2104,7 +2104,7 @@ public class RoleShopHandler {
             SHOP.add(new ShopEntry(ModItems.SHILIJIA.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
             SHOP.add(new ShopEntry(ModItems.CALMING_TEA.getDefaultInstance(), 200, ShopEntry.Type.TOOL));
             SHOP.add(new ShopEntry(ModItems.WREATH.getDefaultInstance(), 400, ShopEntry.Type.TOOL));
-            ShopContent.customEntries.put(RedHouseRoles.DAIYOUSEI_ID, SHOP);
+            ShopContent.customEntries.put(THRedHouseRoles.DAIYOUSEI_ID, SHOP);
         }
         // INITIATE的商店
         {
@@ -2118,7 +2118,7 @@ public class RoleShopHandler {
             var SHOP = new ArrayList<ShopEntry>();
             SHOP.add(new ShopEntry(FunnyItems.PROBLEM_SET.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
             SHOP.add(new ShopEntry(ModItems.DANMUKU.getDefaultInstance(), 300, ShopEntry.Type.TOOL));
-            ShopContent.customEntries.put(RedHouseRoles.BAKA.getIdentifier(), SHOP);
+            ShopContent.customEntries.put(THRedHouseRoles.BAKA.getIdentifier(), SHOP);
         }
 
         // EXAMPLER的商店
@@ -2561,7 +2561,7 @@ public class RoleShopHandler {
             entries.add(new ShopEntry(FunnyItems.SHISIYE.getDefaultInstance(), 440,
                     ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(
-                    RedHouseRoles.MAID_SAKUYA_ID, entries);
+                    THRedHouseRoles.MAID_SAKUYA_ID, entries);
         }
 
         // 调酒师商店
@@ -2666,7 +2666,7 @@ public class RoleShopHandler {
             {
                 var SHOP = new ArrayList<ShopEntry>();
                 SHOP.addAll(SLIPPERY_GHOST_SHOP);
-                ShopContent.customEntries.put(RedHouseRoles.KOAKUMA_ID, SHOP);
+                ShopContent.customEntries.put(THRedHouseRoles.KOAKUMA_ID, SHOP);
             }
         }
 
@@ -2693,7 +2693,7 @@ public class RoleShopHandler {
                         return gameWorldComponent.getRole(p) == null || p.isSpectator();
                     });
                     var koakumaOptional = players.stream()
-                            .filter((p) -> gameWorldComponent.isRole(p, RedHouseRoles.KOAKUMA))
+                            .filter((p) -> gameWorldComponent.isRole(p, THRedHouseRoles.KOAKUMA))
                             .findAny();
                     if (koakumaOptional.isPresent()) {
                         Player koakumaPlayer = koakumaOptional.get();
@@ -2760,7 +2760,7 @@ public class RoleShopHandler {
                 }
             });
             ShopContent.customEntries.put(
-                    RedHouseRoles.PACHURI_ID, SHOP);
+                    THRedHouseRoles.PACHURI_ID, SHOP);
         }
 
         // 锁匠商店

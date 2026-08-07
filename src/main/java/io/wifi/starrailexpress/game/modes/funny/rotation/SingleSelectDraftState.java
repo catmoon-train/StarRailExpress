@@ -24,7 +24,7 @@ import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.SRERole;
@@ -77,8 +77,8 @@ public class SingleSelectDraftState {
             ModRoles.DIVER,
             ModRoles.DOCTOR,
             ModRoles.PILOT,
-            RedHouseRoles.BAKA,
-            RedHouseRoles.PACHURI,
+            THRedHouseRoles.BAKA,
+            THRedHouseRoles.PACHURI,
             ModRoles.FITTER);
 
     // ---------- 初始化角色池 ----------

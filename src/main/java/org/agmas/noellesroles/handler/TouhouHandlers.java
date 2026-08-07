@@ -52,7 +52,7 @@ import org.agmas.noellesroles.content.item.RopeItem;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.touhou.MountainRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
@@ -249,7 +249,7 @@ public class TouhouHandlers {
           THReimuRole.startFlying(player);
           return true;
         }).noAnnouncement().showOnHud(false).cooldownTicks(THReimuRole.FLY_COOLDOWN).build());
-    RoleSkill.register(RedHouseRoles.KOAKUMA,
+    RoleSkill.register(THRedHouseRoles.KOAKUMA,
         RoleSkill.skill(SRE.id("koakuma"), "skill.noellesroles.koakuma", context -> {
           var targetId = context.target();
           if (targetId == null)
@@ -266,7 +266,7 @@ public class TouhouHandlers {
           // 不需要同步因为客户端不显示东西。
           return true;
         }).announceToSelf().showOnHud(true).cooldownTicks(20 * 120).build());
-    RoleSkill.register(RedHouseRoles.DAIYOUSEI,
+    RoleSkill.register(THRedHouseRoles.DAIYOUSEI,
         RoleSkill.skill(SRE.id("daiyouse"), "skill.noellesroles.daiyouse", context -> {
           var targetId = context.target();
           if (targetId == null)

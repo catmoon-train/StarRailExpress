@@ -30,7 +30,7 @@ import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
@@ -74,7 +74,7 @@ public class CustomWinnerClass {
                     if (gameComponent.isRole(player, ModRoles.THIEF)) {
                         hasThiefAlive = true;
                     }
-                    if (gameComponent.isRole(player, RedHouseRoles.FURANDORU)) {
+                    if (gameComponent.isRole(player, THRedHouseRoles.FURANDORU)) {
                         hasFurandoru = true;
                     }
                     if (gameComponent.isRole(player, ModRoles.PELICAN)) {
@@ -87,7 +87,7 @@ public class CustomWinnerClass {
             }
             if (hasFurandoru) {
                 if (alivePlayerCount <= 1 || winStatus.equals(WinStatus.TIME)) {
-                    RoleUtils.customWinnerWin(serverLevel, "furandoru", RedHouseRoles.FURANDORU.color());
+                    RoleUtils.customWinnerWin(serverLevel, "furandoru", THRedHouseRoles.FURANDORU.color());
                     return WinStatus.CUSTOM;
                 }
                 if (!winStatus.equals(WinStatus.NONE))

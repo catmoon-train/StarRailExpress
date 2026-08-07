@@ -24,7 +24,7 @@ import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerCompon
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -356,13 +356,13 @@ public class InstinctManager {
             }
         }
 
-        if (SREClient.gameComponent.isRole(self, RedHouseRoles.REMILIA)) {
+        if (SREClient.gameComponent.isRole(self, THRedHouseRoles.REMILIA)) {
             if (!self.hasEffect(ModEffects.SAFE_TIME)) {
                 if (target.distanceToSqr(self) <= 25) {
-                    if (RoleUtils.compareRole(target_role, RedHouseRoles.PACHURI)) {
-                        return TrueFalseAndCustomResult.custom(RedHouseRoles.PACHURI.color());
-                    } else if (RoleUtils.compareRole(target_role, RedHouseRoles.FURANDORU)) {
-                        return TrueFalseAndCustomResult.custom(RedHouseRoles.FURANDORU.color());
+                    if (RoleUtils.compareRole(target_role, THRedHouseRoles.PACHURI)) {
+                        return TrueFalseAndCustomResult.custom(THRedHouseRoles.PACHURI.color());
+                    } else if (RoleUtils.compareRole(target_role, THRedHouseRoles.FURANDORU)) {
+                        return TrueFalseAndCustomResult.custom(THRedHouseRoles.FURANDORU.color());
                     }
                 }
             }
@@ -402,7 +402,7 @@ public class InstinctManager {
             }
             if (SREGameTimeComponent.KEY.get(self.level()).getTime() >= GameConstants
                     .getFurandoruSafeLine()) {
-                if (SREClient.gameComponent.isRole(target_player, RedHouseRoles.FURANDORU)) {
+                if (SREClient.gameComponent.isRole(target_player, THRedHouseRoles.FURANDORU)) {
                     return TrueFalseAndCustomResult.disallow();
                 }
             }

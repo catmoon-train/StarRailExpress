@@ -34,7 +34,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
 import org.agmas.noellesroles.content.item.AlarmTrapItem;
 import org.agmas.noellesroles.content.item.ReinforcementItem;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -87,7 +87,7 @@ public class EngineerCrowbarMixin {
                     int cooldown;
                     if (gameWorldComponent != null && gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
                         cooldown = baseCooldown / 4;
-                    } else if (gameWorldComponent != null && gameWorldComponent.isRole(player, RedHouseRoles.FURANDORU)) {
+                    } else if (gameWorldComponent != null && gameWorldComponent.isRole(player, THRedHouseRoles.FURANDORU)) {
                         cooldown = baseCooldown / 6;
                     } else {
                         cooldown = baseCooldown;

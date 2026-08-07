@@ -57,7 +57,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -78,7 +78,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     public static final Set<SRERole> EX_ABILITY_ROLE = new HashSet<>();
     static {
         EX_ABILITY_ROLE.add(SpecialGameModeRoles.SUPER_LOOSE_END);
-        EX_ABILITY_ROLE.add(RedHouseRoles.REMILIA);
+        EX_ABILITY_ROLE.add(THRedHouseRoles.REMILIA);
         EX_ABILITY_ROLE.add(ModRoles.IMITATOR);
         EX_ABILITY_ROLE.add(ModRoles.TRAPPER);
         EX_ABILITY_ROLE.add(ModRoles.BANDIT);
@@ -156,7 +156,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
         SRERole role = gameWorldComponent.getRole(victim);
         // 雷米莉亚死亡给予附近杀手护盾
-        if (role == RedHouseRoles.REMILIA) {
+        if (role == THRedHouseRoles.REMILIA) {
             for (Player player : level.players()) {
                 // 排除被淘汰的、玩家自己、距离超过2格的玩家
                 if (GameUtils.isPlayerEliminated(player) || player == victim
@@ -434,7 +434,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 imitatorPlayerComponent.sync();
             }
             // 蕾米莉亚开局获得20分钟速度2
-            else if (role == RedHouseRoles.REMILIA) {
+            else if (role == THRedHouseRoles.REMILIA) {
                 if (player.hasEffect(MobEffects.MOVEMENT_SPEED))
                     player.removeEffect(MobEffects.MOVEMENT_SPEED);
                 player.addEffect(

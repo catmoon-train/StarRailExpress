@@ -82,7 +82,7 @@ import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.voice_changer.VoiceChangerPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -157,11 +157,11 @@ public class ModRolesInitialEventRegister {
                 var tpc = DIOPlayerComponent.KEY.get(player);
                 tpc.init();
             }
-            if (role.identifier().equals(RedHouseRoles.FURANDORU.identifier())) {
+            if (role.identifier().equals(THRedHouseRoles.FURANDORU.identifier())) {
                 var tpc = GhostPlayerComponent.KEY.get(player);
                 tpc.init();
             }
-            if (role.identifier().equals(RedHouseRoles.MAID_SAKUYA.identifier())) {
+            if (role.identifier().equals(THRedHouseRoles.MAID_SAKUYA.identifier())) {
                 SREPlayerShopComponent.KEY.get(player).setBalance(100);
             }
             if (role.identifier().equals(ModRoles.JOJO.identifier())) {
@@ -1214,7 +1214,7 @@ public class ModRolesInitialEventRegister {
                 }).cooldownSeconds(120).build());
 
         // 十六夜咲夜技能注册：时间停止5秒，冷却240秒
-        RoleSkill.register(RedHouseRoles.MAID_SAKUYA, RoleSkill.skill(
+        RoleSkill.register(THRedHouseRoles.MAID_SAKUYA, RoleSkill.skill(
                 SRE.id("maid_sakuya_timestop"),
                 "skill.maid_sakuya.timestop",
                 context -> {

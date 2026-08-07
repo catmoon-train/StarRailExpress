@@ -42,7 +42,7 @@ import org.agmas.noellesroles.config.SpawnInfoConfig.SpawnInfo;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -257,7 +257,7 @@ public class InitModRolesMax {
 
         // 同时出现
         Harpymodloader.addOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
-        Harpymodloader.addOccupationRole(RedHouseRoles.FURANDORU, RedHouseRoles.PACHURI);
+        Harpymodloader.addOccupationRole(THRedHouseRoles.FURANDORU, THRedHouseRoles.PACHURI);
         Harpymodloader.addOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
         Harpymodloader.addOccupationRole(ModRoles.GANGSTERS, ModRoles.FITTER);
 
@@ -267,14 +267,14 @@ public class InitModRolesMax {
         RoleAssignmentManager.addOccupationRole(ModRoles.WATER_GHOST, ModRoles.DIVER);
 
         Harpymodloader.setRoleMaximum(ModRoles.CONDUCTOR_ID, 0);
-        Harpymodloader.setRoleMaximum(RedHouseRoles.MAID_SAKUYA, 0);
+        Harpymodloader.setRoleMaximum(THRedHouseRoles.MAID_SAKUYA, 0);
         Harpymodloader.setRoleMaximum(ModRoles.DIO, 0);
         Harpymodloader.setRoleMaximum(ModRoles.BETTER_VIGILANTE, 0);
-        Harpymodloader.setRoleMaximum(RedHouseRoles.BAKA, 0);
-        Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 0);
-        Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 0);
-        Harpymodloader.setRoleMaximum(RedHouseRoles.FURANDORU, 0);
-        Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 0);
+        Harpymodloader.setRoleMaximum(THRedHouseRoles.BAKA, 0);
+        Harpymodloader.setRoleMaximum(THRedHouseRoles.HOAN_MEIRIN, 0);
+        Harpymodloader.setRoleMaximum(THRedHouseRoles.PACHURI, 0);
+        Harpymodloader.setRoleMaximum(THRedHouseRoles.FURANDORU, 0);
+        Harpymodloader.setRoleMaximum(THRedHouseRoles.REMILIA, 0);
         Harpymodloader.setRoleMaximum(ModRoles.MANIPULATOR, 0);
         Harpymodloader.setRoleMaximum(ModRoles.EXECUTIONER_ID, 1);
         Harpymodloader.setRoleMaximum(ModRoles.VULTURE_ID, 1);
@@ -424,11 +424,11 @@ public class InitModRolesMax {
                         }
                     }
                 }
-                Harpymodloader.setRoleMaximum(RedHouseRoles.BAKA_ID, 1);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.PACHURI, 1);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.REMILIA, 1);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.FURANDORU, 1);
-                Harpymodloader.setRoleMaximum(RedHouseRoles.HOAN_MEIRIN, 1);
+                Harpymodloader.setRoleMaximum(THRedHouseRoles.BAKA_ID, 1);
+                Harpymodloader.setRoleMaximum(THRedHouseRoles.PACHURI, 1);
+                Harpymodloader.setRoleMaximum(THRedHouseRoles.REMILIA, 1);
+                Harpymodloader.setRoleMaximum(THRedHouseRoles.FURANDORU, 1);
+                Harpymodloader.setRoleMaximum(THRedHouseRoles.HOAN_MEIRIN, 1);
             } else {
                 isTouhouEnabled = false;
                 for (var a : TMMRoles.ROLES.values()) {

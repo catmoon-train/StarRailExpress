@@ -27,7 +27,7 @@ import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModMeetingRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 
 import java.util.ArrayList;
@@ -137,7 +137,7 @@ public class RoleInitialItems {
             // FURANDORU
             List<Supplier<ItemStack>> items = new ArrayList<>();
             items.add(() -> TMMItems.CROWBAR.getDefaultInstance());
-            INITIAL_ITEMS_MAP.put(RedHouseRoles.FURANDORU, items);
+            INITIAL_ITEMS_MAP.put(THRedHouseRoles.FURANDORU, items);
         }
 
         {

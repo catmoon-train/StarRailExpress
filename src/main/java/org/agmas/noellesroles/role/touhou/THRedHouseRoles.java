@@ -42,7 +42,7 @@ import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
 import java.awt.*;
 import java.util.List;
 
-public class RedHouseRoles {
+public class THRedHouseRoles {
   public static final String NAMESPACE = "th_redhouse";
 
   public static ResourceLocation id(String path) {
@@ -162,7 +162,7 @@ public class RedHouseRoles {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             List<ServerPlayer> target_furans = player.serverLevel().getPlayers((p) -> {
               return GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p) && p.distanceToSqr(player) <= 25
-                  && gameWorldComponent.isRole(p, RedHouseRoles.FURANDORU);
+                  && gameWorldComponent.isRole(p, THRedHouseRoles.FURANDORU);
             });
             for (ServerPlayer p : target_furans) {
               p.addEffect(new MobEffectInstance(

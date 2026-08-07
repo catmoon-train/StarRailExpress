@@ -74,7 +74,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.MountainRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
 import org.agmas.noellesroles.utils.MessageDetail;
 
@@ -910,7 +910,7 @@ public class CommonClientHudRenderer {
       }
       return;
     });
-    RoleHudRenderCallback.EVENT.register(RedHouseRoles.MAID_SAKUYA_ID, (guiGraphics, deltaTracker) -> {
+    RoleHudRenderCallback.EVENT.register(THRedHouseRoles.MAID_SAKUYA_ID, (guiGraphics, deltaTracker) -> {
       // 渲染SAKUYA的提示
       var client = Minecraft.getInstance();
       int screenWidth = guiGraphics.guiWidth();
@@ -1028,7 +1028,7 @@ public class CommonClientHudRenderer {
       return;
     });
 
-    RoleHudRenderCallback.EVENT.register(RedHouseRoles.HOAN_MEIRIN_ID, (guiGraphics, deltaTracker) -> {
+    RoleHudRenderCallback.EVENT.register(THRedHouseRoles.HOAN_MEIRIN_ID, (guiGraphics, deltaTracker) -> {
       // 渲染红美铃的提示
 
       var client = Minecraft.getInstance();

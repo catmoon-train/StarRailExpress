@@ -35,7 +35,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 
 import java.util.HashMap;
 import java.util.List;
@@ -105,7 +105,7 @@ public class HoanMeirinFistPunchHandler {
 
     public static void register() {
         OnShieldBroken.EVENT.register((player, killer) -> {
-            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, RedHouseRoles.HOAN_MEIRIN)) {
+            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, THRedHouseRoles.HOAN_MEIRIN)) {
                 HoanMeirinFistPunchHandler.applyShockwave(player);
             }
         });
@@ -113,7 +113,7 @@ public class HoanMeirinFistPunchHandler {
             if (player.hasEffect(ModEffects.SAFE_TIME)) {
                 return false;
             }
-            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, RedHouseRoles.HOAN_MEIRIN)) {
+            if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, THRedHouseRoles.HOAN_MEIRIN)) {
                 // 必须空手（主手持空气）
                 ItemStack mainHand = player.getMainHandItem();
                 if (mainHand.isEmpty()) {
@@ -146,7 +146,7 @@ public class HoanMeirinFistPunchHandler {
         }
         if (!GameUtils.isPlayerAliveAndSurvival(victim))
             return InteractionResult.PASS;
-        if (!gameWorldComponent.isRole(attacker, RedHouseRoles.HOAN_MEIRIN))
+        if (!gameWorldComponent.isRole(attacker, THRedHouseRoles.HOAN_MEIRIN))
             return InteractionResult.PASS;
         if (victim.getCooldowns().isOnCooldown(Items.CLOCK)) {
             return InteractionResult.PASS; // 安全时间

@@ -44,7 +44,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -145,7 +145,7 @@ public class AbilityHandler {
         if (!possessed && player.hasEffect(ModEffects.SKILL_BANED)) {
             return;
         }
-        if (gameWorldComponent.isRole(player, RedHouseRoles.HOAN_MEIRIN)) {
+        if (gameWorldComponent.isRole(player, THRedHouseRoles.HOAN_MEIRIN)) {
             var cca = RoleData.getOrCreate(HoanMeirinRoleData.class, player);
             if (cca != null) {
                 if (player.hasEffect(MobEffects.LEVITATION)) {

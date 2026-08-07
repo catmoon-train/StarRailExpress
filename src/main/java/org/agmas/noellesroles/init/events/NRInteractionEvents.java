@@ -57,7 +57,7 @@ import org.agmas.noellesroles.handler.THEventHandler;
 import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.RedHouseRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MapScanner;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -263,7 +263,7 @@ public class NRInteractionEvents {
                     return true;
             }
             var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-            if (gameWorldComponent.isRole(player, RedHouseRoles.BAKA)) {
+            if (gameWorldComponent.isRole(player, THRedHouseRoles.BAKA)) {
                 if (mainHandItem.is(FunnyItems.PROBLEM_SET))
                     return true;
             }
