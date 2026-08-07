@@ -68,7 +68,8 @@ public class THMamizouRole extends TouhouRole {
         final var target = context.getTargetAsPlayer();
         SREAbilityPlayerComponent.KEY.get(player).setTarget(target);
         player.displayClientMessage(
-                Component.translatable("skill.noellesroles.mamizou_select.success").withStyle(ChatFormatting.GREEN),
+                Component.translatable("skill.noellesroles.mamizou_select.success", target.getName())
+                        .withStyle(ChatFormatting.GREEN),
                 true);
         return true;
     }
