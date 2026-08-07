@@ -110,7 +110,9 @@ public class SREClientEvents {
         // 大小姐的仆从显示大小姐
         OnRenderRoleName.RENDER_PLAYER_ROLE.register((player, target, context, tickCounter, renderer) -> {
             if (target == null)
-                return null;
+                return TrueFalseAndCustomResult.pass();
+            if (!GameUtils.isPlayerAliveAndSurvival(player))
+                return TrueFalseAndCustomResult.pass();
             if (SREClient.gameComponent != null) {
                 if (SREClient.gameComponent.isRole(player, THRedHouseRoles.REMILIA_BLOOD_SERVANT)
                         && SREClient.gameComponent.isRole(target, THRedHouseRoles.REMILIA)) {
