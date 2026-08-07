@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationSelectC2SPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationSyncS2CPacket;
+import io.wifi.starrailexpress.network.packet.StaminaS2CPacket;
 import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
 import io.wifi.starrailexpress.network.packet.VolunteerCommitC2SPacket;
 import io.wifi.starrailexpress.network.packet.VolunteerDraftSyncS2CPacket;
@@ -79,6 +80,8 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playC2S().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(CustomNarratorPacket.ID, CustomNarratorPacket.CODEC);
 
+        PayloadTypeRegistry.playS2C().register(StaminaS2CPacket.ID, StaminaS2CPacket.CODEC);
+
         PayloadTypeRegistry.playS2C().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(StreamingSpectatorPayload.ID, StreamingSpectatorPayload.CODEC);
@@ -97,9 +100,11 @@ public class SREPayloadRegister {
                 net.exmo.sre.camera.AdvancedCameraPayload.CODEC);
 
         PayloadTypeRegistry.playS2C().register(SyncMapConfigPayload.ID, SyncMapConfigPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(TriggerScreenEdgeEffectPayload.ID, TriggerScreenEdgeEffectPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(TriggerScreenEdgeEffectPayload.ID,
+                TriggerScreenEdgeEffectPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(UpdateSkinSelectedPayload.ID, UpdateSkinSelectedPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(UpdateNameTagSelectedPayload.ID, UpdateNameTagSelectedPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(UpdateNameTagSelectedPayload.ID,
+                UpdateNameTagSelectedPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RemoveStatusBarPayload.ID, RemoveStatusBarPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(TriggerStatusBarPayload.ID, TriggerStatusBarPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(BreakArmorPayload.ID, BreakArmorPayload.CODEC);
@@ -140,10 +145,13 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playS2C().register(CloseUiPayload.ID, CloseUiPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayerDeathPayload.ID, PlayerDeathPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(FourthRoomStatePayload.ID, FourthRoomStatePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(FourthRoomTableEffectsPayload.ID, FourthRoomTableEffectsPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(OpenFourthRoomPeekDeckPayload.ID, OpenFourthRoomPeekDeckPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(FourthRoomTableEffectsPayload.ID,
+                FourthRoomTableEffectsPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenFourthRoomPeekDeckPayload.ID,
+                OpenFourthRoomPeekDeckPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenSkinScreenPaylod.ID, OpenSkinScreenPaylod.CODEC);
-        PayloadTypeRegistry.playS2C().register(OpenProgressionScreenPayload.ID, OpenProgressionScreenPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenProgressionScreenPayload.ID,
+                OpenProgressionScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.OpenBackpackScreenPayload.ID,
                 io.wifi.starrailexpress.network.OpenBackpackScreenPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenClueArchivePayload.ID, OpenClueArchivePayload.CODEC);
@@ -167,7 +175,8 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playC2S().register(SniperShootPayload.TYPE, SniperShootPayload.STREAM_CODEC);
         PayloadTypeRegistry.playC2S().register(StoreBuyPayload.ID, StoreBuyPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(NoteEditPayload.ID, NoteEditPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(RequestOpenClueArchivePayload.ID, RequestOpenClueArchivePayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(RequestOpenClueArchivePayload.ID,
+                RequestOpenClueArchivePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(io.wifi.starrailexpress.network.VoteForMapPayload.ID,
                 io.wifi.starrailexpress.network.VoteForMapPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SecurityCameraExitRequestPayload.ID,
@@ -176,9 +185,11 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playC2S().register(CardPlayPayload.ID, CardPlayPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(BuyFourthRoomItemPayload.ID, BuyFourthRoomItemPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RevealIdentityPayload.ID, RevealIdentityPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(CompleteFourthRoomTaskPayload.ID, CompleteFourthRoomTaskPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(CompleteFourthRoomTaskPayload.ID,
+                CompleteFourthRoomTaskPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(EndTurnPayload.ID, EndTurnPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(UseAssassinationItemPayload.ID, UseAssassinationItemPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(UseAssassinationItemPayload.ID,
+                UseAssassinationItemPayload.CODEC);
 
         // Chat Dialogue
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.client.chat.OpenChatDialoguePayload.ID,
@@ -219,7 +230,8 @@ public class SREPayloadRegister {
         // 小游戏任务点数据包
         PayloadTypeRegistry.playS2C().register(MinigameQuestPayload.OpenConfig.TYPE,
                 MinigameQuestPayload.OpenConfig.CODEC);
-        PayloadTypeRegistry.playS2C().register(MinigameQuestPayload.OpenGame.TYPE, MinigameQuestPayload.OpenGame.CODEC);
+        PayloadTypeRegistry.playS2C().register(MinigameQuestPayload.OpenGame.TYPE,
+                MinigameQuestPayload.OpenGame.CODEC);
         PayloadTypeRegistry.playC2S().register(MinigameQuestPayload.SaveConfig.TYPE,
                 MinigameQuestPayload.SaveConfig.CODEC);
         PayloadTypeRegistry.playC2S().register(MinigameQuestPayload.CompleteGame.TYPE,
@@ -238,10 +250,12 @@ public class SREPayloadRegister {
 
         // VOLUNTEER轮选数据包
         PayloadTypeRegistry.playC2S().register(VolunteerCommitC2SPacket.TYPE, VolunteerCommitC2SPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(VolunteerDraftSyncS2CPacket.TYPE, VolunteerDraftSyncS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(VolunteerDraftSyncS2CPacket.TYPE,
+                VolunteerDraftSyncS2CPacket.CODEC);
 
         // 职业轮选数据包
-        PayloadTypeRegistry.playC2S().register(RoleRotationSelectC2SPacket.TYPE, RoleRotationSelectC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RoleRotationSelectC2SPacket.TYPE,
+                RoleRotationSelectC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(RoleRotationSyncS2CPacket.TYPE, RoleRotationSyncS2CPacket.CODEC);
 
         // 全局战绩 / 回放查询数据包
