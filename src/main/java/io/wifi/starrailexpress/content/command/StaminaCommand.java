@@ -18,12 +18,17 @@ package io.wifi.starrailexpress.content.command;
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+
+import io.wifi.starrailexpress.network.packet.StaminaS2CPacket;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.Collection;
 
@@ -32,44 +37,77 @@ public class StaminaCommand {
         dispatcher.register(
                 Commands.literal("sre:stamina")
                         .requires(source -> source.hasPermission(2))
-                        .then(Commands.literal("add").then(Commands.argument("amount", IntegerArgumentType.integer())
+                        .then(Commands.literal("add").then(Commands
+                                .argument("amount", IntegerArgumentType.integer())
                                 .executes(context -> executeAdd(context.getSource(),
-                                        ImmutableList.of(context.getSource().getEntityOrException()),
-                                        IntegerArgumentType.getInteger(context, "amount")))
+                                        ImmutableList.of(context.getSource()
+                                                .getEntityOrException()),
+                                        IntegerArgumentType.getInteger(context,
+                                                "amount")))
                                 .then(
-                                        Commands.argument("targets", EntityArgument.players())
-                                                .executes(context -> executeAdd(context.getSource(),
-                                                        EntityArgument.getPlayers(context, "targets"),
-                                                        IntegerArgumentType.getInteger(context, "amount"))))))
-                        .then(Commands.literal("set").then(Commands.argument("amount", IntegerArgumentType.integer())
+                                        Commands.argument("targets",
+                                                EntityArgument.players())
+                                                .executes(context -> executeAdd(
+                                                        context.getSource(),
+                                                        EntityArgument.getPlayers(
+                                                                context,
+                                                                "targets"),
+                                                        IntegerArgumentType
+                                                                .getInteger(context,
+                                                                        "amount"))))))
+                        .then(Commands.literal("set").then(Commands
+                                .argument("amount", IntegerArgumentType.integer())
                                 .executes(context -> executeSet(context.getSource(),
-                                        ImmutableList.of(context.getSource().getEntityOrException()),
-                                        IntegerArgumentType.getInteger(context, "amount")))
+                                        ImmutableList.of(context.getSource()
+                                                .getPlayerOrException()),
+                                        IntegerArgumentType.getInteger(context,
+                                                "amount")))
                                 .then(
-                                        Commands.argument("targets", EntityArgument.players())
-                                                .executes(context -> executeSet(context.getSource(),
-                                                        EntityArgument.getPlayers(context, "targets"),
-                                                        IntegerArgumentType.getInteger(context, "amount"))))))
-                        .then(Commands.literal("get").executes(context -> executeGet(context.getSource(),
-                                ImmutableList.of(context.getSource().getEntityOrException())))
-                                .then(Commands.argument("targets", EntityArgument.players())
-                                        .executes(context -> executeGet(context.getSource(),
-                                                EntityArgument.getPlayers(context, "targets"))))));
+                                        Commands.argument("targets",
+                                                EntityArgument.players())
+                                                .executes(context -> executeSet(
+                                                        context.getSource(),
+                                                        EntityArgument.getPlayers(
+                                                                context,
+                                                                "targets"),
+                                                        IntegerArgumentType
+                                                                .getInteger(context,
+                                                                        "amount"))))))
+                        .then(Commands.literal("get").executes(context -> executeGet(
+                                context.getSource(),
+                                ImmutableList.of(context.getSource()
+                                        .getEntityOrException())))
+                                .then(Commands.argument("targets",
+                                        EntityArgument.players())
+                                        .executes(context -> executeGet(
+                                                context.getSource(),
+                                                EntityArgument.getPlayers(
+                                                        context,
+                                                        "targets"))))));
     }
 
-    public static boolean setStamina(Entity target, float amount) {
+    public static boolean setStamina(Player target, float amount) {
+        return setStamina(target, amount, true);
+    }
+
+    public static boolean setStamina(Player target, float amount, boolean sync) {
         if (target instanceof PlayerStaminaGetter stam) {
             stam.starrailexpress$setStamina((float) amount);
             return true;
         }
+        if (sync) {
+            if (!target.level().isClientSide && target instanceof ServerPlayer sp) {
+                ServerPlayNetworking.send(sp, new StaminaS2CPacket(amount));
+            }
+        }
         return false;
     }
 
-    private static int executeSet(CommandSourceStack source, Collection<? extends Entity> targets, int amount) {
+    private static int executeSet(CommandSourceStack source, Collection<? extends Player> targets, int amount) {
         int finalAmount = Math.max(amount, 0);
         int total = 0;
 
-        for (Entity target : targets) {
+        for (Player target : targets) {
             if (target instanceof PlayerStaminaGetter) {
                 setStamina(target, (float) finalAmount);
                 total += finalAmount;
@@ -80,12 +118,14 @@ public class StaminaCommand {
             Entity target = targets.iterator().next();
             source.sendSuccess(
                     () -> Component
-                            .translatable("commands.sre.setstamina", target.getName().getString(), amount)
+                            .translatable("commands.sre.setstamina",
+                                    target.getName().getString(), amount)
                             .withStyle(style -> style.withColor(0x00FF00)),
                     true);
         } else {
             source.sendSuccess(
-                    () -> Component.translatable("commands.sre.setstamina.multiple", targets.size(), amount)
+                    () -> Component.translatable("commands.sre.setstamina.multiple", targets.size(),
+                            amount)
                             .withStyle(style -> style.withColor(0x00FF00)),
                     true);
         }
@@ -108,13 +148,15 @@ public class StaminaCommand {
             float stamina = ((PlayerStaminaGetter) target).starrailexpress$getStamina();
             source.sendSuccess(
                     () -> Component
-                            .translatable("commands.sre.addstamina", target.getName().getString(), amount,
+                            .translatable("commands.sre.addstamina",
+                                    target.getName().getString(), amount,
                                     (int) stamina)
                             .withStyle(style -> style.withColor(0x00FF00)),
                     true);
         } else {
             source.sendSuccess(
-                    () -> Component.translatable("commands.sre.addstamina.multiple", targets.size(), amount)
+                    () -> Component.translatable("commands.sre.addstamina.multiple", targets.size(),
+                            amount)
                             .withStyle(style -> style.withColor(0x00FF00)),
                     true);
         }

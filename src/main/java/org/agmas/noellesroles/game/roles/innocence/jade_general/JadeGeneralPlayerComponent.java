@@ -17,9 +17,9 @@ package org.agmas.noellesroles.game.roles.innocence.jade_general;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.command.StaminaCommand;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -51,13 +51,14 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 /**
  * 玉将军组件（平民阵营）。
  *
- * <p>飞踢（按技能键触发）：
+ * <p>
+ * 飞踢（按技能键触发）：
  * <ul>
- *   <li>向视线方向位移约五格；冷却 35 秒。</li>
- *   <li>位移途中踹开沿途的任意房门。</li>
- *   <li>踢中目标玩家将其击退两格；撞到方块眩晕 4 秒，否则 2 秒。</li>
- *   <li>命中后有概率为目标施加一层永久的缓慢效果（I→II→III，最高 3 级）。</li>
- *   <li>技能释放后清空自身体力条。</li>
+ * <li>向视线方向位移约五格；冷却 35 秒。</li>
+ * <li>位移途中踹开沿途的任意房门。</li>
+ * <li>踢中目标玩家将其击退两格；撞到方块眩晕 4 秒，否则 2 秒。</li>
+ * <li>命中后有概率为目标施加一层永久的缓慢效果（I→II→III，最高 3 级）。</li>
+ * <li>技能释放后清空自身体力条。</li>
  * </ul>
  */
 public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingComponent {
@@ -80,19 +81,41 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
         this.player = player;
     }
 
-    @Override public Player getPlayer() { return player; }
-    @Override public boolean shouldSyncWith(ServerPlayer p) { return p == player; }
-    public void sync() { KEY.sync(player); }
+    @Override
+    public Player getPlayer() {
+        return player;
+    }
 
-    @Override public void init() { kickHitCount = 0; dashTicks = 0; hitThisDash = false; sync(); }
-    @Override public void clear() { init(); }
+    @Override
+    public boolean shouldSyncWith(ServerPlayer p) {
+        return p == player;
+    }
+
+    public void sync() {
+        KEY.sync(player);
+    }
+
+    @Override
+    public void init() {
+        kickHitCount = 0;
+        dashTicks = 0;
+        hitThisDash = false;
+        sync();
+    }
+
+    @Override
+    public void clear() {
+        init();
+    }
 
     // ==================== 技能入口 ====================
 
     public boolean useSkill() {
-        if (!(player instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(player)) return false;
+        if (!(player instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(player))
+            return false;
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (!gameWorld.isRole(player, ModRoles.JADE_GENERAL)) return false;
+        if (!gameWorld.isRole(player, ModRoles.JADE_GENERAL))
+            return false;
 
         this.dashTicks = DASH_TICKS;
         this.hitThisDash = false;
@@ -112,9 +135,8 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
 
         // 清空体力条：先让客户端停止冲刺，再重置服务端体力值
         sp.setSprinting(false);
-        if (player instanceof PlayerStaminaGetter stamina) {
-            stamina.starrailexpress$setStamina(0f);
-        }
+        StaminaCommand.setStamina(sp, 0f);
+
         sp.serverLevel().playSound(null, sp.getX(), sp.getY(), sp.getZ(),
                 SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1.0f, 0.8f);
         return true;
@@ -124,7 +146,8 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
 
     @Override
     public void serverTick() {
-        if (dashTicks <= 0) return;
+        if (dashTicks <= 0)
+            return;
         if (!(player instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(player)) {
             dashTicks = 0;
             return;
@@ -171,15 +194,22 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
         Player best = null;
         double bestDist = Double.MAX_VALUE;
         for (Player p : sp.level().players()) {
-            if (p == sp || !GameUtils.isPlayerAliveAndSurvival(p)) continue;
+            if (p == sp || !GameUtils.isPlayerAliveAndSurvival(p))
+                continue;
             Vec3 to = flatten(p.position().subtract(selfPos));
             double dist = to.length();
-            if (dist > TARGET_RANGE) continue;
+            if (dist > TARGET_RANGE)
+                continue;
             // 竖直方向限制，避免踢到楼上/楼下的人
-            if (Math.abs(p.getY() - selfPos.y) > 2.0) continue;
+            if (Math.abs(p.getY() - selfPos.y) > 2.0)
+                continue;
             // 贴脸（dist 极小）时跳过朝向判定直接命中；否则要求目标在前方锥形内
-            if (dist > 1.0e-4 && forward.dot(to.normalize()) < 0.3D) continue;
-            if (dist < bestDist) { bestDist = dist; best = p; }
+            if (dist > 1.0e-4 && forward.dot(to.normalize()) < 0.3D)
+                continue;
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = p;
+            }
         }
         return best;
     }
@@ -187,7 +217,8 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
     private void performKick(ServerPlayer sp, Player target) {
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
         Vec3 dir = flatten(target.position().subtract(sp.position()));
-        if (dir.lengthSqr() < 1.0e-4) dir = flatten(sp.getLookAngle());
+        if (dir.lengthSqr() < 1.0e-4)
+            dir = flatten(sp.getLookAngle());
         dir = dir.normalize();
 
         // 击退（竖直分量削减 60%：0.42 -> 0.168，避免把人踢飞上天）
@@ -223,7 +254,8 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
 
     /** Try to apply or upgrade a permanent slow effect on the target. */
     private void tryApplyPermaSlow(Player target, int chancePercent) {
-        if (target.getRandom().nextInt(100) >= chancePercent) return;
+        if (target.getRandom().nextInt(100) >= chancePercent)
+            return;
 
         MobEffectInstance existing = target.getEffect(MobEffects.MOVEMENT_SLOWDOWN);
         int newLevel = 0; // Slow I = amplifier 0
@@ -255,7 +287,8 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
     // ==================== 踹门 ====================
 
     private void kickOpenNearbyDoors(ServerPlayer sp) {
-        if (!(sp.level() instanceof ServerLevel level)) return;
+        if (!(sp.level() instanceof ServerLevel level))
+            return;
         BlockPos base = sp.blockPosition();
         for (int dx = -1; dx <= 1; dx++)
             for (int dz = -1; dz <= 1; dz++)
@@ -265,11 +298,13 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
 
     private static void openBlock(ServerLevel level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        if (!state.hasProperty(BlockStateProperties.OPEN) || state.getValue(BlockStateProperties.OPEN)) return;
+        if (!state.hasProperty(BlockStateProperties.OPEN) || state.getValue(BlockStateProperties.OPEN))
+            return;
         level.setBlockAndUpdate(pos, state.setValue(BlockStateProperties.OPEN, true));
         if (state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)) {
             BlockPos otherHalf = state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.LOWER
-                    ? pos.above() : pos.below();
+                    ? pos.above()
+                    : pos.below();
             BlockState otherState = level.getBlockState(otherHalf);
             if (otherState.hasProperty(BlockStateProperties.OPEN) && !otherState.getValue(BlockStateProperties.OPEN)) {
                 level.setBlockAndUpdate(otherHalf, otherState.setValue(BlockStateProperties.OPEN, true));
@@ -277,16 +312,27 @@ public class JadeGeneralPlayerComponent implements RoleComponent, ServerTickingC
         }
     }
 
-    private static Vec3 flatten(Vec3 v) { return new Vec3(v.x, 0, v.z); }
+    private static Vec3 flatten(Vec3 v) {
+        return new Vec3(v.x, 0, v.z);
+    }
 
     // ==================== NBT ====================
 
-    @Override public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
         tag.putInt("kickHitCount", kickHitCount);
     }
-    @Override public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
+
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
         kickHitCount = tag.getInt("kickHitCount");
     }
-    @Override public void writeToNbt(CompoundTag tag, HolderLookup.Provider p) {}
-    @Override public void readFromNbt(CompoundTag tag, HolderLookup.Provider p) {}
+
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider p) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider p) {
+    }
 }

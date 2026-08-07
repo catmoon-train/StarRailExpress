@@ -152,6 +152,7 @@ import io.wifi.starrailexpress.network.original.ShootMuzzleS2CPayload;
 import io.wifi.starrailexpress.network.original.SniperScopeStateS2CPayload;
 import io.wifi.starrailexpress.network.original.TaskCompletePayload;
 import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
+import io.wifi.starrailexpress.network.packet.StaminaS2CPacket;
 import io.wifi.starrailexpress.network.packet.SyncRoomToPlayerPayload;
 import io.wifi.starrailexpress.network.packet.SyncSpecificWaypointVisibilityPacket;
 import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
@@ -161,6 +162,7 @@ import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
 import io.wifi.starrailexpress.util.HPManager;
 import io.wifi.starrailexpress.util.MatrixParticleManager;
+import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.exmo.sre.EXSREClient;
@@ -566,7 +568,12 @@ public class SREClient implements ClientModInitializer {
         StreamingSpectatorClient.register();
         ClientPlayNetworking.registerGlobalReceiver(SecurityCameraModePayload.ID,
                 new SecurityCameraModePayload.ClientReceiver());
-
+        ClientPlayNetworking.registerGlobalReceiver(StaminaS2CPacket.ID, (payload, context) -> {
+            float value = payload.stamina();
+            if (context.player() instanceof PlayerStaminaGetter stam) {
+                stam.starrailexpress$setStamina((float) value);
+            }
+        });
         ClientPlayNetworking.registerGlobalReceiver(IsLobbyConfigPayload.ID, (payload, context) -> {
             SREClient.isInLobby = payload.isLobby();
             SRE.isLobby = payload.isLobby();
