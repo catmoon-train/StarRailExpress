@@ -111,10 +111,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
     /** 拉人半径 12 格。 */
     public static final double LAST_TRAIN_RADIUS = 12.0D;
 
-    /** 里世界效果的续期时长与阈值（与怀旧者保持一致）。 */
-    private static final int BACKWORLD_EFFECT_DURATION = 60;
-    private static final int BACKWORLD_EFFECT_REFRESH_THRESHOLD = 40;
-
     /**
      * 全局记录：当前正被归途旅人关在里世界中的玩家。
      * 用于死亡拦截（里世界中的人不会被杀手杀死），不依赖共享的描边效果，
@@ -294,7 +290,7 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
             oldFerryVictims.add(target.getUUID());
             BACKWORLD_VICTIMS.add(target.getUUID());
             spawnEnterBackworldEffect(target);
-            applyBackworldEffects(target);
+            applyBackworldEffects(target, OLD_FERRY_BACKWORLD_TICKS);
             target.displayClientMessage(
                     Component.translatable("message.noellesroles.return_traveler.dragged")
                             .withStyle(ChatFormatting.DARK_GRAY),
@@ -305,7 +301,7 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
         oldFerryVictims.add(serverPlayer.getUUID());
         BACKWORLD_VICTIMS.add(serverPlayer.getUUID());
         spawnEnterBackworldEffect(serverPlayer);
-        applyBackworldEffects(serverPlayer);
+        applyBackworldEffects(serverPlayer, OLD_FERRY_BACKWORLD_TICKS);
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.return_traveler.dragged")
                         .withStyle(ChatFormatting.DARK_GRAY),
@@ -397,7 +393,7 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
             lastTrainVictims.add(other.getUUID());
             BACKWORLD_VICTIMS.add(other.getUUID());
             spawnEnterBackworldEffect(other);
-            applyBackworldEffects(other);
+            applyBackworldEffects(other, LAST_TRAIN_BACKWORLD_TICKS);
             other.displayClientMessage(
                     Component.translatable("message.noellesroles.return_traveler.dragged")
                             .withStyle(ChatFormatting.DARK_GRAY),
@@ -529,7 +525,7 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
             }
         }
 
-        // 里世界维持
+        // 里世界计时（药水时长已给满，此处只推进倒计时）
         if (oldFerryBackworld > 0) {
             maintainBackworld(serverPlayer, oldFerryVictims);
             oldFerryBackworld--;
@@ -550,7 +546,7 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
         }
     }
 
-    /** 每 tick 给里世界中的受害者续期效果，并剔除已经掉线/死亡的人。 */
+    /** 剔除已经掉线/死亡的人并清除其里世界效果（药水已直接给满技能时长，无需每 tick 续期）。 */
     private void maintainBackworld(ServerPlayer owner, Set<UUID> victims) {
         if (victims.isEmpty()) {
             return;
@@ -564,7 +560,6 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
                 }
                 return true;
             }
-            applyBackworldEffects(target);
             return false;
         });
     }
@@ -574,23 +569,19 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
     // ------------------------------------------------------------------
 
     /**
-     * 维持里世界的全部药水效果：隐身、灰白滤镜标记、禁用物品、禁言、消除脚步声、同界描边。
+     * 施加里世界的全部药水效果：隐身、灰白滤镜标记、禁用物品、禁言、消除脚步声、同界描边。
+     * 时长直接给满对应里世界技能持续时间；技能结束时由 {@link #removeBackworldEffects} 兜底清除。
      * 全部以 ambient=true、不显示粒子/图标的方式施加（隐藏气泡）。
      */
-    private static void applyBackworldEffects(ServerPlayer target) {
-        MobEffectInstance marker = target.getEffect(ModEffects.NOSTALGIST_BACKWORLD);
-        if (marker != null && marker.getDuration() > BACKWORLD_EFFECT_REFRESH_THRESHOLD) {
-            return;
-        }
-        int d = BACKWORLD_EFFECT_DURATION;
-        target.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, d, 0, true, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.NOSTALGIST_BACKWORLD, d, 0, true, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, d, 0, true, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, d, 0, true, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, d, 0, true, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, d, 0, true, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.FOOTSTEP_VANISH, d, 0, true, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.BACKWORLD_OUTLINE, d, 0, true, false, false));
+    private static void applyBackworldEffects(ServerPlayer target, int duration) {
+        target.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, true, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.NOSTALGIST_BACKWORLD, duration, 0, true, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, duration, 0, true, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, duration, 0, true, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, duration, 0, true, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, duration, 0, true, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.FOOTSTEP_VANISH, duration, 0, true, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.BACKWORLD_OUTLINE, duration, 0, true, false, false));
     }
 
     private static void removeBackworldEffects(ServerPlayer target) {
