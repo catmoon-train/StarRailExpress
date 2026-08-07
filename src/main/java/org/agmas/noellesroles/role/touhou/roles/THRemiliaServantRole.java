@@ -36,6 +36,10 @@ public class THRemiliaServantRole extends TouhouRole {
     public List<ShopEntry> getShopEntries() {
         ArrayList<ShopEntry> SHOP = new ArrayList<>();
         SHOP.add(new KillerKnifeShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, 50));
+        SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
+                SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
+        SHOP.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
+                SREConfig.instance().grenadePrice, ShopEntry.Type.WEAPON));
         SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
                 SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
             @Override
