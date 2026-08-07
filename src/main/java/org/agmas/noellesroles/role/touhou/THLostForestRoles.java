@@ -61,6 +61,7 @@ public class THLostForestRoles {
       .addOccupationRole(KAGUYA)
       .setNeutrals(true)
       .addRelatedModifier(SEModifiers.LOVERS)
+      .setInstinctType(InstinctType.DEFAULT, InstinctType.KILLER_INSTINCT)
       .setCanBeRandomedByOtherRoles(false)
       .setHiddenForRoleRotation(true);
 

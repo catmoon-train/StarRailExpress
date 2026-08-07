@@ -36,7 +36,7 @@ import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 
 public class THKaguyaRole extends TouhouRole {
 
-    public static final int NORMAL_DEATH_THRESHOLD = 8;
+    public static final int NORMAL_DEATH_THRESHOLD = 5;
 
     public THKaguyaRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
