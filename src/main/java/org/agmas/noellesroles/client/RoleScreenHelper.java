@@ -38,19 +38,20 @@ public class RoleScreenHelper<T> {
 
     /**
      * 创建 RoleScreenHelper 实例。
-     * @param player 客户端玩家实体
-     * @param role 对应的角色
-     * @param widgetCreator 用于创建玩家小部件的回调
-     * @param textProvider 分页文本提供器
-     * @param extraDrawer 额外绘制逻辑（接收绘制上下文和屏幕中心点）
+     * 
+     * @param player          客户端玩家实体
+     * @param role            对应的角色
+     * @param widgetCreator   用于创建玩家小部件的回调
+     * @param textProvider    分页文本提供器
+     * @param extraDrawer     额外绘制逻辑（接收绘制上下文和屏幕中心点）
      * @param entriesSupplier 提供玩家条目列表的 Supplier
      */
     public RoleScreenHelper(LocalPlayer player,
-                            SRERole role,
-                            PlayerPaginationHelper.PlayerWidgetCreator<T> widgetCreator,
-                            PlayerPaginationHelper.PaginationTextProvider textProvider,
-                            BiConsumer<GuiGraphics, Point> extraDrawer,
-                            Supplier<List<T>> entriesSupplier) {
+            SRERole role,
+            PlayerPaginationHelper.PlayerWidgetCreator<T> widgetCreator,
+            PlayerPaginationHelper.PaginationTextProvider textProvider,
+            BiConsumer<GuiGraphics, Point> extraDrawer,
+            Supplier<List<T>> entriesSupplier) {
         this.player = player;
         this.role = role;
         this.paginationHelper = new PlayerPaginationHelper<>(widgetCreator, textProvider);
@@ -62,14 +63,16 @@ public class RoleScreenHelper<T> {
      * 检查当前玩家是否拥有该角色。
      */
     public boolean isRoleActive() {
-        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
+        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+                .get(player.level());
         return gameWorldComponent.isRole(player, role);
     }
 
     /**
      * 在渲染时调用，绘制角色特定内容和分页。
+     * 
      * @param context 绘制上下文
-     * @param screen 屏幕实例（必须实现 ScreenWithChildren）
+     * @param screen  屏幕实例（必须实现 ScreenWithChildren）
      */
     public void onRender(GuiGraphics context, PlayerPaginationHelper.ScreenWithChildren screen) {
         if (!isRoleActive()) {
@@ -87,6 +90,7 @@ public class RoleScreenHelper<T> {
 
     /**
      * 在初始化时调用，设置分页条目并添加小部件。
+     * 
      * @param screen 屏幕实例（必须实现 ScreenWithChildren）
      */
     public void onInit(PlayerPaginationHelper.ScreenWithChildren screen) {

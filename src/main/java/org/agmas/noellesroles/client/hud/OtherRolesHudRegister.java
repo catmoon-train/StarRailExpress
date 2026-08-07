@@ -21,10 +21,11 @@ import org.agmas.noellesroles.client.hud.modifiers.RefugeeHud;
 import org.agmas.noellesroles.client.hud.modifiers.ShitSplitHud;
 import org.agmas.noellesroles.client.hud.roles.*;
 
-public class OtherRolesRegister {
+public class OtherRolesHudRegister {
     public static int warningOffset = 0;
     public static void registerSons() {
         BannedBlockWarningHud.register();
+        THMamizouHud.register();
         CuckooHud.register();
         ShitSplitHud.register();
         VoteHud.register();

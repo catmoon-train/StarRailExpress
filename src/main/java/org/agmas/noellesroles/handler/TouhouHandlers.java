@@ -59,6 +59,7 @@ import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role.touhou.roles.THMamizouRole;
 import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
 import org.agmas.noellesroles.role.touhou.roles.THRemiliaRole;
 import org.agmas.noellesroles.role.touhou.roles.THSuikaRole;
@@ -230,6 +231,11 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
+    
+    RoleSkill.register(THMiscRoles.MAMIZOU,
+        RoleSkill.skill(SRE.id("mamizou_select"), "skill.noellesroles.mamizou_select", THMamizouRole::handleSelect)
+            .noAnnouncement()
+            .showOnHud(true).cooldownSeconds(60).build());
     RoleSkill.register(THMiscRoles.REIUJI_UTSUHO,
         RoleSkill.skill(SRE.id("utsuho"), "skill.noellesroles.utsuho", THUtsuhoRole::skillHandler)
             .announceToSelf().showOnHud(true).cooldownSeconds(120).build());

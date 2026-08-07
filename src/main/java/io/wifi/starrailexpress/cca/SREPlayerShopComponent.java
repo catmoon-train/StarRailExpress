@@ -268,7 +268,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         final var role = gameWorldComponent.getRole(player);
         if (gameWorldComponent != null && role != null && GameUtils.isPlayerAliveAndSurvival(player)) {
             final var shopEntries = ShopContent.getShopEntries(
-                    role.getIdentifier());
+                    role.getIdentifier(), player);
             if (shopEntries != null && !shopEntries.isEmpty()) {
                 return shopEntries;
             }

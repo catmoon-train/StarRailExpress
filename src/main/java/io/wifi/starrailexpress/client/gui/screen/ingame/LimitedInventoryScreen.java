@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.agmas.noellesroles.client.hud.CommonClientHudRenderer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
@@ -180,10 +181,10 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         }
     }
 
-    public static List<ShopEntry> getRoleShopEntries(SRERole role) {
+    public static List<ShopEntry> getRoleShopEntries(SRERole role, @Nullable Player player) {
         if (role == null)
             return List.of();
-        final var shopEntries = ShopContent.getShopEntries(role.getIdentifier());
+        final var shopEntries = ShopContent.getShopEntries(role.getIdentifier(), player);
         if (shopEntries != null)
             return shopEntries;
         return List.of();
@@ -198,7 +199,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             final var role = gameWorldComponent.getRole(player);
             if (role == null)
                 return List.of();
-            return getRoleShopEntries(role);
+            return getRoleShopEntries(role, player);
         }
         return List.of();
     }

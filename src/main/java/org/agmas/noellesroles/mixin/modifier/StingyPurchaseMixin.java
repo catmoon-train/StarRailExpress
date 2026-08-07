@@ -36,26 +36,29 @@ import java.util.List;
 @Mixin(SREPlayerShopComponent.class)
 public class StingyPurchaseMixin {
 
-    @Inject(method = "tryBuy", at = @At(value = "INVOKE", 
-            target = "Lio/wifi/starrailexpress/api/replay/GameReplayManager;recordStoreBuy(Ljava/util/UUID;Lnet/minecraft/resources/ResourceLocation;II)V"))
+    @Inject(method = "tryBuy", at = @At(value = "INVOKE", target = "Lio/wifi/starrailexpress/api/replay/GameReplayManager;recordStoreBuy(Ljava/util/UUID;Lnet/minecraft/resources/ResourceLocation;II)V"))
     private void onPurchaseSuccess(int index, CallbackInfo ci) {
         SREPlayerShopComponent self = (SREPlayerShopComponent) (Object) this;
         Player player = self.getPlayer();
-        
-        if (!(player instanceof ServerPlayer sp)) return;
-        if (sp.serverLevel().isClientSide) return;
-        
+
+        if (!(player instanceof ServerPlayer sp))
+            return;
+        if (sp.serverLevel().isClientSide)
+            return;
+
         // 获取商品信息和价格
         try {
             // 获取角色和商店条目
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(sp.level());
-            if (gameWorld == null) return;
-            
+            if (gameWorld == null)
+                return;
+
             var role = gameWorld.getRole(sp);
-            if (role == null || !GameUtils.isPlayerAliveAndSurvival(sp)) return;
-            
-            List<ShopEntry> entries = ShopContent.getShopEntries(role.getIdentifier());
-            
+            if (role == null || !GameUtils.isPlayerAliveAndSurvival(sp))
+                return;
+
+            List<ShopEntry> entries = ShopContent.getShopEntries(role.getIdentifier(), player);
+
             if (index >= 0 && index < entries.size()) {
                 ShopEntry entry = entries.get(index);
                 // 调用购买事件

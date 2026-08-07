@@ -30,12 +30,22 @@ public class THMiscRoles {
     return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
   }
 
+  // 二岩猯藏：可购买瞄准目标的商店物品futatuiwa_mamizou。冷却60s
+  // 可以考虑和阴谋配合
+  public static final ResourceLocation MAMIZOU_ID = id("futatuiwa_mamizou");
+  public static SRERole MAMIZOU = TMMRoles
+      .registerRole(new THMamizouRole(MAMIZOU_ID, new Color(113,81,71).getRGB(),
+          false, true, SRERole.MoodType.FAKE,
+         Integer.MAX_VALUE, true))
+      .setDefaultMax(1)
+      .setDefaultEnableNeededPlayerCount(12)
+      .setDefaultEnableChance(5000);
   // Kirisame Marisa
   public static final ResourceLocation IBUKI_SUIKA_ID = id("ibuki_suika");
   public static SRERole IBUKI_SUIKA = TMMRoles
       .registerRole(new THSuikaRole(IBUKI_SUIKA_ID, new Color(149, 76, 24).getRGB(),
           false, true, SRERole.MoodType.FAKE,
-          TMMRoles.CIVILIAN_MAX_SPRINT_TICKS * 100, true))
+          Integer.MAX_VALUE, true))
       .setDefaultMax(1)
       .setDefaultEnableNeededPlayerCount(18)
       .setDefaultEnableChance(5000);
