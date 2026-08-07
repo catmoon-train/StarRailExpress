@@ -586,6 +586,7 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
         target.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, d, 0, true, false, false));
         target.addEffect(new MobEffectInstance(ModEffects.NOSTALGIST_BACKWORLD, d, 0, true, false, false));
         target.addEffect(new MobEffectInstance(ModEffects.USED_BANED, d, 0, true, false, false));
+        target.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, d, 0, true, false, false));
         target.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, d, 0, true, false, false));
         target.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, d, 0, true, false, false));
         target.addEffect(new MobEffectInstance(ModEffects.FOOTSTEP_VANISH, d, 0, true, false, false));
@@ -596,6 +597,7 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
         target.removeEffect(MobEffects.INVISIBILITY);
         target.removeEffect(ModEffects.NOSTALGIST_BACKWORLD);
         target.removeEffect(ModEffects.USED_BANED);
+        target.removeEffect(ModEffects.SKILL_BANED);
         target.removeEffect(ModEffects.CHAT_BAN);
         target.removeEffect(ModEffects.VOICE_SILENCE);
         target.removeEffect(ModEffects.FOOTSTEP_VANISH);
