@@ -756,7 +756,7 @@ public class RoleUtils extends MCItemsUtils {
     public static MutableComponent getPlayerRoleName(Player victim, boolean color) {
         var role = getPlayerRole(victim);
         if (role == null) {
-            return Component.translatable("unknown").withStyle(ChatFormatting.GRAY);
+            return Component.translatable("Unknown").withStyle(ChatFormatting.GRAY);
         }
         return role.getName().copy().withColor(role.color());
     }

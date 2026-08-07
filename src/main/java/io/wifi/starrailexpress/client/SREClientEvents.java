@@ -55,6 +55,7 @@ import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
@@ -106,6 +107,18 @@ public class SREClientEvents {
     public static void registerRoleNameRendererEvents() {
         PlayerBodyHud.registerEvents();
         ForensicHud.registerEvents();
+        // 大小姐的仆从显示大小姐
+        OnRenderRoleName.RENDER_PLAYER_ROLE.register((player, target, context, tickCounter, renderer) -> {
+            if (target == null)
+                return null;
+            if (SREClient.gameComponent != null) {
+                if (SREClient.gameComponent.isRole(player, THRedHouseRoles.REMILIA_BLOOD_SERVANT)
+                        && SREClient.gameComponent.isRole(target, THRedHouseRoles.REMILIA)) {
+                    return TrueFalseAndCustomResult.custom(THRedHouseRoles.REMILIA.getDisplayNameWithColor());
+                }
+            }
+            return TrueFalseAndCustomResult.pass();
+        });
         // 魔术师
         // 显示职业
         OnRenderRoleName.RENDER_PLAYER_ROLE.register((player, target, context, tickCounter, renderer) -> {

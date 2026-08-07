@@ -46,9 +46,13 @@ public class RenderEffectMixin {
     @Unique
     private boolean sre$pushed = false;
 
+    @Inject(method = "renderEffects", at = @At(value = "HEAD"))
+    private void sre$renderEffects(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+        customRenderEffect(guiGraphics, deltaTracker);
+    }
+
     @Inject(method = "renderEffects", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableBlend()V", shift = At.Shift.AFTER))
     private void sre$moveEffectPostion_head(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-        customRenderEffect(guiGraphics, deltaTracker);
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0, CommonClientHudRenderer.effectStartY, 0);
         // 标记已推入
@@ -97,7 +101,7 @@ public class RenderEffectMixin {
             return;
         }
         Screen var5 = this.minecraft.screen;
-        if (var5 instanceof EffectRenderingInventoryScreen effectRenderingInventoryScreen) {
+        if (var5 != null && var5 instanceof EffectRenderingInventoryScreen effectRenderingInventoryScreen) {
             if (effectRenderingInventoryScreen.canSeeEffects()) {
                 return;
             }
