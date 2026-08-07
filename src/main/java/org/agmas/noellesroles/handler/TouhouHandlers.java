@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
+import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithBody;
@@ -120,6 +121,16 @@ public class TouhouHandlers {
   }
 
   public static void registerEvents() {
+    // 大小姐仆从不能杀蕾米莉亚
+    AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathreason) -> {
+      if (killer == null)
+        return true;
+      if (RoleUtils.isPlayerTheJob(killer, THRedHouseRoles.REMILIA_BLOOD_SERVANT)) {
+        if (RoleUtils.isPlayerTheJob(victim, THRedHouseRoles.REMILIA))
+          return false;
+      }
+      return true;
+    });
     // 蕾米莉亚杀人转换职业
     OnPlayerDeathWithBody.EVENT.register((victim, killer, deathReason, body) -> {
       if (killer == null)
