@@ -23,7 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public record StaminaS2CPacket(float stamina) implements CustomPacketPayload {
     public static final Type<StaminaS2CPacket> ID = new Type<>(
-            ResourceLocation.tryBuild(SRE.MOD_ID, "mod_version_check"));
+            ResourceLocation.tryBuild(SRE.MOD_ID, "set_stamina"));
     public static final StreamCodec<FriendlyByteBuf, StaminaS2CPacket> CODEC = StreamCodec.ofMember(
             (packet, buf) -> {
                 buf.writeFloat(packet.stamina());
