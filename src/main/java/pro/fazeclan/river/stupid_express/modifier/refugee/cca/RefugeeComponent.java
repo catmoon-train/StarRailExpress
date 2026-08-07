@@ -116,6 +116,15 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         });
         boolean timeFrozen = SREGameTimeComponent.KEY.get(level).timeFrozen;
         for (RefugeeData data : new ArrayList<>(pendingRevivals)) {
+            final var player = level.getPlayerByUUID(data.uuid);
+            if (player == null) {
+                data.isDead = true;
+                continue;
+            }
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                data.isDead = true;
+                continue;
+            }
             if (timeFrozen) {
                 data.revivalTime += 1;
                 continue;
@@ -126,7 +135,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             }
             if (data.isRevive && !data.isDead && currentTime >= data.revivalTime + 3000) {
                 data.isDead = true;
-                for (var player : level.players()) {
+                {
                     if (player.getUUID().equals(data.uuid)) {
                         if (GameUtils.isPlayerAliveAndSurvival(player)) {
                             GameUtils.killPlayer(player, true, null, StupidExpress.id("loose_end"), true);

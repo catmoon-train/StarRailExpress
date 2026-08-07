@@ -18,7 +18,7 @@ package io.wifi.starrailexpress.api;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.init.InitModRolesMax;
 
-public class EggRole extends NormalRole {
+public class EggRole extends NormalRole implements EggRoleInterface {
     /**
      * @param identifier    the mod id and name of the role
      * @param color         the role announcement color

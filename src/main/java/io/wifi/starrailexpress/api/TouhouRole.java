@@ -18,7 +18,7 @@ package io.wifi.starrailexpress.api;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.init.InitModRolesMax;
 
-public class TouhouRole extends NormalRole {
+public class TouhouRole extends NormalRole implements TouhouRoleInterface {
     /**
      * @param identifier    the mod id and name of the role
      * @param color         the role announcement color

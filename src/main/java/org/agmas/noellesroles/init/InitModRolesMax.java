@@ -18,10 +18,10 @@ package org.agmas.noellesroles.init;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.SREConfig.AutoPresetInfo;
-import io.wifi.starrailexpress.api.EggRole;
+import io.wifi.starrailexpress.api.EggRoleInterface;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.api.TouhouRole;
+import io.wifi.starrailexpress.api.TouhouRoleInterface;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
@@ -342,7 +342,7 @@ public class InitModRolesMax {
                     && random.nextInt(0, 100) <= EGGS_CHANCE) {
                 isEggEnabled = true;
                 for (var a : TMMRoles.ROLES.values()) {
-                    if (a instanceof EggRole) {
+                    if (a instanceof EggRoleInterface) {
                         int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap);
                         if (max >= 0) {
                             Harpymodloader.setRoleMaximum(a, max);
@@ -367,7 +367,7 @@ public class InitModRolesMax {
                     }
                 }
                 for (var a : TMMRoles.ROLES.values()) {
-                    if (a instanceof EggRole) {
+                    if (a instanceof EggRoleInterface) {
                         Harpymodloader.setRoleMaximum(a, 0);
                     }
                 }
@@ -409,7 +409,7 @@ public class InitModRolesMax {
             if (players_count >= config.minPlayerForTouhouRoles && random.nextInt(0, 100) < TOUHOU_CHANCE) {
                 isTouhouEnabled = true;
                 for (var a : TMMRoles.ROLES.values()) {
-                    if (a instanceof TouhouRole) {
+                    if (a instanceof TouhouRoleInterface) {
                         int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap);
                         if (max >= 0) {
                             Harpymodloader.setRoleMaximum(a, max);
@@ -432,7 +432,7 @@ public class InitModRolesMax {
             } else {
                 isTouhouEnabled = false;
                 for (var a : TMMRoles.ROLES.values()) {
-                    if (a instanceof TouhouRole) {
+                    if (a instanceof TouhouRoleInterface) {
                         Harpymodloader.setRoleMaximum(a, 0);
                     }
                 }
@@ -569,9 +569,9 @@ public class InitModRolesMax {
         var areacca = AreasWorldComponent.KEY.get(serverLevel);
         var mapName = areacca.mapName;
         for (var entry : TMMRoles.ROLES.entrySet()) {
-            if (entry.getValue() instanceof TouhouRole)
+            if (entry.getValue() instanceof TouhouRoleInterface)
                 continue;
-            if (entry.getValue() instanceof EggRole)
+            if (entry.getValue() instanceof EggRoleInterface)
                 continue;
             ResourceLocation name = entry.getKey();
             SRERole role = entry.getValue();

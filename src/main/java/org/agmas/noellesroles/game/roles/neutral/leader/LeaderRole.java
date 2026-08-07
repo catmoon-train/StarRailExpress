@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.neutral.leader;
 
 import io.wifi.starrailexpress.api.CustomWinnerRole;
+import io.wifi.starrailexpress.api.EggRoleInterface;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
@@ -40,7 +41,7 @@ import java.util.UUID;
  * <li>胜利判定：随追随者胜利（仅依附，不独立宣布）</li>
  * </ul>
  */
-public class LeaderRole extends CustomWinnerRole {
+public class LeaderRole extends CustomWinnerRole implements EggRoleInterface {
 
     public LeaderRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
