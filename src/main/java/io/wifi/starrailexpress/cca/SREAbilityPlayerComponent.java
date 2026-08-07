@@ -64,7 +64,7 @@ public class SREAbilityPlayerComponent
     private final Player player;
 
     // 技能冷却时间（tick）
-    public int cooldown = 100;
+    public int cooldown = 0;
     public int duration = 0;
 
     // 技能剩余使用次数（-1 表示无限制）
