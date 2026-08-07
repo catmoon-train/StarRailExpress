@@ -93,12 +93,13 @@ public class StaminaCommand {
     public static boolean setStamina(Player target, float amount, boolean sync) {
         if (target instanceof PlayerStaminaGetter stam) {
             stam.starrailexpress$setStamina((float) amount);
-            return true;
-        }
-        if (sync) {
-            if (!target.level().isClientSide && target instanceof ServerPlayer sp) {
-                ServerPlayNetworking.send(sp, new StaminaS2CPacket(amount));
+
+            if (sync) {
+                if (!target.level().isClientSide && target instanceof ServerPlayer sp) {
+                    ServerPlayNetworking.send(sp, new StaminaS2CPacket(amount));
+                }
             }
+            return true;
         }
         return false;
     }
