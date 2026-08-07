@@ -19,7 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
-import io.wifi.starrailexpress.event.OnPlayerDeath;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.nbt.ListTag;
@@ -42,8 +42,8 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
     public static Consumer<ServerPlayer> beforeLoadFunc = null;
 
     // 期间死亡的其它玩家会复活，玩家物品栏、金币、位置重置到亡命徒复活的时刻
-    public static void RegisterDeathEvent() {
-        (OnPlayerDeath.EVENT).register((victim, deathReason) -> {
+    public static void registerDeathEvent() {
+        (OnPlayerDeathWithKiller.EVENT).register((victim, killer, deathReason) -> {
             var level = victim.level();
             var worldModifierComponent = WorldModifierComponent.KEY.get(level);
             if (worldModifierComponent.isModifier(victim.getUUID(), SEModifiers.REFUGEE)) {

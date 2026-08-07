@@ -86,6 +86,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canBeXiaonao = false;
     protected boolean canXiaonao = false;
     protected Function<RoleDataContext, RoleData> roleDataFunc = null;
+
     /**
      * 获取职业数据。用于替代CCA。
      * 
@@ -1100,6 +1101,11 @@ public abstract class SRERole extends SREAbstractInfoClass {
      */
     public InteractionResult leftClickEntity(Player player, Entity victim) {
         return InteractionResult.PASS;
+    }
+
+    @Nullable
+    public List<ShopEntry> getShopEntries(@Nullable Player player) {
+        return getShopEntries();
     }
 
     @Nullable

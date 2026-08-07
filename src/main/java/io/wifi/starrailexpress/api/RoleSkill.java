@@ -81,6 +81,11 @@ public final class RoleSkill {
                 return null;
             return abilityCCA.getSkillState(definition.id());
         }
+
+        @Nullable
+        public ServerPlayer getTargetAsPlayer() {
+            return player.serverLevel().getPlayerByUUID(target()) instanceof ServerPlayer sp ? sp : null;
+        }
     }
 
     @FunctionalInterface

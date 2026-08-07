@@ -17,7 +17,6 @@ package org.agmas.noellesroles.config;
 
 import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
-import io.wifi.starrailexpress.game.GameConstants;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
@@ -103,12 +102,6 @@ public class NoellesRolesConfig implements ConfigData {
     public int minPlayerForSpecialPolice4 = 30;
     @ConfigEntry.Category(value = "detail")
     public int minPlayerForSpecialPolice5 = 36;
-
-    /**
-     * Starting cooldown (in ticks)
-     */
-
-    public int generalCooldownTicks = GameConstants.getInTicks(0, 30);
 
     /**
      * Enable client blood render

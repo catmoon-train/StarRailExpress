@@ -44,7 +44,6 @@ public class SuperLooseEndHud {
             // 渲染位置 - 右下角
             int x = guiGraphics.guiWidth() - guiGraphics.guiWidth() / 4;
             int y = guiGraphics.guiHeight() - font.lineHeight * 5 - 5;
-            int xOffset = 0;
             yOffset = 0;
             Component text = Component.empty();
             Component consumeText = Component.empty();

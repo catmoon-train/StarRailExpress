@@ -27,6 +27,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,20 +114,31 @@ public class ShopContent {
 
     public static Map<ResourceLocation, List<ShopEntry>> customEntries = new HashMap<>();
 
+    public static List<ShopEntry> getShopEntries(SRERole role) {
+        return getShopEntries(role, null);
+    }
+
     public static List<ShopEntry> getShopEntries(ResourceLocation role) {
+        return getShopEntries(role, null);
+    }
+
+    public static List<ShopEntry> getShopEntries(ResourceLocation role, @Nullable Player player) {
         SRERole sreRole = TMMRoles.ROLES.get(role);
         if (sreRole == null) {
             return List.of();
         }
+        return getShopEntries(sreRole, player);
+    }
 
-        final var shopEntries = sreRole.getShopEntries();
+    public static List<ShopEntry> getShopEntries(SRERole role, @Nullable Player player) {
+        final var shopEntries = role.getShopEntries(player);
         List<ShopEntry> result = List.of();
         if (shopEntries != null) {
             result = shopEntries;
-        } else if (customEntries.containsKey(role)) {
-            result = customEntries.get(role);
+        } else if (customEntries.containsKey(role.identifier())) {
+            result = customEntries.get(role.identifier());
         } else {
-            if (sreRole.canUseKiller()) {
+            if (role.canUseKiller()) {
                 result = getDefaultKnifeEntries();
             }
         }

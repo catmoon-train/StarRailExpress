@@ -59,13 +59,13 @@ public class BannedBlockWarningHud {
             {
                 ctx.pose().pushPose();
                 ctx.pose().translate((float) (ctx.guiWidth() / 2),
-                        (float) (ctx.guiHeight() - 78 - OtherRolesRegister.warningOffset), 0.0F);
+                        (float) (ctx.guiHeight() - 78 - OtherRolesHudRegister.warningOffset), 0.0F);
                 final var text = Component.translatable("message.starrailexpress.banned_blocks.warning",
                         Component.literal("" + (int) (leftTime / 20)).withStyle(ChatFormatting.GOLD))
                         .withStyle(ChatFormatting.RED);
                 ctx.drawCenteredString(client.font, text, 0, -4, 0xffffffff);
                 ctx.pose().popPose();
-                OtherRolesRegister.warningOffset += 12;
+                OtherRolesHudRegister.warningOffset += 12;
             }
         });
     }

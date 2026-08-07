@@ -1082,7 +1082,7 @@ public class RoleIntroduceScreen extends Screen {
             if (!(selectedRole instanceof SRERole))
                 return false;
             entries.clear();
-            entries.addAll(LimitedInventoryScreen.getRoleShopEntries((SRERole) selectedRole));
+            entries.addAll(LimitedInventoryScreen.getRoleShopEntries((SRERole) selectedRole, null));
             return !entries.isEmpty();
         }
 
@@ -1201,7 +1201,7 @@ public class RoleIntroduceScreen extends Screen {
             scrollOffset = 0;
             entries.clear();
             if (selectedRole instanceof SRERole)
-                entries.addAll(LimitedInventoryScreen.getRoleShopEntries((SRERole) selectedRole));
+                entries.addAll(LimitedInventoryScreen.getRoleShopEntries((SRERole) selectedRole, null));
         }
     }
 

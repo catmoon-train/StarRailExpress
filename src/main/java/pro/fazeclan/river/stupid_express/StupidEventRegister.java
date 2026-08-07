@@ -98,7 +98,7 @@ public class StupidEventRegister {
                             && modifierComponent.isModifier(player, SEModifiers.SPLIT_PERSONALITY);
                 }));
 
-        PlayerStatsBeforeRefugee.RegisterDeathEvent();
+        PlayerStatsBeforeRefugee.registerDeathEvent();
     }
 
     public static void register() {

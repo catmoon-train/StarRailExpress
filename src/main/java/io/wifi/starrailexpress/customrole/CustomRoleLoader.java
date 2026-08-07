@@ -62,9 +62,11 @@ public class CustomRoleLoader {
     private static final Map<String, SRERole> registeredRoles = new HashMap<>();
     // 自定义职业的本能透视配置
     private static final Map<String, Integer> instinctMaxRanges = new HashMap<>(); // englishId -> maxBlocksSquared（看别人）
-    private static final Map<String, Integer> instinctBeSeenMaxRanges = new HashMap<>(); // englishId -> maxBlocksSquared（被别人看）
+    private static final Map<String, Integer> instinctBeSeenMaxRanges = new HashMap<>(); // englishId ->
+                                                                                         // maxBlocksSquared（被别人看）
     private static final Map<String, Boolean> instinctSameColor = new HashMap<>(); // englishId -> sameColorFrame
-    private static final Map<String, Boolean> instinctUnlimitedTeammate = new HashMap<>(); // englishId -> unlimitedTeammate
+    private static final Map<String, Boolean> instinctUnlimitedTeammate = new HashMap<>(); // englishId ->
+                                                                                           // unlimitedTeammate
     // 技能 id -> 模块显示名（注册时写入，HUD 反查用，保证与释放/切换用的是同一个技能）
     private static final Map<ResourceLocation, String> skillDisplayNames = new HashMap<>();
     // 新版直觉模式存储：englishRoleId -> 模式列表
@@ -242,7 +244,8 @@ public class CustomRoleLoader {
      * <p>
      * 自定义职业重载时会创建新的 {@link SRERole} 实例，而旧实例此前可能已被加入其它职业的
      * {@code relatedRoles}/{@code opposingRoles}/{@code occupationRoles}（例如通过
-     * {@code bindWithRoles}/{@code twoWayOpposingJobs} 在 {@link #postInit()} 中建立绑定）。
+     * {@code bindWithRoles}/{@code twoWayOpposingJobs} 在 {@link #postInit()}
+     * 中建立绑定）。
      * 若只从 {@link TMMRoles#ROLES} 移除旧实例而不清理这些引用，重载后旧实例仍会残留，
      * 导致职业介绍的“其它相关职业”中出现两个相同的自定义职业。
      */
@@ -383,7 +386,8 @@ public class CustomRoleLoader {
                     }
                 }
                 String beSeenRange0 = (mode0.beSeenMaxRange == null || "*".equals(mode0.beSeenMaxRange.trim()))
-                        ? mode0.maxRange : mode0.beSeenMaxRange;
+                        ? mode0.maxRange
+                        : mode0.beSeenMaxRange;
                 if (beSeenRange0 != null && !"*".equals(beSeenRange0)) {
                     try {
                         int maxBlocks = Integer.parseInt(beSeenRange0.trim());
@@ -466,7 +470,8 @@ public class CustomRoleLoader {
         if (data.specialVigilante != null)
             role.setSpecialVigilante(data.specialVigilante);
         if (data.refreshableSpecialVigilante != null)
-            role.setRefreshableSpecialVigilante(data.refreshableSpecialVigilanteChance, data.refreshableSpecialVigilante);
+            role.setRefreshableSpecialVigilante(data.refreshableSpecialVigilanteChance,
+                    data.refreshableSpecialVigilante);
         if (data.canJumpManhole != null)
             role.setCanJumpManhole(data.canJumpManhole);
         if (data.canAcrossFog != null)
@@ -641,7 +646,8 @@ public class CustomRoleLoader {
                                 final ServerLevel level = player.serverLevel();
                                 GameUtils.serverTaskQueue
                                         .add(new ServerTaskInfoClasses.SchedulerTask(delaySeconds * 20, () -> {
-                                            ServerPlayer target = level.getServer().getPlayerList().getPlayer(playerUuid);
+                                            ServerPlayer target = level.getServer().getPlayerList()
+                                                    .getPlayer(playerUuid);
                                             if (target == null
                                                     || !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(target))
                                                 return;
@@ -1029,7 +1035,8 @@ public class CustomRoleLoader {
                         net.minecraft.world.entity.player.Player tp = (net.minecraft.world.entity.player.Player) target;
 
                         String beSeenRange = (mode.beSeenMaxRange == null || "*".equals(mode.beSeenMaxRange.trim()))
-                                ? mode.maxRange : mode.beSeenMaxRange;
+                                ? mode.maxRange
+                                : mode.beSeenMaxRange;
                         if (!isWithinRange(self, tp, mode, beSeenRange))
                             return TrueFalseAndCustomResult.disallow();
 
@@ -1054,11 +1061,13 @@ public class CustomRoleLoader {
             if (type.isNone())
                 return TrueFalseAndCustomResult.disallow();
             if (type.isObserverRoleColor()) {
-                if (selfRole == null) return TrueFalseAndCustomResult.disallow();
+                if (selfRole == null)
+                    return TrueFalseAndCustomResult.disallow();
                 return TrueFalseAndCustomResult.custom(selfRole.getColor());
             }
             if (type.isTargetRoleColor()) {
-                if (targetRole == null) return TrueFalseAndCustomResult.disallow();
+                if (targetRole == null)
+                    return TrueFalseAndCustomResult.disallow();
                 return TrueFalseAndCustomResult.custom(targetRole.getColor());
             }
             if (type.isCustom())
@@ -1070,7 +1079,8 @@ public class CustomRoleLoader {
 
         private static boolean isWithinRange(net.minecraft.world.entity.player.Player viewer,
                 net.minecraft.world.entity.player.Player target, InstinctModeData mode, String rangeStr) {
-            if (mode == null) return true;
+            if (mode == null)
+                return true;
             if (mode.unlimitedTeammate
                     && io.wifi.starrailexpress.client.SREClient.gameComponent != null) {
                 SRERole vr = io.wifi.starrailexpress.client.SREClient.gameComponent.getRole(viewer);
@@ -1110,26 +1120,32 @@ public class CustomRoleLoader {
                             Optional<Item> item = BuiltInRegistries.ITEM.getOptional(itemId);
                             if (item.isPresent()) {
                                 final Item theItem = item.get();
-                                entries.add(new ShopEntry(
-                                        new ItemStack(theItem), entry.price, ShopEntry.Type.TOOL) {
-                                    @Override
-                                    public boolean onBuy(net.minecraft.world.entity.player.Player player) {
-                                        // 禁止重复购买：检查快捷栏是否已有该物品
-                                        if (!entry.allowDuplicate) {
-                                            for (var stack : player.getInventory().items) {
-                                                if (stack.is(theItem))
-                                                    return false;
+                                if (entry.allowDuplicate && cooldownTicks <= 0) {
+                                    // 避免Mamizou不能购买所有的自定义职业的物品。
+                                    entries.add(new ShopEntry(
+                                            new ItemStack(theItem), entry.price, ShopEntry.Type.TOOL));
+                                } else {
+                                    entries.add(new ShopEntry(
+                                            new ItemStack(theItem), entry.price, ShopEntry.Type.TOOL) {
+                                        @Override
+                                        public boolean onBuy(net.minecraft.world.entity.player.Player player) {
+                                            // 禁止重复购买：检查快捷栏是否已有该物品
+                                            if (!entry.allowDuplicate) {
+                                                for (var stack : player.getInventory().items) {
+                                                    if (stack.is(theItem))
+                                                        return false;
+                                                }
                                             }
+                                            boolean result = super.onBuy(player);
+                                            // 冷却
+                                            if (result && cooldownTicks > 0
+                                                    && player instanceof net.minecraft.server.level.ServerPlayer sp) {
+                                                sp.getCooldowns().addCooldown(theItem, cooldownTicks);
+                                            }
+                                            return result;
                                         }
-                                        boolean result = super.onBuy(player);
-                                        // 冷却
-                                        if (result && cooldownTicks > 0
-                                                && player instanceof net.minecraft.server.level.ServerPlayer sp) {
-                                            sp.getCooldowns().addCooldown(theItem, cooldownTicks);
-                                        }
-                                        return result;
-                                    }
-                                });
+                                    });
+                                }
                             }
                         } catch (Exception ignored) {
                         }
@@ -1327,7 +1343,6 @@ public class CustomRoleLoader {
         // 条件4(存活到最后) > TIME > LOVER > 条件5/6(只剩自己/只剩自己+指定职业)
         boolean loversWin = LoversWinCheckEvent.isLoversWin(serverLevel);
 
-
         for (var entry : customWinDataMap.entrySet()) {
             CustomRoleData data = entry.getValue();
             ResourceLocation roleId = ResourceLocation.fromNamespaceAndPath("customrole", data.englishId);
@@ -1400,18 +1415,19 @@ public class CustomRoleLoader {
                 // （自己已死的情况在上方 customPlayer == null 处就已 continue 跳过）
             }
 
-
             // 条件5: 当场上一共只剩下自己存活时 (类似纵火犯)
             // 优先级低于 TIME 与 LOVER：TIME 时不触发；恋人已赢时让位
             if (data.customWinLastAlive && alivePlayerCount == 1 && currentWinStatus != WinStatus.TIME) {
-                if (loversWin) return WinStatus.NOT_MODIFY;
+                if (loversWin)
+                    return WinStatus.NOT_MODIFY;
                 doCustomWin(serverLevel, data, customPlayer, List.of());
                 return WinStatus.CUSTOM;
             }
             // 阻止游戏结束（纵火犯式）；TIME 时不得阻止；恋人已赢时让位给恋人
             if (data.customWinLastAlive && canBlockGameEnd && (currentWinStatus == WinStatus.KILLERS
                     || currentWinStatus == WinStatus.PASSENGERS)) {
-                if (loversWin) return WinStatus.NOT_MODIFY;
+                if (loversWin)
+                    return WinStatus.NOT_MODIFY;
                 return WinStatus.NONE;
             }
 
@@ -1422,10 +1438,10 @@ public class CustomRoleLoader {
             }
             if (data.customWinSurviveToLast && canBlockGameEnd && !currentWinStatus.equals(WinStatus.NONE)) {
                 // 仅「拖延」阻止；TIME 时不得阻止；恋人已赢时让位给恋人（条件4 真正胜利时不会被拦截）
-                if (loversWin) return WinStatus.NOT_MODIFY;
+                if (loversWin)
+                    return WinStatus.NOT_MODIFY;
                 return WinStatus.NONE;
             }
-
 
             // 条件7: 拥有指定标签时躺在床上取得独立胜利 (类似小偷)
             if (!data.customWinTagSleep.isEmpty() && customPlayer.getTags().contains(data.customWinTagSleep)

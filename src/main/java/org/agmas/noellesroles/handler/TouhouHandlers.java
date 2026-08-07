@@ -59,6 +59,7 @@ import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role.touhou.roles.THMamizouRole;
 import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
 import org.agmas.noellesroles.role.touhou.roles.THRemiliaRole;
 import org.agmas.noellesroles.role.touhou.roles.THSuikaRole;
@@ -129,13 +130,20 @@ public class TouhouHandlers {
           return;
         }
         MCItemsUtils.clearItem(victim, (item) -> !item.is(TMMItems.LETTER) && !item.is(TMMItems.KEY));
+        victim.displayClientMessage(
+            Component.translatable("hud.noellesroles.remilia.victim", killer.getName()).withStyle(ChatFormatting.GOLD),
+            true);
+        if (victim instanceof ServerPlayer svictim) {
+          SRENetworkMessageUtils.sendBroadcast(svictim, Component
+              .translatable("hud.noellesroles.remilia.victim", killer.getName()).withStyle(ChatFormatting.GOLD));
+        }
+        killer.displayClientMessage(Component.translatable("hud.noellesroles.remilia.success", victim.getName(),
+            RoleUtils.getPlayerRoleName(victim, true)).withStyle(ChatFormatting.GREEN), true);
         RoleUtils.changeRole(victim, THRedHouseRoles.REMILIA_BLOOD_SERVANT);
+
         DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(victim);
         component.triggerDeath(30 * 20, null, victim.position());
 
-        victim.displayClientMessage(Component.translatable("hud.noellesroles.remilia.victim", killer.getName()), true);
-        killer.displayClientMessage(Component.translatable("hud.noellesroles.remilia.success", victim.getName(),
-            RoleUtils.getPlayerRoleName(victim, true)).withStyle(ChatFormatting.GREEN), true);
         cdcca.setCooldown(THRemiliaRole.COOLDOWN_TICKS);
       }
     });
@@ -230,6 +238,11 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
+
+    RoleSkill.register(THMiscRoles.MAMIZOU,
+        RoleSkill.skill(SRE.id("mamizou_select"), "skill.noellesroles.mamizou_select", THMamizouRole::handleSelect)
+            .noAnnouncement()
+            .showOnHud(true).cooldownSeconds(60).build());
     RoleSkill.register(THMiscRoles.REIUJI_UTSUHO,
         RoleSkill.skill(SRE.id("utsuho"), "skill.noellesroles.utsuho", THUtsuhoRole::skillHandler)
             .announceToSelf().showOnHud(true).cooldownSeconds(120).build());

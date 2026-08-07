@@ -59,6 +59,10 @@ public class KillerKnifeShopEntry extends ShopEntry {
         this.discount = discount;
     }
 
+    public int discount() {
+        return discount;
+    }
+
     @Override
     public boolean onBuy(@NotNull Player player) {
         boolean murder = KillerKnifeDurability.isMurderMode(player.level());
