@@ -90,6 +90,7 @@
     "client.scenery.CameraMixin",
     "client.scenery.ClientWorldMixin",
     "client.scenery.WorldRendererMixin",
+    "client.scenery.CreativeNoFogMixin",
     "client.self.BeveragePlateBlockEntityMixin",
     "client.self.DrawingBoardItemMixin",
     "client.self.NoteItemMixin",

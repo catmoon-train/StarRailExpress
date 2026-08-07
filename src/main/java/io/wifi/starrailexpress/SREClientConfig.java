@@ -93,6 +93,7 @@ public class SREClientConfig implements ConfigData {
     public boolean disableCustomLoadingScreen = false;
     public boolean disableScreenShake = false;
     public boolean disableWaypoints = false;
+    public boolean creativeNoFog = true;
     @ConfigEntry.Gui.Tooltip
     public boolean enableMovingScenes = true;
     // VT主播随机内置皮肤（可资源包自定义，player_skins.json）

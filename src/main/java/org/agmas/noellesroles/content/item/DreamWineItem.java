@@ -57,12 +57,12 @@ public class DreamWineItem extends Item {
             int durationTicks = NoellesRolesConfig.HANDLER.instance().dreamWineDurationSeconds * 20;
 
             player.addEffect(ModEffects.of(ModEffects.USED_BANED, 10 * 20, 1, false, false, true));
-            player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, durationTicks, 0,
-                    false, false, false));
+            player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, durationTicks, 2,
+                    false, false, true));
             player.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, durationTicks, 254,
-                    false, false, false));
+                    false, false, true));
             player.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, durationTicks, 254,
-                    false, false, false));
+                    false, false, true));
             level.playSound(null, player.blockPosition(), SoundEvents.WITCH_DRINK, SoundSource.PLAYERS,
                     1.0f, 0.8f);
             if (!player.isCreative()) {
