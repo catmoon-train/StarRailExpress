@@ -39,7 +39,7 @@ public class THMamizouRole extends TouhouRole {
         final var rolecca = SRERoleWorldComponent.KEY.get(player.level());
         if (cca.targetUUID != null) {
             final var targetRole = rolecca.getRole(cca.targetUUID);
-            List<ShopEntry> shops = ShopContent.getShopEntries(targetRole);
+            List<ShopEntry> shops = new ArrayList<>(ShopContent.getShopEntries(targetRole));
             // 必须是100%的ShopEntry.class类，不能是extends，也不能是内联override，避免bug。
             shops.removeIf((t) -> {
                 return t.getClass() != ShopEntry.class && t.getClass() != KillerKnifeShopEntry.class;
