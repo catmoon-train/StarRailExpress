@@ -375,10 +375,11 @@ public class InitModRolesMax {
             }
 
             {
-                // 杀手中立（只处理没有配置的职业：无概率 且 无显式 setMax）
+                // 杀手中立（只处理没有配置的职业：无概率 且 无显式 setMax 且 允许修改生成配置的职业）
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
                 neutralRoles.removeIf((r) -> {
                     if (r.isNeutrals() && r.isNeutralForKiller() && (r.spawnInfo.enableChance < 0)
+                            && r.canSetSpawnInfoInConfig()
                             && r.spawnInfo.maxSpawn < 0)
                         return false;
                     return true;
@@ -618,8 +619,10 @@ public class InitModRolesMax {
         // 对没有 enableChance 的杀手方中立职业，默认 max=1、概率 75%
         for (var entry : TMMRoles.ROLES.entrySet()) {
             var role = entry.getValue();
-            if (role.spawnInfo.enableChance < 0 && role.isNeutralForKiller()) {
-                role.setDefaultMax(1);
+            if (role.spawnInfo.enableChance < 0 && role.canSetSpawnInfoInConfig() && role.isNeutralForKiller()) {
+                if (role.spawnInfo.maxSpawn < 0) {
+                    role.setDefaultMax(1);
+                }
                 role.spawnInfo.enableChance = 7500;
             }
         }

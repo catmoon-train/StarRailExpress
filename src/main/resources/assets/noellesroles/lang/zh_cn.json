@@ -2817,7 +2817,7 @@
   "skill.noellesroles.utsuho.victim_warning.title": "⚠ 紧急任务 ⚠",
   "skill.noellesroles.utsuho.victim_warning.subtitle": "你需要在 %s 内喝水或者跑入水中！",
   "skill.noellesroles.utsuho": "核热「Nuclear Fusion」",
-  "skill.noellesroles.mamizou_select": "选择一个玩家",
+  "skill.noellesroles.mamizou_select": "瞄准一个玩家获取商店",
   "skill.noellesroles.mamizou_select.success": "成功选择玩家 %s 并获取了其商店！",
   "skill.noellesroles.mamizou_select.no_target": "你需要对准选择一名玩家！",
   "hud.noellesroles.mamizou_select": "已模仿玩家 %s 的商店",

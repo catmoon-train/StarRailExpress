@@ -39,7 +39,7 @@ public class THMamizouRole extends TouhouRole {
         final var rolecca = SRERoleWorldComponent.KEY.get(player.level());
         if (cca.targetUUID != null) {
             final var targetRole = rolecca.getRole(cca.targetUUID);
-            List<ShopEntry> shops = ShopContent.getShopEntries(targetRole);
+            List<ShopEntry> shops = new ArrayList<>(ShopContent.getShopEntries(targetRole));
             // 必须是100%的ShopEntry.class类，不能是extends，也不能是内联override，避免bug。
             shops.removeIf((t) -> {
                 return t.getClass() != ShopEntry.class && t.getClass() != KillerKnifeShopEntry.class;
@@ -47,9 +47,9 @@ public class THMamizouRole extends TouhouRole {
             List<ShopEntry> newShops = new ArrayList<>();
             for (final var s : shops) {
                 if (s instanceof KillerKnifeShopEntry ks) {
-                    newShops.add(new KillerKnifeShopEntry(ks.stack(), (int) (ks.price() * 1.2f), ks.discount()));
+                    newShops.add(new KillerKnifeShopEntry(ks.stack(), (int) (ks.price() * 1.5f), ks.discount()));
                 } else {
-                    newShops.add(new ShopEntry(s.stack(), (int) (s.price() * 1.2f), s.type()));
+                    newShops.add(new ShopEntry(s.stack(), (int) (s.price() * 1.5f), s.type()));
                 }
             }
             return newShops;
@@ -68,7 +68,8 @@ public class THMamizouRole extends TouhouRole {
         final var target = context.getTargetAsPlayer();
         SREAbilityPlayerComponent.KEY.get(player).setTarget(target);
         player.displayClientMessage(
-                Component.translatable("skill.noellesroles.mamizou_select.success").withStyle(ChatFormatting.GREEN),
+                Component.translatable("skill.noellesroles.mamizou_select.success", target.getName())
+                        .withStyle(ChatFormatting.GREEN),
                 true);
         return true;
     }
