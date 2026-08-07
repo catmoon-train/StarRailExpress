@@ -106,17 +106,17 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
     @Override
     public void serverTick() {
+
+        if (isPendingRestore) {
+            isPendingRestore = false;
+            afterLooseEndTryRestore(pendingWho);
+        }
         if (pendingRevivals.isEmpty()) {
             return;
         }
         boolean shouldSync = false;
 
         long currentTime = level.getGameTime();
-        pendingRevivals.removeIf((data) -> {
-            if (data.isDead)
-                return true;
-            return false;
-        });
         boolean timeFrozen = SREGameTimeComponent.KEY.get(level).timeFrozen;
         for (RefugeeData data : new ArrayList<>(pendingRevivals)) {
             final var player = level.getPlayerByUUID(data.uuid);
@@ -165,10 +165,6 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (currentTime % 600 == 0) {
             sendCountdownMessages();
             shouldSync = true;
-        }
-        if (isPendingRestore) {
-            isPendingRestore = false;
-            afterLooseEndTryRestore(pendingWho);
         }
         if (shouldSync) {
             sync();
