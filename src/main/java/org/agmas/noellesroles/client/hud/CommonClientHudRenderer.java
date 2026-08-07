@@ -267,7 +267,8 @@ public class CommonClientHudRenderer {
       final var font = client.font;
 
       int screenHeight = client.getWindow().getGuiScaledHeight();
-      int x = 10;
+      int screenWidth = client.getWindow().getGuiScaledWidth();
+      int x = screenWidth - 10;
       int y = screenHeight - 20;
       Component killsText;
       if (cca.cooldown > 0) {
@@ -286,7 +287,8 @@ public class CommonClientHudRenderer {
         return;
       final var font = client.font;
       int screenHeight = client.getWindow().getGuiScaledHeight();
-      int x = 10;
+      int screenWidth = client.getWindow().getGuiScaledWidth();
+      int x = screenWidth - 10;
       int y = screenHeight - 20;
       if (roleData.ticks > 0) {
         Component killsText;
