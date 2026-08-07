@@ -124,7 +124,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 data.isDead = true;
                 continue;
             }
-            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+            if (GameUtils.isPlayerAliveAndSurvival(player) && !data.isRevive) {
                 data.isDead = true;
                 continue;
             }
