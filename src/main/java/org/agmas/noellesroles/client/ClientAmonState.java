@@ -15,14 +15,20 @@
 
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.StatusBarHUD;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin.PlayerSkinResult;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.util.Mth;
+
+import org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent;
 import org.agmas.noellesroles.packet.AmonFinaleS2CPacket;
 import org.agmas.noellesroles.packet.AmonSkinS2CPacket;
 
@@ -38,9 +44,9 @@ public class ClientAmonState {
 
     /** 终幕「阿蒙时刻」全局表现：偏灰滤镜、小丑音乐与状态栏倒计时是否激活。 */
     public static volatile boolean finaleActive = false;
-    private static long finaleStartMs = 0L;
+    private static long finaleStartTicks = 0L;
     /** 终幕总时长（毫秒），与服务端 FINALE_TICKS(80 秒) 对应。 */
-    private static final long FINALE_DURATION_MS = 80_000L;
+    private static final long FINALE_DURATION_MS = AmonPlayerComponent.FINALE_TICKS;
 
     public static void register() {
         OnGettingPlayerSkin.EVENT.register((player, originalSkin) -> {
@@ -58,6 +64,12 @@ public class ClientAmonState {
             }
             return PlayerSkinResult.SKIP;
         });
+        ClientTickEvents.END_WORLD_TICK.register(world -> {
+            if (SREGameTimeComponent.KEY.get(world).isTimeFrozen()) {
+                if (finaleStartTicks > 0 && finaleActive)
+                    finaleStartTicks++;
+            }
+        });
         ClientPlayNetworking.registerGlobalReceiver(AmonSkinS2CPacket.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
                     if (payload.amonId() == null) {
@@ -71,7 +83,7 @@ public class ClientAmonState {
         ClientPlayNetworking.registerGlobalReceiver(AmonFinaleS2CPacket.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
                     finaleActive = payload.active();
-                    finaleStartMs = System.currentTimeMillis();
+                    finaleStartTicks = ctx.client().level.getGameTime();
                     // 终幕结束：仅把进度归零不会移除状态条（HUD 默认保留 500s），需显式移除。
                     if (!payload.active()) {
                         StatusBarHUD.getInstance().removeStatusBar("AmonFinale");
@@ -81,9 +93,13 @@ public class ClientAmonState {
 
     /** 终幕进度（1→0），供全局状态栏显示倒计时。 */
     public static float finaleProgress() {
-        if (!finaleActive) return 0f;
-        long elapsed = System.currentTimeMillis() - finaleStartMs;
-        return Mth.clamp(1f - (float) elapsed / FINALE_DURATION_MS, 0f, 1f);
+        if (!finaleActive)
+            return 0f;
+        if (SREClient.cached_player != null) {
+            long elapsed = SREClient.cached_player.level().getGameTime() - finaleStartTicks;
+            return Mth.clamp(1f - (float) elapsed / FINALE_DURATION_MS, 0f, 1f);
+        }
+        return 0f;
     }
 
     public static UUID disguiseTargetFor(UUID amonId) {
