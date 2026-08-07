@@ -39,7 +39,7 @@ public final class LeonHud {
             SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(client.player);
             LeonRoleData leonComponent = RoleData.getOrCreate(LeonRoleData.class, client.player);
 
-            // 竖向排列：技能 → 蓝色药丸 → 红色药丸，从下往上
+            // 竖向排列：技能 → 蓝色药草 → 红色药草，从下往上
             int y = screenHeight - 10 - font.lineHeight;
 
             // --- 第1行：格斗体术 ---
@@ -58,7 +58,7 @@ public final class LeonHud {
             int x = screenWidth - font.width(skillText) - 10;
             context.drawString(font, skillText, x, y, skillColor);
 
-            // --- 第2行：蓝色药丸 ---
+            // --- 第2行：蓝色药草 ---
             y -= lineHeight;
             Component blueText;
             int blueColor;
@@ -74,7 +74,7 @@ public final class LeonHud {
             x = screenWidth - font.width(blueText) - 10;
             context.drawString(font, blueText, x, y, blueColor);
 
-            // --- 第3行：红色药丸 ---
+            // --- 第3行：红色药草 ---
             y -= lineHeight;
             Component redText;
             int redColor;

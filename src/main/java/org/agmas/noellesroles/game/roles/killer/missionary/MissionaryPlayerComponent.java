@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.exmo.sre.meeting.MeetingManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.Noellesroles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import net.minecraft.core.HolderLookup;
@@ -34,7 +35,7 @@ import java.util.UUID;
  */
 public class MissionaryPlayerComponent implements RoleComponent {
     public static final ComponentKey<MissionaryPlayerComponent> KEY = ComponentRegistry.getOrCreate(
-            ResourceLocation.fromNamespaceAndPath("meetingrole", "missionary"),
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "missionary"),
             MissionaryPlayerComponent.class);
 
     private final Player player;

@@ -130,6 +130,7 @@
     "client.roles.morphling.MorphlingCapeRendererMixin",
     "client.roles.morphling.MorphlingRendererMixin",
     "client.roles.morphling.MorphlingScreenMixin",
+    "client.roles.missionary.MissionaryScreenMixin",
     "client.roles.morphling.SPClientTick",
     "client.roles.panda.PandaClientMixin",
     "client.roles.party.PartyKillerScreenMixin",

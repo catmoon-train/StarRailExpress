@@ -75,7 +75,8 @@ public class ModMeetingRoles {
             new NormalRole(id(MISSIONARY_ID), new Color(138, 43, 226).getRGB(),
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true)
-    ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
+    ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE)
+            .setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
 
     public static void init() {
         // 静态初始化即触发注册
