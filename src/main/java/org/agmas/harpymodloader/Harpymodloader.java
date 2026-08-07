@@ -149,9 +149,6 @@ public class Harpymodloader implements ModInitializer {
     }
 
     public static void setRoleMaximum(ResourceLocation role, Integer max) {
-        // if (role.equals(THRedHouseRoles.REMILIA_BLOOD_SERVANT_ID)) {
-        //     SRE.LOGGER.info("set max max {}", max);
-        // }
         ROLE_MAX.put(role, max);
     }
 

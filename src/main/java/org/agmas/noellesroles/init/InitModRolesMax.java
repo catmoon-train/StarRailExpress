@@ -618,7 +618,7 @@ public class InitModRolesMax {
         // 对没有 enableChance 的杀手方中立职业，默认 max=1、概率 75%
         for (var entry : TMMRoles.ROLES.entrySet()) {
             var role = entry.getValue();
-            if (role.spawnInfo.enableChance < 0 && role.isNeutralForKiller()) {
+            if (role.spawnInfo.enableChance < 0 && role.spawnInfo.maxSpawn < 0 && role.isNeutralForKiller()) {
                 role.setDefaultMax(1);
                 role.spawnInfo.enableChance = 7500;
             }
