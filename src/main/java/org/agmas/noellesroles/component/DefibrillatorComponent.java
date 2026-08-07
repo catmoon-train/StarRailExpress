@@ -188,4 +188,8 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
             }
         }
     }
+
+    public boolean isReviving() {
+        return this.resurrectionTime > 0;
+    }
 }
