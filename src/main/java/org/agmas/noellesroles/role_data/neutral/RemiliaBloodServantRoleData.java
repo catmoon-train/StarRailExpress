@@ -49,8 +49,8 @@ public class RemiliaBloodServantRoleData extends SimpleRoleData {
     private void envCheck() {
         if (player.isInWaterOrRain()) {
             // 惧怕水，处于水或雨中时行动缓慢且无法攻击、使用道具。
-            player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SLOWDOWN, 50, 1, false, false, true));
-            player.addEffect(ModEffects.of(ModEffects.USED_BANED, 50, 1, false, false, true));
+            player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SLOWDOWN, 60, 1, false, false, true));
+            player.addEffect(ModEffects.of(ModEffects.USED_BANED, 60, 1, false, false, true));
         } else {
             final var level = player.level();
             if (SREWorldBlackoutComponent.KEY.get(level).isBlackoutActive()) {
@@ -62,7 +62,7 @@ public class RemiliaBloodServantRoleData extends SimpleRoleData {
                             && level.getDayTime() < 13000)) {
 
                 // 惧怕阳光和灯光，在光比较亮时行动异常缓慢。
-                player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SLOWDOWN, 50, 1, false, false, true));
+                player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SLOWDOWN, 60, 1, false, false, true));
             }
         }
     }
