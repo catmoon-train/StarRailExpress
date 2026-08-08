@@ -47,6 +47,7 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.client.RoleInstinctRegister;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.modifier.lovers.LoversWinCheckEvent;
 
@@ -1335,8 +1336,12 @@ public class CustomRoleLoader {
         var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
         int alivePlayerCount = 0;
         for (var p : serverLevel.players()) {
-            if (GameUtils.isPlayerAliveAndSurvival(p))
+            if (GameUtils.isPlayerAliveAndSurvival(p)) {
+                // 黑白（monokuma）在场不计入存活人数：避免其在「只剩自己/只剩自己和指定职业」
+                // 的判定中阻挡游戏结束（场上只剩自己+黑白时应能正常结算）
+                if (gameComponent.isRole(p, ModRoles.MONOKUMA)) continue;
                 alivePlayerCount++;
+            }
         }
 
         // 恋人胜利状态（供低优先级条件让位使用）。优先级链：
@@ -1373,6 +1378,9 @@ public class CustomRoleLoader {
                 for (var p : serverLevel.players()) {
                     if (!GameUtils.isPlayerAliveAndSurvival(p) || p == customPlayer)
                         continue;
+                    // 黑白（monokuma）在场不参与条件6判定：既不算指定职业也不算外人，
+                    // 不会因其在场而阻止游戏结束（场上只剩自己+指定职业+黑白时应正常结算）
+                    if (gameComponent.isRole(p, ModRoles.MONOKUMA)) continue;
                     SRERole pRole = gameComponent.getRole(p);
                     boolean matched = false;
                     if (pRole != null) {
