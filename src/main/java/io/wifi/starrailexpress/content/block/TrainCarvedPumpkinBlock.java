@@ -16,6 +16,8 @@
 package io.wifi.starrailexpress.content.block;
 
 import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CarvedPumpkinBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,4 +34,9 @@ public class TrainCarvedPumpkinBlock extends CarvedPumpkinBlock implements Light
         super.createBlockStateDefinition(builder);
         builder.add(new Property[] { LIT, ACTIVE });
     }
+
+    @Override
+    protected void onPlace(BlockState blockState, Level level, BlockPos blockPos, BlockState blockState2, boolean bl) {
+    }
+
 }
