@@ -481,9 +481,14 @@ public class ServerTaskInfoClasses {
 
             // Place the doors back
             for (GameUtils.BlockInfo blockInfo2 : list4) {
-                if (serverWorld.setBlock(blockInfo2.pos(), blockInfo2.state(),
-                        Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
-                    serverWorld.getLightEngine().checkBlock(blockInfo2.pos());
+                try {
+                    if (serverWorld.setBlock(blockInfo2.pos(), blockInfo2.state(),
+                            Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
+                        serverWorld.getLightEngine().checkBlock(blockInfo2.pos());
+                    }
+                } catch (Exception e) {
+                    SRE.LOGGER.error("Error while simple reseting. BlockPos {} (id: {})",
+                            blockInfo2.pos().toShortString(), blockInfo2.state().getBlock().getDescriptionId(), e);
                 }
             }
 
