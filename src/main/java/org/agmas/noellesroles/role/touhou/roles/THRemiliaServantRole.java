@@ -29,7 +29,7 @@ public class THRemiliaServantRole extends TouhouRole {
 
     @Override
     public boolean canIncreaseSurvivingKillers() {
-        return isKiller();
+        return true;
     }
 
     @Override
