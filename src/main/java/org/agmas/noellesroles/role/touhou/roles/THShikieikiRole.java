@@ -54,7 +54,7 @@ public class THShikieikiRole extends TouhouRole {
             t.set(DataComponents.LORE, new ItemLore(
                     List.of()));
             SHOP.add(new ShopEntry(t,
-                    250, ShopEntry.Type.WEAPON) {
+                    150, ShopEntry.Type.WEAPON) {
                 @Override
                 public boolean canBuy(@NotNull Player player) {
                     return super.canBuy(player);

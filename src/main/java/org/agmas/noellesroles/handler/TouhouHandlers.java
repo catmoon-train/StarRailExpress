@@ -352,7 +352,7 @@ public class TouhouHandlers {
         }).withTarget().announceToSelf().showOnHud(true).cooldownTicks(20 * 60).build());
     RoleSkill.register(THMiscRoles.SHIKIEIKI,
         RoleSkill.skill(SRE.id("shikieiki"), "skill.noellesroles.shikieiki.instinct", context -> {
-          final int GAP = 15 * 20;
+          final int GAP = 45 * 20;
           final int TIME = 60 * 20;
           final int COOLDOWN_TIME = 45 * 20;
           final var player = context.player();
