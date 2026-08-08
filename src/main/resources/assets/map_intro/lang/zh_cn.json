@@ -138,5 +138,5 @@
   "map_intro.mechanic.train_target.title": "列车标靶 / 标靶",
   "map_intro.mechanic.train_target.body": "列车标靶：被手枪/狙击枪击中时会触发红石机关。标靶：被弹射物击中时会触发红石机关",
   "map_intro.mechanic.special_roles.title": "特定地图刷新的职业",
-  "map_intro.mechanic.special_roles.body": "以下职业仅会出现在特定地图\n布袋鬼地图：布袋鬼、诡客\n大地图：特警\n水下地图：海王、水鬼、潜水员\n天空地图：影隼、飞行员\n机关地图：冒险家"
+  "map_intro.mechanic.special_roles.body": "以下职业仅会出现在特定地图\n布袋鬼地图：布袋鬼、诡客\n大地图：特警\n水下地图：海王、水鬼、潜水员\n天空地图：影隼、飞行员\n机关地图：冒险家\n骑马地图：驯马师、猎人\n会议地图：加拿大鹅\n会议投票地图：呆呆鸟、政客、传教士"
 }
