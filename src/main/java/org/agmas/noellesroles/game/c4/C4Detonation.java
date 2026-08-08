@@ -327,7 +327,7 @@ public final class C4Detonation {
         entity.discard();
         level.playSound(null, target.getX(), target.getY(), target.getZ(),
                 SoundEvents.TRIPWIRE_CLICK_ON, SoundSource.PLAYERS, 0.8F, 1.3F);
-        target.displayClientMessage(Component.translatable("c4.you_have_c4"), false);
+        target.displayClientMessage(Component.translatable("c4.you_have_c4"), true);
         return true;
     }
 

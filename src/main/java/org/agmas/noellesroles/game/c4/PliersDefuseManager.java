@@ -169,16 +169,16 @@ public final class PliersDefuseManager {
         comp.removeC4(target.getUUID());
         if (clippedWrongWire) {
             C4Detonation.detonateAt(level, target, defuser);
-            target.displayClientMessage(Component.translatable("c4.wrong_wire_explode"), false);
-            defuser.displayClientMessage(Component.translatable("c4.you_cut_wrong_wire"), false);
+            target.displayClientMessage(Component.translatable("c4.wrong_wire_explode"), true);
+            defuser.displayClientMessage(Component.translatable("c4.you_cut_wrong_wire"), true);
             return;
         }
         level.playSound(null, target.getX(), target.getY(), target.getZ(),
             SoundEvents.TRIPWIRE_CLICK_OFF, SoundSource.PLAYERS, 0.9F, 1.2F);
         level.playSound(null, target.getX(), target.getY(), target.getZ(),
             SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 1.0F, 1.2F);
-        target.displayClientMessage(Component.translatable("c4.defuse_success"), false);
-        defuser.displayClientMessage(Component.translatable("c4.defuse_success_self"), false);
+        target.displayClientMessage(Component.translatable("c4.defuse_success"), true);
+        defuser.displayClientMessage(Component.translatable("c4.defuse_success_self"), true);
         // 记录拆弹成功事件（低频关键事件）
         io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordBombDefuse(defuser.getUUID(), target.getUUID());
     }

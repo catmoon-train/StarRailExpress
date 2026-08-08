@@ -133,7 +133,7 @@ public class C4Item extends Item {
                 SoundEvents.TRIPWIRE_CLICK_ON, SoundSource.PLAYERS, 0.8F, 1.2F);
 
         user.displayClientMessage(Component.translatable("c4.placed_on_player", target.getName().getString()), true);
-        target.displayClientMessage(Component.translatable("c4.you_have_c4"), false);
+        target.displayClientMessage(Component.translatable("c4.you_have_c4"), true);
 
         return InteractionResult.CONSUME;
     }
