@@ -275,8 +275,7 @@ public final class LeaderFollowerEffects {
         MonokumaPlayerComponent monokuma = MonokumaPlayerComponent.KEY.get(follower);
         monokuma.phase = 3;
         monokuma.sync();
-        // 与黑白熊猫形态一致：永久无敌 + 隐身（隐藏气泡）
-        permanentEffect(leader, ModEffects.INVINCIBLE, 0);
+        // 与黑白熊猫形态一致，没有无敌：+ 隐身（隐藏气泡）
         permanentEffect(leader, MobEffects.INVISIBILITY, 0);
         // 清除领袖背包中所有武器/道具（与黑白一致）
         for (int i = 0; i < leader.getInventory().getContainerSize(); i++) {
