@@ -40,15 +40,15 @@ import java.util.concurrent.ConcurrentHashMap;
  *     <ul>
  *       <li>{@code VOICE_HELMET}     远处/头盔声：直接低通滤波（GAINHF 0.3~0.5）</li>
  *       <li>{@code VOICE_UNDERWATER} 水下声：低通（0.3~0.6）+ 降低增益 0.7</li>
- *       <li>{@code VOICE_REVERB}     混响：EFX REVERB 效果经辅助效果槽（aux send 1）路由</li>
  *     </ul>
  *   </li>
  *   <li>PCM 级效果（{@code ClientReceiveSoundEvent}，在原始音频上传到 OpenAL 之前处理）：
  *     <ul>
  *       <li>{@code VOICE_SYNTH}      合成人声 / 自动调音：基频检测 + 量化到最近半音 + WSOLA 变调</li>
- *       <li>{@code VOICE_DISTORTION} 失真：tanh 软削波</li>
+ *       <li>{@code VOICE_DISTORTION} 失真：预增益 + 硬削波（hard clip）</li>
  *       <li>{@code VOICE_CHORUS}     合唱：延迟线 + LFO 调制</li>
  *       <li>{@code VOICE_TREMOLO}    颤音：幅度 LFO 调制</li>
+ *       <li>{@code VOICE_REVERB}     回响：多条反馈延迟线（comb filter）叠加，模拟空间混响</li>
  *       <li>{@code VOICE_STUTTER}    口吃：重复小段音频</li>
  *       <li>{@code VOICE_REVERSE}    倒放：分块缓冲后反向播放</li>
  *     </ul>
@@ -62,37 +62,18 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
     private static final int SAMPLE_RATE = 48000;
 
-    // ---- OpenAL / EFX 常量（显式定义以兼容） ----
+    // ---- OpenAL / EFX 常量（仅头盔/水下低通使用） ----
     private static final int AL_FILTER_TYPE = 0x8001;
     private static final int AL_FILTER_LOWPASS = 0x0003;
     private static final int AL_FILTER_LOWPASS_GAINHF = 0x0002;
     private static final int AL_DIRECT_FILTER = 0x20005;
     private static final int AL_FILTER_NULL = 0;
-    private static final int AL_EFFECT_TYPE = 0x8001;
-    private static final int AL_EFFECT_REVERB = 0x0004;
-    private static final int AL_EFFECTSLOT_EFFECT = 0x0001;
-    private static final int AL_AUXILIARY_SEND_FILTER = 0x20006;
-
-    // EFX REVERB 参数
-    private static final int AL_REVERB_DENSITY = 0x0001;
-    private static final int AL_REVERB_DIFFUSION = 0x0002;
-    private static final int AL_REVERB_GAIN = 0x0003;
-    private static final int AL_REVERB_GAINHF = 0x0004;
-    private static final int AL_REVERB_DECAY_TIME = 0x0005;
-    private static final int AL_REVERB_DECAY_HFRATIO = 0x0006;
-    private static final int AL_REVERB_REFLECTIONS_GAIN = 0x0007;
-    private static final int AL_REVERB_REFLECTIONS_DELAY = 0x0008;
-    private static final int AL_REVERB_LATE_REVERB_GAIN = 0x0009;
-    private static final int AL_REVERB_LATE_REVERB_DELAY = 0x000A;
-    private static final int AL_REVERB_AIR_ABSORPTION_GAINHF = 0x000B;
-    private static final int AL_REVERB_ROOM_ROLLOFF_FACTOR = 0x000C;
 
     /** EFX 是否可用（不可用时跳过所有 OpenAL 效果）。 */
     private static volatile boolean efxAvailable = true;
 
     // ---- 每个说话者的 EFX 资源 ----
     private static final Map<UUID, Integer> LOWPASS_FILTERS = new ConcurrentHashMap<>();
-    private static final Map<UUID, int[]> REVERB_RESOURCES = new ConcurrentHashMap<>(); // {slot, effect}
 
     // ---- 每个说话者的 PCM 状态 ----
     private static final Map<UUID, HeliumPitchShifter> HELIUM_SHIFTERS = new ConcurrentHashMap<>();
@@ -102,6 +83,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     private static final Map<UUID, Double> TREMOLO_PHASE = new ConcurrentHashMap<>();
     private static final Map<UUID, StutterState> STUTTER = new ConcurrentHashMap<>();
     private static final Map<UUID, ReverseState> REVERSE = new ConcurrentHashMap<>();
+    private static final Map<UUID, ReverbState> REVERB = new ConcurrentHashMap<>();
 
     @Override
     public String getPluginId() {
@@ -144,10 +126,8 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
         int helmet = ModEffects.getVoiceHelmetLevel(player);
         int underwater = ModEffects.getVoiceUnderwaterLevel(player);
-        int reverb = ModEffects.getVoiceReverbLevel(player);
 
         applyLowPassGain(source, speaker, helmet, underwater);
-        applyReverb(source, speaker, reverb);
     }
 
     /**
@@ -179,51 +159,8 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         }
     }
 
-    /** 混响：EFX REVERB 经辅助效果槽（aux send 1）路由。 */
-    private static void applyReverb(int source, UUID speaker, int reverb) {
-        if (reverb <= 0) {
-            try {
-                AL11.alSource3i(source, AL_AUXILIARY_SEND_FILTER, AL_FILTER_NULL, 1, 0);
-            } catch (Throwable ignored) {}
-            return;
-        }
-        if (!efxAvailable) return;
-
-        try {
-            int[] res = REVERB_RESOURCES.computeIfAbsent(speaker, k -> createReverbEffect());
-            if (res == null) return;
-            int slot = res[0];
-            int effect = res[1];
-
-            EXTEfx.alEffectf(effect, AL_REVERB_DENSITY, 0.5f + reverb * 0.1f);
-            EXTEfx.alEffectf(effect, AL_REVERB_DIFFUSION, 0.6f + reverb * 0.08f);
-            EXTEfx.alEffectf(effect, AL_REVERB_GAIN, 0.4f + reverb * 0.05f);   // 湿声量
-            EXTEfx.alEffectf(effect, AL_REVERB_GAINHF, 0.6f);
-            EXTEfx.alEffectf(effect, AL_REVERB_DECAY_TIME, 0.6f + reverb * 0.28f);
-            EXTEfx.alEffectf(effect, AL_REVERB_DECAY_HFRATIO, 0.6f);
-            EXTEfx.alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN, 0.18f + reverb * 0.04f);
-            EXTEfx.alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY, 0.02f);
-            EXTEfx.alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN, 0.3f + reverb * 0.06f);
-            EXTEfx.alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY, 0.03f + reverb * 0.01f);
-            EXTEfx.alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF, 0.1f);
-            EXTEfx.alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR, 0.0f);
-
-            AL11.alSource3i(source, AL_AUXILIARY_SEND_FILTER, slot, 1, 0);
-        } catch (Throwable t) {
-            efxAvailable = false;
-        }
-    }
-
-    private static int[] createReverbEffect() {
-        int slot = EXTEfx.alGenAuxiliaryEffectSlots();
-        int effect = EXTEfx.alGenEffects();
-        EXTEfx.alEffecti(effect, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
-        EXTEfx.alAuxiliaryEffectSloti(slot, AL_EFFECTSLOT_EFFECT, effect);
-        return new int[] { slot, effect };
-    }
-
     // =========================================================================
-    //  PCM 级效果（合成 / 失真 / 合唱 / 颤音 / 口吃 / 倒放）
+    //  PCM 级效果（合成 / 失真 / 合唱 / 颤音 / 回响 / 口吃 / 倒放）
     // =========================================================================
 
     private void onClientSound(ClientReceiveSoundEvent event) {
@@ -251,6 +188,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         int rev = ModEffects.getVoiceReverseLevel(player);
         int helium = ModEffects.getVoiceHeliumLevel(player);
         int underwater = ModEffects.getVoiceUnderwaterLevel(player);
+        int reverb = ModEffects.getVoiceReverbLevel(player);
 
         // 注意：多个效果可叠加，按固定顺序串联处理。
         // 升调（氦气）最先处理，作用在原始信号上，使其余效果叠加在变调后的音频上。
@@ -261,6 +199,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         if (chorus > 0) pcm = chorusTransform(pcm, speaker, chorus);
         if (dist > 0) pcm = distortionTransform(pcm, speaker, dist);
         if (trem > 0) pcm = tremoloTransform(pcm, speaker, trem);
+        if (reverb > 0) pcm = reverbTransform(pcm, speaker, reverb);
         if (stut > 0) pcm = stutterTransform(pcm, speaker, stut);
 
         event.setRawAudio(pcm);
@@ -309,13 +248,18 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         return shifter.process(pcm, ratio);
     }
 
-    /** 失真：预增益 + tanh 软削波。等级越高驱动越强、削波越狠。 */
+    /**
+     * 失真：预增益 + 硬削波（hard clip）。
+     * <p>相较 tanh 软削波，硬削波在小信号时也放大、到达阈值后直接截平，
+     * 1 级即可明显听出"破音/电吉他"质感；等级越高驱动越强、削波越狠。</p>
+     */
     private static short[] distortionTransform(short[] pcm, UUID speaker, int level) {
-        double drive = 3.4 + (level - 1) * 1.0; // 3.4 -> 7.4，1 级也有明显削波
+        double drive = 5.0 + (level - 1) * 1.5;            // 5.0 -> 11.0
+        double threshold = 0.75 - (level - 1) * 0.06;      // 削波阈值，等级越高越早截平
         for (int i = 0; i < pcm.length; i++) {
             double s = ((double) pcm[i]) * drive / 32767.0;
-            s = Math.tanh(s);
-            pcm[i] = clamp(s * 32767.0);
+            s = Math.max(-threshold, Math.min(threshold, s));
+            pcm[i] = clamp(s / threshold * 32767.0);
         }
         return pcm;
     }
@@ -355,6 +299,34 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             pcm[i] = clamp(pcm[i] * factor);
         }
         TREMOLO_PHASE.put(speaker, phase);
+        return pcm;
+    }
+
+    /**
+     * 回响：多条并联反馈延迟线（comb filter），叠加出空旷空间的混响尾音。
+     * <p>每个采样先读各条延迟线的旧样本，再写回"输入 + 反馈衰减后的旧样本"，
+     * 使声音在延迟线中反复衰减回荡；最后按干湿比与干声混合输出。
+     * 1 级即可明显听到回声/空间感，等级越高延迟越长、反馈越强、湿声越多。</p>
+     */
+    private static short[] reverbTransform(short[] pcm, UUID speaker, int level) {
+        ReverbState st = getReverbState(speaker, level);
+        float feedback = Math.min(0.72f, 0.42f + level * 0.06f);   // 反馈强度 0.48 -> 0.72
+        float wet = Math.min(0.7f, 0.45f + level * 0.05f);         // 湿声比例 0.5 -> 0.7
+        for (int i = 0; i < pcm.length; i++) {
+            float dry = pcm[i];
+            float wetSum = 0f;
+            for (int c = 0; c < st.lines; c++) {
+                int delay = st.delays[c];
+                float[] buf = st.bufs[c];
+                int readPos = (st.positions[c] - delay + buf.length) % buf.length;
+                float delayed = buf[readPos];
+                buf[st.positions[c]] = dry + delayed * feedback;
+                st.positions[c] = (st.positions[c] + 1) % buf.length;
+                wetSum += delayed;
+            }
+            float mixed = dry * (1f - wet) + (wetSum / st.lines) * wet;
+            pcm[i] = clamp(mixed);
+        }
         return pcm;
     }
 
@@ -454,18 +426,12 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         TREMOLO_PHASE.remove(speaker);
         STUTTER.remove(speaker);
         REVERSE.remove(speaker);
+        REVERB.remove(speaker);
 
         Integer f = LOWPASS_FILTERS.remove(speaker);
         if (f != null) {
             try {
                 EXTEfx.alDeleteFilters(f);
-            } catch (Throwable ignored) {}
-        }
-        int[] r = REVERB_RESOURCES.remove(speaker);
-        if (r != null) {
-            try {
-                EXTEfx.alDeleteAuxiliaryEffectSlots(r[0]);
-                EXTEfx.alDeleteEffects(r[1]);
             } catch (Throwable ignored) {}
         }
     }
@@ -478,16 +444,6 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             } catch (Throwable ignored) {}
         }
         LOWPASS_FILTERS.clear();
-        for (Map.Entry<UUID, int[]> e : REVERB_RESOURCES.entrySet()) {
-            int[] r = e.getValue();
-            if (r != null) {
-                try {
-                    EXTEfx.alDeleteAuxiliaryEffectSlots(r[0]);
-                    EXTEfx.alDeleteEffects(r[1]);
-                } catch (Throwable ignored) {}
-            }
-        }
-        REVERB_RESOURCES.clear();
         HELIUM_SHIFTERS.clear();
         SYNTH_SHIFTERS.clear();
         SYNTH_RATIO.clear();
@@ -495,6 +451,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         TREMOLO_PHASE.clear();
         STUTTER.clear();
         REVERSE.clear();
+        REVERB.clear();
     }
 
     // =========================================================================
@@ -542,6 +499,41 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         if (st == null || st.blockSize != blockSize) {
             st = new ReverseState(blockSize);
             REVERSE.put(speaker, st);
+        }
+        return st;
+    }
+
+    private static final class ReverbState {
+        final int level;                      // 生成时的等级
+        final int lines;                      // 延迟线数量
+        final int[] delays;                   // 各条线延迟采样数
+        final float[][] bufs;                 // 各条线缓冲
+        final int[] positions;                // 各条线写指针
+
+        ReverbState(int level) {
+            this.level = level;
+            int base = (int) ((0.05 + (level - 1) * 0.02) * SAMPLE_RATE); // 50ms -> 130ms
+            this.delays = new int[] {
+                    base,
+                    (int) (base * 1.15),
+                    (int) (base * 1.35),
+                    (int) (base * 1.6)
+            };
+            this.lines = delays.length;
+            this.bufs = new float[lines][];
+            this.positions = new int[lines];
+            for (int i = 0; i < lines; i++) {
+                bufs[i] = new float[delays[i]];
+            }
+        }
+    }
+
+    /** 按等级取/建回响状态：等级越高延迟线越长（更空旷的混响感）。等级变化则重建。 */
+    private static ReverbState getReverbState(UUID speaker, int level) {
+        ReverbState st = REVERB.get(speaker);
+        if (st == null || st.level != level) {
+            st = new ReverbState(level);
+            REVERB.put(speaker, st);
         }
         return st;
     }
