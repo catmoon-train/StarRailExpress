@@ -78,7 +78,7 @@
     "text.autoconfig.starrailexpress.option.brokenGunDropChanceWhenKillerKillsGunHolder": "Probability of the killer breaking the gun after killing the gun holder (%)",
     "text.autoconfig.starrailexpress.option.enableBrokenGunDropWhenKillerShootsPlayer": "The killer drops a broken gun when killing with a gun",
     "text.autoconfig.starrailexpress.option.brokenGunDropChanceWhenKillerShootsPlayer": "Probability of the killer killing a broken gun with a gun (%)",
-    "text.autoconfig.starrailexpress.option.sheriffBulletPrice": "Sheriff camp bullet prices",
+    "text.autoconfig.starrailexpress.option.sheriffBulletPrice": "Sheriff faction bullet prices",
     "text.autoconfig.starrailexpress.option.sheriffBulletMaxCarry": "The maximum number of bullets carried by the Sheriff’s camp",
     "text.autoconfig.starrailexpress.option.sheriffRevolverReloadCooldown": "Sheriff's pistol reload cooldown (seconds)",
     "text.autoconfig.starrailexpress.option.disablePlayerMountain": "Players are prohibited from stacking Jenga (i.e. players are prohibited from stacking heights while standing on top of another player)",
