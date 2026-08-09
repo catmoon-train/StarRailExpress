@@ -132,6 +132,7 @@
   "msg.amnesiac.change_role.failed_not_support":"無法切換職業：你無法從失憶患者切換到這個職業",
   "msg.amnesiac.change_role.failed_initiate": "無法切換職業：你無法從失憶患者切換到初學者",
   "title.stupid_express.refugee.active": "亡 命 時 刻",
+  "death_reason.stupid_express.radiation": "輻射",
   "title.stupid_express.refugee.died": "亡命徒已死亡",
   "title.stupid_express.refugee.died.subtitle": "列車上的一切恢復了平靜",
   "hud.stupid_express.allergist.cure_poison": "你對這種食物產生了免疫反應，清除了體內的毒素！",

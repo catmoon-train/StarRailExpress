@@ -160,6 +160,7 @@
     "hud.stupid_express.split_personality.status": "Status: %s",
     "hud.stupid_express.split_personality.incontrol": "control body",
     "hud.stupid_express.split_personality.spec": "Watching",
+    "death_reason.stupid_express.radiation": "Radiation",
     "hud.stupid_express.split_personality.partner_with_argu": "Pairing: %s %s",
     "hud.stupid_express.split_personality.choice_now": "Current selection: %s",
     "screen.stupid_express.split_personality.partner": "Your match: %s",
