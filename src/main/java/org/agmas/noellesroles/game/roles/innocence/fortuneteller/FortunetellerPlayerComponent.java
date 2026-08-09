@@ -80,7 +80,8 @@ public class FortunetellerPlayerComponent implements RoleComponent, ServerTickin
     }
 
     public void protectPlayer(Player target) {
-        if (player instanceof ServerPlayer) ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
+        if (player instanceof ServerPlayer)
+            ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player);
 
         UUID puid = target.getUUID();
         protectedPlayers.add(new ProtectedInfo(puid, MAX_PROTECT_TIME));
@@ -185,12 +186,14 @@ public class FortunetellerPlayerComponent implements RoleComponent, ServerTickin
                     Component.translatable("message.fortuneteller.protection_active_role", player2.getDisplayName())
                             .withStyle(ChatFormatting.AQUA),
                     true);
+            player2.stopRiding();
+            player2.stopSleeping();
             player2.teleportTo(x, y, z);
             return true;
         }
         return false;
     }
-    
+
     @Override
     public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
