@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "starrailexpress:block/small_paper_door"
+      "model": "wathe:block/small_wood_door"
     }
   }
 }
