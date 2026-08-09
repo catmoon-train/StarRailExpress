@@ -1,4 +1,11 @@
 {
+    "sre.command.dummy.remove.success": "Successfully removed dummy entity %s",
+    "sre.command.dummy.remove.not_found": "Could not find dummy entity %s",
+    "sre.command.dummy.list.empty": "No dummy entities exist.",
+    "sre.command.dummy.list.entry": "- %s (skin: %s)%s",
+    "sre.command.dummy.player_only": "This command can only be executed by a player.",
+    "sre.command.dummy.add.success": "Successfully spawned dummy entity %s with skin %s%s",
+    "sre.dummy.invincible_suffix": " [Invincible]",
     "gui.sre.role_roster.view.title": "Job Rotation Roster",
     "gui.sre.role_roster.edit.title": "Job Rotation Roster (Admin)",
     "gui.sre.role_roster.status.on": "Governing assignment",
