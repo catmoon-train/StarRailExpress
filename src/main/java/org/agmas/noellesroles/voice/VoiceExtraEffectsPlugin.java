@@ -102,6 +102,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     private static final Map<UUID, Double> TREMOLO_PHASE = new ConcurrentHashMap<>();
     private static final Map<UUID, StutterState> STUTTER = new ConcurrentHashMap<>();
     private static final Map<UUID, ReverseState> REVERSE = new ConcurrentHashMap<>();
+    private static final Map<UUID, EchoState> ECHO = new ConcurrentHashMap<>();
 
     @Override
     public String getPluginId() {
@@ -195,15 +196,15 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             int slot = res[0];
             int effect = res[1];
 
-            EXTEfx.alEffectf(effect, AL_REVERB_DENSITY, 0.4f + reverb * 0.12f);
-            EXTEfx.alEffectf(effect, AL_REVERB_DIFFUSION, 0.5f + reverb * 0.1f);
-            EXTEfx.alEffectf(effect, AL_REVERB_GAIN, 0.25f + reverb * 0.05f);   // 湿声量
+            EXTEfx.alEffectf(effect, AL_REVERB_DENSITY, 0.5f + reverb * 0.1f);
+            EXTEfx.alEffectf(effect, AL_REVERB_DIFFUSION, 0.6f + reverb * 0.08f);
+            EXTEfx.alEffectf(effect, AL_REVERB_GAIN, 0.4f + reverb * 0.05f);   // 湿声量
             EXTEfx.alEffectf(effect, AL_REVERB_GAINHF, 0.6f);
-            EXTEfx.alEffectf(effect, AL_REVERB_DECAY_TIME, 0.4f + reverb * 0.25f);
+            EXTEfx.alEffectf(effect, AL_REVERB_DECAY_TIME, 0.6f + reverb * 0.28f);
             EXTEfx.alEffectf(effect, AL_REVERB_DECAY_HFRATIO, 0.6f);
-            EXTEfx.alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN, 0.1f + reverb * 0.03f);
+            EXTEfx.alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN, 0.18f + reverb * 0.04f);
             EXTEfx.alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY, 0.02f);
-            EXTEfx.alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN, 0.2f + reverb * 0.05f);
+            EXTEfx.alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN, 0.3f + reverb * 0.06f);
             EXTEfx.alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY, 0.03f + reverb * 0.01f);
             EXTEfx.alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF, 0.1f);
             EXTEfx.alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR, 0.0f);
@@ -251,6 +252,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         int rev = ModEffects.getVoiceReverseLevel(player);
         int helium = ModEffects.getVoiceHeliumLevel(player);
         int underwater = ModEffects.getVoiceUnderwaterLevel(player);
+        int echo = ModEffects.getVoiceEchoCount(player);
 
         // 注意：多个效果可叠加，按固定顺序串联处理。
         // 升调（氦气）最先处理，作用在原始信号上，使其余效果叠加在变调后的音频上。
@@ -261,6 +263,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         if (chorus > 0) pcm = chorusTransform(pcm, speaker, chorus);
         if (dist > 0) pcm = distortionTransform(pcm, speaker, dist);
         if (trem > 0) pcm = tremoloTransform(pcm, speaker, trem);
+        if (echo > 0) pcm = echoTransform(pcm, speaker, echo);
         if (stut > 0) pcm = stutterTransform(pcm, speaker, stut);
 
         event.setRawAudio(pcm);
@@ -309,13 +312,18 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         return shifter.process(pcm, ratio);
     }
 
-    /** 失真：预增益 + tanh 软削波。等级越高驱动越强、削波越狠。 */
+    /**
+     * 失真：预增益 + 硬削波（hard clip）。
+     * <p>相较 tanh 软削波，硬削波在小信号时也放大、到达阈值后直接截平，
+     * 1 级即可明显听出"破音/电吉他"质感；等级越高驱动越强、削波越狠。</p>
+     */
     private static short[] distortionTransform(short[] pcm, UUID speaker, int level) {
-        double drive = 2.5 + (level - 1) * 0.9; // 2.5 -> 6.1
+        double drive = 5.0 + (level - 1) * 1.5;            // 5.0 -> 11.0
+        double threshold = 0.75 - (level - 1) * 0.06;      // 削波阈值，等级越高越早截平
         for (int i = 0; i < pcm.length; i++) {
             double s = ((double) pcm[i]) * drive / 32767.0;
-            s = Math.tanh(s);
-            pcm[i] = clamp(s * 32767.0);
+            s = Math.max(-threshold, Math.min(threshold, s));
+            pcm[i] = clamp(s / threshold * 32767.0);
         }
         return pcm;
     }
@@ -347,14 +355,33 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     /** 颤音：幅度 LFO 调制。 */
     private static short[] tremoloTransform(short[] pcm, UUID speaker, int level) {
         double phase = TREMOLO_PHASE.getOrDefault(speaker, 0.0);
-        double rate = 4.0 + level * 1.5;                          // Hz
-        double depth = Math.min(0.9, 0.3 + level * 0.12);
+        double rate = 5.0 + level * 1.5;                          // Hz
+        double depth = Math.min(0.95, 0.55 + level * 0.1);      // 1 级≈0.65，5 级≈0.95
         for (int i = 0; i < pcm.length; i++) {
             double factor = 1.0 - depth * (0.5 - 0.5 * Math.sin(phase));
             phase += 2.0 * Math.PI * rate / SAMPLE_RATE;
             pcm[i] = clamp(pcm[i] * factor);
         }
         TREMOLO_PHASE.put(speaker, phase);
+        return pcm;
+    }
+
+    /**
+     * 回响（echo）：单条反馈延迟线，产生清晰、可分辨的重复回声。
+     * <p>与混响（多条线融合成空间尾音）不同，回响是"明显的延迟重复"：
+     * 声音延迟 delay 后原样复读，并逐次衰减。等级越高延迟越长、回声越多越明显。</p>
+     */
+    private static short[] echoTransform(short[] pcm, UUID speaker, int level) {
+        EchoState st = getEchoState(speaker, level);
+        float feedback = Math.min(0.8f, 0.5f + level * 0.06f);   // 0.56 -> 0.8，回声衰减
+        float wet = Math.min(0.7f, 0.45f + level * 0.05f);       // 湿声比例 0.5 -> 0.7
+        for (int i = 0; i < pcm.length; i++) {
+            int readPos = (st.bufPos - st.delay + st.buf.length) % st.buf.length;
+            float delayed = st.buf[readPos];
+            st.buf[st.bufPos] = pcm[i] + delayed * feedback;
+            st.bufPos = (st.bufPos + 1) % st.buf.length;
+            pcm[i] = clamp(pcm[i] * (1f - wet) + delayed * wet);
+        }
         return pcm;
     }
 
@@ -454,6 +481,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         TREMOLO_PHASE.remove(speaker);
         STUTTER.remove(speaker);
         REVERSE.remove(speaker);
+        ECHO.remove(speaker);
 
         Integer f = LOWPASS_FILTERS.remove(speaker);
         if (f != null) {
@@ -495,6 +523,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         TREMOLO_PHASE.clear();
         STUTTER.clear();
         REVERSE.clear();
+        ECHO.clear();
     }
 
     // =========================================================================
@@ -542,6 +571,28 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         if (st == null || st.blockSize != blockSize) {
             st = new ReverseState(blockSize);
             REVERSE.put(speaker, st);
+        }
+        return st;
+    }
+
+    private static final class EchoState {
+        final int delay;                      // 延迟采样数，随等级增大
+        final float[] buf;
+        int bufPos = 0;
+
+        EchoState(int level) {
+            // 回响间隔：1 级 90ms，每级 +40ms（1 级可清晰分辨，5 级接近 250ms 明显拖尾）
+            this.delay = (int) ((0.09 + (level - 1) * 0.04) * SAMPLE_RATE);
+            this.buf = new float[delay + 1];
+        }
+    }
+
+    /** 按等级取/建回响状态：等级越高回声间隔越长。等级变化则重建。 */
+    private static EchoState getEchoState(UUID speaker, int level) {
+        EchoState st = ECHO.get(speaker);
+        if (st == null || st.delay != (int) ((0.09 + (level - 1) * 0.04) * SAMPLE_RATE)) {
+            st = new EchoState(level);
+            ECHO.put(speaker, st);
         }
         return st;
     }
