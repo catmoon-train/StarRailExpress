@@ -58,7 +58,8 @@ public class THMountainRoles {
             Integer.MAX_VALUE, // 标准冲刺时间
             true) {
         private static final List<ShopEntry> NITORI_SHOP = List.of(
-                new ShopEntry(ModItems.DEALER_PACKAGE.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+                new ShopEntry(ModItems.DEALER_PACKAGE.getDefaultInstance(), 100, ShopEntry.Type.TOOL),
+                new ShopEntry(TMMItems.DEFENSE_VIAL.getDefaultInstance(), 400, ShopEntry.Type.TOOL));
 
         @Override
         public List<ShopEntry> getShopEntries() {

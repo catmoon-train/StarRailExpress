@@ -16,6 +16,7 @@
 package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.api.CustomWinnerRole;
+import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -44,7 +45,7 @@ public class CustomWinnerClass {
                 return WinStatus.NOT_MODIFY;
             }
             var refugeeCCA = RefugeeComponent.KEY.get(serverLevel);
-            if(refugeeCCA.isPendingRestore){
+            if (refugeeCCA.isPendingRestore) {
                 return WinStatus.NONE;
             }
             var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
@@ -61,11 +62,12 @@ public class CustomWinnerClass {
                     alivePlayerCount++;
                     SRERole role = gameComponent.getRole(player);
                     if (role != null) {
-                        if (role instanceof CustomWinnerRole cwr) {
+                        if (role instanceof CustomWinnerRoleInterface cwr) {
                             WinStatus resultWinStatus = cwr.checkWin(player, winStatus);
                             if (resultWinStatus != WinStatus.NOT_MODIFY) {
                                 if (resultWinStatus == WinStatus.CUSTOM) {
-                                    cwr.win(player);
+                                    if (cwr instanceof CustomWinnerRole w)
+                                        w.win(player);
                                 }
                                 return resultWinStatus;
                             }
@@ -125,10 +127,12 @@ public class CustomWinnerClass {
             }
 
             for (ServerPlayer player : serverLevel.players()) {
-                if (!GameUtils.isPlayerAliveAndSurvival(player) || !gameComponent.isRole(player, ModRoles.RAVEN)) continue;
+                if (!GameUtils.isPlayerAliveAndSurvival(player) || !gameComponent.isRole(player, ModRoles.RAVEN))
+                    continue;
                 RavenPlayerComponent raven = ModComponents.RAVEN.get(player);
                 if (raven.kills >= raven.requiredKills && raven.requiredKills > 0) {
-                    RoleUtils.customWinnerWin(serverLevel, WinStatus.CUSTOM, ModRoles.RAVEN_ID.getPath(), OptionalInt.of(ModRoles.RAVEN.color()));
+                    RoleUtils.customWinnerWin(serverLevel, WinStatus.CUSTOM, ModRoles.RAVEN_ID.getPath(),
+                            OptionalInt.of(ModRoles.RAVEN.color()));
                     return WinStatus.CUSTOM;
                 }
             }
@@ -168,7 +172,8 @@ public class CustomWinnerClass {
             }
 
             // 布谷鸟胜利：在常规结局和年兽/纵火犯胜利时判定，优先级大于纵火犯和年兽
-            if (winStatus.equals(WinStatus.PASSENGERS) || winStatus.equals(WinStatus.KILLERS) || winStatus.equals(WinStatus.TIME)
+            if (winStatus.equals(WinStatus.PASSENGERS) || winStatus.equals(WinStatus.KILLERS)
+                    || winStatus.equals(WinStatus.TIME)
                     || winStatus.equals(WinStatus.NIAN_SHOU)) {
                 if (CuckooPlayerComponent.checkCuckooVictory(serverLevel)) {
                     return WinStatus.CUSTOM;
