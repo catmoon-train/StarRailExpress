@@ -195,15 +195,15 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             int slot = res[0];
             int effect = res[1];
 
-            EXTEfx.alEffectf(effect, AL_REVERB_DENSITY, 0.4f + reverb * 0.12f);
-            EXTEfx.alEffectf(effect, AL_REVERB_DIFFUSION, 0.5f + reverb * 0.1f);
-            EXTEfx.alEffectf(effect, AL_REVERB_GAIN, 0.25f + reverb * 0.05f);   // 湿声量
+            EXTEfx.alEffectf(effect, AL_REVERB_DENSITY, 0.5f + reverb * 0.1f);
+            EXTEfx.alEffectf(effect, AL_REVERB_DIFFUSION, 0.6f + reverb * 0.08f);
+            EXTEfx.alEffectf(effect, AL_REVERB_GAIN, 0.4f + reverb * 0.05f);   // 湿声量
             EXTEfx.alEffectf(effect, AL_REVERB_GAINHF, 0.6f);
-            EXTEfx.alEffectf(effect, AL_REVERB_DECAY_TIME, 0.4f + reverb * 0.25f);
+            EXTEfx.alEffectf(effect, AL_REVERB_DECAY_TIME, 0.6f + reverb * 0.28f);
             EXTEfx.alEffectf(effect, AL_REVERB_DECAY_HFRATIO, 0.6f);
-            EXTEfx.alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN, 0.1f + reverb * 0.03f);
+            EXTEfx.alEffectf(effect, AL_REVERB_REFLECTIONS_GAIN, 0.18f + reverb * 0.04f);
             EXTEfx.alEffectf(effect, AL_REVERB_REFLECTIONS_DELAY, 0.02f);
-            EXTEfx.alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN, 0.2f + reverb * 0.05f);
+            EXTEfx.alEffectf(effect, AL_REVERB_LATE_REVERB_GAIN, 0.3f + reverb * 0.06f);
             EXTEfx.alEffectf(effect, AL_REVERB_LATE_REVERB_DELAY, 0.03f + reverb * 0.01f);
             EXTEfx.alEffectf(effect, AL_REVERB_AIR_ABSORPTION_GAINHF, 0.1f);
             EXTEfx.alEffectf(effect, AL_REVERB_ROOM_ROLLOFF_FACTOR, 0.0f);
@@ -311,7 +311,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
     /** 失真：预增益 + tanh 软削波。等级越高驱动越强、削波越狠。 */
     private static short[] distortionTransform(short[] pcm, UUID speaker, int level) {
-        double drive = 2.5 + (level - 1) * 0.9; // 2.5 -> 6.1
+        double drive = 3.4 + (level - 1) * 1.0; // 3.4 -> 7.4，1 级也有明显削波
         for (int i = 0; i < pcm.length; i++) {
             double s = ((double) pcm[i]) * drive / 32767.0;
             s = Math.tanh(s);
@@ -347,8 +347,8 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     /** 颤音：幅度 LFO 调制。 */
     private static short[] tremoloTransform(short[] pcm, UUID speaker, int level) {
         double phase = TREMOLO_PHASE.getOrDefault(speaker, 0.0);
-        double rate = 4.0 + level * 1.5;                          // Hz
-        double depth = Math.min(0.9, 0.3 + level * 0.12);
+        double rate = 5.0 + level * 1.5;                          // Hz
+        double depth = Math.min(0.95, 0.55 + level * 0.1);      // 1 级≈0.65，5 级≈0.95
         for (int i = 0; i < pcm.length; i++) {
             double factor = 1.0 - depth * (0.5 - 0.5 * Math.sin(phase));
             phase += 2.0 * Math.PI * rate / SAMPLE_RATE;
