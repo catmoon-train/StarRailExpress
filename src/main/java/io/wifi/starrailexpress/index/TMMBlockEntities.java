@@ -123,42 +123,42 @@ public interface TMMBlockEntities {
           BlockEntityType.Builder.of(
               (pos, state) -> new UpSmallDoorBlockEntity(
                   TMMBlockEntities.UP_GLASS_DOOR, pos, state),
-              SREBlocks.UP_GLASS_DOOR));
+              SREDoorBlocks.UP_GLASS_DOOR));
   BlockEntityType<UpSmallDoorBlockEntity> UP_WOOD_DOOR = registrar.create("up_wood_door", BlockEntityType.Builder
       .of((pos, state) -> new UpSmallDoorBlockEntity(TMMBlockEntities.UP_WOOD_DOOR, pos, state),
-          SREBlocks.UP_WOOD_DOOR));
+          SREDoorBlocks.UP_WOOD_DOOR));
   BlockEntityType<UpSmallDoorBlockEntity> UP_STEEL_DOOR = registrar
       .create("up_steel_door",
           BlockEntityType.Builder.of(
               (pos, state) -> new UpSmallDoorBlockEntity(
                   TMMBlockEntities.UP_STEEL_DOOR, pos, state),
-              SREBlocks.UP_STEEL_DOOR));
+              SREDoorBlocks.UP_STEEL_DOOR));
 
   BlockEntityType<PlaneSmallDoorBlockEntity> PLANE_GLASS_DOOR = registrar
       .create("plane_glass_door",
           BlockEntityType.Builder.of(
               (pos, state) -> new PlaneSmallDoorBlockEntity(
                   TMMBlockEntities.PLANE_GLASS_DOOR, pos, state),
-              SREBlocks.PLANE_GLASS_DOOR));
+              SREDoorBlocks.PLANE_GLASS_DOOR));
   BlockEntityType<PlaneSmallDoorBlockEntity> PLANE_WOOD_DOOR = registrar
       .create("plane_wood_door",
           BlockEntityType.Builder.of(
               (pos, state) -> new PlaneSmallDoorBlockEntity(
                   TMMBlockEntities.PLANE_WOOD_DOOR, pos, state),
-              SREBlocks.PLANE_WOOD_DOOR));
+              SREDoorBlocks.PLANE_WOOD_DOOR));
   BlockEntityType<PlaneSmallDoorBlockEntity> PLANE_STEEL_DOOR = registrar
       .create("plane_steel_door",
           BlockEntityType.Builder.of(
               (pos, state) -> new PlaneSmallDoorBlockEntity(
                   TMMBlockEntities.PLANE_STEEL_DOOR, pos, state),
-              SREBlocks.PLANE_STEEL_DOOR));
+              SREDoorBlocks.PLANE_STEEL_DOOR));
 
   BlockEntityType<LockableButtonBlockEntity> LOCKABLE_BUTTON = registrar.create("lockable_button",
       BlockEntityType.Builder.of(
           (pos, state) -> new LockableButtonBlockEntity(TMMBlockEntities.LOCKABLE_BUTTON,
               pos, state),
-          new Block[] { SREBlocks.LOCKABLE_ELEVATOR_BUTTON,
-              SREBlocks.LOCKABLE_SMALL_BUTTON }));
+          new Block[] { SREDoorBlocks.LOCKABLE_ELEVATOR_BUTTON,
+              SREDoorBlocks.LOCKABLE_SMALL_BUTTON }));
 
   BlockEntityType<MirrorBlockEntity> MIRROR = registrar.create("mirror",
       BlockEntityType.Builder.of(MirrorBlockEntity::new, TMMBlocks.MIRROR));

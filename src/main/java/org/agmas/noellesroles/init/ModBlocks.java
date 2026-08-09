@@ -17,6 +17,7 @@ package org.agmas.noellesroles.init;
 
 import dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar;
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
+import io.wifi.starrailexpress.index.SREDoorBlocks;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -42,6 +43,10 @@ import net.exmo.sre.repair.content.block_entity.*;
 import static io.wifi.starrailexpress.index.TMMBlocks.DARK_STEEL;
 
 public interface ModBlocks {
+        
+    public static ResourceKey<CreativeModeTab> BLOCK_DOORS_GROUP = ResourceKey.create(
+            Registries.CREATIVE_MODE_TAB,
+            Noellesroles.id("door"));
     public static ResourceKey<CreativeModeTab> BLOCK_CREATIVE_GROUP = ResourceKey.create(
             Registries.CREATIVE_MODE_TAB,
             Noellesroles.id("block"));
@@ -131,6 +136,12 @@ public interface ModBlocks {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, BLOCK_CREATIVE_GROUP, FabricItemGroup.builder()
                 .title(Component.translatable("item_group.noellesroles.block")).icon(() -> {
                     return new ItemStack(VENDING_MACHINES_BLOCK.asItem());
+                })
+                .build());
+                
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, BLOCK_DOORS_GROUP, FabricItemGroup.builder()
+                .title(Component.translatable("item_group.starrailexpress.doors")).icon(() -> {
+                    return new ItemStack(SREDoorBlocks.UP_GLASS_DOOR.asItem());
                 })
                 .build());
         blockRegistrar.registerEntries();

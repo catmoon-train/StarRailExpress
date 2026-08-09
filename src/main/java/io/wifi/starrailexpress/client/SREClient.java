@@ -120,6 +120,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.index.SREDoorBlocks;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -384,6 +385,14 @@ public class SREClient implements ClientModInitializer {
         ModelLoadingPlugin.register(customModelProvider);
 
         // Block Entity Renderers
+        // 门
+        // 自动注册的自定义材质门
+        for (final var entry : SREDoorBlocks.DOOR_BLOCK_AND_ENTITIES.values()) {
+            BlockEntityRenderers.register(
+                    entry.blockEntity,
+                    ctx -> new SmallDoorBlockEntityRenderer(entry.texture, ctx));
+        }
+        // wathe 门
         BlockEntityRenderers.register(
                 TMMBlockEntities.SMALL_GLASS_DOOR,
                 ctx -> new SmallDoorBlockEntityRenderer(SRE.watheId("textures/entity/small_glass_door.png"), ctx));

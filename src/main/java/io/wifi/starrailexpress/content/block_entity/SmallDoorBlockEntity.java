@@ -33,6 +33,10 @@ public class SmallDoorBlockEntity extends DoorBlockEntity {
         return new SmallDoorBlockEntity(TMMBlockEntities.SMALL_GLASS_DOOR, pos, state);
     }
 
+    public static SmallDoorBlockEntity createCustom(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        return new SmallDoorBlockEntity(TMMBlockEntities.SMALL_WOOD_DOOR, pos, state);
+    }
+
     public static SmallDoorBlockEntity createWood(BlockPos pos, BlockState state) {
         return new SmallDoorBlockEntity(TMMBlockEntities.SMALL_WOOD_DOOR, pos, state);
     }

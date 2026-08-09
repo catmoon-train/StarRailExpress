@@ -27,7 +27,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
@@ -55,12 +54,14 @@ public interface SREBlocks {
   // 列车火把
   Block TRAIN_TORCH = onlyRegisterBlock(SRE.id("train_torch"),
       new TrainTorchBlock(
-          Block.Properties.of().noOcclusion().mapColor(waterloggedMapColor(MapColor.NONE)).noCollission().instabreak()
+          Block.Properties.of().noOcclusion().mapColor(waterloggedMapColor(MapColor.NONE)).noCollission()
+              .instabreak()
               .sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY)));
 
   Block WALL_TRAIN_TORCH = onlyRegisterBlock(SRE.id("wall_train_torch"),
       new WallTrainTorchBlock(
-          Block.Properties.of().noOcclusion().noCollission().mapColor(waterloggedMapColor(MapColor.NONE)).instabreak()
+          Block.Properties.of().noOcclusion().noCollission().mapColor(waterloggedMapColor(MapColor.NONE))
+              .instabreak()
               .sound(SoundType.WOOD).dropsLike(TRAIN_TORCH)
               .pushReaction(PushReaction.DESTROY)));
   // 列车火把拉杆
@@ -71,15 +72,19 @@ public interface SREBlocks {
       new Item.Properties().rarity(Rarity.COMMON));
   // 列车原版灯笼
   Block TRAIN_VANILLA_LANTERN = registerBlock("train_lantern",
-      new TrainLanternBlock(Block.Properties.of().mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops()
-          .strength(3.5F).sound(SoundType.LANTERN)
-          .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex)).noOcclusion()
-          .pushReaction(PushReaction.DESTROY)));
+      new TrainLanternBlock(
+          Block.Properties.of().mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops()
+              .strength(3.5F).sound(SoundType.LANTERN)
+              .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex))
+              .noOcclusion()
+              .pushReaction(PushReaction.DESTROY)));
   Block TRAIN_SOUL_LANTERN = registerBlock("train_soul_lantern",
-      new TrainLanternBlock(Block.Properties.of().mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops()
-          .strength(3.5F).sound(SoundType.LANTERN)
-          .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(10, blockStatex)).noOcclusion()
-          .pushReaction(PushReaction.DESTROY)));
+      new TrainLanternBlock(
+          Block.Properties.of().mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops()
+              .strength(3.5F).sound(SoundType.LANTERN)
+              .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(10, blockStatex))
+              .noOcclusion()
+              .pushReaction(PushReaction.DESTROY)));
   Block SEA_LANTERN = registerBlock("train_sea_lantern",
       new SimpleTrainLightBlock(
           Block.Properties.of().mapColor(MapColor.QUARTZ).instrument(NoteBlockInstrument.HAT).strength(0.3F)
@@ -91,51 +96,22 @@ public interface SREBlocks {
               .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex))));
   Block JACK_O_LANTERN = registerBlock("train_jack_o_lantern",
       new TrainCarvedPumpkinBlock(Block.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(1.0F)
-          .sound(SoundType.WOOD).lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex))
+          .sound(SoundType.WOOD)
+          .lightLevel((blockStatex) -> SimpleTrainLightBlock.lightBlockSupplier(15, blockStatex))
           .pushReaction(PushReaction.DESTROY)));
-  // 卷帘门
-  Block UP_GLASS_DOOR = registerBlock("up_glass_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_GLASS_DOOR,
-      BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER)),
-      new Item.Properties().rarity(Rarity.COMMON));
-  Block UP_WOOD_DOOR = registerBlock("up_wood_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_WOOD_DOOR,
-      BlockBehaviour.Properties.ofFullCopy(UP_GLASS_DOOR).sound(SoundType.COPPER)),
-      new Item.Properties().rarity(Rarity.COMMON));
-  Block UP_STEEL_DOOR = registerBlock("up_steel_door",
-      new UpTrainDoorBlock(() -> TMMBlockEntities.UP_STEEL_DOOR,
-          BlockBehaviour.Properties.ofFullCopy(UP_GLASS_DOOR).sound(SoundType.COPPER)),
-      new Item.Properties().rarity(Rarity.COMMON));
 
-  // 飞机门
-  Block PLANE_GLASS_DOOR = registerBlock("plane_glass_door",
-      new PlaneSmallDoorBlock(() -> TMMBlockEntities.PLANE_GLASS_DOOR,
-          BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR)
-              .sound(SoundType.COPPER)),
-      new Item.Properties().rarity(Rarity.COMMON));
-  Block PLANE_WOOD_DOOR = registerBlock("plane_wood_door",
-      new PlaneSmallDoorBlock(() -> TMMBlockEntities.PLANE_WOOD_DOOR,
-          BlockBehaviour.Properties.ofFullCopy(PLANE_GLASS_DOOR).sound(SoundType.COPPER)),
-      new Item.Properties().rarity(Rarity.COMMON));
-  Block PLANE_STEEL_DOOR = registerBlock("plane_steel_door",
-      new PlaneTrainDoorBlock(() -> TMMBlockEntities.PLANE_STEEL_DOOR,
-          BlockBehaviour.Properties.ofFullCopy(PLANE_GLASS_DOOR).sound(SoundType.COPPER)),
-      new Item.Properties().rarity(Rarity.COMMON));
-
-  Block LOCKABLE_SMALL_BUTTON = registerBlock("lockable_small_button",
-      new LockableSmallButtonBlock(BlockBehaviour.Properties.of()
-          .sound(SoundType.CHERRY_WOOD).noOcclusion().forceSolidOn().noCollission()
-          .strength(-1.0f, 3600000.0f)));
-  Block LOCKABLE_ELEVATOR_BUTTON = registerBlock("lockable_elevator_button",
-      new LockableElevatorButtonBlock(BlockBehaviour.Properties.ofFullCopy(LOCKABLE_SMALL_BUTTON)));
 
   @SuppressWarnings("unchecked")
   public static <T extends Block> T registerBlock(String id, T block) {
     return blockRegistrar.createWithItem(id, block, ModBlocks.BLOCK_CREATIVE_GROUP);
   }
 
+
   @SuppressWarnings("unchecked")
   public static <T extends Block> T registerBlock(String id, T block, Item.Properties settings) {
     return blockRegistrar.createWithItem(id, block, settings, ModBlocks.BLOCK_CREATIVE_GROUP);
   }
+
 
   @SuppressWarnings("unchecked")
   public static <T extends Block> T registerOpBlock(String id, T block, Item.Properties settings) {
@@ -147,6 +123,7 @@ public interface SREBlocks {
     // SRE 方块现已合并到 ModBlocks.BLOCK_CREATIVE_GROUP，不再单独注册 starrailexpress:misc_block
     // 标签
     blockRegistrar.registerEntries();
+    SREDoorBlocks.initialize();
   }
 
   private static Function<BlockState, MapColor> waterloggedMapColor(MapColor mapColor) {
