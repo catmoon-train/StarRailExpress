@@ -120,7 +120,8 @@ public interface SREDoorBlocks {
             new LockableElevatorButtonBlock(BlockBehaviour.Properties.ofFullCopy(LOCKABLE_SMALL_BUTTON)));
 
     public static void initialize() {
-
+        blockRegistrar.registerEntries();
+        blockEntityRegistrar.registerEntries();
         ItemGroupEvents.modifyEntriesEvent(ModBlocks.BLOCK_DOORS_GROUP)
                 .register((itemGroup) -> {
                     itemGroup.accept(TMMBlocks.SMALL_BUTTON);
