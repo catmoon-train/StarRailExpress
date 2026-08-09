@@ -31,7 +31,7 @@ import org.agmas.noellesroles.game.roles.killer.creeper.RainbowCreeperRole;
 import org.agmas.noellesroles.modifier.BounsModifiers;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
-import org.agmas.noellesroles.role.touhou.MountainRoles;
+import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 
@@ -215,7 +215,7 @@ public class BounsRoles {
 
     public static void init() {
         THRedHouseRoles.init();
-        MountainRoles.init();
+        THMountainRoles.init();
         THMagicForestRoles.init();
         THMiscRoles.init();
         BounsModifiers.init();

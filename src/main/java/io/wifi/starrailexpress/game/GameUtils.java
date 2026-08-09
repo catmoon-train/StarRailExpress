@@ -1294,7 +1294,7 @@ public class GameUtils {
                             && roundEnd.CustomWinnerPlayers.contains(player.getUUID())) {
                         isWinner = true;
                     }
-                    if (playerRole instanceof CustomWinnerRole cwr) {
+                    if (playerRole instanceof CustomWinnerRoleInterface cwr) {
                         isWinner = cwr.didPlayerWin(player, isWinner, winStatus);
                     }
                 }

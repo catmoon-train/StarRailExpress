@@ -37,6 +37,11 @@ public abstract class DoorBlockEntity extends SyncingBlockEntity {
     protected boolean open;
     protected int age = 0;
 
+    @Override
+    public boolean isValidBlockState(BlockState blockState) {
+        return true;
+    }
+
     protected String keyName = "";
 
     protected int closeCountdown = 0;

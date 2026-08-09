@@ -300,7 +300,7 @@ public class GameConstants {
         public static ResourceLocation DREAM_DIAMOND_SWORD = Noellesroles.id("dream_diamond_sword");
         public static ResourceLocation DREAM_MACE = Noellesroles.id("dream_mace");
 
-        public static ResourceLocation RADIATION = StupidExpress.id("radiation");
+        public static ResourceLocation RADIATION = Noellesroles.id("radiation");
         public static ResourceLocation BROKEN_HEART = StupidExpress.id("broken_heart");
         public static ResourceLocation FAILED_INITIATION = StupidExpress.id("failed_initiation");
         public static ResourceLocation ALLERGIST = StupidExpress.id("allergist");

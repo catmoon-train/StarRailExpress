@@ -20,7 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-public abstract class CustomWinnerRole extends NormalRole {
+public abstract class CustomWinnerRole extends NormalRole implements CustomWinnerRoleInterface {
     /**
      * @param identifier    the mod id and name of the role
      * @param color         the role announcement color
@@ -36,7 +36,8 @@ public abstract class CustomWinnerRole extends NormalRole {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
     }
 
-    public WinStatus checkWin(ServerPlayer player, WinStatus winStatus){
+    @Override
+    public WinStatus checkWin(ServerPlayer player, WinStatus winStatus) {
         return WinStatus.NOT_MODIFY;
     };
 
@@ -51,7 +52,8 @@ public abstract class CustomWinnerRole extends NormalRole {
     /**
      * 玩家是否获胜。在获胜统计时被调用。
      */
-    public boolean didPlayerWin(ServerPlayer player, boolean original, WinStatus winStatus){
+    @Override
+    public boolean didPlayerWin(ServerPlayer player, boolean original, WinStatus winStatus) {
         return original;
     }
 }

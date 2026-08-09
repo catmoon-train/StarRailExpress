@@ -38,7 +38,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MountainRoles {
+public class THMountainRoles {
     public static final String NAMESPACE = "th_mount";
 
     public static ResourceLocation id(String path) {
@@ -58,7 +58,8 @@ public class MountainRoles {
             Integer.MAX_VALUE, // 标准冲刺时间
             true) {
         private static final List<ShopEntry> NITORI_SHOP = List.of(
-                new ShopEntry(ModItems.DEALER_PACKAGE.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+                new ShopEntry(ModItems.DEALER_PACKAGE.getDefaultInstance(), 100, ShopEntry.Type.TOOL),
+                new ShopEntry(TMMItems.DEFENSE_VIAL.getDefaultInstance(), 400, ShopEntry.Type.TOOL));
 
         @Override
         public List<ShopEntry> getShopEntries() {

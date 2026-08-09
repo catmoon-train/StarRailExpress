@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.neutral.leader;
 
 import io.wifi.starrailexpress.api.CustomWinnerRole;
+import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.EggRoleInterface;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -113,7 +114,7 @@ public class LeaderRole extends CustomWinnerRole implements EggRoleInterface {
     private boolean followerWon(ServerPlayer follower, SRERole fr, WinStatus winStatus,
             SREGameRoundEndComponent roundEnd) {
         // 自定义胜利职业（黑白等）用其自身判定
-        if (fr instanceof CustomWinnerRole cwr) {
+        if (fr instanceof CustomWinnerRoleInterface cwr) {
             if (cwr.didPlayerWin(follower, false, winStatus)) {
                 return true;
             }
