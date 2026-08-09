@@ -55,7 +55,7 @@ import org.agmas.noellesroles.content.item.BowenBadgeItem;
 import org.agmas.noellesroles.content.item.RopeItem;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.touhou.MountainRoles;
+import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
@@ -397,7 +397,7 @@ public class TouhouHandlers {
           RopeItem.pullPlayer(player, target, 1);
           return true;
         }).cooldownSeconds(90).announceToSelf(true).showOnHud(true).shifted(true).build());
-    RoleSkill.register(MountainRoles.NITORI, RoleSkill.skill(SRE.id("nitori_exchange"),
+    RoleSkill.register(THMountainRoles.NITORI, RoleSkill.skill(SRE.id("nitori_exchange"),
         "skill.noellesroles.nitori_exchange",
         context -> {
           if (context.target() == null) {

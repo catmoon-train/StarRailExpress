@@ -48,7 +48,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.ModMeetingRoles;
-import org.agmas.noellesroles.role.touhou.MountainRoles;
+import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -84,7 +84,7 @@ public final class LeaderFollowerEffects {
     /** 森近霖之助 / 河城荷取（金币依附角色） */
     public static boolean isCoinDependentRole(SRERole role) {
         return role != null && (role.identifier().equals(THMiscRoles.RINNOSUKE_ID)
-                || role.identifier().equals(MountainRoles.NITORI_ID));
+                || role.identifier().equals(THMountainRoles.NITORI_ID));
     }
 
     /** 该玩家是否已被领袖招募为追随者（通过其领袖的 RoleData 查询） */

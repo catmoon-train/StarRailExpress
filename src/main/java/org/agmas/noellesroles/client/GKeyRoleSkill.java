@@ -33,7 +33,7 @@ import org.agmas.noellesroles.packet.VeteranDashC2SPacket;
 import org.agmas.noellesroles.packet.VultureEatC2SPacket;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.MountainRoles;
+import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.HashMap;
@@ -149,7 +149,7 @@ public final class GKeyRoleSkill {
             ClientPlayNetworking.send(new org.agmas.noellesroles.packet.SwapperFrontSwapC2SPacket());
             return true;
         });
-        register(MountainRoles.NITORI, false, (client, gameWorld) -> {
+        register(THMountainRoles.NITORI, false, (client, gameWorld) -> {
             if (NoellesrolesClient.targetPlayer == null) {
                 return true;
             }

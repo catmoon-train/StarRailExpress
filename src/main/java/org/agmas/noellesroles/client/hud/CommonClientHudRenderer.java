@@ -73,7 +73,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.MountainRoles;
+import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role_data.neutral.RemiliaBloodServantRoleData;
 import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
@@ -1503,7 +1503,7 @@ public class CommonClientHudRenderer {
       guiGraphics.drawString(font, readyText, xOffset - font.width(readyText), dy, Color.WHITE.getRGB());
     });
 
-    RoleHudRenderCallback.EVENT.register(MountainRoles.NITORI_ID, (guiGraphics, deltaTracker) -> {
+    RoleHudRenderCallback.EVENT.register(THMountainRoles.NITORI_ID, (guiGraphics, deltaTracker) -> {
       var client = Minecraft.getInstance();
 
       int screenWidth = guiGraphics.guiWidth();

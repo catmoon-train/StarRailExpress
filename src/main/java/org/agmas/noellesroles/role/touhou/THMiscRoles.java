@@ -104,7 +104,7 @@ public class THMiscRoles {
       .setDefaultEnableChance(100)
       .setCanUseInstinctAndNightVision(false)
       .setCanPickUpRevolver(false)
-      .addBothRelatedRole(MountainRoles.NITORI)
+      .addBothRelatedRole(THMountainRoles.NITORI)
       .setServerGameTickEvent((player, cca) -> {
         if (player.level().getGameTime() % (20 * 60) == 0) {
           SREPlayerShopComponent.KEY.get(player).addToBalance(50);

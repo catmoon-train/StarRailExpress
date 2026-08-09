@@ -38,7 +38,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MountainRoles {
+public class THMountainRoles {
     public static final String NAMESPACE = "th_mount";
 
     public static ResourceLocation id(String path) {
