@@ -43,7 +43,8 @@ public interface SREDoorBlocks {
 
     public static final HashMap<ResourceLocation, CustomDoorBlockAndEntity> DOOR_BLOCK_AND_ENTITIES = new HashMap<>();
     public static final BlockRegistrar blockRegistrar = new BlockRegistrar(SRE.MOD_ID);
-    public static final BlockEntityTypeRegistrar blockEntityRegistrar = new BlockEntityTypeRegistrar(SRE.TMM_MOD_ID);
+    public static final BlockEntityTypeRegistrar blockEntityRegistrar = new BlockEntityTypeRegistrar(
+            SRE.TMM_MOD_ID);
 
     public static BlockEntityType<? extends DoorBlockEntity> getDoorBlockEntityType(Block block) {
         ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
@@ -55,13 +56,18 @@ public interface SREDoorBlocks {
         return info.blockEntity;
     }
 
-    public static <T extends Block> T registerCustomDoorBlockAndCreateEntity(String id, T block,
+    public static Block registerCustomSmallDoorBlockAndCreateEntity(String id,
+            Block.Properties blockSettings,
             Item.Properties settings,
             ResourceLocation texture) {
-        T b = registerDoorBlock(id, block, settings);
+                
         AtomicReference<BlockEntityType<SmallDoorBlockEntity>> ref = new AtomicReference<>();
+        SmallDoorBlock block = new SmallDoorBlock(() -> ref.get(), blockSettings);
+        Block b = registerDoorBlock(id, block, settings);
         BlockEntityType<SmallDoorBlockEntity> entity = blockEntityRegistrar.create(id,
-                BlockEntityType.Builder.of((pos, state) -> SmallDoorBlockEntity.createCustom(ref.get(), pos, state),
+                BlockEntityType.Builder.of(
+                        (pos, state) -> SmallDoorBlockEntity.createCustom(ref.get(), pos,
+                                state),
                         block));
         // 3. 创建完成后，将结果存入 ref
         ref.set(entity);
@@ -81,13 +87,15 @@ public interface SREDoorBlocks {
     }
 
     // 纸门
-    Block SMALL_PAPER_DOOR = registerCustomDoorBlockAndCreateEntity("small_paper_door",
-            new SmallDoorBlock(() -> TMMBlockEntities.SMALL_WOOD_DOOR,
-                    BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER)),
-            new Item.Properties().rarity(Rarity.COMMON), SRE.id("textures/item/doors/small_paper_door.png"));
+    Block SMALL_PAPER_DOOR = registerCustomSmallDoorBlockAndCreateEntity("small_paper_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/small_paper_door.png"));
     // 卷帘门
-    Block UP_GLASS_DOOR = registerDoorBlock("up_glass_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_GLASS_DOOR,
-            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER)),
+    Block UP_GLASS_DOOR = registerDoorBlock(
+            "up_glass_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_GLASS_DOOR,
+                    BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR)
+                            .sound(SoundType.COPPER)),
             new Item.Properties().rarity(Rarity.COMMON));
     Block UP_WOOD_DOOR = registerDoorBlock("up_wood_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_WOOD_DOOR,
             BlockBehaviour.Properties.ofFullCopy(UP_GLASS_DOOR).sound(SoundType.COPPER)),
