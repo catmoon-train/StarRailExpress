@@ -1,0 +1,20 @@
+﻿{
+    "gui.rhythm.title": "Rhythm Game",
+    "gui.rhythm.start": "Start Game",
+    "gui.rhythm.waiting": "Click the button below to start",
+    "gui.rhythm.score": "Score: %s",
+    "gui.rhythm.combo": "Combo: %s",
+    "gui.rhythm.accuracy": "Accuracy: %s",
+    "gui.rhythm.hint.up": "Up: [W]/[J]/[K] or Left Mouse Button",
+    "gui.rhythm.hint.down": "Down: [S]/[F]/[D] or Right Mouse Button",
+    "gui.rhythm.result.title": "Performance Finished",
+    "gui.rhythm.result.score": "Total Score: %s",
+    "gui.rhythm.result.max_combo": "Max Combo: %s",
+    "gui.rhythm.back": "Click anywhere to return",
+    "rhythm.screen.list.title": "Select Song",
+    "rhythm.screen.list.random": "Random",
+    "rhythm.screen.list.back": "Back",
+    "rhythm.map.wifi_rhythm.rhythm/yaosemountain_1.json": "Youkai Mountain PART 1 (Redstone Music, Excerpt)",
+    "rhythm.map.wifi_rhythm.rhythm/broken_moon.json": "Broken Moon / Eastern Dream (Redstone Music, Excerpt)",
+    "rhythm.map.wifi_rhythm.rhythm/un_owen.json": "U.N. Owen Was Her? (Redstone Music, Excerpt)"
+}

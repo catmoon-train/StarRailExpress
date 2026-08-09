@@ -1,0 +1,20 @@
+﻿{
+    "gui.rhythm.title": "音遊",
+    "gui.rhythm.start": "開始遊戲",
+    "gui.rhythm.waiting": "點擊下方按鈕開始",
+    "gui.rhythm.score": "分數：%s",
+    "gui.rhythm.combo": "連擊：%s",
+    "gui.rhythm.accuracy": "準確率：%s",
+    "gui.rhythm.hint.up": "上：[W]/[J]/[K] 或 滑鼠左鍵",
+    "gui.rhythm.hint.down": "下：[S]/[F]/[D] 或 滑鼠右鍵",
+    "gui.rhythm.result.title": "演奏結束",
+    "gui.rhythm.result.score": "總分：%s",
+    "gui.rhythm.result.max_combo": "最大連擊：%s",
+    "gui.rhythm.back": "點擊任意位置返回",
+    "rhythm.screen.list.title": "選擇曲目",
+    "rhythm.screen.list.random": "隨機",
+    "rhythm.screen.list.back": "返回",
+    "rhythm.map.wifi_rhythm.rhythm/yaosemountain_1.json": "妖怪之山 PART 1（紅石音樂，節選）",
+    "rhythm.map.wifi_rhythm.rhythm/broken_moon.json": "碎月/東方萃夢想（紅石音樂，節選）",
+    "rhythm.map.wifi_rhythm.rhythm/un_owen.json": "U.N.Owen就是她嗎？（紅石音樂，節選）"
+}

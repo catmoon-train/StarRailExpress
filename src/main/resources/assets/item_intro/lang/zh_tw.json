@@ -149,7 +149,7 @@
   "item.noellesroles.wreath.desc": "花圈，穿戴在頭部時持續恢復san值。共有60點耐久，穿戴時每秒消耗1點耐久，耐久耗盡後效果消失。",
   "item.noellesroles.shilijia.desc": "石粒架，食用後立即恢復基於體力上限50%%的體力。可由大妖精購買後分給隊友。",
   "item.noellesroles.youlu_anchor.desc": "幽露專屬，商店80金幣購買一次。第一次使用放出一顆沿地面向前滑行的球形錨點（僅幽露本人可見），再次使用傳送到錨點位置並回收錨點，隨後進入30秒冷卻。錨點最長存在25秒。",
-  "item.noellesroles.youlu_smoke.desc": "幽露專屬，商店70金幣購買一次。使用後沿視線方向（含上下）放出一團向前推進的煙霧波（可穿牆，非瞬時）：推進途中半徑4格內的玩家陷入8秒失明與黑暗，命中後煙霧不會消失、繼續前進，總距離12格。冷卻60秒。",
+  "item.noellesroles.youlu_smoke.desc": "幽露專屬，商店70金幣購買一次。使用後沿視線方向（含上下）放出一團向前推進的煙霧波（可穿牆，非暫態）：推進途中半徑4格內的玩家陷入8秒失明與黑暗，命中後煙霧不會消失、繼續前進，總距離12格。冷卻60秒。",
   "item.noellesroles.chocolate.desc": "美味的巧克力，食用後短時間內san值不會下降。（持續15秒）",
   "item.noellesroles.calming_tea.desc": "安神茶，飲用後減緩san值消耗。（持續60秒）",
   "item.noellesroles.talisman.desc": "護身符，攜帶在物品欄中時降低低san視覺干擾並緩慢恢復san值。",
