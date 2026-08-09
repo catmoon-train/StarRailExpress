@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.content.block.LockableSmallButtonBlock;
 import io.wifi.starrailexpress.content.block.PlaneSmallDoorBlock;
 import io.wifi.starrailexpress.content.block.PlaneTrainDoorBlock;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
+import io.wifi.starrailexpress.content.block.TrainDoorBlock;
 import io.wifi.starrailexpress.content.block.UpSmallDoorBlock;
 import io.wifi.starrailexpress.content.block.UpTrainDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
@@ -60,9 +61,29 @@ public interface SREDoorBlocks {
             Block.Properties blockSettings,
             Item.Properties settings,
             ResourceLocation texture) {
-                
+
         AtomicReference<BlockEntityType<SmallDoorBlockEntity>> ref = new AtomicReference<>();
         SmallDoorBlock block = new SmallDoorBlock(() -> ref.get(), blockSettings);
+        Block b = registerDoorBlock(id, block, settings);
+        BlockEntityType<SmallDoorBlockEntity> entity = blockEntityRegistrar.create(id,
+                BlockEntityType.Builder.of(
+                        (pos, state) -> SmallDoorBlockEntity.createCustom(ref.get(), pos,
+                                state),
+                        block));
+        // 3. 创建完成后，将结果存入 ref
+        ref.set(entity);
+
+        DOOR_BLOCK_AND_ENTITIES.put(SRE.id(id), new CustomDoorBlockAndEntity(b, entity, texture));
+        return b;
+    }
+
+    public static Block registerCustomTrainDoorBlockAndCreateEntity(String id,
+            Block.Properties blockSettings,
+            Item.Properties settings,
+            ResourceLocation texture) {
+
+        AtomicReference<BlockEntityType<SmallDoorBlockEntity>> ref = new AtomicReference<>();
+        SmallDoorBlock block = new TrainDoorBlock(() -> ref.get(), blockSettings);
         Block b = registerDoorBlock(id, block, settings);
         BlockEntityType<SmallDoorBlockEntity> entity = blockEntityRegistrar.create(id,
                 BlockEntityType.Builder.of(
