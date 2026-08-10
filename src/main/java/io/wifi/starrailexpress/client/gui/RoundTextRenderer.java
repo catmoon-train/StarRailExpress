@@ -428,10 +428,8 @@ public class RoundTextRenderer {
         } else if (totalPlayerSize > 48) {
             winSideColumn += 3 + (totalPlayerSize - 48) / 12;
         }
-        if (totalPlayerSize > 9 && totalPlayerSize <= 48) {
-            winCenterColumn += ((totalPlayerSize - 9) / 9);
-        } else if (totalPlayerSize > 48) {
-            winCenterColumn += (4 + (totalPlayerSize - 48) / 7);
+        if (totalPlayerSize > 9) {
+            winCenterColumn += ((totalPlayerSize - 8) / 8);
         }
 
         winSideColumn = Math.min(winSideColumn, SREClientConfig.instance().maxWinSideColumns);
@@ -502,6 +500,7 @@ public class RoundTextRenderer {
             if (getOrCacheWidth(renderer, text) > 38) {
                 int dotWidth = getOrCacheWidth(renderer, dotText);
                 text = renderer.substrByWidth(roleText, 38 - dotWidth);
+                text = Component.literal(text.getString()).append(dotText);
             }
             int textWidth = getOrCacheWidth(renderer, text);
 
@@ -545,6 +544,7 @@ public class RoundTextRenderer {
                 if (getOrCacheWidth(renderer, nameText) > 45) {
                     int dotWidth = getOrCacheWidth(renderer, dotText);
                     nameText = renderer.substrByWidth(nameText, 110 - dotWidth);
+                    nameText = Component.literal(nameText.getString()).append(dotText);
                 }
                 int nameWidth = getOrCacheWidth(renderer, nameText);
 
