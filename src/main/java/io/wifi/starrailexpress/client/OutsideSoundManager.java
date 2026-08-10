@@ -15,7 +15,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import org.agmas.noellesroles.init.NRSounds;
 
-import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,33 +28,29 @@ public class OutsideSoundManager {
 
         // 延迟停止音效（支持淡出）
         ClientTickEvents.END_CLIENT_TICK.register(c -> {
-
             SoundManager soundManager = c.getSoundManager();
             if (PENDING_STOP.isEmpty())
                 return;
-
             if (soundManager == null) {
                 PENDING_STOP.clear();
                 return;
             }
             if (c.player == null || c.level == null) {
-                // 世界未加载时强制停止所有
                 for (SoundInstance sound : PENDING_STOP) {
                     if (soundManager.isActive(sound))
                         soundManager.stop(sound);
                 }
                 PENDING_STOP.clear();
             } else {
-                Iterator<SoundInstance> it = PENDING_STOP.iterator();
-                while (it.hasNext()) {
-                    SoundInstance sound = it.next();
+                PENDING_STOP.removeIf(sound -> {
                     boolean canStop = !(sound instanceof MyBackgroundAmbientLoop loop) || loop.isStopped();
                     if (canStop) {
                         if (soundManager.isActive(sound))
                             soundManager.stop(sound);
-                        it.remove();
+                        return true;
                     }
-                }
+                    return false;
+                });
             }
         });
 
@@ -114,6 +109,7 @@ public class OutsideSoundManager {
 
     public static boolean shouldPlaySound(Minecraft client) {
         return SREClient.gameComponent != null
+                && SREClient.isGameRunning()
                 && SREClient.areaComponent != null
                 && SREClient.areaComponent.areasSettings != null
                 && SREClient.areaComponent.areasSettings.haveOutsideSound
@@ -125,8 +121,6 @@ public class OutsideSoundManager {
     public static boolean isInside(Minecraft client) {
         return client.player != null
                 && SREClient.gameComponent != null
-                && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(client.player)
-                && SREClient.isGameRunning()
                 && !SRE.isSkyVisible(client.player);
     }
 
