@@ -13,6 +13,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class StuckHelperUtils {
+
+    public static final double volumeThreshold = 0.01;
+
     public static boolean isPlayerStuck(Player player) {
         if (player.getVehicle() != null)
             return false;
@@ -36,8 +39,19 @@ public class StuckHelperUtils {
                     BlockState state = level.getBlockState(pos);
                     if (canBlockStuckPlayer(level, pos, state)) {
                         VoxelShape shape = state.getCollisionShape(level, pos);
-                        if (!shape.isEmpty() && shape.bounds().move(pos).intersects(playerBox)) {
-                            return true;
+                        if (shape.isEmpty())
+                            continue;
+                        double totalOverlapVolume = 0.0;
+                        for (AABB subBox : shape.toAabbs()) {
+                            AABB movedBox = subBox.move(pos);
+                            AABB overlap = playerBox.intersect(movedBox);
+                            if (overlap != null) {
+                                totalOverlapVolume += overlap.getXsize() * overlap.getYsize() * overlap.getZsize();
+                                // 提前退出优化：一旦超过阈值即可判定卡住
+                                if (totalOverlapVolume > volumeThreshold) {
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
@@ -53,6 +67,9 @@ public class StuckHelperUtils {
             return false;
         if (state.is(Blocks.POWDER_SNOW))
             return false;
+        if (!state.isSuffocating(level, pos)) {
+            return false;
+        }
 
         // 完整立方体碰撞箱 (石头、泥土、木板等) -> 卡人
         if (state.isCollisionShapeFullBlock(level, pos))

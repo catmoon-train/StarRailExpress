@@ -27,6 +27,7 @@ import net.minecraft.world.item.Items;
  * BannedBlockWarrningHud
  */
 public class StuckHelperHud {
+    public static boolean lastStuckState = false;
 
     public static void register() {
         CommonHudRenderCallback.EVENT.register((ctx, delta) -> {
@@ -35,8 +36,10 @@ public class StuckHelperHud {
                 return;
             if (client.player.isSpectator() || client.player.isCreative())
                 return;
-
-            if ((StuckHelperUtils.isPlayerStuck(client.player))) {
+            if (client.level.getGameTime() % 20 == 0) {
+                lastStuckState = (StuckHelperUtils.isPlayerStuck(client.player));
+            }
+            if (lastStuckState) {
                 ctx.pose().pushPose();
                 ctx.pose().translate((float) (ctx.guiWidth() / 2),
                         (float) (ctx.guiHeight() - 78 - OtherRolesHudRegister.warningOffset), 0.0F);

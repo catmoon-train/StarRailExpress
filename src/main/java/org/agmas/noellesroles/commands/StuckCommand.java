@@ -83,7 +83,7 @@ public class StuckCommand {
             
             if (player.getCooldowns().isOnCooldown(Items.STRUCTURE_VOID)) {
                 player.displayClientMessage(
-                        Component.translatable("message.noellesroles.commands.stuck.cooldown")
+                        Component.translatable("message.noellesroles.commands.stuck.cooldown","/stuck")
                                 .withStyle(ChatFormatting.RED),
                         true);
                 return 0;
