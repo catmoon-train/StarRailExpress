@@ -139,7 +139,7 @@ public class OutsideSoundManager {
             return;
         }
 
-        float volume = clampVolume(1.0f);
+        float volume = clampVolume(SREClient.areaComponent.areasSettings.outdoorSoundVolume);
         SoundInstance instance = new MyBackgroundAmbientLoop(
                 client.player,
                 SoundEvent.createVariableRangeEvent(loc),
