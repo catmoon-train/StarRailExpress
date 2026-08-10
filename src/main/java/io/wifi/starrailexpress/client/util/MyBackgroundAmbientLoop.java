@@ -29,6 +29,11 @@ public class MyBackgroundAmbientLoop extends BackgroundAmbientLoop {
     private final int fadeIn;
     private final int fadeOut;
     private final float maxVolume;
+    private boolean tryStop = false;
+
+    public void tryStop() {
+        this.tryStop = true;
+    }
 
     @Override
     public boolean equals(Object instance) {
@@ -37,15 +42,15 @@ public class MyBackgroundAmbientLoop extends BackgroundAmbientLoop {
         if (!(instance instanceof MyBackgroundAmbientLoop t)) {
             return false;
         }
-//         player
-// looping
-// delay
-// volume
-// maxVolume
-// relative
-// playPredicate
-// fadeIn
-// fadeOut
+        // player
+        // looping
+        // delay
+        // volume
+        // maxVolume
+        // relative
+        // playPredicate
+        // fadeIn
+        // fadeOut
         if (t.looping == this.looping && t.relative == this.relative
                 && this.delay == t.delay && t.fadeIn == this.fadeIn && t.fadeOut == this.fadeOut
                 && t.location == this.location && t.maxVolume == this.maxVolume && t.pitch == this.pitch
@@ -72,7 +77,7 @@ public class MyBackgroundAmbientLoop extends BackgroundAmbientLoop {
     public void tick() {
         if (!this.player.isRemoved() && this.transitionTimer >= 0) {
             int fadeTime;
-            if (this.playPredicate.shouldPlay(this.player)) {
+            if (shouldPlay()) {
                 ++this.transitionTimer;
                 fadeTime = this.fadeIn;
             } else {
@@ -83,8 +88,20 @@ public class MyBackgroundAmbientLoop extends BackgroundAmbientLoop {
             this.transitionTimer = Math.min(this.transitionTimer, fadeTime);
             this.volume = Math.max(0.0F,
                     Math.min(this.maxVolume * ((float) this.transitionTimer / (float) fadeTime), this.maxVolume));
+
+            // 淡出完成，主动停止
+            if (this.transitionTimer <= 0 && this.volume <= 0) {
+                this.stop();
+            }
         } else {
             this.stop();
         }
+    }
+
+    public boolean shouldPlay() {
+        if (this.tryStop) {
+            return false;
+        }
+        return this.playPredicate.shouldPlay(this.player);
     }
 }

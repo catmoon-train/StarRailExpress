@@ -25,8 +25,7 @@ public class OutsideSoundManager {
     public static final CopyOnWriteArrayList<SoundInstance> PENDING_STOP = new CopyOnWriteArrayList<>();
 
     public static void registerEvents() {
-
-        // 延迟停止音效（支持淡出）
+        // 清理已停止的音效（安全兜底）
         ClientTickEvents.END_CLIENT_TICK.register(c -> {
             SoundManager soundManager = c.getSoundManager();
             if (PENDING_STOP.isEmpty())
@@ -54,16 +53,15 @@ public class OutsideSoundManager {
             }
         });
 
-        // 每世界 tick 检查并切换内外音效
+        // 主循环：内外切换
         ClientTickEvents.START_WORLD_TICK.register(world -> {
-
             Minecraft client = Minecraft.getInstance();
             SoundManager soundManager = client.getSoundManager();
-            if (soundManager == null) {
+            if (soundManager == null)
                 return;
-            }
+
             if (!shouldPlaySound(client)) {
-                stopNowPlayingSounds(soundManager);
+                stopAllSounds(soundManager);
                 return;
             }
 
@@ -71,7 +69,10 @@ public class OutsideSoundManager {
             boolean currentlyInside = isNowPlayingInside.get();
             SoundInstance current = playingSounds.get();
 
-            if (current == null || inside != currentlyInside) {
+            // 需要新建音效的情形：无音效、内外变化、音效已结束（或被意外停止）
+            if (current == null || inside != currentlyInside
+                    || !soundManager.isActive(current)
+                    || (current instanceof MyBackgroundAmbientLoop loop && loop.isStopped())) {
                 if (inside) {
                     playInsideSound(client, soundManager);
                 } else {
@@ -83,25 +84,21 @@ public class OutsideSoundManager {
 
     // ---------- 播放控制 ----------
 
-    /** 停止当前正在播放的音效（加入延迟停止队列） */
-    public static void stopNowPlayingSounds(SoundManager soundManager) {
+    /** 停止所有背景音效（通过 tryStop 触发淡出） */
+    private static void stopAllSounds(SoundManager soundManager) {
         SoundInstance old = playingSounds.getAndSet(null);
-        if (old != null && soundManager.isActive(old)) {
-            PENDING_STOP.add(old);
+        if (old instanceof MyBackgroundAmbientLoop loop) {
+            loop.tryStop();
         }
+        // 淡出完成后会自动停止，或由 END_CLIENT_TICK 清理
     }
 
-    /** 安全切换音效：停止旧音效并立即播放新音效 */
-    public static void stopAndPlayNew(SoundManager soundManager, SoundInstance newSound) {
-        SoundInstance old = playingSounds.get();
-        // 避免重复播放相同音效
-        if (newSound.equals(old))
-            return;
-
-        if (old != null && soundManager.isActive(old)) {
-            PENDING_STOP.add(old);
+    /** 切换音效：旧音效淡出，新音效立刻播放 */
+    private static void switchToNewSound(SoundManager soundManager, SoundInstance newSound) {
+        SoundInstance old = playingSounds.getAndSet(newSound);
+        if (old instanceof MyBackgroundAmbientLoop loop) {
+            loop.tryStop(); // 旧音效开始淡出，不会立即停止
         }
-        playingSounds.set(newSound);
         soundManager.play(newSound);
     }
 
@@ -124,8 +121,8 @@ public class OutsideSoundManager {
                 && !SRE.isSkyVisible(client.player);
     }
 
-    /** 用于 MyBackgroundAmbientLoop 的存活判断，防止状态变化后音效仍在播放 */
-    public static boolean shouldPlayPredicate(boolean isInside) {
+    /** 音效的存活条件（不再需要自引用） */
+    private static boolean soundAlivePredicate(boolean isInside) {
         Minecraft client = Minecraft.getInstance();
         return shouldPlaySound(client) && (isInside(client) == isInside);
     }
@@ -138,20 +135,19 @@ public class OutsideSoundManager {
                 SREClient.areaComponent.areasSettings.customOutsideSoundId,
                 false);
         if (loc == null) {
-            stopNowPlayingSounds(soundManager);
+            stopAllSounds(soundManager);
             return;
         }
 
-        // 室外音量默认 1.0，若无专门字段可替换为 areasSettings.outdoorSoundVolume
         float volume = clampVolume(1.0f);
         SoundInstance instance = new MyBackgroundAmbientLoop(
                 client.player,
                 SoundEvent.createVariableRangeEvent(loc),
                 SoundSource.MASTER,
                 volume,
-                t -> shouldPlayPredicate(false),
+                t -> soundAlivePredicate(false),
                 20, 10);
-        stopAndPlayNew(soundManager, instance);
+        switchToNewSound(soundManager, instance);
         isNowPlayingInside.set(false);
     }
 
@@ -161,7 +157,7 @@ public class OutsideSoundManager {
                 SREClient.areaComponent.areasSettings.customOutsideSoundId,
                 true);
         if (loc == null) {
-            stopNowPlayingSounds(soundManager);
+            stopAllSounds(soundManager);
             return;
         }
 
@@ -171,15 +167,14 @@ public class OutsideSoundManager {
                 SoundEvent.createVariableRangeEvent(loc),
                 SoundSource.MASTER,
                 volume,
-                t -> shouldPlayPredicate(true),
+                t -> soundAlivePredicate(true),
                 20, 10);
-        stopAndPlayNew(soundManager, instance);
+        switchToNewSound(soundManager, instance);
         isNowPlayingInside.set(true);
     }
 
     // ---------- 工具方法 ----------
 
-    /** 限制音量在 [0, 2] 范围内 */
     private static float clampVolume(float volume) {
         if (volume < 0)
             return 0;
@@ -188,7 +183,6 @@ public class OutsideSoundManager {
         return volume;
     }
 
-    /** 根据场景类型和位置获取音效资源路径 */
     public static ResourceLocation getSoundLocation(BackgroundAmbienceSound soundType, String customSoundId,
             boolean isIndoor) {
         return switch (soundType) {
