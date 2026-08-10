@@ -14,6 +14,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class StuckHelperUtils {
     public static boolean isPlayerStuck(Player player) {
+        if (player.getVehicle() != null)
+            return false;
+        if (player.isSleeping())
+            return false;
         Level level = player.level();
         AABB playerBox = player.getBoundingBox();
 
