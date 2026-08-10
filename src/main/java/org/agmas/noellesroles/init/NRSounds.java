@@ -29,17 +29,18 @@ public class NRSounds {
     public static final SoundEvent WIND = registrar.create("noellesroles.wind");
     public static final SoundEvent JESTER_AMBIENT = registrar.create("noellesroles.jester");
     public static final SoundEvent NYAN_CAT = registrar.create("noellesroles.nyan_cat");
-    
+
     public static final SoundEvent THMUSIC_UN_OWEN = registrar.create("noellesroles.who_kill_un_owen");
     public static final SoundEvent TIME_STOP = registrar.create("noellesroles.time_stop");
     public static final SoundEvent DIO_SPAWN = registrar.create("noellesroles.dio_spawn");
     public static final SoundEvent TIME_START = registrar.create("noellesroles.time_start");
     public static final SoundEvent PARTY_SKILL = registrar.create("noellesroles.party_skill");
-//    public static final SoundEvent ITEM_SYRINGE_STAB = registrar.create("item.syringe.stab");
+    // public static final SoundEvent ITEM_SYRINGE_STAB =
+    // registrar.create("item.syringe.stab");
     public static final SoundEvent SHOTGUN_FIRE = registrar.create("noellesroles.shotgun_fire");
     public static final SoundEvent SHORT_CIRCUIT = registrar.create("noellesroles.short_circuit");
     public static final SoundEvent SHOTGUNU_COCK = registrar.create("noellesroles.shotgun_cock");
-    
+
     // 疫使相关音效
     public static final SoundEvent INFECTED_COUGH = registrar.create("noellesroles.cough");
     public static final SoundEvent INFECTED_INFECT = registrar.create("noellesroles.infect");
@@ -61,6 +62,19 @@ public class NRSounds {
     public static final SoundEvent FLOWER_OUTDOOR = registrar.create("noellesroles.flower_outdoor");
     public static final SoundEvent MUSIC_INDOOR = registrar.create("noellesroles.music_indoor");
     public static final SoundEvent ODO = registrar.create("noellesroles.odo");
+
+    // 未使用
+    public static final SoundEvent MUSIC_SAKURA_MOYU = registrar.create("music.sakura_moyu");
+    // public static final SoundEvent MUSIC_DR_NIGULA = registrar.create("music.dr_nigula");
+    // public static final SoundEvent MUSIC_ENTRUST_THIS_WORLD_TO_IDOLS = registrar
+    //         .create("music.entrust_this_world_to_idols");
+    // public static final SoundEvent MUSIC_GO_TOWARDS_NIGHT = registrar.create("music.go_towards_night");
+    // public static final SoundEvent MUSIC_IDOL = registrar.create("music.idol");
+    // public static final SoundEvent MUSIC_MAIDEN_S_CAPRICCIO = registrar.create("music.maiden_s_capriccio");
+    // public static final SoundEvent MUSIC_SECRET_BASE = registrar.create("music.secret_base");
+    public static final SoundEvent MUSIC_UNWELCOME_SCHOOL = registrar.create("music.unwelcome_school");
+    // public static final SoundEvent MUSIC_YUZU_FUN_FUN_RE_BOOT = registrar.create("music.yuzu_fun_fun_re_boot");
+    public static final SoundEvent MUSIC_ZENRIANBANKA = registrar.create("music.zenrianbanka");
 
     public static void initialize() {
         registrar.registerEntries();
