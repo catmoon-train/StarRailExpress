@@ -43,7 +43,6 @@ import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.reasoner.ReasonerPlayerComponent;
-import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -324,10 +323,10 @@ public final class LeaderFollowerEffects {
         LeaderEventHandler.scheduleDoomedSinnerKill(follower);
     }
 
-    /** 推理师：罗盘立即完成一条未答的随机问题 */
+    /** 推理师：立即获得罗盘（视作已拥有，不再重复发放），并解决一条随机问题 */
     private static void applyReasoner(ServerPlayer leader, ServerPlayer follower) {
         ReasonerPlayerComponent comp = ReasonerPlayerComponent.KEY.get(follower);
-        comp.forceCompleteRandomQuestion();
+        comp.forceGiveCompassAndSolveOne();
     }
 
     /** 小偷：开锁器、领袖制式左轮；领袖每杀 1 人给小偷 100 金币；小偷死→领袖 GUN_SHOT 死 */

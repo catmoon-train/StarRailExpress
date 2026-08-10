@@ -17,7 +17,6 @@ package org.agmas.noellesroles.game.roles.neutral.reasoner;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -66,6 +65,8 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
     private boolean solvedDeathReason;
     private boolean solvedTask;
     private boolean solvedKillerCount;
+    /** 「杀手数量」问题是否已解锁（解锁即锁定，直至游戏结束不再消失） */
+    private boolean killerQuestionUnlocked;
 
     public ReasonerPlayerComponent(Player player) {
         this.player = player;
@@ -89,6 +90,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         solvedDeathReason = false;
         solvedTask = false;
         solvedKillerCount = false;
+        killerQuestionUnlocked = false;
         sync();
     }
 
@@ -114,19 +116,27 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         activeTicks++;
         boolean changed = false;
 
+        // 开局基准：无论罗盘是否已发放都记录（稳定的计时基准，不受击杀加时影响）
+        if (compassStartWorldTick < 0) {
+            compassStartWorldTick = ((ServerLevel) player.level()).getGameTime();
+            changed = true;
+        }
+
         if (!compassGiven) {
-            // 使用 serverLevel.getGameTime() 作为基准，不受击杀加时影响，开局冷却稳定
-            ServerLevel serverLevel = (ServerLevel) player.level();
-            if (compassStartWorldTick < 0) {
-                compassStartWorldTick = serverLevel.getGameTime();
-                sync(); 
-            }
-            if (serverLevel.getGameTime() - compassStartWorldTick >= GIVE_COMPASS_TICKS
+            if (player.level().getGameTime() - compassStartWorldTick >= GIVE_COMPASS_TICKS
                     && player instanceof ServerPlayer serverPlayer) {
                 giveCompass(serverPlayer);
                 compassGiven = true;
                 changed = true;
             }
+        }
+
+        // 「杀手数量」问题：使用 level.getGameTime() 与稳定基准计时；
+        // 一旦达到解锁时间即永久解锁，直至游戏结束都不会再消失
+        if (!killerQuestionUnlocked
+                && player.level().getGameTime() - compassStartWorldTick >= KILLER_QUESTION_TICKS) {
+            killerQuestionUnlocked = true;
+            changed = true;
         }
 
         if (changed) {
@@ -153,7 +163,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
                 bodyTargetName,
                 taskTargetName,
                 deathAvailable,
-                getElapsedTicks() >= KILLER_QUESTION_TICKS,
+                killerQuestionUnlocked,
                 solvedAliveCount,
                 hideRole,
                 solvedDeathReason,
@@ -224,16 +234,6 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
             }
         }
         return false;
-    }
-
-    private int getElapsedTicks() {
-        if (player.level() instanceof ServerLevel sl) {
-            long startWorldTick = SREGameTimeComponent.KEY.get(sl).getStartWorldTick();
-            if (startWorldTick > 0) {
-                return (int) (sl.getGameTime() - startWorldTick);
-            }
-        }
-        return activeTicks;
     }
 
     private void refreshQuestionTargets(ServerLevel level) {
@@ -338,7 +338,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     private boolean checkKillerCountAnswer(ServerLevel level, String answer) {
-        if (solvedKillerCount || getElapsedTicks() < KILLER_QUESTION_TICKS) {
+        if (solvedKillerCount || !killerQuestionUnlocked) {
             return false;
         }
         Integer guessed = parseNonNegativeInt(answer);
@@ -475,6 +475,19 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         }
     }
 
+    /**
+     * 领袖追随者效果：立即获得罗盘（视作已拥有，之后不再重复发放，HUD 同步显示已拥有），
+     * 并立即解决一个罗盘中的随机问题。
+     */
+    public void forceGiveCompassAndSolveOne() {
+        compassGiven = true;
+        if (player instanceof ServerPlayer sp) {
+            giveCompass(sp);
+        }
+        sync();
+        forceCompleteRandomQuestion();
+    }
+
     /** 是否已发放罗盘。 */
     public boolean isCompassGiven() {
         return compassGiven;
@@ -529,6 +542,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         tag.putBoolean("solvedDeathReason", solvedDeathReason);
         tag.putBoolean("solvedTask", solvedTask);
         tag.putBoolean("solvedKillerCount", solvedKillerCount);
+        tag.putBoolean("killerQuestionUnlocked", killerQuestionUnlocked);
     }
 
     @Override
@@ -541,6 +555,7 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
         solvedDeathReason = tag.getBoolean("solvedDeathReason");
         solvedTask = tag.getBoolean("solvedTask");
         solvedKillerCount = tag.getBoolean("solvedKillerCount");
+        killerQuestionUnlocked = tag.getBoolean("killerQuestionUnlocked");
     }
 
     @Override
