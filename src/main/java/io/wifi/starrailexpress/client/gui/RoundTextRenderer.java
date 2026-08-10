@@ -260,7 +260,7 @@ public class RoundTextRenderer {
         int winMessageWidth = renderer.width(winMessage);
 
         float centerX = context.guiWidth() / 2f;
-        float centerY = context.guiHeight() / 2f - 40;
+        float centerY = context.guiHeight() / 2f - 54;
 
         context.pose().pushPose();
         context.pose().translate(centerX, centerY, 0);
@@ -376,7 +376,7 @@ public class RoundTextRenderer {
                     looseEnds++;
                 } else if (role1.isNeutrals()) {
                     // 中立角色
-                    if (looseEndsTotal > 1) {
+                    if (looseEndsTotal > WIN_SIDE_COLUMN - 1) {
                         extraTranslateY = 8 + ((looseEndsTotal) / 2) * 16;
                     }
                     translateX = -39 - WIN_SIDE_COLUMN * 12 + (neutrals % WIN_SIDE_COLUMN) * 12;
@@ -384,13 +384,13 @@ public class RoundTextRenderer {
                     neutrals++;
                 } else if (role1.isInnocent() || role1.isVigilanteTeam()) {
                     // 义警队 / 特殊平民
-                    translateX = 27 + (vigilantes % WIN_SIDE_COLUMN) * 12;
+                    translateX = 24 + (vigilantes % WIN_SIDE_COLUMN) * 12;
                     translateY = 14 + (vigilantes / WIN_SIDE_COLUMN) * 16;
                     vigilantes++;
                 } else if (role1.canUseKiller()) {
                     // 杀手阵营
                     extraTranslateY = 8 + ((vigilanteTotal) / WIN_SIDE_COLUMN) * 16;
-                    translateX = 27 + (killersCount % WIN_SIDE_COLUMN) * 12;
+                    translateX = 24 + (killersCount % WIN_SIDE_COLUMN) * 12;
                     translateY = 14 + (killersCount / WIN_SIDE_COLUMN) * 16;
                     killersCount++;
                 } else {
@@ -422,23 +422,17 @@ public class RoundTextRenderer {
         int vigilanteWidth = getOrCacheWidth(renderer, vigilanteTitle);
         int killerWidth = getOrCacheWidth(renderer, killerTitle);
 
-        // 计算各区域中心 X（利用 WIN_SIDE_COLUMN）
-        int leftCenterX = -39 - WIN_SIDE_COLUMN * 6; // 中立 / Loose End 列中心
-        int middleCenterX = -6; // 平民列中心
-        int rightCenterX = 27 + WIN_SIDE_COLUMN * 6; // 义警 / 杀手列中心
-
-        // 中立标题 Y 坐标根据 Loose End 人数动态调整
-        int neutralY = (looseEndsTotal > 1) ? (14 + 16 + 32 * ((looseEndsTotal) / 2)) : 14;
-
-        // 绘制标题（全部居中对齐）
-        context.drawString(renderer, neutralTitle, leftCenterX - neutralWidth / 2, neutralY, 0xffffff);
-        if (looseEndsTotal > 1) {
-            context.drawString(renderer, looseEndRole, leftCenterX - looseEndWidth / 2, 14, 0xffffff);
+        int neutralY = (looseEndsTotal > WIN_SIDE_COLUMN - 1) ? (14 + 16 + 32 * ((looseEndsTotal) / 2)) : 14;
+        context.drawString(renderer, neutralTitle, -looseEndWidth / 2 - 78 - 6 * WIN_SIDE_COLUMN, neutralY, 0xffffff);
+        if (looseEndsTotal > WIN_SIDE_COLUMN - 1) {
+            context.drawString(renderer, looseEndRole, -looseEndWidth / 2 - 78 - 6 * WIN_SIDE_COLUMN, 14,
+                    0xffffff);
         }
-        context.drawString(renderer, civilianTitle, middleCenterX - civilianWidth / 2, 14, 0xFFFFFF);
-        context.drawString(renderer, vigilanteTitle, rightCenterX - vigilanteWidth / 2, 14, 0xFFFFFF);
-        context.drawString(renderer, killerTitle, rightCenterX - killerWidth / 2,
-                14 + 16 + 32 * ((vigilanteTotal) / 2), 0xFFFFFF);
+        context.drawString(renderer, civilianTitle, -civilianWidth / 2, 14, 0xFFFFFF);
+        context.drawString(renderer, vigilanteTitle, -vigilanteWidth / 2 + 78 + 6 * WIN_SIDE_COLUMN, 14, 0xFFFFFF);
+        context.drawString(renderer, killerTitle, -killerWidth / 2 + 78 + 6 * WIN_SIDE_COLUMN,
+                14 + 16 + 32 * ((vigilanteTotal) / 2),
+                0xFFFFFF);
     }
 
     /**
@@ -461,9 +455,9 @@ public class RoundTextRenderer {
             context.pose().translate(38, 36, 200);
             var roleText = RoleUtils.getRoleName(role.getIdentifier());
             FormattedText text = roleText;
-            if (getOrCacheWidth(renderer, text) > 72) {
+            if (getOrCacheWidth(renderer, text) > 38) {
                 int dotWidth = getOrCacheWidth(renderer, dotText);
-                text = renderer.substrByWidth(roleText, 72 - dotWidth);
+                text = renderer.substrByWidth(roleText, 38 - dotWidth);
             }
             int textWidth = getOrCacheWidth(renderer, text);
 
@@ -504,7 +498,7 @@ public class RoundTextRenderer {
                 String p_name = playerProfile.getName();
 
                 FormattedText nameText = Component.literal(p_name);
-                if (getOrCacheWidth(renderer, nameText) > 110) {
+                if (getOrCacheWidth(renderer, nameText) > 45) {
                     int dotWidth = getOrCacheWidth(renderer, dotText);
                     nameText = renderer.substrByWidth(nameText, 110 - dotWidth);
                 }
