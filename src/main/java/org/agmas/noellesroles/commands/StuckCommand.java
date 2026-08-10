@@ -79,7 +79,7 @@ public class StuckCommand {
                 }
                 return 0;
             }
-            if (checkPos(level, player, player.getBoundingBox())) {
+            if (!checkPos(level, player, player.getBoundingBox())) {
 
                 // var playerInBlockPos2 = player.blockPosition();
                 // var blockState2 = level.getBlockState(playerInBlockPos2);

@@ -25,6 +25,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -32,6 +33,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
+
+import org.agmas.noellesroles.content.item.InferiorLockpickItem;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 
@@ -52,7 +55,7 @@ public class TrainDoorBlock extends SmallDoorBlock {
             DoorOpenSuperFunction superOpenFunction,
             BlockState state, Level world, BlockPos pos, Player player,
             BlockHitResult hit) {
-        
+
         BlockPos lowerPos = state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
         if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
             if (entity.isInCooldown()) {
@@ -87,11 +90,25 @@ public class TrainDoorBlock extends SmallDoorBlock {
                         return InteractionResult.FAIL;
                     }
                     if (hasLockpick) {
+                        if (mainHandItem.is(ModItems.INFERIOR_LOCKPICK)) {
+                            if (player.getCooldowns().isOnCooldown(ModItems.INFERIOR_LOCKPICK)) {
+                                return InteractionResult.FAIL;
+                            }
+                        }
                         world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
                                 TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
                         // 通用物证·破门痕：真·开锁器开锁开门时留痕（万能钥匙/勋章等不留痕）
                         if (mainHandItem.is(TMMItems.LOCKPICK)) {
                             entity.recordTamper((byte) 2);
+                        }
+                        {
+                            if (mainHandItem.getItem() instanceof InferiorLockpickItem li) {
+                                if (!player.level().isClientSide) {
+                                    mainHandItem.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+                                    player.getCooldowns().addCooldown(mainHandItem.getItem(),
+                                            li.getOpenCooldownTicks());
+                                }
+                            }
                         }
                         return superOpenFunction.apply(state, world, entity, lowerPos);
                     } else if (hasIronDoorKey) {
