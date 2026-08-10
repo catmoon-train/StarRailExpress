@@ -2555,7 +2555,7 @@ public class RoleShopHandler {
             List<ShopEntry> entries = new ArrayList<>();
             var SAKUYA_KNIFE = ModItems.THROWING_KNIFE.getDefaultInstance();
             SAKUYA_KNIFE.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(1));
-            entries.add(new ShopEntry(SAKUYA_KNIFE, 250,
+            entries.add(new ShopEntry(SAKUYA_KNIFE, 300,
                     ShopEntry.Type.TOOL));
             entries.add(new ShopEntry(FunnyItems.SHISIYE.getDefaultInstance(), 440,
                     ShopEntry.Type.TOOL));
