@@ -52,6 +52,7 @@
     "defaultRequire": 1
   },
   "client": [
+    "entity.player.PlayerEntityClientMixin",
     "client.AbstractClientPlayerEntityMixin",
     "client.AdvancedCameraMixin",
     "client.ByteBufferBuilderOverflowMixin",

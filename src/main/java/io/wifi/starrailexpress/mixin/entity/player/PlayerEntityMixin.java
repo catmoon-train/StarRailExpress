@@ -33,7 +33,6 @@ import io.wifi.starrailexpress.event.IsPlayerPunchable;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.FlashlightInterface;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.util.Scheduler;
@@ -70,20 +69,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.UUID;
 
 @Mixin(Player.class)
-public abstract class PlayerEntityMixin extends LivingEntity implements PlayerStaminaGetter, FlashlightInterface {
+public abstract class PlayerEntityMixin extends LivingEntity implements PlayerStaminaGetter {
 
     @Shadow
     public abstract float getAttackStrengthScale(float baseTime);
-
-    @Override
-    public FlashlightLightProvider getFlashlight() {
-        return flashlightProvider;
-    }
-
-    @Override
-    public void setFlashlight(FlashlightLightProvider status) {
-        this.flashlightProvider = status;
-    }
 
     @Override
     public float starrailexpress$getStamina() {
