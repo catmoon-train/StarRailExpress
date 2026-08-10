@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.SREPlayerUtils;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
@@ -52,6 +53,7 @@ import org.agmas.noellesroles.content.item.GroselleJourneyManager;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -814,7 +816,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 var alivePlayers = new ArrayList<>(serverWorld.players());
                 alivePlayers.removeIf(p -> !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p));
                 if (alivePlayers.size() <= 0) {
-                    SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(new ArrayList<>(serverWorld.players()),
+                    SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(
+                            new ArrayList<>(serverWorld.players()),
                             WinStatus.NO_PLAYER);
                     GameUtils.stopGame(serverWorld);
                     return;
@@ -983,6 +986,18 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     }
 
+    public static boolean isInDarkness(ServerPlayer player) {
+        final var level = player.serverLevel();
+        if (player.getMainHandItem().is(ModItems.FLASHLIGHT)) {
+            if (player.getMainHandItem().getOrDefault(SREDataComponentTypes.STATUS, false))
+                return false;
+        }
+        return level.getBrightness(LightLayer.BLOCK, BlockPos.containing(player.getEyePosition())) < 3
+                && (level.getBrightness(LightLayer.SKY,
+                        BlockPos.containing(player.getEyePosition())) < 10
+                        || level.getDayTime() > 13000);
+    }
+
     private static void checkPlayerDarkness(ServerPlayer player, AreasWorldComponent areas,
             SREGameWorldComponent gameCCA) {
         if (player.isSpectator() || player.isCreative())
@@ -1008,10 +1023,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     perPlayerDarknessTime.remove(player.getUUID());
                 return;
             }
-            if (level.getBrightness(LightLayer.BLOCK, BlockPos.containing(player.getEyePosition())) < 3
-                    && (level.getBrightness(LightLayer.SKY,
-                            BlockPos.containing(player.getEyePosition())) < 10
-                            || level.getDayTime() > 13000)) {
+            if (isInDarkness(player)) {
                 int time = perPlayerDarknessTime.getOrDefault(player.getUUID(), 0);
 
                 if (time > areas.areasSettings.deadInDarknessTime) {
