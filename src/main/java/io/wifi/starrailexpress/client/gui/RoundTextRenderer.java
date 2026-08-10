@@ -390,13 +390,13 @@ public class RoundTextRenderer {
                     neutrals++;
                 } else if (role1.isInnocent() || role1.isVigilanteTeam()) {
                     // 义警队 / 特殊平民
-                    translateX = -6 + winCenterColumn * 6 + (vigilantes % winSideColumn) * 12;
+                    translateX = winCenterColumn * 6 + (vigilantes % winSideColumn) * 12;
                     translateY = 14 + (vigilantes / winSideColumn) * 16;
                     vigilantes++;
                 } else if (role1.canUseKiller()) {
                     // 杀手阵营
                     extraTranslateY = 8 + ((vigilanteTotal) / winSideColumn) * 16;
-                    translateX = -6 + winCenterColumn * 6 + (killersCount % winSideColumn) * 12;
+                    translateX = winCenterColumn * 6 + (killersCount % winSideColumn) * 12;
                     translateY = 14 + (killersCount / winSideColumn) * 16;
                     killersCount++;
                 } else {
@@ -456,7 +456,7 @@ public class RoundTextRenderer {
         int vigilanteWidth = getOrCacheWidth(renderer, vigilanteTitle);
         int killerWidth = getOrCacheWidth(renderer, killerTitle);
 
-        int sideTitleXCenterColumnOffset = (winCenterColumn * 12);
+        int sideTitleXCenterColumnOffset = (6 + winCenterColumn * 12);
         int sideTitleXSideColumnOffset = 12 * winSideColumn;
 
         int neutralY = (looseEndsTotal > winSideColumn - 1) ? (14 + 16 + 32 * ((looseEndsTotal) / 2)) : 14;
@@ -470,9 +470,9 @@ public class RoundTextRenderer {
         }
         context.drawString(renderer, civilianTitle, -civilianWidth / 2, 14, 0xFFFFFF);
         context.drawString(renderer, vigilanteTitle,
-                -vigilanteWidth / 2 + (sideTitleXCenterColumnOffset) + sideTitleXSideColumnOffset - 6, 14, 0xFFFFFF);
+                -vigilanteWidth / 2 + (sideTitleXCenterColumnOffset) + sideTitleXSideColumnOffset, 14, 0xFFFFFF);
         context.drawString(renderer, killerTitle,
-                -killerWidth / 2 + (sideTitleXCenterColumnOffset) + sideTitleXSideColumnOffset - 6,
+                -killerWidth / 2 + (sideTitleXCenterColumnOffset) + sideTitleXSideColumnOffset,
                 14 + 16 + 32 * ((vigilanteTotal) / winSideColumn),
                 0xFFFFFF);
     }
