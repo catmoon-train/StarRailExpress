@@ -456,16 +456,20 @@ public class RoundTextRenderer {
         int vigilanteWidth = getOrCacheWidth(renderer, vigilanteTitle);
         int killerWidth = getOrCacheWidth(renderer, killerTitle);
 
+        int sideTitleXOffset = (18 + winCenterColumn * 12);
+        
         int neutralY = (looseEndsTotal > winSideColumn - 1) ? (14 + 16 + 32 * ((looseEndsTotal) / 2)) : 14;
-        context.drawString(renderer, neutralTitle, -neutralWidth / 2 - (48 + winCenterColumn * 6) - 6 * winSideColumn,
+        context.drawString(renderer, neutralTitle, -neutralWidth / 2 - (sideTitleXOffset) - 6 * winSideColumn,
                 neutralY, 0xffffff);
         if (looseEndsTotal > winSideColumn - 1) {
-            context.drawString(renderer, looseEndRole, -looseEndWidth / 2 -  (48 + winCenterColumn * 6) - 6 * winSideColumn, 14,
+            context.drawString(renderer, looseEndRole,
+                    -looseEndWidth / 2 - (sideTitleXOffset) - 6 * winSideColumn, 14,
                     0xffffff);
         }
         context.drawString(renderer, civilianTitle, -civilianWidth / 2, 14, 0xFFFFFF);
-        context.drawString(renderer, vigilanteTitle, -vigilanteWidth / 2 + (48 + winCenterColumn * 6) + 6 * winSideColumn, 14, 0xFFFFFF);
-        context.drawString(renderer, killerTitle, -killerWidth / 2 +(48 + winCenterColumn * 6) + 6 * winSideColumn,
+        context.drawString(renderer, vigilanteTitle,
+                -vigilanteWidth / 2 + (sideTitleXOffset) + 6 * winSideColumn, 14, 0xFFFFFF);
+        context.drawString(renderer, killerTitle, -killerWidth / 2 + (sideTitleXOffset) + 6 * winSideColumn,
                 14 + 16 + 32 * ((vigilanteTotal) / 2),
                 0xFFFFFF);
     }
