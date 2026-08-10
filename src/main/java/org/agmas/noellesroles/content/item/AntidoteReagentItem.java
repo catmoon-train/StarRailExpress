@@ -69,28 +69,18 @@ public class AntidoteReagentItem extends Item {
                             // 假毒 + 感染
                             player.displayClientMessage(Component.translatable(
                                     "message.noellesroles.antidote_reagent.fake_poison_and_infected", target.getName()), true);
-                            poisonComponent.init();
-                            poisonComponent.sync();
-                            infectedComponent.cure();
                         } else if (isRealPoison && isInfected) {
                             // 真毒 + 感染
                             player.displayClientMessage(Component.translatable(
                                     "message.noellesroles.antidote_reagent.both", target.getName()), true);
-                            poisonComponent.init();
-                            poisonComponent.sync();
-                            infectedComponent.cure();
                         } else if (isFakePoison) {
                             // 只有假毒
                             player.displayClientMessage(Component.translatable(
                                     "message.noellesroles.antidote_reagent.fake_poison_only", target.getName()), true);
-                            poisonComponent.init();
-                            poisonComponent.sync();
                         } else if (isRealPoison) {
                             // 只有真毒
                             player.displayClientMessage(Component.translatable(
                                     "message.noellesroles.antidote_reagent.poisoned_only", target.getName()), true);
-                            poisonComponent.init();
-                            poisonComponent.sync();
                         } else if (isInfected) {
                             // 只有感染
                             player.displayClientMessage(Component.translatable(
