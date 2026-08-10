@@ -6,7 +6,6 @@ import dev.lambdaurora.lambdynlights.api.behavior.DynamicLightBehavior;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import org.jetbrains.annotations.Range;
 import org.joml.Matrix3d;
 import org.joml.Vector3d;
 
@@ -37,7 +36,7 @@ public class FlashlightLightProvider implements DynamicLightBehavior {
     // 核心方法：计算某个方块位置的光照强度 (0~15)
     // ============================================
     @Override
-    public @Range(from = 0L, to = 15L) double lightAtPos(BlockPos pos, double falloffRatio) {
+    public double lightAtPos(BlockPos pos, double falloffRatio) {
         // 1. 取方块中心点
         double x = pos.getX() + 0.5;
         double y = pos.getY() + 0.5;
@@ -50,26 +49,35 @@ public class FlashlightLightProvider implements DynamicLightBehavior {
         // 3. 计算到锥体中心轴 (Y轴) 的距离
         double distAxis = Math.sqrt(local.x * local.x + local.z * local.z);
 
-        // 4. 计算锥体符号距离函数 (SDF) > 0 表示在锥体内部
-        // 锥体顶点位于 local.y = DEPTH/2 - DISTANCE_DELTA 处
-        double sdf = Math.min(
-                RADIUS * (0.5 - local.y / DEPTH) - distAxis, // 锥体侧面
-                DEPTH * 0.5 - Math.abs(local.y) // 限制前后范围
-        );
-
-        // 5. 如果在锥体外，直接返回 0
-        if (sdf < 0) {
+        // 4. 计算锥体在当前深度处的最大半径（线性锥体）
+        double maxRadiusAtY = RADIUS * (0.5 - local.y / DEPTH);
+        // 如果深度超出锥体范围，直接返回 0
+        if (maxRadiusAtY <= 0 || local.y > DEPTH / 2 || local.y < -DEPTH / 2) {
             return 0;
         }
 
-        // 6. 计算亮度：距离顶点越近越亮（距离衰减指数 1.5）
+        // 5. 计算径向因子：中心为1，边缘平滑过渡到0
+        double radialFactor = 1.0 - (distAxis / maxRadiusAtY);
+        // 用 smoothstep 让径向衰减更柔和（可调整阈值）
+        radialFactor = Mth.smoothstep(radialFactor); // 输入0~1，输出0~1且S型曲线
+
+        // 6. 计算锥体符号距离 (SDF)，用于边缘裁剪
+        double sdf = maxRadiusAtY - distAxis; // 正值表示在锥内
+
+        // 7. 将 sdf 归一化到 [0,1] 并平滑边缘（过渡带宽度可调）
+        double edgeSmoothness = RADIUS * 0.3; // 控制边缘过渡带的宽度，数值越大边缘越柔和
+        double edgeFactor = Mth.smoothstep(sdf / edgeSmoothness); // 输入0~1，输出0~1
+
+        // 8. 计算距离衰减（亮度随距离增加而降低）
         double distance = DEPTH / 2 - local.y - DISTANCE_DELTA;
+        if (distance <= 0)
+            return 0; // 防止除零
         double intensity = DEPTH / Math.pow(distance, 1.5);
         double light = intensity * 15.0;
 
-        // 7. 用 smoothstep 对边缘进行柔和过渡
-        double factor = Mth.smoothstep(sdf);
-        return Math.clamp(factor * light, 0.0, 15.0);
+        // 9. 组合所有因子：径向 * 边缘 * 距离衰减
+        double finalFactor = radialFactor * edgeFactor;
+        return Math.clamp(finalFactor * light, 0.0, 15.0);
     }
 
     // ============================================
