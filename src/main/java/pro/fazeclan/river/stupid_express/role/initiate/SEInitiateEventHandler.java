@@ -210,18 +210,25 @@ public class SEInitiateEventHandler {
             // 清除物品栏中的所有刀
             clearAllKnives(killer);
             clearAllKnives(victim);
-            
-            StupidRoleUtils.changeRole(killer, role, true);
+
+            // 追随者初学者击杀别人时不会转变自己的身份
+            boolean killerIsFollower = killer instanceof ServerPlayer sk
+                    && org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                            .isFollowerOfLeader(sk);
+            if (!killerIsFollower) {
+                StupidRoleUtils.changeRole(killer, role, true);
+
+                if (role.canUseKiller()){
+                    var sc = SREPlayerShopComponent.KEY.get(killer);
+                    if (sc.balance < 120) {
+                        sc.setBalance(120);
+                    }
+                }
+
+                StupidRoleUtils.sendWelcomeAnnouncement((ServerPlayer) killer);
+            }
             StupidRoleUtils.changeRole(victim, SERoles.AMNESIAC, true);
 
-            if (role.canUseKiller()){
-                var sc = SREPlayerShopComponent.KEY.get(killer);
-                if (sc.balance < 120) {
-                    sc.setBalance(120);
-                }
-            }
-
-            StupidRoleUtils.sendWelcomeAnnouncement((ServerPlayer) killer);
             return true;
         }
         return false;
@@ -245,6 +252,11 @@ public class SEInitiateEventHandler {
                 // 清除物品栏中的所有刀
                 clearAllKnives(player);
                 if (gameWorldComponent.isSkillAvailable) {
+                    // 追随者初学者击杀别人时不会转变自己的身份
+                    if (org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                            .isFollowerOfLeader(player)) {
+                        continue;
+                    }
                     StupidRoleUtils.changeRole(player, newInitiateRole, true);
                     // 播放全场音效
                     player.level().playSound(null, player.blockPosition(),
