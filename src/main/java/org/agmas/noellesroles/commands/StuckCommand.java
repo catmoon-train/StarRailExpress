@@ -29,9 +29,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.utils.StuckHelper;
 
 public class StuckCommand {
     public static void register() {
@@ -79,7 +79,7 @@ public class StuckCommand {
                 }
                 return 0;
             }
-            if (!checkPos(level, player, player.getBoundingBox())) {
+            if (StuckHelper.isPlayerStuck(player)) {
 
                 // var playerInBlockPos2 = player.blockPosition();
                 // var blockState2 = level.getBlockState(playerInBlockPos2);
@@ -103,9 +103,5 @@ public class StuckCommand {
             Noellesroles.LOGGER.error("[LootSys] Failed to send checkPacket\n", e);
             return 0;
         }
-    }
-
-    private static boolean checkPos(ServerLevel level, ServerPlayer player, AABB area) {
-        return (level.noBlockCollision(player, area));
     }
 }

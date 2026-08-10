@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.client.hud;
 
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
+import org.agmas.noellesroles.utils.StuckHelper;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -34,9 +35,7 @@ public class StuckHelperHud {
             if (client.player.isSpectator() || client.player.isCreative())
                 return;
 
-            final var level = client.level;
-            
-            if((level.noBlockCollision(client.player, client.player.getBoundingBox()))){
+            if (!(StuckHelper.isPlayerStuck(client.player))) {
                 ctx.pose().pushPose();
                 ctx.pose().translate((float) (ctx.guiWidth() / 2),
                         (float) (ctx.guiHeight() - 78 - OtherRolesHudRegister.warningOffset), 0.0F);
