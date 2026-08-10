@@ -2313,6 +2313,7 @@
   "=============== 其余 ===============": "",
   "message.noellesroles.commands.stuck.failed_no_stuck": "你并未卡在方块里！",
   "message.noellesroles.commands.stuck.failed_cannot_out": "你卡在两格方块里，无法脱困！",
+  "message.noellesroles.commands.stuck.cooldown": "命令 %s 冷却中...",
   "message.noellesroles.commands.stuck.success": "已尝试将你脱困！",
   "==================== 诡客角色 ====================": "",
   "item.noellesroles.guest_ghost.stop_raining": "净雨符",

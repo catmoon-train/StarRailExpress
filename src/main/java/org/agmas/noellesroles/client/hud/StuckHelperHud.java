@@ -21,6 +21,7 @@ import org.agmas.noellesroles.utils.StuckHelperUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Items;
 
 /**
  * BannedBlockWarrningHud
@@ -39,9 +40,17 @@ public class StuckHelperHud {
                 ctx.pose().pushPose();
                 ctx.pose().translate((float) (ctx.guiWidth() / 2),
                         (float) (ctx.guiHeight() - 78 - OtherRolesHudRegister.warningOffset), 0.0F);
-                final var text = Component.translatable("message.tip.stuck_help",
-                        Component.literal("/stuck").withStyle(ChatFormatting.GREEN))
-                        .withStyle(ChatFormatting.GOLD);
+                Component text;
+                if (client.player.getCooldowns().isOnCooldown(Items.STRUCTURE_VOID)) {
+                    text = Component.translatable("message.noellesroles.commands.stuck.cooldown",
+                            Component.literal("/stuck").withStyle(ChatFormatting.GREEN))
+                            .withStyle(ChatFormatting.RED);
+                } else {
+
+                    text = Component.translatable("message.tip.stuck_help",
+                            Component.literal("/stuck").withStyle(ChatFormatting.GREEN))
+                            .withStyle(ChatFormatting.GOLD);
+                }
                 ctx.drawCenteredString(client.font, text, 0, -4, 0xffffffff);
                 ctx.pose().popPose();
                 OtherRolesHudRegister.warningOffset += 12;

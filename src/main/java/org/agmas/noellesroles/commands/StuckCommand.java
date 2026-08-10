@@ -29,6 +29,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.utils.StuckHelperUtils;
@@ -60,7 +62,6 @@ public class StuckCommand {
                         Component.translatable("message.noellesroles.commands.stuck.success")
                                 .withStyle(ChatFormatting.GREEN),
                         true);
-
                 return 1;
             }
             if (player.isSpectator()) {
@@ -79,6 +80,14 @@ public class StuckCommand {
                 }
                 return 0;
             }
+            
+            if (player.getCooldowns().isOnCooldown(Items.STRUCTURE_VOID)) {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.commands.stuck.cooldown")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return 0;
+            }
             if (StuckHelperUtils.isPlayerStuck(player)) {
 
                 // var playerInBlockPos2 = player.blockPosition();
@@ -91,11 +100,17 @@ public class StuckCommand {
                                     .withStyle(ChatFormatting.GREEN),
                             true);
                 }
+                
+                if (!player.isCreative())
+                    player.getCooldowns().addCooldown(Items.STRUCTURE_VOID, 100);
             } else {
                 player.displayClientMessage(
                         Component.translatable("message.noellesroles.commands.stuck.failed_no_stuck")
                                 .withStyle(ChatFormatting.RED),
                         true);
+                        
+                if (!player.isCreative())
+                    player.getCooldowns().addCooldown(Items.STRUCTURE_VOID, 100);
                 return 0;
             }
             return 1;
