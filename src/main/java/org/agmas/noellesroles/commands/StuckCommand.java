@@ -31,7 +31,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.utils.StuckHelper;
+import org.agmas.noellesroles.utils.StuckHelperUtils;
 
 public class StuckCommand {
     public static void register() {
@@ -79,7 +79,7 @@ public class StuckCommand {
                 }
                 return 0;
             }
-            if (StuckHelper.isPlayerStuck(player)) {
+            if (StuckHelperUtils.isPlayerStuck(player)) {
 
                 // var playerInBlockPos2 = player.blockPosition();
                 // var blockState2 = level.getBlockState(playerInBlockPos2);

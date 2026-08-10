@@ -5,13 +5,14 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class StuckHelper {
+public class StuckHelperUtils {
     public static boolean isPlayerStuck(Player player) {
         Level level = player.level();
         AABB playerBox = player.getBoundingBox();
@@ -45,6 +46,8 @@ public class StuckHelper {
         if (state.isAir())
             return false;
         if (!state.getFluidState().isEmpty())
+            return false;
+        if (state.is(Blocks.POWDER_SNOW))
             return false;
 
         // 完整立方体碰撞箱 (石头、泥土、木板等) -> 卡人
