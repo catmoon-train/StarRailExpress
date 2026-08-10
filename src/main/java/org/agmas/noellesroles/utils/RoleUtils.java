@@ -100,6 +100,8 @@ public class RoleUtils extends MCItemsUtils {
     public static void playSound(ServerPlayer serverPlayer, SoundEvent soundEvent, SoundSource soundSource,
             float volume,
             float pitch) {
+        if (serverPlayer == null)
+            return;
         double x = serverPlayer.getX();
         double y = serverPlayer.getY();
         double z = serverPlayer.getZ();
@@ -108,6 +110,8 @@ public class RoleUtils extends MCItemsUtils {
 
     public static void playSound(ServerPlayer serverPlayer, SoundEvent soundEvent, SoundSource soundSource, double x,
             double y, double z, float volume, float pitch) {
+        if (serverPlayer == null)
+            return;
         serverPlayer.connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(soundEvent),
                 soundSource, x, y, z, volume, pitch, serverPlayer.getRandom().nextLong()));
     }
