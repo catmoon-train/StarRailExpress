@@ -171,6 +171,14 @@ java {
     // withSourcesJar()
 }
 
+remapJar {
+    // 方式一：将版本号置空（推荐，保留项目版本变量不变）
+    archiveVersion = ''
+    
+    // 或者方式二：直接指定完整文件名
+    // archiveFileName = "${project.archives_base_name}.jar"
+}
+
 tasks.register('generateSha256') {
     dependsOn remapJar
     doLast {
