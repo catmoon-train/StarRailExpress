@@ -62,6 +62,7 @@ public class KeyItem extends Item implements AdventureUsable {
                     if (player.isCreative() && player.isShiftKeyDown()) {
                         String roomName = lines.getFirst().getString();
                         entity.setKeyName(roomName);
+                        entity.setChanged();
                         player.displayClientMessage(Component.translatable("message.starrailexpress.key.bound_to_door", roomName), true);
                         if (SRE.REPLAY_MANAGER != null) {
                             SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
