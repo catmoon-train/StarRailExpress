@@ -360,8 +360,7 @@ public class NRDeathEvents {
         }
         for (final var victim : victims) {
             DeathPenaltyComponent deathPenaltyComponent = ModComponents.DEATH_PENALTY.get(victim);
-            if (deathPenaltyComponent.hasPenalty()
-                    && (deathPenaltyComponent.limitCameraUUID != null || deathPenaltyComponent.limitPos != null)) {
+            if (deathPenaltyComponent.hasStrictPenalty()) {
                 continue;
             }
             if (looseEndAlive && !ignoreLooseEnd) {
@@ -737,7 +736,6 @@ public class NRDeathEvents {
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             if (handlePuppeteerDeath(victim, deathReason))
                 return false;
-            handleDefibrillator(victim);
             return true;
         });
     }
@@ -886,6 +884,7 @@ public class NRDeathEvents {
             handleFitterDeath(victim);
             handlePelicanDeath(victim);
             handleGodfatherDeath(victim);
+            handleDefibrillator(victim);
             handleDeathPenalty(victim);
             handleGlitchRobotDeath(victim);
             handleCakeMakerDeath(victim);
