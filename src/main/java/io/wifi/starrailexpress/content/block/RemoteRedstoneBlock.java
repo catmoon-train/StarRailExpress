@@ -276,7 +276,7 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         // 手持特定物品时才显示轮廓
         if (context instanceof EntityCollisionContext ec) {
-            if (ec.getEntity() instanceof ServerPlayer sp) {
+            if (ec.getEntity() instanceof Player sp) {
                 if (sp.isCreative())
                     return Shapes.block();
             }
