@@ -34,6 +34,10 @@ public class OutsideSoundManager {
             if (PENDING_STOP.isEmpty())
                 return;
 
+            if (soundManager == null) {
+                PENDING_STOP.clear();
+                return;
+            }
             if (c.player == null || c.level == null) {
                 // 世界未加载时强制停止所有
                 for (SoundInstance sound : PENDING_STOP) {
@@ -60,7 +64,9 @@ public class OutsideSoundManager {
 
             Minecraft client = Minecraft.getInstance();
             SoundManager soundManager = client.getSoundManager();
-
+            if (soundManager == null) {
+                return;
+            }
             if (!shouldPlaySound(client)) {
                 stopNowPlayingSounds(soundManager);
                 return;
