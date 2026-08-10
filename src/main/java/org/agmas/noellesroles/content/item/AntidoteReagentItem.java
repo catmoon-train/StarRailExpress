@@ -85,7 +85,6 @@ public class AntidoteReagentItem extends Item {
                             // 只有感染
                             player.displayClientMessage(Component.translatable(
                                     "message.noellesroles.antidote_reagent.infected_only", target.getName()), true);
-                            infectedComponent.cure();
                         } else {
                             // 安全
                             player.displayClientMessage(Component.translatable(
