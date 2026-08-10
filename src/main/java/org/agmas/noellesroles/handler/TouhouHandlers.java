@@ -181,7 +181,7 @@ public class TouhouHandlers {
         {
           var mainhandItem = victim.getMainHandItem();
           var offhandItem = victim.getOffhandItem();
-          if (victim.distanceToSqr(killer) <= 6 * 6) {
+          if (victim.distanceToSqr(killer) <= 7 * 7) {
             if (mainhandItem.getItem() instanceof TrainWeapon
                 || mainhandItem.is(TMMItemTags.GUNS)
                 || mainhandItem.is(TMMItemTags.BOWS)
