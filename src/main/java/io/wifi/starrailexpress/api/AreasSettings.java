@@ -228,13 +228,13 @@ public class AreasSettings {
     @Category("sound")
     public String customInsideSoundId = "";
     @Category("sound")
-    public float indoorSoundVolume = 0.2f;
+    public float indoorSoundVolume = 0.25f;
     @Category("sound")
     public BackgroundAmbienceSound sceneOutsideSound = BackgroundAmbienceSound.train;
     @Category("sound")
     public String customOutsideSoundId = "";
     @Category("sound")
-    public float outdoorSoundVolume = 0.4f;
+    public float outdoorSoundVolume = 0.6f;
 
     // ==================== meeting ====================
     // ==================== 紧急会议系统 / Emergency Meeting ====================
