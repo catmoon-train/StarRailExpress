@@ -72,12 +72,16 @@ public class SREClientConfig implements ConfigData {
     @Category("style")
     public int minWinCenterColumns = 3;
     @Category("style")
-    public int minWinSideColumns = 1;
-
-    @Category("style")
     public int maxWinCenterColumns = 8;
     @Category("style")
+    public int winCenterColumnsDiv = 3;
+
+    @Category("style")
+    public int minWinSideColumns = 1;
+    @Category("style")
     public int maxWinSideColumns = 5;
+    @Category("style")
+    public int winSideColumnsDiv = 2;
 
     @Category("style")
     @ConfigEntry.Gui.Tooltip

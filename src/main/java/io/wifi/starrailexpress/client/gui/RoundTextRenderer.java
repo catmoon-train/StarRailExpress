@@ -340,7 +340,9 @@ public class RoundTextRenderer {
      */
     private static void renderStandardEndOverlay(Font renderer, FakeGuiGraphics context,
             SREGameRoundEndComponent roundEnd) {
-        calcEndOverlayColumns(roundEnd);
+
+        int vigilanteTrueTotal = 0, killerTrueTotal = 0, neutralsTrueTotal = 0, civiliansTrueTotal = 0,
+                looseEndTrueTotal = 0;
 
         int vigilanteTotal = winSideColumn - 1; // 义警队总数 (含初始 WIN_SIDE_COLUMN - 1 避免除零)
         int looseEndsTotal = winSideColumn - 1; // Loose End 总数
@@ -350,11 +352,24 @@ public class RoundTextRenderer {
             if (role1 != null) {
                 if (role1.identifier().getPath().equals(TMMRoles.LOOSE_END.identifier().getPath())) {
                     looseEndsTotal++;
+                    looseEndTrueTotal++;
                 } else if (role1.isVigilanteTeam()) {
                     vigilanteTotal += 1;
+                    vigilanteTrueTotal++;
+                } else if (role1.isNeutrals()) {
+                    killerTrueTotal++;
+                } else if (!role1.isInnocent() && role1.canUseKiller()) {
+                    neutralsTrueTotal++;
+                } else {
+                    civiliansTrueTotal++;
                 }
+            } else {
+                civiliansTrueTotal++;
             }
         }
+
+        calcEndOverlayColumns(roundEnd, vigilanteTrueTotal, killerTrueTotal, neutralsTrueTotal, civiliansTrueTotal,
+                looseEndTrueTotal);
 
         renderRoleTitles(renderer, context, looseEndsTotal, vigilanteTotal);
 
@@ -411,26 +426,29 @@ public class RoundTextRenderer {
         }
     }
 
-    private static void calcEndOverlayColumns(SREGameRoundEndComponent roundEnd) {
+    private static void calcEndOverlayColumns(SREGameRoundEndComponent roundEnd, int vigilanteTrueTotal,
+            int killerTrueTotal, int neutralsTrueTotal, int civiliansTrueTotal, int looseEndTrueTotal) {
         winSideColumn = DEFAULT_WIN_SIDE_COLUMB;
         if (SREClientConfig.instance().minWinSideColumns > 0) {
             winSideColumn = SREClientConfig.instance().minWinSideColumns;
         }
-
+        int cdiv = 3;
+        int sdiv = 2;
+        if (SREClientConfig.instance().winCenterColumnsDiv > 0) {
+            cdiv = SREClientConfig.instance().winCenterColumnsDiv;
+        }
+        if (SREClientConfig.instance().winSideColumnsDiv > 0) {
+            sdiv = SREClientConfig.instance().winSideColumnsDiv;
+        }
         if (SREClientConfig.instance().minWinCenterColumns > 0) {
             winCenterColumn = SREClientConfig.instance().minWinCenterColumns;
         }
-        int totalPlayerSize = roundEnd.players.size();
-        if (totalPlayerSize > 9 && totalPlayerSize <= 24) {
-            winSideColumn += ((totalPlayerSize - 8) / 8);
-        } else if (totalPlayerSize > 24 && totalPlayerSize <= 48) {
-            winSideColumn += 3 + (totalPlayerSize - 24) / 10;
-        } else if (totalPlayerSize > 48) {
-            winSideColumn += 3 + (totalPlayerSize - 48) / 12;
-        }
-        if (totalPlayerSize > 9) {
-            winCenterColumn += ((totalPlayerSize - 8) / 8);
-        }
+        int maxSideCount = Math.max(killerTrueTotal,
+                Math.max(neutralsTrueTotal, Math.max(vigilanteTrueTotal, looseEndTrueTotal)));
+        int centerCount = civiliansTrueTotal;
+
+        winCenterColumn += ((centerCount - cdiv * winCenterColumn) / cdiv);
+        winSideColumn += ((maxSideCount - sdiv * winSideColumn) / sdiv);
 
         winSideColumn = Math.min(winSideColumn, SREClientConfig.instance().maxWinSideColumns);
         winCenterColumn = Math.min(winCenterColumn, SREClientConfig.instance().maxWinCenterColumns);
