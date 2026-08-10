@@ -19,7 +19,6 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
-import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
@@ -41,14 +40,11 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.content.item.InferiorLockpickItem;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -640,23 +636,6 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
             return true;
         });
 
-        AllowPlayerOpenLockedDoor.EVENT.register(entity -> {
-            if (!(entity instanceof Player player)) {
-                return false;
-            }
-            ItemStack stack = player.getMainHandItem();
-            if (!stack.is(ModItems.INFERIOR_LOCKPICK)) {
-                return false;
-            }
-            if (player.getCooldowns().isOnCooldown(stack.getItem())) {
-                return false;
-            }
-            if (!player.isCreative()) {
-                player.getCooldowns().addCooldown(stack.getItem(), InferiorLockpickItem.COOLDOWN_TICKS);
-            }
-            player.playNotifySound(SoundEvents.CHEST_LOCKED, SoundSource.BLOCKS, 0.5f, 1.8f);
-            return true;
-        });
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register(WraithAssassinPlayerComponent::filterChat);
     }
 

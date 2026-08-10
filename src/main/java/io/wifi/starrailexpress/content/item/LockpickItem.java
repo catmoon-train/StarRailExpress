@@ -21,7 +21,6 @@ import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.LockableButtonBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.core.BlockPos;
@@ -61,8 +60,8 @@ public class LockpickItem extends Item implements AdventureUsable {
                     }
 
                     if (!player.isCreative()) {
-                        player.getCooldowns().addCooldown(TMMItems.LOCKPICK,
-                                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.LOCKPICK, 40));
+                        player.getCooldowns().addCooldown(this,
+                               getCooldownTicks());
                     }
 
                     if (!world.isClientSide)
@@ -83,8 +82,8 @@ public class LockpickItem extends Item implements AdventureUsable {
                         if (SRE.REPLAY_MANAGER != null) {
                             SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
                         }
-                        player.getCooldowns().addCooldown(TMMItems.LOCKPICK,
-                                GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.LOCKPICK, 40));
+                        player.getCooldowns().addCooldown(this,
+                                getCooldownTicks());
                     }
 
                     if (!world.isClientSide)
@@ -98,6 +97,14 @@ public class LockpickItem extends Item implements AdventureUsable {
         }
 
         return super.useOn(context);
+    }
+
+    public int getCooldownTicks() {
+        return GameConstants.ITEM_COOLDOWNS.getOrDefault(this, 40);
+    }
+    
+    public int getOpenCooldownTicks() {
+        return 0;
     }
 
     private void jamNearBy(UseOnContext context) {

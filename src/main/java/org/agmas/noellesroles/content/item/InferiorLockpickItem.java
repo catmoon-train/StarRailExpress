@@ -21,6 +21,11 @@ import net.minecraft.world.item.Item;
 public class InferiorLockpickItem extends LockpickItem {
     public static final int COOLDOWN_TICKS = 15 * 20;
 
+    @Override
+    public int getOpenCooldownTicks() {
+        return COOLDOWN_TICKS;
+    }
+
     public InferiorLockpickItem(Item.Properties settings) {
         super(settings);
     }

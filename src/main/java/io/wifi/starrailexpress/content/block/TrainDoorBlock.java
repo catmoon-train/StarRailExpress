@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.content.block;
 
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.content.item.IronDoorKeyItem;
+import io.wifi.starrailexpress.content.item.LockpickItem;
 import io.wifi.starrailexpress.event.AllowPlayerOpenLockedDoor;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -71,7 +72,7 @@ public class TrainDoorBlock extends SmallDoorBlock {
             } else {
                 ItemStack mainHandItem = player.getMainHandItem();
                 boolean hasLockpick = mainHandItem.is(TMMItems.LOCKPICK) || mainHandItem.is(ModItems.MASTER_KEY)
-                        || mainHandItem.is(FunnyItems.BOWEN_BADGE);
+                        || mainHandItem.is(FunnyItems.BOWEN_BADGE) || mainHandItem.getItem() instanceof LockpickItem;
                 boolean hasIronDoorKey = mainHandItem.getItem() instanceof IronDoorKeyItem;
 
                 if (entity.isOpen()) {
