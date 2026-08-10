@@ -101,7 +101,7 @@ public class AreasSettings {
 
     /** 背景音效类型：train/wind/sand_storm/snow_storm/circus。空字符串或未设置时默认 train。 */
     public static enum BackgroundAmbienceSound {
-        train, wind, sand_storm, snow_storm, circus, flower_sea, indoor_music,unwelcome_school,zenrianbanka,sakura_moyu, custom
+        none, train, wind, sand_storm, snow_storm, circus, flower_sea, indoor_music,unwelcome_school,zenrianbanka,sakura_moyu, custom
     }
 
     // ==================== map ====================

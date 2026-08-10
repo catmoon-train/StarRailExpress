@@ -705,8 +705,8 @@ public class AllSettingsModule implements TabModule {
                 int inputWidth = Math.max(70, remainingWidth - 120);
                 EditBox input = new EditBox(layout.font, rightEdge - inputWidth - 40 - 30 - gap * 2, y, inputWidth, 20,
                         Component.empty());
+                input.setMaxLength(200);
                 input.setValue(value != null ? value.toString() : "");
-                input.setMaxLength(50);
                 if (I18n.exists(tooltipKey)) {
                     input.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
                 }
@@ -805,6 +805,7 @@ public class AllSettingsModule implements TabModule {
                 int inputWidth = Math.min(120, remainingWidth - 40 - 30 - 2 * gap);
                 EditBox mapInput = new EditBox(layout.font, controlX, y, inputWidth, 20,
                         Component.translatable("sre.map_helper.json"));
+                mapInput.setMaxLength(1000);
                 mapInput.setValue(value != null ? GSON.toJson(value) : "{}");
                 if (I18n.exists(tooltipKey)) {
                     mapInput.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
@@ -976,8 +977,8 @@ public class AllSettingsModule implements TabModule {
                 if (type == boolean.class || type == Boolean.class) {
                     // 改为输入框，解析 true/false
                     EditBox edit = new EditBox(font, fieldStartX, y, fieldWidth, 20, Component.empty());
-                    edit.setValue("false");
                     edit.setMaxLength(5);
+                    edit.setValue("false");
                     row.widget = edit;
                     row.valueSupplier = () -> {
                         String val = edit.getValue().trim();
@@ -1003,6 +1004,7 @@ public class AllSettingsModule implements TabModule {
                     }
                 } else if (type == String.class || Number.class.isAssignableFrom(type) || type.isPrimitive()) {
                     EditBox edit = new EditBox(font, fieldStartX, y, fieldWidth, 20, Component.empty());
+                    edit.setMaxLength(200);
                     edit.setValue("");
                     row.widget = edit;
                     row.valueSupplier = () -> {
