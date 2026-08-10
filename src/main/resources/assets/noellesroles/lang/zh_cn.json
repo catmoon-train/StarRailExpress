@@ -2141,6 +2141,7 @@
   "message.noellesroles.vt_mode.disabled": "已为 %s 关闭主播模式。",
   "message.noellesroles.party.used": "你对 %s 使用了派对技能！",
   "message.noellesroles.party.no_target": "没有目标可用！",
+  "message.noellesroles.party.target_not_found": "无法找到目标",
   "message.noellesroles.party.party_time_started": "§6派对狂欢开始！",
   "hud.noellesroles.party.cooldown": "技能冷却: %ss",
   "message.noellesroles.helium.applied": "已对 %s 施加氦气变声，持续 %s 秒",

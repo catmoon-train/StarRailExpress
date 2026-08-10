@@ -2141,6 +2141,7 @@
     "message.noellesroles.vt_mode.disabled": "Streamer mode has been turned off for %s.",
     "message.noellesroles.party.used": "You used the Party Skill on %s!",
     "message.noellesroles.party.no_target": "No target available!",
+    "message.noellesroles.party.target_not_found": "Unable to find the target!",
     "message.noellesroles.party.party_time_started": "The §6 party begins!",
     "hud.noellesroles.party.cooldown": "Skill cooldown: %ss",
     "message.noellesroles.helium.applied": "Helium voice change applied to %s for %s seconds",

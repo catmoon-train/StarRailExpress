@@ -2140,6 +2140,7 @@
   "message.noellesroles.vt_mode.enabled": "已為 %s 啟用主播模式。Ta將無法聽到旁觀者的討論。",
   "message.noellesroles.vt_mode.disabled": "已為 %s 關閉主播模式。",
   "message.noellesroles.party.used": "你對 %s 使用了派對技能！",
+  "message.noellesroles.party.target_not_found": "目標不可用！",
   "message.noellesroles.party.no_target": "沒有目標可用！",
   "message.noellesroles.party.party_time_started": "§6派對狂歡開始！",
   "hud.noellesroles.party.cooldown": "技能冷卻: %ss",
