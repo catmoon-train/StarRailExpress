@@ -26,6 +26,7 @@ import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.Minecart;
 
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
@@ -56,18 +57,12 @@ public class EntityClearUtils {
 
     /** 换图 / 清场时应当被清除的游戏残留实体（上一局的尸体、掉落物、投掷物、彩虹马等）。 */
     public static boolean shouldClearOnReset(Entity entity) {
-        if (entity instanceof Boat bt) {
-            if (bt.getTags() != null) {
-                if (bt.getTags().contains("sre.dream")) {
-                    return true;
-                }
-            }
-        }
         if (entity instanceof LockEntity ||
                 entity instanceof Pig ||
                 entity instanceof CanyuesaHorseEntity ||
                 entity instanceof SuperPigHorseEntity ||
-
+                entity instanceof Minecart ||
+                entity instanceof Boat ||
                 entity instanceof MummyEntity ||
                 entity instanceof GrenadeEntity ||
                 entity instanceof SmokeGrenadeEntity ||
