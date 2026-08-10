@@ -13,7 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.util;
+package org.agmas.noellesroles.role_utils;
 
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.world.item.ItemStack;

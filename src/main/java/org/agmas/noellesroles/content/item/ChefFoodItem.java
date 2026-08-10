@@ -64,7 +64,7 @@ public class ChefFoodItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
-                               List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+            List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         var cookData = stack.get(ModDataComponentTypes.COOKED);
         if (cookData != null) {
             Map<Integer, Float> effects = ModDataComponentTypes.getCookedFoodInfo(cookData);

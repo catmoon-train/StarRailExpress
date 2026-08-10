@@ -56,7 +56,10 @@
     ],
     "modmenu": [
       "io.wifi.ConfigCompact.modmenu.StarRailConfigEntry"
-    ]
+    ],
+		"dynamiclights": [
+			"org.agmas.noellesroles.client.DynamiclightsEntry"
+		]
   },
   "accessWidener": "StarRailExpress.accesswidener",
   "custom": {

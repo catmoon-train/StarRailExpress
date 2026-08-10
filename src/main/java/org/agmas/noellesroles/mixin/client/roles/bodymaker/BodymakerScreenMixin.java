@@ -32,7 +32,7 @@ import org.agmas.noellesroles.client.widget.BodymakerDeathReasonWidget;
 import org.agmas.noellesroles.client.widget.BodymakerPlayerWidget;
 import org.agmas.noellesroles.client.widget.MorticianScreenCallback;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.util.DeathReasonHelper;
+import org.agmas.noellesroles.role_utils.DeathReasonHelper;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

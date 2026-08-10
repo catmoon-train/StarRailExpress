@@ -181,6 +181,9 @@ public class ModItems {
             "bandit_revolver", WEAPONS_GROUP);
     public static final String PILL_POISONOUS_KEY = "poisonous";
 
+    public static final Item FLASHLIGHT = register(
+            new FlashlightItem(new Item.Properties().stacksTo(1)),
+            "repair_toolbox", TOOLS_GROUP);
     public static final Item COOKED_FOOD = register(
             new ChefFoodItem(new Item.Properties().stacksTo(1)), "cooked_food",
             CONSUMABLES_GROUP);

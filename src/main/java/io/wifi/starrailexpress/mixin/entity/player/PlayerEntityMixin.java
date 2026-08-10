@@ -33,6 +33,7 @@ import io.wifi.starrailexpress.event.IsPlayerPunchable;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.util.FlashlightInterface;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
 import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import io.wifi.starrailexpress.util.Scheduler;
@@ -54,6 +55,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.Level;
 
+import org.agmas.noellesroles.client.FlashlightLightProvider;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
@@ -68,10 +70,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.UUID;
 
 @Mixin(Player.class)
-public abstract class PlayerEntityMixin extends LivingEntity implements PlayerStaminaGetter {
+public abstract class PlayerEntityMixin extends LivingEntity implements PlayerStaminaGetter, FlashlightInterface {
 
     @Shadow
     public abstract float getAttackStrengthScale(float baseTime);
+
+    @Override
+    public FlashlightLightProvider getFlashlight() {
+        return flashlightProvider;
+    }
+
+    @Override
+    public void setFlashlight(FlashlightLightProvider status) {
+        this.flashlightProvider = status;
+    }
 
     @Override
     public float starrailexpress$getStamina() {
@@ -85,6 +97,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
     @Unique
     public float sprintingTicks;
+    @Unique
+    public FlashlightLightProvider flashlightProvider;
     @Unique
     private Scheduler.ScheduledTask poisonSleepTask;
 
