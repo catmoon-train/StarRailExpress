@@ -26,11 +26,11 @@ public class OutsideSoundManager {
     public static final CopyOnWriteArrayList<SoundInstance> PENDING_STOP = new CopyOnWriteArrayList<>();
 
     public static void registerEvents() {
-        Minecraft client = Minecraft.getInstance();
-        SoundManager soundManager = client.getSoundManager();
 
         // 延迟停止音效（支持淡出）
         ClientTickEvents.END_CLIENT_TICK.register(c -> {
+
+            SoundManager soundManager = c.getSoundManager();
             if (PENDING_STOP.isEmpty())
                 return;
 
@@ -57,6 +57,10 @@ public class OutsideSoundManager {
 
         // 每世界 tick 检查并切换内外音效
         ClientTickEvents.START_WORLD_TICK.register(world -> {
+
+            Minecraft client = Minecraft.getInstance();
+            SoundManager soundManager = client.getSoundManager();
+
             if (!shouldPlaySound(client)) {
                 stopNowPlayingSounds(soundManager);
                 return;
