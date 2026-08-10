@@ -183,7 +183,7 @@ public class ModItems {
 
     public static final Item FLASHLIGHT = register(
             new FlashlightItem(new Item.Properties().stacksTo(1)),
-            "repair_toolbox", TOOLS_GROUP);
+            "flashlight", TOOLS_GROUP);
     public static final Item COOKED_FOOD = register(
             new ChefFoodItem(new Item.Properties().stacksTo(1)), "cooked_food",
             CONSUMABLES_GROUP);

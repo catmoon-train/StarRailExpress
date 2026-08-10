@@ -3116,6 +3116,7 @@
   "repair_coin_source.perfect": "完美校准",
   "repair_coin_source.calibration": "修机校准",
   "item.noellesroles.hunter_weapon": "追捕利刃",
+  "item.noellesroles.flashlight": "手电筒",
   "item.noellesroles.hunter_weapon.tooltip": "右键原地蓄力 0.75 秒后斩击，同一逃脱者短时间内被二次命中会倒地。",
   "item.noellesroles.hunter_plugin_laceration": "裂伤插件",
   "item.noellesroles.hunter_plugin_concussion": "震荡插件",
