@@ -67,9 +67,6 @@ public class StuckHelperUtils {
             return false;
         if (state.is(Blocks.POWDER_SNOW))
             return false;
-        if (!state.isSuffocating(level, pos)) {
-            return false;
-        }
 
         // 完整立方体碰撞箱 (石头、泥土、木板等) -> 卡人
         if (state.isCollisionShapeFullBlock(level, pos))
