@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.mixin.client.scenery;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.api.AreasSettings.BackgroundAmbienceSound;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -52,7 +53,7 @@ public class CameraMixin {
             float tickDelta, CallbackInfo ci) {
         if (SREClient.isTrainMoving() && !SREClientConfig.instance().disableScreenShake && SREClient.gameComponent.isRunning()
                 && SREClient.gameComponent.isOutsideSoundsAvailable()
-                && "train".equals(SREClient.gameComponent.getSceneOutsideSoundType())
+                && BackgroundAmbienceSound.train.equals(SREClient.areaComponent.areasSettings.sceneOutsideSound)
                 && SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()) {
             Camera camera = (Camera) (Object) this;
 
