@@ -231,6 +231,7 @@ public abstract class PlatterBlock extends BaseEntityBlock {
                     blockEntity.setWeakArmorer(null);
                 }
                 player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1f);
+                randomItem.set(SREDataComponentTypes.TRAY_ITEM, true);
                 player.setItemInHand(InteractionHand.MAIN_HAND, randomItem);
             }
         }

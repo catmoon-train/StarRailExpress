@@ -29,6 +29,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -48,6 +49,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -273,6 +275,12 @@ public class RemoteRedstoneBlock extends RedstoneTorchBlock implements EntityBlo
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         // 手持特定物品时才显示轮廓
+        if (context instanceof EntityCollisionContext ec) {
+            if (ec.getEntity() instanceof ServerPlayer sp) {
+                if (sp.isCreative())
+                    return Shapes.block();
+            }
+        }
         if (context.isHoldingItem(SREBlocks.REMOTE_REDSTONE.asItem()) ||
                 context.isHoldingItem(DevItems.BINDING_TOOL) ||
                 context.isHoldingItem(Items.REDSTONE) ||

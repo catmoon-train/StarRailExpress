@@ -17,7 +17,6 @@ package io.wifi.starrailexpress.content.block;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import io.wifi.starrailexpress.util.BarrierViewer;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -69,8 +68,6 @@ public class BarrierPanelBlock extends PanelBlock {
 
     @Override
     protected RenderShape getRenderShape(BlockState state) {
-        if (BarrierViewer.isBarrierVisible())
-            return RenderShape.MODEL;
         return RenderShape.INVISIBLE;
     }
 }

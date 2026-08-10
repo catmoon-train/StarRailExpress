@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
@@ -245,6 +246,9 @@ public class THRinnosukeRole extends TouhouRole implements CustomWinnerRoleInter
         if (item.is(TMMItems.LETTER) || item.is(TMMItems.KEY) || item.is(ModItems.BOMB)
                 || item.is(FunnyItems.HOT_POTATO))
             return InteractionResult.FAIL;
+        if (item.getOrDefault(SREDataComponentTypes.TRAY_ITEM, false)) {
+            return InteractionResult.FAIL;
+        }
         return InteractionResult.SUCCESS;
     }
 

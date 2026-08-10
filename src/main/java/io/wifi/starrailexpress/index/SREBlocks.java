@@ -47,7 +47,7 @@ public interface SREBlocks {
           .lightLevel(TrainLightBlock.LIGHT_EMISSION))),
       new Item.Properties().rarity(Rarity.EPIC));
   Block REMOTE_REDSTONE = registerOpBlock("remote_redstone", new RemoteRedstoneBlock(
-      (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
+      (Block.Properties.of().strength(-1.0F, 3600000.8F)
           .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion())),
       new Item.Properties().rarity(Rarity.EPIC));
 
