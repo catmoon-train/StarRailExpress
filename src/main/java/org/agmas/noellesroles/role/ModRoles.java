@@ -1376,7 +1376,7 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(18)
-            .setDefaultEnableChance(3000)
+            .setDefaultEnableChance(2000)
             .setCanSeeCoin(true)
             .setCanUseInstinctAndNightVision(true)
             // 只有本能开启时才透视；关闭时不显示任何颜色
