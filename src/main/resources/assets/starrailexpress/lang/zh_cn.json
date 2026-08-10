@@ -211,6 +211,7 @@
     "block.starrailexpress.train_light.tooltip": "加强版的原版【灯】\n会受到红石以及列车关灯影响的隐形灯光",
     "item_group.starrailexpress.doors": "列车门和按钮",
     "block.starrailexpress.small_paper_door": "白色纸门",
+    "block.starrailexpress.scp_door": "白色油漆钢门",
     "block.starrailexpress.up_glass_door": "玻璃卷帘门",
     "block.starrailexpress.up_steel_door": "铁卷帘门",
     "block.starrailexpress.up_wood_door": "木卷帘门",
