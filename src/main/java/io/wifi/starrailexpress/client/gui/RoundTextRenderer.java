@@ -17,6 +17,8 @@ package io.wifi.starrailexpress.client.gui;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
+
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -70,7 +72,9 @@ public class RoundTextRenderer {
     private static final Component dotText = Component.literal("...");
     /** 结束界面持续时间 (tick) */
     private static final int END_DURATION = 200;
-    private static final int WIN_SIDE_COLUMN = 3;
+    private static final int DEFAULT_WIN_SIDE_COLUMB = 3;
+    private static int winSideColumn = 3;
+    private static int winCenterColumn = 4;
     /** 当前使用的角色宣告文本集 (可通过 {@link #startWelcome} 修改) */
     private static RoleAnnouncementTexts.RoleAnnouncementText roleTexts = RoleAnnouncementTexts.DEFAULT;
 
@@ -336,8 +340,10 @@ public class RoundTextRenderer {
      */
     private static void renderStandardEndOverlay(Font renderer, FakeGuiGraphics context,
             SREGameRoundEndComponent roundEnd) {
-        int vigilanteTotal = WIN_SIDE_COLUMN - 1; // 义警队总数 (含初始 WIN_SIDE_COLUMN - 1 避免除零)
-        int looseEndsTotal = WIN_SIDE_COLUMN - 1; // Loose End 总数
+        calcEndOverlayColumns(roundEnd);
+
+        int vigilanteTotal = winSideColumn - 1; // 义警队总数 (含初始 WIN_SIDE_COLUMN - 1 避免除零)
+        int looseEndsTotal = winSideColumn - 1; // Loose End 总数
         // 统计人数
         for (SREGameRoundEndComponent.RoundEndData entry : roundEnd.players) {
             final SRERole role1 = lastRole.get(entry.player().getId());
@@ -365,44 +371,72 @@ public class RoundTextRenderer {
             if (role1 == null || (role1.isInnocent() && !role1.canUseKiller()
                     && !role1.isNeutrals() && !role1.isVigilanteTeam())) {
                 // 普通平民
-                translateX = -36 + (civilians % 5) * 12;
-                translateY = 14 + (civilians / 5) * 16;
+                translateX = -6 - winCenterColumn * 6 + (civilians % winCenterColumn) * 12;
+                translateY = 14 + (civilians / winCenterColumn) * 16;
                 civilians++;
             } else {
                 if (role1.identifier().getPath().equals(TMMRoles.LOOSE_END.identifier().getPath())) {
                     // Loose End 角色 (单独占位)
-                    translateX = -39 - WIN_SIDE_COLUMN * 12 + (looseEnds % WIN_SIDE_COLUMN) * 12;
-                    translateY = 14 + (looseEnds / WIN_SIDE_COLUMN) * 16;
+                    translateX = -9 - winCenterColumn * 6 - winSideColumn * 12 + (looseEnds % winSideColumn) * 12;
+                    translateY = 14 + (looseEnds / winSideColumn) * 16;
                     looseEnds++;
                 } else if (role1.isNeutrals()) {
                     // 中立角色
-                    if (looseEndsTotal > WIN_SIDE_COLUMN - 1) {
+                    if (looseEndsTotal > winSideColumn - 1) {
                         extraTranslateY = 8 + ((looseEndsTotal) / 2) * 16;
                     }
-                    translateX = -39 - WIN_SIDE_COLUMN * 12 + (neutrals % WIN_SIDE_COLUMN) * 12;
-                    translateY = 14 + (neutrals / WIN_SIDE_COLUMN) * 16;
+                    translateX = -9 - winCenterColumn * 6 - winSideColumn * 12 + (neutrals % winSideColumn) * 12;
+                    translateY = 14 + (neutrals / winSideColumn) * 16;
                     neutrals++;
                 } else if (role1.isInnocent() || role1.isVigilanteTeam()) {
                     // 义警队 / 特殊平民
-                    translateX = 24 + (vigilantes % WIN_SIDE_COLUMN) * 12;
-                    translateY = 14 + (vigilantes / WIN_SIDE_COLUMN) * 16;
+                    translateX = -6 + winCenterColumn * 6 + (vigilantes % winSideColumn) * 12;
+                    translateY = 14 + (vigilantes / winSideColumn) * 16;
                     vigilantes++;
                 } else if (role1.canUseKiller()) {
                     // 杀手阵营
-                    extraTranslateY = 8 + ((vigilanteTotal) / WIN_SIDE_COLUMN) * 16;
-                    translateX = 24 + (killersCount % WIN_SIDE_COLUMN) * 12;
-                    translateY = 14 + (killersCount / WIN_SIDE_COLUMN) * 16;
+                    extraTranslateY = 8 + ((vigilanteTotal) / winSideColumn) * 16;
+                    translateX = -6 + winCenterColumn * 6 + (killersCount % winSideColumn) * 12;
+                    translateY = 14 + (killersCount / winSideColumn) * 16;
                     killersCount++;
                 } else {
                     // 兜底：归类为平民
-                    translateX = -36 + (civilians % 5) * 12;
-                    translateY = 14 + (civilians / 5) * 16;
+                    translateX = -6 - winCenterColumn * 6 + (civilians % winCenterColumn) * 12;
+                    translateY = 14 + (civilians / winCenterColumn) * 16;
                     civilians++;
                 }
             }
 
             renderPlayerEntry(renderer, context, entry, role1, translateX, translateY, extraTranslateY);
         }
+    }
+
+    private static void calcEndOverlayColumns(SREGameRoundEndComponent roundEnd) {
+        winSideColumn = DEFAULT_WIN_SIDE_COLUMB;
+        if (SREClientConfig.instance().minWinSideColumns > 0) {
+            winSideColumn = SREClientConfig.instance().minWinSideColumns;
+        }
+
+        if (SREClientConfig.instance().minWinCenterColumns > 0) {
+            winCenterColumn = SREClientConfig.instance().minWinCenterColumns;
+        }
+        int totalPlayerSize = roundEnd.players.size();
+        if (totalPlayerSize > 9 && totalPlayerSize <= 48) {
+            winSideColumn += ((totalPlayerSize - 12) / 12);
+        } else if (totalPlayerSize > 48) {
+            winSideColumn += 3 + (totalPlayerSize - 48) / 14;
+        }
+        if (totalPlayerSize > 9 && totalPlayerSize <= 48) {
+            winCenterColumn += ((totalPlayerSize - 9) / 9);
+        } else if (totalPlayerSize > 48) {
+            winCenterColumn += (4 + (totalPlayerSize - 48) / 7);
+        }
+
+        winSideColumn = Math.min(winSideColumn, SREClientConfig.instance().maxWinSideColumns);
+        winCenterColumn = Math.min(winCenterColumn, SREClientConfig.instance().maxWinCenterColumns);
+
+        winSideColumn = Math.max(1, winSideColumn);
+        winCenterColumn = Math.max(1, winCenterColumn);
     }
 
     /**
@@ -422,15 +456,15 @@ public class RoundTextRenderer {
         int vigilanteWidth = getOrCacheWidth(renderer, vigilanteTitle);
         int killerWidth = getOrCacheWidth(renderer, killerTitle);
 
-        int neutralY = (looseEndsTotal > WIN_SIDE_COLUMN - 1) ? (14 + 16 + 32 * ((looseEndsTotal) / 2)) : 14;
-        context.drawString(renderer, neutralTitle, -looseEndWidth / 2 - 78 - 6 * WIN_SIDE_COLUMN, neutralY, 0xffffff);
-        if (looseEndsTotal > WIN_SIDE_COLUMN - 1) {
-            context.drawString(renderer, looseEndRole, -looseEndWidth / 2 - 78 - 6 * WIN_SIDE_COLUMN, 14,
+        int neutralY = (looseEndsTotal > winSideColumn - 1) ? (14 + 16 + 32 * ((looseEndsTotal) / 2)) : 14;
+        context.drawString(renderer, neutralTitle, -looseEndWidth / 2 - 78 - 6 * winSideColumn, neutralY, 0xffffff);
+        if (looseEndsTotal > winSideColumn - 1) {
+            context.drawString(renderer, looseEndRole, -looseEndWidth / 2 - 78 - 6 * winSideColumn, 14,
                     0xffffff);
         }
         context.drawString(renderer, civilianTitle, -civilianWidth / 2, 14, 0xFFFFFF);
-        context.drawString(renderer, vigilanteTitle, -vigilanteWidth / 2 + 78 + 6 * WIN_SIDE_COLUMN, 14, 0xFFFFFF);
-        context.drawString(renderer, killerTitle, -killerWidth / 2 + 78 + 6 * WIN_SIDE_COLUMN,
+        context.drawString(renderer, vigilanteTitle, -vigilanteWidth / 2 + 78 + 6 * winSideColumn, 14, 0xFFFFFF);
+        context.drawString(renderer, killerTitle, -killerWidth / 2 + 78 + 6 * winSideColumn,
                 14 + 16 + 32 * ((vigilanteTotal) / 2),
                 0xFFFFFF);
     }
