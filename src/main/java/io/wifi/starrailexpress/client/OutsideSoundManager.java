@@ -153,8 +153,8 @@ public class OutsideSoundManager {
 
     private static void playInsideSound(Minecraft client, SoundManager soundManager) {
         ResourceLocation loc = getSoundLocation(
-                SREClient.areaComponent.areasSettings.sceneOutsideSound,
-                SREClient.areaComponent.areasSettings.customOutsideSoundId,
+                SREClient.areaComponent.areasSettings.sceneInsideSound,
+                SREClient.areaComponent.areasSettings.customInsideSoundId,
                 true);
         if (loc == null) {
             stopAllSounds(soundManager);
