@@ -72,7 +72,6 @@ public class RoundTextRenderer {
     private static final Component dotText = Component.literal("...");
     /** 结束界面持续时间 (tick) */
     private static final int END_DURATION = 200;
-    private static final int DEFAULT_WIN_SIDE_COLUMB = 3;
     private static int winSideColumn = 3;
     private static int winCenterColumn = 4;
     /** 当前使用的角色宣告文本集 (可通过 {@link #startWelcome} 修改) */
@@ -344,8 +343,8 @@ public class RoundTextRenderer {
         int vigilanteTrueTotal = 0, killerTrueTotal = 0, neutralsTrueTotal = 0, civiliansTrueTotal = 0,
                 looseEndTrueTotal = 0;
 
-        int vigilanteTotal = winSideColumn - 1; // 义警队总数 (含初始 WIN_SIDE_COLUMN - 1 避免除零)
-        int looseEndsTotal = winSideColumn - 1; // Loose End 总数
+        int vigilanteTotal = 0; // 义警队总数 (含初始 WIN_SIDE_COLUMN - 1 避免除零)
+        int looseEndsTotal = 0; // Loose End 总数
         // 统计人数
         for (SREGameRoundEndComponent.RoundEndData entry : roundEnd.players) {
             final SRERole role1 = lastRole.get(entry.player().getId());
@@ -366,6 +365,10 @@ public class RoundTextRenderer {
             } else {
                 civiliansTrueTotal++;
             }
+        }
+        {
+            vigilanteTotal += winSideColumn - 1;
+            looseEndsTotal += winSideColumn - 1;
         }
 
         calcEndOverlayColumns(roundEnd, vigilanteTrueTotal, killerTrueTotal, neutralsTrueTotal, civiliansTrueTotal,
@@ -428,33 +431,36 @@ public class RoundTextRenderer {
 
     private static void calcEndOverlayColumns(SREGameRoundEndComponent roundEnd, int vigilanteTrueTotal,
             int killerTrueTotal, int neutralsTrueTotal, int civiliansTrueTotal, int looseEndTrueTotal) {
-        winSideColumn = DEFAULT_WIN_SIDE_COLUMB;
-        if (SREClientConfig.instance().minWinSideColumns > 0) {
-            winSideColumn = SREClientConfig.instance().minWinSideColumns;
-        }
-        int cdiv = 3;
-        int sdiv = 2;
-        if (SREClientConfig.instance().winCenterColumnsDiv > 0) {
-            cdiv = SREClientConfig.instance().winCenterColumnsDiv;
-        }
-        if (SREClientConfig.instance().winSideColumnsDiv > 0) {
-            sdiv = SREClientConfig.instance().winSideColumnsDiv;
-        }
-        if (SREClientConfig.instance().minWinCenterColumns > 0) {
-            winCenterColumn = SREClientConfig.instance().minWinCenterColumns;
-        }
-        int maxSideCount = Math.max(killerTrueTotal,
-                Math.max(neutralsTrueTotal, Math.max(vigilanteTrueTotal, looseEndTrueTotal)));
-        int centerCount = civiliansTrueTotal;
+        SREClientConfig config = SREClientConfig.instance();
 
-        winCenterColumn += ((centerCount - cdiv * winCenterColumn) / cdiv);
-        winSideColumn += ((maxSideCount - sdiv * winSideColumn) / sdiv);
+        // 期望行数（每列人数），0 或负值时使用默认值
+        int cdiv = config.winCenterColumnsDiv > 0 ? config.winCenterColumnsDiv : 3;
+        int sdiv = config.winSideColumnsDiv > 0 ? config.winSideColumnsDiv : 2;
 
-        winSideColumn = Math.min(winSideColumn, SREClientConfig.instance().maxWinSideColumns);
-        winCenterColumn = Math.min(winCenterColumn, SREClientConfig.instance().maxWinCenterColumns);
+        // 侧边区域最大人数（共用列数）
+        int maxSide = Math.max(killerTrueTotal,
+                Math.max(vigilanteTrueTotal, Math.max(neutralsTrueTotal, looseEndTrueTotal)));
 
-        winSideColumn = Math.max(1, winSideColumn);
-        winCenterColumn = Math.max(1, winCenterColumn);
+        // 计算理想列数：ceil(人数 / 期望行数)
+        int idealSideCols = (int) Math.ceil((double) maxSide / sdiv);
+        int idealCenterCols = (int) Math.ceil((double) civiliansTrueTotal / cdiv);
+
+        // 应用最小值、最大值限制，并保证至少为 1
+        winSideColumn = clamp(idealSideCols,
+                config.minWinSideColumns > 0 ? config.minWinSideColumns : 1,
+                config.maxWinSideColumns > 0 ? config.maxWinSideColumns : Integer.MAX_VALUE);
+        winCenterColumn = clamp(idealCenterCols,
+                config.minWinCenterColumns > 0 ? config.minWinCenterColumns : 1,
+                config.maxWinCenterColumns > 0 ? config.maxWinCenterColumns : Integer.MAX_VALUE);
+    }
+
+    // 简单 clamp 辅助方法
+    private static int clamp(int value, int min, int max) {
+        if (value < min)
+            return min;
+        if (value > max)
+            return max;
+        return value;
     }
 
     /**

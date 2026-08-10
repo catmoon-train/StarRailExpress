@@ -42,7 +42,6 @@
   "text.autoconfig.starrailexpress-client.option.maxWinSideColumns": "总结界面（TAB）边栏（杀手/中立等）最大列数",
   "text.autoconfig.starrailexpress-client.option.winCenterColumnsDiv": "总结界面（TAB）中间区域（平民）期望行数",
   "text.autoconfig.starrailexpress-client.option.winSideColumnsDiv": "总结界面（TAB）边栏（杀手/中立等）期望行数",
-  
   "text.autoconfig.starrailexpress-client.option.moodTopOffset": "心情&任务渲染Y坐标偏移",
   "text.autoconfig.starrailexpress-client.option.playerHudScale": "玩家HUD（指向玩家时显示）的字体缩放",
   "text.autoconfig.starrailexpress-client.option.bodyHudScale": "玩家尸体HUD（指向玩家尸体时显示）的字体缩放",
