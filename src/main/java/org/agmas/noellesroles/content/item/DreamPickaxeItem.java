@@ -16,7 +16,6 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.content.item.CrowbarItem;
@@ -79,7 +78,6 @@ public class DreamPickaxeItem extends CrowbarItem {
                 return InteractionResult.FAIL;
             }
             BlockState state = world.getBlockState(lowerPos);
-            var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (entity instanceof SmallDoorBlockEntity door && !door.isBlasted() && player != null) {
                 world.playSound(null, context.getClickedPos(), TMMSounds.ITEM_CROWBAR_PRY, SoundSource.BLOCKS, 2.5f,
                         1f);
