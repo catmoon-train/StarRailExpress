@@ -34,7 +34,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.jetbrains.annotations.NotNull;
 
 public record KnifeStabPayload(int target) implements CustomPacketPayload {
@@ -51,13 +54,41 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
         @Override
         public void receive(@NotNull KnifeStabPayload payload, ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer player = context.player();
-            if (!(player.serverLevel().getEntity(payload.target()) instanceof ServerPlayer target))
+            Entity targetEntity = player.serverLevel().getEntity(payload.target());
+            ServerPlayer target = null;
+            if ((targetEntity instanceof ServerPlayer ts)) {
+                target = ts;
+            }
+
+            if ((targetEntity instanceof PuppeteerBodyEntity bodyEntity)) {
+
+                if (bodyEntity.distanceTo(player) > 4.0)
+                    return;
+
+                // 对傀儡本体造成致命伤害（20点以上确保击杀）
+                bodyEntity.playerHurt(player, GameConstants.DeathReasons.PUPPETEER_KNIFE);
+
+                bodyEntity.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
+                player.swing(InteractionHand.MAIN_HAND);
+
+                if (!player.isCreative()
+                    && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
+                    && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
+                            SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                    player.getCooldowns().addCooldown(TMMItems.KNIFE,
+                            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 600));
+                }
+                return;
+            }
+            if (target == null)
                 return;
             if (target.distanceTo(player) > 3.0)
                 return;
             // 杀手刀有限耐久：耗尽的刀不可用（但不会消失），需要重新购买替换。
-            // Killer knife limited durability: a depleted knife cannot be used (but is not removed);
-            // the killer must re-buy to replace it. Only applies to stamped knives in murder modes.
+            // Killer knife limited durability: a depleted knife cannot be used (but is not
+            // removed);
+            // the killer must re-buy to replace it. Only applies to stamped knives in
+            // murder modes.
             ItemStack knife = player.getMainHandItem();
             boolean durabilityKnife = KillerKnifeDurability.isDurabilityModeEnabled(player.level())
                     && KillerKnifeDurability.isMarkedKnife(knife);
@@ -76,8 +107,9 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
             GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.KNIFE);
             target.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
             // 成功捅人后消耗 1 点耐久；耗尽时提示重新购买。
-            // Consume one durability after a successful stab; warn when it becomes depleted.
-            if (durabilityKnife && KillerKnifeDurability.consumeOne(knife,player)) {
+            // Consume one durability after a successful stab; warn when it becomes
+            // depleted.
+            if (durabilityKnife && KillerKnifeDurability.consumeOne(knife, player)) {
                 player.displayClientMessage(
                         Component.translatable("message.sre.knife.broken").withStyle(ChatFormatting.DARK_RED), true);
             }

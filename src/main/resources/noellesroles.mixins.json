@@ -61,8 +61,6 @@
     "roles.photographer.PhotographerMixin",
     "roles.photographer.PhotographFrameEntityMixin",
     "roles.photographer.PhotographFrameItemMixin",
-    "roles.puppeteer.PuppeteerBodyGunPayloadMixin",
-    "roles.puppeteer.PuppeteerBodyKnifePayloadMixin",
     "roles.raven.RavenKnifeLeftClickMixin",
     "roles.stalker.StalkerLeftClickKillMixin",
     "roles.stalker.StalkerOffItemMixin",
