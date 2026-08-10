@@ -235,21 +235,8 @@ public class NRDeathEvents {
 
     private static boolean handleDefibrillator(Player victim) {
         DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(victim);
-        if (component.hasProtection()) {
-            if (component.defibrillatorMark) {
-                component.isDead = true;
-                component.resurrectionTime = victim.level().getGameTime() + 30 * 20;
-                component.deathPos = victim.position();
-                ModComponents.DEFIBRILLATOR.sync(victim);
-
-                DeathPenaltyComponent deathPenaltyComponent = ModComponents.DEATH_PENALTY.get(victim);
-                deathPenaltyComponent.setPenalty(45 * 20, true);
-                victim.displayClientMessage(
-                        Component.translatable("message.noellesroles.doctor.penalty").withStyle(ChatFormatting.RED),
-                        true);
-                victim.sendSystemMessage(
-                        Component.translatable("message.noellesroles.doctor.penalty").withStyle(ChatFormatting.RED));
-            } else {
+        if (component.hasProtection() && component.defibrillatorMark) {
+            {
                 component.triggerDeath(30 * 20, null, victim.position());
             }
             return true;

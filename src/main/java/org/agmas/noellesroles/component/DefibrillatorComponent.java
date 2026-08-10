@@ -63,6 +63,8 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
     }
 
     public void triggerDeath(long resurrectionDelayTicks, UUID corpseId, Vec3 pos) {
+        this.protectionExpiry = 0;
+        this.defibrillatorMark = false;
         this.isDead = true;
         this.resurrectionTime = player.level().getGameTime() + resurrectionDelayTicks;
         this.corpseEntityId = corpseId;
