@@ -24,6 +24,7 @@
     "entity.player.PlayerEntityMixin",
     "entity.player.PlayerInventoryMixin",
     "entity.player.SeatPosFixMixin",
+    "entity.player.PlayerDismountTeleportMixin",
     "entity.player.ServerPlayerEntityMixin",
     "entity.player.ToiletPoisonMixin",
     "entity.player.WheelcharFixMixin",
