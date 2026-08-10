@@ -1435,6 +1435,7 @@
   "message.tip.for_death_vt": "启用/禁用死亡频道的语音 %s",
   "message.tip.voice_setting": "语音设置 %s",
   "message.tip.game_mode": "%s",
+  "message.tip.stuck_help": "被卡住了？输入 %s 尝试脱困！",
   "message.noellesroles.better_vigilante.last_stand_activated": "被动技能背水一战已激活！",
   "message.lock.game.start": "撬锁小游戏开始！",
   "message.lock.unlock": "锁已被撬掉！",

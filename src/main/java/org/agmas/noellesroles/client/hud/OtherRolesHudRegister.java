@@ -25,6 +25,7 @@ public class OtherRolesHudRegister {
     public static int warningOffset = 0;
     public static void registerSons() {
         BannedBlockWarningHud.register();
+        StuckHelperHud.register();
         THMamizouHud.register();
         CuckooHud.register();
         ShitSplitHud.register();
