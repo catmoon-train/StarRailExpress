@@ -62,7 +62,7 @@ public class TouhouInstincts {
                     if (target instanceof Player targetPlayer) {
                         var mainhandItem = targetPlayer.getMainHandItem();
                         var offhandItem = targetPlayer.getOffhandItem();
-                        if (targetPlayer.distanceToSqr(self) <= 5 * 5) {
+                        if (targetPlayer.distanceToSqr(self) <= 6 * 6) {
                             if (mainhandItem.getItem() instanceof TrainWeapon
                                     || mainhandItem.is(TMMItemTags.GUNS) || mainhandItem.is(TMMItemTags.BOWS)
                                     || offhandItem.getItem() instanceof TrainWeapon

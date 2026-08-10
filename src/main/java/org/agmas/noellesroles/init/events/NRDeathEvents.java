@@ -86,6 +86,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -786,6 +787,13 @@ public class NRDeathEvents {
 
     private static void dropRoleSpecificItems(ServerPlayer player, SREGameWorldComponent gameWorldComponent) {
 
+        if (gameWorldComponent.isRole(player, THRedHouseRoles.HOAN_MEIRIN)) {
+            int dropCount = MCItemsUtils.clearItem(player, TMMItems.REVOLVER) + 1;
+            while (dropCount > 0) {
+                player.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
+                dropCount--;
+            }
+        }
         if (gameWorldComponent.isRole(player, THMiscRoles.SHIKIEIKI)) {
             int dropCount = MCItemsUtils.clearItem(player, TMMItems.DERRINGER);
             while (dropCount > 0) {
