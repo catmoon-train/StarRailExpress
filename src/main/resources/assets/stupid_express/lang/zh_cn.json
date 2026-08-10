@@ -122,6 +122,7 @@
   "stupid_express.config.modifiersSection.loversSection.loversWinWithCivilians": "恋人与平民共同获胜",
   "stupid_express.config.modifiersSection.loversSection.loversWinWithCivilians.desc": "如果此选项为开启状态，且两位恋人的身份都为平民时，那么恋人与平民会共同获胜，否则他们必须被淘汰游戏才会结束",
   "hud.stupid_express.necromancer.revived_player": "%s复活了一名杀手%s",
+  "death_reason.stupid_express.radiation": "辐射",
   "hud.stupid_express.refugee.revived": "亡命徒已复活",
   "title.stupid_express.refugee.subtlte.active": "迎接地狱的怀抱，祝你好运。",
   "hud.stupid_express.refugee.countdown": "还有 %s 秒后复活",
