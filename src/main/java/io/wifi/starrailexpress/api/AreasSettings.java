@@ -101,7 +101,7 @@ public class AreasSettings {
 
     /** 背景音效类型：train/wind/sand_storm/snow_storm/circus。空字符串或未设置时默认 train。 */
     public static enum BackgroundAmbienceSound {
-        train, wind, sand_storm, snow_storm, circus, flower_sea, indoor_music
+        train, wind, sand_storm, snow_storm, circus, flower_sea, indoor_music,unwelcome_school,zenrianbanka,sakura_moyu, custom
     }
 
     // ==================== map ====================
@@ -222,9 +222,19 @@ public class AreasSettings {
     // ==================== sound ====================
     @Category("sound")
     public boolean haveOutsideSound = false;
+    @Category("sound")
+    public BackgroundAmbienceSound sceneInsideSound = BackgroundAmbienceSound.train;
 
     @Category("sound")
+    public String customInsideSoundId = "";
+    @Category("sound")
+    public float indoorSoundVolume = 0.2f;
+    @Category("sound")
     public BackgroundAmbienceSound sceneOutsideSound = BackgroundAmbienceSound.train;
+    @Category("sound")
+    public String customOutsideSoundId = "";
+    @Category("sound")
+    public float outdoorSoundVolume = 0.4f;
 
     // ==================== meeting ====================
     // ==================== 紧急会议系统 / Emergency Meeting ====================

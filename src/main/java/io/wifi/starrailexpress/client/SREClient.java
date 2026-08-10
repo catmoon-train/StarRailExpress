@@ -97,7 +97,6 @@ import io.wifi.starrailexpress.client.render.entity.NoteEntityRenderer;
 import io.wifi.starrailexpress.client.stats.ClientPlayerStatsCache;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
-import io.wifi.starrailexpress.client.util.MyBackgroundAmbience;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
@@ -457,86 +456,8 @@ public class SREClient implements ClientModInitializer {
 
         // ───── 场景背景音效系统 ─────
         // 列车内部（看不到天空时，仅 train 类型生效）
-        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(TMMSounds.AMBIENT_TRAIN_INSIDE,
-                SoundSource.AMBIENT,
-                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && !SRE.isSkyVisible(player)
-                        && gameComponent.getSceneOutsideSoundType().equals("train"),
-                0.25f, 20, 10));
-        // 列车外部（能看到天空时，仅 train 类型生效）
-        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(TMMSounds.AMBIENT_TRAIN_OUTSIDE,
-                SoundSource.AMBIENT,
-                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && SRE.isSkyVisible(player)
-                        && gameComponent.getSceneOutsideSoundType().equals("train"),
-                0.6f, 20, 10));
-
-        // 风声（仅室外，列车移动时）
-        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
-                org.agmas.noellesroles.init.NRSounds.WIND,
-                SoundSource.AMBIENT,
-                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && SRE.isSkyVisible(player)
-                        && gameComponent.getSceneOutsideSoundType().equals("wind"),
-                0.6f, 20, 10));
-        // 沙尘暴（仅室外，列车移动时）
-        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
-                org.agmas.noellesroles.init.NRSounds.SAND_STORM,
-                SoundSource.AMBIENT,
-                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && SRE.isSkyVisible(player)
-                        && gameComponent.getSceneOutsideSoundType().equals("sand_storm"),
-                0.6f, 20, 10));
-        // 暴风雪（仅室外，列车移动时）
-        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
-                org.agmas.noellesroles.init.NRSounds.SNOW_STORM,
-                SoundSource.AMBIENT,
-                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && SRE.isSkyVisible(player)
-                        && gameComponent.getSceneOutsideSoundType().equals("snow_storm"),
-                0.6f, 20, 10));
-        // 马戏团内部（看不到天空时，仅 circus 类型生效）
-        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
-                org.agmas.noellesroles.init.NRSounds.CIRCUS_INDOOR,
-                SoundSource.AMBIENT,
-                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && !SRE.isSkyVisible(player)
-                        && gameComponent.getSceneOutsideSoundType().equals("circus"),
-                0.25f, 20, 10));
-        // 马戏团外部（能看到天空时，仅 circus 类型生效）
-        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
-                org.agmas.noellesroles.init.NRSounds.CIRCUS_BACKGROUND,
-                SoundSource.AMBIENT,
-                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && SRE.isSkyVisible(player)
-                        && gameComponent.getSceneOutsideSoundType().equals("circus"),
-                0.6f, 20, 10));
-        // 花海外部（能看到天空时，仅 flower_sea 类型生效，仅户外）
-        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
-                org.agmas.noellesroles.init.NRSounds.FLOWER_OUTDOOR,
-                SoundSource.AMBIENT,
-                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && SRE.isSkyVisible(player)
-                        && gameComponent.getSceneOutsideSoundType().equals("flower_sea"),
-                0.6f, 20, 10));
-        // 室内音乐（看不到天空时，仅 indoor_music 类型生效，仅室内）
-        AmbienceUtil.registerBackgroundAmbience(new MyBackgroundAmbience(
-                org.agmas.noellesroles.init.NRSounds.MUSIC_INDOOR,
-                SoundSource.AMBIENT,
-                (player) -> gameComponent != null && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                        && gameComponent.isOutsideSoundsAvailable() && isTrainMoving()
-                        && !SRE.isSkyVisible(player)
-                        && gameComponent.getSceneOutsideSoundType().equals("indoor_music"),
-                0.25f, 20, 10));
-
+        OutsideSoundManager.registerEvents();
+       
         // Caching components
         ClientTickEvents.START_WORLD_TICK.register(clientWorld -> {
             gameComponent = SREGameWorldComponent.KEY.get(clientWorld);

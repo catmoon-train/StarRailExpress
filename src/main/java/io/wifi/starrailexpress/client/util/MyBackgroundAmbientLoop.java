@@ -30,6 +30,30 @@ public class MyBackgroundAmbientLoop extends BackgroundAmbientLoop {
     private final int fadeOut;
     private final float maxVolume;
 
+    @Override
+    public boolean equals(Object instance) {
+        if (instance == null)
+            return false;
+        if (!(instance instanceof MyBackgroundAmbientLoop t)) {
+            return false;
+        }
+//         player
+// looping
+// delay
+// volume
+// maxVolume
+// relative
+// playPredicate
+// fadeIn
+// fadeOut
+        if (t.looping == this.looping && t.relative == this.relative
+                && this.delay == t.delay && t.fadeIn == this.fadeIn && t.fadeOut == this.fadeOut
+                && t.location == this.location && t.maxVolume == this.maxVolume && t.pitch == this.pitch
+                && t.player == this.player && t.source == this.source)
+            return true;
+        return false;
+    }
+
     public MyBackgroundAmbientLoop(LocalPlayer player, SoundEvent soundEvent, SoundSource soundCategory, float volume,
             PlayPredicate playPredicate, int fadeIn, int fadeOut) {
         super(player, soundEvent, soundCategory, playPredicate, fadeIn, fadeOut);

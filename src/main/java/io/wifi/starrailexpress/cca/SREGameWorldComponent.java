@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.AreasSettings.BackgroundAmbienceSound;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
@@ -74,9 +75,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     private final Level world;
     public SRERoleWorldComponent roleWorldComponent = null;
     private boolean canJump = false;
-    private boolean haveOutsideSounds = false;
-    /** 背景音效类型，默认 train。 */
-    private String sceneOutsideSoundType = "train";
     private boolean lockedToSupporters = false;
     private boolean enableWeights = false;
 
@@ -312,20 +310,17 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     private int playerCount = 0;
 
+    public BackgroundAmbienceSound getOutsideSoundType() {
+        var b = AreasWorldComponent.KEY.get(world);
+        if (b.areasSettings == null)
+            return null;
+        return b.areasSettings.sceneOutsideSound;
+    }
     public boolean isOutsideSoundsAvailable() {
-        return haveOutsideSounds;
-    }
-
-    public void setOutsideSoundsAvailable(boolean bl) {
-        haveOutsideSounds = bl;
-    }
-
-    public String getSceneOutsideSoundType() {
-        return sceneOutsideSoundType;
-    }
-
-    public void setSceneOutsideSoundType(String type) {
-        sceneOutsideSoundType = (type != null && !type.isBlank()) ? type : "train";
+        var b = AreasWorldComponent.KEY.get(world);
+        if (b.areasSettings == null)
+            return false;
+        return b.areasSettings.haveOutsideSound;
     }
 
     /**
@@ -664,12 +659,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         // this.lockedToSupporters = nbtCompound.getBoolean("LockedToSupporters");
         // this.enableWeights = nbtCompound.getBoolean("EnableWeights");
         this.canJump = nbtCompound.contains("canJump") ? nbtCompound.getBoolean("canJump") : false;
-        this.haveOutsideSounds = nbtCompound.contains("haveOutsideSounds") ? nbtCompound.getBoolean("haveOutsideSounds")
-                : false;
-        this.sceneOutsideSoundType = nbtCompound.contains("sceneOutsideSoundType")
-                && !nbtCompound.getString("sceneOutsideSoundType").isBlank()
-                        ? nbtCompound.getString("sceneOutsideSoundType")
-                        : "train";
         // this.syncRole = nbtCompound.getBoolean("SyncRole");
         // if (!syncRole) {
         if (nbtCompound.contains("StartingPlayerCount")) {
@@ -744,10 +733,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         // nbtCompound.putBoolean("LockedToSupporters", lockedToSupporters);
         // nbtCompound.putBoolean("EnableWeights", enableWeights);
         // nbtCompound.putBoolean("SyncRole", syncRole);
-        if (haveOutsideSounds)
-            nbtCompound.putBoolean("haveOutsideSounds", haveOutsideSounds);
-        if (!sceneOutsideSoundType.equals("train"))
-            nbtCompound.putString("sceneOutsideSoundType", sceneOutsideSoundType);
+
         if (canJump)
             nbtCompound.putBoolean("canJump", canJump);
         if (isSkillAvailable)

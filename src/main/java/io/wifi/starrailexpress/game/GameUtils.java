@@ -44,6 +44,7 @@ import io.wifi.starrailexpress.stats.PlayerStats;
 import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
+import net.exmo.sre.meeting.MeetingManager;
 import net.exmo.sre.nametag.NameTagInventoryComponent;
 import net.exmo.sre.subtitle.SubtitleS2CPayload;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -1005,8 +1006,6 @@ public class GameUtils {
         // entitiesToDiscard.forEach(net.minecraft.world.entity.Entity::discard);
 
         gameComponent.setJumpAvailable(areas.areasSettings.canJump);
-        gameComponent.setOutsideSoundsAvailable(areas.areasSettings.haveOutsideSound);
-        gameComponent.setSceneOutsideSoundType(areas.areasSettings.sceneOutsideSound.name());
 
         // 应用地图重力配置
         // 不要修改base用modifier！！！！！！！！！！
@@ -1650,6 +1649,10 @@ public class GameUtils {
         }
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
+
+        if (MeetingManager.isActive()) {
+            DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
+        }
     }
 
     public static void revivePlayer(ServerPlayer player, double x, double y, double z) {
@@ -1669,6 +1672,10 @@ public class GameUtils {
         player.setGameMode(GameType.ADVENTURE);
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
+        
+        if (MeetingManager.isActive()) {
+            DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
+        }
     }
 
     public static boolean isGameRunning(Player player) {

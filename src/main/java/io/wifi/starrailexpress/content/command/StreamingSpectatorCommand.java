@@ -80,11 +80,14 @@ public final class StreamingSpectatorCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         var t = dispatcher.register(Commands.literal("tmm:guabo")
+                .requires(ctx -> ctx.hasPermission(2))
                 .executes(StreamingSpectatorCommand::toggle)
                 .then(Commands.literal("start").executes(StreamingSpectatorCommand::start))
                 .then(Commands.literal("stop").executes(StreamingSpectatorCommand::stop)));
-        dispatcher.register(Commands.literal("tmm:streaming_spectator").redirect(t));
-        dispatcher.register(Commands.literal("streaming_spectator").redirect(t));
+        dispatcher.register(Commands.literal("tmm:streaming_spectator")
+                .requires(ctx -> ctx.hasPermission(2)).redirect(t));
+        dispatcher.register(Commands.literal("streaming_spectator")
+                .requires(ctx -> ctx.hasPermission(2)).redirect(t));
     }
 
     private static int toggle(CommandContext<CommandSourceStack> context) {

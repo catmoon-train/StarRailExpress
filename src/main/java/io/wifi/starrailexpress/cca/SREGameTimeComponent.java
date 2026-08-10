@@ -19,6 +19,9 @@ import io.wifi.starrailexpress.SRE;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
+
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -91,6 +94,9 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     @Override
     public void tick() {
         if (isTimeFrozen()) {
+            if (this.timeFrozen) {
+                delayerCCA();
+            }
             return;
         }
         if (!SREGameWorldComponent.KEY.get(this.world).isRunning())
@@ -101,6 +107,25 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
         // 从每400tick增加到每600tick同步（30秒）
         if (this.time % 600 == 0)
             this.sync();
+    }
+
+    private void delayerCCA() {
+        for (final var p : this.world.players()) {
+            {
+                final var cca = DefibrillatorComponent.KEY.get(p);
+                if (cca.protectionExpiry > 0)
+                    cca.protectionExpiry++;
+                if (cca.resurrectionTime > 0) {
+                    cca.resurrectionTime++;
+                }
+            }
+            
+            {
+                final var cca = DeathPenaltyComponent.KEY.get(p);
+                if (cca.penaltyExpiry > 0)
+                    cca.penaltyExpiry++;
+            }
+        }
     }
 
     public boolean hasTime() {

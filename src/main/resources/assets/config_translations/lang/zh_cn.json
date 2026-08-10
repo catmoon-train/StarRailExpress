@@ -24,9 +24,11 @@
   "screen.starrailexpress.settings.role_modifier": "角色&修饰符启用设置",
   "screen.starrailexpress.settings.introduction": "角色&修饰符&部分物品介绍",
   "=== CLIENT ===": "",
+  
   "text.autoconfig.starrailexpress-client.title": "客户端设置",
   "text.autoconfig.starrailexpress-client.category.style": "样式设置",
   "text.autoconfig.starrailexpress-client.category.skin": "皮肤设置",
+  "text.autoconfig.starrailexpress-client.option.bgsoundForSpectator": "旁观时播放列车背景音效",
   "text.autoconfig.starrailexpress-client.option.staminaStyle": "状态条样式",
   "text.autoconfig.starrailexpress-client.option.staminaStyle.DEFAULT": "默认样式",
   "text.autoconfig.starrailexpress-client.option.staminaStyle.MINECRAFT_STYLE": "Minecraft 样式",

@@ -39,6 +39,7 @@ public class SREClientConfig implements ConfigData {
 
     @ConfigEntry.Gui.Tooltip
     public boolean ultraPerfMode = false;
+    public boolean bgsoundForSpectator = false;
 
     @ConfigEntry.Gui.Excluded
     public HashMap<Integer, Boolean> taskStatus = new LinkedHashMap<>();
