@@ -24,7 +24,6 @@
   "screen.starrailexpress.settings.role_modifier": "角色&修饰符启用设置",
   "screen.starrailexpress.settings.introduction": "角色&修饰符&部分物品介绍",
   "=== CLIENT ===": "",
-  
   "text.autoconfig.starrailexpress-client.title": "客户端设置",
   "text.autoconfig.starrailexpress-client.category.style": "样式设置",
   "text.autoconfig.starrailexpress-client.category.skin": "皮肤设置",
@@ -203,6 +202,7 @@
   "text.autoconfig.starrailexpress.option.afkWarningSeconds": "挂机警告时间",
   "text.autoconfig.starrailexpress.option.afkSleepySeconds": "挂机困倦时间",
   "text.autoconfig.starrailexpress.option.mysqlPlayerSyncEnabled": "启用mysql同步",
+  "text.autoconfig.starrailexpress.option.ignoreMysqlRosterConfig": "忽略来自MySql 的 职业 roster 配置",
   "text.autoconfig.starrailexpress.option.mysqlSyncHost": "mysql 地址",
   "text.autoconfig.starrailexpress.option.mysqlSyncPort": "mysql 端口",
   "text.autoconfig.starrailexpress.option.mysqlSyncDatabase": "mysql Database",

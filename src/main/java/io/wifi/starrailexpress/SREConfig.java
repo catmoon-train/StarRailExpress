@@ -35,6 +35,7 @@ public class SREConfig implements ConfigData {
     public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
             SREConfig.class);
 
+
     // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public int defaultStartTimeForMurder = 10;
@@ -372,6 +373,8 @@ public class SREConfig implements ConfigData {
     public boolean isTeammedStatsSyncEnabled = true;
     @ConfigEntry.Category(value = "sync")
     public boolean mysqlPlayerSyncEnabled = false;
+    @ConfigEntry.Category(value = "sync")
+    public boolean ignoreMysqlRosterConfig = false;
     @ConfigEntry.Category(value = "sync")
     public String mysqlSyncHost = "127.0.0.1";
     @ConfigEntry.Category(value = "sync")

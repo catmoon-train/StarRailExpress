@@ -111,6 +111,9 @@ public final class RoleRosterManager {
         if (!isDatabaseEnabled()) {
             return;
         }
+        if (SREConfig.instance().ignoreMysqlRosterConfig) {
+            return;
+        }
         MysqlPlayerDataStore.loadBatchAsync(CONFIG_UUID, List.of(PART))
                 .whenComplete((records, throwable) -> {
                     MinecraftServer srv = server;
@@ -227,6 +230,10 @@ public final class RoleRosterManager {
         if (!isDatabaseEnabled()) {
             return;
         }
+        
+        if (SREConfig.instance().ignoreMysqlRosterConfig) {
+            return;
+        }
         long updatedAt = Math.max(1L, state.version);
         MysqlPlayerDataStore.saveBatchAsync(CONFIG_UUID, Map.of(PART, toJson(state)), updatedAt)
                 .whenComplete((success, throwable) -> {
@@ -239,6 +246,10 @@ public final class RoleRosterManager {
     private static void flushBlocking() {
         writeLocalFile();
         if (!isDatabaseEnabled()) {
+            return;
+        }
+        
+        if (SREConfig.instance().ignoreMysqlRosterConfig) {
             return;
         }
         MysqlPlayerDataStore.saveBatchBlocking(CONFIG_UUID, Map.of(PART, toJson(state)),
