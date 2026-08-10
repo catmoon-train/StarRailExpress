@@ -424,7 +424,7 @@ public class StarRailExpressTitleScreen extends Screen {
         renderModernOverlay(g);
 
         // 版本号（左下角）
-        String version = "StarRailExpress 4.3.4 / " + SRE.modPacketVersion;
+        String version = "StarRailExpress " + SRE.MOD_VERSION + "/" + SRE.modPacketVersion;
         if (Minecraft.checkModStatus().shouldReportAsModified())
             version += I18n.get("menu.modded");
         g.drawString(this.font, version, 8, this.height - 14, 0xC8B898, false);

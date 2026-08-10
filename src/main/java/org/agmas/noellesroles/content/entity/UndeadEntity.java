@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.content.entity;
 
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
@@ -48,13 +49,14 @@ import java.util.UUID;
 /**
  * 亡灵实体（亡灵之主召唤的无意识亡灵）。
  *
- * <p>特性：
+ * <p>
+ * 特性：
  * <ul>
- *   <li>使用死者生前的皮肤外观，周身环绕淡紫色雾气。</li>
- *   <li>未发现目标时在召唤点附近随机徘徊；发现 21 格内活人后无视墙壁直线穿墙追击（幽灵）。</li>
- *   <li>攻击不造成伤害，而是每 1.5 秒为目标增加感染值（由亡灵之主组件统一结算）。</li>
- *   <li>持续 90 秒后化为紫色烟雾消散；剩余 30 秒减速、剩余 10 秒闪烁示警。</li>
- *   <li>无实体碰撞（穿墙、无重力悬浮），无法开门、无法使用道具。</li>
+ * <li>使用死者生前的皮肤外观，周身环绕淡紫色雾气。</li>
+ * <li>未发现目标时在召唤点附近随机徘徊；发现 21 格内活人后无视墙壁直线穿墙追击（幽灵）。</li>
+ * <li>攻击不造成伤害，而是每 1.5 秒为目标增加感染值（由亡灵之主组件统一结算）。</li>
+ * <li>持续 90 秒后化为紫色烟雾消散；剩余 30 秒减速、剩余 10 秒闪烁示警。</li>
+ * <li>无实体碰撞（穿墙、无重力悬浮），无法开门、无法使用道具。</li>
  * </ul>
  */
 public class UndeadEntity extends PathfinderMob {
@@ -124,7 +126,8 @@ public class UndeadEntity extends PathfinderMob {
         this.ownerCache = owner;
         this.entityData.set(SKIN_UUID, Optional.ofNullable(skinPlayerUuid));
         this.remainingLifetime = lifetimeTicks;
-//        this.addEffect(new MobEffectInstance(MobEffects.GLOWING, lifetimeTicks + 200, 0, false, false, false));
+        // this.addEffect(new MobEffectInstance(MobEffects.GLOWING, lifetimeTicks + 200,
+        // 0, false, false, false));
     }
 
     public UUID getSkinUuid() {
@@ -164,6 +167,16 @@ public class UndeadEntity extends PathfinderMob {
 
     @Override
     public void tick() {
+        if (SREGameTimeComponent.KEY.get(level()).isTimeFrozen()) {
+            if (!this.isNoAi()) {
+                this.setNoAi(true);
+            }
+            return;
+        } else {
+            if (this.isNoAi()) {
+                this.setNoAi(false);
+            }
+        }
         super.tick();
         if (!(level() instanceof ServerLevel serverLevel)) {
             return;

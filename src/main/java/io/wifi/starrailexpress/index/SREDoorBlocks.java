@@ -109,9 +109,15 @@ public interface SREDoorBlocks {
 
     // 纸门
     Block SMALL_PAPER_DOOR = registerCustomSmallDoorBlockAndCreateEntity("small_paper_door",
-            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER),
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.WOOL),
             new Item.Properties().rarity(Rarity.COMMON),
             SRE.id("textures/item/doors/small_paper_door.png"));
+
+    // SCP门
+    Block SCP_DOOR = registerCustomSmallDoorBlockAndCreateEntity("scp_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/scp_door.png"));
     // 卷帘门
     Block UP_GLASS_DOOR = registerDoorBlock(
             "up_glass_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_GLASS_DOOR,
