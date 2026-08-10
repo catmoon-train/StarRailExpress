@@ -390,13 +390,13 @@ public class RoundTextRenderer {
                     neutrals++;
                 } else if (role1.isInnocent() || role1.isVigilanteTeam()) {
                     // 义警队 / 特殊平民
-                    translateX = winCenterColumn * 6 + (vigilantes % winSideColumn) * 12;
+                    translateX = -3 + winCenterColumn * 6 + (vigilantes % winSideColumn) * 12;
                     translateY = 14 + (vigilantes / winSideColumn) * 16;
                     vigilantes++;
                 } else if (role1.canUseKiller()) {
                     // 杀手阵营
                     extraTranslateY = 8 + ((vigilanteTotal) / winSideColumn) * 16;
-                    translateX = winCenterColumn * 6 + (killersCount % winSideColumn) * 12;
+                    translateX = -3 + winCenterColumn * 6 + (killersCount % winSideColumn) * 12;
                     translateY = 14 + (killersCount / winSideColumn) * 16;
                     killersCount++;
                 } else {
@@ -421,10 +421,12 @@ public class RoundTextRenderer {
             winCenterColumn = SREClientConfig.instance().minWinCenterColumns;
         }
         int totalPlayerSize = roundEnd.players.size();
-        if (totalPlayerSize > 9 && totalPlayerSize <= 48) {
-            winSideColumn += ((totalPlayerSize - 12) / 12);
+        if (totalPlayerSize > 9 && totalPlayerSize <= 24) {
+            winSideColumn += ((totalPlayerSize - 8) / 8);
+        } else if (totalPlayerSize > 24 && totalPlayerSize <= 48) {
+            winSideColumn += 3 + (totalPlayerSize - 24) / 10;
         } else if (totalPlayerSize > 48) {
-            winSideColumn += 3 + (totalPlayerSize - 48) / 14;
+            winSideColumn += 3 + (totalPlayerSize - 48) / 12;
         }
         if (totalPlayerSize > 9 && totalPlayerSize <= 48) {
             winCenterColumn += ((totalPlayerSize - 9) / 9);
