@@ -229,6 +229,13 @@ public class RoleInitialItems {
         // 乘务员钥匙
         attendantItems.add(() -> ModItems.MASTER_KEY_P.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.ATTENDANT, attendantItems);
+        
+        {
+            // sakuya初始物品
+            List<Supplier<ItemStack>> item = new ArrayList<>();
+            item.add(() -> TMMItems.REVOLVER.getDefaultInstance());
+            INITIAL_ITEMS_MAP.put(THRedHouseRoles.MAID_SAKUYA, item);
+        }
 
         // 清道夫初始物品
         List<Supplier<ItemStack>> cleanerItems = new ArrayList<>();
