@@ -599,7 +599,7 @@ public final class C4Detonation {
         long plantedAt = level.getGameTime() - comp.ticksSincePlant(carrier.getUUID());
 
         // 将 C4 直接贴在距离最近的墙面上（优先脚下的方块），而不是原地掉落
-        SurfaceStick stick = findNearestSurface(level, carrier.position());
+        SurfaceStick stick = findNearestSurface(level, carrier.position(), carrier);
         Vec3 pos = stick != null ? stick.pos() : carrier.position().add(0.0D, 0.2D, 0.0D);
         Direction side = stick != null ? stick.side() : Direction.UP;
 
@@ -627,11 +627,14 @@ public final class C4Detonation {
     /**
      * 寻找离给定位置最近的贴附表面，优先玩家脚下的方块。
      * 找不到任何表面时返回 null。
+     * <p>
+     * 注意：ClipContext 的碰撞上下文不能传 null，否则构造时
+     * {@code CollisionContext.of(null)} 会触发 NPE，因此这里必须传入实体。
      */
-    private static SurfaceStick findNearestSurface(ServerLevel level, Vec3 from) {
+    private static SurfaceStick findNearestSurface(ServerLevel level, Vec3 from, Entity context) {
         // 优先检测脚下的方块
         BlockHitResult downHit = level.clip(new ClipContext(from, from.add(0.0D, -4.0D, 0.0D),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, (Entity) null));
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, context));
         if (downHit.getType() == HitResult.Type.BLOCK) {
             Vec3 normal = Vec3.atLowerCornerOf(downHit.getDirection().getNormal());
             return new SurfaceStick(downHit.getLocation().add(normal.scale(SURFACE_OFFSET)),
@@ -646,7 +649,7 @@ public final class C4Detonation {
         for (Direction dir : Direction.values()) {
             Vec3 end = start.add(dir.getStepX() * 16.0D, dir.getStepY() * 16.0D, dir.getStepZ() * 16.0D);
             BlockHitResult hit = level.clip(new ClipContext(start, end,
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, (Entity) null));
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, context));
             if (hit.getType() != HitResult.Type.BLOCK)
                 continue;
             double distSq = start.distanceToSqr(hit.getLocation());
