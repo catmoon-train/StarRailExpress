@@ -163,15 +163,16 @@ public class MapManager {
         spectatorSpawnPosObj.addProperty("pitch", areas.getSpectatorSpawnPos().pitch);
         jsonObject.add("spectatorSpawnPos", spectatorSpawnPosObj);
 
-        // 保存准备区域 - 使用嵌套对象
-        JsonObject readyAreaObj = new JsonObject();
-        readyAreaObj.addProperty("minX", areas.getReadyArea().minX);
-        readyAreaObj.addProperty("minY", areas.getReadyArea().minY);
-        readyAreaObj.addProperty("minZ", areas.getReadyArea().minZ);
-        readyAreaObj.addProperty("maxX", areas.getReadyArea().maxX);
-        readyAreaObj.addProperty("maxY", areas.getReadyArea().maxY);
-        readyAreaObj.addProperty("maxZ", areas.getReadyArea().maxZ);
-        jsonObject.add("readyArea", readyAreaObj);
+        // // 保存准备区域 - 使用嵌套对象
+        // 准备区域使用文件里的
+        // JsonObject readyAreaObj = new JsonObject();
+        // readyAreaObj.addProperty("minX", areas.getReadyArea().minX);
+        // readyAreaObj.addProperty("minY", areas.getReadyArea().minY);
+        // readyAreaObj.addProperty("minZ", areas.getReadyArea().minZ);
+        // readyAreaObj.addProperty("maxX", areas.getReadyArea().maxX);
+        // readyAreaObj.addProperty("maxY", areas.getReadyArea().maxY);
+        // readyAreaObj.addProperty("maxZ", areas.getReadyArea().maxZ);
+        // jsonObject.add("readyArea", readyAreaObj);
 
         // 保存游戏区域偏移 - 使用嵌套对象
         JsonObject playAreaOffsetObj = new JsonObject();
@@ -316,7 +317,7 @@ public class MapManager {
 
             // 获取AreasWorldComponent
             AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
-
+            areas.loadReadyAreaFromFile();
             // 读取JSON文件
             FileReader reader = new FileReader(mapConfigFile);
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
@@ -470,20 +471,19 @@ public class MapManager {
 
             // 应用配置到AreasWorldComponent，使用新的嵌套结构
             if (jsonObject.has("spawnPos")) {
-                JsonObject spawnPosObj = jsonObject.getAsJsonObject("spawnPos");
-                float spawnYaw = spawnPosObj.has("yaw") ? spawnPosObj.get("yaw").getAsFloat() : 0f;
-                float spawnPitch = spawnPosObj.has("pitch") ? spawnPosObj.get("pitch").getAsFloat() : 0f;
-                areas.setSpawnPos(new AreasWorldComponent.PosWithOrientation(
-                        spawnPosObj.get("x").getAsDouble(),
-                        spawnPosObj.get("y").getAsDouble(),
-                        spawnPosObj.get("z").getAsDouble(),
-                        spawnYaw,
-                        spawnPitch));
-                SRE.LOGGER.info("Loaded spawn position: " + spawnPosObj.get("x").getAsDouble() + ", " +
-                        spawnPosObj.get("y").getAsDouble() + ", " + spawnPosObj.get("z").getAsDouble());
+                // JsonObject spawnPosObj = jsonObject.getAsJsonObject("spawnPos");
+                // float spawnYaw = spawnPosObj.has("yaw") ? spawnPosObj.get("yaw").getAsFloat()
+                // : 0f;
+                // float spawnPitch = spawnPosObj.has("pitch") ?
+                // spawnPosObj.get("pitch").getAsFloat() : 0f;
+                // areas.setSpawnPos(new AreasWorldComponent.PosWithOrientation(
+                // spawnPosObj.get("x").getAsDouble(),
+                // spawnPosObj.get("y").getAsDouble(),
+                // spawnPosObj.get("z").getAsDouble(),
+                // spawnYaw,
+                // spawnPitch));
+                SRE.LOGGER.info("Spawn position is not support anymore! Use /setworldspawn instead!");
             } else {
-                areas.setSpawnPos(null);
-                SRE.LOGGER.warn("Missing spawn position data in map config: " + mapName);
             }
 
             if (jsonObject.has("spectatorSpawnPos")) {
@@ -508,20 +508,8 @@ public class MapManager {
             }
 
             if (jsonObject.has("readyArea")) {
-                JsonObject readyAreaObj = jsonObject.getAsJsonObject("readyArea");
-                areas.setReadyArea(new AABB(
-                        readyAreaObj.get("minX").getAsDouble(),
-                        readyAreaObj.get("minY").getAsDouble(),
-                        readyAreaObj.get("minZ").getAsDouble(),
-                        readyAreaObj.get("maxX").getAsDouble(),
-                        readyAreaObj.get("maxY").getAsDouble(),
-                        readyAreaObj.get("maxZ").getAsDouble()));
-                SRE.LOGGER.info("Loaded ready area: " + readyAreaObj.get("minX").getAsDouble() + "," +
-                        readyAreaObj.get("minY").getAsDouble() + "," + readyAreaObj.get("minZ").getAsDouble() + " to " +
-                        readyAreaObj.get("maxX").getAsDouble() + "," + readyAreaObj.get("maxY").getAsDouble() + "," +
-                        readyAreaObj.get("maxZ").getAsDouble());
+                SRE.LOGGER.warn("Ready area config in map config is not support any more: " + mapName);
             } else {
-                SRE.LOGGER.warn("Missing ready area data in map config: " + mapName);
             }
 
             if (jsonObject.has("playAreaOffset")) {
@@ -908,7 +896,7 @@ public class MapManager {
 
     private static String validateImportedMapObject(JsonObject root) {
         String[] requiredObjects = {
-                "spawnPos", "spectatorSpawnPos", "readyArea", "playAreaOffset",
+                "spectatorSpawnPos", "readyArea", "playAreaOffset",
                 "playArea", "resetTemplateArea", "resetPasteArea"
         };
         for (String key : requiredObjects) {

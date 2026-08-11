@@ -1372,7 +1372,7 @@ public class GameUtils {
 
         ServerPlayNetworking.send(player, new AnnounceEndingPayload());
         player.removeVehicle();
-        AreasWorldComponent.PosWithOrientation spawnPos = AreasWorldComponent.KEY.get(player.level()).getSpawnPos();
+        AreasWorldComponent.PosWithOrientation spawnPos = null;
         if (spawnPos == null) {
             BlockPos worldSpawnPos = player.serverLevel().getSharedSpawnPos();
             float worldSpawnAngle = player.serverLevel().getSharedSpawnAngle();

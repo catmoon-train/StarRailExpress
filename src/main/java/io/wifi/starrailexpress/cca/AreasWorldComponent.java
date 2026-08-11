@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.util.NbtSerializer;
 import net.fabricmc.api.EnvType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -186,7 +187,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     // Box resetTemplateArea = new Box(-57, 64, -531, 177, 74, -541);
     // Box resetPasteArea = resetTemplateArea.offset(0, 55, 0);
 
-    PosWithOrientation spawnPos = null;
     PosWithOrientation spectatorSpawnPos = new PosWithOrientation(-68f, 133f, -535.5f, -90f, 15f);
 
     AABB readyArea = new AABB(0, 0, 0, 100, 10, 100);
@@ -213,14 +213,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
     // 地图初始物品（格式：["itemId;count", ...]，所有玩家进入地图时获得）
     // 0为禁用
-
-    public PosWithOrientation getSpawnPos() {
-        return spawnPos;
-    }
-
-    public void setSpawnPos(PosWithOrientation spawnPos) {
-        this.spawnPos = spawnPos;
-    }
 
     public PosWithOrientation getSpectatorSpawnPos() {
         return spectatorSpawnPos;
@@ -651,6 +643,9 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public void readFromNbt(CompoundTag tag, Provider registryLookup) {
         if (tag.contains("readyArea")) {
             this.readyArea = getBoxFromNbt(tag, "readyArea");
+        } else {
+            if (!this.world.isClientSide())
+                loadReadyAreaFromFile();
         }
     }
 
@@ -678,5 +673,12 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
     public static AreasWorldComponent getInstance(Player player) {
         return AreasWorldComponent.KEY.get(player.level());
+    }
+
+    public PosWithOrientation getSpawnPos() {
+        BlockPos worldSpawnPos = world.getSharedSpawnPos();
+        float worldSpawnAngle = world.getSharedSpawnAngle();
+        var spawnPosVec3 = new Vec3(worldSpawnPos.getX(), worldSpawnPos.getY(), worldSpawnPos.getZ());
+        return new AreasWorldComponent.PosWithOrientation(spawnPosVec3, worldSpawnAngle, 0);
     }
 }

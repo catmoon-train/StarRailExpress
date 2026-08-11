@@ -278,11 +278,8 @@ public class MapManagerCommand {
 
   // 1. spawnPos
   private static void setSpawnPos(CommandSourceStack source, Vec3 pos, float yaw, float pitch) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    PosWithOrientation newPos = new PosWithOrientation(pos.x, pos.y, pos.z, yaw, pitch);
-    areas.setSpawnPos(newPos);
-    areas.sync();
-    sendSetFeedback(source, "spawnPos", formatPosWithOrientation(newPos));
+
+    sendSetFeedback(source, "spawnPos", "Not support this anymore!");
   }
 
   private static void setSpectatorSpawnPos(CommandSourceStack source, Vec3 pos, float yaw, float pitch) {
@@ -425,7 +422,7 @@ public class MapManagerCommand {
     StringBuilder sb = new StringBuilder();
     sb.append("\n=== 当前区域配置 ===\n");
     sb.append("AreasSettings: ").append(MapManagerSettingsCommand.GSON.toJson(areas.areasSettings)).append("\n");
-    sb.append("spawnPos: ").append(formatPosWithOrientation(areas.getSpawnPos())).append("\n");
+    sb.append("spawnPos: ").append("Not support this anymore!").append("\n");
     sb.append("spectatorSpawnPos: ").append(formatPosWithOrientation(areas.getSpectatorSpawnPos())).append("\n");
     sb.append("readyArea: ").append(formatAABB(areas.getReadyArea())).append("\n");
     sb.append("playArea: ").append(formatAABB(areas.getPlayArea())).append("\n");
@@ -816,8 +813,7 @@ public class MapManagerCommand {
   private static LiteralArgumentBuilder<CommandSourceStack> getSpawnPos() {
     return Commands.literal("spawnPos")
         .executes(ctx -> {
-          AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-          sendGetFeedback(ctx.getSource(), "spawnPos", formatPosWithOrientation(a.getSpawnPos()));
+          sendGetFeedback(ctx.getSource(), "spawnPos", "Not support this anymore!");
           return 1;
         });
   }
