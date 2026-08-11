@@ -430,8 +430,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
     // 重载准备区域配置并同步到客户端
     public void reloadReadyArea() {
-        // 先保存当前的 readyArea 到单独的文件
-        saveReadyAreaToFile();
 
         // 从单独的文件加载 readyArea
         loadReadyAreaFromFile();
