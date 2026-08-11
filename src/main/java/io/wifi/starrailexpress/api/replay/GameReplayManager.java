@@ -37,15 +37,14 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import net.minecraft.world.level.storage.LevelResource;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-
-import static net.fabricmc.loader.api.FabricLoader.getInstance;
 
 public class GameReplayManager implements IGameReplayRecorder {
   protected static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -880,7 +879,7 @@ public class GameReplayManager implements IGameReplayRecorder {
   }
 
   public GameReplayData loadReplay() {
-    File replayFile = new File(getInstance().getGameDir().toFile(), REPLAY_FILE_NAME);
+    File replayFile = new File(server.getWorldPath(LevelResource.ROOT).toString(), REPLAY_FILE_NAME);
     if (!replayFile.exists()) {
       SRE.LOGGER.warn("No previous game replay found.");
       return null;

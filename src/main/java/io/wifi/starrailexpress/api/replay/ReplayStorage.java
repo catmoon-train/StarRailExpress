@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.event.ReplayEventsSavedCallback;
 import io.wifi.starrailexpress.api.replay.event.ReplayEventsSavingCallback;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -39,7 +40,7 @@ public final class ReplayStorage {
     }
 
     public Path save(GameReplayData data, List<ReplayTimelineEvent> events) throws IOException {
-        File replayFile = new File(server.getServerDirectory().toFile(), REPLAY_FILE_NAME);
+        File replayFile = new File(server.getWorldPath(LevelResource.ROOT).toString(), REPLAY_FILE_NAME);
         ReplayEventsSavingCallback.EVENT.invoker().onReplayEventsSaving(events);
         try (FileWriter writer = new FileWriter(replayFile)) {
             GSON.toJson(data, writer);
