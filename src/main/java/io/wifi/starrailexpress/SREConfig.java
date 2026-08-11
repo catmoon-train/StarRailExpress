@@ -35,7 +35,6 @@ public class SREConfig implements ConfigData {
     public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
             SREConfig.class);
 
-
     // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public int defaultStartTimeForMurder = 10;
@@ -84,7 +83,7 @@ public class SREConfig implements ConfigData {
     public boolean hideRandomRoleInRoleRotation = true;
     @ConfigEntry.Category(value = "gamemodes")
     public int roleRotationPerPlayerPerRoleTime = 3;
-    
+
     @ConfigEntry.Category(value = "gamemodes")
     public boolean roleRotationForceRoleSettings = false;
     // 随机地图设置
@@ -291,6 +290,7 @@ public class SREConfig implements ConfigData {
     public boolean verboseTrainResetLogs = true;
     public boolean logGameEvent = true;
     public boolean savePlayerBodyItems = true;
+    public boolean vehicleEntityNoItemDrops = true;
 
     @ConfigEntry.Category(value = "items")
     public boolean enableBrokenGunDropWhenKillerKillsGunHolder = false;

@@ -48,6 +48,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -223,7 +224,7 @@ public class WheelchairEntity extends Mob {
             if (this.durability <= 0) {
                 Vec3 safePos = this.position().add(0, 0.25, 0); // 轮椅上方0.25格
                 player.stopRiding();
-                this.discard();
+                this.kill();
                 player.teleportTo(safePos.x, safePos.y, safePos.z);
                 player.displayClientMessage(
                         Component.translatable("entity.noellesroles.wheelchair.damaged")
@@ -451,8 +452,8 @@ public class WheelchairEntity extends Mob {
 
     @Override
     public void kill() {
-        this.discard();
-        super.kill();
+        this.remove(Entity.RemovalReason.KILLED);
+        this.gameEvent(GameEvent.ENTITY_DIE);
     }
 
     @Override
