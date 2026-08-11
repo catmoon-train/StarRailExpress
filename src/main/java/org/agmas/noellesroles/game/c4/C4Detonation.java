@@ -235,7 +235,9 @@ public final class C4Detonation {
             ServerPlayer carrier = server.getPlayerList().getPlayer(id);
             if (carrier == null || carrier.isRemoved())
                 continue;
-            if (!carrier.isAlive()) {
+            // 死亡、旁观者（旁观模式下 isAlive() 仍为 true）或非正常存活状态时，
+            // 立即把 C4 从身上卸下并贴到最近的墙面上，避免旁观者继续携带 C4
+            if (!carrier.isAlive() || carrier.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(carrier)) {
                 if (dropOnly == null)
                     dropOnly = new ArrayList<>();
                 dropOnly.add(id);
@@ -595,17 +597,69 @@ public final class C4Detonation {
 
         UUID planter = comp.getPlanter(carrier.getUUID());
         long plantedAt = level.getGameTime() - comp.ticksSincePlant(carrier.getUUID());
-        ItemEntity droppedCharge = new ItemEntity(level, carrier.getX(), carrier.getY() + 0.2D, carrier.getZ(),
+
+        // 将 C4 直接贴在距离最近的墙面上（优先脚下的方块），而不是原地掉落
+        SurfaceStick stick = findNearestSurface(level, carrier.position());
+        Vec3 pos = stick != null ? stick.pos() : carrier.position().add(0.0D, 0.2D, 0.0D);
+        Direction side = stick != null ? stick.side() : Direction.UP;
+
+        ItemEntity droppedCharge = new ItemEntity(level, pos.x, pos.y, pos.z,
                 ModItems.C4.getDefaultInstance());
         droppedCharge.setPickUpDelay(32767);
         droppedCharge.setUnlimitedLifetime();
+        droppedCharge.setNoGravity(true);
+        droppedCharge.setDeltaMovement(Vec3.ZERO);
+        droppedCharge.hasImpulse = true;
+        droppedCharge.setYRot(yawForSide(side));
+        droppedCharge.setXRot(pitchForSide(side));
         level.addFreshEntity(droppedCharge);
 
         UUID owner = planter != null ? planter : carrier.getUUID();
         thrownCharges.put(droppedCharge.getUUID(),
-                new ThrownCharge(owner, plantedAt, detonationAt, droppedCharge.position(), false,
+                new ThrownCharge(owner, plantedAt, detonationAt, droppedCharge.position(), true,
                         level.getGameTime(), false));
         comp.removeC4(carrier.getUUID());
+    }
+
+    private record SurfaceStick(Vec3 pos, Direction side) {
+    }
+
+    /**
+     * 寻找离给定位置最近的贴附表面，优先玩家脚下的方块。
+     * 找不到任何表面时返回 null。
+     */
+    private static SurfaceStick findNearestSurface(ServerLevel level, Vec3 from) {
+        // 优先检测脚下的方块
+        BlockHitResult downHit = level.clip(new ClipContext(from, from.add(0.0D, -4.0D, 0.0D),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, (Entity) null));
+        if (downHit.getType() == HitResult.Type.BLOCK) {
+            Vec3 normal = Vec3.atLowerCornerOf(downHit.getDirection().getNormal());
+            return new SurfaceStick(downHit.getLocation().add(normal.scale(SURFACE_OFFSET)),
+                    downHit.getDirection());
+        }
+
+        // 向六个方向射线检测，取最近的墙面
+        double nearestDistSq = Double.MAX_VALUE;
+        Vec3 nearestHit = null;
+        Direction nearestSide = null;
+        Vec3 start = from.add(0.0D, 0.1D, 0.0D);
+        for (Direction dir : Direction.values()) {
+            Vec3 end = start.add(dir.getStepX() * 16.0D, dir.getStepY() * 16.0D, dir.getStepZ() * 16.0D);
+            BlockHitResult hit = level.clip(new ClipContext(start, end,
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, (Entity) null));
+            if (hit.getType() != HitResult.Type.BLOCK)
+                continue;
+            double distSq = start.distanceToSqr(hit.getLocation());
+            if (distSq < nearestDistSq) {
+                nearestDistSq = distSq;
+                nearestHit = hit.getLocation();
+                nearestSide = hit.getDirection();
+            }
+        }
+        if (nearestHit == null)
+            return null;
+        Vec3 normal = Vec3.atLowerCornerOf(nearestSide.getNormal());
+        return new SurfaceStick(nearestHit.add(normal.scale(SURFACE_OFFSET)), nearestSide);
     }
 
     private static void clearThrownCharges() {

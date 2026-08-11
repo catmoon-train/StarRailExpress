@@ -57,7 +57,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.*;
-import org.agmas.noellesroles.cca.C4BackComponent;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.ModComponents;
@@ -905,22 +904,8 @@ public class NRDeathEvents {
             if (raven.canKill(victim))
                 raven.onTargetKilled(victim);
         });
-        OnPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
-            if (!(victim instanceof ServerPlayer player))
-                return;
-            if (C4BackComponent.hasC4(player)) {
-                var c4instance = C4BackComponent.getInstance(player);
-                UUID planterUid = c4instance.getPlanter(player.getUUID());
-                var planter = player.server.getPlayerList().getPlayer(planterUid);
-                if (planter != null && (killer == null || !planterUid.equals(killer.getUUID()))
-                        && GameUtils.isPlayerAliveAndSurvival(planter)) {
-                    RoleUtils.insertStackInFreeSlot(planter, ModItems.C4.getDefaultInstance());
-                    // c4instance.addC4(planterUid, planterUid);
-                    planter.displayClientMessage(
-                            Component.translatable("c4.back_to_planter").withStyle(ChatFormatting.RED), true);
-                }
-            }
-        });
+        // 携带C4的玩家死亡/变成旁观者后，C4由 C4Detonation.dropCarrierCharge 直接贴在最近的墙面上
+        // （见 C4Detonation#afterDeath / tick），不再返还给种植者
 
         // 血迹路径
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
