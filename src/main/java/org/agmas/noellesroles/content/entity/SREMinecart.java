@@ -10,6 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,6 +30,11 @@ public class SREMinecart extends Minecart {
 
     protected Item getDropItem() {
         return ModItems.SRE_MINECART;
+    }
+
+    @Override
+    public ItemStack getPickResult() {
+        return ModItems.SRE_MINECART.getDefaultInstance();
     }
 
     public SREMinecart(Level level, double d, double e, double f) {
