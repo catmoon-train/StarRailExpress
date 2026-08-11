@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.content.entity;
 
 import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModItems;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
@@ -24,6 +25,10 @@ public class SREMinecart extends Minecart {
 
     public SREMinecart(EntityType<?> entityType, Level level) {
         super(entityType, level);
+    }
+
+    protected Item getDropItem() {
+        return ModItems.SRE_MINECART;
     }
 
     public SREMinecart(Level level, double d, double e, double f) {
@@ -52,8 +57,9 @@ public class SREMinecart extends Minecart {
             } else {
                 if (this.getDeltaMovement().lengthSqr() < 0.01) {
                     outRailTime++;
+                } else {
+                    outRailTime = 0;
                 }
-                outRailTime = 0;
             }
         }
         if (outRailTime > 5 * 20) {

@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.content.entity.SREMinecart;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
@@ -121,7 +122,7 @@ public class NRRulePredicateEvents {
 
         // 傀儡身体不可被推动
         CollisionRules.cantPushableBy.add(entity -> entity instanceof PuppeteerBodyEntity);
-
+        CollisionRules.canCollideEntity.add(entity -> entity instanceof SREMinecart);
         // 多种条件不可被推动
         CollisionRules.cantPushableBy.add(entity -> {
             if (entity instanceof Player player) {
