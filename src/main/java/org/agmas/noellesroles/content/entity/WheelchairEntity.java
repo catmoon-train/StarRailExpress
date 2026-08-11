@@ -212,22 +212,25 @@ public class WheelchairEntity extends Mob {
         deltaRotation *= 0.8f;
 
         // --- 耐久逻辑（完全保留原逻辑）---
-        if (this.level().getGameTime() % 20 == 0) {
+        {
             var gameC = SREGameWorldComponent.KEY.get(player.level());
             if (!(gameC.getGameMode() instanceof ChairWheelRaceGame) && gameC.isRunning()) {
-                this.durability--;
+                if (!level().isClientSide)
+                    this.durability--;
             }
         }
-        if (this.durability <= 0) {
-            Vec3 safePos = this.position().add(0, 0.25, 0); // 轮椅上方0.25格
-            player.stopRiding();
-            this.discard();
-            player.teleportTo(safePos.x, safePos.y, safePos.z);
-            player.displayClientMessage(
-                    Component.translatable("entity.noellesroles.wheelchair.damaged")
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return;
+        if (!level().isClientSide) {
+            if (this.durability <= 0) {
+                Vec3 safePos = this.position().add(0, 0.25, 0); // 轮椅上方0.25格
+                player.stopRiding();
+                this.discard();
+                player.teleportTo(safePos.x, safePos.y, safePos.z);
+                player.displayClientMessage(
+                        Component.translatable("entity.noellesroles.wheelchair.damaged")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return;
+            }
         }
 
         // --- 加速 tick（使用药水效果，无需额外处理）---
