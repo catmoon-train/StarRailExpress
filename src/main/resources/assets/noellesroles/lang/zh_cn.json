@@ -2495,6 +2495,8 @@
   "item.noellesroles.executioner_gun": "处刑者手枪",
   "item.noellesroles.honored_note": "尊名纸条",
   "item.noellesroles.spirit_cloak": "灵性斗篷",
+  "item.noellesroles.sre_minecart": "SRE矿车",
+  "entity.noellesroles.sre_minecart": "SRE矿车",
   "entity.noellesroles.honored_note.name": "§6✦ 尊名纸条 ✦",
   "message.noellesroles.fool.not_fool": "你不是愚者，无法使用此物品",
   "message.noellesroles.fool.note_placed": "尊名纸条已放置",

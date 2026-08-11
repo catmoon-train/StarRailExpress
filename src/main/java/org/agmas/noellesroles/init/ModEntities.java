@@ -24,6 +24,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
 import org.agmas.noellesroles.content.entity.*;
@@ -33,6 +34,15 @@ public class ModEntities {
             BuiltInRegistries.ENTITY_TYPE,
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "cube"),
             EntityType.Builder.of(RoleMineEntity::new, MobCategory.MISC).sized(0.75f, 0.75f).build("cube"));
+
+    public static final EntityType<SREMinecart> MINECART = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "sre_minecart"),
+            EntityType.Builder.<SREMinecart>of(SREMinecart::new, MobCategory.MISC)
+                    .sized(0.98F, 0.7F)
+                    .passengerAttachments(0.1875F).clientTrackingRange(8)
+                    .build("sre_minecart"));
+
     public static final EntityType<WheelchairEntity> WHEELCHAIR = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("wheelchair"),
@@ -62,7 +72,8 @@ public class ModEntities {
     public static final EntityType<IncendiaryGrenadeEntity> INCENDIARY_GRENADE = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("incendiary_grenade"),
-            FabricEntityTypeBuilder.<IncendiaryGrenadeEntity>create(MobCategory.MISC, IncendiaryGrenadeEntity::new)
+            FabricEntityTypeBuilder
+                    .<IncendiaryGrenadeEntity>create(MobCategory.MISC, IncendiaryGrenadeEntity::new)
                     .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
                     .trackRangeBlocks(4)
                     .trackedUpdateRate(10)
@@ -82,7 +93,8 @@ public class ModEntities {
     public static final EntityType<WallBreakGrenadeEntity> WALL_BREAK_GRENADE = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("wall_break_grenade"),
-            FabricEntityTypeBuilder.<WallBreakGrenadeEntity>create(MobCategory.MISC, WallBreakGrenadeEntity::new)
+            FabricEntityTypeBuilder
+                    .<WallBreakGrenadeEntity>create(MobCategory.MISC, WallBreakGrenadeEntity::new)
                     .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
                     .trackRangeBlocks(4)
                     .trackedUpdateRate(10)
@@ -396,7 +408,8 @@ public class ModEntities {
     public static final EntityType<YouluSmokeWaveEntity> YOULU_SMOKE_WAVE = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "youlu_smoke_wave"),
-            FabricEntityTypeBuilder.<YouluSmokeWaveEntity>create(MobCategory.MISC, YouluSmokeWaveEntity::new)
+            FabricEntityTypeBuilder
+                    .<YouluSmokeWaveEntity>create(MobCategory.MISC, YouluSmokeWaveEntity::new)
                     .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
                     .trackRangeBlocks(64)
                     .trackedUpdateRate(2)
@@ -409,7 +422,8 @@ public class ModEntities {
     public static final EntityType<YouluSmokeBallEntity> YOULU_SMOKE_BALL = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "youlu_smoke_ball"),
-            FabricEntityTypeBuilder.<YouluSmokeBallEntity>create(MobCategory.MISC, YouluSmokeBallEntity::new)
+            FabricEntityTypeBuilder
+                    .<YouluSmokeBallEntity>create(MobCategory.MISC, YouluSmokeBallEntity::new)
                     .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
                     .trackRangeBlocks(64)
                     .trackedUpdateRate(10)

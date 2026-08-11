@@ -15,9 +15,9 @@ import java.util.ArrayList;
 public class FlashlightLightProvider implements DynamicLightBehavior {
 
     // ===== 可调参数 =====
-    private static final float RADIUS = 8.0F; // 锥体底部半径（方块单位）
-    private static final float DEPTH = 20.0F; // 锥体深度（长度）
-    private static final float DISTANCE_DELTA = 3.0F; // 锥体起点前移偏移（让光源从眼睛前方开始）
+    private static final float RADIUS = 5.0F; // 锥体底部半径（方块单位）
+    private static final float DEPTH = 10.0F; // 锥体深度（长度）
+    private static final float DISTANCE_DELTA = 0.5F; // 锥体起点前移偏移（让光源从眼睛前方开始）
 
     // ===== 实体与缓存 =====
     private final Entity entity;

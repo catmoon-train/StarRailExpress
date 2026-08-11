@@ -62,6 +62,7 @@ public class EntityClearUtils {
                 entity instanceof CanyuesaHorseEntity ||
                 entity instanceof SuperPigHorseEntity ||
                 entity instanceof Minecart ||
+                entity instanceof SREMinecart ||
                 entity instanceof Boat ||
                 entity instanceof MummyEntity ||
                 entity instanceof GrenadeEntity ||
