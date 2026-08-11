@@ -31,6 +31,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
+import org.agmas.noellesroles.content.entity.SREMinecart;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,6 +45,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class EntityMixin {
     @Shadow
     private Level level;
+
+    @Inject(method = "push", at = @At("HEAD"), cancellable = true)
+    public void push(Entity entity, CallbackInfo ci) {
+        if (entity instanceof SREMinecart) {
+            ci.cancel();
+            return;
+        }
+    }
 
     @Inject(method = "onExplosionHit", at = @At("HEAD"), cancellable = true)
     public void addHurtTagToPlayerWithExplosion(Entity direct, CallbackInfo ci) {
