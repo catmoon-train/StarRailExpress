@@ -59,7 +59,7 @@ public class WheelchairEntity extends Mob {
             EntityDataSerializers.INT);
 
     // ===== 耐久（保留原有变量名）=====
-    public int durability = 60;
+    public int durability = 60 * 20;
 
     // ===== 转向控制 =====
     private float deltaRotation = 0.0f;
@@ -428,7 +428,7 @@ public class WheelchairEntity extends Mob {
         if (this.getPassengers().isEmpty() && player.isShiftKeyDown()) {
             if (!this.level().isClientSide) {
                 ItemStack wheelchairItem = new ItemStack(ModItems.WHEELCHAIR);
-                wheelchairItem.setDamageValue(wheelchairItem.getMaxDamage() - this.durability);
+                wheelchairItem.setDamageValue(wheelchairItem.getMaxDamage() - this.durability / 20);
                 player.getCooldowns().addCooldown(ModItems.WHEELCHAIR, 40);
                 if (!player.getInventory().add(wheelchairItem)) {
                     player.drop(wheelchairItem, false);

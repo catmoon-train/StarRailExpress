@@ -96,7 +96,7 @@ public class WheelchairItem extends Item {
          if (we != null) {
             we.setYRot(useOnContext.getPlayer().getYRot());
 
-            we.durability = itemStack.getMaxDamage() - itemStack.getDamageValue();
+            we.durability = (itemStack.getMaxDamage() - itemStack.getDamageValue()) * 20;
             itemStack.consume(1, useOnContext.getPlayer());
             level.gameEvent(useOnContext.getPlayer(), GameEvent.ENTITY_PLACE, blockPos);
          }
@@ -134,7 +134,7 @@ public class WheelchairItem extends Item {
       } else {
          entity.setPos(player.getX(), player.getY(), player.getZ());
          entity.setYRot(player.getYRot());
-         entity.durability = itemStack.getMaxDamage() - itemStack.getDamageValue();
+         entity.durability = (itemStack.getMaxDamage() - itemStack.getDamageValue()) * 20;
          level.addFreshEntity(entity);
 
          itemStack.consume(1, player);

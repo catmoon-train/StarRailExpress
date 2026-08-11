@@ -53,7 +53,8 @@ public class WheelchairFieldItemEntity extends ItemEntity {
 
         public static EffectType fromId(int id) {
             for (EffectType type : values()) {
-                if (type.id == id) return type;
+                if (type.id == id)
+                    return type;
             }
             return SPEED_BOOST;
         }
@@ -67,8 +68,8 @@ public class WheelchairFieldItemEntity extends ItemEntity {
         }
     }
 
-    private static final EntityDataAccessor<Integer> DATA_EFFECT_TYPE =
-            SynchedEntityData.defineId(WheelchairFieldItemEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_EFFECT_TYPE = SynchedEntityData
+            .defineId(WheelchairFieldItemEntity.class, EntityDataSerializers.INT);
 
     private boolean consumed = false;
     private int respawnTimer = 0;
@@ -86,7 +87,7 @@ public class WheelchairFieldItemEntity extends ItemEntity {
      * 创建指定类型的场地道具
      */
     public WheelchairFieldItemEntity(EntityType<? extends ItemEntity> entityType, Level level,
-                                     double x, double y, double z, EffectType effectType) {
+            double x, double y, double z, EffectType effectType) {
         super(entityType, level);
         this.setPos(x, y, z);
         this.setNoGravity(true);
@@ -99,13 +100,14 @@ public class WheelchairFieldItemEntity extends ItemEntity {
     public boolean is_always() {
         return !this.entityData.get(DATA_PICKED_UP);
     }
+
     public void setPickedUp(boolean pickedUp) {
         this.entityData.set(DATA_PICKED_UP, pickedUp);
     }
 
     // ===== 同步数据：拾取后不重置的NBT标记 =====
-    public static final EntityDataAccessor<Boolean> DATA_PICKED_UP =
-            SynchedEntityData.defineId(WheelchairFieldItemEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DATA_PICKED_UP = SynchedEntityData
+            .defineId(WheelchairFieldItemEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -147,7 +149,7 @@ public class WheelchairFieldItemEntity extends ItemEntity {
                 WheelchairEntity.class, this.getBoundingBox().inflate(0.6));
         for (WheelchairEntity wheelchair : wheelchairs) {
             if (wheelchair.getControllingPassenger() instanceof Player player) {
-                if (player.getCooldowns().isOnCooldown(Items.SUGAR)){
+                if (player.getCooldowns().isOnCooldown(Items.SUGAR)) {
                     continue;
                 }
                 player.getCooldowns().addCooldown(Items.SUGAR, 10);
@@ -157,8 +159,9 @@ public class WheelchairFieldItemEntity extends ItemEntity {
                     respawnTimer = RESPAWN_DELAY;
                     this.setInvisible(true);
                 }
-                if (level() instanceof ServerLevel serverLevel){
-                    serverLevel.sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY()+1, this.getZ(),15,0.6,0.6,0.6,0.6);
+                if (level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 1, this.getZ(), 15, 0.6,
+                            0.6, 0.6, 0.6);
                 }
                 this.level().playSound(null, this.blockPosition(),
                         SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 1.0f, 1.2f);
@@ -174,7 +177,7 @@ public class WheelchairFieldItemEntity extends ItemEntity {
         EffectType type = getEffectType();
         switch (type) {
             case SPEED_BOOST -> wheelchair.boost();
-            case REPAIR -> wheelchair.durability = Math.min(wheelchair.durability + 20, 60);
+            case REPAIR -> wheelchair.durability = Math.min(wheelchair.durability + 20 * 20, 20 * 60);
             case JUMP_BOOST -> wheelchair.boost();
         }
     }

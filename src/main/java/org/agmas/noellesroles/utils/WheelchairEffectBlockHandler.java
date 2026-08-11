@@ -40,8 +40,9 @@ public class WheelchairEffectBlockHandler {
 
     /**
      * 检查并应用特殊方块效果
+     * 
      * @param wheelchair 轮椅实体
-     * @param player 控制轮椅的玩家
+     * @param player     控制轮椅的玩家
      */
     public static void checkAndApplyEffects(WheelchairEntity wheelchair, Player player) {
         if (wheelchair.level() instanceof ServerLevel serverLevel) {
@@ -52,12 +53,13 @@ public class WheelchairEffectBlockHandler {
             BlockPos belowEntity = entityPos.below();
 
             BlockPos[] checkPositions = playerPos != null
-                    ? new BlockPos[]{playerPos, entityPos, belowEntity}
-                    : new BlockPos[]{entityPos, belowEntity};
+                    ? new BlockPos[] { playerPos, entityPos, belowEntity }
+                    : new BlockPos[] { entityPos, belowEntity };
 
             // 只有在轮椅比赛模式（ChairWheelRaceGame）运行时才生效
             var gameC = SREGameWorldComponent.KEY.get(serverLevel);
-            if (!(gameC.getGameMode() instanceof ChairWheelRaceGame) || !gameC.isRunning()) return;
+            if (!(gameC.getGameMode() instanceof ChairWheelRaceGame) || !gameC.isRunning())
+                return;
 
             for (BlockPos pos : checkPositions) {
                 if (serverLevel.getBlockState(pos).is(Blocks.EMERALD_BLOCK)) {
@@ -86,30 +88,29 @@ public class WheelchairEffectBlockHandler {
     private static void applyEmeraldBlockEffect(WheelchairEntity wheelchair, Player player, ServerLevel serverLevel) {
         // 1 秒内只生效一次
         boolean applied = wheelchair.tryBoostWithCooldown(20);
-        if (!applied) return;
+        if (!applied)
+            return;
 
         // 发送粒子效果
         for (int i = 0; i < 10; i++) {
             serverLevel.sendParticles(
-                ParticleTypes.TOTEM_OF_UNDYING,
+                    ParticleTypes.TOTEM_OF_UNDYING,
                     wheelchair.getX() + serverLevel.random.nextDouble(),
                     wheelchair.getY() + serverLevel.random.nextDouble() * 2,
                     wheelchair.getZ() + serverLevel.random.nextDouble(),
-                1, 0, 0, 0, 0
-            );
+                    1, 0, 0, 0, 0);
         }
 
         // 播放音效
         serverLevel.playSound(null, wheelchair.blockPosition(),
-            SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 1.5F);
+                SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 1.5F);
 
         // 发送消息
         if (player != null) {
             player.displayClientMessage(
-                Component.literal("绿宝石块加速！")
-                    .withStyle(net.minecraft.ChatFormatting.GREEN, net.minecraft.ChatFormatting.BOLD),
-                true
-            );
+                    Component.literal("绿宝石块加速！")
+                            .withStyle(net.minecraft.ChatFormatting.GREEN, net.minecraft.ChatFormatting.BOLD),
+                    true);
         }
     }
 
@@ -122,28 +123,26 @@ public class WheelchairEffectBlockHandler {
         }
         // 应用明显的减速效果：持续 4 秒，速度减半
         wheelchair.applySlow(80, 0.5f);
-        
+
         // 发送粒子效果
         for (int i = 0; i < 5; i++) {
             serverLevel.sendParticles(
-                ParticleTypes.SMOKE,
-                wheelchair.getX() + serverLevel.random.nextDouble(),
-                wheelchair.getY() + 0.5,
-                wheelchair.getZ() + serverLevel.random.nextDouble(),
-                1, 0, 0.1, 0, 0
-            );
+                    ParticleTypes.SMOKE,
+                    wheelchair.getX() + serverLevel.random.nextDouble(),
+                    wheelchair.getY() + 0.5,
+                    wheelchair.getZ() + serverLevel.random.nextDouble(),
+                    1, 0, 0.1, 0, 0);
         }
-        
+
         // 播放音效
         serverLevel.playSound(null, wheelchair.blockPosition(),
-            SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0F, 0.8F);
-        
+                SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0F, 0.8F);
+
         // 发送消息
         player.displayClientMessage(
-            Component.literal("煤炭块减速！")
-                .withStyle(net.minecraft.ChatFormatting.GRAY),
-            true
-        );
+                Component.literal("煤炭块减速！")
+                        .withStyle(net.minecraft.ChatFormatting.GRAY),
+                true);
     }
 
     /**
@@ -151,30 +150,28 @@ public class WheelchairEffectBlockHandler {
      */
     private static void applyIronBlockEffect(WheelchairEntity wheelchair, Player player, ServerLevel serverLevel) {
         int previousDurability = wheelchair.durability;
-        wheelchair.durability = Math.min(wheelchair.durability + 20, 60);
-        
+        wheelchair.durability = Math.min(wheelchair.durability + 20 * 20, 60 * 20);
+
         if (previousDurability < 60) {
             // 发送粒子效果
             for (int i = 0; i < 8; i++) {
                 serverLevel.sendParticles(
-                    ParticleTypes.HEART,
-                    wheelchair.getX() + serverLevel.random.nextDouble(),
+                        ParticleTypes.HEART,
+                        wheelchair.getX() + serverLevel.random.nextDouble(),
                         wheelchair.getY() + 1.0 + serverLevel.random.nextDouble(),
                         wheelchair.getZ() + serverLevel.random.nextDouble(),
-                    1, 0, 0, 0, 0
-                );
+                        1, 0, 0, 0, 0);
             }
-            
+
             // 播放音效
             serverLevel.playSound(null, wheelchair.blockPosition(),
-                SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 1.0F, 1.2F);
-            
+                    SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 1.0F, 1.2F);
+
             // 发送消息
             player.displayClientMessage(
-                Component.literal("铁块修复耐久：" + previousDurability + " → " + wheelchair.durability + "/60")
-                    .withStyle(net.minecraft.ChatFormatting.WHITE),
-                true
-            );
+                    Component.literal("铁块修复耐久：" + previousDurability + " → " + wheelchair.durability / 20 + "/60")
+                            .withStyle(net.minecraft.ChatFormatting.WHITE),
+                    true);
         }
     }
 
@@ -191,27 +188,25 @@ public class WheelchairEffectBlockHandler {
 
         // 停止所有加速效果
         wheelchair.stopBoost();
-        
+
         // 发送粒子效果
         for (int i = 0; i < 15; i++) {
             serverLevel.sendParticles(
-                ParticleTypes.ANGRY_VILLAGER,
-                wheelchair.getX() + serverLevel.random.nextDouble(),
-                wheelchair.getY() + 1.0 + serverLevel.random.nextDouble(),
-                wheelchair.getZ() + serverLevel.random.nextDouble(),
-                1, 0, 0, 0, 0
-            );
+                    ParticleTypes.ANGRY_VILLAGER,
+                    wheelchair.getX() + serverLevel.random.nextDouble(),
+                    wheelchair.getY() + 1.0 + serverLevel.random.nextDouble(),
+                    wheelchair.getZ() + serverLevel.random.nextDouble(),
+                    1, 0, 0, 0, 0);
         }
-        
+
         // 播放音效
         serverLevel.playSound(null, wheelchair.blockPosition(),
-            SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0F, 0.8F);
-        
+                SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 1.0F, 0.8F);
+
         // 发送消息
         player.displayClientMessage(
-            Component.literal("红石块瘫痪！3 秒内无法移动！")
-                .withStyle(net.minecraft.ChatFormatting.RED, net.minecraft.ChatFormatting.BOLD),
-            true
-        );
+                Component.literal("红石块瘫痪！3 秒内无法移动！")
+                        .withStyle(net.minecraft.ChatFormatting.RED, net.minecraft.ChatFormatting.BOLD),
+                true);
     }
 }
