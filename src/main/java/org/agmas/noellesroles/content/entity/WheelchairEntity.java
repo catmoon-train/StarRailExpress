@@ -215,7 +215,7 @@ public class WheelchairEntity extends Mob {
         // --- 耐久逻辑（完全保留原逻辑）---
         {
             var gameC = SREGameWorldComponent.KEY.get(player.level());
-            if (!(gameC.getGameMode() instanceof ChairWheelRaceGame) && gameC.isRunning()) {
+            if (!(gameC.getGameMode() instanceof ChairWheelRaceGame)) {
                 if (!level().isClientSide)
                     this.durability--;
             }
