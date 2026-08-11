@@ -81,7 +81,7 @@ public final class C4Detonation {
         if (entity == null || owner == null)
             return;
         thrownCharges.put(entity.getUUID(), new ThrownCharge(owner, -1L, -1L, entity.position(), false,
-                entity.level().getGameTime(), true));
+                entity.level().getGameTime(), true, null));
     }
 
     public static boolean isDefusableBlockCharge(ItemEntity entity) {
@@ -140,7 +140,8 @@ public final class C4Detonation {
                 e -> e.getItem().is(ModItems.C4) && isOwnedBy(e, owner.getUUID()))) {
             thrownCharges.putIfAbsent(entity.getUUID(),
                     new ThrownCharge(owner.getUUID(), -1L, -1L, entity.position(), entity.isNoGravity(),
-                            placedAt(level, entity), true));
+                            placedAt(level, entity), true,
+                            entity.isNoGravity() ? entity.position() : null));
         }
     }
 
@@ -235,7 +236,9 @@ public final class C4Detonation {
             ServerPlayer carrier = server.getPlayerList().getPlayer(id);
             if (carrier == null || carrier.isRemoved())
                 continue;
-            if (!carrier.isAlive()) {
+            // 死亡、旁观者（旁观模式下 isAlive() 仍为 true）或非正常存活状态时，
+            // 立即把 C4 从身上卸下并贴到最近的墙面上，避免旁观者继续携带 C4
+            if (!carrier.isAlive() || carrier.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(carrier)) {
                 if (dropOnly == null)
                     dropOnly = new ArrayList<>();
                 dropOnly.add(id);
@@ -358,7 +361,7 @@ public final class C4Detonation {
 
     private static ThrownCharge updateStickyState(ServerLevel level, ItemEntity entity, ThrownCharge charge) {
         if (charge.stuck()) {
-            keepStuck(entity);
+            keepStuck(entity, charge.stuckPos());
             return charge.withPreviousPos(entity.position());
         }
         Vec3 previous = charge.previousPos() != null ? charge.previousPos() : entity.position();
@@ -366,12 +369,12 @@ public final class C4Detonation {
         BlockHitResult hit = findSurfaceHit(level, entity, previous, current);
         if (hit != null) {
             stickToSurface(entity, hit.getLocation(), hit.getDirection());
-            return charge.stuck(entity.position());
+            return charge.stuck(entity.position(), entity.position());
         }
         Direction fallbackSide = fallbackCollisionSide(entity, previous, current);
         if (fallbackSide != null) {
             stickToSurface(entity, current, fallbackSide);
-            return charge.stuck(entity.position());
+            return charge.stuck(entity.position(), entity.position());
         }
         return charge.withPreviousPos(current);
     }
@@ -415,11 +418,17 @@ public final class C4Detonation {
         entity.setXRot(pitchForSide(side));
     }
 
-    private static void keepStuck(ItemEntity entity) {
-        entity.setDeltaMovement(Vec3.ZERO);
+    private static void keepStuck(ItemEntity entity, Vec3 stuckPos) {
+        // 位置锁定：贴墙的 C4 位置被钉死，任何物理/碰撞推挤都会在下个 tick 被拉回，
+        // 避免出现“抽搐/反复移动”。仅在位置或速度偏离时才写回，避免每 tick 触发 hasImpulse 导致持续同步。
+        if (stuckPos != null && entity.position().distanceToSqr(stuckPos) > 1.0E-7D) {
+            entity.setPos(stuckPos);
+        }
+        if (entity.getDeltaMovement().lengthSqr() > 1.0E-7D) {
+            entity.setDeltaMovement(Vec3.ZERO);
+        }
         entity.setNoGravity(true);
         entity.setPickUpDelay(32767);
-        entity.hasImpulse = true;
     }
 
     private static float yawForSide(Direction side) {
@@ -595,17 +604,72 @@ public final class C4Detonation {
 
         UUID planter = comp.getPlanter(carrier.getUUID());
         long plantedAt = level.getGameTime() - comp.ticksSincePlant(carrier.getUUID());
-        ItemEntity droppedCharge = new ItemEntity(level, carrier.getX(), carrier.getY() + 0.2D, carrier.getZ(),
+
+        // 将 C4 直接贴在距离最近的墙面上（优先脚下的方块），而不是原地掉落
+        SurfaceStick stick = findNearestSurface(level, carrier.position(), carrier);
+        Vec3 pos = stick != null ? stick.pos() : carrier.position().add(0.0D, 0.2D, 0.0D);
+        Direction side = stick != null ? stick.side() : Direction.UP;
+
+        ItemEntity droppedCharge = new ItemEntity(level, pos.x, pos.y, pos.z,
                 ModItems.C4.getDefaultInstance());
         droppedCharge.setPickUpDelay(32767);
         droppedCharge.setUnlimitedLifetime();
+        droppedCharge.setNoGravity(true);
+        droppedCharge.setDeltaMovement(Vec3.ZERO);
+        droppedCharge.hasImpulse = true;
+        droppedCharge.setYRot(yawForSide(side));
+        droppedCharge.setXRot(pitchForSide(side));
         level.addFreshEntity(droppedCharge);
 
         UUID owner = planter != null ? planter : carrier.getUUID();
         thrownCharges.put(droppedCharge.getUUID(),
-                new ThrownCharge(owner, plantedAt, detonationAt, droppedCharge.position(), false,
-                        level.getGameTime(), false));
+                new ThrownCharge(owner, plantedAt, detonationAt, droppedCharge.position(), true,
+                        level.getGameTime(), false, pos));
         comp.removeC4(carrier.getUUID());
+    }
+
+    private record SurfaceStick(Vec3 pos, Direction side) {
+    }
+
+    /**
+     * 寻找离给定位置最近的贴附表面，优先玩家脚下的方块。
+     * 找不到任何表面时返回 null。
+     * <p>
+     * 注意：ClipContext 的碰撞上下文不能传 null，否则构造时
+     * {@code CollisionContext.of(null)} 会触发 NPE，因此这里必须传入实体。
+     */
+    private static SurfaceStick findNearestSurface(ServerLevel level, Vec3 from, Entity context) {
+        // 优先检测脚下的方块
+        BlockHitResult downHit = level.clip(new ClipContext(from, from.add(0.0D, -4.0D, 0.0D),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, context));
+        if (downHit.getType() == HitResult.Type.BLOCK) {
+            Vec3 normal = Vec3.atLowerCornerOf(downHit.getDirection().getNormal());
+            return new SurfaceStick(downHit.getLocation().add(normal.scale(SURFACE_OFFSET)),
+                    downHit.getDirection());
+        }
+
+        // 向六个方向射线检测，取最近的墙面
+        double nearestDistSq = Double.MAX_VALUE;
+        Vec3 nearestHit = null;
+        Direction nearestSide = null;
+        Vec3 start = from.add(0.0D, 0.1D, 0.0D);
+        for (Direction dir : Direction.values()) {
+            Vec3 end = start.add(dir.getStepX() * 16.0D, dir.getStepY() * 16.0D, dir.getStepZ() * 16.0D);
+            BlockHitResult hit = level.clip(new ClipContext(start, end,
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, context));
+            if (hit.getType() != HitResult.Type.BLOCK)
+                continue;
+            double distSq = start.distanceToSqr(hit.getLocation());
+            if (distSq < nearestDistSq) {
+                nearestDistSq = distSq;
+                nearestHit = hit.getLocation();
+                nearestSide = hit.getDirection();
+            }
+        }
+        if (nearestHit == null)
+            return null;
+        Vec3 normal = Vec3.atLowerCornerOf(nearestSide.getNormal());
+        return new SurfaceStick(nearestHit.add(normal.scale(SURFACE_OFFSET)), nearestSide);
     }
 
     private static void clearThrownCharges() {
@@ -630,34 +694,36 @@ public final class C4Detonation {
     }
 
     private record ThrownCharge(UUID owner, long armedAt, long detonationAt, Vec3 previousPos, boolean stuck,
-            long placedAt, boolean canAttach) {
+            long placedAt, boolean canAttach, Vec3 stuckPos) {
         private boolean isArmed() {
             return armedAt >= 0L && detonationAt >= 0L;
         }
 
         private ThrownCharge armed(long armedAt, long detonationAt) {
-            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach);
+            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach, stuckPos);
         }
 
         private ThrownCharge withPreviousPos(Vec3 previousPos) {
-            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach);
+            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach, stuckPos);
         }
 
-        private ThrownCharge stuck(Vec3 previousPos) {
-            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, true, placedAt, canAttach);
+        private ThrownCharge stuck(Vec3 previousPos, Vec3 stuckPos) {
+            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, true, placedAt, canAttach, stuckPos);
         }
     }
 
     public record TimeState(Map<UUID, Entry> thrownCharges) {
         public record Entry(UUID owner, long armedAt, long detonationAt, Vec3 previousPos,
-                boolean stuck, long placedAt, boolean canAttach) {
+                boolean stuck, long placedAt, boolean canAttach, Vec3 stuckPos) {
             private static Entry from(ThrownCharge charge) {
                 return new Entry(charge.owner(), charge.armedAt(), charge.detonationAt(),
-                        charge.previousPos(), charge.stuck(), charge.placedAt(), charge.canAttach());
+                        charge.previousPos(), charge.stuck(), charge.placedAt(), charge.canAttach(),
+                        charge.stuckPos());
             }
 
             private ThrownCharge toThrownCharge() {
-                return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach);
+                return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach,
+                        stuckPos);
             }
         }
     }
