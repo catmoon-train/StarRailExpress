@@ -122,7 +122,7 @@ public class NRRulePredicateEvents {
 
         // 傀儡身体不可被推动
         CollisionRules.cantPushableBy.add(entity -> entity instanceof PuppeteerBodyEntity);
-        CollisionRules.canCollideEntity.add(entity -> entity instanceof SREMinecart);
+        CollisionRules.cantPushableBy.add(entity -> entity instanceof SREMinecart);
         // 多种条件不可被推动
         CollisionRules.cantPushableBy.add(entity -> {
             if (entity instanceof Player player) {

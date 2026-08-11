@@ -33,6 +33,11 @@ public class SREMinecart extends Minecart {
     }
 
     @Override
+    public boolean isPushable() {
+        return false;
+    }
+
+    @Override
     public ItemStack getPickResult() {
         return ModItems.SRE_MINECART.getDefaultInstance();
     }
