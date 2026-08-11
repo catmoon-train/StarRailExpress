@@ -70,7 +70,6 @@ public final class LeaderEventHandler {
     private static final int PANDA_COIN_AMOUNT = 8;
 
     /** 需要守护：记录错误死因对追随者记录员免疫 */
-    private static final ResourceLocation RECORDER_MISTAKE = GameConstants.DeathReasons.RECORDER_MISTAKE;
 
     public static void register() {
         registerSkill();
@@ -116,21 +115,11 @@ public final class LeaderEventHandler {
             return handleAmonSacrifice(amon, deathReason);
         });
 
-        // 记录员免疫「记录错误」死亡
+        // 追随者初学者：免疫「考核失败」死亡（考核失败的代价由领袖承受）
         AfterShieldAllowPlayerDeath.EVENT.register((player, deathReason) -> {
             if (!(player instanceof ServerPlayer sp)) {
                 return true;
             }
-            if (RECORDER_MISTAKE.equals(deathReason) && LeaderFollowerEffects.isFollowerOfLeader(sp)) {
-                // 重置错误计数，避免反复触发
-                org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent rec
-                        = org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent.KEY.get(sp);
-                if (rec != null) {
-                    rec.resetWrongGuesses();
-                }
-                return false;
-            }
-            // 追随者初学者：免疫「考核失败」死亡（考核失败的代价由领袖承受）
             if (GameConstants.DeathReasons.FAILED_INITIATION.equals(deathReason)
                     && LeaderFollowerEffects.isFollowerOfLeader(sp)) {
                 return false;

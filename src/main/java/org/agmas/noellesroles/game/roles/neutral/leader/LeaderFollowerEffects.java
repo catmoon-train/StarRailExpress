@@ -294,7 +294,7 @@ public final class LeaderFollowerEffects {
     private static void applyRecorder(ServerPlayer leader, ServerPlayer follower) {
         giveItem(follower, TMMItems.LOCKPICK.getDefaultInstance());
         giveItem(leader, TMMItems.LOCKPICK.getDefaultInstance());
-        // 免疫记录错误死见 LeaderEventHandler
+        permanentEffect(follower, MobEffects.MOVEMENT_SPEED, 0);
     }
 
     /** 教父：追随者一次性手枪、领袖制式左轮；领袖家族色；互不可伤 */
