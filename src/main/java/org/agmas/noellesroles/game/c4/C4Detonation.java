@@ -81,7 +81,7 @@ public final class C4Detonation {
         if (entity == null || owner == null)
             return;
         thrownCharges.put(entity.getUUID(), new ThrownCharge(owner, -1L, -1L, entity.position(), false,
-                entity.level().getGameTime(), true));
+                entity.level().getGameTime(), true, null));
     }
 
     public static boolean isDefusableBlockCharge(ItemEntity entity) {
@@ -140,7 +140,8 @@ public final class C4Detonation {
                 e -> e.getItem().is(ModItems.C4) && isOwnedBy(e, owner.getUUID()))) {
             thrownCharges.putIfAbsent(entity.getUUID(),
                     new ThrownCharge(owner.getUUID(), -1L, -1L, entity.position(), entity.isNoGravity(),
-                            placedAt(level, entity), true));
+                            placedAt(level, entity), true,
+                            entity.isNoGravity() ? entity.position() : null));
         }
     }
 
@@ -360,7 +361,7 @@ public final class C4Detonation {
 
     private static ThrownCharge updateStickyState(ServerLevel level, ItemEntity entity, ThrownCharge charge) {
         if (charge.stuck()) {
-            keepStuck(entity);
+            keepStuck(entity, charge.stuckPos());
             return charge.withPreviousPos(entity.position());
         }
         Vec3 previous = charge.previousPos() != null ? charge.previousPos() : entity.position();
@@ -368,12 +369,12 @@ public final class C4Detonation {
         BlockHitResult hit = findSurfaceHit(level, entity, previous, current);
         if (hit != null) {
             stickToSurface(entity, hit.getLocation(), hit.getDirection());
-            return charge.stuck(entity.position());
+            return charge.stuck(entity.position(), entity.position());
         }
         Direction fallbackSide = fallbackCollisionSide(entity, previous, current);
         if (fallbackSide != null) {
             stickToSurface(entity, current, fallbackSide);
-            return charge.stuck(entity.position());
+            return charge.stuck(entity.position(), entity.position());
         }
         return charge.withPreviousPos(current);
     }
@@ -417,11 +418,17 @@ public final class C4Detonation {
         entity.setXRot(pitchForSide(side));
     }
 
-    private static void keepStuck(ItemEntity entity) {
-        entity.setDeltaMovement(Vec3.ZERO);
+    private static void keepStuck(ItemEntity entity, Vec3 stuckPos) {
+        // 位置锁定：贴墙的 C4 位置被钉死，任何物理/碰撞推挤都会在下个 tick 被拉回，
+        // 避免出现“抽搐/反复移动”。仅在位置或速度偏离时才写回，避免每 tick 触发 hasImpulse 导致持续同步。
+        if (stuckPos != null && entity.position().distanceToSqr(stuckPos) > 1.0E-7D) {
+            entity.setPos(stuckPos);
+        }
+        if (entity.getDeltaMovement().lengthSqr() > 1.0E-7D) {
+            entity.setDeltaMovement(Vec3.ZERO);
+        }
         entity.setNoGravity(true);
         entity.setPickUpDelay(32767);
-        entity.hasImpulse = true;
     }
 
     private static float yawForSide(Direction side) {
@@ -617,7 +624,7 @@ public final class C4Detonation {
         UUID owner = planter != null ? planter : carrier.getUUID();
         thrownCharges.put(droppedCharge.getUUID(),
                 new ThrownCharge(owner, plantedAt, detonationAt, droppedCharge.position(), true,
-                        level.getGameTime(), false));
+                        level.getGameTime(), false, pos));
         comp.removeC4(carrier.getUUID());
     }
 
@@ -687,34 +694,36 @@ public final class C4Detonation {
     }
 
     private record ThrownCharge(UUID owner, long armedAt, long detonationAt, Vec3 previousPos, boolean stuck,
-            long placedAt, boolean canAttach) {
+            long placedAt, boolean canAttach, Vec3 stuckPos) {
         private boolean isArmed() {
             return armedAt >= 0L && detonationAt >= 0L;
         }
 
         private ThrownCharge armed(long armedAt, long detonationAt) {
-            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach);
+            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach, stuckPos);
         }
 
         private ThrownCharge withPreviousPos(Vec3 previousPos) {
-            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach);
+            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach, stuckPos);
         }
 
-        private ThrownCharge stuck(Vec3 previousPos) {
-            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, true, placedAt, canAttach);
+        private ThrownCharge stuck(Vec3 previousPos, Vec3 stuckPos) {
+            return new ThrownCharge(owner, armedAt, detonationAt, previousPos, true, placedAt, canAttach, stuckPos);
         }
     }
 
     public record TimeState(Map<UUID, Entry> thrownCharges) {
         public record Entry(UUID owner, long armedAt, long detonationAt, Vec3 previousPos,
-                boolean stuck, long placedAt, boolean canAttach) {
+                boolean stuck, long placedAt, boolean canAttach, Vec3 stuckPos) {
             private static Entry from(ThrownCharge charge) {
                 return new Entry(charge.owner(), charge.armedAt(), charge.detonationAt(),
-                        charge.previousPos(), charge.stuck(), charge.placedAt(), charge.canAttach());
+                        charge.previousPos(), charge.stuck(), charge.placedAt(), charge.canAttach(),
+                        charge.stuckPos());
             }
 
             private ThrownCharge toThrownCharge() {
-                return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach);
+                return new ThrownCharge(owner, armedAt, detonationAt, previousPos, stuck, placedAt, canAttach,
+                        stuckPos);
             }
         }
     }
