@@ -366,14 +366,15 @@ public class RoundTextRenderer {
                 civiliansTrueTotal++;
             }
         }
-        {
-            vigilanteTotal += winSideColumn - 1;
-            looseEndsTotal += winSideColumn - 1;
-        }
 
         calcEndOverlayColumns(roundEnd, vigilanteTrueTotal, killerTrueTotal, neutralsTrueTotal, civiliansTrueTotal,
                 looseEndTrueTotal);
 
+        {
+            vigilanteTotal += winSideColumn - 1;
+            looseEndsTotal += winSideColumn - 1;
+        }
+        
         renderRoleTitles(renderer, context, looseEndsTotal, vigilanteTotal);
 
         int civilians = 0, neutrals = 0, vigilantes = 0, killersCount = 0, looseEnds = 0;
