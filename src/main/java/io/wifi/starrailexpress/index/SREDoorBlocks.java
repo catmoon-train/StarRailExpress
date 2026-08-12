@@ -146,6 +146,28 @@ public interface SREDoorBlocks {
             new Item.Properties().rarity(Rarity.COMMON),
             SRE.id("textures/item/doors/vault_door.png"));
 
+    // 中国风小门
+    // 朱红宫门 - 红色门板配金色门钉与门环
+    Block CHINESE_RED_DOOR = registerCustomSmallDoorBlockAndCreateEntity("chinese_red_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.WOOD),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/chinese_red_door.png"));
+    // 中式木门 - 深木拼板配黄铜拉手
+    Block CHINESE_WOOD_DOOR = registerCustomSmallDoorBlockAndCreateEntity("chinese_wood_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.WOOD),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/chinese_wood_door.png"));
+    // 日式障子门 - 浅木框白纸屏推拉门
+    Block JAPANESE_SHOJI_DOOR = registerCustomSmallDoorBlockAndCreateEntity("japanese_shoji_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.WOOD),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/japanese_shoji_door.png"));
+    // 日式格栅门 - 深木格子推拉门
+    Block JAPANESE_LATTICE_DOOR = registerCustomSmallDoorBlockAndCreateEntity("japanese_lattice_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.WOOD),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/japanese_lattice_door.png"));
+
     // 卷帘门
     Block UP_GLASS_DOOR = registerDoorBlock(
             "up_glass_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_GLASS_DOOR,
