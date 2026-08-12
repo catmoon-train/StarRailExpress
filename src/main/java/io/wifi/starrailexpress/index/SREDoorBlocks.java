@@ -118,6 +118,34 @@ public interface SREDoorBlocks {
             BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER),
             new Item.Properties().rarity(Rarity.COMMON),
             SRE.id("textures/item/doors/scp_door.png"));
+
+    // 自定义风格小门
+    // 科幻门 - 青色发光条的金属门
+    Block SCIFI_DOOR = registerCustomSmallDoorBlockAndCreateEntity("scifi_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.COPPER),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/scifi_door.png"));
+    // 加固钢门 - 厚钢板配铆钉
+    Block REINFORCED_DOOR = registerCustomSmallDoorBlockAndCreateEntity("reinforced_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.METAL),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/reinforced_door.png"));
+    // 监狱门 - 黑色铁栅门
+    Block PRISON_DOOR = registerCustomSmallDoorBlockAndCreateEntity("prison_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.METAL),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/prison_door.png"));
+    // 木门 - 标准竖向木板门
+    Block WOOD_DOOR = registerCustomSmallDoorBlockAndCreateEntity("wood_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.WOOD),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/wood_door.png"));
+    // 金库门 - 厚重钢门配圆形转盘
+    Block VAULT_DOOR = registerCustomSmallDoorBlockAndCreateEntity("vault_door",
+            BlockBehaviour.Properties.ofFullCopy(TMMBlocks.SMALL_GLASS_DOOR).sound(SoundType.METAL),
+            new Item.Properties().rarity(Rarity.COMMON),
+            SRE.id("textures/item/doors/vault_door.png"));
+
     // 卷帘门
     Block UP_GLASS_DOOR = registerDoorBlock(
             "up_glass_door", new UpSmallDoorBlock(() -> TMMBlockEntities.UP_GLASS_DOOR,
