@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.cca;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -55,6 +56,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     public static final ComponentKey<AreasWorldComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("areas"),
             AreasWorldComponent.class);
     private final Level world;
+
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static enum ScrollAxis {
         X, Y, Z, NONE
@@ -367,29 +370,55 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     // 新增方法：从单独的 readyArea.json 文件加载准备区域
     public void loadReadyAreaFromFile() {
         try {
+            SRE.LOGGER.info("Loading ready area from file...");
             Path readyAreaFilePath = Paths.get(world.getServer().getWorldPath(LevelResource.ROOT).toString(),
                     "readyArea.json");
             File readyAreaFile = readyAreaFilePath.toFile();
 
-            if (readyAreaFile.exists()) {
-                FileReader reader = new FileReader(readyAreaFile);
-                JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-                reader.close();
+            try {
+                if (readyAreaFile.exists()) {
+                    FileReader reader = new FileReader(readyAreaFile);
+                    JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
+                    reader.close();
 
-                if (jsonObject.has("readyArea")) {
-                    JsonObject readyAreaObj = jsonObject.getAsJsonObject("readyArea");
-                    this.readyArea = new AABB(
-                            readyAreaObj.get("minX").getAsDouble(),
-                            readyAreaObj.get("minY").getAsDouble(),
-                            readyAreaObj.get("minZ").getAsDouble(),
-                            readyAreaObj.get("maxX").getAsDouble(),
-                            readyAreaObj.get("maxY").getAsDouble(),
-                            readyAreaObj.get("maxZ").getAsDouble());
-                    SRE.LOGGER.info("Successfully loaded readyArea from readyArea.json");
+                    if (jsonObject.has("readyArea")) {
+                        JsonObject readyAreaObj = jsonObject.getAsJsonObject("readyArea");
+                        this.readyArea = new AABB(
+                                readyAreaObj.get("minX").getAsDouble(),
+                                readyAreaObj.get("minY").getAsDouble(),
+                                readyAreaObj.get("minZ").getAsDouble(),
+                                readyAreaObj.get("maxX").getAsDouble(),
+                                readyAreaObj.get("maxY").getAsDouble(),
+                                readyAreaObj.get("maxZ").getAsDouble());
+                        SRE.LOGGER.info("Successfully loaded readyArea from readyArea.json");
+                    }
+                } else {
+                    SRE.LOGGER.warn("The file doesn't existed. Create a new file.");
+                    if (readyAreaFile.createNewFile()) {
+                        JsonObject jsonObject = new JsonObject();
+
+                        // Save ready area
+                        JsonObject readyAreaObj = new JsonObject();
+                        readyAreaObj.addProperty("minX", -50);
+                        readyAreaObj.addProperty("minY", -64);
+                        readyAreaObj.addProperty("minZ", -50);
+                        readyAreaObj.addProperty("maxX", 50);
+                        readyAreaObj.addProperty("maxY", 64);
+                        readyAreaObj.addProperty("maxZ", 50);
+                        jsonObject.add("readyArea", readyAreaObj);
+
+                        // Write to file
+                        FileWriter writer = new FileWriter(readyAreaFile);
+                        GSON.toJson(jsonObject, writer);
+                        writer.close();
+                    }
                 }
+            } catch (Exception e) {
+                SRE.LOGGER.error("Failed to load readyArea from readyArea.json", e);
             }
         } catch (Exception e) {
-            SRE.LOGGER.error("Failed to load readyArea from readyArea.json", e);
+            SRE.LOGGER.error("Error while loading ready area file. ", e);
+            return;
         }
     }
 
@@ -419,7 +448,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
             // Write to file
             FileWriter writer = new FileWriter(readyAreaFile);
-            new Gson().toJson(jsonObject, writer);
+            GSON.toJson(jsonObject, writer);
             writer.close();
 
             SRE.LOGGER.info("Successfully saved readyArea to readyArea.json");
