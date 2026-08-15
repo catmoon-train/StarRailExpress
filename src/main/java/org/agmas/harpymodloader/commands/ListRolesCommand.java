@@ -179,7 +179,7 @@ public class ListRolesCommand {
 
     private static final int PAGE_SIZE = 10;
 
-    private static int showRole(CommandContext<CommandSourceStack> context, int page) {
+    public static int showRole(CommandContext<CommandSourceStack> context, int page) {
         if (!Harpymodloader.officialVerify) {
             context.getSource().sendFailure(Component.translatable("game.start_error.credit"));
             return 1;
@@ -229,7 +229,7 @@ public class ListRolesCommand {
                     boolean disabled = HarpyModLoaderConfig.HANDLER.instance().getDisabled()
                             .contains(role.identifier().toString());
                     MutableComponent status = createStatus(source, configDisabled, disabled,
-                            "/setEnabledRole " + role.identifier() + " " + configDisabled);
+                            "/setEnabledRole " + role.identifier() + " " + configDisabled + " show " + page);
                     message.append(buildElementText(RoleUtils.getRoleOrModifierNameWithColor(role),
                             role.identifier(),
                             status, true));
@@ -239,7 +239,7 @@ public class ListRolesCommand {
                             .contains(modifier.identifier().toString());
                     MutableComponent status = createStatus(source, configDisabled, disabled,
                             "/setEnabledModifier " + modifier.identifier() + " "
-                                    + disabled);
+                                    + disabled + " show " + page);
                     message.append(
                             buildElementText(
                                     RoleUtils.getRoleOrModifierNameWithColor(

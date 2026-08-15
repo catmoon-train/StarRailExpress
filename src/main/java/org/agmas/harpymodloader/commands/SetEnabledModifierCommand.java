@@ -17,6 +17,7 @@ package org.agmas.harpymodloader.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -39,12 +40,16 @@ public class SetEnabledModifierCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("setEnabledModifier")
-                        .requires(serverCommandSource -> serverCommandSource.hasPermission(SREConfig.instance().modifyEnableStatusRequiredPermission))
+                        .requires(serverCommandSource -> serverCommandSource
+                                .hasPermission(SREConfig.instance().modifyEnableStatusRequiredPermission))
                         .then(Commands.literal("enableAll").executes(SetEnabledModifierCommand::enableAll))
                         .then(Commands.literal("disableAll").executes(SetEnabledModifierCommand::disableAll))
                         .then(Commands.argument("modifier", ModifierArgumentType.create())
                                 .then(Commands.argument("enabled", BoolArgumentType.bool())
-                                        .executes(SetEnabledModifierCommand::execute))));
+                                        .executes((ctx) -> execute(ctx, 0)).then(Commands.literal("show")
+                                                .then(Commands.argument("page", IntegerArgumentType.integer(1))
+                                                        .executes((ctx) -> execute(ctx,
+                                                                IntegerArgumentType.getInteger(ctx, "page"))))))));
     }
 
     private static int disableAll(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -71,11 +76,11 @@ public class SetEnabledModifierCommand {
         HarpyModLoaderConfig.HANDLER.save();
 
         context.getSource().sendSuccess(
-                () -> Component.translatable("commands.setenabledmodifier.enable.success","ALL"), true);
+                () -> Component.translatable("commands.setenabledmodifier.enable.success", "ALL"), true);
         return 1;
     }
 
-    private static int execute(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    private static int execute(CommandContext<CommandSourceStack> context, int page) throws CommandSyntaxException {
         if (!Harpymodloader.officialVerify) {
             return 1;
         }
@@ -103,6 +108,9 @@ public class SetEnabledModifierCommand {
         }
 
         HarpyModLoaderConfig.HANDLER.save();
+        if (page > 0) {
+            ListRolesCommand.showRole(context, page);
+        }
         return 1;
     }
 }
