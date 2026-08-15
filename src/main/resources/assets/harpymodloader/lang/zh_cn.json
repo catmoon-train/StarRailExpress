@@ -26,6 +26,8 @@
   "commands.listroles.status.all_disabled.text": "\u00a74[配置+其他禁用]",
   "commands.listroles.status.all_disabled.hover": "\u00a7e配置禁用，且其他功能同样禁用了此职业（比如职业轮换、地图禁用等）。\n\u00a7a点击切换至启用状态\n%s",
   "commands.listroles.status.disabled.hover": "§a点击切换至启用状态\n%s",
+  "commands.listroles.type.role": "\u00a76[职业/角色]",
+  "commands.listroles.type.modifier": "\u00a73[修饰符]",
   "commands.changerole.success.changed": "已将玩家 %3$s 的角色从 %1$s 更改为 %2$s",
   "commands.changerole.success.assigned": "已将玩家 %2$s 的角色设置为 %1$s",
   "commands.changerole.reset": "已重置玩家 %s 的角色",

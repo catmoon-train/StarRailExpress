@@ -230,7 +230,7 @@ public class ListRolesCommand {
                             .contains(role.identifier().toString());
                     MutableComponent status = createStatus(source, configDisabled, disabled,
                             "/setEnabledRole " + role.identifier() + " " + configDisabled + " show " + page);
-                    message.append(buildElementText(RoleUtils.getRoleOrModifierNameWithColor(role),
+                    message.append(buildElementText("role",RoleUtils.getRoleOrModifierNameWithColor(role),
                             role.identifier(),
                             status, true));
                 } else if (entry instanceof SREModifier modifier) {
@@ -241,7 +241,7 @@ public class ListRolesCommand {
                             "/setEnabledModifier " + modifier.identifier() + " "
                                     + disabled + " show " + page);
                     message.append(
-                            buildElementText(
+                            buildElementText("modifier",
                                     RoleUtils.getRoleOrModifierNameWithColor(
                                             modifier),
                                     modifier.identifier(),
@@ -364,9 +364,9 @@ public class ListRolesCommand {
         return 1;
     }
 
-    private static MutableComponent buildElementText(Component name, ResourceLocation identifier, Component status,
+    private static MutableComponent buildElementText(String type, Component name, ResourceLocation identifier, Component status,
             boolean isRole) {
-        return Component.empty().append(name)
+        return Component.translatable("commands.listroles.type."+type).append(name)
                 .append(" ")
                 .append(Component.literal("(" + identifier + ")").withStyle(ChatFormatting.GRAY))
                 .append(" ")
