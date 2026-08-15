@@ -26,6 +26,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.client.utils.RoleDisabledUtilsForClient;
 
 public class SREDisableManager {
     public static HarpyModLoaderConfig config = HarpyModLoaderConfig.instance();
@@ -51,6 +52,11 @@ public class SREDisableManager {
                 onewayflag = true;
             }
             if (onewayflag) {
+                return false;
+            }
+            
+            
+            if (RoleDisabledUtilsForClient.isInMultiplayerGame()) {
                 return false;
             }
         }
@@ -90,8 +96,12 @@ public class SREDisableManager {
             if (onewayflag) {
                 return false;
             }
+            
+            if (RoleDisabledUtilsForClient.isInMultiplayerGame()) {
+                return false;
+            }
         }
-        
+
         if (SRE.SERVER != null) {
             var cca = AreasWorldComponent.KEY.get(SRE.SERVER.overworld());
             if (cca.disabledModifiers.contains(modifier.identifier().toString())) {
