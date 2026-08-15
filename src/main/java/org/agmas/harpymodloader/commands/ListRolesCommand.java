@@ -35,6 +35,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.harpymodloader.commands.argument.ModifierArgumentType;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
@@ -190,7 +191,7 @@ public class ListRolesCommand {
         ArrayList<SRERole> roleList = new ArrayList<>(TMMRoles.ROLES.values());
         if (!source.hasPermission(SREConfig.instance().modifyEnableStatusRequiredPermission)) {
             Noellesroles.sortRoles(roleList, false, true);
-        }else{
+        } else {
             Noellesroles.sortRoles(roleList, false, false);
         }
         // 准备修饰符列表
@@ -220,19 +221,23 @@ public class ListRolesCommand {
                     .append("\n\n"));
 
             // 遍历合并后的列表
+            final var CONFIG = HarpyModLoaderConfig.HANDLER.instance();
             for (Object entry : subList) {
                 if (entry instanceof SRERole role) {
+                    boolean configDisabled = CONFIG.getDisabled()
+                            .contains(role.identifier().toString());
                     boolean disabled = HarpyModLoaderConfig.HANDLER.instance().getDisabled()
                             .contains(role.identifier().toString());
-                    MutableComponent status = createStatus(source, disabled,
-                            "/setEnabledRole " + role.identifier() + " " + disabled);
+                    MutableComponent status = createStatus(source, configDisabled, disabled,
+                            "/setEnabledRole " + role.identifier() + " " + configDisabled);
                     message.append(buildElementText(RoleUtils.getRoleOrModifierNameWithColor(role),
                             role.identifier(),
                             status, true));
                 } else if (entry instanceof SREModifier modifier) {
-                    boolean disabled = HarpyModLoaderConfig.HANDLER.instance().disabledModifiers
+                    boolean disabled = SREDisableManager.isModifierDisabled(modifier);
+                    boolean configDisabled = CONFIG.disabledModifiers
                             .contains(modifier.identifier().toString());
-                    MutableComponent status = createStatus(source, disabled,
+                    MutableComponent status = createStatus(source, configDisabled, disabled,
                             "/setEnabledModifier " + modifier.identifier() + " "
                                     + disabled);
                     message.append(
@@ -376,8 +381,23 @@ public class ListRolesCommand {
                                         + identifier)));
     }
 
-    private static MutableComponent createStatus(CommandSourceStack source, boolean disabled, String cmd) {
-        String key = disabled ? "disabled" : "enabled";
+    private static MutableComponent createStatus(CommandSourceStack source, boolean configDisabled, boolean disabled,
+            String cmd) {
+        String keyForName = "unknown";
+        if (configDisabled) {
+            if (disabled) {
+                keyForName = "all_disabled";
+            } else {
+                keyForName = "config_disabled";
+            }
+        } else {
+            if (disabled) {
+                keyForName = "other_disabled";
+            } else {
+                keyForName = "enabled";
+            }
+        }
+        final String key = keyForName;
         return Component.translatable("commands.listroles.status." + key + ".text").withStyle(style -> {
             if (source.hasPermission(SREConfig.instance().modifyEnableStatusRequiredPermission)) {
                 return style

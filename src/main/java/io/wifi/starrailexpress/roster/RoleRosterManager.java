@@ -204,8 +204,9 @@ public final class RoleRosterManager {
     // ------------------------------------------------------------------
 
     private static void broadcast() {
-        if (!SREConfig.instance().enableRoster)
+        if (!SREConfig.instance().enableRoster){
             return;
+        }
         MinecraftServer srv = server;
         if (srv == null) {
             return;
