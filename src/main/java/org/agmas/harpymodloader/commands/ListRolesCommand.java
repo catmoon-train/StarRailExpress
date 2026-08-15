@@ -386,7 +386,7 @@ public class ListRolesCommand {
         String keyForName = "unknown";
         if (configDisabled) {
             if (disabled) {
-                keyForName = "all_disabled";
+                keyForName = "disabled";
             } else {
                 keyForName = "config_disabled";
             }
