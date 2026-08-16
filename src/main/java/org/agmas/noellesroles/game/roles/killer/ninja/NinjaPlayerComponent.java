@@ -118,7 +118,7 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
             return false;
         }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (gameWorld.getRole(player.getUUID()) != ModRoles.NINJA)
+        if (gameWorld.getRole(player) != ModRoles.NINJA)
             return false;
 
         this.hasShield = true;

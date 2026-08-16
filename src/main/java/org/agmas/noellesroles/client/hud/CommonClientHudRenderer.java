@@ -900,8 +900,8 @@ public class CommonClientHudRenderer {
 
       // 技能激活中（格挡中）
       if (ninjaComp.isAbilityActive()) {
-        int seconds = (int) Math.ceil(ninjaComp.getDurationSeconds());
-        text = Component.translatable("hud.noellesroles.ninja.active", seconds);
+        float seconds = (ninjaComp.getDurationSeconds());
+        text = Component.translatable("hud.noellesroles.ninja.active", String.format("%.1f", seconds));
         color = 0xFF5555;
       }
       // 技能冷却中
