@@ -173,6 +173,9 @@ public class NinjaPlayerComponent implements RoleComponent, ServerTickingCompone
                 hasShield = false;
                 shieldUsed = false;
                 cooldown = ABILITY_COOLDOWN;
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.ninja.block_over").withStyle(ChatFormatting.GOLD),
+                        true);
                 sync();
             } else if (duration % 200 == 0) {
                 sync();

@@ -901,19 +901,19 @@ public class CommonClientHudRenderer {
       // 技能激活中（格挡中）
       if (ninjaComp.isAbilityActive()) {
         float seconds = (ninjaComp.getDurationSeconds());
-        text = Component.translatable("hud.noellesroles.ninja.active", String.format("%.1f", seconds));
-        color = 0xFF5555;
+        text = Component.translatable("hud.noellesroles.ninja.active", String.format("%.1f", seconds))
+            .withStyle(ChatFormatting.AQUA);
       }
       // 技能冷却中
       else if (ninjaComp.isOnCooldown()) {
         int seconds = (int) Math.ceil(ninjaComp.getCooldownSeconds());
-        text = Component.translatable("hud.noellesroles.ninja.cooldown", seconds);
-        color = 0xFF5555; // 红色
+        text = Component.translatable("hud.noellesroles.ninja.cooldown", seconds).withStyle(ChatFormatting.RED);
       }
       // 技能可用
       else {
-        text = Component.translatable("hud.noellesroles.ninja.ready",NoellesrolesClient.abilityBind.getTranslatedKeyMessage());
-        color = 0xFF5555;
+        text = Component
+            .translatable("hud.noellesroles.ninja.ready", NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+            .withStyle(ChatFormatting.GREEN);
       }
 
       // 计算文字宽度（右对齐）

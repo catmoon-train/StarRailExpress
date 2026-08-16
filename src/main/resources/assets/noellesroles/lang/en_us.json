@@ -2268,6 +2268,7 @@
     "message.noellesroles.ninja.bounty": "§6 [Bounty] §e, get extra %s coin!",
     "hud.noellesroles.ninja.active": "Blocking: %s seconds left",
     "hud.noellesroles.ninja.cooldown": "Ability will be available in %s seconds",
+    "message.noellesroles.ninja.block_over": "Ability time out!",
     "hud.noellesroles.ninja.ready": "Press %s to block",
     "announcement.star.role.ninja": "Ninja",
     "announcement.star.goals.ninja": "You will let them leave your side silently!",

@@ -2268,6 +2268,7 @@
   "message.noellesroles.ninja.bounty": "§6[賞金] §e，額外獲得 %s 金幣！",
   "hud.noellesroles.ninja.active": "格擋中:還剩 %s 秒",
   "hud.noellesroles.ninja.cooldown": "能力將在 %s 秒後可用",
+  "message.noellesroles.ninja.block_over": "格挡技能结束！",
   "hud.noellesroles.ninja.ready": "按 %s 使用格擋",
   "announcement.star.role.ninja": "忍者",
   "announcement.star.goals.ninja": "你會讓他們悄無聲息地離開你的身邊！",
