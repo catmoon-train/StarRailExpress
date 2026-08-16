@@ -2137,17 +2137,7 @@ public class RoleShopHandler {
             SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
                     ShopEntry.Type.TOOL) {
                 public boolean onBuy(@NotNull Player player) {
-                    player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
-                            Math.min((Integer) GameConstants.ITEM_COOLDOWNS
-                                    .getOrDefault(TMMItems.BLACKOUT, 0), 60));
-                    boolean triggered = ((SREWorldBlackoutComponent) SREWorldBlackoutComponent.KEY
-                            .get(player.level()))
-                            .triggerBlackout();
-                    if (triggered) {
-                        SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(),
-                                BuiltInRegistries.ITEM.getKey(TMMItems.BLACKOUT));
-                    }
-                    return triggered;
+                    return SREPlayerShopComponent.useBlackout(player);
                 }
             });
             var psychoItem = TMMItems.PSYCHO_MODE.getDefaultInstance();
