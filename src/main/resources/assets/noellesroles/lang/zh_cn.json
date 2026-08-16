@@ -2269,7 +2269,7 @@
   "message.noellesroles.ninja.bounty": "§6[赏金] §e，额外获得 %s 金币！",
   "hud.noellesroles.ninja.active": "格挡中:还剩 %s 秒",
   "hud.noellesroles.ninja.cooldown": "能力将在 %s 秒后可用",
-  "hud.noellesroles.ninja.ready": "按 G 使用格挡",
+  "hud.noellesroles.ninja.ready": "按 %s 使用格挡",
   "announcement.star.role.ninja": "忍者",
   "announcement.star.goals.ninja": "你会让他们悄无声息地离开你的身边！",
   "announcement.star.win.ninja": "杀手胜利！",

@@ -912,7 +912,7 @@ public class CommonClientHudRenderer {
       }
       // 技能可用
       else {
-        text = Component.translatable("hud.noellesroles.ninja.ready");
+        text = Component.translatable("hud.noellesroles.ninja.ready",NoellesrolesClient.abilityBind.getTranslatedKeyMessage());
         color = 0xFF5555;
       }
 
