@@ -896,6 +896,7 @@
     "entity.trainmurdermystery.firecracker": "鞭炮",
     "entity.trainmurdermystery.grenade": "手榴弹",
     "entity.trainmurdermystery.note": "便签",
+    "entity.starrailexpress.player_body": "玩家尸体",
     "entity.starrailexpress.player_body.custom_name": "%s的玩家尸体",
     "entity.trainmurdermystery.seat": "座位",
     "entity.trainmurdermystery.sticky_grenade": "粘性雷",
