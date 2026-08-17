@@ -386,6 +386,7 @@ public final class MeetingManager {
             participant.removeEffect(MobEffects.INVISIBILITY);
             participant.removeEffect(MobEffects.GLOWING);
             participant.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, -1, 0, false, false, false));
+            participant.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, -1, 0, false, false, false));
             participant.addEffect(new MobEffectInstance(ModEffects.USED_BANED, -1, 0, false, false, false));
             participant.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, -1, 0, false, false, false));
             participant
@@ -429,6 +430,7 @@ public final class MeetingManager {
             participant.removeEffect(ModEffects.SKILL_BANED);
             participant.removeEffect(ModEffects.SKILL_FREEZED);
             participant.removeEffect(ModEffects.CCA_FREEZED);
+            participant.removeEffect(MobEffects.NIGHT_VISION);
             if (!participant.isSpectator()) {
                 ReturnPos pos = entry.getValue();
                 participant.teleportTo(serverLevel, pos.x(), pos.y(), pos.z(), Set.of(), pos.yaw(), pos.pitch());
