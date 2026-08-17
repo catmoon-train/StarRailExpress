@@ -50,7 +50,7 @@ public class HonoredNoteItem extends NoteItem {
     static final Component[] HONORED_NOTE_MESSAGES = new Component[] {
             Component
                     .translatable("item.noellesroles.honored_note.text1",
-                            Component.keybind("key.noellesroles.ability").withStyle(ChatFormatting.RED,
+                            Component.keybind("key.noellesroles.fool_prayer").withStyle(ChatFormatting.RED,
                                     ChatFormatting.BOLD))
                     .withStyle(ChatFormatting.GOLD,
                             ChatFormatting.BOLD),

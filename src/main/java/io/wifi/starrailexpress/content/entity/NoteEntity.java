@@ -27,21 +27,26 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import io.wifi.starrailexpress.util.SRENBTUtils;
-
+import io.wifi.starrailexpress.SRE;
 import java.util.function.Supplier;
 
 public class NoteEntity extends Entity {
     private static final EntityDataAccessor<Integer> DIRECTION = SynchedEntityData.defineId(NoteEntity.class,
             EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Component> LINE1 = SynchedEntityData.defineId(NoteEntity.class,
-            EntityDataSerializers.COMPONENT);
-    private static final EntityDataAccessor<Component> LINE2 = SynchedEntityData.defineId(NoteEntity.class,
-            EntityDataSerializers.COMPONENT);
-    private static final EntityDataAccessor<Component> LINE3 = SynchedEntityData.defineId(NoteEntity.class,
-            EntityDataSerializers.COMPONENT);
-    private static final EntityDataAccessor<Component> LINE4 = SynchedEntityData.defineId(NoteEntity.class,
-            EntityDataSerializers.COMPONENT);
+
+    @Deprecated
+    private static final EntityDataAccessor<String> LINE1 = SynchedEntityData.defineId(NoteEntity.class,
+            EntityDataSerializers.STRING);
+    @Deprecated
+    private static final EntityDataAccessor<String> LINE2 = SynchedEntityData.defineId(NoteEntity.class,
+            EntityDataSerializers.STRING);
+    @Deprecated
+    private static final EntityDataAccessor<String> LINE3 = SynchedEntityData.defineId(NoteEntity.class,
+            EntityDataSerializers.STRING);
+    @Deprecated
+    private static final EntityDataAccessor<String> LINE4 = SynchedEntityData.defineId(NoteEntity.class,
+            EntityDataSerializers.STRING);
+
     public final int seed;
 
     public NoteEntity(EntityType<?> type, Level world) {
@@ -68,22 +73,43 @@ public class NoteEntity extends Entity {
 
     public Component[] getLines() {
         return new Component[] {
-                this.entityData.get(LINE1),
-                this.entityData.get(LINE2),
-                this.entityData.get(LINE3),
-                this.entityData.get(LINE4)
+                stringToComponent(this.entityData.get(LINE1)),
+                stringToComponent(this.entityData.get(LINE2)),
+                stringToComponent(this.entityData.get(LINE3)),
+                stringToComponent(this.entityData.get(LINE4))
         };
     }
 
-    public void setLines(String @NotNull [] lines) {
-        Component[] arr = new Component[lines.length];
-        for (int i = 0; i < lines.length; i++) {
-            arr[i] = Component.nullToEmpty(lines[i]);
+    private String componentToString(Component message) {
+        try {
+            String msg = Component.Serializer.toJson(message, this.registryAccess());
+            return "\uE783" + msg;
+        } catch (Exception e) {
+            SRE.LOGGER.error("[Note Entity] Error while transform Component message to string", e);
         }
-        setLines(arr);
+        return "";
     }
 
-    public void setLines(Component @NotNull [] lines) {
+    private Component stringToComponent(String string) {
+        if (string == null)
+            return Component.empty();
+        if (string.isBlank())
+            return Component.empty();
+        if (string.startsWith("\uE783")) {
+
+            try {
+                String rawJson = string.substring("\uE783".length());
+                Component msg = Component.Serializer.fromJson(rawJson, this.registryAccess());
+                return msg;
+            } catch (Exception e) {
+                SRE.LOGGER.error("[Note Entity] Error while transform Component from JSON to Component", e);
+            }
+        }
+
+        return Component.literal(string);
+    }
+
+    public void setLines(String @NotNull [] lines) {
         if (lines.length > 0)
             this.entityData.set(LINE1, lines[0]);
         if (lines.length > 1)
@@ -92,6 +118,14 @@ public class NoteEntity extends Entity {
             this.entityData.set(LINE3, lines[2]);
         if (lines.length > 3)
             this.entityData.set(LINE4, lines[3]);
+    }
+
+    public void setLines(Component @NotNull [] lines) {
+        String[] arr = new String[lines.length];
+        for (int i = 0; i < lines.length; i++) {
+            arr[i] = componentToString(lines[i]);
+        }
+        setLines(arr);
     }
 
     public @NotNull Direction getDirection() {
@@ -105,19 +139,19 @@ public class NoteEntity extends Entity {
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         builder.define(DIRECTION, Direction.NORTH.get3DDataValue());
-        builder.define(LINE1, Component.empty());
-        builder.define(LINE2, Component.empty());
-        builder.define(LINE3, Component.empty());
-        builder.define(LINE4, Component.empty());
+        builder.define(LINE1, "");
+        builder.define(LINE2, "");
+        builder.define(LINE3, "");
+        builder.define(LINE4, "");
     }
 
     @Override
     protected void addAdditionalSaveData(@NotNull CompoundTag nbt) {
         nbt.putInt("Direction", this.entityData.get(DIRECTION));
-        SRENBTUtils.writeComponent(nbt, "Text1", this.entityData.get(LINE1), this.registryAccess());
-        SRENBTUtils.writeComponent(nbt, "Text2", this.entityData.get(LINE2), this.registryAccess());
-        SRENBTUtils.writeComponent(nbt, "Text3", this.entityData.get(LINE3), this.registryAccess());
-        SRENBTUtils.writeComponent(nbt, "Text4", this.entityData.get(LINE4), this.registryAccess());
+        nbt.putString("Line1", this.entityData.get(LINE1));
+        nbt.putString("Line2", this.entityData.get(LINE2));
+        nbt.putString("Line3", this.entityData.get(LINE3));
+        nbt.putString("Line4", this.entityData.get(LINE4));
     }
 
     @Override
@@ -129,53 +163,26 @@ public class NoteEntity extends Entity {
         {
             if (nbt.contains("Line1")) {
                 String str = nbt.getString("Line1");
-                Component message = Component.nullToEmpty(str);
-                if (message != null)
-                    this.entityData.set(LINE1, message);
+                if (str != null)
+                    this.entityData.set(LINE1, str);
             }
 
             if (nbt.contains("Line2")) {
                 String str = nbt.getString("Line2");
-                Component message = Component.nullToEmpty(str);
-                if (message != null)
-                    this.entityData.set(LINE2, message);
+                if (str != null)
+                    this.entityData.set(LINE2, str);
             }
 
             if (nbt.contains("Line3")) {
                 String str = nbt.getString("Line3");
-                Component message = Component.nullToEmpty(str);
-                if (message != null)
-                    this.entityData.set(LINE3, message);
+                if (str != null)
+                    this.entityData.set(LINE3, str);
             }
 
             if (nbt.contains("Line4")) {
                 String str = nbt.getString("Line4");
-                Component message = Component.nullToEmpty(str);
-                if (message != null)
-                    this.entityData.set(LINE4, message);
-            }
-        }
-        // 新版本读取
-        {
-            {
-                Component message = SRENBTUtils.readComponent(nbt, "Text1", this.registryAccess());
-                if (message != null)
-                    this.entityData.set(LINE1, message);
-            }
-            {
-                Component message = SRENBTUtils.readComponent(nbt, "Text2", this.registryAccess());
-                if (message != null)
-                    this.entityData.set(LINE2, message);
-            }
-            {
-                Component message = SRENBTUtils.readComponent(nbt, "Text3", this.registryAccess());
-                if (message != null)
-                    this.entityData.set(LINE3, message);
-            }
-            {
-                Component message = SRENBTUtils.readComponent(nbt, "Text4", this.registryAccess());
-                if (message != null)
-                    this.entityData.set(LINE4, message);
+                if (str != null)
+                    this.entityData.set(LINE4, str);
             }
         }
     }
