@@ -20,6 +20,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.game.roles.innocence.fool.ExecutionerGunItem;
@@ -44,12 +46,16 @@ public abstract class FoolHud {
         CommonHudRenderCallback.EVENT.register((context, tickCounter) -> {
             Minecraft client = Minecraft.getInstance();
             LocalPlayer player = client.player;
-            if (player == null || client.level == null) return;
-            if (SREClient.isPlayerSpectator()) return;
-            if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(player, ModRoles.THE_FOOL)) return;
+            if (player == null || client.level == null)
+                return;
+            if (SREClient.isPlayerSpectator())
+                return;
+            if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(player, ModRoles.THE_FOOL))
+                return;
 
             FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
-            if (!player.hasEffect(ModEffects.TAROT_ASSEMBLY) || !comp.voteInProgress || comp.voteEndTick <= 0) return;
+            if (!player.hasEffect(ModEffects.TAROT_ASSEMBLY) || !comp.voteInProgress || comp.voteEndTick <= 0)
+                return;
 
             long remainingTicks = Math.max(0, comp.voteEndTick - client.level.getGameTime());
             Component meetingText = Component.translatable("hud.noellesroles.fool.member_meeting_active",
@@ -67,7 +73,8 @@ public abstract class FoolHud {
             Minecraft client = Minecraft.getInstance();
             final Font renderer = client.font;
             final LocalPlayer player = client.player;
-            if (player == null) return;
+            if (player == null)
+                return;
 
             FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
 
@@ -79,10 +86,11 @@ public abstract class FoolHud {
             int xOffset = screenWidth - 200;
             int lineHeight = 12;
 
-                boolean hasGun = ExecutionerGunItem.hasExecutionerGun(player);
-                Component bulletText = Component.translatable("hud.noellesroles.fool.gun",
-                    Component.translatable(hasGun ? "hud.noellesroles.fool.gun_ready" : "hud.noellesroles.fool.gun_missing"));
-                context.drawString(renderer, bulletText, xOffset, yOffset, hasGun ? 0x55FF55 : 0xFF5555);
+            boolean hasGun = ExecutionerGunItem.hasExecutionerGun(player);
+            Component bulletText = Component.translatable("hud.noellesroles.fool.gun",
+                    Component.translatable(
+                            hasGun ? "hud.noellesroles.fool.gun_ready" : "hud.noellesroles.fool.gun_missing"));
+            context.drawString(renderer, bulletText, xOffset, yOffset, hasGun ? 0x55FF55 : 0xFF5555);
             yOffset += lineHeight;
 
             // 塔罗会成员数
@@ -106,6 +114,8 @@ public abstract class FoolHud {
                 long gameTime = client.level != null ? client.level.getGameTime() : 0;
                 long remainingTicks = Math.max(0, comp.meetingEndTick - gameTime);
                 Component meetingText = Component.translatable("hud.noellesroles.fool.meeting_active",
+                        NoellesrolesClient.abilityBind.getTranslatedKeyMessage(),
+                        NoellesrolesClient.foolPrayerBind.getTranslatedKeyMessage(),
                         remainingTicks / 20);
                 context.drawString(renderer, meetingText, xOffset, yOffset, 0xFFD700);
                 yOffset += lineHeight;

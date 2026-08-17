@@ -624,7 +624,8 @@ public class CommonClientHudRenderer {
         text = Component.translatable("gui.noellesroles.noisemaker.cooldown", seconds);
         color = 0xFF5555; // 红色
       } else {
-        text = Component.translatable("gui.noellesroles.noisemaker.ready");
+        text = Component.translatable("gui.noellesroles.noisemaker.ready",
+            NoellesrolesClient.abilityBind.getTranslatedKeyMessage());
         color = 0x55FF55; // 绿色
       }
 
@@ -686,7 +687,8 @@ public class CommonClientHudRenderer {
         text = Component.translatable("gui.noellesroles.spellbreaker.cooldown", seconds);
         color = 0xFF5555; // 红色
       } else {
-        text = Component.translatable("gui.noellesroles.spellbreaker.unlocked");
+        text = Component.translatable("gui.noellesroles.spellbreaker.unlocked",
+            NoellesrolesClient.abilityBind.getTranslatedKeyMessage());
         color = 0x55FF55; // 绿色
       }
       int screenWidth = client.getWindow().getGuiScaledWidth();

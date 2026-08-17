@@ -20,6 +20,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
@@ -94,7 +96,9 @@ public class AdmirerHud {
                 context.drawString(textRenderer, gazingText, x, y, 0xFFFFFF);
             } else {
                 // 提示按G开始窥视
-                Component hintText = Component.translatable("hud.noellesroles.admirer.hint")
+                Component hintText = Component
+                        .translatable("hud.noellesroles.admirer.hint",
+                                NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
                         .withStyle(ChatFormatting.GRAY);
                 context.drawString(textRenderer, hintText, x, y, 0xFFFFFF);
             }

@@ -67,7 +67,7 @@ public final class MeetingClientHandler {
     public static final KeyMapping speakKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.meeting_report_and_speak",
             GLFW.GLFW_KEY_SEMICOLON,
-            "category.starrailexpress.general"));;
+            "category.starrailexpress.keybinds"));
 
     // ── 同步状态（来自 MeetingStateS2CPayload）───────────────────
     public static int phase = MeetingManager.PHASE_NONE;

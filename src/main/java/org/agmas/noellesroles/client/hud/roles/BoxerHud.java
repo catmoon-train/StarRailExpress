@@ -19,6 +19,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
@@ -69,7 +71,8 @@ public class BoxerHud {
 
             } else {
                 // 技能就绪 - 显示绿色提示
-                Component readyText = Component.translatable("hud.noellesroles.boxer.ready");
+                Component readyText = Component.translatable("hud.noellesroles.boxer.ready",
+                        NoellesrolesClient.abilityBind.getTranslatedKeyMessage());
                 context.drawString(textRenderer, readyText, x, y, CommonColors.GREEN);
             }
         });

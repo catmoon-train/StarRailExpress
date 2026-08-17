@@ -20,6 +20,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
@@ -78,7 +80,7 @@ public class SuperStarHud {
                         .withStyle(ChatFormatting.RED);
             } else {
                 // 就绪
-                abilityText = Component.translatable("hud.noellesroles.star.ready")
+                abilityText = Component.translatable("hud.noellesroles.star.ready",NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
                         .withStyle(ChatFormatting.GREEN);
             }
             int abilityWidth = textRenderer.width(abilityText);

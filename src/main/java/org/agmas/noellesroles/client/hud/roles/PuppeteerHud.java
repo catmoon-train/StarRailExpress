@@ -20,6 +20,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
@@ -116,7 +118,9 @@ public class PuppeteerHud {
                     context.drawString(textRenderer, controlText, baseX, baseY, 0xFFFF00);
 
                     // 显示返回本体提示
-                    Component returnHint = Component.translatable("message.noellesroles.puppeteer.returned_to_body_tip")
+                    Component returnHint = Component
+                            .translatable("message.noellesroles.puppeteer.returned_to_body_tip",
+                                    NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
                             .withStyle(ChatFormatting.GOLD);
                     context.drawString(textRenderer, returnHint, baseX, baseY + 12, 0xFFA500);
                 } else {
@@ -135,7 +139,8 @@ public class PuppeteerHud {
                                 .withStyle(ChatFormatting.RED);
                     } else if (remainingPuppets > 0) {
                         abilityText = Component
-                                .translatable("hud.noellesroles.puppeteer.puppet_ready", remainingPuppets)
+                                .translatable("hud.noellesroles.puppeteer.puppet_ready",
+                                        NoellesrolesClient.abilityBind.getTranslatedKeyMessage(), remainingPuppets)
                                 .withStyle(ChatFormatting.GREEN);
                     } else {
                         abilityText = Component.translatable("hud.noellesroles.puppeteer.no_puppets")

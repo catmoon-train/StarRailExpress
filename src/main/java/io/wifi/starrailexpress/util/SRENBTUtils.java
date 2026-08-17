@@ -16,12 +16,48 @@
 package io.wifi.starrailexpress.util;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
+
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import io.wifi.starrailexpress.SRE;
 
 // Author: wifi_left
 public class SRENBTUtils {
+    public static boolean writeComponent(CompoundTag tag, String key, Component message,
+            HolderLookup.@NotNull Provider registryLookup) {
+        if (message == null) {
+            return false;
+        }
+        try {
+            tag.putString(key, Component.Serializer.toJson(message, registryLookup));
+        } catch (Exception e) {
+            SRE.LOGGER.error("Error while write component message to key {}", key, e);
+        }
+        return true;
+    }
+
+    public static @Nullable Component readComponent(CompoundTag tag, String key,
+            HolderLookup.@NotNull Provider registryLookup) {
+        if (!tag.contains(key, Tag.TAG_STRING)) {
+            return null;
+        }
+
+        try {
+            if (tag.getString(key).isBlank())
+                return null;
+            return Component.Serializer.fromJson(tag.getString(key), registryLookup);
+        } catch (Exception e) {
+            SRE.LOGGER.error("Error while read component message from key {}", key, e);
+        }
+        return null;
+    }
+
     public static CompoundTag vec3ToTag(Vec3 vec3) {
         CompoundTag tag = new CompoundTag();
         tag.putDouble("x", vec3.x);

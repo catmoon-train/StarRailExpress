@@ -78,7 +78,8 @@ public class TrapperHud {
                         comp.netGunCooldownTicks);
             } else {
                 context.drawString(font, Component.translatable("hud.noellesroles.trapper.net_cost",
-                        TrapperPlayerComponent.NET_GUN_COST), x, y + 72, 0xAAAAAA);
+                        TrapperPlayerComponent.NET_GUN_COST, NoellesrolesClient.abilityBind.getTranslatedKeyMessage()),
+                        x, y + 72, 0xAAAAAA);
             }
         });
     }

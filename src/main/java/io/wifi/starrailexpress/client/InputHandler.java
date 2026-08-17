@@ -44,27 +44,27 @@ public class InputHandler {
     public static KeyMapping openVotingScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.open_voting_screen",
             GLFW.GLFW_KEY_M,
-            "category.starrailexpress.general"));
+            "category.starrailexpress.keybinds"));
     public static KeyMapping openFourthRoomScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.open_fourth_room_screen",
             GLFW.GLFW_KEY_UNKNOWN,
-            "category.starrailexpress.general"));
+            "category.starrailexpress.keybinds"));
     public static KeyMapping openFourthRoomPeekScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.open_fourth_room_peek_screen",
             GLFW.GLFW_KEY_UNKNOWN,
-            "category.starrailexpress.general"));
+            "category.starrailexpress.keybinds"));
     public static KeyMapping openCommandMacroScreenKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.open_command_macro_screen",
             GLFW.GLFW_KEY_UNKNOWN,
-            "category.starrailexpress.general"));
+            "category.starrailexpress.keybinds"));
     public static KeyMapping openClueArchiveKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.open_clue_archive",
             GLFW.GLFW_KEY_UNKNOWN,
-            "category.starrailexpress.general"));
+            "category.starrailexpress.keybinds"));
     public static KeyMapping sniperReloadKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.starrailexpress.sniper_reload",
             GLFW.GLFW_KEY_R,
-            "category.starrailexpress.general"));
+            "category.starrailexpress.keybinds"));
 
     public static void initialize() {
 

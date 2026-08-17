@@ -48,30 +48,43 @@ public class NoteItem extends Item implements AdventureUsable {
     @Override
     public InteractionResult useOn(@NotNull UseOnContext context) {
         Player player = context.getPlayer();
-        if (player == null || player.isShiftKeyDown()) return InteractionResult.PASS;
+        if (player == null || player.isShiftKeyDown())
+            return InteractionResult.PASS;
         SREPlayerNoteComponent component = SREPlayerNoteComponent.KEY.get(player);
         if (!component.written) {
-            player.displayClientMessage(Component.literal("我应该先写下点东西").withColor(Mth.hsvToRgb(0F, 1.0F, 0.6F)), true);
+            player.displayClientMessage(
+                    Component.translatable("message.note.write_sth").withColor(Mth.hsvToRgb(0F, 1.0F, 0.6F)), true);
             return InteractionResult.PASS;
         }
+        String[] texts = component.text;
+        Component[] messages = new Component[texts.length];
+        for (int i = 0; i < texts.length; i++) {
+            messages[i] = Component.nullToEmpty(texts[i]);
+        }
+        return createNote(context, messages);
+    }
+
+    public InteractionResult createNote(@NotNull UseOnContext context, Component[] texts) {
+        Player player = context.getPlayer();
         Level world = player.level();
-        if (world.isClientSide) return InteractionResult.PASS;
+        if (world.isClientSide)
+            return InteractionResult.PASS;
         NoteEntity note = createNoteEntity(world);
 
-        if (note == null) return InteractionResult.PASS;
+        if (note == null)
+            return InteractionResult.PASS;
 
         switch (context.getClickedFace()) {
-            case DOWN -> {
-                return InteractionResult.PASS;
-            }
-            case UP -> note.setYRot(player.getYHeadRot());
+            case DOWN, UP -> note.setYRot(player.getYHeadRot());
             case NORTH, SOUTH, WEST, EAST -> note.setYRot(180f + (world.random.nextFloat() - .5f) * 30f);
         }
 
         Direction side = context.getClickedFace();
         note.setDirection(side);
-        note.setLines(component.text);
-        Vec3 hitPos = context.getClickLocation().add(context.getClickLocation().subtract(player.getEyePosition()).normalize().scale(-.01f)).subtract(0, note.getBbHeight() / 2f, 0);
+        note.setLines(texts);
+        Vec3 hitPos = context.getClickLocation()
+                .add(context.getClickLocation().subtract(player.getEyePosition()).normalize().scale(-.01f))
+                .subtract(0, note.getBbHeight() / 2f, 0);
         note.setPos(hitPos.x(), hitPos.y(), hitPos.z());
         world.addFreshEntity(note);
         if (!player.isCreative()) {

@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.content.entity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -26,19 +27,21 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import io.wifi.starrailexpress.util.SRENBTUtils;
+
 import java.util.function.Supplier;
 
 public class NoteEntity extends Entity {
     private static final EntityDataAccessor<Integer> DIRECTION = SynchedEntityData.defineId(NoteEntity.class,
             EntityDataSerializers.INT);
-    private static final EntityDataAccessor<String> LINE1 = SynchedEntityData.defineId(NoteEntity.class,
-            EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<String> LINE2 = SynchedEntityData.defineId(NoteEntity.class,
-            EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<String> LINE3 = SynchedEntityData.defineId(NoteEntity.class,
-            EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<String> LINE4 = SynchedEntityData.defineId(NoteEntity.class,
-            EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Component> LINE1 = SynchedEntityData.defineId(NoteEntity.class,
+            EntityDataSerializers.COMPONENT);
+    private static final EntityDataAccessor<Component> LINE2 = SynchedEntityData.defineId(NoteEntity.class,
+            EntityDataSerializers.COMPONENT);
+    private static final EntityDataAccessor<Component> LINE3 = SynchedEntityData.defineId(NoteEntity.class,
+            EntityDataSerializers.COMPONENT);
+    private static final EntityDataAccessor<Component> LINE4 = SynchedEntityData.defineId(NoteEntity.class,
+            EntityDataSerializers.COMPONENT);
     public final int seed;
 
     public NoteEntity(EntityType<?> type, Level world) {
@@ -63,8 +66,8 @@ public class NoteEntity extends Entity {
         }
     }
 
-    public String[] getLines() {
-        return new String[] {
+    public Component[] getLines() {
+        return new Component[] {
                 this.entityData.get(LINE1),
                 this.entityData.get(LINE2),
                 this.entityData.get(LINE3),
@@ -73,6 +76,14 @@ public class NoteEntity extends Entity {
     }
 
     public void setLines(String @NotNull [] lines) {
+        Component[] arr = new Component[lines.length];
+        for (int i = 0; i < lines.length; i++) {
+            arr[i] = Component.nullToEmpty(lines[i]);
+        }
+        setLines(arr);
+    }
+
+    public void setLines(Component @NotNull [] lines) {
         if (lines.length > 0)
             this.entityData.set(LINE1, lines[0]);
         if (lines.length > 1)
@@ -94,32 +105,78 @@ public class NoteEntity extends Entity {
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         builder.define(DIRECTION, Direction.NORTH.get3DDataValue());
-        builder.define(LINE1, "");
-        builder.define(LINE2, "");
-        builder.define(LINE3, "");
-        builder.define(LINE4, "");
+        builder.define(LINE1, Component.empty());
+        builder.define(LINE2, Component.empty());
+        builder.define(LINE3, Component.empty());
+        builder.define(LINE4, Component.empty());
     }
 
     @Override
     protected void addAdditionalSaveData(@NotNull CompoundTag nbt) {
         nbt.putInt("Direction", this.entityData.get(DIRECTION));
-        nbt.putString("Line1", this.entityData.get(LINE1));
-        nbt.putString("Line2", this.entityData.get(LINE2));
-        nbt.putString("Line3", this.entityData.get(LINE3));
-        nbt.putString("Line4", this.entityData.get(LINE4));
+        SRENBTUtils.writeComponent(nbt, "Text1", this.entityData.get(LINE1), this.registryAccess());
+        SRENBTUtils.writeComponent(nbt, "Text2", this.entityData.get(LINE2), this.registryAccess());
+        SRENBTUtils.writeComponent(nbt, "Text3", this.entityData.get(LINE3), this.registryAccess());
+        SRENBTUtils.writeComponent(nbt, "Text4", this.entityData.get(LINE4), this.registryAccess());
     }
 
     @Override
     protected void readAdditionalSaveData(@NotNull CompoundTag nbt) {
         if (nbt.contains("Direction"))
             this.entityData.set(DIRECTION, nbt.getInt("Direction"));
-        if (nbt.contains("Line1"))
-            this.entityData.set(LINE1, nbt.getString("Line1"));
-        if (nbt.contains("Line2"))
-            this.entityData.set(LINE2, nbt.getString("Line2"));
-        if (nbt.contains("Line3"))
-            this.entityData.set(LINE3, nbt.getString("Line3"));
-        if (nbt.contains("Line4"))
-            this.entityData.set(LINE4, nbt.getString("Line4"));
+
+        // 兼容旧版本
+        {
+            if (nbt.contains("Line1")) {
+                String str = nbt.getString("Line1");
+                Component message = Component.nullToEmpty(str);
+                if (message != null)
+                    this.entityData.set(LINE1, message);
+            }
+
+            if (nbt.contains("Line2")) {
+                String str = nbt.getString("Line2");
+                Component message = Component.nullToEmpty(str);
+                if (message != null)
+                    this.entityData.set(LINE2, message);
+            }
+
+            if (nbt.contains("Line3")) {
+                String str = nbt.getString("Line3");
+                Component message = Component.nullToEmpty(str);
+                if (message != null)
+                    this.entityData.set(LINE3, message);
+            }
+
+            if (nbt.contains("Line4")) {
+                String str = nbt.getString("Line4");
+                Component message = Component.nullToEmpty(str);
+                if (message != null)
+                    this.entityData.set(LINE4, message);
+            }
+        }
+        // 新版本读取
+        {
+            {
+                Component message = SRENBTUtils.readComponent(nbt, "Text1", this.registryAccess());
+                if (message != null)
+                    this.entityData.set(LINE1, message);
+            }
+            {
+                Component message = SRENBTUtils.readComponent(nbt, "Text2", this.registryAccess());
+                if (message != null)
+                    this.entityData.set(LINE2, message);
+            }
+            {
+                Component message = SRENBTUtils.readComponent(nbt, "Text3", this.registryAccess());
+                if (message != null)
+                    this.entityData.set(LINE3, message);
+            }
+            {
+                Component message = SRENBTUtils.readComponent(nbt, "Text4", this.registryAccess());
+                if (message != null)
+                    this.entityData.set(LINE4, message);
+            }
+        }
     }
 }

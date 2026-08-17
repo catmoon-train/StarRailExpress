@@ -16,7 +16,6 @@
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.item.NoteItem;
 import net.minecraft.ChatFormatting;
@@ -26,6 +25,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,11 +44,20 @@ public class HonoredNoteItem extends NoteItem {
         super(settings);
     }
 
+    static final Component[] HONORED_NOTE_MESSAGES = new Component[] {
+            Component.translatable("item.noellesroles.honored_note.text1",Component.keybind("key.noellesroles.ability")).withStyle(ChatFormatting.GOLD,
+                    ChatFormatting.BOLD),
+            Component.translatable("item.noellesroles.honored_note.text2").withStyle(ChatFormatting.GOLD),
+            Component.translatable("item.noellesroles.honored_note.text3").withStyle(ChatFormatting.GOLD),
+            Component.translatable("item.noellesroles.honored_note.text4").withStyle(ChatFormatting.GOLD)
+    };
+
     @Override
     public InteractionResult useOn(@NotNull UseOnContext context) {
         Player player = context.getPlayer();
-        if (player == null || player.isShiftKeyDown()) return InteractionResult.PASS;
-        
+        if (player == null || player.isShiftKeyDown())
+            return InteractionResult.PASS;
+
         Level world = context.getLevel();
         if (!world.isClientSide) {
             ServerLevel serverWorld = (ServerLevel) world;
@@ -61,20 +70,10 @@ public class HonoredNoteItem extends NoteItem {
                         true);
                 return InteractionResult.FAIL;
             }
-
-            // 设置固定的尊名内容到玩家的笔记组件
-            SREPlayerNoteComponent component = SREPlayerNoteComponent.KEY.get(player);
-            component.setNote(
-                    "§l§6按下“祈祷键”（默认为J键）进行祷告",
-                    "§6不属于这个时代的愚者",
-                    "§6灰雾之上的神秘主宰",
-                    "§6执掌好运的黄黑之王"
-            );
-
         }
-        
+
         // 调用父类的 useOn 逻辑来放置纸条
-        return super.useOn(context);
+        return createNote(context, HONORED_NOTE_MESSAGES);
     }
 
     @Override

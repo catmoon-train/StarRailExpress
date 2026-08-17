@@ -19,6 +19,8 @@ import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
@@ -42,7 +44,7 @@ public class MonitorHud {
                 text = Component.translatable("gui.noellesroles.monitor.cooldown", seconds);
                 color = 0xFF5555; // 红色
             } else {
-                text = Component.translatable("gui.noellesroles.monitor.ready");
+                text = Component.translatable("gui.noellesroles.monitor.ready",NoellesrolesClient.abilityBind.getTranslatedKeyMessage());
                 color = 0x55FF55; // 绿色
             }
 

@@ -21,6 +21,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
@@ -98,7 +100,7 @@ public class PsychologistHud {
             }
             // 技能就绪（san值需要 >= 0.99 才算满）
             else if (sanity >= 0.99f) {
-                Component readyText = Component.translatable("hud.noellesroles.psychologist.ready")
+                Component readyText = Component.translatable("hud.noellesroles.psychologist.ready",NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
                         .withStyle(ChatFormatting.GREEN);
                 context.drawString(textRenderer, readyText, x, y, 0xFFFFFF);
                 y += 12;

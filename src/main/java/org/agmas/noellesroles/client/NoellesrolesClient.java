@@ -140,23 +140,23 @@ public class NoellesrolesClient implements ClientModInitializer {
     public static int insanityTime = 0;
     private static BlockPos repairHeldSearchTarget = null;
     public static KeyMapping roleIntroClientBind = KeyBindingHelper
-            .registerKeyBinding(new KeyMapping("key." + Noellesroles.MOD_ID + ".role_intro",
+            .registerKeyBinding(new KeyMapping("key.noellesroles.role_intro",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_U, "category.starrailexpress.keybinds"));
     public static KeyMapping mapIntroClientBind = KeyBindingHelper
-            .registerKeyBinding(new KeyMapping("key." + Noellesroles.MOD_ID + ".map_intro",
+            .registerKeyBinding(new KeyMapping("key.noellesroles.map_intro",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_COMMA, "category.starrailexpress.keybinds"));
     public static KeyMapping roleGuessNoteClientBind = KeyBindingHelper
-            .registerKeyBinding(new KeyMapping("key." + Noellesroles.MOD_ID + ".guess_role_note",
+            .registerKeyBinding(new KeyMapping("key.noellesroles.guess_role_note",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_I, "category.starrailexpress.keybinds"));
     public static KeyMapping abilityBind = KeyBindingHelper
-            .registerKeyBinding(new KeyMapping("key." + Noellesroles.MOD_ID + ".ability",
+            .registerKeyBinding(new KeyMapping("key.noellesroles.ability",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, "category.starrailexpress.keybinds"));
 
     public static KeyMapping taskInstinctOptionBind = KeyBindingHelper
-            .registerKeyBinding(new KeyMapping("key." + Noellesroles.MOD_ID + ".task_instinct_option",
+            .registerKeyBinding(new KeyMapping("key.noellesroles.task_instinct_option",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "category.starrailexpress.keybinds"));
     public static KeyMapping nextAbilityBind = KeyBindingHelper
-            .registerKeyBinding(new KeyMapping("key." + Noellesroles.MOD_ID + ".next_ability",
+            .registerKeyBinding(new KeyMapping("key.noellesroles.next_ability",
                     InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Y, "category.starrailexpress.keybinds"));
     public static KeyMapping taskInstinctBind = KeyBindingHelper
             .registerKeyBinding(new KeyMapping("key.noellesroles.taskinstinct",

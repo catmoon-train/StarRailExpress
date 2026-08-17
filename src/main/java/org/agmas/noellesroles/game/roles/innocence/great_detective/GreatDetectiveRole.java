@@ -95,7 +95,9 @@ public class GreatDetectiveRole extends NormalRole {
         UUID corpseUuid = body.getUUID();
         if (comp.isInCooldown()) {
             serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.great_detective.cooldown", comp.getCooldownLeftTime()*0.05)
+                    Component
+                            .translatable("message.noellesroles.great_detective.cooldown",
+                                    String.format("%.1f", comp.getCooldownLeftTime() / 20f))
                             .withStyle(ChatFormatting.RED),
                     true);
             return InteractionResult.FAIL;

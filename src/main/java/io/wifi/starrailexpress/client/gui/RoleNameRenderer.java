@@ -102,8 +102,6 @@ public class RoleNameRenderer {
         }
 
         Component nametag = Component.empty();
-        final Component[] note = new Component[] { Component.empty(), Component.empty(), Component.empty(),
-                Component.empty() };
         float range = getPlayerRange(self);
         if (component.isRunning()) {
             Optional<Float> result = OnRenderRoleName.RENDER_RANGE.invoker().getPlayerRange(self, range);
@@ -334,22 +332,22 @@ public class RoleNameRenderer {
                     return;
                 }
             }
-            note[0] = Component.literal(notee.getLines()[0]);
-            note[1] = Component.literal(notee.getLines()[1]);
-            note[2] = Component.literal(notee.getLines()[2]);
-            note[3] = Component.literal(notee.getLines()[3]);
+            final Component[] note = notee.getLines();
 
             ctx.pose().pushPose();
             ctx.pose().translate(ctx.guiWidth() / 2f, ctx.guiHeight() / 2f + 6, 0);
             ctx.pose().scale(SREClient.playerHUDScale, SREClient.playerHUDScale, 1f);
+            int k = 0;
             for (int i = 0; i < note.length; i++) {
                 Component line = note[i];
+                if (line == null)
+                    continue;
                 int lineWidth = font.width(line);
-                ctx.drawString(font, line, -lineWidth / 2, 16 + (i * (font.lineHeight + 2)),
+                ctx.drawString(font, line, -lineWidth / 2, 16 + (k * (font.lineHeight + 2)),
                         Mth.color(1f, 1f, 1f) | ((int) (1 * 255) << 24));
+                k++;
             }
             ctx.pose().popPose();
-
         }
         {
             ctx.pose().pushPose();

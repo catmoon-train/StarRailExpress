@@ -981,38 +981,38 @@ public class SREClient implements ClientModInitializer {
 
         // Instinct keybind
         instinctKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key." + SRE.MOD_ID + ".instinct",
+                "key.starrailexpress.instinct",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_LEFT_ALT,
-                "category." + SRE.MOD_ID + ".keybinds"));
+                "category.starrailexpress.keybinds"));
 
         // Register stats keybind
         statsKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key." + SRE.MOD_ID + ".stats",
+                "key.starrailexpress.stats",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_O, // 默认热键 'O'
-                "category." + SRE.MOD_ID + ".keybinds"));
+                "category.starrailexpress.keybinds"));
 
         // Register skins keybind
         skinsKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key." + SRE.MOD_ID + ".skins",
+                "key.starrailexpress.skins",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_N, // 默认热键 'N'
-                "category." + SRE.MOD_ID + ".keybinds"));
+                "category.starrailexpress.keybinds"));
 
         // 路径点管理 GUI（默认未绑定，OP 在按键设置里自行绑定）
         manageWaypointsKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key." + SRE.MOD_ID + ".manage_waypoints",
+                "key.starrailexpress.manage_waypoints",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "category." + SRE.MOD_ID + ".keybinds"));
+                "category.starrailexpress.keybinds"));
 
         // 看向删除路径点（默认未绑定）
         deleteLookedWaypointKeybind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key." + SRE.MOD_ID + ".delete_looked_waypoint",
+                "key.starrailexpress.delete_looked_waypoint",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN,
-                "category." + SRE.MOD_ID + ".keybinds"));
+                "category.starrailexpress.keybinds"));
         // Initialize Command UI system
         // TMMCommandUI.init();
         // KeyPressHandler.register();

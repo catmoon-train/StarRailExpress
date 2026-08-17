@@ -35,7 +35,7 @@ public class SplitPersonalityKeybinds {
             new KeyMapping(
                     "key.stupid_express.switch_personality",
                     GLFW.GLFW_KEY_EQUAL,
-                    "category.stupid_express"));
+                    "category.starrailexpress.keybinds"));
 
     public static void registerKeyPressCallbacks() {
         // 这个方法将在客户端初始化时被调用

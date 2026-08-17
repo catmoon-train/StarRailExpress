@@ -2548,7 +2548,6 @@
     "message.noellesroles.monokuma.transform_message": "Completed the final judgment ceremony, transformed into Monokuma!",
     "message.noellesroles.monokuma.aura_coin": "🐼 Monokuma aura: +%s gold",
     "message.noellesroles.yinyang_dash_tip": "Press %s to dash, press %s to charge attack (can charge and press Q simultaneously)",
-    "==================== Guard Role ====================": "",
     "announcement.star.role.guard": "Guard",
     "announcement.star.role.noellesroles.guard": "Guard",
     "announcement.star.goals.guard": "As a security guard on the train, protecting passengers is your duty!",
