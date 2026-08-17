@@ -828,7 +828,7 @@
   "item.noellesroles.reinforcement.tooltip": "右键门加固，防御一次撬棍\n蹲下右键解除卡住取出道具",
   "item.noellesroles.alarm_trap": "警报陷阱",
   "item.noellesroles.alarm_trap.tooltip": "右键门放置陷阱，撬棍触发时发出警报",
-  "item.noellesroles.alarm_trap.tooltip2": "会让门锁发生改变，无法用原钥匙打开",
+  "item.noellesroles.alarm_trap.tooltip2": "不会让门锁发生改变，可以用原钥匙打开",
   "item.noellesroles.lock": "锁",
   "item.noellesroles.stalker_knife": "潜行者的主手刀",
   "item.noellesroles.stalker_knife_offhand": "潜行者的副手刀",
