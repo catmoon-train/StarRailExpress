@@ -32,9 +32,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.windcharge.WindCharge;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +46,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.UUID;
 
@@ -142,5 +145,12 @@ public abstract class ItemEntityMixin {
         level.sendParticles(ParticleTypes.CRIT,
                 item.getX(), item.getY() + 0.1D, item.getZ(),
                 1, 0.05D, 0.03D, 0.05D, 0.02D);
+    }
+
+    @Inject(method = "hurt", at = @At("TAIL"), cancellable = true)
+    public void windChargeNoRemoveItem(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
+        if (damageSource == null || damageSource.getDirectEntity() instanceof WindCharge) {
+            cir.setReturnValue(false);
+        }
     }
 }
