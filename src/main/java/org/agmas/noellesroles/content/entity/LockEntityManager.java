@@ -22,6 +22,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
+
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.BlockUtils;
@@ -41,6 +42,7 @@ public class LockEntityManager {
         // 在此处添加锁实体影响的物品
         canBeAffectedItems.add(TMMItems.KEY);
         canBeAffectedItems.add(TMMItems.LOCKPICK);
+        canBeAffectedItems.add(ModItems.INFERIOR_LOCKPICK);
         canBeAffectedItems.add(ModItems.MASTER_KEY);
         canBeAffectedItems.add(ModItems.MASTER_KEY_P);
         canBeAffectedItems.add(ModItems.NOELL_PAPERCLIP);

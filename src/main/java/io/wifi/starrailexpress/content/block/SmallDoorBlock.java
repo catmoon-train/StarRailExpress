@@ -359,10 +359,15 @@ public class SmallDoorBlock extends DoorPartBlock {
                 boolean canBeAffectedByLock = false;
                 // 如果该物品会被锁影响，就在LockEntityManager构造函数的列表添加即可，然后在下面的if语句里具体操作
                 // NOTE: 如果只在这里添加不在底下if处理，会导致锁把该物品屏蔽，该物品将对带锁的门毫无效果
-                for (var iiiit : LockEntityManager.getInstance().getCanBeAffectedItems()) {
-                    if (player.getMainHandItem().is(iiiit)) {
-                        canBeAffectedByLock = true;
-                        break;
+
+                if (player.getMainHandItem().getItem() instanceof LockpickItem) {
+                    canBeAffectedByLock = true;
+                } else {
+                    for (var iiiit : LockEntityManager.getInstance().getCanBeAffectedItems()) {
+                        if (player.getMainHandItem().is(iiiit)) {
+                            canBeAffectedByLock = true;
+                            break;
+                        }
                     }
                 }
                 if (canBeAffectedByLock) {
