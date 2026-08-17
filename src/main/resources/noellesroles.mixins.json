@@ -152,7 +152,6 @@
     "client.time_stop.CantControlMixin",
     "client.time_stop.EntityCantUpdatePositionMixin",
     "client.time_stop.GameRendererMixin",
-    "client.time_stop.GameTimeFreezeMixin",
     "client.time_stop.LivingEntityUseCallbackMixin",
     "client.time_stop.MouseHandleSuppressMixin",
     "client.time_stop.PlayerAnimationStopMixin",

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.content.effects;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
@@ -54,13 +56,13 @@ public class TimeStopEffect extends MobEffect {
     public static int freezeTime = 0;
     public static int freezeStatedTime = 0;
     public static int freezeMaxTime = 0;
-//
-//    public static boolean hasCooldown(Player player){
-//        return player.getCooldowns().isOnCooldown(Items.BIRCH_LOG);
-//    }
-//    public static void setCooldown (Player player, int time){
-//        player.getCooldowns().addCooldown(Items.BIRCH_LOG, time);
-//    }
+    //
+    // public static boolean hasCooldown(Player player){
+    // return player.getCooldowns().isOnCooldown(Items.BIRCH_LOG);
+    // }
+    // public static void setCooldown (Player player, int time){
+    // player.getCooldowns().addCooldown(Items.BIRCH_LOG, time);
+    // }
 
     public TimeStopEffect() {
         super(MobEffectCategory.NEUTRAL, Color.white.getRGB());
@@ -83,7 +85,9 @@ public class TimeStopEffect extends MobEffect {
         canMovePlayers.add(serverPlayer.getUUID());
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
         var broadcastMessage = displaySkillTitle;
-
+        if (serverPlayer != null) {
+            SRE.REPLAY_MANAGER.recordSkillUsed(serverPlayer.getUUID(), Noellesroles.id("time_stop"), false);
+        }
         SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(serverPlayer.level());
         gameTimeComponent.setTime(gameTimeComponent.time + time);
         ServerPlayNetworking.send(serverPlayer, new TriggerStatusBarPayload("Time_Stop"));

@@ -3525,6 +3525,7 @@
   "message.noellesroles.dream.brew_done": "一瓶好酒酿成了",
   "message.noellesroles.dream.brew_already_has": "你已经有一瓶酒了，喝完再酿吧！",
   "death_reason.noellesroles.dream_axe": "铁斧劈砍",
+  "death_reason.noellesroles.time_stop": "时停",
   "item.noellesroles.dream_axe": "铁斧",
   "item.noellesroles.dream_axe.tooltip.attack": "左键（蓄力条满才能攻击）：造成 %s 点伤害，跳劈 %s 点",
   "item.noellesroles.dream_axe.tooltip.jump": "右键：原地跳跃（0.2秒冷却）",
