@@ -147,9 +147,9 @@ public abstract class ItemEntityMixin {
                 1, 0.05D, 0.03D, 0.05D, 0.02D);
     }
 
-    @Inject(method = "hurt", at = @At("TAIL"), cancellable = true)
+    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     public void windChargeNoRemoveItem(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
-        if (damageSource == null || damageSource.getDirectEntity() instanceof WindCharge) {
+        if (damageSource == null ||  damageSource.getDirectEntity() instanceof WindCharge) {
             cir.setReturnValue(false);
         }
     }
