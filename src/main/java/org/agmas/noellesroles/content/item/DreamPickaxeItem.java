@@ -18,7 +18,7 @@ package org.agmas.noellesroles.content.item;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
-import io.wifi.starrailexpress.content.item.CrowbarItem;
+import io.wifi.starrailexpress.content.item.LockpickItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.BlockPos;
@@ -42,7 +42,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * 潜行 + 右键：直接撬开门（同消防斧的撬门，50s 冷却）。
  * 撬门破坏动静很大 —— 会额外播放响亮的破坏声，附近玩家都能听到。
  */
-public class DreamPickaxeItem extends CrowbarItem {
+public class DreamPickaxeItem extends LockpickItem {
     /** 撬门冷却（50s）。 */
     private static final int PRY_COOLDOWN_TICKS = 50 * 20;
 
@@ -78,6 +78,7 @@ public class DreamPickaxeItem extends CrowbarItem {
                 return InteractionResult.FAIL;
             }
             BlockState state = world.getBlockState(lowerPos);
+            // 忽视工程师道具
             if (entity instanceof SmallDoorBlockEntity door && !door.isBlasted() && player != null) {
                 world.playSound(null, context.getClickedPos(), TMMSounds.ITEM_CROWBAR_PRY, SoundSource.BLOCKS, 2.5f,
                         1f);
@@ -111,7 +112,7 @@ public class DreamPickaxeItem extends CrowbarItem {
                     SRE.REPLAY_MANAGER.recordDoorPry(player.getUUID(), context.getClickedPos());
                 }
             }
-            return super.useOn(context);
+            return InteractionResult.SUCCESS;
         }
 
         return super.useOn(context);
