@@ -21,8 +21,11 @@ import io.wifi.starrailexpress.content.item.NoteItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
@@ -45,12 +48,22 @@ public class HonoredNoteItem extends NoteItem {
     }
 
     static final Component[] HONORED_NOTE_MESSAGES = new Component[] {
-            Component.translatable("item.noellesroles.honored_note.text1",Component.keybind("key.noellesroles.ability")).withStyle(ChatFormatting.GOLD,
-                    ChatFormatting.BOLD),
+            Component
+                    .translatable("item.noellesroles.honored_note.text1",
+                            Component.keybind("key.noellesroles.ability").withStyle(ChatFormatting.RED,
+                                    ChatFormatting.BOLD))
+                    .withStyle(ChatFormatting.GOLD,
+                            ChatFormatting.BOLD),
             Component.translatable("item.noellesroles.honored_note.text2").withStyle(ChatFormatting.GOLD),
             Component.translatable("item.noellesroles.honored_note.text3").withStyle(ChatFormatting.GOLD),
             Component.translatable("item.noellesroles.honored_note.text4").withStyle(ChatFormatting.GOLD)
     };
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(@NotNull Level world, Player user, InteractionHand hand) {
+        ItemStack itemStack = user.getItemInHand(hand);
+        return InteractionResultHolder.pass(itemStack);
+    }
 
     @Override
     public InteractionResult useOn(@NotNull UseOnContext context) {
