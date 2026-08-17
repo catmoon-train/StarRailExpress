@@ -148,10 +148,32 @@ public class NoteEntity extends Entity {
     @Override
     protected void addAdditionalSaveData(@NotNull CompoundTag nbt) {
         nbt.putInt("Direction", this.entityData.get(DIRECTION));
-        nbt.putString("Line1", this.entityData.get(LINE1));
-        nbt.putString("Line2", this.entityData.get(LINE2));
-        nbt.putString("Line3", this.entityData.get(LINE3));
-        nbt.putString("Line4", this.entityData.get(LINE4));
+        boolean isRaw = false;
+        String line1 = (this.entityData.get(LINE1));
+        String line2 = (this.entityData.get(LINE2));
+        String line3 = (this.entityData.get(LINE3));
+        String line4 = (this.entityData.get(LINE4));
+        if (isRawText(line1) || isRawText(line2) || isRawText(line3) || isRawText(line4)) {
+            isRaw = true;
+        }
+        nbt.putString("Line1", removeComponentIndex(line1));
+        nbt.putString("Line2", removeComponentIndex(line2));
+        nbt.putString("Line3", removeComponentIndex(line3));
+        nbt.putString("Line4", removeComponentIndex(line4));
+        nbt.putBoolean("raw", isRaw);
+    }
+
+    private boolean isRawText(String str) {
+        if (str.startsWith("\uE783"))
+            return false;
+        return true;
+    }
+
+    private String removeComponentIndex(String string) {
+        if (string.startsWith("\uE783")) {
+            return string.substring("\uE783".length());
+        }
+        return string;
     }
 
     @Override
@@ -160,29 +182,50 @@ public class NoteEntity extends Entity {
             this.entityData.set(DIRECTION, nbt.getInt("Direction"));
 
         // 兼容旧版本
+        boolean isRawText = true;
+        if (nbt.contains("raw")) {
+            isRawText = nbt.getBoolean("raw");
+        }
         {
             if (nbt.contains("Line1")) {
                 String str = nbt.getString("Line1");
-                if (str != null)
-                    this.entityData.set(LINE1, str);
+                if (str != null) {
+                    if (!isRawText) {
+                        this.entityData.set(LINE1, "\uE783" + str);
+                    } else {
+                        this.entityData.set(LINE1, str);
+                    }
+                }
             }
 
             if (nbt.contains("Line2")) {
                 String str = nbt.getString("Line2");
                 if (str != null)
-                    this.entityData.set(LINE2, str);
+                    if (!isRawText) {
+                        this.entityData.set(LINE2, "\uE783" + str);
+                    } else {
+                        this.entityData.set(LINE2, str);
+                    }
             }
 
             if (nbt.contains("Line3")) {
                 String str = nbt.getString("Line3");
                 if (str != null)
-                    this.entityData.set(LINE3, str);
+                    if (!isRawText) {
+                        this.entityData.set(LINE3, "\uE783" + str);
+                    } else {
+                        this.entityData.set(LINE3, str);
+                    }
             }
 
             if (nbt.contains("Line4")) {
                 String str = nbt.getString("Line4");
                 if (str != null)
-                    this.entityData.set(LINE4, str);
+                    if (!isRawText) {
+                        this.entityData.set(LINE4, "\uE783" + str);
+                    } else {
+                        this.entityData.set(LINE4, str);
+                    }
             }
         }
     }
