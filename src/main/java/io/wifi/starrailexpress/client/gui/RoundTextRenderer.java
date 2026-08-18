@@ -402,7 +402,7 @@ public class RoundTextRenderer {
                 } else if (role1.isNeutrals()) {
                     // 中立角色
                     if (looseEndsTotal > winSideColumn - 1) {
-                        extraTranslateY = 8 + ((looseEndsTotal) / 2) * 16;
+                        extraTranslateY = 8 + ((looseEndsTotal) / winSideColumn) * 16;
                     }
                     translateX = -9 - winCenterColumn * 6 - winSideColumn * 12 + (neutrals % winSideColumn) * 12;
                     translateY = 14 + (neutrals / winSideColumn) * 16;
