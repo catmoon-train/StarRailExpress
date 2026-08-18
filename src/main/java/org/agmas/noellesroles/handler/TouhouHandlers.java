@@ -386,7 +386,7 @@ public class TouhouHandlers {
           player.addEffect(ModEffects.of(ModEffects.NO_COLLIDE, 20, 0, true, false, false));
           BowenBadgeItem.fowardAndKnockbackPlayerNearby(player.level(), player, 2.5f);
           return true;
-        }).announceToSelf(true).cooldownSeconds(60).showOnHud(true).shifted(false).build(),
+        }).announceToSelf(true).cooldownSeconds(60).showOnHud(true).build(),
         RoleSkill.skill(SRE.id("komachi_pull"), "skill.noellesroles.komachi_pull", context -> {
           Player player = context.player();
           var target = RopeItem.findTargetedPlayerInView(player.level(), player, 20);
@@ -396,7 +396,7 @@ public class TouhouHandlers {
           // 身前2格
           RopeItem.pullPlayer(player, target, 1);
           return true;
-        }).cooldownSeconds(90).announceToSelf(true).showOnHud(true).shifted(true).build());
+        }).cooldownSeconds(90).announceToSelf(true).showOnHud(true).build());
     RoleSkill.register(THMountainRoles.NITORI, RoleSkill.skill(SRE.id("nitori_exchange"),
         "skill.noellesroles.nitori_exchange",
         context -> {
