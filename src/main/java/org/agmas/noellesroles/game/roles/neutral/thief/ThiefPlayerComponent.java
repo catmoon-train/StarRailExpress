@@ -488,6 +488,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return true; // 撬棍
         if (stack.is(TMMItems.LOCKPICK))
             return true; // 开锁器
+        if (stack.is(ModItems.INFERIOR_LOCKPICK))
+            return true; // 劣质开锁器
         if (stack.is(TMMItems.BODY_BAG))
             return true; // 裹尸袋
         if (stack.is(TMMItems.NOTE))
@@ -856,6 +858,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
             return true; // 撬棍
         if (stack.is(TMMItems.LOCKPICK))
             return true; // 开锁器
+        if (stack.is(ModItems.INFERIOR_LOCKPICK))
+            return true; // 劣质开锁器
         if (stack.is(TMMItems.BODY_BAG))
             return true; // 裹尸袋
         if (stack.is(TMMItems.NOTE))
