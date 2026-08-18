@@ -114,9 +114,9 @@ public abstract class FoolHud {
                 long gameTime = client.level != null ? client.level.getGameTime() : 0;
                 long remainingTicks = Math.max(0, comp.meetingEndTick - gameTime);
                 Component meetingText = Component.translatable("hud.noellesroles.fool.meeting_active",
+                        remainingTicks / 20,
                         NoellesrolesClient.abilityBind.getTranslatedKeyMessage(),
-                        NoellesrolesClient.foolPrayerBind.getTranslatedKeyMessage(),
-                        remainingTicks / 20);
+                        NoellesrolesClient.foolPrayerBind.getTranslatedKeyMessage());
                 context.drawString(renderer, meetingText, xOffset, yOffset, 0xFFD700);
                 yOffset += lineHeight;
 

@@ -76,7 +76,8 @@ public class PrayerHandler {
             }
             return;
         }
-        if (!GameUtils.isPlayerAliveAndSurvival(player))return;
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return;
 
         // 已经是成员时，会议中的 J 优先用于入会/打开投票页，不再要求附近必须有尊名纸条
         if (foolComp != null && foolComp.isTarotMember(player.getUUID())) {
@@ -119,7 +120,8 @@ public class PrayerHandler {
         ServerLevel serverLevel = (ServerLevel) player.level();
 
         ServerPlayer fool = TarotAssemblyManager.findFoolPlayer(serverLevel, gameComponent);
-        if (fool == null) return;
+        if (fool == null)
+            return;
 
         FoolPlayerComponent foolComp = FoolPlayerComponent.KEY.get(fool);
 
@@ -157,7 +159,8 @@ public class PrayerHandler {
                 playerPos.x + NOTE_DETECTION_RANGE, playerPos.y + NOTE_DETECTION_RANGE,
                 playerPos.z + NOTE_DETECTION_RANGE);
 
-        List<HonoredNoteItem.HonoredNoteEntity> entities = player.level().getEntitiesOfClass(HonoredNoteItem.HonoredNoteEntity.class, searchBox,
+        List<HonoredNoteItem.HonoredNoteEntity> entities = player.level().getEntitiesOfClass(
+                HonoredNoteItem.HonoredNoteEntity.class, searchBox,
                 entity -> true);
 
         for (NoteEntity noteEntity : entities) {

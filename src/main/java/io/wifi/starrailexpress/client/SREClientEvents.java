@@ -170,7 +170,7 @@ public class SREClientEvents {
             if (SREClient.modifierComponent != null) {
                 if (SREClient.modifierComponent.isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
                     var splitComponent = SplitPersonalityComponent.KEY.get(player);
-                    if (splitComponent != null && !splitComponent.isDeath()) {
+                    if (splitComponent.isDeath()) {
                         return TrueFalseResult.FALSE;
                     }
                 }
