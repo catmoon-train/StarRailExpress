@@ -47,7 +47,7 @@ public abstract class TrueDarknessLightmapTextureManagerMixin {
             return original.call(instance, new Vector3f(.8f, .8f, .8f), light);
         }
         if (client.player != null && world != null) {
-            if (client.player.isSpectator()) {
+            if (SREClient.isPlayerSpectatingOrCreative() && !client.player.isCreative()) {
                 return original.call(instance, new Vector3f(.8f, .8f, .8f), 0.75f);
             } else
                 return original.call(instance, new Vector3f(.8f, .8f, .8f),
