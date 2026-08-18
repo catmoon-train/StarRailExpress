@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerLevel;
@@ -37,7 +36,6 @@ import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
-import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -59,26 +57,26 @@ public class AntidoteItem extends Item {
     public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
         if (!user.isSpectator()) {
             if (remainingUseTicks < this.getUseDuration(stack, user) - 10 && user instanceof Player) {
-                Player attacker = (Player)user;
+                Player attacker = (Player) user;
                 HitResult collision = getAntidoteTarget(attacker);
                 if (collision instanceof EntityHitResult) {
                     EntityHitResult entityHitResult = (EntityHitResult) collision;
                     Entity target = entityHitResult.getEntity();
                     if (attacker instanceof ServerPlayer player) {
-                        if (!((double)target.distanceTo(player) > (double)3.0F)) {
+                        if (!((double) target.distanceTo(player) > (double) 3.0F)) {
                             // 清除中毒状态
                             final var playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target);
                             ((SREPlayerPoisonComponent) playerPoisonComponent).init();
                             playerPoisonComponent.sync();
-                            
+
                             // 清除感染状态
                             InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(target);
                             infectedComponent.cure();
-                            
+
                             // 播放音效 - 附近所有人都能听到
                             final var blockPos = target.blockPosition();
-                            ((ServerLevel) world).playSound(null, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 
-                                NRSounds.SYRINGE_STAB, SoundSource.PLAYERS, 1.0F, 1.0F);
+                            ((ServerLevel) world).playSound(null, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+                                    NRSounds.SYRINGE_STAB, SoundSource.PLAYERS, 1.0F, 1.0F);
                             player.swing(InteractionHand.MAIN_HAND);
                             if (!player.isCreative()) {
                                 int cd = ModItems.getAntidoteCooldown(player);
@@ -103,7 +101,7 @@ public class AntidoteItem extends Item {
 
             var10000 = false;
             return var10000;
-        }, (double)3.0F);
+        }, (double) 3.0F);
     }
 
     public UseAnim getUseAnimation(ItemStack stack) {
