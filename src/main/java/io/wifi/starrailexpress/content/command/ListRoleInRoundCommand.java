@@ -25,6 +25,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -75,6 +76,9 @@ public class ListRoleInRoundCommand {
             if (!modifiers.isEmpty()) {
                 modifierTexts = (ComponentUtils.formatList(modifiers,
                         modifier -> Component.translatable("[%s]", modifier.getName(false))
+                                .withStyle(style -> style.withHoverEvent(
+                                        new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                Component.literal(modifier.identifier().toString()))))
                                 .withColor(modifier.color)))
                         .copy();
             }

@@ -160,7 +160,7 @@ public class LightningDraftState {
         // 强制职业直接作为实例加入池子
         int forceRoleCount = 0;
         List<SRERole> forcedRoles = new ArrayList<>();
-        for (var flip : Harpymodloader.FORCED_MODDED_ROLE_FLIP.entrySet()) {
+        for (var flip : Harpymodloader.FORCED_MODDED_ROLE.entrySet()) {
             var role = flip.getValue();
             if (role == null)
                 continue;
@@ -277,8 +277,8 @@ public class LightningDraftState {
             if (aW != bW)
                 return -Integer.compare(aW, bW);
 
-            boolean a_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(a.getUUID());
-            boolean b_force = Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(b.getUUID());
+            boolean a_force = Harpymodloader.FORCED_MODDED_ROLE.containsKey(a.getUUID());
+            boolean b_force = Harpymodloader.FORCED_MODDED_ROLE.containsKey(b.getUUID());
             int a_team = normalizeForceRoleSortType(
                     PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(a.getUUID(), 0));
             int b_team = normalizeForceRoleSortType(
@@ -353,7 +353,7 @@ public class LightningDraftState {
 
         // 1. 强制职业预分配
         for (UUID playerId : roundPlayers) {
-            SRERole forcedRole = Harpymodloader.FORCED_MODDED_ROLE_FLIP.get(playerId);
+            SRERole forcedRole = Harpymodloader.FORCED_MODDED_ROLE.get(playerId);
             if (forcedRole != null) {
                 Optional<RoleInstance> match = remainingDrawn.stream()
                         .filter(ri -> ri.role() == forcedRole).findFirst();

@@ -95,7 +95,6 @@ public class SREDiscoveryGameMode extends SREMurderGameMode {
 
         // 清理强制角色/修饰符（游客模式不使用这些）
         Harpymodloader.FORCED_MODDED_ROLE.clear();
-        Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
         Harpymodloader.FORCED_MODDED_MODIFIER.clear();
         PlayerRoleWeightManager.ForcePlayerTeam.clear();
     }

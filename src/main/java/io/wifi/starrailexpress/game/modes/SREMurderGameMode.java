@@ -163,7 +163,6 @@ public class SREMurderGameMode extends GameMode {
         assignModifiers(modifierRoleCount, serverWorld, gameWorldComponent, players);
 
         Harpymodloader.FORCED_MODDED_ROLE.clear();
-        Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
         Harpymodloader.FORCED_MODDED_MODIFIER.clear();
         PlayerRoleWeightManager.ForcePlayerTeam.clear();
     }
@@ -225,7 +224,19 @@ public class SREMurderGameMode extends GameMode {
         // 修饰符轮换名单接管：仅当名单启用且管理员已在名单中配置了至少一个修饰符时，
         // 才由名单决定修饰符的启用/禁用（取代 disabledModifiers），但数量仍沿用 MODIFIER_MAX，
         // 地图限制也仍然生效。未配置任何修饰符时保持原有行为，避免老名单升级后修饰符全部消失。
-
+        final HashMap<SREModifier, List<UUID>> FORCED_MODDED_MODIFIER_FLIP = new HashMap<>();
+        for (var pu : Harpymodloader.FORCED_MODDED_MODIFIER.entrySet()) {
+            UUID puid = pu.getKey();
+            List<SREModifier> modifiers = pu.getValue();
+            if (modifiers != null) {
+                for (var m : modifiers) {
+                    if (!FORCED_MODDED_MODIFIER_FLIP.containsKey(m)) {
+                        FORCED_MODDED_MODIFIER_FLIP.put(m, new ArrayList<>());
+                    }
+                    FORCED_MODDED_MODIFIER_FLIP.get(m).add(puid);
+                }
+            }
+        }
         ArrayList<ServerPlayer> shuffledPlayers = new ArrayList<>(players);
         for (var mod : allModifiers) {
             Collections.shuffle(shuffledPlayers);
@@ -238,9 +249,9 @@ public class SREMurderGameMode extends GameMode {
                 specificDesiredRoleCount = (int) Math.floor(Math.floor((double) players.size() / 7) / killerMods);
                 specificDesiredRoleCount = Math.max(specificDesiredRoleCount, 1);
             }
-            if (Harpymodloader.FORCED_MODDED_MODIFIER.containsKey(mod)) {
+            if (FORCED_MODDED_MODIFIER_FLIP.containsKey(mod)) {
                 for (ServerPlayer player : shuffledPlayers) {
-                    if (Harpymodloader.FORCED_MODDED_MODIFIER.get(mod).contains(player.getUUID())) {
+                    if (FORCED_MODDED_MODIFIER_FLIP.get(mod).contains(player.getUUID())) {
                         // 不限制数量
                         // 临时存储，稍后统一添加
                         if (addModifierAssignment(tempModifierAssignments, player.getUUID(), mod)) {
@@ -553,7 +564,7 @@ public class SREMurderGameMode extends GameMode {
         }
 
         // 第一步：处理强制分配的角色
-        Map<UUID, SRERole> forcedRolesMap = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
+        Map<UUID, SRERole> forcedRolesMap = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE);
         int killerCount = RoleCountManager.getKillerCount(players.size());
         int vigilanteCount = RoleCountManager.getVigilanteCount(players.size());
         int neutralsCount = RoleCountManager.getNeutralCount(players.size());

@@ -38,6 +38,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     public long startWorldTick = 0;
     public boolean timeFrozen = false;
     public boolean levelGameTimeFrozen = false;
+    protected long tickCount = 0;
 
     public SREGameTimeComponent(Level world) {
         this.world = world;
@@ -53,6 +54,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
         this.setServerFrozen(false);
         this.setTime(this.resetTime);
         this.levelGameTimeFrozen = false;
+        this.tickCount = 0;
     }
 
     public int getResetTime() {
@@ -101,6 +103,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
         }
         if (!SREGameWorldComponent.KEY.get(this.world).isRunning())
             return;
+        tickCount++;
         if (this.time <= 0)
             return;
         this.time--;
@@ -119,7 +122,7 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
                     cca.resurrectionTime++;
                 }
             }
-            
+
             {
                 final var cca = DeathPenaltyComponent.KEY.get(p);
                 if (cca.penaltyExpiry > 0)
@@ -156,16 +159,21 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
         tag.putInt("resetTime", this.resetTime);
         tag.putInt("time", this.time);
         tag.putLong("startWorldTick", this.startWorldTick);
+        tag.putLong("tickCount", this.tickCount);
     }
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-
+        this.tickCount = tag.contains("tickCount") ? tag.getLong("tickCount") : 0;
         this.timeFrozen = tag.contains("frozen") && tag.getBoolean("frozen");
         this.levelGameTimeFrozen = tag.contains("lt_frozen") && tag.getBoolean("lt_frozen");
 
         this.resetTime = tag.contains("resetTime") ? tag.getInt("resetTime") : 0;
         this.time = tag.contains("time") ? tag.getInt("time") : 0;
         this.startWorldTick = tag.contains("startWorldTick") ? tag.getLong("startWorldTick") : 0L;
+    }
+
+    public long getTicksFromGameStart() {
+        return this.tickCount;
     }
 }

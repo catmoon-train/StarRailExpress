@@ -178,7 +178,6 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
         }
         // 分配修饰符（修饰符放在职业分配后）
         Harpymodloader.FORCED_MODDED_ROLE.clear();
-        Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
         PlayerRoleWeightManager.ForcePlayerTeam.clear();
     }
 
@@ -189,7 +188,7 @@ public class SREHideAndSeekGameMode extends SREMurderGameMode {
         }
 
         // 第一步：处理强制分配的角色
-        Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
+        Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE);
         int killerCount = RoleCountManager.getKillerCount(players.size());
         int vigilanteCount = RoleCountManager.getVigilanteCount(players.size());
         int neutralsCount = 0;

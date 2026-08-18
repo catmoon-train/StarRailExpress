@@ -37,6 +37,7 @@ public class ForceRoleCommand {
                 .requires(serverCommandSource -> serverCommandSource.hasPermission(SREConfig.instance().forceRoleRequiredPermission))
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(ForceRoleCommand::query)
+                        .then(Commands.literal("clear").executes(ForceRoleCommand::clear))
                         .then(Commands.argument("role", RoleArgumentType.create())
                                 .executes(ForceRoleCommand::execute))));
     }
@@ -46,11 +47,11 @@ public class ForceRoleCommand {
             return 1;
         }
         ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
-        if (!Harpymodloader.FORCED_MODDED_ROLE_FLIP.containsKey(targetPlayer.getUUID())) {
+        if (!Harpymodloader.FORCED_MODDED_ROLE.containsKey(targetPlayer.getUUID())) {
             context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.query.none", targetPlayer.getName()), false);
             return 0;
         }
-        SRERole role = Harpymodloader.FORCED_MODDED_ROLE_FLIP.get(targetPlayer.getUUID());
+        SRERole role = Harpymodloader.FORCED_MODDED_ROLE.get(targetPlayer.getUUID());
         Component roleText = Harpymodloader.getRoleName(role).withColor(role.color()).withStyle(style ->
                 style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(role.identifier().toString())))
         );
@@ -65,6 +66,14 @@ public class ForceRoleCommand {
         final MutableComponent roleText = Harpymodloader.getRoleName(role).withColor(role.color()).withStyle(style ->
                 style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(role.identifier().toString()))));
         context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.success", roleText, targetPlayer.getName()), true);
+        return 1;
+    }
+    
+    private static int clear(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer targetPlayer = EntityArgument.getPlayer(context, "player");
+        Harpymodloader.clearForcedRoles(targetPlayer);
+        
+        context.getSource().sendSuccess(() -> Component.translatable("commands.forcerole.success.clear", targetPlayer.getName()), true);
         return 1;
     }
 }

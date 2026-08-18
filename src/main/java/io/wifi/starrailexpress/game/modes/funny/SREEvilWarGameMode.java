@@ -195,7 +195,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     @Override
     protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         // 处理强制角色
-        Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
+        Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE);
         List<ServerPlayer> playersWithoutForcedRoles = new ArrayList<>();
         // 每有一组狼人产生一个超级亡命徒：8人局对应 7 狼 1 亡命徒
         int superLooseEndCount = getSuperLooseEndCount(players);
@@ -247,7 +247,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             } else
                 gameWorldComponent.addRole(playersWithoutForcedRoles.get(i), TMMRoles.KILLER);
         }
-        Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
+        Harpymodloader.FORCED_MODDED_ROLE.clear();
     }
 
     /** 为邪恶战争特定职业添加特有物品 */

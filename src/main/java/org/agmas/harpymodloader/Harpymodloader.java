@@ -63,10 +63,9 @@ public class Harpymodloader implements ModInitializer {
      */
     public static HashMap<ResourceLocation, Integer> MODIFIER_MAX = new HashMap<>();
 
-    public static HashMap<SRERole, List<UUID>> FORCED_MODDED_ROLE = new HashMap<>();
-    public static HashMap<UUID, SRERole> FORCED_MODDED_ROLE_FLIP = new HashMap<>();
+    public static HashMap<UUID, SRERole> FORCED_MODDED_ROLE = new HashMap<>();
 
-    public static HashMap<SREModifier, List<UUID>> FORCED_MODDED_MODIFIER = new HashMap<>();
+    public static HashMap<UUID, List<SREModifier>> FORCED_MODDED_MODIFIER = new HashMap<>();
 
     public static ArrayList<SRERole> VANNILA_ROLES = new ArrayList<>();
     public static ArrayList<SRERole> SPECIAL_ROLES = new ArrayList<>();
@@ -125,16 +124,16 @@ public class Harpymodloader implements ModInitializer {
     }
 
     public static void addToForcedModifiers(SREModifier modifier, Player player) {
-        if (!FORCED_MODDED_MODIFIER.containsKey(modifier))
-            FORCED_MODDED_MODIFIER.put(modifier, new ArrayList<>());
-        FORCED_MODDED_MODIFIER.get(modifier).add(player.getUUID());
+        if (!FORCED_MODDED_MODIFIER.containsKey(player.getUUID()))
+            FORCED_MODDED_MODIFIER.put(player.getUUID(), new ArrayList<>());
+        FORCED_MODDED_MODIFIER.get(player.getUUID()).add(modifier);
     }
 
+    public static void clearForcedRoles(Player player) {
+        FORCED_MODDED_ROLE.remove(player.getUUID());
+    }
     public static void addToForcedRoles(SRERole role, Player player) {
-        if (!FORCED_MODDED_ROLE.containsKey(role))
-            FORCED_MODDED_ROLE.put(role, new ArrayList<>());
-        FORCED_MODDED_ROLE.get(role).add(player.getUUID());
-        FORCED_MODDED_ROLE_FLIP.put(player.getUUID(), role);
+        FORCED_MODDED_ROLE.put(player.getUUID(), role);
     }
 
     public static void setModifierMaximum(SREModifier modifier, Integer max) {

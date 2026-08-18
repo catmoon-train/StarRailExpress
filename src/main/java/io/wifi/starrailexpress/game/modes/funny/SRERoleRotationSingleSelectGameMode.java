@@ -208,7 +208,6 @@ public class SRERoleRotationSingleSelectGameMode extends SREMurderGameMode {
         OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(world);
 
         Harpymodloader.FORCED_MODDED_ROLE.clear();
-        Harpymodloader.FORCED_MODDED_ROLE_FLIP.clear();
         Harpymodloader.FORCED_MODDED_MODIFIER.clear();
         PlayerRoleWeightManager.ForcePlayerTeam.clear();
     }
