@@ -49,18 +49,39 @@ public class GodfatherComponent implements RoleComponent {
     public long recruitCooldownUntil = 0;
     public int recruitCooldownSeconds = 110;
 
-    public GodfatherComponent(Player player) { this.player = player; }
+    public GodfatherComponent(Player player) {
+        this.player = player;
+    }
 
-    @Override public Player getPlayer() { return player; }
-    @Override public void init() {
-        familyMembers.clear(); previousRoles.clear();
-        loadedBullets = 0; maxLoadedBullets = 3; recruitLimit = 4;
+    @Override
+    public Player getPlayer() {
+        return player;
+    }
+
+    @Override
+    public void init() {
+        familyMembers.clear();
+        previousRoles.clear();
+        loadedBullets = 0;
+        maxLoadedBullets = 3;
+        recruitLimit = 4;
         recruitCooldownUntil = 0;
         sync();
     }
-    @Override public void clear() { init(); }
-    public void sync() { KEY.sync(player); }
-    @Override public boolean shouldSyncWith(ServerPlayer target) { return target == this.player; }
+
+    @Override
+    public void clear() {
+        init();
+    }
+
+    public void sync() {
+        KEY.sync(player);
+    }
+
+    @Override
+    public boolean shouldSyncWith(ServerPlayer target) {
+        return target == this.player;
+    }
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider r) {
@@ -70,9 +91,11 @@ public class GodfatherComponent implements RoleComponent {
         tag.putLong("RecruitCooldownUntil", recruitCooldownUntil);
         tag.putInt("RecruitCooldownSeconds", recruitCooldownSeconds);
         ListTag list = new ListTag();
-        for (UUID id : familyMembers) list.add(StringTag.valueOf(id.toString()));
+        for (UUID id : familyMembers)
+            list.add(StringTag.valueOf(id.toString()));
         tag.put("FamilyMembers", list);
     }
+
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider r) {
         loadedBullets = tag.getInt("LoadedBullets");
@@ -83,15 +106,24 @@ public class GodfatherComponent implements RoleComponent {
         familyMembers.clear();
         if (tag.contains("FamilyMembers", Tag.TAG_LIST)) {
             for (Tag t : tag.getList("FamilyMembers", Tag.TAG_STRING))
-                try { familyMembers.add(UUID.fromString(t.getAsString())); } catch (Exception ignored) {}
+                try {
+                    familyMembers.add(UUID.fromString(t.getAsString()));
+                } catch (Exception ignored) {
+                }
         }
     }
-    @Override public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider r) {}
-    @Override public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider r) {}
 
-    public static void registerEvents(){
-        ShouldReloadDerringer.EVENT.register((victim,killer,deathReason)->{
-            if(RoleUtils.isPlayerTheJob(killer, ModRoles.GODFATHER)){
+    @Override
+    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider r) {
+    }
+
+    @Override
+    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider r) {
+    }
+
+    public static void registerEvents() {
+        ShouldReloadDerringer.EVENT.register((victim, killer, deathReason) -> {
+            if (RoleUtils.isPlayerTheJob(killer, ModRoles.GODFATHER)) {
                 return TrueFalseResult.FALSE;
             }
             return TrueFalseResult.PASS;

@@ -80,7 +80,7 @@ public class TimedGrenadeItem extends SkinableItem {
      * 每 tick 检测正在烹饪的玩家是否引信到期 → 手中爆炸
      */
     private static void onWorldTick(ServerLevel world) {
-        long now = world.getGameTime();
+        long now = SRE.getTicksFromGameStart();
         var iter = COOKING_PLAYERS.entrySet().iterator();
         while (iter.hasNext()) {
             var entry = iter.next();
@@ -117,8 +117,8 @@ public class TimedGrenadeItem extends SkinableItem {
         ItemStack itemStack = user.getItemInHand(hand);
         user.startUsingItem(hand);
 
-        if (!world.isClientSide && world instanceof ServerLevel serverLevel) {
-            long detonateAt = serverLevel.getGameTime() + FUSE_TICKS;
+        if (!world.isClientSide && world instanceof ServerLevel) {
+            long detonateAt = SRE.getTicksFromGameStart() + FUSE_TICKS;
             COOKING_PLAYERS.put(user.getUUID(), detonateAt);
             world.playSound(null, user.blockPosition(), SoundEvents.LEVER_CLICK,
                     SoundSource.PLAYERS, 0.6F, 1.6F);
@@ -206,7 +206,7 @@ public class TimedGrenadeItem extends SkinableItem {
     public static int getRemainingFuse(Level world, UUID playerUUID) {
         Long detonateAt = COOKING_PLAYERS.get(playerUUID);
         if (detonateAt == null) return -1;
-        long remaining = detonateAt - world.getGameTime();
+        long remaining = detonateAt - SRE.getTicksFromGameStart();
         return (int) Math.max(0, remaining);
     }
 }

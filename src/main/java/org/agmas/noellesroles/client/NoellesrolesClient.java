@@ -1505,7 +1505,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                                 return new MutableComponentResult(
                                         Component
                                                 .translatable("message.tip.death_penalty_with_timeout",
-                                                        (dpcca.penaltyExpiry - minecraft.level.getGameTime()) / 20)
+                                                        (dpcca.penaltyExpiry - SREClient.getTicksFromGameStart()) / 20)
                                                 .withStyle(ChatFormatting.YELLOW));
                             } else {
                                 return new MutableComponentResult(

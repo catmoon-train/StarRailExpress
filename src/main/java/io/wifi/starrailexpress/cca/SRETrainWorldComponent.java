@@ -171,8 +171,8 @@ public class SRETrainWorldComponent implements AutoSyncedComponent, ServerTickin
             serverWorld.setDayTime(timeOfDay.time);
         }
 
-        // 每秒同步一次（减少网络占用）
-        if (this.needsSync && this.world.getGameTime() % 60 == 0) {
+        // 每10秒同步一次（减少网络占用）
+        if (this.needsSync && this.world.getGameTime() % 200 == 0) {
             this.sync();
         }
     }

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -189,7 +190,7 @@ public final class GKeyRoleSkill {
                 if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
                     return true;
                 }
-                long now = client.player.level().getGameTime();
+                long now = SRE.getTicksFromGameStart();
                 if (comp.recruitCooldownUntil > 0 && now < comp.recruitCooldownUntil) {
                     long remaining = (comp.recruitCooldownUntil - now) / 20 + 1;
                     client.player.displayClientMessage(

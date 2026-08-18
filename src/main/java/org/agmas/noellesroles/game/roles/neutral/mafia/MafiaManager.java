@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game.roles.neutral.mafia;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
@@ -106,7 +107,7 @@ public final class MafiaManager {
         if (tgt == null || !GameUtils.isPlayerAliveAndSurvival(tgt))
             return;
         var comp = GodfatherComponent.KEY.get(player);
-        long now = player.level().getGameTime();
+        long now = SRE.getTicksFromGameStart();
 
         if (action == MafiaActionC2SPacket.RECRUIT_ROLE) {
             // 动态解析被招募的职业：必须是 isMafiaTeam，且不能是教父自己

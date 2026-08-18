@@ -29,6 +29,8 @@ import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 
+import io.wifi.starrailexpress.SRE;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -85,9 +87,9 @@ public class C4BackComponent implements AutoSyncedComponent {
     public boolean addC4(UUID uuid, long fuseTicks, UUID planter) {
         if (uuid == null || carriers.containsKey(uuid)) return false;
         long firstBeepDelayTicks = Math.max(0L, (long) C4_FIRST_BEEP_SECONDS * 20L);
-        long detonationAt = level.getGameTime() + firstBeepDelayTicks + Math.max(1L, fuseTicks);
+        long detonationAt = SRE.getTicksFromGameStart() + firstBeepDelayTicks + Math.max(1L, fuseTicks);
         carriers.put(uuid, detonationAt);
-        plantedAt.put(uuid, level.getGameTime());
+        plantedAt.put(uuid, SRE.getTicksFromGameStart());
         if (planter != null) planters.put(uuid, planter);
         KEY.sync(this.level);
         return true;
@@ -119,13 +121,13 @@ public class C4BackComponent implements AutoSyncedComponent {
     public long ticksUntilDetonation(UUID uuid) {
         Long t = carriers.get(uuid);
         if (t == null) return -1L;
-        return Math.max(0L, t - level.getGameTime());
+        return Math.max(0L, t - SRE.getTicksFromGameStart());
     }
 
     public long ticksSincePlant(UUID uuid) {
         Long t = plantedAt.get(uuid);
         if (t == null) return Long.MAX_VALUE;
-        return Math.max(0L, level.getGameTime() - t);
+        return Math.max(0L, SRE.getTicksFromGameStart() - t);
     }
 
     @Override
@@ -161,7 +163,7 @@ public class C4BackComponent implements AutoSyncedComponent {
             CompoundTag entry = new CompoundTag();
             entry.putString("uuid", e.getKey().toString());
             entry.putLong("detonation_tick", e.getValue());
-            entry.putLong("planted_tick", plantedAt.getOrDefault(e.getKey(), level.getGameTime()));
+            entry.putLong("planted_tick", plantedAt.getOrDefault(e.getKey(), SRE.getTicksFromGameStart()));
             UUID planter = planters.get(e.getKey());
             if (planter != null) entry.putString("planter", planter.toString());
             list.add(entry);

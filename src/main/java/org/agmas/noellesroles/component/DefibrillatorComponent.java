@@ -54,19 +54,19 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
     }
 
     public void setProtection(long durationTicks) {
-        this.protectionExpiry = player.level().getGameTime() + durationTicks;
+        this.protectionExpiry = SRE.getTicksFromGameStart() + durationTicks;
         ModComponents.DEFIBRILLATOR.sync(player);
     }
 
     public boolean hasProtection() {
-        return player.level().getGameTime() < protectionExpiry;
+        return SRE.getTicksFromGameStart() < protectionExpiry;
     }
 
     public void triggerDeath(long resurrectionDelayTicks, UUID corpseId, Vec3 pos) {
         this.protectionExpiry = 0;
         this.defibrillatorMark = false;
         this.isDead = true;
-        this.resurrectionTime = player.level().getGameTime() + resurrectionDelayTicks;
+        this.resurrectionTime = SRE.getTicksFromGameStart() + resurrectionDelayTicks;
         this.corpseEntityId = corpseId;
         this.deathPos = pos;
         if (player instanceof ServerPlayer sp) {
@@ -154,7 +154,7 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
         if (this.isDead && player.isSpectator()
-                && player.level().getGameTime() >= this.resurrectionTime) {
+                && SRE.getTicksFromGameStart() >= this.resurrectionTime) {
             // 复活逻辑
             DeathPenaltyComponent.KEY.get(serverPlayer).init();
 
@@ -186,7 +186,7 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
         if (this.isDead && player.isSpectator()) {
             if (player.level().getGameTime() % 20 == 0) {
                 player.displayClientMessage(Component.translatable("message.noellesroles.doctor.about_to_revive",
-                        (this.resurrectionTime - this.player.level().getGameTime()) / 20), true);
+                        (this.resurrectionTime - SRE.getTicksFromGameStart()) / 20), true);
             }
         }
     }

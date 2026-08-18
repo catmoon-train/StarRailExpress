@@ -15,13 +15,11 @@
 
 package org.agmas.noellesroles.client;
 
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.StatusBarHUD;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin.PlayerSkinResult;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -63,12 +61,6 @@ public class ClientAmonState {
             }
             return PlayerSkinResult.SKIP;
         });
-        ClientTickEvents.END_WORLD_TICK.register(world -> {
-            if (SREGameTimeComponent.KEY.get(world).isTimeFrozen()) {
-                if (finaleStartTicks > 0 && finaleActive)
-                    finaleStartTicks++;
-            }
-        });
         ClientPlayNetworking.registerGlobalReceiver(AmonSkinS2CPacket.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
                     if (payload.amonId() == null) {
@@ -82,7 +74,7 @@ public class ClientAmonState {
         ClientPlayNetworking.registerGlobalReceiver(AmonFinaleS2CPacket.ID,
                 (payload, ctx) -> ctx.client().execute(() -> {
                     finaleActive = payload.active();
-                    finaleStartTicks = ctx.client().level.getGameTime();
+                    finaleStartTicks = SREClient.getTicksFromGameStart();
                     // 终幕结束：仅把进度归零不会移除状态条（HUD 默认保留 500s），需显式移除。
                     if (!payload.active()) {
                         StatusBarHUD.getInstance().removeStatusBar("AmonFinale");
@@ -95,7 +87,7 @@ public class ClientAmonState {
         if (!finaleActive)
             return 0f;
         if (SREClient.cached_player != null) {
-            long elapsed = SREClient.cached_player.level().getGameTime() - finaleStartTicks;
+            long elapsed = SREClient.getTicksFromGameStart() - finaleStartTicks;
             return Mth.clamp(1f - (float) elapsed / FINALE_DURATION_MS, 0f, 1f);
         }
         return 0f;

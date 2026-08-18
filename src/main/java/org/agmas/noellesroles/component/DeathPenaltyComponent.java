@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -127,7 +128,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 this.init();
                 return;
             } else {
-                if (player.level().getGameTime() >= this.penaltyExpiry) {
+                if (SRE.getTicksFromGameStart() >= this.penaltyExpiry) {
                     player.displayClientMessage(Component.translatable("message.noellesroles.penalty.unlimit")
                             .withStyle(ChatFormatting.GREEN), true);
                     player.sendSystemMessage(Component.translatable("message.noellesroles.penalty.unlimit")
@@ -160,7 +161,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         if (durationTicks < 0) {
             this.penaltyExpiry = -1;
         } else {
-            this.penaltyExpiry = player.level().getGameTime() + durationTicks;
+            this.penaltyExpiry = SRE.getTicksFromGameStart() + durationTicks;
         }
         if (pos != null) {
             this.limitPos = pos;
@@ -187,7 +188,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         if (durationTicks < 0) {
             this.penaltyExpiry = -1;
         } else {
-            this.penaltyExpiry = player.level().getGameTime() + durationTicks;
+            this.penaltyExpiry = SRE.getTicksFromGameStart() + durationTicks;
         }
         if (cameraEntity != null) {
             this.limitCameraUUID = cameraEntity.getUUID();
@@ -205,7 +206,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             sync();
             return;
         }
-        this.penaltyExpiry = player.level().getGameTime() + durationTicks;
+        this.penaltyExpiry = SRE.getTicksFromGameStart() + durationTicks;
         sync();
     }
 
@@ -219,7 +220,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         if (this.penaltyExpiry < 0) {
             return true;
         }
-        if (player.level().getGameTime() >= this.penaltyExpiry && morePenalty) {
+        if (SRE.getTicksFromGameStart() >= this.penaltyExpiry && morePenalty) {
             this.penaltyExpiry = -2;
         }
         return true;

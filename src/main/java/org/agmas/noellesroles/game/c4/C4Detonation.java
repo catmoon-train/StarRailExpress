@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.c4;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.GrenadeEntity;
 import io.wifi.starrailexpress.event.OnGameEnd;
@@ -81,7 +83,7 @@ public final class C4Detonation {
         if (entity == null || owner == null)
             return;
         thrownCharges.put(entity.getUUID(), new ThrownCharge(owner, -1L, -1L, entity.position(), false,
-                entity.level().getGameTime(), true, null));
+                SRE.getTicksFromGameStart(), true, null));
     }
 
     public static boolean isDefusableBlockCharge(ItemEntity entity) {
@@ -166,14 +168,14 @@ public final class C4Detonation {
     }
 
     private static long placedAt(ServerLevel level, ItemEntity entity) {
-        return Math.max(0L, level.getGameTime() - Math.max(0, entity.tickCount));
+        return Math.max(0L, SRE.getTicksFromGameStart() - Math.max(0, entity.tickCount));
     }
 
     public static void triggerRemoteDetonation(ServerPlayer player) {
         if (player == null || !(player.level() instanceof ServerLevel level))
             return;
         registerVisibleThrownCharges(level, player);
-        long now = level.getGameTime();
+        long now = SRE.getTicksFromGameStart();
         long detonationAt = now + 3L * 20L + 15L * 20L;
         Map.Entry<UUID, ThrownCharge> target = newestUnarmedCharge(level, player);
         if (target == null) {
@@ -215,8 +217,10 @@ public final class C4Detonation {
         boolean hasThrown = !thrownCharges.isEmpty();
         if (carriers.isEmpty() && !hasThrown)
             return;
-
-        long now = level.getGameTime();
+        if (SREGameTimeComponent.KEY.get(level).isTimeFrozen()) {
+            return;
+        }
+        long now = SRE.getTicksFromGameStart();
         MinecraftServer server = level.getServer();
         List<UUID> expired = null;
         List<UUID> dropOnly = null;
@@ -472,6 +476,9 @@ public final class C4Detonation {
         long interval = beepInterval(progress);
         if (ticksSinceFirstBeep % interval != 0L)
             return;
+        if (SREGameTimeComponent.KEY.get(carrier.level()).isTimeFrozen()) {
+            return;
+        }
         if (!(carrier.level() instanceof ServerLevel level))
             return;
 
@@ -492,10 +499,13 @@ public final class C4Detonation {
         long fuseTicks = Math.max(1L, charge.detonationAt() - charge.armedAt());
         long configuredDelay = 3L * 20L;
         long firstBeepDelay = Math.min(configuredDelay, Math.max(0L, fuseTicks - 1L));
-        long ticksSinceFirstBeep = level.getGameTime() - charge.armedAt() - firstBeepDelay;
+        long ticksSinceFirstBeep = SRE.getTicksFromGameStart() - charge.armedAt() - firstBeepDelay;
         if (ticksSinceFirstBeep < 0L)
             return;
 
+        if (SREGameTimeComponent.KEY.get(level).isTimeFrozen()) {
+            return;
+        }
         long audibleTicks = Math.max(1L, fuseTicks - firstBeepDelay);
         double progress = Math.min(1.0D, Math.max(0.0D, ticksSinceFirstBeep / (double) audibleTicks));
         long interval = beepInterval(progress);
@@ -603,7 +613,7 @@ public final class C4Detonation {
             return;
 
         UUID planter = comp.getPlanter(carrier.getUUID());
-        long plantedAt = level.getGameTime() - comp.ticksSincePlant(carrier.getUUID());
+        long plantedAt = SRE.getTicksFromGameStart() - comp.ticksSincePlant(carrier.getUUID());
 
         // 将 C4 直接贴在距离最近的墙面上（优先脚下的方块），而不是原地掉落
         SurfaceStick stick = findNearestSurface(level, carrier.position(), carrier);
@@ -624,7 +634,7 @@ public final class C4Detonation {
         UUID owner = planter != null ? planter : carrier.getUUID();
         thrownCharges.put(droppedCharge.getUUID(),
                 new ThrownCharge(owner, plantedAt, detonationAt, droppedCharge.position(), true,
-                        level.getGameTime(), false, pos));
+                        SRE.getTicksFromGameStart(), false, pos));
         comp.removeC4(carrier.getUUID());
     }
 

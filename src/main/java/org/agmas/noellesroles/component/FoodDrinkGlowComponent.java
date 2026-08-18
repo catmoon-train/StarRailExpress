@@ -103,11 +103,6 @@ public class FoodDrinkGlowComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void serverTick() {
-        // if (this.player.level().getGameTime() % 20 == 0 &&
-        // !this.pendingSenders.isEmpty()) { // 每秒处理一次避免丢包
-        // sync();
-        // this.pendingSenders.clear();
-        // }
     }
 
     @Override

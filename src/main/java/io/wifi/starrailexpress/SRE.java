@@ -252,11 +252,24 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     }
 
     /**
-     * 与 <pre>level.getGameTime();</pre> 不同，本方法返回自游戏开始时的tick数量。在时间暂停时，本tick不会变动（可用于职业冷却判定等）。
+     * 与
+     * 
+     * <pre>
+     * level.getGameTime();
+     * </pre>
+     * 
+     * 不同，本方法返回自游戏开始时的tick数量。在时间暂停时，本tick不会变动（可用于职业冷却判定等）。
+     * 
      * @return
      */
-    public static long getTicksFromGameStart(){
-        if(SRE.SERVER==null)return 0;
+    public static long getTicksFromGameStart() {
+        if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
+            if (SREClient.timeComponent != null)
+                return SREClient.getTicksFromGameStart();
+        }
+        if (SRE.SERVER == null) {
+            return 0;
+        }
         return SREGameTimeComponent.KEY.get(SRE.SERVER.overworld()).getTicksFromGameStart();
     }
 }

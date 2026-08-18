@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -32,7 +33,7 @@ public class GodfatherHud {
             int y = context.guiHeight() - 30;
             // Cooldown display
             if (comp.recruitCooldownUntil > 0 && client.player.level() != null) {
-                long now = client.player.level().getGameTime();
+                long now = SRE.getTicksFromGameStart();
                 if (now < comp.recruitCooldownUntil) {
                     long seconds = (comp.recruitCooldownUntil - now) / 20 + 1;
                     Component cd = Component.translatable("hud.noellesroles.godfather.cooldown", seconds);

@@ -33,7 +33,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.init.ModEffects;
@@ -41,8 +40,6 @@ import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.packet.CanMoveInTimeStopS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
-
-import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -102,19 +99,13 @@ public class TimeStopEffect extends MobEffect {
                     BroadcastCommand.BroadcastMessage(player, broadcastMessage);
 
                     if (!GameUtils.isPlayerAliveAndSurvival(player)) {
-                        if (WorldModifierComponent.KEY.get(player.level()).isModifier(player,
-                                SEModifiers.SPLIT_PERSONALITY)) {
-
-                        } else {
+                        {
                             canMovePlayers.add(player.getUUID());
                         }
                     } else {
                         if (gameWorldComponent.isRole(player, THRedHouseRoles.MAID_SAKUYA)) {
                             canMovePlayers.add(player.getUUID());
                         }
-                        // if (gameWorldComponent.isRole(player, ModRoles.JOJO)) {
-                        // canMovePlayers.add(player.getUUID());
-                        // }
                         if (gameWorldComponent.isRole(player, ModRoles.CLOCKMAKER)) {
                             canMovePlayers.add(player.getUUID());
                         }

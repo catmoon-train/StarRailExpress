@@ -40,6 +40,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -316,6 +317,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             return null;
         return b.areasSettings.sceneOutsideSound;
     }
+
     public boolean isOutsideSoundsAvailable() {
         var b = AreasWorldComponent.KEY.get(world);
         if (b.areasSettings == null)
@@ -845,10 +847,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
                 tickBlood(serverWorld);
             }
-
-            // if (serverWorld.getGameTime() % 40 == 0) {
-            // this.sync();
-            // }
         }
     }
 
@@ -974,6 +972,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     public static boolean isInDarkness(ServerPlayer player) {
         final var level = player.serverLevel();
+        if (player.hasEffect(MobEffects.NIGHT_VISION)) {
+            return false;
+        }
         if (player.getMainHandItem().is(ModItems.FLASHLIGHT)) {
             if (player.getMainHandItem().getOrDefault(SREDataComponentTypes.STATUS, false))
                 return false;

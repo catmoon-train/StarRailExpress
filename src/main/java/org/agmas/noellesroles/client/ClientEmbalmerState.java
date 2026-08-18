@@ -19,6 +19,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket;
 
+import io.wifi.starrailexpress.client.SREClient;
+
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,7 +43,7 @@ public class ClientEmbalmerState {
                     pitches.clear();
                     pitches.putAll(payload.pitches());
                     var client = Minecraft.getInstance();
-                    expiresAt = client.level != null ? client.level.getGameTime() + payload.durationTicks() : 0;
+                    expiresAt = client.level != null ? SREClient.getTicksFromGameStart() + payload.durationTicks() : 0;
                 }));
     }
 
@@ -63,7 +65,7 @@ public class ClientEmbalmerState {
             clear();
             return false;
         }
-        if (client.level.getGameTime() >= expiresAt) {
+        if (SREClient.getTicksFromGameStart() >= expiresAt) {
             clear();
             return false;
         }

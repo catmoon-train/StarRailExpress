@@ -199,7 +199,7 @@ public class SecurityCameraHUD {
 
     private static String getCurrentTimeString() {
         // 简单的时间戳，实际实现可能需要更精确的时间
-        long gameTime = Minecraft.getInstance().level != null ? Minecraft.getInstance().level.getGameTime() : 0;
+        long gameTime = System.currentTimeMillis() / 50;
         long seconds = (gameTime / 20) % 60;
         long minutes = (gameTime / (20 * 60)) % 60;
         long hours = (gameTime / (20 * 60 * 60)) % 24;
