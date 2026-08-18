@@ -201,6 +201,10 @@ public class RoleAssignmentPool {
         return poolName;
     }
 
+    public Map<ResourceLocation, Integer> getRoleCountMap() {
+        return roleCountMap;
+    }
+
     /**
      * 内部方法：根据权重和计数限制选择角色
      */
@@ -232,5 +236,28 @@ public class RoleAssignmentPool {
 
     public void setIgnoreRoleOccupiedCount(boolean b) {
         this.ignoreeRoleOccupiedCount = b;
+    }
+
+    public void addRoleCount(SRERole role, int i) {
+        if (role == null)
+            return;
+        int remainingCount = roleCountMap.getOrDefault(role.identifier(), 1);
+        if (remainingCount + i >= 0) {
+            // 在无限重复模式下，不减少计数
+            if (!allowUnlimitedRepeats) {
+                roleCountMap.put(role.identifier(), remainingCount + i);
+                if (remainingCount + i <= 0) {
+                    roleWeights.removeKey(role);
+                }
+            }
+            return;
+        } else {
+            roleWeights.removeKey(role);
+            return;
+        }
+    }
+
+    public void removeRoleCount(SRERole role, int i) {
+        addRoleCount(role, -i);
     }
 }

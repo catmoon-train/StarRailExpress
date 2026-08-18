@@ -241,10 +241,7 @@ public class SREMurderGameMode extends GameMode {
             if (Harpymodloader.FORCED_MODDED_MODIFIER.containsKey(mod)) {
                 for (ServerPlayer player : shuffledPlayers) {
                     if (Harpymodloader.FORCED_MODDED_MODIFIER.get(mod).contains(player.getUUID())) {
-                        if (getAssignedModifierCount(tempModifierAssignments,
-                                player.getUUID()) >= maxModifiersPerPlayer) {
-                            continue;
-                        }
+                        // 不限制数量
                         // 临时存储，稍后统一添加
                         if (addModifierAssignment(tempModifierAssignments, player.getUUID(), mod)) {
                             // ModifierAssigned.EVENT.invoker().assignModifier(player, mod);
@@ -369,12 +366,17 @@ public class SREMurderGameMode extends GameMode {
         return playerModifiers == null ? 0 : playerModifiers.size();
     }
 
+    public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
+            int forcedRoleSize) {
+        return getAllRoles(killerCount, vigilanteCount, neutralsCount, playerSize, forcedRoleSize, List.of());
+    }
+
     /**
      * 新的模块化角色分配方法
      * 处理强制角色、计算各类型角色数量、创建角色池、分配角色以及处理关联角色
      */
     public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
-            int forcedRoleSize) {
+            int forcedRoleSize, List<SRERole> forcedRoles) {
         HarpyModLoaderConfig config = HarpyModLoaderConfig.HANDLER.instance();
         boolean enableCivilianInPool = config.enableCivilianInPool;
         RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
@@ -414,14 +416,22 @@ public class SREMurderGameMode extends GameMode {
             Harpymodloader.setRoleMaximum(TMMRoles.CIVILIAN.getIdentifier(), 1);
         }
         return getAllRoles(killerCount, vigilanteCount, neutralsCount, playerSize, forcedRoleSize, killerPool,
-                neutralsPool, vigilantePool, civilianPool, true);
+                neutralsPool, vigilantePool, civilianPool, true, forcedRoles);
     }
 
     public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
             int forcedRoleSize, RoleAssignmentPool killerPool, RoleAssignmentPool neutralsPool,
             RoleAssignmentPool vigilantePool, RoleAssignmentPool civilianPool, boolean haveOccupationRoles) {
         return getAllRoles(killerCount, vigilanteCount, neutralsCount, playerSize, forcedRoleSize, killerPool,
-                neutralsPool, vigilantePool, civilianPool, haveOccupationRoles, 10);
+                neutralsPool, vigilantePool, civilianPool, haveOccupationRoles, List.of());
+    }
+
+    public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
+            int forcedRoleSize, RoleAssignmentPool killerPool, RoleAssignmentPool neutralsPool,
+            RoleAssignmentPool vigilantePool, RoleAssignmentPool civilianPool, boolean haveOccupationRoles,
+            List<SRERole> forcedRoles) {
+        return getAllRoles(killerCount, vigilanteCount, neutralsCount, playerSize, forcedRoleSize, killerPool,
+                neutralsPool, vigilantePool, civilianPool, haveOccupationRoles, forcedRoles, 10);
     }
 
     /**
@@ -431,7 +441,22 @@ public class SREMurderGameMode extends GameMode {
     public static List<RoleInstance> getAllRoles(int killerCount, int vigilanteCount, int neutralsCount, int playerSize,
             int forcedRoleSize, RoleAssignmentPool killerPool, RoleAssignmentPool neutralsPool,
             RoleAssignmentPool vigilantePool, RoleAssignmentPool civilianPool, boolean haveOccupationRoles,
+            List<SRERole> forcedRoles,
             int maxDepth) {
+        // 第一步，减少强制职业
+        if (forcedRoles != null) {
+            for (var role : forcedRoles) {
+                if (role.isKiller()) {
+                    killerPool.removeRoleCount(role, 1);
+                } else if (role.isNeutrals()) {
+                    neutralsPool.removeRoleCount(role, 1);
+                } else if (role.isVigilanteTeam()) {
+                    vigilantePool.removeRoleCount(role, 1);
+                } else {
+                    civilianPool.removeRoleCount(role, 1);
+                }
+            }
+        }
         // 第二步：创建角色池并分配角色
         // 杀手池
         if (playerSize - forcedRoleSize <= 0)
@@ -528,17 +553,19 @@ public class SREMurderGameMode extends GameMode {
         }
 
         // 第一步：处理强制分配的角色
-        Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
+        Map<UUID, SRERole> forcedRolesMap = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE_FLIP);
         int killerCount = RoleCountManager.getKillerCount(players.size());
         int vigilanteCount = RoleCountManager.getVigilanteCount(players.size());
         int neutralsCount = RoleCountManager.getNeutralCount(players.size());
 
+        List<SRERole> forcedRoles = new ArrayList<>();
         // 处理强制分配的角色，减少对应角色类型的数量需求
-        for (Map.Entry<UUID, SRERole> entry : forcedRoles.entrySet()) {
+        for (Map.Entry<UUID, SRERole> entry : forcedRolesMap.entrySet()) {
             Player player = serverWorld.getPlayerByUUID(entry.getKey());
             if (player != null) {
                 SRERole role = entry.getValue();
                 if (role != null) {
+                    forcedRoles.add(role);
                     roleAssignments.put(player, role);
 
                     // 根据角色类型减少对应的数量需求
@@ -559,7 +586,8 @@ public class SREMurderGameMode extends GameMode {
         neutralsCount = Math.max(0, neutralsCount);
 
         List<RoleInstance> expandedRoles = getAllRoles(killerCount, vigilanteCount, neutralsCount, players.size(),
-                forcedRoles.size());
+                forcedRolesMap.size(), forcedRoles);
+
         RandomSource random = serverWorld.random;
         // 第五步：为未分配的玩家分配角色
         List<ServerPlayer> unassignedPlayers = new ArrayList<>();
@@ -784,7 +812,8 @@ public class SREMurderGameMode extends GameMode {
         }
         if (winStatus != GameUtils.WinStatus.NONE
                 && gameWorldComponent.getGameStatus() == SREGameWorldComponent.GameStatus.ACTIVE) {
-            SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(new ArrayList<>(serverWorld.players()), winStatus);
+            SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(new ArrayList<>(serverWorld.players()),
+                    winStatus);
             GameUtils.stopGame(serverWorld);
         }
     }

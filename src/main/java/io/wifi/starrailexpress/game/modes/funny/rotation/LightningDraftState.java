@@ -159,11 +159,13 @@ public class LightningDraftState {
 
         // 强制职业直接作为实例加入池子
         int forceRoleCount = 0;
+        List<SRERole> forcedRoles = new ArrayList<>();
         for (var flip : Harpymodloader.FORCED_MODDED_ROLE_FLIP.entrySet()) {
             var role = flip.getValue();
             if (role == null)
                 continue;
             rolePool.add(new RoleInstance(UUID.randomUUID(), role));
+            forcedRoles.add(role);
             forceRoleCount++;
             switch (role.getRoleType()) {
                 case 1:
@@ -184,7 +186,7 @@ public class LightningDraftState {
         List<RoleInstance> baseRoles = SREMurderGameMode.getAllRoles(
                 killerCount, vigilanteCount, neutralsCount,
                 totalPlayers, forceRoleCount,
-                killerPool, neutralsPool, vigilantePool, civilianPool, true);
+                killerPool, neutralsPool, vigilantePool, civilianPool, true, forcedRoles);
 
         for (RoleInstance inst : baseRoles) {
             if (inst.role() != null) {
