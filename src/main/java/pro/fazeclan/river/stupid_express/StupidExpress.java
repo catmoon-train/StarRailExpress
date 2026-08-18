@@ -23,7 +23,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import org.agmas.harpymodloader.Harpymodloader;
-import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.harpymodloader.SREDisableManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
@@ -52,7 +52,7 @@ public class StupidExpress implements ModInitializer {
 
     public static List<SRERole> getEnableRoles(boolean removeNonThisRoundRoles) {
         ArrayList<SRERole> clone = new ArrayList<>(TMMRoles.ROLES.values());
-        clone.removeIf(r -> HarpyModLoaderConfig.HANDLER.instance().getDisabled().contains(r.getIdentifier().toString())
+        clone.removeIf(r -> SREDisableManager.isRoleDisabled(r)
                 || !r.canBeRandomed()
                 || (removeNonThisRoundRoles && Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 1) <= 0)
                 || r.getOccupiedRoleCount() > 1

@@ -1254,7 +1254,7 @@
     "message.noellesroles.puppeteer.ability_cooldown": "Puppet skill on cooldown, need %s seconds more",
     "message.noellesroles.puppeteer.returned_to_body": "Returned to body.",
     "message.noellesroles.puppeteer.collect_more": "Need to collect more corpses! (%s/%s)",
-    "message.noellesroles.puppeteer.returned_to_body_tip": "Sneak + G to return to body",
+    "message.noellesroles.puppeteer.returned_to_body_tip": "Press %s + %s to return to body",
     "==================== Manipulator Role ====================": "",
     "announcement.star.role.manipulator": "Manipulator",
     "announcement.star.goals.manipulator": "Use others' hands to eliminate all who defy you!",

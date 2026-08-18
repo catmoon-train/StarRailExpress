@@ -119,8 +119,8 @@ public class PuppeteerHud {
 
                     // 显示返回本体提示
                     Component returnHint = Component
-                            .translatable("message.noellesroles.puppeteer.returned_to_body_tip",
-                                    NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                            .translatable("message.noellesroles.puppeteer.returned_to_body_tip",client.options.keyShift.getTranslatedKeyMessage(),
+                                    NoellesrolesClient.nextAbilityBind.getTranslatedKeyMessage())
                             .withStyle(ChatFormatting.GOLD);
                     context.drawString(textRenderer, returnHint, baseX, baseY + 12, 0xFFA500);
                 } else {
