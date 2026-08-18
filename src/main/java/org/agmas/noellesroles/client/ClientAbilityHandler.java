@@ -49,19 +49,6 @@ public class ClientAbilityHandler {
             ClientPlayNetworking.send(new ManipulatorAbilityC2SPacket());
             return;
         }
-        // ==================== 傀儡师：优先检测操控假人状态 ====================
-        // 必须放在所有角色之前，因为傀儡师操控假人时角色会临时变成其他杀手
-        // 如果不优先检测，假人角色的按键处理会拦截G键
-        PuppeteerPlayerComponent puppeteerComp = PuppeteerPlayerComponent.KEY.get(client.player);
-        if (puppeteerComp.isControllingPuppet && client.player.isShiftKeyDown()) {
-            // 检查玩家是否存活
-            if (!GameUtils.isPlayerAliveAndSurvival(client.player))
-                return;
-
-            // 正在操控假人，按G返回本体
-            ClientPlayNetworking.send(new PuppeteerC2SPacket(PuppeteerC2SPacket.Action.RETURN_TO_BODY));
-            return;
-        }
         // 游戏模式：自选职业
         if (gameWorldComponent.isRunning() && gameWorldComponent.getGameMode().equals(SREGameModes.CUSTOM_SELECTED_MODE)
                 && gameWorldComponent.isRole(client.player, SpecialGameModeRoles.CUSTOM_PENDING)) {
@@ -186,6 +173,19 @@ public class ClientAbilityHandler {
 
     public static void selectNextSkill(Minecraft client) {
         if (client.player == null || client.level == null) {
+            return;
+        }
+
+        // ==================== 傀儡师：优先检测操控假人状态 ====================
+        // 必须放在所有角色之前，因为傀儡师操控假人时角色会临时变成其他杀手
+        // 如果不优先检测，假人角色的按键处理会拦截G键
+        PuppeteerPlayerComponent puppeteerComp = PuppeteerPlayerComponent.KEY.get(client.player);
+        if (puppeteerComp.isControllingPuppet && client.player.isShiftKeyDown()) {
+            // 检查玩家是否存活
+            if (GameUtils.isPlayerAliveAndSurvival(client.player)) {
+                // 正在操控假人，按G返回本体
+                ClientPlayNetworking.send(new PuppeteerC2SPacket(PuppeteerC2SPacket.Action.RETURN_TO_BODY));
+            }
             return;
         }
         var gameWorld = SREGameWorldComponent.KEY.get(client.level);

@@ -1254,7 +1254,7 @@
   "message.noellesroles.puppeteer.ability_cooldown": "傀儡技能冷卻中，還需 %s 秒",
   "message.noellesroles.puppeteer.returned_to_body": "已返回本體。",
   "message.noellesroles.puppeteer.collect_more": "還需要收集更多屍體！（%s/%s）",
-  "message.noellesroles.puppeteer.returned_to_body_tip": "潛行按 G 返回本體",
+  "message.noellesroles.puppeteer.returned_to_body_tip": "按下 %s + %s 返回本體",
   "==================== 操縱師角色 ====================": "",
   "announcement.star.role.manipulator": "操縱師",
   "announcement.star.goals.manipulator": "借他人之手清除所有違抗你的人！",

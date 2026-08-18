@@ -210,7 +210,6 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             return true;
         }
         // 获取玩家的技能组件
-        @SuppressWarnings("unused")
         SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(client.player);
         if (gameWorld.isRole(client.player, ModRoles.PUPPETEER) &&
                 PuppeteerPlayerComponent.KEY.get(client.player).isActivePuppeteer()) {
