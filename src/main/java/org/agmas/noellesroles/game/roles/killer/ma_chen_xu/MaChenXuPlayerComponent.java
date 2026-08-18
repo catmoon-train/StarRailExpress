@@ -42,7 +42,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.client.NoellesrolesClient;
+
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.init.ModEffects;
@@ -446,7 +446,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
             serverPlayer.displayClientMessage(
                     Component
                             .translatable("tip.noellesroles.ma_chen_xu.minor_trick_usage",
-                                    NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
+                                    Component.keybind("key.noellesroles.ability"))
                             .withStyle(ChatFormatting.GRAY),
                     false);
         }
@@ -1714,7 +1714,7 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
         int cd = getArtCooldown(artId);
         if (cd <= 0) {
             return Component.translatable("message.noellesroles.ma_chen_xu.ready_named",
-                    name, NoellesrolesClient.abilityBind.getTranslatedKeyMessage()).withStyle(ChatFormatting.GREEN);
+                    name, Component.keybind("key.noellesroles.ability")).withStyle(ChatFormatting.GREEN);
         }
         return Component.translatable("message.noellesroles.ma_chen_xu.cooldown", name, cd / 20)
                 .withStyle(ChatFormatting.YELLOW);
