@@ -484,7 +484,7 @@ public class RoundTextRenderer {
         int sideTitleXCenterColumnOffset = (6 + winCenterColumn * 12);
         int sideTitleXSideColumnOffset = 12 * winSideColumn;
 
-        int neutralY = (looseEndsTotal > winSideColumn - 1) ? (14 + 16 + 32 * ((looseEndsTotal) / 2)) : 14;
+        int neutralY = (looseEndsTotal > winSideColumn - 1) ? (14 + 16 + 32 * ((looseEndsTotal) / winSideColumn)) : 14;
         context.drawString(renderer, neutralTitle,
                 -neutralWidth / 2 - (sideTitleXCenterColumnOffset) - sideTitleXSideColumnOffset,
                 neutralY, 0xffffff);
