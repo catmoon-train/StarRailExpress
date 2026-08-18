@@ -54,15 +54,7 @@ public record AntidoteUsePayload(int target) implements CustomPacketPayload {
                     target.playSound(NRSounds.SYRINGE_STAB, 0.4F, 1.0F);
                     player.swing(InteractionHand.MAIN_HAND);
                     if (!player.isCreative()) {
-                        int cd = (Integer) ModItems.ITEM_COOLDOWNS.get(ModItems.ANTIDOTE);
-                        // 如果疫使在场，解药冷却减少40%
-                        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.serverLevel());
-                        for (ServerPlayer sp : player.serverLevel().players()) {
-                            if (gameWorld.isRole(sp, ModRoles.INFECTED)) {
-                                cd = (int) (cd * 0.6);
-                                break;
-                            }
-                        }
+                        int cd = ModItems.getAntidoteCooldown(player);
                         player.getCooldowns().addCooldown(ModItems.ANTIDOTE, cd);
                     }
 

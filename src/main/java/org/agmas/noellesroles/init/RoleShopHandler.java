@@ -708,10 +708,10 @@ public class RoleShopHandler {
                     ModItems.createPillStack(false),
                     75,
                     ShopEntry.Type.TOOL));
-            // 净化弹 - 300金币
+            // 净化弹 - 225金币
             DOCTOR_SHOP.add(new ShopEntry(
                     ModItems.PURIFY_BOMB.getDefaultInstance(),
-                    300,
+                    225,
                     ShopEntry.Type.TOOL));
         }
 

@@ -19,11 +19,13 @@ import net.exmo.sre.repair.content.item.*;
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
 import io.wifi.starrailexpress.api.ChargeableItemRegistry;
 import io.wifi.starrailexpress.api.impl.KnifeChargeableItem;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.index.DevItems;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -35,6 +37,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.*;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.content.item.charge_item.*;
 
 import java.util.HashMap;
@@ -1218,6 +1221,25 @@ public class ModItems {
             "scarlet_perception_sword", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
     public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
+
+    /**
+     * 计算解药（Antidote）的冷却时间：
+     * - 医生职业：20秒
+     * - 非医生职业：30秒
+     * - 若场上存在疫使，冷却额外减少40%（无论是否医生）
+     */
+    public static int getAntidoteCooldown(ServerPlayer player) {
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.serverLevel());
+        int cd = gameWorld.isRole(player, ModRoles.DOCTOR) ? getInTicks(0, 20) : getInTicks(0, 30);
+        for (ServerPlayer sp : player.serverLevel().players()) {
+            if (gameWorld.isRole(sp, ModRoles.INFECTED)) {
+                cd = (int) (cd * 0.6);
+                break;
+            }
+        }
+        return cd;
+    }
+
     static {
         // 不需要单独注册！！！！
         // 不需要单独注册！！！！
@@ -1303,7 +1325,6 @@ public class ModItems {
         TMMItems.INIT_ITEMS.LETTER_UpdateItemFunc = (letter, serverPlayerEntity) -> {
 
         };
-        ITEM_COOLDOWNS.put(ModItems.ANTIDOTE, getInTicks(1, 0)); // 60秒冷却
         ITEM_COOLDOWNS.put(ModItems.TOXIN, getInTicks(0, 10));
         ITEM_COOLDOWNS.put(ModItems.BANDIT_REVOLVER, getInTicks(0, 40));
         ITEM_COOLDOWNS.put(ModItems.SHORT_SHOTGUN, getInTicks(30, 0));
