@@ -73,9 +73,11 @@ public abstract class MobEffectKeyMixin {
             if (this.same(options.keyAttack) || this.same(options.keyDrop))
                 return true;
             if (this.same(options.keyUse)) {
-                // 怀旧者在里世界中「只能潜行与侦察」：放行对方块的使用键（按按钮、用钥匙开门），
-                // 仅在准星指向方块时放行；指向空气/实体时仍抑制使用物品（开枪、消耗品等）。
-                if (player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD) && isLookingAtBlock(instance)) {
+                // 里世界（怀旧者）/ 维度（冤魂）：仅准星指向方块时放行右键（按按钮、用钥匙开门等），
+                // 指向空气/实体时仍抑制使用物品（开枪、消耗品等）。显形时 USED_BANED 已被清除，不会进入此分支。
+                if (isLookingAtBlock(instance)
+                        && (player.hasEffect(ModEffects.NOSTALGIST_BACKWORLD)
+                            || player.hasEffect(ModEffects.WRAITH_DIMENSION))) {
                     return false;
                 }
                 return true;

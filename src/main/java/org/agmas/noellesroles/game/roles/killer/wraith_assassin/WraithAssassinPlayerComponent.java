@@ -227,6 +227,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     private void applyDimensionEffects() {
         player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 60, 0, true, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.WRAITH_DIMENSION, 60, 0, true, false, false));
+        player.addEffect(new MobEffectInstance(ModEffects.USED_BANED, 60, 0, true, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 60, 0, true, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.FOOTSTEP_VANISH, 60, 0, true, false, false));
         if (player.hasEffect(ModEffects.WRAITH_MANIFEST)) {
@@ -241,12 +242,16 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         player.addEffect(new MobEffectInstance(ModEffects.WRAITH_DIMENSION, 60, 0, true, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.WRAITH_MANIFEST, 60, 0, true, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 60, 0, true, false, false));
+        if (player.hasEffect(ModEffects.USED_BANED)) {
+            player.removeEffect(ModEffects.USED_BANED);
+        }
     }
 
     private void removeWraithEffects() {
         player.removeEffect(MobEffects.INVISIBILITY);
         player.removeEffect(ModEffects.WRAITH_DIMENSION);
         player.removeEffect(ModEffects.WRAITH_MANIFEST);
+        player.removeEffect(ModEffects.USED_BANED);
         player.removeEffect(ModEffects.NO_COLLIDE);
         player.removeEffect(ModEffects.FOOTSTEP_VANISH);
     }
