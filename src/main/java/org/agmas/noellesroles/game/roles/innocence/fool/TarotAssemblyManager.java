@@ -462,6 +462,12 @@ public class TarotAssemblyManager {
     }
 
     public static void submitVote(ServerPlayer player, UUID votedFor) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+            // 懒得写翻译键了，反正只是兜底，客户端不准打开UI了也投票不了
+            player.displayClientMessage(Component.literal("You are not allowed to sumbit vote because you're out.")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
         ServerLevel serverLevel = (ServerLevel) player.level();
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
         ServerPlayer fool = findFoolPlayer(serverLevel, gameComponent);
@@ -488,6 +494,8 @@ public class TarotAssemblyManager {
     }
 
     public static void requestVoteScreen(ServerPlayer player) {
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return;
         ServerLevel serverLevel = (ServerLevel) player.level();
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
         ServerPlayer fool = findFoolPlayer(serverLevel, gameComponent);
