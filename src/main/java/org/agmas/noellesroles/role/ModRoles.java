@@ -1006,7 +1006,7 @@ public class ModRoles {
             .setDefaultMax(1);
     public static SRERole BETTER_VIGILANTE = TMMRoles
             .registerRole(new NormalRole(BETTER_VIGILANTE_ID, new Color(0, 255, 255).getRGB(), true, false,
-                    SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
+                    SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setComponentKey(BetterVigilantePlayerComponent.KEY))
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(0);
     public static SRERole BROADCASTER = TMMRoles
