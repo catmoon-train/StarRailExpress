@@ -104,16 +104,17 @@ public abstract class ItemEntityMixin {
             // 装不下了，不准继续~
             return;
         }
-        if (this.getItem().is(TMMItemTags.GUNS) && SREItemUtils.hasItem(player, TMMItemTags.GUNS)) {
-            return;
-        }
+        // gun
         if (this.getItem().is(TMMItemTags.GUNS)) {
+            // is gun
             if (SREGameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
                     && !player.equals(this.getOwner())) {
+                // can pick gun
                 // 在拾取物品之前调用角色的onPickupItem方法
-                if (SREItemUtils.countItem(player, TMMItemTags.GUNS) > 0) {
+                if (SREItemUtils.hasItem(player, TMMItemTags.GUNS)) {
                     return;
                 }
+                // haven't gun can pick
                 original.call(player);
                 return;
             }
