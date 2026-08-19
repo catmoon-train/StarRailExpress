@@ -1746,6 +1746,7 @@ public class NoellesrolesClient implements ClientModInitializer {
     public static void clearTimeStopCache() {
         Minecraft.getInstance().execute(() -> {
             clientPositions.clear();
+            TimeStopEffect.clientCanMovePlayers.clear();
             TimeStopEffect.freezeStatedTime = 0;
             TimeStopEffect.freezeMaxTime = 0;
         });
