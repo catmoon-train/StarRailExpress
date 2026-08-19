@@ -445,6 +445,9 @@ public final class RoleSkill {
         }
         // 退出重进过的人无法使用技能
         if (SREAbilityPlayerComponent.KEY.get(player).hasExited()) {
+            player.displayClientMessage(
+                    Component.translatable("skill.noellesroles.unable_to_use_exited").withStyle(ChatFormatting.RED),
+                    true);
             return true;
         }
         if (!player.isSpectator()) {

@@ -2826,6 +2826,7 @@
   "announcement.star.goals.goose": "完成小游戏任务，或在会议中投票放逐所有鸭。",
   "announcement.star.role.duck": "鸭",
   "announcement.star.goals.duck": "伪装在鹅群中，击杀鹅并利用破坏扰乱任务，在被投票放逐前消灭所有鹅。",
+  "skill.noellesroles.unable_to_use_exited": "无法使用技能：你退出重进过",
   "skill.noellesroles.utsuho.triggered": "%s: 成功辐射了 %s 人！它们若无法接触水源将在 %ss 后死亡！",
   "skill.noellesroles.utsuho.victim": "⚠ 你被核辐射照射到了！你需要在 %s 内喝水或者跑入水中！ ⚠ ",
   "skill.noellesroles.utsuho.victim_warning.title": "⚠ 紧急任务 ⚠",
