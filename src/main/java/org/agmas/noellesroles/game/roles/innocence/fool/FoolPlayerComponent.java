@@ -93,6 +93,8 @@ public class FoolPlayerComponent implements RoleComponent {
     /** 当前是否正在塔罗会中 */
     public boolean inMeeting = false;
 
+    public boolean isExited = false;
+
     /** 会议开始时间，用于避免同一次按键导致立即结束 */
     public long meetingStartTick = 0;
 
@@ -197,6 +199,7 @@ public class FoolPlayerComponent implements RoleComponent {
     @Override
     public void init() {
         tarotMembers.clear();
+        isExited = false;
         executionerBullets = 1;
         tarotCooldownEndTick = 0;
         hereticTarget = null;

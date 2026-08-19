@@ -77,6 +77,13 @@ public class TarotAssemblyManager {
      */
     public static void startAssembly(ServerPlayer fool) {
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
+        if(comp.isExited){
+            fool.displayClientMessage(
+                    Component.translatable("message.noellesroles.fool.disconnected")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return;
+        }
         long currentTick = GameUtils.getTicksFromGameStart(fool.level());
         if (comp.tarotMembers.isEmpty()) {
             fool.displayClientMessage(
