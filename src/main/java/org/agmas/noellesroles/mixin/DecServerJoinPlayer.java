@@ -16,13 +16,13 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
 
-import org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,8 +43,8 @@ public class DecServerJoinPlayer {
         }
         RoleUtils.removeAllPlayerAttributes(serverPlayer);
         // ConfigWorldComponent.KEY.get(serverPlayer.level()).syncToPlayer(serverPlayer);
-        if (RoleUtils.isPlayerTheJob(serverPlayer, ModRoles.THE_FOOL)) {
-            FoolPlayerComponent.KEY.get(serverPlayer).isExited = true;
+        if (GameUtils.isGameRunning(serverPlayer)) {
+            RoleUtils.changeRole(serverPlayer, TMMRoles.DISCOVERY_CIVILIAN, false, false, false, true);
         }
     }
 
