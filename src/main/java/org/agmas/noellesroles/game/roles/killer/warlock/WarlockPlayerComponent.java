@@ -269,6 +269,10 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
             fail(sp, "message.noellesroles.warlock.domain_no_victims");
             return false;
         }
+        if (ModEffects.isInAnyDomain(victim)) {
+            fail(sp, "message.noellesroles.domain.already_in_domain");
+            return false;
+        }
         boolean opened = WarlockDomainManager.open(sp, this, victim);
         if (opened) {
             domainCooldownEndTick = now + DOMAIN_COOLDOWN_TICKS;

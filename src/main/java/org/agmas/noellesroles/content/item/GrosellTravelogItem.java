@@ -38,6 +38,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.List;
 import java.util.UUID;
@@ -159,6 +160,12 @@ public class GrosellTravelogItem extends Item {
         if (target == null) {
             player.displayClientMessage(Component
                     .translatable("item.noellesroles.grosell_travelog.no_target")
+                    .withStyle(ChatFormatting.YELLOW), true);
+            return;
+        }
+        if (ModEffects.isInAnyDomain(target)) {
+            player.displayClientMessage(Component
+                    .translatable("message.noellesroles.domain.already_in_domain")
                     .withStyle(ChatFormatting.YELLOW), true);
             return;
         }

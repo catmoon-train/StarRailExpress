@@ -165,6 +165,9 @@ public final class WarlockDomainManager {
         player.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 20, 0, false, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.NOSTALGIST_BACKWORLD, DURATION_TICKS + 40, 0,
                 false, false, false));
+        // 标记所处领域：咒术师角斗场领域 = 2 级（amplifier 1）
+        player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, DURATION_TICKS + 40, 1, false, false,
+                true));
         if (isWarlock) {
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, DURATION_TICKS, 0,
                     false, false, false));
@@ -241,6 +244,7 @@ public final class WarlockDomainManager {
                 participant.setDeltaMovement(0.0D, 0.0D, 0.0D);
                 participant.fallDistance = 0.0F;
                 participant.removeEffect(ModEffects.NOSTALGIST_BACKWORLD);
+            participant.removeEffect(ModEffects.DOMAIN_MARK);
                 participant.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 15, 0, false, false, false));
                 participant.displayClientMessage(Component
                         .translatable(brokenByDeath

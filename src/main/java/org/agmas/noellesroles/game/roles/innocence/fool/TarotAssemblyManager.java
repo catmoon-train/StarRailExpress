@@ -87,6 +87,14 @@ public class TarotAssemblyManager {
             return;
         }
 
+        // 愚者处于其它领域（非愚者开会领域）时，无法发起会议
+        if (ModEffects.getDomainMarkLevel(fool) >= 0 && ModEffects.getDomainMarkLevel(fool) != 0) {
+            fool.displayClientMessage(Component
+                    .translatable("message.noellesroles.fool.in_other_domain_cannot_start")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+
         // G键再次使用：直接提前结束并结算当前投票结果
         if (comp.inMeeting) {
             if (currentTick < comp.meetingStartTick + MANUAL_ADVANCE_LOCK_TICKS) {
@@ -237,6 +245,11 @@ public class TarotAssemblyManager {
             player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, BLINDNESS_DURATION_TICKS, 0, false, false,
                     false));
         }
+
+        // 标记所处领域：愚者开会领域 = 1 级（amplifier 0）
+        player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, BLINDNESS_DURATION_TICKS + 40, 0, false, false,
+                true));
+
         ServerPlayNetworking.send(player, new CloseUiPayload());
         player.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.entered_meeting")
@@ -326,6 +339,7 @@ public class TarotAssemblyManager {
 
         player.removeEffect(MobEffects.BLINDNESS);
         player.removeEffect(ModEffects.TAROT_ASSEMBLY);
+        player.removeEffect(ModEffects.DOMAIN_MARK);
 
         player.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.left_meeting").withStyle(ChatFormatting.GRAY),
