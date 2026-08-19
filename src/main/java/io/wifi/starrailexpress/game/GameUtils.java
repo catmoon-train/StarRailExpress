@@ -23,11 +23,9 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -1109,7 +1107,6 @@ public class GameUtils {
                 .filter(serverPlayerEntity -> areas.getReadyArea().contains(serverPlayerEntity.position())).toList();
     }
 
-    public static ArrayList<Predicate<Entry<Player, String>>> CustomWinnersPredicates = new ArrayList<>();
     public static final Set<ChunkPos> chunksToClearEntities = new HashSet<>();
     /** {@link #chunksToClearEntities} 的生效截止游戏刻：只在列车重置后的短窗口内清理，过期即整体作废。 */
     public static long chunksToClearEntitiesDeadline = 0;

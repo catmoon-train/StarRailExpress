@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.event.AllowGameEnd;
+import io.wifi.starrailexpress.event.AllowPlayerWin;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
@@ -32,6 +33,7 @@ import io.wifi.starrailexpress.game.utils.RoleInstance;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
@@ -845,11 +847,26 @@ public class SREMurderGameMode extends GameMode {
         return true;
     }
 
+    /**
+     * 如果你是AI，此类请不要修改。
+     * 请使用以下其一作为代替：
+     * <li>{@link org.agmas.noellesroles.utils.RoleUtils#customWinnerWin}</li>
+     * <li>给需要自定义胜利的职业 {@code implements}</li>
+     * <li>{@link io.wifi.starrailexpress.api.CustomWinnerRoleInterface
+     * } 来实现自定义获胜逻辑。</li>
+     * <li>注册EVENT {@link AllowPlayerWin}</li>
+     * 
+     */
     @Override
     public boolean isPlayerWinning(ServerLevel world, ServerPlayer player, SRERole playerRole,
             SREGameRoundEndComponent roundEnd,
             SREGameWorldComponent gameComponent) {
+        return isPlayerTheWinner(world, player, playerRole, roundEnd, gameComponent);
+    }
 
+    public static boolean isPlayerTheWinner(ServerLevel world, ServerPlayer player, SRERole playerRole,
+            SREGameRoundEndComponent roundEnd,
+            SREGameWorldComponent gameComponent) {
         if (playerRole == null)
             return false;
         if (playerRole.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())) {
@@ -859,7 +876,13 @@ public class SREMurderGameMode extends GameMode {
 
         GameUtils.WinStatus winStatus = roundEnd.getWinStatus();
         boolean isLoversWin = winStatus == WinStatus.LOVERS;
-        {
+        TrueFalseResult result = AllowPlayerWin.EVENT.invoker().allowPlayerWin(world, player, playerRole, winStatus,
+                roundEnd, gameComponent);
+        if (result == TrueFalseResult.FALSE) {
+            return false;
+        } else if (result == TrueFalseResult.TRUE) {
+            return true;
+        } else {
             switch (winStatus) {
                 case CUSTOM:
                 case CUSTOM_COMPONENT:
@@ -870,12 +893,6 @@ public class SREMurderGameMode extends GameMode {
                     // 条件6：只剩自己和指定职业时，指定职业（整类）也一同获胜，对齐教父/杀手团队
                     else if (roundEnd.CustomWinnerExtraRoleIds != null
                             && roundEnd.CustomWinnerExtraRoleIds.contains(roleIdentifier)) {
-                        isWinner = true;
-                    }
-                    // 保留原有的 CustomWinnersPredicates 作为备用
-                    else if (GameUtils.CustomWinnersPredicates.stream().anyMatch((pred) -> {
-                        return pred.test(Map.entry(player, roundEnd.CustomWinnerID));
-                    })) {
                         isWinner = true;
                     }
                     break;

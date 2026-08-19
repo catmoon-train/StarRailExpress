@@ -15,10 +15,7 @@
 
 package io.wifi.starrailexpress.game.modes.funny;
 
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.GameMode;
-import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
@@ -26,8 +23,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.util.TickTimer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -36,13 +32,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.noellesroles.commands.BroadcastCommand;
-import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
-import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class SREBaseCustomizationGameMode extends GameMode {
@@ -167,109 +160,6 @@ public class SREBaseCustomizationGameMode extends GameMode {
     @Override
     public boolean isPlayerWinning(ServerLevel world, ServerPlayer player, SRERole playerRole,
             SREGameRoundEndComponent roundEnd, SREGameWorldComponent gameComponent) {
-
-        if (playerRole == null)
-            return false;
-        if (playerRole.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())) {
-            return false;
-        }
-        boolean isWinner = false;
-
-        GameUtils.WinStatus winStatus = roundEnd.getWinStatus();
-        boolean isLoversWin = winStatus == WinStatus.LOVERS;
-        {
-            switch (winStatus) {
-                case CUSTOM:
-                case CUSTOM_COMPONENT:
-                    String roleIdentifier = playerRole.identifier().getPath();
-                    if (roundEnd.CustomWinnerID != null && roundEnd.CustomWinnerID.equals(roleIdentifier)) {
-                        isWinner = true;
-                    }
-                    // 条件6：只剩自己和指定职业时，指定职业（整类）也一同获胜，对齐教父/杀手团队
-                    else if (roundEnd.CustomWinnerExtraRoleIds != null
-                            && roundEnd.CustomWinnerExtraRoleIds.contains(roleIdentifier)) {
-                        isWinner = true;
-                    }
-                    // 保留原有的 CustomWinnersPredicates 作为备用
-                    else if (GameUtils.CustomWinnersPredicates.stream().anyMatch((pred) -> {
-                        return pred.test(Map.entry(player, roundEnd.CustomWinnerID));
-                    })) {
-                        isWinner = true;
-                    }
-                    break;
-                case GAMBLER:
-                    if (playerRole.identifier().getPath().equals("gambler")) {
-                        isWinner = true;
-                    }
-                    break;
-                case KILLERS:
-                    if (playerRole.winWithKiller()) {
-                        // String roleidentifier = playerRole.identifier().getPath();
-                        // 魔术师不算胜利
-                        isWinner = true;
-                    }
-                    if (!isWinner && playerRole.identifier().equals(ModRoles.MERCENARY_ID)) {
-                        var mercenary = MercenaryPlayerComponent.KEY.maybeGet(player).orElse(null);
-                        if (mercenary != null && mercenary.canFollowFactionWin(winStatus)) {
-                            isWinner = true;
-                        }
-                    }
-                    break;
-                case LOOSE_END:
-                    if (winStatus == WinStatus.LOOSE_END) {
-                        if (SRE.GAME.identifier.equals(SREGameModes.LOOSE_ENDS.identifier)) {
-                            if (player.getUUID().equals(gameComponent.getLooseEndWinner())) {
-                                isWinner = true;
-                            }
-                        } else {
-                            if (playerRole.identifier().equals(TMMRoles.LOOSE_END.identifier())) {
-                                isWinner = true;
-                            }
-                        }
-                    }
-                    break;
-                case NIAN_SHOU:
-                    if (playerRole.identifier().getPath().equals("nianshou")) {
-                        isWinner = true;
-                    }
-                    break;
-                case LOVERS:
-                    if (roundEnd.CustomWinnerPlayers != null
-                            && roundEnd.CustomWinnerPlayers.contains(player.getUUID())) {
-                        isWinner = true;
-                    }
-                    break;
-                case TIME:
-                case PASSENGERS:
-                    // 排除游客职业
-                    if (playerRole.winWithInnocent())
-                        isWinner = true;
-                    if (!isWinner && playerRole.identifier().equals(ModRoles.MERCENARY_ID)) {
-                        var mercenary = MercenaryPlayerComponent.KEY.maybeGet(player).orElse(null);
-                        if (mercenary != null && mercenary.canFollowFactionWin(winStatus)) {
-                            isWinner = true;
-                        }
-                    }
-                    break;
-                case RECORDER:
-                    if (playerRole.identifier().getPath().equals("recorder")) {
-                        isWinner = true;
-                    }
-                    break;
-                default:
-                    break;
-
-            }
-            // 修复4: 恋人获胜时单独统计恋人胜利
-            if (isLoversWin && roundEnd.CustomWinnerPlayers != null
-                    && roundEnd.CustomWinnerPlayers.contains(player.getUUID())) {
-                isWinner = true;
-            }
-            if (playerRole instanceof CustomWinnerRoleInterface cwr) {
-                isWinner = cwr.didPlayerWin(player, isWinner, winStatus);
-            }
-        }
-        return isWinner;
-
+        return SREMurderGameMode.isPlayerTheWinner(world, player, playerRole, roundEnd, gameComponent);
     }
 }

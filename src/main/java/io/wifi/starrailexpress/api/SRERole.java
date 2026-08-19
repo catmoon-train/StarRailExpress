@@ -469,7 +469,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public SRERole setMafiaTeam(boolean flag) {
         this.mafiaTeam = flag;
-        this.flags.add("mafia_team");
         return this;
     }
 

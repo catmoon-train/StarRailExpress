@@ -173,8 +173,6 @@ public class Noellesroles implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        io.wifi.starrailexpress.game.GameUtils.CustomWinnersPredicates.add(entry -> entry.getKey().getTags()
-                .contains(net.exmo.sre.repair.state.RepairModeState.NEUTRAL_WIN_TAG));
         ModItems.init();
         RightClickBlockManager.init();
         org.agmas.noellesroles.content.item.ZeroOneFiveGunItem.register();

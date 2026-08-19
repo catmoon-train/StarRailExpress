@@ -60,6 +60,7 @@ public class THLostForestRoles {
       .setDefaultEnableChance(1000)
       .addOccupationRole(KAGUYA)
       .setNeutrals(true)
+      .setCanUseInstinct(true)
       .addRelatedModifier(SEModifiers.LOVERS)
       .setInstinctType(InstinctType.DEFAULT, InstinctType.KILLER_INSTINCT)
       .setCanBeRandomedByOtherRoles(false)

@@ -38,7 +38,8 @@ public class StatusHudRenderer {
         Minecraft client = Minecraft.getInstance();
         Player player = client.gui.getCameraPlayer();
         if (player != null) {
-
+            if (player.isCreative() || player.isSpectator())
+                return;
             int m = context.guiWidth() / 2 - 91;
             int n = context.guiHeight() - 39;
             int r = n - 10;

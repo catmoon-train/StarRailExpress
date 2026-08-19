@@ -61,12 +61,6 @@ public final class MafiaManager {
                 consumeBullet(player);
             }
         });
-        GameUtils.CustomWinnersPredicates.add(entry -> {
-            if (entry.getValue() != null && entry.getValue().equals("godfather")) {
-                return isMafiaMember((ServerPlayer) entry.getKey());
-            }
-            return false;
-        });
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             if (deathReason != null && deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN))
                 return true;
