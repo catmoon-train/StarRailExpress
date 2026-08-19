@@ -463,6 +463,16 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6A5ACD));
 
     /**
+     * 领域标记（本模组三大领域共享）：
+     * - 中性效果，幽紫色
+     * - amplifier 0 = 愚者开会领域，1 = 咒术师角斗场领域，2 = 冒险家游记（格罗赛尔游记）领域
+     * - 拥有此效果的玩家正处于某个领域中，无法被拉入另一个领域；
+     * 由三大领域在进入时授予对应等级，离场时移除。
+     */
+    public static final Holder<MobEffect> DOMAIN_MARK = register("domain_mark",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x9B59B6));
+
+    /**
      * 视野迷雾
      * - 有害效果，灰蓝色
      * - 拥有者视野被浓雾笼罩；等级越高雾的距离越远（看得越远）。
@@ -682,6 +692,20 @@ public class ModEffects {
     public static int getVoiceHeliumLevel(LivingEntity entity) {
         int amp = getAmplifier(entity, VOICE_HELIUM);
         return amp < 0 ? 0 : Mth.clamp(amp + 1, 1, 5);
+    }
+
+    /**
+     * 领域标记：返回玩家所处领域的等级（0=愚者开会，1=咒术师角斗场，2=冒险家游记）；不在任何领域返回 -1。
+     */
+    public static int getDomainMarkLevel(LivingEntity entity) {
+        return getAmplifier(entity, DOMAIN_MARK);
+    }
+
+    /**
+     * 玩家当前是否处于任意一个三大领域中（即拥有领域标记效果）。
+     */
+    public static boolean isInAnyDomain(LivingEntity entity) {
+        return entity.hasEffect(DOMAIN_MARK);
     }
 
     /**
