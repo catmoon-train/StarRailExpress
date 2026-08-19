@@ -47,6 +47,7 @@ import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
+import org.agmas.noellesroles.client.utils.InstinctManager;
 
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SREGameModes;
@@ -149,6 +150,10 @@ public class RoleInstinctRegister {
                         // 无法被透视的职业（小透明/秉烛人/雇佣兵/捣蛋鬼）
                         if (isTargetInvisibleToInstinct(targetPlayer)) {
                             return TrueFalseAndCustomResult.disallow();
+                        }
+                        SRERole magicianDisguise = InstinctManager.resolveMagicianDisguiseForKiller(targetPlayer);
+                        if (magicianDisguise != null) {
+                            return TrueFalseAndCustomResult.custom(magicianDisguise.getColor());
                         }
                         return TrueFalseAndCustomResult.custom(ModRoles.MORTICIAN_BODYMAKER.color());
                     }
