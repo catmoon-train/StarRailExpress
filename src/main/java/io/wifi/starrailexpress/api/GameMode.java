@@ -147,15 +147,6 @@ public abstract class GameMode {
     }
 
     /**
-     * 获胜者是否只有一人
-     * 
-     * @return
-     */
-    public boolean onlyOneWinner() {
-        return this.isLooseEndMode();
-    }
-
-    /**
      * 是否是亡命徒模式
      * 
      * @return
@@ -332,7 +323,7 @@ public abstract class GameMode {
     public void recordWinStats(ServerLevel world, SREGameRoundEndComponent roundEnd,
             SREGameWorldComponent gameComponent) {
         if (shouldRecordPlayerStats()) {
-            GameUtils.recordWinStats(world, roundEnd, gameComponent, this.onlyOneWinner());
+            GameUtils.recordWinStats(world, this, roundEnd, gameComponent);
 
         }
     }
@@ -831,4 +822,7 @@ public abstract class GameMode {
     }
 
     public abstract boolean canHaveMeeting();
+
+    public abstract boolean isPlayerWinning(ServerLevel world,ServerPlayer player,SRERole playerRole,SREGameRoundEndComponent roundEnd,
+            SREGameWorldComponent gameComponent);
 }

@@ -40,6 +40,7 @@ import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 @SuppressWarnings("deprecation")
@@ -194,6 +195,23 @@ public class WTLooseEndsGameMode extends GameMode {
 
     @Override
     public boolean canHaveMeeting() {
+        return false;
+    }
+
+    @Override
+    public boolean isPlayerWinning(ServerLevel world, ServerPlayer player, SRERole playerRole,
+            SREGameRoundEndComponent roundEnd,
+            SREGameWorldComponent gameComponent) {
+
+        UUID looseEndWinner = null;
+        {
+            looseEndWinner = gameComponent.getLooseEndWinner();
+        }
+        {
+            if (looseEndWinner == player.getUUID()) {
+                return true;
+            }
+        }
         return false;
     }
 }

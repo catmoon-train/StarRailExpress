@@ -90,6 +90,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     // 通用物证（第4批·拖痕）：被葬仪曳柩拖动过的尸体（按尸体主人UUID记录），同步给客户端供尸检显示
     private Set<UUID> draggedCorpseOwners = new HashSet<>();
 
+    public void clear() {
+        this.looseEndWinner = null;
+    }
+
     public static class PlayerBannedBlockTimeInfo {
         public long standonTick = 0;
         public String blockId = null;
@@ -727,7 +731,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             this.gameMode.writeToNbt(gameModeTag, wrapperLookup);
             nbtCompound.put("GameModeData", gameModeTag);
 
-            if ((this.gameMode.isLooseEndMode() || this.gameMode.onlyOneWinner()) && this.looseEndWinner != null)
+            if (this.looseEndWinner != null)
                 nbtCompound.putUUID("LooseEndWinner", this.looseEndWinner);
         }
         if (gameStatus == GameStatus.INACTIVE) {

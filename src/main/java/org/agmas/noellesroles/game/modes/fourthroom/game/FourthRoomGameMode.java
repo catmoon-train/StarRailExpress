@@ -16,6 +16,8 @@
 package org.agmas.noellesroles.game.modes.fourthroom.game;
 
 import io.wifi.starrailexpress.api.GameMode;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -61,6 +63,12 @@ public final class FourthRoomGameMode extends GameMode {
 
     @Override
     public boolean canHaveMeeting() {
+        return false;
+    }
+
+    @Override
+    public boolean isPlayerWinning(ServerLevel world, ServerPlayer player, SRERole playerRole,
+            SREGameRoundEndComponent roundEnd, SREGameWorldComponent gameComponent) {
         return false;
     }
 }

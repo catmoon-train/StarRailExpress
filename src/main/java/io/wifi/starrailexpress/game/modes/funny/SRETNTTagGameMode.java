@@ -17,7 +17,10 @@ package io.wifi.starrailexpress.game.modes.funny;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -77,11 +80,6 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         } else {
             this.nextBombTime = -1;
         }
-    }
-
-    @Override
-    public boolean onlyOneWinner() {
-        return true;
     }
 
     @Override
@@ -228,13 +226,11 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
     public void tickServerGameLoop(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent) {
         boolean haveSafeTime = false;
         int aliveCount = 0;
-        ServerPlayer alivePlayer = null;
         for (ServerPlayer p : serverWorld.players()) {
             if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
                 if (p.hasEffect(ModEffects.SAFE_TIME)) {
                     haveSafeTime = true;
                 }
-                alivePlayer = p;
                 aliveCount++;
             }
         }
@@ -247,9 +243,6 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
             return;
         }
         if (aliveCount <= 1) {
-            if (alivePlayer != null) {
-                SREGameWorldComponent.KEY.get(serverWorld).setLooseEndWinner(alivePlayer.getUUID());
-            }
             RoleUtils.customWinnerWin(serverWorld, "hot_potato", java.awt.Color.orange.getRGB());
             return;
         }
@@ -386,5 +379,20 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
                         true);
             }
         }
+    }
+
+    @Override
+    public boolean isPlayerWinning(ServerLevel world, ServerPlayer player, SRERole playerRole,
+            SREGameRoundEndComponent roundEnd,
+            SREGameWorldComponent gameComponent) {
+
+        if (playerRole == null)
+            return false;
+        if (playerRole.identifier().equals(TMMRoles.DISCOVERY_CIVILIAN.identifier())) {
+            return false;
+        }
+        if (GameUtils.isPlayerAliveAndSurvival(player))
+            return true;
+        return false;
     }
 }

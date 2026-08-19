@@ -16,6 +16,8 @@
 package net.exmo.sre.repair;
 
 import io.wifi.starrailexpress.api.GameMode;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.exmo.sre.repair.arena.RepairArenaBuilder;
 import net.exmo.sre.repair.arena.RepairLootSpawner;
@@ -114,6 +116,12 @@ public class RepairEscapeGameMode extends GameMode {
 
     @Override
     public boolean canHaveMeeting() {
+        return false;
+    }
+
+    @Override
+    public boolean isPlayerWinning(ServerLevel world, ServerPlayer player, SRERole playerRole,
+            SREGameRoundEndComponent roundEnd, SREGameWorldComponent gameComponent) {
         return false;
     }
 }

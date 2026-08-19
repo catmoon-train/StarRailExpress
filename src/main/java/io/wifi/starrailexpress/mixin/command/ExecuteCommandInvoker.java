@@ -119,6 +119,22 @@ public abstract class ExecuteCommandInvoker {
                           var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
                           return worldModifierComponent.isModifier(player, compare_modifier);
                         }))));
+                        literalArgumentBuilder.then(
+        Commands.literal("sre:participate")
+            .then(
+                Commands.argument("target_player", EntityArgument.player())
+                    .then(sre$addConditional(
+                        commandNode,
+                        Commands.argument("modifier_id", ModifierArgumentType.create()),
+                        isIf,
+                        ctx -> {
+                          ServerPlayer player = EntityArgument.getPlayer(ctx, "target_player");
+                          SREModifier compare_modifier = ModifierArgumentType.getModifier(ctx, "modifier_id");
+                          if (compare_modifier == null)
+                            return false;
+                          var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
+                          return worldModifierComponent.isModifier(player, compare_modifier);
+                        }))));
     literalArgumentBuilder.then(
         Commands.literal("sre:gamemode")
             .then(sre$addConditional(
