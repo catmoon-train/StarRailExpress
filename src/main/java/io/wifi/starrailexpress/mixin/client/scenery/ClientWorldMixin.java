@@ -118,7 +118,7 @@ public abstract class ClientWorldMixin extends Level {
     public void tmm$addSnowflakes(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         // 第1级过滤：快速检查所有条件（零开销）
         // 雪花效果依赖列车移动、下雪启用和地图配置
-        if (SREClient.getTrainComponent() != null && !SREClient.isTrainMoving() ||
+        if (SREClient.getTrainComponent() == null || !SREClient.isTrainMoving() ||
                 !SREClient.getTrainComponent().isSnowing() ||
                 SREClient.areaComponent == null ||
                 !SREClient.areaComponent.areasSettings.snowEnabled) {
