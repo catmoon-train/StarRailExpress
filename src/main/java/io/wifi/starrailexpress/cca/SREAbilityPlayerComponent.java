@@ -82,6 +82,12 @@ public class SREAbilityPlayerComponent
     private ResourceLocation castingSkill;
     private long lastHoldTick = Long.MIN_VALUE;
 
+    private boolean exited = false;
+
+    public boolean hasExited() {
+        return exited;
+    }
+
     public static final class SkillState {
         public int cooldown;
         public int charges = -1;
@@ -107,6 +113,7 @@ public class SREAbilityPlayerComponent
 
     public void init(boolean sync) {
         this.targetUUID = null;
+        this.exited = false;
         this.duration = 0;
         this.cooldown = 0;
         this.charges = -1;
@@ -545,5 +552,9 @@ public class SREAbilityPlayerComponent
     public void setTarget(UUID target) {
         this.targetUUID = target;
         sync();
+    }
+
+    public void setExited(boolean b) {
+        this.exited = b;
     }
 }

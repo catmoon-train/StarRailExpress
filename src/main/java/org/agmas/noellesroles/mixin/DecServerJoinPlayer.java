@@ -16,7 +16,7 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
@@ -44,7 +44,7 @@ public class DecServerJoinPlayer {
         RoleUtils.removeAllPlayerAttributes(serverPlayer);
         // ConfigWorldComponent.KEY.get(serverPlayer.level()).syncToPlayer(serverPlayer);
         if (GameUtils.isGameRunning(serverPlayer)) {
-            RoleUtils.changeRole(serverPlayer, TMMRoles.DISCOVERY_CIVILIAN, false, false, false, true);
+            SREAbilityPlayerComponent.KEY.get(serverPlayer).setExited(true);
         }
     }
 

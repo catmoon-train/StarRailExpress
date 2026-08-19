@@ -443,6 +443,10 @@ public final class RoleSkill {
         if (player.hasEffect(ModEffects.SKILL_BANED) || player.hasEffect(ModEffects.SKILL_FREEZED)) {
             return true;
         }
+        // 退出重进过的人无法使用技能
+        if (SREAbilityPlayerComponent.KEY.get(player).hasExited()) {
+            return true;
+        }
         if (!player.isSpectator()) {
             return false;
         }

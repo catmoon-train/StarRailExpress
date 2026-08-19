@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.mixin.command;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -24,6 +25,7 @@ import com.mojang.brigadier.tree.CommandNode;
 
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
@@ -119,21 +121,21 @@ public abstract class ExecuteCommandInvoker {
                           var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
                           return worldModifierComponent.isModifier(player, compare_modifier);
                         }))));
-                        literalArgumentBuilder.then(
+    literalArgumentBuilder.then(
         Commands.literal("sre:participate")
             .then(
                 Commands.argument("target_player", EntityArgument.player())
                     .then(sre$addConditional(
                         commandNode,
-                        Commands.argument("modifier_id", ModifierArgumentType.create()),
+                        Commands.argument("is_join", BoolArgumentType.bool()),
                         isIf,
                         ctx -> {
                           ServerPlayer player = EntityArgument.getPlayer(ctx, "target_player");
-                          SREModifier compare_modifier = ModifierArgumentType.getModifier(ctx, "modifier_id");
-                          if (compare_modifier == null)
+                          boolean judgeJoin = BoolArgumentType.getBool(ctx, "is_join");
+                          var cca = ParticipationComponent.KEY.getNullable(player.level());
+                          if (cca == null)
                             return false;
-                          var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
-                          return worldModifierComponent.isModifier(player, compare_modifier);
+                          return judgeJoin == cca.isParticipating(player.getUUID());
                         }))));
     literalArgumentBuilder.then(
         Commands.literal("sre:gamemode")
@@ -162,22 +164,22 @@ public abstract class ExecuteCommandInvoker {
                           int player_role_type = PlayerRoleWeightManager.getRoleType(player_role);
                           return player_role_type == role_type;
                         }))));
-                         // ── 新增：sre:vote_status 条件 ──────────────────────────
+    // ── 新增：sre:vote_status 条件 ──────────────────────────
     literalArgumentBuilder.then(
         Commands.literal("sre:vote_status")
             .then(sre$addConditional(
                 commandNode,
                 Commands.argument("status", StringArgumentType.word())
                     .suggests((ctx, builder) -> {
-                        builder.suggest("idle");
-                        builder.suggest("active");
-                        builder.suggest("paused");
-                        return builder.buildFuture();
+                      builder.suggest("idle");
+                      builder.suggest("active");
+                      builder.suggest("paused");
+                      return builder.buildFuture();
                     }),
                 isIf,
                 ctx -> {
-                    String desired = StringArgumentType.getString(ctx, "status");
-                    return VoteManager.isStatus(desired);
+                  String desired = StringArgumentType.getString(ctx, "status");
+                  return VoteManager.isStatus(desired);
                 })));
 
     cir.setReturnValue(literalArgumentBuilder);
