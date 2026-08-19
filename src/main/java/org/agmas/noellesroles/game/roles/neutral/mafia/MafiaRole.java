@@ -21,10 +21,12 @@ public class MafiaRole extends EggRole implements CustomWinnerRoleInterface {
     @Override
     public boolean didPlayerWin(ServerPlayer player, boolean original, WinStatus winStatus) {
         final var roundEnd = SREGameRoundEndComponent.KEY.get(player.level());
-        if (roundEnd.CustomWinnerID != null)
-            if (roundEnd.CustomWinnerID.equals("godfather")) {
-                return true;
-            }
+        if (winStatus == WinStatus.CUSTOM || winStatus == WinStatus.CUSTOM_COMPONENT) {
+            if (roundEnd.CustomWinnerID != null)
+                if (roundEnd.CustomWinnerID.equals("godfather")) {
+                    return true;
+                }
+        }
         return false;
     }
 }
