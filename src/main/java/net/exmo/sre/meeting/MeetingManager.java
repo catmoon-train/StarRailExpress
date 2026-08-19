@@ -35,9 +35,11 @@ import io.wifi.starrailexpress.event.MeetingStartEvent;
 import io.wifi.starrailexpress.event.MeetingVoteEndEvent;
 import io.wifi.starrailexpress.event.MeetingVoteOutEvent;
 import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnMeetingStart;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.exmo.sre.meeting.network.MeetingSkipStateS2CPayload;
 import net.exmo.sre.meeting.network.MeetingStateS2CPayload;
 import net.exmo.sre.meeting.network.MeetingVoteResultS2CPayload;
@@ -64,9 +66,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
@@ -304,20 +303,11 @@ public final class MeetingManager {
                     Component.translatable("meeting.sre.report_failed").withStyle(ChatFormatting.RED), true);
             return false;
         }
-        // 愚者会议取消，愚者的开会时间恢复。
-        if (TarotAssemblyManager.havingMeeting) {
-            final var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
-            ServerPlayer fool = TarotAssemblyManager.findFoolPlayer(serverLevel, gameComponent);
-            if (fool == null) {
-                TarotAssemblyManager.havingMeeting = false;
-            } else {
-                TarotAssemblyManager.endMeeting(fool);
-                FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
-                comp.tarotCooldownEndTick = 0;
-                comp.sync();
-            }
-        }
         if (!SREGameWorldComponent.KEY.get(serverLevel).getGameMode().canHaveMeeting()) {
+            return false;
+        }
+        if (OnMeetingStart.ALLOW_MEETING.invoker().allowMeeting(serverLevel, reporter, victim,
+                emergency) == TrueFalseResult.FALSE) {
             return false;
         }
         skipVoters.clear();

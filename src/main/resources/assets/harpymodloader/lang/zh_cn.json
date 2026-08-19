@@ -13,7 +13,6 @@
   "commands.forcerole.success.clear":"已清除强制赋予给 %s 的乘客身份",
   "commands.forcerole.query": "玩家 %s 被强制赋予身份 %s",
   "commands.forcerole.query.none": "玩家 %s 还没有被强制赋予乘客身份",
-  
   "commands.forcemodifier.success": "已强制赋予修饰符 %s 给玩家 %s",
   "commands.forcemodifier.success.clear":"已清除强制赋予给 %s 的修饰符",
   "commands.forcemodifier.remove":"已删除强制赋予给 %s 的修饰符 %s",

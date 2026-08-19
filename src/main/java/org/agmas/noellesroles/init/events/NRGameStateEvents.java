@@ -385,8 +385,6 @@ public class NRGameStateEvents {
             org.agmas.noellesroles.content.entity.ServerGrenadeAreaManager.tick();
             org.agmas.noellesroles.game.wallbreak.WallBreakManager.tick(server);
             HallucinationAreaManager.tick();
-            ServerLevel level = server.overworld();
-            TarotAssemblyManager.serverLevelTick(level);
 
             if (server.getTickCount() % 10 == 0) {
                 HashSet<UUID> toDeleted = new HashSet<>();
@@ -408,6 +406,10 @@ public class NRGameStateEvents {
                 }
                 RadioItem.RADIO_GROUP.removeAll(toDeleted);
             }
+        });
+
+        OnGameServerTick.EVENT.register((world) -> {
+            TarotAssemblyManager.serverLevelTick(world);
         });
 
         // 老人猪处理

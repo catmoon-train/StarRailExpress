@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
-import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.CloseUiPayload;
@@ -78,7 +77,7 @@ public class TarotAssemblyManager {
      */
     public static void startAssembly(ServerPlayer fool) {
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
-        long currentTick = fool.level().getGameTime();
+        long currentTick = GameUtils.getTicksFromGameStart(fool.level());
         if (comp.tarotMembers.isEmpty()) {
             fool.displayClientMessage(
                     Component.translatable("message.noellesroles.fool.tarot_not_enough_members")
@@ -163,7 +162,9 @@ public class TarotAssemblyManager {
     private static void sendTarotInvitation(ServerPlayer player) {
         Component title = Component.translatable("message.noellesroles.fool.tarot_invite_title")
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
-        Component subtitle = Component.translatable("message.noellesroles.fool.tarot_invite_subtitle")
+        Component subtitle = Component
+                .translatable("message.noellesroles.fool.tarot_invite_subtitle",
+                        Component.keybind("key.noellesroles.fool_prayer").withStyle(ChatFormatting.AQUA))
                 .withStyle(ChatFormatting.YELLOW);
 
         player.connection.send(new ClientboundSetTitleTextPacket(title));
@@ -171,7 +172,9 @@ public class TarotAssemblyManager {
         player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 20));
 
         player.displayClientMessage(
-                Component.translatable("message.noellesroles.fool.tarot_invite_chat")
+                Component
+                        .translatable("message.noellesroles.fool.tarot_invite_chat",
+                                Component.keybind("key.noellesroles.fool_prayer").withStyle(ChatFormatting.AQUA))
                         .withStyle(ChatFormatting.GOLD),
                 true);
     }
@@ -189,7 +192,7 @@ public class TarotAssemblyManager {
             return;
 
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
-        long currentTick = serverLevel.getGameTime();
+        long currentTick = GameUtils.getTicksFromGameStart(serverLevel);
         if (!comp.inMeeting)
             return;
         if (currentTick >= comp.meetingEndTick)
@@ -355,7 +358,7 @@ public class TarotAssemblyManager {
     public static void processVoteResults(ServerPlayer fool, Map<UUID, UUID> votes, Set<UUID> eligibleVoters) {
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         ServerLevel serverLevel = (ServerLevel) fool.level();
-        long currentTick = serverLevel.getGameTime();
+        long currentTick = GameUtils.getTicksFromGameStart(fool.level());
         Set<UUID> candidateTargets = collectVoteTargets(serverLevel, fool.getUUID());
 
         // 统计票数
@@ -426,14 +429,8 @@ public class TarotAssemblyManager {
      */
     public static void serverTick(ServerPlayer player, SREGameWorldComponent gameComponent) {
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
-        long currentTick = player.level().getGameTime();
+        long currentTick = GameUtils.getTicksFromGameStart(player.level());
         // 检查灵性斗篷效果是否过期
-        if (SREGameTimeComponent.KEY.get(player.level()).timeFrozen) {
-            if (comp.cloakEndTick > 0)
-                comp.cloakEndTick++;
-            if (comp.hereticEndTick > 0)
-                comp.hereticEndTick++;
-        }
         if (comp.cloakActive && currentTick >= comp.cloakEndTick) {
             comp.cloakActive = false;
             comp.sync();
@@ -464,8 +461,8 @@ public class TarotAssemblyManager {
             return;
         }
 
-        long currentTick = serverLevel.getGameTime();
-        if (currentTick % 10 == 0) {
+        long currentTick = GameUtils.getTicksFromGameStart(serverLevel);
+        if (serverLevel.getGameTime() % 10 == 0) {
             serverLevel.sendParticles(ParticleTypes.CLOUD, MEETING_X, MEETING_Y + 2.5D, MEETING_Z, 18,
                     7.0D, 1.5D, 7.0D, 0.01D);
         }
@@ -517,7 +514,7 @@ public class TarotAssemblyManager {
             return;
 
         FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
-        long currentTick = serverLevel.getGameTime();
+        long currentTick = GameUtils.getTicksFromGameStart(serverLevel);
         if (!comp.inMeeting)
             return;
         if (currentTick >= comp.meetingEndTick)

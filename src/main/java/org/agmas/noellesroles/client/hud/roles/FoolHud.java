@@ -57,10 +57,11 @@ public abstract class FoolHud {
             if (!player.hasEffect(ModEffects.TAROT_ASSEMBLY) || !comp.voteInProgress || comp.voteEndTick <= 0)
                 return;
 
-            long remainingTicks = Math.max(0, comp.voteEndTick - client.level.getGameTime());
+            long remainingTicks = Math.max(0, comp.voteEndTick - SREClient.getTicksFromGameStart());
             Component meetingText = Component.translatable("hud.noellesroles.fool.member_meeting_active",
                     remainingTicks / 20);
-            Component hintText = Component.translatable("hud.noellesroles.fool.member_vote_hint");
+            Component hintText = Component.translatable("hud.noellesroles.fool.member_vote_hint",
+                    NoellesrolesClient.foolPrayerBind.getTranslatedKeyMessage());
 
             Font renderer = client.font;
             int x = 10;
@@ -111,8 +112,8 @@ public abstract class FoolHud {
 
             // 会议状态
             if (comp.inMeeting) {
-                long gameTime = client.level != null ? client.level.getGameTime() : 0;
-                long remainingTicks = Math.max(0, comp.meetingEndTick - gameTime);
+                long now = SREClient.getTicksFromGameStart();
+                long remainingTicks = Math.max(0, comp.meetingEndTick - now);
                 Component meetingText = Component.translatable("hud.noellesroles.fool.meeting_active",
                         remainingTicks / 20,
                         NoellesrolesClient.abilityBind.getTranslatedKeyMessage(),
@@ -121,7 +122,7 @@ public abstract class FoolHud {
                 yOffset += lineHeight;
 
                 if (comp.voteInProgress && comp.voteEndTick > 0 && comp.voteEndTick != comp.meetingEndTick) {
-                    long voteRemainingTicks = Math.max(0, comp.voteEndTick - gameTime);
+                    long voteRemainingTicks = Math.max(0, comp.voteEndTick - now);
                     Component voteText = Component.translatable("hud.noellesroles.fool.vote_active",
                             voteRemainingTicks / 20);
                     context.drawString(renderer, voteText, xOffset, yOffset, 0xFFAA55);
@@ -131,8 +132,8 @@ public abstract class FoolHud {
 
             // 冷却
             if (comp.tarotCooldownEndTick > 0) {
-                long gameTime = client.level != null ? client.level.getGameTime() : 0;
-                long remaining = Math.max(0, (comp.tarotCooldownEndTick - gameTime) / 20);
+                long now = SREClient.getTicksFromGameStart();
+                long remaining = Math.max(0, (comp.tarotCooldownEndTick - now) / 20);
                 if (remaining > 0) {
                     Component cdText = Component.translatable("hud.noellesroles.fool.cooldown", remaining);
                     context.drawString(renderer, cdText, xOffset, yOffset, 0xAAAAAA);
