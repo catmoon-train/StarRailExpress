@@ -97,6 +97,9 @@ public class SREClientEvents {
     public static void registerClientEvents() {
         registerRoleNameRendererEvents();
         OnGameStartedClient.EVENT.register(() -> {
+
+            NoellesrolesClient.clearTimeStopCache();
+            
             if (!Minecraft.getInstance().isLocalServer()) {
                 SRE.LOGGER.info("[CLIENT] Re-register shop entries.");
                 RoleShopHandler.shopRegister();

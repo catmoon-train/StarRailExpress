@@ -35,6 +35,7 @@ import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
+import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.item.LetterItem;
 import org.agmas.noellesroles.content.item.RadioItem;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
@@ -680,6 +681,8 @@ public class GameUtils {
         distributeMapInitialItems(serverWorld, readyPlayerList);
         gameComponent.playerBannedBlockTime.clear();
         OnGameStarted.EVENT.invoker().onGameStarted(serverWorld);
+
+        TimeStopEffect.canMovePlayers.clear();
         // --- 结束新增统计数据更新逻辑 ---
         OnTrainAreaHaveReseted.EVENT.invoker().onWorldHaveInited(serverWorld);
         isGameStarted = true;
@@ -1136,6 +1139,8 @@ public class GameUtils {
         world.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(false, world.getServer());
         gameComponent.getGameMode().finalizeGame(world, gameComponent);
         OnGameEnd.EVENT.invoker().onGameEnd(world, gameComponent);
+
+        TimeStopEffect.canMovePlayers.clear();
         SRE.REPLAY_MANAGER.finalizeReplay(roundEnd.getWinStatus(), roundEnd);
         // 对局结束后把完整回放时间线作为全局战绩异步保存到远端数据库（未开启 MySQL 同步时自动跳过）。
         net.exmo.sre.record.MatchRecordService.recordFinishedMatch(world);
@@ -1216,7 +1221,7 @@ public class GameUtils {
                 PlayerStats stats = PlayerStatsManager.get(player);
 
                 SRERole playerRole = gameComponent.getRole(player);
-                
+
                 boolean isWinner = gameMode.isPlayerWinning(world, player, playerRole, roundEnd, gameComponent);
 
                 if (isWinner) {

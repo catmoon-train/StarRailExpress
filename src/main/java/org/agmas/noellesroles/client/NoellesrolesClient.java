@@ -138,6 +138,7 @@ import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKille
 public class NoellesrolesClient implements ClientModInitializer {
     public static boolean hasInitStatusBar = false;
     public static int insanityTime = 0;
+    private static boolean hasTimeStop = false;
     private static BlockPos repairHeldSearchTarget = null;
     public static KeyMapping roleIntroClientBind = KeyBindingHelper
             .registerKeyBinding(new KeyMapping("key.noellesroles.role_intro",
@@ -1129,6 +1130,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                         }));
             }
         });
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null || SREClient.gameComponent == null)
                 return;
@@ -1136,9 +1138,19 @@ public class NoellesrolesClient implements ClientModInitializer {
                 client.level.players().forEach(
                         player -> {
                             if (client.player.hasEffect((ModEffects.TIME_STOP))) {
+                                hasTimeStop = true;
                                 if (clientPositions.containsKey(player.getUUID())
                                         && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
                                     player.setPos(clientPositions.get(player.getUUID()));
+                                }
+                            } else {
+                                if (hasTimeStop) {
+                                    SRE.LOGGER.info("Client time stop stop");
+                                    clientPositions.clear();
+                                    TimeStopEffect.canMovePlayers.clear();
+                                    TimeStopEffect.freezeStatedTime = 0;
+                                    TimeStopEffect.freezeMaxTime = 0;
+                                    hasTimeStop = false;
                                 }
                             }
                         });
@@ -1727,5 +1739,12 @@ public class NoellesrolesClient implements ClientModInitializer {
             repairHeldSearchTarget = pos;
             ClientPlayNetworking.send(new RepairSearchBeginC2SPacket(pos));
         }
+    }
+
+    public static void clearTimeStopCache() {
+        clientPositions.clear();
+        TimeStopEffect.canMovePlayers.clear();
+        TimeStopEffect.freezeStatedTime = 0;
+        TimeStopEffect.freezeMaxTime = 0;
     }
 }

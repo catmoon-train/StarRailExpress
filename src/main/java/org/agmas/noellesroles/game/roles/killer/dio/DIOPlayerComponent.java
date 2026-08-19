@@ -261,14 +261,15 @@ public class DIOPlayerComponent implements RoleComponent, ServerTickingComponent
         if (!canUseTimeStop())
             return false;
 
+        if (TimeStopEffect.tryTriggerStart(serverPlayer, TIME_STOP_DURATION,
+                Component.translatable("message.noellesroles.time_stop.the_world").withStyle(ChatFormatting.GOLD,
+                        ChatFormatting.BOLD))) {
+            return false;
+        }
         // 消耗一次使用次数
         this.timeStopCharges--;
 
         this.timeStopCooldown = TIME_STOP_COOLDOWN;
-
-        TimeStopEffect.tryTriggerStart(serverPlayer, TIME_STOP_DURATION,
-                Component.translatable("message.noellesroles.time_stop.the_world").withStyle(ChatFormatting.GOLD,
-                        ChatFormatting.BOLD));
 
         // 播放音效
         Level world = player.level();
