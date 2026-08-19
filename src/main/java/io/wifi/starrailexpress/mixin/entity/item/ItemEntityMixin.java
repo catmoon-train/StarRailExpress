@@ -26,18 +26,19 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.util.BrokenGunDropUtils;
 import io.wifi.starrailexpress.util.SREItemUtils;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.windcharge.WindCharge;
 import net.minecraft.world.item.ItemStack;
+
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -89,27 +90,29 @@ public abstract class ItemEntityMixin {
             return;
         }
 
-        InteractionResult result = RoleMethodDispatcher.callOnPickupItem(player,
+        TrueFalseResult result = RoleMethodDispatcher.callOnPickupItem(player,
                 this.getItem());
-        if (result == InteractionResult.CONSUME || result == InteractionResult.FAIL
-                || result == InteractionResult.CONSUME_PARTIAL) {
+        if (result == TrueFalseResult.FALSE) {
             return;
-        } else if (result == InteractionResult.SUCCESS || result == InteractionResult.SUCCESS_NO_ITEM_USED) {
+        } else if (result == TrueFalseResult.TRUE) {
             original.call(player);
             return;
         }
+
         // InteractionResult.PASS (默认)时走此逻辑
         if (!MCItemsUtils.hasHotbarFreeSlot(player)) {
             // 装不下了，不准继续~
             return;
         }
-
-        if (!this.getItem().is(TMMItemTags.GUNS)) {
+        if (this.getItem().is(TMMItemTags.GUNS) && SREItemUtils.hasItem(player, TMMItemTags.GUNS)) {
+            return;
+        }
+        if (SREGameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
+                && !player.equals(this.getOwner())) {
             original.call(player);
             return;
         }
-        if ((SREGameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
-                && !player.equals(this.getOwner()))) {
+        {
             // 在拾取物品之前调用角色的onPickupItem方法
             if (SREItemUtils.countItem(player, TMMItemTags.GUNS) > 0) {
                 return;
@@ -149,7 +152,7 @@ public abstract class ItemEntityMixin {
 
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     public void windChargeNoRemoveItem(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
-        if (damageSource == null ||  damageSource.getDirectEntity() instanceof WindCharge) {
+        if (damageSource == null || damageSource.getDirectEntity() instanceof WindCharge) {
             cir.setReturnValue(false);
         }
     }

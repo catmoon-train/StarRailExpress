@@ -22,8 +22,8 @@ import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
@@ -160,11 +160,11 @@ public class NostalgistRole extends ExtraEffectRole {
     }
 
     @Override
-    public InteractionResult onPickUpItem(Player player, ItemStack item) {
+    public TrueFalseResult onPickUpItem(Player player, ItemStack item) {
         // 处于里世界时无法捡起任何物品
         var comp = NostalgistPlayerComponent.KEY.maybeGet(player).orElse(null);
         if (comp != null && comp.isActiveBackWorld()) {
-            return InteractionResult.FAIL;
+            return TrueFalseResult.FALSE;
         }
         return super.onPickUpItem(player, item);
     }

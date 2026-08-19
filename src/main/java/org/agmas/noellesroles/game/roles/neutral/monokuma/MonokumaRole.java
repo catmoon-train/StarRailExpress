@@ -21,10 +21,10 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -70,12 +70,12 @@ public class MonokumaRole extends CustomWinnerRole {
   }
 
   @Override
-  public InteractionResult onPickUpItem(Player player, ItemStack item) {
+  public TrueFalseResult onPickUpItem(Player player, ItemStack item) {
     // 黑白熊形态无法捡起任何物品
     var comp = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
         .orElse(null);
     if (comp != null && comp.phase == 3) {
-      return InteractionResult.FAIL; // 禁止捡起所有物品
+      return TrueFalseResult.FALSE; // 禁止捡起所有物品
     }
     return super.onPickUpItem(player, item);
   }

@@ -16,8 +16,8 @@
 package org.agmas.noellesroles.game.roles.killer.wraith_assassin;
 
 import io.wifi.starrailexpress.api.ExtraEffectRole;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -30,10 +30,10 @@ public class WraithAssassinRole extends ExtraEffectRole {
     // 已在 RoleShopHandler 注册
 
     @Override
-    public InteractionResult onPickUpItem(Player player, ItemStack item) {
+    public TrueFalseResult onPickUpItem(Player player, ItemStack item) {
         var comp = WraithAssassinPlayerComponent.KEY.maybeGet(player).orElse(null);
         if (comp != null && comp.isInDimension()) {
-            return InteractionResult.FAIL;
+            return TrueFalseResult.FALSE;
         }
         return super.onPickUpItem(player, item);
     }

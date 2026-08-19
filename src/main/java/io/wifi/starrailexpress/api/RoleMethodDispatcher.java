@@ -20,9 +20,8 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
 import io.wifi.starrailexpress.game.GameConstants;
-import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
-import io.wifi.starrailexpress.util.SREItemUtils;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -35,7 +34,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
@@ -145,19 +143,17 @@ public class RoleMethodDispatcher {
     /**
      * 调用玩家角色的 onPickupItem 方法
      */
-    public static InteractionResult callOnPickupItem(Player player, ItemStack item) {
+    public static TrueFalseResult callOnPickupItem(Player player, ItemStack item) {
         // 持有警长左轮时，禁止捡起其他枪械（按 guns tag 判断）
-        if (item.is(TMMItemTags.GUNS) && SREItemUtils.hasItem(player, ModItems.SHERIFF_REVOLVER)) {
-            return InteractionResult.FAIL;
-        }
+        
         SRERole role = getCurrentRole(player);
         if (role != null) {
             if (role.cantPickupItem(player).test(item.getItem())) {
-                return InteractionResult.FAIL;
+                return TrueFalseResult.FALSE;
             }
             return role.onPickUpItem(player, item);
         }
-        return InteractionResult.PASS;
+        return TrueFalseResult.PASS;
     }
 
     public static InteractionResult callOnDropItem(Player player, ItemStack item) {

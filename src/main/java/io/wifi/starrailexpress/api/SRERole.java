@@ -28,6 +28,7 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.core.NonNullList;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -1060,17 +1061,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * 根据返回值决定后续行为：
      * <ul>
      * <li><b>{@link InteractionResult#PASS}</b> — 使用默认逻辑，继续正常的物品拾取流程。</li>
-     * <li><b>{@link InteractionResult#CONSUME}</b> — 取消当前拾取逻辑，方法直接返回，不执行后续操作。</li>
-     * <li><b>{@link InteractionResult#SUCCESS}</b> — 禁止捡起物品，效果等同于取消逻辑。</li>
-     * <li><b>{@link InteractionResult#FAIL}</b> — 禁止捡起物品，效果等同于取消逻辑。</li>
+     * <li><b>{@link TrueFalseResult#FALSE}</b> — 禁止捡起物品</li>
+     * <li><b>{@link TrueFalseResult#TRUE}</b> — 允许捡起物品
      * </ul>
      *
      * @param player 尝试获取物品的玩家，不可为 {@code null}
      * @param item   被尝试获取的物品对象
-     * @return 行为控制结果，推荐在不需要特殊处理时返回 {@link InteractionResult#PASS}
+     * @return 行为控制结果，推荐在不需要特殊处理时返回 {@link TrueFalseResult#PASS}
      */
-    public InteractionResult onPickUpItem(Player player, ItemStack item) {
-        return InteractionResult.PASS;
+    public TrueFalseResult onPickUpItem(Player player, ItemStack item) {
+        return TrueFalseResult.PASS;
     }
 
     public Predicate<Item> cantPickupItem(Player player) {
