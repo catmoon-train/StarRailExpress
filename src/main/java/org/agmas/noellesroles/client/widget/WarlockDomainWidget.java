@@ -54,8 +54,8 @@ public class WarlockDomainWidget extends Button {
 
     private static boolean isReady(AbstractClientPlayer player) {
         WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.get(player);
-        long gameTime = player.level().getGameTime();
-        return comp != null && gameTime >= comp.domainCooldownEndTick;
+        long now = SREClient.getTicksFromGameStart();
+        return comp != null && now >= comp.domainCooldownEndTick;
     }
 
     @Override
