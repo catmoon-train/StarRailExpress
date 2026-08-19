@@ -95,7 +95,7 @@ public class InGameHudMixin {
         if (AdvancedCameraDirector.shouldHideHudForCamera()) {
             return;
         }
-        if (SREClient.isInLobby){
+        if (SREClient.isInLobby) {
             original.call(context, tickCounter);
             return;
         }
@@ -128,8 +128,14 @@ public class InGameHudMixin {
 
     @WrapMethod(method = "renderTabList")
     private void tmm$removePlayerList(GuiGraphics context, DeltaTracker tickCounter, Operation<Void> original) {
-        if (SREClient.shouldRenderVanillaHud())
+        if (SREClient.shouldRenderVanillaHud()) {
             original.call(context, tickCounter);
+            return;
+        }
+        if (SREClient.gameComponent != null && !SREClient.gameComponent.isRunning()) {
+            original.call(context, tickCounter);
+            return;
+        }
     }
 
     @WrapMethod(method = "renderExperienceLevel")
