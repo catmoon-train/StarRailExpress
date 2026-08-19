@@ -12,7 +12,7 @@
 如果你打算写冷却等需要ticking的cca：
 - 请服务端尽量在重大更改时同步，而不是每秒同步！
 - 如果是类似于 cooldown-- 的需要同步的逻辑，每10s再同步。
-- 或者使用 `SRE.getTicksFromGameStart() + time` 设定触发时间来代替（只需要在触发和结束的时候同步更改）（推荐）
+- 或者使用 `GameUtils.getTicksFromGameStart() + time` 设定触发时间来代替（只需要在触发和结束的时候同步更改）（推荐）（注意，如果是同步间隔，还是建议使用level.getGameTime()，此处API在时停和会议期间会暂停，一般情况的cd都建议使用此API避免与会议冲突。）
 
 
 # 有关玩家职业数据
@@ -30,7 +30,7 @@ RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
 如果你打算写冷却等需要ticking的事件：
 - 请服务端尽量在重大更改时同步，而不是每秒同步！
 - 如果是类似于 cooldown-- 的需要同步的逻辑，每10s再同步。
-- 或者使用 `SRE.getTicksFromGameStart() + time` 设定触发时间来代替（只需要在触发和结束的时候同步更改）（推荐）
+- 或者使用 `GameUtils.getTicksFromGameStart() + time` 设定触发时间来代替（只需要在触发和结束的时候同步更改）（推荐）（注意，如果是同步间隔，还是建议使用level.getGameTime()，此处API在时停和会议期间会暂停，一般情况的cd都建议使用此API避免与会议冲突。）
 - 
 ！！！尽量使用此API，不要使用CCA！！！
 

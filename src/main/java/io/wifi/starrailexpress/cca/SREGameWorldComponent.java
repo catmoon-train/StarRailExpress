@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.AreasSettings.BackgroundAmbienceSound;
+import io.wifi.starrailexpress.event.OnGameServerTick;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
@@ -810,6 +811,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     GameUtils.stopGame(serverWorld);
                     return;
                 }
+
                 for (ServerPlayer player : serverWorld.players()) {
                     if (!GameUtils.isPlayerAliveAndSurvival(player) && isBound()
                             && !player.isCreative()) {
@@ -844,6 +846,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
                 // run game loop logic
                 gameMode.tickServerGameLoop(serverWorld, this);
+
+                if (!SREGameTimeComponent.KEY.get(serverWorld).isTimeFrozen()) {
+                    OnGameServerTick.EVENT.invoker().onGameServerTick(serverWorld);
+                }
 
                 tickBlood(serverWorld);
             }

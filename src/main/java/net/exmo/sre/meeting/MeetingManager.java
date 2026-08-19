@@ -212,6 +212,12 @@ public final class MeetingManager {
         return Set.copyOf(reportedBodies);
     }
 
+    public static void addReportedBody(UUID bodyUid) {
+        if (bodyUid == null)
+            return;
+        reportedBodies.add(bodyUid);
+    }
+
     /** 尸体被右键：满足条件则召开会议。返回是否已消费该交互。 */
     public static boolean tryReportBody(ServerPlayer reporter, PlayerBodyEntity body) {
         // SRE.LOGGER.info("[MEETING] Try report body");

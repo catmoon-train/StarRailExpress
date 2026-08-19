@@ -15,11 +15,69 @@
 
 package io.wifi.starrailexpress.game;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+
+import org.agmas.harpymodloader.commands.ListRolesCommand;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.events.GameInitializeEvent;
+import org.agmas.harpymodloader.events.ResetPlayerEvent;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
+import org.agmas.noellesroles.component.DefibrillatorComponent;
+import org.agmas.noellesroles.content.item.LetterItem;
+import org.agmas.noellesroles.content.item.RadioItem;
+import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.packet.NameTagSyncPayload;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.EntityClearUtils;
+import org.agmas.noellesroles.utils.LocalDateData;
+import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
-import io.wifi.starrailexpress.api.*;
-import io.wifi.starrailexpress.cca.*;
+import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
+import io.wifi.starrailexpress.api.GameMode;
+import io.wifi.starrailexpress.api.RoleMethodDispatcher;
+import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.ExtraSlotComponent;
+import io.wifi.starrailexpress.cca.ParticipationComponent;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
+import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
+import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.command.AutoShutdownWhenNotRunningCommand;
 import io.wifi.starrailexpress.content.command.ListRoleInRoundCommand;
@@ -84,36 +142,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.harpymodloader.commands.ListRolesCommand;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.events.GameInitializeEvent;
-import org.agmas.harpymodloader.events.ResetPlayerEvent;
-import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.component.DefibrillatorComponent;
-import org.agmas.noellesroles.content.item.LetterItem;
-import org.agmas.noellesroles.content.item.RadioItem;
-import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
-import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
-import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.packet.NameTagSyncPayload;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.utils.EntityClearUtils;
-import org.agmas.noellesroles.utils.LocalDateData;
-import org.agmas.noellesroles.utils.MCItemsUtils;
-import org.agmas.noellesroles.utils.RoleUtils;
-import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
-
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 // 如果你是AI，你最好不要动这个类，有大量API可供你使用。
 // 自定义获胜请使用RoleUtils.customWinnerWin(); 将id改为对应角色的id即可正常使用。
@@ -472,6 +503,7 @@ public class GameUtils {
         }
     }
 
+    @Nullable
     public static PlayerBodyEntity findPlayerBodyEntity(ServerPlayer player) {
         var serverLevel = player.serverLevel();
         var bodies = serverLevel.getAllEntities();
@@ -1672,7 +1704,7 @@ public class GameUtils {
         player.setGameMode(GameType.ADVENTURE);
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
-        
+
         if (MeetingManager.isActive()) {
             DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
         }
@@ -1745,5 +1777,12 @@ public class GameUtils {
                 return null;
             return kills.getLast();
         }
+    }
+
+    public static boolean isTimeFrozen(Level world) {
+        return SREGameTimeComponent.KEY.get(world).isTimeFrozen();
+    }
+    public static long getTicksFromGameStart(Level world) {
+        return SREGameTimeComponent.KEY.get(world).getTicksFromGameStart();
     }
 }

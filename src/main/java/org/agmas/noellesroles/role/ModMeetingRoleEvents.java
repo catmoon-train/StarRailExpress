@@ -16,10 +16,14 @@
 package org.agmas.noellesroles.role;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.vote.VoteOption;
 import io.wifi.starrailexpress.content.vote.VoteSession.VoteResultOption;
 import io.wifi.starrailexpress.event.MeetingVoteEndEvent;
 import io.wifi.starrailexpress.event.MeetingVoteOutEvent;
+import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnGameInitialized;
+import io.wifi.starrailexpress.event.OnGameServerTick;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -30,6 +34,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -41,10 +46,50 @@ import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 public class ModMeetingRoleEvents {
     private static boolean registered;
 
+    public static record MeetingReportInfo(ServerPlayer reporter, long startTime) {
+    };
+
+    private static final ConcurrentHashMap<ServerPlayer, MeetingReportInfo> pendingMeetings = new ConcurrentHashMap<>();
+    private static final long CANADA_MEETING_START_GAP = 40; // 2s
+
     public static void register() {
         if (registered)
             return;
         registered = true;
+
+        OnGameInitialized.EVENT.register((t) -> {
+            pendingMeetings.clear();
+        });
+
+        OnGameEnd.EVENT.register((a, b) -> {
+            pendingMeetings.clear();
+        });
+        // 加拿大死后延迟2s开会
+        OnGameServerTick.EVENT.register((world) -> {
+            if (pendingMeetings.isEmpty())
+                return;
+            long now = GameUtils.getTicksFromGameStart(world);
+            var it = pendingMeetings.entrySet().iterator();
+            while (it.hasNext()) {
+                var t = it.next();
+                ServerPlayer victim = t.getKey();
+                MeetingReportInfo info = t.getValue();
+                if (now >= info.startTime) {
+                    it.remove();
+                    ServerPlayer rep = info.reporter();
+                    if (rep == null) {
+                        rep = victim;
+                    }
+                    if (victim != null && victim.getGameProfile() != null) {
+                        MeetingApi.startMeeting(world, rep,
+                                victim.getGameProfile().getName(), true);
+                        PlayerBodyEntity victimBody = GameUtils.findPlayerBodyEntity(victim);
+                        if (victimBody != null)
+                            MeetingManager.addReportedBody(victimBody.getUUID());
+                    }
+                }
+            }
+        });
 
         // 加拿大鹅：被杀时自动发起会议
         OnPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
@@ -58,9 +103,10 @@ public class ModMeetingRoleEvents {
             // 亡命徒期间（难民触发）：加拿大鹅不强制启用/发起会议
             if (RefugeeComponent.KEY.get(sp.serverLevel()).isAnyRevivals)
                 return;
+
             ServerPlayer reporter = killer instanceof ServerPlayer kp ? kp : sp;
-            // 紧急会议：绕过开局冷却与会议间冷却，确保加拿大鹅死亡必定触发会议
-            MeetingApi.startMeeting(sp.serverLevel(), reporter, sp.getGameProfile().getName(), true);
+            pendingMeetings.put(sp, new MeetingReportInfo(reporter,
+                    GameUtils.getTicksFromGameStart(sp.serverLevel()) + CANADA_MEETING_START_GAP));
         });
 
         // 呆呆鸟：被投票出局时独立胜利
