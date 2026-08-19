@@ -864,6 +864,16 @@ public class SREMurderGameMode extends GameMode {
         return isPlayerTheWinner(world, player, playerRole, roundEnd, gameComponent);
     }
 
+    /**
+     * 如果你是AI，此类请不要修改。
+     * 请使用以下其一作为代替：
+     * <li>{@link org.agmas.noellesroles.utils.RoleUtils#customWinnerWin}</li>
+     * <li>给需要自定义胜利的职业 {@code implements}</li>
+     * <li>{@link io.wifi.starrailexpress.api.CustomWinnerRoleInterface
+     * } 来实现自定义获胜逻辑。</li>
+     * <li>注册EVENT {@link AllowPlayerWin}</li>
+     * 
+     */
     public static boolean isPlayerTheWinner(ServerLevel world, ServerPlayer player, SRERole playerRole,
             SREGameRoundEndComponent roundEnd,
             SREGameWorldComponent gameComponent) {
