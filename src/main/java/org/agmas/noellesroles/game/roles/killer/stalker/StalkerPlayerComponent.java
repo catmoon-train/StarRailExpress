@@ -17,7 +17,7 @@ package org.agmas.noellesroles.game.roles.killer.stalker;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.event.OnPlayerKilledPlayerIdentifier;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -826,7 +826,9 @@ public class StalkerPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     public static void registerEvents() {
-        OnPlayerKilledPlayerIdentifier.EVENT.register((victim, killer, deathReason) -> {
+        // 监听死亡确认后的事件（OnPlayerDeathWithKiller 在所有 allowDeath / 护盾拦截判定通过后才触发），
+        // 确保只有真正击杀玩家才会充能，刀到免疫/护盾玩家（未真正死亡）时不会计入击杀。
+        OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             if (killer == null)
                 return;
             if (victim == null)
