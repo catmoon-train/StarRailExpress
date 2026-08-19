@@ -17,6 +17,7 @@ package org.agmas.noellesroles.init.events;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.StandardRevolverItem;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
 import io.wifi.starrailexpress.event.*;
 import org.agmas.noellesroles.CustomWinnerClass;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
@@ -258,6 +259,9 @@ public class NRInteractionEvents {
     private static void registerDropRules() {
         DropRules.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
+            if (mainHandItem.getItem() instanceof DropAndClearItem) {
+                return true;
+            }
             if (mainHandItem.is(ModItems.NEWSPAPER)) {
                 if (mainHandItem.has(SREDataComponentTypes.WRITTEN_BOOK_CONTENT))
                     return true;

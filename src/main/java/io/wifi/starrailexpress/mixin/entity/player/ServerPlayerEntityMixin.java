@@ -20,10 +20,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.util.ServerDropManager;
 import io.wifi.starrailexpress.util.SkinUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -31,6 +33,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
@@ -39,9 +43,25 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayer.class)
 public class ServerPlayerEntityMixin {
+    @Inject(method = "drop(Z)Z", at = @At("HEAD"), cancellable = true)
+    public void onDrop(boolean dropAll, CallbackInfoReturnable<Boolean> cir) {
+        if (ServerDropManager.onDrop((ServerPlayer) (Object) this, dropAll)) {
+            return;
+        }
+        cir.setReturnValue(false);
+    }
+
+    @Inject(method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;", at = @At("HEAD"), cancellable = true)
+    public void onDropItem(ItemStack itemStack, boolean bl, boolean bl2, CallbackInfoReturnable<ItemEntity> cir) {
+        if (itemStack.getItem() instanceof DropAndClearItem) {
+            cir.setReturnValue(null);
+        }
+    }
+
     @WrapOperation(method = "startSleepInBed", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;displayClientMessage(Lnet/minecraft/network/chat/Component;Z)V"))
     public void tmm$disableSleepMessage(ServerPlayer instance, Component message, boolean overlay,
             Operation<Void> original) {
@@ -91,9 +111,10 @@ public class ServerPlayerEntityMixin {
         } else if (mainhandItem.getItem() instanceof SREItemProperties.LeftClickHurtable htit) {
             boolean original = true;
             // var result = htit.onTryHurt(self, target, self.getMainHandItem());
-            // if (result.equals(InteractionResult.CONSUME) || result.equals(InteractionResult.FAIL)) {
-            //     ci.cancel();
-            //     return;
+            // if (result.equals(InteractionResult.CONSUME) ||
+            // result.equals(InteractionResult.FAIL)) {
+            // ci.cancel();
+            // return;
             // }
             if (target instanceof ServerPlayer playerTarget) {
                 original = htit.onServerAttack(self, playerTarget, mainhandItem);
