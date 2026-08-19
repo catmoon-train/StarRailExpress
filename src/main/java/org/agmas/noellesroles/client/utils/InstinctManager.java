@@ -314,8 +314,10 @@ public class InstinctManager {
         // 魔术师：杀手看魔术师时显示红色边框（像看其他杀手一样）
         if (SREClient.gameComponent.isRole(target_player, ModRoles.MAGICIAN)
                 || SREClient.gameComponent.isRole(target_player, THLostForestRoles.KAGUYA)) {
-            target_role = RoleUtils
-                    .getRole(MagicianPlayerComponent.KEY.get(target_player).getDisguiseRoleId());
+            var roleR = MagicianPlayerComponent.KEY.get(target_player).getDisguiseRoleId();
+            if (roleR == null)
+                roleR = SERoles.NECROMANCER.identifier();
+            target_role = RoleUtils.getRole(roleR);
         }
 
         if (RoleUtils.compareRole(target_role, ModRoles.PUPPETEER)) {

@@ -187,10 +187,7 @@ public class RoleMethodDispatcher {
 
     public static void onInit(SRERole role, MinecraftServer minecraftServer, ServerPlayer player) {
         role.onInit(minecraftServer, player);
-        {
-            final var cca = SRERoleDataPlayerComponent.KEY.get(player);
-            cca.init();
-        }
+        
         if (role.isAutoReset()) {
             ComponentKey<? extends RoleComponent> componentKey = role.getComponentKey();
             if (componentKey != null) {
@@ -199,6 +196,10 @@ public class RoleMethodDispatcher {
                     component.init();
                 }
             }
+        }
+        {
+            final var cca = SRERoleDataPlayerComponent.KEY.get(player);
+            cca.init();
         }
     }
 

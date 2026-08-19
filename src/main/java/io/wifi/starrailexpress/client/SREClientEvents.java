@@ -131,6 +131,9 @@ public class SREClientEvents {
                 if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)
                         || SREClient.gameComponent.isRole(target, THLostForestRoles.KAGUYA)) {
                     var roleR = MagicianPlayerComponent.KEY.get(target).getDisguiseRoleId();
+                    if (roleR == null) {
+                        roleR = SERoles.NECROMANCER.getIdentifier();
+                    }
                     if (SREClient.isPlayerSpectatingOrCreative()) {
                         return TrueFalseAndCustomResult.custom(Component.translatable(
                                 "message.magician.magician_are_playing_as",
