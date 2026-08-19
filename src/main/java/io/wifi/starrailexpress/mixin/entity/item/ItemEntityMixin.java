@@ -107,16 +107,17 @@ public abstract class ItemEntityMixin {
         if (this.getItem().is(TMMItemTags.GUNS) && SREItemUtils.hasItem(player, TMMItemTags.GUNS)) {
             return;
         }
-        if (SREGameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
-                && !player.equals(this.getOwner())) {
-            original.call(player);
-            return;
-        }
-        {
-            // 在拾取物品之前调用角色的onPickupItem方法
-            if (SREItemUtils.countItem(player, TMMItemTags.GUNS) > 0) {
+        if (this.getItem().is(TMMItemTags.GUNS)) {
+            if (SREGameWorldComponent.KEY.get(player.level()).canPickUpRevolver(player)
+                    && !player.equals(this.getOwner())) {
+                // 在拾取物品之前调用角色的onPickupItem方法
+                if (SREItemUtils.countItem(player, TMMItemTags.GUNS) > 0) {
+                    return;
+                }
+                original.call(player);
                 return;
             }
+        } else {
             original.call(player);
         }
     }

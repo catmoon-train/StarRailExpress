@@ -17,7 +17,6 @@ package org.agmas.noellesroles.init.events;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.StandardRevolverItem;
-import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
 import io.wifi.starrailexpress.event.*;
 import org.agmas.noellesroles.CustomWinnerClass;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
