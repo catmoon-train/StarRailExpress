@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.neutral.pelican;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -153,6 +155,11 @@ public final class PelicanManager {
         }
 
         NoellesrolesVoiceChatPlugin.onPelicanStash(targetId, pelicanId);
+
+        // 记录回放：鹈鹕吞噬玩家
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.pelican.eat",
+                GameReplayUtils.getReplayPlayerDisplayText(pelican, true),
+                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
     }
 
     private static void redirectExecutionerTargetsToPelican(UUID stashedTargetId, ServerPlayer pelican) {
@@ -232,13 +239,26 @@ public final class PelicanManager {
     }
 
     public static void releaseAllForPelican(UUID pelicanId, MinecraftServer server) {
+        releaseAllForPelican(pelicanId, server, null);
+    }
+
+    /**
+     * 强制吐出鹈鹕肚内所有玩家；replayKey 非空时，对每个被吐出者记录回放事件（用于区分亡命徒时刻 / 其它场景）。
+     */
+    public static void releaseAllForPelican(UUID pelicanId, MinecraftServer server, String replayKey) {
         Deque<UUID> belly = stashedByPelican.get(pelicanId);
         if (belly == null || belly.isEmpty())
             return;
+        ServerPlayer pelican = server.getPlayerList().getPlayer(pelicanId);
         for (UUID targetId : new ArrayList<>(belly)) {
             ServerPlayer target = server.getPlayerList().getPlayer(targetId);
             if (target != null) {
                 releasePlayer(target);
+                if (replayKey != null) {
+                    SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable(replayKey,
+                            GameReplayUtils.getReplayPlayerDisplayText(pelican, true),
+                            GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+                }
             } else {
                 pelicanByStashed.remove(targetId);
                 belly.remove(targetId);
@@ -248,7 +268,6 @@ public final class PelicanManager {
             stashedByPelican.remove(pelicanId);
 
         // 同步清理鹈鹕组件中的肚内玩家列表，防止再次按技能键时重复显示"吐出玩家"
-        ServerPlayer pelican = server.getPlayerList().getPlayer(pelicanId);
         if (pelican != null) {
             PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(pelican);
             comp.bellyPlayerIds.clear();
@@ -394,6 +413,10 @@ public final class PelicanManager {
                 target.displayClientMessage(
                     Component.translatable("message.noellesroles.pelican.spat_out_dead"),
                     true);
+                // 记录回放：鹈鹕死亡，肚内玩家被吐出
+                SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.pelican.spit_death",
+                        GameReplayUtils.getReplayPlayerDisplayText(pelican, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(target, true)));
             }
             }
             belly.remove(targetId);
@@ -410,7 +433,7 @@ public final class PelicanManager {
 
     public static void onLastStand(ServerLevel world) {
         for (UUID pelicanId : List.copyOf(stashedByPelican.keySet())) {
-            releaseAllForPelican(pelicanId, world.getServer());
+            releaseAllForPelican(pelicanId, world.getServer(), "replay.pelican.spit_desperado");
         }
     }
 
