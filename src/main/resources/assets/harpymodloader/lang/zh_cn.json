@@ -16,7 +16,7 @@
   
   "commands.forcemodifier.success": "已强制赋予修饰符 %s 给玩家 %s",
   "commands.forcemodifier.success.clear":"已清除强制赋予给 %s 的修饰符",
-  "commands.forcemodifier.success.remove":"已删除强制赋予给 %s 的修饰符 %s",
+  "commands.forcemodifier.remove":"已删除强制赋予给 %s 的修饰符 %s",
   "commands.forcemodifier.query": "玩家 %s 被强制赋予的修饰符：%s",
   "commands.forcemodifier.query.none": "玩家 %s 还没有被强制赋予修饰符",
   "commands.listroles.role.title": "§b乘客身份",
