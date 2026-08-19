@@ -247,7 +247,7 @@ public class TarotAssemblyManager {
         }
 
         // 标记所处领域：愚者开会领域 = 1 级（amplifier 0）
-        player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, BLINDNESS_DURATION_TICKS + 40, 0, false, false,
+        player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, -1, 0, false, false,
                 true));
 
         ServerPlayNetworking.send(player, new CloseUiPayload());

@@ -157,7 +157,7 @@ public final class GroselleJourneyManager {
                 Set.of(), target.getYRot(), target.getXRot());
         applyRestrictions(target);
         // 进入游记即一次性授予 10 秒领域标记（3 级 / amplifier 2），由 tick 每 5 秒刷新
-        target.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, 200, 2, false, false, true));
+        target.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, -1, 2, false, false, true));
 
         // 目的地粒子与声音。
         spawnBanishFx(target.serverLevel(), target.getX(), target.getY() + 1.0, target.getZ());
@@ -251,9 +251,9 @@ public final class GroselleJourneyManager {
             // 持续封禁技能 / 物品 / 背包。
             applyRestrictions(player);
 
-            // 领域标记每 5 秒刷新一次，保持 10 秒时长（避免每 tick 覆盖，减少抖动）
-            if (player.serverLevel().getGameTime() % 100 == 0) {
-                player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, 200, 2, false, false, true));
+            // 领域标记每 10 秒刷新一次，保持 -1 秒时长（避免每 tick 覆盖，减少抖动）
+            if (player.serverLevel().getGameTime() % 200 == 0) {
+                player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, -1, 2, false, false, true));
             }
 
             // 60 秒后自动回归被放逐前的位置。
