@@ -45,11 +45,14 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TimeStopEffect extends MobEffect {
     public static List<UUID> canMovePlayers = new ArrayList<>();
-    public static Map<UUID, Vec3> clientPositions = new java.util.HashMap<>();
+    public static Set<UUID> clientCanMovePlayers = ConcurrentHashMap.newKeySet();
+    public static Map<UUID, Vec3> clientPositions = new ConcurrentHashMap<>();
     public static int freezeTime = 0;
     public static int freezeStatedTime = 0;
     public static int freezeMaxTime = 0;

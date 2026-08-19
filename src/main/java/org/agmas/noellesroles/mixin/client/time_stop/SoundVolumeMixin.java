@@ -31,9 +31,9 @@ public class SoundVolumeMixin {
     @Inject(method = "getSoundSourceVolume", at = @At("HEAD"), cancellable = true)
     public void getSoundSourceVolume(SoundSource soundSource, CallbackInfoReturnable<Float> cir) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player !=null){
-            if (player.hasEffect(ModEffects.TIME_STOP)){
-                if (!TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
+        if (player != null) {
+            if (player.hasEffect(ModEffects.TIME_STOP)) {
+                if (!TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
                     cir.setReturnValue(0.0f);
                 }
             }

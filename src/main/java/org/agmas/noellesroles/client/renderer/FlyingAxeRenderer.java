@@ -57,7 +57,7 @@ public class FlyingAxeRenderer extends EntityRenderer<FlyingAxeEntity> {
         // 时停守卫：时停期间不可移动的玩家看不到飞行中的飞斧（沿用飞刀渲染器逻辑）。
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null && player.hasEffect(ModEffects.TIME_STOP)
-                && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
+                && !TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
             return;
         }
 

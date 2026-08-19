@@ -38,14 +38,14 @@ public class MouseHandleSuppressMixin {
             return;
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()
                 && SREClient.isPlayerAliveAndInSurvival()
-                && player.hasEffect((ModEffects.TIME_STOP))
-        ){
-            if (TimeStopEffect.canMovePlayers.contains(player.getUUID())){
+                && player.hasEffect((ModEffects.TIME_STOP))) {
+            if (TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
                 return;
             }
             ci.cancel();
         }
     }
+
     @Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
     private void noe$restrainScroll(long l, double d, double e, CallbackInfo ci) {
 
@@ -56,9 +56,8 @@ public class MouseHandleSuppressMixin {
             return;
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()
                 && SREClient.isPlayerAliveAndInSurvival()
-                && player.hasEffect((ModEffects.TIME_STOP))
-        ){
-            if (TimeStopEffect.canMovePlayers.contains(player.getUUID())){
+                && player.hasEffect((ModEffects.TIME_STOP))) {
+            if (TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
                 return;
             }
             ci.cancel();

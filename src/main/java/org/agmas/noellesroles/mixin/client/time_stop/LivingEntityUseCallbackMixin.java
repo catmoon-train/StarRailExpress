@@ -36,7 +36,7 @@ public class LivingEntityUseCallbackMixin {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player!=null){
             if (player.hasEffect(ModEffects.TIME_STOP)){
-                if (!TimeStopEffect.canMovePlayers.contains(player.getUUID())){
+                if (!TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())){
                     cir.setReturnValue(0);
                 }
             }

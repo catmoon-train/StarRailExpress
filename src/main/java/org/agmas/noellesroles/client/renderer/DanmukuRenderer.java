@@ -46,7 +46,7 @@ public class DanmukuRenderer extends EntityRenderer<DanmukuEntity> {
             MultiBufferSource bufferSource, int packedLight) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null && player.hasEffect(ModEffects.TIME_STOP)
-                && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
+                && !TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
             return;
         }
 

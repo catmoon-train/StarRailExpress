@@ -83,12 +83,12 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
       }
     }
     if (senderPlayer.getEffect(ModEffects.TIME_STOP) != null) {
-      if (!TimeStopEffect.canMovePlayers.contains(senderPlayer.getUUID())) {
+      if (!TimeStopEffect.clientCanMovePlayers.contains(senderPlayer.getUUID())) {
         return true;
       }
     }
     if (receiverPlayer.getEffect(ModEffects.TIME_STOP) != null) {
-      if (!TimeStopEffect.canMovePlayers.contains(receiverPlayer.getUUID())) {
+      if (!TimeStopEffect.clientCanMovePlayers.contains(receiverPlayer.getUUID())) {
         return true;
       }
     }

@@ -34,9 +34,11 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 ;
 
 @Mixin(PlayerRenderer.class)
-public abstract class PlayerAnimationStopMixin extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+public abstract class PlayerAnimationStopMixin
+        extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
-    public PlayerAnimationStopMixin(EntityRendererProvider.Context context, PlayerModel<AbstractClientPlayer> entityModel, float f) {
+    public PlayerAnimationStopMixin(EntityRendererProvider.Context context,
+            PlayerModel<AbstractClientPlayer> entityModel, float f) {
         super(context, entityModel, f);
     }
 
@@ -45,17 +47,18 @@ public abstract class PlayerAnimationStopMixin extends LivingEntityRenderer<Abst
 
     @Unique
     private static boolean isChangePlayerAnimationStop = false;
-    @ModifyVariable(
-            method = "render(Lnet/minecraft/client/player/AbstractClientPlayer;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            at = @At("HEAD"),
 
-            argsOnly = true
-    )
+    @ModifyVariable(method = "render(Lnet/minecraft/client/player/AbstractClientPlayer;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"),
+
+            argsOnly = true)
     public AbstractClientPlayer modifyRenderedPlayer(AbstractClientPlayer abstractClientPlayer) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null && player.hasEffect(ModEffects.TIME_STOP)) {
-            if (TimeStopEffect.canMovePlayers.contains(abstractClientPlayer.getUUID())&&TimeStopEffect.canMovePlayers.contains(player.getUUID()))return abstractClientPlayer;
-            AbstractClientPlayer replacement = NoellesrolesClient.lastTimeStopRenderPlayer.get(abstractClientPlayer.getUUID());
+            if (TimeStopEffect.clientCanMovePlayers.contains(abstractClientPlayer.getUUID())
+                    && TimeStopEffect.clientCanMovePlayers.contains(player.getUUID()))
+                return abstractClientPlayer;
+            AbstractClientPlayer replacement = NoellesrolesClient.lastTimeStopRenderPlayer
+                    .get(abstractClientPlayer.getUUID());
             if (replacement != null) {
                 isChangePlayerAnimationStop = true;
                 abstractClientPlayer.setPos(replacement.getX(), replacement.getY(), replacement.getZ());
@@ -64,7 +67,7 @@ public abstract class PlayerAnimationStopMixin extends LivingEntityRenderer<Abst
                 abstractClientPlayer.setYBodyRot(replacement.yBodyRot);
                 abstractClientPlayer.setYRot(replacement.getYRot());
                 abstractClientPlayer.setPose(replacement.getPose());
-                abstractClientPlayer.setDeltaMovement(0,0,0);
+                abstractClientPlayer.setDeltaMovement(0, 0, 0);
                 return abstractClientPlayer;
             }
         }

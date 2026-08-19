@@ -43,7 +43,7 @@ public class ThrowingKnifeRenderer extends ArrowRenderer {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player!=null){
             if (player.hasEffect(ModEffects.TIME_STOP)){
-                if (!TimeStopEffect.canMovePlayers.contains(player.getUUID()))return;
+                if (!TimeStopEffect.clientCanMovePlayers.contains(player.getUUID()))return;
             }
         }
 

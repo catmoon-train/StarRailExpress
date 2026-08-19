@@ -73,7 +73,7 @@ public abstract class CantControlMixin {
                 && SREClient.isPlayerAliveAndInSurvival()
                 && player.hasEffect((ModEffects.TIME_STOP))) {
 
-            if (TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
+            if (TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
                 return false;
             }
             for (var hotbarSlot : options.keyHotbarSlots) {

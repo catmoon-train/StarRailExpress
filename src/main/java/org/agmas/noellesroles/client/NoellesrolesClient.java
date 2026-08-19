@@ -129,6 +129,7 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.agmas.noellesroles.client.RicesRoleRhapsodyClient.*;
 import static org.agmas.noellesroles.content.effects.TimeStopEffect.clientPositions;
@@ -138,7 +139,7 @@ import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKille
 public class NoellesrolesClient implements ClientModInitializer {
     public static boolean hasInitStatusBar = false;
     public static int insanityTime = 0;
-    private static boolean hasTimeStop = false;
+    private static AtomicBoolean hasTimeStop = new AtomicBoolean(false);
     private static BlockPos repairHeldSearchTarget = null;
     public static KeyMapping roleIntroClientBind = KeyBindingHelper
             .registerKeyBinding(new KeyMapping("key.noellesroles.role_intro",
@@ -913,33 +914,35 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(CanMoveInTimeStopS2CPacket.ID, (payload, context) -> {
             clientPositions.clear();
-            LocalPlayer player = context.player();
-            Level level = player.level();
-            TimeStopEffect.freezeStatedTime = SREGameTimeComponent.KEY.get(level).time;
-            TimeStopEffect.freezeMaxTime = payload.times();
-            lastTimeStopRenderPlayer.clear();
-            ClientLevel clientLevel = Minecraft.getInstance().level;
-            if (clientLevel != null) {
-                clientLevel.players().forEach(p -> {
-                    RemotePlayer value = new RemotePlayer(clientLevel, p.getGameProfile());
-                    value.setPos(p.position());
-                    value.setYRot(p.getYRot());
-                    value.setXRot(p.getXRot());
-                    value.setYBodyRot(p.yBodyRot);
-                    value.setYHeadRot(p.getYHeadRot());
+            context.client().execute(() -> {
+                LocalPlayer player = context.player();
+                Level level = player.level();
+                TimeStopEffect.freezeStatedTime = SREGameTimeComponent.KEY.get(level).time;
+                TimeStopEffect.freezeMaxTime = payload.times();
+                lastTimeStopRenderPlayer.clear();
+                ClientLevel clientLevel = Minecraft.getInstance().level;
+                if (clientLevel != null) {
+                    clientLevel.players().forEach(p -> {
+                        RemotePlayer value = new RemotePlayer(clientLevel, p.getGameProfile());
+                        value.setPos(p.position());
+                        value.setYRot(p.getYRot());
+                        value.setXRot(p.getXRot());
+                        value.setYBodyRot(p.yBodyRot);
+                        value.setYHeadRot(p.getYHeadRot());
 
-                    value.setItemInHand(InteractionHand.MAIN_HAND, p.getItemInHand(InteractionHand.MAIN_HAND));
-                    value.setPose(p.getPose());
+                        value.setItemInHand(InteractionHand.MAIN_HAND, p.getItemInHand(InteractionHand.MAIN_HAND));
+                        value.setPose(p.getPose());
 
-                    lastTimeStopRenderPlayer.put(p.getUUID(), value);
-                    clientPositions.put(p.getUUID(), p.position());
-                });
-            }
-            player.stopUsingItem();
-            TimeStopEffect.effectStatedTime = payload.times();
+                        lastTimeStopRenderPlayer.put(p.getUUID(), value);
+                        clientPositions.put(p.getUUID(), p.position());
+                    });
+                }
+                player.stopUsingItem();
+                TimeStopEffect.effectStatedTime = payload.times();
 
-            TimeStopEffect.canMovePlayers.clear();
-            TimeStopEffect.canMovePlayers.addAll(payload.uuids());
+                TimeStopEffect.clientCanMovePlayers.clear();
+                TimeStopEffect.clientCanMovePlayers.addAll(payload.uuids());
+            });
         });
 
         // 注册打开物品展示 ui网络包处理
@@ -1135,25 +1138,24 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (client.player == null || SREClient.gameComponent == null)
                 return;
             if (client.level != null) {
-                client.level.players().forEach(
-                        player -> {
-                            if (client.player.hasEffect((ModEffects.TIME_STOP))) {
-                                hasTimeStop = true;
-                                if (clientPositions.containsKey(player.getUUID())
-                                        && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
-                                    player.setPos(clientPositions.get(player.getUUID()));
-                                }
-                            } else {
-                                if (hasTimeStop) {
-                                    SRE.LOGGER.info("Client time stop stop");
-                                    clientPositions.clear();
-                                    TimeStopEffect.canMovePlayers.clear();
-                                    TimeStopEffect.freezeStatedTime = 0;
-                                    TimeStopEffect.freezeMaxTime = 0;
-                                    hasTimeStop = false;
-                                }
+                boolean currentHasTimeStop = client.player.hasEffect(ModEffects.TIME_STOP); // 当前状态
+                boolean previousHasTimeStop = hasTimeStop.get(); // 上 tick 状态
+                if (currentHasTimeStop) {
+                    for (final var player : client.level.players()) {
+                        {
+                            if (clientPositions.containsKey(player.getUUID())
+                                    && !TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
+                                player.setPos(clientPositions.get(player.getUUID()));
                             }
-                        });
+                        }
+                    }
+                }
+
+                // 检测状态切换：从有→无时清除缓存
+                if (previousHasTimeStop && !currentHasTimeStop) {
+                    clearTimeStopCache();
+                }
+                hasTimeStop.set(currentHasTimeStop);
             }
         });
         // 操纵师附身：相机绑定到目标 + 远程驱动目标移动
@@ -1742,9 +1744,11 @@ public class NoellesrolesClient implements ClientModInitializer {
     }
 
     public static void clearTimeStopCache() {
-        clientPositions.clear();
-        TimeStopEffect.canMovePlayers.clear();
-        TimeStopEffect.freezeStatedTime = 0;
-        TimeStopEffect.freezeMaxTime = 0;
+        Minecraft.getInstance().execute(() -> {
+            clientPositions.clear();
+            TimeStopEffect.clientCanMovePlayers.clear();
+            TimeStopEffect.freezeStatedTime = 0;
+            TimeStopEffect.freezeMaxTime = 0;
+        });
     }
 }
