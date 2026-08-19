@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.widget;
 
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -65,8 +66,8 @@ public class WarlockDomainWidget extends Button {
         WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.get(player);
         if (comp == null)
             return;
-        long gameTime = player.level().getGameTime();
-        boolean ready = gameTime >= comp.domainCooldownEndTick;
+        long now = SREClient.getTicksFromGameStart();
+        boolean ready = now >= comp.domainCooldownEndTick;
 
         super.renderWidget(context, mouseX, mouseY, delta);
         if (!ready) {
@@ -84,7 +85,7 @@ public class WarlockDomainWidget extends Button {
         }
 
         if (!ready) {
-            int cooldownSeconds = (int) ((comp.domainCooldownEndTick - gameTime + 19) / 20);
+            int cooldownSeconds = (int) ((comp.domainCooldownEndTick - now + 19) / 20);
             context.drawString(Minecraft.getInstance().font, cooldownSeconds + "s",
                     this.getX(), this.getY(), Color.RED.getRGB(), true);
         }

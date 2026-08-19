@@ -49,7 +49,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.resources.ResourceLocation;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
@@ -415,19 +414,5 @@ public class InstinctManager {
             return TrueFalseAndCustomResult.custom(TMMRoles.CIVILIAN.color());
         }
 
-    }
-    public static SRERole resolveMagicianDisguiseForKiller(Player target) {
-        if (target == null || SREClient.gameComponent == null)
-            return null;
-        if (!SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)
-                && !SREClient.gameComponent.isRole(target, THLostForestRoles.KAGUYA))
-            return null;
-        var comp = MagicianPlayerComponent.KEY.get(target);
-        if (comp == null)
-            return null;
-        ResourceLocation disguise = comp.getDisguiseRoleId();
-        if (disguise == null)
-            return null;
-        return RoleUtils.getRole(disguise);
     }
 }
