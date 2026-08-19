@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -138,7 +139,7 @@ public final class GroselleJourneyManager {
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
         ServerLevel originLevel = target.serverLevel();
 
-        long now = System.currentTimeMillis();
+        long now = SRE.getTicksFromGameStart();
 
         // 记录放逐前位置与放逐时间。
         banished.put(target.getUUID(), new Banishment(banisher.getUUID(), originLevel.dimension(),
@@ -221,9 +222,11 @@ public final class GroselleJourneyManager {
         if (banished.isEmpty()) {
             return;
         }
+        if (GameUtils.isTimeFrozen(server.overworld()))
+            return;
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
-        long autoReturnMillis = config.grosellTravelogAutoReturnSeconds * 1000L;
-        long now = System.currentTimeMillis();
+        long autoReturnMillis = config.grosellTravelogAutoReturnSeconds * 20;
+        long now = SRE.getTicksFromGameStart();
 
         for (UUID id : List.copyOf(banished.keySet())) {
             ServerPlayer player = server.getPlayerList().getPlayer(id);

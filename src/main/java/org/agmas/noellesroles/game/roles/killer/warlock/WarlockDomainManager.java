@@ -40,7 +40,6 @@ import org.agmas.noellesroles.init.ModEffects;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -127,7 +126,7 @@ public final class WarlockDomainManager {
                 .build(BlockPos.containing(DOMAIN_X, DOMAIN_Y, DOMAIN_Z));
 
         ActiveDomain domain = new ActiveDomain(warlock.getUUID(), level,
-                level.getGameTime() + DURATION_TICKS);
+                GameUtils.getTicksFromGameStart(level) + DURATION_TICKS);
 
         // 咒术师站上祭坛中心，被诅咒者被拉到一侧
         pullIn(domain, warlock, DOMAIN_X, DOMAIN_Z, true);
@@ -193,6 +192,9 @@ public final class WarlockDomainManager {
     private static void tickAll(MinecraftServer server) {
         if (ACTIVE.isEmpty())
             return;
+        if (GameUtils.isTimeFrozen(server)) {
+            return;
+        }
         for (UUID warlockUuid : new ArrayList<>(ACTIVE.keySet())) {
             ActiveDomain domain = ACTIVE.get(warlockUuid);
             if (domain == null)
@@ -204,6 +206,7 @@ public final class WarlockDomainManager {
     private static void tick(ActiveDomain domain, MinecraftServer server) {
         ServerLevel level = domain.level;
         long gameTime = level.getGameTime();
+        long now = GameUtils.getTicksFromGameStart(level);
         ServerPlayer warlock = server.getPlayerList().getPlayer(domain.warlock);
 
         // 结束条件：时间到 / 咒术师死亡或掉线 / 所有猎物离场
@@ -211,7 +214,7 @@ public final class WarlockDomainManager {
         boolean victimsGone = domain.victims.stream()
                 .map(uuid -> server.getPlayerList().getPlayer(uuid))
                 .noneMatch(p -> p != null && GameUtils.isPlayerAliveAndSurvival(p));
-        if (gameTime >= domain.endTick || warlockDown || victimsGone) {
+        if (now >= domain.endTick || warlockDown || victimsGone) {
             end(domain, server, warlockDown);
             return;
         }
@@ -244,7 +247,7 @@ public final class WarlockDomainManager {
                 participant.setDeltaMovement(0.0D, 0.0D, 0.0D);
                 participant.fallDistance = 0.0F;
                 participant.removeEffect(ModEffects.NOSTALGIST_BACKWORLD);
-            participant.removeEffect(ModEffects.DOMAIN_MARK);
+                participant.removeEffect(ModEffects.DOMAIN_MARK);
                 participant.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 15, 0, false, false, false));
                 participant.displayClientMessage(Component
                         .translatable(brokenByDeath

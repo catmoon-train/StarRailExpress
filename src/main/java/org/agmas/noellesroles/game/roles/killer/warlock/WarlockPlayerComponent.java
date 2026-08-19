@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -226,11 +227,12 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
         }
 
         essences.remove(target.getUUID());
-        cursedPlayers.put(target.getUUID(), sp.level().getGameTime() + CURSE_DURATION_TICKS);
+        cursedPlayers.put(target.getUUID(), GameUtils.getTicksFromGameStart(player.level()) + CURSE_DURATION_TICKS);
         sync();
 
         // 蚀骨之咒（重做）：暂时隔离 + 缓慢 + 扣除 30% SAN
-        target.addEffect(new MobEffectInstance(ModEffects.PLAYER_ISOLATION, CURSE_ISOLATION_TICKS, 0, false, false, true));
+        target.addEffect(
+                new MobEffectInstance(ModEffects.PLAYER_ISOLATION, CURSE_ISOLATION_TICKS, 0, false, false, true));
         target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, CURSE_SLOW_TICKS, 1, false, false, true));
         SREPlayerMoodComponent.KEY.get(target).addMood(-CURSE_SAN_DRAIN);
         target.serverLevel().playSound(null, target.blockPosition(), SoundEvents.WARDEN_HEARTBEAT,
@@ -255,7 +257,10 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
             return false;
         if (!io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(sp))
             return false;
-        long now = sp.level().getGameTime();
+        if (GameUtils.isTimeFrozen(player.level())) {
+            return false;
+        }
+        long now = GameUtils.getTicksFromGameStart(player.level());
         if (now < domainCooldownEndTick) {
             fail(sp, "message.noellesroles.warlock.domain_cooldown");
             return false;
@@ -284,7 +289,7 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
     /** 判断某玩家当前是否处于（未过期的）诅咒中且存活。 */
     public boolean isCursedAlive(ServerPlayer warlock, UUID uuid) {
         Long end = cursedPlayers.get(uuid);
-        if (end == null || warlock.level().getGameTime() >= end)
+        if (end == null || GameUtils.getTicksFromGameStart(player.level()) >= end)
             return false;
         ServerPlayer target = warlock.server.getPlayerList().getPlayer(uuid);
         return target != null && io.wifi.starrailexpress.game.GameUtils.isPlayerAliveAndSurvival(target);
@@ -297,7 +302,7 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
         if (!(player instanceof ServerPlayer sp) || !isActiveWarlock())
             return;
         long gameTime = sp.level().getGameTime();
-
+        long now = GameUtils.getTicksFromGameStart(player.level());
         if (cursedPlayers.isEmpty())
             return;
 
@@ -305,7 +310,7 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
         Iterator<Map.Entry<UUID, Long>> it = cursedPlayers.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<UUID, Long> entry = it.next();
-            if (gameTime >= entry.getValue()) {
+            if (now >= entry.getValue()) {
                 it.remove();
                 changed = true;
                 continue;
@@ -334,7 +339,7 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
             if (comp == null)
                 continue;
             Long end = comp.cursedPlayers.get(sv.getUUID());
-            if (end == null || sv.level().getGameTime() >= end)
+            if (end == null || GameUtils.getTicksFromGameStart(sv.level()) >= end)
                 continue;
             comp.cursedPlayers.remove(sv.getUUID());
             PlayerEconomyManager.addCoinNum(candidate, CURSE_REWARD_COINS);

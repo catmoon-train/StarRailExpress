@@ -39,7 +39,7 @@ public class WarlockHud {
                 return;
             Font font = client.font;
             int sy = client.getWindow().getGuiScaledHeight();
-            long gameTime = client.level.getGameTime();
+            long now = SREClient.getTicksFromGameStart();
 
             int y = sy - 46;
             Component essenceText = Component
@@ -49,7 +49,7 @@ public class WarlockHud {
             y += 12;
 
             // 当前处于诅咒中的存活目标数量（领域可拉入的候选）
-            long cursedCount = comp.cursedPlayers.values().stream().filter(end -> end > gameTime).count();
+            long cursedCount = comp.cursedPlayers.values().stream().filter(end -> end > now).count();
             if (cursedCount > 0) {
                 Component curseText = Component
                         .translatable("hud.noellesroles.warlock.cursing", cursedCount)
@@ -58,14 +58,14 @@ public class WarlockHud {
                 y += 12;
             }
 
-            if (comp.domainOpen && comp.domainEndTick > gameTime) {
-                int sec = (int) ((comp.domainEndTick - gameTime + 19) / 20);
+            if (comp.domainOpen && comp.domainEndTick > now) {
+                int sec = (int) ((comp.domainEndTick - now + 19) / 20);
                 Component domainText = Component
                         .translatable("hud.noellesroles.warlock.domain", sec)
                         .withStyle(ChatFormatting.DARK_AQUA);
                 context.drawString(font, domainText, 8, y, 0xFFFFFF);
-            } else if (comp.domainCooldownEndTick > gameTime) {
-                int sec = (int) ((comp.domainCooldownEndTick - gameTime + 19) / 20);
+            } else if (comp.domainCooldownEndTick > now) {
+                int sec = (int) ((comp.domainCooldownEndTick - now + 19) / 20);
                 Component cdText = Component
                         .translatable("hud.noellesroles.warlock.domain_cd", sec)
                         .withStyle(ChatFormatting.GRAY);

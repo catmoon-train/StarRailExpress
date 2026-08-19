@@ -1779,9 +1779,14 @@ public class GameUtils {
         }
     }
 
+    public static boolean isTimeFrozen(MinecraftServer server) {
+        return SREGameTimeComponent.KEY.get(server.overworld()).isTimeFrozen();
+    }
+
     public static boolean isTimeFrozen(Level world) {
         return SREGameTimeComponent.KEY.get(world).isTimeFrozen();
     }
+
     public static long getTicksFromGameStart(Level world) {
         return SREGameTimeComponent.KEY.get(world).getTicksFromGameStart();
     }
