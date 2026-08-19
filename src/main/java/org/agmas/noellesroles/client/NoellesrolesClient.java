@@ -1141,11 +1141,13 @@ public class NoellesrolesClient implements ClientModInitializer {
                 boolean currentHasTimeStop = client.player.hasEffect(ModEffects.TIME_STOP); // 当前状态
                 boolean previousHasTimeStop = hasTimeStop.get(); // 上 tick 状态
                 if (currentHasTimeStop) {
-                    for (final var player : client.level.players()) {
-                        {
-                            if (clientPositions.containsKey(player.getUUID())
-                                    && !TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
-                                player.setPos(clientPositions.get(player.getUUID()));
+                    if (!clientPositions.isEmpty()) {
+                        for (final var player : client.level.players()) {
+                            {
+                                if (clientPositions.containsKey(player.getUUID())
+                                        && !TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
+                                    player.setPos(clientPositions.get(player.getUUID()));
+                                }
                             }
                         }
                     }
