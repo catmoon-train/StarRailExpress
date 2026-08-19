@@ -259,9 +259,6 @@ public class NRInteractionEvents {
     private static void registerDropRules() {
         DropRules.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
-            if (mainHandItem.getItem() instanceof DropAndClearItem) {
-                return true;
-            }
             if (mainHandItem.is(ModItems.NEWSPAPER)) {
                 if (mainHandItem.has(SREDataComponentTypes.WRITTEN_BOOK_CONTENT))
                     return true;
