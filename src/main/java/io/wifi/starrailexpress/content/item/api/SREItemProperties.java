@@ -24,6 +24,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public class SREItemProperties {
+    /*
+     * 丢弃就会消失的物品
+     */
+    public interface DropAndClearItem {
+    }
+
     /**
      * 像弩和球棒一样举起来
      */
@@ -63,9 +69,10 @@ public class SREItemProperties {
     /**
      * 是武器
      */
-    
+
     public interface TrainWeapon {
     }
+
     /**
      * 可以左键攻击玩家，但不会死
      */

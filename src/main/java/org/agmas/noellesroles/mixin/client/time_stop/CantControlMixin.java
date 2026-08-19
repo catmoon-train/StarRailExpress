@@ -102,16 +102,16 @@ public abstract class CantControlMixin {
 
     @ModifyReturnValue(method = "consumeClick", at = @At("RETURN"))
     private boolean noe$restrainWasPressedKeys(boolean original) {
-        return !this.shouldSuppressKey() && original;
+        return original && !this.shouldSuppressKey();
     }
 
     @ModifyReturnValue(method = "isDown", at = @At("RETURN"))
     private boolean noe$restrainIsPressedKeys(boolean original) {
-        return !this.shouldSuppressKey() && original;
+        return original && !this.shouldSuppressKey();
     }
 
     @ModifyReturnValue(method = "matches", at = @At("RETURN"))
     private boolean noe$restrainMatchesKey(boolean original) {
-        return !this.shouldSuppressKey() && original;
+        return original && !this.shouldSuppressKey();
     }
 }

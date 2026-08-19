@@ -27,6 +27,8 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
+
 /**
  * 区域地图。
  *
@@ -35,7 +37,7 @@ import java.util.List;
  * 地图界面（可缩放、拖动、切换 2D/3D、筛选任务点类型）。
  * 打开界面由客户端回调处理，物品本体不引用任何客户端类。
  */
-public class AreaMapItem extends Item {
+public class AreaMapItem extends Item implements DropAndClearItem {
 
     /** 静态回调，由客户端设置用于打开地图界面。 */
     public static Runnable openScreenCallback = null;

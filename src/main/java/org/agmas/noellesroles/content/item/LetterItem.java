@@ -29,7 +29,9 @@ import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.packet.OpenIntroPayload;
 import org.jetbrains.annotations.NotNull;
 
-public class LetterItem extends Item {
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
+
+public class LetterItem extends Item implements DropAndClearItem {
     public LetterItem(Properties properties) {
         super(properties);
     }

@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.mixin.client.restrictions;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
 import io.wifi.starrailexpress.rules.DropRules;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -55,6 +56,8 @@ public abstract class KeyBindingMixin {
             } else if (result == InteractionResult.SUCCESS || result == InteractionResult.SUCCESS_NO_ITEM_USED) {
                 return false;
             }
+            if (player.getMainHandItem().getItem() instanceof DropAndClearItem)
+                return false;
             if (DropRules.canDropItem
                     .contains(BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).toString())
                     || DropRules.canDrop.stream().anyMatch((p) -> {
@@ -87,16 +90,16 @@ public abstract class KeyBindingMixin {
 
     @ModifyReturnValue(method = "consumeClick", at = @At("RETURN"))
     private boolean tmm$restrainWasPressedKeys(boolean original) {
-        return !this.shouldSuppressKey() && original;
+        return original && !this.shouldSuppressKey();
     }
 
     @ModifyReturnValue(method = "isDown", at = @At("RETURN"))
     private boolean tmm$restrainIsPressedKeys(boolean original) {
-        return !this.shouldSuppressKey() && original;
+        return original && !this.shouldSuppressKey();
     }
 
     @ModifyReturnValue(method = "matches", at = @At("RETURN"))
     private boolean tmm$restrainMatchesKey(boolean original) {
-        return !this.shouldSuppressKey() && original;
+        return original && !this.shouldSuppressKey();
     }
 }

@@ -1303,7 +1303,6 @@ public class ModItems {
         TMMItems.INVISIBLE_ITEMS.add(ModItems.DEDUCTION_BOOK);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.REASONER_COMPASS);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.CRYSTAL_BALL);
-        TMMItems.INVISIBLE_ITEMS.add(ModItems.LETTER_ITEM);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.DEFIBRILLATOR);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.BOMB);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.COURIER_MAIL);
