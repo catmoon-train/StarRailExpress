@@ -39,10 +39,8 @@ public interface OnGettingPlayerSkin {
         public static PlayerSkinResult DEFAULT = new PlayerSkinResult(null, 0, false);
         public static PlayerSkinResult SKIP = new PlayerSkinResult(null, -1, false);
 
-        public final ResourceLocation texture;
         public final PlayerSkin playerSkin;
         public final int type;
-        public final boolean isSlim;
 
         public static PlayerSkinResult alexSlim() {
             return new PlayerSkinResult(ResourceLocation.withDefaultNamespace("textures/entity/player/slim/alex.png"),
@@ -55,10 +53,8 @@ public interface OnGettingPlayerSkin {
         }
 
         public PlayerSkinResult(PlayerSkin playerSkin) {
-            this.texture = null;
             this.type = 2;
             this.playerSkin = playerSkin;
-            this.isSlim = false;
         }
 
         /**
@@ -95,10 +91,8 @@ public interface OnGettingPlayerSkin {
         }
 
         public PlayerSkinResult(ResourceLocation texture, boolean isSlim) {
-            this.texture = texture;
             this.type = 1;
-            this.isSlim = isSlim;
-            this.playerSkin = null;
+            this.playerSkin = new PlayerSkin(texture, null, null, null, isSlim ? Model.SLIM : Model.WIDE, true);
         }
 
         public PlayerSkinResult original() {
@@ -110,10 +104,8 @@ public interface OnGettingPlayerSkin {
         }
 
         private PlayerSkinResult(ResourceLocation texture, int type, boolean isSlim) {
-            this.texture = texture;
             this.type = type;
-            this.playerSkin = null;
-            this.isSlim = isSlim;
+            this.playerSkin = new PlayerSkin(texture, null, null, null, isSlim ? Model.SLIM : Model.WIDE, true);
         }
     }
 

@@ -43,7 +43,7 @@ public abstract class AbstractClientPlayerSkinMixin {
         if (result == null || result.type == 0 || result.type == -1) {
             return originalSkin;
         }
-        if (result.type == 2 && result.playerSkin != null) {
+        if (result.type >= 1 && result.playerSkin != null) {
             return result.playerSkin;
         }
         return originalSkin;
