@@ -37,7 +37,6 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -222,13 +221,7 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
             }
         }
         if (SREClient.getLooseEndPenalty()) {
-            PlayerSkin.Model model = playerListEntry.getSkin().model();
-            boolean isSLIM = (model == PlayerSkin.Model.SLIM);
-            if (isSLIM) {
-                return DEFAULT_TEXTURE;
-            } else {
-                return DEFAULT_TEXTURE;
-            }
+            return DEFAULT_TEXTURE;
         }
         if (playerListEntry != null) {
             return playerListEntry.getSkin().texture();
