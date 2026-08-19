@@ -34,7 +34,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin.Model;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -271,13 +271,8 @@ public class StupidExpressClient implements ClientModInitializer {
                         .playerSkin(SRE.id("textures/entity/custom_psycho/th_sariel.png"), Model.SLIM);
             }
             if (SREClient.getLooseEndPenalty()) {
-                PlayerSkin.Model model = originalSkin.model();
-                boolean isSLIM = (model == PlayerSkin.Model.SLIM);
-                if (isSLIM) {
-                    return OnGettingPlayerSkin.PlayerSkinResult.alexSlim();
-                } else {
-                    return OnGettingPlayerSkin.PlayerSkinResult.steveWide();
-                }
+                return OnGettingPlayerSkin.PlayerSkinResult
+                        .playerSkin(DefaultPlayerSkin.get(UUID.randomUUID()));
             }
             return null;
         });
