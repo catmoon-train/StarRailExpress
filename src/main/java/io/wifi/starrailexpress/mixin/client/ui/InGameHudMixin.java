@@ -132,7 +132,8 @@ public class InGameHudMixin {
             original.call(context, tickCounter);
             return;
         }
-        if (SREClient.gameComponent != null && !SREClient.gameComponent.isRunning()) {
+        if (SREClient.gameComponent == null || (!SREClient.gameComponent.isRunning() && (SREClient.cached_player == null
+                || SREClient.cached_player.isShiftKeyDown()))) {
             original.call(context, tickCounter);
             return;
         }
