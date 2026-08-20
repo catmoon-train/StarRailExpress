@@ -3251,7 +3251,7 @@ public class RoleShopHandler {
                         }
                     });
             // 左轮手枪 - 285金币（愤怒姿态）
-            shop.add(new ShopEntry(ModItems.ZERO_ONE_FIVE_GUN.getDefaultInstance(), 285, ShopEntry.Type.WEAPON) {
+            shop.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 285, ShopEntry.Type.WEAPON) {
                 @Override
                 public boolean canDisplay(Player player) {
                     return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
