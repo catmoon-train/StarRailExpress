@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.mixin.client.roles.warlock;
 
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -111,12 +112,12 @@ public abstract class WarlockDomainScreenMixin {
         if (comp == null) {
             return List.of();
         }
-        long gameTime = client.level.getGameTime();
+        long now = SREClient.getTicksFromGameStart();
         return client.getConnection().getOnlinePlayers().stream()
                 .filter(info -> info.getGameMode() == GameType.ADVENTURE)
                 .filter(info -> {
                     Long end = comp.cursedPlayers.get(info.getProfile().getId());
-                    return end != null && end > gameTime;
+                    return end != null && end > now;
                 })
                 .collect(Collectors.toList());
     }
