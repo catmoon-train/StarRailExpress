@@ -22,7 +22,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
-import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,7 +32,6 @@ import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.*;
@@ -78,16 +76,6 @@ public class NRCombatEvents {
     // --- AllowShootRevolverDrop ---
 
     private static void registerAllowShootRevolverDrop() {
-        // 观者冷静姿态不掉枪
-        AllowShootRevolverDrop.EVENT.register((player, target) -> {
-            var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-            ItemStack mainHandStack = player.getMainHandItem();
-            if (!mainHandStack.is(TMMItems.DERRINGER) && gameWorldComponent.isRole(target, ModRoles.WATCHER)) {
-                if (WatcherPlayerComponent.KEY.get(target).isInCalmStance())
-                    return TrueFalseResult.TRUE;
-            }
-            return TrueFalseResult.PASS;
-        });
     }
 
     // --- OnRevolverUsed (合并为单一注册) ---
