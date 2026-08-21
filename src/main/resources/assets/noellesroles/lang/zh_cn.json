@@ -3913,7 +3913,7 @@
   "skill.noellesroles.wraith_assassin.wail": "厉鬼嚎叫",
   "skill.noellesroles.wraith_assassin.manifest": "冤魂显现",
   "item.noellesroles.inferior_lockpick": "劣质开锁器",
-  "item.noellesroles.wraith_assassin.energy_exchange": "金币转化为能量",
+  "item.noellesroles.wraith_assassin.energy_exchange": "能量*25",
   "item.noellesroles.wraith_assassin.san_drain": "吸收 SAN",
   "message.noellesroles.wraith_assassin.energy_gain": "痛苦凝成能量：+%s SAN",
   "message.noellesroles.wraith_assassin.not_enough_energy": "能量不足：需要 %s SAN，当前 %s SAN",

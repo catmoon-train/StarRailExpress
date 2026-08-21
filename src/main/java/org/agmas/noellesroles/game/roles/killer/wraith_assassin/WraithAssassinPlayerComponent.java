@@ -68,6 +68,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     public static final int WAIL_SAN_DAMAGE = 25;
     public static final int WAIL_SELF_STUN_TICKS = 10; // 0.5秒
     public static final int DRAIN_RADIUS = 7;
+    public static final int PASSIVE_DRAIN_RADIUS = 5;
     public static final int DRAIN_SAN_AMOUNT = 20;
     /** 单次吸收（被动或主动）最多获得的能量上限。 */
     public static final int MAX_DRAIN_ENERGY_PER_EVENT = 25;
@@ -138,7 +139,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }
-        
+
         SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(player.level());
         if (gw == null || !gw.isRunning() || !gw.isRole(player, ModRoles.WRAITH_ASSASSIN)) {
             floatingTargets.clear();
@@ -178,7 +179,8 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
      * 每 tick 检查漂浮目标，倒计时结束后处决并生成红石粒子
      */
     private void tickFloatingTargets(ServerPlayer self) {
-        if (floatingTargets.isEmpty()) return;
+        if (floatingTargets.isEmpty())
+            return;
         ServerLevel level = self.serverLevel();
         Iterator<Map.Entry<UUID, Integer>> it = floatingTargets.entrySet().iterator();
         while (it.hasNext()) {
@@ -318,7 +320,7 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
             if (target == self || !GameUtils.isPlayerAliveAndSurvival(target) || gw.isKillerTeam(target)) {
                 continue;
             }
-            if (target.distanceToSqr(self) > DRAIN_RADIUS * DRAIN_RADIUS) {
+            if (target.distanceToSqr(self) > PASSIVE_DRAIN_RADIUS * PASSIVE_DRAIN_RADIUS) {
                 continue;
             }
             int san = getSan(target);
@@ -536,7 +538,8 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         drainCooldownTicks = DRAIN_COOLDOWN_TICKS;
         sync();
         self.displayClientMessage(Component.translatable("message.noellesroles.wraith_assassin.drain_area",
-                Math.min(totalDrained, MAX_DRAIN_ENERGY_PER_EVENT), targetCount).withStyle(ChatFormatting.DARK_PURPLE), true);
+                Math.min(totalDrained, MAX_DRAIN_ENERGY_PER_EVENT), targetCount).withStyle(ChatFormatting.DARK_PURPLE),
+                true);
         return true;
     }
 
@@ -574,17 +577,21 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
     private static boolean canAttackWraith(Player attacker, Player wraith) {
         SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(wraith.level());
         var comp = KEY.maybeGet(wraith).orElse(null);
-        if (comp == null) return true;
+        if (comp == null)
+            return true;
 
         // 显现状态下所有人都可攻击
-        if (comp.isManifested()) return true;
+        if (comp.isManifested())
+            return true;
 
         // 未显现状态下：
         // 杀手阵营可攻击
-        if (gw.isKillerTeam(attacker)) return true;
+        if (gw.isKillerTeam(attacker))
+            return true;
 
         // 其他阵营（中立等）可攻击
-        if (!gw.isInnocent(attacker)) return true;
+        if (!gw.isInnocent(attacker))
+            return true;
 
         // 平民阵营：只有 SAN < 20 可攻击
         return getSan(attacker) < LOW_SAN_BLUE;
@@ -609,7 +616,8 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
             if (!canAttackWraith(serverAttacker, target)) {
                 serverAttacker.displayClientMessage(
                         Component.translatable("message.noellesroles.wraith_assassin.cannot_attack")
-                                .withStyle(ChatFormatting.DARK_RED), true);
+                                .withStyle(ChatFormatting.DARK_RED),
+                        true);
                 return InteractionResult.FAIL;
             }
             return InteractionResult.PASS;
@@ -618,7 +626,8 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         // 死亡拦截：冤魂在维度模式下不能通过普通方式杀人（漂浮处决除外）
         // 同时限制非低SAN平民无法击杀未显现的冤魂
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            if (killer == null) return true;
+            if (killer == null)
+                return true;
 
             SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(victim.level());
 

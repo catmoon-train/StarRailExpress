@@ -1673,7 +1673,7 @@ public class RoleShopHandler {
                 ItemStack s = new ItemStack(Items.SCULK);
                 s.set(DataComponents.ITEM_NAME,
                         Component.translatable("item.noellesroles.wraith_assassin.energy_exchange"));
-                WRAITH_ASSASSIN_SHOP.add(new ShopEntry(s, 25, ShopEntry.Type.TOOL) {
+                WRAITH_ASSASSIN_SHOP.add(new ShopEntry(s, 30, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player player) {
                         if (!(player instanceof ServerPlayer sp)) {
@@ -1690,11 +1690,11 @@ public class RoleShopHandler {
                 });
             }
             WRAITH_ASSASSIN_SHOP
-                    .add(new ShopEntry(ModItems.INFERIOR_LOCKPICK.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
+                    .add(new ShopEntry(ModItems.INFERIOR_LOCKPICK.getDefaultInstance(), 30, ShopEntry.Type.TOOL));
             {
                 ItemStack s = new ItemStack(Items.ECHO_SHARD);
                 s.set(DataComponents.ITEM_NAME, Component.translatable("item.noellesroles.wraith_assassin.san_drain"));
-                WRAITH_ASSASSIN_SHOP.add(new ShopEntry(s, 80, ShopEntry.Type.TOOL) {
+                WRAITH_ASSASSIN_SHOP.add(new ShopEntry(s, 90, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player player) {
                         return player instanceof ServerPlayer sp
