@@ -123,6 +123,8 @@ public final class PelicanManager {
                                             .withStyle(ChatFormatting.GREEN),
                                     Component.literal(message.signedContent()).withStyle(ChatFormatting.WHITE))
                             .withStyle(ChatFormatting.YELLOW);
+
+                    BroadcastCommand.BroadcastMessage(serverPlayer, broadcastMessage);
                     serverPlayer.getServer().getPlayerList().getPlayers().forEach((p) -> {
                         var role = gameWorldComponent.getRole(p.getUUID());
                         if (role == null)
@@ -145,15 +147,16 @@ public final class PelicanManager {
             if (!PelicanManager.isStashed(serverPlayer)) {
                 return true;
             }
+            var broadcastMessage = Component
+                    .translatable("message.pelican.recieve_broadcast_prefix",
+                            Component.literal("").append(serverPlayer.getDisplayName())
+                                    .withStyle(ChatFormatting.GREEN),
+                            Component.literal(message.signedContent()).withStyle(ChatFormatting.WHITE))
+                    .withStyle(ChatFormatting.DARK_PURPLE);
+            BroadcastCommand.BroadcastMessage(serverPlayer, broadcastMessage);
             serverPlayer.server.getPlayerList().getPlayers().forEach((p) -> {
                 if (gameWorldComponent.isRole(p, ModRoles.PELICAN)) {
-                    { // 杀手频道
-                        var broadcastMessage = Component
-                                .translatable("message.pelican.recieve_broadcast_prefix",
-                                        Component.literal("").append(serverPlayer.getDisplayName())
-                                                .withStyle(ChatFormatting.GREEN),
-                                        Component.literal(message.signedContent()).withStyle(ChatFormatting.WHITE))
-                                .withStyle(ChatFormatting.DARK_PURPLE);
+                    { // 鹈鹕
                         BroadcastCommand.BroadcastMessage(p, broadcastMessage);
                     }
                 }
@@ -354,7 +357,7 @@ public final class PelicanManager {
     }
 
     public static boolean isStashed(Player player) {
-        return player != null && pelicanByStashed.containsKey(player.getUUID());
+        return player != null && isStashed(player.getUUID());
     }
 
     public static boolean isStashed(UUID playerId) {
