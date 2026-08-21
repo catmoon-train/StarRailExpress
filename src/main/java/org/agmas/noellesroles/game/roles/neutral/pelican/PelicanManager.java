@@ -149,7 +149,7 @@ public final class PelicanManager {
                 if (gameWorldComponent.isRole(p, ModRoles.PELICAN)) {
                     { // 杀手频道
                         var broadcastMessage = Component
-                                .translatable("message.commander.recieve_broadcast_prefix",
+                                .translatable("message.pelican.recieve_broadcast_prefix",
                                         Component.literal("").append(serverPlayer.getDisplayName())
                                                 .withStyle(ChatFormatting.GREEN),
                                         Component.literal(message.signedContent()).withStyle(ChatFormatting.WHITE))
