@@ -172,6 +172,8 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
             TrainVoicePlugin.resetPlayer(player.getUUID());
             this.init();
             SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
+
+            player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
             player.displayClientMessage(Component.translatable("message.noellesroles.defibrillator.revived"),
                     true);
 

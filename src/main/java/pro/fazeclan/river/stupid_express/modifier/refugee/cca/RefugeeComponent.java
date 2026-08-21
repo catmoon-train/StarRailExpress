@@ -226,6 +226,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         int size = serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival).size();
         bartenderPlayerComponent.removeArmor(-1 * (Math.clamp(size / 6, 1, 3)));
         player.setGameMode(GameType.ADVENTURE);
+        
+        player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
+        
         SREWorldBlackoutComponent.KEY.get(player.level()).triggerBlackout();
         // Remove body entity
         var bodies = serverLevel.getAllEntities();
