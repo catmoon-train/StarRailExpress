@@ -772,7 +772,7 @@ public class GameUtilsCommand {
         source.sendFailure(Component.literal("The player is already in psycho mode!").withStyle(ChatFormatting.RED));
         return 0;
       }
-      ppc.startPsycho();
+      ppc.startPsycho(1d, 1, true);
       context.getSource()
           .sendSuccess(() -> Component.translatable("Triggered %s Psycho!", player.getScoreboardName()), true);
     } else {
