@@ -64,7 +64,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     private final Player player;
     public boolean inFrenzy = false;
     // 记录狂暴前副手是否有物品，用于结束时恢复
-    //private ItemStack savedOffhandItem = ItemStack.EMPTY;
+    // private ItemStack savedOffhandItem = ItemStack.EMPTY;
     private ItemStack savedMainhandItem = ItemStack.EMPTY;
 
     public ShootingFrenzyPlayerComponent(Player player) {
@@ -84,7 +84,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
     @Override
     public void init() {
         this.inFrenzy = false;
-//        this.savedOffhandItem = ItemStack.EMPTY;
+        // this.savedOffhandItem = ItemStack.EMPTY;
         this.savedMainhandItem = ItemStack.EMPTY;
         this.sync();
     }
@@ -111,11 +111,12 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
         }
 
         // 保存当前副手物品
-//        this.savedOffhandItem = player.getOffhandItem().copy();
+        // this.savedOffhandItem = player.getOffhandItem().copy();
         this.savedMainhandItem = player.getMainHandItem().copy();
 
         // 给副手一把枪（双枪）
-//        player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(TMMItems.REVOLVER));
+        // player.setItemInHand(InteractionHand.OFF_HAND, new
+        // ItemStack(TMMItems.REVOLVER));
 
         // 确保主手也有枪
         if (!player.getMainHandItem().is(TMMItemTags.GUNS)) {
@@ -171,7 +172,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
         if (player.getMainHandItem().is(TMMItemTags.GUNS)) {
             player.setItemInHand(InteractionHand.MAIN_HAND, savedMainhandItem.copy());
         }
-//        this.savedOffhandItem = ItemStack.EMPTY;
+        // this.savedOffhandItem = ItemStack.EMPTY;
         this.savedMainhandItem = ItemStack.EMPTY;
 
         // 重置psycho type
@@ -205,14 +206,15 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
         }
 
         // 双枪自动切换：当主手枪在冷却时，交换主副手
-        // if (player.getMainHandItem().is(TMMItemTags.GUNS) && player.getOffhandItem().is(TMMItemTags.GUNS)) {
-        //     if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem())
-        //             && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())) {
-        //         ItemStack mainHand = player.getMainHandItem().copy();
-        //         ItemStack offHand = player.getOffhandItem().copy();
-        //         player.setItemInHand(InteractionHand.MAIN_HAND, offHand);
-        //         player.setItemInHand(InteractionHand.OFF_HAND, mainHand);
-        //     }
+        // if (player.getMainHandItem().is(TMMItemTags.GUNS) &&
+        // player.getOffhandItem().is(TMMItemTags.GUNS)) {
+        // if (player.getCooldowns().isOnCooldown(player.getMainHandItem().getItem())
+        // && !player.getCooldowns().isOnCooldown(player.getOffhandItem().getItem())) {
+        // ItemStack mainHand = player.getMainHandItem().copy();
+        // ItemStack offHand = player.getOffhandItem().copy();
+        // player.setItemInHand(InteractionHand.MAIN_HAND, offHand);
+        // player.setItemInHand(InteractionHand.OFF_HAND, mainHand);
+        // }
         // }
 
         // 每2秒发送一次粒子特效

@@ -47,6 +47,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     public int armour = 1;
     public int type = -1;
     private SREGameWorldComponent gameWorldComponent = null;
+    public ItemStack savedItemSlot0 = null;
 
     public SREPlayerPsychoComponent(Player player) {
         this.player = player;
@@ -71,13 +72,15 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     @Override
     public void init() {
         this.stopPsychoAndRefreshPsychoCount(true);
-        this.sync();
         this.psychoTicks = -1;
+        this.savedItemSlot0 = null;
+        this.sync();
     }
 
     public void resetNotSync() {
         this.stopPsychoAndRefreshPsychoCount(false);
         this.psychoTicks = -1;
+        this.savedItemSlot0 = null;
     }
 
     @Override
@@ -143,18 +146,25 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     }
 
     public boolean startPsycho() {
-        return startPsycho(1d, GameConstants.getPsychoModeArmour());
+        return startPsycho(1d, GameConstants.getPsychoModeArmour(), false);
     }
 
-    public boolean startPsycho_time(int time, int armour) {
+    public boolean startPsycho_time(int time, int armour, boolean forceStart) {
+
         if (this.psychoTicks > 0)
             return false;
+        this.savedItemSlot0 = null;
+
         SRERole role = SRERoleWorldComponent.KEY.get(this.player.level()).getRole(this.player);
-        boolean success = false;
-        if (role != null) {
-            success = role.onPsychoGiveItem(player, this);
-        } else {
-            success = RoleUtils.insertStackInFreeSlot(player, new ItemStack(TMMItems.BAT));
+        boolean success = givePsychoItem(role);
+
+        if (!success) {
+            savedItemSlot0 = player.getInventory().getItem(0);
+            player.getInventory().setItem(0, ItemStack.EMPTY);
+            success = givePsychoItem(role);
+            if (!success) {
+                player.getInventory().setItem(0, savedItemSlot0);
+            }
         }
         if (success) {
             this.setPsychoTicks(time);
@@ -172,8 +182,18 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         return false;
     }
 
-    public boolean startPsycho(double multtiplier, int armour) {
-        return startPsycho_time((int) ((double) GameConstants.getPsychoTimer() * multtiplier), armour);
+    private boolean givePsychoItem(SRERole role) {
+        boolean success = false;
+        if (role != null) {
+            success = role.onPsychoGiveItem(player, this);
+        } else {
+            success = RoleUtils.insertStackInFreeSlot(player, new ItemStack(TMMItems.BAT));
+        }
+        return success;
+    }
+
+    public boolean startPsycho(double multtiplier, int armour, boolean forceStart) {
+        return startPsycho_time((int) ((double) GameConstants.getPsychoTimer() * multtiplier), armour, forceStart);
     }
 
     @Override
@@ -201,6 +221,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         if (role != null) {
             psychoItem = role.getPsychoItem();
         }
+
         MCItemsUtils.clearItem(player, psychoItem);
         if (checkIsGameRunning()) {
             if (GameUtils.isPlayerAliveAndSurvival(player)) {
@@ -208,6 +229,9 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
                     role.onPsychoOver(player, this);
                 }
             }
+        }
+        if (savedItemSlot0 != null && player.getInventory().getItem(0) != ItemStack.EMPTY) {
+            player.getInventory().setItem(0, savedItemSlot0);
         }
         return result;
     }

@@ -1475,11 +1475,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         return role.canIncreaseSurvivingKillers();
     }
 
-    public void refreshPsychoCount(boolean sync) {
+    public int refreshPsychoCount(boolean sync) {
         int count = 0;
         var players = world.players();
         for (var pl : players) {
-            if (GameUtils.isPlayerAliveAndSurvival(pl)) {
+            if (!GameUtils.isPlayerSpectator(pl)) {
                 var ppc = SREPlayerPsychoComponent.KEY.maybeGet(pl).orElse(null);
                 if (ppc != null) {
                     if (ppc.psychoTicks > 0) {
@@ -1489,5 +1489,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             }
         }
         this.psychosActive = count;
+        if (sync) {
+            sync();
+        }
+        return count;
     }
 }
