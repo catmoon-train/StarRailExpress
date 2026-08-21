@@ -43,10 +43,11 @@ public class MoneyIncreaseMixin {
         }
     }
 
-    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "killPlayer(Lnet/minecraft/world/entity/player/Player;ZLnet/minecraft/world/entity/player/Player;Lnet/minecraft/resources/ResourceLocation;Z)V", at = @At("HEAD"), cancellable = true)
     private static void jesterJest(Player victim, boolean spawnBody, Player killer, ResourceLocation identifier,
+            boolean forceDeath,
             CallbackInfo ci) {
-        if (killer != null) {
+        if (killer != null && !forceDeath) {
             SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                     .get(victim.level());
             if (gameWorldComponent.isRole(victim, ModRoles.JESTER)
@@ -59,6 +60,7 @@ public class MoneyIncreaseMixin {
                     component.armour = 0;
                     ci.cancel();
                 }
+                SREGameWorldComponent.getInstance(victim).refreshPsychoCount(true);
             }
         }
     }

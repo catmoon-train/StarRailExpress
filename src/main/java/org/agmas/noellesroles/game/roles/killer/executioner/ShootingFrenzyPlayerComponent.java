@@ -131,7 +131,7 @@ public class ShootingFrenzyPlayerComponent implements RoleComponent, ServerTicki
 
         // 更新psycho计数
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        gameWorldComponent.setPsychosActive(gameWorldComponent.getPsychosActive() + 1);
+        gameWorldComponent.refreshPsychoCount(true);
 
         // 触发状态栏
         if (player instanceof ServerPlayer serverPlayer) {

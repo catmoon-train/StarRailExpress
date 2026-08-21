@@ -16,7 +16,6 @@
 package org.agmas.noellesroles.role;
 
 import com.mojang.serialization.Codec;
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.*;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
@@ -99,6 +98,7 @@ import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
 import org.agmas.noellesroles.game.roles.neutral.leader.LeaderRole;
 import org.agmas.noellesroles.game.roles.neutral.mafia.MafiaRole;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterHandler;
+import org.agmas.noellesroles.game.roles.neutral.jester.JesterRole;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
@@ -936,14 +936,11 @@ public class ModRoles {
             .setCanUseInstinctAndNightVision(true).setNeutrals(true).setDefaultMax(1)
             .setDefaultEnableChance(4500);
     public static SRERole JESTER = TMMRoles
-            .registerRole(new NormalRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,
-                    false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
-                @Override
-                public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
-                    return SRE.id("textures/entity/custom_psycho/jester.png");
-                };
-            })
-            .setNeutralForKiller(true).setCanSeeTeammateKillerRole(false)
+            .registerRole(new JesterRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,
+                    false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setCanPickUpRevolver(false)
+            .setNeutralForKiller(true)
+            .setCanSeeTeammateKillerRole(false)
             .setCanUseInstinctAndNightVision(true)
             .setPassiveIncome(true)
             .setServerGameTickEvent((sp, cca) -> JesterHandler.handler(sp, cca))
@@ -1382,37 +1379,40 @@ public class ModRoles {
             .setCanUseInstinctAndNightVision(true)
             // 只有本能开启时才透视；关闭时不显示任何颜色
             .setToggledOffInstinctType(InstinctType.NONE)
-            .setToggledOnInstinctType(InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
-                if (target == null || targetRole == null) {
-                    return InstinctType.custom(new Color(255, 0, 255).getRGB());
-                }
-                LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, self);
-                boolean isFollower = data != null && data.isFollower(target.getUUID());
-                boolean isNonKillerNeutral = targetRole.isNeutrals() && !targetRole.isNeutralForKiller();
-                boolean hasFollowers = data != null && !data.followers.isEmpty();
-                // 自己的追随者 → 蓝色（可无限距离透视）
-                if (isFollower) {
-                    return InstinctType.custom(new Color(0, 0, 255).getRGB());
-                }
-                // 有追随者时：不再额外显示其它非杀手方中立的特殊框
-                if (hasFollowers && isNonKillerNeutral) {
-                    return InstinctType.NONE;
-                }
-                double dist = self.distanceTo(target);
-                // 超出 10 格：仅当没有追随者时可无限透视非杀手方中立（黄色），其余不透视
-                if (dist > 10.0D) {
-                    if (!hasFollowers && isNonKillerNeutral) {
-                        return InstinctType.custom(new Color(255, 255, 0).getRGB());
-                    }
-                    return InstinctType.NONE;
-                }
-                // 10 格内
-                if (isNonKillerNeutral) {
-                    return InstinctType.custom(new Color(255, 255, 0).getRGB());
-                }
-                // 其余（杀手、好人、杀手方中立、自己） → 领袖色
-                return InstinctType.custom(new Color(255, 0, 255).getRGB());
-            }));
+            .setToggledOnInstinctType(
+                    InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
+                        if (target == null || targetRole == null) {
+                            return InstinctType.custom(new Color(255, 0, 255).getRGB());
+                        }
+                        LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, self);
+                        boolean isFollower = data != null && data.isFollower(target.getUUID());
+                        boolean isNonKillerNeutral = targetRole.isNeutrals()
+                                && !targetRole.isNeutralForKiller();
+                        boolean hasFollowers = data != null && !data.followers.isEmpty();
+                        // 自己的追随者 → 蓝色（可无限距离透视）
+                        if (isFollower) {
+                            return InstinctType.custom(new Color(0, 0, 255).getRGB());
+                        }
+                        // 有追随者时：不再额外显示其它非杀手方中立的特殊框
+                        if (hasFollowers && isNonKillerNeutral) {
+                            return InstinctType.NONE;
+                        }
+                        double dist = self.distanceTo(target);
+                        // 超出 10 格：仅当没有追随者时可无限透视非杀手方中立（黄色），其余不透视
+                        if (dist > 10.0D) {
+                            if (!hasFollowers && isNonKillerNeutral) {
+                                return InstinctType.custom(
+                                        new Color(255, 255, 0).getRGB());
+                            }
+                            return InstinctType.NONE;
+                        }
+                        // 10 格内
+                        if (isNonKillerNeutral) {
+                            return InstinctType.custom(new Color(255, 255, 0).getRGB());
+                        }
+                        // 其余（杀手、好人、杀手方中立、自己） → 领袖色
+                        return InstinctType.custom(new Color(255, 0, 255).getRGB());
+                    }));
     public static SRERole TAMER = TMMRoles
             .registerRole(new NormalRole(TAMER_ID, new Color(210, 180, 140).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))

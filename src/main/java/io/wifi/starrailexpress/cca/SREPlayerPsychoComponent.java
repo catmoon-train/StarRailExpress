@@ -160,7 +160,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
             this.setPsychoTicks(time);
             this.setArmour(armour);
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
-            gameWorldComponent.setPsychosActive(gameWorldComponent.getPsychosActive() + 1);
+            gameWorldComponent.refreshPsychoCount(true);
             if (player instanceof ServerPlayer serverPlayer) {
                 ServerPlayNetworking.send(serverPlayer, new TriggerStatusBarPayload("Psycho"));
             }
@@ -190,9 +190,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     public int stopPsycho() {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         int result = gameWorldComponent.getPsychosActive();
-        if (result >= 1) {
-            gameWorldComponent.setPsychosActive(result - 1);
-        }
+        gameWorldComponent.refreshPsychoCount(true);
         this.psychoTicks = -1;
         if (this.player instanceof ServerPlayer serverPlayer) {
             ServerPlayNetworking.send(serverPlayer, new RemoveStatusBarPayload("Psycho"));
@@ -216,20 +214,8 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
 
     public void stopPsychoAndRefreshPsychoCount(boolean shouldSync) {
         if (this.stopPsycho() > 0) {
-            int count = 0;
-            if (this.player instanceof ServerPlayer sp) {
-                var players = sp.level().players();
-                for (var pl : players) {
-                    var ppc = SREPlayerPsychoComponent.KEY.maybeGet(pl).orElse(null);
-                    if (ppc != null) {
-                        if (ppc.psychoTicks > 0) {
-                            count++;
-                        }
-                    }
-                }
-            }
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
-            gameWorldComponent.setPsychosActive(count, shouldSync);
+            gameWorldComponent.refreshPsychoCount(shouldSync);
         }
 
     }

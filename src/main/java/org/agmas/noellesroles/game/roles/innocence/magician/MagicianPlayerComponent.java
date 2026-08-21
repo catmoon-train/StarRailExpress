@@ -97,7 +97,8 @@ public class MagicianPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 更新疯狂模式计数
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        gameWorldComponent.setPsychosActive(gameWorldComponent.getPsychosActive() + 1);
+        gameWorldComponent.refreshPsychoCount(true);
+        
 
         // 发送状态栏
         if (player instanceof ServerPlayer serverPlayer) {

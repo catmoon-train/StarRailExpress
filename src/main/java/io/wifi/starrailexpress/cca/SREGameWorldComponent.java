@@ -584,7 +584,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
         }
         roleWorldComponent.clearRoleMap(sync);
-        setPsychosActive(0, sync);
+        psychosActive = 0;
+        if (sync) {
+            sync();
+        }
     }
 
     public void clearRoleMap() {
@@ -597,17 +600,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
     public boolean isPsychoActive() {
         return psychosActive > 0;
-    }
-
-    public int setPsychosActive(int psychosActive) {
-        return this.setPsychosActive(psychosActive, true);
-    }
-
-    public int setPsychosActive(int psychosActive, boolean sync) {
-        this.psychosActive = Math.max(0, psychosActive);
-        if (sync)
-            this.sync();
-        return this.psychosActive;
     }
 
     public GameMode getGameMode() {
@@ -1481,5 +1473,21 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         if (role == null)
             return false;
         return role.canIncreaseSurvivingKillers();
+    }
+
+    public void refreshPsychoCount(boolean sync) {
+        int count = 0;
+        var players = world.players();
+        for (var pl : players) {
+            if (GameUtils.isPlayerAliveAndSurvival(pl)) {
+                var ppc = SREPlayerPsychoComponent.KEY.maybeGet(pl).orElse(null);
+                if (ppc != null) {
+                    if (ppc.psychoTicks > 0) {
+                        count++;
+                    }
+                }
+            }
+        }
+        this.psychosActive = count;
     }
 }
