@@ -159,11 +159,14 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         boolean success = givePsychoItem(role);
 
         if (!success) {
-            savedItemSlot0 = player.getInventory().getItem(0);
+            if (!forceStart)
+                return false;
+            savedItemSlot0 = player.getInventory().getItem(0).copy();
             player.getInventory().setItem(0, ItemStack.EMPTY);
             success = givePsychoItem(role);
             if (!success) {
                 player.getInventory().setItem(0, savedItemSlot0);
+                return false;
             }
         }
         if (success) {
@@ -201,16 +204,14 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         init();
     }
 
-    public int stopPsychoAndSync() {
-        int result = stopPsycho();
+    public boolean stopPsychoAndSync() {
+        boolean result = stopPsycho();
         sync();
         return result;
     }
 
-    public int stopPsycho() {
+    public boolean stopPsycho() {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
-        int result = gameWorldComponent.getPsychosActive();
-        gameWorldComponent.refreshPsychoCount(true);
         this.psychoTicks = -1;
         if (this.player instanceof ServerPlayer serverPlayer) {
             ServerPlayNetworking.send(serverPlayer, new RemoveStatusBarPayload("Psycho"));
@@ -230,18 +231,25 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
                 }
             }
         }
-        if (savedItemSlot0 != null && player.getInventory().getItem(0) != ItemStack.EMPTY) {
-            player.getInventory().setItem(0, savedItemSlot0);
+        if (savedItemSlot0 != null && savedItemSlot0 != ItemStack.EMPTY) {
+            if (player.getInventory().getItem(0) == ItemStack.EMPTY) {
+                player.getInventory().setItem(0, savedItemSlot0);
+            } else {
+                if (!RoleUtils.insertStackInFreeSlot(player, savedItemSlot0)) {
+                    player.drop(savedItemSlot0, false);
+                }
+            }
         }
-        return result;
+        gameWorldComponent.refreshPsychoCount(true);
+        return true;
     }
 
     public void stopPsychoAndRefreshPsychoCount(boolean shouldSync) {
-        if (this.stopPsycho() > 0) {
-            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
-            gameWorldComponent.refreshPsychoCount(shouldSync);
+        if (this.psychoTicks > 0)
+            this.stopPsycho();
+        if (shouldSync) {
+            sync();
         }
-
     }
 
     public int getArmour() {
