@@ -1575,7 +1575,7 @@ public class GameUtils {
         }
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
-
+        player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
         if (MeetingManager.isActive()) {
             DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
         }
@@ -1594,6 +1594,7 @@ public class GameUtils {
                 gravityAttr.addOrReplacePermanentModifier(gravityModifier);
             }
         }
+        player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
         player.teleportTo(x, y, z);
         player.setGameMode(GameType.ADVENTURE);
         TrainVoicePlugin.resetPlayer(player.getUUID());
