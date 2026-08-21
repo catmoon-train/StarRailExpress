@@ -54,7 +54,7 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "pelican"),
             PelicanPlayerComponent.class);
 
-    private static final double EAT_RANGE = 2.15D;
+    // private static final double EAT_RANGE = 2.15D;
     public static final int INSTINCT_RANGE = 25;
 
     private final Player player;
@@ -104,10 +104,13 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
 
     @Override
     public void serverTick() {
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer))
+            return;
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (!gameWorld.isRole(player, ModRoles.PELICAN)) return;
-        if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(player)) return;
+        if (!gameWorld.isRole(player, ModRoles.PELICAN))
+            return;
+        if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(player))
+            return;
 
         int totalParticipants = gameWorld.getPlayerCount();
         double percent = org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().pelicanEatPercentage;
@@ -122,7 +125,7 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
             eatCooldownUntil = 0;
         }
         if (eatCooldownUntil > 0) {
-            cooldownTicks = Math.max(0, (int)(eatCooldownUntil - player.level().getGameTime()));
+            cooldownTicks = Math.max(0, (int) (eatCooldownUntil - player.level().getGameTime()));
         } else {
             cooldownTicks = 0;
         }
@@ -133,10 +136,14 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     public boolean tryEat(ServerPlayer target) {
-        if (!(player instanceof ServerPlayer sp)) return false;
-        if (target == null) return false;
-        if (!GameUtils.isPlayerAliveAndSurvival(target)) return false;
-        if (target.getUUID().equals(player.getUUID())) return false;
+        if (!(player instanceof ServerPlayer sp))
+            return false;
+        if (target == null)
+            return false;
+        if (!GameUtils.isPlayerAliveAndSurvival(target))
+            return false;
+        if (target.getUUID().equals(player.getUUID()))
+            return false;
 
         if (eatCooldownUntil > 0) {
             long remaining = Math.max(1, (eatCooldownUntil - player.level().getGameTime()) / 20);
@@ -147,22 +154,31 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
             return false;
         }
 
-        if (bellyPlayerIds.contains(target.getUUID())) return false;
-        if (PelicanManager.isStashed(target)) return false;
+        if (bellyPlayerIds.contains(target.getUUID()))
+            return false;
+        if (PelicanManager.isStashed(target))
+            return false;
 
         // 不能吞噬鹈鹕、渡鸦、亡命徒、黑白角色和双重人格
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (gameWorld.isRole(target, ModRoles.PELICAN)) return false;
-        if (gameWorld.isRole(target, ModRoles.RAVEN)) return false;
-        if (gameWorld.isRole(target, ModRoles.MONOKUMA)) return false;
-        if (gameWorld.isRole(target, TMMRoles.LOOSE_END)) return false;
+        if (gameWorld.isRole(target, ModRoles.PELICAN))
+            return false;
+        if (gameWorld.isRole(target, ModRoles.RAVEN))
+            return false;
+        if (gameWorld.isRole(target, ModRoles.MONOKUMA))
+            return false;
+        if (gameWorld.isRole(target, TMMRoles.LOOSE_END))
+            return false;
         WorldModifierComponent worldModifier = WorldModifierComponent.KEY.get(target.level());
-        if (worldModifier.isModifier(target, SEModifiers.SPLIT_PERSONALITY)) return false;
+        if (worldModifier.isModifier(target, SEModifiers.SPLIT_PERSONALITY))
+            return false;
 
         // 不能吞噬傀儡师及其操控的傀儡（参考教父 MafiaManager.isRecruitable）
-        if (gameWorld.isRole(target, ModRoles.PUPPETEER)) return false;
+        if (gameWorld.isRole(target, ModRoles.PUPPETEER))
+            return false;
         var puppeteerComp = ModComponents.PUPPETEER.get(target);
-        if (puppeteerComp != null && puppeteerComp.isControllingPuppet) return false;
+        if (puppeteerComp != null && puppeteerComp.isControllingPuppet)
+            return false;
 
         // 吞噬玩家
         PelicanManager.stashPlayer(sp, target);
@@ -187,7 +203,7 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
 
         sp.displayClientMessage(
                 Component.translatable("message.noellesroles.pelican.swallowed",
-                                target.getName().getString(), eatenCount, requiredEaten)
+                        target.getName().getString(), eatenCount, requiredEaten)
                         .withStyle(ChatFormatting.GOLD),
                 true);
 
@@ -197,7 +213,8 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     public boolean releaseLast() {
-        if (!(player instanceof ServerPlayer sp)) return false;
+        if (!(player instanceof ServerPlayer sp))
+            return false;
         // 清理肚内列表中已被强制释放的玩家（如亡命徒时刻自动释放）
         bellyPlayerIds.removeIf(id -> !PelicanManager.isStashed(id));
         bellyNames.clear();
@@ -217,7 +234,8 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
         }
 
         UUID targetId = bellyPlayerIds.remove(bellyPlayerIds.size() - 1);
-        if (!bellyNames.isEmpty()) bellyNames.remove(bellyNames.size() - 1);
+        if (!bellyNames.isEmpty())
+            bellyNames.remove(bellyNames.size() - 1);
         // 不减少 uniqueEaten（重复吞噬同一玩家不再计数，释放后再次吞噬也不增加计数）
 
         ServerPlayer target = player.getServer().getPlayerList().getPlayer(targetId);
@@ -251,9 +269,12 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
     public static boolean checkPelicanVictory(ServerLevel serverLevel) {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
         for (ServerPlayer sp : serverLevel.players()) {
-            if (!GameUtils.isPlayerAliveAndSurvival(sp)) continue;
-            if (!gameWorld.isRole(sp, ModRoles.PELICAN)) continue;
-            if (!KEY.isProvidedBy(sp)) continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(sp))
+                continue;
+            if (!gameWorld.isRole(sp, ModRoles.PELICAN))
+                continue;
+            if (!KEY.isProvidedBy(sp))
+                continue;
             PelicanPlayerComponent comp = KEY.get(sp);
             if (comp.eatenCount >= comp.requiredEaten && comp.requiredEaten > 0) {
                 RoleUtils.customWinnerWin(serverLevel,
@@ -318,7 +339,8 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
             for (Tag t : list) {
                 try {
                     bellyPlayerIds.add(UUID.fromString(t.getAsString()));
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         }
 
@@ -328,7 +350,8 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
             for (Tag t : list) {
                 try {
                     uniqueEaten.add(UUID.fromString(t.getAsString()));
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         }
 
@@ -337,8 +360,10 @@ public class PelicanPlayerComponent implements RoleComponent, ServerTickingCompo
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
 }

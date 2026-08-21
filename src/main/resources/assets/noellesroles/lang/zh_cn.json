@@ -1720,6 +1720,8 @@
   "=========== 指挥官 ===========": "",
   "message.commander.broadcast_prefix": "[指挥官] %s: %s",
   "message.commander.recieve_broadcast_prefix": "[杀手] %s: %s",
+  "message.pelican.broadcast_prefix": "[鹈鹕] %s: %s",
+  "message.pelican.recieve_broadcast_prefix": "[鹈鹕肚子里] %s: %s",
   "message.commander.channel.change": "你已切换频道为：%s",
   "message.commander.channel.tip": "你当前的频道为：%s。",
   "message.commander.channel.killer": "杀手频道",

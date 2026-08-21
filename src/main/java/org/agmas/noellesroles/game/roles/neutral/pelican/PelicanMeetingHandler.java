@@ -18,8 +18,6 @@ package org.agmas.noellesroles.game.roles.neutral.pelican;
 import io.wifi.starrailexpress.event.MeetingStartEvent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameType;
-
 import java.util.*;
 
 /**
