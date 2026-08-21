@@ -55,11 +55,10 @@ public class MoneyIncreaseMixin {
                 SREPlayerPsychoComponent component = (SREPlayerPsychoComponent) SREPlayerPsychoComponent.KEY
                         .get(victim);
                 if (component.getPsychoTicks() <= 0) {
-                    component.startPsycho_time(GameConstants.getInTicks(0, 45), 1, true);
-                    component.armour = 0;
+                    component.startPsycho_time(GameConstants.getInTicks(0, 45), 0, true);
+                    SREGameWorldComponent.getInstance(victim).refreshPsychoCount(true);
                     ci.cancel();
                 }
-                SREGameWorldComponent.getInstance(victim).refreshPsychoCount(true);
             }
         }
     }
