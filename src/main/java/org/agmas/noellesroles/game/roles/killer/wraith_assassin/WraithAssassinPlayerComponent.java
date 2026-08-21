@@ -467,14 +467,14 @@ public class WraithAssassinPlayerComponent implements RoleComponent, ServerTicki
         self.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, WAIL_SELF_STUN_TICKS, 0, false, false, false));
         self.addEffect(new MobEffectInstance(ModEffects.USED_BANED, WAIL_SELF_STUN_TICKS, 0, false, false, false));
         Vec3 selfPos = self.position().add(0, self.getBbHeight() / 2, 0);
-        for (int i = 0; i < 20; i++) {
+        {
             double angle = Math.random() * Math.PI * 2;
             double pitch = Math.acos(2 * Math.random() - 1);
             level.sendParticles(DustParticleOptions.REDSTONE,
                     selfPos.x + Math.cos(angle) * WAIL_RADIUS * Math.sin(pitch),
                     selfPos.y + WAIL_RADIUS * Math.cos(pitch),
                     selfPos.z + Math.sin(angle) * WAIL_RADIUS * Math.sin(pitch),
-                    1, 0.05, 0.05, 0.05, 0.01);
+                    20, 0.05, 0.05, 0.05, 0.01);
         }
 
         for (ServerPlayer target : level.players()) {
