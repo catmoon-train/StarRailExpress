@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -242,6 +243,7 @@ public final class RavenPlayerComponent implements RoleComponent, ServerTickingC
         giveHuntItems(serverPlayer);
         applyHuntEffects();
         sync();
+        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
         return true;
     }
 

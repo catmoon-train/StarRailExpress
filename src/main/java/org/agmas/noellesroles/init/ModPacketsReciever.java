@@ -493,8 +493,9 @@ public class ModPacketsReciever {
       if (RoleSkill.blockForSpectator(context.player()))
         return;
       NinjaPlayerComponent comp = NinjaPlayerComponent.KEY.get(context.player());
-      if (comp != null)
-        comp.useAbility();
+      if (comp != null && comp.useAbility()) {
+        ConfigWorldComponent.onPlayerUsedSkill(context.player());
+      }
     });
     // 巫师“盔甲护身”：在背包选择玩家后赋予护盾
     ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.WizardShieldC2SPacket.ID,
@@ -1062,7 +1063,9 @@ public class ModPacketsReciever {
 
           if (gameWorldComponent.isRole(player, BounsRoles.CREEPER)) {
             CreeperPlayerComponent creeperComponent = CreeperPlayerComponent.KEY.get(player);
-            creeperComponent.ignite();
+            if (creeperComponent.ignite()) {
+              ConfigWorldComponent.onPlayerUsedSkill(player);
+            }
           }
         });
 
@@ -1110,7 +1113,9 @@ public class ModPacketsReciever {
               return;
             }
             // 使用技能
-            shadowFalconComponent.useAbility();
+            if (shadowFalconComponent.useAbility()) {
+              ConfigWorldComponent.onPlayerUsedSkill(player);
+            }
           }
         });
 

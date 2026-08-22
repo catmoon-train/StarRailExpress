@@ -18,6 +18,7 @@ package org.agmas.noellesroles.game.roles.innocence.fool;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -162,6 +163,7 @@ public class TarotAssemblyManager {
         fool.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.tarot_started").withStyle(ChatFormatting.GOLD),
                 true);
+        ConfigWorldComponent.onPlayerUsedSkill(fool);
 
     }
 

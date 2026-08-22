@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.data.WaypointVisibilityManager;
 import io.wifi.starrailexpress.network.PacketTracker;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import io.wifi.starrailexpress.network.packet.SyncWaypointVisibilityPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -154,6 +155,7 @@ public final class AdventurerPlayerComponent implements RoleComponent, ServerTic
             // Turn waypoints OFF
             waypointOff(true);
         }
+        ConfigWorldComponent.onPlayerUsedSkill(sp);
         sync();
     }
 

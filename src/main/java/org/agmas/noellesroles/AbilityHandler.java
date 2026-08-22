@@ -166,6 +166,7 @@ public class AbilityHandler {
                         Component.translatable("hud.hoan_meirin.ability_activated").withStyle(ChatFormatting.GREEN),
                         true);
                 cca.setCooldown(60 * 20);
+                ConfigWorldComponent.onPlayerUsedSkill(player);
             }
 
             return;
@@ -189,6 +190,7 @@ public class AbilityHandler {
                 }
             });
             abilityPlayerComponent.setCooldown(180 * 20);
+            ConfigWorldComponent.onPlayerUsedSkill(player);
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.GLITCH_ROBOT)) {
@@ -286,6 +288,7 @@ public class AbilityHandler {
                         Component.translatable("message.noellesroles.leon.kick_hit")
                                 .withStyle(ChatFormatting.AQUA),
                         true);
+                ConfigWorldComponent.onPlayerUsedSkill(player);
             } else {
                 player.displayClientMessage(
                         Component.translatable("message.noellesroles.leon.kick_miss")
@@ -335,6 +338,7 @@ public class AbilityHandler {
                     Component.translatable("message.noellesroles.morphling.dummy_spawned")
                             .withStyle(ChatFormatting.GREEN),
                     true);
+            ConfigWorldComponent.onPlayerUsedSkill(player);
             return;
         }
 
@@ -361,6 +365,7 @@ public class AbilityHandler {
             if (jadeGeneral.useSkill()) {
                 abilityPlayerComponent.cooldown = GameConstants.getInTicks(0, 35);
                 abilityPlayerComponent.sync();
+                ConfigWorldComponent.onPlayerUsedSkill(player);
             }
             return;
         }
@@ -375,6 +380,7 @@ public class AbilityHandler {
                         Component.translatable("message.noellesroles.ghost_eye.domain_deployed")
                                 .withStyle(ChatFormatting.DARK_AQUA),
                         true);
+                ConfigWorldComponent.onPlayerUsedSkill(player);
             }
             return;
         }
