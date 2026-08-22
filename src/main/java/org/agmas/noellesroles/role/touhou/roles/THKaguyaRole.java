@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,10 +70,15 @@ public class THKaguyaRole extends TouhouRole {
         if (!(victim instanceof ServerPlayer serverVictim))
             return;
         int remaningPlayerCount = RoleUtils.getAlivePlayers(serverVictim.serverLevel()).size();
-        if (remaningPlayerCount <= NORMAL_DEATH_THRESHOLD)
+        if (remaningPlayerCount <= NORMAL_DEATH_THRESHOLD) {
+            THLostForestRoles.recordImmortalPairRealDeath(serverVictim, THLostForestRoles.MOKOU_ID);
             return;
-        if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN))
+        }
+        if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN)) {
+            THLostForestRoles.recordImmortalPairRealDeath(serverVictim, THLostForestRoles.MOKOU_ID);
             return;
+        }
+        boolean revived = false;
         if (deathReason.equals(GameConstants.DeathReasons.BROKEN_HEART)
                 || (killer != null && !SREGameWorldComponent.isKillerTeamStatic(killer) && !forceDeath)) {
 
@@ -80,12 +86,17 @@ public class THKaguyaRole extends TouhouRole {
             if (lover != null) {
                 if (!GameUtils.isPlayerAliveAndSurvival(lover)
                         && DefibrillatorComponent.KEY.get(lover).resurrectionTime <= 0) {
+                    THLostForestRoles.recordImmortalPairRealDeath(serverVictim, THLostForestRoles.MOKOU_ID);
                     return;
                 }
             }
             DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(victim);
             component.triggerDeath(30 * 20, null, victim.position());
             SREPlayerShopComponent.KEY.get(victim).addToBalance(50);
+            revived = true;
+        }
+        if (!revived) {
+            THLostForestRoles.recordImmortalPairRealDeath(serverVictim, THLostForestRoles.MOKOU_ID);
         }
     }
 }
