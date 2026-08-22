@@ -59,6 +59,12 @@
     - [IGameReplayRecorder — 回放记录接口](#igamereplayrecorder--回放记录接口)
     - [IGameReplayReader — 回放读取接口](#igamereplayreader--回放读取接口)
     - [ReplayEventTypes — 事件类型枚举](#replayeventtypes--事件类型枚举)
+16. [背包界面 API / Inventory Screen API](#背包界面-api--inventory-screen-api)
+    - [LimitedInventoryScreenEvents — 事件](#limitedinventoryscreenevents--事件)
+    - [SRERole 屏幕钩子 / Screen Hooks](#srerole-屏幕钩子--screen-hooks)
+    - [屏幕公开"轮椅"方法](#屏幕公开轮椅方法)
+    - [PlayerPaginationHelper — 翻页/搜索/排序](#playerpaginationhelper--翻页搜索排序)
+    - [RoleScreenHelper — 角色选人辅助](#rolescreenhelper--角色选人辅助)
 
 ---
 
@@ -126,6 +132,9 @@ SRERole setCanHavePassiveIncome(boolean bl)              // 是否启用被动�
 SRERole addChild(Consumer<LimitedInventoryScreen> addChild) // 添加 HUD 子元素
 SRERole setServerGameTickEvent(BiConsumer<ServerPlayer, SREGameWorldComponent> event) // 服务端 Tick 回调
 SRERole setClientGameTickEvent(BiConsumer<Player, SREGameWorldComponent> event)       // 客户端 Tick 回调
+SRERole setInventoryScreenInitHandler(Consumer<LimitedInventoryScreen> handler)      // 背包界面 init 开头回调（客户端注册）
+SRERole setInventoryScreenInitTailHandler(Consumer<LimitedInventoryScreen> handler)  // 背包界面 init 末尾回调（客户端注册）
+SRERole setInventoryScreenRenderHandler(InventoryScreenRenderHandler handler)        // 背包界面 render 开头回调（客户端注册）
 ```
 
 #### 可重写的回调方法 / Overridable Callbacks
@@ -184,6 +193,15 @@ List<ItemStack> getDefaultItems()
 
 // 获取角色商店条目列表
 List<ShopEntry> getShopEntries()
+
+// 背包界面 init() 开头（仅客户端调用；由 LimitedInventoryScreen 触发）
+void onInventoryScreenInit(LimitedInventoryScreen screen)
+
+// 背包界面 init() 末尾（仅客户端调用）
+void onInventoryScreenInitTail(LimitedInventoryScreen screen)
+
+// 背包界面 render() 开头，每帧（仅客户端调用）
+void onInventoryScreenRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY, float delta)
 ```
 
 #### 枚举 MoodType
@@ -1880,6 +1898,113 @@ boolean joined = MeetingApi.isParticipant(playerUuid);
 `HMAC-SHA256(密钥, 自身jar摘要|nonce|版本)` 比对 —— jar 被修改 / 未签名 / 版本不符即被断开。
 在 `config/starrailexpress-config.json` 中设置 `"ENABLE_JAR_KEY_AUTH": true` 启用；
 可与既有的 `VERIFY_STARRAILEXPRESS_HASHES` 哈希白名单叠加。
+
+---
+
+## 背包界面 API / Inventory Screen API
+
+限位背包界面（`LimitedInventoryScreen`）的扩展 API。**不要再用 mixin 改背包界面**；
+通过事件（非职业扩展，如 modifier）或 SRERole 钩子（职业扩展）实现。全部为纯客户端机制，
+服务端类严禁直接 import 客户端类。
+
+### LimitedInventoryScreenEvents — 事件
+
+**包 / Package:** `io.wifi.starrailexpress.event.client`
+
+4 个 fabric 事件，与旧版 `@Mixin(LimitedInventoryScreen.class)` 的注入点一一对应：
+
+| 事件 | 触发时机 | 回调签名 |
+|------|---------|---------|
+| `INIT` | `init()` 开头 | `Init.onInit(LimitedInventoryScreen)` |
+| `INIT_TAIL` | `init()` 末尾 | 同上 |
+| `RENDER` | `render()` 开头（每帧） | `Render.onRender(LimitedInventoryScreen, GuiGraphics, int, int, float)` |
+| `RENDER_TAIL` | `render()` 末尾（每帧） | 同上 |
+
+```java
+// 非职业扩展（如 modifier）示例
+LimitedInventoryScreenEvents.INIT.register(screen -> {
+    screen.addRoleWidget(Button.builder(Component.literal("x"), b -> {}).bounds(10, 10, 20, 20).build());
+});
+LimitedInventoryScreenEvents.RENDER_TAIL.register((screen, g, mx, my, d) -> {
+    g.drawCenteredString(Minecraft.getInstance().font, Component.literal("hi"), screen.width / 2, 10, 0xFFFFFF);
+});
+```
+
+### SRERole 屏幕钩子 / Screen Hooks
+
+**职业扩展**用 SRERole 上的三个 setter 注册"客户端函数"，再由 `LimitedInventoryScreen`
+在对应时机调用。钩子内部会先判断运行环境（`FabricLoader` 环境 != CLIENT 直接返回）。
+注册应在**客户端**进行（如 `NoellesrolesClient.onInitializeClient()`）。
+
+```java
+// 客户端注册（示例）
+ModRoles.AMON.setInventoryScreenInitHandler(AmonExtension.INSTANCE::onInit);
+ModRoles.AMON.setInventoryScreenRenderHandler(AmonExtension.INSTANCE::onRender);
+```
+
+- `setInventoryScreenInitHandler(Consumer<LimitedInventoryScreen>)` —— `init()` 开头（HEAD）
+- `setInventoryScreenInitTailHandler(Consumer<LimitedInventoryScreen>)` —— `init()` 末尾（TAIL，需要盖在最上层时用）
+- `setInventoryScreenRenderHandler(InventoryScreenRenderHandler)` —— `render()` 开头，每帧
+
+> 客户端需要执行客户端方法时：判别环境（`player.level().isClientSide` 或 `FabricLoader` 环境）
+> 后经 `SREClient`（客户端入口，允许客户端 only 方法）执行；服务端类不要 import 客户端类。
+
+### 屏幕公开"轮椅"方法
+
+`LimitedInventoryScreen` 提供的便捷方法（供事件监听器 / 钩子使用）：
+
+| 方法 | 说明 |
+|------|------|
+| `addRoleWidget(T widget)` | 添加控件（等价原版 `addRenderableWidget`，公开） |
+| `removeRoleWidget(Widget widget)` | 移除控件 |
+| `clearRoleWidgets()` | 清空全部控件（慎用） |
+| `reinit()` | 清空控件并重新 `init()`（两阶段界面用，如葬仪选人→选死因） |
+
+### PlayerPaginationHelper — 翻页/搜索/排序
+
+**包 / Package:** `io.wifi.starrailexpress.client.gui.screen.ingame`
+
+"选人列表"分页辅助（原 noellesroles 的 `PlayerPaginationHelper` 迁入核心）。每页 8 人。
+
+```java
+PlayerPaginationHelper<PlayerInfo> helper = new PlayerPaginationHelper<>(creator, textProvider);
+helper.setNameExtractor(info -> info.getProfile().getName()); // 启用按名搜索 + 默认按名排序
+helper.setPlayerEntries(list);
+
+helper.attachSearchBox(screen);   // 挂载玩家名搜索框（输入实时过滤；翻页不会清除）
+helper.nextPage(screen);          // 下一页
+helper.prevPage(screen);          // 上一页
+helper.jumpToPage(screen, page);  // 跳到指定页
+helper.getCurrentPage();          // 当前页（0 起）
+helper.getTotalPages();           // 总页数
+helper.getVisibleEntries();       // 过滤 + 排序后的可见条目
+helper.setSort(comparator);       // 自定义排序（覆盖默认按名排序）
+helper.setSearchQuery("abc");     // 直接设置过滤词
+```
+
+### RoleScreenHelper — 角色选人辅助
+
+**包 / Package:** `io.wifi.starrailexpress.client.gui.screen.ingame`
+
+在 `PlayerPaginationHelper` 之上封装"角色激活判断 + 分页 + 搜索 + 排序"：
+
+```java
+RoleScreenHelper<PlayerInfo> helper = new RoleScreenHelper<>(
+        player, ModRoles.AMON,
+        (screen, x, y, entry, index) -> {
+            Button widget = new AmonPlayerWidget(screen, x, y, entry);
+            screen.addRoleWidget(widget); // 记得把控件挂到屏幕上
+            return widget;
+        },
+        textProvider, extraDrawer, entriesSupplier);
+helper.setNameExtractor(info -> info.getProfile().getName());
+
+helper.onInit(screen);            // 清旧控件 + 填充条目 + 加当前页
+helper.attachSearchBox(screen);   // 挂载搜索框
+helper.onRender(graphics, screen);// 画提示文字 + 页码
+```
+
+完整可抄的职业示例见 `docs/角色开发指南.md`。
 
 ---
 

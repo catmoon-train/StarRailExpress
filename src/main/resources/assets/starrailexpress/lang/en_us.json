@@ -2863,6 +2863,7 @@
     "sre.map_helper.settings.indoorSoundVolume": "Inside sound volume",
     "sre.map_helper.settings.outdoorSoundVolume": "Outside sound volume",
     "sre.map_helper.settings.customSoundId.@tooltip": "Only effective when custom is selected.",
+    "gui.starrailexpress.role_screen.search": "Search player…",
     "== 地图设置末尾 END ==": "",
     "replay.event.gambler.miracle": "%s triggered the Gambler's 1%% miracle",
     "replay.event.thief.steal_money": "%s stole %s's %s coins",

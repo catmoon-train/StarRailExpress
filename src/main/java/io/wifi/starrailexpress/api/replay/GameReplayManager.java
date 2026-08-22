@@ -620,7 +620,7 @@ public class GameReplayManager implements IGameReplayRecorder {
   }
 
   public void recordSkillUsedId(Player player, @Nullable String id) {
-    recordSkillUsedId(player, id, false);
+    recordSkillUsedId(player, id, true);
   }
 
   public void recordSkillUsedId(Player player, @Nullable String id, boolean hidden) {

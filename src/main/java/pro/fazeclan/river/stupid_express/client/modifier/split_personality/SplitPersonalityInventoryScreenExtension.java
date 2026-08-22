@@ -13,57 +13,43 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package pro.fazeclan.river.stupid_express.mixin.client.modifier.split_personality;
+package pro.fazeclan.river.stupid_express.client.modifier.split_personality;
 
-import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedHandledScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.InventoryMenu;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pro.fazeclan.river.stupid_express.client.gui.widget.SplitPersonalityChoiceWidget;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 
 /**
- * Mixin for InventoryScreen to add SplitPersonality choice functionality
- * 参考 SwapperScreenMixin 的设计模式，在背包界面中集成双重人格选择功能
+ * 双重人格（modifier）背包界面扩展：在背包界面（{@link LimitedInventoryScreen}）显示
+ * "献祭/背叛"选择按钮与提示文本。
+ *
+ * <p>非职业扩展，通过 {@code LimitedInventoryScreenEvents} 注册
+ * （init 开头 + render 末尾），见 {@code StupidExpressClient.registerInventoryEvents()}。
  */
-@Mixin(LimitedInventoryScreen.class)
-public abstract class InventoryScreenSplitPersonalityMixin extends LimitedHandledScreen<InventoryMenu> {
+public final class SplitPersonalityInventoryScreenExtension {
 
-    @Unique
+    public static final SplitPersonalityInventoryScreenExtension INSTANCE = new SplitPersonalityInventoryScreenExtension();
+
     private Button sacrificeButton;
-    @Unique
     private Button betrayButton;
-    @Unique
     private Button hiddenButton;
 
-    @Unique
     private SplitPersonalityComponent component;
-    @Unique
     private boolean hiddenText = false;
 
-    public InventoryScreenSplitPersonalityMixin(InventoryMenu handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
+    private SplitPersonalityInventoryScreenExtension() {
     }
 
-    /**
-     * 初始化时创建双重人格选择Widget
-     */
-    @Inject(method = "init", at = @At("HEAD"))
-    private void stupid_express(CallbackInfo ci) {
-        LimitedInventoryScreen self = (LimitedInventoryScreen) (Object) this;
-
-        Player player = this.minecraft.player;
+    /** {@code init()} 开头：创建双重人格选择按钮。 */
+    public void onInit(LimitedInventoryScreen screen) {
+        Player player = screen.player;
         this.component = SplitPersonalityComponent.KEY.get(player);
 
         // 只有在是双重人格且未死亡时才添加选择功能
@@ -71,8 +57,8 @@ public abstract class InventoryScreenSplitPersonalityMixin extends LimitedHandle
                 && !component.isDeath()) {
             SplitPersonalityChoiceWidget widgetFactory = new SplitPersonalityChoiceWidget(player);
 
-            int buttonX = self.width / 2 - 110;
-            int buttonY = self.height / 2 + 60;
+            int buttonX = screen.width / 2 - 110;
+            int buttonY = screen.height / 2 + 60;
 
             // 创建并添加两个独立的按钮
             this.sacrificeButton = widgetFactory.createSacrificeButton(buttonX, buttonY);
@@ -83,33 +69,29 @@ public abstract class InventoryScreenSplitPersonalityMixin extends LimitedHandle
                         this.betrayButton.visible = false;
                         this.sacrificeButton.visible = false;
                         this.hiddenButton.visible = false;
-                    }).bounds(self.width / 2 - 50, buttonY + 44, 100, 20).build();
+                    }).bounds(screen.width / 2 - 50, buttonY + 44, 100, 20).build();
 
-            self.addRenderableWidget(this.sacrificeButton);
-            self.addRenderableWidget(this.betrayButton);
-            self.addRenderableWidget(this.hiddenButton);
+            screen.addRoleWidget(this.sacrificeButton);
+            screen.addRoleWidget(this.betrayButton);
+            screen.addRoleWidget(this.hiddenButton);
         }
     }
 
-    /**
-     * 渲染时显示选择提示文本和当前选择状态
-     */
-    @Inject(method = "render", at = @At("TAIL"))
-    private void stupid_express$onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick,
-            CallbackInfo ci) {
+    /** {@code render()} 末尾：显示选择提示文本与当前选择状态。 */
+    public void onRenderTail(LimitedInventoryScreen screen, GuiGraphics guiGraphics, int mouseX, int mouseY,
+            float delta) {
         if (this.hiddenText)
             return;
-        LimitedInventoryScreen self = (LimitedInventoryScreen) (Object) this;
-        Player player = this.minecraft.player;
+        Player player = screen.player;
         if (component == null) {
             component = SplitPersonalityComponent.KEY.get(player);
         }
 
         // 显示双重人格选择提示
         if (component != null && component.getMainPersonality() != null && !component.isDeath()) {
-            net.minecraft.client.Minecraft client = net.minecraft.client.Minecraft.getInstance();
-            int centerX = self.width / 2;
-            int centerY = self.height / 2;
+            Minecraft client = Minecraft.getInstance();
+            int centerX = screen.width / 2;
+            int centerY = screen.height / 2;
 
             // 标题文本
             MutableComponent titleText = Component
@@ -155,6 +137,4 @@ public abstract class InventoryScreenSplitPersonalityMixin extends LimitedHandle
             }
         }
     }
-
-    // 按钮点击事件由Button组件自动处理，无需额外的mixin注入
 }

@@ -30,6 +30,7 @@ import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.StoreRenderer;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
+import io.wifi.starrailexpress.event.client.LimitedInventoryScreenEvents;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.network.original.StoreBuyPayload;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -43,7 +44,10 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
@@ -152,6 +156,14 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         return SREClient.gameComponent != null && SREClient.gameComponent.isRunning();
     }
 
+    /** 当前玩家在本局中的职业（客户端缓存；游戏未开始时为 null）。 */
+    private SRERole getCurrentRole() {
+        if (SREClient.gameComponent == null) {
+            return null;
+        }
+        return SREClient.gameComponent.getRole(this.player);
+    }
+
     /** 当前玩家是否参与下一局游戏（默认参与）。 */
     private boolean isParticipating() {
         if (this.player == null) {
@@ -179,6 +191,29 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             ms.visible = this.isMenuOpen && gameActive;
             ms.active = this.isMenuOpen && gameActive;
         }
+    }
+
+    // ===== 背包界面扩展"轮椅"方法（供事件监听器 / SRERole 钩子使用） =====
+
+    /** 向本屏幕添加一个控件（等价于原版 {@link #addRenderableWidget}，公开给扩展使用）。 */
+    public <T extends GuiEventListener & Renderable & NarratableEntry> T addRoleWidget(T widget) {
+        return this.addRenderableWidget(widget);
+    }
+
+    /** 移除由扩展添加的控件。 */
+    public void removeRoleWidget(GuiEventListener widget) {
+        this.removeWidget(widget);
+    }
+
+    /** 清空本屏幕的全部控件（等价于原版 {@link #clearWidgets}，慎用）。 */
+    public void clearRoleWidgets() {
+        this.clearWidgets();
+    }
+
+    /** 清空控件并重新执行 {@link #init()}，供两阶段选择等需要重建界面的扩展使用。 */
+    public void reinit() {
+        this.clearWidgets();
+        this.init();
     }
 
     public static List<ShopEntry> getRoleShopEntries(SRERole role, @Nullable Player player) {
@@ -231,6 +266,11 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     @Override
     protected void init() {
+        LimitedInventoryScreenEvents.INIT.invoker().onInit(this);
+        var initRole = getCurrentRole();
+        if (initRole != null) {
+            initRole.onInventoryScreenInit(this);
+        }
         super.init();
         initMenuSelections();
 
@@ -278,6 +318,10 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         initWaitingMenu();
 
         updateWaitingMenuVisibility();
+        if (initRole != null) {
+            initRole.onInventoryScreenInitTail(this);
+        }
+        LimitedInventoryScreenEvents.INIT_TAIL.invoker().onInit(this);
     }
 
     /** 创建等待面板中的便捷菜单格子按钮与翻页按钮（复用 GameMenuEntries 的同一组动作）。 */
@@ -568,6 +612,11 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        LimitedInventoryScreenEvents.RENDER.invoker().onRender(this, context, mouseX, mouseY, delta);
+        var renderRole = getCurrentRole();
+        if (renderRole != null) {
+            renderRole.onInventoryScreenRender(this, context, mouseX, mouseY, delta);
+        }
         super.render(context, mouseX, mouseY, delta);
         renderOverlayMessageOnScreen(context, mouseX, mouseY, delta);
 
@@ -590,6 +639,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             }
             CommonClientHudRenderer.renderMessagesBelowMoney(this.minecraft, fakeGraphics, DeltaTracker.ONE, true);
         }
+
+        LimitedInventoryScreenEvents.RENDER_TAIL.invoker().onRender(this, context, mouseX, mouseY, delta);
     }
 
     private void renderOverlayMessageOnScreen(GuiGraphics context, int mouseX, int mouseY, float delta) {
