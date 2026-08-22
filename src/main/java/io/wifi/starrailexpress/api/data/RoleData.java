@@ -111,7 +111,7 @@ public interface RoleData {
      * 需要执行技能/写回同步时请用 {@link #ifPresent}、{@link #test} 或 {@link #getAttached}。
      * </p>
      *
-     * @return 不存在必定返回NULL
+     * @return 真实数据或空占位；仅当无法构造占位实例时才返回 {@code null}
      */
     @Nullable
     public static <T extends RoleData> T getNullable(Class<T> clazz, Player player) {
@@ -126,9 +126,9 @@ public interface RoleData {
      * 若玩家持有指定类型的职业数据则执行 {@code action}，否则忽略。
      */
     public static <T extends RoleData> void ifPresent(Class<T> clazz, Player player, Consumer<T> action) {
-        T data = getAttached(clazz, player);
-        if (data != null && action != null) {
-            action.accept(data);
+        Optional<T> data = getOptional(clazz, player);
+        if (data != null && data.isPresent() && action != null) {
+            action.accept(data.get());
         }
     }
 
@@ -136,8 +136,11 @@ public interface RoleData {
      * 若玩家持有指定类型的职业数据则用其测试 {@code predicate}，否则返回 {@code false}。
      */
     public static <T extends RoleData> boolean test(Class<T> clazz, Player player, Predicate<T> predicate) {
-        T data = getAttached(clazz, player);
-        return data != null && predicate != null && predicate.test(data);
+        Optional<T> data = getOptional(clazz, player);
+        if (data != null && data.isPresent() && predicate != null) {
+            return predicate.test(data.get());
+        }
+        return false;
     }
 
     /**
@@ -145,11 +148,11 @@ public interface RoleData {
      */
     @Nullable
     public static <T extends RoleData, R> R map(Class<T> clazz, Player player, Function<T, R> mapper, R defaultValue) {
-        T data = getAttached(clazz, player);
-        if (data == null || mapper == null) {
+        Optional<T> data = getOptional(clazz, player);
+        if (data == null || !data.isPresent() || mapper == null) {
             return defaultValue;
         }
-        return mapper.apply(data);
+        return mapper.apply(data.get());
     }
 
     /**
@@ -192,39 +195,6 @@ public interface RoleData {
             SRE.LOGGER.error("Error while create instance.", e);
             return null;
         }
-    }
-
-    /**
-     * 指定类型的空占位实例（按类缓存）。只用于读默认字段，不会同步到玩家。
-     */
-    @Nullable
-    @SuppressWarnings("unchecked")
-    static <T extends RoleData> T emptyOf(Class<T> clazz) {
-        if (clazz == null || clazz.isInterface()) {
-            return null;
-        }
-        RoleData empty = EmptyCache.INSTANCES.get(clazz);
-        return empty != null ? (T) empty : null;
-    }
-
-    final class EmptyCache {
-        static final ClassValue<RoleData> INSTANCES = new ClassValue<>() {
-            @Override
-            protected RoleData computeValue(Class<?> type) {
-                try {
-                    Constructor<?> ctor = type.getDeclaredConstructor(RoleDataContext.class);
-                    ctor.setAccessible(true);
-                    Object instance = ctor.newInstance(RoleDataContext.empty());
-                    if (instance instanceof RoleData roleData) {
-                        return roleData;
-                    }
-                    return null;
-                } catch (Exception e) {
-                    SRE.LOGGER.error("Failed to create empty RoleData for {}", type.getName(), e);
-                    return null;
-                }
-            }
-        };
     }
 
     /**
@@ -289,14 +259,17 @@ public interface RoleData {
     default void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 
-    /** Reads the optional server-side representation written by {@link #writeToNbt}. */
+    /**
+     * Reads the optional server-side representation written by {@link #writeToNbt}.
+     */
     default void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
 
     /**
      * Writes the server-authoritative state used by an in-memory time rewind.
      *
-     * <p>The default keeps existing role implementations compatible by reusing
+     * <p>
+     * The default keeps existing role implementations compatible by reusing
      * their sync representation. Roles with server-only mutable state can
      * override this method without exposing that state to clients or normal
      * player saves.
