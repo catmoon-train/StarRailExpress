@@ -233,22 +233,20 @@ public class LinFamilyRoleData extends SimpleRoleData {
         return game != null && game.isRole(player, ModRoles.LIN_FAMILY);
     }
 
-    public static boolean isKeyOrLetter(ItemStack stack) {
+    /** 是否是不可丢弃的钥匙类物品（信封/邮件已允许丢弃） */
+    public static boolean isKey(ItemStack stack) {
         if (stack == null || stack.isEmpty()) {
             return false;
         }
         return stack.is(TMMItems.KEY)
                 || stack.is(TMMItems.IRON_DOOR_KEY)
-                || stack.is(TMMItems.LETTER)
                 || stack.is(ModItems.MASTER_KEY)
                 || stack.is(ModItems.MASTER_KEY_P)
                 || stack.is(ModItems.NOELL_ARTISAN_KEY)
                 || stack.is(ModItems.NOELL_KEY_BLANK)
                 || stack.is(ModItems.SEALED_DOORLESS_KEY)
                 || stack.is(ModItems.REPAIR_AREA_KEY)
-                || stack.is(ModItems.REPAIR_OLD_KEY)
-                || stack.is(ModItems.COURIER_MAIL)
-                || stack.is(ModItems.RECEIVED_MAIL);
+                || stack.is(ModItems.REPAIR_OLD_KEY);
     }
 
     public static boolean hasGun(Player player) {
