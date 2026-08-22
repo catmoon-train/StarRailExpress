@@ -146,9 +146,9 @@ public class RevivalSelectionHandler {
 
             StupidRoleUtils.sendWelcomeAnnouncement(revived);
             var psychoCCA = SREPlayerPsychoComponent.KEY.get(revived);
-            psychoCCA.startPsycho();
+
             // 使用默认时长 * 1.1
-            psychoCCA.setPsychoTicks((int) ((double) GameConstants.getPsychoTimer() * 1.1));
+            psychoCCA.startPsycho_time((int) ((double) GameConstants.getPsychoTimer() * 1.1), 1, true);
 
             return InteractionResult.CONSUME;
         }));
