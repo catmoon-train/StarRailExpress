@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles.game.roles.neutral.thief;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -295,6 +297,13 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         this.cooldown = ABILITY_COOLDOWN;
         this.sync();
 
+        // 回放记录：小偷偷钱
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.thief.steal_money",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true),
+                        Component.literal(String.valueOf(stealAmount))));
+
         return true;
     }
 
@@ -432,6 +441,12 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         // 成功偷取，进入冷却
         this.cooldown = ABILITY_COOLDOWN;
         this.sync();
+
+        // 回放记录：小偷偷物品
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.thief.steal_item",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
 
         return true;
     }

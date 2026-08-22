@@ -83,10 +83,10 @@ public class BanditPlayerComponent implements RoleComponent, ServerTickingCompon
 
         if (!(victim instanceof ServerPlayer victimPlayer))
             return;
-        ConfigWorldComponent.onPlayerUsedSkill( serverPlayer);
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!gameWorld.isRole(player, ModRoles.BANDIT))
             return;
+        ConfigWorldComponent.onPlayerUsedSkill( serverPlayer);
 
         // 获取受害者的金钱
         SREPlayerShopComponent victimShop = SREPlayerShopComponent.KEY.get(victim);

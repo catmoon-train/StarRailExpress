@@ -15,8 +15,10 @@
 
 package org.agmas.noellesroles.game.roles.neutral.mortician;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -461,6 +463,11 @@ public class MorticianBodyMakerPlayerComponent extends SREAbilityPlayerComponent
                     serverPlayer.serverLevel().playSound(null, p.getX(), p.getY(), p.getZ(),
                             SoundEvents.SKELETON_CONVERTED_TO_STRAY, SoundSource.PLAYERS, 1.0f, 1.0f);
                 });
+
+                // 回放记录：葬仪制造了一具尸体
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("replay.event.funeral.create_corpse",
+                        GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true)));
 
                 return true;
             }

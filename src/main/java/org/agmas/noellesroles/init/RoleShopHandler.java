@@ -3186,6 +3186,10 @@ public class RoleShopHandler {
                                 }
                             }
                         }
+                        // 回放记录：诡客购买净雨符关闭里世界
+                        SRE.REPLAY_MANAGER.recordCustomEvent(
+                            Component.translatable("replay.event.trickster.close_shadow",
+                                GameReplayUtils.getReplayPlayerDisplayText(player, true)));
                         return true;
                     }
                 });

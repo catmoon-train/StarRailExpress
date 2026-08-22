@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.role;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.vote.VoteOption;
@@ -30,6 +32,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.exmo.sre.meeting.MeetingApi;
 import net.exmo.sre.meeting.MeetingManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
@@ -107,6 +110,10 @@ public class ModMeetingRoleEvents {
             ServerPlayer reporter = killer instanceof ServerPlayer kp ? kp : sp;
             pendingMeetings.put(sp, new MeetingReportInfo(reporter,
                     GameUtils.getTicksFromGameStart(sp.serverLevel()) + CANADA_MEETING_START_GAP));
+            // 回放记录：加拿大鹅强制发起会议
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.canadagoose.force_meeting",
+                    GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
         });
 
         // 呆呆鸟：被投票出局时独立胜利

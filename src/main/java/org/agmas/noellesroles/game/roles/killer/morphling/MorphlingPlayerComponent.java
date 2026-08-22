@@ -15,11 +15,14 @@
 
 package org.agmas.noellesroles.game.roles.killer.morphling;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -146,6 +149,16 @@ public class MorphlingPlayerComponent implements RoleComponent, ServerTickingCom
         setMorphTicks(GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().morphlingMorphDuration));
         disguise = id;
         this.sync();
+
+        // 回放记录：变形者改变自身皮肤
+        if (player instanceof ServerPlayer) {
+            Player target = player.level().getPlayerByUUID(id);
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("replay.event.shapeshifter.change_skin",
+                            GameReplayUtils.getReplayPlayerDisplayText((ServerPlayer) player, true),
+                            target != null ? GameReplayUtils.getReplayPlayerDisplayText(target, true)
+                                    : Component.literal("<???>")));
+        }
         return true;
     }
 

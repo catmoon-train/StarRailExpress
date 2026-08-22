@@ -15,8 +15,10 @@
 
 package org.agmas.noellesroles.game.roles.neutral.gambler;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -277,6 +279,11 @@ public class GamblerHandler {
 
         // 6. 补充 CustomWinnerID: gambler
         RoleUtils.customWinnerWin(serverWorld, GameUtils.WinStatus.GAMBLER, "gambler", null);
+
+        // 7. 回放记录：赌徒触发 1% 奇迹
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.gambler.miracle",
+                        GameReplayUtils.getReplayPlayerDisplayText(victim, true)));
     }
 
     private static void spawnLightning(ServerLevel level, Vec3 pos) {

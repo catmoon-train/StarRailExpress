@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -414,6 +416,10 @@ public class TarotAssemblyManager {
                             targetPlayer.getName().getString(), maxVotes)
                             .withStyle(ChatFormatting.RED),
                     true);
+            // 回放记录：愚者会议将玩家认定为异端
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.fool_meeting.heresy",
+                    GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
         }
 
         comp.sync();

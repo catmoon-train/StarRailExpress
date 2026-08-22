@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -477,6 +479,11 @@ public class AbilityHandler {
             ServerPlayNetworking.send(player, new ProblemScreenOpenC2SPacket(true, 2));
             ServerPlayNetworking.send(sp, new ProblemScreenOpenC2SPacket(true, 2));
             abilityPlayerComponent.setCooldown(90 * 20);
+            // 回放记录：小镇做题家发放习题
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.testmaker.assign_exam",
+                    GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                    GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {

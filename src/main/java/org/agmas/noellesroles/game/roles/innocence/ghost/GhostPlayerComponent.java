@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles.game.roles.innocence.ghost;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -266,6 +268,10 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
 
             lastStandNotified = true;
             sync();
+            // 回放记录：小透明加速时间
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.ghost.accelerate_time",
+                    GameReplayUtils.getReplayPlayerDisplayText(player, true)));
         }
     }
 
@@ -344,6 +350,10 @@ public class GhostPlayerComponent implements RoleComponent, ServerTickingCompone
                     false // showIcon（显示图标）
             ));
             sync();
+            // 回放记录：芙兰朵露加速时间
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.ghost.accelerate_time",
+                    GameReplayUtils.getReplayPlayerDisplayText(player, true)));
         }
     }
 

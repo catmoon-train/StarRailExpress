@@ -438,6 +438,14 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
         for (ServerPlayer viewer : level.players()) {
             ServerPlayNetworking.send(viewer, packet);
         }
+
+        // 回放记录：宿命的罪人改变自身皮肤
+        Player skinTarget = level.getPlayerByUUID(skinUuid);
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.doomed_sinner.change_skin",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        skinTarget != null ? GameReplayUtils.getReplayPlayerDisplayText(skinTarget, true)
+                                : Component.literal("<???>")));
     }
 
     private static void grantRandomFalseItem(ServerPlayer player) {

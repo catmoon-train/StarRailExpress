@@ -74,12 +74,12 @@ public class GamblerRole extends SRERole {
     public boolean onUseGun(Player player) {
         if (player.level().isClientSide())
             return false;
-        if (player instanceof ServerPlayer)
-            ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player);
 
         if (player.isShiftKeyDown()) {
             GamblerPlayerComponent gamblerPlayerComponent = GamblerPlayerComponent.KEY.get(player);
             gamblerPlayerComponent.usedAbility = true;
+            if (player instanceof ServerPlayer)
+                ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player);
 
             if (player instanceof ServerPlayer sp) {
                 // 掉枪，但不掉手上用的一次性的

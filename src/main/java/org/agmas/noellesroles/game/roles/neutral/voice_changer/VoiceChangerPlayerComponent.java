@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles.game.roles.neutral.voice_changer;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -204,6 +206,13 @@ public class VoiceChangerPlayerComponent implements RoleComponent, ServerTicking
                     Component.translatable("message.noellesroles.voice_changer.applied_to_target",
                             Component.translatable(effect.value().getDescriptionId()))
                             .withStyle(ChatFormatting.LIGHT_PURPLE)));
+            // 回放记录：变声怪杰对玩家释放变声效果
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.voice_changer.voice",
+                    GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                    GameReplayUtils.getReplayPlayerDisplayText(target, true),
+                    Component.literal(String.valueOf(currentVoiceLevel + 1)),
+                    Component.translatable(effect.value().getDescriptionId())));
             appliedCount++;
         }
         serverPlayer.displayClientMessage(

@@ -15,9 +15,11 @@
 
 package org.agmas.noellesroles.game.roles.neutral.leader;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -452,6 +454,12 @@ public final class LeaderFollowerEffects {
 
         // 释放成功：标记技能已用
         data.markSkillUsed();
+
+        // 回放记录：领袖将某玩家变成追随者
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.leader.recruit_follower",
+                        GameReplayUtils.getReplayPlayerDisplayText(leader, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(target, true)));
 
         // 全场播放音效（MASTER 类型）
         for (ServerPlayer p : leader.serverLevel().getServer().getPlayerList().getPlayers()) {

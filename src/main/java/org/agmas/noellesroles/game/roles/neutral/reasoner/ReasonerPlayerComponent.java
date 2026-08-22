@@ -15,8 +15,10 @@
 
 package org.agmas.noellesroles.game.roles.neutral.reasoner;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -210,6 +212,10 @@ public class ReasonerPlayerComponent implements RoleComponent, ServerTickingComp
             serverPlayer.displayClientMessage(Component.translatable(
                     "message.noellesroles.reasoner.correct", solvedCount(), 5).withStyle(ChatFormatting.GREEN), true);
             checkWin(serverPlayer.serverLevel());
+            // 回放记录：成功推理出线索
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.reasoner.deduce_clue",
+                    GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true)));
         } else {
             serverPlayer.displayClientMessage(Component.translatable(
                     "message.noellesroles.reasoner.incorrect").withStyle(ChatFormatting.RED), true);

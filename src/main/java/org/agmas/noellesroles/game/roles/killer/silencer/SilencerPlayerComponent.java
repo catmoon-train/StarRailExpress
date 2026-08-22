@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles.game.roles.killer.silencer;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -148,6 +150,12 @@ public class SilencerPlayerComponent implements RoleComponent, ServerTickingComp
         this.skillCooldownTicks = -SKILL_COOLDOWN;
         this.sync();
 
+        // 回放记录：静语者禁言玩家
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.silencer.mute",
+                GameReplayUtils.getReplayPlayerDisplayText(sp, true),
+                GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
+
         return true;
     }
 
@@ -176,6 +184,12 @@ public class SilencerPlayerComponent implements RoleComponent, ServerTickingComp
         this.phase = 3;
         this.phaseTimer = 0;
         this.sync();
+
+        // 回放记录：静语者触发最终惩罚
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.silencer.final_punishment",
+                GameReplayUtils.getReplayPlayerDisplayText(this.player, true),
+                GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
 
         // Play warden death sound to all players
         targetPlayer.level().playSound(null, targetPlayer.blockPosition(),

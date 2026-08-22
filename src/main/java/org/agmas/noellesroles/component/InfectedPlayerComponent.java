@@ -15,13 +15,16 @@
 
 package org.agmas.noellesroles.component;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -140,6 +143,14 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
             this.cachedInfectorPlayer = infectorPlayer;
             this.infectorCheckCounter = 0;
             this.sync(); // 同步给所有者+所有疫使
+
+            // 回放记录：疫使将某玩家感染
+            if (player instanceof ServerPlayer victim && infectorPlayer instanceof ServerPlayer infector) {
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.infected.infect",
+                                GameReplayUtils.getReplayPlayerDisplayText(infector, true),
+                                GameReplayUtils.getReplayPlayerDisplayText(victim, true)));
+            }
         }
     }
 
@@ -349,6 +360,14 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
                         // 感染目标
                         targetComponent.infect(infectorPlayer);
                         spreadCount++;
+
+                        // 回放记录：疫使将病毒传染给了某玩家
+                        if (this.player instanceof ServerPlayer spreader && nearby instanceof ServerPlayer spreadTarget) {
+                            SRE.REPLAY_MANAGER.recordCustomEvent(
+                                    Component.translatable("replay.event.infected.spread_virus",
+                                            GameReplayUtils.getReplayPlayerDisplayText(spreader, true),
+                                            GameReplayUtils.getReplayPlayerDisplayText(spreadTarget, true)));
+                        }
 
                         // 播放熊猫打喷嚏音效 - 表示病毒传播
                         nearby.level().playSound(null, nearby.getX(), nearby.getY(), nearby.getZ(),

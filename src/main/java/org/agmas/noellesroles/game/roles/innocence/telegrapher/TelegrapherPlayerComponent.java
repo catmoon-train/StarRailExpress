@@ -90,7 +90,6 @@ public class TelegrapherPlayerComponent implements RoleComponent {
     public boolean useAbility() {
         if (!hasUsesRemaining()) {
             if (player instanceof ServerPlayer serverPlayer) {
-                ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
                 serverPlayer.displayClientMessage(
                         Component.translatable("message.noellesroles.telegrapher.no_uses")
                                 .withStyle(ChatFormatting.RED),
@@ -101,6 +100,9 @@ public class TelegrapherPlayerComponent implements RoleComponent {
 
         remainingUses--;
         this.sync();
+        if (player instanceof ServerPlayer serverPlayer) {
+            ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
+        }
         return true;
     }
 
