@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game.c4;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -72,7 +73,7 @@ public final class C4Detonation {
         ServerTickEvents.END_WORLD_TICK.register(C4Detonation::tick);
         ServerLivingEntityEvents.AFTER_DEATH.register(C4Detonation::afterDeath);
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
-            C4BackComponent comp = C4BackComponent.KEY.getNullable(world);
+            C4BackComponent comp = C4BackComponent.KEY.get(world);
             if (comp != null)
                 comp.clearAll();
             clearThrownCharges();
@@ -210,7 +211,7 @@ public final class C4Detonation {
             return;
         if (!SREGameWorldComponent.getInstance(level).isRunning())
             return;
-        C4BackComponent comp = C4BackComponent.KEY.getNullable(level);
+        C4BackComponent comp = C4BackComponent.KEY.get(level);
         if (comp == null)
             return;
         Map<UUID, Long> carriers = comp.getCarriers();
@@ -326,7 +327,7 @@ public final class C4Detonation {
         if (hit == null || !(hit.getEntity() instanceof ServerPlayer target))
             return false;
 
-        C4BackComponent comp = C4BackComponent.KEY.getNullable(level);
+        C4BackComponent comp = C4BackComponent.KEY.get(level);
         if (comp == null || comp.hasC4(target.getUUID()))
             return false;
         if (!comp.addC4(target.getUUID(), charge.owner()))
@@ -600,7 +601,7 @@ public final class C4Detonation {
     private static void afterDeath(LivingEntity entity, DamageSource source) {
         if (!(entity instanceof ServerPlayer player))
             return;
-        C4BackComponent comp = C4BackComponent.KEY.getNullable(player.level());
+        C4BackComponent comp = C4BackComponent.KEY.get(player.level());
         if (comp != null)
             dropCarrierCharge(player, comp);
     }
@@ -687,9 +688,16 @@ public final class C4Detonation {
     }
 
     public static TimeState snapshotForTimeRewind() {
+        return snapshotForTimeRewind(thrownCharges.keySet());
+    }
+
+    /** Captures only the thrown-charge records owned by the supplied item entity UUIDs. */
+    public static TimeState snapshotForTimeRewind(Set<UUID> entityIds) {
         Map<UUID, TimeState.Entry> entries = new ConcurrentHashMap<>();
         for (Map.Entry<UUID, ThrownCharge> entry : thrownCharges.entrySet()) {
-            entries.put(entry.getKey(), TimeState.Entry.from(entry.getValue()));
+            if (entityIds.contains(entry.getKey())) {
+                entries.put(entry.getKey(), TimeState.Entry.from(entry.getValue()));
+            }
         }
         return new TimeState(Map.copyOf(entries));
     }
@@ -700,6 +708,18 @@ public final class C4Detonation {
             return;
         for (Map.Entry<UUID, TimeState.Entry> entry : state.thrownCharges().entrySet()) {
             thrownCharges.put(entry.getKey(), entry.getValue().toThrownCharge());
+        }
+    }
+
+    /** Replaces only records associated with item entities managed by an area rewind. */
+    public static void restoreForTimeRewind(TimeState state, Set<UUID> managedEntityIds) {
+        managedEntityIds.forEach(thrownCharges::remove);
+        if (state == null)
+            return;
+        for (Map.Entry<UUID, TimeState.Entry> entry : state.thrownCharges().entrySet()) {
+            if (managedEntityIds.contains(entry.getKey())) {
+                thrownCharges.put(entry.getKey(), entry.getValue().toThrownCharge());
+            }
         }
     }
 

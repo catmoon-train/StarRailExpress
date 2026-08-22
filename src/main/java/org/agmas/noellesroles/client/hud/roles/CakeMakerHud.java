@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -27,7 +29,8 @@ public final class CakeMakerHud {
         RoleHudRenderCallback.EVENT.register(ModRoles.CAKE_MAKER_ID, (context, tickCounter) -> {
             var client = Minecraft.getInstance();
             if (client.player == null) return;
-            var comp = ModComponents.CAKE_MAKER.get(client.player);
+            var comp = RoleData.getNullable(CakeMakerRoleData.class, client.player);
+            if (comp == null) return;
             int x = context.guiWidth() - 10;
             int y = context.guiHeight() - 10 - client.font.lineHeight;
             var font = client.font;

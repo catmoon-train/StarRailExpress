@@ -17,12 +17,14 @@ package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -31,15 +33,36 @@ import org.agmas.noellesroles.packet.LotteryMachineResultS2CPacket;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 public class LotteryMachineGui extends AbstractPixelScreen {
-    private static final int PANEL_W = 314;
-    private static final int PANEL_H = 214;
     private static final int SPIN_MIN_TICKS = 72;
     private static final int REVEAL_TICKS = 34;
     private static final int GRID_COLUMNS = 5;
+    private static final int SLOT = 26;
+    private static final int SLOT_GAP = 4;
+    private static final int PAD = 10;
+    private static final int SCROLL_W = 5;
+    private static final int SCROLL_MIN_THUMB = 18;
+
+    private static final int BG_TOP = 0xC018120A;
+    private static final int BG_BOTTOM = 0xE0061018;
+    private static final int PANEL_BG_TOP = 0xD81A1008;
+    private static final int PANEL_BG_BOTTOM = 0xD820140A;
+    private static final int BORDER = 0xFF8B6914;
+    private static final int DECOR = 0x33FFE8C0;
+    private static final int GOLD = 0xFFD4AF37;
+    private static final int TEXT = 0xFFFFF4DC;
+    private static final int TITLE = 0xFFF5E8C8;
+    private static final int MUTED = 0xFF9E8B6E;
+    private static final int BODY = 0xFFC8B898;
+    private static final int CARD_BORDER = 0xFF5A4530;
+    private static final int GREEN = 0xFF72C17B;
+    private static final int RED = 0xFFE06B65;
+    private static final int HOVER_FILL = 0x22FFFFFF;
+    private static final int DIVIDER = 0x20FFFFFF;
 
     private final List<PrizeEntry> prizes = new ArrayList<>();
     private final int totalWeight;
@@ -55,12 +78,29 @@ public class LotteryMachineGui extends AbstractPixelScreen {
     private int messageTicks = 0;
     private boolean resultArrived = false;
 
-    private int left;
-    private int top;
+    private int panelX;
+    private int panelY;
+    private int panelW;
+    private int panelH;
+    private int gridX;
+    private int gridY;
+    private int gridW;
+    private int gridH;
+    private int visibleRows;
+    private int scrollRows;
+    private int reelX;
+    private int reelY;
+    private int reelW;
+    private int reelH;
     private int drawButtonX;
     private int drawButtonY;
     private int drawButtonW;
     private int drawButtonH;
+
+    private float openAnim;
+    private float drawHoverAnim;
+    private float[] slotHover = new float[0];
+    private int hoveredPrize = -1;
 
     public LotteryMachineGui(BlockPos blockPos, List<ShopEntry> entries, int drawCost,
             ShopEntry.Currency drawCurrency) {
@@ -79,22 +119,27 @@ public class LotteryMachineGui extends AbstractPixelScreen {
             }
         }
         this.totalWeight = Math.max(0, weightSum);
+        this.slotHover = new float[this.prizes.size()];
     }
 
     @Override
     protected void init() {
         super.init();
-        this.left = (this.width - PANEL_W) / 2;
-        this.top = (this.height - PANEL_H) / 2;
-        this.drawButtonW = 78;
-        this.drawButtonH = 28;
-        this.drawButtonX = this.left + PANEL_W - this.drawButtonW - 18;
-        this.drawButtonY = this.top + PANEL_H - this.drawButtonH - 18;
+        rebuildLayout();
     }
 
     @Override
     public void tick() {
         super.tick();
+        this.openAnim = Math.min(1.0f, this.openAnim + 0.125f);
+        if (this.slotHover.length != this.prizes.size()) {
+            this.slotHover = Arrays.copyOf(this.slotHover, this.prizes.size());
+        }
+        for (int i = 0; i < this.slotHover.length; i++) {
+            float target = i == this.hoveredPrize ? 1.0f : 0.0f;
+            this.slotHover[i] += (target - this.slotHover[i]) * 0.22f;
+        }
+
         if (this.messageTicks > 0) {
             this.messageTicks--;
         }
@@ -114,86 +159,169 @@ public class LotteryMachineGui extends AbstractPixelScreen {
     }
 
     @Override
+    public void renderBackground(@NonNull GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        g.fillGradient(0, 0, this.width, this.height, BG_TOP, BG_BOTTOM);
+    }
+
+    @Override
     public void render(@NonNull GuiGraphics g, int mouseX, int mouseY, float delta) {
-        this.renderBackground(g, mouseX, mouseY, delta);
         super.render(g, mouseX, mouseY, delta);
-        renderMachine(g, mouseX, mouseY, delta);
+        rebuildLayout();
+        updateHover(mouseX, mouseY);
+
+        float intro = easeOutCubic(this.openAnim);
+        g.pose().pushPose();
+        g.pose().translate(0.0f, (1.0f - intro) * 22.0f, 0.0f);
+
+        drawPanel(g, this.panelX, this.panelY, this.panelW, this.panelH);
+        renderTitle(g);
+        renderPrizeGrid(g);
+        renderReel(g, delta);
+        renderControls(g);
+
+        g.pose().popPose();
+
+        renderPrizeTooltip(g, mouseX, mouseY);
         if (this.messageTicks > 0 && !this.messageKey.isBlank()) {
             renderMessage(g);
         }
     }
 
-    private void renderMachine(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        g.fill(0, 0, this.width, this.height, 0xD0101010);
-        g.fill(this.left, this.top, this.left + PANEL_W, this.top + PANEL_H, 0xFF242A33);
-        g.fill(this.left + 3, this.top + 3, this.left + PANEL_W - 3, this.top + PANEL_H - 3, 0xFF313A46);
-        g.fill(this.left + 178, this.top + 10, this.left + 180, this.top + PANEL_H - 10, 0x80303A46);
+    private void rebuildLayout() {
+        this.panelW = Mth.clamp((int) (this.width * 0.78f), 300, 420);
+        this.panelH = Mth.clamp((int) (this.height * 0.72f), 214, 280);
+        this.panelX = (this.width - this.panelW) / 2;
+        this.panelY = (this.height - this.panelH) / 2;
 
-        Component title = Component.translatable("screen.noellesroles.lottery_machine");
-        g.drawString(this.font, title, this.left + 12, this.top + 10, 0xFFF2E7B6, false);
-        renderPrizeGrid(g, mouseX, mouseY);
-        renderReel(g, delta);
-        renderControls(g, mouseX, mouseY);
+        int splitX = this.panelX + (int) (this.panelW * 0.58f);
+        this.gridX = this.panelX + PAD;
+        this.gridY = this.panelY + 32;
+        this.gridW = splitX - this.gridX - 10;
+        this.gridH = this.panelH - 56;
+
+        int rowPitch = SLOT + SLOT_GAP;
+        this.visibleRows = Math.max(2, this.gridH / rowPitch);
+        this.scrollRows = Mth.clamp(this.scrollRows, 0, getMaxScrollRows());
+
+        this.reelW = Math.min(96, this.panelX + this.panelW - splitX - PAD * 2);
+        this.reelH = 78;
+        this.reelX = splitX + (this.panelX + this.panelW - splitX - this.reelW) / 2;
+        this.reelY = this.panelY + 36;
+
+        this.drawButtonW = Math.max(72, this.reelW);
+        this.drawButtonH = 24;
+        this.drawButtonX = splitX + (this.panelX + this.panelW - splitX - this.drawButtonW) / 2;
+        this.drawButtonY = this.panelY + this.panelH - this.drawButtonH - PAD - 4;
     }
 
-    private void renderPrizeGrid(GuiGraphics g, int mouseX, int mouseY) {
-        Component label = Component.translatable("screen.noellesroles.lottery.prize_pool");
-        g.drawString(this.font, label, this.left + 12, this.top + 28, 0xFFB8C6DC, false);
+    private void updateHover(int mouseX, int mouseY) {
+        this.hoveredPrize = getPrizeIndexAt(mouseX, mouseY);
+        boolean busy = this.state == SpinState.SPINNING || this.state == SpinState.WAITING;
+        float target = !busy && isInside(mouseX, mouseY, this.drawButtonX, this.drawButtonY, this.drawButtonW, this.drawButtonH)
+                ? 1.0f : 0.0f;
+        this.drawHoverAnim += (target - this.drawHoverAnim) * 0.22f;
+    }
 
-        int gridX = this.left + 14;
-        int gridY = this.top + 45;
-        int slot = 24;
-        int gap = 6;
-        int visible = Math.min(this.prizes.size(), 20);
-        for (int i = 0; i < visible; i++) {
-            int x = gridX + (i % GRID_COLUMNS) * (slot + gap);
-            int y = gridY + (i / GRID_COLUMNS) * (slot + gap);
-            boolean hover = mouseX >= x && mouseX <= x + slot && mouseY >= y && mouseY <= y + slot;
+    private void drawPanel(GuiGraphics g, int x, int y, int w, int h) {
+        g.fillGradient(x, y, x + w, y + h, PANEL_BG_TOP, PANEL_BG_BOTTOM);
+        g.renderOutline(x, y, w, h, BORDER);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, DECOR);
+    }
+
+    private void renderTitle(GuiGraphics g) {
+        Component title = Component.translatable("screen.noellesroles.lottery_machine")
+                .withStyle(ChatFormatting.BOLD);
+        g.drawString(this.font, title, this.panelX + PAD, this.panelY + 8, GOLD, false);
+        int splitX = this.reelX - 10;
+        g.fill(splitX, this.panelY + 24, splitX + 1, this.panelY + this.panelH - PAD, DIVIDER);
+    }
+
+    private void renderPrizeGrid(GuiGraphics g) {
+        Component label = Component.translatable("screen.noellesroles.lottery.prize_pool")
+                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+        g.drawString(this.font, label, this.gridX, this.panelY + 20, GOLD, false);
+
+        int scissorBottom = this.gridY + this.visibleRows * (SLOT + SLOT_GAP) - SLOT_GAP;
+        g.enableScissor(this.gridX, this.gridY, this.gridX + this.gridW, Math.min(this.gridY + this.gridH, scissorBottom + 2));
+
+        int start = this.scrollRows * GRID_COLUMNS;
+        int end = Math.min(this.prizes.size(), start + this.visibleRows * GRID_COLUMNS);
+        for (int i = start; i < end; i++) {
+            int display = i - start;
+            int col = display % GRID_COLUMNS;
+            int row = display / GRID_COLUMNS;
+            int x = this.gridX + col * (SLOT + SLOT_GAP);
+            int y = this.gridY + row * (SLOT + SLOT_GAP);
             PrizeEntry prize = this.prizes.get(i);
-            g.fill(x, y, x + slot, y + slot, hover ? 0xFF62718A : 0xFF465264);
-            g.fill(x + 1, y + 1, x + slot - 1, y + slot - 1, 0xFF1C222B);
-            g.renderItem(prize.stack(), x + 4, y + 3);
+            float hover = i < this.slotHover.length ? this.slotHover[i] : 0.0f;
+            boolean winner = this.state == SpinState.REVEAL && isSamePrize(prize.stack(), this.pendingResult);
+
+            int bgTop = blendColors(0xFF1A1008, 0xFFC9A84C, winner ? 0.42f : hover * 0.32f);
+            int bgBottom = blendColors(0xFF120A04, 0xFFC9A84C, winner ? 0.22f : hover * 0.18f);
+            g.fillGradient(x, y, x + SLOT, y + SLOT, bgTop, bgBottom);
+            if (hover > 0.05f) {
+                g.fill(x, y, x + SLOT, y + SLOT, withAlpha(HOVER_FILL, hover));
+            }
+            g.renderOutline(x, y, SLOT, SLOT, winner || hover > 0.4f ? GOLD : CARD_BORDER);
+            g.renderItem(prize.stack(), x + (SLOT - 16) / 2, y + 2);
+
             Component chanceText = Component.literal(formatChance(prize.weight()));
             float scale = 0.5f;
             g.pose().pushPose();
             g.pose().scale(scale, scale, 1.0f);
             g.drawString(this.font, chanceText,
-                    (int) ((x + slot / 2) / scale) - this.font.width(chanceText) / 2,
-                    (int) ((y + slot + 1) / scale),
-                    0xFFF0D078,
+                    (int) ((x + SLOT / 2f) / scale) - this.font.width(chanceText) / 2,
+                    (int) ((y + SLOT - 1) / scale) - 2,
+                    GOLD,
                     false);
             g.pose().popPose();
-            if (hover) {
-                List<Component> tooltip = new ArrayList<>(prize.stack().getTooltipLines(
-                        Item.TooltipContext.EMPTY, Minecraft.getInstance().player, TooltipFlag.NORMAL));
-                tooltip.add(Component.translatable("screen.noellesroles.lottery.weight", prize.weight(), formatChance(prize.weight())));
-                g.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
-            }
         }
+        g.disableScissor();
+
         if (this.prizes.isEmpty()) {
             Component empty = Component.translatable("screen.noellesroles.lottery.empty_pool");
-            g.drawString(this.font, empty, gridX, gridY + 28, 0xFFDE7B7B, false);
+            g.drawString(this.font, empty, this.gridX, this.gridY + 28, RED, false);
+        }
+
+        if (getMaxScrollRows() > 0) {
+            int trackX = this.gridX + this.gridW - SCROLL_W;
+            int trackTop = this.gridY;
+            int trackH = this.visibleRows * (SLOT + SLOT_GAP) - SLOT_GAP;
+            g.fill(trackX, trackTop, trackX + SCROLL_W, trackTop + trackH, 0x661A1008);
+            int thumbH = Math.max(SCROLL_MIN_THUMB, trackH / (getMaxScrollRows() + this.visibleRows));
+            int range = Math.max(1, trackH - thumbH);
+            int thumbY = trackTop + range * this.scrollRows / Math.max(1, getMaxScrollRows());
+            g.fill(trackX, thumbY, trackX + SCROLL_W, thumbY + thumbH, GOLD);
         }
     }
 
+    private void renderPrizeTooltip(GuiGraphics g, int mouseX, int mouseY) {
+        if (this.hoveredPrize < 0 || this.hoveredPrize >= this.prizes.size()) {
+            return;
+        }
+        PrizeEntry prize = this.prizes.get(this.hoveredPrize);
+        List<Component> tooltip = new ArrayList<>(prize.stack().getTooltipLines(
+                Item.TooltipContext.EMPTY, Minecraft.getInstance().player, TooltipFlag.NORMAL));
+        tooltip.add(Component.translatable("screen.noellesroles.lottery.weight", prize.weight(),
+                formatChance(prize.weight())).withStyle(ChatFormatting.GOLD));
+        g.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
+    }
+
     private void renderReel(GuiGraphics g, float delta) {
-        int reelX = this.left + 196;
-        int reelY = this.top + 36;
-        int reelW = 86;
-        int reelH = 76;
-        g.fill(reelX, reelY, reelX + reelW, reelY + reelH, 0xFF10151C);
-        g.fill(reelX + 3, reelY + 3, reelX + reelW - 3, reelY + reelH - 3, 0xFF1A2230);
-        g.renderOutline(reelX, reelY, reelW, reelH, 0xFFE8C96A);
+        drawPanel(g, this.reelX, this.reelY, this.reelW, this.reelH);
+        g.renderOutline(this.reelX, this.reelY, this.reelW, this.reelH,
+                this.state == SpinState.REVEAL ? GOLD : BORDER);
 
         if (this.prizes.isEmpty()) {
             Component q = Component.literal("?");
-            g.drawString(this.font, q, reelX + reelW / 2 - this.font.width(q) / 2, reelY + 33, 0xFF66758A, false);
+            g.drawString(this.font, q, this.reelX + this.reelW / 2 - this.font.width(q) / 2,
+                    this.reelY + this.reelH / 2 - 4, MUTED, false);
             return;
         }
 
         ItemStack center = getReelStack();
-        int centerX = reelX + reelW / 2 - 8;
-        int centerY = reelY + reelH / 2 - 8;
+        int centerX = this.reelX + this.reelW / 2 - 8;
+        int centerY = this.reelY + this.reelH / 2 - 8;
         float pulse = this.state == SpinState.REVEAL
                 ? 1.0f + 0.25f * (1.0f - Math.min(1.0f, (this.revealTicks + delta) / REVEAL_TICKS))
                 : 1.0f;
@@ -205,45 +333,57 @@ public class LotteryMachineGui extends AbstractPixelScreen {
         g.renderItem(center, centerX, centerY);
         g.pose().popPose();
 
-        int sideAlpha = this.state == SpinState.SPINNING || this.state == SpinState.WAITING ? 0xAAFFFFFF : 0x77FFFFFF;
-        g.drawString(this.font, "<<<", reelX + 8, reelY + reelH / 2 - 4, sideAlpha, false);
-        g.drawString(this.font, ">>>", reelX + reelW - 25, reelY + reelH / 2 - 4, sideAlpha, false);
-
-        if (this.state == SpinState.SPINNING || this.state == SpinState.WAITING) {
-            int scanY = reelY + 7 + (this.spinTicks * 3) % (reelH - 14);
-            g.fill(reelX + 4, scanY, reelX + reelW - 4, scanY + 2, 0x88F6D365);
+        boolean spinning = this.state == SpinState.SPINNING || this.state == SpinState.WAITING;
+        if (spinning) {
+            float blink = 0.65f + 0.35f * (0.5f + 0.5f * (float) Math.sin((this.spinTicks + delta) * Math.PI / 3.6));
+            int arrowColor = withAlpha(GOLD, blink);
+            g.drawString(this.font, "<<<", this.reelX + 6, this.reelY + this.reelH / 2 - 4, arrowColor, false);
+            g.drawString(this.font, ">>>", this.reelX + this.reelW - 24, this.reelY + this.reelH / 2 - 4, arrowColor, false);
+            int scanY = this.reelY + 6 + (int) ((this.spinTicks + delta) * 4) % Math.max(1, this.reelH - 14);
+            g.fill(this.reelX + 4, scanY, this.reelX + this.reelW - 4, scanY + 2, 0x88D4AF37);
+        } else if (this.state == SpinState.REVEAL && !this.pendingResult.isEmpty()) {
+            Component name = this.pendingResult.getHoverName();
+            int maxW = this.reelW - 8;
+            String clipped = this.font.plainSubstrByWidth(name.getString(), maxW);
+            g.drawString(this.font, clipped,
+                    this.reelX + this.reelW / 2 - this.font.width(clipped) / 2,
+                    this.reelY + this.reelH - 14, GREEN, false);
         }
     }
 
-    private void renderControls(GuiGraphics g, int mouseX, int mouseY) {
+    private void renderControls(GuiGraphics g) {
         ItemStack currencyIcon = this.drawCurrency.iconStack();
-
-        // 费用行：图标 + 金额
-        int costIconX = this.left + 196;
-        int costIconY = this.top + 122;
-        g.renderItem(currencyIcon, costIconX, costIconY);
+        int infoX = this.reelX;
+        int infoY = this.reelY + this.reelH + 8;
+        g.renderItem(currencyIcon, infoX, infoY);
         Component costAmount = Component.translatable("screen.noellesroles.lottery.cost_amount", this.drawCost);
-        g.drawString(this.font, costAmount, costIconX + 18, this.top + 124, 0xFFD9E6F5, false);
+        g.drawString(this.font, costAmount, infoX + 18, infoY + 4, BODY, false);
 
-        // 余额行：图标 + 金额
-        int balance = Minecraft.getInstance().player == null ? 0 : this.drawCurrency.getBalance(Minecraft.getInstance().player);
-        int balIconX = this.left + 196;
-        int balIconY = this.top + 137;
-        g.renderItem(currencyIcon, balIconX, balIconY);
+        int balance = Minecraft.getInstance().player == null ? 0
+                : this.drawCurrency.getBalance(Minecraft.getInstance().player);
+        g.renderItem(currencyIcon, infoX, infoY + 16);
         Component balanceAmount = Component.translatable("screen.noellesroles.lottery.balance_amount", balance);
-        g.drawString(this.font, balanceAmount, balIconX + 18, this.top + 139, this.drawCurrency.color(), false);
+        int balanceColor = balance >= this.drawCost ? this.drawCurrency.color() : RED;
+        g.drawString(this.font, balanceAmount, infoX + 18, infoY + 20, balanceColor, false);
 
-        boolean active = isInside(mouseX, mouseY, this.drawButtonX, this.drawButtonY, this.drawButtonW, this.drawButtonH);
         boolean busy = this.state == SpinState.SPINNING || this.state == SpinState.WAITING;
-        int buttonColor = busy ? 0xFF59616D : active ? 0xFF9E7B31 : 0xFF7E632B;
-        g.fill(this.drawButtonX, this.drawButtonY, this.drawButtonX + this.drawButtonW,
-                this.drawButtonY + this.drawButtonH, buttonColor);
-        g.fill(this.drawButtonX + 2, this.drawButtonY + 2, this.drawButtonX + this.drawButtonW - 2,
-                this.drawButtonY + this.drawButtonH - 2, busy ? 0xFF3B424D : 0xFFE5B85A);
-        Component drawText = Component.translatable(busy ? "screen.noellesroles.lottery.drawing" : "screen.noellesroles.lottery.draw");
+        int btnTop = busy
+                ? 0xFF3A2C1E
+                : blendColors(0xFF1A1008, GOLD, 0.18f + this.drawHoverAnim * 0.22f);
+        int btnBottom = busy
+                ? 0xFF24180E
+                : blendColors(0xFF120A04, GOLD, 0.08f + this.drawHoverAnim * 0.14f);
+        g.fillGradient(this.drawButtonX, this.drawButtonY, this.drawButtonX + this.drawButtonW,
+                this.drawButtonY + this.drawButtonH, btnTop, btnBottom);
+        g.renderOutline(this.drawButtonX, this.drawButtonY, this.drawButtonW, this.drawButtonH,
+                busy ? CARD_BORDER : blendColors(CARD_BORDER, GOLD, this.drawHoverAnim));
+        Component drawText = Component.translatable(busy
+                ? "screen.noellesroles.lottery.drawing"
+                : "screen.noellesroles.lottery.draw").withStyle(ChatFormatting.BOLD);
         g.drawString(this.font, drawText,
                 this.drawButtonX + this.drawButtonW / 2 - this.font.width(drawText) / 2,
-                this.drawButtonY + 10, busy ? 0xFFCAD1DD : 0xFF241A0A, false);
+                this.drawButtonY + (this.drawButtonH - this.font.lineHeight) / 2,
+                busy ? MUTED : TEXT, false);
     }
 
     private void renderMessage(GuiGraphics g) {
@@ -251,18 +391,28 @@ public class LotteryMachineGui extends AbstractPixelScreen {
                 this.pendingResult.isEmpty() ? Component.empty() : this.pendingResult.getHoverName());
         int w = this.font.width(message) + 18;
         int x = this.width / 2 - w / 2;
-        int y = this.top - 24;
-        g.fill(x, y, x + w, y + 18, 0xDD000000);
-        g.renderOutline(x, y, w, 18, 0xFFE8C96A);
-        g.drawString(this.font, message, x + 9, y + 5, 0xFFFFFFFF, false);
+        int y = Math.max(8, this.panelY - 26);
+        g.fillGradient(x, y, x + w, y + 18, PANEL_BG_TOP, PANEL_BG_BOTTOM);
+        g.renderOutline(x, y, w, 18, GOLD);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, DECOR);
+        g.drawString(this.font, message, x + 9, y + 5, TEXT, false);
     }
 
     private ItemStack getReelStack() {
+        if (this.prizes.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
         if (this.state == SpinState.REVEAL && !this.pendingResult.isEmpty()) {
             return this.pendingResult;
         }
-        int index = Math.floorMod(this.spinTicks + (this.spinTicks * this.spinTicks / 9), this.prizes.size());
-        return this.prizes.get(index).stack();
+        if (this.state == SpinState.SPINNING || this.state == SpinState.WAITING) {
+            int index = Math.floorMod(this.spinTicks + (this.spinTicks * this.spinTicks / 9), this.prizes.size());
+            return this.prizes.get(index).stack();
+        }
+        if (!this.pendingResult.isEmpty()) {
+            return this.pendingResult;
+        }
+        return this.prizes.get(0).stack();
     }
 
     private String formatChance(int weight) {
@@ -281,6 +431,29 @@ public class LotteryMachineGui extends AbstractPixelScreen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (getMaxScrollRows() > 0 && isInside(mouseX, mouseY, this.gridX, this.gridY, this.gridW, this.gridH)) {
+            if (verticalAmount > 0) {
+                this.scrollRows--;
+            } else if (verticalAmount < 0) {
+                this.scrollRows++;
+            }
+            this.scrollRows = Mth.clamp(this.scrollRows, 0, getMaxScrollRows());
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    @Override
+    public boolean keyPressed(int i, int j, int k) {
+        if (Minecraft.getInstance().options.keyInventory.matches(i, j)) {
+            onClose();
+            return true;
+        }
+        return super.keyPressed(i, j, k);
+    }
+
     private void requestDraw() {
         if (this.state == SpinState.SPINNING || this.state == SpinState.WAITING) {
             playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.7f);
@@ -291,7 +464,8 @@ public class LotteryMachineGui extends AbstractPixelScreen {
             playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.7f);
             return;
         }
-        if (Minecraft.getInstance().player == null || this.drawCurrency.getBalance(Minecraft.getInstance().player) < this.drawCost) {
+        if (Minecraft.getInstance().player == null
+                || this.drawCurrency.getBalance(Minecraft.getInstance().player) < this.drawCost) {
             showMessage(this.drawCurrency == ShopEntry.Currency.MINIGAME_TOKEN
                     ? "noellesroles.not_enough_minigame_token"
                     : "noellesroles.not_enough_money", ItemStack.EMPTY);
@@ -341,8 +515,60 @@ public class LotteryMachineGui extends AbstractPixelScreen {
         }
     }
 
+    private int getPrizeIndexAt(double mouseX, double mouseY) {
+        int start = this.scrollRows * GRID_COLUMNS;
+        int end = Math.min(this.prizes.size(), start + this.visibleRows * GRID_COLUMNS);
+        for (int i = start; i < end; i++) {
+            int display = i - start;
+            int col = display % GRID_COLUMNS;
+            int row = display / GRID_COLUMNS;
+            int x = this.gridX + col * (SLOT + SLOT_GAP);
+            int y = this.gridY + row * (SLOT + SLOT_GAP);
+            if (isInside(mouseX, mouseY, x, y, SLOT, SLOT)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getTotalRows() {
+        if (this.prizes.isEmpty()) {
+            return 0;
+        }
+        return (this.prizes.size() + GRID_COLUMNS - 1) / GRID_COLUMNS;
+    }
+
+    private int getMaxScrollRows() {
+        return Math.max(0, getTotalRows() - this.visibleRows);
+    }
+
+    private static boolean isSamePrize(ItemStack a, ItemStack b) {
+        return !a.isEmpty() && !b.isEmpty() && ItemStack.isSameItemSameComponents(a, b);
+    }
+
     private static boolean isInside(double mouseX, double mouseY, int x, int y, int w, int h) {
         return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
+    }
+
+    private static float easeOutCubic(float t) {
+        t = Mth.clamp(t, 0.0f, 1.0f);
+        float f = 1.0f - t;
+        return 1.0f - f * f * f;
+    }
+
+    private static int blendColors(int c1, int c2, float t) {
+        t = Mth.clamp(t, 0.0f, 1.0f);
+        int a1 = c1 >>> 24, r1 = (c1 >> 16) & 0xFF, g1 = (c1 >> 8) & 0xFF, b1 = c1 & 0xFF;
+        int a2 = c2 >>> 24, r2 = (c2 >> 16) & 0xFF, g2 = (c2 >> 8) & 0xFF, b2 = c2 & 0xFF;
+        return ((int) (a1 + (a2 - a1) * t) << 24)
+                | ((int) (r1 + (r2 - r1) * t) << 16)
+                | ((int) (g1 + (g2 - g1) * t) << 8)
+                | (int) (b1 + (b2 - b1) * t);
+    }
+
+    private static int withAlpha(int color, float alpha) {
+        int a = Mth.clamp((int) (((color >>> 24) & 0xFF) * alpha), 0, 255);
+        return (a << 24) | (color & 0x00FFFFFF);
     }
 
     @Override

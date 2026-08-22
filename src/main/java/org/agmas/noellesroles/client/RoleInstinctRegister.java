@@ -15,32 +15,37 @@
 
 package org.agmas.noellesroles.client;
 
+import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
+import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
+import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import java.util.HashMap;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.role_data.innocence.FoodDrinkGlowRoleData;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
 import org.agmas.noellesroles.content.item.SignedPaperItem;
-import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AwesomeRoleData;
+import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
+import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
+import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
+import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
+import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
+import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler;
-import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent;
-import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
-import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
-import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
+import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
+import org.agmas.noellesroles.role_data.neutral.WayfarerRoleData;
+import org.agmas.noellesroles.role_data.special.BetterVigilanteRoleData;
+import org.agmas.noellesroles.role_data.vigilante.GhostEyeRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -111,8 +116,8 @@ public class RoleInstinctRegister {
                     if (target instanceof PlayerBodyEntity)
                         return TrueFalseAndCustomResult.custom(ModRoles.CORONER.color());
                     if (target instanceof Player targetPlayer) {
-                        InsaneKillerPlayerComponent comp = InsaneKillerPlayerComponent.KEY.get(targetPlayer);
-                        if (comp.isActive)
+                        InsaneKillerRoleData comp = RoleData.getNullable(InsaneKillerRoleData.class, targetPlayer);
+                        if (comp != null && comp.isActive)
                             return TrueFalseAndCustomResult.custom(ModRoles.CORONER.color());
                     }
                     return TrueFalseAndCustomResult.pass();
@@ -157,7 +162,9 @@ public class RoleInstinctRegister {
                 (client, self, target, hasInstinct) -> {
                     if (!hasInstinct)
                         return TrueFalseAndCustomResult.pass();
-                    CandleBearerPlayerComponent component = CandleBearerPlayerComponent.KEY.get(self);
+                    CandleBearerRoleData component = RoleData.getNullable(CandleBearerRoleData.class, self);
+                    if (component == null)
+                        return TrueFalseAndCustomResult.pass();
                     // 尸体：已被完成秉烛的显示蓝色
                     if (target instanceof PlayerBodyEntity body) {
                         if (body.getPlayerUuid() != null && component.isCorpseCandleCompleted(body.getPlayerUuid())) {
@@ -224,7 +231,7 @@ public class RoleInstinctRegister {
         // 雇佣兵合约目标已在下面保留
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.MERCENARY_ID,
                 (client, self, target, hasInstinct) -> {
-                    var mercComp = ModComponents.MERCENARY.get(self);
+                    var mercComp = RoleData.getNullable(MercenaryRoleData.class, self);
                     if (mercComp == null || !mercComp.contractActive)
                         return TrueFalseAndCustomResult.pass();
                     if (target instanceof Player targetPlayer
@@ -295,8 +302,8 @@ public class RoleInstinctRegister {
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.WAYFARER_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (target instanceof Player targetPlayer && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
-                        var wayC = WayfarerPlayerComponent.KEY.get(viewer);
-                        if (wayC.phase == 1 && wayC.killer != null && targetPlayer.getUUID().equals(wayC.killer)) {
+                        var wayC = RoleData.getNullable(WayfarerRoleData.class, viewer);
+                        if (wayC != null && wayC.phase == 1 && wayC.killer != null && targetPlayer.getUUID().equals(wayC.killer)) {
                             return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
                         }
                     }
@@ -321,8 +328,8 @@ public class RoleInstinctRegister {
         // 更好的义警：背水一战激活时蓝色
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.BETTER_VIGILANTE_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
-                    var betterC = BetterVigilantePlayerComponent.KEY.get(viewer);
-                    if (betterC.lastStandActivated) {
+                    var betterC = RoleData.getNullable(BetterVigilanteRoleData.class, viewer);
+                    if (betterC != null && betterC.lastStandActivated) {
                         return TrueFalseAndCustomResult.custom(Color.BLUE.getRGB());
                     }
                     return TrueFalseAndCustomResult.pass();
@@ -347,7 +354,10 @@ public class RoleInstinctRegister {
                     if (viewer.hasEffect(ModEffects.SAFE_TIME))
                         return TrueFalseAndCustomResult.pass();
                     if (target instanceof Player targetPlayer) {
-                        int t = FoodDrinkGlowComponent.KEY.get(viewer).glowTicks
+                        FoodDrinkGlowRoleData glow = RoleData.getNullable(FoodDrinkGlowRoleData.class, viewer);
+                        if (glow == null)
+                            return TrueFalseAndCustomResult.pass();
+                        int t = glow.glowTicks
                                 .getOrDefault(targetPlayer.getScoreboardName(), new HashMap<>())
                                 .getOrDefault(1, 0);
                         if (t > 0)
@@ -376,7 +386,10 @@ public class RoleInstinctRegister {
                             return TrueFalseAndCustomResult.custom(Color.BLUE.getRGB());
                         if (poisonComp.poisonTicks > 0)
                             return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
-                        int t = FoodDrinkGlowComponent.KEY.get(viewer).glowTicks
+                        FoodDrinkGlowRoleData glow = RoleData.getNullable(FoodDrinkGlowRoleData.class, viewer);
+                        if (!RoleData.isAttached(glow))
+                            return TrueFalseAndCustomResult.pass();
+                        int t = glow.glowTicks
                                 .getOrDefault(targetPlayer.getScoreboardName(), new HashMap<>())
                                 .getOrDefault(0, 0);
                         if (t > 0)
@@ -398,7 +411,7 @@ public class RoleInstinctRegister {
         // 刽子手
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.EXECUTIONER_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
-                    ExecutionerPlayerComponent comp = ExecutionerPlayerComponent.KEY.get(viewer);
+                    ExecutionerRoleData comp = RoleData.getNullable(ExecutionerRoleData.class, viewer);
                     if (comp != null && comp.target != null && target instanceof Player targetPlayer) {
                         if (comp.target.equals(targetPlayer.getUUID())
                                 && !SREClient.gameComponent.isRole(targetPlayer, ModRoles.GHOST))
@@ -410,8 +423,8 @@ public class RoleInstinctRegister {
         // 操纵者
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.MANIPULATOR_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
-                    ManipulatorPlayerComponent comp = ManipulatorPlayerComponent.KEY.get(viewer);
-                    if (comp != null && comp.target != null && target instanceof Player targetPlayer) {
+                    ManipulatorRoleData comp = RoleData.getNullable(ManipulatorRoleData.class, viewer);
+                    if (RoleData.isAttached(comp) && comp.target != null && target instanceof Player targetPlayer) {
                         if (comp.target.equals(targetPlayer.getUUID()))
                             return TrueFalseAndCustomResult.custom(Color.orange.getRGB());
                     }
@@ -421,8 +434,8 @@ public class RoleInstinctRegister {
         // 爱慕者（绑定目标）
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.ADMIRER_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
-                    AdmirerPlayerComponent comp = AdmirerPlayerComponent.KEY.get(viewer);
-                    if (comp != null && comp.getBoundTarget() != null && target instanceof Player targetPlayer) {
+                    AdmirerRoleData comp = RoleData.getNullable(AdmirerRoleData.class, viewer);
+                    if (RoleData.isAttached(comp) && comp.getBoundTarget() != null && target instanceof Player targetPlayer) {
                         if (comp.getBoundTarget().getUUID().equals(targetPlayer.getUUID())) {
                             if (isInstinctEnabled) {
                                 return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
@@ -436,8 +449,8 @@ public class RoleInstinctRegister {
         // 监视者
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.MONITOR_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
-                    MonitorPlayerComponent comp = MonitorPlayerComponent.KEY.get(viewer);
-                    if (comp != null && comp.getMarkedTarget() != null && target instanceof Player targetPlayer) {
+                    MonitorRoleData comp = RoleData.getNullable(MonitorRoleData.class, viewer);
+                    if (RoleData.isAttached(comp) && comp.getMarkedTarget() != null && target instanceof Player targetPlayer) {
                         if (comp.getMarkedTarget().equals(targetPlayer.getUUID()))
                             return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
                     }
@@ -451,10 +464,11 @@ public class RoleInstinctRegister {
                         return TrueFalseAndCustomResult.pass();
                     if (target instanceof Player targetPlayer) {
                         double distSq = targetPlayer.distanceToSqr(viewer);
-                        if (distSq > PelicanPlayerComponent.INSTINCT_RANGE * PelicanPlayerComponent.INSTINCT_RANGE)
+                        if (distSq > PelicanRoleData.INSTINCT_RANGE * PelicanRoleData.INSTINCT_RANGE)
                             return TrueFalseAndCustomResult.disallow();
-                        PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(viewer);
-                        if (comp != null && comp.uniqueEaten.contains(targetPlayer.getUUID()))
+                        PelicanRoleData data = io.wifi.starrailexpress.api.data.RoleData
+                                .getNullable(PelicanRoleData.class, viewer);
+                        if (data != null && data.uniqueEaten.contains(targetPlayer.getUUID()))
                             return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
                         return TrueFalseAndCustomResult.custom(ModRoles.PELICAN.color());
                     }
@@ -477,7 +491,9 @@ public class RoleInstinctRegister {
         // 傀儡师
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.PUPPETEER_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
-                    var comp = ModComponents.PUPPETEER.get(viewer);
+                    var comp = RoleData.getNullable(PuppeteerRoleData.class, viewer);
+                    if (comp == null)
+                        return TrueFalseAndCustomResult.pass();
                     if (comp.isControllingPuppet && SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit())
                         return TrueFalseAndCustomResult.custom(ModRoles.PUPPETEER.color());
                     if (comp.isPuppeteerMarked && SREClient.isPlayerAliveAndInSurvivalIgnoreShitSplit()
@@ -510,7 +526,9 @@ public class RoleInstinctRegister {
                     if (target instanceof Player targetPlayer) {
                         if (targetPlayer.distanceToSqr(viewer) > 20 * 20 || targetPlayer == viewer)
                             return TrueFalseAndCustomResult.disallow();
-                        var recorder = ModComponents.RECORDER.get(viewer);
+                        var recorder = RoleData.getNullable(RecorderRoleData.class, viewer);
+                        if (recorder == null)
+                            return TrueFalseAndCustomResult.pass();
                         if (recorder.getGuesses().containsKey(targetPlayer.getUUID()))
                             return TrueFalseAndCustomResult.custom(0xFFFF55);
                         return TrueFalseAndCustomResult.custom(0x0000AA);
@@ -545,15 +563,15 @@ public class RoleInstinctRegister {
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (!(target instanceof Player targetPlayer))
                         return TrueFalseAndCustomResult.pass();
-                    var comp = LeatherPigPlayerComponent.KEY.maybeGet(viewer).orElse(null);
+                    var comp = RoleData.getNullable(LeatherPigRoleData.class, viewer);
                     if (comp == null || !comp.isFrenzyActive())
                         return TrueFalseAndCustomResult.pass();
                     if (targetPlayer == viewer)
                         return TrueFalseAndCustomResult.pass();
                     if (isTargetInvisibleToInstinct(targetPlayer))
                         return TrueFalseAndCustomResult.disallow();
-                    if (targetPlayer.distanceToSqr(viewer) > LeatherPigPlayerComponent.INSTINCT_RANGE
-                            * LeatherPigPlayerComponent.INSTINCT_RANGE)
+                    if (targetPlayer.distanceToSqr(viewer) > LeatherPigRoleData.INSTINCT_RANGE
+                            * LeatherPigRoleData.INSTINCT_RANGE)
                         return TrueFalseAndCustomResult.pass();
                     return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
                 });
@@ -567,8 +585,8 @@ public class RoleInstinctRegister {
                         return TrueFalseAndCustomResult.pass();
                     if (targetPlayer == viewer)
                         return TrueFalseAndCustomResult.pass();
-                    if (targetPlayer.distanceToSqr(viewer) > GhostEyePlayerComponent.SCAN_RADIUS
-                            * GhostEyePlayerComponent.SCAN_RADIUS)
+                    if (targetPlayer.distanceToSqr(viewer) > GhostEyeRoleData.SCAN_RADIUS
+                            * GhostEyeRoleData.SCAN_RADIUS)
                         return TrueFalseAndCustomResult.pass();
                     return TrueFalseAndCustomResult.custom(Color.WHITE.getRGB());
                 });
@@ -578,8 +596,8 @@ public class RoleInstinctRegister {
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (!(target instanceof Player) || !isInstinctEnabled)
                         return TrueFalseAndCustomResult.pass();
-                    var raven = ModComponents.RAVEN.get(viewer);
-                    if (raven.isHunting())
+                    var raven = RoleData.getNullable(RavenRoleData.class, viewer);
+                    if (raven != null && raven.isHunting())
                         return TrueFalseAndCustomResult.custom(Color.WHITE.getRGB());
                     if (viewer.distanceTo(target) <= 10.0)
                         return TrueFalseAndCustomResult.custom(Color.WHITE.getRGB());
@@ -594,11 +612,11 @@ public class RoleInstinctRegister {
                     if (targetPlayer.isInvisibleTo(viewer))
                         return TrueFalseAndCustomResult.pass();
                     if (targetPlayer.distanceTo(viewer) <= 5) {
-                        var awpc = AwesomePlayerComponent.KEY.get(targetPlayer);
-                        if (awpc.nearByDeathTime <= 1)
+                        var awpc = RoleData.getNullable(AwesomeRoleData.class, targetPlayer);
+                        if (awpc == null || awpc.nearByDeathTime <= 1)
                             return TrueFalseAndCustomResult.pass();
                         int redDepth = (int) (255 * ((float) awpc.nearByDeathTime
-                                / (float) AwesomePlayerComponent.nearByDeathTimeRecordTime));
+                                / (float) AwesomeRoleData.nearByDeathTimeRecordTime));
                         redDepth = Math.clamp(redDepth, 0, 255);
                         return TrueFalseAndCustomResult.custom(new Color(redDepth, 0, 0).getRGB());
                     }
@@ -612,8 +630,8 @@ public class RoleInstinctRegister {
                         return TrueFalseAndCustomResult.pass();
                     if (!SREClient.gameComponent.isRole(targetPlayer, ModRoles.CONSPIRATOR))
                         return TrueFalseAndCustomResult.pass();
-                    var awpc = AgentPlayerComponent.KEY.get(viewer);
-                    if (awpc.conspiratorInstinctTime <= 0)
+                    var awpc = RoleData.getNullable(AgentRoleData.class, viewer);
+                    if (!RoleData.isAttached(awpc) || awpc.conspiratorInstinctTime <= 0)
                         return TrueFalseAndCustomResult.pass();
                     return TrueFalseAndCustomResult.custom(ModRoles.AGENT.color());
                 });
@@ -623,8 +641,8 @@ public class RoleInstinctRegister {
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (!(target instanceof Player targetPlayer))
                         return TrueFalseAndCustomResult.pass();
-                    var comp = FoolPlayerComponent.KEY.get(viewer);
-                    if (comp.hereticTarget == null || !comp.hereticTarget.equals(targetPlayer.getUUID()))
+                    var comp = RoleData.getNullable(FoolRoleData.class, viewer);
+                    if (comp == null || comp.hereticTarget == null || !comp.hereticTarget.equals(targetPlayer.getUUID()))
                         return TrueFalseAndCustomResult.pass();
                     return TrueFalseAndCustomResult.custom(0xF2C56A);
                 });
@@ -677,8 +695,8 @@ public class RoleInstinctRegister {
         }
         for (Player p : client.level.players()) {
             if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(p, ModRoles.GODFATHER)) {
-                GodfatherComponent comp = GodfatherComponent.KEY.maybeGet(p).orElse(null);
-                if (comp != null && comp.familyMembers.contains(target.getUUID())) {
+                GodfatherRoleData comp = RoleData.getNullable(GodfatherRoleData.class, p);
+                if (RoleData.isAttached(comp) && comp.familyMembers.contains(target.getUUID())) {
                     return true;
                 }
             }
@@ -875,13 +893,13 @@ public class RoleInstinctRegister {
     private static boolean isGhostEyeScanActive(Player self) {
         if (self == null || self.level() == null)
             return false;
-        GhostEyePlayerComponent comp = GhostEyePlayerComponent.KEY.maybeGet(self).orElse(null);
-        if (comp != null && comp.revealTicks > 0)
+        GhostEyeRoleData comp = RoleData.getNullable(GhostEyeRoleData.class, self);
+        if (RoleData.isAttached(comp) && comp.revealTicks > 0)
             return true;
         int intervalTicks = GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().ghostEyeScanInterval);
         if (intervalTicks <= 0)
             return false;
-        return self.level().getGameTime() % intervalTicks < GhostEyePlayerComponent.REVEAL_TICKS;
+        return self.level().getGameTime() % intervalTicks < GhostEyeRoleData.REVEAL_TICKS;
     }
 
     public static boolean isTargetInvisibleToInstinct(Player target) {

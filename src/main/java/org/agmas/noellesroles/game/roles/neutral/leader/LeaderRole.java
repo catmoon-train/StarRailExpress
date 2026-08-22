@@ -58,7 +58,7 @@ public class LeaderRole extends CustomWinnerRole implements EggRoleInterface {
     @Override
     public boolean didPlayerWin(ServerPlayer player, boolean original, WinStatus winStatus) {
         LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, player);
-        if (data == null || data.followers.isEmpty()) {
+        if (!RoleData.isAttached(data) || data.followers.isEmpty()) {
             return original;
         }
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());

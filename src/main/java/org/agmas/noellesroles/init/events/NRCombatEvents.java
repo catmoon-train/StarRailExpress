@@ -15,6 +15,11 @@
 
 package org.agmas.noellesroles.init.events;
 
+import org.agmas.noellesroles.role_data.killer.SpellbreakerRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
+
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.*;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -30,9 +35,8 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
@@ -68,8 +72,8 @@ public class NRCombatEvents {
     private static void registerAllowPlayerPunching() {
         // 渡鸦狩猎期间允许空手攻击
         AllowPlayerPunching.EVENT.register(player -> {
-            RavenPlayerComponent raven = ModComponents.RAVEN.get(player);
-            return SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.RAVEN) && raven.isHunting();
+            RavenRoleData raven = RoleData.getNullable(RavenRoleData.class, player);
+            return SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.RAVEN) && raven != null && raven.isHunting();
         });
     }
 
@@ -201,10 +205,10 @@ public class NRCombatEvents {
     // --- 战斗相关的角色事件 ---
 
     private static void registerCombatRoleEvents() {
-        ShootingFrenzyPlayerComponent.registerGunNoDropEvent();
-        ExecutionerPlayerComponent.registerBackfireEvent();
-        ShootingFrenzyPlayerComponent.registerFrenzyCooldownEvent();
-        org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent.registerEvents();
+        ExecutionerRoleData.registerGunNoDropEvent();
+        ExecutionerRoleData.registerBackfireEvent();
+        ExecutionerRoleData.registerFrenzyCooldownEvent();
+        org.agmas.noellesroles.role_data.killer.SpellbreakerRoleData.registerEvents();
         VoodooDeathHandler.registerEvents();
     }
 }

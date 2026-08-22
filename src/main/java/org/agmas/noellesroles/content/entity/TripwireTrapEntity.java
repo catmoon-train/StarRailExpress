@@ -15,6 +15,9 @@
 
 package org.agmas.noellesroles.content.entity;
 
+import io.wifi.starrailexpress.api.hit.HitPriority;
+import io.wifi.starrailexpress.api.hit.HitType;
+import io.wifi.starrailexpress.api.hit.IsTargetObject;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -52,12 +55,12 @@ import java.util.UUID;
  *
  * <p>贴墙放置：锚点在墙面上，绊线沿墙面法线（水平方向）向外延伸至对面墙壁
  * （或最大长度）。踩中绊线的玩家速度 -90% 持续 4s；绊线不因触发消失，
- * <b>只有被枪击落才会消失</b>（见 {@code TrapperTrapGunPayloadMixin}），近战无法拆除。
+ * <b>只有被枪击落才会消失</b>（{@link IsTargetObject} / {@code SREHitManager}），近战无法拆除。
  *
  * <p>可见性（见 {@code TripwireTrapEntityRenderer}）：所有玩家只能看到墙面锚点的
  * 出发点小标记；激光线本体只有杀手阵营与偏狼中立阵营可见。
  */
-public class TripwireTrapEntity extends Entity {
+public class TripwireTrapEntity extends Entity implements IsTargetObject {
 
     /** 所有者 UUID */
     private static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId(
@@ -246,7 +249,23 @@ public class TripwireTrapEntity extends Entity {
         }
     }
 
-    /** 被枪击落（由 {@code TrapperTrapGunPayloadMixin} 调用）：唯一的移除方式。 */
+    @Override
+    public boolean isValidTarget(Player attacker, HitType type) {
+        return type.isRanged();
+    }
+
+    @Override
+    public HitPriority getTargetPriority(HitType type) {
+        return HitPriority.FALLBACK;
+    }
+
+    @Override
+    public boolean onWeaponHit(Player attacker, HitType type) {
+        shotDown(attacker instanceof ServerPlayer sp ? sp : null);
+        return true;
+    }
+
+    /** 被枪击落：唯一的移除方式。 */
     public void shotDown(ServerPlayer shooter) {
         if (level().isClientSide() || this.isRemoved()) {
             return;

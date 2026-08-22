@@ -15,13 +15,14 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class InsaneHud {
@@ -34,7 +35,8 @@ public class InsaneHud {
                     if (SREClient.isPlayerSpectator())
                         return;
 
-                    final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(client.player);
+                    final var insaneKillerPlayerComponent = RoleData.getNullable(InsaneKillerRoleData.class, client.player);
+                    if (insaneKillerPlayerComponent == null) return;
                     if (insaneKillerPlayerComponent.inNearDeath()) {
                         var text1 = Component.translatable("insane.tip.neardeath.line1")
                                 .withStyle(ChatFormatting.YELLOW);

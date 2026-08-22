@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.killer.warlock;
 
+import org.agmas.noellesroles.role_data.killer.WarlockRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -111,9 +113,9 @@ public final class WarlockDomainManager {
 
     /**
      * 对指定目标展开领域（仅拉入这一人）。返回 false 表示条件不满足（不消耗冷却）。
-     * 校验（角色/存活/冷却/目标处于诅咒中）由 {@link WarlockPlayerComponent#tryOpenDomainOn} 负责。
+     * 校验（角色/存活/冷却/目标处于诅咒中）由 {@link WarlockRoleData#tryOpenDomainOn} 负责。
      */
-    public static boolean open(ServerPlayer warlock, WarlockPlayerComponent comp, ServerPlayer victim) {
+    public static boolean open(ServerPlayer warlock, WarlockRoleData comp, ServerPlayer victim) {
         if (ACTIVE.containsKey(warlock.getUUID()))
             return false;
         if (victim == null || !GameUtils.isPlayerAliveAndSurvival(victim)) {
@@ -276,8 +278,8 @@ public final class WarlockDomainManager {
 
         ServerPlayer warlock = server.getPlayerList().getPlayer(domain.warlock);
         if (warlock != null) {
-            WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.maybeGet(warlock).orElse(null);
-            if (comp != null) {
+            WarlockRoleData comp = RoleData.getNullable(WarlockRoleData.class, warlock);
+            if (RoleData.isAttached(comp)) {
                 comp.domainOpen = false;
                 comp.domainEndTick = 0;
                 comp.sync();

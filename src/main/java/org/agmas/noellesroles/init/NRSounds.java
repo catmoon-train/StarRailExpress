@@ -76,6 +76,13 @@ public class NRSounds {
     // public static final SoundEvent MUSIC_YUZU_FUN_FUN_RE_BOOT = registrar.create("music.yuzu_fun_fun_re_boot");
     public static final SoundEvent MUSIC_ZENRIANBANKA = registrar.create("music.zenrianbanka");
 
+    // 歌手音乐唱片（必须在 bootstrap 阶段注册，不能放进 RoleData 的 static 块）
+    public static final SoundEvent MUSIC_DISC_LAVA_CHICKEN_CUT = registrar.create("music_disc.lava_chicken_cut");
+    public static final SoundEvent MUSIC_DISC_CREATOR_CUT = registrar.create("music_disc.creator_cut");
+    public static final SoundEvent MUSIC_DISC_BROKEN_MOON = registrar.create("music_disc.broken_moon");
+    public static final SoundEvent MUSIC_DISC_PIGSTEP_CUT = registrar.create("music_disc.pigstep_cut");
+    public static final SoundEvent MUSIC_DISC_LUPINUS = registrar.create("music_disc.lupinus");
+
     public static void initialize() {
         registrar.registerEntries();
     }

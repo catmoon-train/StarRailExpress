@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.mixin.client.roles.morphling;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.wifi.starrailexpress.client.SREClient;
@@ -29,7 +30,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -121,9 +122,9 @@ public abstract class MorphlingRendererMixin {
                 }
             }
 
-            final var morphlingPlayerComponent = MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity);
-            if (morphlingPlayerComponent != null && morphlingPlayerComponent.getMorphTicks() > 0) {
-                final var disguise = (MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity)).disguise;
+            final var morphlingPlayerComponent = RoleData.getNullable(MorphlingRoleData.class, abstractClientPlayerEntity);
+            if (RoleData.isAttached(morphlingPlayerComponent) && morphlingPlayerComponent.getMorphTicks() > 0) {
+                final var disguise = morphlingPlayerComponent.disguise;
                 final var playerInfo = ClientSkinCache.getCachedPlayerInfo(disguise);
                 if (playerInfo == null)
                     return;
@@ -173,8 +174,8 @@ public abstract class MorphlingRendererMixin {
                 }
             }
 
-            var component = MorphlingPlayerComponent.KEY.get(instance);
-            if (component != null && component.getMorphTicks() > 0 && component.disguise != null) {
+            var component = RoleData.getNullable(MorphlingRoleData.class, instance);
+            if (RoleData.isAttached(component) && component.getMorphTicks() > 0 && component.disguise != null) {
                 final var playerInfo = ClientSkinCache.getCachedPlayerInfo((component.disguise));
                 if (playerInfo != null) {
                     final var skin = playerInfo.getSkin();

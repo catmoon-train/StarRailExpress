@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.killer.ma_chen_xu;
 
+import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -43,7 +45,9 @@ public class MaChenXuEventHandler {
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             SREGameWorldComponent sreGameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (sreGameWorldComponent.isRole(victim, ModRoles.MA_CHEN_XU)) {
-                var compc = MaChenXuPlayerComponent.KEY.get(victim);
+                var compc = RoleData.getNullable(MaChenXuRoleData.class, victim);
+                if (compc == null)
+                    return true;
                 // 永久护盾（阶段4获得，一次性抵挡致命伤害）
                 if (compc.permanentShield) {
                     compc.permanentShield = false;
@@ -90,7 +94,7 @@ public class MaChenXuEventHandler {
     // return InteractionResult.PASS;
     // }
     //
-    // MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
+    // MaChenXuRoleData comp = RoleData.getNullable(MaChenXuRoleData.class, attacker);
     // if (comp.stage <= 0) {
     // return InteractionResult.PASS;
     // }

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game.c4;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -57,7 +58,7 @@ public final class PliersDefuseManager {
     public static InteractionResult beginPlayerDefuse(ItemStack stack, Player user, Player target, InteractionHand hand) {
         if (!(user instanceof ServerPlayer serverUser)) return InteractionResult.SUCCESS;
         if (target == null) return InteractionResult.PASS;
-        C4BackComponent comp = C4BackComponent.KEY.getNullable(serverUser.level());
+        C4BackComponent comp = C4BackComponent.KEY.get(serverUser.level());
         if (comp == null || !comp.hasC4(target.getUUID())) return InteractionResult.FAIL;
         if (!stack.is(ModItems.PLIERS)) return InteractionResult.FAIL;
         start(serverUser, hand, target.getUUID(), null);
@@ -120,7 +121,7 @@ public final class PliersDefuseManager {
         if (attempt.playerTargetId() != null) {
             ServerPlayer target = server.getPlayerList().getPlayer(attempt.playerTargetId());
             if (target == null || target.level() != level || target.isRemoved()) return null;
-            C4BackComponent comp = C4BackComponent.KEY.getNullable(level);
+            C4BackComponent comp = C4BackComponent.KEY.get(level);
             if (comp == null || !comp.hasC4(target.getUUID())) return null;
             return new DefuseTarget(target.getUUID(), target.position().add(0.0D, 1.0D, 0.0D), true);
         }
@@ -164,7 +165,7 @@ public final class PliersDefuseManager {
             DefuseAttempt attempt, boolean clippedWrongWire) {
         MinecraftServer server = level.getServer();
         ServerPlayer target = server.getPlayerList().getPlayer(attempt.playerTargetId());
-        C4BackComponent comp = C4BackComponent.KEY.getNullable(level);
+        C4BackComponent comp = C4BackComponent.KEY.get(level);
         if (target == null || comp == null || !comp.hasC4(target.getUUID())) return;
         comp.removeC4(target.getUUID());
         if (clippedWrongWire) {

@@ -15,10 +15,11 @@
 
 package org.agmas.noellesroles.mixin.time_stop;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.DIORoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,7 +38,7 @@ public class PlayerMixin {
             return;
         }
         if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.DIO)){
-            if (DIOPlayerComponent.KEY.get(player).isFeeding){
+            if (RoleData.test(DIORoleData.class, player, d -> d.isFeeding)) {
                 cir.setReturnValue(true);
                 cir.cancel();
             }

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.widget;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
@@ -31,7 +32,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.PartyRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.PartyKillerC2SPacket;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +55,10 @@ public class PartyKillerPlayerWidget extends Button {
             AbstractClientPlayer player = Minecraft.getInstance().player;
             if (player != null) {
                 // 检查冷却
-                PartyPlayerComponent comp = PartyPlayerComponent.KEY.get(player);
+                PartyRoleData comp = RoleData.getNullable(PartyRoleData.class, player);
+                if (comp == null) {
+                    return;
+                }
                 SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
                 if (ability.canUseAbility()) {
                     ClientPlayNetworking.send(new PartyKillerC2SPacket(targetInfo.getProfile().getId()));

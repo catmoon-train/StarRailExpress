@@ -15,6 +15,11 @@
 
 package org.agmas.noellesroles.mixin;
 
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.SREItemUtils;
@@ -29,34 +34,34 @@ import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
 import org.agmas.noellesroles.content.entity.MudTrapEntity;
 import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
-import org.agmas.noellesroles.game.roles.innocence.athlete.AthletePlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
-import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
+import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
+import org.agmas.noellesroles.role_data.innocence.AwesomeRoleData;
+import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
+import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
+import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
+import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
+import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
+import org.agmas.noellesroles.role_data.innocence.RecallerRoleData;
+import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
+import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
+import org.agmas.noellesroles.role_data.killer.ConspiratorRoleData;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
-import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
+import org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
+import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
+import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
+import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
+import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
+import org.agmas.noellesroles.role_data.neutral.SlipperyGhostRoleData;
+import org.agmas.noellesroles.role_data.neutral.VultureRoleData;
+import org.agmas.noellesroles.role_data.neutral.WayfarerRoleData;
 import org.agmas.noellesroles.packet.PlayerResetS2CPacket;
 import org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -113,98 +118,105 @@ public abstract class PlayerResetMixin {
         RoleUtils. removeAllEffects(player);
         player.setLastHurtMob(null);
         TemporaryEffectPlayerComponent.KEY.get(player).init();
-        BloodFeudistPlayerComponent.KEY.get(player).clear();
+        BloodFeudistRoleData bloodFeudist = RoleData.getNullable(BloodFeudistRoleData.class, player);
+        if (RoleData.isAttached(bloodFeudist)) bloodFeudist.clear();
         SplitPersonalityComponent.KEY.get(player).clear();
         SkinSplitPersonalityComponent.KEY.get(player).clear();
         SkinSplitPersonalityComponent.KEY.get(player).sync();
-        MonokumaPlayerComponent.KEY.get(player).clear();
+        MonokumaRoleData monokuma = RoleData.getNullable(MonokumaRoleData.class, player);
+        if (RoleData.isAttached(monokuma)) monokuma.clear();
         (PlayerVolumeComponent.KEY.get(player)).clear();
-        (WayfarerPlayerComponent.KEY.get(player)).clear();
+        WayfarerRoleData wayfarer = RoleData.getNullable(WayfarerRoleData.class, player);
+        if (RoleData.isAttached(wayfarer)) wayfarer.clear();
 
-        ((MorphlingPlayerComponent) MorphlingPlayerComponent.KEY.get(player)).init();
-        ((VoodooPlayerComponent) VoodooPlayerComponent.KEY.get(player)).init();
-        (RecallerPlayerComponent.KEY.get(player)).init();
-        (VulturePlayerComponent.KEY.get(player)).init();
-        (ExecutionerPlayerComponent.KEY.get(player)).init();
+        MorphlingRoleData morphling = RoleData.getNullable(MorphlingRoleData.class, player);
+        if (RoleData.isAttached(morphling)) morphling.init();
+        VoodooRoleData voodoo = RoleData.getNullable(VoodooRoleData.class, player);
+        if (RoleData.isAttached(voodoo)) voodoo.init();
+        RecallerRoleData recaller = RoleData.getNullable(RecallerRoleData.class, player);
+        if (RoleData.isAttached(recaller)) recaller.init();
+        VultureRoleData vulture = RoleData.getNullable(VultureRoleData.class, player);
+        if (RoleData.isAttached(vulture)) vulture.init();
+        ExecutionerRoleData executioner = RoleData.getNullable(ExecutionerRoleData.class, player);
+        if (RoleData.isAttached(executioner)) executioner.init();
 
-        FortunetellerPlayerComponent.KEY.get(player).init();
+        FortunetellerRoleData fortuneteller = RoleData.getNullable(FortunetellerRoleData.class, player);
+        if (RoleData.isAttached(fortuneteller)) fortuneteller.init();
 
-        AwesomePlayerComponent awesomeComp = ModComponents.AWESOME.get(player);
-        awesomeComp.init();
+        AwesomeRoleData awesomeComp = RoleData.getNullable(AwesomeRoleData.class, player);
+        if (RoleData.isAttached(awesomeComp)) awesomeComp.init();
 
-        StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(player);
-        stalkerComp.clearAll();
+        StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, player);
+        if (RoleData.isAttached(stalkerComp)) stalkerComp.clearAll();
         InControlCCA inControlCCA = InControlCCA.KEY.get(player);
         inControlCCA.clear();
-        ModComponents.MAGICIAN.get(player).clear();
-        ManipulatorPlayerComponent manipulatorComp = ManipulatorPlayerComponent.KEY.get(player);
-        manipulatorComp.clear();
+        MagicianRoleData magician = RoleData.getNullable(MagicianRoleData.class, player);
+        if (RoleData.isAttached(magician)) magician.clear();
+        ManipulatorRoleData manipulatorComp = RoleData.getNullable(ManipulatorRoleData.class, player);
+        if (RoleData.isAttached(manipulatorComp)) manipulatorComp.clear();
         // 清除惩罚组件状态
         DeathPenaltyComponent deathPenalty = ModComponents.DEATH_PENALTY.get(player);
         deathPenalty.clear();
 
         // 清除慕恋者组件状态
-        AdmirerPlayerComponent admirerComp = ModComponents.ADMIRER.get(player);
-        admirerComp.clear();
+        AdmirerRoleData admirerComp = RoleData.getNullable(AdmirerRoleData.class, player);
+        if (RoleData.isAttached(admirerComp)) admirerComp.clear();
 
         // 清除其他自定义组件状态
         SREAbilityPlayerComponent abilityComp = ModComponents.ABILITY.get(player);
         abilityComp.clear();
 
-        AvengerPlayerComponent avengerComp = ModComponents.AVENGER.get(player);
-        avengerComp.clear();
+        AvengerRoleData avengerComp = RoleData.getNullable(AvengerRoleData.class, player);
+        if (RoleData.isAttached(avengerComp)) avengerComp.clear();
 
-        ConspiratorPlayerComponent conspiratorComp = ModComponents.CONSPIRATOR.get(player);
-        conspiratorComp.clear();
+        ConspiratorRoleData conspiratorComp = RoleData.getNullable(ConspiratorRoleData.class, player);
+        if (RoleData.isAttached(conspiratorComp)) conspiratorComp.clear();
 
-        // Noellesroles.LOGGER.info("resetPlayer");
-        InsaneKillerPlayerComponent insaneKillerComp = ModComponents.INSANE_KILLER.get(player);
-        insaneKillerComp.clear();
+        InsaneKillerRoleData insaneKillerComp = RoleData.getNullable(InsaneKillerRoleData.class, player);
+        if (RoleData.isAttached(insaneKillerComp)) insaneKillerComp.clear();
 
-        SlipperyGhostPlayerComponent slipperyGhostComp = ModComponents.PRANKSTER.get(player);
-        slipperyGhostComp.clear();
+        SlipperyGhostRoleData slipperyGhostComp = RoleData.getNullable(SlipperyGhostRoleData.class, player);
+        if (RoleData.isAttached(slipperyGhostComp)) slipperyGhostComp.clear();
 
-        BroadcasterPlayerComponent broadcasterComp = ModComponents.BROADCASTER.get(player);
-        broadcasterComp.clear();
+        BroadcasterRoleData broadcasterComp = RoleData.getNullable(BroadcasterRoleData.class, player);
+        if (RoleData.isAttached(broadcasterComp)) broadcasterComp.clear();
 
-        AyayayaPlayerComponent postmanComp = ModComponents.AYAYAYA.get(player);
-        postmanComp.clear();
+        AyayayaRoleData postmanComp = RoleData.getNullable(AyayayaRoleData.class, player);
+        if (RoleData.isAttached(postmanComp)) postmanComp.clear();
 
-        AgentPlayerComponent detectiveComp = ModComponents.AGENT.get(player);
-        detectiveComp.clear();
+        AgentRoleData detectiveComp = RoleData.getNullable(AgentRoleData.class, player);
+        if (RoleData.isAttached(detectiveComp)) detectiveComp.clear();
 
-        BoxerPlayerComponent boxerComp = ModComponents.FIGHTER.get(player);
-        boxerComp.clear();
+        BoxerRoleData boxerComp = RoleData.getNullable(BoxerRoleData.class, player);
+        if (RoleData.isAttached(boxerComp)) boxerComp.clear();
 
-        AthletePlayerComponent athleteComp = ModComponents.ATHLETE.get(player);
-        athleteComp.clear();
+        AthleteRoleData athleteComp = RoleData.getNullable(AthleteRoleData.class, player);
+        if (RoleData.isAttached(athleteComp)) athleteComp.clear();
 
-        // 清除设陷者组件状态
-        TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(player);
-        trapperComp.clearAll();
+        TrapperRoleData trapperComp = RoleData.getNullable(TrapperRoleData.class, player);
+        if (RoleData.isAttached(trapperComp)) trapperComp.clearAll();
 
-        // 清除窃皮者组件状态（重置抵挡次数等）并通知客户端还原皮肤
-        SkincrawlerPlayerComponent skincrawlerComp = ModComponents.SKINCRAWLER.get(player);
-        if (skincrawlerComp.stolenSkin != null) {
-            for (ServerPlayer sp : player.getServer().getPlayerList().getPlayers()) {
-                ServerPlayNetworking.send(sp, new SkincrawlerSkinS2CPacket(player.getUUID(), null));
+        SkincrawlerRoleData skincrawlerComp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData.class, player);
+        if (RoleData.isAttached(skincrawlerComp)) {
+            if (skincrawlerComp.stolenSkin != null && player.getServer() != null) {
+                for (ServerPlayer sp : player.getServer().getPlayerList().getPlayers()) {
+                    ServerPlayNetworking.send(sp, new SkincrawlerSkinS2CPacket(player.getUUID(), null));
+                }
             }
+            skincrawlerComp.clear();
         }
-        skincrawlerComp.clear();
 
-        // 清除阿蒙组件状态并通知客户端还原伪装皮肤
-        ModComponents.AMON.get(player).clear();
+        AmonRoleData amon = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.AmonRoleData.class, player);
+        if (RoleData.isAttached(amon)) amon.clear();
 
-        // 清除傀儡师组件状态
-        PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(player);
-        puppeteerComp.clear();
+        PuppeteerRoleData puppeteerComp = RoleData.getNullable(PuppeteerRoleData.class, player);
+        if (RoleData.isAttached(puppeteerComp)) puppeteerComp.clear();
 
-        // 清除记录员组件状态
-        RecorderPlayerComponent recorderComp = ModComponents.RECORDER.get(player);
-        recorderComp.clear();
+        RecorderRoleData recorderComp = RoleData.getNullable(RecorderRoleData.class, player);
+        if (RoleData.isAttached(recorderComp)) recorderComp.clear();
 
-        // 清除蛋糕师组件状态（移除烟熏炉和已放置的蛋糕，防止残留到下一局）
-        CakeMakerComponent.KEY.get(player).clear();
+        CakeMakerRoleData cakeMaker = RoleData.getNullable(CakeMakerRoleData.class, player);
+        if (RoleData.isAttached(cakeMaker)) cakeMaker.clear();
         // 删除modifier
         // WorldModifierComponent worldModifierComponent =
         // WorldModifierComponent.KEY.get(player.level());

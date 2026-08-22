@@ -61,12 +61,18 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
 
     public static void LoadToPlayer(ServerPlayer player, PlayerStatsBeforeRefugee playerStats, SRERole role,
             RefugeeComponent refugeeComponent, WorldModifierComponent worldModifierComponent) {
+        LoadToPlayer(player, playerStats, role, refugeeComponent, worldModifierComponent, true);
+    }
+
+    static void LoadToPlayer(ServerPlayer player, PlayerStatsBeforeRefugee playerStats, SRERole role,
+            RefugeeComponent refugeeComponent, WorldModifierComponent worldModifierComponent,
+            boolean invokeBeforeLoad) {
         if (playerStats == null)
             return;
         if (!playerStats.isAlive())
             return;
-        if (beforeLoadFunc != null) {
-            beforeLoadFunc.accept(player);
+        if (invokeBeforeLoad) {
+            invokeBeforeLoad(player);
         }
         player.getInventory().clearContent();
         player.getInventory().load(playerStats.inventory());
@@ -104,6 +110,12 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         moodComponent.setMood(playerStats.mood());
         shopComponent.sync();
         moodComponent.sync();
+    }
+
+    static void invokeBeforeLoad(ServerPlayer player) {
+        if (beforeLoadFunc != null) {
+            beforeLoadFunc.accept(player);
+        }
     }
 
     public static PlayerStatsBeforeRefugee SaveFromPlayer(ServerPlayer player, boolean isAlive) {

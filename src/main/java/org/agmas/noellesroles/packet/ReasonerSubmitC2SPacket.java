@@ -15,12 +15,13 @@
 
 package org.agmas.noellesroles.packet;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.game.roles.neutral.reasoner.ReasonerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.ReasonerRoleData;
 
 public record ReasonerSubmitC2SPacket(int question, String answer) implements CustomPacketPayload {
     public static final Type<ReasonerSubmitC2SPacket> ID = new Type<>(Noellesroles.id("reasoner_submit"));
@@ -37,8 +38,8 @@ public record ReasonerSubmitC2SPacket(int question, String answer) implements Cu
     }
 
     public static void handle(ReasonerSubmitC2SPacket payload, ServerPlayNetworking.Context context) {
-        context.server().execute(() -> ReasonerPlayerComponent.KEY.get(context.player())
-                .submitAnswer(context.player(), payload.question(), payload.answer()));
+        context.server().execute(() -> RoleData.ifPresent(ReasonerRoleData.class, context.player(),
+                d -> d.submitAnswer(context.player(), payload.question(), payload.answer())));
     }
 
     @Override

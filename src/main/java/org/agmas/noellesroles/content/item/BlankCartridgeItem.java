@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.content.item;
 
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.ChatFormatting;
@@ -31,7 +33,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.SlipperyGhostRoleData;
 
 /**
  * 空包弹物品
@@ -72,7 +74,9 @@ public class BlankCartridgeItem extends Item {
         }
 
         // 检查冷却
-        SlipperyGhostPlayerComponent ghostComp = ModComponents.PRANKSTER.get(user);
+        SlipperyGhostRoleData ghostComp = RoleData.getNullable(SlipperyGhostRoleData.class, user);
+        if (!RoleData.isAttached(ghostComp))
+            return InteractionResult.FAIL;
         if (ghostComp.isBlankCartridgeOnCooldown()) {
             user.displayClientMessage(
                     Component

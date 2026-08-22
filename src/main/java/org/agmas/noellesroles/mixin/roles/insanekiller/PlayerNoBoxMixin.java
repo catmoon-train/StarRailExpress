@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.mixin.roles.insanekiller;
 
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -25,10 +27,10 @@ public class PlayerNoBoxMixin {
     //     // Entity entity = (Entity) (Object) this;
     //     // if (entity instanceof ServerPlayer serverPlayer){
     //     //     if (GameWorldComponent.KEY.get(serverPlayer.level()).isRole(serverPlayer, ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
-    //     //         final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(serverPlayer);
+    //     //         final var insaneKillerPlayerComponent = RoleData.getNullable(InsaneKillerRoleData.class, serverPlayer);
     //     //         if (insaneKillerPlayerComponent.isActive) {
-    //     //             if (InsaneKillerPlayerComponent.skipPD) {
-    //     //                 InsaneKillerPlayerComponent.skipPD = false;
+    //     //             if (InsaneKillerRoleData.skipPD) {
+    //     //                 InsaneKillerRoleData.skipPD = false;
     //     //             } else {
 
     //     //                 cir.setReturnValue(AABB.ofSize(serverPlayer.position().add(0,0.3,0), 1, 0.3, 1));

@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.neutral.monokuma;
 
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -66,7 +68,7 @@ public class MonokumaEventHandler {
         // if (!worldModifierComponent.isModifier(sp, SEModifiers.BLACK_WHITE)) return
         // true;
         //
-        // MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
+        // MonokumaRoleData comp = RoleData.getNullable(MonokumaRoleData.class, sp);
         // if (comp.phase == 1) {
         // // 触发狂暴前奏，阻止死亡
         // comp.onHitTriggered();
@@ -94,8 +96,8 @@ public class MonokumaEventHandler {
             ServerPlayer sp = handler.getPlayer();
             if (sp == null)
                 return;
-            MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.maybeGet(sp).orElse(null);
-            if (comp != null && comp.phase == 2) {
+            MonokumaRoleData comp = RoleData.getNullable(MonokumaRoleData.class, sp);
+            if (RoleData.isAttached(comp) && comp.phase == 2) {
                 comp.clear();
             }
         });
@@ -114,7 +116,9 @@ public class MonokumaEventHandler {
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(sp.level());
             if (!worldModifierComponent.isModifier(sp, SEModifiers.BLACK_WHITE))
                 return true;
-            MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
+            MonokumaRoleData comp = RoleData.getNullable(MonokumaRoleData.class, sp);
+            if (!RoleData.isAttached(comp))
+                return true;
             if (!RefugeeComponent.KEY.get(sp.level()).isAnyRevivals && comp.phase == 1) {
                 // 注意：直接在死亡事件回调里同步执行换职业 / 启动疯狂，会让其中任何异常顺着
                 // “攻击者攻击封包”的调用栈抛出，导致触发黑白的玩家（如义警）掉线。
@@ -122,8 +126,8 @@ public class MonokumaEventHandler {
                 if (sp.getServer() != null) {
                     sp.getServer().execute(() -> {
                         try {
-                            MonokumaPlayerComponent c = MonokumaPlayerComponent.KEY.get(sp);
-                            if (c.phase != 1)
+                            MonokumaRoleData c = RoleData.getNullable(MonokumaRoleData.class, sp);
+                            if (c == null || c.phase != 1)
                                 return;
                             RoleUtils.dropAndClearAllSatisfiedItems(sp, TMMItemTags.GUNS);
                             StupidRoleUtils.changeRole(sp, ModRoles.MONOKUMA);
@@ -191,7 +195,7 @@ public class MonokumaEventHandler {
     // SREGameWorldComponent.KEY.get(sp.level());
     // if (!gameComponent.isRole(sp, ModRoles.MONOKUMA)) return;
     //
-    // MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(sp);
+    // MonokumaRoleData comp = RoleData.getNullable(MonokumaRoleData.class, sp);
     // if (comp.phase != 1) return;
     //
     // // 50%概率不击杀 → 在 onGunHit 回调中处理
@@ -229,15 +233,15 @@ public class MonokumaEventHandler {
      * 检查某个玩家是否是黑白熊形态（供其他系统查询）
      */
     public static boolean isMonokumaBearForm(Player player) {
-        var comp = MonokumaPlayerComponent.KEY.maybeGet(player).orElse(null);
-        return comp != null && comp.phase == 3;
+        var comp = RoleData.getNullable(MonokumaRoleData.class, player);
+        return RoleData.isAttached(comp) && comp.phase == 3;
     }
 
     /**
      * 检查某个玩家是否在狂暴前奏阶段
      */
     public static boolean isInFrenzy(Player player) {
-        var comp = MonokumaPlayerComponent.KEY.maybeGet(player).orElse(null);
-        return comp != null && comp.phase == 2;
+        var comp = RoleData.getNullable(MonokumaRoleData.class, player);
+        return RoleData.isAttached(comp) && comp.phase == 2;
     }
 }

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -35,7 +36,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
 
 /**
  * 皮革噶的：把玩家渲染成一头猪。
@@ -75,8 +76,8 @@ public class LeatherPigDisguiseRenderer {
     private static final float SELF_VIEW_CLEARANCE = 0.02F;
 
     public static boolean shouldDisguise(AbstractClientPlayer player) {
-        LeatherPigPlayerComponent component = LeatherPigPlayerComponent.KEY.maybeGet(player).orElse(null);
-        return component != null && component.isDisguised();
+        LeatherPigRoleData component = RoleData.getNullable(LeatherPigRoleData.class, player);
+        return RoleData.isAttached(component) && component.isDisguised();
     }
 
     /**

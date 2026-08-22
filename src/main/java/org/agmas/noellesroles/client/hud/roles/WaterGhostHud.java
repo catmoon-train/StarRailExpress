@@ -15,12 +15,14 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.WaterGhostRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class WaterGhostHud {
@@ -37,7 +39,8 @@ public class WaterGhostHud {
                 return;
             }
 
-            WaterGhostPlayerComponent component = WaterGhostPlayerComponent.KEY.get(client.player);
+            WaterGhostRoleData component = RoleData.getNullable(WaterGhostRoleData.class, client.player);
+            if (component == null) return;
 
             // 渲染位置 - 右下角
             int screenWidth = client.getWindow().getGuiScaledWidth();

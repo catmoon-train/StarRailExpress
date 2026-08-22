@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.mixin.roles.raven;
 
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -41,7 +43,7 @@ public abstract class RavenKnifeLeftClickMixin {
             return;
         }
 
-        if (!ModComponents.RAVEN.get(attacker).isHunting()) {
+        if (!RoleData.test(RavenRoleData.class, attacker, RavenRoleData::isHunting)) {
             return;
         }
 

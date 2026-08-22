@@ -15,6 +15,9 @@
 
 package org.agmas.noellesroles.game.roles.neutral.mafia;
 
+import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
+import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -100,7 +103,9 @@ public final class MafiaManager {
         ServerPlayer tgt = player.server.getPlayerList().getPlayer(target);
         if (tgt == null || !GameUtils.isPlayerAliveAndSurvival(tgt))
             return;
-        var comp = GodfatherComponent.KEY.get(player);
+        var comp = RoleData.getNullable(GodfatherRoleData.class, player);
+        if (!RoleData.isAttached(comp))
+            return;
         long now = SRE.getTicksFromGameStart();
 
         if (action == MafiaActionC2SPacket.RECRUIT_ROLE) {
@@ -149,8 +154,8 @@ public final class MafiaManager {
         // 傀儡师及其操控的假人不可被教父改变职业
         if (role == ModRoles.PUPPETEER)
             return false;
-        var puppeteer = org.agmas.noellesroles.component.ModComponents.PUPPETEER.get(p);
-        if (puppeteer != null && puppeteer.isControllingPuppet)
+        var puppeteer = RoleData.getNullable(PuppeteerRoleData.class, p);
+        if (RoleData.isAttached(puppeteer) && puppeteer.isControllingPuppet)
             return false;
         return true;
     }
@@ -190,15 +195,19 @@ public final class MafiaManager {
 
     // Bullet system
     public static int getLoadedBullets(ServerPlayer godfather) {
-        return GodfatherComponent.KEY.get(godfather).loadedBullets;
+        var comp = RoleData.getNullable(GodfatherRoleData.class, godfather);
+        return !RoleData.isAttached(comp) ? 0 : comp.loadedBullets;
     }
 
     public static int getMaxLoadedBullets(ServerPlayer godfather) {
-        return GodfatherComponent.KEY.get(godfather).maxLoadedBullets;
+        var comp = RoleData.getNullable(GodfatherRoleData.class, godfather);
+        return !RoleData.isAttached(comp) ? 0 : comp.maxLoadedBullets;
     }
 
     public static void consumeBullet(ServerPlayer godfather) {
-        var comp = GodfatherComponent.KEY.get(godfather);
+        var comp = RoleData.getNullable(GodfatherRoleData.class, godfather);
+        if (!RoleData.isAttached(comp))
+            return;
         if (comp.loadedBullets > 0) {
             comp.loadedBullets--;
             comp.sync();
@@ -207,7 +216,9 @@ public final class MafiaManager {
     }
 
     public static boolean tryLoadBullet(ServerPlayer godfather) {
-        var comp = GodfatherComponent.KEY.get(godfather);
+        var comp = RoleData.getNullable(GodfatherRoleData.class, godfather);
+        if (!RoleData.isAttached(comp))
+            return false;
         if (comp.loadedBullets >= comp.maxLoadedBullets)
             return false;
         comp.loadedBullets++;

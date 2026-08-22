@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.neutral.nian_shou;
 
+import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.EggRole;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -29,8 +31,8 @@ public class NianShouRole extends EggRole {
 
     @Override
     public void onFinishQuest(Player player, String quest) {
-        NianShouPlayerComponent nianShouComponent = NianShouPlayerComponent.KEY.get(player);
-        if (nianShouComponent != null)
+        NianShouRoleData nianShouComponent = RoleData.getNullable(NianShouRoleData.class, player);
+        if (RoleData.isAttached(nianShouComponent))
             nianShouComponent.onTaskCompleted();
     }
 

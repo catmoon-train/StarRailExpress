@@ -24,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
-import org.agmas.noellesroles.game.roles.killer.dream.DreamPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.DreamRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 
 /**
@@ -100,7 +100,7 @@ public class DreamClientHandler {
         for (Player p : client.level.players()) {
             if (io.wifi.starrailexpress.client.SREClient.gameComponent.isRole(p,
                     org.agmas.noellesroles.role.ModRoles.DREAM)
-                    && DreamPlayerComponent.isBerserk(p)) {
+                    && DreamRoleData.isBerserk(p)) {
                 return true;
             }
         }

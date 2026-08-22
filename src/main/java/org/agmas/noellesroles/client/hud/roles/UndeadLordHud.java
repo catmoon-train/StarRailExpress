@@ -15,13 +15,14 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.undead_lord.UndeadLordPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -35,7 +36,7 @@ public class UndeadLordHud {
             if (client.player == null) {
                 return;
             }
-            var comp = UndeadLordPlayerComponent.KEY.maybeGet(client.player).orElse(null);
+            var comp = RoleData.getNullable(UndeadLordRoleData.class, client.player);
             var ability = SREAbilityPlayerComponent.KEY.maybeGet(client.player).orElse(null);
             if (comp == null || ability == null) {
                 return;

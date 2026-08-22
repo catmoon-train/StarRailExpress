@@ -15,10 +15,11 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.MutableComponent;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class NianShouHud {
@@ -28,7 +29,7 @@ public class NianShouHud {
             Minecraft client = Minecraft.getInstance();
 
             // 获取红包组件
-            var nianShouComponent = NianShouPlayerComponent.KEY.get(client.player);
+            var nianShouComponent = RoleData.getNullable(NianShouRoleData.class, client.player);
 
             if (nianShouComponent == null)
                 return;

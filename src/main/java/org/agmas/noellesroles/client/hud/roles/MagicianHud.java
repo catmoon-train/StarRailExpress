@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.SREClient;
@@ -46,8 +48,8 @@ public class MagicianHud {
                 return;
             }
 
-            var magicianComponent = ModComponents.MAGICIAN.get(client.player);
-            if (magicianComponent == null) {
+            var magicianComponent = RoleData.getNullable(MagicianRoleData.class, client.player);
+            if (!RoleData.isAttached(magicianComponent)) {
                 return;
             }
 

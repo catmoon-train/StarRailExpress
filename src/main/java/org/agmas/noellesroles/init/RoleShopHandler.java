@@ -15,6 +15,17 @@
 
 package org.agmas.noellesroles.init;
 
+import org.agmas.noellesroles.role_data.innocence.PhotographerRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
+
+import org.agmas.noellesroles.role_data.killer.DreamRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
+import org.agmas.noellesroles.role_data.killer.WizardRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
@@ -56,17 +67,16 @@ import net.minecraft.world.item.component.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.item.ToxinShopEntry;
-import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
+import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
+import org.agmas.noellesroles.role_data.killer.WatcherRoleData;
+import org.agmas.noellesroles.role_data.killer.WaterGhostRoleData;
+import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
+import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
+import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
+import org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -310,7 +320,7 @@ public class RoleShopHandler {
         WATER_GHOST_SHOP.add(new ShopEntry(rainItem, 150, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(@NotNull Player player) {
-                var component = WaterGhostPlayerComponent.KEY.get(player);
+                var component = RoleData.getNullable(WaterGhostRoleData.class, player);
                 if (component != null) {
                     return component.buyRain();
                 }
@@ -461,7 +471,9 @@ public class RoleShopHandler {
                         ShopEntry.Type.WEAPON) {
                     @Override
                     public boolean onBuy(@NotNull Player player) {
-                        ShootingFrenzyPlayerComponent frenzyComponent = ShootingFrenzyPlayerComponent.KEY.get(player);
+                        ExecutionerRoleData frenzyComponent = RoleData.getNullable(ExecutionerRoleData.class, player);
+                        if (frenzyComponent == null)
+                            return false;
                         boolean success = frenzyComponent.startFrenzy();
                         if (success) {
                             player.getCooldowns().addCooldown(TMMItems.PSYCHO_MODE, 20 * 60);
@@ -488,7 +500,9 @@ public class RoleShopHandler {
                     @Override
                     public boolean onBuy(@NotNull Player player) {
                         boolean success = false;
-                        var cca = ExecutionerPlayerComponent.KEY.get(player);
+                        var cca = RoleData.getNullable(ExecutionerRoleData.class, player);
+                        if (cca == null)
+                            return false;
                         success = cca.assignRandomTarget(true);
                         if (success) {
                             player.getCooldowns().addCooldown(Items.PAPER, 20);
@@ -686,7 +700,7 @@ public class RoleShopHandler {
                 int price = (i == 5) ? 500 : 100;
                 SINGER_SHOP.add(new ShopEntry(singer_shop_item, price, ShopEntry.Type.TOOL) {
                     public boolean onBuy(@NotNull Player player) {
-                        return SingerPlayerComponent.buyDisc(player, idx);
+                        return SingerRoleData.buyDisc(player, idx);
                     }
                 });
             }
@@ -802,8 +816,7 @@ public class RoleShopHandler {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
                     // 获得假球棒并启动假疯狂模式
-                    var magicianComponent = org.agmas.noellesroles.component.ModComponents.MAGICIAN
-                            .get(player);
+                    var magicianComponent = RoleData.getNullable(org.agmas.noellesroles.role_data.innocence.MagicianRoleData.class, player);
                     if (magicianComponent != null) {
                         if (!magicianComponent.startFakePsycho()) {
                             return false;
@@ -1150,17 +1163,17 @@ public class RoleShopHandler {
                 CANDLE_BEARER_SHOP.add(new ShopEntry(invisItem, 125, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player player) {
-                        var comp = CandleBearerPlayerComponent.KEY.get(player);
+                        var comp = RoleData.getNullable(CandleBearerRoleData.class, player);
                         if (comp == null)
                             return false;
-                        if (comp.invisibilityCharges >= CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES)
+                        if (comp.invisibilityCharges >= CandleBearerRoleData.MAX_INVISIBILITY_CHARGES)
                             return false;
                         comp.invisibilityCharges++;
                         if (player instanceof ServerPlayer sp) {
                             sp.displayClientMessage(
                                     Component.translatable("message.noellesroles.candlebearer.charge_gained",
                                             comp.invisibilityCharges,
-                                            CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES)
+                                            CandleBearerRoleData.MAX_INVISIBILITY_CHARGES)
                                             .withStyle(ChatFormatting.GOLD),
                                     true);
                         }
@@ -1614,7 +1627,7 @@ public class RoleShopHandler {
                     if (!(player instanceof net.minecraft.server.level.ServerPlayer sp)) {
                         return false;
                     }
-                    return org.agmas.noellesroles.game.roles.killer.dream.DreamPlayerComponent
+                    return org.agmas.noellesroles.role_data.killer.DreamRoleData
                             .activateMaskBerserk(sp);
                 }
             });
@@ -1679,8 +1692,8 @@ public class RoleShopHandler {
                         if (!(player instanceof ServerPlayer sp)) {
                             return false;
                         }
-                        WraithAssassinPlayerComponent.KEY.get(sp).addEnergy(25);
-                        WraithAssassinPlayerComponent.KEY.get(sp).playConversionCue(sp);
+                        RoleData.ifPresent(WraithAssassinRoleData.class, sp, d -> d.addEnergy(25));
+                        RoleData.ifPresent(WraithAssassinRoleData.class, sp, d -> d.playConversionCue(sp));
                         sp.displayClientMessage(
                                 Component.translatable("message.noellesroles.wraith_assassin.energy_gain", 25)
                                         .withStyle(ChatFormatting.DARK_AQUA),
@@ -1698,7 +1711,7 @@ public class RoleShopHandler {
                     @Override
                     public boolean onBuy(@NotNull Player player) {
                         return player instanceof ServerPlayer sp
-                                && WraithAssassinPlayerComponent.KEY.get(sp).buyDrain(sp);
+                                && RoleData.test(WraithAssassinRoleData.class, sp, d -> d.buyDrain(sp));
                     }
                 });
             }
@@ -1743,11 +1756,10 @@ public class RoleShopHandler {
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 50, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent.KEY
-                                .get(p);
-                        if (c.knifeSoundCooldown > 0)
+                        var c = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData.class, p);
+                        if (c == null || c.knifeSoundCooldown > 0)
                             return false;
-                        c.knifeSoundCooldown = PhantomMusicianPlayerComponent.KNIFE_SOUND_COOLDOWN;
+                        c.knifeSoundCooldown = PhantomMusicianRoleData.KNIFE_SOUND_COOLDOWN;
                         c.sync();
                         p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_KNIFE_STAB, SoundSource.PLAYERS, 1F,
                                 1F);
@@ -1763,11 +1775,10 @@ public class RoleShopHandler {
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 75, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent.KEY
-                                .get(p);
-                        if (c.revolverSoundCooldown > 0)
+                        var c = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData.class, p);
+                        if (!RoleData.isAttached(c) || c.revolverSoundCooldown > 0)
                             return false;
-                        c.revolverSoundCooldown = PhantomMusicianPlayerComponent.REVOLVER_SOUND_COOLDOWN;
+                        c.revolverSoundCooldown = PhantomMusicianRoleData.REVOLVER_SOUND_COOLDOWN;
                         c.sync();
                         p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS,
                                 1F, 1F);
@@ -1783,11 +1794,10 @@ public class RoleShopHandler {
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 100, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent.KEY
-                                .get(p);
-                        if (c.stalkerSoundCooldown > 0)
+                        var c = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData.class, p);
+                        if (!RoleData.isAttached(c) || c.stalkerSoundCooldown > 0)
                             return false;
-                        c.stalkerSoundCooldown = PhantomMusicianPlayerComponent.STALKER_SOUND_COOLDOWN;
+                        c.stalkerSoundCooldown = PhantomMusicianRoleData.STALKER_SOUND_COOLDOWN;
                         c.sync();
                         if (p instanceof ServerPlayer sp)
                             for (var pp : sp.serverLevel().players())
@@ -1805,19 +1815,18 @@ public class RoleShopHandler {
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 350, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent.KEY
-                                .get(p);
-                        if (c.psychoSoundCooldown > 0)
+                        var c = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData.class, p);
+                        if (!RoleData.isAttached(c) || c.psychoSoundCooldown > 0)
                             return false;
-                        c.psychoSoundCooldown = PhantomMusicianPlayerComponent.PSYCHO_SOUND_COOLDOWN;
-                        c.psychoSoundPlayTimer = PhantomMusicianPlayerComponent.PSYCHO_SOUND_PLAY_DURATION;
+                        c.psychoSoundCooldown = PhantomMusicianRoleData.PSYCHO_SOUND_COOLDOWN;
+                        c.psychoSoundPlayTimer = PhantomMusicianRoleData.PSYCHO_SOUND_PLAY_DURATION;
 
                         p.level().playSound(null, p.blockPosition(),
                                 io.wifi.starrailexpress.index.TMMSounds.AMBIENT_PSYCHO_DRONE, SoundSource.PLAYERS, 0.5F,
                                 1F);
                         // 使狂暴模式物品进入对应冷却
                         p.getCooldowns().addCooldown(io.wifi.starrailexpress.index.TMMItems.PSYCHO_MODE,
-                                PhantomMusicianPlayerComponent.PSYCHO_SOUND_COOLDOWN);
+                                PhantomMusicianRoleData.PSYCHO_SOUND_COOLDOWN);
                         c.sync();
                         return true;
                     }
@@ -1831,11 +1840,10 @@ public class RoleShopHandler {
                 PHANTOM_MUSICIAN_SHOP.add(new ShopEntry(s, 25, ShopEntry.Type.TOOL) {
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent.KEY
-                                .get(p);
-                        if (c.crowbarSoundCooldown > 0)
+                        var c = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData.class, p);
+                        if (!RoleData.isAttached(c) || c.crowbarSoundCooldown > 0)
                             return false;
-                        c.crowbarSoundCooldown = PhantomMusicianPlayerComponent.CROWBAR_SOUND_COOLDOWN;
+                        c.crowbarSoundCooldown = PhantomMusicianRoleData.CROWBAR_SOUND_COOLDOWN;
                         c.sync();
                         p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_CROWBAR_PRY, SoundSource.PLAYERS,
                                 1F, 1F);
@@ -1908,11 +1916,10 @@ public class RoleShopHandler {
 
                     @Override
                     public boolean onBuy(@NotNull Player p) {
-                        var c = org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent.KEY
-                                .get(p);
-                        if (c.randomSoundCooldown > 0)
+                        var c = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData.class, p);
+                        if (c == null || c.randomSoundCooldown > 0)
                             return false;
-                        c.randomSoundCooldown = PhantomMusicianPlayerComponent.RANDOM_SOUND_COOLDOWN;
+                        c.randomSoundCooldown = PhantomMusicianRoleData.RANDOM_SOUND_COOLDOWN;
                         c.sync();
                         Object obj = allSounds.get(new java.util.Random().nextInt(allSounds.size()));
                         net.minecraft.sounds.SoundEvent sound;
@@ -1983,7 +1990,7 @@ public class RoleShopHandler {
             MA_CHEN_XU_SHOP.add(new ShopEntry(turbidRainItem, 180, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    var component = org.agmas.noellesroles.component.ModComponents.MA_CHEN_XU.get(player);
+                    var component = RoleData.getNullable(MaChenXuRoleData.class, player);
                     if (component != null) {
                         return component.useTurbidRain();
                     }
@@ -2010,8 +2017,8 @@ public class RoleShopHandler {
             MA_CHEN_XU_SHOP.add(new ShopEntry(soulBellItem, 105, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    var component = org.agmas.noellesroles.component.ModComponents.MA_CHEN_XU.get(player);
-                    if (component != null) {
+                    var component = RoleData.getNullable(MaChenXuRoleData.class, player);
+                    if (RoleData.isAttached(component)) {
                         return component.useSoulBell();
                     }
                     return false;
@@ -2338,8 +2345,8 @@ public class RoleShopHandler {
                     if (!gameWorld.isRole(player, ModRoles.MERCENARY)) {
                         return false;
                     }
-                    var mercenary = MercenaryPlayerComponent.KEY.get(player);
-                    return mercenary.onBoughtShieldLayer();
+                    var mercenary = RoleData.getNullable(MercenaryRoleData.class, player);
+                    return mercenary != null && mercenary.onBoughtShieldLayer();
                 }
             });
 
@@ -2614,8 +2621,7 @@ public class RoleShopHandler {
                     entries.add(new ShopEntry(frameStack, price, ShopEntry.Type.TOOL) {
                         @Override
                         public boolean onBuy(@NotNull Player player) {
-                            var comp = org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerPlayerComponent.KEY
-                                    .get(player);
+                            var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.innocence.PhotographerRoleData.class, player);
                             if (comp == null || !comp.canBuyFrame()) {
                                 return false;
                             }
@@ -2844,7 +2850,7 @@ public class RoleShopHandler {
 
                                 @Override
                                 public boolean canDisplay(@NotNull Player player) {
-                                    return StalkerPlayerComponent.KEY.get(player).phase >= 2;
+                                    return RoleData.test(StalkerRoleData.class, player, d -> d.phase >= 2);
                                 }
 
                                 @Override
@@ -3171,8 +3177,8 @@ public class RoleShopHandler {
                                 if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
                                     p.removeEffect(ModEffects.INFINITE_STAMINA);
                                     if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
-                                        var mapc = MaChenXuPlayerComponent.KEY.get(p);
-                                        if (mapc.otherworldActive) {
+                                        var mapc = RoleData.getNullable(MaChenXuRoleData.class, p);
+                                        if (mapc != null && mapc.otherworldActive) {
                                             mapc.otherworldDuration = 1;
                                         }
                                     } else {
@@ -3217,21 +3223,23 @@ public class RoleShopHandler {
                             for (var p : players) {
                                 if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)) {
                                     if (gameWorldComponent.isRole(p, ModRoles.MA_CHEN_XU)) {
-                                        var mapc = MaChenXuPlayerComponent.KEY.get(p);
-                                        // 增加所有鬼术冷却30秒
-                                        mapc.veilCooldown += 20 * 30;
-                                        mapc.effigyCooldown += 20 * 30;
-                                        mapc.wailCooldown += 20 * 30;
-                                        mapc.seizeCooldown += 20 * 30;
-                                        mapc.ultimateCooldown += 20 * 30;
-                                        // 移除护盾
-                                        mapc.permanentShield = false;
-                                        p.displayClientMessage(
-                                                Component.translatable(
-                                                        "message.noellesroles.ma_chen_xu.into_cooldown_by_guest")
-                                                        .withStyle(ChatFormatting.RED),
-                                                true);
-                                        p.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 1f, 1f);
+                                        var mapc = RoleData.getNullable(MaChenXuRoleData.class, p);
+                                        if (mapc != null) {
+                                            // 增加所有鬼术冷却30秒
+                                            mapc.veilCooldown += 20 * 30;
+                                            mapc.effigyCooldown += 20 * 30;
+                                            mapc.wailCooldown += 20 * 30;
+                                            mapc.seizeCooldown += 20 * 30;
+                                            mapc.ultimateCooldown += 20 * 30;
+                                            // 移除护盾
+                                            mapc.permanentShield = false;
+                                            p.displayClientMessage(
+                                                    Component.translatable(
+                                                            "message.noellesroles.ma_chen_xu.into_cooldown_by_guest")
+                                                            .withStyle(ChatFormatting.RED),
+                                                    true);
+                                            p.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 1f, 1f);
+                                        }
                                     }
                                 }
                             }
@@ -3251,14 +3259,14 @@ public class RoleShopHandler {
                     new KillerKnifeShopEntry(SREConfig.instance().knifePrice) {
                         @Override
                         public boolean canDisplay(Player player) {
-                            return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+                            return !RoleData.test(WatcherRoleData.class, player, d -> d.isInCalmStance());
                         }
                     });
             // 左轮手枪 - 285金币（愤怒姿态）
             shop.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 285, ShopEntry.Type.WEAPON) {
                 @Override
                 public boolean canDisplay(Player player) {
-                    return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+                    return !RoleData.test(WatcherRoleData.class, player, d -> d.isInCalmStance());
                 }
             });
             // 手榴弹
@@ -3266,14 +3274,14 @@ public class RoleShopHandler {
                     ShopEntry.Type.WEAPON) {
                 @Override
                 public boolean canDisplay(Player player) {
-                    return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+                    return !RoleData.test(WatcherRoleData.class, player, d -> d.isInCalmStance());
                 }
             });
             shop.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
                     SREConfig.instance().psychoModePrice, ShopEntry.Type.WEAPON) {
                 @Override
                 public boolean canDisplay(Player player) {
-                    return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+                    return !RoleData.test(WatcherRoleData.class, player, d -> d.isInCalmStance());
                 }
 
                 @Override
@@ -3285,7 +3293,7 @@ public class RoleShopHandler {
                     SREConfig.instance().firecrackerPrice, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean canDisplay(Player player) {
-                    return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+                    return !RoleData.test(WatcherRoleData.class, player, d -> d.isInCalmStance());
                 }
             });
             shop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), SREConfig.instance().lockpickPrice,
@@ -3300,21 +3308,21 @@ public class RoleShopHandler {
                             ShopEntry.Type.TOOL) {
                         @Override
                         public boolean canDisplay(Player player) {
-                            return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+                            return !RoleData.test(WatcherRoleData.class, player, d -> d.isInCalmStance());
                         }
                     });
             shop.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), SREConfig.instance().bodyBagPrice,
                     ShopEntry.Type.TOOL) {
                 @Override
                 public boolean canDisplay(Player player) {
-                    return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+                    return !RoleData.test(WatcherRoleData.class, player, d -> d.isInCalmStance());
                 }
             });
             shop.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
                     ShopEntry.Type.TOOL) {
                 @Override
                 public boolean canDisplay(Player player) {
-                    return !WatcherPlayerComponent.KEY.get(player).isInCalmStance();
+                    return !RoleData.test(WatcherRoleData.class, player, d -> d.isInCalmStance());
                 }
 
                 @Override
@@ -3431,13 +3439,13 @@ public class RoleShopHandler {
         {
             var WIZARD_SHOP = new ArrayList<ShopEntry>();
             WIZARD_SHOP.add(wizardSpellEntry(Items.SNOWBALL, "frost",
-                    org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent.Spell.FROST));
+                    org.agmas.noellesroles.role_data.killer.WizardRoleData.Spell.FROST));
             WIZARD_SHOP.add(wizardSpellEntry(Items.COAL, "shadow",
-                    org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent.Spell.SHADOW));
+                    org.agmas.noellesroles.role_data.killer.WizardRoleData.Spell.SHADOW));
             WIZARD_SHOP.add(wizardSpellEntry(Items.FIRE_CHARGE, "explosion",
-                    org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent.Spell.EXPLOSION));
+                    org.agmas.noellesroles.role_data.killer.WizardRoleData.Spell.EXPLOSION));
             WIZARD_SHOP.add(wizardSpellEntry(Items.ENDER_PEARL, "blink",
-                    org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent.Spell.BLINK));
+                    org.agmas.noellesroles.role_data.killer.WizardRoleData.Spell.BLINK));
             ShopContent.customEntries.put(ModRoles.WIZARD_ID, WIZARD_SHOP);
         }
 
@@ -3476,7 +3484,7 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(ModRoles.MORTICIAN_BODYMAKER_ID, MORTICIAN_BODYMAKER_SHOP);
         }
 
-        // 林家子弟商店：一层护盾 - 400金币，已有护盾不可买，冷却60秒
+        // 林家子弟商店：一层护盾 - 400金币，已有护盾不可买，护盾破碎后冷却60秒
         {
             var shop = new ArrayList<ShopEntry>();
             ItemStack shieldItem = Items.SHIELD.getDefaultInstance();
@@ -3510,7 +3518,6 @@ public class RoleShopHandler {
                             .getNullable(org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.class, player);
                     SREArmorPlayerComponent.KEY.get(player).addArmor();
                     if (roleData != null) {
-                        roleData.markShieldBought(player.level().getGameTime());
                         roleData.tryWin();
                     }
                     return true;
@@ -3522,11 +3529,11 @@ public class RoleShopHandler {
 
     /**
      * 巫师法术快捷施法条目：标价 0 金币（巫师的金币每 tick 会自动炼成法力，无法囤积），
-     * 点击后直接调用 {@code WizardPlayerComponent.quickCast} 施放法术 —— 法力不足 /
+     * 点击后直接调用 {@code WizardRoleData.quickCast} 施放法术 —— 法力不足 /
      * 冷却中 / 前置条件不满足（如暗影需停电）时施放失败、购买取消。
      */
     private static ShopEntry wizardSpellEntry(net.minecraft.world.item.Item icon, String nameKey,
-            org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent.Spell spell) {
+            org.agmas.noellesroles.role_data.killer.WizardRoleData.Spell spell) {
         ItemStack stack = new ItemStack(icon);
         stack.set(DataComponents.CUSTOM_NAME,
                 Component.translatable("shop.noellesroles.wizard." + nameKey));
@@ -3543,8 +3550,8 @@ public class RoleShopHandler {
                 if (!gameWorldComponent.isRole(player, ModRoles.WIZARD)) {
                     return false;
                 }
-                var comp = org.agmas.noellesroles.component.ModComponents.WIZARD.maybeGet(serverPlayer).orElse(null);
-                if (comp == null) {
+                var comp = RoleData.getNullable(WizardRoleData.class, serverPlayer);
+                if (!RoleData.isAttached(comp)) {
                     return false;
                 }
                 return comp.quickCast(spell);

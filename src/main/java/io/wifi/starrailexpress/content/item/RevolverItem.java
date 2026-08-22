@@ -17,13 +17,14 @@ package io.wifi.starrailexpress.content.item;
 
 import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.hit.HitType;
+import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
-import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.resources.ResourceLocation;
@@ -31,16 +32,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-
-import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
-import org.agmas.noellesroles.content.entity.RainbowHorseEntity;
-import org.agmas.noellesroles.content.entity.CanyuesaHorseEntity;
-import org.agmas.noellesroles.content.entity.SuperPigHorseEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class RevolverItem extends SkinableItem implements HeldLikeRevolver {
@@ -107,16 +102,7 @@ public class RevolverItem extends SkinableItem implements HeldLikeRevolver {
     }
 
     public static HitResult getGunTarget(Player user) {
-        return ProjectileUtil.getHitResultOnViewVector(user,
-                entity -> {
-                    return entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                            || entity instanceof PuppeteerBodyEntity
-                            || entity instanceof org.agmas.noellesroles.content.entity.PigeonEntity
-                            || entity instanceof org.agmas.noellesroles.content.entity.MorphlingKnifeDummyEntity
-                            || entity instanceof RainbowHorseEntity
-                            || entity instanceof CanyuesaHorseEntity
-                            || entity instanceof SuperPigHorseEntity;
-                }, 20f);
+        return SREHitManager.getTarget(user, HitType.GUN, 20.0);
     }
 
     @Override

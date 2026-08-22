@@ -20,7 +20,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData;
 import org.agmas.noellesroles.packet.DoomedSinnerFateRevealS2CPacket;
 
 import java.util.List;
@@ -88,7 +88,7 @@ public class DoomedSinnerFateScreen extends Screen {
                 ResourceLocation reason = ResourceLocation.tryParse(killMethods.get(i));
                 Component reasonText = reason == null
                         ? Component.literal(killMethods.get(i))
-                        : Component.translatable(DoomedSinnerPlayerComponent.deathReasonKey(reason));
+                        : Component.translatable(DoomedSinnerRoleData.deathReasonKey(reason));
                 g.drawString(font,
                         Component.translatable("screen.noellesroles.doomed_sinner.kill_entry", i + 1, reasonText),
                         left + 20, y, 0xFFEBDFFF);

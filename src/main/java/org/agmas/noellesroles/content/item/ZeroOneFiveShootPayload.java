@@ -16,6 +16,8 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.hit.HitType;
+import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.PacketTracker;
 import io.wifi.starrailexpress.network.original.ShootMuzzleS2CPayload;
@@ -27,6 +29,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
@@ -61,12 +64,12 @@ public record ZeroOneFiveShootPayload(int target, boolean isAutoSecondShot) impl
             }
 
             // 检查目标并处理命中
-            boolean hit = false;
-            if (player.serverLevel().getEntity(payload.target()) instanceof ServerPlayer target
+            Entity hitEntity = player.serverLevel().getEntity(payload.target());
+            if (hitEntity instanceof ServerPlayer target
                     && target.distanceToSqr(player) < 30 * 30) {
-                // 处理命中
                 ZeroOneFiveGunItem.onHit(player, target);
-                hit = true;
+            } else {
+                SREHitManager.tryHit(player, hitEntity, HitType.GUN);
             }
 
             // 第一枪（不是自动第二枪）触发冷却

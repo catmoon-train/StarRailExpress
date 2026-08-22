@@ -15,6 +15,9 @@
 
 package io.wifi.starrailexpress.hat;
 
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
+
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache;
@@ -73,13 +76,12 @@ public final class HatEquipmentApi {
             }
             // 2. 双重人格：非活跃人格显示为主人格
             var splitComponent = pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent.KEY
-                    .getNullable(player);
+                    .get(player);
             if (splitComponent != null && splitComponent.getSkinToAppearAs() != null) {
                 return splitComponent.getSkinToAppearAs();
             }
             // 3. 变形者变身中
-            var morphComponent = org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent.KEY
-                    .getNullable(player);
+            var morphComponent = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.MorphlingRoleData.class, player);
             if (morphComponent != null && morphComponent.getMorphTicks() > 0 && morphComponent.disguise != null) {
                 return morphComponent.disguise;
             }
@@ -224,7 +226,7 @@ public final class HatEquipmentApi {
         // 回退：当查询对象就是本机玩家时，CCA 皮肤组件中也有权威数据
         // （广播包可能尚未到达）。
         if (ownerUuid.equals(player.getUUID())) {
-            SREPlayerSkinsComponent component = SREPlayerSkinsComponent.KEY.getNullable(player);
+            SREPlayerSkinsComponent component = SREPlayerSkinsComponent.KEY.get(player);
             if (component != null) {
                 String own = component.getEquippedSkin(HatEquipmentManager.HAT_TYPE);
                 if (own != null && !own.isBlank()) {

@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.mixin.command;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -132,7 +133,7 @@ public abstract class ExecuteCommandInvoker {
                         ctx -> {
                           ServerPlayer player = EntityArgument.getPlayer(ctx, "target_player");
                           boolean judgeJoin = BoolArgumentType.getBool(ctx, "is_join");
-                          var cca = ParticipationComponent.KEY.getNullable(player.level());
+                          var cca = ParticipationComponent.KEY.get(player.level());
                           if (cca == null)
                             return false;
                           return judgeJoin == cca.isParticipating(player.getUUID());

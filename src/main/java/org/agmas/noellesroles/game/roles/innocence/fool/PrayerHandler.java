@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
+import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -57,7 +59,7 @@ public class PrayerHandler {
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(player.level());
         ServerLevel serverLevel = (ServerLevel) player.level();
         ServerPlayer fool = TarotAssemblyManager.findFoolPlayer(serverLevel, gameComponent);
-        FoolPlayerComponent foolComp = fool != null ? FoolPlayerComponent.KEY.get(fool) : null;
+        FoolRoleData foolComp = fool != null ? RoleData.getNullable(FoolRoleData.class, fool) : null;
 
         // 鹈鹕无法通过尊名纸条加入塔罗会
         if (gameComponent.isRole(player, ModRoles.PELICAN)) {
@@ -70,8 +72,8 @@ public class PrayerHandler {
 
         // 愚者自己不需要祷告
         if (gameComponent.isRole(player, ModRoles.THE_FOOL)) {
-            FoolPlayerComponent selfFoolComp = FoolPlayerComponent.KEY.get(player);
-            if (selfFoolComp.inMeeting) {
+            FoolRoleData selfFoolComp = RoleData.getNullable(FoolRoleData.class, player);
+            if (RoleData.isAttached(selfFoolComp) && selfFoolComp.inMeeting) {
                 TarotAssemblyManager.requestVoteScreen(player);
             }
             return;
@@ -123,13 +125,15 @@ public class PrayerHandler {
         if (fool == null)
             return;
 
-        FoolPlayerComponent foolComp = FoolPlayerComponent.KEY.get(fool);
+        FoolRoleData foolComp = RoleData.getNullable(FoolRoleData.class, fool);
+        if (!RoleData.isAttached(foolComp))
+            return;
 
         // 检查是否已达到最大成员数
         if (!foolComp.addTarotMember(player.getUUID())) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.fool.tarot_members_full",
-                            FoolPlayerComponent.MAX_TAROT_MEMBERS)
+                            FoolRoleData.MAX_TAROT_MEMBERS)
                             .withStyle(ChatFormatting.RED),
                     true);
             return;

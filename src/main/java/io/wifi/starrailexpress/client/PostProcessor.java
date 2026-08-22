@@ -73,10 +73,15 @@ public class PostProcessor {
     }
 
     public void render(float partialTicks) {
+        render(partialTicks, false);
+    }
+
+    /** Allows an explicit cinematic effect to render for spectator/creative cameras. */
+    public void render(float partialTicks, boolean cinematicOverride) {
         m_time += partialTicks;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.player.isCreative() || mc.player.isSpectator())
+        if (mc.player == null || !cinematicOverride && (mc.player.isCreative() || mc.player.isSpectator()))
             return;
 
         for (PostPassEntry entry : passEntries) {

@@ -41,6 +41,11 @@ public class SimpleRoleData implements RoleData {
     }
 
     @Override
+    public boolean isPlaceholder() {
+        return ctx != null && ctx.placeholder();
+    }
+
+    @Override
     public void writeToSyncNbt(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registryLookup) {
     }
 
@@ -49,6 +54,9 @@ public class SimpleRoleData implements RoleData {
     }
 
     public void sync() {
+        if (isPlaceholder()) {
+            return;
+        }
         ctx.sync();
     }
 

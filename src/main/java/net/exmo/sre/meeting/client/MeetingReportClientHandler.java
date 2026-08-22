@@ -15,6 +15,7 @@
 
 package net.exmo.sre.meeting.client;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -117,11 +118,11 @@ public final class MeetingReportClientHandler {
         if (MeetingClientHandler.phase != MeetingManager.PHASE_NONE) {
             return false;
         }
-        AreasWorldComponent areas = AreasWorldComponent.KEY.getNullable(client.level);
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(client.level);
         if (areas == null || !areas.areasSettings.meetingEnabled) {
             return false;
         }
-        SREGameWorldComponent game = SREGameWorldComponent.KEY.getNullable(client.level);
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(client.level);
         return game != null && game.isRunning();
     }
 
@@ -136,9 +137,9 @@ public final class MeetingReportClientHandler {
     /** 剩余冷却 tick：取「会议间冷却」与「开局冷却」的较大者。 */
     public static long cooldownRemainingTicks(Minecraft client) {
         long remain = Math.max(0, cooldownEndGameTime - client.level.getGameTime());
-        AreasWorldComponent areas = AreasWorldComponent.KEY.getNullable(client.level);
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(client.level);
         if (areas != null && areas.areasSettings.meetingStartCooldown > 0) {
-            SREGameTimeComponent time = SREGameTimeComponent.KEY.getNullable(client.level);
+            SREGameTimeComponent time = SREGameTimeComponent.KEY.get(client.level);
             if (time != null) {
                 long elapsed = Math.max(0, client.level.getGameTime() - time.getStartWorldTick());
                 remain = Math.max(remain, areas.areasSettings.meetingStartCooldown * 20L - elapsed);
