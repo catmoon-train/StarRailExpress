@@ -838,13 +838,6 @@ public class RiceReceiverRegister {
                 }
             }
         });
-
-        // 抽奖/抽卡功能已禁用 —— 以下所有 Loot C2S 包处理器均为空操作
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_POOLS_INFO_REQUEST_PACKET, (payload, context) -> {});
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_POOLS_INFO_CHECK_CLIENT_PACKET, (payload, context) -> {});
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_REQUIRE_PACKET, (payload, context) -> {});
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_MULTI_REQUIRE_PACKET, (payload, context) -> {});
-        ServerPlayNetworking.registerGlobalReceiver(LOOT_DATA_REFRESH_CLIENT_PACKET, (payload, context) -> {});
     }
 
     private static void handleVeteranDash(ServerPlayer player) {

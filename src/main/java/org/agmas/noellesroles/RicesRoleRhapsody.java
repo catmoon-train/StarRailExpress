@@ -44,7 +44,6 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModMenus;
 import org.agmas.noellesroles.packet.*;
-import org.agmas.noellesroles.packet.Loot.*;
 import org.agmas.noellesroles.register.RiceEventRegister;
 import org.agmas.noellesroles.register.RicePacketTypeRegister;
 import org.agmas.noellesroles.register.RiceReceiverRegister;
@@ -100,11 +99,6 @@ public class RicesRoleRhapsody implements ModInitializer {
 
     public static final CustomPacketPayload.Type<LockGameC2Packet> LOCK_GAME_PACKET = LockGameC2Packet.ID;
     public static final CustomPacketPayload.Type<KeyForgeGameC2Packet> KEY_FORGE_GAME_PACKET = KeyForgeGameC2Packet.ID;
-    public static final CustomPacketPayload.Type<LootRequestC2SPacket> LOOT_REQUIRE_PACKET = LootRequestC2SPacket.ID;
-    public static final CustomPacketPayload.Type<LootMultiRequestC2SPacket> LOOT_MULTI_REQUIRE_PACKET = LootMultiRequestC2SPacket.ID;
-    public static final CustomPacketPayload.Type<LootPoolsInfoRequestC2SPacket> LOOT_POOLS_INFO_REQUEST_PACKET = LootPoolsInfoRequestC2SPacket.ID;
-    public static final CustomPacketPayload.Type<LootPoolsInfoCheckC2SPacket> LOOT_POOLS_INFO_CHECK_CLIENT_PACKET = LootPoolsInfoCheckC2SPacket.ID;
-    public static final CustomPacketPayload.Type<LootDataRefreshC2SPacket> LOOT_DATA_REFRESH_CLIENT_PACKET = LootDataRefreshC2SPacket.ID;
 
     @Override
     public void onInitialize() {

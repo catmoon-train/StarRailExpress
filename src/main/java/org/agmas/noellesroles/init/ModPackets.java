@@ -25,7 +25,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.agmas.noellesroles.content.item.ZeroOneFiveSecondShotPayload;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.packet.*;
-import org.agmas.noellesroles.packet.Loot.*;
 
 public class ModPackets {
     // ==================== 网络包ID定义 ====================
@@ -101,7 +100,8 @@ public class ModPackets {
 
         PayloadTypeRegistry.playC2S().register(MorphC2SPacket.ID, MorphC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(MissionaryConvertC2SPacket.ID, MissionaryConvertC2SPacket.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(MissionaryConvertC2SPacket.ID, MissionaryConvertC2SPacket::handle);
+        ServerPlayNetworking.registerGlobalReceiver(MissionaryConvertC2SPacket.ID,
+                MissionaryConvertC2SPacket::handle);
         PayloadTypeRegistry.playC2S().register(SilencerC2SPacket.ID, SilencerC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(SilencerHelpC2SPacket.ID, SilencerHelpC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenIntroPayload.ID, OpenIntroPayload.CODEC);
@@ -237,19 +237,9 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(PelicanStateS2CPacket.ID, PelicanStateS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(PelicanProgressS2CPacket.ID, PelicanProgressS2CPacket.CODEC);
 
-        // 注册抽奖网络包
-        PayloadTypeRegistry.playS2C().register(LootResultS2CPacket.ID, LootResultS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(LootMultiResultS2CPacket.ID, LootMultiResultS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(LootPoolsInfoCheckS2CPacket.ID,
-                LootPoolsInfoCheckS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(LootPoolsInfoS2CPacket.ID, LootPoolsInfoS2CPacket.CODEC);
-
         // 自定义职业同步
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.CustomRoleSyncPayload.TYPE,
                 io.wifi.starrailexpress.network.CustomRoleSyncPayload.CODEC);
-
-        // 注册抽奖数据刷新网络包
-        PayloadTypeRegistry.playS2C().register(LootDataRefreshS2CPacket.ID, LootDataRefreshS2CPacket.CODEC);
 
         // 注册物品展示 ui网络包
         PayloadTypeRegistry.playS2C().register(DisplayItemS2CPacket.ID, DisplayItemS2CPacket.CODEC);

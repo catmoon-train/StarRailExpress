@@ -17,7 +17,6 @@ package org.agmas.noellesroles.register;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import org.agmas.noellesroles.packet.*;
-import org.agmas.noellesroles.packet.Loot.*;
 
 /**
  * Rice's Role Rhapsody 网络数据包类型注册，
@@ -99,16 +98,5 @@ public class RicePacketTypeRegister {
         PayloadTypeRegistry.playC2S().register(LockGameC2Packet.ID, LockGameC2Packet.CODEC);
         // 注册配钥小游戏完成包
         PayloadTypeRegistry.playC2S().register(KeyForgeGameC2Packet.ID, KeyForgeGameC2Packet.CODEC);
-
-        // 注册卡池信息请求包
-        PayloadTypeRegistry.playC2S().register(LootPoolsInfoRequestC2SPacket.ID, LootPoolsInfoRequestC2SPacket.CODEC);
-        // 注册客户端请求卡池信息检查包
-        PayloadTypeRegistry.playC2S().register(LootPoolsInfoCheckC2SPacket.ID, LootPoolsInfoCheckC2SPacket.CODEC);
-        // 注册抽奖请求包
-        PayloadTypeRegistry.playC2S().register(LootRequestC2SPacket.ID, LootRequestC2SPacket.CODEC);
-        // 注册五连抽请求包
-        PayloadTypeRegistry.playC2S().register(LootMultiRequestC2SPacket.ID, LootMultiRequestC2SPacket.CODEC);
-        // 注册抽卡相关数据更新请求包
-        PayloadTypeRegistry.playC2S().register(LootDataRefreshC2SPacket.ID, LootDataRefreshC2SPacket.CODEC);
     }
 }
