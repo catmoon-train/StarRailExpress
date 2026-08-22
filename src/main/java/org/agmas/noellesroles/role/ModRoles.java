@@ -2327,7 +2327,7 @@ public class ModRoles {
      * - 被动透视未持械平民/杀手；无法杀人，攻击会金钱禁锢，被攻击获得隐身
      * - 技能见 ModRolesInitialEventRegister
      */
-    public static SRERole LIN_FAMILY = TMMRoles.registerRole(new NormalRole(
+    public static SRERole LIN_FAMILY = TMMRoles.registerRole(new EggRole(
             LIN_FAMILY_ID,
             new Color(196, 148, 39).getRGB(),
             false,

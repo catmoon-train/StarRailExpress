@@ -622,6 +622,16 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // 点击搜索框以外的区域（含物品栏物品/热键栏槽位）时取消搜索框焦点
+        if (this.getFocused() instanceof EditBox editBox && !editBox.isMouseOver(mouseX, mouseY)) {
+            editBox.setFocused(false);
+            this.setFocused(null);
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         LimitedInventoryScreenEvents.RENDER.invoker().onRender(this, context, mouseX, mouseY, delta);
         var renderRole = getCurrentRole();
