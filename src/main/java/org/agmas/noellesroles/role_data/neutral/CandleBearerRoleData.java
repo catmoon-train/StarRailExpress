@@ -1,0 +1,495 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package org.agmas.noellesroles.role_data.neutral;
+
+import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.api.data.RoleDataContext;
+import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.NotNull;
+import java.util.*;
+
+public class CandleBearerRoleData extends SimpleRoleData {
+
+
+
+    public static final int MAX_INVISIBILITY_CHARGES = 5;
+    public static final int INVISIBILITY_DURATION_TICKS = 18 * 20;
+    public static final int LIVING_CANDLE_COOLDOWN_TICKS = 30; // 1.5秒
+    public static final int GLOW_DELAY_TICKS = 6 * 20;
+    public static final int GLOW_DURATION_TICKS = 5 * 20;
+
+
+    private final Set<UUID> candleLitPlayers = new HashSet<>();
+    private final Set<UUID> corpseCandleCompleted = new HashSet<>();
+
+    private final Map<UUID, Integer> pendingPlayerGlow = new HashMap<>();
+    private final Map<UUID, Integer> pendingCorpseGlow = new HashMap<>();
+    private final List<Integer> pendingCampfireSounds = new ArrayList<>();
+
+    public int invisibilityCharges = 0;
+    public int invisibilityTicks = 0;
+    public int livingCandleCooldownTicks = 0;
+    public int successfulCandles = 0;
+    public int requiredCandles = 0;
+
+    public CandleBearerRoleData(RoleDataContext context) {
+        super(context);
+    }
+
+
+    @Override
+    public void init() {
+        candleLitPlayers.clear();
+        corpseCandleCompleted.clear();
+        pendingPlayerGlow.clear();
+        pendingCorpseGlow.clear();
+        pendingCampfireSounds.clear();
+        invisibilityCharges = 1;
+        invisibilityTicks = 0;
+        livingCandleCooldownTicks = 0;
+        successfulCandles = 0;
+        int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
+        requiredCandles = Math.max(4, totalPlayers / 5 + 1);
+        sync();
+    }
+
+    @Override
+    public void clear() {
+        init();
+    }
+
+
+    @Override
+    public boolean shouldSyncWith(ServerPlayer target) {
+        return target == this.player;
+    }
+
+    @Override
+    public void clientTick() {
+        if (invisibilityTicks > 1) {
+            invisibilityTicks--;
+        }
+
+        if (livingCandleCooldownTicks > 1) {
+            livingCandleCooldownTicks--;
+        }
+
+    }
+
+    @Override
+    public void serverTick() {
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        if (!gameWorld.isRole(player, ModRoles.CANDLE_BEARER)) {
+            return;
+        }
+        if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(player)) {
+            return;
+        }
+
+        int totalPlayers = gameWorld.getPlayerCount();
+        int newRequired = Math.max(4, totalPlayers / 5 + 2);
+        if (requiredCandles != newRequired) {
+            requiredCandles = newRequired;
+            sync();
+        }
+
+        boolean changed = false;
+
+        if (invisibilityTicks > 0) {
+            invisibilityTicks--;
+            if (invisibilityTicks % 20 == 0 || invisibilityTicks <= 0) {
+                changed = true;
+            }
+        }
+
+        if (livingCandleCooldownTicks > 0) {
+            livingCandleCooldownTicks--;
+        }
+
+        if (processGlowTasks()) {
+            changed = true;
+        }
+
+        if (processSuccessSounds()) {
+            changed = true;
+        }
+
+        if (changed) {
+            sync();
+        }
+    }
+
+    public boolean candleLivingPlayer(Player target) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+
+        if (livingCandleCooldownTicks > 0) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.living_cooldown",
+                            (livingCandleCooldownTicks + 19) / 20)
+                            .withStyle(ChatFormatting.YELLOW),
+                    true);
+            return false;
+        }
+        if (!GameUtils.isPlayerAliveAndSurvival(target)) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.target_not_alive")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+        if (target.getUUID().equals(player.getUUID())) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.cannot_target_self")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+        if (candleLitPlayers.contains(target.getUUID())) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.already_lit",
+                            target.getDisplayName())
+                            .withStyle(ChatFormatting.YELLOW),
+                    true);
+            return false;
+        }
+
+        candleLitPlayers.add(target.getUUID());
+        pendingPlayerGlow.put(target.getUUID(), GLOW_DELAY_TICKS);
+        livingCandleCooldownTicks = LIVING_CANDLE_COOLDOWN_TICKS;
+
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.candlebearer.lit_player",
+                        target.getDisplayName())
+                        .withStyle(ChatFormatting.GOLD),
+                true);
+        sync();
+        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
+        // 回放记录：为玩家秉烛
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.candlebearer.candle_player",
+                GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+        return true;
+    }
+
+    public boolean candleCorpse(PlayerBodyEntity body) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+
+        // 检查是否是葬仪伪造的尸体，不能与伪造的尸体交互
+        if (PlayerBodyEntityComponent.KEY.get(body).isFakeBody) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.cannot_candle_fake_body")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+
+        UUID owner = body.getPlayerUuid();
+        if (owner == null) {
+            return false;
+        }
+
+        if (!candleLitPlayers.contains(owner)) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.corpse_not_linked")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+
+        if (corpseCandleCompleted.contains(owner)) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.corpse_already_lit")
+                            .withStyle(ChatFormatting.YELLOW),
+                    true);
+            return false;
+        }
+
+        corpseCandleCompleted.add(owner);
+        successfulCandles++;
+        if (invisibilityCharges < MAX_INVISIBILITY_CHARGES) {
+            invisibilityCharges++;
+        }
+        pendingCorpseGlow.put(owner, GLOW_DELAY_TICKS);
+        pendingCampfireSounds.add(GLOW_DELAY_TICKS);
+
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.candlebearer.corpse_success",
+                        successfulCandles,
+                        requiredCandles)
+                        .withStyle(ChatFormatting.GREEN),
+                true);
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.candlebearer.charge_gained",
+                        invisibilityCharges,
+                        MAX_INVISIBILITY_CHARGES)
+                        .withStyle(ChatFormatting.GOLD),
+                true);
+
+        if (successfulCandles >= requiredCandles && player.level() instanceof ServerLevel serverLevel) {
+            RoleUtils.customWinnerWin(serverLevel,
+                    GameUtils.WinStatus.CUSTOM,
+                    ModRoles.CANDLE_BEARER_ID.getPath(),
+                    OptionalInt.of(ModRoles.CANDLE_BEARER.color()));
+        } else {
+            sync();
+        }
+
+        // 回放记录：对尸体秉烛
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.candlebearer.candle_corpse",
+                GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true)));
+        return true;
+    }
+
+    public boolean useAbility() {
+        // 冷却/次数由 RoleSkill 统一管理
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+        if (invisibilityTicks > 0) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("gui.noellesroles.candlebearer.invisible",
+                            invisibilityTicks / 20)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+
+        if (invisibilityCharges <= 0) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.candlebearer.no_charge")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+
+        invisibilityTicks = INVISIBILITY_DURATION_TICKS;
+        invisibilityCharges--;
+        player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, INVISIBILITY_DURATION_TICKS, 0,
+                false, false, true));
+
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.candlebearer.use_invisibility",
+                        INVISIBILITY_DURATION_TICKS / 20,
+                        invisibilityCharges)
+                        .withStyle(ChatFormatting.AQUA),
+                true);
+        sync();
+        return true;
+    }
+
+    public boolean isCandleLit(UUID playerId) {
+        return candleLitPlayers.contains(playerId);
+    }
+
+    public boolean isCorpseCandleCompleted(UUID playerId) {
+        return corpseCandleCompleted.contains(playerId);
+    }
+
+    public static boolean checkCandleBearerVictory(ServerLevel serverLevel) {
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
+        for (ServerPlayer sp : serverLevel.players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(sp)) {
+                continue;
+            }
+            if (!gameWorld.isRole(sp, ModRoles.CANDLE_BEARER)) {
+                continue;
+            }
+            CandleBearerRoleData component = RoleData.getNullable(CandleBearerRoleData.class, sp);
+            if (!RoleData.isAttached(component))
+                continue;
+            if (component.successfulCandles >= component.requiredCandles && component.requiredCandles > 0) {
+                RoleUtils.customWinnerWin(serverLevel,
+                        GameUtils.WinStatus.CUSTOM,
+                        ModRoles.CANDLE_BEARER_ID.getPath(),
+                        OptionalInt.of(ModRoles.CANDLE_BEARER.color()));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean processGlowTasks() {
+        boolean changed = false;
+
+        Iterator<Map.Entry<UUID, Integer>> playerIter = pendingPlayerGlow.entrySet().iterator();
+        while (playerIter.hasNext()) {
+            Map.Entry<UUID, Integer> entry = playerIter.next();
+            int left = entry.getValue() - 1;
+            if (left > 0) {
+                entry.setValue(left);
+                continue;
+            }
+
+            Player target = player.level().getPlayerByUUID(entry.getKey());
+            if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
+                target.addEffect(new MobEffectInstance(MobEffects.GLOWING, GLOW_DURATION_TICKS, 0,
+                        false, false, true));
+            }
+            playerIter.remove();
+            changed = true;
+        }
+
+        Iterator<Map.Entry<UUID, Integer>> corpseIter = pendingCorpseGlow.entrySet().iterator();
+        while (corpseIter.hasNext()) {
+            Map.Entry<UUID, Integer> entry = corpseIter.next();
+            int left = entry.getValue() - 1;
+            if (left > 0) {
+                entry.setValue(left);
+                continue;
+            }
+
+            PlayerBodyEntity body = findBodyByOwner(entry.getKey());
+            if (body != null && !body.isRemoved()) {
+                body.addEffect(new MobEffectInstance(MobEffects.GLOWING, GLOW_DURATION_TICKS, 0,
+                        false, false, true));
+            }
+            corpseIter.remove();
+            changed = true;
+        }
+
+        return changed;
+    }
+
+    private boolean processSuccessSounds() {
+        boolean changed = false;
+        for (int i = pendingCampfireSounds.size() - 1; i >= 0; i--) {
+            int left = pendingCampfireSounds.get(i) - 1;
+            if (left > 0) {
+                pendingCampfireSounds.set(i, left);
+                continue;
+            }
+
+            if (player.level() instanceof ServerLevel level) {
+                for (Player p : level.players()) {
+                    if (p.isSpectator()) {
+                        continue;
+                    }
+                    level.playSound(
+                            p,
+                            player.getX(),
+                            player.getY(),
+                            player.getZ(),
+                            SoundEvents.BELL_RESONATE,
+                            SoundSource.MASTER,
+                            5.0F,
+                            1.0F);
+                }
+            }
+            pendingCampfireSounds.remove(i);
+            changed = true;
+        }
+        return changed;
+    }
+
+    private PlayerBodyEntity findBodyByOwner(UUID owner) {
+        if (!(player.level() instanceof ServerLevel level)) {
+            return null;
+        }
+        List<PlayerBodyEntity> bodies = level.getEntitiesOfClass(PlayerBodyEntity.class,
+                player.getBoundingBox().inflate(500.0D));
+        for (PlayerBodyEntity body : bodies) {
+            if (owner.equals(body.getPlayerUuid())) {
+                return body;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        tag.putInt("InvisibilityCharges", invisibilityCharges);
+        tag.putInt("InvisibilityTicks", invisibilityTicks);
+        tag.putInt("LivingCandleCooldownTicks", livingCandleCooldownTicks);
+        tag.putInt("SuccessfulCandles", successfulCandles);
+        tag.putInt("RequiredCandles", requiredCandles);
+
+        ListTag litList = new ListTag();
+        for (UUID uuid : candleLitPlayers) {
+            litList.add(StringTag.valueOf(uuid.toString()));
+        }
+        tag.put("CandleLitPlayers", litList);
+
+        ListTag corpseList = new ListTag();
+        for (UUID uuid : corpseCandleCompleted) {
+            corpseList.add(StringTag.valueOf(uuid.toString()));
+        }
+        tag.put("CorpseCandleCompleted", corpseList);
+    }
+
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        invisibilityCharges = tag.getInt("InvisibilityCharges");
+        invisibilityTicks = tag.getInt("InvisibilityTicks");
+        livingCandleCooldownTicks = tag.getInt("LivingCandleCooldownTicks");
+        successfulCandles = tag.getInt("SuccessfulCandles");
+        requiredCandles = tag.getInt("RequiredCandles");
+
+        candleLitPlayers.clear();
+        if (tag.contains("CandleLitPlayers", Tag.TAG_LIST)) {
+            ListTag litList = tag.getList("CandleLitPlayers", Tag.TAG_STRING);
+            for (Tag t : litList) {
+                try {
+                    candleLitPlayers.add(UUID.fromString(t.getAsString()));
+                } catch (Exception ignored) {
+                }
+            }
+        }
+
+        corpseCandleCompleted.clear();
+        if (tag.contains("CorpseCandleCompleted", Tag.TAG_LIST)) {
+            ListTag corpseList = tag.getList("CorpseCandleCompleted", Tag.TAG_STRING);
+            for (Tag t : corpseList) {
+                try {
+                    corpseCandleCompleted.add(UUID.fromString(t.getAsString()));
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+
+}

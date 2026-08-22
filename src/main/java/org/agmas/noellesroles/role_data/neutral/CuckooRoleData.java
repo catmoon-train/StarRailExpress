@@ -1,0 +1,199 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package org.agmas.noellesroles.role_data.neutral;
+
+import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.api.data.RoleDataContext;
+import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import com.mojang.math.Transformation;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.NotNull;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+public class CuckooRoleData extends SimpleRoleData {
+
+
+
+
+    public int startPlayers = 0;
+    public int requiredEggs = 5;
+    /** 场上当前存活的蛋数量 */
+    public int survivingEggs = 0;
+    public int placeCooldown = 0;
+    /** 回正计数用的计时器（tick），每 100 tick（5 秒）回正一次 */
+    private int reconcileCooldown = 0;
+
+    public CuckooRoleData(RoleDataContext context) {
+        super(context);
+    }
+
+
+    @Override
+    public void init() {
+        survivingEggs = 0;
+        placeCooldown = 0;
+        if (player.level() instanceof ServerLevel serverLevel) {
+            var gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
+            startPlayers = gameWorld.getPlayerCount();
+            requiredEggs = Math.max(4, (startPlayers * 3) / 8 - 1);
+        }
+        sync();
+    }
+
+    @Override
+    public void clear() {
+        init();
+    }
+
+
+    @Override
+    public void clientTick() {
+        if (placeCooldown > 0) placeCooldown--;
+    }
+
+    @Override
+    public void serverTick() {
+        if (!(player instanceof ServerPlayer sp)) return;
+        var level = sp.serverLevel();
+        var gameWorld = SREGameWorldComponent.KEY.get(level);
+        if (!gameWorld.isRole(player, ModRoles.CUCKOO)) return;
+
+        // 每 5 秒（100 tick）以权威蛋数据回正计数，避免每 tick 开销；
+        // 即时减一仍由 onEggBroken 负责，这里仅作为兜底防脱钩
+        if (reconcileCooldown > 0) reconcileCooldown--;
+        if (reconcileCooldown <= 0) {
+            int actual = CuckooEggData.countOwnedEggs(player.getUUID());
+            if (actual != survivingEggs) {
+                survivingEggs = actual;
+                sync();
+            }
+            reconcileCooldown = 100;
+        }
+
+        if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(player)) return;
+
+        if (placeCooldown > 0) placeCooldown--;
+    }
+
+    public boolean canPlaceEgg() {
+        return placeCooldown == 0 && player.onGround() && survivingEggs < requiredEggs + 2;
+    }
+
+    public boolean placeEgg(ServerPlayer serverPlayer) {
+        if (!canPlaceEgg()) {
+            if (placeCooldown == 0 && !serverPlayer.onGround()) {
+                serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.cuckoo.place_fail_air"), true);
+            } else if (placeCooldown == 0 && survivingEggs >= requiredEggs + 2) {
+                serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.cuckoo.place_fail_max"), true);
+            }
+            return false;
+        }
+        if (!(serverPlayer.level() instanceof ServerLevel level)) return false;
+
+        var aabb = serverPlayer.getBoundingBox().inflate(10.0, 3.0, 10.0);
+        if (CuckooEggData.hasNearbyEgg(level, aabb)) {
+            serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.cuckoo.place_fail_near"), true);
+            return false;
+        }
+
+        var egg = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, level);
+        egg.setBlockState(net.minecraft.world.level.block.Blocks.SNIFFER_EGG.defaultBlockState());
+        egg.setPos(serverPlayer.getX(), serverPlayer.getY() + 0.15, serverPlayer.getZ());
+        egg.setTransformation(new Transformation(
+                new Vector3f(0, 0, 0),
+                new Quaternionf(new AxisAngle4f(0, 0, 1, 0)),
+                new Vector3f(0.5f, 0.5f, 0.5f),
+                new Quaternionf(new AxisAngle4f(0, 0, 1, 0))
+        ));
+
+        // 领袖追随者效果：下一颗蛋隐身
+        if (org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                .consumeInvisibleEggFlag(serverPlayer.getUUID())) {
+            egg.setInvisible(true);
+        }
+
+        level.addFreshEntity(egg);
+
+        CuckooEggData.registerEgg(egg, serverPlayer.getUUID());
+
+        survivingEggs++;
+        placeCooldown = 20 * 20;
+        sync();
+        serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.cuckoo.place_success"), true);
+        // 回放记录：布谷鸟下了一颗蛋
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.cuckoo.lay_egg",
+                GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true)));
+        return true;
+    }
+
+    public void onEggBroken(Entity egg) {
+        survivingEggs = Math.max(0, survivingEggs - 1);
+        sync();
+        if (player instanceof ServerPlayer sp) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.cuckoo.egg_broken"), false);
+        }
+    }
+
+    public static boolean checkCuckooVictory(ServerLevel serverLevel) {
+        var gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
+        for (var p : serverLevel.players()) {
+            if (!gameWorld.isRole(p, ModRoles.CUCKOO)) continue;
+            CuckooRoleData comp = RoleData.getNullable(CuckooRoleData.class, p);
+            if (RoleData.isAttached(comp) && comp.survivingEggs >= comp.requiredEggs && comp.requiredEggs > 0) {
+                RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM, ModRoles.CUCKOO_ID.getPath(), java.util.OptionalInt.of(ModRoles.CUCKOO.color()));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        tag.putInt("SurvivingEggs", survivingEggs);
+        tag.putInt("RequiredEggs", requiredEggs);
+        tag.putInt("PlaceCooldown", placeCooldown);
+        CuckooEggData.writeServerSync(tag, player.getUUID());
+    }
+
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        survivingEggs = tag.getInt("SurvivingEggs");
+        requiredEggs = tag.getInt("RequiredEggs");
+        placeCooldown = tag.getInt("PlaceCooldown");
+        CuckooEggData.readClientSync(tag);
+    }
+
+
+}

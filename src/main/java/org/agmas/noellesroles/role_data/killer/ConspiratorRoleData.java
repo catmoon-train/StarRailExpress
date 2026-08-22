@@ -1,0 +1,440 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package org.agmas.noellesroles.role_data.killer;
+
+import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.api.data.RoleDataContext;
+import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.ConfigWorldComponent;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
+import org.agmas.noellesroles.role.ModRoles;
+import org.jetbrains.annotations.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class ConspiratorRoleData extends SimpleRoleData {
+
+    /** 组件键 - 用于从玩家获取此组件 */
+
+
+    // 死亡倒计时：5秒 = 400 ticks
+    public static final int DEATH_COUNTDOWN = 10 * 20;
+
+
+    // 目标玩家信息类
+    public static class TargetInfo {
+        public UUID targetPlayer;
+        public ResourceLocation guessedRole;
+        public String targetName;
+        public int deathCountdown;
+        public boolean guessCorrect;
+
+        public TargetInfo(UUID targetPlayer, ResourceLocation guessedRole, String targetName) {
+            this.targetPlayer = targetPlayer;
+            this.guessedRole = guessedRole;
+            this.targetName = targetName;
+            this.deathCountdown = 0;
+            this.guessCorrect = false;
+        }
+    }
+
+    // 目标玩家列表（支持多目标猜测）
+    public List<TargetInfo> targetList = new ArrayList<>();
+
+    // 是否已成功击杀（用于判断胜利）
+    public boolean hasKilled = false;
+
+    // 猜错次数（猜错3次会死亡）
+    public int wrongGuessCount = 0;
+
+    // 最大允许猜错次数
+    public static final int MAX_WRONG_GUESSES = 3;
+
+    public ConspiratorRoleData(RoleDataContext context) {
+        super(context);
+    }
+
+
+    /**
+     * 重置组件状态
+     */
+    @Override
+    public void init() {
+        this.targetList.clear();
+        this.hasKilled = false;
+        this.wrongGuessCount = 0;
+        this.sync();
+    }
+
+    @Override
+    public void clear() {
+        this.init();
+    }
+
+    /**
+     * 是否已经被猜测过并且即将死亡
+     * 
+     * @param targetUuid 目标玩家 UUID
+     */
+    public boolean hasBeenGuessedToDie(UUID targetUuid) {
+        if (!(player instanceof ServerPlayer serverPlayer))
+            return false;
+
+        Player target = serverPlayer.level().getPlayerByUUID(targetUuid);
+        if (target == null)
+            return false;
+        for (TargetInfo targetInfo : targetList) {
+            if (targetInfo.targetPlayer.equals(targetUuid)) {
+                if (targetInfo.guessCorrect && targetInfo.deathCountdown > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 进行猜测
+     * 
+     * @param targetUuid 目标玩家 UUID
+     * @param roleId     猜测的角色 ID
+     * @return true 如果猜测正确
+     */
+    public boolean makeGuess(UUID targetUuid, ResourceLocation roleId) {
+        if (!(player instanceof ServerPlayer serverPlayer))
+            return false;
+
+        Player target = player.level().getPlayerByUUID(targetUuid);
+        if (target == null)
+            return false;
+        ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player, false);
+        // 获取目标的实际角色
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        SRERole actualRole = gameWorld.getRole(target);
+
+        if (actualRole == null)
+            return false;
+
+        String targetName = target.getName().getString();
+        broadcastGuessTrace();
+
+        // 检查目标是否已经在目标列表中
+        TargetInfo existingTarget = null;
+        for (TargetInfo targetInfo : targetList) {
+            if (targetInfo.targetPlayer.equals(targetUuid)) {
+                existingTarget = targetInfo;
+                break;
+            }
+        }
+
+        if (existingTarget != null) {
+            // 更新现有目标的猜测
+            existingTarget.guessedRole = roleId;
+        } else {
+            // 添加新目标到列表
+            TargetInfo newTarget = new TargetInfo(targetUuid, roleId, targetName);
+            targetList.add(newTarget);
+        }
+
+        // 检查是否猜测正确
+        if (actualRole.identifier().equals(roleId)) {
+            // 猜测正确！开始死亡倒计时
+            if (existingTarget != null) {
+                existingTarget.guessCorrect = true;
+                existingTarget.deathCountdown = DEATH_COUNTDOWN;
+            } else {
+                TargetInfo newTarget = targetList.get(targetList.size() - 1); // 获取刚添加的目标
+                newTarget.guessCorrect = true;
+                newTarget.deathCountdown = DEATH_COUNTDOWN;
+            }
+            final var playerShopComponent = SREPlayerShopComponent.KEY.get(player);
+            playerShopComponent.setBalance(100 + playerShopComponent.balance);
+
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.conspirator.correct", targetName)
+                            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+                    true);
+
+            // 回放记录：阴谋家使用阴谋书页记录了某玩家身份
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("replay.event.conspirator.record_identity",
+                            GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                            GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+            // 通知目标玩家他们被诅咒了（但不告诉是谁）
+            if (target instanceof ServerPlayer targetServer) {
+                targetServer.displayClientMessage(
+                        Component.translatable("message.noellesroles.conspirator.cursed")
+                                .withStyle(ChatFormatting.DARK_PURPLE),
+                        true);
+                // 触发探员被动
+                if (gameWorld.isRole(target, ModRoles.AGENT)) {
+                    target.displayClientMessage(
+                            Component
+                                    .translatable("message.noellesroles.conspirator.cursed.known",
+                                            this.player.getName())
+                                    .withStyle(ChatFormatting.DARK_PURPLE),
+                            true);
+                    RoleData.ifPresent(AgentRoleData.class, target, d -> d.triggerConspiratorInstinct(20 * 20));
+                }
+            }
+
+            this.sync();
+            return true;
+        } else {
+
+            // 回放记录：阴谋家使用阴谋书页记录了某玩家身份
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("replay.event.conspirator.record_identity.wrong",
+                            GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                            GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+            // 猜测错误
+            this.wrongGuessCount++;
+
+            // 检查是否猜错3次
+            if (this.wrongGuessCount >= MAX_WRONG_GUESSES) {
+                // 猜错3次，阴谋家死亡
+                serverPlayer.displayClientMessage(
+                        Component.translatable("message.noellesroles.conspirator.too_many_wrong")
+                                .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD),
+                        true);
+
+                // 使用自杀死因
+                ResourceLocation deathReason = Noellesroles.id("conspiracy_backfire");
+                GameUtils.killPlayer(player, true, null, deathReason);
+
+                // 重置状态
+                this.targetList.clear();
+                this.sync();
+                return false;
+            }
+
+            int remainingGuesses = MAX_WRONG_GUESSES - this.wrongGuessCount;
+            serverPlayer.displayClientMessage(
+                    Component
+                            .translatable("message.noellesroles.conspirator.wrong_with_count", targetName,
+                                    remainingGuesses)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+
+            this.sync();
+            return false;
+        }
+    }
+
+    /**
+     * 获取剩余倒计时（秒）
+     */
+    public int getCountdownSeconds() {
+        // 返回所有目标中剩余时间最少的倒计时
+        int minCountdown = 0;
+        for (TargetInfo targetInfo : targetList) {
+            if (targetInfo.deathCountdown > 0 && (minCountdown == 0 || targetInfo.deathCountdown < minCountdown)) {
+                minCountdown = targetInfo.deathCountdown;
+            }
+        }
+        return minCountdown / 20;
+    }
+
+    /**
+     * 检查目标是否存活
+     */
+    public boolean isTargetAlive(UUID targetUuid) {
+        if (targetUuid == null)
+            return false;
+        Player target = player.level().getPlayerByUUID(targetUuid);
+        return target != null && GameUtils.isPlayerAliveAndSurvival(target);
+    }
+
+    /**
+     * 检查是否有任何目标存活
+     */
+    public boolean hasAnyTargetAlive() {
+        for (TargetInfo targetInfo : targetList) {
+            if (isTargetAlive(targetInfo.targetPlayer)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    @Override
+    public void serverTick() {
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+
+        // 只有阴谋家角色才处理
+        if (!gameWorld.isRole(player, ModRoles.CONSPIRATOR))
+            return;
+
+        // 处理所有目标的倒计时
+        for (int i = targetList.size() - 1; i >= 0; i--) {
+            TargetInfo targetInfo = targetList.get(i);
+
+            // 如果有正在进行的死亡倒计时
+            if (targetInfo.deathCountdown > 0 && targetInfo.guessCorrect && targetInfo.targetPlayer != null) {
+                targetInfo.deathCountdown--;
+
+                // 每秒同步一次
+                if (targetInfo.deathCountdown % 20 == 0) {
+                    this.sync();
+
+                    // 每10秒提醒目标玩家
+                    if (targetInfo.deathCountdown % 200 == 0 && targetInfo.deathCountdown > 0) {
+                        Player target = player.level().getPlayerByUUID(targetInfo.targetPlayer);
+                        if (target instanceof ServerPlayer targetServer
+                                && GameUtils.isPlayerAliveAndSurvival(target)) {
+                            targetServer.displayClientMessage(
+                                    Component
+                                            .translatable("message.noellesroles.conspirator.countdown",
+                                                    targetInfo.deathCountdown / 20)
+                                            .withStyle(ChatFormatting.DARK_PURPLE),
+                                    true);
+                        }
+                    }
+                }
+
+                // 倒计时结束，目标死亡
+                if (targetInfo.deathCountdown <= 0) {
+                    Player target = player.level().getPlayerByUUID(targetInfo.targetPlayer);
+                    if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
+                        // 使用心脏麻痹死因（隐藏真实原因）
+                        ResourceLocation deathReason = Noellesroles.id("heart_attack");
+                        GameUtils.killPlayer(target, true, player, deathReason);
+                        // 猜人不指向凶手：不在尸体上留下阴谋家证据，只在死亡处播放匿名的紫色特效
+                        spawnPurpleDeathEffect(target);
+
+                        this.hasKilled = true;
+
+                        // 通知阴谋家
+                        if (player instanceof ServerPlayer serverPlayer) {
+                            serverPlayer.displayClientMessage(
+                                    Component
+                                            .translatable("message.noellesroles.conspirator.killed",
+                                                    targetInfo.targetName)
+                                            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+                                    true);
+                        }
+                    }
+
+                    // 从列表中移除已完成的猜测
+                    targetList.remove(i);
+                    this.sync();
+                }
+            }
+        }
+    }
+
+    private void broadcastGuessTrace() {
+        for (Player listener : player.level().players()) {
+            if (listener instanceof ServerPlayer serverListener) {
+                serverListener.playNotifySound(SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.MASTER, 0.8F, 0.55F);
+            }
+        }
+    }
+
+    /**
+     * 在目标死亡处播放紫色特效。
+     *
+     * 这是匿名的诡异特效——只表明"此人死于诅咒"，不透露凶手是谁，
+     * 因此不会在尸体上留下指向阴谋家的证据。
+     */
+    private void spawnPurpleDeathEffect(Player target) {
+        if (!(target.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return;
+        }
+        double x = target.getX();
+        double y = target.getY() + 1.0;
+        double z = target.getZ();
+        // 紫色巫术粒子爆发
+        serverLevel.sendParticles(ParticleTypes.WITCH, x, y, z, 60, 0.5D, 0.8D, 0.5D, 0.15D);
+        serverLevel.sendParticles(ParticleTypes.PORTAL, x, y, z, 40, 0.4D, 0.8D, 0.4D, 0.6D);
+        serverLevel.sendParticles(ParticleTypes.DRAGON_BREATH, x, y, z, 30, 0.4D, 0.5D, 0.4D, 0.05D);
+        // 低沉神秘音效，营造诅咒氛围（不指向凶手）
+        serverLevel.playSound(null, x, y, z, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.MASTER, 0.7F, 0.5F);
+    }
+
+    // ==================== NBT 序列化 ====================
+
+
+
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 序列化目标列表
+        ListTag targetListTag = new ListTag();
+        for (TargetInfo targetInfo : targetList) {
+            CompoundTag targetTag = new CompoundTag();
+            if (targetInfo.targetPlayer != null) {
+                targetTag.putUUID("targetPlayer", targetInfo.targetPlayer);
+            }
+            if (targetInfo.guessedRole != null) {
+                targetTag.putString("guessedRole", targetInfo.guessedRole.toString());
+            }
+            targetTag.putInt("deathCountdown", targetInfo.deathCountdown);
+            targetTag.putBoolean("guessCorrect", targetInfo.guessCorrect);
+            targetTag.putString("targetName", targetInfo.targetName);
+            targetListTag.add(targetTag);
+        }
+        tag.put("targetList", targetListTag);
+
+        tag.putBoolean("hasKilled", hasKilled);
+        tag.putInt("wrongGuessCount", wrongGuessCount);
+    }
+
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 反序列化目标列表
+        targetList.clear();
+        if (tag.contains("targetList")) {
+            ListTag targetListTag = tag.getList("targetList", Tag.TAG_COMPOUND);
+            for (int i = 0; i < targetListTag.size(); i++) {
+                CompoundTag targetTag = targetListTag.getCompound(i);
+                UUID targetPlayer = targetTag.contains("targetPlayer") ? targetTag.getUUID("targetPlayer") : null;
+                ResourceLocation guessedRole = targetTag.contains("guessedRole")
+                        ? ResourceLocation.tryParse(targetTag.getString("guessedRole"))
+                        : null;
+                String targetName = targetTag.getString("targetName");
+                TargetInfo targetInfo = new TargetInfo(targetPlayer, guessedRole, targetName);
+                targetInfo.deathCountdown = targetTag.getInt("deathCountdown");
+                targetInfo.guessCorrect = targetTag.getBoolean("guessCorrect");
+                targetList.add(targetInfo);
+            }
+        }
+
+        this.hasKilled = tag.getBoolean("hasKilled");
+        this.wrongGuessCount = tag.getInt("wrongGuessCount");
+    }
+}
